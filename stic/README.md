@@ -1,4 +1,4 @@
 STIC
 ====
 
-:D
+![stick](./stick.png)
