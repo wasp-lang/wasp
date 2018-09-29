@@ -5,26 +5,9 @@
 #include <regex>
 #include <iterator>
 
-#include "./hello-world.hpp" // TODO: redundant, remove.
+#include "utils.hpp"
 
-bool endsWith(const std::string& str, const std::string& suffix) {
-    return str.length() >= suffix.length() && 0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix);
-}
-
-std::string readFile(const std::string& filepath) {
-    std::ifstream file(filepath);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
-
-void writeFile(const char* filepath, const std::string& content) {
-    std::ofstream file(filepath);
-    if (file.is_open()) {
-        file << content;
-        file.close();
-    }
-}
+using namespace stic;
 
 void printHelp() {
     std::cout << "Usage: stick-cli <your-spec-file>.wasp" << std::endl;
@@ -48,7 +31,7 @@ void buildWebAppFromWasp(std::string waspFileContent) {
 
     std::string indexHtml = "<html> <head> <title>" + pageName + "</title> </head> <body> Welcome to my \"" + pageName + "\" page! </body> </html>";
 
-    writeFile("index.html", indexHtml);
+    utils::writeFile("index.html", indexHtml);
 }
 
 int main (int argc, char* argv[]) {
@@ -57,10 +40,10 @@ int main (int argc, char* argv[]) {
     if (argc != 2) { printHelp(); return 1; }
     // First parameter should be .wasp file path.
     const std::string waspFilepath(argv[1]);
-    if (!endsWith(waspFilepath, ".wasp")) { printHelp(); return 1; }
+    if (!utils::endsWith(waspFilepath, ".wasp")) { printHelp(); return 1; }
 
     // Read wasp file.
-    std::string waspFileContent = readFile(waspFilepath);
+    std::string waspFileContent = utils::readFile(waspFilepath);
 
     buildWebAppFromWasp(waspFileContent);
 

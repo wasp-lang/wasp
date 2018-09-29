@@ -17,12 +17,12 @@ cc_library(
 
 # Individual tests (per target). Each expects .test.cpp file with same name to exist.
 # Add new tests here! Also, add them to test suite all-tests below.
-simple_target_test("hello-world")
+simple_target_test("utils")
 
 # Test suite that runs all the tests.
 test_suite(
     name = "all-tests",
     tests = [
-        "hello-world"
+        "utils"
     ]
 )

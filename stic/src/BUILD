@@ -1,7 +1,7 @@
 cc_library(
-    name = "hello-world",
-    srcs = ["hello-world.cpp"],
-    hdrs = ["hello-world.hpp"],
+    name = "utils",
+    srcs = ["utils.cpp"],
+    hdrs = ["utils.hpp"],
     visibility = [
         "//test:__pkg__"
     ]
@@ -11,6 +11,6 @@ cc_binary(
     name = "stick-cli",
     srcs = ["cli.cpp"],
     deps = [
-         ":hello-world"
+         ":utils"
     ]
 )
