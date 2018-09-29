@@ -1,19 +1,26 @@
 cc_library(
+  name = "catch2",
+  hdrs = ["catch.hpp"]
+)
+
+cc_library(
     name = "catch-main",
     srcs = ["main.cpp"],
-    copts = ["-Ivendor/catch2/"],
     deps = [
-      "//vendor/catch2:catch2"
+      ":catch2"
     ]
 )
+
+# TODO: I could use macros to define each test individiually in easy way.
 
 cc_test(
     name = "all-tests",
     srcs = glob(["**/*.test.cpp"]),
-    copts = ["-Ivendor/catch2/", "-Isrc/"],
+    copts = ["-Isrc/"],
     deps = [
-      "catch-main",
-      "//vendor/catch2:catch2",
-      "//src:hello-world"
+        ":catch2",
+        "catch-main",
+
+        "//src:hello-world"
     ]
 )
