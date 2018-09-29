@@ -15,7 +15,8 @@ cc_library(
     ]
 )
 
-# Individual tests (per target). Each expects .test.cpp file with same name to exist.
+# Individual tests (per target).
+# Each test expects a target in src/ and a .test.cpp file with same name to exist.
 # Add new tests here! Also, add them to test suite all-tests below.
 simple_target_test("utils")
 

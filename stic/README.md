@@ -14,7 +14,11 @@ We are using Bazel build system.
 Everything is defined in BUILD files (+ one WORKSPACE file).
 Learn more about Bazel to know how to build spepcific targets, locate produced binaries and so on.
 
+
+## Running
 For your convenience, there is `run-stick-cli` script that builds and runs `stick-cli` binary for you.
+
+To get started, try running `./run-stick-cli demo/hello-world.wasp`.
 
 
 ## Tests
