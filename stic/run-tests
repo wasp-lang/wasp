@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+bazel build //test:all-tests && bazel-bin/test/all-tests
