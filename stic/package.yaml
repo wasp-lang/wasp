@@ -63,3 +63,4 @@ tests:
     - stic
     - tasty
     - tasty-hspec
+    - tasty-quickcheck
