@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-bazel build //src:stick-cli && bazel-bin/src/stick-cli "$@"

@@ -1,1 +1,0 @@
-Put external libraries here, if you are tracking them with git.
