@@ -53,7 +53,7 @@ benchmarks:
 
 tests:
   stic-test:
-    main:                Main.hs
+    main:                TastyDiscoverDriver.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -64,3 +64,4 @@ tests:
     - tasty
     - tasty-hspec
     - tasty-quickcheck
+    - tasty-discover
