@@ -20,5 +20,3 @@ spec_fibonacci = do
 -- TODO: Ok so tasty discover works. Can I now somehow use it to have tests in the src/ dir?
 
 -- TODO: Write in README little bit about tasty-discover and give link to it so that people know how to write new tests.
-
--- TODO: I wanted to use functionality of tasty-discover for discovering only certain modules: {-# OPTIONS_GHC -F -pgmF tasty-discover -optF --modules="*Test.hs" #-}, however no tests are discovered at all and that is it. Figure this out.
