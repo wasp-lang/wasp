@@ -65,3 +65,4 @@ tests:
     - tasty-hspec
     - tasty-quickcheck
     - tasty-discover
+    - QuickCheck

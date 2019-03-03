@@ -1,9 +1,10 @@
-module FibTest where
+module Util.FibTest where
 
 import qualified Test.Tasty
 import Test.Tasty.Hspec
+import Test.Tasty.QuickCheck
 
-import Lib
+import Util.Fib
 
 spec_fibonacci :: Spec
 spec_fibonacci = do
@@ -17,6 +18,9 @@ spec_fibonacci = do
     it "fibonacci element #3 is 2" $ do
       fibonacci 3 `shouldBe` 2
 
--- TODO: Ok so tasty discover works. Can I now somehow use it to have tests in the src/ dir?
-
--- TODO: Write in README little bit about tasty-discover and give link to it so that people know how to write new tests.
+-- NOTE: Most likely not the best way to write QuickCheck test, I just did this in order
+--   to get something working as an example.
+prop_fibonacci = forAll (choose (0, 10)) $ testFibSequence
+  where
+    testFibSequence :: Int -> Bool
+    testFibSequence x = (fibonacci x) + (fibonacci (x + 1)) == fibonacci (x + 2)

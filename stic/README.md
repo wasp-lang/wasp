@@ -69,11 +69,24 @@ You can use `stack clear` to clear all the generated files/artifacts from the pr
 ## Tests
 For tests we are using [**Tasty**](https://documentup.com/feuerbach/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
 
+In Tasty, there is a main test file that is run when test suite is run. In that file we need to manually compose test tree out of tests that we wrote. We organize tests in test groups, which are then recursively grouped resulting in a test tree.
+Cool thing is that we can organize tests this way however we want and also mix different type of tests (hspec, quickcheck, and whatever else want really).
+
+Tests are normally split in files of course, so we need to import those all the way up to the main test file, however we organize our test groups/trees.
+
+In order to avoid need for manual organization and importing of test files described above, we are using [tasty-discover](https://hackage.haskell.org/package/tasty-discover) which does this for us. It automatically detects files containing tests and then organizes them for us into test tree (and also takes care of importing). This means we only need to create a file, write tests in it and that is it.
+Test functions however do need to be prefixed with special prefix to indicate which type of test are they: spec_ for Hspec, prop_ for QuickCheck and similar. Check docs for more details.
+We can however still organize tests manually if we want in Tasty test trees, and then we just prefix them with test_ and tasty-discover will pick them up from there.
+
+Additionally, currently we limited tasty-discover to auto-detect only files ending with Test.hs (*Test.hs glob). We might remove that requirement in the future if it proves to have no benefit.
+
 For unit testing, we use **Hspec**.
 
 For property testing, we use **Quickcheck**.
 
 We additionally use **doctest** for testing code examples in documentation.
+
+All tests go into `test/` directory. This is convention for Haskell, opposite to mixing them with source code as in Javascript for example. Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
 Test are run with `stack test`. You can do `stack test --coverage` to see the coverage.
 
