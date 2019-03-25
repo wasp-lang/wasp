@@ -1,13 +1,17 @@
 module Wasp (
-  Wasp
+    Wasp (..),
+    WaspElement (..),
 ) where
 
-data Wasp = Wasp [WaspElement]
+data Wasp = Wasp [WaspElement] deriving (Show)
 
-data WaspElement =
-  App {
-    appName :: String, -- Identifier.
-    appTitle :: String
-  } |
-  Page |
-  Entity
+data WaspElement
+    = WaspElementApp App
+    | WaspElementPage
+    | WaspElementEntity
+    deriving (Show)
+
+data App = App
+    { appName :: !String -- Identifier
+    , appTitle :: !String -- Title
+    } deriving (Show)

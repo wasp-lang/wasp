@@ -1,8 +1,8 @@
 module Parser (
-  parseWasp
+    parseWasp
 ) where
 
-import Wasp (Wasp)
+import Wasp (Wasp(..), WaspElement(..))
 
 parseWasp :: String -> Wasp
-parseWasp = undefined
+parseWasp fileContent = Wasp [WaspElementPage]

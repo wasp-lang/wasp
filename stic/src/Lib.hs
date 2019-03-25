@@ -1,5 +1,5 @@
 module Lib (
-  compile
+    compile
 ) where
 
 type CompileError = String
