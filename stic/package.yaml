@@ -29,6 +29,7 @@ library:
   source-dirs: src
   dependencies:
     - filepath
+    - parsec
 
 executables:
   stic-exe:

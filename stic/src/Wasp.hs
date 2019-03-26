@@ -6,18 +6,18 @@ module Wasp
     , setApp
     ) where
 
-data Wasp = Wasp [WaspElement] deriving (Show)
+data Wasp = Wasp [WaspElement] deriving (Show, Eq)
 
 data WaspElement
     = WaspElementApp !App
     | WaspElementPage
     | WaspElementEntity
-    deriving (Show)
+    deriving (Show, Eq)
 
 data App = App
     { appName :: !String -- Identifier
     , appTitle :: !String -- Title
-    } deriving (Show)
+    } deriving (Show, Eq)
 
 getApp :: Wasp -> App
 getApp wasp = let apps = getApps wasp in
