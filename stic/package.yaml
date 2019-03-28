@@ -10,8 +10,8 @@ maintainer:          "info@stic.dev"
 copyright:           "2019 Stic"
 
 extra-source-files:
-- README.md
-- ChangeLog.md
+  - README.md
+  - ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -23,46 +23,48 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/Martinsos/stic#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+  - base >= 4.7 && < 5
 
 library:
   source-dirs: src
+  dependencies:
+    - filepath
 
 executables:
   stic-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - stic
+      - stic
 
 benchmarks:
   stic-benchmarks:
     main:                Main.hs
     source-dirs:         benchmark
     ghc-options:
-    - -rtsopts
-    - -threaded
-    - -with-rtsopts=-N
+      - -rtsopts
+      - -threaded
+      - -with-rtsopts=-N
     dependencies:
-    - stic
-    - criterion
+      - stic
+      - criterion
 
 tests:
   stic-test:
     main:                TastyDiscoverDriver.hs
     source-dirs:         test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - stic
-    - tasty
-    - tasty-hspec
-    - tasty-quickcheck
-    - tasty-discover
-    - QuickCheck
+      - stic
+      - tasty
+      - tasty-hspec
+      - tasty-quickcheck
+      - tasty-discover
+      - QuickCheck

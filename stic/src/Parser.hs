@@ -1,8 +1,8 @@
-module Parser (
-    parseWasp
-) where
+module Parser
+    ( parseWasp
+    ) where
 
-import Wasp (Wasp(..), WaspElement(..))
+import qualified Wasp
 
-parseWasp :: String -> Wasp
-parseWasp fileContent = Wasp [WaspElementPage]
+parseWasp :: String -> Wasp.Wasp
+parseWasp fileContent = Wasp.fromApp (Wasp.App "TestApp" "App title")
