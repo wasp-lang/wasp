@@ -13,6 +13,10 @@ extra-source-files:
   - README.md
   - ChangeLog.md
 
+data-dir: data/
+data-files:
+  - Generator/templates/**/*
+
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
 # category:            Web
@@ -30,6 +34,10 @@ library:
   dependencies:
     - filepath
     - parsec
+    - mustache
+    - text
+    - aeson
+    - directory
 
 executables:
   stic-exe:

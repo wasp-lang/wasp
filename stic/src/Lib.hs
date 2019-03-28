@@ -1,8 +1,13 @@
-module Lib (
-    compile
-) where
+module Lib
+    ( compile
+    ) where
+
+import Generator
+import Wasp
 
 type CompileError = String
 
 compile :: FilePath -> FilePath -> IO (Either CompileError ())
-compile waspFile outDir = undefined
+compile waspFile outDir = do
+    writeWebAppCode (fromApp $ App "test" "Test!") "testOutput"
+    return $ Right ()

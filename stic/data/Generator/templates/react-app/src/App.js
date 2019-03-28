@@ -1,3 +1,4 @@
+{{={{> <}}=}}
 import React, { Component } from 'react'
 import logo from './logo.png'
 import './App.css'
@@ -17,7 +18,7 @@ class App extends Component {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Welcome to STIC!
+            Welcome to {{> app.name <}}!
           </a>
         </header>
       </div>
