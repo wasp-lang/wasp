@@ -1,22 +1,37 @@
-{-# LANGUAGE GADTs #-}
 module Generator.FileDraft
-       ( FileDraft (..)
-       , WriteableToFile (..)
+       ( FileDraft(..)
+       , WriteableToFile(..)
+       , createTemplateFileDraft
+       , createCopyFileDraft
        ) where
 
+import qualified System.Directory
+import qualified Data.Text.IO
+import Data.Aeson as Aeson
+import Data.Text (Text)
 
-class WriteableToFile w where
-    writeToFile
-        -- | Path to root directory, inside which file to be written has to be positioned.
-        :: FilePath
-        -> w
-        -> IO ()
+import Generator.FileDraft.WriteableToFile
+import Generator.FileDraft.TemplateFileDraft
+import Generator.FileDraft.CopyFileDraft
 
--- | Existential type / GADT, used to present all types implementing WriteableToFile as same type.
---   This allows us to treat them all in the same way and for example put them all together in a
---   list, achieveing heterogeneous list that way.
-data FileDraft where
-    FileDraft :: WriteableToFile d => d -> FileDraft
+
+-- | FileDraft unites different file draft types into a single type,
+--   so that in the rest of the system they can be passed around as heterogeneous
+--   collection when needed.
+data FileDraft
+    = FileDraftTemplateFd TemplateFileDraft
+    | FileDraftCopyFd CopyFileDraft
+    deriving (Show, Eq)
 
 instance WriteableToFile FileDraft where
-    writeToFile dstDir (FileDraft writeable) = writeToFile dstDir writeable
+    writeToFile dstDir (FileDraftTemplateFd templateFd) = writeToFile dstDir templateFd
+    writeToFile dstDir (FileDraftCopyFd copyFd) = writeToFile dstDir copyFd
+
+
+createTemplateFileDraft :: FilePath -> FilePath -> Aeson.Value -> FileDraft
+createTemplateFileDraft dstPath templateRelPath templateData =
+    FileDraftTemplateFd $ TemplateFileDraft dstPath templateRelPath templateData
+
+createCopyFileDraft :: FilePath -> FilePath -> FileDraft
+createCopyFileDraft dstPath srcPath =
+    FileDraftCopyFd $ CopyFileDraft dstPath srcPath

@@ -6,9 +6,7 @@ module Generator.Generators
 import qualified Data.Aeson as Aeson
 import System.FilePath (FilePath, (</>))
 
-import Generator.FileDraft (FileDraft)
-import Generator.FileDraft.TemplateFileDraft (createTemplateFileDraft)
-import Generator.FileDraft.CopyFileDraft (createCopyFileDraft)
+import Generator.FileDraft
 import Wasp
 
 

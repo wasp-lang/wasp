@@ -71,6 +71,10 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
+      - aeson
+      - filepath
+      - text
+      - mtl
       - stic
       - tasty
       - tasty-hspec

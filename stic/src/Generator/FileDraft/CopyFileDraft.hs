@@ -1,13 +1,11 @@
 module Generator.FileDraft.CopyFileDraft
-       ( createCopyFileDraft
+       ( CopyFileDraft(..)
        ) where
 
-import System.Directory (createDirectoryIfMissing, copyFile)
 import System.FilePath (FilePath, (</>), takeDirectory)
 
-import Generator.FileDraft
-import qualified Generator.Templates as Templates
-
+import Generator.FileDraft.WriteableToFile
+import Generator.FileDraft.FileDraftIO
 
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft
@@ -17,14 +15,11 @@ data CopyFileDraft = CopyFileDraft
       --   normally not the same one as root dir for dstFilepath.
     , copyFileDraftSrcFilepath :: !FilePath
     }
+    deriving (Show, Eq)
 
 instance WriteableToFile CopyFileDraft where
     writeToFile dstDir (CopyFileDraft dstFilepath srcFilepath) = do
-        let absDstFilepath = dstDir </> dstFilepath
-        absSrcFilepath <- Templates.getTemplateFileAbsPath srcFilepath
-        createDirectoryIfMissing True (takeDirectory absDstFilepath)
-        copyFile absSrcFilepath absDstFilepath
-
-createCopyFileDraft :: FilePath -> FilePath -> FileDraft
-createCopyFileDraft dstPath srcPath =
-    FileDraft $ CopyFileDraft dstPath srcPath
+        let dstAbsFilepath = dstDir </> dstFilepath
+        srcAbsFilepath <- getTemplateFileAbsPath srcFilepath
+        createDirectoryIfMissing True (takeDirectory dstAbsFilepath)
+        copyFile srcAbsFilepath dstAbsFilepath

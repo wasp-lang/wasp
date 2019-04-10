@@ -1,3 +1,4 @@
 .stack-work/
 stic.cabal
 *~
+.dir-locals.el

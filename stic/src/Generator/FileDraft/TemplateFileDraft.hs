@@ -1,61 +1,38 @@
 module Generator.FileDraft.TemplateFileDraft
-       ( createTemplateFileDraft
+       ( TemplateFileDraft(..)
        ) where
 
-import System.Directory (createDirectoryIfMissing, copyFile)
 import System.FilePath (FilePath, (</>), takeDirectory)
-import Control.Monad (when)
 import Data.Text (Text)
-import qualified Text.Mustache as Mustache
 import qualified Data.Aeson as Aeson
-import qualified Data.Text.IO as TextIO
 
-import Generator.FileDraft
-import qualified Generator.Templates as Templates
+import Generator.FileDraft.WriteableToFile
+import Generator.FileDraft.FileDraftIO
 
 
 -- | File draft based on template file that gets combined with data.
 data TemplateFileDraft = TemplateFileDraft
-    { -- | Path of file to be written, relative to some root dir.
-      tmplFileDraftDstFilepath :: !FilePath
-      -- | Path of template source file, relative to some root dir,
-      --   normally not the same one as root dir for dstFilepath.
-    , tmplFileDraftTemplateFilepath :: !FilePath
+    { -- | Path of file to be written, relative to some dst root dir.
+      templateFileDraftDstFilepath :: !FilePath
+      -- | Path of template source file, relative to templates root dir.
+    , templateFileDraftTemplateRelFilepath :: !FilePath
       -- | Data to be fed to the template while rendering it.
-    , tmplFileDraftData :: !Aeson.Value
+    , templateFileDraftTemplateData :: !Aeson.Value
     }
+    deriving (Show, Eq)
 
 instance WriteableToFile TemplateFileDraft where
-    writeToFile dstDir draft = renderTemplate >>= writeDraftToFile
+    writeToFile dstDir draft =
+        compileAndRenderTemplate templateRelFilepath templateData >>= writeContentToFile
       where
-        renderTemplate :: IO Text
-        renderTemplate = do
-            mustacheTemplate <- compileMustacheTemplate (tmplFileDraftTemplateFilepath draft)
-            let mustacheTemplateData = Mustache.toMustache (tmplFileDraftData draft)
-            let (errors, fileText) = Mustache.checkedSubstituteValue mustacheTemplate mustacheTemplateData
-            -- TODO: Handle these errors better.
-            if (null errors)
-                then (return fileText)
-                else (error "Error occured while rendering template")
+        templateRelFilepath :: FilePath
+        templateRelFilepath = templateFileDraftTemplateRelFilepath draft
 
-        writeDraftToFile :: Text -> IO ()
-        writeDraftToFile content = do
-            let absDstFilepath = dstDir </> (tmplFileDraftDstFilepath draft)
+        templateData :: Aeson.Value
+        templateData = templateFileDraftTemplateData draft
+
+        writeContentToFile :: (FileDraftIO m) => Text -> m ()
+        writeContentToFile content = do
+            let absDstFilepath = dstDir </> (templateFileDraftDstFilepath draft)
             createDirectoryIfMissing True (takeDirectory absDstFilepath)
-            TextIO.writeFile absDstFilepath content
-
-createTemplateFileDraft :: FilePath -> FilePath -> Aeson.Value -> FileDraft
-createTemplateFileDraft dstPath tmplRelPath tmplData =
-    FileDraft $ TemplateFileDraft dstPath tmplRelPath tmplData
-
-compileMustacheTemplate
-    :: FilePath  -- ^ Path of template file, relative to root dir of templates.
-    -> IO Mustache.Template
-compileMustacheTemplate path = do
-    templatesDirAbsPath <- Templates.getTemplatesDirAbsPath
-    templateAbsPath <- Templates.getTemplateFileAbsPath path
-    eitherTemplate <- Mustache.automaticCompile [templatesDirAbsPath] templateAbsPath
-    return $ either
-        (\e -> error $ "Compilation of template (" ++ path ++ ") failed." ++ (show e))
-        id
-        eitherTemplate
+            writeFileFromText absDstFilepath content
