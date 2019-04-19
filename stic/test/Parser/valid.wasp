@@ -1,0 +1,6 @@
+// Test .wasp file.
+
+app test_app {
+    // Title of the app.
+    title: "Hello World!"
+}

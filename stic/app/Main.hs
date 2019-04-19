@@ -8,5 +8,6 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    [waspFilePath] -> compile waspFilePath "sticWebApp" >>= either print (\_ -> print "Success!")
-    _ -> print "Usage: ./stic <wasp_file_path>"
+    [waspFilePath, outDir] -> compile waspFilePath outDir >>=
+                                either putStrLn (\_ -> print "Success!")
+    _ -> print "Usage: ./stic <wasp_file_path> <out_dir>"
