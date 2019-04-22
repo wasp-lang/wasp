@@ -1,6 +1,5 @@
 module Generator.FileDraft.CopyFileDraftTest where
 
-import qualified Test.Tasty
 import Test.Tasty.Hspec
 
 import System.FilePath ((</>), takeDirectory)

@@ -11,9 +11,8 @@ module Generator.MockFileDraftIO
 import System.FilePath (FilePath, (</>))
 import Data.Text (Text, pack)
 import Control.Monad.State
-import Data.Aeson as Aeson
+import qualified Data.Aeson as Aeson
 
-import Generator.FileDraft
 import Generator.FileDraft.FileDraftIO
 
 
@@ -25,7 +24,7 @@ defaultMockConfig :: MockFdIOConfig
 defaultMockConfig = MockFdIOConfig
     { getTemplatesDirAbsPath_impl = "mock/templates/dir"
     , getTemplateFileAbsPath_impl = \path -> "mock/templates/dir" </> path
-    , compileAndRenderTemplate_impl = \path json -> (pack "Mock template content")
+    , compileAndRenderTemplate_impl = \_ _ -> (pack "Mock template content")
     }
 
 getMockLogs :: MockFdIO a -> MockFdIOConfig -> MockFdIOLogs
@@ -58,6 +57,7 @@ instance FileDraftIO MockFdIO where
         (_, config) <- get
         return $ (compileAndRenderTemplate_impl config) path json
 
+modifyLogs :: MonadState (a, b) m => (a -> a) -> m ()
 modifyLogs f = modify (\(logs, config) -> (f logs, config))
 
 newtype MockFdIO a = MockFdIO { unMockFdIO :: State (MockFdIOLogs, MockFdIOConfig) a }
@@ -78,22 +78,28 @@ data MockFdIOConfig = MockFdIOConfig
     , compileAndRenderTemplate_impl :: FilePath -> Aeson.Value -> Text
     }
 
+writeFileFromText_addCall :: FilePath -> Text -> MockFdIOLogs -> MockFdIOLogs
 writeFileFromText_addCall path text logs =
     logs { writeFileFromText_calls = (path, text):(writeFileFromText_calls logs) }
 
+getTemplatesDirAbsPath_addCall :: MockFdIOLogs -> MockFdIOLogs
 getTemplatesDirAbsPath_addCall logs =
     logs { getTemplatesDirAbsPath_calls = ():(getTemplatesDirAbsPath_calls logs) }
 
+getTemplateFileAbsPath_addCall :: FilePath -> MockFdIOLogs -> MockFdIOLogs
 getTemplateFileAbsPath_addCall path logs =
     logs { getTemplateFileAbsPath_calls = (path):(getTemplateFileAbsPath_calls logs) }
 
+copyFile_addCall :: FilePath -> FilePath -> MockFdIOLogs -> MockFdIOLogs
 copyFile_addCall srcPath dstPath logs =
     logs { copyFile_calls = (srcPath, dstPath):(copyFile_calls logs) }
 
+createDirectoryIfMissing_addCall :: Bool -> FilePath -> MockFdIOLogs -> MockFdIOLogs
 createDirectoryIfMissing_addCall createParents path logs =
     logs { createDirectoryIfMissing_calls =
            (createParents, path):(createDirectoryIfMissing_calls logs) }
 
+compileAndRenderTemplate_addCall :: FilePath -> Aeson.Value -> MockFdIOLogs -> MockFdIOLogs
 compileAndRenderTemplate_addCall path json logs =
     logs { compileAndRenderTemplate_calls =
            (path, json):(compileAndRenderTemplate_calls logs) }

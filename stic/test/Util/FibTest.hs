@@ -1,6 +1,5 @@
 module Util.FibTest where
 
-import qualified Test.Tasty
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
 
@@ -20,6 +19,7 @@ spec_fibonacci = do
 
 -- NOTE: Most likely not the best way to write QuickCheck test, I just did this in order
 --   to get something working as an example.
+prop_fibonacci :: Property
 prop_fibonacci = forAll (choose (0, 10)) $ testFibSequence
   where
     testFibSequence :: Int -> Bool

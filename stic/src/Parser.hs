@@ -2,7 +2,7 @@ module Parser
     ( parseWasp
     ) where
 
-import Text.Parsec (parse, ParseError, (<|>), many1, eof)
+import Text.Parsec (ParseError, (<|>), many1, eof)
 import Text.Parsec.String (Parser)
 
 import Lexer
@@ -30,7 +30,7 @@ waspParser = do
 
     waspElems <- many1 waspElement
     eof
-    
+
     -- TODO(matija): after we parsed everything, we should do semantic analysis
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
 

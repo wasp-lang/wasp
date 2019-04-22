@@ -1,10 +1,8 @@
 module Parser.CommonTest where
 
-import qualified Test.Tasty
 import Test.Tasty.Hspec
 
 import Text.Parsec
-import Text.Parsec.String (Parser)
 import Data.Either
 
 import Lexer
@@ -58,7 +56,7 @@ spec_parseWaspCommon = do
     describe "Parsing wasp closure" $ do
         let parseWaspClosure input = runWaspParser waspClosure input
         let closureContent = "<div>hello world</div>"
-    
+
         it "Returns the content of closure" $ do
             parseWaspClosure ("{ " ++ closureContent ++ " }")
                 `shouldBe` Right closureContent
@@ -66,6 +64,3 @@ spec_parseWaspCommon = do
         it "Removes leading and trailing spaces" $ do
             parseWaspClosure ("{   " ++  closureContent ++ "   }")
                 `shouldBe` Right closureContent
-
-    
-

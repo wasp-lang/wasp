@@ -1,23 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Generator.Generators
        ( generateWebApp
+
+       -- EXPORTED ONLY FOR TESTS:
+       , generatePage
        ) where
 
-import qualified Data.Aeson as Aeson
-import System.FilePath (FilePath, (</>))
+import Data.Aeson ((.=), object, ToJSON(..))
+import System.FilePath (FilePath, (</>), (<.>))
 
 import Generator.FileDraft
 import Wasp
 
 
-defaultCreateTemplateFileDraft :: FilePath -> Wasp -> FileDraft
-defaultCreateTemplateFileDraft path wasp = createTemplateFileDraft path path (Aeson.toJSON wasp)
-
-
-type FileDraftGenerator = Wasp -> [FileDraft]
-
-generateWebApp :: FileDraftGenerator
-generateWebApp wasp = concat $ map ($ wasp)
+generateWebApp :: Wasp -> [FileDraft]
+generateWebApp wasp = concatMap ($ wasp)
     [ generateReadme
     , generatePackageJson
     , generateGitignore
@@ -25,31 +22,49 @@ generateWebApp wasp = concat $ map ($ wasp)
     , generateSrcDir
     ]
 
-generateReadme :: FileDraftGenerator
-generateReadme wasp = [defaultCreateTemplateFileDraft "README.md" wasp]
+generateReadme :: Wasp -> [FileDraft]
+generateReadme wasp = [simpleTemplateFileDraft "README.md" wasp]
 
-generatePackageJson :: FileDraftGenerator
-generatePackageJson wasp = [defaultCreateTemplateFileDraft "package.json" wasp]
+generatePackageJson :: Wasp -> [FileDraft]
+generatePackageJson wasp = [simpleTemplateFileDraft "package.json" wasp]
 
-generateGitignore :: FileDraftGenerator
-generateGitignore wasp = [createTemplateFileDraft ".gitignore" "gitignore" (Aeson.toJSON wasp)]
+generateGitignore :: Wasp -> [FileDraft]
+generateGitignore wasp = [createTemplateFileDraft ".gitignore" "gitignore" (toJSON wasp)]
 
-generatePublicDir :: FileDraftGenerator
+generatePublicDir :: Wasp -> [FileDraft]
 generatePublicDir wasp
     = createCopyFileDraft ("public" </> "favicon.ico") ("public" </> "favicon.ico")
-    : map (\path -> defaultCreateTemplateFileDraft ("public/" </> path) wasp)
+    : map (\path -> simpleTemplateFileDraft ("public/" </> path) wasp)
         [ "index.html"
         , "manifest.json"
         ]
 
-generateSrcDir :: FileDraftGenerator
+generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
     = (createCopyFileDraft ("src" </> "logo.png") ("src" </> "logo.png"))
-    : map (\path -> defaultCreateTemplateFileDraft ("src/" </> path) wasp)
+    : map (\path -> simpleTemplateFileDraft ("src/" </> path) wasp)
         [ "App.css"
         , "App.js"
         , "App.test.js"
         , "index.css"
         , "index.js"
+        , "router.js"
         , "serviceWorker.js"
         ]
+    ++ generatePages wasp
+
+generatePages :: Wasp -> [FileDraft]
+generatePages wasp = generatePage wasp <$> getPages wasp
+
+generatePage :: Wasp -> Page -> FileDraft
+generatePage wasp page = createTemplateFileDraft dstPath srcPath templateData
+  where
+    srcPath = "src" </> "_Page.js"
+    dstPath = "src" </> (pageName page) <.> "js"
+    templateData = object ["wasp" .= wasp, "page" .= page]
+
+
+-- | Creates template file draft that uses given path as both src and dst path
+--   and wasp as template data.
+simpleTemplateFileDraft :: FilePath -> Wasp -> FileDraft
+simpleTemplateFileDraft path wasp = createTemplateFileDraft path path (toJSON wasp)

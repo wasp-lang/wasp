@@ -1,6 +1,5 @@
 module Parser.ParserTest where
 
-import qualified Test.Tasty
 import Test.Tasty.Hspec
 import Data.Either
 

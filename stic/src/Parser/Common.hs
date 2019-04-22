@@ -4,7 +4,7 @@
 
 module Parser.Common where
 
-import Text.Parsec
+import Text.Parsec (ParseError, parse, many, noneOf)
 import Text.Parsec.String (Parser)
 import qualified Data.Text as T
 
