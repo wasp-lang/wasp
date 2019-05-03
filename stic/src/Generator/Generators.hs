@@ -10,19 +10,6 @@ import Generator.FileDraft
 import Wasp
 
 
--- NOTE(martin): Here I define general transformation of App into JSON that I can then easily use
---   as data for templates, but we will probably want to replace this in the future with the better tailored
---   types that are exact fit for what is neeed (for example one type per template).
-instance Aeson.ToJSON App where
-    toJSON app = Aeson.object
-        [ "name" Aeson..= appName app
-        , "title" Aeson..= appTitle app
-        ]
-instance Aeson.ToJSON Wasp where
-    toJSON wasp = Aeson.object
-        [ "app" Aeson..= getApp wasp
-        ]
-
 defaultCreateTemplateFileDraft :: FilePath -> Wasp -> FileDraft
 defaultCreateTemplateFileDraft path wasp = createTemplateFileDraft path path (Aeson.toJSON wasp)
 

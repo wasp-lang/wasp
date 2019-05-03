@@ -5,10 +5,7 @@ module Generator.FileDraft
        , createCopyFileDraft
        ) where
 
-import qualified System.Directory
-import qualified Data.Text.IO
 import Data.Aeson as Aeson
-import Data.Text (Text)
 
 import Generator.FileDraft.WriteableToFile
 import Generator.FileDraft.TemplateFileDraft

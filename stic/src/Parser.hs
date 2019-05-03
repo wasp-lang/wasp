@@ -2,18 +2,19 @@ module Parser
     ( parseWasp
     ) where
 
-import Text.Parsec
+import Text.Parsec (parse, ParseError)
 import Text.Parsec.String (Parser)
 
 import Lexer
 import Parser.App
 import qualified Wasp
 
+
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp
 waspParser = do
     -- NOTE(matija): this is the only place we need to use whiteSpace, to skip empty lines
-    -- and comments in the beginning of file. All other used parsers are lexeme parsers 
+    -- and comments in the beginning of file. All other used parsers are lexeme parsers
     -- so they do it themselves.
     whiteSpace
 
@@ -25,7 +26,7 @@ waspParser = do
     -- TODO(matija): after we parsed everything, we should do semantic analysis
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
 
-    return $ Wasp.fromApp $ Wasp.App 
+    return $ Wasp.fromApp $ Wasp.App
         { Wasp.appName = parsedAppName
         , Wasp.appTitle = getAppTitle parsedAppProperties
           -- TODO(matija): add favicon.

@@ -2,11 +2,9 @@ module Lib
     ( compile
     ) where
 
-import System.IO
-
 import Parser
 import Generator
-import Wasp
+
 
 type CompileError = String
 
