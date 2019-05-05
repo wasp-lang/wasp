@@ -81,3 +81,4 @@ tests:
       - tasty-quickcheck
       - tasty-discover
       - QuickCheck
+      - parsec

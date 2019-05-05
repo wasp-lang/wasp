@@ -14,11 +14,19 @@ spec_parseWasp =
             isLeft (parseWasp "hoho") `shouldBe` True
 
         before (readFile "test/Parser/valid.wasp") $ do
-            it "When given a valid wasp with app and name, should return correct \
+            it "When given a valid wasp with app and name, should return correct\
                 \ Wasp" $ \wasp -> do
                 parseWasp wasp
                 `shouldBe`
-                Right (fromApp $ App
-                { appName = "test_app"
-                , appTitle = "Hello World!"
-                })
+                Right (fromWaspElems
+                    [ WaspElementApp $ App
+                        { appName = "test_app"
+                        , appTitle = "Hello World!"
+                        }
+                    , WaspElementPage $ Page
+                        { pageName = "Landing"
+                        , pageRoute = "/home"
+                        , pageContent = "<div>My landing page!</div>"
+                        }
+                    ]
+                )

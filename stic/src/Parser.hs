@@ -2,13 +2,23 @@ module Parser
     ( parseWasp
     ) where
 
-import Text.Parsec (parse, ParseError)
+import Text.Parsec (parse, ParseError, (<|>), many1, eof)
 import Text.Parsec.String (Parser)
 
 import Lexer
-import Parser.App
+import Parser.App (app)
+import Parser.Page (page)
+import Parser.Common (runWaspParser)
 import qualified Wasp
 
+waspElement :: Parser Wasp.WaspElement
+waspElement = waspElementApp <|> waspElementPage
+
+waspElementApp :: Parser Wasp.WaspElement
+waspElementApp = Wasp.WaspElementApp <$> app
+
+waspElementPage :: Parser Wasp.WaspElement
+waspElementPage = Wasp.WaspElementPage <$> page
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp
@@ -18,25 +28,14 @@ waspParser = do
     -- so they do it themselves.
     whiteSpace
 
-    -- TODO(matija): extract this into a single parser.
-    reserved reservedNameApp
-    parsedAppName <- identifier
-    parsedAppProperties <- braces $ appProperties
-
+    waspElems <- many1 waspElement
+    eof
+    
     -- TODO(matija): after we parsed everything, we should do semantic analysis
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
 
-    return $ Wasp.fromApp $ Wasp.App
-        { Wasp.appName = parsedAppName
-        , Wasp.appTitle = getAppTitle parsedAppProperties
-          -- TODO(matija): add favicon.
-        }
+    return $ Wasp.fromWaspElems waspElems
 
 -- | Top level parser executor.
 parseWasp :: String -> Either ParseError Wasp.Wasp
-parseWasp wasp = parse waspParser sourceName wasp
-  where
-    -- NOTE(matija): this is used by Parsec only when reporting errors, but we currently
-    -- don't provide source name (e.g. .wasp file name) to this method so leaving it empty
-    -- for now.
-    sourceName = ""
+parseWasp input = runWaspParser waspParser input

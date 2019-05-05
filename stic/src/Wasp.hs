@@ -1,10 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Wasp
     ( Wasp
+    , WaspElement (..)
     , App (..)
     , fromApp
+    , fromWaspElems
     , getApp
     , setApp
+    , Page (..)
     ) where
 
 import qualified Data.Aeson as Aeson
@@ -14,9 +17,11 @@ data Wasp = Wasp [WaspElement] deriving (Show, Eq)
 
 data WaspElement
     = WaspElementApp !App
-    | WaspElementPage
+    | WaspElementPage !Page
     | WaspElementEntity
     deriving (Show, Eq)
+
+-- App
 
 data App = App
     { appName :: !String -- Identifier
@@ -45,7 +50,6 @@ setApp (Wasp elems) app = Wasp $ (WaspElementApp app) : (filter (not . isAppElem
 fromApp :: App -> Wasp
 fromApp app = Wasp [WaspElementApp app]
 
-
 -- NOTE(martin): Here I define general transformation of App into JSON that I can then easily use
 --   as data for templates, but we will probably want to replace this in the future with the better tailored
 --   types that are exact fit for what is neeed (for example one type per template).
@@ -58,3 +62,14 @@ instance Aeson.ToJSON Wasp where
     toJSON wasp = Aeson.object
         [ "app" Aeson..= getApp wasp
         ]
+
+fromWaspElems :: [WaspElement] -> Wasp
+fromWaspElems elems = Wasp elems
+
+-- Page
+
+data Page = Page
+    { pageName :: !String
+    , pageRoute :: !String
+    , pageContent :: !String
+    } deriving (Show, Eq)

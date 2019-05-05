@@ -8,10 +8,13 @@ import qualified Text.Parsec.Token as Token
 reservedNameApp :: String
 reservedNameApp = "app"
 
+reservedNamePage :: String
+reservedNamePage = "page"
+
 waspLanguageDef :: Token.LanguageDef ()
 waspLanguageDef = emptyDef 
     { Token.commentLine = "//"
-    , Token.reservedNames = [reservedNameApp]
+    , Token.reservedNames = [reservedNameApp, reservedNamePage]
     , Token.caseSensitive = True
     -- Identifier
     , Token.identStart = letter

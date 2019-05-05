@@ -1,6 +1,15 @@
 // Test .wasp file.
 
+// App definition.
 app test_app {
     // Title of the app.
     title: "Hello World!"
+}
+
+// Page definition.
+page Landing {
+    route: "/home",
+    content: {
+        <div>My landing page!</div>
+    }
 }
