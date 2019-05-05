@@ -14,7 +14,7 @@ RESET="\e[0m"
 LIGHT_CYAN="\e[96m"
 DEFAULT_COLOR="\e[39m"
 
-BUILD_CMD="stack build --pedantic"
+BUILD_CMD="stack build"
 WATCH_CMD="$BUILD_CMD --file-watch"
 TEST_CMD="$BUILD_CMD --test"
 TEST_WATCH_CMD="$TEST_CMD --file-watch"

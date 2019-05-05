@@ -29,6 +29,10 @@ description:         Please see the README on GitHub at <https://github.com/Mart
 dependencies:
   - base >= 4.7 && < 5
 
+ghc-options:
+  - -Wall
+  - -Werror
+
 library:
   source-dirs: src
   dependencies:
@@ -55,8 +59,8 @@ benchmarks:
     main:                Main.hs
     source-dirs:         benchmark
     ghc-options:
-      - -rtsopts
       - -threaded
+      - -rtsopts
       - -with-rtsopts=-N
     dependencies:
       - stic
