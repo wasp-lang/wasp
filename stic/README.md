@@ -12,7 +12,7 @@
 ## Setup
 Install `stack`.
 
-Run `stack setup` in the project root to do initial setup. Or, you can just run `stack build` and it will also run `stack setup` as part of it.
+Run `stack setup` in the project root to do initial setup.
 
 ## Project configuration overview
 This is a [Stack](https://docs.haskellstack.org/en/stable/README/) project.
@@ -37,7 +37,6 @@ dependencies:
   - <package_name>
   ...
 ```
-and run `stack build`.
 
 If package you need is not in the Stack snapshot defined by `resolver`, add it to `extra-deps` instead of `dependencies`.
 
@@ -64,6 +63,14 @@ There is also `stack install` which builds the project and then copies it to the
 Running `stack ghci` will open ghci in the context of the project, allowing you to load and run local modules, which can be useful for development.
 
 You can use `stack clear` to clear all the generated files/artifacts from the project.
+
+### Run script
+For more convenient running of common build/dev commands, we created `run` script.
+It mostly runs stack commands described above.
+
+The idea is that you normally use this for development, and you use `stack` directly when you need more control.
+
+You can run `./run help` to learn how to use it.
 
 
 ## Tests

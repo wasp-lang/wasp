@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# This script defines common commands used during building / developing
+# and makes it easy to run them.
+
+THIS=$0
+COMMAND=${1:-watch}
+shift
+ARGS="$@"
+
+BOLD="\e[1m"
+UNDERLINED="\e[4m"
+RESET="\e[0m"
+LIGHT_CYAN="\e[96m"
+DEFAULT_COLOR="\e[39m"
+
+BUILD_CMD="stack build --pedantic"
+WATCH_CMD="$BUILD_CMD --file-watch"
+TEST_CMD="$BUILD_CMD --test"
+TEST_WATCH_CMD="$TEST_CMD --file-watch"
+EXEC_CMD="stack exec stic-exe $ARGS"
+
+echo_and_eval () {
+    echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
+    $1
+}
+
+echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
+
+print_usage () {
+    print_usage_cmd () {
+        echo -e $"    ${UNDERLINED}${1}${RESET}"
+        echo     "        $2";
+    }
+
+    echo_bold       "Usage: ${THIS} <command>"
+    echo            "Commands:"
+    print_usage_cmd "build" \
+                    "Builds the project."
+    print_usage_cmd "watch" \
+                    "Builds the project on any file change. (DEFAULT)"
+    print_usage_cmd "test" \
+                    "Builds the project and executes tests."
+    print_usage_cmd "test-watch" \
+                    "Builds the project and executes tests on any file change."
+    print_usage_cmd "exec" \
+                    "Builds the project once and runs the executable while forwarding arguments."
+}
+
+case $COMMAND in
+    build)
+        echo_and_eval "$BUILD_CMD"
+        ;;
+    watch)
+        echo_and_eval "$WATCH_CMD"
+        ;;
+    test)
+        echo_and_eval "$TEST_CMD"
+        ;;
+    test-watch)
+        echo_and_eval "$TEST_WATCH_CMD"
+        ;;
+    exec)
+        echo_and_eval "$BUILD_CMD"
+        echo
+        echo_and_eval "$EXEC_CMD"
+        ;;
+    *)
+        print_usage
+        exit 1
+esac
