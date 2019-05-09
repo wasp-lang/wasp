@@ -8,17 +8,21 @@ import Text.Parsec.String (Parser)
 import Lexer
 import Parser.App (app)
 import Parser.Page (page)
+import Parser.Entity (entity)
 import Parser.Common (runWaspParser)
 import qualified Wasp
 
 waspElement :: Parser Wasp.WaspElement
-waspElement = waspElementApp <|> waspElementPage
+waspElement = waspElementApp <|> waspElementPage <|> waspElementEntity
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page
+
+waspElementEntity :: Parser Wasp.WaspElement
+waspElementEntity = Wasp.WaspElementEntity <$> entity
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp

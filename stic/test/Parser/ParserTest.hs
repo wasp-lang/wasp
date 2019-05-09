@@ -13,7 +13,7 @@ spec_parseWasp =
             isLeft (parseWasp "hoho") `shouldBe` True
 
         before (readFile "test/Parser/valid.wasp") $ do
-            it "When given a valid wasp with app and name, should return correct\
+            it "When given a valid wasp source, should return correct\
                 \ Wasp" $ \wasp -> do
                 parseWasp wasp
                 `shouldBe`
@@ -26,6 +26,13 @@ spec_parseWasp =
                         { pageName = "Landing"
                         , pageRoute = "/home"
                         , pageContent = "<div>My landing page!</div>"
+                        }
+                    , WaspElementEntity $ Entity
+                        { entityName = "Task"
+                        , entityFields =
+                            [ Wasp.EntityField "description" Wasp.EftString
+                            , Wasp.EntityField "isDone" Wasp.EftBoolean
+                            ]
                         }
                     ]
                 )

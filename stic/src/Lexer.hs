@@ -1,9 +1,11 @@
 module Lexer where
 
-import Text.Parsec
+import Text.Parsec (letter, alphaNum, (<|>), char, between)
 import Text.Parsec.String (Parser)
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as Token
+
+-- * Wasp element types
 
 reservedNameApp :: String
 reservedNameApp = "app"
@@ -11,10 +13,32 @@ reservedNameApp = "app"
 reservedNamePage :: String
 reservedNamePage = "page"
 
+reservedNameEntity :: String
+reservedNameEntity = "entity"
+
+-- * Data types.
+
+reservedNameString :: String
+reservedNameString = "string"
+
+reservedNameBoolean :: String
+reservedNameBoolean = "boolean"
+
+reservedNames :: [String]
+reservedNames =
+    -- * Wasp element types
+    [ reservedNameApp
+    , reservedNamePage
+    , reservedNameEntity
+    -- * Data types
+    , reservedNameString
+    , reservedNameBoolean
+    ]
+
 waspLanguageDef :: Token.LanguageDef ()
 waspLanguageDef = emptyDef 
     { Token.commentLine = "//"
-    , Token.reservedNames = [reservedNameApp, reservedNamePage]
+    , Token.reservedNames = reservedNames
     , Token.caseSensitive = True
     -- Identifier
     , Token.identStart = letter

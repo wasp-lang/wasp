@@ -43,7 +43,7 @@ getPageContent ps = head $ [c | Content c <- ps]
 -- | Top level parser, parses Page.
 page :: Parser Wasp.Page
 page = do
-    (pageName, pageProps) <- waspElementNameAndProps reservedNamePage pageProperties
+    (pageName, pageProps) <- waspElementNameAndClosure reservedNamePage pageProperties
 
     return Wasp.Page
         { Wasp.pageName = pageName

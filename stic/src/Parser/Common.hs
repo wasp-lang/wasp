@@ -19,18 +19,18 @@ runWaspParser waspParser input = parse waspParser sourceName input
     -- for now.
     sourceName = ""
 
- -- | Parses a declaration of wasp element (e.g. App or Page) and its properties.
-waspElementNameAndProps
+ -- | Parses a declaration of wasp element (e.g. App or Page) and the closure content.
+waspElementNameAndClosure
     :: String -- ^ Type of the wasp element (e.g. "app" or "page").
-    -> Parser a -- ^ Parser to be used for parsing properties of the wasp element.
-    -> Parser (String, a) -- ^ Name of the element and parsed properties.
-waspElementNameAndProps elementType properties = do
+    -> Parser a -- ^ Parser to be used for parsing closure content of the wasp element.
+    -> Parser (String, a) -- ^ Name of the element and parsed closure content.
+waspElementNameAndClosure elementType closure = do
     -- TODO(matija): should we somehow check if this is a reserved name?
     reserved elementType
     elementName <- identifier
-    elementProperties <- braces properties
+    elementClosureContent <- braces closure
 
-    return (elementName, elementProperties)
+    return (elementName, elementClosureContent)
 
 -- | Parses wasp property along with the key, "key: value".
 waspProperty :: String -> Parser a -> Parser a

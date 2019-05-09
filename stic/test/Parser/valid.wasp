@@ -13,3 +13,9 @@ page Landing {
         <div>My landing page!</div>
     }
 }
+
+// Entity definition.
+entity Task {
+    description :: string,
+    isDone :: boolean
+}

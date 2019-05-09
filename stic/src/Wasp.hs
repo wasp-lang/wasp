@@ -12,6 +12,10 @@ module Wasp
     , Page (..)
     , getPages
     , addPage
+
+    , Entity (..)
+    , EntityField (..)
+    , EntityFieldType (..)
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
@@ -24,7 +28,7 @@ data Wasp = Wasp [WaspElement] deriving (Show, Eq)
 data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
-    | WaspElementEntity
+    | WaspElementEntity !Entity
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -57,11 +61,10 @@ setApp (Wasp elems) app = Wasp $ (WaspElementApp app) : (filter (not . isAppElem
 fromApp :: App -> Wasp
 fromApp app = Wasp [WaspElementApp app]
 
-
 -- * Page
 
 data Page = Page
-    { pageName :: !String  -- Identifier
+    { pageName :: !String
     , pageRoute :: !String
     , pageContent :: !String
     } deriving (Show, Eq)
@@ -72,6 +75,19 @@ getPages (Wasp elems) = [page | (WaspElementPage page) <- elems]
 addPage :: Wasp -> Page -> Wasp
 addPage (Wasp elems) page = Wasp $ (WaspElementPage page):elems
 
+-- * Entity
+
+data Entity = Entity
+    { entityName :: !String
+    , entityFields :: ![EntityField]
+    } deriving (Show, Eq)
+
+data EntityField = EntityField 
+    { entityFieldName :: !String
+    , entityFieldType :: !EntityFieldType
+    } deriving (Show, Eq)
+
+data EntityFieldType = EftString | EftBoolean deriving (Show, Eq)
 
 -- * ToJSON instances.
 
@@ -96,3 +112,4 @@ instance ToJSON Wasp where
         [ "app" .= getApp wasp
         , "pages" .= getPages wasp
         ]
+

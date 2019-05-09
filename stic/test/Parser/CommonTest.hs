@@ -11,21 +11,21 @@ import Parser.Common
 spec_parseWaspCommon :: Spec
 spec_parseWaspCommon = do
     describe "Parsing wasp element name and properties" $ do
-        let parseWaspElementNameAndProps elemKeyword p input =
-                runWaspParser (waspElementNameAndProps elemKeyword p) input
+        let parseWaspElementNameAndClosure elemKeyword p input =
+                runWaspParser (waspElementNameAndClosure elemKeyword p) input
 
         it "When given valid wasp element declaration along with whitespace parser,\
             \ returns an expected result" $ do
-            parseWaspElementNameAndProps "app" whiteSpace "app someApp { }"
+            parseWaspElementNameAndClosure "app" whiteSpace "app someApp { }"
                 `shouldBe` Right ("someApp", ())
 
         it "When given valid wasp element declaration along with char parser, returns\
             \ an expected result" $ do
-            parseWaspElementNameAndProps "app" (char 'a') "app someApp {a}"
+            parseWaspElementNameAndClosure "app" (char 'a') "app someApp {a}"
                 `shouldBe` Right ("someApp", 'a')
 
         it "When given wasp element declaration with invalid name, returns Left" $ do
-            (isLeft $ parseWaspElementNameAndProps "app" whiteSpace "app 1someApp { }")
+            (isLeft $ parseWaspElementNameAndClosure "app" whiteSpace "app 1someApp { }")
                 `shouldBe` True
 
     describe "Parsing wasp property - string literal" $ do

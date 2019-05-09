@@ -2,19 +2,17 @@ module Parser.PageTest where
 
 import Test.Tasty.Hspec
 
-import Data.Either
-import Text.Parsec
+import Data.Either (isLeft)
 
-import Parser.Page
-import Wasp
-
--- | Page parser executor.
-parsePage :: String -> Either ParseError Wasp.Page
-parsePage pageWasp = parse page "" pageWasp
+import Parser.Common (runWaspParser)
+import Parser.Page (page)
+import qualified Wasp
 
 spec_parsePage :: Spec
 spec_parsePage =
     describe "Parsing page wasp" $ do
+        let parsePage input = runWaspParser page input
+
         it "When given valid page wasp declaration, returns correct Wasp.Page" $ do
             let testPageName = "Landing"
             let testPageRoute = "/someRoute"
@@ -24,10 +22,10 @@ spec_parsePage =
                     "route: \"" ++ testPageRoute ++ "\"," ++ 
                     "content: { " ++ testPageContent ++ " }" ++ 
                 "}")
-                `shouldBe` Right (Page
-                    { pageName = testPageName
-                    , pageRoute = testPageRoute
-                    , pageContent = testPageContent
+                `shouldBe` Right (Wasp.Page
+                    { Wasp.pageName = testPageName
+                    , Wasp.pageRoute = testPageRoute
+                    , Wasp.pageContent = testPageContent
                     })
 
         it "When given page wasp declaration without 'page', should return Left" $ do
