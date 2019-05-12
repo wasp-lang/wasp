@@ -43,13 +43,16 @@ generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
     = (createCopyFileDraft ("src" </> "logo.png") ("src" </> "logo.png"))
     : map (\path -> simpleTemplateFileDraft ("src/" </> path) wasp)
-        [ "App.css"
-        , "App.js"
+        [ "App.js"
         , "App.test.js"
-        , "index.css"
+        , "App.css"
         , "index.js"
+        , "index.css"
+        , "reducers.js"
         , "router.js"
         , "serviceWorker.js"
+        , "store/index.js"
+        , "store/middleware/logger.js"
         ]
     ++ generatePages wasp
 

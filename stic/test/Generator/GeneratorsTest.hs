@@ -43,9 +43,12 @@ spec_Generators = do
                       , "App.test.js"
                       , "index.css"
                       , "index.js"
+                      , "reducers.js"
                       , "router.js"
                       , "serviceWorker.js"
                       , (pageName testPage <.> "js")
+                      , "store/index.js"
+                      , "store/middleware/logger.js"
                       ]
                     ]
             mapM_
