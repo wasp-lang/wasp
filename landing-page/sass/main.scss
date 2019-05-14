@@ -1,0 +1,81 @@
+@charset "utf-8";
+// NOTE(matija): importing this before-hand gives us access to Bulma's
+// initial variables (e.g. colors, sizes)
+@import "../node_modules/bulma/sass/utilities/initial-variables.sass";
+
+// Brand colors
+//$purple: #8A4D76;
+//$black: #000000;
+
+// Override Bulma's global variables
+// Colors
+$primary: $black;
+
+// Sizes
+$size-1: 4rem;
+
+
+// NOTE(matija): we can also import whole Bulma this way, but it is important
+// to import it after overriding variables, otherwise the variables will not
+//be overriden.
+//@import "../node_modules/bulma/bulma.sass";
+
+// Import only what we need from Bulma
+@import "../node_modules/bulma/sass/utilities/_all.sass";
+@import "../node_modules/bulma/sass/base/_all.sass";
+@import "../node_modules/bulma/sass/elements/button.sass";
+@import "../node_modules/bulma/sass/elements/container.sass";
+@import "../node_modules/bulma/sass/elements/form.sass";
+@import "../node_modules/bulma/sass/elements/title.sass";
+@import "../node_modules/bulma/sass/components/navbar.sass";
+@import "../node_modules/bulma/sass/components/level.sass";
+@import "../node_modules/bulma/sass/layout/hero.sass";
+@import "../node_modules/bulma/sass/layout/section.sass";
+@import "../node_modules/bulma/sass/grid/columns.sass";
+
+// Non-Bulma related styles.
+
+img.logo {
+  height: auto;
+  max-width: 100%;
+}
+
+.highlight {
+  border-radius: 6px;
+}
+
+hr {
+  background-color: $grey-light;
+  height: 1px;
+}
+
+/*
+nav {
+  border-bottom: 1px solid $grey;
+}
+*/
+
+.button-tutorial {
+  margin-left: 10px;
+  //border: none;
+}
+
+.stack-logo {
+  height: 100px;
+}
+
+/*
+.stack-logos {
+  display: flex;
+  justify-content: space-evenly;
+}
+*/
+
+/*
+.hero-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+}
+*/

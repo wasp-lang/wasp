@@ -3,13 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="main.css">
-    <link rel="stylesheet" href="node_modules/bulma/css/bulma.css">
+
+    <link rel="stylesheet" href="css/main.css">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+    <link rel="stylesheet" href="node_modules/prismjs/themes/prism-tomorrow.css">
+    <script src="node_modules/prismjs/prism.js"></script>
+
+    <link rel="stylesheet" href="node_modules/prismjs/plugins/unescaped-markup/prism-unescaped-markup.css" />
+    <script src="node_modules/prismjs/plugins/unescaped-markup/prism-unescaped-markup.js"></script>
+
+    <!-- Must be below unescaped-markup plugin, otherwise does not work. TODO: Put in footer? -->
+    <script src="node_modules/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.js"></script>
 </head>
 
 <body class="has-navbar-fixed-top">
     <header>
+        <!-- Navbar -->
         <nav class="navbar is-fixed-top">
             <div class="container">
 
@@ -21,17 +31,19 @@
 
                 <div class="navbar-menu">
                     <div class="navbar-start">
-                        <a class="navbar-item">Documentation</a>
-                        <a class="navbar-item">Examples</a>
+                        <h3 class="navbar-item title is-4">STIC</h3>
                     </div>
 
                     <div class="navbar-end">
+                        <a class="navbar-item">Documentation</a>
+                        <a class="navbar-item">Examples</a>
+
                         <span class="navbar-item">
                             <a class="button is-dark">
                                 <span class="icon">
                                     <i class="fab fa-github"></i>
                                 </span>
-                                <span>Download</span>
+                                <span>Github</span>
                             </a>
                         </span>
                     </div>
@@ -40,29 +52,59 @@
             </div>
         </nav>
 
+        <!-- Hero -->
         <section class="hero is-large">
-          <div class="hero-body">
-            <div class="container">
-              <h1 class="title is-1">
-                STIC
-              </h1>
-              <h2 class="subtitle">
-                An extensible DSL for building modern web applications.
-              </h2>
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title is-1">
+                        STIC
+                    </h1>
+                    <h2 class="subtitle is-4">
+                        An extensible DSL for building modern web applications.
+                    </h2>
+                    <a class="button-start button is-primary is-medium">Get started</a>
+                    <a class="button-tutorial button is-medium">Take the tutorial</a>
+                </div>
             </div>
-          </div>
         </section>
     </header>
 
     <!-- Page break section with logo -->
+    <!--
     <section class="section has-text-centered">
         <div class="container">
-            <img src="assets/stic-logo.png" style="max-width: 80px;">
+            <i class="fas fa-2x fa-chevron-down"></i>
+        </div>
+    </section>
+    -->
+
+    <!--
+    <div class="container">
+        <hr class="hr" style="margin-bottom: 0;">
+    </div>
+    -->
+
+
+    <!-- One-line explanation -->
+    <section class="section has-text-centered">
+        <div class="container">
+            <h2 class="title is-4 has-text-weight-normal">
+                <!--
+                <strong>S</strong>pecification
+                <strong>T</strong>o
+                <strong>I</strong>mplementation
+                <strong>C</strong>ompiler
+                -->
+                Specification To Implementation Compiler
+            </h2>
+            <h3 class="subtitle is-5 has-text-weight-light">
+                Express your app's CRUD & business logic in a higher level, framework agnostic language.<br/>
+            </h3>
         </div>
     </section>
 
     <!-- Benefits -->
-    <section class="section has-text-centered">
+    <section class="benefits section has-text-centered">
         <div class="container">
             <!--
             <h1 class="title">Benefits</h1>
@@ -101,6 +143,141 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- 
+        TODO(matija): should we put one big container around everything? So I don't
+        have to repeat it every time?
+    -->
+    <div class="container">
+        <hr class="hr" style="margin-bottom: 0;">
+    </div>
+
+    <!-- Code example - one step higher -->
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-one-third">
+                    <h2 class="subtitle">One step higher</h2>
+                    <p>
+                        STIC understands the inner workings of the web app - abstractions
+                        specific for an app design, such as <code>page</code> and
+                        <code>entity</code> are embedded in the language to provide a
+                        head start to developers.
+                    </p>
+                </div>
+                <div class="column is-two-thirds">
+                    <figure>
+                        <pre class="highlight">
+                            <code class="language-css"><!--
+                            app TodoList {
+                                title: "Todo app!"
+                            }
+
+                            entity Task {
+                                description :: string,
+                                isDone :: boolean
+                            }
+
+                            page Landing {
+                                route: "/home",
+                                content: {
+                                    <div>Hello World!</div>
+                                }
+                            }
+
+                            --></code>
+                        </pre>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code example - declarative -->
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-one-third">
+                    <h2 class="subtitle">Declarative approach</h2>
+                    <p>
+                        Following on the steps of the latest UI frameworks, STIC
+                        allows you to express your app's requirements in a purely
+                        declarative way, making the
+                        <code>specification === implementation</code>.
+                    </p>
+                </div>
+                <div class="column is-two-thirds">
+                    <figure>
+                        <pre class="highlight">
+                            <code class="language-css"><!--
+                            entity Task {
+                                description :: string,
+                                isDone :: boolean
+                            }
+
+                            page Landing {
+                                route: "/home",
+                                content: {
+                                    <div>
+                                        You have { Task.count() } active tasks.
+                                    </div>
+                                }
+                            }
+                            --></code>
+                        </pre>
+                    </figure>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <hr class="hr" style="margin-bottom: 0;">
+    </div>
+
+    <section class="section has-text-centered">
+        <div class="container">
+            <h2 class="title is-4 has-text-weight-normal">
+                Under the hood
+            </h2>
+            <h3 class="subtitle is-5 has-text-weight-light">
+                STIC produces a real, handwritten code in the world's most popular stack
+                for web app development.
+            </h3>
+        </div>
+    </section>
+
+    <!-- Tech stack STIC uses beneath -->
+    <section class="stack section has-text-centered">
+        <div class="container stack-logos">
+            <div class="columns">
+                <div class="column">
+                    <img src="assets/react-logo.png" class="stack-logo">
+                </div>
+                <div class="column">
+                    <img src="assets/nodejs-logo.png" class="stack-logo">
+                </div>
+                <div class="column">
+                    <img src="assets/mongo-logo.png" class="stack-logo">
+                </div>
+                <div class="column">
+                    <img src="assets/jest-logo.png" class="stack-logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <hr class="hr" style="margin-bottom: 0;">
+    </div>
+
+    <!-- Final CTA -->
+    <section class="section has-text-centered">
+        <div class="container">
+            <a class="button-start button is-primary is-medium">Get started</a>
+            <a class="button-tutorial button is-medium">Take the tutorial</a>
         </div>
     </section>
 

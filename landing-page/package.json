@@ -4,12 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "css-build": "node-sass --omit-source-map-url sass/main.scss css/main.css",
+    "css-watch": "npm run css-build -- --watch",
+    "start": "npm run css-watch"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bulma": "^0.7.4",
-    "bulma-start": "0.0.3"
+    "bulma-start": "0.0.3",
+    "prismjs": "^1.16.0"
+  },
+  "devDependencies": {
+    "node-sass": "^4.12.0"
   }
 }
