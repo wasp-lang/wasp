@@ -42,6 +42,7 @@ library:
     - text
     - aeson
     - directory
+    - split
 
 executables:
   stic-exe:

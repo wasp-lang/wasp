@@ -1,12 +1,15 @@
 {{={= =}=}}
 import { combineReducers } from 'redux'
 
-// import * as dataState from './modules/data/state'
+{=# entities =}
+import * as {= entityLowerName =}State from '{= entityStatePath =}'
+{=/ entities =}
 
 
 const states = [
-  // dataState,
-  // Add reducer here to add it to the app.
+  {=# entities =}
+  {= entityLowerName =}State,
+  {=/ entities =}
 ]
 
 const keyToReducer = states.reduce((acc, state) => {

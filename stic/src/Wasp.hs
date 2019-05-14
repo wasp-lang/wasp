@@ -16,6 +16,8 @@ module Wasp
     , Entity (..)
     , EntityField (..)
     , EntityFieldType (..)
+    , getEntities
+    , addEntity
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
@@ -82,12 +84,18 @@ data Entity = Entity
     , entityFields :: ![EntityField]
     } deriving (Show, Eq)
 
-data EntityField = EntityField 
+data EntityField = EntityField
     { entityFieldName :: !String
     , entityFieldType :: !EntityFieldType
     } deriving (Show, Eq)
 
 data EntityFieldType = EftString | EftBoolean deriving (Show, Eq)
+
+getEntities :: Wasp -> [Entity]
+getEntities (Wasp elems) = [entity | (WaspElementEntity entity) <- elems]
+
+addEntity :: Wasp -> Entity -> Wasp
+addEntity (Wasp elems) entity = Wasp $ (WaspElementEntity entity):elems
 
 -- * ToJSON instances.
 
@@ -107,9 +115,25 @@ instance ToJSON Page where
         , "route" .= pageRoute page
         , "content" .= pageContent page
         ]
+
+instance ToJSON Entity where
+    toJSON entity = object
+        [ "name" .= entityName entity
+        , "fields" .= entityFields entity
+        ]
+
+instance ToJSON EntityField where
+    toJSON entityField = object
+        [ "name" .= entityFieldName entityField
+        , "type" .= entityFieldType entityField
+        ]
+
+instance ToJSON EntityFieldType where
+    toJSON EftString = "string"
+    toJSON EftBoolean = "boolean"
+
 instance ToJSON Wasp where
     toJSON wasp = object
         [ "app" .= getApp wasp
         , "pages" .= getPages wasp
         ]
-
