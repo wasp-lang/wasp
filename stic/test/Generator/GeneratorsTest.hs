@@ -5,6 +5,7 @@ import Test.Tasty.Hspec
 
 import System.FilePath (FilePath, (</>), (<.>))
 
+import Util
 import Generator.Generators
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
@@ -18,7 +19,8 @@ spec_Generators :: Spec
 spec_Generators = do
     let testApp = (App "TestApp" "Test App")
     let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>")
-    let testWasp = (fromApp testApp) `addPage` testPage
+    let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
+    let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
 
     describe "generateWebApp" $ do
         -- NOTE: This test does not (for now) check that content of files is correct or
@@ -26,6 +28,8 @@ spec_Generators = do
         --   destinations are correct.
         it "Given a simple Wasp, creates file drafts at expected destinations" $ do
             let fileDrafts = generateWebApp testWasp
+            let testEntityDstDirInSrc
+                    = "entities" </> (Util.camelToKebabCase (entityName testEntity))
             let expectedFileDraftDstPaths = concat $
                     [ [ "README.md"
                       , "package.json"
@@ -49,6 +53,9 @@ spec_Generators = do
                       , (pageName testPage <.> "js")
                       , "store/index.js"
                       , "store/middleware/logger.js"
+                      , testEntityDstDirInSrc </> "actions.js"
+                      , testEntityDstDirInSrc </> "actionTypes.js"
+                      , testEntityDstDirInSrc </> "state.js"
                       ]
                     ]
             mapM_
@@ -58,12 +65,6 @@ spec_Generators = do
                 (\dstPath -> (dstPath, existsFdWithDst fileDrafts dstPath)
                     `shouldBe` (dstPath, True))
                 expectedFileDraftDstPaths
-
-    describe "generatePage" $ do
-        it "Given a simple Wasp, creates template file draft from _Page.js" $ do
-            let (FileDraftTemplateFd (TemplateFileDraft _ srcPath _))
-                    = generatePage testWasp (head $ getPages testWasp)
-            srcPath `shouldBe` "src" </> "_Page.js"
 
 
 existsFdWithDst :: [FileDraft] -> FilePath -> Bool
