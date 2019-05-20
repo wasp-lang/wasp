@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Generator.Generators
        ( generateWebApp
        ) where

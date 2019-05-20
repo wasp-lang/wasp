@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Generator.EntityGeneratorTest where
 
 import Test.Tasty.Hspec

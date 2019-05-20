@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Generator.FileDraft.TemplateFileDraftTest where
 
 import Test.Tasty.Hspec

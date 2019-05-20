@@ -9,6 +9,8 @@ author:              "Stic"
 maintainer:          "info@stic.dev"
 copyright:           "2019 Stic"
 
+default-extensions: OverloadedStrings
+
 extra-source-files:
   - README.md
   - ChangeLog.md

@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Generator.PageGenerator
        ( generatePages
 

@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Generator.PageGeneratorTest where
 
 import Test.Tasty.Hspec
