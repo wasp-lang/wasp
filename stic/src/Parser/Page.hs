@@ -29,7 +29,7 @@ pagePropertyRoute :: Parser PageProperty
 pagePropertyRoute = Route <$> waspPropertyStringLiteral "route"
 
 pagePropertyContent :: Parser PageProperty
-pagePropertyContent = Content <$> waspPropertyClosure "content"
+pagePropertyContent = Content <$> waspPropertyJsxClosure "content"
 
 -- TODO(matija): unsafe, what if empty list?
 getPageRoute :: [PageProperty] -> String

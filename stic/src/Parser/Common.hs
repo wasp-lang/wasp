@@ -4,7 +4,7 @@
 
 module Parser.Common where
 
-import Text.Parsec (ParseError, parse, many, noneOf)
+import Text.Parsec (ParseError, parse, many, noneOf, anyChar, manyTill, try)
 import Text.Parsec.String (Parser)
 import qualified Data.Text as T
 
@@ -41,15 +41,29 @@ waspProperty key value = symbol key <* colon *> value
 waspPropertyStringLiteral :: String -> Parser String
 waspPropertyStringLiteral key = waspProperty key stringLiteral
 
--- | Parses wasp property which has a clojure for a value. Returns content within the
--- clojure.
+-- | Parses wasp property which has a closure for a value. Returns the content within the
+-- closure.
 waspPropertyClosure :: String -> Parser String
 waspPropertyClosure key = waspProperty key waspClosure
 
--- | Parses wasp clojure, which is {...}. Returns content within the clojure.
--- NOTE(matija): currently it is not supported to have clojure within a clojure.
+-- | Parses wasp property which has a jsx closure for a value. Returns the content
+-- within the closure.
+waspPropertyJsxClosure :: String -> Parser String
+waspPropertyJsxClosure key = waspProperty key waspJsxClosure
+
+-- | Parses wasp clojure, which is {...}. Returns content within the closure.
+-- NOTE(matija): currently it is not supported to have clojure within a closure.
 waspClosure :: Parser String
 waspClosure = strip <$> (braces $ many $ noneOf "{}")
+
+-- | Parses wasp jsx closure, which is {=jsx...jsx=}. Returns content within the closure.
+waspJsxClosure :: Parser String
+waspJsxClosure = do
+    _ <- jsxClosureStart
+    strip <$> (manyTill anyChar (try jsxClosureEnd))
+  where
+      jsxClosureStart = symbol "{=jsx"
+      jsxClosureEnd = symbol "jsx=}"
 
 -- | Removes leading and trailing spaces from a string.
 strip :: String -> String

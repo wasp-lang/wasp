@@ -20,7 +20,7 @@ spec_parsePage =
             parsePage (
                 "page " ++ testPageName ++ " { " ++
                     "route: \"" ++ testPageRoute ++ "\"," ++ 
-                    "content: { " ++ testPageContent ++ " }" ++ 
+                    "content: {=jsx " ++ testPageContent ++ " jsx=}" ++ 
                 "}")
                 `shouldBe` Right (Wasp.Page
                     { Wasp.pageName = testPageName
@@ -29,4 +29,4 @@ spec_parsePage =
                     })
 
         it "When given page wasp declaration without 'page', should return Left" $ do
-            isLeft (parsePage "Landing { route: someRoute })") `shouldBe` True
+            isLeft (parsePage "Landing { route: someRoute }") `shouldBe` True

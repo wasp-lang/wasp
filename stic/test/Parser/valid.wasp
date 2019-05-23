@@ -9,9 +9,9 @@ app test_app {
 // Page definition.
 page Landing {
     route: "/home",
-    content: {
-        <div>My landing page!</div>
-    }
+    content: {=jsx
+        <div>My landing page! {Tasks.count}</div>
+    jsx=}
 }
 
 // Entity definition.

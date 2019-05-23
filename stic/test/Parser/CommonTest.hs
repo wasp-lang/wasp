@@ -45,12 +45,24 @@ spec_parseWaspCommon = do
         let parseWaspPropertyClosure key input =
                 runWaspParser (waspPropertyClosure key) input
 
-        it "When given int, returns Left." $ do
+        it "When given unexpected property key, returns Left." $ do
             isLeft (parseWaspPropertyClosure "content" "title: 23")
                 `shouldBe` True
 
         it "When given content within braces, returns that content." $ do
             parseWaspPropertyClosure "content" "content: {  some content   }"
+                `shouldBe` Right "some content"
+
+    describe "Parsing wasp property - jsx closure {=jsx...jsx=}" $ do
+        let parseWaspPropertyJsxClosure key input =
+                runWaspParser (waspPropertyJsxClosure key) input
+
+        it "When given unexpected property key, returns Left." $ do
+            isLeft (parseWaspPropertyJsxClosure "content" "title: 23")
+                `shouldBe` True
+
+        it "When given content within jsx closure, returns that content." $ do
+            parseWaspPropertyJsxClosure "content" "content: {=jsx  some content   jsx=}"
                 `shouldBe` Right "some content"
 
     describe "Parsing wasp closure" $ do
@@ -63,4 +75,22 @@ spec_parseWaspCommon = do
 
         it "Removes leading and trailing spaces" $ do
             parseWaspClosure ("{   " ++  closureContent ++ "   }")
+                `shouldBe` Right closureContent
+
+    describe "Parsing wasp jsx closure" $ do
+        let parseWaspJsxClosure input = runWaspParser waspJsxClosure input
+        let closureContent = "<div>hello world</div>"
+
+        it "Returns the content of closure" $ do
+            parseWaspJsxClosure ("{=jsx " ++ closureContent ++ " jsx=}")
+                `shouldBe` Right closureContent
+
+        it "Can parse braces {} within the closure" $ do
+            let closureContentWithBraces = "<div>hello world {task.length}</div>"
+
+            parseWaspJsxClosure ("{=jsx " ++ closureContentWithBraces ++ " jsx=}")
+                `shouldBe` Right closureContentWithBraces
+
+        it "Removes leading and trailing spaces" $ do
+            parseWaspJsxClosure ("{=jsx   " ++  closureContent ++ "   jsx=}")
                 `shouldBe` Right closureContent

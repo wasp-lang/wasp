@@ -25,7 +25,7 @@ spec_parseWasp =
                     , WaspElementPage $ Page
                         { pageName = "Landing"
                         , pageRoute = "/home"
-                        , pageContent = "<div>My landing page!</div>"
+                        , pageContent = "<div>My landing page! {Tasks.count}</div>"
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"
