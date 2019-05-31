@@ -10,7 +10,16 @@ app test_app {
 page Landing {
     route: "/",
     content: {=jsx
-        <div>My landing page! I have { this.props.taskList.length } tasks. </div>
+        <div>
+          My landing page! I have { this.props.taskList.length } tasks.
+
+          <div>
+            <TaskCreateForm
+              onCreate={task => this.props.addTask(task)}
+              submitButtonLabel={'Create new task'}
+            />
+          </div>
+        </div>
     jsx=}
 }
 

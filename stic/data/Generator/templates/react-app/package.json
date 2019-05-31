@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.0.0-rc.0",
+    "lodash": "^4.17.11",
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
     "react-redux": "^7.0.3",

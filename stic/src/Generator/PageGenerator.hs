@@ -34,4 +34,5 @@ generatePage wasp page = createTemplateFileDraft dstPath srcPath templateData
         , "entityStatePath" .= ("./" ++ (EntityGenerator.entityStatePathInSrc entity))
         , "entityActionsPath" .= ("./" ++ (EntityGenerator.entityActionsPathInSrc entity))
         , "entityClassPath" .= ("./" ++ (EntityGenerator.entityClassPathInSrc entity))
+        , "entityCreateFormPath" .= ("./" ++ (EntityGenerator.entityCreateFormPathInSrc entity))
         ]

@@ -25,7 +25,19 @@ spec_parseWasp =
                     , WaspElementPage $ Page
                         { pageName = "Landing"
                         , pageRoute = "/"
-                        , pageContent = "<div>My landing page! I have { this.props.taskList.length } tasks. </div>"
+                        -- TODO: This is heavily hardcoded and hard to maintain, we should find
+                        --   better way to test this (test a property, not exact text?) Or keep valid.wasp simple?
+                        --   Or use manual snapshot file as Matija suggested?
+                        , pageContent = "<div>\n\
+                                        \          My landing page! I have { this.props.taskList.length } tasks.\n\
+                                        \\n\
+                                        \          <div>\n\
+                                        \            <TaskCreateForm\n\
+                                        \              onCreate={task => this.props.addTask(task)}\n\
+                                        \              submitButtonLabel={'Create new task'}\n\
+                                        \            />\n\
+                                        \          </div>\n\
+                                        \        </div>"
                         }
                     , WaspElementPage $ Page
                         { pageName = "TestPage"

@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import * as {= entityLowerName =}State from '{= entityStatePath =}'
 import * as {= entityLowerName =}Actions from '{= entityActionsPath =}'
 import {= entity.name =} from '{= entityClassPath =}'
+import {= entity.name =}CreateForm from '{= entityCreateFormPath =}'
 {=/ entities =}
 
 
