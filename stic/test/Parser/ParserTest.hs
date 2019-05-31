@@ -24,8 +24,13 @@ spec_parseWasp =
                         }
                     , WaspElementPage $ Page
                         { pageName = "Landing"
-                        , pageRoute = "/home"
-                        , pageContent = "<div>My landing page! {Tasks.count}</div>"
+                        , pageRoute = "/"
+                        , pageContent = "<div>My landing page! I have { this.props.taskList.length } tasks. </div>"
+                        }
+                    , WaspElementPage $ Page
+                        { pageName = "TestPage"
+                        , pageRoute = "/test"
+                        , pageContent = "<div>This is a test page!</div>"
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"

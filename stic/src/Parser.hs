@@ -37,6 +37,7 @@ waspParser = do
 
     -- TODO(matija): after we parsed everything, we should do semantic analysis
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
+    -- Also, check there is at least one Page defined.
 
     return $ Wasp.fromWaspElems waspElems
 

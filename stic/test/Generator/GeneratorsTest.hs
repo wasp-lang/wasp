@@ -41,9 +41,6 @@ spec_Generators = do
                       ]
                     , map ("src" </>)
                       [ "logo.png"
-                      , "App.css"
-                      , "App.js"
-                      , "App.test.js"
                       , "index.css"
                       , "index.js"
                       , "reducers.js"

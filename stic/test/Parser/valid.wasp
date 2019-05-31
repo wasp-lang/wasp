@@ -8,9 +8,16 @@ app test_app {
 
 // Page definition.
 page Landing {
-    route: "/home",
+    route: "/",
     content: {=jsx
-        <div>My landing page! {Tasks.count}</div>
+        <div>My landing page! I have { this.props.taskList.length } tasks. </div>
+    jsx=}
+}
+
+page TestPage {
+    route: "/test",
+    content: {=jsx
+        <div>This is a test page!</div>
     jsx=}
 }
 
