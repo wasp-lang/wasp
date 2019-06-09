@@ -20,6 +20,8 @@ module Wasp
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
+import qualified Data.Aeson as Aeson
+import qualified Data.Text as T
 
 
 -- * Wasp
@@ -88,13 +90,18 @@ data EntityField = EntityField
     , entityFieldType :: !EntityFieldType
     } deriving (Show, Eq)
 
-data EntityFieldType = EftString | EftBoolean deriving (Show, Eq)
+data EntityFieldType = EftString | EftBoolean deriving (Eq)
+
+instance Show EntityFieldType where
+    show EftString = "string"
+    show EftBoolean = "boolean"
 
 getEntities :: Wasp -> [Entity]
 getEntities (Wasp elems) = [entity | (WaspElementEntity entity) <- elems]
 
 addEntity :: Wasp -> Entity -> Wasp
 addEntity (Wasp elems) entity = Wasp $ (WaspElementEntity entity):elems
+
 
 -- * ToJSON instances.
 
@@ -128,8 +135,7 @@ instance ToJSON EntityField where
         ]
 
 instance ToJSON EntityFieldType where
-    toJSON EftString = "string"
-    toJSON EftBoolean = "boolean"
+    toJSON = Aeson.String . T.pack . show
 
 instance ToJSON Wasp where
     toJSON wasp = object

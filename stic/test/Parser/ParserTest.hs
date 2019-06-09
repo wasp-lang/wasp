@@ -37,6 +37,9 @@ spec_parseWasp =
                                         \              submitButtonLabel={'Create new task'}\n\
                                         \            />\n\
                                         \          </div>\n\
+                                        \\n\
+                                        \          My tasks\n\
+                                        \          <TaskList />\n\
                                         \        </div>"
                         }
                     , WaspElementPage $ Page

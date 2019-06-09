@@ -19,6 +19,9 @@ page Landing {
               submitButtonLabel={'Create new task'}
             />
           </div>
+
+          My tasks
+          <TaskList />
         </div>
     jsx=}
 }

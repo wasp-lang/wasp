@@ -5,6 +5,7 @@ module Generator.Templates
        ) where
 
 import qualified Text.Mustache as Mustache
+import Text.Mustache.Render (SubstitutionError(..))
 import qualified Data.Aeson as Aeson
 import System.FilePath ((</>))
 import Data.Text (Text)
@@ -50,11 +51,23 @@ compileMustacheTemplate templateRelPath = do
     raiseCompileError err = error $  -- TODO: Handle these errors better?
         printf "Compilation of template %s failed. %s" templateRelPath (show err)
 
+areAllErrorsSectionDataNotFound :: [SubstitutionError] -> Bool
+areAllErrorsSectionDataNotFound subsErrors = all isSectionDataNotFoundError subsErrors
+  where
+    isSectionDataNotFoundError e = case e of
+        SectionTargetNotFound _ -> True
+        _ -> False
+
 renderMustacheTemplate :: Mustache.Template -> Aeson.Value -> IO Text
 renderMustacheTemplate mustacheTemplate templateData = do
     let mustacheTemplateData = Mustache.toMustache templateData
     let (errors, fileText) =
             Mustache.checkedSubstituteValue mustacheTemplate mustacheTemplateData
-    if (null errors)  -- TODO: Handle these errors better.
+
+    -- NOTE(matija): Mustache reports errors when object does
+    -- not have a property specified in the template, which we use to implement
+    -- conditionals. This is why we ignore these errors.
+    if (null errors) || (areAllErrorsSectionDataNotFound errors)
         then (return fileText)
-        else (error $ "Errors occured while rendering template: " ++ (show errors))
+        else (error $ "Unexpected errors occured while rendering template: "
+            ++ (show errors))

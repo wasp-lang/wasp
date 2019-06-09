@@ -6,6 +6,7 @@ module Generator.EntityGenerator
        , entityStatePathInSrc
        , entityActionsPathInSrc
        , entityCreateFormPathInSrc
+       , entityListPathInSrc
 
        -- EXPORTED FOR TESTING:
        , generateEntityClass
@@ -17,6 +18,7 @@ module Generator.EntityGenerator
 
 import Data.Aeson ((.=), object)
 import qualified Data.Aeson as Aeson
+import qualified Data.Text as Text
 import System.FilePath (FilePath, (</>), (<.>))
 
 import qualified Util
@@ -56,6 +58,7 @@ generateEntityActions wasp entity
 generateEntityComponents :: Wasp -> Entity -> [FileDraft]
 generateEntityComponents wasp entity =
     [ generateEntityCreateForm wasp entity
+    , generateEntityList wasp entity
     ]
 
 -- TODO: add tests / update tests.
@@ -76,6 +79,13 @@ generateEntityCreateForm wasp entity
     = createSimpleEntityFileDraft wasp entity (entityCreateFormPathInSrc entity)
                                   ("components" </> "CreateForm.js")
 
+-- TODO(matija): do I need wasp at all?
+-- | Generates list component for the specified entity, so user can see all the
+-- entity instances.
+generateEntityList :: Wasp -> Entity -> FileDraft
+generateEntityList wasp entity
+    = createSimpleEntityFileDraft wasp entity (entityListPathInSrc entity)
+                                  ("components" </> "List.js")
 
 -- | Helper function that captures common logic for generating entity file draft.
 createSimpleEntityFileDraft :: Wasp -> Entity -> FilePath -> FilePath -> FileDraft
@@ -86,6 +96,22 @@ createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
     dstPath = "src" </> dstPathInSrc
     templateData = entityTemplateData wasp entity
 
+{- | Converts entity field to a JSON where field type is a key to the object holding
+all the other properties. E.g. a field of type boolean could look this as JSON:
+
+{ boolean: { name: "description", type: "boolean" }
+
+This method is needed to achieve conditional rendering with Mustache.
+-}
+entityFieldToJsonWithTypeAsKey :: EntityField -> Aeson.Value
+entityFieldToJsonWithTypeAsKey entityField = object
+    -- TODO(matija): maybe it would be cleaner to have a flat structure, like
+    -- { boolean: true, type: "boolean", name: "description" }
+    [ (toText $ entityFieldType entityField) .= entityField
+    ]
+  where
+    toText = Text.pack . show
+
 -- | Default generic data for entity templates.
 entityTemplateData :: Wasp -> Entity -> Aeson.Value
 entityTemplateData wasp entity = object
@@ -95,6 +121,7 @@ entityTemplateData wasp entity = object
     -- TODO: this entityClassName is used only in CreateForm, use it also when creating
     --   Class file itself and in other files.
     , "entityClassName" .= (Util.toUpperFirst $ entityName entity)
+    , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
     ]
 
 -- | Location in templates where entity related templates reside.
@@ -119,8 +146,13 @@ entityActionTypesPathInSrc entity = (entityDirPathInSrc entity) </> "actionTypes
 entityClassPathInSrc :: Entity -> FilePath
 entityClassPathInSrc entity = (entityDirPathInSrc entity) </> (entityName entity) <.> "js"
 
+-- * Components
+
 entityComponentsDirPathInSrc :: Entity -> FilePath
 entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> "components"
 
 entityCreateFormPathInSrc :: Entity -> FilePath
 entityCreateFormPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "CreateForm.js"
+
+entityListPathInSrc :: Entity -> FilePath
+entityListPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "List.js"
