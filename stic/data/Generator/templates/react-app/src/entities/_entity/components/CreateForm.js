@@ -14,13 +14,17 @@ export default class CreateForm extends React.Component {
   // TODO: Add propTypes.
 
   state = {
-    // TODO: Set to default values, not just undefined?
-    //   How would we define these default values?
-    //   Or maybe undefined is fine? How would this play with validation?
+    // TODO(matija): Currently we hardcoded default values for each field type.
+    // In the future we might let user decide on the default value.
     fields: {
-      {=# entity.fields =}
-      {= name =}: undefined,
-      {=/ entity.fields =}
+      {=# entityTypedFields =}
+      {=# boolean =}
+      {= name =}: false,
+      {=/ boolean =}
+      {=# string =}
+      {= name =}: '',
+      {=/ string =}
+      {=/ entityTypedFields =}
     }
   }
 
@@ -50,39 +54,35 @@ export default class CreateForm extends React.Component {
       <div style={ { margin: '20px' } }>
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
 
-          {=# entity.fields =}
-          <div>
-            {= name =}
-          </div>
+          {=# entityTypedFields =}
 
-          {/* TODO: Generate appropriate code regarding on field type. How will I do this? Partials?
-                I have to figure out how to do this in mustache.
-          */}
-          {/*
+          {=# boolean =}
            <div>
             <FormControlLabel
-              label="isDone"
+              label="{= name =}"
               control={
                 <Switch
-                  checked={this.getField('isDone')}
-                  onChange={() => this.toggleField('isDone')}
-                  value="isDone"
+                  checked={this.getField('{= name =}')}
+                  onChange={() => this.toggleField('{= name =}')}
+                  value="{= name =}"
                 />
               }
             />
           </div>
+          {=/ boolean =}
 
+          {=# string =}
           <div>
             <TextField
-              label="Description"
-              value={this.getField('description')}
-              onChange={event => this.setField('description', event.target.value)}
+              label="{= name =}"
+              value={this.getField('{= name =}')}
+              onChange={event => this.setField('{= name =}', event.target.value)}
               margin="normal"
             />
           </div>
-          */}
+          {=/ string =}
 
-          {=/ entity.fields =}
+          {=/ entityTypedFields =}
 
           <div>
             <Button type="submit" variant="contained" color="primary">

@@ -41,7 +41,7 @@ export class List extends React.Component {
                   {=# entityTypedFields =}
                   {=# boolean =}
                     <TableCell>
-                      {{= entityLowerName =}.{= name =} || 'no bool value'}
+                      {{= entityLowerName =}.{= name =}.toString() || 'no bool value'}
                     </TableCell>
                   {=/ boolean =}
                   {=# string =}

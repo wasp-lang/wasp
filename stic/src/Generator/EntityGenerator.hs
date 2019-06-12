@@ -99,15 +99,18 @@ createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
 {- | Converts entity field to a JSON where field type is a key to the object holding
 all the other properties. E.g. a field of type boolean could look this as JSON:
 
-{ boolean: { name: "description", type: "boolean" }
+{ boolean: { name: "description", type: "boolean" }, name: "description" }
 
-This method is needed to achieve conditional rendering with Mustache.
+This method is needed to achieve conditional rendering with Mustache. We also add "name"
+property again along with the type because it is otherwise not accessible outside of
+a specific conditional section.
 -}
 entityFieldToJsonWithTypeAsKey :: EntityField -> Aeson.Value
 entityFieldToJsonWithTypeAsKey entityField = object
-    -- TODO(matija): maybe it would be cleaner to have a flat structure, like
+    -- TODO(matija): it would be cleaner to have a flat structure, like
     -- { boolean: true, type: "boolean", name: "description" }
     [ (toText $ entityFieldType entityField) .= entityField
+    , "name" .= entityFieldName entityField
     ]
   where
     toText = Text.pack . show
@@ -118,8 +121,7 @@ entityTemplateData wasp entity = object
     [ "wasp" .= wasp
     , "entity" .= entity
     , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
-    -- TODO: this entityClassName is used only in CreateForm, use it also when creating
-    --   Class file itself and in other files.
+    -- TODO: use it also when creating Class file itself and in other files.
     , "entityClassName" .= (Util.toUpperFirst $ entityName entity)
     , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
     ]
