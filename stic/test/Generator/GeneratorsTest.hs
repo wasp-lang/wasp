@@ -9,6 +9,7 @@ import Generator.Generators
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
 import Generator.FileDraft.CopyFileDraft
+import Generator.FileDraft.TextFileDraft
 import Wasp
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
@@ -17,7 +18,7 @@ import Wasp
 spec_Generators :: Spec
 spec_Generators = do
     let testApp = (App "TestApp" "Test App")
-    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>")
+    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
 
@@ -66,6 +67,9 @@ spec_Generators = do
 existsFdWithDst :: [FileDraft] -> FilePath -> Bool
 existsFdWithDst fds dstPath = any ((== dstPath) . getFileDraftDstPath) fds
 
+-- TODO(martin): This should really become part of the WriteableToFile typeclass,
+--   since it is smth we want to do for all file drafts.
 getFileDraftDstPath :: FileDraft -> FilePath
 getFileDraftDstPath (FileDraftTemplateFd fd) = templateFileDraftDstFilepath fd
 getFileDraftDstPath (FileDraftCopyFd fd) = copyFileDraftDstFilepath fd
+getFileDraftDstPath (FileDraftTextFd fd) = textFileDraftDstFilepath fd

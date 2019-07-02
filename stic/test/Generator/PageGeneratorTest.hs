@@ -13,11 +13,11 @@ import Generator.PageGenerator
 spec_PageGenerator :: Spec
 spec_PageGenerator = do
     let testApp = (App "TestApp" "Test App")
-    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>")
+    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
     let testWasp = (fromApp testApp) `addPage` testPage
 
-    describe "generatePage" $ do
+    describe "generatePageComponent" $ do
         it "Given a simple Wasp, creates template file draft from _Page.js" $ do
             let (FileDraftTemplateFd (TemplateFileDraft _ srcPath _))
-                    = generatePage testWasp (head $ getPages testWasp)
+                    = generatePageComponent testWasp (head $ getPages testWasp)
             srcPath `shouldBe` "src" </> "_Page.js"

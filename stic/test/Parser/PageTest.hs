@@ -26,6 +26,7 @@ spec_parsePage =
                     { Wasp.pageName = testPageName
                     , Wasp.pageRoute = testPageRoute
                     , Wasp.pageContent = testPageContent
+                    , Wasp.pageStyle = Nothing
                     })
 
         it "When given page wasp declaration without 'page', should return Left" $ do

@@ -51,6 +51,11 @@ waspPropertyClosure key = waspProperty key waspClosure
 waspPropertyJsxClosure :: String -> Parser String
 waspPropertyJsxClosure key = waspProperty key waspJsxClosure
 
+-- | Parses wasp property which has a css closure for a value. Returns the content
+-- within the closure.
+waspPropertyCssClosure :: String -> Parser String
+waspPropertyCssClosure key = waspProperty key waspCssClosure
+
 -- | Parses wasp clojure, which is {...}. Returns content within the closure.
 -- NOTE(matija): currently it is not supported to have clojure within a closure.
 waspClosure :: Parser String
@@ -58,12 +63,21 @@ waspClosure = strip <$> (braces $ many $ noneOf "{}")
 
 -- | Parses wasp jsx closure, which is {=jsx...jsx=}. Returns content within the closure.
 waspJsxClosure :: Parser String
-waspJsxClosure = do
-    _ <- jsxClosureStart
-    strip <$> (manyTill anyChar (try jsxClosureEnd))
+waspJsxClosure = waspNamedClosure "jsx"
+
+-- | Parses wasp css closure, which is {=css...css=}. Returns content within the closure.
+waspCssClosure :: Parser String
+waspCssClosure = waspNamedClosure "css"
+
+-- TODO(martin): write tests and comments.
+-- | Parses wasp css closure, which is {=name...name=}. Returns content within the closure.
+waspNamedClosure :: String -> Parser String
+waspNamedClosure name = do
+    _ <- closureStart
+    strip <$> (manyTill anyChar (try closureEnd))
   where
-      jsxClosureStart = symbol "{=jsx"
-      jsxClosureEnd = symbol "jsx=}"
+      closureStart = symbol ("{=" ++ name)
+      closureEnd = symbol (name ++ "=}")
 
 -- | Removes leading and trailing spaces from a string.
 strip :: String -> String

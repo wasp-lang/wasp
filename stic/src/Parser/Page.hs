@@ -4,6 +4,9 @@ module Parser.Page
 
 import Text.Parsec
 import Text.Parsec.String (Parser)
+import Data.Text (Text)
+import qualified Data.Text as Text
+import Data.Maybe (listToMaybe)
 
 import Lexer
 import qualified Wasp
@@ -13,6 +16,7 @@ data PageProperty
     = Title !String
     | Route !String
     | Content !String
+    | Style !Text
     deriving (Show, Eq)
 
 -- | Parses Page properties, separated by a comma.
@@ -21,6 +25,7 @@ pageProperties = commaSep1 $
     pagePropertyTitle
     <|> pagePropertyRoute
     <|> pagePropertyContent
+    <|> pagePropertyStyle
 
 pagePropertyTitle :: Parser PageProperty
 pagePropertyTitle = Title <$> waspPropertyStringLiteral "title"
@@ -31,6 +36,9 @@ pagePropertyRoute = Route <$> waspPropertyStringLiteral "route"
 pagePropertyContent :: Parser PageProperty
 pagePropertyContent = Content <$> waspPropertyJsxClosure "content"
 
+pagePropertyStyle :: Parser PageProperty
+pagePropertyStyle = (Style . Text.pack) <$> waspPropertyCssClosure "style"
+
 -- TODO(matija): unsafe, what if empty list?
 getPageRoute :: [PageProperty] -> String
 -- TODO(matija): we are repeating this pattern. How can we extract it? Consider using
@@ -39,6 +47,9 @@ getPageRoute ps = head $ [r | Route r <- ps]
 
 getPageContent :: [PageProperty] -> String
 getPageContent ps = head $ [c | Content c <- ps]
+
+getPageStyle :: [PageProperty] -> Maybe Text
+getPageStyle ps = listToMaybe [s | Style s <- ps]
 
 -- | Top level parser, parses Page.
 page :: Parser Wasp.Page
@@ -49,4 +60,5 @@ page = do
         { Wasp.pageName = pageName
         , Wasp.pageRoute = getPageRoute pageProps
         , Wasp.pageContent = getPageContent pageProps
+        , Wasp.pageStyle = getPageStyle pageProps
         }

@@ -21,7 +21,8 @@ module Wasp
 
 import Data.Aeson ((.=), object, ToJSON(..))
 import qualified Data.Aeson as Aeson
-import qualified Data.Text as T
+import Data.Text (Text)
+import qualified Data.Text as Text
 
 
 -- * Wasp
@@ -70,6 +71,8 @@ data Page = Page
     { pageName :: !String
     , pageRoute :: !String
     , pageContent :: !String
+    -- | TODO(martin): I did not know how to apply strictness annotation (!) here.
+    , pageStyle :: Maybe Text
     } deriving (Show, Eq)
 
 getPages :: Wasp -> [Page]
@@ -135,7 +138,7 @@ instance ToJSON EntityField where
         ]
 
 instance ToJSON EntityFieldType where
-    toJSON = Aeson.String . T.pack . show
+    toJSON = Aeson.String . Text.pack . show
 
 instance ToJSON Wasp where
     toJSON wasp = object

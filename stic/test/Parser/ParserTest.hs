@@ -7,7 +7,7 @@ import Parser
 import Wasp
 
 spec_parseWasp :: Spec
-spec_parseWasp = 
+spec_parseWasp =
     describe "Parsing wasp" $ do
         it "When given wasp without app, should return Left" $ do
             isLeft (parseWasp "hoho") `shouldBe` True
@@ -41,11 +41,15 @@ spec_parseWasp =
                                         \          My tasks\n\
                                         \          <TaskList />\n\
                                         \        </div>"
+                        , pageStyle = Just "div {\n\
+                                      \          color: red\n\
+                                      \        }"
                         }
                     , WaspElementPage $ Page
                         { pageName = "TestPage"
                         , pageRoute = "/test"
                         , pageContent = "<div>This is a test page!</div>"
+                        , pageStyle = Nothing
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"

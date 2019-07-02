@@ -23,7 +23,12 @@ page Landing {
           My tasks
           <TaskList />
         </div>
-    jsx=}
+    jsx=},
+    style: {=css
+        div {
+          color: red
+        }
+    css=}
 }
 
 page TestPage {

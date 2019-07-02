@@ -9,6 +9,9 @@ import {= entity.name =} from '{= entityClassPath =}'
 import {= entity.name =}CreateForm from '{= entityCreateFormPath =}'
 import {= entity.name =}List from '{= entityListPath =}'
 {=/ entities =}
+{=# pageStylePath =}
+import '{= pageStylePath =}'
+{=/ pageStylePath =}
 
 
 export class {= page.name =} extends Component {
