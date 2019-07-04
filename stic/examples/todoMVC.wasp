@@ -1,0 +1,47 @@
+// Goal of this file is to re-create a TODO app from http://todomvc.com
+
+// -- Entities
+entity Task {
+    description :: string,
+    isDone :: boolean
+}
+
+// -- App and pages
+app todoMVC {
+    title: "ToDo MVC"
+}
+
+page Main {
+    route: "/",
+
+    style: {=css 
+        div {
+            color: green;
+        }
+
+        .mainContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .taskListContainer {
+            width: 60%;
+        }
+    css=},
+
+    content: {=jsx 
+        <div className="mainContainer">
+            <h1>todos</h1>
+
+            <TaskCreateForm
+                onCreate={task => this.props.addTask(task)}
+                submitButtonLabel={'Create new task'}
+            />
+
+            <div className="taskListContainer">
+                <TaskList />
+            </div>
+        </div>
+    jsx=}
+}
