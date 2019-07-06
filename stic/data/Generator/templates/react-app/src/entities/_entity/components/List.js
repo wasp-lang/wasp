@@ -9,6 +9,7 @@ import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import Checkbox from '@material-ui/core/Checkbox'
 
 import * as {= entityLowerName =}State from '../state'
 
@@ -26,22 +27,29 @@ export class List extends React.Component {
               <TableRow>
                 {=# entityTypedFields =}
                 {=# boolean =}
-                  <TableCell>{= name =} (bool)</TableCell>
+                  <TableCell>{= name =}</TableCell>
                 {=/ boolean =}
                 {=# string =}
-                  <TableCell>{= name =} (string)</TableCell>
+                  <TableCell>{= name =}</TableCell>
                 {=/ string =}
                 {=/ entityTypedFields =}
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {this.props.{= entityLowerName =}List.map({= entityLowerName =} => (
-                <TableRow>
+              {this.props.{= entityLowerName =}List.map(({= entityLowerName =}, idx) => (
+                <TableRow key={idx}>
                   {=# entityTypedFields =}
                   {=# boolean =}
                     <TableCell>
-                      {{= entityLowerName =}.{= name =}.toString() || 'no bool value'}
+                      <Checkbox
+                        checked={{= entityLowerName =}.{= name =}}
+                        disabled
+                        color="default"
+                        inputProps={{
+                          'aria-label': 'checkbox'
+                        }}
+                      />
                     </TableCell>
                   {=/ boolean =}
                   {=# string =}
