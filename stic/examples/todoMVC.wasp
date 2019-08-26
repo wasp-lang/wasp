@@ -40,7 +40,7 @@ page Main {
             />
 
             <div className="taskListContainer">
-                <TaskList />
+                <TaskList editable />
             </div>
         </div>
     jsx=}

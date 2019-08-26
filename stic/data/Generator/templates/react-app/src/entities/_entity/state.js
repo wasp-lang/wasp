@@ -21,6 +21,12 @@ const reducer = (state = initialState, action) => {
         all: [ ...state.all, action.data ]
       }
 
+    case types.UPDATE:
+      return {
+        ...state,
+        all: state.all.map(({= entityLowerName =}, idx) => idx === action.idx ? action.data : {= entityLowerName =})
+      }
+
     default:
       return state
   }
