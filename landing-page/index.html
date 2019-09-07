@@ -26,16 +26,17 @@
 
                 <div class="navbar-brand">
                     <a class="navbar-item" href="https://wasp-lang.dev">
-                        <img src="assets/wasp-logo.png" class="logo">
+                        <img src="assets/wasp-logo.png">
                     </a>
+                    <h3 class="navbar-item title is-4">.wasp</h3>
                 </div>
 
                 <div class="navbar-menu">
                     <div class="navbar-start">
-                        <h3 class="navbar-item title is-4">.wasp</h3>
                     </div>
 
                     <div class="navbar-end">
+                        <a class="navbar-item" href="https://blog.wasp-lang.dev/">Blog</a>
                         <a class="navbar-item">Documentation</a>
                         <a class="navbar-item">Examples</a>
 
@@ -61,10 +62,17 @@
                         Web App Specification Language
                     </h1>
                     <h2 class="subtitle is-4">
-                        An extensible DSL for building modern web applications.
+                        A programming language that understands what <em>web app</em> means.
                     </h2>
+                    <h3 class="subtitle is-5">
+                        <a href="https://blog.wasp-lang.dev/posts/2019-09-01-hello-wasp.html">
+                            Learn more about why we built Wasp >
+                        </a>
+                    </h3>
+                    <!--
                     <a class="button-start button is-primary is-medium">Get started</a>
                     <a class="button-tutorial button is-medium">Take the tutorial</a>
+                    -->
                 </div>
             </div>
         </section>
@@ -85,46 +93,60 @@
     </div>
     -->
 
+    <!-- One-line explanation -->
+    <section class="section has-text-centered">
+        <div class="container">
+            <h3 class="title is-4 has-text-weight-normal">
+                Wasp is an extensible DSL for building modern web apps with less code.
+            </h3>
+            <h4 class="subtitle is-5 section-text">
+                Concepts such as <em>app</em>, <em>page</em>, <em>user</em>, <em>login</em>,
+                <em>production</em> etc. are baked into the language, providing an unmatched
+                expressiveness.
+            </h4>
+        </div>
+    </section>
+
+    <!-- Page break section with logo -->
+    <section class="section has-text-centered">
+        <img class="logo" src="assets/wasp-logo.png">
+    </section>
+
     <!-- Benefits -->
     <section class="benefits section has-text-centered">
         <div class="container">
-            <!--
-            <h1 class="title">Benefits</h1>
-            <h2 class="subtitle">
-                Benefits as columns come here.
-            </h2>
-            -->
 
             <div class="columns">
                 <div class="column">
                     <div class="content">
-                        <h2 class="title">Easy to start</h2>
+                        <h2 class="title">Powerful</h2>
                         <p class="has-text-left">
-                            Start building your web app lightning fast! Minimal configuration and
-                            a declarative approach.
+                            Create a production-ready web app from scratch with only a few lines
+                            of a concise, declarative code.
                         </p>
                     </div>
                 </div>
                 <div class="column">
                     <div class="content">
-                        <h2 class="title">Best practices</h2>
+                        <h2 class="title">Flexible</h2>
                         <p class="has-text-left">
-                            WASP produces real javascript code which looks like it was
-                            handwritten by a senior engineer, using the industry best practices.
+                            Move fast using high-level constructs provided by Wasp or drop down
+                            to js/html/css/... when you require more control.
                         </p>
                     </div>
                 </div>
                 <div class="column">
                     <div class="content">
-                        <h2 class="title">Eject anytime</h2>
+                        <h2 class="title">No lock-in</h2>
                         <p class="has-text-left">
-                            No risk of a lock-in effect - if WASP can no longer satisfy your
-                            app's requirements simply eject the project with all the source code
-                            and continue yourself.
+                            If Wasp becomes too limiting for you, simply eject and continue
+                            with the source code following industry best-practices, as if it was
+                            handwritten by a senior engineer.
                         </p>
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 
@@ -141,12 +163,12 @@
         <div class="container">
             <div class="columns">
                 <div class="column is-one-third">
-                    <h2 class="subtitle">One step higher</h2>
+                    <h2 class="subtitle">One level above</h2>
                     <p>
-                        WASP understands the inner workings of the web app - abstractions
-                        specific for an app design, such as <code>page</code> and
-                        <code>entity</code> are embedded in the language to provide a
-                        head start to developers.
+                        Wasp understands the inner workings of the web app. Specific abstractions,
+                        such as <code>user</code>, <code>page</code> and
+                        <code>entity</code> are embedded in the language by design. Skip writing
+                        boilerplate code and get a working web app with just a few lines of code.
                     </p>
                 </div>
                 <div class="column is-two-thirds">
@@ -162,7 +184,7 @@
                                 isDone :: boolean
                             }
 
-                            page Landing {
+                            page Main {
                                 route: "/home",
                                 content: {
                                     <div>Hello World!</div>
