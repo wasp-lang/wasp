@@ -37,8 +37,10 @@
 
                     <div class="navbar-end">
                         <a class="navbar-item" href="https://blog.wasp-lang.dev/">Blog</a>
+                        <!--
                         <a class="navbar-item">Documentation</a>
                         <a class="navbar-item">Examples</a>
+                        -->
 
                         <span class="navbar-item">
                             <a class="button is-dark">
@@ -100,9 +102,13 @@
                 Wasp is an extensible DSL for building modern web apps with less code.
             </h3>
             <h4 class="subtitle is-5 section-text">
-                Concepts such as <em>app</em>, <em>page</em>, <em>user</em>, <em>login</em>,
-                <em>production</em> etc. are baked into the language, providing an unmatched
-                expressiveness.
+                Concepts such as
+                <strong><em>app</em></strong>,
+                <strong><em>page</em></strong>,
+                <strong><em>user</em></strong>,
+                <strong><em>login</em></strong>,
+                <strong><em>production</em></strong>
+                etc. are baked into the language, providing an unmatched expressiveness.
             </h4>
         </div>
     </section>
@@ -185,9 +191,15 @@
                             }
 
                             page Main {
-                                route: "/home",
+                                route: "/",
                                 content: {
-                                    <div>Hello World!</div>
+                                    <h1>Todos</h1>
+
+                                    <CreateNewTaskForm
+                                        submitButtonLabel="Create new task"
+                                    />
+
+                                    <TaskList isEditable="true" />
                                 }
                             }
 
@@ -221,8 +233,8 @@
                                 isDone :: boolean
                             }
 
-                            page Landing {
-                                route: "/home",
+                            page Overview {
+                                route: "/overview",
                                 content: {
                                     <div>
                                         You have { Task.count() } active tasks.
@@ -273,16 +285,19 @@
         </div>
     </section>
 
-    <div class="container">
-        <hr class="hr" style="margin-bottom: 0;">
-    </div>
-
     <!-- Final CTA -->
     <section class="section has-text-centered">
         <div class="container">
+            <!--
             <a class="button-start button is-primary is-medium">Get started</a>
             <a class="button-tutorial button is-medium">Take the tutorial</a>
+            -->
         </div>
+    </section>
+
+    <!-- Page break section with logo -->
+    <section class="section has-text-centered">
+        <img class="logo" src="assets/wasp-logo.png">
     </section>
 
     <footer>
