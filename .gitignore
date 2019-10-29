@@ -1,0 +1,5 @@
+.stack-work/
+stic.cabal
+*~
+/.dir-locals.el
+stack*.yaml.lock
