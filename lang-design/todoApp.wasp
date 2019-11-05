@@ -1,0 +1,68 @@
+// Goal of this file is to re-create a TODO app from http://todomvc.com
+// This file has "advanced" features in the sense that they might not yet be implemented by Wasp: this is just a proposal.
+
+app todoMVC {
+    title: "ToDo MVC"
+}
+
+entity Task {
+    description :: string,
+    isDone :: boolean
+}
+
+page Main {
+    route: "/",
+
+    content: {=jsx
+        <div className="mainContainer">
+            <h1>todos</h1>
+
+            <div className="createTaskForm">
+                <CreateTaskForm />
+            </div>
+
+            <div className="taskListContainer">
+                <TaskList />
+            </div>
+        </div>
+    jsx=},
+
+    style: {=css
+        div {
+            color: green;
+        }
+
+        .mainContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .taskListContainer {
+            width: 60%;
+        }
+    css=}
+}
+
+// TODO: This part is not currently supported at all.
+entity-form<Task> CreateTaskForm {
+    fields: {
+        description: {
+            placeholder: "What do you want to do?"
+        },
+        isDone: {
+            show: false,
+            defaultValue: false  // Although not shown, this field will be set to "false".
+        }
+    },
+    submit: {
+        button: { show: false },
+        onEnter: true
+    }
+}
+
+// TODO: This part is not currently supported at all.
+entity-list<Task> TaskList {
+    allowItemEditing: true,
+    allowItemDeletion: true  // Items can be deleted, and this also deletes them for real.
+}
