@@ -11,6 +11,7 @@ app todoMVC {
     title: "ToDo MVC"
 }
 
+// IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
 page Main {
     route: "/",
 
@@ -41,6 +42,10 @@ page Main {
 
             <div className="taskListContainer">
                 <TaskList editable />
+            </div>
+
+            <div className="footer">
+              { this.props.taskList.filter(task => !task.isDone).length } items left
             </div>
         </div>
     jsx=}
