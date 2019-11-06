@@ -10,6 +10,7 @@ entity Task {
     isDone :: boolean
 }
 
+// IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
 page Main {
     route: "/",
 
@@ -22,7 +23,20 @@ page Main {
             </div>
 
             <div className="taskListContainer">
-                <TaskList />
+                <TaskList filter={this.state.taskFilter} /> { /* Filter here -> that is not supported by TaskList yet. */ }
+            </div>
+
+            <div className="footer">
+                { /* TODO: This is maybe not very nice, inlined like this.
+                       Also, we directly address taskList here, while in TaskList and in CreateTaskForm we address
+                       it implicitly. */ }
+                <span>
+                    { this.props.taskList.filter(task => !task.isDone).length } items left
+                </span>
+                { /* TODO: Can we also make this nicer? */ }
+                <button onClick={() => this.setState({ taskFilter: () => true })}> All </button>
+                <button onClick={() => this.setState({ taskFilter: task => !task.isDone })}> Active </button>
+                <button onClick={() => this.setState({ taskFilter: task => task.isDone })}> Completed </button>
             </div>
         </div>
     jsx=},
