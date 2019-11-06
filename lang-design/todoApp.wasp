@@ -38,6 +38,10 @@ page Main {
                 <button onClick={() => this.setState({ taskFilter: task => !task.isDone })}> Active </button>
                 <button onClick={() => this.setState({ taskFilter: task => task.isDone })}> Completed </button>
             </div>
+
+
+            <button onClick=(tasks) => {// Change state.} />
+
         </div>
     jsx=},
 
@@ -56,6 +60,11 @@ page Main {
             width: 60%;
         }
     css=}
+}
+
+const toggleTasksDone = (tasks) => {
+    // If all tasks are done, set them all to active.
+    // Otherwise - set them all to false.
 }
 
 // TODO: This part is not currently supported at all.
@@ -78,5 +87,18 @@ entity-form<Task> CreateTaskForm {
 // TODO: This part is not currently supported at all.
 entity-list<Task> TaskList {
     allowItemEditing: true,
-    allowItemDeletion: true  // Items can be deleted, and this also deletes them for real.
+    allowItemDeletion: true,  // Items can be deleted, and this also deletes them for real.
+
+    fields: {
+        description: {
+            // The contract for render is: user can provide a function that: 
+            // - receives a task as an input
+            // - returns a React Node or something that can be rendered by JSX
+            // - does not depend on any outer context
+            render: (task) => {
+                if (task.isDone) return (<s>task.description</s>)
+                return task.description
+            }
+        }
+    }
 }
