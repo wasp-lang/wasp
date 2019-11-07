@@ -4,5 +4,3 @@ stic.cabal
 /.dir-locals.el
 stack*.yaml.lock
 /out
-*.swp
-*.DS_Store
