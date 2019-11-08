@@ -19,6 +19,16 @@ page Main {
             <h1>todos</h1>
 
             <div className="createTaskForm">
+                {/* Toggle all */}
+                <button onClick={() => { 
+                    const setIsDoneTo = false
+                    if (this.props.taskList.some(t => !t.isDone)) setIsDoneTo = true
+                    
+                    this.props.taskList.map(t => this.props.updateTask(t, { isDone: setIsDoneTo }))
+                }}>
+                    <Icon id="arrow-down" />
+                </button>
+
                 <CreateTaskForm />
             </div>
 
@@ -37,10 +47,13 @@ page Main {
                 <button onClick={() => this.setState({ taskFilter: () => true })}> All </button>
                 <button onClick={() => this.setState({ taskFilter: task => !task.isDone })}> Active </button>
                 <button onClick={() => this.setState({ taskFilter: task => task.isDone })}> Completed </button>
+
+                {/* Clear completed */}
+                { this.props.taskList.some(t => t.isDone) &&
+                    <button onClick={() => { this.state.taskList.map(t => if (t.isDone) this.props.deleteTask(t)) }}>Clear completed</button>
+                }
             </div>
 
-
-            <button onClick=(tasks) => {// Change state.} />
 
         </div>
     jsx=},
@@ -60,11 +73,6 @@ page Main {
             width: 60%;
         }
     css=}
-}
-
-const toggleTasksDone = (tasks) => {
-    // If all tasks are done, set them all to active.
-    // Otherwise - set them all to false.
 }
 
 // TODO: This part is not currently supported at all.
