@@ -110,3 +110,18 @@ entity-list<Task> TaskList {
         }
     }
 }
+
+// TODO: This part is not currently supported at all.
+//   Idea would be to generate a script (bash) that does deployment and would be called
+//   with `npm deploy`, from generated frontend.
+//   NOTE: For now we don't care about environments (staging) yet, there is just one environment to deploy to (production).
+deployment {
+    frontend: {
+        // TODO: In case of github, this would go into CNAME file.
+        // NOTE: optional.
+        customDomain: 'todo-app.examples.wasp-lang.dev',
+        github: {  // NOTE: For now we allow only one deployment method (in this case "github") at once.
+          branch: 'gh-pages' // NOTE: optional.
+        }
+    }
+}
