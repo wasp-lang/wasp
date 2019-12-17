@@ -5,6 +5,12 @@ import Text.Parsec.String (Parser)
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as Token
 
+reservedNameImport :: String
+reservedNameImport = "import"
+
+reservedNameFrom :: String
+reservedNameFrom = "from"
+
 -- * Wasp element types
 
 reservedNameApp :: String
@@ -35,8 +41,10 @@ reservedNameBooleanFalse = "false"
 
 reservedNames :: [String]
 reservedNames =
+    [ reservedNameImport
+    , reservedNameFrom
     -- * Wasp element types
-    [ reservedNameApp
+    , reservedNameApp
     , reservedNamePage
     , reservedNameEntity
     , reservedNameEntityForm
@@ -48,7 +56,7 @@ reservedNames =
     ]
 
 waspLanguageDef :: Token.LanguageDef ()
-waspLanguageDef = emptyDef 
+waspLanguageDef = emptyDef
     { Token.commentLine = "//"
     , Token.reservedNames = reservedNames
     , Token.caseSensitive = True

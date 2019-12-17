@@ -64,6 +64,8 @@ Running `stack ghci` will open ghci in the context of the project, allowing you 
 
 You can use `stack clear` to clear all the generated files/artifacts from the project.
 
+When developing, if you don't have full support for Haskell in your editor, consider using `stack build --file-watch` for live error checking, or `ghcid` as a faster alternative (install it globally with `stack install ghcid` and then just type `ghcid` when in the project.
+
 ### Run script
 For more convenient running of common build/dev commands, we created `run` script.
 It mostly runs stack commands described above.

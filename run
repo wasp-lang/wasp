@@ -19,6 +19,7 @@ WATCH_CMD="$BUILD_CMD --file-watch"
 TEST_CMD="$BUILD_CMD --test"
 TEST_WATCH_CMD="$TEST_CMD --file-watch"
 EXEC_CMD="stack exec stic-exe $ARGS"
+GHCID_CMD="ghcid --command=stack ghci"
 
 echo_and_eval () {
     echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
@@ -45,6 +46,8 @@ print_usage () {
                     "Builds the project and executes tests on any file change."
     print_usage_cmd "exec" \
                     "Builds the project once and runs the executable while forwarding arguments."
+    print_usage_cmd "ghcid" \
+                    "Runs ghcid, which is alternative to 'watch' (should be faster)."
 }
 
 case $COMMAND in
@@ -53,6 +56,9 @@ case $COMMAND in
         ;;
     watch)
         echo_and_eval "$WATCH_CMD"
+        ;;
+    ghcid)
+        echo_and_eval "$GHCID_CMD"
         ;;
     test)
         echo_and_eval "$TEST_CMD"

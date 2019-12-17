@@ -3,6 +3,10 @@ module Wasp
     , WaspElement (..)
     , fromWaspElems
 
+    , JsImport (..)
+    , getJsImports
+    , setJsImports
+
     , App (..)
     , fromApp
     , getApp
@@ -30,7 +34,10 @@ import qualified Data.Text as Text
 
 -- * Wasp
 
-data Wasp = Wasp [WaspElement] deriving (Show, Eq)
+data Wasp = Wasp
+    { waspElements :: [WaspElement]
+    , waspJsImports :: [JsImport]
+    } deriving (Show, Eq)
 
 data WaspElement
     = WaspElementApp !App
@@ -40,8 +47,25 @@ data WaspElement
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
-fromWaspElems elems = Wasp elems
+fromWaspElems elems = Wasp { waspElements = elems, waspJsImports = [] }
 
+-- * WaspJsImport
+
+-- | Represents javascript import -> "import <what> from <from>".
+data JsImport = JsImport
+    { jsImportWhat :: !String
+    -- | Path of file to import, relative to external code directory.
+    --   So for example if jsImportFrom is "test.js", we expect file
+    --   to exist at <external_code_dir>/test.js.
+    --   TODO: Make this more explicit in the code (both here and in wasp lang)? Also, support importing npm packages?
+    , jsImportFrom :: !String
+    } deriving (Show, Eq)
+
+getJsImports :: Wasp -> [JsImport]
+getJsImports wasp = waspJsImports wasp
+
+setJsImports :: Wasp -> [JsImport] -> Wasp
+setJsImports wasp jsImports = wasp { waspJsImports = jsImports }
 
 -- * App
 
@@ -61,13 +85,13 @@ isAppElem WaspElementApp{} = True
 isAppElem _ = False
 
 getApps :: Wasp -> [App]
-getApps (Wasp elems) = [app | (WaspElementApp app) <- elems]
+getApps wasp = [app | (WaspElementApp app) <- waspElements wasp]
 
 setApp :: Wasp -> App -> Wasp
-setApp (Wasp elems) app = Wasp $ (WaspElementApp app) : (filter (not . isAppElem) elems)
+setApp wasp app = wasp { waspElements = (WaspElementApp app) : (filter (not . isAppElem) (waspElements wasp)) }
 
 fromApp :: App -> Wasp
-fromApp app = Wasp [WaspElementApp app]
+fromApp app = fromWaspElems [WaspElementApp app]
 
 -- * Page
 
@@ -80,10 +104,10 @@ data Page = Page
     } deriving (Show, Eq)
 
 getPages :: Wasp -> [Page]
-getPages (Wasp elems) = [page | (WaspElementPage page) <- elems]
+getPages wasp = [page | (WaspElementPage page) <- waspElements wasp]
 
 addPage :: Wasp -> Page -> Wasp
-addPage (Wasp elems) page = Wasp $ (WaspElementPage page):elems
+addPage wasp page = wasp { waspElements = (WaspElementPage page):(waspElements wasp) }
 
 -- * Entity
 
@@ -104,10 +128,10 @@ instance Show EntityFieldType where
     show EftBoolean = "boolean"
 
 getEntities :: Wasp -> [Entity]
-getEntities (Wasp elems) = [entity | (WaspElementEntity entity) <- elems]
+getEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
 
 addEntity :: Wasp -> Entity -> Wasp
-addEntity (Wasp elems) entity = Wasp $ (WaspElementEntity entity):elems
+addEntity wasp entity = wasp { waspElements = (WaspElementEntity entity):(waspElements wasp) }
 
 -- * EntityForm
 
@@ -155,8 +179,15 @@ instance ToJSON EntityField where
 instance ToJSON EntityFieldType where
     toJSON = Aeson.String . Text.pack . show
 
+instance ToJSON JsImport where
+    toJSON jsImport = object
+        [ "what" .= jsImportWhat jsImport
+        , "from" .= jsImportFrom jsImport
+        ]
+
 instance ToJSON Wasp where
     toJSON wasp = object
         [ "app" .= getApp wasp
         , "pages" .= getPages wasp
+        , "jsImports" .= getJsImports wasp
         ]

@@ -5,20 +5,23 @@ module Generator.Generators
 import Data.Aeson ((.=), object, ToJSON(..))
 import System.FilePath (FilePath, (</>))
 
+import CompileOptions (CompileOptions)
 import qualified Util
 import Wasp
 import Generator.FileDraft
 import qualified Generator.EntityGenerator as EntityGenerator
 import qualified Generator.PageGenerator as PageGenerator
+import qualified Generator.ExternalCodeDirGenerator as ExternalCodeDirGenerator
 
 
-generateWebApp :: Wasp -> [FileDraft]
-generateWebApp wasp = concatMap ($ wasp)
+generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
+generateWebApp wasp options = concatMap ($ wasp)
     [ generateReadme
     , generatePackageJson
     , generateGitignore
     , generatePublicDir
     , generateSrcDir
+    , ExternalCodeDirGenerator.generateExternalCodeDir options
     ]
 
 generateReadme :: Wasp -> [FileDraft]

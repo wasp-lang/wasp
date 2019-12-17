@@ -8,6 +8,7 @@ import qualified Data.Text.IO
 import Data.Aeson as Aeson
 import Data.Text (Text)
 
+import qualified Util.IO
 import qualified Generator.Templates
 
 
@@ -28,6 +29,16 @@ class (Monad m) => FileDraftIO m where
 
     writeFileFromText :: FilePath -> Text -> m ()
 
+    -- | Copies all directory contents to the specified destination, recursively.
+    --   Directory and sub directories are created as needed.
+    --   Example: if we do `copyDirectory "/test" "/foo/bar"`, where /test contains files A.txt and B.txt,
+    --     result will be creation of files A.txt and B.txt in /foo/bar directory. /foo and /foo/bar are
+    --     also created if they did not exist before.
+    copyDirectory
+        :: FilePath  -- ^ Path of directory to be copied.
+        -> FilePath -- ^ Path to a location where directory contents will be directly copied to.
+        -> m ()
+
     getTemplateFileAbsPath
         :: FilePath  -- ^ Template file path, relative to templates root directory.
         -> m FilePath
@@ -47,3 +58,4 @@ instance FileDraftIO IO where
     getTemplateFileAbsPath = Generator.Templates.getTemplateFileAbsPath
     getTemplatesDirAbsPath = Generator.Templates.getTemplatesDirAbsPath
     compileAndRenderTemplate = Generator.Templates.compileAndRenderTemplate
+    copyDirectory = Util.IO.copyDirectory

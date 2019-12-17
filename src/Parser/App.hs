@@ -35,7 +35,7 @@ app :: Parser Wasp.App
 app = do
     (appName, appProps) <- waspElementNameAndClosure reservedNameApp appProperties
 
-    return Wasp.App 
+    return Wasp.App
         { Wasp.appName = appName
         , Wasp.appTitle = getAppTitle appProps
           -- TODO(matija): add favicon.

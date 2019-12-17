@@ -2,16 +2,20 @@ module Parser
     ( parseWasp
     ) where
 
-import Text.Parsec (ParseError, (<|>), many1, eof)
+import Text.Parsec (ParseError, (<|>), many1, eof, many)
 import Text.Parsec.String (Parser)
 
+import qualified Wasp
+
 import Lexer
+
 import Parser.App (app)
 import Parser.Page (page)
 import Parser.Entity (entity)
 import Parser.EntityForm (entityForm)
+import Parser.JsImport (jsImport)
 import Parser.Common (runWaspParser)
-import qualified Wasp
+
 
 waspElement :: Parser Wasp.WaspElement
 waspElement =
@@ -40,14 +44,17 @@ waspParser = do
     -- so they do it themselves.
     whiteSpace
 
+    jsImports <- many jsImport
+
     waspElems <- many1 waspElement
+
     eof
 
     -- TODO(matija): after we parsed everything, we should do semantic analysis
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
     -- Also, check there is at least one Page defined.
 
-    return $ Wasp.fromWaspElems waspElems
+    return $ (Wasp.fromWaspElems waspElems) `Wasp.setJsImports` jsImports
 
 -- | Top level parser executor.
 parseWasp :: String -> Either ParseError Wasp.Wasp

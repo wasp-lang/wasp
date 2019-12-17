@@ -1,5 +1,7 @@
 // Test .wasp file.
 
+import something from "some/file"
+
 // App definition.
 app test_app {
     // Title of the app.

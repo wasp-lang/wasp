@@ -55,6 +55,7 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - stic
+      - filepath
 
 benchmarks:
   stic-benchmarks:

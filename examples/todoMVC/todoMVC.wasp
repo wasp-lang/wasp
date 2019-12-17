@@ -1,5 +1,7 @@
 // Goal of this file is to re-create a TODO app from http://todomvc.com
 
+import * as config from "config"  // Imports from external code dir (src/).
+
 // -- Entities
 entity Task {
     description :: string,
@@ -15,7 +17,7 @@ app todoMVC {
 page Main {
     route: "/",
 
-    style: {=css 
+    style: {=css
         div {
             color: green;
         }
@@ -31,9 +33,9 @@ page Main {
         }
     css=},
 
-    content: {=jsx 
+    content: {=jsx
         <div className="mainContainer">
-            <h1>todos</h1>
+            <h1> { config.appName } </h1>
 
             <TaskCreateForm
                 onCreate={task => this.props.addTask(task)}

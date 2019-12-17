@@ -5,11 +5,13 @@ import Test.Tasty.Hspec
 import System.FilePath (FilePath, (</>), (<.>))
 
 import Util
+import qualified CompileOptions
 import Generator.Generators
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
 import Generator.FileDraft.CopyFileDraft
 import Generator.FileDraft.TextFileDraft
+import qualified Generator.FileDraft.CopyDirDraft as CopyDirDraft
 import Wasp
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
@@ -21,13 +23,16 @@ spec_Generators = do
     let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
+    let testCompileOptions = CompileOptions.CompileOptions
+            { CompileOptions.externalCodeDirPath = "test/src"
+            }
 
     describe "generateWebApp" $ do
         -- NOTE: This test does not (for now) check that content of files is correct or
         --   that they will successfully be written, it checks only that their
         --   destinations are correct.
         it "Given a simple Wasp, creates file drafts at expected destinations" $ do
-            let fileDrafts = generateWebApp testWasp
+            let fileDrafts = generateWebApp testWasp testCompileOptions
             let testEntityDstDirInSrc
                     = "entities" </> (Util.camelToKebabCase (entityName testEntity))
             let expectedFileDraftDstPaths = concat $
@@ -55,6 +60,7 @@ spec_Generators = do
                       , testEntityDstDirInSrc </> "state.js"
                       ]
                     ]
+
             mapM_
                 -- NOTE(martin): I added fd to the pair here in order to have it
                 --   printed when shouldBe fails, otherwise I could not know which
@@ -73,3 +79,4 @@ getFileDraftDstPath :: FileDraft -> FilePath
 getFileDraftDstPath (FileDraftTemplateFd fd) = templateFileDraftDstFilepath fd
 getFileDraftDstPath (FileDraftCopyFd fd) = copyFileDraftDstFilepath fd
 getFileDraftDstPath (FileDraftTextFd fd) = textFileDraftDstFilepath fd
+getFileDraftDstPath (FileDraftCopyDirDraft draft) = CopyDirDraft.dstPath draft

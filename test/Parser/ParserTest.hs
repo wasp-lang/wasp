@@ -66,4 +66,5 @@ spec_parseWasp =
                             }
                         }
                     ]
+                    `setJsImports` [ JsImport "something" "some/file" ]
                 )

@@ -2,6 +2,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+{=# jsImports =}
+import {= what =} from "{= from =}"
+{=/ jsImports =}
+
 {=# entities =}
 import * as {= entityLowerName =}State from '{= entityStatePath =}'
 import * as {= entityLowerName =}Actions from '{= entityActionsPath =}'

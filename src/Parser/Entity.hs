@@ -10,7 +10,7 @@ module Parser.Entity
 import Text.Parsec ((<|>))
 import Text.Parsec.String (Parser)
 
-import Lexer 
+import Lexer
     ( identifier
     , colon
     , commaSep1
