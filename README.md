@@ -72,6 +72,9 @@ The idea is that you normally use this for development, and you use `stack` dire
 
 You can run `./run help` to learn how to use it.
 
+Examples:
+ - `./run exec examples/todoMVC.wasp out/todoMVC` will run stic on todoMVC example.
+
 
 ## Tests
 For tests we are using [**Tasty**](https://documentup.com/feuerbach/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.

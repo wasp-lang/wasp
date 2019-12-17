@@ -3,7 +3,7 @@
 # this file: <https://github.com/sol/hpack>.
 name:                stic
 version:             0.1.0.0
-github:              "Martinsos/wabi"
+github:              "Martinsos/stic"
 #license:             BSD3
 author:              "Stic"
 maintainer:          "info@stic.dev"
@@ -33,7 +33,6 @@ dependencies:
 
 ghc-options:
   - -Wall
-  - -Werror
 
 library:
   source-dirs: src
