@@ -58,5 +58,12 @@ spec_parseWasp =
                             , Wasp.EntityField "isDone" Wasp.EftBoolean
                             ]
                         }
+                    , WaspElementEntityForm $ EntityForm
+                        { efName = "CreateTaskForm"
+                        , efEntityName = "Task"
+                        , efSubmitConfig = Just EntityFormSubmitConfig
+                            { onEnter = False
+                            }
+                        }
                     ]
                 )

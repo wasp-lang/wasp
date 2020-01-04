@@ -9,11 +9,16 @@ import Lexer
 import Parser.App (app)
 import Parser.Page (page)
 import Parser.Entity (entity)
+import Parser.EntityForm (entityForm)
 import Parser.Common (runWaspParser)
 import qualified Wasp
 
 waspElement :: Parser Wasp.WaspElement
-waspElement = waspElementApp <|> waspElementPage <|> waspElementEntity
+waspElement =
+    waspElementApp
+    <|> waspElementPage
+    <|> waspElementEntity
+    <|> waspElementEntityForm
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
@@ -23,6 +28,9 @@ waspElementPage = Wasp.WaspElementPage <$> page
 
 waspElementEntity :: Parser Wasp.WaspElement
 waspElementEntity = Wasp.WaspElementEntity <$> entity
+
+waspElementEntityForm :: Parser Wasp.WaspElement
+waspElementEntityForm = Wasp.WaspElementEntityForm <$> entityForm
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp

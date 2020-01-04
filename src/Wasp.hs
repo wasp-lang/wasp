@@ -17,6 +17,9 @@ module Wasp
     , EntityFieldType (..)
     , getEntities
     , addEntity
+
+    , EntityForm (..)
+    , EntityFormSubmitConfig (..)
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
@@ -33,6 +36,7 @@ data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
     | WaspElementEntity !Entity
+    | WaspElementEntityForm !EntityForm
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -105,6 +109,17 @@ getEntities (Wasp elems) = [entity | (WaspElementEntity entity) <- elems]
 addEntity :: Wasp -> Entity -> Wasp
 addEntity (Wasp elems) entity = Wasp $ (WaspElementEntity entity):elems
 
+-- * EntityForm
+
+data EntityForm = EntityForm
+    { efName :: !String -- Name of the form
+    , efEntityName :: !String -- Name of the entity the form is linked to
+    , efSubmitConfig :: Maybe EntityFormSubmitConfig
+    } deriving (Show, Eq)
+
+data EntityFormSubmitConfig = EntityFormSubmitConfig
+    { onEnter :: !Bool
+    } deriving (Show, Eq)
 
 -- * ToJSON instances.
 

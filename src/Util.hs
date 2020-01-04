@@ -3,6 +3,7 @@ module Util
     , onFirst
     , toLowerFirst
     , toUpperFirst
+    , headSafe
     ) where
 
 import Data.Char (isUpper, toLower, toUpper)
@@ -29,3 +30,7 @@ toLowerFirst = onFirst toLower
 
 toUpperFirst :: String -> String
 toUpperFirst = onFirst toUpper
+
+headSafe :: [a] -> Maybe a
+headSafe [] = Nothing
+headSafe xs = Just (head xs)

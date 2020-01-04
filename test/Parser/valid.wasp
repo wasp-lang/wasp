@@ -43,3 +43,13 @@ entity Task {
     description :: string,
     isDone :: boolean
 }
+
+// NOTE(matija): this is only being parsed for now, no code is generated yet.
+// Entity form definition.
+entity-form<Task> CreateTaskForm {
+    submit: {
+        onEnter: false
+    }
+}
+
+
