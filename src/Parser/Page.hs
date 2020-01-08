@@ -9,7 +9,7 @@ import qualified Data.Text as Text
 import Data.Maybe (listToMaybe)
 
 import Lexer
-import qualified Wasp
+import qualified Wasp.Page as Page
 import Parser.Common
 
 data PageProperty
@@ -52,13 +52,13 @@ getPageStyle :: [PageProperty] -> Maybe Text
 getPageStyle ps = listToMaybe [s | Style s <- ps]
 
 -- | Top level parser, parses Page.
-page :: Parser Wasp.Page
+page :: Parser Page.Page
 page = do
     (pageName, pageProps) <- waspElementNameAndClosure reservedNamePage pageProperties
 
-    return Wasp.Page
-        { Wasp.pageName = pageName
-        , Wasp.pageRoute = getPageRoute pageProps
-        , Wasp.pageContent = getPageContent pageProps
-        , Wasp.pageStyle = getPageStyle pageProps
+    return Page.Page
+        { Page.pageName = pageName
+        , Page.pageRoute = getPageRoute pageProps
+        , Page.pageContent = getPageContent pageProps
+        , Page.pageStyle = getPageStyle pageProps
         }

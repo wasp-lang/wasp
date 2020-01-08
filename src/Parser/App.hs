@@ -6,7 +6,7 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 
 import Lexer
-import qualified Wasp
+import qualified Wasp.App as App
 import Parser.Common
 
 -- | A type that describes supported app properties.
@@ -31,12 +31,12 @@ getAppTitle :: [AppProperty] -> String
 getAppTitle ps = head $ [t | Title t <- ps]
 
 -- | Top level parser, parses App.
-app :: Parser Wasp.App
+app :: Parser App.App
 app = do
     (appName, appProps) <- waspElementNameAndClosure reservedNameApp appProperties
 
-    return Wasp.App
-        { Wasp.appName = appName
-        , Wasp.appTitle = getAppTitle appProps
+    return App.App
+        { App.appName = appName
+        , App.appTitle = getAppTitle appProps
           -- TODO(matija): add favicon.
         }

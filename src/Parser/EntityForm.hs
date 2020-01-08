@@ -10,20 +10,20 @@ module Parser.EntityForm
 
 import Text.Parsec.String (Parser)
 
-import qualified Wasp
+import qualified Wasp.EntityForm as EntityForm
 import qualified Parser.Common as P
 import qualified Util as U
 import qualified Lexer as L
 
 -- | Parses entity form, e.g. "entity-form<Task> {...}"
-entityForm :: Parser Wasp.EntityForm
+entityForm :: Parser EntityForm.EntityForm
 entityForm = do
     (entityName, formName, options) <- P.waspElementLinkedToEntity L.reservedNameEntityForm entityFormOptions
 
-    return Wasp.EntityForm
-        { Wasp.efName = formName
-        , Wasp.efEntityName = entityName
-        , Wasp.efSubmitConfig = maybeGetSubmitConfig options
+    return EntityForm.EntityForm
+        { EntityForm.efName = formName
+        , EntityForm.efEntityName = entityName
+        , EntityForm.efSubmitConfig = maybeGetSubmitConfig options
         }
 
 entityFormOptions :: Parser [EntityFormOption]
@@ -36,16 +36,16 @@ entityFormOption = entityFormOptionSubmit
 entityFormOptionSubmit :: Parser EntityFormOption
 entityFormOptionSubmit = EfoSubmit <$> (P.waspPropertyClosure "submit" submitConfig)
 
-submitConfig :: Parser Wasp.EntityFormSubmitConfig
+submitConfig :: Parser EntityForm.EntityFormSubmitConfig
 submitConfig = do
     onEnter <- P.waspPropertyBool "onEnter"
 
-    return Wasp.EntityFormSubmitConfig
-        { Wasp.onEnter = onEnter
+    return EntityForm.EntityFormSubmitConfig
+        { EntityForm.onEnter = onEnter
         }
 
-maybeGetSubmitConfig :: [EntityFormOption] -> Maybe Wasp.EntityFormSubmitConfig
+maybeGetSubmitConfig :: [EntityFormOption] -> Maybe EntityForm.EntityFormSubmitConfig
 maybeGetSubmitConfig options = U.headSafe [s | EfoSubmit s <- options]
 
-data EntityFormOption = EfoSubmit Wasp.EntityFormSubmitConfig deriving (Show, Eq)
--- TODO(matija): | EfoFields Wasp.EntityFormFieldsConfig deriving (Show, Eq)
+data EntityFormOption = EfoSubmit EntityForm.EntityFormSubmitConfig deriving (Show, Eq)
+-- TODO(matija): | EfoFields EntityForm.EntityFormFieldsConfig deriving (Show, Eq)

@@ -19,43 +19,43 @@ import Lexer
     , reservedNameString
     , reservedNameBoolean
     )
-import qualified Wasp
+import qualified Wasp.Entity as Entity
 import qualified Parser.Common as P
 
 -- | Top level parser, parses Entity.
-entity :: Parser Wasp.Entity
+entity :: Parser Entity.Entity
 entity = do
     (name, fields) <- P.waspElementNameAndClosure reservedNameEntity entityFields
 
-    return Wasp.Entity
-        { Wasp.entityName = name
-        , Wasp.entityFields = fields
+    return Entity.Entity
+        { Entity.entityName = name
+        , Entity.entityFields = fields
         }
 
 -- Parses entity fields.
-entityFields :: Parser [Wasp.EntityField]
+entityFields :: Parser [Entity.EntityField]
 entityFields = commaSep1 entityField
 
 -- | Parses a single entity field, e.g. "title :: string".
-entityField :: Parser Wasp.EntityField
+entityField :: Parser Entity.EntityField
 entityField = do
     fieldName <- identifier
     _ <- typeAssignmentOp
     fieldType <- entityFieldType
 
-    return $ Wasp.EntityField fieldName fieldType
+    return $ Entity.EntityField fieldName fieldType
   where
     -- TODO(matija): maybe specify it under reservedOps in Lexer?
     typeAssignmentOp = colon *> colon
 
 -- | Parses one of the supported types of the entity field e.g. "string" or "boolean".
-entityFieldType :: Parser Wasp.EntityFieldType
+entityFieldType :: Parser Entity.EntityFieldType
 entityFieldType = entityFieldTypeString <|> entityFieldTypeBoolean
 
 -- | Parses string type of entity field.
-entityFieldTypeString :: Parser Wasp.EntityFieldType
-entityFieldTypeString = reserved reservedNameString *> pure Wasp.EftString
+entityFieldTypeString :: Parser Entity.EntityFieldType
+entityFieldTypeString = reserved reservedNameString *> pure Entity.EftString
 
 -- | Parses boolean type of entity field.
-entityFieldTypeBoolean :: Parser Wasp.EntityFieldType
-entityFieldTypeBoolean = reserved reservedNameBoolean *> pure Wasp.EftBoolean
+entityFieldTypeBoolean :: Parser Entity.EntityFieldType
+entityFieldTypeBoolean = reserved reservedNameBoolean *> pure Entity.EftBoolean

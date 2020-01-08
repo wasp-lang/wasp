@@ -7,10 +7,10 @@ import Text.Parsec.Char (space)
 import Text.Parsec.String (Parser)
 
 import qualified Lexer as L
-import qualified Wasp
+import Wasp.JsImport as JsImport
 
 -- import ... from "..."
-jsImport :: Parser Wasp.JsImport
+jsImport :: Parser JsImport.JsImport
 jsImport = do
     L.whiteSpace
     _ <- L.reserved L.reservedNameImport
@@ -20,4 +20,4 @@ jsImport = do
     -- TODO: For now we only support double quotes here, we should also support single quotes.
     --   We would need to write this from scratch, with single quote escaping enabled.
     from <- L.stringLiteral
-    return Wasp.JsImport { Wasp.jsImportWhat = what, Wasp.jsImportFrom = from }
+    return JsImport.JsImport { JsImport.jsImportWhat = what, JsImport.jsImportFrom = from }
