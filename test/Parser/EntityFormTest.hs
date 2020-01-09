@@ -21,7 +21,9 @@ spec_parseEntityForm = do
                 `shouldBe` Right Wasp.EntityForm
                     { Wasp.efName = "someEntityForm"
                     , Wasp.efEntityName = "Task"
-                    , Wasp.efSubmitConfig = Just (Wasp.EntityFormSubmitConfig { Wasp.onEnter = True })
+                    , Wasp.efSubmitConfig = Just (
+                        Wasp.EntityFormSubmitConfig { Wasp.onEnter = True }
+                      )
                     }
 
     it "When given an entity form without submit config, it is not included in the result." $ do

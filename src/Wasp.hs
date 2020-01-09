@@ -24,6 +24,7 @@ module Wasp
 
     , EntityForm (..)
     , EntityFormSubmitConfig (..)
+    , getEntityFormsForEntity
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
@@ -144,6 +145,13 @@ data EntityForm = EntityForm
 data EntityFormSubmitConfig = EntityFormSubmitConfig
     { onEnter :: !Bool
     } deriving (Show, Eq)
+
+-- | Retrieves all entity forms for a given entity from a Wasp record.
+getEntityFormsForEntity :: Wasp -> Entity -> [EntityForm]
+getEntityFormsForEntity wasp entity = filter isFormOfGivenEntity allEntityForms
+    where
+        allEntityForms = [entityForm | (WaspElementEntityForm entityForm) <- waspElements wasp]
+        isFormOfGivenEntity ef = entityName entity == efEntityName ef
 
 -- * ToJSON instances.
 

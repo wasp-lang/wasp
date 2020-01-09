@@ -55,10 +55,13 @@ generateEntityActions :: Wasp -> Entity -> FileDraft
 generateEntityActions wasp entity
     = createSimpleEntityFileDraft wasp entity (entityActionsPathInSrc entity) "actions.js"
 
+-- TODO(matija): currently we are generating these components automatically, as soon as the
+-- entity is defined. Now we are changing this and will generate them on-demand, depending on
+-- what is in Wasp.
 generateEntityComponents :: Wasp -> Entity -> [FileDraft]
-generateEntityComponents wasp entity =
-    [ generateEntityCreateForm wasp entity
-    , generateEntityList wasp entity
+generateEntityComponents wasp entity = concat
+    [ generateEntityCreateFormsForEntity wasp entity
+    -- TODO: , generateEntityLists wasp entity
     ]
 
 -- TODO: add tests / update tests.
@@ -74,10 +77,20 @@ generateEntityComponents wasp entity =
 --     ... Code when field is boolean. ...
 --   {=/ booleanField =}
 --   {=/ typedFields =}
-generateEntityCreateForm :: Wasp -> Entity -> FileDraft
-generateEntityCreateForm wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityCreateFormPathInSrc entity)
-                                  ("components" </> "CreateForm.js")
+--generateEntityCreateForm :: Wasp -> Entity -> FileDraft
+--generateEntityCreateForm wasp entity
+--   = createSimpleEntityFileDraft wasp entity (entityCreateFormPathInSrc entity)
+--                                  ("components" </> "CreateForm.js")
+-- TODO(matija): in the next PR
+generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft
+-- TODO(matija): if there is no entity for the given form, should throw an error.
+generateEntityCreateForm wasp entityForm = undefined
+
+generateEntityCreateFormsForEntity :: Wasp -> Entity -> [FileDraft]
+generateEntityCreateFormsForEntity wasp entity =
+    map (generateEntityCreateForm wasp) entityForms
+    where
+        entityForms = getEntityFormsForEntity wasp entity
 
 -- TODO(matija): do I need wasp at all?
 -- | Generates list component for the specified entity, so user can see all the
