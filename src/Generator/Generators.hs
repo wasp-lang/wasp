@@ -12,6 +12,7 @@ import Generator.FileDraft
 import qualified Generator.EntityGenerator as EntityGenerator
 import qualified Generator.PageGenerator as PageGenerator
 import qualified Generator.ExternalCodeDirGenerator as ExternalCodeDirGenerator
+import qualified Generator.Common as Common
 
 
 generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
@@ -45,7 +46,7 @@ generatePublicDir wasp
 
 generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
-    = (createCopyFileDraft ("src" </> "logo.png") ("src" </> "logo.png"))
+    = (createCopyFileDraft (Common.srcDirPath </> "logo.png") ("src" </> "logo.png"))
     : map (\path -> simpleTemplateFileDraft ("src/" </> path) wasp)
         [ "index.js"
         , "index.css"
@@ -62,7 +63,7 @@ generateReducersJs :: Wasp -> FileDraft
 generateReducersJs wasp = createTemplateFileDraft dstPath srcPath templateData
   where
     srcPath = "src" </> "reducers.js"
-    dstPath = srcPath
+    dstPath = Common.srcDirPath </> "reducers.js"
     templateData = object
         [ "wasp" .= wasp
         , "entities" .= map toEntityData (getEntities wasp)

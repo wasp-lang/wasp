@@ -23,8 +23,12 @@ module Wasp
     , module Wasp.Page
     , getPages
     , addPage
+
+    , setExternalCodeFiles
+    , getExternalCodeFiles
     ) where
 
+import Data.Text (Text)
 import Data.Aeson ((.=), object, ToJSON(..))
 
 import Wasp.App
@@ -40,6 +44,10 @@ import qualified Util as U
 data Wasp = Wasp
     { waspElements :: [WaspElement]
     , waspJsImports :: [JsImport]
+    , externalCodeFiles ::
+            [( FilePath -- ^ Path relative to external code directory.
+             , Text -- ^ Text of that file.
+            )]
     } deriving (Show, Eq)
 
 data WaspElement
@@ -50,12 +58,24 @@ data WaspElement
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
-fromWaspElems elems = Wasp { waspElements = elems, waspJsImports = [] }
+fromWaspElems elems = Wasp
+    { waspElements = elems
+    , waspJsImports = []
+    , externalCodeFiles = []
+    }
+
+-- * External code files
+
+getExternalCodeFiles :: Wasp -> [(FilePath, Text)]
+getExternalCodeFiles = externalCodeFiles
+
+setExternalCodeFiles :: Wasp -> [(FilePath, Text)] -> Wasp
+setExternalCodeFiles wasp files = wasp { externalCodeFiles = files }
 
 -- * Js imports
 
 getJsImports :: Wasp -> [JsImport]
-getJsImports wasp = waspJsImports wasp
+getJsImports = waspJsImports
 
 setJsImports :: Wasp -> [JsImport] -> Wasp
 setJsImports wasp jsImports = wasp { waspJsImports = jsImports }

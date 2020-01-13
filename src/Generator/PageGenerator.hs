@@ -17,6 +17,7 @@ import Wasp
 import Generator.FileDraft
 import qualified Generator.EntityGenerator as EntityGenerator
 import Generator.ExternalCodeDirGenerator (externalCodeDirPathInSrc)
+import qualified Generator.Common as Common
 
 
 generatePages :: Wasp -> [FileDraft]
@@ -32,7 +33,7 @@ generatePageComponent :: Wasp -> Page -> FileDraft
 generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath templateData
   where
     srcPath = "src" </> "_Page.js"
-    dstPath = FilePath.normalise $ "src" </> pageDirPathInSrc </> (pageName page) <.> "js"
+    dstPath = FilePath.normalise $ Common.srcDirPath </> pageDirPathInSrc </> (pageName page) <.> "js"
     templateData = object $
         [ "wasp" .= wasp
         , "page" .= page
@@ -89,7 +90,7 @@ generatePageStyle _ page = maybe
     (\style -> [createTextFileDraft dstPath style])
     (pageStyle page)
   where
-    dstPath = "src" </> pageStylePathInSrcDir page
+    dstPath = Common.srcDirPath </> pageStylePathInSrcDir page
 
 pageStylePathInSrcDir :: Page -> FilePath
 pageStylePathInSrcDir page = (pageName page) <.> "css"

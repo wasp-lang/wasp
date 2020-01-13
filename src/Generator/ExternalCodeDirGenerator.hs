@@ -3,19 +3,26 @@ module Generator.ExternalCodeDirGenerator
        , externalCodeDirPathInSrc
        ) where
 
-
 import System.FilePath ((</>))
+import Data.Text (Text)
 
 import CompileOptions (CompileOptions)
-import qualified CompileOptions
-import Wasp
-import Generator.FileDraft
+import Wasp (Wasp)
+import qualified Wasp
+import qualified Generator.FileDraft as FD
+import qualified Generator.Common as Common
 
-generateExternalCodeDir :: CompileOptions -> Wasp -> [FileDraft]
-generateExternalCodeDir options _ = [createCopyDirDraft dstPath srcPath]
-  where
-    srcPath = CompileOptions.externalCodeDirPath options
-    dstPath = "src" </> externalCodeDirPathInSrc
 
 externalCodeDirPathInSrc :: FilePath
 externalCodeDirPathInSrc = "ext-src"
+
+generateExternalCodeDir :: CompileOptions -> Wasp -> [FD.FileDraft]
+generateExternalCodeDir _ wasp = map generateExternalCodeFile (Wasp.getExternalCodeFiles wasp)
+
+generateExternalCodeFile :: (FilePath, Text) -> FD.FileDraft
+generateExternalCodeFile (pathInExtCodeDir, content) = FD.createTextFileDraft dstPath content
+  where
+    dstPath = Common.srcDirPath </> externalCodeDirPathInSrc </> pathInExtCodeDir
+
+
+

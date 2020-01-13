@@ -8,12 +8,17 @@ import qualified Data.Text.IO
 import Data.Aeson as Aeson
 import Data.Text (Text)
 
-import qualified Util.IO
 import qualified Generator.Templates
 
 
 -- TODO: Should we use DI via data instead of typeclasses?
 --   https://news.ycombinator.com/item?id=10392044
+
+-- TODO: Should we make constraint MonadIO instead of just Monad?
+--   That would allow us to do liftIO. And that might allow us to perform any IO
+--   we want (hm will it?), which could be useful for custom stuff (but does that defeat the whole purpose?).
+--   But that means we can't test that part, which yes, defeats the purpose somewhat.
+--   I feel like all together we should not do it :), but it is an option if needed.
 
 -- | Describes effects needed by File Drafts.
 class (Monad m) => WriteableMonad m where
@@ -28,16 +33,6 @@ class (Monad m) => WriteableMonad m where
         -> m ()
 
     writeFileFromText :: FilePath -> Text -> m ()
-
-    -- | Copies all directory contents to the specified destination, recursively.
-    --   Directory and sub directories are created as needed.
-    --   Example: if we do `copyDirectory "/test" "/foo/bar"`, where /test contains files A.txt and B.txt,
-    --     result will be creation of files A.txt and B.txt in /foo/bar directory. /foo and /foo/bar are
-    --     also created if they did not exist before.
-    copyDirectory
-        :: FilePath  -- ^ Path of directory to be copied.
-        -> FilePath -- ^ Path to a location where directory contents will be directly copied to.
-        -> m ()
 
     getTemplateFileAbsPath
         :: FilePath  -- ^ Template file path, relative to templates root directory.
@@ -58,4 +53,3 @@ instance WriteableMonad IO where
     getTemplateFileAbsPath = Generator.Templates.getTemplateFileAbsPath
     getTemplatesDirAbsPath = Generator.Templates.getTemplatesDirAbsPath
     compileAndRenderTemplate = Generator.Templates.compileAndRenderTemplate
-    copyDirectory = Util.IO.copyDirectory

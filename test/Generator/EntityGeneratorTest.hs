@@ -8,6 +8,7 @@ import Wasp
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
 import Generator.EntityGenerator
+import qualified Generator.Common as Common
 
 import qualified Fixtures as F
 
@@ -67,6 +68,6 @@ spec_generateEntityCreateForm = do
         let (FileDraftTemplateFd templateFileDraft) =
                 generateEntityCreateForm waspWithTask F.taskCreateForm
 
-        let expectedDstPath = "src" </> (entityCreateFormPathInSrc F.taskEntity F.taskCreateForm)
+        let expectedDstPath = Common.srcDirPath </> (entityCreateFormPathInSrc F.taskEntity F.taskCreateForm)
 
         templateFileDraftDstFilepath templateFileDraft `shouldBe` expectedDstPath

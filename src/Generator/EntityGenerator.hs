@@ -26,6 +26,7 @@ import System.FilePath (FilePath, (</>), (<.>))
 import qualified Util
 import Wasp
 import Generator.FileDraft
+import qualified Generator.Common as Common
 
 
 generateEntities :: Wasp -> [FileDraft]
@@ -95,7 +96,7 @@ generateEntityCreateForm wasp entityForm =
         (getEntityByName wasp (efEntityName entityForm))
 
     templateSrcPath = entityTemplatesDirPath </> "components" </> "CreateForm.js"
-    dstPath = "src" </> (entityCreateFormPathInSrc entity entityForm)
+    dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
 
     entityTemplateJson = entityTemplateData wasp entity
     templateData = Util.jsonSet "entityForm" (toJSON entityForm) entityTemplateJson
@@ -121,7 +122,7 @@ createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
     = createTemplateFileDraft dstPath srcPath templateData
   where
     srcPath = entityTemplatesDirPath </> srcPathInEntityTemplatesDir
-    dstPath = "src" </> dstPathInSrc
+    dstPath = Common.srcDirPath </> dstPathInSrc
     templateData = entityTemplateData wasp entity
 
 {- | Converts entity field to a JSON where field type is a key to the object holding

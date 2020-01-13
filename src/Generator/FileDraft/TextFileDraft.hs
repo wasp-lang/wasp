@@ -14,7 +14,7 @@ import Data.Text (Text)
 data TextFileDraft = TextFileDraft
     { -- | Path of file to be written, relative to some root dir.
       textFileDraftDstFilepath :: !FilePath
-    , textFileDraftContent :: !Text
+    , textFileDraftContent :: Text
     }
     deriving (Show, Eq)
 

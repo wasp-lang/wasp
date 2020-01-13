@@ -11,7 +11,7 @@ import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
 import Generator.FileDraft.CopyFileDraft
 import Generator.FileDraft.TextFileDraft
-import qualified Generator.FileDraft.CopyDirDraft as CopyDirDraft
+import qualified Generator.Common as Common
 import Wasp
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
@@ -45,7 +45,7 @@ spec_Generators = do
                       , "index.html"
                       , "manifest.json"
                       ]
-                    , map ("src" </>)
+                    , map (Common.srcDirPath </>)
                       [ "logo.png"
                       , "index.css"
                       , "index.js"
@@ -79,4 +79,3 @@ getFileDraftDstPath :: FileDraft -> FilePath
 getFileDraftDstPath (FileDraftTemplateFd fd) = templateFileDraftDstFilepath fd
 getFileDraftDstPath (FileDraftCopyFd fd) = copyFileDraftDstFilepath fd
 getFileDraftDstPath (FileDraftTextFd fd) = textFileDraftDstFilepath fd
-getFileDraftDstPath (FileDraftCopyDirDraft draft) = CopyDirDraft.dstPath draft
