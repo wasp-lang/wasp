@@ -42,6 +42,7 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath templa
         ++ maybe []
                  (\_ -> ["pageStylePath" .= (relPathFromPageToSrc </> pageStylePathInSrcDir page)])
                  (pageStyle page)
+
     toEntityData entity = object
         [ "entity" .= entity
         , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
@@ -49,9 +50,21 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath templa
         , "entityStatePath" .= (relPathFromPageToSrc </> EntityGenerator.entityStatePathInSrc entity)
         , "entityActionsPath" .= (relPathFromPageToSrc </> EntityGenerator.entityActionsPathInSrc entity)
         , "entityClassPath" .= (relPathFromPageToSrc </> EntityGenerator.entityClassPathInSrc entity)
-        , "entityCreateFormPath" .= (relPathFromPageToSrc </> EntityGenerator.entityCreateFormPathInSrc entity)
+        , "entityCreateForms" .= map toEntityFormData entityForms
+
+        -- TODO(matija): this will become "entityLists"
         , "entityListPath" .= (relPathFromPageToSrc </> EntityGenerator.entityListPathInSrc entity)
         ]
+        where
+            entityForms = getEntityFormsForEntity wasp entity
+            generateEntityFormPath entityForm = relPathFromPageToSrc </>
+                (EntityGenerator.entityCreateFormPathInSrc entity entityForm)
+
+            toEntityFormData entityForm = object
+                [ "entityForm" .= entityForm
+                , "path" .= generateEntityFormPath entityForm
+                ]
+
     toJsImportData :: JsImport -> Aeson.Value
     toJsImportData jsImport = object
         [ "what" .= jsImportWhat jsImport

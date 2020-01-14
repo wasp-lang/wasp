@@ -15,6 +15,7 @@ module Wasp
     , module Wasp.Entity
     , getEntities
     , addEntity
+    , getEntityByName
 
     , module Wasp.EntityForm
     , getEntityFormsForEntity
@@ -32,6 +33,7 @@ import Wasp.EntityForm
 import Wasp.JsImport
 import Wasp.Page
 
+import qualified Util as U
 
 -- * Wasp
 
@@ -91,6 +93,11 @@ addPage wasp page = wasp { waspElements = (WaspElementPage page):(waspElements w
 
 getEntities :: Wasp -> [Entity]
 getEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
+
+-- | Gets entity with a specified name from wasp, if such an entity exists.
+-- Entity name must be unique, so there can be no more than one such entity.
+getEntityByName :: Wasp -> String -> Maybe Entity
+getEntityByName wasp name = U.headSafe $ filter (\e -> entityName e == name) (getEntities wasp)
 
 addEntity :: Wasp -> Entity -> Wasp
 addEntity wasp entity = wasp { waspElements = (WaspElementEntity entity):(waspElements wasp) }

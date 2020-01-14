@@ -37,7 +37,7 @@ page Main {
         <div className="mainContainer">
             <h1> { config.appName } </h1>
 
-            <TaskCreateForm
+            <NewTaskForm
                 onCreate={task => this.props.addTask(task)}
                 submitButtonLabel={'Create new task'}
             />
@@ -59,4 +59,8 @@ entity-form<Task> CreateTaskForm {
     submit: {
         onEnter: false
     }
+}
+
+// We can define multiple forms for a single entity.
+entity-form<Task> NewTaskForm {
 }

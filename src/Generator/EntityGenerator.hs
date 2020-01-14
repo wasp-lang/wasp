@@ -13,13 +13,16 @@ module Generator.EntityGenerator
        , generateEntityState
        , generateEntityActions
        , generateEntityActionTypes
+       , generateEntityCreateForm
+
        , entityTemplatesDirPath
        ) where
 
-import Data.Aeson ((.=), object)
+import Data.Aeson ((.=), object, toJSON)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as Text
 import System.FilePath (FilePath, (</>), (<.>))
+import qualified Data.HashMap.Strict as M
 
 import qualified Util
 import Wasp
@@ -60,13 +63,16 @@ generateEntityActions wasp entity
 -- what is in Wasp.
 generateEntityComponents :: Wasp -> Entity -> [FileDraft]
 generateEntityComponents wasp entity = concat
-    [ generateEntityCreateFormsForEntity wasp entity
-    -- TODO: , generateEntityLists wasp entity
+    [ generateEntityCreateForms wasp entity
+
+    -- TODO(matija): this will become listS as well (in the future PR).
+    , [generateEntityList wasp entity]
     ]
 
 -- TODO: add tests / update tests.
 -- TODO: I need to pass more complex data here, so that I can build field inputs from it
---   in mustache template. To do this, since musatche is logicless, I need to pass template data like
+--   in mustache template. To do this, since mustache is logicless, I need to pass
+--   template data like
 --   typedFields: [{ stringField: {...fieldData} }, { booleanField: {...fieldData} }, ...]
 --   and then have this in mustache:
 --   {=# typedFields =}
@@ -77,17 +83,28 @@ generateEntityComponents wasp entity = concat
 --     ... Code when field is boolean. ...
 --   {=/ booleanField =}
 --   {=/ typedFields =}
---generateEntityCreateForm :: Wasp -> Entity -> FileDraft
---generateEntityCreateForm wasp entity
---   = createSimpleEntityFileDraft wasp entity (entityCreateFormPathInSrc entity)
---                                  ("components" </> "CreateForm.js")
--- TODO(matija): in the next PR
 generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft
--- TODO(matija): if there is no entity for the given form, should throw an error.
-generateEntityCreateForm wasp entityForm = undefined
+generateEntityCreateForm wasp entityForm =
+    createTemplateFileDraft dstPath templateSrcPath templateData
+  where
+    -- NOTE(matija): There should always be an entity in wasp for the given entity form,
+    -- we want an error to be thrown otherwise.
+    entity = maybe
+        (error $ "Wasp must contain entity to which the entity form refers: " ++
+         efEntityName entityForm)
+        id
+        (getEntityByName wasp (efEntityName entityForm))
 
-generateEntityCreateFormsForEntity :: Wasp -> Entity -> [FileDraft]
-generateEntityCreateFormsForEntity wasp entity =
+    templateSrcPath = entityTemplatesDirPath </> "components" </> "CreateForm.js"
+    dstPath = "src" </> (entityCreateFormPathInSrc entity entityForm)
+
+    -- TODO(matija): extract this into a util function.
+    Aeson.Object entityData = entityTemplateData wasp entity
+    templateData = Aeson.Object (M.insert "entityForm" (toJSON entityForm) entityData)
+
+-- | Generates creation forms for the given entity.
+generateEntityCreateForms :: Wasp -> Entity -> [FileDraft]
+generateEntityCreateForms wasp entity =
     map (generateEntityCreateForm wasp) entityForms
     where
         entityForms = getEntityFormsForEntity wasp entity
@@ -166,8 +183,9 @@ entityClassPathInSrc entity = (entityDirPathInSrc entity) </> (entityName entity
 entityComponentsDirPathInSrc :: Entity -> FilePath
 entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> "components"
 
-entityCreateFormPathInSrc :: Entity -> FilePath
-entityCreateFormPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "CreateForm.js"
+entityCreateFormPathInSrc :: Entity -> EntityForm -> FilePath
+entityCreateFormPathInSrc entity entityForm =
+    (entityComponentsDirPathInSrc entity) </> (efName entityForm) ++ ".js"
 
 entityListPathInSrc :: Entity -> FilePath
 entityListPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "List.js"

@@ -3,6 +3,7 @@ module Wasp.EntityForm
     , EntityFormSubmitConfig(..)
     ) where
 
+import Data.Aeson ((.=), object, ToJSON(..))
 
 data EntityForm = EntityForm
     { efName :: !String -- Name of the form
@@ -13,3 +14,15 @@ data EntityForm = EntityForm
 data EntityFormSubmitConfig = EntityFormSubmitConfig
     { onEnter :: !Bool
     } deriving (Show, Eq)
+
+instance ToJSON EntityForm where
+    toJSON entityForm = object
+        [ "name" .= efName entityForm
+        , "entityName" .= efEntityName entityForm
+        , "submitConfig" .= efSubmitConfig entityForm
+        ]
+
+instance ToJSON EntityFormSubmitConfig where
+    toJSON submitConfig = object
+        [ "onEnter" .= onEnter submitConfig
+        ]

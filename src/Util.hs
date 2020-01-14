@@ -7,6 +7,7 @@ module Util
     ) where
 
 import Data.Char (isUpper, toLower, toUpper)
+import qualified Data.Aeson as Aeson
 
 
 camelToKebabCase :: String -> String
