@@ -4,8 +4,8 @@ module Generator.FileDraft.CopyDirDraft
 
 import System.FilePath (FilePath, (</>))
 
-import Generator.FileDraft.WriteableToFile
-import Generator.FileDraft.FileDraftIO
+import Generator.FileDraft.Writeable
+import Generator.FileDraft.WriteableMonad
 
 -- | File draft based purely on another dir, that is just copied recursively with all the files in it.
 data CopyDirDraft = CopyDirDraft
@@ -16,7 +16,7 @@ data CopyDirDraft = CopyDirDraft
     }
     deriving (Show, Eq)
 
-instance WriteableToFile CopyDirDraft where
-    writeToFile dstDir draft = do
+instance Writeable CopyDirDraft where
+    write dstDir draft = do
         let dstAbsPath = dstDir </> (dstPath draft)
         copyDirectory (srcPath draft) dstAbsPath

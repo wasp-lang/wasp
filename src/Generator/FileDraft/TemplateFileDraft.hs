@@ -6,8 +6,8 @@ import System.FilePath (FilePath, (</>), takeDirectory)
 import Data.Text (Text)
 import qualified Data.Aeson as Aeson
 
-import Generator.FileDraft.WriteableToFile
-import Generator.FileDraft.FileDraftIO
+import Generator.FileDraft.Writeable
+import Generator.FileDraft.WriteableMonad
 
 
 -- | File draft based on template file that gets combined with data.
@@ -21,8 +21,8 @@ data TemplateFileDraft = TemplateFileDraft
     }
     deriving (Show, Eq)
 
-instance WriteableToFile TemplateFileDraft where
-    writeToFile dstDir draft =
+instance Writeable TemplateFileDraft where
+    write dstDir draft =
         compileAndRenderTemplate templateRelFilepath templateData >>= writeContentToFile
       where
         templateRelFilepath :: FilePath
@@ -31,7 +31,7 @@ instance WriteableToFile TemplateFileDraft where
         templateData :: Aeson.Value
         templateData = templateFileDraftTemplateData draft
 
-        writeContentToFile :: (FileDraftIO m) => Text -> m ()
+        writeContentToFile :: (WriteableMonad m) => Text -> m ()
         writeContentToFile content = do
             let absDstFilepath = dstDir </> (templateFileDraftDstFilepath draft)
             createDirectoryIfMissing True (takeDirectory absDstFilepath)

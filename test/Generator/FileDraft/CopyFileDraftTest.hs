@@ -6,22 +6,22 @@ import System.FilePath ((</>), takeDirectory)
 
 import Generator.FileDraft
 
-import Generator.MockFileDraftIO
+import qualified Generator.MockWriteableMonad as Mock
 
 
 spec_CopyFileDraft :: Spec
 spec_CopyFileDraft = do
-    describe "writeToFile" $ do
+    describe "write" $ do
         it "Creates new file by copying existing file" $ do
-            let mock = writeToFile dstDir fileDraft
-            let mockLogs = getMockLogs mock defaultMockConfig
-            createDirectoryIfMissing_calls mockLogs
+            let mock = write dstDir fileDraft
+            let mockLogs = Mock.getMockLogs mock Mock.defaultMockConfig
+            Mock.createDirectoryIfMissing_calls mockLogs
                 `shouldBe` [(True, takeDirectory expectedDstPath)]
-            copyFile_calls mockLogs
+            Mock.copyFile_calls mockLogs
                 `shouldBe` [(expectedSrcPath, expectedDstPath)]
               where
                 (dstDir, dstPath, srcPath) = ("a/b", "c/d/dst.txt", "e/src.txt")
                 fileDraft = createCopyFileDraft dstPath srcPath
                 expectedSrcPath = mockTemplatesDirAbsPath </> srcPath
                 expectedDstPath = dstDir </> dstPath
-                mockTemplatesDirAbsPath = getTemplatesDirAbsPath_impl defaultMockConfig
+                mockTemplatesDirAbsPath = Mock.getTemplatesDirAbsPath_impl Mock.defaultMockConfig

@@ -73,7 +73,7 @@ spec_Generators = do
 existsFdWithDst :: [FileDraft] -> FilePath -> Bool
 existsFdWithDst fds dstPath = any ((== dstPath) . getFileDraftDstPath) fds
 
--- TODO(martin): This should really become part of the WriteableToFile typeclass,
+-- TODO(martin): This should really become part of the Writeable typeclass,
 --   since it is smth we want to do for all file drafts.
 getFileDraftDstPath :: FileDraft -> FilePath
 getFileDraftDstPath (FileDraftTemplateFd fd) = templateFileDraftDstFilepath fd

@@ -8,20 +8,20 @@ import Data.Text (Text)
 
 import Generator.FileDraft
 
-import Generator.MockFileDraftIO
+import qualified Generator.MockWriteableMonad as Mock
 
 
 spec_TemplateFileDraft :: Spec
 spec_TemplateFileDraft = do
-    describe "writeToFile" $ do
+    describe "write" $ do
         it "Creates new file from existing template file" $ do
-            let mock = writeToFile dstDir fileDraft
-            let mockLogs = getMockLogs mock mockConfig
-            compileAndRenderTemplate_calls mockLogs
+            let mock = write dstDir fileDraft
+            let mockLogs = Mock.getMockLogs mock mockConfig
+            Mock.compileAndRenderTemplate_calls mockLogs
                 `shouldBe` [(templatePath, templateData)]
-            createDirectoryIfMissing_calls mockLogs
+            Mock.createDirectoryIfMissing_calls mockLogs
                 `shouldBe` [(True, takeDirectory expectedDstPath)]
-            writeFileFromText_calls mockLogs
+            Mock.writeFileFromText_calls mockLogs
                 `shouldBe` [(expectedDstPath, mockTemplateContent)]
               where
                 (dstDir, dstPath, templatePath) = ("a/b", "c/d/dst.txt", "e/tmpl.txt")
@@ -30,7 +30,7 @@ spec_TemplateFileDraft = do
                 expectedDstPath = dstDir </> dstPath
                 mockTemplatesDirAbsPath = "mock/templates/dir"
                 mockTemplateContent = "Mock template content" :: Text
-                mockConfig = defaultMockConfig
-                    { getTemplatesDirAbsPath_impl = mockTemplatesDirAbsPath
-                    , compileAndRenderTemplate_impl = \_ _ -> mockTemplateContent
+                mockConfig = Mock.defaultMockConfig
+                    { Mock.getTemplatesDirAbsPath_impl = mockTemplatesDirAbsPath
+                    , Mock.compileAndRenderTemplate_impl = \_ _ -> mockTemplateContent
                     }

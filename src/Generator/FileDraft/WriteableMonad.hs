@@ -1,5 +1,5 @@
-module Generator.FileDraft.FileDraftIO
-       ( FileDraftIO(..)
+module Generator.FileDraft.WriteableMonad
+       ( WriteableMonad(..)
        ) where
 
 
@@ -16,7 +16,7 @@ import qualified Generator.Templates
 --   https://news.ycombinator.com/item?id=10392044
 
 -- | Describes effects needed by File Drafts.
-class (Monad m) => FileDraftIO m where
+class (Monad m) => WriteableMonad m where
     createDirectoryIfMissing
         :: Bool  -- ^ True if parents should also be created.
         -> FilePath  -- ^ Path to the directory to create.
@@ -51,7 +51,7 @@ class (Monad m) => FileDraftIO m where
         -> Aeson.Value  -- ^ JSON to be provided as template data.
         -> m Text
 
-instance FileDraftIO IO where
+instance WriteableMonad IO where
     createDirectoryIfMissing = System.Directory.createDirectoryIfMissing
     copyFile = System.Directory.copyFile
     writeFileFromText = Data.Text.IO.writeFile

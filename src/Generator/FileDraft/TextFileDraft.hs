@@ -4,8 +4,8 @@ module Generator.FileDraft.TextFileDraft
 
 import System.FilePath (FilePath, (</>), takeDirectory)
 
-import Generator.FileDraft.WriteableToFile
-import Generator.FileDraft.FileDraftIO
+import Generator.FileDraft.Writeable
+import Generator.FileDraft.WriteableMonad
 
 import Data.Text (Text)
 
@@ -18,8 +18,8 @@ data TextFileDraft = TextFileDraft
     }
     deriving (Show, Eq)
 
-instance WriteableToFile TextFileDraft where
-    writeToFile dstDir (TextFileDraft dstFilepath content) = do
+instance Writeable TextFileDraft where
+    write dstDir (TextFileDraft dstFilepath content) = do
         let dstAbsFilepath = dstDir </> dstFilepath
         createDirectoryIfMissing True (takeDirectory dstAbsFilepath)
         writeFileFromText dstAbsFilepath content

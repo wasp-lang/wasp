@@ -1,6 +1,6 @@
 module Generator.FileDraft
        ( FileDraft(..)
-       , WriteableToFile(..)
+       , Writeable(..)
        , createTemplateFileDraft
        , createCopyFileDraft
        , createTextFileDraft
@@ -10,7 +10,7 @@ module Generator.FileDraft
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 
-import Generator.FileDraft.WriteableToFile
+import Generator.FileDraft.Writeable
 
 import Generator.FileDraft.TemplateFileDraft (TemplateFileDraft)
 import qualified Generator.FileDraft.TemplateFileDraft as TemplateFD
@@ -35,11 +35,11 @@ data FileDraft
     | FileDraftCopyDirDraft CopyDirDraft
     deriving (Show, Eq)
 
-instance WriteableToFile FileDraft where
-    writeToFile dstDir (FileDraftTemplateFd draft) = writeToFile dstDir draft
-    writeToFile dstDir (FileDraftCopyFd draft) = writeToFile dstDir draft
-    writeToFile dstDir (FileDraftTextFd draft) = writeToFile dstDir draft
-    writeToFile dstDir (FileDraftCopyDirDraft draft) = writeToFile dstDir draft
+instance Writeable FileDraft where
+    write dstDir (FileDraftTemplateFd draft) = write dstDir draft
+    write dstDir (FileDraftCopyFd draft) = write dstDir draft
+    write dstDir (FileDraftTextFd draft) = write dstDir draft
+    write dstDir (FileDraftCopyDirDraft draft) = write dstDir draft
 
 
 createTemplateFileDraft :: FilePath -> FilePath -> Aeson.Value -> FileDraft

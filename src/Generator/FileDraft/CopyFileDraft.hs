@@ -4,8 +4,8 @@ module Generator.FileDraft.CopyFileDraft
 
 import System.FilePath (FilePath, (</>), takeDirectory)
 
-import Generator.FileDraft.WriteableToFile
-import Generator.FileDraft.FileDraftIO
+import Generator.FileDraft.Writeable
+import Generator.FileDraft.WriteableMonad
 
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft
@@ -17,8 +17,8 @@ data CopyFileDraft = CopyFileDraft
     }
     deriving (Show, Eq)
 
-instance WriteableToFile CopyFileDraft where
-    writeToFile dstDir (CopyFileDraft dstFilepath srcFilepath) = do
+instance Writeable CopyFileDraft where
+    write dstDir (CopyFileDraft dstFilepath srcFilepath) = do
         let dstAbsFilepath = dstDir </> dstFilepath
         srcAbsFilepath <- getTemplateFileAbsPath srcFilepath
         createDirectoryIfMissing True (takeDirectory dstAbsFilepath)
