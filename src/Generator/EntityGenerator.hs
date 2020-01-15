@@ -22,7 +22,6 @@ import Data.Aeson ((.=), object, toJSON)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as Text
 import System.FilePath (FilePath, (</>), (<.>))
-import qualified Data.HashMap.Strict as M
 
 import qualified Util
 import Wasp
@@ -98,9 +97,8 @@ generateEntityCreateForm wasp entityForm =
     templateSrcPath = entityTemplatesDirPath </> "components" </> "CreateForm.js"
     dstPath = "src" </> (entityCreateFormPathInSrc entity entityForm)
 
-    -- TODO(matija): extract this into a util function.
-    Aeson.Object entityData = entityTemplateData wasp entity
-    templateData = Aeson.Object (M.insert "entityForm" (toJSON entityForm) entityData)
+    entityTemplateJson = entityTemplateData wasp entity
+    templateData = Util.jsonSet "entityForm" (toJSON entityForm) entityTemplateJson
 
 -- | Generates creation forms for the given entity.
 generateEntityCreateForms :: Wasp -> Entity -> [FileDraft]

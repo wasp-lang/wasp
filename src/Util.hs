@@ -4,10 +4,13 @@ module Util
     , toLowerFirst
     , toUpperFirst
     , headSafe
+    , jsonSet
     ) where
 
 import Data.Char (isUpper, toLower, toUpper)
 import qualified Data.Aeson as Aeson
+import qualified Data.Text as Text
+import qualified Data.HashMap.Strict as M
 
 
 camelToKebabCase :: String -> String
@@ -35,3 +38,7 @@ toUpperFirst = onFirst toUpper
 headSafe :: [a] -> Maybe a
 headSafe [] = Nothing
 headSafe xs = Just (head xs)
+
+jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
+jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
+jsonSet _ _ _ = error "Input JSON must be an object"

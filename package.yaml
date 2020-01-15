@@ -90,3 +90,4 @@ tests:
       - tasty-discover
       - QuickCheck
       - parsec
+      - deepseq
