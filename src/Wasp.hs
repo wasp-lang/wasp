@@ -28,9 +28,9 @@ module Wasp
     , getExternalCodeFiles
     ) where
 
-import Data.Text (Text)
 import Data.Aeson ((.=), object, ToJSON(..))
 
+import qualified ExternalCode
 import Wasp.App
 import Wasp.Entity
 import Wasp.EntityForm
@@ -44,10 +44,7 @@ import qualified Util as U
 data Wasp = Wasp
     { waspElements :: [WaspElement]
     , waspJsImports :: [JsImport]
-    , externalCodeFiles ::
-            [( FilePath -- ^ Path relative to external code directory.
-             , Text -- ^ Text of that file.
-            )]
+    , externalCodeFiles :: [ExternalCode.File]
     } deriving (Show, Eq)
 
 data WaspElement
@@ -66,10 +63,10 @@ fromWaspElems elems = Wasp
 
 -- * External code files
 
-getExternalCodeFiles :: Wasp -> [(FilePath, Text)]
+getExternalCodeFiles :: Wasp -> [ExternalCode.File]
 getExternalCodeFiles = externalCodeFiles
 
-setExternalCodeFiles :: Wasp -> [(FilePath, Text)] -> Wasp
+setExternalCodeFiles :: Wasp -> [ExternalCode.File] -> Wasp
 setExternalCodeFiles wasp files = wasp { externalCodeFiles = files }
 
 -- * Js imports

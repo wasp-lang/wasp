@@ -11,15 +11,13 @@ import Generator.FileDraft.WriteableMonad
 data CopyFileDraft = CopyFileDraft
     { -- | Path of file to be written, relative to some root dir.
       copyFileDraftDstFilepath :: !FilePath
-      -- | Path of source file, relative to some root dir,
-      --   normally not the same one as root dir for dstFilepath.
+      -- | Absolute path of source file.
     , copyFileDraftSrcFilepath :: !FilePath
     }
     deriving (Show, Eq)
 
 instance Writeable CopyFileDraft where
-    write dstDir (CopyFileDraft dstFilepath srcFilepath) = do
-        let dstAbsFilepath = dstDir </> dstFilepath
-        srcAbsFilepath <- getTemplateFileAbsPath srcFilepath
-        createDirectoryIfMissing True (takeDirectory dstAbsFilepath)
-        copyFile srcAbsFilepath dstAbsFilepath
+    write dstDir (CopyFileDraft relDstPath absSrcPath) = do
+        let absDstPath = dstDir </> relDstPath
+        createDirectoryIfMissing True (takeDirectory absDstPath)
+        copyFile absSrcPath absDstPath

@@ -36,7 +36,7 @@ instance Writeable FileDraft where
     write dstDir (FileDraftTextFd draft) = write dstDir draft
 
 
-createTemplateFileDraft :: FilePath -> FilePath -> Aeson.Value -> FileDraft
+createTemplateFileDraft :: FilePath -> FilePath -> Maybe Aeson.Value -> FileDraft
 createTemplateFileDraft dstPath templateRelPath templateData =
     FileDraftTemplateFd $ TemplateFD.TemplateFileDraft dstPath templateRelPath templateData
 

@@ -11,7 +11,7 @@ import Wasp
 import Generator.FileDraft
 import qualified Generator.EntityGenerator as EntityGenerator
 import qualified Generator.PageGenerator as PageGenerator
-import qualified Generator.ExternalCodeDirGenerator as ExternalCodeDirGenerator
+import qualified Generator.ExternalCode as ExternalCodeGenerator
 import qualified Generator.Common as Common
 
 
@@ -22,7 +22,7 @@ generateWebApp wasp options = concatMap ($ wasp)
     , generateGitignore
     , generatePublicDir
     , generateSrcDir
-    , ExternalCodeDirGenerator.generateExternalCodeDir options
+    , ExternalCodeGenerator.generateExternalCodeDir options
     ]
 
 generateReadme :: Wasp -> [FileDraft]
@@ -32,11 +32,11 @@ generatePackageJson :: Wasp -> [FileDraft]
 generatePackageJson wasp = [simpleTemplateFileDraft "package.json" wasp]
 
 generateGitignore :: Wasp -> [FileDraft]
-generateGitignore wasp = [createTemplateFileDraft ".gitignore" "gitignore" (toJSON wasp)]
+generateGitignore wasp = [createTemplateFileDraft ".gitignore" "gitignore" (Just $ toJSON wasp)]
 
 generatePublicDir :: Wasp -> [FileDraft]
 generatePublicDir wasp
-    = createCopyFileDraft ("public" </> "favicon.ico") ("public" </> "favicon.ico")
+    = createTemplateFileDraft ("public" </> "favicon.ico") ("public" </> "favicon.ico") Nothing
     : map (\path -> simpleTemplateFileDraft ("public/" </> path) wasp)
         [ "index.html"
         , "manifest.json"
@@ -46,7 +46,7 @@ generatePublicDir wasp
 
 generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
-    = (createCopyFileDraft (Common.srcDirPath </> "logo.png") ("src" </> "logo.png"))
+    = (createTemplateFileDraft (Common.srcDirPath </> "logo.png") ("src" </> "logo.png") Nothing)
     : map (\path -> simpleTemplateFileDraft ("src/" </> path) wasp)
         [ "index.js"
         , "index.css"
@@ -60,7 +60,7 @@ generateSrcDir wasp
     ++ [generateReducersJs wasp]
 
 generateReducersJs :: Wasp -> FileDraft
-generateReducersJs wasp = createTemplateFileDraft dstPath srcPath templateData
+generateReducersJs wasp = createTemplateFileDraft dstPath srcPath (Just templateData)
   where
     srcPath = "src" </> "reducers.js"
     dstPath = Common.srcDirPath </> "reducers.js"
@@ -80,4 +80,4 @@ generateReducersJs wasp = createTemplateFileDraft dstPath srcPath templateData
 -- | Creates template file draft that uses given path as both src and dst path
 --   and wasp as template data.
 simpleTemplateFileDraft :: FilePath -> Wasp -> FileDraft
-simpleTemplateFileDraft path wasp = createTemplateFileDraft path path (toJSON wasp)
+simpleTemplateFileDraft path wasp = createTemplateFileDraft path path (Just $ toJSON wasp)

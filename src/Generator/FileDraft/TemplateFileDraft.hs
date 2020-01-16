@@ -3,7 +3,6 @@ module Generator.FileDraft.TemplateFileDraft
        ) where
 
 import System.FilePath (FilePath, (</>), takeDirectory)
-import Data.Text (Text)
 import qualified Data.Aeson as Aeson
 
 import Generator.FileDraft.Writeable
@@ -17,22 +16,23 @@ data TemplateFileDraft = TemplateFileDraft
       -- | Path of template source file, relative to templates root dir.
     , templateFileDraftTemplateRelFilepath :: !FilePath
       -- | Data to be fed to the template while rendering it.
-    , templateFileDraftTemplateData :: !Aeson.Value
+    , templateFileDraftTemplateData :: Maybe Aeson.Value
     }
     deriving (Show, Eq)
 
 instance Writeable TemplateFileDraft where
-    write dstDir draft =
-        compileAndRenderTemplate templateRelFilepath templateData >>= writeContentToFile
+    write dstDir draft = do
+        createDirectoryIfMissing True (takeDirectory absDstPath)
+        case templateFileDraftTemplateData draft of
+            Nothing -> do
+                absSrcPath <- getTemplateFileAbsPath templateSrcPathInTemplateDir
+                copyFile absSrcPath absDstPath
+            Just tmplData -> do
+                content <- compileAndRenderTemplate templateSrcPathInTemplateDir tmplData
+                writeFileFromText absDstPath content
       where
-        templateRelFilepath :: FilePath
-        templateRelFilepath = templateFileDraftTemplateRelFilepath draft
+        templateSrcPathInTemplateDir :: FilePath
+        templateSrcPathInTemplateDir = templateFileDraftTemplateRelFilepath draft
 
-        templateData :: Aeson.Value
-        templateData = templateFileDraftTemplateData draft
-
-        writeContentToFile :: (WriteableMonad m) => Text -> m ()
-        writeContentToFile content = do
-            let absDstFilepath = dstDir </> (templateFileDraftDstFilepath draft)
-            createDirectoryIfMissing True (takeDirectory absDstFilepath)
-            writeFileFromText absDstFilepath content
+        absDstPath :: FilePath
+        absDstPath = dstDir </> (templateFileDraftDstFilepath draft)

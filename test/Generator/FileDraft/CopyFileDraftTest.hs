@@ -22,6 +22,5 @@ spec_CopyFileDraft = do
               where
                 (dstDir, dstPath, srcPath) = ("a/b", "c/d/dst.txt", "e/src.txt")
                 fileDraft = createCopyFileDraft dstPath srcPath
-                expectedSrcPath = mockTemplatesDirAbsPath </> srcPath
+                expectedSrcPath = srcPath
                 expectedDstPath = dstDir </> dstPath
-                mockTemplatesDirAbsPath = Mock.getTemplatesDirAbsPath_impl Mock.defaultMockConfig

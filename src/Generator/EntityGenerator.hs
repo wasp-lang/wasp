@@ -85,7 +85,7 @@ generateEntityComponents wasp entity = concat
 --   {=/ typedFields =}
 generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft
 generateEntityCreateForm wasp entityForm =
-    createTemplateFileDraft dstPath templateSrcPath templateData
+    createTemplateFileDraft dstPath templateSrcPath (Just templateData)
   where
     -- NOTE(matija): There should always be an entity in wasp for the given entity form,
     -- we want an error to be thrown otherwise.
@@ -119,7 +119,7 @@ generateEntityList wasp entity
 -- | Helper function that captures common logic for generating entity file draft.
 createSimpleEntityFileDraft :: Wasp -> Entity -> FilePath -> FilePath -> FileDraft
 createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
-    = createTemplateFileDraft dstPath srcPath templateData
+    = createTemplateFileDraft dstPath srcPath (Just templateData)
   where
     srcPath = entityTemplatesDirPath </> srcPathInEntityTemplatesDir
     dstPath = Common.srcDirPath </> dstPathInSrc

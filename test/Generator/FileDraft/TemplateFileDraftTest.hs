@@ -26,7 +26,7 @@ spec_TemplateFileDraft = do
               where
                 (dstDir, dstPath, templatePath) = ("a/b", "c/d/dst.txt", "e/tmpl.txt")
                 templateData = object [ "foo" .= ("bar" :: String) ]
-                fileDraft = createTemplateFileDraft dstPath templatePath templateData
+                fileDraft = createTemplateFileDraft dstPath templatePath (Just templateData)
                 expectedDstPath = dstDir </> dstPath
                 mockTemplatesDirAbsPath = "mock/templates/dir"
                 mockTemplateContent = "Mock template content" :: Text
