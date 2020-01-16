@@ -37,6 +37,17 @@ export default class {= entityForm.name =} extends React.Component {
     }))
   }
 
+  resetAllFields = () => {
+    {=# entityTypedFields =}
+    {=# boolean =}
+    this.setField('{= name =}', false)
+    {=/ boolean =}
+    {=# string =}
+    this.setField('{= name =}', '')
+    {=/ string =}
+    {=/ entityTypedFields =}
+  }
+
   toggleField = (name) => {
     this.setField(name, prevState => !prevState.fields[name])
   }
@@ -47,6 +58,7 @@ export default class {= entityForm.name =} extends React.Component {
 
   handleSubmit = () => {
     this.props.onCreate(new {= entityClassName =}(this.state.fields))
+    this.resetAllFields()
   }
 
   render() {
