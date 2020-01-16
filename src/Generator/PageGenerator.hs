@@ -15,7 +15,7 @@ import qualified System.FilePath as FilePath
 import qualified Util
 import Wasp
 import Generator.FileDraft
-import qualified Generator.EntityGenerator as EntityGenerator
+import qualified Generator.Entity as EntityGenerator
 import Generator.ExternalCode (externalCodeDirPathInSrc)
 import qualified Generator.Common as Common
 

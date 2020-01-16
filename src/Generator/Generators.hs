@@ -9,7 +9,7 @@ import CompileOptions (CompileOptions)
 import qualified Util
 import Wasp
 import Generator.FileDraft
-import qualified Generator.EntityGenerator as EntityGenerator
+import qualified Generator.Entity as EntityGenerator
 import qualified Generator.PageGenerator as PageGenerator
 import qualified Generator.ExternalCode as ExternalCodeGenerator
 import qualified Generator.Common as Common
@@ -73,7 +73,6 @@ generateReducersJs wasp = createTemplateFileDraft dstPath srcPath (Just template
         , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
         , "entityStatePath" .= ("./" ++ (EntityGenerator.entityStatePathInSrc entity))
         ]
-
 
 -- * Helpers
 

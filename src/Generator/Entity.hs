@@ -1,4 +1,4 @@
-module Generator.EntityGenerator
+module Generator.Entity
        ( generateEntities
 
        , entityDirPathInSrc
@@ -18,15 +18,13 @@ module Generator.EntityGenerator
        , entityTemplatesDirPath
        ) where
 
-import Data.Aeson ((.=), object, toJSON)
-import qualified Data.Aeson as Aeson
-import qualified Data.Text as Text
 import System.FilePath (FilePath, (</>), (<.>))
 
-import qualified Util
 import Wasp
 import Generator.FileDraft
 import qualified Generator.Common as Common
+import Generator.Entity.EntityForm
+import Generator.Entity.Common
 
 
 generateEntities :: Wasp -> [FileDraft]
@@ -69,38 +67,6 @@ generateEntityComponents wasp entity = concat
     , [generateEntityList wasp entity]
     ]
 
--- TODO: add tests / update tests.
--- TODO: I need to pass more complex data here, so that I can build field inputs from it
---   in mustache template. To do this, since mustache is logicless, I need to pass
---   template data like
---   typedFields: [{ stringField: {...fieldData} }, { booleanField: {...fieldData} }, ...]
---   and then have this in mustache:
---   {=# typedFields =}
---   {=# stringField =}
---     ... Code when field is string. ...
---   {=/ stringField =}
---   {=# booleanField =}
---     ... Code when field is boolean. ...
---   {=/ booleanField =}
---   {=/ typedFields =}
-generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft
-generateEntityCreateForm wasp entityForm =
-    createTemplateFileDraft dstPath templateSrcPath (Just templateData)
-  where
-    -- NOTE(matija): There should always be an entity in wasp for the given entity form,
-    -- we want an error to be thrown otherwise.
-    entity = maybe
-        (error $ "Wasp must contain entity to which the entity form refers: " ++
-         efEntityName entityForm)
-        id
-        (getEntityByName wasp (efEntityName entityForm))
-
-    templateSrcPath = entityTemplatesDirPath </> "components" </> "CreateForm.js"
-    dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
-
-    entityTemplateJson = entityTemplateData wasp entity
-    templateData = Util.jsonSet "entityForm" (toJSON entityForm) entityTemplateJson
-
 -- | Generates creation forms for the given entity.
 generateEntityCreateForms :: Wasp -> Entity -> [FileDraft]
 generateEntityCreateForms wasp entity =
@@ -125,45 +91,7 @@ createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
     dstPath = Common.srcDirPath </> dstPathInSrc
     templateData = entityTemplateData wasp entity
 
-{- | Converts entity field to a JSON where field type is a key to the object holding
-all the other properties. E.g. a field of type boolean could look this as JSON:
-
-{ boolean: { name: "description", type: "boolean" }, name: "description" }
-
-This method is needed to achieve conditional rendering with Mustache. We also add "name"
-property again along with the type because it is otherwise not accessible outside of
-a specific conditional section.
--}
-entityFieldToJsonWithTypeAsKey :: EntityField -> Aeson.Value
-entityFieldToJsonWithTypeAsKey entityField = object
-    -- TODO(matija): it would be cleaner to have a flat structure, like
-    -- { boolean: true, type: "boolean", name: "description" }
-    [ (toText $ entityFieldType entityField) .= entityField
-    , "name" .= entityFieldName entityField
-    ]
-  where
-    toText = Text.pack . show
-
--- | Default generic data for entity templates.
-entityTemplateData :: Wasp -> Entity -> Aeson.Value
-entityTemplateData wasp entity = object
-    [ "wasp" .= wasp
-    , "entity" .= entity
-    , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
-    -- TODO: use it also when creating Class file itself and in other files.
-    , "entityClassName" .= (Util.toUpperFirst $ entityName entity)
-    , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
-    ]
-
--- | Location in templates where entity related templates reside.
-entityTemplatesDirPath :: FilePath
-entityTemplatesDirPath = "src" </> "entities" </> "_entity"
-
-
 -- * Paths of generated code (relative to src/ directory)
-
-entityDirPathInSrc :: Entity -> FilePath
-entityDirPathInSrc entity = "entities" </> Util.camelToKebabCase (entityName entity)
 
 entityStatePathInSrc :: Entity -> FilePath
 entityStatePathInSrc entity = (entityDirPathInSrc entity) </> "state.js"
@@ -178,13 +106,6 @@ entityClassPathInSrc :: Entity -> FilePath
 entityClassPathInSrc entity = (entityDirPathInSrc entity) </> (entityName entity) <.> "js"
 
 -- * Components
-
-entityComponentsDirPathInSrc :: Entity -> FilePath
-entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> "components"
-
-entityCreateFormPathInSrc :: Entity -> EntityForm -> FilePath
-entityCreateFormPathInSrc entity entityForm =
-    (entityComponentsDirPathInSrc entity) </> (efName entityForm) ++ ".js"
 
 entityListPathInSrc :: Entity -> FilePath
 entityListPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "List.js"
