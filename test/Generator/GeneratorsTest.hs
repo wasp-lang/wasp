@@ -3,6 +3,7 @@ module Generator.GeneratorsTest where
 import Test.Tasty.Hspec
 
 import System.FilePath (FilePath, (</>), (<.>))
+import Path (absdir)
 
 import Util
 import qualified CompileOptions
@@ -24,7 +25,7 @@ spec_Generators = do
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
     let testCompileOptions = CompileOptions.CompileOptions
-            { CompileOptions.externalCodeDirPath = "test/src"
+            { CompileOptions.externalCodeDirPath = [absdir|/test/src|]
             }
 
     describe "generateWebApp" $ do

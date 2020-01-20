@@ -12,6 +12,7 @@ import qualified Wasp
 import qualified Generator.FileDraft as FD
 import qualified Generator.Common as Common
 import qualified ExternalCode
+import qualified Path
 
 
 externalCodeDirPathInSrc :: FilePath
@@ -22,11 +23,13 @@ generateExternalCodeDir compileOptions wasp =
     map (generateFile compileOptions) (Wasp.getExternalCodeFiles wasp)
 
 getFileDstPath :: ExternalCode.File -> FilePath
-getFileDstPath file = Common.srcDirPath </> externalCodeDirPathInSrc </> (ExternalCode.getFilePathInExtCodeDir file)
+getFileDstPath file = Common.srcDirPath </> externalCodeDirPathInSrc </>
+                      (Path.toFilePath $ ExternalCode.getFilePathInExtCodeDir file)
 
 getFileSrcPath :: CompileOptions -> ExternalCode.File -> FilePath
 getFileSrcPath compileOptions file =
-    (CompileOptions.externalCodeDirPath compileOptions) </> (ExternalCode.getFilePathInExtCodeDir file)
+    Path.toFilePath (CompileOptions.externalCodeDirPath compileOptions Path.</>
+                     ExternalCode.getFilePathInExtCodeDir file)
 
 generateFile :: CompileOptions -> ExternalCode.File -> FD.FileDraft
 generateFile compileOptions file

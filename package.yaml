@@ -9,7 +9,11 @@ author:              "Stic"
 maintainer:          "info@stic.dev"
 copyright:           "2019 Stic"
 
-default-extensions: OverloadedStrings
+default-extensions:
+  - OverloadedStrings
+  - TemplateHaskell
+  - QuasiQuotes
+  - ScopedTypeVariables
 
 extra-source-files:
   - README.md
@@ -45,6 +49,7 @@ library:
     - directory
     - split
     - unordered-containers
+    - path
 
 executables:
   stic-exe:
@@ -57,6 +62,8 @@ executables:
     dependencies:
       - stic
       - filepath
+      - path
+      - directory
 
 benchmarks:
   stic-benchmarks:
@@ -91,3 +98,4 @@ tests:
       - QuickCheck
       - parsec
       - deepseq
+      - path

@@ -3,10 +3,13 @@ module Util.IO
     ) where
 
 import qualified System.Directory as Dir
-import System.FilePath ((</>), splitDirectories)
+import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import Control.Exception (catch, throw)
 import Control.Monad (filterM, mapM)
+import qualified Path
+
+import qualified Path.Aliases as Path
 
 
 -- TODO: write tests.
@@ -19,22 +22,36 @@ import Control.Monad (filterM, mapM)
 -- >>> listDirectoryDeep "foo/"
 -- we should get
 -- >>> ["test.txt", "bar/text2.txt"]
-listDirectoryDeep :: FilePath -> IO [FilePath]
-listDirectoryDeep dirPath = do
-    dirItems <- Dir.listDirectory dirPath
-                `catch` \e -> if isDoesNotExistError e then return [] else throw e
-    files <- filterM (Dir.doesFileExist . (dirPath </>)) dirItems
-    subDirs <- filterM (Dir.doesDirectoryExist . (dirPath </>)) dirItems
-    subDirsFiles <- mapM (listSubDirDeep . (dirPath </>)) subDirs
-    return $ files ++ (concat subDirsFiles)
+listDirectoryDeep :: Path.AbsDir -> IO [Path.RelFile]
+listDirectoryDeep absDirPath = do
+    (relFilePaths, relSubDirPaths) <- (listDirectory absDirPath)
+        `catch` \e -> if isDoesNotExistError e then return ([], []) else throw e
+    relSubDirFilesPaths <- mapM (listSubDirDeep . (absDirPath Path.</>)) relSubDirPaths
+    return $ relFilePaths ++ (concat relSubDirFilesPaths)
   where
-      getDirName :: FilePath -> FilePath
-      getDirName path = last $ splitDirectories path
-
-      -- | Returned paths are relative to the main dir whose sub dir we are listing.
-      listSubDirDeep :: FilePath -> IO [FilePath]
+      -- | NOTE: Here, returned paths are relative to the main dir whose sub dir we are listing,
+      --   which is one level above what you might intuitively expect.
+      listSubDirDeep :: Path.AbsDir -> IO [Path.RelFile]
       listSubDirDeep subDirPath = do
-          paths <- listDirectoryDeep subDirPath
-          return $ map ((getDirName subDirPath) </>) paths
+          files <- listDirectoryDeep subDirPath
+          return $ map ((Path.dirname subDirPath) Path.</>) files
 
-      
+-- TODO: write tests.
+-- | Lists files and directories at top lvl of the directory.
+listDirectory :: Path.AbsDir -> IO ([Path.RelFile], [Path.RelDir])
+listDirectory absDirPath = do
+    fpRelItemPaths <- Dir.listDirectory fpAbsDirPath
+    relFilePaths <- filterFiles fpAbsDirPath fpRelItemPaths
+    relDirPaths <- filterDirs fpAbsDirPath fpRelItemPaths
+    return (relFilePaths, relDirPaths)
+  where
+      fpAbsDirPath :: FilePath
+      fpAbsDirPath = Path.toFilePath absDirPath
+
+      filterFiles :: FilePath -> [FilePath] -> IO [Path.RelFile]
+      filterFiles absDir relItems = filterM (Dir.doesFileExist . (absDir FilePath.</>)) relItems
+                                    >>= mapM Path.parseRelFile
+
+      filterDirs :: FilePath -> [FilePath] -> IO [Path.RelDir]
+      filterDirs absDir relItems = filterM (Dir.doesDirectoryExist . (absDir FilePath.</>)) relItems
+                                   >>= mapM Path.parseRelDir

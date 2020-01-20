@@ -8,13 +8,15 @@ import qualified ExternalCode
 import Parser
 import Generator
 import Wasp (setExternalCodeFiles)
+import qualified Path
+import qualified Path.Aliases as Path
 
 
 type CompileError = String
 
-compile :: FilePath -> FilePath -> CompileOptions -> IO (Either CompileError ())
+compile :: Path.AbsFile -> Path.AbsDir -> CompileOptions -> IO (Either CompileError ())
 compile waspFile outDir options = do
-    waspStr <- readFile waspFile
+    waspStr <- readFile (Path.toFilePath waspFile)
 
     case parseWasp waspStr of
         Left err -> return $ Left (show err)
@@ -22,4 +24,4 @@ compile waspFile outDir options = do
             externalCodeFiles <- ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
             generateCode $ wasp `setExternalCodeFiles` externalCodeFiles
   where
-    generateCode wasp = writeWebAppCode wasp outDir options >> return (Right ())
+    generateCode wasp = writeWebAppCode wasp (Path.toFilePath outDir) options >> return (Right ())
