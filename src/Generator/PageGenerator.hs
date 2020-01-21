@@ -14,12 +14,13 @@ import qualified System.FilePath as FP
 import Path ((</>), relfile, reldir)
 import qualified Path
 import qualified Path.Aliases as Path
+import qualified Path.Extra as Path
 
 import qualified Util
 import Wasp
 import Generator.FileDraft
 import qualified Generator.Entity as EntityGenerator
-import Generator.ExternalCode (externalCodeDirPathInSrc)
+import Generator.ExternalCode.Common (externalCodeDirPathInSrc)
 import qualified Generator.Common as Common
 
 
@@ -81,16 +82,11 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
                      (fromJust $ Path.parseRelFile $ jsImportFrom jsImport))
         ]
 
--- | NOTE: If you modify this value, make sure to also accordingly update relPathFromPageToSrc.
---     For example, if pageDirPathInSrc = "foo/bar", then relPathFromPageToSrc should be "../../".
 pageDirPathInSrc :: Path.RelDir
 pageDirPathInSrc = [reldir|.|]
--- | Relative path from page to the /src directory.
---   It is the opposite of pageDirPathInSrc and should be updated together with it.
---   TODO: We could deduce this directly from the pageDirPathInSrc instead of hardcoding it.
---   NOTE: We are using FilePath instead of Path here because that allows us to assign values like "../".
+
 relPathFromPageToSrc :: FilePath
-relPathFromPageToSrc = "."
+relPathFromPageToSrc = Path.reversePath pageDirPathInSrc
 
 -- | Takes path relative to the src path of generated project and turns it into relative path that can be
 -- used as "from" part of the import in the Page source file.

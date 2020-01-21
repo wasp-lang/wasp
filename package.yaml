@@ -50,6 +50,7 @@ library:
     - split
     - unordered-containers
     - path
+    - regex-compat
 
 executables:
   stic-exe:

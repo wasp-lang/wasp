@@ -1,6 +1,6 @@
 // Goal of this file is to re-create a TODO app from http://todomvc.com
 
-import * as config from "config"  // Imports from external code dir (src/).
+import Todo from "Todo"  // Imports from external code dir (src/).
 
 // -- Entities
 entity Task {
@@ -34,22 +34,10 @@ page Main {
     css=},
 
     content: {=jsx
-        <div className="mainContainer">
-            <h1> { config.appName } </h1>
-
-            <NewTaskForm
-                onCreate={task => this.props.addTask(task)}
-                submitButtonLabel={'Create new task'}
-            />
-
-            <div className="taskListContainer">
-                <TaskList editable />
-            </div>
-
-            <div className="footer">
-              { this.props.taskList.filter(task => !task.isDone).length } items left
-            </div>
-        </div>
+        <Todo
+            addTask={this.props.addTask}
+            taskList={this.props.taskList}>
+        </Todo>
     jsx=}
 }
 
