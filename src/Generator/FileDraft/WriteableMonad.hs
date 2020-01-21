@@ -7,6 +7,7 @@ import qualified System.Directory
 import qualified Data.Text.IO
 import Data.Aeson as Aeson
 import Data.Text (Text)
+import qualified Path.Aliases as Path
 
 import qualified Generator.Templates
 
@@ -35,14 +36,14 @@ class (Monad m) => WriteableMonad m where
     writeFileFromText :: FilePath -> Text -> m ()
 
     getTemplateFileAbsPath
-        :: FilePath  -- ^ Template file path, relative to templates root directory.
-        -> m FilePath
+        :: Path.RelFile  -- ^ Template file path, relative to templates root directory.
+        -> m Path.AbsFile
 
     -- | Returns absolute path of templates root directory.
-    getTemplatesDirAbsPath :: m FilePath
+    getTemplatesDirAbsPath :: m Path.AbsDir
 
     compileAndRenderTemplate
-        :: FilePath  -- ^ Path to the template file, relative to template root dir.
+        :: Path.RelFile  -- ^ Path to the template file, relative to template root dir.
         -> Aeson.Value  -- ^ JSON to be provided as template data.
         -> m Text
 

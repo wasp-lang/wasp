@@ -2,8 +2,9 @@ module Generator.FileDraft.TemplateFileDraft
        ( TemplateFileDraft(..)
        ) where
 
-import System.FilePath (FilePath, (</>), takeDirectory)
 import qualified Data.Aeson as Aeson
+import qualified Path
+import qualified Path.Aliases as Path
 
 import Generator.FileDraft.Writeable
 import Generator.FileDraft.WriteableMonad
@@ -11,28 +12,22 @@ import Generator.FileDraft.WriteableMonad
 
 -- | File draft based on template file that gets combined with data.
 data TemplateFileDraft = TemplateFileDraft
-    { -- | Path of file to be written, relative to some dst root dir.
-      templateFileDraftDstFilepath :: !FilePath
-      -- | Path of template source file, relative to templates root dir.
-    , templateFileDraftTemplateRelFilepath :: !FilePath
-      -- | Data to be fed to the template while rendering it.
-    , templateFileDraftTemplateData :: Maybe Aeson.Value
+    { _dstPath :: !Path.RelFile -- ^ Path of file to be written, relative to some dst root dir.
+    , _srcPathInTmplDir :: !Path.RelFile -- ^ Path of template source file, relative to templates root dir.
+    , _tmplData :: Maybe Aeson.Value -- ^ Data to be fed to the template while rendering it.
     }
     deriving (Show, Eq)
 
 instance Writeable TemplateFileDraft where
-    write dstDir draft = do
-        createDirectoryIfMissing True (takeDirectory absDstPath)
-        case templateFileDraftTemplateData draft of
+    write absDstDirPath draft = do
+        createDirectoryIfMissing True (Path.toFilePath $ Path.parent absDraftDstPath)
+        case _tmplData draft of
             Nothing -> do
-                absSrcPath <- getTemplateFileAbsPath templateSrcPathInTemplateDir
-                copyFile absSrcPath absDstPath
+                absDraftSrcPath <- getTemplateFileAbsPath (_srcPathInTmplDir draft)
+                copyFile (Path.toFilePath absDraftSrcPath) (Path.toFilePath absDraftDstPath)
             Just tmplData -> do
-                content <- compileAndRenderTemplate templateSrcPathInTemplateDir tmplData
-                writeFileFromText absDstPath content
+                content <- compileAndRenderTemplate (_srcPathInTmplDir draft) tmplData
+                writeFileFromText (Path.toFilePath absDraftDstPath) content
       where
-        templateSrcPathInTemplateDir :: FilePath
-        templateSrcPathInTemplateDir = templateFileDraftTemplateRelFilepath draft
-
-        absDstPath :: FilePath
-        absDstPath = dstDir </> (templateFileDraftDstFilepath draft)
+        absDraftDstPath :: Path.AbsFile
+        absDraftDstPath = absDstDirPath Path.</> (_dstPath draft)

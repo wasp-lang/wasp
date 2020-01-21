@@ -4,6 +4,7 @@ module Wasp.JsImport
 
 import Data.Aeson ((.=), object, ToJSON(..))
 
+
 -- | Represents javascript import -> "import <what> from <from>".
 data JsImport = JsImport
     { jsImportWhat :: !String
@@ -11,7 +12,10 @@ data JsImport = JsImport
     --   So for example if jsImportFrom is "test.js", we expect file
     --   to exist at <external_code_dir>/test.js.
     --   TODO: Make this more explicit in the code (both here and in wasp lang)? Also, support importing npm packages?
-    , jsImportFrom :: !String
+    --   TODO: Use Path.RelFile here? Maybe that would be too restrictive, since we might even have
+    --     even have things here that are not filepath, so let's see in the future?
+    --     I tried, but I did not know how to easily call Path.parseRelFile inside parsec, so I gave up for now.
+    , jsImportFrom :: !FilePath
     } deriving (Show, Eq)
 
 instance ToJSON JsImport where

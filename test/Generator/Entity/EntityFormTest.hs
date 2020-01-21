@@ -2,11 +2,11 @@ module Generator.Entity.EntityFormTest where
 
 import Test.Tasty.Hspec
 
-import System.FilePath ((</>))
+import Path ((</>))
 
 import Wasp
 import Generator.FileDraft
-import Generator.FileDraft.TemplateFileDraft
+import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
 import Generator.Entity.EntityForm
 import qualified Generator.Common as Common
 
@@ -37,4 +37,4 @@ spec_generateEntityCreateForm = do
 
         let expectedDstPath = Common.srcDirPath </> (entityCreateFormPathInSrc F.taskEntity F.taskCreateForm)
 
-        templateFileDraftDstFilepath templateFileDraft `shouldBe` expectedDstPath
+        TmplFD._dstPath templateFileDraft `shouldBe` expectedDstPath

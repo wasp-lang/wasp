@@ -8,11 +8,12 @@ module Generator.FileDraft
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
+import qualified Path.Aliases as Path
 
 import Generator.FileDraft.Writeable
 
 import Generator.FileDraft.TemplateFileDraft (TemplateFileDraft)
-import qualified Generator.FileDraft.TemplateFileDraft as TemplateFD
+import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
 
 import Generator.FileDraft.CopyFileDraft (CopyFileDraft)
 import qualified Generator.FileDraft.CopyFileDraft as CopyFD
@@ -36,14 +37,17 @@ instance Writeable FileDraft where
     write dstDir (FileDraftTextFd draft) = write dstDir draft
 
 
-createTemplateFileDraft :: FilePath -> FilePath -> Maybe Aeson.Value -> FileDraft
-createTemplateFileDraft dstPath templateRelPath templateData =
-    FileDraftTemplateFd $ TemplateFD.TemplateFileDraft dstPath templateRelPath templateData
+createTemplateFileDraft :: Path.RelFile -> Path.RelFile -> Maybe Aeson.Value -> FileDraft
+createTemplateFileDraft dstPath tmplSrcPath tmplData =
+    FileDraftTemplateFd $ TmplFD.TemplateFileDraft { TmplFD._dstPath = dstPath
+                                                   , TmplFD._srcPathInTmplDir = tmplSrcPath
+                                                   , TmplFD._tmplData = tmplData
+                                                   }
 
-createCopyFileDraft :: FilePath -> FilePath -> FileDraft
+createCopyFileDraft :: Path.RelFile -> Path.AbsFile -> FileDraft
 createCopyFileDraft dstPath srcPath =
-    FileDraftCopyFd $ CopyFD.CopyFileDraft dstPath srcPath
+    FileDraftCopyFd $ CopyFD.CopyFileDraft { CopyFD._dstPath = dstPath, CopyFD._srcPath = srcPath}
 
-createTextFileDraft :: FilePath -> Text -> FileDraft
+createTextFileDraft :: Path.RelFile -> Text -> FileDraft
 createTextFileDraft dstPath content =
-    FileDraftTextFd $ TextFD.TextFileDraft dstPath content
+    FileDraftTextFd $ TextFD.TextFileDraft { TextFD._dstPath = dstPath, TextFD._content = content}

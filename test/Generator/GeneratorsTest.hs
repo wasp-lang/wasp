@@ -2,16 +2,17 @@ module Generator.GeneratorsTest where
 
 import Test.Tasty.Hspec
 
-import System.FilePath (FilePath, (</>), (<.>))
+import System.FilePath ((</>), (<.>))
 import Path (absdir)
+import qualified Path
 
 import Util
 import qualified CompileOptions
 import Generator.Generators
 import Generator.FileDraft
-import Generator.FileDraft.TemplateFileDraft
-import Generator.FileDraft.CopyFileDraft
-import Generator.FileDraft.TextFileDraft
+import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
+import qualified Generator.FileDraft.CopyFileDraft as CopyFD
+import qualified Generator.FileDraft.TextFileDraft as TextFD
 import qualified Generator.Common as Common
 import Wasp
 
@@ -46,7 +47,7 @@ spec_Generators = do
                       , "index.html"
                       , "manifest.json"
                       ]
-                    , map (Common.srcDirPath </>)
+                    , map ((Path.toFilePath Common.srcDirPath) </>)
                       [ "logo.png"
                       , "index.css"
                       , "index.js"
@@ -77,6 +78,6 @@ existsFdWithDst fds dstPath = any ((== dstPath) . getFileDraftDstPath) fds
 -- TODO(martin): This should really become part of the Writeable typeclass,
 --   since it is smth we want to do for all file drafts.
 getFileDraftDstPath :: FileDraft -> FilePath
-getFileDraftDstPath (FileDraftTemplateFd fd) = templateFileDraftDstFilepath fd
-getFileDraftDstPath (FileDraftCopyFd fd) = copyFileDraftDstFilepath fd
-getFileDraftDstPath (FileDraftTextFd fd) = textFileDraftDstFilepath fd
+getFileDraftDstPath (FileDraftTemplateFd fd) = Path.toFilePath $ TmplFD._dstPath fd
+getFileDraftDstPath (FileDraftCopyFd fd) = Path.toFilePath $ CopyFD._dstPath fd
+getFileDraftDstPath (FileDraftTextFd fd) = Path.toFilePath $ TextFD._dstPath fd

@@ -7,8 +7,11 @@ module Generator.Entity.EntityForm
 
 import Data.Aeson ((.=), object, ToJSON(..))
 import qualified Data.Aeson as Aeson
-import System.FilePath ((</>))
 import Control.Exception (assert)
+import Data.Maybe (fromJust)
+import Path ((</>), reldir, relfile)
+import qualified Path
+import qualified Path.Aliases as Path
 
 import Wasp
 import qualified Wasp.EntityForm as EF
@@ -62,11 +65,13 @@ generateEntityCreateForm wasp entityForm =
         id
         (getEntityByName wasp (EF._entityName entityForm))
 
-    templateSrcPath = EC.entityTemplatesDirPath </> "components" </> "CreateForm.js"
+    templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|CreateForm.js|]
+
     dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
 
     templateData = createEntityFormTemplateData entity entityForm
 
-entityCreateFormPathInSrc :: Entity -> EntityForm -> FilePath
+entityCreateFormPathInSrc :: Entity -> EntityForm -> Path.RelFile
 entityCreateFormPathInSrc entity entityForm =
-    (EC.entityComponentsDirPathInSrc entity) </> (EF._name entityForm) ++ ".js"
+    EC.entityComponentsDirPathInSrc entity </>
+    (fromJust $ Path.parseRelFile $ (EF._name entityForm) ++ ".js")

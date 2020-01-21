@@ -7,9 +7,11 @@ module Generator.Templates
 import qualified Text.Mustache as Mustache
 import Text.Mustache.Render (SubstitutionError(..))
 import qualified Data.Aeson as Aeson
-import System.FilePath ((</>))
 import Data.Text (Text)
 import Text.Printf (printf)
+import Path ((</>), reldir)
+import qualified Path
+import qualified Path.Aliases as Path
 
 import qualified Paths_stic
 
@@ -20,36 +22,47 @@ import qualified Paths_stic
 --   NOTE(Martin): Here I set it to react-app, which might be one lvl too deep
 --     and will require some changes in the future, but did not want to
 --     overengineer for now.
-getTemplatesDirAbsPath :: IO FilePath
+getTemplatesDirAbsPath :: IO Path.AbsDir
 getTemplatesDirAbsPath = do
-    dataDirPath <- Paths_stic.getDataDir
-    return $ dataDirPath </> "Generator/templates/react-app"
+    absDataDirPath <- Paths_stic.getDataDir >>= Path.parseAbsDir
+    return $ absDataDirPath </> templatesDirPathInDataDir
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
-getTemplateFileAbsPath :: FilePath -> IO FilePath
-getTemplateFileAbsPath relFilepath =
-    Paths_stic.getDataFileName ("Generator/templates/react-app" </> relFilepath)
+getTemplateFileAbsPath :: Path.RelFile -> IO Path.AbsFile
+getTemplateFileAbsPath tmplFilePathInTemplatesDir =
+    Paths_stic.getDataFileName (Path.toFilePath tmplFilePathInDataDir) >>= Path.parseAbsFile
+  where
+    tmplFilePathInDataDir = templatesDirPathInDataDir </> tmplFilePathInTemplatesDir
+
+-- | NOTE(Martin): Here I set it to react-app, which might be one lvl too deep
+-- and will require some changes in the future, but did not want to
+-- overengineer for now.
+templatesDirPathInDataDir :: Path.RelDir
+templatesDirPathInDataDir = reactAppTemplatesDirPathInDataDir
+
+reactAppTemplatesDirPathInDataDir :: Path.RelDir
+reactAppTemplatesDirPathInDataDir = [reldir|Generator|] </> [reldir|templates|] </> [reldir|react-app|]
 
 compileAndRenderTemplate
-    :: FilePath  -- ^ Path to the template file, relative to template root dir.
+    :: Path.RelFile  -- ^ Path to the template file, relative to templates root dir.
     -> Aeson.Value  -- ^ JSON to be provided as template data.
     -> IO Text
-compileAndRenderTemplate templateRelFilepath templateData = do
-    mustacheTemplate <- compileMustacheTemplate templateRelFilepath
-    renderMustacheTemplate mustacheTemplate templateData
+compileAndRenderTemplate relTmplPath tmplData = do
+    mustacheTemplate <- compileMustacheTemplate relTmplPath
+    renderMustacheTemplate mustacheTemplate tmplData
 
 compileMustacheTemplate
-    :: FilePath  -- ^ Path to the template file, relative to template root dir.
+    :: Path.RelFile  -- ^ Path to the template file, relative to templates root dir.
     -> IO Mustache.Template
-compileMustacheTemplate templateRelPath = do
+compileMustacheTemplate relTmplPath = do
     templatesDirAbsPath <- getTemplatesDirAbsPath
-    templateAbsPath <- getTemplateFileAbsPath templateRelPath
-    eitherTemplate <- Mustache.automaticCompile [templatesDirAbsPath] templateAbsPath
+    absTmplPath <- getTemplateFileAbsPath relTmplPath
+    eitherTemplate <- Mustache.automaticCompile [Path.toFilePath templatesDirAbsPath] (Path.toFilePath absTmplPath)
     return $ either raiseCompileError id eitherTemplate
   where
     raiseCompileError err = error $  -- TODO: Handle these errors better?
-        printf "Compilation of template %s failed. %s" templateRelPath (show err)
+        printf "Compilation of template %s failed. %s" (show relTmplPath) (show err)
 
 areAllErrorsSectionDataNotFound :: [SubstitutionError] -> Bool
 areAllErrorsSectionDataNotFound subsErrors = all isSectionDataNotFoundError subsErrors

@@ -2,7 +2,7 @@ module Generator.EntityTest where
 
 import Test.Tasty.Hspec
 
-import System.FilePath ((</>))
+import Path ((</>), relfile)
 
 import Wasp
 import Generator.FileDraft
@@ -18,19 +18,19 @@ spec_EntityGenerator = do
 
     describe "generateEntityClass" $ do
         testGeneratorUsesCorrectSrcPath
-            testWasp generateEntityClass (entityTemplatesDirPath </> "_Entity.js")
+            testWasp generateEntityClass (entityTemplatesDirPath </> [relfile|_Entity.js|])
 
     describe "generateEntityActions" $ do
         testGeneratorUsesCorrectSrcPath
-            testWasp generateEntityActions (entityTemplatesDirPath </> "actions.js")
+            testWasp generateEntityActions (entityTemplatesDirPath </> [relfile|actions.js|])
 
     describe "generateEntityActionTypes" $ do
         testGeneratorUsesCorrectSrcPath
-            testWasp generateEntityActionTypes (entityTemplatesDirPath </> "actionTypes.js")
+            testWasp generateEntityActionTypes (entityTemplatesDirPath </> [relfile|actionTypes.js|])
 
     describe "generateEntityState" $ do
         testGeneratorUsesCorrectSrcPath
-            testWasp generateEntityState (entityTemplatesDirPath </> "state.js")
+            testWasp generateEntityState (entityTemplatesDirPath </> [relfile|state.js|])
 
   where
       testGeneratorUsesCorrectSrcPath testWasp generator expectedSrcPath = it

@@ -18,13 +18,17 @@ module Generator.Entity
        , entityTemplatesDirPath
        ) where
 
-import System.FilePath (FilePath, (</>), (<.>))
+import Data.Maybe (fromJust)
+import Path ((</>), relfile, reldir)
+import qualified Path
+import qualified Path.Aliases as Path
 
 import Wasp
 import Generator.FileDraft
 import qualified Generator.Common as Common
-import Generator.Entity.EntityForm
+import Generator.Entity.EntityForm (generateEntityCreateForm, entityCreateFormPathInSrc)
 import Generator.Entity.Common
+    (entityTemplatesDirPath, entityTemplateData, entityDirPathInSrc, entityComponentsDirPathInSrc)
 
 
 generateEntities :: Wasp -> [FileDraft]
@@ -41,20 +45,19 @@ generateEntity wasp entity =
 
 generateEntityClass :: Wasp -> Entity -> FileDraft
 generateEntityClass wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityClassPathInSrc entity) "_Entity.js"
+    = createSimpleEntityFileDraft wasp entity (entityClassPathInSrc entity) [relfile|_Entity.js|]
 
 generateEntityState :: Wasp -> Entity -> FileDraft
 generateEntityState wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityStatePathInSrc entity) "state.js"
+    = createSimpleEntityFileDraft wasp entity (entityStatePathInSrc entity) [relfile|state.js|]
 
 generateEntityActionTypes :: Wasp -> Entity -> FileDraft
 generateEntityActionTypes wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityActionTypesPathInSrc entity)
-                                  "actionTypes.js"
+    = createSimpleEntityFileDraft wasp entity (entityActionTypesPathInSrc entity) [relfile|actionTypes.js|]
 
 generateEntityActions :: Wasp -> Entity -> FileDraft
 generateEntityActions wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityActionsPathInSrc entity) "actions.js"
+    = createSimpleEntityFileDraft wasp entity (entityActionsPathInSrc entity) [relfile|actions.js|]
 
 -- TODO(matija): currently we are generating these components automatically, as soon as the
 -- entity is defined. Now we are changing this and will generate them on-demand, depending on
@@ -80,10 +83,10 @@ generateEntityCreateForms wasp entity =
 generateEntityList :: Wasp -> Entity -> FileDraft
 generateEntityList wasp entity
     = createSimpleEntityFileDraft wasp entity (entityListPathInSrc entity)
-                                  ("components" </> "List.js")
+                                  ([reldir|components|] </> [relfile|List.js|])
 
 -- | Helper function that captures common logic for generating entity file draft.
-createSimpleEntityFileDraft :: Wasp -> Entity -> FilePath -> FilePath -> FileDraft
+createSimpleEntityFileDraft :: Wasp -> Entity -> Path.RelFile -> Path.RelFile -> FileDraft
 createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
     = createTemplateFileDraft dstPath srcPath (Just templateData)
   where
@@ -93,19 +96,20 @@ createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
 
 -- * Paths of generated code (relative to src/ directory)
 
-entityStatePathInSrc :: Entity -> FilePath
-entityStatePathInSrc entity = (entityDirPathInSrc entity) </> "state.js"
+entityStatePathInSrc :: Entity -> Path.RelFile
+entityStatePathInSrc entity = entityDirPathInSrc entity </> [relfile|state.js|]
 
-entityActionsPathInSrc :: Entity -> FilePath
-entityActionsPathInSrc entity = (entityDirPathInSrc entity) </> "actions.js"
+entityActionsPathInSrc :: Entity -> Path.RelFile
+entityActionsPathInSrc entity = entityDirPathInSrc entity </> [relfile|actions.js|]
 
-entityActionTypesPathInSrc :: Entity -> FilePath
-entityActionTypesPathInSrc entity = (entityDirPathInSrc entity) </> "actionTypes.js"
+entityActionTypesPathInSrc :: Entity -> Path.RelFile
+entityActionTypesPathInSrc entity = entityDirPathInSrc entity </> [relfile|actionTypes.js|]
 
-entityClassPathInSrc :: Entity -> FilePath
-entityClassPathInSrc entity = (entityDirPathInSrc entity) </> (entityName entity) <.> "js"
+entityClassPathInSrc :: Entity -> Path.RelFile
+entityClassPathInSrc entity = entityDirPathInSrc entity </>
+                              (fromJust $ Path.parseRelFile $ (entityName entity) ++ ".js")
 
 -- * Components
 
-entityListPathInSrc :: Entity -> FilePath
-entityListPathInSrc entity = (entityComponentsDirPathInSrc entity) </> "List.js"
+entityListPathInSrc :: Entity -> Path.RelFile
+entityListPathInSrc entity = entityComponentsDirPathInSrc entity </> [relfile|List.js|]
