@@ -1,6 +1,7 @@
 module Fixtures where
 
 import Wasp
+import qualified Wasp.EntityForm as EF
 
 app :: App
 app = App
@@ -17,12 +18,13 @@ taskEntity = Entity
         ]
     }
 
-taskCreateForm :: EntityForm
-taskCreateForm = EntityForm
-    { efName = "CreateTaskForm"
-    , efEntityName = "Task"
-    , efSubmitConfig = Just EntityFormSubmitConfig
-        { onEnter = False
+taskCreateForm :: EF.EntityForm
+taskCreateForm = EF.EntityForm
+    { EF._name = "CreateTaskForm"
+    , EF._entityName = "Task"
+    , EF._submit = Just EF.Submit
+        { EF._onEnter = Just False
+        , EF._submitButton = Nothing
         }
     }
 
@@ -35,11 +37,11 @@ userEntity = Entity
         ]
     }
 
-userCreateForm :: EntityForm
-userCreateForm = EntityForm
-    { efName = "CreateUserForm"
-    , efEntityName = "User"
-    , efSubmitConfig = Nothing
+userCreateForm :: EF.EntityForm
+userCreateForm = EF.EntityForm
+    { EF._name = "CreateUserForm"
+    , EF._entityName = "User"
+    , EF._submit = Nothing
     }
 
 wasp :: Wasp

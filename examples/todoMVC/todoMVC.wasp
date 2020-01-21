@@ -53,14 +53,14 @@ page Main {
     jsx=}
 }
 
-// NOTE(matija): this is only being parsed for now, no code is generated yet.
 // Entity form definition.
-entity-form<Task> CreateTaskForm {
+entity-form<Task> NewTaskForm {
     submit: {
-        onEnter: false
+        onEnter: true, // Parsed but not generated yet.
+        button: { show: false }
     }
 }
 
 // We can define multiple forms for a single entity.
-entity-form<Task> NewTaskForm {
+entity-form<Task> CreateTaskForm {
 }

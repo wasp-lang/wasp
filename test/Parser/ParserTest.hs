@@ -5,6 +5,7 @@ import Data.Either
 
 import Parser
 import Wasp
+import qualified Wasp.EntityForm as EF
 
 spec_parseWasp :: Spec
 spec_parseWasp =
@@ -58,11 +59,14 @@ spec_parseWasp =
                             , Wasp.EntityField "isDone" Wasp.EftBoolean
                             ]
                         }
-                    , WaspElementEntityForm $ EntityForm
-                        { efName = "CreateTaskForm"
-                        , efEntityName = "Task"
-                        , efSubmitConfig = Just EntityFormSubmitConfig
-                            { onEnter = False
+                    , WaspElementEntityForm $ EF.EntityForm
+                        { EF._name = "CreateTaskForm"
+                        , EF._entityName = "Task"
+                        , EF._submit = Just EF.Submit
+                            { EF._onEnter = Just False
+                            , EF._submitButton = Just EF.SubmitButton
+                                { EF._show = Just True
+                                }
                             }
                         }
                     ]

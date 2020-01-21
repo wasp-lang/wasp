@@ -5,15 +5,49 @@ module Generator.Entity.EntityForm
     , entityCreateFormPathInSrc
     ) where
 
-import Data.Aeson (toJSON)
---import qualified Data.Aeson as Aeson
+import Data.Aeson ((.=), object, ToJSON(..))
+import qualified Data.Aeson as Aeson
 import System.FilePath ((</>))
+import Control.Exception (assert)
 
 import Wasp
-import qualified Util
+import qualified Wasp.EntityForm as EF
+import Wasp.EntityForm (EntityForm)
+
 import Generator.FileDraft
-import Generator.Entity.Common
+import qualified Generator.Entity.Common as EC
 import qualified Generator.Common as Common
+
+data TemplateData = TemplateData
+    { _name :: !String
+    , _entityClassName :: !String
+    , _entityFields :: ![EntityField]
+    -- Submit
+    , _showSubmitButton :: !Bool
+    } deriving (Show)
+
+instance ToJSON TemplateData where
+    toJSON td = object
+        [ "name" .= _name td
+        , "entityClassName" .= _entityClassName td
+        , "entityTypedFields" .= map EC.entityFieldToJsonWithTypeAsKey (_entityFields td)
+        , "showSubmitButton" .= _showSubmitButton td
+        ]
+
+createEntityFormTemplateData :: Entity -> EntityForm -> Aeson.Value
+createEntityFormTemplateData entity entityForm =
+    assert (entityName entity == EF._entityName entityForm) $
+
+    toJSON $ TemplateData
+    { _name = EF._name entityForm
+    , _entityClassName = EC.getEntityLowerName entity
+    , _entityFields = entityFields entity
+    -- Submit
+    , _showSubmitButton = maybe True id maybeShowSubmitButton
+    }
+    where
+        maybeShowSubmitButton :: Maybe Bool
+        maybeShowSubmitButton = EF._submit entityForm >>= EF._submitButton >>= EF._show
 
 -- | Generates entity creation form.
 generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft
@@ -24,16 +58,15 @@ generateEntityCreateForm wasp entityForm =
     -- we want an error to be thrown otherwise.
     entity = maybe
         (error $ "Wasp must contain entity to which the entity form refers: " ++
-         efEntityName entityForm)
+         EF._entityName entityForm)
         id
-        (getEntityByName wasp (efEntityName entityForm))
+        (getEntityByName wasp (EF._entityName entityForm))
 
-    templateSrcPath = entityTemplatesDirPath </> "components" </> "CreateForm.js"
+    templateSrcPath = EC.entityTemplatesDirPath </> "components" </> "CreateForm.js"
     dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
 
-    entityTemplateJson = entityTemplateData wasp entity
-    templateData = Util.jsonSet "entityForm" (toJSON entityForm) entityTemplateJson
+    templateData = createEntityFormTemplateData entity entityForm
 
 entityCreateFormPathInSrc :: Entity -> EntityForm -> FilePath
 entityCreateFormPathInSrc entity entityForm =
-    (entityComponentsDirPathInSrc entity) </> (efName entityForm) ++ ".js"
+    (EC.entityComponentsDirPathInSrc entity) </> (EF._name entityForm) ++ ".js"

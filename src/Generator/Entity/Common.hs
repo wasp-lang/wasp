@@ -3,6 +3,8 @@ module Generator.Entity.Common
     , entityDirPathInSrc
     , entityTemplateData
     , entityComponentsDirPathInSrc
+    , entityFieldToJsonWithTypeAsKey
+    , getEntityLowerName
     ) where
 
 import System.FilePath (FilePath, (</>))
@@ -30,27 +32,29 @@ entityTemplateData :: Wasp -> Entity -> Aeson.Value
 entityTemplateData wasp entity = object
     [ "wasp" .= wasp
     , "entity" .= entity
-    , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
+    , "entityLowerName" .= getEntityLowerName entity
     -- TODO: use it also when creating Class file itself and in other files.
     , "entityClassName" .= (Util.toUpperFirst $ entityName entity)
     , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
     ]
 
-{- | Converts entity field to a JSON where field type is a key to the object holding
-all the other properties. E.g. a field of type boolean could look this as JSON:
+getEntityLowerName :: Entity -> String
+getEntityLowerName = Util.toLowerFirst . entityName
 
-{ boolean: { name: "description", type: "boolean" }, name: "description" }
+{- | Converts entity field to a JSON where field type is a key set to true, along with
+all other field properties.
 
-This method is needed to achieve conditional rendering with Mustache. We also add "name"
-property again along with the type because it is otherwise not accessible outside of
-a specific conditional section.
+E.g.:
+boolean field -> { boolean: true, type: "boolean", name: "isDone" }
+string field -> { string: true, type: "string", name: "description"}
+
+We need to have "boolean: true" part to achieve conditional rendering with Mustache - in
+Mustache template we cannot check if type == "boolean", but only whether a "boolean" property
+is set or not.
 -}
 entityFieldToJsonWithTypeAsKey :: EntityField -> Aeson.Value
-entityFieldToJsonWithTypeAsKey entityField = object
-    -- TODO(matija): it would be cleaner to have a flat structure, like
-    -- { boolean: true, type: "boolean", name: "description" }
-    [ (toText $ entityFieldType entityField) .= entityField
-    , "name" .= entityFieldName entityField
-    ]
+entityFieldToJsonWithTypeAsKey entityField =
+    Util.jsonSet (toText efType) (Aeson.toJSON True) $ Aeson.toJSON entityField
   where
     toText = Text.pack . show
+    efType = entityFieldType entityField

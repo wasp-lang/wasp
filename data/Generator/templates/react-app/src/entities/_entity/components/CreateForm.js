@@ -10,7 +10,7 @@ import TextField from '@material-ui/core/TextField'
 import {= entityClassName =} from '../{= entityClassName =}'
 
 
-export default class {= entityForm.name =} extends React.Component {
+export default class {= name =} extends React.Component {
   // TODO: Add propTypes.
 
   state = {
@@ -96,11 +96,13 @@ export default class {= entityForm.name =} extends React.Component {
 
           {=/ entityTypedFields =}
 
+          {=# showSubmitButton =}
           <div>
             <Button type="submit" variant="contained" color="primary">
               {this.props.submitButtonLabel || 'Submit'}
             </Button>
           </div>
+          {=/ showSubmitButton =}
         </form>
       </div>
     )

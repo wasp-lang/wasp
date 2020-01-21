@@ -17,7 +17,6 @@ module Wasp
     , addEntity
     , getEntityByName
 
-    , module Wasp.EntityForm
     , getEntityFormsForEntity
 
     , module Wasp.Page
@@ -33,7 +32,7 @@ import Data.Aeson ((.=), object, ToJSON(..))
 import qualified ExternalCode
 import Wasp.App
 import Wasp.Entity
-import Wasp.EntityForm
+import qualified Wasp.EntityForm as EF
 import Wasp.JsImport
 import Wasp.Page
 
@@ -51,7 +50,7 @@ data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
     | WaspElementEntity !Entity
-    | WaspElementEntityForm !EntityForm
+    | WaspElementEntityForm !EF.EntityForm
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -122,11 +121,11 @@ addEntity wasp entity = wasp { waspElements = (WaspElementEntity entity):(waspEl
 -- * EntityForm
 
 -- | Retrieves all entity forms for a given entity from a Wasp record.
-getEntityFormsForEntity :: Wasp -> Entity -> [EntityForm]
+getEntityFormsForEntity :: Wasp -> Entity -> [EF.EntityForm]
 getEntityFormsForEntity wasp entity = filter isFormOfGivenEntity allEntityForms
     where
         allEntityForms = [entityForm | (WaspElementEntityForm entityForm) <- waspElements wasp]
-        isFormOfGivenEntity ef = entityName entity == efEntityName ef
+        isFormOfGivenEntity ef = entityName entity == EF._entityName ef
 
 -- * ToJSON instances.
 
