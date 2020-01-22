@@ -5,6 +5,7 @@ module Generator.Entity.Common
     , entityComponentsDirPathInSrc
     , entityFieldToJsonWithTypeAsKey
     , getEntityLowerName
+    , getEntityClassName
     ) where
 
 import Data.Maybe (fromJust)
@@ -38,12 +39,15 @@ entityTemplateData wasp entity = object
     , "entity" .= entity
     , "entityLowerName" .= getEntityLowerName entity
     -- TODO: use it also when creating Class file itself and in other files.
-    , "entityClassName" .= (Util.toUpperFirst $ entityName entity)
+    , "entityClassName" .= getEntityClassName entity
     , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
     ]
 
 getEntityLowerName :: Entity -> String
 getEntityLowerName = Util.toLowerFirst . entityName
+
+getEntityClassName :: Entity -> String
+getEntityClassName = Util.toUpperFirst . entityName
 
 {- | Converts entity field to a JSON where field type is a key set to true, along with
 all other field properties.

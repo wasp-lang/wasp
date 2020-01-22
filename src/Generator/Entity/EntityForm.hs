@@ -43,7 +43,7 @@ createEntityFormTemplateData entity entityForm =
 
     toJSON $ TemplateData
     { _name = EF._name entityForm
-    , _entityClassName = EC.getEntityLowerName entity
+    , _entityClassName = EC.getEntityClassName entity
     , _entityFields = entityFields entity
     -- Submit
     , _showSubmitButton = maybe True id maybeShowSubmitButton
