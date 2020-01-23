@@ -24,11 +24,11 @@ export class List extends React.Component {
     editable: PropTypes.bool,
   }
 
-  update{= entity.name =}Field = (fieldName, newFieldValue, {= entityLowerName =}, idx) => {
+  update{= entity.name =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
     const updated{= entity.name =} = new {= entityClassName =}(
       { ...{= entityLowerName =}.toData(), [fieldName]: newFieldValue }
     )
-    this.props.update{= entity.name =}(idx, updated{= entity.name =})
+    this.props.update{= entity.name =}({= entityLowerName =}.id, updated{= entity.name =})
   }
   
   render() {
@@ -50,8 +50,8 @@ export class List extends React.Component {
             </TableHead>
 
             <TableBody>
-              {this.props.{= entityLowerName =}List.map(({= entityLowerName =}, idx) => (
-                <TableRow key={idx}>
+              {this.props.{= entityLowerName =}List.map(({= entityLowerName =}) => (
+                <TableRow key={{= entityLowerName =}.id}>
                   {=# entityTypedFields =}
                   {=# boolean =}
                     <TableCell>
@@ -63,7 +63,7 @@ export class List extends React.Component {
                         }}
                         disabled={!this.props.editable}
                         onChange={e => this.update{= entity.name =}Field(
-                          '{= name =}', e.target.checked, {= entityLowerName=}, idx
+                          '{= name =}', e.target.checked, {= entityLowerName =}
                         )}
                       />
                     </TableCell>
@@ -74,7 +74,7 @@ export class List extends React.Component {
                         <TextField
                           value={{= entityLowerName =}.{= name =}}
                           onChange={e => this.update{= entity.name =}Field(
-                            '{= name =}', e.target.value, {= entityLowerName=}, idx
+                            '{= name =}', e.target.value, {= entityLowerName =}
                           )}
                         />
                       ) : (

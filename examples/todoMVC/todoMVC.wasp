@@ -36,7 +36,10 @@ page Main {
     content: {=jsx
         <Todo
             addTask={this.props.addTask}
-            taskList={this.props.taskList}>
+            taskList={this.props.taskList}
+            updateTask={this.props.updateTask}
+            removeTask={this.props.removeTask}
+        >
         </Todo>
     jsx=}
 }

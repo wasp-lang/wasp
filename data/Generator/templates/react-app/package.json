@@ -12,7 +12,8 @@
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
     "redux": "^4.0.1",
-    "redux-starter-kit": "^0.5.1"
+    "redux-starter-kit": "^0.5.1",
+    "uuid": "^3.4.0"
   },
   "scripts": {
     "start": "react-scripts start",

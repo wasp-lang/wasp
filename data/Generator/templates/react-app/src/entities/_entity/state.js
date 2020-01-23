@@ -24,7 +24,17 @@ const reducer = (state = initialState, action) => {
     case types.UPDATE:
       return {
         ...state,
-        all: state.all.map(({= entityLowerName =}, idx) => idx === action.idx ? action.data : {= entityLowerName =})
+        all: state.all.map(
+          {= entityLowerName =} => {= entityLowerName =}.id === action.id ? action.data : {= entityLowerName =}
+        )
+      }
+
+    case types.REMOVE:
+      return {
+        ...state,
+        all: state.all.filter(
+          {= entityLowerName =} => {= entityLowerName =}.id !== action.id
+        )
       }
 
     default:

@@ -39,6 +39,8 @@ export default connect(state => ({
 {=/ entities =}
 }), {
 {=# entities =}
-  add{= entityUpperName =}: {= entityLowerName =}Actions.add
+  add{= entityUpperName =}: {= entityLowerName =}Actions.add,
+  update{= entityUpperName =}: {= entityLowerName =}Actions.update,
+  remove{= entityUpperName =}: {= entityLowerName =}Actions.remove
 {=/ entities =}
 })({= page.name =})
