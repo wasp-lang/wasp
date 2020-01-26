@@ -77,6 +77,17 @@ waspPropertyBool key = waspProperty key L.bool
 waspClosure :: Parser a -> Parser a
 waspClosure = L.braces
 
+-- | Parses wasp property closure where property is an identifier whose value we also
+-- need to retrieve.
+-- E.g. within an entity-form {} we can set properties for a specific field with a closure of
+-- form "FIELD_NAME: {...}" -> FIELD_NAME is then an identifier we need.
+waspIdentifierClosure :: Parser a -> Parser (String, a)
+waspIdentifierClosure closureContent = do
+    identifier <- L.identifier <* L.colon
+    content <- waspClosure closureContent
+
+    return (identifier, content)
+
 -- | Parses wasp property which has a closure for a value. Returns parsed content within the
 -- closure.
 waspPropertyClosure :: String -> Parser a -> Parser a

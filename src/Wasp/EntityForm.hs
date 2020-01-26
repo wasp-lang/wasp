@@ -2,6 +2,8 @@ module Wasp.EntityForm
     ( EntityForm(..)
     , Submit(..)
     , SubmitButton(..)
+    , Field(..)
+    , DefaultValue(..)
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
@@ -11,15 +13,7 @@ data EntityForm = EntityForm
     , _entityName :: !String -- Name of the entity the form is linked to
     -- TODO(matija): should we make these maybes also strict?
     , _submit :: Maybe Submit
-    } deriving (Show, Eq)
-
-data Submit = Submit
-    { _onEnter :: Maybe Bool
-    , _submitButton :: Maybe SubmitButton
-    } deriving (Show, Eq)
-
-data SubmitButton = SubmitButton
-    { _show :: Maybe Bool
+    , _fields :: [Field]
     } deriving (Show, Eq)
 
 instance ToJSON EntityForm where
@@ -29,7 +23,33 @@ instance ToJSON EntityForm where
         , "submitConfig" .= _submit entityForm
         ]
 
+-- * Submit
+
+data Submit = Submit
+    { _onEnter :: Maybe Bool
+    , _submitButton :: Maybe SubmitButton
+    } deriving (Show, Eq)
+
+data SubmitButton = SubmitButton
+    { _submitButtonShow :: Maybe Bool
+    } deriving (Show, Eq)
+
 instance ToJSON Submit where
     toJSON submit = object
         [ "onEnter" .= _onEnter submit
         ]
+
+-- * Field
+
+data Field = Field
+    { _fieldName :: !String
+    , _fieldShow :: Maybe Bool
+    , _fieldDefaultValue :: Maybe DefaultValue
+    } deriving (Show, Eq)
+
+data DefaultValue
+    = DefaultValueString String
+    | DefaultValueBool Bool
+    deriving (Show, Eq)
+
+

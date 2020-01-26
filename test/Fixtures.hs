@@ -26,6 +26,7 @@ taskCreateForm = EF.EntityForm
         { EF._onEnter = Just False
         , EF._submitButton = Nothing
         }
+    , EF._fields = []
     }
 
 userEntity :: Entity
@@ -42,6 +43,7 @@ userCreateForm = EF.EntityForm
     { EF._name = "CreateUserForm"
     , EF._entityName = "User"
     , EF._submit = Nothing
+    , EF._fields = []
     }
 
 wasp :: Wasp

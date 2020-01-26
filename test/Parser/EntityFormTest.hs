@@ -26,6 +26,7 @@ spec_parseEntityForm = do
                         , EF._submitButton = Nothing
                         }
                       )
+                    , EF._fields = []
                     }
 
     it "When given an entity form without submit config, it is not included in the result." $ do
@@ -34,6 +35,7 @@ spec_parseEntityForm = do
                 { EF._name = "someEntityForm"
                 , EF._entityName = "Task"
                 , EF._submit = Nothing
+                , EF._fields = []
                 }
 
     describe "Parsing submit option - submit: {...}" $ do

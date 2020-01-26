@@ -50,7 +50,7 @@ createEntityFormTemplateData entity entityForm =
     }
     where
         maybeShowSubmitButton :: Maybe Bool
-        maybeShowSubmitButton = EF._submit entityForm >>= EF._submitButton >>= EF._show
+        maybeShowSubmitButton = EF._submit entityForm >>= EF._submitButton >>= EF._submitButtonShow
 
 -- | Generates entity creation form.
 generateEntityCreateForm :: Wasp -> EntityForm -> FileDraft

@@ -30,26 +30,30 @@ entityForm = do
         { EF._name = formName
         , EF._entityName = entityName
         , EF._submit = maybeGetSubmitConfig options
+        , EF._fields = getFieldsConfig options
         }
 
-data EntityFormOption = EfoSubmit EF.Submit deriving (Show, Eq)
--- TODO(matija): | EfoFields EntityForm.EntityFormFieldsConfig deriving (Show, Eq)
+data EntityFormOption 
+    = EfoSubmit EF.Submit
+    | EfoFields [EF.Field]
+    deriving (Show, Eq)
 
 entityFormOptions :: Parser [EntityFormOption]
 entityFormOptions = L.commaSep entityFormOption
 
 entityFormOption :: Parser EntityFormOption
-entityFormOption = entityFormOptionSubmit
--- TODO(matija): <|> entityFormOptionFields
+entityFormOption = choice
+    [ entityFormOptionSubmit
+    , entityFormOptionFields
+    ]
 
-entityFormOptionSubmit :: Parser EntityFormOption
-entityFormOptionSubmit = EfoSubmit <$> (P.waspPropertyClosure "submit" submitConfig)
+-- * Submit
 
 maybeGetSubmitConfig :: [EntityFormOption] -> Maybe EF.Submit
 maybeGetSubmitConfig options = U.headSafe [s | EfoSubmit s <- options]
 
-
--- * Submit
+entityFormOptionSubmit :: Parser EntityFormOption
+entityFormOptionSubmit = EfoSubmit <$> (P.waspPropertyClosure "submit" submitConfig)
 
 submitConfig :: Parser EF.Submit
 submitConfig = do
@@ -87,7 +91,7 @@ submitButtonConfig = do
     options <- L.commaSep1 submitButtonOption
 
     return EF.SubmitButton
-        { EF._show = maybeGetSboShow options
+        { EF._submitButtonShow = maybeGetSboShow options
         }
 
 data SubmitButtonOption = SboShow Bool deriving (Show, Eq)
@@ -100,3 +104,48 @@ submitButtonOptionShow = SboShow <$> P.waspPropertyBool "show"
 
 maybeGetSboShow :: [SubmitButtonOption] -> Maybe Bool
 maybeGetSboShow options = U.headSafe [b | SboShow b <- options]
+
+-- * Fields
+
+getFieldsConfig :: [EntityFormOption] -> [EF.Field]
+getFieldsConfig options = case [fs | EfoFields fs <- options] of
+    [] -> []
+    ls -> head ls
+
+entityFormOptionFields :: Parser EntityFormOption
+entityFormOptionFields = EfoFields <$> (P.waspPropertyClosure "fields" $ L.commaSep1 field)
+
+-- | Parses 'FIELD_NAME: { ... }.'
+field :: Parser EF.Field
+field = do
+    (fieldName, options) <- P.waspIdentifierClosure $ L.commaSep1 fieldOption
+
+    return EF.Field
+        { EF._fieldName = fieldName
+        , EF._fieldShow = maybeGetFieldOptionShow options
+        , EF._fieldDefaultValue = maybeGetFieldOptionDefaultValue options
+        }
+ 
+data FieldOption
+    = FieldOptionShow Bool
+    | FieldOptionDefaultValue EF.DefaultValue
+    deriving (Show, Eq)
+
+-- | Parses a single field option, e.g. "show" or "defaultValue".
+fieldOption :: Parser FieldOption
+fieldOption = choice
+    [ FieldOptionShow <$> P.waspPropertyBool "show"
+    , FieldOptionDefaultValue <$> defaultValue
+    ]
+
+defaultValue :: Parser EF.DefaultValue
+defaultValue = P.waspProperty "defaultValue" $ choice
+    [ EF.DefaultValueString <$> L.stringLiteral
+    , EF.DefaultValueBool <$> L.bool
+    ]
+
+maybeGetFieldOptionShow :: [FieldOption] -> Maybe Bool
+maybeGetFieldOptionShow options = U.headSafe [b | FieldOptionShow b <- options]
+
+maybeGetFieldOptionDefaultValue :: [FieldOption] -> Maybe EF.DefaultValue
+maybeGetFieldOptionDefaultValue options  = U.headSafe [dv | FieldOptionDefaultValue dv <- options]

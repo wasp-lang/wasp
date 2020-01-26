@@ -43,6 +43,16 @@ page Main {
 
 // Entity form definition.
 entity-form<Task> NewTaskForm {
+    fields: {
+        description: {
+            show: true,
+            defaultValue: "doableTask"
+        },
+        isDone: {
+            show: false,
+            defaultValue: false  // Although not shown, this field will be set to "false".
+        }
+    },
     submit: {
         onEnter: true, // Parsed but not generated yet.
         button: { show: false }

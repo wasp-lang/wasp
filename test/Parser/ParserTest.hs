@@ -65,9 +65,21 @@ spec_parseWasp =
                         , EF._submit = Just EF.Submit
                             { EF._onEnter = Just False
                             , EF._submitButton = Just EF.SubmitButton
-                                { EF._show = Just True
+                                { EF._submitButtonShow = Just True
                                 }
                             }
+                        , EF._fields =
+                            [ EF.Field
+                                { EF._fieldName = "description"
+                                , EF._fieldShow = Just True
+                                , EF._fieldDefaultValue = Just $ EF.DefaultValueString "doable task"
+                                }
+                            , EF.Field
+                                { EF._fieldName = "isDone"
+                                , EF._fieldShow = Just False
+                                , EF._fieldDefaultValue = Just $ EF.DefaultValueBool False
+                                }
+                            ]
                         }
                     ]
                     `setJsImports` [ JsImport "something" "some/file" ]
