@@ -35,6 +35,10 @@ generateJsFile file = FD.createTextFileDraft (Common.getExtCodeFileDstPath file)
 --   Possible candidates: replace-attoparsec.
 resolveJsFileWaspImports :: Path.RelFile -> Text -> Text
 resolveJsFileWaspImports jsFilePathInSrcDir jsFileText = pack $
-    TR.subRegex (TR.mkRegex "(from\\s+['\"])@wasp/")
+    -- NOTE(matija): we could not use "\\s+" in the regex below because it does not
+    -- work on OS X for some unknown reason. This is why we use " +" instead.
+    -- Maybe we should user another regex library, e.g. regexec from
+    -- https://hackage.haskell.org/package/regex-posix-0.96.0.0/docs/Text-Regex-Posix-String.html
+    TR.subRegex (TR.mkRegex "(from +['\"])@wasp/")
                 (unpack jsFileText)
                 ("\\1" ++ Path.reversePath (Path.parent jsFilePathInSrcDir) ++ "/")
