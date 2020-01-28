@@ -48,8 +48,7 @@ page Main {
 entity-form<Task> NewTaskForm {
     fields: {
         description: {
-            show: true,
-            defaultValue: "doableTask"
+            show: true
         },
         isDone: {
             show: false,

@@ -2,6 +2,7 @@
 {- stack
      exec ghci
      --package pretty-simple
+     --package aeson-pretty
      --
      test/Fixtures.hs
 -}
@@ -14,4 +15,12 @@
 -}
 
 import Text.Pretty.Simple (pPrint)
+import Data.Aeson
+import Data.Aeson.Encode.Pretty
+import Data.ByteString.Lazy.Char8 as L
+
 import Fixtures
+
+-- | Prints any ToJSON instance, useful when testing parser.
+printJSON :: ToJSON a => a -> IO ()
+printJSON = L.putStrLn . encodePretty

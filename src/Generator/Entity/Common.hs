@@ -4,6 +4,7 @@ module Generator.Entity.Common
     , entityTemplateData
     , entityComponentsDirPathInSrc
     , entityFieldToJsonWithTypeAsKey
+    , addEntityFieldTypeToJsonAsKeyWithValueTrue
     , getEntityLowerName
     , getEntityClassName
     ) where
@@ -61,8 +62,14 @@ Mustache template we cannot check if type == "boolean", but only whether a "bool
 is set or not.
 -}
 entityFieldToJsonWithTypeAsKey :: EntityField -> Aeson.Value
-entityFieldToJsonWithTypeAsKey entityField =
-    Util.jsonSet (toText efType) (Aeson.toJSON True) $ Aeson.toJSON entityField
-  where
-    toText = Text.pack . show
-    efType = entityFieldType entityField
+entityFieldToJsonWithTypeAsKey entityField = addEntityFieldTypeToJsonAsKeyWithValueTrue
+                                                (entityFieldType entityField)
+                                                (Aeson.toJSON entityField)
+
+-- | Adds "FIELD_TYPE: true" to a given json. This is needed for Mustache so we can differentiate
+-- between the form fields of different types.
+addEntityFieldTypeToJsonAsKeyWithValueTrue :: EntityFieldType -> Aeson.Value -> Aeson.Value
+addEntityFieldTypeToJsonAsKeyWithValueTrue efType json =
+    Util.jsonSet (toText efType) (Aeson.toJSON True) json
+    where
+        toText = Text.pack . show

@@ -2,6 +2,7 @@ module Fixtures where
 
 import Wasp
 import qualified Wasp.EntityForm as EF
+import qualified Generator.Entity.EntityForm as GEF
 
 app :: App
 app = App
@@ -52,3 +53,11 @@ wasp = fromWaspElems
     , WaspElementEntity taskEntity
     , WaspElementEntityForm taskCreateForm
     ]
+
+formFieldIsDone :: GEF.FormFieldTemplateData
+formFieldIsDone = GEF.FormFieldTemplateData
+    { GEF._fieldName = "isDone"
+    , GEF._fieldType = Wasp.EftBoolean
+    , GEF._fieldShow = True
+    , GEF._fieldDefaultValue = EF.DefaultValueBool True
+    }

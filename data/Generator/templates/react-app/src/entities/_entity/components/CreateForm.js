@@ -14,17 +14,15 @@ export default class {= name =} extends React.Component {
   // TODO: Add propTypes.
 
   state = {
-    // TODO(matija): Currently we hardcoded default values for each field type.
-    // In the future we might let user decide on the default value.
     fields: {
-      {=# entityTypedFields =}
+      {=# formFields =}
       {=# boolean =}
-      {= name =}: false,
+      {= name =}: {= defaultValue =},
       {=/ boolean =}
       {=# string =}
-      {= name =}: '',
+      {= name =}: '{= defaultValue =}',
       {=/ string =}
-      {=/ entityTypedFields =}
+      {=/ formFields =}
     }
   }
 
@@ -38,14 +36,14 @@ export default class {= name =} extends React.Component {
   }
 
   resetAllFields = () => {
-    {=# entityTypedFields =}
+    {=# formFields =}
     {=# boolean =}
-    this.setField('{= name =}', false)
+    this.setField('{= name =}', {= defaultValue =})
     {=/ boolean =}
     {=# string =}
-    this.setField('{= name =}', '')
+    this.setField('{= name =}', '{= defaultValue =}')
     {=/ string =}
-    {=/ entityTypedFields =}
+    {=/ formFields =}
   }
 
   toggleField = (name) => {
@@ -66,9 +64,10 @@ export default class {= name =} extends React.Component {
       <div style={ { margin: '20px' } }>
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
 
-          {=# entityTypedFields =}
+          {=# formFields =}
 
           {=# boolean =}
+          {=# show =}
            <div>
             <FormControlLabel
               label="{= name =}"
@@ -81,9 +80,11 @@ export default class {= name =} extends React.Component {
               }
             />
           </div>
+          {=/ show =}
           {=/ boolean =}
 
           {=# string =}
+          {=# show =}
           <div>
             <TextField
               label="{= name =}"
@@ -92,9 +93,10 @@ export default class {= name =} extends React.Component {
               margin="normal"
             />
           </div>
+          {=/ show =}
           {=/ string =}
 
-          {=/ entityTypedFields =}
+          {=/ formFields =}
 
           {=# showSubmitButton =}
           <div>

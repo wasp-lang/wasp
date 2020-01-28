@@ -4,9 +4,14 @@ module Wasp.EntityForm
     , SubmitButton(..)
     , Field(..)
     , DefaultValue(..)
+    , getConfigForField
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
+
+import qualified Util as U
+import qualified Wasp.Entity as Entity
+
 
 data EntityForm = EntityForm
     { _name :: !String -- Name of the form
@@ -22,6 +27,15 @@ instance ToJSON EntityForm where
         , "entityName" .= _entityName entityForm
         , "submitConfig" .= _submit entityForm
         ]
+
+-- | For a given entity field, returns its configuration from the given entity-form, if present.
+getConfigForField :: EntityForm -> Entity.EntityField -> Maybe Field
+getConfigForField entityForm entityField =
+    U.headSafe $ filter isConfigOfInputEntityField $ _fields entityForm
+    where
+        isConfigOfInputEntityField :: Field -> Bool
+        isConfigOfInputEntityField =
+            (== Entity.entityFieldName entityField) . _fieldName
 
 -- * Submit
 
