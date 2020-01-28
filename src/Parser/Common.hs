@@ -4,9 +4,11 @@
 
 module Parser.Common where
 
-import Text.Parsec (ParseError, parse, anyChar, manyTill, try)
+import Text.Parsec (ParseError, parse, anyChar, manyTill, try, unexpected)
 import Text.Parsec.String (Parser)
 import qualified Data.Text as T
+import qualified Path
+import qualified Path.Aliases as Path
 
 import qualified Lexer as L
 
@@ -124,3 +126,11 @@ waspNamedClosure name = do
 -- | Removes leading and trailing spaces from a string.
 strip :: String -> String
 strip = T.unpack . T.strip . T.pack
+
+-- | Parses relative file path, e.g. "my/file.txt".
+relFilePathString :: Parser Path.RelFile
+relFilePathString = do
+    path <- L.stringLiteral
+    maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
+          return
+          (Path.parseRelFile path)

@@ -2,11 +2,14 @@ module Parser.ParserTest where
 
 import Test.Tasty.Hspec
 import Data.Either
+import Path (relfile)
 
 import Parser
 import Wasp
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
+import qualified Wasp.Style
+
 
 spec_parseWasp :: Spec
 spec_parseWasp =
@@ -43,7 +46,7 @@ spec_parseWasp =
                                         \          My tasks\n\
                                         \          <TaskList />\n\
                                         \        </div>"
-                        , pageStyle = Just "div {\n\
+                        , pageStyle = Just $ Wasp.Style.CssCode "div {\n\
                                       \          color: red\n\
                                       \        }"
                         }
@@ -51,7 +54,7 @@ spec_parseWasp =
                         { pageName = "TestPage"
                         , pageRoute = "/test"
                         , pageContent = "<div>This is a test page!</div>"
-                        , pageStyle = Nothing
+                        , pageStyle = Just $ Wasp.Style.ExtCodeCssFile [relfile|test.css|]
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"
@@ -87,5 +90,5 @@ spec_parseWasp =
                         , EL._entityName = "Task"
                         }
                     ]
-                    `setJsImports` [ JsImport "something" "some/file" ]
+                    `setJsImports` [ JsImport "something" [relfile|some/file|] ]
                 )

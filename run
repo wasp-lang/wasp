@@ -47,7 +47,9 @@ print_usage () {
     print_usage_cmd "exec" \
                     "Builds the project once and runs the executable while forwarding arguments."
     print_usage_cmd "ghcid" \
-                    "Runs ghcid, which is alternative to 'watch' (should be faster)."
+                    "Runs ghcid, which is much faster alternative to 'watch'."
+    print_usage_cmd "ghcid-test" \
+                    "Runs ghcid on tests, which is much faster alternative to 'test-watch'."
 }
 
 case $COMMAND in
@@ -59,6 +61,12 @@ case $COMMAND in
         ;;
     ghcid)
         echo_and_eval "$GHCID_CMD"
+        ;;
+    ghcid-test)
+        # --color always is needed for Tasty to turn on the coloring.
+        # NOTE: I did not put this into variable because I was not able to put single quotes
+        #   around :main --color always that way and it was not working.
+        ghcid -T=':main --color always' --command=stack ghci test/TastyDiscoverDriver.hs
         ;;
     test)
         echo_and_eval "$TEST_CMD"

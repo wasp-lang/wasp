@@ -4,6 +4,7 @@ import Test.Tasty.Hspec
 
 import Text.Parsec
 import Data.Either
+import Path (relfile)
 
 import Lexer
 import Parser.Common
@@ -89,3 +90,11 @@ spec_parseWaspCommon = do
         it "Removes leading and trailing spaces" $ do
             parseWaspJsxClosure ("{=jsx   " ++  closureContent ++ "   jsx=}")
                 `shouldBe` Right closureContent
+
+    describe "Parsing relative file path string" $ do
+        it "Correctly parses relative path in double quotes" $ do
+            runWaspParser relFilePathString "\"foo/bar.txt\""
+                `shouldBe` Right [relfile|foo/bar.txt|]
+
+        it "When path is not relative, returns Left" $ do
+            isLeft (runWaspParser relFilePathString "\"/foo/bar.txt\"") `shouldBe` True

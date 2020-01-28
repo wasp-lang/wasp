@@ -37,7 +37,8 @@ page TestPage {
     route: "/test",
     content: {=jsx
         <div>This is a test page!</div>
-    jsx=}
+    jsx=},
+    style: "test.css"
 }
 
 // Entity definition.

@@ -19,8 +19,8 @@ spec_parsePage =
             let testPageContent = "<span/>"
             parsePage (
                 "page " ++ testPageName ++ " { " ++
-                    "route: \"" ++ testPageRoute ++ "\"," ++ 
-                    "content: {=jsx " ++ testPageContent ++ " jsx=}" ++ 
+                    "route: \"" ++ testPageRoute ++ "\"," ++
+                    "content: {=jsx " ++ testPageContent ++ " jsx=}" ++
                 "}")
                 `shouldBe` Right (Wasp.Page
                     { Wasp.pageName = testPageName

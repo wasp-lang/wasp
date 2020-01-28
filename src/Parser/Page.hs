@@ -4,19 +4,19 @@ module Parser.Page
 
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Data.Text (Text)
-import qualified Data.Text as Text
 import Data.Maybe (listToMaybe)
 
 import Lexer
 import qualified Wasp.Page as Page
+import qualified Wasp.Style
 import Parser.Common
+import qualified Parser.Style
 
 data PageProperty
     = Title !String
     | Route !String
     | Content !String
-    | Style !Text
+    | Style !Wasp.Style.Style
     deriving (Show, Eq)
 
 -- | Parses Page properties, separated by a comma.
@@ -37,7 +37,7 @@ pagePropertyContent :: Parser PageProperty
 pagePropertyContent = Content <$> waspPropertyJsxClosure "content"
 
 pagePropertyStyle :: Parser PageProperty
-pagePropertyStyle = (Style . Text.pack) <$> waspPropertyCssClosure "style"
+pagePropertyStyle = Style <$> waspProperty "style" Parser.Style.style
 
 -- TODO(matija): unsafe, what if empty list?
 getPageRoute :: [PageProperty] -> String
@@ -48,7 +48,7 @@ getPageRoute ps = head $ [r | Route r <- ps]
 getPageContent :: [PageProperty] -> String
 getPageContent ps = head $ [c | Content c <- ps]
 
-getPageStyle :: [PageProperty] -> Maybe Text
+getPageStyle :: [PageProperty] -> Maybe Wasp.Style.Style
 getPageStyle ps = listToMaybe [s | Style s <- ps]
 
 -- | Top level parser, parses Page.

@@ -17,7 +17,12 @@ import qualified Path.Aliases as Path
 import qualified Path.Extra as Path
 
 import qualified Util
-import Wasp
+import Wasp (Wasp)
+import qualified Wasp
+import qualified Wasp.Page as WP
+import qualified Wasp.Style as WStyle
+import qualified Wasp.JsImport as WJsImport
+import qualified Wasp.Entity as WEntity
 import Generator.FileDraft
 import qualified Generator.Entity as EntityGenerator
 import qualified Generator.Entity.EntityForm as GEF
@@ -27,33 +32,33 @@ import qualified Generator.Common as Common
 
 
 generatePages :: Wasp -> [FileDraft]
-generatePages wasp = concatMap (generatePage wasp) (getPages wasp)
+generatePages wasp = concatMap (generatePage wasp) (Wasp.getPages wasp)
 
-generatePage :: Wasp -> Page -> [FileDraft]
+generatePage :: Wasp -> WP.Page -> [FileDraft]
 generatePage wasp page =
     [ generatePageComponent wasp page
     ]
-    ++ generatePageStyle wasp page
+    ++ maybe [] fst (generatePageStyle wasp page)
 
-generatePageComponent :: Wasp -> Page -> FileDraft
+generatePageComponent :: Wasp -> WP.Page -> FileDraft
 generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just templateData)
   where
     srcPath = [reldir|src|] </> [relfile|_Page.js|]
-    dstPath = Common.srcDirPath </> pageDirPathInSrc </> (fromJust $ Path.parseRelFile $ (pageName page) ++ ".js")
+    dstPath = Common.srcDirPath </> pageDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".js")
     templateData = object $
         [ "wasp" .= wasp
         , "page" .= page
-        , "entities" .= map toEntityData (getEntities wasp)
-        , "jsImports" .= map toJsImportData (getJsImports wasp)
+        , "entities" .= map toEntityData (Wasp.getEntities wasp)
+        , "jsImports" .= map toJsImportData (Wasp.getJsImports wasp)
         ]
         ++ maybe []
-                 (\_ -> ["pageStylePath" .= (buildImportPathFromPathInSrc $  pageStylePathInSrcDir page)])
-                 (pageStyle page)
+                 (\(_, path) -> ["pageStylePath" .= (buildImportPathFromPathInSrc path)])
+                 (generatePageStyle wasp page)
 
     toEntityData entity = object
         [ "entity" .= entity
-        , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
-        , "entityUpperName" .= (Util.toUpperFirst $ entityName entity)
+        , "entityLowerName" .= (Util.toLowerFirst $ WEntity.entityName entity)
+        , "entityUpperName" .= (Util.toUpperFirst $ WEntity.entityName entity)
         , "entityStatePath" .=
             (buildImportPathFromPathInSrc $ EntityGenerator.entityStatePathInSrc entity)
         , "entityActionsPath" .=
@@ -65,7 +70,7 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
         ]
         where
             -- Entity forms
-            entityForms = getEntityFormsForEntity wasp entity
+            entityForms = Wasp.getEntityFormsForEntity wasp entity
             generateEntityFormPath entityForm =
                 buildImportPathFromPathInSrc $ GEF.entityCreateFormPathInSrc entity entityForm
 
@@ -75,7 +80,7 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
                 ]
 
             -- Entity list
-            entityLists = getEntityListsForEntity wasp entity
+            entityLists = Wasp.getEntityListsForEntity wasp entity
             generateEntityListPath entityList =
                 buildImportPathFromPathInSrc $ GEL.entityListPathInSrc entity entityList
 
@@ -84,13 +89,13 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
                 , "path" .= generateEntityListPath entityList
                 ]
 
-    toJsImportData :: Wasp.JsImport -> Aeson.Value
+    toJsImportData :: WJsImport.JsImport -> Aeson.Value
     toJsImportData jsImport = object
-        [ "what" .= jsImportWhat jsImport
+        [ "what" .= WJsImport.jsImportWhat jsImport
         -- NOTE: Here we assume that "from" is relative to external code dir path.
         --   If this part will be reused, consider externalizing this assumption, so we don't have it on multiple places.
-        , "from" .= (buildImportPathFromPathInSrc $ externalCodeDirPathInSrc </>
-                     (fromJust $ Path.parseRelFile $ jsImportFrom jsImport))
+        , "from" .= (buildImportPathFromPathInSrc $
+                     externalCodeDirPathInSrc </> (WJsImport.jsImportFrom jsImport))
         ]
 
 pageDirPathInSrc :: Path.RelDir
@@ -106,13 +111,17 @@ relPathFromPageToSrc = Path.reversePath pageDirPathInSrc
 buildImportPathFromPathInSrc :: Path.Path Path.Rel a -> FilePath
 buildImportPathFromPathInSrc pathInSrc = "." FP.</> relPathFromPageToSrc FP.</> (Path.toFilePath pathInSrc)
 
-generatePageStyle :: Wasp -> Page -> [FileDraft]
-generatePageStyle _ page = maybe
-    []
-    (\style -> [createTextFileDraft dstPath style])
-    (pageStyle page)
+-- Returns file draft(s) that need to be created (if any) +
+-- file path via which to import the style (relative to generated src dir).
+generatePageStyle :: Wasp -> WP.Page -> Maybe ([FileDraft], Path.RelFile)
+generatePageStyle _ page = makeDraftsAndPath <$> WP.pageStyle page
   where
-    dstPath = Common.srcDirPath </> pageStylePathInSrcDir page
-
-pageStylePathInSrcDir :: Page -> Path.RelFile
-pageStylePathInSrcDir page = fromJust $ Path.parseRelFile $ (pageName page) ++ ".css"
+    makeDraftsAndPath :: WStyle.Style -> ([FileDraft], Path.RelFile)
+    makeDraftsAndPath (WStyle.CssCode code) =
+        let stylePathInSrcDir = fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
+            draftDstPath = Common.srcDirPath </> stylePathInSrcDir
+        in ( [createTextFileDraft draftDstPath code]
+           , fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
+           )
+    makeDraftsAndPath (WStyle.ExtCodeCssFile pathInExtCodeDir) =
+        ([], externalCodeDirPathInSrc </> pathInExtCodeDir)
