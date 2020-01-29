@@ -10,7 +10,7 @@ import TextField from '@material-ui/core/TextField'
 import {= entityClassName =} from '../{= entityClassName =}'
 
 
-export default class {= name =} extends React.Component {
+export default class {= formName =} extends React.Component {
   // TODO: Add propTypes.
 
   state = {

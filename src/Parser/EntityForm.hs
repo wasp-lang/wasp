@@ -24,7 +24,8 @@ import qualified Lexer as L
 -- | Parses entity form, e.g. "entity-form<Task> NewTaskForm {...}"
 entityForm :: Parser EntityForm
 entityForm = do
-    (entityName, formName, options) <- P.waspElementLinkedToEntity L.reservedNameEntityForm entityFormOptions
+    (entityName, formName, options) <-
+        P.waspElementLinkedToEntity L.reservedNameEntityForm entityFormOptions
 
     return EF.EntityForm
         { EF._name = formName

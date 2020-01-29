@@ -2,7 +2,7 @@ import React from 'react'
 
 import Task from '@wasp/entities/task/Task'
 import NewTaskForm from '@wasp/entities/task/components/NewTaskForm'
-import TaskList from '@wasp/entities/task/components/List'
+import TaskList from '@wasp/entities/task/components/TaskList'
 
 import * as config from './config'
 
@@ -28,7 +28,8 @@ export default class Todo extends React.Component {
         <h1> { config.appName } </h1>
 
         <button onClick={this.toggleIsDoneForAllTasks}>
-          Toggle completion {/* TODO: Use icon (but we need to either install @material-ui/icons or add font awesome to the index.html.  */}
+            Toggle completion {/* TODO: Use icon (but we need to either install @material-ui/icons 
+            or add font-awesome to the index.html.  */}
         </button>
 
         <NewTaskForm

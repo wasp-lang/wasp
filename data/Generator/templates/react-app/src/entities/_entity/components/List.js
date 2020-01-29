@@ -19,16 +19,16 @@ import * as {= entityLowerName =}Actions from '../actions'
 import {= entityClassName =} from '../{= entityClassName =}'
 
 
-export class List extends React.Component {
+export class {= listName =} extends React.Component {
   static propTypes = {
     editable: PropTypes.bool,
   }
 
-  update{= entity.name =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
-    const updated{= entity.name =} = new {= entityClassName =}(
+  update{= entityName =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
+    const updated{= entityName =} = new {= entityClassName =}(
       { ...{= entityLowerName =}.toData(), [fieldName]: newFieldValue }
     )
-    this.props.update{= entity.name =}({= entityLowerName =}.id, updated{= entity.name =})
+    this.props.update{= entityName =}({= entityLowerName =}.id, updated{= entityName =})
   }
   
   render() {
@@ -38,21 +38,21 @@ export class List extends React.Component {
           <Table>
             <TableHead>
               <TableRow>
-                {=# entityTypedFields =}
+                {=# listFields =}
                 {=# boolean =}
                   <TableCell>{= name =}</TableCell>
                 {=/ boolean =}
                 {=# string =}
                   <TableCell>{= name =}</TableCell>
                 {=/ string =}
-                {=/ entityTypedFields =}
+                {=/ listFields =}
               </TableRow>
             </TableHead>
 
             <TableBody>
               {this.props.{= entityLowerName =}List.map(({= entityLowerName =}) => (
                 <TableRow key={{= entityLowerName =}.id}>
-                  {=# entityTypedFields =}
+                  {=# listFields =}
                   {=# boolean =}
                     <TableCell>
                       <Checkbox
@@ -62,7 +62,7 @@ export class List extends React.Component {
                           'aria-label': 'checkbox'
                         }}
                         disabled={!this.props.editable}
-                        onChange={e => this.update{= entity.name =}Field(
+                        onChange={e => this.update{= entityName =}Field(
                           '{= name =}', e.target.checked, {= entityLowerName =}
                         )}
                       />
@@ -73,7 +73,7 @@ export class List extends React.Component {
                       {this.props.editable ? (
                         <TextField
                           value={{= entityLowerName =}.{= name =}}
-                          onChange={e => this.update{= entity.name =}Field(
+                          onChange={e => this.update{= entityName =}Field(
                             '{= name =}', e.target.value, {= entityLowerName =}
                           )}
                         />
@@ -82,7 +82,7 @@ export class List extends React.Component {
                       )}
                     </TableCell>
                   {=/ string =}
-                  {=/ entityTypedFields =}
+                  {=/ listFields =}
                 </TableRow>
               ))}
             </TableBody>
@@ -98,5 +98,5 @@ export default connect(state => ({
   {= entityLowerName =}List: {= entityLowerName =}State.selectors.all(state)
 }), {
   // Actions
-  update{= entity.name =}: {= entityLowerName =}Actions.update
-})(List)
+  update{= entityName =}: {= entityLowerName =}Actions.update
+})({= listName =})

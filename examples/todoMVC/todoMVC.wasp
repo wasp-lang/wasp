@@ -61,6 +61,7 @@ entity-form<Task> NewTaskForm {
     }
 }
 
-// We can define multiple forms for a single entity.
-entity-form<Task> CreateTaskForm {
+// Entity list definition.
+entity-list<Task> TaskList {
+    // Options TBD, not supported for now.
 }

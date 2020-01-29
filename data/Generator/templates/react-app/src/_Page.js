@@ -10,12 +10,16 @@ import {= what =} from "{= from =}"
 import * as {= entityLowerName =}State from '{= entityStatePath =}'
 import * as {= entityLowerName =}Actions from '{= entityActionsPath =}'
 import {= entity.name =} from '{= entityClassPath =}'
-import {= entity.name =}List from '{= entityListPath =}'
 
 {=! Imports of entity create forms =} 
 {=# entityCreateForms =}
 import {= entityForm.name =} from '{= path =}'
 {=/ entityCreateForms =}
+
+{=! Imports of entity lists =} 
+{=# entityLists =}
+import {= entityList.name =} from '{= path =}'
+{=/ entityLists =}
 
 {=/ entities =}
 {=# pageStylePath =}

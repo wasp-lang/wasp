@@ -13,16 +13,18 @@ import Parser.App (app)
 import Parser.Page (page)
 import Parser.Entity (entity)
 import Parser.EntityForm (entityForm)
+import Parser.EntityList (entityList)
 import Parser.JsImport (jsImport)
 import Parser.Common (runWaspParser)
 
 
 waspElement :: Parser Wasp.WaspElement
-waspElement =
-    waspElementApp
+waspElement
+    =   waspElementApp
     <|> waspElementPage
     <|> waspElementEntity
     <|> waspElementEntityForm
+    <|> waspElementEntityList
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
@@ -35,6 +37,9 @@ waspElementEntity = Wasp.WaspElementEntity <$> entity
 
 waspElementEntityForm :: Parser Wasp.WaspElement
 waspElementEntityForm = Wasp.WaspElementEntityForm <$> entityForm
+
+waspElementEntityList :: Parser Wasp.WaspElement
+waspElementEntityList = Wasp.WaspElementEntityList <$> entityList
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp

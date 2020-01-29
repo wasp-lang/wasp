@@ -6,6 +6,7 @@ import Data.Either
 import Parser
 import Wasp
 import qualified Wasp.EntityForm as EF
+import qualified Wasp.EntityList as EL
 
 spec_parseWasp :: Spec
 spec_parseWasp =
@@ -80,6 +81,10 @@ spec_parseWasp =
                                 , EF._fieldDefaultValue = Just $ EF.DefaultValueBool False
                                 }
                             ]
+                        }
+                    , WaspElementEntityList $ EL.EntityList
+                        { EL._name = "TaskList"
+                        , EL._entityName = "Task"
                         }
                     ]
                     `setJsImports` [ JsImport "something" "some/file" ]

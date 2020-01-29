@@ -25,6 +25,9 @@ reservedNameEntity = "entity"
 reservedNameEntityForm :: String
 reservedNameEntityForm = "entity-form"
 
+reservedNameEntityList :: String
+reservedNameEntityList = "entity-list"
+
 -- * Data types.
 
 reservedNameString :: String

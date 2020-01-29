@@ -5,8 +5,6 @@ module Generator.Entity
        , entityClassPathInSrc
        , entityStatePathInSrc
        , entityActionsPathInSrc
-       , entityCreateFormPathInSrc
-       , entityListPathInSrc
 
        -- EXPORTED FOR TESTING:
        , generateEntityClass
@@ -19,16 +17,20 @@ module Generator.Entity
        ) where
 
 import Data.Maybe (fromJust)
-import Path ((</>), relfile, reldir)
+import Path ((</>), relfile)
 import qualified Path
 import qualified Path.Aliases as Path
 
 import Wasp
 import Generator.FileDraft
 import qualified Generator.Common as Common
-import Generator.Entity.EntityForm (generateEntityCreateForm, entityCreateFormPathInSrc)
+import Generator.Entity.EntityForm (generateEntityCreateForm)
+import Generator.Entity.EntityList (generateEntityList)
 import Generator.Entity.Common
-    (entityTemplatesDirPath, entityTemplateData, entityDirPathInSrc, entityComponentsDirPathInSrc)
+    ( entityTemplatesDirPath
+    , entityTemplateData
+    , entityDirPathInSrc
+    )
 
 
 generateEntities :: Wasp -> [FileDraft]
@@ -59,31 +61,23 @@ generateEntityActions :: Wasp -> Entity -> FileDraft
 generateEntityActions wasp entity
     = createSimpleEntityFileDraft wasp entity (entityActionsPathInSrc entity) [relfile|actions.js|]
 
--- TODO(matija): currently we are generating these components automatically, as soon as the
--- entity is defined. Now we are changing this and will generate them on-demand, depending on
--- what is in Wasp.
 generateEntityComponents :: Wasp -> Entity -> [FileDraft]
 generateEntityComponents wasp entity = concat
     [ generateEntityCreateForms wasp entity
-
-    -- TODO(matija): this will become listS as well (in the future PR).
-    , [generateEntityList wasp entity]
+    , generateEntityLists wasp entity
     ]
 
 -- | Generates creation forms for the given entity.
 generateEntityCreateForms :: Wasp -> Entity -> [FileDraft]
-generateEntityCreateForms wasp entity =
-    map (generateEntityCreateForm wasp) entityForms
+generateEntityCreateForms wasp entity = map (generateEntityCreateForm wasp) entityForms
     where
         entityForms = getEntityFormsForEntity wasp entity
 
--- TODO(matija): do I need wasp at all?
--- | Generates list component for the specified entity, so user can see all the
--- entity instances.
-generateEntityList :: Wasp -> Entity -> FileDraft
-generateEntityList wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityListPathInSrc entity)
-                                  ([reldir|components|] </> [relfile|List.js|])
+-- | Generates list components for the given entity.
+generateEntityLists :: Wasp -> Entity -> [FileDraft]
+generateEntityLists wasp entity = map (generateEntityList wasp) entityLists
+    where
+        entityLists = getEntityListsForEntity wasp entity
 
 -- | Helper function that captures common logic for generating entity file draft.
 createSimpleEntityFileDraft :: Wasp -> Entity -> Path.RelFile -> Path.RelFile -> FileDraft
@@ -108,8 +102,3 @@ entityActionTypesPathInSrc entity = entityDirPathInSrc entity </> [relfile|actio
 entityClassPathInSrc :: Entity -> Path.RelFile
 entityClassPathInSrc entity = entityDirPathInSrc entity </>
                               (fromJust $ Path.parseRelFile $ (entityName entity) ++ ".js")
-
--- * Components
-
-entityListPathInSrc :: Entity -> Path.RelFile
-entityListPathInSrc entity = entityComponentsDirPathInSrc entity </> [relfile|List.js|]

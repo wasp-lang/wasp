@@ -18,6 +18,7 @@ module Wasp
     , getEntityByName
 
     , getEntityFormsForEntity
+    , getEntityListsForEntity
 
     , module Wasp.Page
     , getPages
@@ -33,6 +34,7 @@ import qualified ExternalCode
 import Wasp.App
 import Wasp.Entity
 import qualified Wasp.EntityForm as EF
+import qualified Wasp.EntityList as EL
 import Wasp.JsImport
 import Wasp.Page
 
@@ -51,6 +53,7 @@ data WaspElement
     | WaspElementPage !Page
     | WaspElementEntity !Entity
     | WaspElementEntityForm !EF.EntityForm
+    | WaspElementEntityList !EL.EntityList
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -126,6 +129,15 @@ getEntityFormsForEntity wasp entity = filter isFormOfGivenEntity allEntityForms
     where
         allEntityForms = [entityForm | (WaspElementEntityForm entityForm) <- waspElements wasp]
         isFormOfGivenEntity ef = entityName entity == EF._entityName ef
+
+-- * EntityList
+
+-- | Retrieves all entity lists for a given entity from a Wasp record.
+getEntityListsForEntity :: Wasp -> Entity -> [EL.EntityList]
+getEntityListsForEntity wasp entity = filter isListOfGivenEntity allEntityLists
+    where
+        allEntityLists = [entityList | (WaspElementEntityList entityList) <- waspElements wasp]
+        isListOfGivenEntity el = entityName entity == EL._entityName el
 
 -- * ToJSON instances.
 

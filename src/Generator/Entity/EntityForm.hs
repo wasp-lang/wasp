@@ -6,8 +6,8 @@ module Generator.Entity.EntityForm
     , FormFieldTemplateData(..)
     ) where
 
-import Data.Aeson ((.=), object, ToJSON(..))
 import Control.Exception (assert)
+import Data.Aeson ((.=), object, ToJSON(..))
 import Data.Maybe (fromJust)
 import Path ((</>), reldir, relfile)
 import qualified Path
@@ -17,8 +17,8 @@ import qualified Util
 import qualified Wasp as Wasp
 import Wasp (Wasp)
 
-import qualified Wasp.EntityForm as EF
-import Generator.FileDraft
+import qualified Wasp.EntityForm as WEF
+import qualified Generator.FileDraft as FD
 import qualified Generator.Entity.Common as EC
 import qualified Generator.Common as Common
 
@@ -33,7 +33,7 @@ data EntityFormTemplateData = EntityFormTemplateData
 
 instance ToJSON EntityFormTemplateData where
     toJSON td = object
-        [ "name" .= _formName td
+        [ "formName" .= _formName td
         , "entityClassName" .= _entityClassName td
         , "formFields" .=  _formFields td
         , "showSubmitButton" .= _showSubmitButton td
@@ -42,9 +42,9 @@ instance ToJSON EntityFormTemplateData where
 -- | Represents template data for the individual form field.
 data FormFieldTemplateData = FormFieldTemplateData
     { _fieldName :: !String
-    , _fieldType :: Wasp.EntityFieldType
+    , _fieldType :: !Wasp.EntityFieldType
     , _fieldShow :: !Bool
-    , _fieldDefaultValue :: !EF.DefaultValue
+    , _fieldDefaultValue :: !WEF.DefaultValue
     } deriving (Show)
 
 instance ToJSON FormFieldTemplateData where
@@ -54,67 +54,67 @@ instance ToJSON FormFieldTemplateData where
             , "type" .= _fieldType f
             , "show" .= _fieldShow f
             , "defaultValue" .= case (_fieldDefaultValue f) of
-                (EF.DefaultValueString s) -> s
-                (EF.DefaultValueBool b) -> Util.toLowerFirst $ show b
+                (WEF.DefaultValueString s) -> s
+                (WEF.DefaultValueBool b) -> Util.toLowerFirst $ show b
             ]
     
 -- | Given entity and an entity form for it, creates a single data structure
 -- with all the values needed by the template to generate the form.
-createEntityFormTemplateData :: Wasp.Entity -> EF.EntityForm -> EntityFormTemplateData
+createEntityFormTemplateData :: Wasp.Entity -> WEF.EntityForm -> EntityFormTemplateData
 createEntityFormTemplateData entity entityForm = 
-    assert (Wasp.entityName entity == EF._entityName entityForm) $
+    assert (Wasp.entityName entity == WEF._entityName entityForm) $
 
         EntityFormTemplateData
-            { _formName = EF._name entityForm
+            { _formName = WEF._name entityForm
             , _entityClassName = EC.getEntityClassName entity
-            , _formFields = map (createFormField entityForm) $ Wasp.entityFields entity
+            , _formFields = map (createFormFieldTD entityForm) $ Wasp.entityFields entity
             -- Submit
             , _showSubmitButton = maybe True id maybeShowSubmitButton
             }
     where
         maybeShowSubmitButton :: Maybe Bool
-        maybeShowSubmitButton = EF._submit entityForm >>= EF._submitButton >>= EF._submitButtonShow
+        maybeShowSubmitButton = WEF._submit entityForm >>= WEF._submitButton >>= WEF._submitButtonShow
 
 -- | Given field data from entity and an entity form for it, creates a single
 -- data structure with all the values needed by the template to generate a form field.
-createFormField :: EF.EntityForm -> Wasp.EntityField -> FormFieldTemplateData
-createFormField entityForm entityField = FormFieldTemplateData
+createFormFieldTD :: WEF.EntityForm -> Wasp.EntityField -> FormFieldTemplateData
+createFormFieldTD entityForm entityField = FormFieldTemplateData
     { _fieldName = Wasp.entityFieldName entityField
     , _fieldType = Wasp.entityFieldType entityField
-    , _fieldShow = maybe True id $ formFieldConfig >>= EF._fieldShow
+    , _fieldShow = maybe True id $ formFieldConfig >>= WEF._fieldShow
     , _fieldDefaultValue = maybe 
                             defaultValueIfNothingInForm
                             id 
-                            $ formFieldConfig >>= EF._fieldDefaultValue
+                            $ formFieldConfig >>= WEF._fieldDefaultValue
     }
     where
         -- Configuration of a form field within entity-form, if there is any.
-        formFieldConfig :: Maybe EF.Field
-        formFieldConfig = EF.getConfigForField entityForm entityField
+        formFieldConfig :: Maybe WEF.Field
+        formFieldConfig = WEF.getConfigForField entityForm entityField
 
-        getDefaultValueForFieldWithType :: Wasp.EntityFieldType -> EF.DefaultValue
+        getDefaultValueForFieldWithType :: Wasp.EntityFieldType -> WEF.DefaultValue
         getDefaultValueForFieldWithType efType = case efType of
-            Wasp.EftString -> EF.DefaultValueString ""
-            Wasp.EftBoolean -> EF.DefaultValueBool False
+            Wasp.EftString -> WEF.DefaultValueString ""
+            Wasp.EftBoolean -> WEF.DefaultValueBool False
 
         -- If user did not explicitly set a default value, we determine it ourselves.
-        defaultValueIfNothingInForm :: EF.DefaultValue
+        defaultValueIfNothingInForm :: WEF.DefaultValue
         defaultValueIfNothingInForm =
             getDefaultValueForFieldWithType $ Wasp.entityFieldType entityField
 
 
 -- | Generates entity creation form.
-generateEntityCreateForm :: Wasp -> EF.EntityForm -> FileDraft
+generateEntityCreateForm :: Wasp -> WEF.EntityForm -> FD.FileDraft
 generateEntityCreateForm wasp entityForm =
-    createTemplateFileDraft dstPath templateSrcPath (Just templateData)
+    FD.createTemplateFileDraft dstPath templateSrcPath (Just templateData)
   where
-    -- NOTE(matija): There should always be an entity in wasp for the given entity form,
-    -- we want an error to be thrown otherwise.
+    -- NOTE(matija): There should always be an entity in wasp for the given entity form.
+    -- If not, we want an error to be thrown.
     entity = maybe
         (error $ "Wasp must contain entity to which the entity form refers: " ++
-            EF._entityName entityForm)
+            WEF._entityName entityForm)
         id
-        (Wasp.getEntityByName wasp (EF._entityName entityForm))
+        (Wasp.getEntityByName wasp (WEF._entityName entityForm))
 
     templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|CreateForm.js|]
 
@@ -122,7 +122,7 @@ generateEntityCreateForm wasp entityForm =
 
     templateData = toJSON $ createEntityFormTemplateData entity entityForm
 
-entityCreateFormPathInSrc :: Wasp.Entity -> EF.EntityForm -> Path.RelFile
+entityCreateFormPathInSrc :: Wasp.Entity -> WEF.EntityForm -> Path.RelFile
 entityCreateFormPathInSrc entity entityForm =
     EC.entityComponentsDirPathInSrc entity </>
-    (fromJust $ Path.parseRelFile $ (EF._name entityForm) ++ ".js")
+    (fromJust $ Path.parseRelFile $ (WEF._name entityForm) ++ ".js")

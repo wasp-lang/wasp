@@ -20,6 +20,8 @@ import qualified Util
 import Wasp
 import Generator.FileDraft
 import qualified Generator.Entity as EntityGenerator
+import qualified Generator.Entity.EntityForm as GEF
+import qualified Generator.Entity.EntityList as GEL
 import Generator.ExternalCode.Common (externalCodeDirPathInSrc)
 import qualified Generator.Common as Common
 
@@ -59,18 +61,27 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
         , "entityClassPath" .=
             (buildImportPathFromPathInSrc $ EntityGenerator.entityClassPathInSrc entity)
         , "entityCreateForms" .= map toEntityFormData entityForms
-
-        -- TODO(matija): this will become "entityLists"
-        , "entityListPath" .= (buildImportPathFromPathInSrc $ EntityGenerator.entityListPathInSrc entity)
+        , "entityLists" .= map toEntityListData entityLists
         ]
         where
+            -- Entity forms
             entityForms = getEntityFormsForEntity wasp entity
             generateEntityFormPath entityForm =
-                buildImportPathFromPathInSrc $ EntityGenerator.entityCreateFormPathInSrc entity entityForm
+                buildImportPathFromPathInSrc $ GEF.entityCreateFormPathInSrc entity entityForm
 
             toEntityFormData entityForm = object
                 [ "entityForm" .= entityForm
                 , "path" .= generateEntityFormPath entityForm
+                ]
+
+            -- Entity list
+            entityLists = getEntityListsForEntity wasp entity
+            generateEntityListPath entityList =
+                buildImportPathFromPathInSrc $ GEL.entityListPathInSrc entity entityList
+
+            toEntityListData entityList = object
+                [ "entityList" .= entityList
+                , "path" .= generateEntityListPath entityList
                 ]
 
     toJsImportData :: Wasp.JsImport -> Aeson.Value

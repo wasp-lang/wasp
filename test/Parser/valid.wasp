@@ -67,4 +67,6 @@ entity-form<Task> CreateTaskForm {
     }
 }
 
-
+entity-list<Task> TaskList {
+    // Options TBD.
+}
