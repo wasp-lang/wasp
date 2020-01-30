@@ -1,0 +1,72 @@
+// Goal of this file is to re-create a TODO app from http://todomvc.com
+
+import Todo from "Todo"  // Imports from external code dir (src/).
+
+// -- Entities
+entity Task {
+    description :: string,
+    isDone :: boolean
+}
+
+// -- App and pages
+app todoApp {
+    title: "ToDo App"
+}
+
+// IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
+page Main {
+    route: "/",
+
+    style: {=css
+        div {
+            color: green;
+        }
+
+        .mainContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .taskListContainer {
+            width: 60%;
+        }
+
+        .selected {
+            border: 1px solid black;
+        }
+
+    css=},
+
+    content: {=jsx
+        <Todo
+            addTask={this.props.addTask}
+            taskList={this.props.taskList}
+            updateTask={this.props.updateTask}
+            removeTask={this.props.removeTask}
+        >
+        </Todo>
+    jsx=}
+}
+
+// Entity form definition.
+entity-form<Task> NewTaskForm {
+    fields: {
+        description: {
+            show: true
+        },
+        isDone: {
+            show: false,
+            defaultValue: false  // Although not shown, this field will be set to "false".
+        }
+    },
+    submit: {
+        onEnter: true, // Parsed but not generated yet.
+        button: { show: false }
+    }
+}
+
+// Entity list definition.
+entity-list<Task> TaskList {
+    // Options TBD, not supported for now.
+}
