@@ -12,6 +12,7 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 import TextField from '@material-ui/core/TextField'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 
 import * as {= entityLowerName =}State from '../state'
 import * as {= entityLowerName =}Actions from '../actions'
@@ -25,11 +26,27 @@ export class {= listName =} extends React.Component {
     filter: PropTypes.func
   }
 
+  state = {
+    {= entityBeingEditedStateVar =}: null
+  }
+
   update{= entityName =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
     const updated{= entityName =} = new {= entityClassName =}(
       { ...{= entityLowerName =}.toData(), [fieldName]: newFieldValue }
     )
     this.props.update{= entityName =}({= entityLowerName =}.id, updated{= entityName =})
+  }
+
+  setAsBeingEdited = {= entityLowerName =} => this.setState({
+    {= entityBeingEditedStateVar =}: {= entityLowerName =}.id
+  })
+
+  isBeingEdited = {= entityLowerName =} =>
+    {= entityLowerName =}.id === this.state.{= entityBeingEditedStateVar =}
+
+  finishEditing = {= entityLowerName =} => {
+    if ({= entityLowerName =}.id === this.state.{= entityBeingEditedStateVar =})
+      this.setState({ {= entityBeingEditedStateVar =}: null })
   }
   
   render() {
@@ -75,18 +92,22 @@ export class {= listName =} extends React.Component {
                     </TableCell>
                   {=/ boolean =}
                   {=# string =}
-                    <TableCell>
-                      {this.props.editable ? (
-                        <TextField
-                          value={{= entityLowerName =}.{= name =}}
-                          onChange={e => this.update{= entityName =}Field(
-                            '{= name =}', e.target.value, {= entityLowerName =}
-                          )}
-                        />
-                      ) : (
-                        {= entityLowerName =}.{= name =}
-                      )}
-                    </TableCell>
+                    <ClickAwayListener onClickAway={() => this.finishEditing({= entityLowerName =}) }>
+                      <TableCell
+                        onDoubleClick={() => this.setAsBeingEdited({= entityLowerName =})}
+                      >
+                        {this.props.editable && this.isBeingEdited({= entityLowerName =}) ? (
+                          <TextField
+                            value={{= entityLowerName =}.{= name =}}
+                            onChange={e => this.update{= entityName =}Field(
+                              '{= name =}', e.target.value, {= entityLowerName =}
+                            )}
+                          />
+                        ) : (
+                          {= entityLowerName =}.{= name =}
+                        )}
+                      </TableCell>
+                    </ClickAwayListener>
                   {=/ string =}
                   {=/ listFields =}
                 </TableRow>
