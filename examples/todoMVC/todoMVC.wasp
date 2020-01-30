@@ -31,6 +31,11 @@ page Main {
         .taskListContainer {
             width: 60%;
         }
+
+        .selected {
+            border: 1px solid black;
+        }
+
     css=},
 
     content: {=jsx

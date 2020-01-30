@@ -6,8 +6,24 @@ import TaskList from '@wasp/entities/task/components/TaskList'
 
 import * as config from './config'
 
+const TASK_FILTER_TYPES = Object.freeze({
+  ALL: 'all',
+  ACTIVE: 'active',
+  COMPLETED: 'completed'
+})
+
+const TASK_FILTERS = Object.freeze({
+  [TASK_FILTER_TYPES.ALL]: null,
+  [TASK_FILTER_TYPES.ACTIVE]: task => !task.isDone,
+  [TASK_FILTER_TYPES.COMPLETED]: task => task.isDone
+})
 
 export default class Todo extends React.Component {
+
+  state = {
+    taskFilterName: TASK_FILTER_TYPES.ALL
+  }
+
   toggleIsDoneForAllTasks = () => {
     const areAllDone = this.props.taskList.every(t => t.isDone)
     {/* TODO: This feels clumsy / complicated. Is there a better way than using id (maybe not)?
@@ -21,6 +37,15 @@ export default class Todo extends React.Component {
   deleteCompletedTasks = () => {
     this.props.taskList.map((t) => { if (t.isDone) this.props.removeTask(t.id) })
   }
+
+  TaskFilterButton = ({ filterType, label }) => (
+    <button
+      className={this.state.taskFilterName === filterType ? 'selected' : null}
+      onClick={() => this.setState({ taskFilterName: filterType })}
+    >
+      {label}
+    </button>
+  )
 
   render = () => {
     return (
@@ -38,15 +63,25 @@ export default class Todo extends React.Component {
         />
 
         <div className="taskListContainer">
-          <TaskList editable />
+          <TaskList
+            editable
+            filter={TASK_FILTERS[this.state.taskFilterName]}
+          />
         </div>
 
         <div className="footer">
-          { this.props.taskList.filter(task => !task.isDone).length } items left
+          <div>
+            { this.props.taskList.filter(task => !task.isDone).length } items left
 
-          { this.props.taskList.some(t => t.isDone) &&
-            <button onClick={this.deleteCompletedTasks}>Clear completed</button>
-          }
+            { this.props.taskList.some(t => t.isDone) &&
+                <button onClick={this.deleteCompletedTasks}>Clear completed</button>
+            }
+          </div>
+          <div>
+            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
+            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
+            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
+          </div>
         </div>
       </div>
     )

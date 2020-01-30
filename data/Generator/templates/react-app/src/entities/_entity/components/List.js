@@ -22,6 +22,7 @@ import {= entityClassName =} from '../{= entityClassName =}'
 export class {= listName =} extends React.Component {
   static propTypes = {
     editable: PropTypes.bool,
+    filter: PropTypes.func
   }
 
   update{= entityName =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
@@ -32,6 +33,11 @@ export class {= listName =} extends React.Component {
   }
   
   render() {
+    const {= entityLowerName =}ListToShow = this.props.filter ?
+      {!= TODO(matija): duplication, we could extract entityLowerName_List =}
+      this.props.{= entityLowerName =}List.filter(this.props.filter) :
+      this.props.{= entityLowerName =}List
+
     return (
       <div style={ { margin: '20px' } }>
         <Paper>
@@ -50,7 +56,7 @@ export class {= listName =} extends React.Component {
             </TableHead>
 
             <TableBody>
-              {this.props.{= entityLowerName =}List.map(({= entityLowerName =}) => (
+              {{= entityLowerName =}ListToShow.map(({= entityLowerName =}) => (
                 <TableRow key={{= entityLowerName =}.id}>
                   {=# listFields =}
                   {=# boolean =}
