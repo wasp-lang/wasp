@@ -9,8 +9,8 @@ entity Task {
 }
 
 // -- App and pages
-app todoMVC {
-    title: "ToDo MVC"
+app todoApp {
+    title: "ToDo App"
 }
 
 // IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
