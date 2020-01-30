@@ -13,7 +13,7 @@ import Path ((</>), reldir)
 import qualified Path
 import qualified Path.Aliases as Path
 
-import qualified Paths_stic
+import qualified Paths_waspc
 
 -- TODO: Write tests for this file! But first we need to decouple logic from IO
 --   so that we can mock it.
@@ -24,14 +24,14 @@ import qualified Paths_stic
 --     overengineer for now.
 getTemplatesDirAbsPath :: IO Path.AbsDir
 getTemplatesDirAbsPath = do
-    absDataDirPath <- Paths_stic.getDataDir >>= Path.parseAbsDir
+    absDataDirPath <- Paths_waspc.getDataDir >>= Path.parseAbsDir
     return $ absDataDirPath </> templatesDirPathInDataDir
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
 getTemplateFileAbsPath :: Path.RelFile -> IO Path.AbsFile
 getTemplateFileAbsPath tmplFilePathInTemplatesDir =
-    Paths_stic.getDataFileName (Path.toFilePath tmplFilePathInDataDir) >>= Path.parseAbsFile
+    Paths_waspc.getDataFileName (Path.toFilePath tmplFilePathInDataDir) >>= Path.parseAbsFile
   where
     tmplFilePathInDataDir = templatesDirPathInDataDir </> tmplFilePathInTemplatesDir
 

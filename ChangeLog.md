@@ -1,3 +1,3 @@
-# Changelog for stic
+# Changelog
 
 ## Unreleased changes

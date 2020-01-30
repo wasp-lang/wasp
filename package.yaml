@@ -1,13 +1,13 @@
 # This YAML file describes your package. Stack will automatically generate a
 # Cabal file when you run `stack build`. See the hpack website for help with
 # this file: <https://github.com/sol/hpack>.
-name:                stic
+name:                waspc
 version:             0.1.0.0
-github:              "Martinsos/stic"
+github:              "Martinsos/waspc"
 #license:             BSD3
-author:              "Stic"
-maintainer:          "info@stic.dev"
-copyright:           "2019 Stic"
+author:              "wasp-lang"
+maintainer:          "sosic.martin@gmail.com, matija.sosic@gmail.com"
+copyright:           "2020 wasp-lang"
 
 default-extensions:
   - OverloadedStrings
@@ -30,7 +30,7 @@ data-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/Martinsos/stic#readme>
+description:         Please see the README on GitHub at <https://github.com/Martinsos/waspc#readme>
 
 dependencies:
   - base >= 4.7 && < 5
@@ -53,7 +53,7 @@ library:
     - regex-compat
 
 executables:
-  stic-exe:
+  waspc-cli:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -61,13 +61,13 @@ executables:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - stic
+      - waspc
       - filepath
       - path
       - directory
 
 benchmarks:
-  stic-benchmarks:
+  waspc-benchmarks:
     main:                Main.hs
     source-dirs:         benchmark
     ghc-options:
@@ -75,11 +75,11 @@ benchmarks:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - stic
+      - waspc
       - criterion
 
 tests:
-  stic-test:
+  waspc-test:
     main:                TastyDiscoverDriver.hs
     source-dirs:         test
     ghc-options:
@@ -91,7 +91,7 @@ tests:
       - filepath
       - text
       - mtl
-      - stic
+      - waspc
       - tasty
       - tasty-hspec
       - tasty-quickcheck

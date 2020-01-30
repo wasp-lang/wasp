@@ -1,12 +1,10 @@
 ```
-                           ________   _________    ___    ________  
-                          |\   ____\ |\___   ___\ |\  \  |\   ____\  
-                          \ \  \___|_\|___ \  \_| \ \  \ \ \  \___|  
-                           \ \_____  \    \ \  \   \ \  \ \ \  \  
-                            \|____|\  \    \ \  \   \ \  \ \ \  \  
-                               ___\_\  \    \ \  \   \ \  \ \ \  \____  
-                              |\________\    \ \  \   \ \__\ \ \_______\  
-                              \|________|     \|__|    \|__|  \|_______|  
+                                                                  _  _
+                         __      ____ _ ___ _ __   ___           | )/ )
+                         \ \ /\ / / _` / __| '_ \ / __|       \\ |//,' __
+                          \ V  V / (_| \__ \ |_) | (__        (")(_)-"()))=-
+                           \_/\_/ \__,_|___/ .__/ \___|          (\\
+                                           |_|
 ```
 
 ## Setup
@@ -21,7 +19,7 @@ Stack installs GHC and packages automatically, in reproducible manner, in an iso
 
 This project was created from `new-template` stack template and then modified inspired by `haskeleton` stack template.
 
-Most important configuration file is `package.yaml`. Here we define what is what in our project, how is it built. Stack generates `stic.cabal` from this document.
+Most important configuration file is `package.yaml`. Here we define what is what in our project, how is it built. Stack generates `waspc.cabal` from this document.
 
 Also important is `stack.yaml` where we define Stack configuration for this project.
 
@@ -42,12 +40,12 @@ If package you need is not in the Stack snapshot defined by `resolver`, add it t
 
 
 ## Building / development
-You build the project with `stack build`. It uses `package.yaml`, `stic.yaml` (and possibly some other files in the future) and source files to generate files and build the project.
+You build the project with `stack build`. It uses `package.yaml`, `waspc.yaml` (and possibly some other files in the future) and source files to generate files and build the project.
 
 It is recommended using `stack build --pedantic` to turn on pedantic code checking (-Wall, -Werror).
 
 `stack exec <my-executable>` will run executable in the context of stack project.
-In our case, `stack exec stic-exe` will run Stic (build it first with `stack build`!).
+In our case, `stack exec waspc-cli` will run waspc (build it first with `stack build`!).
 
 Some useful command options when building:
 - `stack build --test` -> same as `stack test`.
@@ -75,7 +73,7 @@ The idea is that you normally use this for development, and you use `stack` dire
 You can run `./run help` to learn how to use it.
 
 Examples:
- - `./run exec examples/todoMVC.wasp out/todoMVC` will run stic on todoMVC example.
+ - `./run exec examples/todoMVC.wasp out/todoMVC` will run waspc on todoMVC example.
 
 
 ## Tests
@@ -106,3 +104,7 @@ Test are run with `stack test`. You can do `stack test --coverage` to see the co
 For benchmarking we are using [**Criterion**](http://www.serpentine.com/criterion/).
 
 You can run benchmark with `stack bench`.
+
+## Other
+
+Wasp ascii art used in the title is from https://www.asciiart.eu/animals/insects/bees, author: Stef00.

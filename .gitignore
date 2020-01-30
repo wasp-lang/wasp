@@ -1,5 +1,5 @@
 .stack-work/
-stic.cabal
+waspc.cabal
 *~
 /.dir-locals.el
 stack*.yaml.lock

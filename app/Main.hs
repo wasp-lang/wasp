@@ -25,7 +25,7 @@ main = do
                 }
         result <- compile absWaspFilePath absOutDirPath options
         either putStrLn (\_ -> print ("Success!" :: String)) result
-    _ -> print ("Usage: ./stic <wasp_file_path> <out_dir>" :: String)
+    _ -> print ("Usage: ./waspc <wasp_file_path> <out_dir>" :: String)
   where
     -- | If path is not absolute, it is prefixed with given absolute directory.
     ensurePathIsAbs :: Path.AbsDir -> FilePath -> FilePath
