@@ -34,7 +34,7 @@ export class {= listName =} extends React.Component {
   
   render() {
     const {= entityLowerName =}ListToShow = this.props.filter ?
-      {!= TODO(matija): duplication, we could extract entityLowerName_List =}
+      {=! TODO(matija): duplication, we could extract entityLowerName_List =}
       this.props.{= entityLowerName =}List.filter(this.props.filter) :
       this.props.{= entityLowerName =}List
 
