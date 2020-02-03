@@ -44,6 +44,8 @@ instance ToJSON EntityListTemplateData where
 data ListFieldTemplateData = ListFieldTemplateData
     { _fieldName :: !String
     , _fieldType :: !Wasp.EntityFieldType
+    , _fieldWidthAsPercent :: !Int
+    -- Render
     , _fieldRender :: Maybe Wasp.JsCode.JsCode
     , _fieldRenderFnName :: String
     }
@@ -53,6 +55,7 @@ instance ToJSON ListFieldTemplateData where
         object
             [ "name" .= _fieldName f
             , "type" .= _fieldType f
+            , "widthAsPercent" .= _fieldWidthAsPercent f
             , "render" .= _fieldRender f
             , "renderFnName" .= _fieldRenderFnName f
             ]
@@ -76,6 +79,7 @@ createListFieldTD :: Wasp.Entity -> WEL.EntityList -> Wasp.EntityField -> ListFi
 createListFieldTD entity entityList entityField = ListFieldTemplateData
     { _fieldName = Wasp.entityFieldName entityField
     , _fieldType = Wasp.entityFieldType entityField
+    , _fieldWidthAsPercent = fieldWidthAsPercent
     , _fieldRender = listFieldConfig >>= WEL._fieldRender
     , _fieldRenderFnName = "render" ++ entityUpper ++ entityFieldUpper
     }
@@ -86,6 +90,19 @@ createListFieldTD entity entityList entityField = ListFieldTemplateData
 
         entityUpper = U.toUpperFirst $ Wasp.entityName entity
         entityFieldUpper = U.toUpperFirst $ Wasp.entityFieldName entityField
+
+        -- NOTE(matija): for now we decide on width, it is not yet an option exposed to the
+        -- user. Our current strategy, since we have no outside info, is to make all fields
+        -- have approx. equal width.
+        --
+        -- Since we use Int, obviously we will not be able to always get a sum of 100. But with
+        -- the current style framework we are using (material-ui), it is not a problem.
+        -- 
+        -- E.g. if we have 3 fields, each of them will get assigned a width of 33 - material-ui
+        -- will then resolve that by itself - it will assign the missing width to one of the
+        -- fields (the last one, from what I tried).
+        fieldWidthAsPercent :: Int
+        fieldWidthAsPercent = 100 `div` (length $ Wasp.entityFields entity)
 
 generateEntityList :: Wasp -> WEL.EntityList -> FD.FileDraft
 generateEntityList wasp entityList =

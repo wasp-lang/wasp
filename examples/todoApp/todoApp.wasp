@@ -4,8 +4,8 @@ import Todo from "Todo"  // Imports from external code dir (src/).
 
 // -- Entities
 entity Task {
-    description :: string,
-    isDone :: boolean
+    isDone :: boolean,
+    description :: string
 }
 
 // -- App and pages

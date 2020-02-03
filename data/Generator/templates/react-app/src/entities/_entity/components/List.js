@@ -70,12 +70,7 @@ export class {= listName =} extends React.Component {
             <TableHead>
               <TableRow>
                 {=# listFields =}
-                {=# boolean =}
-                  <TableCell>{= name =}</TableCell>
-                {=/ boolean =}
-                {=# string =}
-                  <TableCell>{= name =}</TableCell>
-                {=/ string =}
+                  <TableCell width="{= widthAsPercent =}%">{= name =}</TableCell>
                 {=/ listFields =}
               </TableRow>
             </TableHead>
