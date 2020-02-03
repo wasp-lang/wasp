@@ -21,6 +21,12 @@ data EntityForm = EntityForm
     , _fields :: [Field]
     } deriving (Show, Eq)
 
+-- NOTE(matija): Ideally generator would not depend on this logic defined outside of it.
+-- We are moving away from this approach but some parts of code (Page generator) still
+-- rely on it so we cannot remove it completely yet without further refactoring.
+--
+-- Some record fields are note even included (e.g. _fields), we are keeping this only for the
+-- backwards compatibility.
 instance ToJSON EntityForm where
     toJSON entityForm = object
         [ "name" .= _name entityForm

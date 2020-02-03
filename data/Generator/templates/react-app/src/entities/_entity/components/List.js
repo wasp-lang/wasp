@@ -48,6 +48,14 @@ export class {= listName =} extends React.Component {
     if ({= entityLowerName =}.id === this.state.{= entityBeingEditedStateVar =})
       this.setState({ {= entityBeingEditedStateVar =}: null })
   }
+
+  {=! Render "render" functions for each field, if provided =}
+  {=# listFields =}
+  {=# render =}
+  {= renderFnName =} =
+    {=& render =}
+  {=/ render =}
+  {=/ listFields =}
   
   render() {
     const {= entityLowerName =}ListToShow = this.props.filter ?
@@ -104,7 +112,12 @@ export class {= listName =} extends React.Component {
                             )}
                           />
                         ) : (
+                          {=# render =}
+                          this.{= renderFnName =}({= entityLowerName =})
+                          {=/ render =}
+                          {=^ render =}
                           {= entityLowerName =}.{= name =}
+                          {=/ render =}
                         )}
                       </TableCell>
                     </ClickAwayListener>

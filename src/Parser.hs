@@ -12,8 +12,8 @@ import Lexer
 import Parser.App (app)
 import Parser.Page (page)
 import Parser.Entity (entity)
-import Parser.EntityForm (entityForm)
-import Parser.EntityList (entityList)
+import Parser.Entity.EntityForm (entityForm)
+import Parser.Entity.EntityList (entityList)
 import Parser.JsImport (jsImport)
 import Parser.Common (runWaspParser)
 

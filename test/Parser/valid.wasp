@@ -69,5 +69,11 @@ entity-form<Task> CreateTaskForm {
 }
 
 entity-list<Task> TaskList {
-    // Options TBD.
+    fields: {
+        description: {
+            render: {=js
+                task => task.description
+            js=}
+        }
+    }
 }

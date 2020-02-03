@@ -12,6 +12,7 @@ import qualified Path.Aliases as Path
 
 import qualified Lexer as L
 
+
 -- | Runs given wasp parser on a specified input.
 runWaspParser :: Parser a -> String -> Either ParseError a
 runWaspParser waspParser input = parse waspParser sourceName input

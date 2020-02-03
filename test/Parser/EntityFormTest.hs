@@ -3,7 +3,7 @@ module Parser.EntityFormTest where
 import Test.Tasty.Hspec
 
 import Parser.Common (runWaspParser)
-import Parser.EntityForm
+import Parser.Entity.EntityForm
     ( entityForm
     , submitConfig
 

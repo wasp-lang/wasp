@@ -9,13 +9,17 @@ import Data.Maybe (fromJust)
 import Path ((</>), reldir, relfile, parseRelFile)
 import qualified Path.Aliases as Path
 
+import qualified Util as U
+
 import qualified Wasp
 import Wasp (Wasp)
 import qualified Wasp.EntityList as WEL
+import qualified Wasp.JsCode
 
 import qualified Generator.FileDraft as FD
 import qualified Generator.Entity.Common as EC
 import qualified Generator.Common as Common
+
 
 data EntityListTemplateData = EntityListTemplateData
     { _listName :: !String
@@ -40,6 +44,8 @@ instance ToJSON EntityListTemplateData where
 data ListFieldTemplateData = ListFieldTemplateData
     { _fieldName :: !String
     , _fieldType :: !Wasp.EntityFieldType
+    , _fieldRender :: Maybe Wasp.JsCode.JsCode
+    , _fieldRenderFnName :: String
     }
 
 instance ToJSON ListFieldTemplateData where
@@ -47,6 +53,8 @@ instance ToJSON ListFieldTemplateData where
         object
             [ "name" .= _fieldName f
             , "type" .= _fieldType f
+            , "render" .= _fieldRender f
+            , "renderFnName" .= _fieldRenderFnName f
             ]
 
 createEntityListTemplateData :: Wasp.Entity -> WEL.EntityList -> EntityListTemplateData
@@ -58,17 +66,26 @@ createEntityListTemplateData entity entityList =
             , _entityName = Wasp.entityName entity
             , _entityClassName = EC.getEntityClassName entity
             , _entityLowerName = EC.getEntityLowerName entity
-            , _listFields = map (createListFieldTD entityList) $ Wasp.entityFields entity
+            , _listFields = map (createListFieldTD entity entityList) $ Wasp.entityFields entity
             , _entityBeingEditedStateVar = entityLowerName ++ "BeingEdited"
             }
             where
                 entityLowerName = EC.getEntityLowerName entity
 
-createListFieldTD :: WEL.EntityList -> Wasp.EntityField -> ListFieldTemplateData
-createListFieldTD _ entityField = ListFieldTemplateData
+createListFieldTD :: Wasp.Entity -> WEL.EntityList -> Wasp.EntityField -> ListFieldTemplateData
+createListFieldTD entity entityList entityField = ListFieldTemplateData
     { _fieldName = Wasp.entityFieldName entityField
     , _fieldType = Wasp.entityFieldType entityField
+    , _fieldRender = listFieldConfig >>= WEL._fieldRender
+    , _fieldRenderFnName = "render" ++ entityUpper ++ entityFieldUpper
     }
+    where
+        -- Configuration of a form field within entity-list, if there is any.
+        listFieldConfig :: Maybe WEL.Field
+        listFieldConfig = WEL.getConfigForField entityList entityField
+
+        entityUpper = U.toUpperFirst $ Wasp.entityName entity
+        entityFieldUpper = U.toUpperFirst $ Wasp.entityFieldName entityField
 
 generateEntityList :: Wasp -> WEL.EntityList -> FD.FileDraft
 generateEntityList wasp entityList =

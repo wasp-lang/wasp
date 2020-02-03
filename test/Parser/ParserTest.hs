@@ -9,6 +9,7 @@ import Wasp
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
 import qualified Wasp.Style
+import qualified Wasp.JsCode
 
 
 spec_parseWasp :: Spec
@@ -88,6 +89,12 @@ spec_parseWasp =
                     , WaspElementEntityList $ EL.EntityList
                         { EL._name = "TaskList"
                         , EL._entityName = "Task"
+                        , EL._fields =
+                            [ EL.Field 
+                                { EL._fieldName = "description"
+                                , EL._fieldRender = Just $ Wasp.JsCode.JsCode "task => task.description"
+                                }
+                            ]
                         }
                     ]
                     `setJsImports` [ JsImport "something" [relfile|some/file|] ]

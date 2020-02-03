@@ -1,4 +1,4 @@
-module Parser.EntityForm
+module Parser.Entity.EntityForm
     ( entityForm
 
     -- For testing
@@ -11,10 +11,11 @@ module Parser.EntityForm
 import Text.Parsec (choice)
 import Text.Parsec.String (Parser)
 
-import qualified Wasp.EntityForm as EF
+import qualified Wasp.EntityForm as WEF
 import Wasp.EntityForm (EntityForm)
 
 import qualified Parser.Common as P
+import qualified Parser.Entity.Common as PE
 import qualified Util as U
 import qualified Lexer as L
 
@@ -27,16 +28,16 @@ entityForm = do
     (entityName, formName, options) <-
         P.waspElementLinkedToEntity L.reservedNameEntityForm entityFormOptions
 
-    return EF.EntityForm
-        { EF._name = formName
-        , EF._entityName = entityName
-        , EF._submit = maybeGetSubmitConfig options
-        , EF._fields = getFieldsConfig options
+    return WEF.EntityForm
+        { WEF._name = formName
+        , WEF._entityName = entityName
+        , WEF._submit = maybeGetSubmitConfig options
+        , WEF._fields = getFieldsConfig options
         }
 
 data EntityFormOption 
-    = EfoSubmit EF.Submit
-    | EfoFields [EF.Field]
+    = EfoSubmit WEF.Submit
+    | EfoFields [WEF.Field]
     deriving (Show, Eq)
 
 entityFormOptions :: Parser [EntityFormOption]
@@ -50,25 +51,25 @@ entityFormOption = choice
 
 -- * Submit
 
-maybeGetSubmitConfig :: [EntityFormOption] -> Maybe EF.Submit
+maybeGetSubmitConfig :: [EntityFormOption] -> Maybe WEF.Submit
 maybeGetSubmitConfig options = U.headSafe [s | EfoSubmit s <- options]
 
 entityFormOptionSubmit :: Parser EntityFormOption
 entityFormOptionSubmit = EfoSubmit <$> (P.waspPropertyClosure "submit" submitConfig)
 
-submitConfig :: Parser EF.Submit
+submitConfig :: Parser WEF.Submit
 submitConfig = do
     -- TODO(matija): this pattern of "having at least 1 property in closure" could be further
     -- extracted to e.g. "waspClosureOptions" - but again sometimes it is ok not to have any props,
     -- e.g. EntityForm. Maybe then "waspClosureOptions1" and "waspClosureOptions"?
     options <- L.commaSep1 submitOption
 
-    return EF.Submit
-        { EF._onEnter = maybeGetSoOnEnter options
-        , EF._submitButton = maybeGetSoSubmitButton options
+    return WEF.Submit
+        { WEF._onEnter = maybeGetSoOnEnter options
+        , WEF._submitButton = maybeGetSoSubmitButton options
         }
 
-data SubmitOption = SoOnEnter Bool | SoSubmitButton EF.SubmitButton deriving (Show, Eq)
+data SubmitOption = SoOnEnter Bool | SoSubmitButton WEF.SubmitButton deriving (Show, Eq)
 
 submitOption :: Parser SubmitOption
 submitOption = choice [submitOptionOnEnter, submitOptionSubmitButton]
@@ -84,15 +85,15 @@ maybeGetSoOnEnter options = U.headSafe [b | SoOnEnter b <- options]
 submitOptionSubmitButton :: Parser SubmitOption
 submitOptionSubmitButton = SoSubmitButton <$> P.waspPropertyClosure "button" submitButtonConfig
 
-maybeGetSoSubmitButton :: [SubmitOption] -> Maybe EF.SubmitButton
+maybeGetSoSubmitButton :: [SubmitOption] -> Maybe WEF.SubmitButton
 maybeGetSoSubmitButton options = U.headSafe [sb | SoSubmitButton sb <- options]
 
-submitButtonConfig :: Parser EF.SubmitButton
+submitButtonConfig :: Parser WEF.SubmitButton
 submitButtonConfig = do
     options <- L.commaSep1 submitButtonOption
 
-    return EF.SubmitButton
-        { EF._submitButtonShow = maybeGetSboShow options
+    return WEF.SubmitButton
+        { WEF._submitButtonShow = maybeGetSboShow options
         }
 
 data SubmitButtonOption = SboShow Bool deriving (Show, Eq)
@@ -108,28 +109,24 @@ maybeGetSboShow options = U.headSafe [b | SboShow b <- options]
 
 -- * Fields
 
-getFieldsConfig :: [EntityFormOption] -> [EF.Field]
+getFieldsConfig :: [EntityFormOption] -> [WEF.Field]
 getFieldsConfig options = case [fs | EfoFields fs <- options] of
     [] -> []
     ls -> head ls
 
 entityFormOptionFields :: Parser EntityFormOption
-entityFormOptionFields = EfoFields <$> (P.waspPropertyClosure "fields" $ L.commaSep1 field)
+entityFormOptionFields = EfoFields <$> PE.waspPropertyEntityFields fieldOption createFieldConfig
 
--- | Parses 'FIELD_NAME: { ... }.'
-field :: Parser EF.Field
-field = do
-    (fieldName, options) <- P.waspIdentifierClosure $ L.commaSep1 fieldOption
-
-    return EF.Field
-        { EF._fieldName = fieldName
-        , EF._fieldShow = maybeGetFieldOptionShow options
-        , EF._fieldDefaultValue = maybeGetFieldOptionDefaultValue options
-        }
- 
+createFieldConfig :: (String, [FieldOption]) -> WEF.Field
+createFieldConfig (fieldName, options) = WEF.Field
+    { WEF._fieldName = fieldName
+    , WEF._fieldShow = maybeGetFieldOptionShow options
+    , WEF._fieldDefaultValue = maybeGetFieldOptionDefaultValue options
+    }
+    
 data FieldOption
     = FieldOptionShow Bool
-    | FieldOptionDefaultValue EF.DefaultValue
+    | FieldOptionDefaultValue WEF.DefaultValue
     deriving (Show, Eq)
 
 -- | Parses a single field option, e.g. "show" or "defaultValue".
@@ -139,14 +136,14 @@ fieldOption = choice
     , FieldOptionDefaultValue <$> defaultValue
     ]
 
-defaultValue :: Parser EF.DefaultValue
+defaultValue :: Parser WEF.DefaultValue
 defaultValue = P.waspProperty "defaultValue" $ choice
-    [ EF.DefaultValueString <$> L.stringLiteral
-    , EF.DefaultValueBool <$> L.bool
+    [ WEF.DefaultValueString <$> L.stringLiteral
+    , WEF.DefaultValueBool <$> L.bool
     ]
 
 maybeGetFieldOptionShow :: [FieldOption] -> Maybe Bool
 maybeGetFieldOptionShow options = U.headSafe [b | FieldOptionShow b <- options]
 
-maybeGetFieldOptionDefaultValue :: [FieldOption] -> Maybe EF.DefaultValue
+maybeGetFieldOptionDefaultValue :: [FieldOption] -> Maybe WEF.DefaultValue
 maybeGetFieldOptionDefaultValue options  = U.headSafe [dv | FieldOptionDefaultValue dv <- options]

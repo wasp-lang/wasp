@@ -68,5 +68,18 @@ entity-form<Task> NewTaskForm {
 
 // Entity list definition.
 entity-list<Task> TaskList {
-    // Options TBD, not supported for now.
+    fields: {
+        description: {
+            // The contract for render is: user must provide a function that: 
+            // - receives a task as an input
+            // - returns a React Node or something that can be rendered by JSX
+            // - does not depend on any outer context
+            render: {=js
+                (task) => {
+                    if (task.isDone) return (<s>{task.description}</s>)
+                    return task.description
+                }
+            js=}
+        }
+    }
 }
