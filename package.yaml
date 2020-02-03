@@ -51,6 +51,7 @@ library:
     - unordered-containers
     - path
     - regex-compat
+    - time
 
 executables:
   waspc-cli:
@@ -87,16 +88,16 @@ tests:
       - -rtsopts
       - -with-rtsopts=-N
     dependencies:
-      - aeson
-      - filepath
-      - text
-      - mtl
       - waspc
       - tasty
       - tasty-hspec
       - tasty-quickcheck
       - tasty-discover
       - QuickCheck
+      - aeson
+      - filepath
+      - text
+      - mtl
       - parsec
       - deepseq
       - path
