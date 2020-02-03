@@ -1,0 +1,3 @@
+*.wasp linguist-language=JavaScript
+
+/examples/* linguist-documentation
