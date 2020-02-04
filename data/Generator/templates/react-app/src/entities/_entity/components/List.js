@@ -30,9 +30,9 @@ export class {= listName =} extends React.Component {
     {= entityBeingEditedStateVar =}: null
   }
 
-  update{= entityName =}Field = (fieldName, newFieldValue, {= entityLowerName =}) => {
+  update{= entityName =} = (data, {= entityLowerName =}) => {
     const updated{= entityName =} = new {= entityClassName =}(
-      { ...{= entityLowerName =}.toData(), [fieldName]: newFieldValue }
+      { ...{= entityLowerName =}.toData(), ...data }
     )
     this.props.update{= entityName =}({= entityLowerName =}.id, updated{= entityName =})
   }
@@ -88,8 +88,8 @@ export class {= listName =} extends React.Component {
                           'aria-label': 'checkbox'
                         }}
                         disabled={!this.props.editable}
-                        onChange={e => this.update{= entityName =}Field(
-                          '{= name =}', e.target.checked, {= entityLowerName =}
+                        onChange={e => this.update{= entityName =}(
+                          { '{= name =}': e.target.checked }, {= entityLowerName =}
                         )}
                       />
                     </TableCell>
@@ -102,8 +102,8 @@ export class {= listName =} extends React.Component {
                         {this.props.editable && this.isBeingEdited({= entityLowerName =}) ? (
                           <TextField
                             value={{= entityLowerName =}.{= name =}}
-                            onChange={e => this.update{= entityName =}Field(
-                              '{= name =}', e.target.value, {= entityLowerName =}
+                            onChange={e => this.update{= entityName =}(
+                              { '{= name =}': e.target.value }, {= entityLowerName =}
                             )}
                           />
                         ) : (

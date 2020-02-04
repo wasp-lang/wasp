@@ -1,6 +1,7 @@
 {{={= =}=}}
 import _ from 'lodash'
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
@@ -11,7 +12,10 @@ import {= entityClassName =} from '../{= entityClassName =}'
 
 
 export default class {= formName =} extends React.Component {
-  // TODO: Add propTypes.
+  static propTypes = {
+    onCreate: PropTypes.func,
+    submitButtonLabel: PropTypes.string
+  }
 
   state = {
     fields: {
@@ -63,12 +67,10 @@ export default class {= formName =} extends React.Component {
     return (
       <div className={this.props.className}>
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
-
           {=# formFields =}
-
           {=# boolean =}
           {=# show =}
-           <div>
+          <div>
             <FormControlLabel
               label="{= name =}"
               control={
@@ -82,7 +84,6 @@ export default class {= formName =} extends React.Component {
           </div>
           {=/ show =}
           {=/ boolean =}
-
           {=# string =}
           {=# show =}
           <div>
@@ -102,9 +103,7 @@ export default class {= formName =} extends React.Component {
           </div>
           {=/ show =}
           {=/ string =}
-
           {=/ formFields =}
-
           {=# showSubmitButton =}
           <div>
             <Button type="submit" variant="contained" color="primary">
