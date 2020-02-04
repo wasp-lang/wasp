@@ -21,7 +21,7 @@ main = do
         absOutDirPath <- Path.parseAbsDir (ensurePathIsAbs absCwdPath outDirPath)
         -- TODO(martin): Take compile options as arguments to the command, right now I hardcoded the value.
         let options = CompileOptions
-                { externalCodeDirPath = (Path.parent absWaspFilePath) </> [reldir|src|]
+                { externalCodeDirPath = (Path.parent absWaspFilePath) </> [reldir|ext|]
                 }
         result <- compile absWaspFilePath absOutDirPath options
         either putStrLn (\_ -> print ("Success!" :: String)) result

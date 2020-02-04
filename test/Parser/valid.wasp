@@ -1,6 +1,6 @@
 // Test .wasp file.
 
-import something from "some/file"
+import something from "@ext/some/file"
 
 // App definition.
 app test_app {
@@ -38,7 +38,7 @@ page TestPage {
     content: {=jsx
         <div>This is a test page!</div>
     jsx=},
-    style: "test.css"
+    style: "@ext/test.css"
 }
 
 // Entity definition.

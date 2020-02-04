@@ -5,8 +5,8 @@ module Parser.JsImport
 import Text.Parsec (manyTill, anyChar, try)
 import Text.Parsec.Char (space)
 import Text.Parsec.String (Parser)
-import qualified Parser.Common
 
+import qualified Parser.ExternalCode
 import qualified Lexer as L
 import qualified Wasp.JsImport
 
@@ -21,5 +21,5 @@ jsImport = do
     what <- anyChar `manyTill` (try (space *> L.whiteSpace *> L.reserved L.reservedNameFrom))
     -- TODO: For now we only support double quotes here, we should also support single quotes.
     --   We would need to write this from scratch, with single quote escaping enabled.
-    from <- Parser.Common.relFilePathString
+    from <- Parser.ExternalCode.extCodeFilePathString
     return Wasp.JsImport.JsImport { Wasp.JsImport.jsImportWhat = what, Wasp.JsImport.jsImportFrom = from }

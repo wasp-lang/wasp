@@ -1,6 +1,6 @@
 // Goal of this file is to re-create a TODO app from http://todomvc.com
 
-import Todo from "Todo"  // Imports from external code dir (src/).
+import Todo from "@ext/Todo"  // Imports from external code dir (ext/).
 
 // -- Entities
 entity Task {
