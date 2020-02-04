@@ -109,7 +109,7 @@ relPathFromPageToSrc = Path.reversePath pageDirPathInSrc
 -- NOTE: Here we return FilePath instead of Path because we need stuff like "./" or "../" in the path,
 -- which Path would normalize away.
 buildImportPathFromPathInSrc :: Path.Path Path.Rel a -> FilePath
-buildImportPathFromPathInSrc pathInSrc = "." FP.</> relPathFromPageToSrc FP.</> (Path.toFilePath pathInSrc)
+buildImportPathFromPathInSrc pathInSrc = relPathFromPageToSrc FP.</> (Path.toFilePath pathInSrc)
 
 -- Returns file draft(s) that need to be created (if any) +
 -- file path via which to import the style (relative to generated src dir).
