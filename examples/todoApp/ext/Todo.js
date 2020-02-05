@@ -53,44 +53,43 @@ export default class Todo extends React.Component {
 
   render = () => {
     return (
-      <div className="mainContainer">
-        <h1> Todos </h1>
+      <div className="todos">
+        <div className="todos__container">
+          <h1> Todos </h1>
 
-        <div className="contentContainer">
-          <div className="toggleAndInput">
+          <div className="todos__toggleAndInput">
             <button
               disabled={!this.isThereAnyTask()}
-              className="toggleButton"
+              className="todos__toggleButton"
               onClick={this.toggleIsDoneForAllTasks}>
                 ✓
             </button>
 
             <NewTaskForm
-              className="newTaskForm"
+              className="todos__newTaskForm"
               onCreate={task => this.props.addTask(task)}
               submitButtonLabel={'Create new task'}
             />
           </div>
 
-          <TaskList
-            editable
-            filter={TASK_FILTERS[this.state.taskFilterName]}
-          />
-        </div>
+          { this.isThereAnyTask() && (<>
+            <TaskList
+              editable
+              filter={TASK_FILTERS[this.state.taskFilterName]}
+            />
 
-        { this.isThereAnyTask() && (
-            <div className="footer">
-              <div className="footer__itemsLeft">
+            <div className="todos__footer">
+              <div className="todos__footer__itemsLeft">
                 { this.props.taskList.filter(task => !task.isDone).length } items left
               </div>
 
-              <div className="footer__filters">
+              <div className="todos__footer__filters">
                 <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
                 <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
                 <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
               </div>
 
-              <div className="footer__clearCompleted">
+              <div className="todos__footer__clearCompleted">
                   <button
                     className={this.isAnyTaskCompleted() ? '' : 'hidden' }
                     onClick={this.deleteCompletedTasks}>
@@ -98,8 +97,10 @@ export default class Todo extends React.Component {
                   </button>
               </div>
             </div>
-          )
-        }
+          </>)}
+        </div>
+
+
 
       </div>
     )

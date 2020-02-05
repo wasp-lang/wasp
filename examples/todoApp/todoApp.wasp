@@ -23,8 +23,8 @@ page Main {
             removeTask={this.props.removeTask}
         >
         </Todo>
-        <div className="mainFooter">
-            <a href="/about" className="aboutLink"> About </a>
+        <div className="mainPage__nav">
+            <a href="/about" className="mainPage__nav__aboutLink"> About </a>
         </div>
     </> jsx=}
 }
@@ -32,16 +32,14 @@ page Main {
 page About {
     route: "/about",
     style: {=css
-        .aboutPage {
-            text-align: center;
-        }
+        .aboutPage { color: black; text-align: center; }
     css=},
     content: {=jsx
         <div className="aboutPage">
             <h1> About </h1>
             <p>This page was built with <a href="https://wasp-lang.dev">Wasp</a>!</p>
-            <p> Check out source code
-                <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.
+            <p> Check out source code &nbsp;
+              <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.
             </p>
         </div>
     jsx=}
@@ -73,9 +71,7 @@ entity-list<Task> TaskList {
             // - Receives a task as an input.
             // - Returns a React Node or something that can be rendered by JSX.
             // - Does not depend on any outer context.
-            render: {=js
-                (task) => task.isDone ? <s>{task.description}</s> : task.description
-            js=}
+            render: {=js (task) => task.isDone ? <s>{task.description}</s> : task.description js=}
         }
     }
 }

@@ -2,23 +2,32 @@ div {
     color: green;
 }
 
-.mainContainer {
+button.selected {
+    border: 1px solid black;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.todos {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 }
 
-.contentContainer {
+.todos__container {
     width: 550px;
 }
 
-.toggleAndInput {
+.todos__toggleAndInput {
     display: flex;
     align-items: flex-end;
     margin-bottom: 10px;
 }
 
-.toggleButton {
+.todos__toggleButton {
     height: 40px;
     margin-bottom: 8px;
     margin-left: 20px;
@@ -30,39 +39,33 @@ div {
     cursor: pointer;
 }
 
-.newTaskForm {
+.todos__newTaskForm {
     width: 100%;
     margin-left: 10px;
 }
 
-.selected {
-    border: 1px solid black;
-}
-
-.hidden {
-    visibility: hidden;
-}
-
-.footer {
-    /*
-      TODO(matija): Maybe this should go in contentContainer as well?
-                    And then have width 100%?
-    */
-    width: 550px;
+.todos__footer {
+    width: 100%;
     margin-top: 10px;
 
     display: flex;
     justify-content: space-between;
 }
 
-.footer__filters .filter:not(:last-child) {
+.todos__footer__filters .filter:not(:last-child) {
     margin-right: 10px;
 }
 
-.mainFooter {
+.mainPage__nav {
     text-align: center;
+    margin-top: 30px;
 }
 
-.mainFooter .aboutLink {
-    color: grey;
+.mainPage__nav__aboutLink {
+    color: lightgray;
+    font-size: 12px;
+    text-decoration: none;
+}
+.mainPage__nav__aboutLink:hover {
+    text-decoration: underline;
 }
