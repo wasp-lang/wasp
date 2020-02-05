@@ -122,11 +122,13 @@ createFieldConfig (fieldName, options) = WEF.Field
     { WEF._fieldName = fieldName
     , WEF._fieldShow = maybeGetFieldOptionShow options
     , WEF._fieldDefaultValue = maybeGetFieldOptionDefaultValue options
+    , WEF._fieldPlaceholder = maybeGetFieldOptionPlaceholder options
     }
     
 data FieldOption
     = FieldOptionShow Bool
     | FieldOptionDefaultValue WEF.DefaultValue
+    | FieldOptionPlaceholder String
     deriving (Show, Eq)
 
 -- | Parses a single field option, e.g. "show" or "defaultValue".
@@ -134,6 +136,7 @@ fieldOption :: Parser FieldOption
 fieldOption = choice
     [ FieldOptionShow <$> P.waspPropertyBool "show"
     , FieldOptionDefaultValue <$> defaultValue
+    , FieldOptionPlaceholder <$> P.waspPropertyStringLiteral "placeholder"
     ]
 
 defaultValue :: Parser WEF.DefaultValue
@@ -147,3 +150,6 @@ maybeGetFieldOptionShow options = U.headSafe [b | FieldOptionShow b <- options]
 
 maybeGetFieldOptionDefaultValue :: [FieldOption] -> Maybe WEF.DefaultValue
 maybeGetFieldOptionDefaultValue options  = U.headSafe [dv | FieldOptionDefaultValue dv <- options]
+
+maybeGetFieldOptionPlaceholder :: [FieldOption] -> Maybe String
+maybeGetFieldOptionPlaceholder options = U.headSafe [s | FieldOptionPlaceholder s <- options]

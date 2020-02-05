@@ -78,11 +78,13 @@ spec_parseWasp =
                                 { EF._fieldName = "description"
                                 , EF._fieldShow = Just True
                                 , EF._fieldDefaultValue = Just $ EF.DefaultValueString "doable task"
+                                , EF._fieldPlaceholder = Just "What will you do?"
                                 }
                             , EF.Field
                                 { EF._fieldName = "isDone"
                                 , EF._fieldShow = Just False
                                 , EF._fieldDefaultValue = Just $ EF.DefaultValueBool False
+                                , EF._fieldPlaceholder = Nothing
                                 }
                             ]
                         }

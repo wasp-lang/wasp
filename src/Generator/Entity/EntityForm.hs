@@ -45,6 +45,7 @@ data FormFieldTemplateData = FormFieldTemplateData
     , _fieldType :: !Wasp.EntityFieldType
     , _fieldShow :: !Bool
     , _fieldDefaultValue :: !WEF.DefaultValue
+    , _fieldPlaceholder :: Maybe String
     } deriving (Show)
 
 instance ToJSON FormFieldTemplateData where
@@ -56,6 +57,7 @@ instance ToJSON FormFieldTemplateData where
             , "defaultValue" .= case (_fieldDefaultValue f) of
                 (WEF.DefaultValueString s) -> s
                 (WEF.DefaultValueBool b) -> Util.toLowerFirst $ show b
+            , "placeholder" .= _fieldPlaceholder f
             ]
     
 -- | Given entity and an entity form for it, creates a single data structure
@@ -86,6 +88,7 @@ createFormFieldTD entityForm entityField = FormFieldTemplateData
                             defaultValueIfNothingInForm
                             id 
                             $ formFieldConfig >>= WEF._fieldDefaultValue
+    , _fieldPlaceholder = formFieldConfig >>= WEF._fieldPlaceholder
     }
     where
         -- Configuration of a form field within entity-form, if there is any.

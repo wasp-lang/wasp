@@ -53,7 +53,8 @@ entity-form<Task> CreateTaskForm {
     fields: {
         description: {
             show: true,
-            defaultValue: "doable task"
+            defaultValue: "doable task",
+            placeholder: "What will you do?"
         },
         isDone: {
             show: false,

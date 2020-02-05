@@ -61,7 +61,7 @@ export default class {= formName =} extends React.Component {
 
   render() {
     return (
-      <div style={ { margin: '20px' } }>
+      <div className={this.props.className}>
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
 
           {=# formFields =}
@@ -88,9 +88,16 @@ export default class {= formName =} extends React.Component {
           <div>
             <TextField
               label="{= name =}"
+              {=# placeholder =}
+              placeholder="{= placeholder =}"
+              {=/ placeholder =}
               value={this.getField('{= name =}')}
               onChange={event => this.setField('{= name =}', event.target.value)}
               margin="normal"
+              fullWidth
+              InputLabelProps={{
+                shrink: true
+              }}
             />
           </div>
           {=/ show =}

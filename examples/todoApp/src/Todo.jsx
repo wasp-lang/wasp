@@ -57,12 +57,14 @@ export default class Todo extends React.Component {
             or add font-awesome to the index.html.  */}
         </button>
 
-        <NewTaskForm
-          onCreate={task => this.props.addTask(task)}
-          submitButtonLabel={'Create new task'}
-        />
 
-        <div className="taskListContainer">
+        <div className="contentContainer">
+          <NewTaskForm
+            className="newTaskForm"
+            onCreate={task => this.props.addTask(task)}
+            submitButtonLabel={'Create new task'}
+          />
+
           <TaskList
             editable
             filter={TASK_FILTERS[this.state.taskFilterName]}

@@ -28,8 +28,12 @@ page Main {
             align-items: center;
         }
 
-        .taskListContainer {
-            width: 60%;
+        .contentContainer {
+            width: 30%;
+        }
+
+        .newTaskForm {
+            width: 100%;
         }
 
         .selected {
@@ -53,7 +57,8 @@ page Main {
 entity-form<Task> NewTaskForm {
     fields: {
         description: {
-            show: true
+            show: true,
+            placeholder: "What needs to be done?"
         },
         isDone: {
             show: false,

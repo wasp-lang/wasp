@@ -65,6 +65,7 @@ data Field = Field
     { _fieldName :: !String
     , _fieldShow :: Maybe Bool
     , _fieldDefaultValue :: Maybe DefaultValue
+    , _fieldPlaceholder :: Maybe String
     } deriving (Show, Eq)
 
 data DefaultValue

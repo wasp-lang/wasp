@@ -64,7 +64,7 @@ export class {= listName =} extends React.Component {
       this.props.{= entityLowerName =}List
 
     return (
-      <div style={ { margin: '20px' } }>
+      <div className={this.props.className}>
         <Paper>
           <Table>
             <TableHead>
