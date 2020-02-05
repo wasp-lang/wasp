@@ -40,30 +40,37 @@ export default class Todo extends React.Component {
 
   TaskFilterButton = ({ filterType, label }) => (
     <button
-      className={this.state.taskFilterName === filterType ? 'selected' : null}
+      className={'filter ' + (this.state.taskFilterName === filterType ? 'selected' : '')}
       onClick={() => this.setState({ taskFilterName: filterType })}
     >
       {label}
     </button>
   )
 
+  isAnyTaskCompleted = () => this.props.taskList.some(t => t.isDone)
+
+  isThereAnyTask = () => this.props.taskList.length > 0
+
   render = () => {
     return (
       <div className="mainContainer">
         <h1> { config.appName } </h1>
 
-        <button onClick={this.toggleIsDoneForAllTasks}>
-            Toggle completion {/* TODO: Use icon (but we need to either install @material-ui/icons 
-            or add font-awesome to the index.html.  */}
-        </button>
-
-
         <div className="contentContainer">
-          <NewTaskForm
-            className="newTaskForm"
-            onCreate={task => this.props.addTask(task)}
-            submitButtonLabel={'Create new task'}
-          />
+          <div className="toggleAndInput">
+            <button 
+              disabled={!this.isThereAnyTask()}
+              className="toggleButton"
+              onClick={this.toggleIsDoneForAllTasks}>
+                ✓
+            </button>
+
+            <NewTaskForm
+              className="newTaskForm"
+              onCreate={task => this.props.addTask(task)}
+              submitButtonLabel={'Create new task'}
+            />
+          </div>
 
           <TaskList
             editable
@@ -71,20 +78,29 @@ export default class Todo extends React.Component {
           />
         </div>
 
-        <div className="footer">
-          <div>
-            { this.props.taskList.filter(task => !task.isDone).length } items left
+        { this.isThereAnyTask() && (
+            <div className="footer">
+              <div className="footer__itemsLeft">
+                { this.props.taskList.filter(task => !task.isDone).length } items left
+              </div>
 
-            { this.props.taskList.some(t => t.isDone) &&
-                <button onClick={this.deleteCompletedTasks}>Clear completed</button>
-            }
-          </div>
-          <div>
-            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
-            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
-            <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
-          </div>
-        </div>
+              <div className="footer__filters">
+                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
+                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
+                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
+              </div>
+
+              <div className="footer__clearCompleted">
+                  <button
+                    className={this.isAnyTaskCompleted() ? '' : 'hidden' }
+                    onClick={this.deleteCompletedTasks}>
+                    Clear completed
+                  </button>
+              </div>
+            </div>
+          )
+        }
+
       </div>
     )
   }

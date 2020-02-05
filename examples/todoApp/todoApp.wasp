@@ -29,15 +29,54 @@ page Main {
         }
 
         .contentContainer {
-            width: 30%;
+            width: 550px;
+        }
+
+        .toggleAndInput {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .toggleButton {
+            height: 40px;
+            margin-bottom: 8px;
+            margin-left: 20px;
+
+            background-color: white;
+            border: none;
+            display: inline-block;
+            font-size: 24px;
+            cursor: pointer;
         }
 
         .newTaskForm {
             width: 100%;
+            margin-left: 10px;
         }
 
         .selected {
             border: 1px solid black;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .footer {
+            /*
+            TODO(matija): maybe this should go in contentContainer as well?
+            And then have width 100%?
+            */
+            width: 550px;
+            margin-top: 10px;
+
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer__filters .filter:not(:last-child) {
+            margin-right: 10px;
         }
 
     css=},
