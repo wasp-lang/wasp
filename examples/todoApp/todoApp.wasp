@@ -1,23 +1,21 @@
-// Goal of this file is to re-create a TODO app from http://todomvc.com
+import Todo from "@ext/Todo.js"  // Imports non-wasp code from external code dir (ext/).
 
-import Todo from "@ext/Todo"  // Imports from external code dir (ext/).
-
-// -- Entities
 entity Task {
     isDone :: boolean,
     description :: string
 }
 
-// -- App and pages
 app todoApp {
     title: "ToDo App"
 }
 
-// IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
 page Main {
     route: "/",
     style: "@ext/Main.css",
+    // TODO: We need to make this nicer / more explicit, it is not clear where is this coming from (these props).
+    //   Also, this wiring is not elegant.
     content: {=jsx <>
+        { /* Here we use Todo React component that we imported at the beginning of this file. */ }
         <Todo
             addTask={this.props.addTask}
             taskList={this.props.taskList}
@@ -42,12 +40,13 @@ page About {
         <div className="aboutPage">
             <h1> About </h1>
             <p>This page was built with <a href="https://wasp-lang.dev">Wasp</a>!</p>
-            <p>Check out source code <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.</p>
+            <p> Check out source code
+                <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.
+            </p>
         </div>
     jsx=}
 }
 
-// Entity form definition.
 entity-form<Task> NewTaskForm {
     fields: {
         description: {
@@ -57,29 +56,25 @@ entity-form<Task> NewTaskForm {
         },
         isDone: {
             show: false,
-            defaultValue: false  // Although not shown, this field will be set to "false".
+            defaultValue: false
         }
     },
     submit: {
-        onEnter: true, // Parsed but not generated yet.
+        onEnter: true,
         button: { show: false }
     }
 }
 
-// Entity list definition.
 entity-list<Task> TaskList {
     showHeader: false,
     fields: {
         description: {
-            // The contract for render is: user must provide a function that:
-            // - receives a task as an input
-            // - returns a React Node or something that can be rendered by JSX
-            // - does not depend on any outer context
+            // The contract for render is that user must provide a function that:
+            // - Receives a task as an input.
+            // - Returns a React Node or something that can be rendered by JSX.
+            // - Does not depend on any outer context.
             render: {=js
-                (task) => {
-                    if (task.isDone) return (<s>{task.description}</s>)
-                    return task.description
-                }
+                (task) => task.isDone ? <s>{task.description}</s> : task.description
             js=}
         }
     }
