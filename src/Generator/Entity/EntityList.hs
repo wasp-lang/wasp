@@ -26,6 +26,7 @@ data EntityListTemplateData = EntityListTemplateData
     , _entityName :: !String
     , _entityClassName :: !String
     , _entityLowerName :: !String
+    , _listShowHeader :: !Bool
     , _listFields :: ![ListFieldTemplateData]
 
     , _entityBeingEditedStateVar :: !String
@@ -37,6 +38,7 @@ instance ToJSON EntityListTemplateData where
         , "entityName" .= _entityName td
         , "entityClassName" .= _entityClassName td
         , "entityLowerName" .= _entityLowerName td
+        , "showHeader" .= _listShowHeader td
         , "listFields" .= _listFields td
         , "entityBeingEditedStateVar" .= _entityBeingEditedStateVar td
         ]
@@ -69,11 +71,14 @@ createEntityListTemplateData entity entityList =
             , _entityName = Wasp.entityName entity
             , _entityClassName = EC.getEntityClassName entity
             , _entityLowerName = EC.getEntityLowerName entity
+            , _listShowHeader = showHeader
             , _listFields = map (createListFieldTD entity entityList) $ Wasp.entityFields entity
             , _entityBeingEditedStateVar = entityLowerName ++ "BeingEdited"
             }
             where
                 entityLowerName = EC.getEntityLowerName entity
+
+                showHeader = maybe True id (WEL._showHeader entityList)
 
 createListFieldTD :: Wasp.Entity -> WEL.EntityList -> Wasp.EntityField -> ListFieldTemplateData
 createListFieldTD entity entityList entityField = ListFieldTemplateData

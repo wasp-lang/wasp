@@ -67,7 +67,7 @@ export class {= listName =} extends React.Component {
       <div className={this.props.className}>
         <Paper>
           <Table>
-            <TableHead>
+            <TableHead{=^ showHeader =} style={{display: 'none'}}{=/ showHeader =}>
               <TableRow>
                 {=# listFields =}
                   <TableCell width="{= widthAsPercent =}%">{= name =}</TableCell>

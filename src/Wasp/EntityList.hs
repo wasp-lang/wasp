@@ -15,6 +15,7 @@ import qualified Wasp.Entity as Entity
 data EntityList = EntityList
     { _name :: !String -- Name of the list
     , _entityName :: !String -- Name of the entity the form is linked to
+    , _showHeader :: Maybe Bool -- Should the list header be displayed or not
     , _fields :: [Field]
     } deriving (Show, Eq)
 

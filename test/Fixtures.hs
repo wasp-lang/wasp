@@ -60,4 +60,5 @@ formFieldIsDone = GEF.FormFieldTemplateData
     , GEF._fieldType = Wasp.EftBoolean
     , GEF._fieldShow = True
     , GEF._fieldDefaultValue = EF.DefaultValueBool True
+    , GEF._fieldPlaceholder = Nothing
     }

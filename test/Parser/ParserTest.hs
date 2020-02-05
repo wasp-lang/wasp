@@ -91,6 +91,7 @@ spec_parseWasp =
                     , WaspElementEntityList $ EL.EntityList
                         { EL._name = "TaskList"
                         , EL._entityName = "Task"
+                        , EL._showHeader = Just False
                         , EL._fields =
                             [ EL.Field 
                                 { EL._fieldName = "description"

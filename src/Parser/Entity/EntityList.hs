@@ -27,11 +27,13 @@ entityList = do
     return WEL.EntityList
         { WEL._name = listName
         , WEL._entityName = entityName
+        , WEL._showHeader = maybeGetListOptionShowHeader options
         , WEL._fields = getFieldsConfig options
         }
 
 data EntityListOption
-    = EloFields [WEL.Field]
+    = EloShowHeader Bool
+    | EloFields [WEL.Field]
     deriving (Show, Eq)
 
 entityListOptions :: Parser [EntityListOption]
@@ -41,8 +43,14 @@ entityListOptions = L.commaSep entityListOption
 
 entityListOption :: Parser EntityListOption
 entityListOption = choice
-    [ entityListOptionFields
+    [ EloShowHeader <$> P.waspPropertyBool "showHeader"
+    , entityListOptionFields
     ]
+
+-- * Show header
+
+maybeGetListOptionShowHeader :: [EntityListOption] -> Maybe Bool
+maybeGetListOptionShowHeader options = U.headSafe [b | EloShowHeader b <- options]
 
 -- * Fields
 
