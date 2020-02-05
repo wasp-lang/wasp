@@ -30,13 +30,6 @@ export class {= listName =} extends React.Component {
     {= entityBeingEditedStateVar =}: null
   }
 
-  update{= entityName =} = (data, {= entityLowerName =}) => {
-    const updated{= entityName =} = new {= entityClassName =}(
-      { ...{= entityLowerName =}.toData(), ...data }
-    )
-    this.props.update{= entityName =}({= entityLowerName =}.id, updated{= entityName =})
-  }
-
   setAsBeingEdited = {= entityLowerName =} => this.setState({
     {= entityBeingEditedStateVar =}: {= entityLowerName =}.id
   })
@@ -56,7 +49,7 @@ export class {= listName =} extends React.Component {
     {=& render =}
   {=/ render =}
   {=/ listFields =}
-  
+
   render() {
     const {= entityLowerName =}ListToShow = this.props.filter ?
       {=! TODO(matija): duplication, we could extract entityLowerName_List =}
@@ -88,8 +81,8 @@ export class {= listName =} extends React.Component {
                           'aria-label': 'checkbox'
                         }}
                         disabled={!this.props.editable}
-                        onChange={e => this.update{= entityName =}(
-                          { '{= name =}': e.target.checked }, {= entityLowerName =}
+                        onChange={e => this.props.update{= entityName =}(
+                          {= entityLowerName =}.id, { '{= name =}': e.target.checked }
                         )}
                       />
                     </TableCell>
@@ -102,8 +95,8 @@ export class {= listName =} extends React.Component {
                         {this.props.editable && this.isBeingEdited({= entityLowerName =}) ? (
                           <TextField
                             value={{= entityLowerName =}.{= name =}}
-                            onChange={e => this.update{= entityName =}(
-                              { '{= name =}': e.target.value }, {= entityLowerName =}
+                            onChange={e => this.props.update{= entityName =}(
+                              {= entityLowerName =}.id, { '{= name =}': e.target.value }
                             )}
                           />
                         ) : (

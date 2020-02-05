@@ -25,7 +25,10 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         all: state.all.map(
-          {= entityLowerName =} => {= entityLowerName =}.id === action.id ? action.data : {= entityLowerName =}
+          {= entityLowerName =} =>
+            {= entityLowerName =}.id === action.id
+              ? { ...{= entityLowerName =}, ...action.data }
+              : {= entityLowerName =}
         )
       }
 

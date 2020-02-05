@@ -12,12 +12,12 @@ export const add = ({= entityLowerName =}) => ({
 
 /**
  * @param {String} id
- * @param {{= entity.name =}} updated{= entity.name =}
+ * @param {Object} data - Partial data that will be merged with existing {= entityLowerName =}.
  */
-export const update = (id, updated{= entity.name =}) => ({
+export const update = (id, data) => ({
   type: types.UPDATE,
   id,
-  data: updated{= entity.name =}.toData()
+  data
 })
 
 /**

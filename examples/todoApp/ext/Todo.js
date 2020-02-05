@@ -31,12 +31,7 @@ export default class Todo extends React.Component {
 
   toggleIsDoneForAllTasks = () => {
     const areAllDone = this.props.taskList.every(t => t.isDone)
-    {/* TODO: This feels clumsy / complicated. Is there a better way than using id (maybe not)?
-       Should we consider passing just data to update, not the whole object, so we don't have to
-       create new object here? Maybe we can change this update, or have a second update method. */}
-    this.props.taskList.map(
-      (t) => this.props.updateTask(t.id, new Task ({ ...t.toData(), isDone: !areAllDone }))
-    )
+    this.props.taskList.map(t => this.props.updateTask(t.id, { isDone: !areAllDone }))
   }
 
   deleteCompletedTasks = () => {
