@@ -72,7 +72,9 @@ export default class {= formName =} extends React.Component {
           {=# show =}
           <div>
             <FormControlLabel
-              label="{= name =}"
+              {=# label =}
+              label="{= label =}"
+              {=/ label =}
               control={
                 <Switch
                   checked={this.getField('{= name =}')}
@@ -88,7 +90,9 @@ export default class {= formName =} extends React.Component {
           {=# show =}
           <div>
             <TextField
-              label="{= name =}"
+              {=# label =}
+              label="{= label =}"
+              {=/ label =}
               {=# placeholder =}
               placeholder="{= placeholder =}"
               {=/ placeholder =}

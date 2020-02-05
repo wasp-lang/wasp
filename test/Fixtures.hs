@@ -61,4 +61,5 @@ formFieldIsDone = GEF.FormFieldTemplateData
     , GEF._fieldShow = True
     , GEF._fieldDefaultValue = EF.DefaultValueBool True
     , GEF._fieldPlaceholder = Nothing
+    , GEF._fieldLabel = Nothing
     }

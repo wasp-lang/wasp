@@ -52,6 +52,7 @@ entity-form<Task> NewTaskForm {
     fields: {
         description: {
             show: true,
+            label: none,
             placeholder: "What needs to be done?"
         },
         isDone: {

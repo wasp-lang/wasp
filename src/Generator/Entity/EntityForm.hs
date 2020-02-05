@@ -46,6 +46,7 @@ data FormFieldTemplateData = FormFieldTemplateData
     , _fieldShow :: !Bool
     , _fieldDefaultValue :: !WEF.DefaultValue
     , _fieldPlaceholder :: Maybe String
+    , _fieldLabel :: Maybe String
     } deriving (Show)
 
 instance ToJSON FormFieldTemplateData where
@@ -58,6 +59,7 @@ instance ToJSON FormFieldTemplateData where
                 (WEF.DefaultValueString s) -> s
                 (WEF.DefaultValueBool b) -> Util.toLowerFirst $ show b
             , "placeholder" .= _fieldPlaceholder f
+            , "label" .= _fieldLabel f
             ]
     
 -- | Given entity and an entity form for it, creates a single data structure
@@ -89,6 +91,7 @@ createFormFieldTD entityForm entityField = FormFieldTemplateData
                             id 
                             $ formFieldConfig >>= WEF._fieldDefaultValue
     , _fieldPlaceholder = formFieldConfig >>= WEF._fieldPlaceholder
+    , _fieldLabel = fieldLabel
     }
     where
         -- Configuration of a form field within entity-form, if there is any.
@@ -104,6 +107,16 @@ createFormFieldTD entityForm entityField = FormFieldTemplateData
         defaultValueIfNothingInForm :: WEF.DefaultValue
         defaultValueIfNothingInForm =
             getDefaultValueForFieldWithType $ Wasp.entityFieldType entityField
+
+        fieldLabel :: Maybe String
+        fieldLabel = case (formFieldConfig >>= WEF._fieldLabel) of
+            -- Label property is not provided -> in that case we set label to the
+            -- default value of entity field name (e.g. "description").
+            Nothing             -> Just $ Wasp.entityFieldName entityField
+            -- Label property is provided and explicitly disabled ('label: none').
+            Just Nothing        -> Nothing
+            -- Label property is provided and set to a specific value ('label: "something"').
+            Just (Just label)   -> Just label
 
 
 -- | Generates entity creation form.

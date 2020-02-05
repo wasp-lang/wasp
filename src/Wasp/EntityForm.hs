@@ -66,6 +66,23 @@ data Field = Field
     , _fieldShow :: Maybe Bool
     , _fieldDefaultValue :: Maybe DefaultValue
     , _fieldPlaceholder :: Maybe String
+    -- NOTE(matija): We use Maybe (Maybe String) here to differentiate between the 3
+    -- possible states:
+    -- 
+    -- Nothing -> property not provided (by user)
+    -- Just Nothing -> property was provided and explicitly set to Nothing
+    -- Just (Just val) -> property was provided and explicitly set to some value.
+    --
+    -- We introduced this because we need to differentiate between the case when user did not
+    -- provide a property (we want to display a label with a default value) and a case when user
+    -- explicitly disabled the label (we want not to display the label at all).
+    --
+    -- This is an experiment, we are not sure if this will prove to be practical. With introducing
+    -- this new type of "none", the question is where else it can be applied etc.
+    --
+    -- Alternative solution would be to introduce another property, e.g. "showLabel: true|false"
+    -- then we would have avoided the need to introduce this new "type".
+    , _fieldLabel :: Maybe (Maybe String)
     } deriving (Show, Eq)
 
 data DefaultValue

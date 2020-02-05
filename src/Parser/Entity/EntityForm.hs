@@ -8,7 +8,7 @@ module Parser.Entity.EntityForm
     , submitConfig
     ) where
 
-import Text.Parsec (choice)
+import Text.Parsec (choice, (<|>))
 import Text.Parsec.String (Parser)
 
 import qualified Wasp.EntityForm as WEF
@@ -123,12 +123,14 @@ createFieldConfig (fieldName, options) = WEF.Field
     , WEF._fieldShow = maybeGetFieldOptionShow options
     , WEF._fieldDefaultValue = maybeGetFieldOptionDefaultValue options
     , WEF._fieldPlaceholder = maybeGetFieldOptionPlaceholder options
+    , WEF._fieldLabel = maybeGetFieldOptionLabel options
     }
     
 data FieldOption
     = FieldOptionShow Bool
     | FieldOptionDefaultValue WEF.DefaultValue
     | FieldOptionPlaceholder String
+    | FieldOptionLabel (Maybe String)
     deriving (Show, Eq)
 
 -- | Parses a single field option, e.g. "show" or "defaultValue".
@@ -137,6 +139,7 @@ fieldOption = choice
     [ FieldOptionShow <$> P.waspPropertyBool "show"
     , FieldOptionDefaultValue <$> defaultValue
     , FieldOptionPlaceholder <$> P.waspPropertyStringLiteral "placeholder"
+    , FieldOptionLabel <$> fieldOptionLabel
     ]
 
 defaultValue :: Parser WEF.DefaultValue
@@ -144,6 +147,11 @@ defaultValue = P.waspProperty "defaultValue" $ choice
     [ WEF.DefaultValueString <$> L.stringLiteral
     , WEF.DefaultValueBool <$> L.bool
     ]
+
+fieldOptionLabel :: Parser (Maybe String)
+fieldOptionLabel = P.waspProperty "label" labelValue
+    where
+        labelValue = (Just <$> L.stringLiteral) <|> (L.symbol "none" *> pure Nothing)
 
 maybeGetFieldOptionShow :: [FieldOption] -> Maybe Bool
 maybeGetFieldOptionShow options = U.headSafe [b | FieldOptionShow b <- options]
@@ -153,3 +161,6 @@ maybeGetFieldOptionDefaultValue options  = U.headSafe [dv | FieldOptionDefaultVa
 
 maybeGetFieldOptionPlaceholder :: [FieldOption] -> Maybe String
 maybeGetFieldOptionPlaceholder options = U.headSafe [s | FieldOptionPlaceholder s <- options]
+
+maybeGetFieldOptionLabel :: [FieldOption] -> Maybe (Maybe String)
+maybeGetFieldOptionLabel options = U.headSafe [ms | FieldOptionLabel ms <- options]
