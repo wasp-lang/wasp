@@ -16,72 +16,8 @@ app todoApp {
 // IDEA: `@connect Task as taskList` -> this would make it more obvious what is available, also we don't need to automatically try to guess what to import.
 page Main {
     route: "/",
-
-    style: {=css
-        div {
-            color: green;
-        }
-
-        .mainContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .contentContainer {
-            width: 550px;
-        }
-
-        .toggleAndInput {
-            display: flex;
-            align-items: flex-end;
-            margin-bottom: 10px;
-        }
-
-        .toggleButton {
-            height: 40px;
-            margin-bottom: 8px;
-            margin-left: 20px;
-
-            background-color: white;
-            border: none;
-            display: inline-block;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .newTaskForm {
-            width: 100%;
-            margin-left: 10px;
-        }
-
-        .selected {
-            border: 1px solid black;
-        }
-
-        .hidden {
-            visibility: hidden;
-        }
-
-        .footer {
-            /*
-            TODO(matija): maybe this should go in contentContainer as well?
-            And then have width 100%?
-            */
-            width: 550px;
-            margin-top: 10px;
-
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .footer__filters .filter:not(:last-child) {
-            margin-right: 10px;
-        }
-
-    css=},
-
-    content: {=jsx
+    style: "@ext/Main.css",
+    content: {=jsx <>
         <Todo
             addTask={this.props.addTask}
             taskList={this.props.taskList}
@@ -89,6 +25,25 @@ page Main {
             removeTask={this.props.removeTask}
         >
         </Todo>
+        <div className="mainFooter">
+            <a href="/about" className="aboutLink"> About </a>
+        </div>
+    </> jsx=}
+}
+
+page About {
+    route: "/about",
+    style: {=css
+        .aboutPage {
+            text-align: center;
+        }
+    css=},
+    content: {=jsx
+        <div className="aboutPage">
+            <h1> About </h1>
+            <p>This page was built with <a href="https://wasp-lang.dev">Wasp</a>!</p>
+            <p>Check out source code <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.</p>
+        </div>
     jsx=}
 }
 
@@ -115,7 +70,7 @@ entity-list<Task> TaskList {
     showHeader: false,
     fields: {
         description: {
-            // The contract for render is: user must provide a function that: 
+            // The contract for render is: user must provide a function that:
             // - receives a task as an input
             // - returns a React Node or something that can be rendered by JSX
             // - does not depend on any outer context
