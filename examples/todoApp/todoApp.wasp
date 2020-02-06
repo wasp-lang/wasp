@@ -23,26 +23,7 @@ page Main {
             removeTask={this.props.removeTask}
         >
         </Todo>
-        <div className="mainPage__nav">
-            <a href="/about" className="mainPage__nav__aboutLink"> About </a>
-        </div>
     </> jsx=}
-}
-
-page About {
-    route: "/about",
-    style: {=css
-        .aboutPage { color: black; text-align: center; }
-    css=},
-    content: {=jsx
-        <div className="aboutPage">
-            <h1> About </h1>
-            <p>This page was built with <a href="https://wasp-lang.dev">Wasp</a>!</p>
-            <p> Check out source code &nbsp;
-              <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.
-            </p>
-        </div>
-    jsx=}
 }
 
 entity-form<Task> NewTaskForm {
