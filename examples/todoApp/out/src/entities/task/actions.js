@@ -11,12 +11,12 @@ export const add = (task) => ({
 
 /**
  * @param {String} id
- * @param {Task} updatedTask
+ * @param {Object} data - Partial data that will be merged with existing task.
  */
-export const update = (id, updatedTask) => ({
+export const update = (id, data) => ({
   type: types.UPDATE,
   id,
-  data: updatedTask.toData()
+  data
 })
 
 /**

@@ -9,27 +9,21 @@ import Task from './entities/task/Task.js'
 import NewTaskForm from './entities/task/components/NewTaskForm.js'
 import TaskList from './entities/task/components/TaskList.js'
 
-import './ext-src/Main.css'
+import './About.css'
 
 
-export class Main extends Component {
+export class About extends Component {
   // TODO: Add propTypes.
 
   render() {
     return (
-      <>
-        { /* Here we use Todo React component that we imported at the beginning of this file. */ }
-        <Todo
-            addTask={this.props.addTask}
-            taskList={this.props.taskList}
-            updateTask={this.props.updateTask}
-            removeTask={this.props.removeTask}
-        >
-        </Todo>
-        <div className="mainPage__nav">
-            <a href="/about" className="mainPage__nav__aboutLink"> About </a>
+      <div className="aboutPage">
+            <h1> About </h1>
+            <p>This page was built with <a href="https://wasp-lang.dev">Wasp</a>!</p>
+            <p> Check out source code &nbsp;
+              <a href="https://github.com/wasp-lang/wasp/tree/master/examples/todoApp">here</a>.
+            </p>
         </div>
-    </>
     )
   }
 }
@@ -40,4 +34,4 @@ export default connect(state => ({
   addTask: taskActions.add,
   updateTask: taskActions.update,
   removeTask: taskActions.remove
-})(Main)
+})(About)

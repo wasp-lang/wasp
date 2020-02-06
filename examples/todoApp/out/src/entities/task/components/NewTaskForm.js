@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import React from 'react'
+import PropTypes from 'prop-types'
 
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Switch from '@material-ui/core/Switch'
@@ -10,12 +11,15 @@ import Task from '../Task'
 
 
 export default class NewTaskForm extends React.Component {
-  // TODO: Add propTypes.
+  static propTypes = {
+    onCreate: PropTypes.func,
+    submitButtonLabel: PropTypes.string
+  }
 
   state = {
     fields: {
-      description: '',
       isDone: false,
+      description: '',
     }
   }
 
@@ -29,8 +33,8 @@ export default class NewTaskForm extends React.Component {
   }
 
   resetAllFields = () => {
-    this.setField('description', '')
     this.setField('isDone', false)
+    this.setField('description', '')
   }
 
   toggleField = (name) => {
@@ -48,24 +52,20 @@ export default class NewTaskForm extends React.Component {
 
   render() {
     return (
-      <div style={ { margin: '20px' } }>
+      <div className={this.props.className}>
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
-
-
-
           <div>
             <TextField
-              label="description"
+              placeholder="What needs to be done?"
               value={this.getField('description')}
               onChange={event => this.setField('description', event.target.value)}
               margin="normal"
+              fullWidth
+              InputLabelProps={{
+                shrink: true
+              }}
             />
           </div>
-
-
-
-
-
         </form>
       </div>
     )

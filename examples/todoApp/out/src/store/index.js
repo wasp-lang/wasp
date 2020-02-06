@@ -1,4 +1,4 @@
-import * as reduxStarterKit from 'redux-starter-kit'
+import * as RTK from '@reduxjs/toolkit'
 
 import loggerMiddleware from './middleware/logger'
 
@@ -9,13 +9,13 @@ import loggerMiddleware from './middleware/logger'
  */
 export const configureStore = (reducer, preloadedState) => {
   const middleware = [
-    loggerMiddleware,
-    ...reduxStarterKit.getDefaultMiddleware()
+    ...RTK.getDefaultMiddleware(),
+    loggerMiddleware
   ]
 
   const enhancers = []
 
-  const store = reduxStarterKit.configureStore({
+  const store = RTK.configureStore({
     reducer,
     preloadedState,
     middleware,

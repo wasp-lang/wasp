@@ -1,4 +1,3 @@
-
 import uuidv4 from 'uuid/v4'
 
 export default class Task {
@@ -7,8 +6,8 @@ export default class Task {
   constructor (data = {}) {
     this._data = {
       id: data.id || uuidv4(),
-      description: data.description,
       isDone: data.isDone,
+      description: data.description,
     }
   }
 
@@ -16,11 +15,11 @@ export default class Task {
     return this._data.id
   }
 
-  get description () {
-    return this._data.description
-  }
   get isDone () {
     return this._data.isDone
+  }
+  get description () {
+    return this._data.description
   }
 
   toData () {

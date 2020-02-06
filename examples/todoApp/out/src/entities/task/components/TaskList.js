@@ -29,13 +29,6 @@ export class TaskList extends React.Component {
     taskBeingEdited: null
   }
 
-  updateTaskField = (fieldName, newFieldValue, task) => {
-    const updatedTask = new Task(
-      { ...task.toData(), [fieldName]: newFieldValue }
-    )
-    this.props.updateTask(task.id, updatedTask)
-  }
-
   setAsBeingEdited = task => this.setState({
     taskBeingEdited: task.id
   })
@@ -47,42 +40,29 @@ export class TaskList extends React.Component {
     if (task.id === this.state.taskBeingEdited)
       this.setState({ taskBeingEdited: null })
   }
-  
+
+  renderTaskDescription =
+    (task) => task.isDone ? <s>{task.description}</s> : task.description
+
   render() {
     const taskListToShow = this.props.filter ?
       this.props.taskList.filter(this.props.filter) :
       this.props.taskList
 
     return (
-      <div style={ { margin: '20px' } }>
+      <div className={this.props.className}>
         <Paper>
           <Table>
-            <TableHead>
+            <TableHead style={{display: 'none'}}>
               <TableRow>
-                  <TableCell>description</TableCell>
-                  <TableCell>isDone</TableCell>
+                  <TableCell width="50%">isDone</TableCell>
+                  <TableCell width="50%">description</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
               {taskListToShow.map((task) => (
                 <TableRow key={task.id}>
-                    <ClickAwayListener onClickAway={() => this.finishEditing(task) }>
-                      <TableCell
-                        onDoubleClick={() => this.setAsBeingEdited(task)}
-                      >
-                        {this.props.editable && this.isBeingEdited(task) ? (
-                          <TextField
-                            value={task.description}
-                            onChange={e => this.updateTaskField(
-                              'description', e.target.value, task
-                            )}
-                          />
-                        ) : (
-                          task.description
-                        )}
-                      </TableCell>
-                    </ClickAwayListener>
                     <TableCell>
                       <Checkbox
                         checked={task.isDone}
@@ -91,11 +71,27 @@ export class TaskList extends React.Component {
                           'aria-label': 'checkbox'
                         }}
                         disabled={!this.props.editable}
-                        onChange={e => this.updateTaskField(
-                          'isDone', e.target.checked, task
+                        onChange={e => this.props.updateTask(
+                          task.id, { 'isDone': e.target.checked }
                         )}
                       />
                     </TableCell>
+                    <ClickAwayListener onClickAway={() => this.finishEditing(task) }>
+                      <TableCell
+                        onDoubleClick={() => this.setAsBeingEdited(task)}
+                      >
+                        {this.props.editable && this.isBeingEdited(task) ? (
+                          <TextField
+                            value={task.description}
+                            onChange={e => this.props.updateTask(
+                              task.id, { 'description': e.target.value }
+                            )}
+                          />
+                        ) : (
+                          this.renderTaskDescription(task)
+                        )}
+                      </TableCell>
+                    </ClickAwayListener>
                 </TableRow>
               ))}
             </TableBody>
