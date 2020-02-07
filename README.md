@@ -12,7 +12,7 @@
 <p align=center> A programming language that understands what a web app is. </p>
 <br>
 
-[![Gitter](https://badges.gitter.im/wasp-lang/community.svg)](https://gitter.im/wasp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp)
 
 <br>
 
@@ -106,7 +106,7 @@ Your support tells us that what we are doing makes sense, motivates us to contin
 You can help us greatly by:
  - :star: **Starring this repository**.
  - :mailbox: Staying updated by **subscribing to our email list** at [wasp-lang.dev](https://wasp-lang.dev#signup).
- - :speech_balloon: **Providing feedback and ideas** via gitter [![Gitter](https://badges.gitter.im/wasp-lang/community.svg)](https://gitter.im/wasp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge).
+ - :speech_balloon: **Providing feedback and ideas**: [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp).
    Also let us know if you would like to be more closely involved, as we are looking for developers to participate with us in designing/testing the closed version of Wasp before we open it.
 
 # FAQ
