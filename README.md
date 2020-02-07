@@ -18,7 +18,7 @@
 
 Wasp (**W**eb **A**pplication **Sp**ecification Language) is an extensible [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) (domain-specific language) for building modern web apps with less code.
 
-This means that concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
+Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
 
 ```js
 // todoApp.wasp:
@@ -56,7 +56,7 @@ Source files (`.wasp`, `.js(x)`, `.css`, ...) are compiled (transpiled) by `wasp
 Why is Wasp awesome:
 - **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
 - **Flexible**: When you need more control than Wasp offers, you can write code in existing technologies such as js/html/css/... and combine it with Wasp code!
-- **No lock-in**: If Wasp becomes too limiting for you, simply eject and continue with the generated source code that follows industry best-practices, as if it was handwritten by a senior engineer.
+- **No lock-in**: If Wasp becomes too limiting for you, simply eject and continue with the generated source code (in web tech stack of your choice) that follows industry best-practices, as if it was handwritten by a senior engineer.
 
 For more of general information about Wasp, check:
 - **The main webpage**: [https://wasp-lang.dev].
