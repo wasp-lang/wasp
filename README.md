@@ -62,7 +62,11 @@ For more of general information about Wasp, check:
 - **The main webpage**: [https://wasp-lang.dev].
 - [**Blog**](https://blog.wasp-lang.dev/): [Why are we building Wasp?](https://blog.wasp-lang.dev/posts/2019-09-01-hello-wasp.html)
 
-If you are interested/excited about Wasp, **support us by giving us a star :star: and/or [subscribe](https://wasp-lang.dev#signup) to our email list :mailbox:**! Check [Contributing](#contributing) for more information.
+# Get started
+
+You can't try out Wasp yet because we are still doing closed development, check [Project status](#project-status) for more info.
+
+In the meantine, if you are interested/excited about Wasp, **support us by giving us a star :star: and/or [subscribe](https://wasp-lang.dev#signup) to our email list :mailbox:**! Check [Contributing](#contributing) for more information.
 
 
 # This repository
@@ -91,19 +95,19 @@ Finally, as it grows further, it should allow the development of web apps of inc
 
 While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + Redux, NodeJS + ExpressJS, Mongo. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
 
+Besides continuing with development we are now also intensely focusing on gathering feedback. This will both help us in figuring out how to build Wasp in the best way and in finding sponsors/funding. Check out [Contributing](#contributing) for more information!
 
 # Contributing
 
 Since we are still doing closed development of the very first version of the compiler (`waspc`) and language (check [Project status](#project-status) for more info), you can't contribute to the code directly via this repository at the moment.
 
-However, even more than help with development, at this early stage we need your support and feedback! You can help us greatly by:
+However, even more than help with development, at this early stage **we need your support and feedback**!
+Your support tells us that what we are doing makes sense, motivates us to continue, and is also essential for finding potential sponsors/funding.
+You can help us greatly by:
  - :star: **Starring this repository**.
  - :mailbox: Staying updated by **subscribing to our email list** at [wasp-lang.dev](https://wasp-lang.dev#signup).
  - :speech_balloon: **Providing feedback and ideas** via gitter [![Gitter](https://badges.gitter.im/wasp-lang/community.svg)](https://gitter.im/wasp-lang/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge).
    Also let us know if you would like to be more closely involved, as we are looking for developers to participate with us in designing/testing the closed version of Wasp before we open it.
-
-Your support and feedback are hugely important for us because they tell us (and others) that what we are building is something people want, and it also helps us better understand what that is :)!
-
 
 # FAQ
 
