@@ -14,10 +14,10 @@
 
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp)
 
-<br>
-
 - **Project page**: [https://wasp-lang.dev]
 - **Demo**: [https://wasp-lang.dev/#demo]
+
+<br>
 
 Wasp (**W**eb **A**pplication **Sp**ecification Language) is an extensible [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) (domain-specific language) for building modern web apps with less code.
 
