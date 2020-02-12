@@ -16,6 +16,9 @@
 
 <br>
 
+- **Project page**: [https://wasp-lang.dev]
+- **Demo**: [https://wasp-lang.dev/#demo]
+
 Wasp (**W**eb **A**pplication **Sp**ecification Language) is an extensible [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) (domain-specific language) for building modern web apps with less code.
 
 Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
