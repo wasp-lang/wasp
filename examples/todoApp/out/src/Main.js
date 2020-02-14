@@ -17,19 +17,7 @@ export class Main extends Component {
 
   render() {
     return (
-      <>
-        { /* Here we use Todo React component that we imported at the beginning of this file. */ }
-        <Todo
-            addTask={this.props.addTask}
-            taskList={this.props.taskList}
-            updateTask={this.props.updateTask}
-            removeTask={this.props.removeTask}
-        >
-        </Todo>
-        <div className="mainPage__nav">
-            <a href="/about" className="mainPage__nav__aboutLink"> About </a>
-        </div>
-    </>
+      <Todo/>
     )
   }
 }
