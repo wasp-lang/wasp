@@ -1,0 +1,82 @@
+// Test .wasp file.
+
+import something from "@ext/some/file"
+
+// App definition.
+app test_app {
+    // Title of the app.
+    title: "Hello World!"
+}
+
+// Page definition.
+page Landing {
+    route: "/",
+    content: {=jsx
+        <div>
+          My landing page! I have { this.props.taskList.length } tasks.
+
+          <div>
+            <TaskCreateForm
+              onCreate={task => this.props.addTask(task)}
+              submitButtonLabel={'Create new task'}
+            />
+          </div>
+
+          My tasks
+          <TaskList />
+        </div>
+    jsx=},
+    style: {=css
+        div {
+          color: red
+        }
+    css=}
+}
+
+page TestPage {
+    route: "/test",
+    content: {=jsx
+        <div>This is a test page!</div>
+    jsx=},
+    style: "@ext/test.css"
+}
+
+// Entity definition.
+entity Task {
+    description :: string,
+    isDone :: boolean
+}
+
+// NOTE(matija): this is only being parsed for now, no code is generated yet.
+// Entity form definition.
+entity-form<Task> CreateTaskForm {
+    fields: {
+        description: {
+            show: true,
+            defaultValue: "doable task",
+            label: none,
+            placeholder: "What will you do?"
+        },
+        isDone: {
+            show: false,
+            defaultValue: false  // Although not shown, this field will be set to "false".
+        }
+    },
+    submit: {
+        onEnter: false,
+        button: {
+            show: true
+        }
+    }
+}
+
+entity-list<Task> TaskList {
+    showHeader: false,
+    fields: {
+        description: {
+            render: {=js
+                task => task.description
+            js=}
+        }
+    }
+}

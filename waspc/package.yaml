@@ -1,0 +1,103 @@
+# This YAML file describes your package. Stack will automatically generate a
+# Cabal file when you run `stack build`. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+name:                waspc
+version:             0.1.0.0
+github:              "Martinsos/waspc"
+#license:             BSD3
+author:              "wasp-lang"
+maintainer:          "sosic.martin@gmail.com, matija.sosic@gmail.com"
+copyright:           "2020 wasp-lang"
+
+default-extensions:
+  - OverloadedStrings
+  - TemplateHaskell
+  - QuasiQuotes
+  - ScopedTypeVariables
+
+extra-source-files:
+  - README.md
+  - ChangeLog.md
+
+data-dir: data/
+data-files:
+  - Generator/templates/**/*
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/Martinsos/waspc#readme>
+
+dependencies:
+  - base >= 4.7 && < 5
+
+ghc-options:
+  - -Wall
+
+library:
+  source-dirs: src
+  dependencies:
+    - filepath
+    - parsec
+    - mustache
+    - text
+    - aeson
+    - directory
+    - split
+    - unordered-containers
+    - path
+    - regex-compat
+    - time
+
+executables:
+  waspc-cli:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - waspc
+      - filepath
+      - path
+      - directory
+
+benchmarks:
+  waspc-benchmarks:
+    main:                Main.hs
+    source-dirs:         benchmark
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - waspc
+      - criterion
+
+tests:
+  waspc-test:
+    main:                TastyDiscoverDriver.hs
+    source-dirs:         test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - waspc
+      - tasty
+      - tasty-hspec
+      - tasty-quickcheck
+      - tasty-discover
+      - QuickCheck
+      - aeson
+      - filepath
+      - text
+      - mtl
+      - parsec
+      - deepseq
+      - path
