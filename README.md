@@ -67,28 +67,28 @@ For more of general information about Wasp, check:
 
 # Get started
 
-You can't try out Wasp yet because we are still doing closed development, check [Project status](#project-status) for more info.
+In `waspc` directory is Wasp compiler which you can run and build if you want, however it is still under heavy development and will not give great experience of trying out Wasp: check [Project status](#project-status) for more info.
 
-In the meantine, if you are interested/excited about Wasp, **support us by giving us a star :star: and/or [subscribe](https://wasp-lang.dev#signup) to our email list :mailbox:**! Check [Contributing](#contributing) for more information.
+If you want to be notified when we release the version which will be nice and easy to try, either watch the repo or subscribe to our [email list](https://wasp-lang.dev#signup).
+
+If you want to get involved more or just chat with us, check [Contributing](#contributing)!
 
 
 # This repository
 
-This is the main repo of the Wasp universe, containing core code (not yet at the moment, but `waspc` (Wasp compiler) code is coming soon) and the supporting materials.
+This is the main repo of the Wasp universe, containing core code (mostly `waspc` - Wasp compiler) and the supporting materials.
 
 
 # Documentation
 
-While we do plan to publish detailed documentation, we don't have anything worth publishing yet due to how fast everything is changing in this early stage of Wasp development.
+We don't have proper documentation yet due to how fast everything is changing in this early stage of Wasp development.
 
-In the meantime, the best way to learn more is by taking a look at our [TodoApp example](examples/todoApp).
+In the meantime, the best way to learn more is by taking a look at our [TodoApp example](examples/todoApp), or you can ask us questions directly!
 
 
 # Project status
 
-We are still early and are doing closed development iterations with our early adopters.
-
-Specifically, we are developing `waspc` (Wasp compiler) and also designing language as we go.
+We are still very early (pre-alpha). Specifically, we are developing `waspc` (Wasp compiler) and also designing language as we go.
 
 Currently, `waspc` is in a state where the main parts are there (code analysis and generation) and we are successfully generating code as can be seen at [TodoApp example](examples/todoApp).
 
@@ -98,19 +98,18 @@ Finally, as it grows further, it should allow the development of web apps of inc
 
 While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + Redux, NodeJS + ExpressJS, Mongo. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
 
-Besides continuing with development we are now also intensely focusing on gathering feedback. This will both help us in figuring out how to build Wasp in the best way and in finding sponsors/funding. Check out [Contributing](#contributing) for more information!
 
 # Contributing
 
-Since we are still doing closed development of the very first version of the compiler (`waspc`) and language (check [Project status](#project-status) for more info), you can't contribute to the code directly via this repository at the moment.
+Any way you want to contribute is a good way :)!
 
-However, even more than help with development, at this early stage **we need your support and feedback**!
-Your support tells us that what we are doing makes sense, motivates us to continue, and is also essential for finding potential sponsors/funding.
-You can help us greatly by:
- - :star: **Starring this repository**.
- - :mailbox: Staying updated by **subscribing to our email list** at [wasp-lang.dev](https://wasp-lang.dev#signup).
- - :speech_balloon: **Providing feedback and ideas**: [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp).
-   Also let us know if you would like to be more closely involved, as we are looking for developers to participate with us in designing/testing the closed version of Wasp before we open it.
+Since we are so early, the best way might be to join us on on spectrum [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp) to discuss how you could contribute the best, and we can also discuss about language design, new features, how to improve existing code, what do you think about Wasp in general, anything really.
+
+Even if you don't plan to submit any code, just joining discussion and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+
+You can also:
+ - :star: Star this repo to show your interest/support.
+ - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
 
 # FAQ
 
