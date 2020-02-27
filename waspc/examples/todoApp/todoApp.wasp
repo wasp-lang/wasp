@@ -46,5 +46,9 @@ entity-list<Task> TaskList {
             // - Does not depend on any outer context.
             render: {=js (task) => task.isDone ? <s>{task.description}</s> : task.description js=}
         }
+    },
+    mutuallyExclusiveFilters: {
+        completed: {=js task => task.isDone js=},
+        active: {=js task => !task.isDone js=}
     }
 }

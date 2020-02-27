@@ -76,6 +76,16 @@ waspPropertyStringLiteral key = waspProperty key L.stringLiteral
 waspPropertyBool :: String -> Parser Bool
 waspPropertyBool key = waspProperty key L.bool
 
+-- | Parses wasp property which has an identifier as a key (E.g. field name or filter name).
+-- E.g. within an entity-form {} we can set properties for a specific field with a closure of
+-- form "FIELD_NAME: {...}" -> FIELD_NAME is then an identifier we need.
+waspPropertyWithIdentifierAsKey :: Parser a -> Parser (String, a)
+waspPropertyWithIdentifierAsKey valueP = do
+    identifier <- L.identifier <* L.colon
+    value <- valueP
+
+    return (identifier, value)
+
 -- | Parses wasp closure, which is {...}. Returns parsed content within the closure.
 waspClosure :: Parser a -> Parser a
 waspClosure = L.braces
@@ -85,11 +95,7 @@ waspClosure = L.braces
 -- E.g. within an entity-form {} we can set properties for a specific field with a closure of
 -- form "FIELD_NAME: {...}" -> FIELD_NAME is then an identifier we need.
 waspIdentifierClosure :: Parser a -> Parser (String, a)
-waspIdentifierClosure closureContent = do
-    identifier <- L.identifier <* L.colon
-    content <- waspClosure closureContent
-
-    return (identifier, content)
+waspIdentifierClosure = waspPropertyWithIdentifierAsKey . waspClosure
 
 -- | Parses wasp property which has a closure for a value. Returns parsed content within the
 -- closure.

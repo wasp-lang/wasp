@@ -13,6 +13,10 @@ import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 import TextField from '@material-ui/core/TextField'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+{=# mutexFiltersConfig =}
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+{=/ mutexFiltersConfig =}
 
 import * as {= entityLowerName =}State from '../state'
 import * as {= entityLowerName =}Actions from '../actions'
@@ -22,12 +26,15 @@ import {= entityClassName =} from '../{= entityClassName =}'
 
 export class {= listName =} extends React.Component {
   static propTypes = {
-    editable: PropTypes.bool,
-    filter: PropTypes.func
+    editable: PropTypes.bool
   }
 
   state = {
-    {= entityBeingEditedStateVar =}: null
+    {= entityBeingEditedStateVar =}: null,
+
+    {=# mutexFiltersConfig =}
+    filterName: '{= noFilterLabel =}'
+    {=/ mutexFiltersConfig =}
   }
 
   setAsBeingEdited = {= entityLowerName =} => this.setState({
@@ -50,14 +57,46 @@ export class {= listName =} extends React.Component {
   {=/ render =}
   {=/ listFields =}
 
+  {=# mutexFiltersConfig =}
+  handleFilterChange = event => {
+    this.setState({ filterName: event.target.value })
+  }
+
+  filters = {
+    {=# filters =}
+    '{= name =}': {=& predicate =},
+    {=/ filters =}
+  }
+  {=/ mutexFiltersConfig =}
+
   render() {
-    const {= entityLowerName =}ListToShow = this.props.filter ?
+  {=# mutexFiltersConfig =}
+    const {= entitiesToShowRenderVar =} = this.state.filterName !== '{= noFilterLabel =}' ?
       {=! TODO(matija): duplication, we could extract entityLowerName_List =}
-      this.props.{= entityLowerName =}List.filter(this.props.filter) :
+      this.props.{= entityLowerName =}List.filter(this.filters[this.state.filterName]) :
       this.props.{= entityLowerName =}List
+  {=/ mutexFiltersConfig =}
+
+  {=^ mutexFiltersConfig =}
+    const {= entitiesToShowRenderVar =} = this.props.{= entityLowerName =}List
+  {=/ mutexFiltersConfig =}
 
     return (
       <div className={this.props.className}>
+
+        {=# mutexFiltersConfig =}
+        Filter:&nbsp;
+        <Select
+          value={this.state.filterName}
+          onChange={this.handleFilterChange}
+        >
+          <MenuItem value="{= noFilterLabel =}">{= noFilterLabel =}</MenuItem> 
+          {=# filters =}
+          <MenuItem value="{= name =}">{= name =}</MenuItem> 
+          {=/ filters =}
+        </Select>
+        {=/ mutexFiltersConfig =}
+
         <Paper>
           <Table>
             <TableHead{=^ showHeader =} style={{display: 'none'}}{=/ showHeader =}>
@@ -69,7 +108,7 @@ export class {= listName =} extends React.Component {
             </TableHead>
 
             <TableBody>
-              {{= entityLowerName =}ListToShow.map(({= entityLowerName =}) => (
+              {{= entitiesToShowRenderVar =}.map(({= entityLowerName =}) => (
                 <TableRow key={{= entityLowerName =}.id}>
                   {=# listFields =}
                   {=# boolean =}
@@ -88,7 +127,8 @@ export class {= listName =} extends React.Component {
                     </TableCell>
                   {=/ boolean =}
                   {=# string =}
-                    <ClickAwayListener onClickAway={() => this.finishEditing({= entityLowerName =}) }>
+                    <ClickAwayListener
+                        onClickAway={() => this.finishEditing({= entityLowerName =}) }>
                       <TableCell
                         onDoubleClick={() => this.setAsBeingEdited({= entityLowerName =})}
                       >

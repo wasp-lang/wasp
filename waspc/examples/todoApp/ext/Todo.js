@@ -13,24 +13,8 @@ import TaskList from '@wasp/entities/task/components/TaskList'
 import * as taskState from '@wasp/entities/task/state.js'
 import * as taskActions from '@wasp/entities/task/actions.js'
 
-const TASK_FILTER_TYPES = Object.freeze({
-  ALL: 'all',
-  ACTIVE: 'active',
-  COMPLETED: 'completed'
-})
-
-const TASK_FILTERS = Object.freeze({
-  [TASK_FILTER_TYPES.ALL]: null,
-  [TASK_FILTER_TYPES.ACTIVE]: task => !task.isDone,
-  [TASK_FILTER_TYPES.COMPLETED]: task => task.isDone
-})
-
 class Todo extends React.Component {
   // TODO: prop types.
-
-  state = {
-    taskFilterName: TASK_FILTER_TYPES.ALL
-  }
 
   toggleIsDoneForAllTasks = () => {
     const areAllDone = this.props.taskList.every(t => t.isDone)
@@ -44,15 +28,6 @@ class Todo extends React.Component {
   isAnyTaskCompleted = () => this.props.taskList.some(t => t.isDone)
 
   isThereAnyTask = () => this.props.taskList.length > 0
-
-  TaskFilterButton = ({ filterType, label }) => (
-    <button
-      className={'filter ' + (this.state.taskFilterName === filterType ? 'selected' : '')}
-      onClick={() => this.setState({ taskFilterName: filterType })}
-    >
-      {label}
-    </button>
-  )
 
   render = () => {
     return (
@@ -78,18 +53,11 @@ class Todo extends React.Component {
           { this.isThereAnyTask() && (<>
             <TaskList
               editable
-              filter={TASK_FILTERS[this.state.taskFilterName]}
             />
 
             <div className="todos__footer">
               <div className="todos__footer__itemsLeft">
                 { this.props.taskList.filter(task => !task.isDone).length } items left
-              </div>
-
-              <div className="todos__footer__filters">
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
               </div>
 
               <div className="todos__footer__clearCompleted">
@@ -102,9 +70,6 @@ class Todo extends React.Component {
             </div>
           </>)}
         </div>
-
-
-
       </div>
     )
   }

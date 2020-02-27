@@ -78,5 +78,9 @@ entity-list<Task> TaskList {
                 task => task.description
             js=}
         }
+    },
+    mutuallyExclusiveFilters: {
+        completed: {=js task => task.isDone js=},
+        active: {=js task => !task.isDone js=}
     }
 }
