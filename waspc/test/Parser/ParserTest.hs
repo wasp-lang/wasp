@@ -100,6 +100,16 @@ spec_parseWasp =
                                 , EL._fieldRender = Just $ Wasp.JsCode.JsCode "task => task.description"
                                 }
                             ]
+                        , EL._mutexFilters =
+                            [ EL.Filter
+                                { EL._filterName = "completed"
+                                , EL._filterPredicate = Wasp.JsCode.JsCode "task => task.isDone"
+                                }
+                            , EL.Filter
+                                { EL._filterName = "active"
+                                , EL._filterPredicate = Wasp.JsCode.JsCode "task => !task.isDone"
+                                }
+                            ]
                         }
                     ]
                     `setJsImports` [ JsImport "something" [relfile|some/file|] ]

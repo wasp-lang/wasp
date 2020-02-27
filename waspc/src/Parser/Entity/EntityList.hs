@@ -29,11 +29,13 @@ entityList = do
         , WEL._entityName = entityName
         , WEL._showHeader = maybeGetListOptionShowHeader options
         , WEL._fields = getFieldsConfig options
+        , WEL._mutexFilters = getMutexFilters options
         }
 
 data EntityListOption
     = EloShowHeader Bool
     | EloFields [WEL.Field]
+    | EloMutexFilters [WEL.Filter]
     deriving (Show, Eq)
 
 entityListOptions :: Parser [EntityListOption]
@@ -45,12 +47,36 @@ entityListOption :: Parser EntityListOption
 entityListOption = choice
     [ EloShowHeader <$> P.waspPropertyBool "showHeader"
     , entityListOptionFields
+    , entityListOptionMutexFilters
     ]
 
 -- * Show header
 
 maybeGetListOptionShowHeader :: [EntityListOption] -> Maybe Bool
 maybeGetListOptionShowHeader options = U.headSafe [b | EloShowHeader b <- options]
+
+-- * Filters
+
+getMutexFilters :: [EntityListOption] -> [WEL.Filter]
+getMutexFilters options = case [fs | EloMutexFilters fs <- options] of
+    [] -> []
+    ls -> head ls
+
+entityListOptionMutexFilters :: Parser EntityListOption
+entityListOptionMutexFilters = EloMutexFilters <$> mutexFiltersP
+    where
+        mutexFiltersP :: Parser [WEL.Filter]
+        mutexFiltersP = P.waspPropertyClosure "mutuallyExclusiveFilters" $
+                        L.commaSep1 listPropertyFilter
+
+listPropertyFilter :: Parser WEL.Filter
+listPropertyFilter = do
+    (filterName, predicate) <- P.waspPropertyWithIdentifierAsKey Parser.JsCode.jsCode
+
+    return WEL.Filter
+        { WEL._filterName = filterName
+        , WEL._filterPredicate = predicate
+        }
 
 -- * Fields
 
