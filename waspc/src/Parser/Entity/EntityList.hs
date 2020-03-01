@@ -22,7 +22,7 @@ import qualified Lexer as L
 entityList :: Parser EntityList
 entityList = do
     (entityName, listName, options) <-
-        P.waspElementLinkedToEntity L.reservedNameEntityList entityListOptions
+        P.waspElementLinkedToEntity L.reservedNameEntityList (P.waspClosure entityListOptions)
 
     return WEL.EntityList
         { WEL._name = listName

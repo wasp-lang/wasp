@@ -19,6 +19,12 @@ reservedNameApp = "app"
 reservedNamePage :: String
 reservedNamePage = "page"
 
+reservedNameButton :: String
+reservedNameButton = "button"
+
+reservedNameAction :: String
+reservedNameAction = "action"
+
 reservedNameEntity :: String
 reservedNameEntity = "entity"
 
@@ -51,6 +57,8 @@ reservedNames =
     , reservedNamePage
     , reservedNameEntity
     , reservedNameEntityForm
+    , reservedNameButton
+    , reservedNameAction
     -- * Data types
     , reservedNameString
     , reservedNameBoolean

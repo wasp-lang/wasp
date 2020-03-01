@@ -13,7 +13,7 @@ spec_parseWaspCommon :: Spec
 spec_parseWaspCommon = do
     describe "Parsing wasp element linked to an entity" $ do
         it "When given a valid declaration, parses it correctly." $ do
-            runWaspParser (waspElementLinkedToEntity "entity-form" whiteSpace) "entity-form<Task> TaskForm { }"
+            runWaspParser (waspElementLinkedToEntity "entity-form" (waspClosure whiteSpace)) "entity-form<Task> TaskForm { }"
                 `shouldBe` Right ("Task", "TaskForm", ())
 
     describe "Parsing wasp element name and properties" $ do

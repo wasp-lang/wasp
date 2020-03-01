@@ -14,6 +14,7 @@ import Generator.FileDraft
 import qualified Generator.Entity as EntityGenerator
 import qualified Generator.PageGenerator as PageGenerator
 import qualified Generator.ExternalCode as ExternalCodeGenerator
+import qualified Generator.Button
 import qualified Generator.Common as Common
 
 
@@ -63,6 +64,7 @@ generateSrcDir wasp
         ]
     ++ PageGenerator.generatePages wasp
     ++ EntityGenerator.generateEntities wasp
+    ++ Generator.Button.generateButtons wasp
     ++ [generateReducersJs wasp]
 
 generateReducersJs :: Wasp -> FileDraft
