@@ -1,13 +1,13 @@
 {{={= =}=}}
 import { createSelector } from 'reselect'
 
-import {= entity.name =} from './{= entity.name =}'
+import {=entityClassName=} from './{=entityClassName=}'
 import * as types from './actionTypes'
 
 
 // We assume that root reducer of the app will put this reducer under
 // key ROOT_REDUCER_KEY.
-const ROOT_REDUCER_KEY = 'entities/{= entity.name =}'
+const ROOT_REDUCER_KEY = 'entities/{=entity.name=}'
 
 const initialState = {
   all: []
@@ -21,14 +21,20 @@ const reducer = (state = initialState, action) => {
         all: [ ...state.all, action.data ]
       }
 
+    case types.SET:
+      return {
+          ...state,
+          all: action.{=_entities=}
+      }
+
     case types.UPDATE:
       return {
         ...state,
         all: state.all.map(
-          {= entityLowerName =} =>
-            {= entityLowerName =}.id === action.id
-              ? { ...{= entityLowerName =}, ...action.data }
-              : {= entityLowerName =}
+          {=_entity=} =>
+            {=_entity=}.id === action.id
+              ? { ...{=_entity=}, ...action.data }
+              : {=_entity=}
         )
       }
 
@@ -36,7 +42,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         all: state.all.filter(
-          {= entityLowerName =} => {= entityLowerName =}.id !== action.id
+          {=_entity=} => {=_entity=}.id !== action.id
         )
       }
 
@@ -53,7 +59,7 @@ selectors.root = (state) => state[ROOT_REDUCER_KEY]
  * @returns {{= entity.name =}[]}
  */
 selectors.all = createSelector(selectors.root, (state) => {
-  return state.all.map(data => new {= entity.name =}(data))
+  return state.all.map(data => new {=entityClassName=}(data))
 })
 
 

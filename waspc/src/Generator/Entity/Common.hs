@@ -39,16 +39,28 @@ entityTemplateData wasp entity = object
     [ "wasp" .= wasp
     , "entity" .= entity
     , "entityLowerName" .= getEntityLowerName entity
+    , "entityUpperName" .= getEntityUpperName entity
     -- TODO: use it also when creating Class file itself and in other files.
     , "entityClassName" .= getEntityClassName entity
     , "entityTypedFields" .= map entityFieldToJsonWithTypeAsKey (entityFields entity)
+    -- Below are shorthands, so that templates are more readable.
+    -- Each one has comment example for Task entity.
+    , "_entity" .= getEntityLowerName entity  -- task
+    , "_entities" .= ((getEntityLowerName entity) ++ "s")  -- tasks
+    , "_Entity" .= getEntityUpperName entity  -- Task
+    , "_Entities" .= ((getEntityUpperName entity) ++ "s")  -- Tasks
+    , "_e" .= [head $ getEntityLowerName entity]  -- t
+    , "_es" .= ((head $ getEntityLowerName entity) : "s")  -- ts
     ]
 
 getEntityLowerName :: Entity -> String
 getEntityLowerName = Util.toLowerFirst . entityName
 
+getEntityUpperName :: Entity -> String
+getEntityUpperName = Util.toUpperFirst . entityName
+
 getEntityClassName :: Entity -> String
-getEntityClassName = Util.toUpperFirst . entityName
+getEntityClassName = getEntityUpperName
 
 {- | Converts entity field to a JSON where field type is a key set to true, along with
 all other field properties.

@@ -1,7 +1,7 @@
 {{={= =}=}}
 import uuidv4 from 'uuid/v4'
 
-export default class {= entity.name =} {
+export default class {= entityClassName =} {
   _data = {}
 
   constructor (data = {}) {

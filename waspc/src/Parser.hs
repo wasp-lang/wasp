@@ -15,6 +15,8 @@ import Parser.Entity (entity)
 import Parser.Entity.EntityForm (entityForm)
 import Parser.Entity.EntityList (entityList)
 import Parser.JsImport (jsImport)
+import Parser.Button (button)
+import Parser.Action (action)
 import Parser.Common (runWaspParser)
 
 
@@ -25,9 +27,17 @@ waspElement
     <|> waspElementEntity
     <|> waspElementEntityForm
     <|> waspElementEntityList
+    <|> waspElementButton
+    <|> waspElementAction
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
+
+waspElementButton :: Parser Wasp.WaspElement
+waspElementButton = Wasp.WaspElementButton <$> button
+
+waspElementAction :: Parser Wasp.WaspElement
+waspElementAction = Wasp.WaspElementAction <$> action
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page

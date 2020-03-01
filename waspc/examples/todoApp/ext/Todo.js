@@ -7,23 +7,15 @@ import { connect } from 'react-redux'
 // These will have well defined and documented APIs and paths.
 // Note that Task, NewTaskForm and TaskList are generated based on the declarations
 // we made in todoApp.wasp file.
-import Task from '@wasp/entities/task/Task'
 import NewTaskForm from '@wasp/entities/task/components/NewTaskForm'
 import TaskList from '@wasp/entities/task/components/TaskList'
 import * as taskState from '@wasp/entities/task/state.js'
 import * as taskActions from '@wasp/entities/task/actions.js'
+import ToggleIsDoneButton from '@wasp/components/ToggleIsDoneButton'
+import DeleteDoneButton from '@wasp/components/DeleteDoneButton'
 
 class Todo extends React.Component {
   // TODO: prop types.
-
-  toggleIsDoneForAllTasks = () => {
-    const areAllDone = this.props.taskList.every(t => t.isDone)
-    this.props.taskList.map(t => this.props.updateTask(t.id, { isDone: !areAllDone }))
-  }
-
-  deleteCompletedTasks = () => {
-    this.props.taskList.map((t) => { if (t.isDone) this.props.removeTask(t.id) })
-  }
 
   isAnyTaskCompleted = () => this.props.taskList.some(t => t.isDone)
 
@@ -36,12 +28,10 @@ class Todo extends React.Component {
           <h1> Todos </h1>
 
           <div className="todos__toggleAndInput">
-            <button
+            <ToggleIsDoneButton
               disabled={!this.isThereAnyTask()}
               className="todos__toggleButton"
-              onClick={this.toggleIsDoneForAllTasks}>
-                ✓
-            </button>
+            />
 
             <NewTaskForm
               className="todos__newTaskForm"
@@ -51,9 +41,7 @@ class Todo extends React.Component {
           </div>
 
           { this.isThereAnyTask() && (<>
-            <TaskList
-              editable
-            />
+            <TaskList editable />
 
             <div className="todos__footer">
               <div className="todos__footer__itemsLeft">
@@ -61,11 +49,9 @@ class Todo extends React.Component {
               </div>
 
               <div className="todos__footer__clearCompleted">
-                  <button
-                    className={this.isAnyTaskCompleted() ? '' : 'hidden' }
-                    onClick={this.deleteCompletedTasks}>
-                    Clear completed
-                  </button>
+                <DeleteDoneButton
+                  className={this.isAnyTaskCompleted() ? '' : 'hidden' }
+                />
               </div>
             </div>
           </>)}
@@ -78,7 +64,5 @@ class Todo extends React.Component {
 export default connect(state => ({
   taskList: taskState.selectors.all(state)
 }), {
-  addTask: taskActions.add,
-  updateTask: taskActions.update,
-  removeTask: taskActions.remove
+  addTask: taskActions.add
 })(Todo)

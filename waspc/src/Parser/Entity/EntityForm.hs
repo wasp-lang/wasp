@@ -26,7 +26,7 @@ import qualified Lexer as L
 entityForm :: Parser EntityForm
 entityForm = do
     (entityName, formName, options) <-
-        P.waspElementLinkedToEntity L.reservedNameEntityForm entityFormOptions
+        P.waspElementLinkedToEntity L.reservedNameEntityForm (P.waspClosure entityFormOptions)
 
     return WEF.EntityForm
         { WEF._name = formName

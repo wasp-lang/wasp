@@ -50,18 +50,17 @@ waspElementNameAndClosure elementType closure =
     return (elementName, closureContent)
 
 -- | Parses declaration of a wasp element linked to an entity.
--- E.g. "entity-form<Task> {...}" or "entity-list<Task> {...}"
+-- E.g. "entity-form<Task> ..." or "action<Task> ..."
 waspElementLinkedToEntity
     :: String -- ^ Type of the linked wasp element (e.g. "entity-form").
-    -> Parser a -- ^ Parser to be used for parsing closure content of the wasp element.
-    -> Parser (String, String, a) -- ^ Name of the linked entity, element name and closure content.
-waspElementLinkedToEntity elementType closure = do
+    -> Parser a -- ^ Parser to be used for parsing body of the wasp element.
+    -> Parser (String, String, a) -- ^ Name of the linked entity, element name and body.
+waspElementLinkedToEntity elementType bodyParser = do
     L.reserved elementType
     linkedEntityName <- L.angles L.identifier
     elementName <- L.identifier
-    closureContent <- waspClosure closure
-
-    return (linkedEntityName, elementName, closureContent)
+    body <- bodyParser
+    return (linkedEntityName, elementName, body)
 
 -- | Parses wasp property along with the key, "key: value".
 waspProperty :: String -> Parser a -> Parser a

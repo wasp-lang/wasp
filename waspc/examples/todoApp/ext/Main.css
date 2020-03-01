@@ -38,7 +38,7 @@ button.selected {
     background-color: white;
     border: none;
     display: inline-block;
-    font-size: 24px;
+    font-size: 24px !important;
     cursor: pointer;
 }
 
