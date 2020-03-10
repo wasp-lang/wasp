@@ -29,6 +29,7 @@ data EntityFormTemplateData = EntityFormTemplateData
     , _formFields :: ![FormFieldTemplateData]
     -- Submit
     , _showSubmitButton :: !Bool
+    , _isXRayModeEnabled :: !Bool
     } deriving (Show)
 
 instance ToJSON EntityFormTemplateData where
@@ -37,6 +38,7 @@ instance ToJSON EntityFormTemplateData where
         , "entityClassName" .= _entityClassName td
         , "formFields" .=  _formFields td
         , "showSubmitButton" .= _showSubmitButton td
+        , "isXRayModeEnabled" .= _isXRayModeEnabled td
         ]
 
 -- | Represents template data for the individual form field.
@@ -64,8 +66,8 @@ instance ToJSON FormFieldTemplateData where
     
 -- | Given entity and an entity form for it, creates a single data structure
 -- with all the values needed by the template to generate the form.
-createEntityFormTemplateData :: Wasp.Entity -> WEF.EntityForm -> EntityFormTemplateData
-createEntityFormTemplateData entity entityForm = 
+createEntityFormTemplateData :: Wasp.Entity -> WEF.EntityForm -> Bool -> EntityFormTemplateData
+createEntityFormTemplateData entity entityForm isXRayModeEnabled = 
     assert (Wasp.entityName entity == WEF._entityName entityForm) $
 
         EntityFormTemplateData
@@ -74,6 +76,7 @@ createEntityFormTemplateData entity entityForm =
             , _formFields = map (createFormFieldTD entityForm) $ Wasp.entityFields entity
             -- Submit
             , _showSubmitButton = maybe True id maybeShowSubmitButton
+            , _isXRayModeEnabled = isXRayModeEnabled
             }
     where
         maybeShowSubmitButton :: Maybe Bool
@@ -136,7 +139,8 @@ generateEntityCreateForm wasp entityForm =
 
     dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
 
-    templateData = toJSON $ createEntityFormTemplateData entity entityForm
+    templateData = toJSON $
+        createEntityFormTemplateData entity entityForm (Wasp.getIsXRayModeEnabled wasp)
 
 entityCreateFormPathInSrc :: Wasp.Entity -> WEF.EntityForm -> Path.RelFile
 entityCreateFormPathInSrc entity entityForm =

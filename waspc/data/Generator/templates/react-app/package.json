@@ -5,6 +5,12 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.1",
+    {=# isXRayModeEnabled =}
+    "@material-ui/icons": "^4.9.1",
+    "react-json-view": "^1.19.1",
+    "prettier": "^1.19.1",
+    "react-syntax-highlighter": "^12.2.1",
+    {=/ isXRayModeEnabled =}
     "@reduxjs/toolkit": "^1.2.3",
     "lodash": "^4.17.15",
     "react": "^16.12.0",

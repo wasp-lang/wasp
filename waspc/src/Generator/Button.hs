@@ -14,6 +14,7 @@ import qualified Path.Extra as Path
 import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Button as WButton
+import qualified Wasp.Action as WAction
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import qualified Generator.Entity
 import qualified Generator.Common as Common
@@ -39,6 +40,8 @@ generateButtonComponent wasp button = createTemplateFileDraft dstPath srcPath (J
       let (pathInSrc, exportedIdentifier) = Generator.Entity.getImportInfoForAction wasp action
       return $ object [ "importPath" .= buildImportPathFromPathInSrc pathInSrc
                       , "exportedIdentifier" .= exportedIdentifier
+                      , "updateFn" .= WAction._updateFn action
+                      , "entityName" .= WAction._entityName action
                       ]
 
     templateData = object $

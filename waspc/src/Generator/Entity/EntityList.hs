@@ -40,6 +40,7 @@ data EntityListTemplateData = EntityListTemplateData
 
     , _entityBeingEditedStateVar :: !String
     , _entitiesToShowRenderVar :: !String
+    , _isXRayModeEnabled :: !Bool
     }
 
 instance ToJSON EntityListTemplateData where
@@ -53,6 +54,7 @@ instance ToJSON EntityListTemplateData where
         , "mutexFiltersConfig" .= mfcConfigJSON
         , "entityBeingEditedStateVar" .= _entityBeingEditedStateVar td
         , "entitiesToShowRenderVar" .= _entitiesToShowRenderVar td
+        , "isXRayModeEnabled" .= _isXRayModeEnabled td
         ]
         where
             -- NOTE(matija): We have to explicitly make sure that the value here is false,
@@ -122,8 +124,8 @@ createListFilterTD f = ListFilterTemplateData
     , _filterPredicate = WEL._filterPredicate f
     }
 
-createEntityListTemplateData :: Wasp.Entity -> WEL.EntityList -> EntityListTemplateData
-createEntityListTemplateData entity entityList =
+createEntityListTemplateData :: Wasp.Entity -> WEL.EntityList -> Bool -> EntityListTemplateData
+createEntityListTemplateData entity entityList isXRayModeEnabled =
     assert (Wasp.entityName entity == WEL._entityName entityList) $
 
         EntityListTemplateData
@@ -136,6 +138,7 @@ createEntityListTemplateData entity entityList =
             , _listMutexFiltersConfig = createMutexFiltersConfig $ WEL._mutexFilters entityList
             , _entityBeingEditedStateVar = entityLowerName ++ "BeingEdited"
             , _entitiesToShowRenderVar = entityLowerName ++ "ListToShow"
+            , _isXRayModeEnabled = isXRayModeEnabled
             }
             where
                 entityLowerName = EC.getEntityLowerName entity
@@ -186,7 +189,8 @@ generateEntityList wasp entityList =
 
     dstPath = Common.srcDirPath </> (entityListPathInSrc entity entityList)
 
-    templateData = toJSON $ createEntityListTemplateData entity entityList
+    templateData = toJSON $ createEntityListTemplateData entity entityList isXRayModeEnabled
+        where isXRayModeEnabled = Wasp.getIsXRayModeEnabled wasp
 
 -- | Path in the generated src dir where the given entity list will be located.
 entityListPathInSrc :: Wasp.Entity -> WEL.EntityList -> Path.RelFile

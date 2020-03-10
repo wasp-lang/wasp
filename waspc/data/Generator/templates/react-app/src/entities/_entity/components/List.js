@@ -4,6 +4,11 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
+{=# isXRayModeEnabled =}
+import * as xRayState from '../../../xRay/state.js'
+import EntityListInfoBox from '../../../xRay/EntityListInfoBox'
+{=/ isXRayModeEnabled =}
+
 import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
@@ -64,7 +69,7 @@ export class {= listName =} extends React.Component {
 
   filters = {
     {=# filters =}
-    '{= name =}': {=& predicate =},
+    {= name =}: {=& predicate =},
     {=/ filters =}
   }
   {=/ mutexFiltersConfig =}
@@ -81,9 +86,8 @@ export class {= listName =} extends React.Component {
     const {= entitiesToShowRenderVar =} = this.props.{= entityLowerName =}List
   {=/ mutexFiltersConfig =}
 
-    return (
-      <div className={this.props.className}>
-
+    const content = (
+      <>
         {=# mutexFiltersConfig =}
         Filter:&nbsp;
         <Select
@@ -156,6 +160,62 @@ export class {= listName =} extends React.Component {
             </TableBody>
           </Table>
         </Paper>
+      </>
+    )
+
+    {=# isXRayModeEnabled =}
+    const entity = {
+      {=# listFields =}
+        {= name =}: '{= type =}',
+      {=/ listFields =}
+    }
+
+    const list = {
+      {=# showHeader =}
+      showHeader: true,
+      {=/ showHeader =}
+      {=^ showHeader =}
+      showHeader: false,
+      {=/ showHeader =}
+
+      {=# mutexFiltersConfig =}
+      mutuallyExclusiveFilters: {
+        {=# filters =}
+        {= name =}: '{=& predicate =}',
+        {=/ filters =}
+      },
+      {=/ mutexFiltersConfig =}
+
+      fields: {
+        {=# listFields =}
+        {= name =}: {
+          {=# render =}
+            render: '{=& render =}',
+          {=/ render =}
+        },
+        {=/ listFields =}
+      }
+    }
+
+    {=/ isXRayModeEnabled =}
+
+    return (
+      <div className={this.props.className}>
+        {=# isXRayModeEnabled =}
+        <EntityListInfoBox
+          isXRayModeOn={this.props.isXRayModeOn}
+          component={content}
+
+          entityName="{= entityClassName =}"
+          entity={entity}
+
+          listName="{= listName =}"
+          list={list}
+        />
+        {=/ isXRayModeEnabled =}
+        {=^ isXRayModeEnabled =}
+        {content}
+        {=/ isXRayModeEnabled =}
       </div>
     )
   }
@@ -163,7 +223,10 @@ export class {= listName =} extends React.Component {
 
 export default connect(state => ({
   // Selectors
-  {= entityLowerName =}List: {= entityLowerName =}State.selectors.all(state)
+  {= entityLowerName =}List: {= entityLowerName =}State.selectors.all(state),
+  {=# isXRayModeEnabled =}
+  isXRayModeOn: xRayState.selectors.isXRayModeOn(state)
+  {=/ isXRayModeEnabled =}
 }), {
   // Actions
   update{= entityName =}: {= entityLowerName =}Actions.update

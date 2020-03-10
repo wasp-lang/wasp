@@ -3,6 +3,8 @@ module Wasp
     , WaspElement (..)
     , fromWaspElems
 
+    , getIsXRayModeEnabled
+
     , module Wasp.JsImport
     , getJsImports
     , setJsImports
@@ -57,6 +59,10 @@ data Wasp = Wasp
     { waspElements :: [WaspElement]
     , waspJsImports :: [JsImport]
     , externalCodeFiles :: [ExternalCode.File]
+
+    -- NOTE(matija): This is for demo purposes only. This option should come as
+    -- a compile option.
+    , isXRayModeEnabled :: Bool
     } deriving (Show, Eq)
 
 data WaspElement
@@ -74,7 +80,13 @@ fromWaspElems elems = Wasp
     { waspElements = elems
     , waspJsImports = []
     , externalCodeFiles = []
+
+    , isXRayModeEnabled = True
     }
+
+-- * X-ray mode
+getIsXRayModeEnabled :: Wasp -> Bool
+getIsXRayModeEnabled = isXRayModeEnabled
 
 -- * External code files
 
@@ -186,4 +198,5 @@ instance ToJSON Wasp where
         [ "app" .= getApp wasp
         , "pages" .= getPages wasp
         , "jsImports" .= getJsImports wasp
+        , "isXRayModeEnabled" .= isXRayModeEnabled wasp
         ]
