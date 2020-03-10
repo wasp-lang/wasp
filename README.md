@@ -13,7 +13,7 @@
 <br>
 
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp)
-![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)
+[![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX)
 
 - **Project page**: [https://wasp-lang.dev]
 - **Demo**: [https://wasp-lang.dev/#demo]
@@ -104,7 +104,7 @@ While the idea is to support multiple web tech stacks in the future, right now w
 
 Any way you want to contribute is a good way :)!
 
-Since we are so early, the best way might be to join us on spectrum [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp) or discord ![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord) to discuss how you could contribute the best, and we can also discuss about language design, new features, how to improve existing code, what do you think about Wasp in general, anything really.
+Since we are so early, the best way might be to join us on spectrum [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/wasp) or discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) to discuss how you could contribute the best, and we can also discuss about language design, new features, how to improve existing code, what do you think about Wasp in general, anything really.
 
 Even if you don't plan to submit any code, just joining discussion and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
