@@ -20,6 +20,12 @@ const reducer = (state = initialState, action) => {
         all: [ ...state.all, action.data ]
       }
 
+    case types.SET:
+      return {
+          ...state,
+          all: action.tasks
+      }
+
     case types.UPDATE:
       return {
         ...state,

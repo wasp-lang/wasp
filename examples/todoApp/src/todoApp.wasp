@@ -46,5 +46,30 @@ entity-list<Task> TaskList {
             // - Does not depend on any outer context.
             render: {=js (task) => task.isDone ? <s>{task.description}</s> : task.description js=}
         }
+    },
+    mutuallyExclusiveFilters: {
+        completed: {=js task => task.isDone js=},
+        active: {=js task => !task.isDone js=}
     }
 }
+
+button ToggleIsDoneButton {
+    label: "✓",
+    onClick: toggleIsDoneAction
+}
+
+button DeleteDoneButton {
+    label: "Delete completed",
+    onClick: deleteDoneAction
+}
+
+action<Task> toggleIsDoneAction {=js
+  tasks => {
+    const areAllDone = tasks.every(t => t.isDone)
+    return tasks.map(t => ({ ...t, isDone: !areAllDone }))
+  }
+js=} 
+
+action<Task> deleteDoneAction {=js
+  tasks => tasks.filter(t => !t.isDone)
+js=} 

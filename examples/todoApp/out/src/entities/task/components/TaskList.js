@@ -12,6 +12,8 @@ import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 import TextField from '@material-ui/core/TextField'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
 
 import * as taskState from '../state'
 import * as taskActions from '../actions'
@@ -21,12 +23,13 @@ import Task from '../Task'
 
 export class TaskList extends React.Component {
   static propTypes = {
-    editable: PropTypes.bool,
-    filter: PropTypes.func
+    editable: PropTypes.bool
   }
 
   state = {
-    taskBeingEdited: null
+    taskBeingEdited: null,
+
+    filterName: 'all'
   }
 
   setAsBeingEdited = task => this.setState({
@@ -44,13 +47,34 @@ export class TaskList extends React.Component {
   renderTaskDescription =
     (task) => task.isDone ? <s>{task.description}</s> : task.description
 
+  handleFilterChange = event => {
+    this.setState({ filterName: event.target.value })
+  }
+
+  filters = {
+    'completed': task => task.isDone,
+    'active': task => !task.isDone,
+  }
+
   render() {
-    const taskListToShow = this.props.filter ?
-      this.props.taskList.filter(this.props.filter) :
+    const taskListToShow = this.state.filterName !== 'all' ?
+      this.props.taskList.filter(this.filters[this.state.filterName]) :
       this.props.taskList
+
 
     return (
       <div className={this.props.className}>
+
+        Filter:&nbsp;
+        <Select
+          value={this.state.filterName}
+          onChange={this.handleFilterChange}
+        >
+          <MenuItem value="all">all</MenuItem> 
+          <MenuItem value="completed">completed</MenuItem> 
+          <MenuItem value="active">active</MenuItem> 
+        </Select>
+
         <Paper>
           <Table>
             <TableHead style={{display: 'none'}}>
@@ -76,7 +100,8 @@ export class TaskList extends React.Component {
                         )}
                       />
                     </TableCell>
-                    <ClickAwayListener onClickAway={() => this.finishEditing(task) }>
+                    <ClickAwayListener
+                        onClickAway={() => this.finishEditing(task) }>
                       <TableCell
                         onDoubleClick={() => this.setAsBeingEdited(task)}
                       >

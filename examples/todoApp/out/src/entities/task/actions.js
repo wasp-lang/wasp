@@ -1,4 +1,6 @@
 import * as types from './actionTypes'
+import Task from './Task'
+import { selectors } from './state'
 
 
 /**
@@ -7,6 +9,14 @@ import * as types from './actionTypes'
 export const add = (task) => ({
   type: types.ADD,
   data: task.toData()
+})
+
+/**
+ * @param {Task[]} tasks
+ */
+export const set = (tasks) => ({
+    type: types.SET,
+    tasks: tasks.map(t => t.toData())
 })
 
 /**
@@ -26,3 +36,21 @@ export const remove = (id) => ({
   type: types.REMOVE,
   id
 })
+
+export const toggleIsDoneAction = () => (dispatch, getState) => {
+    const tasks = selectors.all(getState())
+    const updateFn = tasks => {
+    const areAllDone = tasks.every(t => t.isDone)
+    return tasks.map(t => ({ ...t, isDone: !areAllDone }))
+  }
+    const newTasks = updateFn(tasks.map(t => t.toData())).map(t => new Task(t))
+    dispatch(set(newTasks))
+}
+
+export const deleteDoneAction = () => (dispatch, getState) => {
+    const tasks = selectors.all(getState())
+    const updateFn = tasks => tasks.filter(t => !t.isDone)
+    const newTasks = updateFn(tasks.map(t => t.toData())).map(t => new Task(t))
+    dispatch(set(newTasks))
+}
+

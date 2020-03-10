@@ -7,52 +7,19 @@ import { connect } from 'react-redux'
 // These will have well defined and documented APIs and paths.
 // Note that Task, NewTaskForm and TaskList are generated based on the declarations
 // we made in todoApp.wasp file.
-import Task from '@wasp/entities/task/Task'
 import NewTaskForm from '@wasp/entities/task/components/NewTaskForm'
 import TaskList from '@wasp/entities/task/components/TaskList'
 import * as taskState from '@wasp/entities/task/state.js'
 import * as taskActions from '@wasp/entities/task/actions.js'
-
-const TASK_FILTER_TYPES = Object.freeze({
-  ALL: 'all',
-  ACTIVE: 'active',
-  COMPLETED: 'completed'
-})
-
-const TASK_FILTERS = Object.freeze({
-  [TASK_FILTER_TYPES.ALL]: null,
-  [TASK_FILTER_TYPES.ACTIVE]: task => !task.isDone,
-  [TASK_FILTER_TYPES.COMPLETED]: task => task.isDone
-})
+import ToggleIsDoneButton from '@wasp/components/ToggleIsDoneButton'
+import DeleteDoneButton from '@wasp/components/DeleteDoneButton'
 
 class Todo extends React.Component {
   // TODO: prop types.
 
-  state = {
-    taskFilterName: TASK_FILTER_TYPES.ALL
-  }
-
-  toggleIsDoneForAllTasks = () => {
-    const areAllDone = this.props.taskList.every(t => t.isDone)
-    this.props.taskList.map(t => this.props.updateTask(t.id, { isDone: !areAllDone }))
-  }
-
-  deleteCompletedTasks = () => {
-    this.props.taskList.map((t) => { if (t.isDone) this.props.removeTask(t.id) })
-  }
-
   isAnyTaskCompleted = () => this.props.taskList.some(t => t.isDone)
 
   isThereAnyTask = () => this.props.taskList.length > 0
-
-  TaskFilterButton = ({ filterType, label }) => (
-    <button
-      className={'filter ' + (this.state.taskFilterName === filterType ? 'selected' : '')}
-      onClick={() => this.setState({ taskFilterName: filterType })}
-    >
-      {label}
-    </button>
-  )
 
   render = () => {
     return (
@@ -61,12 +28,10 @@ class Todo extends React.Component {
           <h1> Todos </h1>
 
           <div className="todos__toggleAndInput">
-            <button
+            <ToggleIsDoneButton
               disabled={!this.isThereAnyTask()}
               className="todos__toggleButton"
-              onClick={this.toggleIsDoneForAllTasks}>
-                ✓
-            </button>
+            />
 
             <NewTaskForm
               className="todos__newTaskForm"
@@ -76,35 +41,21 @@ class Todo extends React.Component {
           </div>
 
           { this.isThereAnyTask() && (<>
-            <TaskList
-              editable
-              filter={TASK_FILTERS[this.state.taskFilterName]}
-            />
+            <TaskList editable />
 
             <div className="todos__footer">
               <div className="todos__footer__itemsLeft">
                 { this.props.taskList.filter(task => !task.isDone).length } items left
               </div>
 
-              <div className="todos__footer__filters">
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ALL} label="All" />
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.ACTIVE} label="Active" />
-                <this.TaskFilterButton filterType={TASK_FILTER_TYPES.COMPLETED} label="Completed" />
-              </div>
-
               <div className="todos__footer__clearCompleted">
-                  <button
-                    className={this.isAnyTaskCompleted() ? '' : 'hidden' }
-                    onClick={this.deleteCompletedTasks}>
-                    Clear completed
-                  </button>
+                <DeleteDoneButton
+                  className={this.isAnyTaskCompleted() ? '' : 'hidden' }
+                />
               </div>
             </div>
           </>)}
         </div>
-
-
-
       </div>
     )
   }
@@ -113,7 +64,5 @@ class Todo extends React.Component {
 export default connect(state => ({
   taskList: taskState.selectors.all(state)
 }), {
-  addTask: taskActions.add,
-  updateTask: taskActions.update,
-  removeTask: taskActions.remove
+  addTask: taskActions.add
 })(Todo)
