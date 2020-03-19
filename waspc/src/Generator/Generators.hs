@@ -8,6 +8,7 @@ import qualified Path
 import qualified Path.Aliases as Path
 
 import CompileOptions (CompileOptions)
+import qualified Generator.XRay as XRay
 import qualified Util
 import Wasp
 import Generator.FileDraft
@@ -66,30 +67,7 @@ generateSrcDir wasp
     ++ EntityGenerator.generateEntities wasp
     ++ Generator.Button.generateButtons wasp
     ++ [generateReducersJs wasp]
-    -- NOTE(matija): for demo only.
-    ++ maybeGenerateXRayDir (getIsXRayModeEnabled wasp)
-
-maybeGenerateXRayDir :: Bool -> [FileDraft]
-maybeGenerateXRayDir isXRayModeEnabled =
-    if isXRayModeEnabled == True then generateXRayDir else []
-
-generateXRayDir :: [FileDraft]
-generateXRayDir = map (simpleCopyFileDraft . (pathToXRayDir </>))
-    [ [relfile|actions.js|] 
-    , [relfile|actionTypes.js|]
-    , [relfile|state.js|]
-    , [relfile|InfoBox.js|]
-    , [relfile|InfoBox.css|]
-    , [relfile|EntityFormInfoBox.js|]
-    , [relfile|EntityListInfoBox.js|]
-    , [relfile|ButtonInfoBox.js|]
-    , [relfile|JsonBrowser.js|]
-    ]
-    where
-        pathToXRayDir = [reldir|src|] </> [reldir|xRay|]
-
-simpleCopyFileDraft :: Path.RelFile -> FileDraft
-simpleCopyFileDraft path = createTemplateFileDraft path path Nothing
+    ++ XRay.maybeGenerateXRayDir (getIsXRayModeEnabled wasp)
 
 generateReducersJs :: Wasp -> FileDraft
 generateReducersJs wasp = createTemplateFileDraft dstPath srcPath (Just templateData)

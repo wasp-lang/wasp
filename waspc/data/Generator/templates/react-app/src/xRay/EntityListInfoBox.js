@@ -9,7 +9,6 @@ import InfoBox from './InfoBox'
 export default class EntityFormInfoBox extends Component {
   static propTypes = {
     isXRayModeOn: PropTypes.bool,
-    component: PropTypes.node,
 
     entityName: PropTypes.string,
     entity: PropTypes.object,
@@ -46,7 +45,7 @@ export default class EntityFormInfoBox extends Component {
     return (
       <InfoBox
         isXRayModeOn={this.props.isXRayModeOn}
-        component={this.props.component}
+        component={this.props.children}
         title={title}
         popoverContent={popoverContent}
       />

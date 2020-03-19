@@ -145,21 +145,72 @@ export {=^ isXRayModeEnabled =}default {=/ isXRayModeEnabled =}class {= formName
 
     return (
       <div className={this.props.className}>
-        {=# isXRayModeEnabled =}
-        <EntityFormInfoBox
-          isXRayModeOn={this.props.isXRayModeOn}
-          component={form}
-          
-          entityName="{= entityClassName =}"
-          formName="{= formName =}"
+      {=# isXRayModeEnabled =}
+      <EntityFormInfoBox
+        isXRayModeOn={this.props.isXRayModeOn}
+        
+        entityName="{= entityClassName =}"
+        formName="{= formName =}"
 
-          entity={entity}
-          fields={fields}
-        />
-        {=/ isXRayModeEnabled =}
-        {=^ isXRayModeEnabled =}
-        {form}
-        {=/ isXRayModeEnabled =}
+        entity={entity}
+        fields={fields}
+      >
+        <>
+      {=/ isXRayModeEnabled =}
+        <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
+          {=# formFields =}
+          {=# boolean =}
+          {=# show =}
+          <div>
+            <FormControlLabel
+              {=# label =}
+              label="{= label =}"
+              {=/ label =}
+              control={
+                <Switch
+                  checked={this.getField('{= name =}')}
+                  onChange={() => this.toggleField('{= name =}')}
+                  value="{= name =}"
+                />
+              }
+            />
+          </div>
+          {=/ show =}
+          {=/ boolean =}
+          {=# string =}
+          {=# show =}
+          <div>
+            <TextField
+              {=# label =}
+              label="{= label =}"
+              {=/ label =}
+              {=# placeholder =}
+              placeholder="{= placeholder =}"
+              {=/ placeholder =}
+              value={this.getField('{= name =}')}
+              onChange={event => this.setField('{= name =}', event.target.value)}
+              margin="normal"
+              fullWidth
+              InputLabelProps={{
+                shrink: true
+              }}
+            />
+          </div>
+          {=/ show =}
+          {=/ string =}
+          {=/ formFields =}
+          {=# showSubmitButton =}
+          <div>
+            <Button type="submit" variant="contained" color="primary">
+              {this.props.submitButtonLabel || 'Submit'}
+            </Button>
+          </div>
+          {=/ showSubmitButton =}
+        </form>
+      {=# isXRayModeEnabled =}
+        </>
+      </EntityFormInfoBox>
+      {=/ isXRayModeEnabled =}
       </div>
     )
   }

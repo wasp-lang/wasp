@@ -86,8 +86,57 @@ export class {= listName =} extends React.Component {
     const {= entitiesToShowRenderVar =} = this.props.{= entityLowerName =}List
   {=/ mutexFiltersConfig =}
 
-    const content = (
-      <>
+    {=# isXRayModeEnabled =}
+    const entity = {
+      {=# listFields =}
+        {= name =}: '{= type =}',
+      {=/ listFields =}
+    }
+
+    const list = {
+      {=# showHeader =}
+      showHeader: true,
+      {=/ showHeader =}
+      {=^ showHeader =}
+      showHeader: false,
+      {=/ showHeader =}
+
+      {=# mutexFiltersConfig =}
+      mutuallyExclusiveFilters: {
+        {=# filters =}
+        {= name =}: '{=& predicate =}',
+        {=/ filters =}
+      },
+      {=/ mutexFiltersConfig =}
+
+      fields: {
+        {=# listFields =}
+        {= name =}: {
+          {=# render =}
+            render: '{=& render =}',
+          {=/ render =}
+        },
+        {=/ listFields =}
+      }
+    }
+
+    {=/ isXRayModeEnabled =}
+
+    return (
+      <div className={this.props.className}>
+      {=# isXRayModeEnabled =}
+      <EntityListInfoBox
+        isXRayModeOn={this.props.isXRayModeOn}
+
+        entityName="{= entityClassName =}"
+        entity={entity}
+
+        listName="{= listName =}"
+        list={list}
+      >
+        <>
+      {=/ isXRayModeEnabled =}
+
         {=# mutexFiltersConfig =}
         Filter:&nbsp;
         <Select
@@ -160,61 +209,9 @@ export class {= listName =} extends React.Component {
             </TableBody>
           </Table>
         </Paper>
-      </>
-    )
-
-    {=# isXRayModeEnabled =}
-    const entity = {
-      {=# listFields =}
-        {= name =}: '{= type =}',
-      {=/ listFields =}
-    }
-
-    const list = {
-      {=# showHeader =}
-      showHeader: true,
-      {=/ showHeader =}
-      {=^ showHeader =}
-      showHeader: false,
-      {=/ showHeader =}
-
-      {=# mutexFiltersConfig =}
-      mutuallyExclusiveFilters: {
-        {=# filters =}
-        {= name =}: '{=& predicate =}',
-        {=/ filters =}
-      },
-      {=/ mutexFiltersConfig =}
-
-      fields: {
-        {=# listFields =}
-        {= name =}: {
-          {=# render =}
-            render: '{=& render =}',
-          {=/ render =}
-        },
-        {=/ listFields =}
-      }
-    }
-
-    {=/ isXRayModeEnabled =}
-
-    return (
-      <div className={this.props.className}>
         {=# isXRayModeEnabled =}
-        <EntityListInfoBox
-          isXRayModeOn={this.props.isXRayModeOn}
-          component={content}
-
-          entityName="{= entityClassName =}"
-          entity={entity}
-
-          listName="{= listName =}"
-          list={list}
-        />
-        {=/ isXRayModeEnabled =}
-        {=^ isXRayModeEnabled =}
-        {content}
+          </>
+        </EntityListInfoBox>
         {=/ isXRayModeEnabled =}
       </div>
     )

@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 
@@ -13,13 +12,21 @@ import InfoBox from './InfoBox'
 export default class ButtonInfoBox extends Component {
   static propTypes = {
     isXRayModeOn: PropTypes.bool,
-    component: PropTypes.node,
 
     buttonName: PropTypes.string,
     entityName: PropTypes.string,
     actionName: PropTypes.string,
     actionCode: PropTypes.string
   }
+
+  prettifyCode = src => prettier.format(src, {
+      parser: "babel",
+      plugins: [parserBabylon],
+      semi: false
+    }
+  )
+
+  doesButtonHaveAction = this.props.actionName && this.props.actionCode && this.props.entityName
 
   render() {
     const { buttonName, entityName, actionName, actionCode } = this.props
@@ -32,33 +39,35 @@ export default class ButtonInfoBox extends Component {
       </div>
     )
 
-    const prettyActionCode = prettier.format(actionCode, {
-        parser: "babel",
-        plugins: [parserBabylon],
-        semi: false
-      }
-    )
-
     const popoverContent = (
       <div>
         {popoverTitle}
         <Divider />
         <br/>
-        <div>onClick → action&lt;<strong>{entityName}</strong>&gt; 
-        &nbsp;<strong>{actionName}</strong>:</div>
-        <SyntaxHighlighter
-          language="javascript"
-          style={docco}
-        >
-          {prettyActionCode}
-        </SyntaxHighlighter>
+
+        { this.doesButtonHaveAction && (
+            <>
+              <div>
+                onClick → action&lt;<strong>{entityName}</strong>&gt; 
+                &nbsp;<strong>{actionName}</strong>:
+              </div>
+              <SyntaxHighlighter
+                language="javascript"
+                style={docco}
+              >
+                {this.prettifyCode(actionCode)}
+              </SyntaxHighlighter>
+            </>
+          )
+        }
+
       </div>
     )
 
     return (
       <InfoBox
         isXRayModeOn={this.props.isXRayModeOn}
-        component={this.props.component}
+        component={this.props.children}
         title={title}
         popoverContent={popoverContent}
       />

@@ -22,7 +22,20 @@ export class {= button.name =} extends React.Component {
   {=/ onClickAction =}
 
   render() {
-    const button = (
+    return (
+    {=# wasp.isXRayModeEnabled =}
+      <ButtonInfoBox
+        isXRayModeOn={this.props.isXRayModeOn}
+        buttonName="{= button.name =}"
+
+        {=# onClickAction =}
+        entityName="{= onClickAction.entityName =}"
+        actionName="{= onClickAction.exportedIdentifier =}"
+        actionCode={`{=& onClickAction.updateFn =}`}
+        {=/ onClickAction =}
+      >
+      <>
+    {=/ wasp.isXRayModeEnabled =}
       <Button {...this.props}
         {=# onClickAction =}
         onClick={this.onClick}
@@ -30,24 +43,11 @@ export class {= button.name =} extends React.Component {
       >
         {= button.label =}
       </Button>
-    )
-
     {=# wasp.isXRayModeEnabled =}
-    return (
-      <ButtonInfoBox
-        isXRayModeOn={this.props.isXRayModeOn}
-        component={button}
-
-        buttonName="{= button.name =}"
-        entityName="{= onClickAction.entityName =}"
-        actionName="{= onClickAction.exportedIdentifier =}"
-        actionCode={`{=& onClickAction.updateFn =}`}
-      />
+      </>
+      </ButtonInfoBox>
+    {=/ wasp.isXRayModeEnabled =}
     )
-    {=/ wasp.isXRayModeEnabled =}
-    {=^ wasp.isXRayModeEnabled =}
-    return button
-    {=/ wasp.isXRayModeEnabled =}
   }
 }
 
