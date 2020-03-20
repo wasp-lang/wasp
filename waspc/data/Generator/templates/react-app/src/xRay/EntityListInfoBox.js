@@ -8,8 +8,6 @@ import InfoBox from './InfoBox'
 
 export default class EntityFormInfoBox extends Component {
   static propTypes = {
-    isXRayModeOn: PropTypes.bool,
-
     entityName: PropTypes.string,
     entity: PropTypes.object,
 
@@ -34,17 +32,21 @@ export default class EntityFormInfoBox extends Component {
         {popoverTitle}
         <Divider/>
         <br/>
-        <div>entity: {entityName}</div>
+        <div>
+          This is a <strong>list</strong> component that displays all&nbsp;
+          <strong>{entityName}s</strong>.
+        </div>
+        <br/>
+        <div>Entity <strong>{entityName}</strong>:</div>
         <JsonBrowser src={entity} />
         <br/>
-        <div>List properties:</div>
+        <div><strong>{listName}</strong> configuration:</div>
         <JsonBrowser src={list} />
       </div>
     )
 
     return (
       <InfoBox
-        isXRayModeOn={this.props.isXRayModeOn}
         component={this.props.children}
         title={title}
         popoverContent={popoverContent}

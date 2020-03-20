@@ -11,8 +11,6 @@ import InfoBox from './InfoBox'
 
 export default class ButtonInfoBox extends Component {
   static propTypes = {
-    isXRayModeOn: PropTypes.bool,
-
     buttonName: PropTypes.string,
     entityName: PropTypes.string,
     actionName: PropTypes.string,
@@ -44,12 +42,20 @@ export default class ButtonInfoBox extends Component {
         {popoverTitle}
         <Divider />
         <br/>
+        <span>This is a <strong>button</strong> component.</span>
 
         { this.doesButtonHaveAction && (
             <>
+              &nbsp;<span>
+                On click, action on <strong>Tasks</strong> is executed.
+              </span>
+              <br/><br/>
+
               <div>
-                onClick → action&lt;<strong>{entityName}</strong>&gt; 
-                &nbsp;<strong>{actionName}</strong>:
+                action&lt;<strong>{entityName}</strong>&gt; 
+                &nbsp;<strong>{actionName}</strong>
+                <br/>
+                (takes a list of all {entityName}s and returns a new, modified list):
               </div>
               <SyntaxHighlighter
                 language="javascript"
@@ -57,6 +63,13 @@ export default class ButtonInfoBox extends Component {
               >
                 {this.prettifyCode(actionCode)}
               </SyntaxHighlighter>
+
+              <div>
+                The function above was defined by the user in a <code>.wasp</code> file.
+                Because Wasp "understands"<br/>what a web app is, we can <strong>inspect
+                this function here
+                and potentially even edit it</strong>.
+              </div>
             </>
           )
         }
@@ -66,7 +79,6 @@ export default class ButtonInfoBox extends Component {
 
     return (
       <InfoBox
-        isXRayModeOn={this.props.isXRayModeOn}
         component={this.props.children}
         title={title}
         popoverContent={popoverContent}

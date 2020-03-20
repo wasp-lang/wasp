@@ -4,8 +4,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 {=# isXRayModeEnabled =}
-import { connect } from 'react-redux'
-import * as xRayState from '../../../xRay/state.js'
 import EntityFormInfoBox from '../../../xRay/EntityFormInfoBox'
 {=/ isXRayModeEnabled =}
 
@@ -17,7 +15,7 @@ import TextField from '@material-ui/core/TextField'
 import {= entityClassName =} from '../{= entityClassName =}'
 
 
-export {=^ isXRayModeEnabled =}default {=/ isXRayModeEnabled =}class {= formName =} extends React.Component {
+export default class {= formName =} extends React.Component {
   static propTypes = {
     onCreate: PropTypes.func,
     submitButtonLabel: PropTypes.string
@@ -70,59 +68,6 @@ export {=^ isXRayModeEnabled =}default {=/ isXRayModeEnabled =}class {= formName
   }
 
   render() {
-    const form = (
-      <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
-        {=# formFields =}
-        {=# boolean =}
-        {=# show =}
-        <div>
-          <FormControlLabel
-            {=# label =}
-            label="{= label =}"
-            {=/ label =}
-            control={
-              <Switch
-                checked={this.getField('{= name =}')}
-                onChange={() => this.toggleField('{= name =}')}
-                value="{= name =}"
-              />
-            }
-          />
-        </div>
-        {=/ show =}
-        {=/ boolean =}
-        {=# string =}
-        {=# show =}
-        <div>
-          <TextField
-            {=# label =}
-            label="{= label =}"
-            {=/ label =}
-            {=# placeholder =}
-            placeholder="{= placeholder =}"
-            {=/ placeholder =}
-            value={this.getField('{= name =}')}
-            onChange={event => this.setField('{= name =}', event.target.value)}
-            margin="normal"
-            fullWidth
-            InputLabelProps={{
-              shrink: true
-            }}
-          />
-        </div>
-        {=/ show =}
-        {=/ string =}
-        {=/ formFields =}
-        {=# showSubmitButton =}
-        <div>
-          <Button type="submit" variant="contained" color="primary">
-            {this.props.submitButtonLabel || 'Submit'}
-          </Button>
-        </div>
-        {=/ showSubmitButton =}
-      </form>
-    )
-
     {=# isXRayModeEnabled =}
     const fields = {
       {=# formFields =}
@@ -147,15 +92,12 @@ export {=^ isXRayModeEnabled =}default {=/ isXRayModeEnabled =}class {= formName
       <div className={this.props.className}>
       {=# isXRayModeEnabled =}
       <EntityFormInfoBox
-        isXRayModeOn={this.props.isXRayModeOn}
-        
         entityName="{= entityClassName =}"
         formName="{= formName =}"
 
         entity={entity}
         fields={fields}
       >
-        <>
       {=/ isXRayModeEnabled =}
         <form noValidate onSubmit={this.handleSubmit} action="javascript:void(0);">
           {=# formFields =}
@@ -208,19 +150,9 @@ export {=^ isXRayModeEnabled =}default {=/ isXRayModeEnabled =}class {= formName
           {=/ showSubmitButton =}
         </form>
       {=# isXRayModeEnabled =}
-        </>
       </EntityFormInfoBox>
       {=/ isXRayModeEnabled =}
       </div>
     )
   }
 }
-
-{=# isXRayModeEnabled =}
-export default connect(state => ({
-  // Selectors
-  isXRayModeOn: xRayState.selectors.isXRayModeOn(state)
-}), {
-  // Actions
-})({= formName =})
-{=/ isXRayModeEnabled =}

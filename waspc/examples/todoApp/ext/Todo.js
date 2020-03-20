@@ -14,12 +14,19 @@ import * as taskActions from '@wasp/entities/task/actions.js'
 import ToggleIsDoneButton from '@wasp/components/ToggleIsDoneButton'
 import DeleteDoneButton from '@wasp/components/DeleteDoneButton'
 
+import Task from '@wasp/entities/task/Task'
+
 class Todo extends React.Component {
   // TODO: prop types.
 
   isAnyTaskCompleted = () => this.props.taskList.some(t => t.isDone)
 
   isThereAnyTask = () => this.props.taskList.length > 0
+
+  componentDidMount() {
+    this.props.addTask(new Task({isDone: true, description: 'Present Wasp Inspector'}))
+    this.props.addTask(new Task({isDone: false, description: 'Launch Wasp Alpha'}))
+  }
 
   render = () => {
     return (

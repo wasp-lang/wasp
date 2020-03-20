@@ -1,21 +1,18 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 
 import { withStyles } from '@material-ui/core/styles'
 import IconButton from '@material-ui/core/IconButton'
 import InfoIcon from '@material-ui/icons/Info'
-import Popover from '@material-ui/core/Popover'
 import Typography from '@material-ui/core/Typography'
+
+import * as xRayState from './state.js'
+import XRayPopover from './XRayPopover'
 
 import './InfoBox.css'
 
-const styles = theme => ({
-  typography: {
-    padding: theme.spacing(2),
-  },
-})
-
-class InfoBox extends Component {
+export class InfoBox extends Component {
   static propTypes = {
     isXRayModeOn: PropTypes.bool,
     component: PropTypes.node,
@@ -35,7 +32,6 @@ class InfoBox extends Component {
     this.setState({ popoverAnchorEl: null })
   }
   
-
   render() {
     if (!this.props.isXRayModeOn) {
       return this.props.component
@@ -44,36 +40,28 @@ class InfoBox extends Component {
         <div>
           <span className='xRay-infoBox-text'>{this.props.title}</span>
           <IconButton onClick={this.showPopover}>
-            <InfoIcon />
+            <InfoIcon color="secondary" />
           </IconButton>
           <div className='xRay-infoBox'>
             { this.props.component }
           </div>
-          <Popover
+          <XRayPopover
             id="infobox-popover"
             open={Boolean(this.state.popoverAnchorEl)}
             anchorEl={this.state.popoverAnchorEl}
             onClose={this.hidePopover}
-
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'center',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'center',
-            }}
           >
-            <Typography className={this.props.classes.typography}>
-              <div className='xRay-infoBox-text'>
-                {this.props.popoverContent}
-              </div>
-            </Typography>
-          </Popover>
+            {this.props.popoverContent}
+          </XRayPopover>
         </div>
       )
     }
   }
 }
 
-export default withStyles(styles)(InfoBox)
+export default connect(state => ({
+  // Selectors
+  isXRayModeOn: xRayState.selectors.isXRayModeOn(state)
+}), {
+  // Actions
+})(InfoBox)

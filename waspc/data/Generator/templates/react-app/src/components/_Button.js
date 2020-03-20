@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import Button from '@material-ui/core/Button'
 
 {=# wasp.isXRayModeEnabled =}
-import * as xRayState from '../xRay/state.js'
 import ButtonInfoBox from '../xRay/ButtonInfoBox'
 {=/ wasp.isXRayModeEnabled =}
 
@@ -25,7 +24,6 @@ export class {= button.name =} extends React.Component {
     return (
     {=# wasp.isXRayModeEnabled =}
       <ButtonInfoBox
-        isXRayModeOn={this.props.isXRayModeOn}
         buttonName="{= button.name =}"
 
         {=# onClickAction =}
@@ -53,9 +51,6 @@ export class {= button.name =} extends React.Component {
 
 export default connect(state => ({
   // Selectors
-  {=# wasp.isXRayModeEnabled =}
-  isXRayModeOn: xRayState.selectors.isXRayModeOn(state)
-  {=/ wasp.isXRayModeEnabled =}
 }), {
   // Actions
   {=# onClickAction =}

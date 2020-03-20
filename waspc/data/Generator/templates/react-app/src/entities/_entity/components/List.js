@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
 {=# isXRayModeEnabled =}
-import * as xRayState from '../../../xRay/state.js'
 import EntityListInfoBox from '../../../xRay/EntityListInfoBox'
 {=/ isXRayModeEnabled =}
 
@@ -134,7 +133,6 @@ export class {= listName =} extends React.Component {
         listName="{= listName =}"
         list={list}
       >
-        <>
       {=/ isXRayModeEnabled =}
 
         {=# mutexFiltersConfig =}
@@ -210,7 +208,6 @@ export class {= listName =} extends React.Component {
           </Table>
         </Paper>
         {=# isXRayModeEnabled =}
-          </>
         </EntityListInfoBox>
         {=/ isXRayModeEnabled =}
       </div>
@@ -221,9 +218,6 @@ export class {= listName =} extends React.Component {
 export default connect(state => ({
   // Selectors
   {= entityLowerName =}List: {= entityLowerName =}State.selectors.all(state),
-  {=# isXRayModeEnabled =}
-  isXRayModeOn: xRayState.selectors.isXRayModeOn(state)
-  {=/ isXRayModeEnabled =}
 }), {
   // Actions
   update{= entityName =}: {= entityLowerName =}Actions.update

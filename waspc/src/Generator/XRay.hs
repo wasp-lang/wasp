@@ -22,6 +22,9 @@ generateXRayDir = map (simpleNoDataTemplateFileDraft . (pathToXRayDir </>))
     , [relfile|EntityListInfoBox.js|]
     , [relfile|ButtonInfoBox.js|]
     , [relfile|JsonBrowser.js|]
+    , [relfile|XRayPopover.js|]
+    , [relfile|XRayPopover.css|]
+    , [relfile|XRaySwitch.js|]
     ]
     where
         pathToXRayDir = [reldir|src|] </> [reldir|xRay|]
