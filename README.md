@@ -1,13 +1,6 @@
-```
-                                                                 _  _
-                             __      ____ _ ___ _ __            | )/ )
-                             \ \ /\ / / _` / __| '_ \        \\ |//,' __
-                              \ V  V / (_| \__ \ |_) |       (")(_)-"()))=-
-                               \_/\_/ \__,_|___/ .__/           (\\
-                                               |_|
-```
-
-
+<p align=center>
+  <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
+</p>
 
 <p align=center> A programming language that understands what a web app is. </p>
 <br>
@@ -17,6 +10,17 @@
 
 - **Project page**: [https://wasp-lang.dev]
 - **Demo**: [https://wasp-lang.dev/#demo]
+
+<br>
+
+```
+                                                                 _  _
+                             __      ____ _ ___ _ __            | )/ )
+                             \ \ /\ / / _` / __| '_ \        \\ |//,' __
+                              \ V  V / (_| \__ \ |_) |       (")(_)-"()))=-
+                               \_/\_/ \__,_|___/ .__/           (\\
+                                               |_|
+```
 
 <br>
 
