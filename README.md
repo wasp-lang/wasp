@@ -97,7 +97,7 @@ We are still very early (pre-alpha). Specifically, we are developing `waspc` (Wa
 Currently, `waspc` is in a state where the main parts are there (code analysis and generation) and we are successfully generating code as can be seen at [TodoApp example](examples/todoApp).
 
 The language itself supports a narrow set of features for now, not enough for serious web app development, but we believe it is a good basis to build upon.  
-The next step is to expand the language (and compiler) so it can serve the role of a powerful code generator - it will still not have enough features to keep you from ejecting for a very long time, but it will be enough to give you a quick start.  
+The next step is to expand the language (and compiler) so it can serve the role of a smart code generator - it will still not have enough features to keep you from ejecting for a very long time, but it will be enough to give you a quick start.  
 Finally, as it grows further, it should allow the development of web apps of increasing complexity without the need to eject!
 
 While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + Redux, NodeJS + ExpressJS, Mongo. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
