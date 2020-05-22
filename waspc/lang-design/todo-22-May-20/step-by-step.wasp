@@ -1,0 +1,80 @@
+// TODO app in Wasp - try #1
+
+
+
+// ------- main.wasp
+
+page MainPage {
+  route: "/",
+  component: MainPageComponent
+}
+
+component MainPageComponent {
+  source: "MainPageComponent.js",
+  queries: {
+    tasks: getAllTasks
+  }
+}
+
+entity Task {
+  description: String,
+  isDone: Boolean
+}
+
+query getAllTasks {
+  uses: [Task],
+  fn: {=js
+    (Task) => {
+      return Task.find({})
+    }
+  js=}
+  // OR source: { import: "getAllTasks", from: "queries.js" }
+}
+
+
+
+
+// ------- MainPageComponent.js
+
+import React from 'react'
+
+export default class MainPageComponent extends React.Component {
+  static propTypes = {
+    tasks: PropTypes.array.object
+  }
+  
+  render() {
+    return <div>
+      { this.props.tasks.map(t => (
+          <div>
+            <span> { t.isDone } </span>
+            <span> { t.description } </span>
+          </div>
+      ))}
+    </div>
+  }
+}
+
+
+
+
+
+
+// -------- CLI
+wasp init
+wasp install
+wasp start
+
+
+// -------- Ideas
+// TODO: When inline JS, figure out how to import. Existing system? Smth new?
+query getAllTasks ~ Task {=js
+  (Task) => {
+    return Task.find({})
+  }
+js=}
+
+@uses(Task)
+query getAllTasks (Task) {
+  return Task.find({})
+}
