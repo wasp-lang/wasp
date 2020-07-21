@@ -1,4 +1,4 @@
-module Generator.Entity
+module Generator.WebAppGenerator.EntityGenerator
        ( generateEntities
 
        , entityDirPathInSrc
@@ -28,15 +28,14 @@ import Util (jsonSet)
 import Wasp
 import qualified Wasp.Action
 import Generator.FileDraft
-import qualified Generator.Common as Common
-import Generator.Entity.EntityForm (generateEntityCreateForm)
-import Generator.Entity.EntityList (generateEntityList)
-import Generator.Entity.Common
+import qualified Generator.WebAppGenerator.Common as Common
+import Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator (generateEntityCreateForm)
+import Generator.WebAppGenerator.EntityGenerator.EntityListGenerator (generateEntityList)
+import Generator.WebAppGenerator.EntityGenerator.Common
     ( entityTemplatesDirPath
     , entityTemplateData
     , entityDirPathInSrc
     )
-
 
 generateEntities :: Wasp -> [FileDraft]
 generateEntities wasp = concat $ generateEntity wasp <$> getEntities wasp
@@ -112,7 +111,7 @@ createEntityFileDraft dstPathInSrc srcPathInEntityTemplatesDir maybeTemplateData
     createTemplateFileDraft dstPath srcPath maybeTemplateData
   where
     srcPath = entityTemplatesDirPath </> srcPathInEntityTemplatesDir
-    dstPath = Common.srcDirPath </> dstPathInSrc
+    dstPath = Common.webAppSrcDirInProjectRootDir </> dstPathInSrc
 
 -- * Paths of generated code (relative to src/ directory)
 

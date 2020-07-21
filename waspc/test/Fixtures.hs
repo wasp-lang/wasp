@@ -2,7 +2,7 @@ module Fixtures where
 
 import Wasp
 import qualified Wasp.EntityForm as EF
-import qualified Generator.Entity.EntityForm as GEF
+import qualified Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator as GEF
 
 app :: App
 app = App

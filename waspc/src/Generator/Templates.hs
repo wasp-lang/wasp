@@ -19,9 +19,6 @@ import qualified Paths_waspc
 --   so that we can mock it.
 
 -- | Returns absolute path of templates root directory.
---   NOTE(Martin): Here I set it to react-app, which might be one lvl too deep
---     and will require some changes in the future, but did not want to
---     overengineer for now.
 getTemplatesDirAbsPath :: IO Path.AbsDir
 getTemplatesDirAbsPath = do
     absDataDirPath <- Paths_waspc.getDataDir >>= Path.parseAbsDir
@@ -35,14 +32,8 @@ getTemplateFileAbsPath tmplFilePathInTemplatesDir =
   where
     tmplFilePathInDataDir = templatesDirPathInDataDir </> tmplFilePathInTemplatesDir
 
--- | NOTE(Martin): Here I set it to react-app, which might be one lvl too deep
--- and will require some changes in the future, but did not want to
--- overengineer for now.
 templatesDirPathInDataDir :: Path.RelDir
-templatesDirPathInDataDir = reactAppTemplatesDirPathInDataDir
-
-reactAppTemplatesDirPathInDataDir :: Path.RelDir
-reactAppTemplatesDirPathInDataDir = [reldir|Generator|] </> [reldir|templates|] </> [reldir|react-app|]
+templatesDirPathInDataDir = [reldir|Generator|] </> [reldir|templates|]
 
 compileAndRenderTemplate
     :: Path.RelFile  -- ^ Path to the template file, relative to templates root dir.

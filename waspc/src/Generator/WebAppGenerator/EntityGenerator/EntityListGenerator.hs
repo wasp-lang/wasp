@@ -1,4 +1,4 @@
-module Generator.Entity.EntityList
+module Generator.WebAppGenerator.EntityGenerator.EntityListGenerator
     ( generateEntityList
     , entityListPathInSrc
     ) where
@@ -11,15 +11,13 @@ import Path ((</>), reldir, relfile, parseRelFile)
 import qualified Path.Aliases as Path
 
 import qualified Util as U
-
 import qualified Wasp
 import Wasp (Wasp)
 import qualified Wasp.EntityList as WEL
 import qualified Wasp.JsCode
-
 import qualified Generator.FileDraft as FD
-import qualified Generator.Entity.Common as EC
-import qualified Generator.Common as Common
+import qualified Generator.WebAppGenerator.EntityGenerator.Common as EC
+import qualified Generator.WebAppGenerator.Common as Common
 
 
 -- * List template data
@@ -184,7 +182,7 @@ generateEntityList wasp entityList =
 
     templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|List.js|]
 
-    dstPath = Common.srcDirPath </> (entityListPathInSrc entity entityList)
+    dstPath = Common.webAppSrcDirInProjectRootDir </> (entityListPathInSrc entity entityList)
 
     templateData = toJSON $ createEntityListTemplateData entity entityList
 

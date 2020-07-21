@@ -1,4 +1,4 @@
-module Generator.PageGenerator
+module Generator.WebAppGenerator.PageGenerator
        ( generatePages
 
        -- EXPORTED ONLY FOR TESTS:
@@ -24,11 +24,11 @@ import qualified Wasp.Style as WStyle
 import qualified Wasp.JsImport as WJsImport
 import qualified Wasp.Entity as WEntity
 import Generator.FileDraft
-import qualified Generator.Entity as EntityGenerator
-import qualified Generator.Entity.EntityForm as GEF
-import qualified Generator.Entity.EntityList as GEL
-import Generator.ExternalCode.Common (externalCodeDirPathInSrc)
-import qualified Generator.Common as Common
+import qualified Generator.WebAppGenerator.EntityGenerator as EntityGenerator
+import qualified Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator as GEF
+import qualified Generator.WebAppGenerator.EntityGenerator.EntityListGenerator as GEL
+import qualified Generator.WebAppGenerator.Common as Common
+import Generator.WebAppGenerator.ExternalCodeGenerator (extCodeDirInWebAppSrcDir)
 
 
 generatePages :: Wasp -> [FileDraft]
@@ -41,10 +41,10 @@ generatePage wasp page =
     ++ maybe [] fst (generatePageStyle wasp page)
 
 generatePageComponent :: Wasp -> WP.Page -> FileDraft
-generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just templateData)
+generatePageComponent wasp page = Common.makeTemplateFD srcPath dstPath (Just templateData)
   where
     srcPath = [reldir|src|] </> [relfile|_Page.js|]
-    dstPath = Common.srcDirPath </> pageDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".js")
+    dstPath = Common.webAppSrcDirInWebAppRootDir </> pageDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".js")
     templateData = object $
         [ "wasp" .= wasp
         , "page" .= page
@@ -95,7 +95,7 @@ generatePageComponent wasp page = createTemplateFileDraft dstPath srcPath (Just 
         -- NOTE: Here we assume that "from" is relative to external code dir path.
         --   If this part will be reused, consider externalizing this assumption, so we don't have it on multiple places.
         , "from" .= (buildImportPathFromPathInSrc $
-                     externalCodeDirPathInSrc </> (WJsImport.jsImportFrom jsImport))
+                     extCodeDirInWebAppSrcDir </> (WJsImport.jsImportFrom jsImport))
         ]
 
 pageDirPathInSrc :: Path.RelDir
@@ -119,9 +119,9 @@ generatePageStyle _ page = makeDraftsAndPath <$> WP.pageStyle page
     makeDraftsAndPath :: WStyle.Style -> ([FileDraft], Path.RelFile)
     makeDraftsAndPath (WStyle.CssCode code) =
         let stylePathInSrcDir = fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
-            draftDstPath = Common.srcDirPath </> stylePathInSrcDir
+            draftDstPath = Common.webAppSrcDirInProjectRootDir </> stylePathInSrcDir
         in ( [createTextFileDraft draftDstPath code]
            , fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
            )
     makeDraftsAndPath (WStyle.ExtCodeCssFile pathInExtCodeDir) =
-        ([], externalCodeDirPathInSrc </> pathInExtCodeDir)
+        ([], extCodeDirInWebAppSrcDir </> pathInExtCodeDir)
