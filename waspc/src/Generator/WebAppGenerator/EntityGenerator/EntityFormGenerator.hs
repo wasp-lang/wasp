@@ -1,4 +1,4 @@
-module Generator.Entity.EntityForm
+module Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator
     ( generateEntityCreateForm
 
       -- For testing
@@ -19,8 +19,8 @@ import Wasp (Wasp)
 
 import qualified Wasp.EntityForm as WEF
 import qualified Generator.FileDraft as FD
-import qualified Generator.Entity.Common as EC
-import qualified Generator.Common as Common
+import qualified Generator.WebAppGenerator.EntityGenerator.Common as EC
+import qualified Generator.WebAppGenerator.Common as Common
 
 -- | Data which will be fed to the Mustache "create form" template.
 data EntityFormTemplateData = EntityFormTemplateData
@@ -134,7 +134,7 @@ generateEntityCreateForm wasp entityForm =
 
     templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|CreateForm.js|]
 
-    dstPath = Common.srcDirPath </> (entityCreateFormPathInSrc entity entityForm)
+    dstPath = Common.webAppSrcDirInProjectRootDir </> (entityCreateFormPathInSrc entity entityForm)
 
     templateData = toJSON $ createEntityFormTemplateData entity entityForm
 

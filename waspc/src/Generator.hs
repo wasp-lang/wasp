@@ -14,7 +14,8 @@ import qualified Path.Aliases as Path
 
 import CompileOptions (CompileOptions)
 import Wasp (Wasp)
-import Generator.Generators (generateWebApp)
+import Generator.WebAppGenerator (generateWebApp)
+import Generator.ServerGenerator (genServer)
 import Generator.FileDraft (FileDraft, write)
 
 
@@ -26,6 +27,7 @@ import Generator.FileDraft (FileDraft, write)
 writeWebAppCode :: Wasp -> Path.AbsDir -> CompileOptions -> IO ()
 writeWebAppCode wasp dstDir compileOptions = do
     writeFileDrafts dstDir (generateWebApp wasp compileOptions)
+    writeFileDrafts dstDir (genServer wasp compileOptions)
     writeDotWaspInfo dstDir
 
 -- | Writes file drafts while using given destination dir as root dir.

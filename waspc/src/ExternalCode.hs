@@ -1,7 +1,8 @@
 module ExternalCode
     ( File
-    , getFilePathInExtCodeDir
-    , getFileText
+    , filePathInExtCodeDir
+    , fileAbsPath
+    , fileText
     , readFiles
     ) where
 
@@ -16,6 +17,7 @@ import qualified Util.IO
 
 data File = File
     { _pathInExtCodeDir :: !Path.RelFile  -- ^ Path relative to external code directory.
+    , _extCodeDirPath :: !Path.AbsDir  -- ^ Absolute path of external code directory.
     , _text :: TextL.Text  -- ^ File content. It will throw error when evaluated if file is not textual file.
     }
 
@@ -26,13 +28,16 @@ instance Eq File where
     f1 == f2 = (_pathInExtCodeDir f1) == (_pathInExtCodeDir f2)
 
 -- | Returns path relative to the external code directory.
-getFilePathInExtCodeDir :: File -> Path.RelFile
-getFilePathInExtCodeDir = _pathInExtCodeDir
+filePathInExtCodeDir :: File -> Path.RelFile
+filePathInExtCodeDir = _pathInExtCodeDir
 
 -- | Unsafe method: throws error if text could not be read (if file is not a textual file)!
-getFileText :: File -> Text
-getFileText = TextL.toStrict . _text
+fileText :: File -> Text
+fileText = TextL.toStrict . _text
 
+-- | Returns absolute path of the external code file.
+fileAbsPath :: ExternalCode.File -> Path.AbsFile
+fileAbsPath file = _extCodeDirPath file Path.</> _pathInExtCodeDir file
 
 -- | Returns all files contained in the specified external code dir, recursively.
 -- File paths are relative to the specified external code dir path.
@@ -54,6 +59,6 @@ readFiles extCodeDirPath = do
     --     In generator, when creating TextFileDraft, give it function/logic for text transformation,
     --     and it will be taken care of when draft will be written to the disk.
     fileTexts <- mapM (TextL.IO.readFile . Path.toFilePath) absFilePaths
-    let files = map (\(path, text) -> File path text) (zip relFilePaths fileTexts)
+    let files = map (\(path, text) -> File path extCodeDirPath text) (zip relFilePaths fileTexts)
     return files
 

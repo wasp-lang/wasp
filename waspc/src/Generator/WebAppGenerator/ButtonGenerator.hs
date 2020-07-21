@@ -1,4 +1,4 @@
-module Generator.Button
+module Generator.WebAppGenerator.ButtonGenerator
        ( generateButtons
        ) where
 
@@ -14,9 +14,9 @@ import qualified Path.Extra as Path
 import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Button as WButton
-import Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import qualified Generator.Entity
-import qualified Generator.Common as Common
+import Generator.FileDraft (FileDraft)
+import qualified Generator.WebAppGenerator.EntityGenerator as EntityGen
+import qualified Generator.WebAppGenerator.Common as Common
 
 generateButtons :: Wasp -> [FileDraft]
 generateButtons wasp = concatMap (generateButton wasp) (Wasp.getButtons wasp)
@@ -27,16 +27,16 @@ generateButton wasp button =
     ]
 
 generateButtonComponent :: Wasp -> WButton.Button -> FileDraft
-generateButtonComponent wasp button = createTemplateFileDraft dstPath srcPath (Just templateData)
+generateButtonComponent wasp button = Common.makeTemplateFD srcPath dstPath (Just templateData)
   where
     srcPath = [reldir|src|] </> [reldir|components|] </> [relfile|_Button.js|]
-    dstPath = Common.srcDirPath </> buttonDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WButton._name button) ++ ".js")
+    dstPath = Common.webAppSrcDirInWebAppRootDir </> buttonDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WButton._name button) ++ ".js")
 
     onClickActionData :: Maybe Aeson.Value
     onClickActionData = do
       actionName <- WButton._onClickActionName button
       action <- Wasp.getActionByName wasp actionName
-      let (pathInSrc, exportedIdentifier) = Generator.Entity.getImportInfoForAction wasp action
+      let (pathInSrc, exportedIdentifier) = EntityGen.getImportInfoForAction wasp action
       return $ object [ "importPath" .= buildImportPathFromPathInSrc pathInSrc
                       , "exportedIdentifier" .= exportedIdentifier
                       ]

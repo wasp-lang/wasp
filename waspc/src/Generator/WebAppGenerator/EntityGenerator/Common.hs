@@ -1,4 +1,4 @@
-module Generator.Entity.Common
+module Generator.WebAppGenerator.EntityGenerator.Common
     ( entityTemplatesDirPath
     , entityDirPathInSrc
     , entityTemplateData
@@ -15,10 +15,11 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Text as Text
 import Path ((</>), reldir)
 import qualified Path
-import qualified Path.Aliases as Path
 
+import qualified Path.Aliases as Path
 import qualified Util
 import Wasp
+import Generator.WebAppGenerator.Common (webAppTemplatesDirInTemplatesDir)
 
 -- | Path of the entity-related generated code, relative to src/ directory.
 entityDirPathInSrc :: Entity -> Path.RelDir
@@ -31,7 +32,7 @@ entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> [reldir|co
 
 -- | Location in templates where entity related templates reside.
 entityTemplatesDirPath :: Path.RelDir
-entityTemplatesDirPath = [reldir|src|] </> [reldir|entities|] </> [reldir|_entity|]
+entityTemplatesDirPath = webAppTemplatesDirInTemplatesDir </> [reldir|src/entities/_entity|]
 
 -- | Default generic data for entity templates.
 entityTemplateData :: Wasp -> Entity -> Aeson.Value

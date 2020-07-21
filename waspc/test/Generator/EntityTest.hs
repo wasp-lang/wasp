@@ -7,7 +7,7 @@ import Path ((</>), relfile)
 import Wasp
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
-import Generator.Entity
+import Generator.WebAppGenerator.EntityGenerator
 
 
 spec_EntityGenerator :: Spec

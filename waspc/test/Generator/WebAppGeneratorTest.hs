@@ -1,4 +1,4 @@
-module Generator.GeneratorsTest where
+module Generator.WebAppGeneratorTest where
 
 import Test.Tasty.Hspec
 
@@ -8,19 +8,19 @@ import qualified Path
 
 import Util
 import qualified CompileOptions
-import Generator.Generators
+import Generator.WebAppGenerator
 import Generator.FileDraft
 import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Generator.FileDraft.TextFileDraft as TextFD
-import qualified Generator.Common as Common
+import qualified Generator.WebAppGenerator.Common as Common
 import Wasp
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
 --   generator functions and then do property testing on them, that would be cool.
 
-spec_Generators :: Spec
-spec_Generators = do
+spec_WebAppGenerator :: Spec
+spec_WebAppGenerator = do
     let testApp = (App "TestApp" "Test App")
     let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
@@ -37,7 +37,7 @@ spec_Generators = do
             let fileDrafts = generateWebApp testWasp testCompileOptions
             let testEntityDstDirInSrc
                     = "entities" </> (Util.camelToKebabCase (entityName testEntity))
-            let expectedFileDraftDstPaths = concat $
+            let expectedFileDraftDstPaths = map ((Path.toFilePath Common.webAppRootDirInProjectRootDir) </>) $ concat $
                     [ [ "README.md"
                       , "package.json"
                       , ".gitignore"
@@ -47,7 +47,7 @@ spec_Generators = do
                       , "index.html"
                       , "manifest.json"
                       ]
-                    , map ((Path.toFilePath Common.srcDirPath) </>)
+                    , map ((Path.toFilePath Common.webAppSrcDirInWebAppRootDir) </>)
                       [ "logo.png"
                       , "index.css"
                       , "index.js"
