@@ -1,6 +1,6 @@
 .stack-work/
 waspc.cabal
 *~
-/.dir-locals.el
+.dir-locals.el
 stack*.yaml.lock
 /out
