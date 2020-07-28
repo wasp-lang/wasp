@@ -2,13 +2,14 @@ module Generator.FileDraft.Writeable
        ( Writeable(..)
        ) where
 
-import qualified Path.Aliases as Path
-
+import StrongPath (Path, Abs, Dir)
+import Generator.Common (ProjectRootDir)
 import Generator.FileDraft.WriteableMonad
 
+
 class Writeable w where
-    -- | Write file somewhere in the provided dst directory.
+    -- | Write file somewhere in the provided project root directory.
     write :: (WriteableMonad m)
-          => Path.AbsDir  -- ^ Absolute path of dst directory.
+          => Path Abs (Dir ProjectRootDir)
           -> w
           -> m ()

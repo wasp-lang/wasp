@@ -7,9 +7,9 @@ import qualified System.Directory
 import qualified Data.Text.IO
 import Data.Aeson as Aeson
 import Data.Text (Text)
-import qualified Path.Aliases as Path
 
-import qualified Generator.Templates
+import StrongPath (Path, Abs, Rel, File, Dir)
+import qualified Generator.Templates as Templates
 
 
 -- TODO: Should we use DI via data instead of typeclasses?
@@ -36,14 +36,13 @@ class (Monad m) => WriteableMonad m where
     writeFileFromText :: FilePath -> Text -> m ()
 
     getTemplateFileAbsPath
-        :: Path.RelFile  -- ^ Template file path, relative to templates root directory.
-        -> m Path.AbsFile
+        :: Path (Rel Templates.TemplatesDir) File  -- ^ Template file path.
+        -> m (Path Abs File)
 
-    -- | Returns absolute path of templates root directory.
-    getTemplatesDirAbsPath :: m Path.AbsDir
+    getTemplatesDirAbsPath :: m (Path Abs (Dir Templates.TemplatesDir))
 
     compileAndRenderTemplate
-        :: Path.RelFile  -- ^ Path to the template file, relative to template root dir.
+        :: Path (Rel Templates.TemplatesDir) File  -- ^ Template file path.
         -> Aeson.Value  -- ^ JSON to be provided as template data.
         -> m Text
 
@@ -51,6 +50,6 @@ instance WriteableMonad IO where
     createDirectoryIfMissing = System.Directory.createDirectoryIfMissing
     copyFile = System.Directory.copyFile
     writeFileFromText = Data.Text.IO.writeFile
-    getTemplateFileAbsPath = Generator.Templates.getTemplateFileAbsPath
-    getTemplatesDirAbsPath = Generator.Templates.getTemplatesDirAbsPath
-    compileAndRenderTemplate = Generator.Templates.compileAndRenderTemplate
+    getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
+    getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
+    compileAndRenderTemplate = Templates.compileAndRenderTemplate

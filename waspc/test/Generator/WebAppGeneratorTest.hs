@@ -3,9 +3,9 @@ module Generator.WebAppGeneratorTest where
 import Test.Tasty.Hspec
 
 import System.FilePath ((</>), (<.>))
-import Path (absdir)
-import qualified Path
+import qualified Path as P
 
+import qualified StrongPath as SP
 import Util
 import qualified CompileOptions
 import Generator.WebAppGenerator
@@ -26,7 +26,7 @@ spec_WebAppGenerator = do
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
     let testCompileOptions = CompileOptions.CompileOptions
-            { CompileOptions.externalCodeDirPath = [absdir|/test/src|]
+            { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir [P.absdir|/test/src|]
             }
 
     describe "generateWebApp" $ do
@@ -37,7 +37,7 @@ spec_WebAppGenerator = do
             let fileDrafts = generateWebApp testWasp testCompileOptions
             let testEntityDstDirInSrc
                     = "entities" </> (Util.camelToKebabCase (entityName testEntity))
-            let expectedFileDraftDstPaths = map ((Path.toFilePath Common.webAppRootDirInProjectRootDir) </>) $ concat $
+            let expectedFileDraftDstPaths = map ((SP.toFilePath Common.webAppRootDirInProjectRootDir) </>) $ concat $
                     [ [ "README.md"
                       , "package.json"
                       , ".gitignore"
@@ -47,7 +47,7 @@ spec_WebAppGenerator = do
                       , "index.html"
                       , "manifest.json"
                       ]
-                    , map ((Path.toFilePath Common.webAppSrcDirInWebAppRootDir) </>)
+                    , map ((SP.toFilePath Common.webAppSrcDirInWebAppRootDir) </>)
                       [ "logo.png"
                       , "index.css"
                       , "index.js"
@@ -78,6 +78,6 @@ existsFdWithDst fds dstPath = any ((== dstPath) . getFileDraftDstPath) fds
 -- TODO(martin): This should really become part of the Writeable typeclass,
 --   since it is smth we want to do for all file drafts.
 getFileDraftDstPath :: FileDraft -> FilePath
-getFileDraftDstPath (FileDraftTemplateFd fd) = Path.toFilePath $ TmplFD._dstPath fd
-getFileDraftDstPath (FileDraftCopyFd fd) = Path.toFilePath $ CopyFD._dstPath fd
-getFileDraftDstPath (FileDraftTextFd fd) = Path.toFilePath $ TextFD._dstPath fd
+getFileDraftDstPath (FileDraftTemplateFd fd) = SP.toFilePath $ TmplFD._dstPath fd
+getFileDraftDstPath (FileDraftCopyFd fd) = SP.toFilePath $ CopyFD._dstPath fd
+getFileDraftDstPath (FileDraftTextFd fd) = SP.toFilePath $ TextFD._dstPath fd

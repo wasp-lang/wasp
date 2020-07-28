@@ -7,29 +7,29 @@ module Generator.WebAppGenerator.ExternalCodeGenerator
 
 import qualified Text.Regex as TR
 import Data.Text (Text, pack, unpack)
-import Path (reldir)
-import qualified Path
-import qualified Path.Aliases as Path
-import qualified Path.Extra as Path
-import Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy(..))
+import qualified Path as P
+
+import StrongPath (Path, Rel, Dir, File, (</>))
+import qualified StrongPath as SP
+import Path.Extra (reversePath)
+import Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy(..), GeneratedExternalCodeDir)
 import qualified Generator.WebAppGenerator.Common as C
 
 -- | Relative path to directory where external code will be generated.
 -- Relative to web app src dir.
-extCodeDirInWebAppSrcDir :: Path.RelDir
-extCodeDirInWebAppSrcDir = [reldir|ext-src|]
+extCodeDirInWebAppSrcDir :: Path (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
+extCodeDirInWebAppSrcDir = SP.fromPathRelDir [P.reldir|ext-src|]
 
 generatorStrategy :: ExternalCodeGeneratorStrategy
 generatorStrategy = ExternalCodeGeneratorStrategy
     { _resolveJsFileWaspImports = resolveJsFileWaspImports
     , _extCodeDirInProjectRootDir = C.webAppRootDirInProjectRootDir
-                                    Path.</> C.webAppSrcDirInWebAppRootDir
-                                    Path.</> extCodeDirInWebAppSrcDir
+                                    </> C.webAppSrcDirInWebAppRootDir
+                                    </> extCodeDirInWebAppSrcDir
     }
 
 resolveJsFileWaspImports
-    -- | Path where this JS file will be generated, relative to the generated external code dir.
-    :: Path.RelFile
+    :: Path (Rel GeneratedExternalCodeDir) File -- ^ Path where this JS file will be generated.
     -> Text -- ^ Original text of the file.
     -> Text -- ^ Text of the file with special "@wasp" imports resolved (replaced with normal JS imports).
 resolveJsFileWaspImports jsFileDstPathInExtCodeDir jsFileText = pack $
@@ -44,6 +44,6 @@ resolveJsFileWaspImports jsFileDstPathInExtCodeDir jsFileText = pack $
     -- https://hackage.haskell.org/package/regex-posix-0.96.0.0/docs/Text-Regex-Posix-String.html
     TR.subRegex (TR.mkRegex "(from +['\"])@wasp/")
                 (unpack jsFileText)
-                ("\\1" ++ Path.reversePath (Path.parent jsFileDstPathInWebAppSrcDir) ++ "/")
+                ("\\1" ++ reversePath (SP.toPathRelDir $ SP.parent jsFileDstPathInWebAppSrcDir) ++ "/")
   where
-    jsFileDstPathInWebAppSrcDir = extCodeDirInWebAppSrcDir Path.</> jsFileDstPathInExtCodeDir
+    jsFileDstPathInWebAppSrcDir = extCodeDirInWebAppSrcDir </> jsFileDstPathInExtCodeDir

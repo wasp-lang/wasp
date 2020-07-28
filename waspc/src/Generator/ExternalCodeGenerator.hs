@@ -3,8 +3,9 @@ module Generator.ExternalCodeGenerator
        ) where
 
 import qualified System.FilePath as FP
-import qualified Path
 
+import StrongPath (Path, Rel, File, (</>))
+import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
 import qualified ExternalCode as EC
@@ -24,11 +25,15 @@ generateExternalCodeDir strategy wasp =
 generateFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> FD.FileDraft
 generateFile strategy file
     | extension `elem` [".js", ".jsx"] = generateJsFile strategy file
-    | otherwise = let relDstPath = (C._extCodeDirInProjectRootDir strategy) Path.</> EC.filePathInExtCodeDir file
+    | otherwise = let relDstPath = (C._extCodeDirInProjectRootDir strategy)
+                                   </> dstPathInGenExtCodeDir
                       absSrcPath = EC.fileAbsPath file
                   in FD.createCopyFileDraft relDstPath absSrcPath
   where
-    extension = FP.takeExtension $ Path.toFilePath $ EC.filePathInExtCodeDir file
+    dstPathInGenExtCodeDir :: Path (Rel C.GeneratedExternalCodeDir) File
+    dstPathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir $ EC.filePathInExtCodeDir file
+
+    extension = FP.takeExtension $ SP.toFilePath $ EC.filePathInExtCodeDir file
 
 
 

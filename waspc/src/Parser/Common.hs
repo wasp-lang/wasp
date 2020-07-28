@@ -7,8 +7,7 @@ module Parser.Common where
 import Text.Parsec (ParseError, parse, anyChar, manyTill, try, unexpected)
 import Text.Parsec.String (Parser)
 import qualified Data.Text as T
-import qualified Path
-import qualified Path.Aliases as Path
+import qualified Path as P
 
 import qualified Lexer as L
 
@@ -134,9 +133,9 @@ strip :: String -> String
 strip = T.unpack . T.strip . T.pack
 
 -- | Parses relative file path, e.g. "my/file.txt".
-relFilePathString :: Parser Path.RelFile
+relFilePathString :: Parser (P.Path P.Rel P.File)
 relFilePathString = do
     path <- L.stringLiteral
     maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
           return
-          (Path.parseRelFile path)
+          (P.parseRelFile path)

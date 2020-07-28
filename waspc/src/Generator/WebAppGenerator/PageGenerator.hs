@@ -11,11 +11,11 @@ import Data.Maybe (fromJust)
 import Data.Aeson ((.=), object)
 import qualified Data.Aeson as Aeson
 import qualified System.FilePath as FP
-import Path ((</>), relfile, reldir)
-import qualified Path
-import qualified Path.Aliases as Path
-import qualified Path.Extra as Path
+import qualified Path as P
 
+import Path.Extra (reversePath)
+import StrongPath (Path, File, Rel, Dir, (</>))
+import qualified StrongPath as SP
 import qualified Util
 import Wasp (Wasp)
 import qualified Wasp
@@ -24,6 +24,7 @@ import qualified Wasp.Style as WStyle
 import qualified Wasp.JsImport as WJsImport
 import qualified Wasp.Entity as WEntity
 import Generator.FileDraft
+import Generator.ExternalCodeGenerator.Common (castRelPathFromSrcToGenExtCodeDir)
 import qualified Generator.WebAppGenerator.EntityGenerator as EntityGenerator
 import qualified Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator as GEF
 import qualified Generator.WebAppGenerator.EntityGenerator.EntityListGenerator as GEL
@@ -41,10 +42,11 @@ generatePage wasp page =
     ++ maybe [] fst (generatePageStyle wasp page)
 
 generatePageComponent :: Wasp -> WP.Page -> FileDraft
-generatePageComponent wasp page = Common.makeTemplateFD srcPath dstPath (Just templateData)
+generatePageComponent wasp page = Common.makeTemplateFD tmplPath dstPath (Just templateData)
   where
-    srcPath = [reldir|src|] </> [relfile|_Page.js|]
-    dstPath = Common.webAppSrcDirInWebAppRootDir </> pageDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".js")
+    tmplPath = (SP.fromPathRelFile [P.relfile|src/_Page.js|]) :: Path (Rel Common.WebAppTemplatesDir) File
+    dstPath = Common.webAppSrcDirInWebAppRootDir </> pageDirPathInSrc
+              </> (fromJust $ SP.parseRelFile $ (WP.pageName page) ++ ".js")
     templateData = object $
         [ "wasp" .= wasp
         , "page" .= page
@@ -94,34 +96,34 @@ generatePageComponent wasp page = Common.makeTemplateFD srcPath dstPath (Just te
         [ "what" .= WJsImport.jsImportWhat jsImport
         -- NOTE: Here we assume that "from" is relative to external code dir path.
         --   If this part will be reused, consider externalizing this assumption, so we don't have it on multiple places.
-        , "from" .= (buildImportPathFromPathInSrc $
-                     extCodeDirInWebAppSrcDir </> (WJsImport.jsImportFrom jsImport))
+        , "from" .= (buildImportPathFromPathInSrc $ extCodeDirInWebAppSrcDir
+                     </> (castRelPathFromSrcToGenExtCodeDir $ WJsImport.jsImportFrom jsImport))
         ]
 
-pageDirPathInSrc :: Path.RelDir
-pageDirPathInSrc = [reldir|.|]
+data PageDir
+
+pageDirPathInSrc :: Path (Rel Common.WebAppSrcDir) (Dir PageDir)
+pageDirPathInSrc = SP.fromPathRelDir [P.reldir|.|]
 
 relPathFromPageToSrc :: FilePath
-relPathFromPageToSrc = Path.reversePath pageDirPathInSrc
+relPathFromPageToSrc = reversePath $ SP.toPathRelDir pageDirPathInSrc
 
 -- | Takes path relative to the src path of generated project and turns it into relative path that can be
 -- used as "from" part of the import in the Page source file.
 -- NOTE: Here we return FilePath instead of Path because we need stuff like "./" or "../" in the path,
 -- which Path would normalize away.
-buildImportPathFromPathInSrc :: Path.Path Path.Rel a -> FilePath
-buildImportPathFromPathInSrc pathInSrc = relPathFromPageToSrc FP.</> (Path.toFilePath pathInSrc)
+buildImportPathFromPathInSrc :: Path (Rel Common.WebAppSrcDir) a -> FilePath
+buildImportPathFromPathInSrc pathInSrc = relPathFromPageToSrc FP.</> (SP.toFilePath pathInSrc)
 
 -- Returns file draft(s) that need to be created (if any) +
 -- file path via which to import the style (relative to generated src dir).
-generatePageStyle :: Wasp -> WP.Page -> Maybe ([FileDraft], Path.RelFile)
+generatePageStyle :: Wasp -> WP.Page -> Maybe ([FileDraft], Path (Rel Common.WebAppSrcDir) File)
 generatePageStyle _ page = makeDraftsAndPath <$> WP.pageStyle page
   where
-    makeDraftsAndPath :: WStyle.Style -> ([FileDraft], Path.RelFile)
+    makeDraftsAndPath :: WStyle.Style -> ([FileDraft], Path (Rel Common.WebAppSrcDir) File)
     makeDraftsAndPath (WStyle.CssCode code) =
-        let stylePathInSrcDir = fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
+        let stylePathInSrcDir = fromJust $ SP.parseRelFile $ (WP.pageName page) ++ ".css"
             draftDstPath = Common.webAppSrcDirInProjectRootDir </> stylePathInSrcDir
-        in ( [createTextFileDraft draftDstPath code]
-           , fromJust $ Path.parseRelFile $ (WP.pageName page) ++ ".css"
-           )
+        in ([createTextFileDraft draftDstPath code], stylePathInSrcDir)
     makeDraftsAndPath (WStyle.ExtCodeCssFile pathInExtCodeDir) =
-        ([], extCodeDirInWebAppSrcDir </> pathInExtCodeDir)
+        ([], extCodeDirInWebAppSrcDir </> (castRelPathFromSrcToGenExtCodeDir pathInExtCodeDir))

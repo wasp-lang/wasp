@@ -4,9 +4,9 @@ import Test.Tasty.Hspec
 
 import Data.Aeson (object, (.=))
 import Data.Text (Text)
-import qualified Path
-import Path ((</>), absdir, relfile)
+import qualified Path as P
 
+import qualified StrongPath as SP
 import Generator.FileDraft
 
 import qualified Generator.MockWriteableMonad as Mock
@@ -21,15 +21,19 @@ spec_TemplateFileDraft = do
             Mock.compileAndRenderTemplate_calls mockLogs
                 `shouldBe` [(templatePath, templateData)]
             Mock.createDirectoryIfMissing_calls mockLogs
-                `shouldBe` [(True, Path.toFilePath $ Path.parent expectedDstPath)]
+                `shouldBe` [(True, SP.toFilePath $ SP.parent expectedDstPath)]
             Mock.writeFileFromText_calls mockLogs
-                `shouldBe` [(Path.toFilePath expectedDstPath, mockTemplateContent)]
+                `shouldBe` [(SP.toFilePath expectedDstPath, mockTemplateContent)]
               where
-                (dstDir, dstPath, templatePath) = ([absdir|/a/b|], [relfile|c/d/dst.txt|], [relfile|e/tmpl.txt|])
+                (dstDir, dstPath, templatePath) =
+                    ( SP.fromPathAbsDir [P.absdir|/a/b|]
+                    , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
+                    , SP.fromPathRelFile [P.relfile|e/tmpl.txt|]
+                    )
                 templateData = object [ "foo" .= ("bar" :: String) ]
                 fileDraft = createTemplateFileDraft dstPath templatePath (Just templateData)
-                expectedDstPath = dstDir </> dstPath
-                mockTemplatesDirAbsPath = [absdir|/mock/templates/dir|]
+                expectedDstPath = dstDir SP.</> dstPath
+                mockTemplatesDirAbsPath = SP.fromPathAbsDir [P.absdir|/mock/templates/dir|]
                 mockTemplateContent = "Mock template content" :: Text
                 mockConfig = Mock.defaultMockConfig
                     { Mock.getTemplatesDirAbsPath_impl = mockTemplatesDirAbsPath

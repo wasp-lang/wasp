@@ -2,8 +2,9 @@ module Parser.ParserTest where
 
 import Test.Tasty.Hspec
 import Data.Either
-import Path (relfile)
+import qualified Path as P
 
+import qualified StrongPath as SP
 import Parser
 import Wasp
 import qualified Wasp.EntityForm as EF
@@ -55,7 +56,7 @@ spec_parseWasp =
                         { pageName = "TestPage"
                         , pageRoute = "/test"
                         , pageContent = "<div>This is a test page!</div>"
-                        , pageStyle = Just $ Wasp.Style.ExtCodeCssFile [relfile|test.css|]
+                        , pageStyle = Just $ Wasp.Style.ExtCodeCssFile $ SP.fromPathRelFile [P.relfile|test.css|]
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"
@@ -112,5 +113,5 @@ spec_parseWasp =
                             ]
                         }
                     ]
-                    `setJsImports` [ JsImport "something" [relfile|some/file|] ]
+                    `setJsImports` [ JsImport "something" (SP.fromPathRelFile [P.relfile|some/file|]) ]
                 )

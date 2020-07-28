@@ -2,9 +2,9 @@ module Generator.FileDraft.CopyFileDraftTest where
 
 import Test.Tasty.Hspec
 
-import qualified Path
-import Path ((</>), absdir, relfile, absfile)
+import qualified Path as P
 
+import qualified StrongPath as SP
 import Generator.FileDraft
 
 import qualified Generator.MockWriteableMonad as Mock
@@ -17,11 +17,15 @@ spec_CopyFileDraft = do
             let mock = write dstDir fileDraft
             let mockLogs = Mock.getMockLogs mock Mock.defaultMockConfig
             Mock.createDirectoryIfMissing_calls mockLogs
-                `shouldBe` [(True, Path.toFilePath $ Path.parent expectedDstPath)]
+                `shouldBe` [(True, SP.toFilePath $ SP.parent expectedDstPath)]
             Mock.copyFile_calls mockLogs
-                `shouldBe` [(Path.toFilePath expectedSrcPath, Path.toFilePath expectedDstPath)]
+                `shouldBe` [(SP.toFilePath expectedSrcPath, SP.toFilePath expectedDstPath)]
               where
-                (dstDir, dstPath, srcPath) = ([absdir|/a/b|], [relfile|c/d/dst.txt|], [absfile|/e/src.txt|])
+                (dstDir, dstPath, srcPath) =
+                    ( SP.fromPathAbsDir [P.absdir|/a/b|]
+                    , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
+                    , SP.fromPathAbsFile [P.absfile|/e/src.txt|]
+                    )
                 fileDraft = createCopyFileDraft dstPath srcPath
                 expectedSrcPath = srcPath
-                expectedDstPath = dstDir </> dstPath
+                expectedDstPath = dstDir SP.</> dstPath

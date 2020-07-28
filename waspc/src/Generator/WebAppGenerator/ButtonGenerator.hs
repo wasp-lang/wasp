@@ -6,11 +6,11 @@ import Data.Maybe (fromJust)
 import Data.Aeson ((.=), object)
 import qualified Data.Aeson as Aeson
 import qualified System.FilePath as FP
-import Path ((</>), relfile, reldir)
-import qualified Path
-import qualified Path.Aliases as Path
-import qualified Path.Extra as Path
+import qualified Path as P
 
+import Path.Extra (reversePath)
+import StrongPath (Path, Rel, Dir, File, (</>))
+import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Button as WButton
@@ -27,10 +27,14 @@ generateButton wasp button =
     ]
 
 generateButtonComponent :: Wasp -> WButton.Button -> FileDraft
-generateButtonComponent wasp button = Common.makeTemplateFD srcPath dstPath (Just templateData)
+generateButtonComponent wasp button = Common.makeTemplateFD tmplPath dstPath (Just templateData)
   where
-    srcPath = [reldir|src|] </> [reldir|components|] </> [relfile|_Button.js|]
-    dstPath = Common.webAppSrcDirInWebAppRootDir </> buttonDirPathInSrc </> (fromJust $ Path.parseRelFile $ (WButton._name button) ++ ".js")
+    tmplPath :: Path (Rel Common.WebAppTemplatesDir) File
+    tmplPath = (SP.fromPathRelFile [P.relfile|src/components/_Button.js|])
+
+    dstPath = Common.webAppSrcDirInWebAppRootDir
+              </> buttonDirPathInSrc
+              </> (fromJust $ SP.parseRelFile $ (WButton._name button) ++ ".js")
 
     onClickActionData :: Maybe Aeson.Value
     onClickActionData = do
@@ -47,12 +51,15 @@ generateButtonComponent wasp button = Common.makeTemplateFD srcPath dstPath (Jus
         ]
         ++ maybe [] (\d -> ["onClickAction" .= d]) onClickActionData
 
-buttonDirPathInSrc :: Path.RelDir
-buttonDirPathInSrc = [reldir|components|]
+data ButtonDir
+
+buttonDirPathInSrc :: Path (Rel Common.WebAppSrcDir) (Dir ButtonDir)
+buttonDirPathInSrc = SP.fromPathRelDir [P.reldir|components|]
 
 -- | Takes path relative to the src path of generated project and turns it into relative path that can be
 -- used as "from" part of the import in the button component source file.
 -- NOTE: Here we return FilePath instead of Path because we need stuff like "./" or "../" in the path,
 -- which Path would normalize away.
-buildImportPathFromPathInSrc :: Path.Path Path.Rel a -> FilePath
-buildImportPathFromPathInSrc pathInSrc = (Path.reversePath buttonDirPathInSrc) FP.</> (Path.toFilePath pathInSrc)
+buildImportPathFromPathInSrc :: Path (Rel Common.WebAppSrcDir) a -> FilePath
+buildImportPathFromPathInSrc pathInSrc = (reversePath $ SP.toPathRelDir buttonDirPathInSrc)
+                                         FP.</> (SP.toFilePath pathInSrc)

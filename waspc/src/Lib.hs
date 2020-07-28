@@ -1,22 +1,24 @@
 module Lib
     ( compile
+    , ProjectRootDir
     ) where
 
+import StrongPath (Path, Abs, File, Dir)
+import qualified StrongPath as SP
 import CompileOptions (CompileOptions)
 import qualified CompileOptions
 import qualified ExternalCode
 import qualified Parser
 import qualified Generator
 import Wasp (setExternalCodeFiles)
-import qualified Path
-import qualified Path.Aliases as Path
+import Generator.Common (ProjectRootDir)
 
 
 type CompileError = String
 
-compile :: Path.AbsFile -> Path.AbsDir -> CompileOptions -> IO (Either CompileError ())
+compile :: Path Abs File -> Path Abs (Dir ProjectRootDir)-> CompileOptions -> IO (Either CompileError ())
 compile waspFile outDir options = do
-    waspStr <- readFile (Path.toFilePath waspFile)
+    waspStr <- readFile (SP.toFilePath waspFile)
 
     case Parser.parseWasp waspStr of
         Left err -> return $ Left (show err)

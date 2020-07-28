@@ -7,32 +7,50 @@ module Generator.WebAppGenerator.EntityGenerator.Common
     , addEntityFieldTypeToJsonAsKeyWithValueTrue
     , getEntityLowerName
     , getEntityClassName
+    , asEntityTmplFile 
+    , EntityDir
+    , EntityComponentsDir
+    , EntityTemplatesDir
     ) where
 
 import Data.Maybe (fromJust)
 import Data.Aeson ((.=), object)
 import qualified Data.Aeson as Aeson
 import qualified Data.Text as Text
-import Path ((</>), reldir)
-import qualified Path
+import qualified Path as P
 
-import qualified Path.Aliases as Path
+import StrongPath (Path, Rel, Dir, File, (</>))
+import qualified StrongPath as SP
 import qualified Util
 import Wasp
-import Generator.WebAppGenerator.Common (webAppTemplatesDirInTemplatesDir)
+import Generator.WebAppGenerator.Common (webAppTemplatesDirInTemplatesDir, WebAppSrcDir)
+import Generator.Templates (TemplatesDir)
 
--- | Path of the entity-related generated code, relative to src/ directory.
-entityDirPathInSrc :: Entity -> Path.RelDir
-entityDirPathInSrc entity = [reldir|entities|] </>
-                            (fromJust $ Path.parseRelDir $ Util.camelToKebabCase (entityName entity))
 
--- | Path of the code generated for entity components, relative to src/ directory.
-entityComponentsDirPathInSrc :: Entity -> Path.RelDir
-entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> [reldir|components|]
+
+data EntityDir
+
+-- | Path of the entity-related generated code.
+entityDirPathInSrc :: Entity -> Path (Rel WebAppSrcDir) (Dir EntityDir)
+entityDirPathInSrc entity = SP.fromPathRelDir [P.reldir|entities|] </> entityDirInEntitiesDir
+  where entityDirInEntitiesDir = (fromJust $ SP.parseRelDir $ Util.camelToKebabCase (entityName entity))
+
+data EntityComponentsDir
+
+-- | Path of the code generated for entity components.
+entityComponentsDirPathInSrc :: Entity -> Path (Rel WebAppSrcDir) (Dir EntityComponentsDir)
+entityComponentsDirPathInSrc entity = (entityDirPathInSrc entity) </> SP.fromPathRelDir [P.reldir|components|]
+
+data EntityTemplatesDir
 
 -- | Location in templates where entity related templates reside.
-entityTemplatesDirPath :: Path.RelDir
-entityTemplatesDirPath = webAppTemplatesDirInTemplatesDir </> [reldir|src/entities/_entity|]
+entityTemplatesDirPath :: Path (Rel TemplatesDir) (Dir EntityTemplatesDir)
+entityTemplatesDirPath = webAppTemplatesDirInTemplatesDir </> SP.fromPathRelDir [P.reldir|src/entities/_entity|]
+
+
+asEntityTmplFile :: P.Path P.Rel P.File -> Path (Rel EntityTemplatesDir) File
+asEntityTmplFile = SP.fromPathRelFile
+
 
 -- | Default generic data for entity templates.
 entityTemplateData :: Wasp -> Entity -> Aeson.Value
