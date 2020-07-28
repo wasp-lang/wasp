@@ -11,9 +11,11 @@ module Generator.MockWriteableMonad
 import Data.Text (Text, pack)
 import Control.Monad.State
 import qualified Data.Aeson as Aeson
-import Path ((</>), absdir)
-import qualified Path.Aliases as Path
+import qualified Path as P
 
+import StrongPath (Path, Rel, Abs, Dir, File)
+import qualified StrongPath as SP
+import Generator.Templates (TemplatesDir)
 import Generator.FileDraft.WriteableMonad
 
 
@@ -23,8 +25,8 @@ import Generator.FileDraft.WriteableMonad
 
 defaultMockConfig :: MockWriteableMonadConfig
 defaultMockConfig = MockWriteableMonadConfig
-    { getTemplatesDirAbsPath_impl = [absdir|/mock/templates/dir|]
-    , getTemplateFileAbsPath_impl = \path -> [absdir|/mock/templates/dir|] </> path
+    { getTemplatesDirAbsPath_impl = SP.fromPathAbsDir [P.absdir|/mock/templates/dir|]
+    , getTemplateFileAbsPath_impl = \path -> SP.fromPathAbsDir [P.absdir|/mock/templates/dir|] SP.</> path
     , compileAndRenderTemplate_impl = \_ _ -> (pack "Mock template content")
     }
 
@@ -71,14 +73,14 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     , getTemplatesDirAbsPath_calls :: [()]
     , createDirectoryIfMissing_calls :: [(Bool, FilePath)]
     , copyFile_calls :: [(FilePath, FilePath)]
-    , getTemplateFileAbsPath_calls :: [(Path.RelFile)]
-    , compileAndRenderTemplate_calls :: [(Path.RelFile, Aeson.Value)]
+    , getTemplateFileAbsPath_calls :: [(Path (Rel TemplatesDir) File)]
+    , compileAndRenderTemplate_calls :: [(Path (Rel TemplatesDir) File, Aeson.Value)]
     }
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
-    { getTemplatesDirAbsPath_impl :: Path.AbsDir
-    , getTemplateFileAbsPath_impl :: Path.RelFile -> Path.AbsFile
-    , compileAndRenderTemplate_impl :: Path.RelFile -> Aeson.Value -> Text
+    { getTemplatesDirAbsPath_impl :: Path Abs (Dir TemplatesDir)
+    , getTemplateFileAbsPath_impl :: Path (Rel TemplatesDir) File -> Path Abs File
+    , compileAndRenderTemplate_impl :: Path (Rel TemplatesDir) File -> Aeson.Value -> Text
     }
 
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs
@@ -89,7 +91,7 @@ getTemplatesDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLo
 getTemplatesDirAbsPath_addCall logs =
     logs { getTemplatesDirAbsPath_calls = ():(getTemplatesDirAbsPath_calls logs) }
 
-getTemplateFileAbsPath_addCall :: Path.RelFile -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+getTemplateFileAbsPath_addCall :: Path (Rel TemplatesDir) File -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplateFileAbsPath_addCall path logs =
     logs { getTemplateFileAbsPath_calls = (path):(getTemplateFileAbsPath_calls logs) }
 
@@ -102,7 +104,10 @@ createDirectoryIfMissing_addCall createParents path logs =
     logs { createDirectoryIfMissing_calls =
            (createParents, path):(createDirectoryIfMissing_calls logs) }
 
-compileAndRenderTemplate_addCall :: Path.RelFile -> Aeson.Value -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+compileAndRenderTemplate_addCall :: Path (Rel TemplatesDir) File
+                                 -> Aeson.Value
+                                 -> MockWriteableMonadLogs
+                                 -> MockWriteableMonadLogs
 compileAndRenderTemplate_addCall path json logs =
     logs { compileAndRenderTemplate_calls =
            (path, json):(compileAndRenderTemplate_calls logs) }

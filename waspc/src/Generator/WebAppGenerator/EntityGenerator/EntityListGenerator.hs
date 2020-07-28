@@ -7,9 +7,10 @@ import Control.Exception (assert)
 import Data.Aeson ((.=), object, ToJSON(..), toJSON)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import Path ((</>), reldir, relfile, parseRelFile)
-import qualified Path.Aliases as Path
+import qualified Path as P
 
+import StrongPath (Path, Rel, File, (</>))
+import qualified StrongPath as SP
 import qualified Util as U
 import qualified Wasp
 import Wasp (Wasp)
@@ -180,14 +181,14 @@ generateEntityList wasp entityList =
         id
         (Wasp.getEntityByName wasp (WEL._entityName entityList))
 
-    templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|List.js|]
+    templateSrcPath = EC.entityTemplatesDirPath </> SP.fromPathRelFile [P.relfile|components/List.js|]
 
     dstPath = Common.webAppSrcDirInProjectRootDir </> (entityListPathInSrc entity entityList)
 
     templateData = toJSON $ createEntityListTemplateData entity entityList
 
 -- | Path in the generated src dir where the given entity list will be located.
-entityListPathInSrc :: Wasp.Entity -> WEL.EntityList -> Path.RelFile
+entityListPathInSrc :: Wasp.Entity -> WEL.EntityList -> Path (Rel Common.WebAppSrcDir) File
 entityListPathInSrc entity entityList =
     EC.entityComponentsDirPathInSrc entity </>
-    (fromJust $ parseRelFile $ (WEL._name entityList) ++ ".js")
+    (fromJust $ SP.parseRelFile $ (WEL._name entityList) ++ ".js")

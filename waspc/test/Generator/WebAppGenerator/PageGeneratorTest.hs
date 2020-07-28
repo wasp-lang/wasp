@@ -2,8 +2,9 @@ module Generator.WebAppGenerator.PageGeneratorTest where
 
 import Test.Tasty.Hspec
 
-import Path (relfile)
+import qualified Path as P
 
+import qualified StrongPath as SP
 import Wasp
 import Generator.FileDraft
 import Generator.FileDraft.TemplateFileDraft
@@ -20,4 +21,4 @@ spec_PageGenerator = do
         it "Given a simple Wasp, creates template file draft from _Page.js" $ do
             let (FileDraftTemplateFd (TemplateFileDraft _ srcPath _))
                     = generatePageComponent testWasp (head $ getPages testWasp)
-            srcPath `shouldBe` [relfile|react-app/src/_Page.js|]
+            srcPath `shouldBe` SP.fromPathRelFile [P.relfile|react-app/src/_Page.js|]

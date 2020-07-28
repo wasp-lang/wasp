@@ -8,17 +8,13 @@ module Generator.FileDraft
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
-import qualified Path.Aliases as Path
 
+import StrongPath (Path, Abs, Rel, File)
+import Generator.Templates (TemplatesDir)
+import Generator.Common (ProjectRootDir)
 import Generator.FileDraft.Writeable
-
-import Generator.FileDraft.TemplateFileDraft (TemplateFileDraft)
 import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
-
-import Generator.FileDraft.CopyFileDraft (CopyFileDraft)
 import qualified Generator.FileDraft.CopyFileDraft as CopyFD
-
-import Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Generator.FileDraft.TextFileDraft as TextFD
 
 
@@ -26,9 +22,9 @@ import qualified Generator.FileDraft.TextFileDraft as TextFD
 --   so that in the rest of the system they can be passed around as heterogeneous
 --   collection when needed.
 data FileDraft
-    = FileDraftTemplateFd TemplateFileDraft
-    | FileDraftCopyFd CopyFileDraft
-    | FileDraftTextFd TextFileDraft
+    = FileDraftTemplateFd TmplFD.TemplateFileDraft
+    | FileDraftCopyFd CopyFD.CopyFileDraft
+    | FileDraftTextFd TextFD.TextFileDraft
     deriving (Show, Eq)
 
 instance Writeable FileDraft where
@@ -37,17 +33,20 @@ instance Writeable FileDraft where
     write dstDir (FileDraftTextFd draft) = write dstDir draft
 
 
-createTemplateFileDraft :: Path.RelFile -> Path.RelFile -> Maybe Aeson.Value -> FileDraft
+createTemplateFileDraft :: Path (Rel ProjectRootDir) File
+                        -> Path (Rel TemplatesDir) File
+                        -> Maybe Aeson.Value
+                        -> FileDraft
 createTemplateFileDraft dstPath tmplSrcPath tmplData =
     FileDraftTemplateFd $ TmplFD.TemplateFileDraft { TmplFD._dstPath = dstPath
                                                    , TmplFD._srcPathInTmplDir = tmplSrcPath
                                                    , TmplFD._tmplData = tmplData
                                                    }
 
-createCopyFileDraft :: Path.RelFile -> Path.AbsFile -> FileDraft
+createCopyFileDraft :: Path (Rel ProjectRootDir) File -> Path Abs File -> FileDraft
 createCopyFileDraft dstPath srcPath =
     FileDraftCopyFd $ CopyFD.CopyFileDraft { CopyFD._dstPath = dstPath, CopyFD._srcPath = srcPath}
 
-createTextFileDraft :: Path.RelFile -> Text -> FileDraft
+createTextFileDraft :: Path (Rel ProjectRootDir) File -> Text -> FileDraft
 createTextFileDraft dstPath content =
     FileDraftTextFd $ TextFD.TextFileDraft { TextFD._dstPath = dstPath, TextFD._content = content}

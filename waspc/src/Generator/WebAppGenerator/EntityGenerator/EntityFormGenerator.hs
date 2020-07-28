@@ -9,18 +9,18 @@ module Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator
 import Control.Exception (assert)
 import Data.Aeson ((.=), object, ToJSON(..))
 import Data.Maybe (fromJust)
-import Path ((</>), reldir, relfile)
-import qualified Path
-import qualified Path.Aliases as Path
-import qualified Util
+import qualified Path as P
 
+import qualified Util
+import StrongPath (Path, Rel, File, (</>))
+import qualified StrongPath as SP
 import qualified Wasp as Wasp
 import Wasp (Wasp)
-
 import qualified Wasp.EntityForm as WEF
 import qualified Generator.FileDraft as FD
 import qualified Generator.WebAppGenerator.EntityGenerator.Common as EC
 import qualified Generator.WebAppGenerator.Common as Common
+
 
 -- | Data which will be fed to the Mustache "create form" template.
 data EntityFormTemplateData = EntityFormTemplateData
@@ -61,11 +61,11 @@ instance ToJSON FormFieldTemplateData where
             , "placeholder" .= _fieldPlaceholder f
             , "label" .= _fieldLabel f
             ]
-    
+
 -- | Given entity and an entity form for it, creates a single data structure
 -- with all the values needed by the template to generate the form.
 createEntityFormTemplateData :: Wasp.Entity -> WEF.EntityForm -> EntityFormTemplateData
-createEntityFormTemplateData entity entityForm = 
+createEntityFormTemplateData entity entityForm =
     assert (Wasp.entityName entity == WEF._entityName entityForm) $
 
         EntityFormTemplateData
@@ -86,9 +86,9 @@ createFormFieldTD entityForm entityField = FormFieldTemplateData
     { _fieldName = Wasp.entityFieldName entityField
     , _fieldType = Wasp.entityFieldType entityField
     , _fieldShow = maybe True id $ formFieldConfig >>= WEF._fieldShow
-    , _fieldDefaultValue = maybe 
+    , _fieldDefaultValue = maybe
                             defaultValueIfNothingInForm
-                            id 
+                            id
                             $ formFieldConfig >>= WEF._fieldDefaultValue
     , _fieldPlaceholder = formFieldConfig >>= WEF._fieldPlaceholder
     , _fieldLabel = fieldLabel
@@ -132,13 +132,13 @@ generateEntityCreateForm wasp entityForm =
         id
         (Wasp.getEntityByName wasp (WEF._entityName entityForm))
 
-    templateSrcPath = EC.entityTemplatesDirPath </> [reldir|components|] </> [relfile|CreateForm.js|]
+    templateSrcPath = EC.entityTemplatesDirPath </> SP.fromPathRelFile [P.relfile|components/CreateForm.js|]
 
     dstPath = Common.webAppSrcDirInProjectRootDir </> (entityCreateFormPathInSrc entity entityForm)
 
     templateData = toJSON $ createEntityFormTemplateData entity entityForm
 
-entityCreateFormPathInSrc :: Wasp.Entity -> WEF.EntityForm -> Path.RelFile
+entityCreateFormPathInSrc :: Wasp.Entity -> WEF.EntityForm -> Path (Rel Common.WebAppSrcDir) File
 entityCreateFormPathInSrc entity entityForm =
     EC.entityComponentsDirPathInSrc entity </>
-    (fromJust $ Path.parseRelFile $ (WEF._name entityForm) ++ ".js")
+    (fromJust $ SP.parseRelFile $ (WEF._name entityForm) ++ ".js")

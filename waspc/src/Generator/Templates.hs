@@ -2,6 +2,7 @@ module Generator.Templates
        ( getTemplatesDirAbsPath
        , getTemplateFileAbsPath
        , compileAndRenderTemplate
+       , DataDir, TemplatesDir
        ) where
 
 import qualified Text.Mustache as Mustache
@@ -9,34 +10,46 @@ import Text.Mustache.Render (SubstitutionError(..))
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 import Text.Printf (printf)
-import Path ((</>), reldir)
-import qualified Path
-import qualified Path.Aliases as Path
+import qualified Path as P
+
+import StrongPath (Path, File, Dir, Abs, Rel, (</>))
+import qualified StrongPath as SP
+
 
 import qualified Paths_waspc
 
 -- TODO: Write tests for this file! But first we need to decouple logic from IO
 --   so that we can mock it.
 
+data DataDir
+data TemplatesDir
+
 -- | Returns absolute path of templates root directory.
-getTemplatesDirAbsPath :: IO Path.AbsDir
+getTemplatesDirAbsPath :: IO (Path Abs (Dir TemplatesDir))
 getTemplatesDirAbsPath = do
-    absDataDirPath <- Paths_waspc.getDataDir >>= Path.parseAbsDir
-    return $ absDataDirPath </> templatesDirPathInDataDir
+    dataDir <- getAbsDataDirPath
+    return $ dataDir </> templatesDirPathInDataDir
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
-getTemplateFileAbsPath :: Path.RelFile -> IO Path.AbsFile
-getTemplateFileAbsPath tmplFilePathInTemplatesDir =
-    Paths_waspc.getDataFileName (Path.toFilePath tmplFilePathInDataDir) >>= Path.parseAbsFile
+getTemplateFileAbsPath :: Path (Rel TemplatesDir) File -> IO (Path Abs File)
+getTemplateFileAbsPath tmplFilePathInTemplatesDir = absPathOfTemplateFileInDataDir tmplFilePathInDataDir
   where
+    tmplFilePathInDataDir :: Path (Rel DataDir) File
     tmplFilePathInDataDir = templatesDirPathInDataDir </> tmplFilePathInTemplatesDir
 
-templatesDirPathInDataDir :: Path.RelDir
-templatesDirPathInDataDir = [reldir|Generator|] </> [reldir|templates|]
+    absPathOfTemplateFileInDataDir :: Path (Rel DataDir) File -> IO (Path Abs File)
+    absPathOfTemplateFileInDataDir filePath =
+        (Paths_waspc.getDataFileName $ SP.toFilePath filePath) >>= SP.parseAbsFile
+
+templatesDirPathInDataDir :: Path (Rel DataDir) (Dir TemplatesDir)
+templatesDirPathInDataDir = SP.fromPathRelDir [P.reldir|Generator/templates|]
+
+getAbsDataDirPath :: IO (Path Abs (Dir DataDir))
+getAbsDataDirPath = Paths_waspc.getDataDir >>= SP.parseAbsDir
 
 compileAndRenderTemplate
-    :: Path.RelFile  -- ^ Path to the template file, relative to templates root dir.
+    :: Path (Rel TemplatesDir) File  -- ^ Path to the template file.
     -> Aeson.Value  -- ^ JSON to be provided as template data.
     -> IO Text
 compileAndRenderTemplate relTmplPath tmplData = do
@@ -44,12 +57,13 @@ compileAndRenderTemplate relTmplPath tmplData = do
     renderMustacheTemplate mustacheTemplate tmplData
 
 compileMustacheTemplate
-    :: Path.RelFile  -- ^ Path to the template file, relative to templates root dir.
+    :: Path (Rel TemplatesDir) File  -- ^ Path to the template file.
     -> IO Mustache.Template
 compileMustacheTemplate relTmplPath = do
     templatesDirAbsPath <- getTemplatesDirAbsPath
     absTmplPath <- getTemplateFileAbsPath relTmplPath
-    eitherTemplate <- Mustache.automaticCompile [Path.toFilePath templatesDirAbsPath] (Path.toFilePath absTmplPath)
+    eitherTemplate <- Mustache.automaticCompile [SP.toFilePath templatesDirAbsPath]
+                                                (SP.toFilePath absTmplPath)
     return $ either raiseCompileError id eitherTemplate
   where
     raiseCompileError err = error $  -- TODO: Handle these errors better?

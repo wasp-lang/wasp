@@ -20,11 +20,11 @@ module Generator.WebAppGenerator.EntityGenerator
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import Path ((</>), relfile)
-import qualified Path
-import qualified Path.Aliases as Path
+import qualified Path as P
 import Util (jsonSet)
 
+import StrongPath (Path, Rel, File, (</>))
+import qualified StrongPath as SP
 import Wasp
 import qualified Wasp.Action
 import Generator.FileDraft
@@ -35,6 +35,8 @@ import Generator.WebAppGenerator.EntityGenerator.Common
     ( entityTemplatesDirPath
     , entityTemplateData
     , entityDirPathInSrc
+    , asEntityTmplFile
+    , EntityTemplatesDir
     )
 
 generateEntities :: Wasp -> [FileDraft]
@@ -50,29 +52,33 @@ generateEntity wasp entity =
     ++ generateEntityComponents wasp entity
 
 generateEntityClass :: Wasp -> Entity -> FileDraft
-generateEntityClass wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityClassPathInSrc entity) [relfile|_Entity.js|]
+generateEntityClass wasp entity = createSimpleEntityFileDraft wasp entity dstPath tmplPath
+    where dstPath = entityClassPathInSrc entity
+          tmplPath = asEntityTmplFile [P.relfile|_Entity.js|]
 
 generateEntityState :: Wasp -> Entity -> FileDraft
-generateEntityState wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityStatePathInSrc entity) [relfile|state.js|]
+generateEntityState wasp entity = createSimpleEntityFileDraft wasp entity dstPath tmplPath
+  where dstPath = entityStatePathInSrc entity
+        tmplPath = asEntityTmplFile [P.relfile|state.js|]
 
 generateEntityActionTypes :: Wasp -> Entity -> FileDraft
-generateEntityActionTypes wasp entity
-    = createSimpleEntityFileDraft wasp entity (entityActionTypesPathInSrc entity) [relfile|actionTypes.js|]
+generateEntityActionTypes wasp entity = createSimpleEntityFileDraft wasp entity dstPath tmplPath
+  where dstPath = entityActionTypesPathInSrc entity
+        tmplPath = asEntityTmplFile [P.relfile|actionTypes.js|]
 
 generateEntityActions :: Wasp -> Entity -> FileDraft
-generateEntityActions wasp entity
-    = createEntityFileDraft (entityActionsPathInSrc entity) [relfile|actions.js|] (Just templateData)
+generateEntityActions wasp entity = createEntityFileDraft dstPath tmplPath (Just templateData)
   where
-    entityActions = getActionsForEntity wasp entity
+    dstPath = entityActionsPathInSrc entity
+    tmplPath = asEntityTmplFile [P.relfile|actions.js|]
     templateData = jsonSet "entityActions" (Aeson.toJSON entityActions) (entityTemplateData wasp entity)
+    entityActions = getActionsForEntity wasp entity
 
 -- | Provides information on how to import and use given action.
--- Returns: (path (in src dir) to import action from, identifier under which it is exported).
+-- Returns: (path to import action from, identifier under which it is exported).
 -- NOTE: This function is in this module because this is where logic for generating action is,
 --   but ideally that would move to more-standalone action generator and so would this function.
-getImportInfoForAction :: Wasp -> Wasp.Action.Action -> (Path.RelFile, String)
+getImportInfoForAction :: Wasp -> Wasp.Action.Action -> (Path (Rel Common.WebAppSrcDir) File, String)
 getImportInfoForAction wasp action = (pathInSrc, exportedIdentifier)
   where
     -- NOTE: For now here we bravely assume that entity with such name exists.
@@ -100,30 +106,36 @@ generateEntityLists wasp entity = map (generateEntityList wasp) entityLists
         entityLists = getEntityListsForEntity wasp entity
 
 -- | Helper function that captures common logic for generating entity file draft.
-createSimpleEntityFileDraft :: Wasp -> Entity -> Path.RelFile -> Path.RelFile -> FileDraft
+createSimpleEntityFileDraft :: Wasp
+                            -> Entity
+                            -> Path (Rel Common.WebAppSrcDir) File
+                            -> Path (Rel EntityTemplatesDir) File
+                            -> FileDraft
 createSimpleEntityFileDraft wasp entity dstPathInSrc srcPathInEntityTemplatesDir
     = createEntityFileDraft dstPathInSrc srcPathInEntityTemplatesDir (Just templateData)
   where
     templateData = entityTemplateData wasp entity
 
-createEntityFileDraft :: Path.RelFile -> Path.RelFile -> Maybe Aeson.Value -> FileDraft
+createEntityFileDraft :: Path (Rel Common.WebAppSrcDir) File
+                      -> Path (Rel EntityTemplatesDir) File
+                      -> Maybe Aeson.Value -> FileDraft
 createEntityFileDraft dstPathInSrc srcPathInEntityTemplatesDir maybeTemplateData =
     createTemplateFileDraft dstPath srcPath maybeTemplateData
   where
     srcPath = entityTemplatesDirPath </> srcPathInEntityTemplatesDir
     dstPath = Common.webAppSrcDirInProjectRootDir </> dstPathInSrc
 
--- * Paths of generated code (relative to src/ directory)
+-- * Paths of generated code.
 
-entityStatePathInSrc :: Entity -> Path.RelFile
-entityStatePathInSrc entity = entityDirPathInSrc entity </> [relfile|state.js|]
+entityStatePathInSrc :: Entity -> Path (Rel Common.WebAppSrcDir) File
+entityStatePathInSrc entity = entityDirPathInSrc entity </> SP.fromPathRelFile [P.relfile|state.js|]
 
-entityActionsPathInSrc :: Entity -> Path.RelFile
-entityActionsPathInSrc entity = entityDirPathInSrc entity </> [relfile|actions.js|]
+entityActionsPathInSrc :: Entity -> Path (Rel Common.WebAppSrcDir) File
+entityActionsPathInSrc entity = entityDirPathInSrc entity </> SP.fromPathRelFile [P.relfile|actions.js|]
 
-entityActionTypesPathInSrc :: Entity -> Path.RelFile
-entityActionTypesPathInSrc entity = entityDirPathInSrc entity </> [relfile|actionTypes.js|]
+entityActionTypesPathInSrc :: Entity -> Path (Rel Common.WebAppSrcDir) File
+entityActionTypesPathInSrc entity = entityDirPathInSrc entity </> SP.fromPathRelFile [P.relfile|actionTypes.js|]
 
-entityClassPathInSrc :: Entity -> Path.RelFile
+entityClassPathInSrc :: Entity -> Path (Rel Common.WebAppSrcDir) File
 entityClassPathInSrc entity = entityDirPathInSrc entity </>
-                              (fromJust $ Path.parseRelFile $ (entityName entity) ++ ".js")
+                              (fromJust $ SP.parseRelFile $ (entityName entity) ++ ".js")

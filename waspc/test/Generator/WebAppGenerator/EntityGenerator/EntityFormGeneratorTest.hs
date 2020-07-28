@@ -2,8 +2,7 @@ module Generator.WebAppGenerator.EntityGenerator.EntityFormGeneratorTest where
 
 import Test.Tasty.Hspec
 
-import Path ((</>))
-
+import StrongPath ((</>))
 import Wasp
 import Generator.FileDraft
 import qualified Generator.FileDraft.TemplateFileDraft as TmplFD

@@ -52,6 +52,7 @@ library:
     - path
     - regex-compat
     - time
+    - exceptions
 
 executables:
   waspc-cli:
