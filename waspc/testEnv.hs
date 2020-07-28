@@ -19,6 +19,7 @@ import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy.Char8 as L
 
+import Parser.Common (runWaspParser)
 import Fixtures
 
 -- | Prints any ToJSON instance, useful when testing parser.

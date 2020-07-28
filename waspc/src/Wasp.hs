@@ -31,6 +31,8 @@ module Wasp
     , module Wasp.Page
     , getPages
     , addPage
+    
+    , module Wasp.Route
 
     , setExternalCodeFiles
     , getExternalCodeFiles
@@ -45,6 +47,7 @@ import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
 import Wasp.JsImport
 import Wasp.Page
+import Wasp.Route
 import Wasp.Button
 import Wasp.Action (Action)
 import qualified Wasp.Action
@@ -62,6 +65,7 @@ data Wasp = Wasp
 data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
+    | WaspElementRoute !Route
     | WaspElementEntity !Entity
     | WaspElementEntityForm !EF.EntityForm
     | WaspElementEntityList !EL.EntityList
@@ -112,6 +116,11 @@ setApp wasp app = wasp { waspElements = (WaspElementApp app) : (filter (not . is
 
 fromApp :: App -> Wasp
 fromApp app = fromWaspElems [WaspElementApp app]
+
+-- * Routes
+
+getRoutes :: Wasp -> [Route]
+getRoutes wasp = [route | (WaspElementRoute route) <- waspElements wasp]
 
 -- * Pages
 
@@ -185,5 +194,6 @@ instance ToJSON Wasp where
     toJSON wasp = object
         [ "app" .= getApp wasp
         , "pages" .= getPages wasp
+        , "routes" .= getRoutes wasp
         , "jsImports" .= getJsImports wasp
         ]

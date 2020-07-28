@@ -2,12 +2,19 @@ module Fixtures where
 
 import Wasp
 import qualified Wasp.EntityForm as EF
+import qualified Wasp.Route as RouteAST
 import qualified Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator as GEF
 
 app :: App
 app = App
     { appName = "test_app"
     , appTitle = "Hello World!"
+    }
+
+routeHome :: RouteAST.Route
+routeHome = RouteAST.Route
+    { RouteAST._urlPath = "/home"
+    , RouteAST._targetPage = "Home"
     }
 
 taskEntity :: Entity

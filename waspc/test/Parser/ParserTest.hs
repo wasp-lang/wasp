@@ -29,9 +29,12 @@ spec_parseWasp =
                         { appName = "test_app"
                         , appTitle = "Hello World!"
                         }
+                    , WaspElementRoute $ Route
+                        { _urlPath = "/"
+                        , _targetPage = "Landing"
+                        }
                     , WaspElementPage $ Page
                         { pageName = "Landing"
-                        , pageRoute = "/"
                         -- TODO: This is heavily hardcoded and hard to maintain, we should find
                         --   better way to test this (test a property, not exact text?) Or keep valid.wasp simple?
                         --   Or use manual snapshot file as Matija suggested?
@@ -52,9 +55,12 @@ spec_parseWasp =
                                       \          color: red\n\
                                       \        }"
                         }
+                    , WaspElementRoute $ Route
+                        { _urlPath = "/test"
+                        , _targetPage = "TestPage"
+                        }
                     , WaspElementPage $ Page
                         { pageName = "TestPage"
-                        , pageRoute = "/test"
                         , pageContent = "<div>This is a test page!</div>"
                         , pageStyle = Just $ Wasp.Style.ExtCodeCssFile $ SP.fromPathRelFile [P.relfile|test.css|]
                         }
