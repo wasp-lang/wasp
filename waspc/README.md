@@ -111,6 +111,12 @@ For benchmarking we are using [**Criterion**](http://www.serpentine.com/criterio
 
 You can run benchmark with `stack bench`.
 
+## Linting
+
+If using Hlint as linter, be aware that Hlint doesn't know which default extensions are we using via Stack/cabal, so it might be missing some extension and therefore report false errors.
+
+Hlint already adds a lot of extensions on its own so this is not a very often problem, but if that happens, add default extensions to .hlint.yaml so that Hlint knows to use them.
+
 ## Other
 
 Wasp ascii art used in the title is from https://www.asciiart.eu/animals/insects/bees, author: Stef00.

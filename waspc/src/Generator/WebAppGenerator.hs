@@ -31,8 +31,6 @@ generateWebApp wasp _ = concatMap ($ wasp)
     ]
 
 
-
-
 generateReadme :: Wasp -> FileDraft
 generateReadme wasp = C.makeSimpleTemplateFD (asTmplFile [P.relfile|README.md|]) wasp
 
