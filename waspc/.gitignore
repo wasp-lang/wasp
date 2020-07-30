@@ -4,3 +4,4 @@ waspc.cabal
 .dir-locals.el
 stack*.yaml.lock
 /out
+dist-newstyle
