@@ -14,7 +14,6 @@ import qualified Parser.Style
 
 data PageProperty
     = Title !String
-    | Route !String
     | Content !String
     | Style !Wasp.Style.Style
     deriving (Show, Eq)
@@ -23,27 +22,17 @@ data PageProperty
 pageProperties :: Parser [PageProperty]
 pageProperties = commaSep1 $
     pagePropertyTitle
-    <|> pagePropertyRoute
     <|> pagePropertyContent
     <|> pagePropertyStyle
 
 pagePropertyTitle :: Parser PageProperty
 pagePropertyTitle = Title <$> waspPropertyStringLiteral "title"
 
-pagePropertyRoute :: Parser PageProperty
-pagePropertyRoute = Route <$> waspPropertyStringLiteral "route"
-
 pagePropertyContent :: Parser PageProperty
 pagePropertyContent = Content <$> waspPropertyJsxClosure "content"
 
 pagePropertyStyle :: Parser PageProperty
 pagePropertyStyle = Style <$> waspProperty "style" Parser.Style.style
-
--- TODO(matija): unsafe, what if empty list?
-getPageRoute :: [PageProperty] -> String
--- TODO(matija): we are repeating this pattern. How can we extract it? Consider using
--- Template Haskell, lens and prism.
-getPageRoute ps = head $ [r | Route r <- ps]
 
 getPageContent :: [PageProperty] -> String
 getPageContent ps = head $ [c | Content c <- ps]
@@ -58,7 +47,6 @@ page = do
 
     return Page.Page
         { Page.pageName = pageName
-        , Page.pageRoute = getPageRoute pageProps
         , Page.pageContent = getPageContent pageProps
         , Page.pageStyle = getPageStyle pageProps
         }

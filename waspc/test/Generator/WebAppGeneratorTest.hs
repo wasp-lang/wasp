@@ -22,7 +22,7 @@ import Wasp
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
     let testApp = (App "TestApp" "Test App")
-    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
+    let testPage = (Page "TestPage" "<div>Test Page</div>" Nothing)
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
     let testCompileOptions = CompileOptions.CompileOptions

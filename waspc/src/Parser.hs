@@ -10,6 +10,7 @@ import qualified Wasp
 import Lexer
 
 import Parser.App (app)
+import Parser.Route (route)
 import Parser.Page (page)
 import Parser.Entity (entity)
 import Parser.Entity.EntityForm (entityForm)
@@ -24,6 +25,7 @@ waspElement :: Parser Wasp.WaspElement
 waspElement
     =   waspElementApp
     <|> waspElementPage
+    <|> waspElementRoute
     <|> waspElementEntity
     <|> waspElementEntityForm
     <|> waspElementEntityList
@@ -41,6 +43,9 @@ waspElementAction = Wasp.WaspElementAction <$> action
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page
+
+waspElementRoute :: Parser Wasp.WaspElement
+waspElementRoute = Wasp.WaspElementRoute <$> route
 
 waspElementEntity :: Parser Wasp.WaspElement
 waspElementEntity = Wasp.WaspElementEntity <$> entity

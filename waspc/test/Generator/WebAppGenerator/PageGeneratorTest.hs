@@ -14,7 +14,7 @@ import Generator.WebAppGenerator.PageGenerator
 spec_PageGenerator :: Spec
 spec_PageGenerator = do
     let testApp = (App "TestApp" "Test App")
-    let testPage = (Page "TestPage" "/test-page" "<div>Test Page</div>" Nothing)
+    let testPage = (Page "TestPage" "<div>Test Page</div>" Nothing)
     let testWasp = (fromApp testApp) `addPage` testPage
 
     describe "generatePageComponent" $ do

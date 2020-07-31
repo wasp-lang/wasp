@@ -19,6 +19,9 @@ reservedNameApp = "app"
 reservedNamePage :: String
 reservedNamePage = "page"
 
+reservedNameRoute :: String
+reservedNameRoute = "route"
+
 reservedNameButton :: String
 reservedNameButton = "button"
 
@@ -55,6 +58,7 @@ reservedNames =
     -- * Wasp element types
     , reservedNameApp
     , reservedNamePage
+    , reservedNameRoute
     , reservedNameEntity
     , reservedNameEntityForm
     , reservedNameButton

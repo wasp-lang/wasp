@@ -10,24 +10,21 @@ import qualified Wasp
 
 spec_parsePage :: Spec
 spec_parsePage =
-    describe "Parsing page wasp" $ do
+    describe "Parsing page declaration" $ do
         let parsePage input = runWaspParser page input
 
-        it "When given valid page wasp declaration, returns correct Wasp.Page" $ do
+        it "When given a valid page declaration, returns correct AST" $ do
             let testPageName = "Landing"
-            let testPageRoute = "/someRoute"
             let testPageContent = "<span/>"
             parsePage (
                 "page " ++ testPageName ++ " { " ++
-                    "route: \"" ++ testPageRoute ++ "\"," ++
                     "content: {=jsx " ++ testPageContent ++ " jsx=}" ++
                 "}")
                 `shouldBe` Right (Wasp.Page
                     { Wasp.pageName = testPageName
-                    , Wasp.pageRoute = testPageRoute
                     , Wasp.pageContent = testPageContent
                     , Wasp.pageStyle = Nothing
                     })
 
         it "When given page wasp declaration without 'page', should return Left" $ do
-            isLeft (parsePage "Landing { route: someRoute }") `shouldBe` True
+            isLeft (parsePage "Landing { route: someRoute, content: <span/> }") `shouldBe` True
