@@ -9,8 +9,8 @@ app todoApp {
     title: "ToDo App"
 }
 
-route "/" -> page Main
 page Main {
+    route: "/",
     style: "@ext/Main.css",
 
     // TODO: We need to make this nicer / more explicit, it is not clear where is this coming from (these props).

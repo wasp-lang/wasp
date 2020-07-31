@@ -9,6 +9,7 @@ import Parser
 import Wasp
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
+import qualified Wasp.Route as R
 import qualified Wasp.Style
 import qualified Wasp.JsCode
 
@@ -29,9 +30,9 @@ spec_parseWasp =
                         { appName = "test_app"
                         , appTitle = "Hello World!"
                         }
-                    , WaspElementRoute $ Route
-                        { _urlPath = "/"
-                        , _targetPage = "Landing"
+                    , WaspElementRoute $ R.Route
+                        { R._urlPath = "/"
+                        , R._targetPage = "Landing"
                         }
                     , WaspElementPage $ Page
                         { pageName = "Landing"
@@ -55,9 +56,9 @@ spec_parseWasp =
                                       \          color: red\n\
                                       \        }"
                         }
-                    , WaspElementRoute $ Route
-                        { _urlPath = "/test"
-                        , _targetPage = "TestPage"
+                    , WaspElementRoute $ R.Route
+                        { R._urlPath = "/test"
+                        , R._targetPage = "TestPage"
                         }
                     , WaspElementPage $ Page
                         { pageName = "TestPage"

@@ -32,8 +32,6 @@ module Wasp
     , getPages
     , addPage
     
-    , module Wasp.Route
-
     , setExternalCodeFiles
     , getExternalCodeFiles
     ) where
