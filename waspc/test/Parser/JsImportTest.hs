@@ -13,7 +13,7 @@ import qualified Wasp
 
 spec_parseJsImport :: Spec
 spec_parseJsImport = do
-    it "Parses external code js import correctly" $ do
+    it "Parses external code js import with default import correctly" $ do
         runWaspParser jsImport "import something from \"@ext/some/file.js\""
             `shouldBe` Right (Wasp.JsImport "something" (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
@@ -25,11 +25,19 @@ spec_parseJsImport = do
         runWaspParser jsImport "import somethingfrom from \"@ext/some/file.js\""
             `shouldBe` Right (Wasp.JsImport "somethingfrom" (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
+    it "Parses correctly when 'what' is a single named export" $ do
+        runWaspParser jsImport "import { something } from \"@ext/some/file.js\""
+            `shouldBe` Right (Wasp.JsImport "something" (SP.fromPathRelFile [P.relfile|some/file.js|]))
+
+    it "For now we don't support multiple named exports in WHAT part" $ do
+        isLeft (runWaspParser jsImport "import { foo, bar } from \"@ext/some/file.js\"")
+            `shouldBe` True
+
     it "Throws error if there is no whitespace after import" $ do
         isLeft (runWaspParser jsImport "importsomething from \"@ext/some/file.js\"")
             `shouldBe` True
 
-    it "Throws error if import is not from external code" $ do
+    it "Throws error if 'from' part is not referring to the external code" $ do
         isLeft (runWaspParser jsImport "import something from \"some/file.js\"")
             `shouldBe` True
 
