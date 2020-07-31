@@ -37,7 +37,7 @@ spec_parseJsImport = do
         isLeft (runWaspParser jsImport "importsomething from \"@ext/some/file.js\"")
             `shouldBe` True
 
-    it "Throws error if 'from' part is not referring to external code" $ do
+    it "Throws error if 'from' part is not referring to the external code" $ do
         isLeft (runWaspParser jsImport "import something from \"some/file.js\"")
             `shouldBe` True
 
