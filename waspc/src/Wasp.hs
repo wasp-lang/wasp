@@ -31,6 +31,7 @@ module Wasp
     , module Wasp.Page
     , getPages
     , addPage
+    , getRoutes
 
     , getQueries
     , addQuery

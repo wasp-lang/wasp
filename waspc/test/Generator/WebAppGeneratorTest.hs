@@ -2,7 +2,7 @@ module Generator.WebAppGeneratorTest where
 
 import Test.Tasty.Hspec
 
-import System.FilePath ((</>), (<.>))
+import System.FilePath ((</>))
 import qualified Path as P
 
 import qualified StrongPath as SP
@@ -22,9 +22,8 @@ import Wasp
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
     let testApp = (App "TestApp" "Test App")
-    let testPage = (Page "TestPage" "<div>Test Page</div>" Nothing)
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
-    let testWasp = (fromApp testApp) `addPage` testPage `addEntity` testEntity
+    let testWasp = (fromApp testApp) `addEntity` testEntity
     let testCompileOptions = CompileOptions.CompileOptions
             { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir [P.absdir|/test/src|]
             }
@@ -54,7 +53,6 @@ spec_WebAppGenerator = do
                       , "reducers.js"
                       , "router.js"
                       , "serviceWorker.js"
-                      , (pageName testPage <.> "js")
                       , "store/index.js"
                       , "store/middleware/logger.js"
                       , testEntityDstDirInSrc </> "actions.js"

@@ -10,34 +10,12 @@ app test_app {
 
 route "/" -> page Landing
 page Landing {
-    content: {=jsx
-        <div>
-          My landing page! I have { this.props.taskList.length } tasks.
-
-          <div>
-            <TaskCreateForm
-              onCreate={task => this.props.addTask(task)}
-              submitButtonLabel={'Create new task'}
-            />
-          </div>
-
-          My tasks
-          <TaskList />
-        </div>
-    jsx=},
-    style: {=css
-        div {
-          color: red
-        }
-    css=}
+    component: import Landing from "@ext/pages/Landing"
 }
 
 route "/test" -> page TestPage
 page TestPage {
-    content: {=jsx
-        <div>This is a test page!</div>
-    jsx=},
-    style: "@ext/test.css"
+    component: import Test from "@ext/pages/Test"
 }
 
 // Entity definition.

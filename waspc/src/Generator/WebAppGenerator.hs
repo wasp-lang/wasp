@@ -13,7 +13,7 @@ import Wasp
 import Generator.FileDraft
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import qualified Generator.WebAppGenerator.EntityGenerator as EntityGenerator
-import qualified Generator.WebAppGenerator.PageGenerator as PageGenerator
+import qualified Generator.WebAppGenerator.RouterGenerator as RouterGenerator
 import qualified Generator.WebAppGenerator.ButtonGenerator as ButtonGenerator
 import Generator.WebAppGenerator.Common (asTmplFile, asWebAppFile, asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common as C
@@ -58,15 +58,14 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
     = generateLogo
+      : RouterGenerator.generateRouter wasp
       : map makeSimpleSrcTemplateFD
         [ [P.relfile|index.js|]
         , [P.relfile|index.css|]
-        , [P.relfile|router.js|]
         , [P.relfile|serviceWorker.js|]
         , [P.relfile|store/index.js|]
         , [P.relfile|store/middleware/logger.js|]
         ]
-    ++ PageGenerator.generatePages wasp
     ++ EntityGenerator.generateEntities wasp
     ++ ButtonGenerator.generateButtons wasp
     ++ [generateReducersJs wasp]

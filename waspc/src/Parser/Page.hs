@@ -4,41 +4,35 @@ module Parser.Page
 
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Data.Maybe (listToMaybe)
+import Data.Maybe (listToMaybe, fromMaybe)
+
+import qualified Wasp.Page as Page
+import Wasp.JsImport (JsImport)
 
 import Lexer
-import qualified Wasp.Page as Page
-import qualified Wasp.Style
 import Parser.Common
-import qualified Parser.Style
+import qualified Parser.JsImport
 
 data PageProperty
     = Title !String
-    | Content !String
-    | Style !Wasp.Style.Style
+    | Component !JsImport
     deriving (Show, Eq)
 
 -- | Parses Page properties, separated by a comma.
 pageProperties :: Parser [PageProperty]
 pageProperties = commaSep1 $
     pagePropertyTitle
-    <|> pagePropertyContent
-    <|> pagePropertyStyle
+    <|> pagePropertyComponent
 
+-- NOTE(matija): this is currently unused?
 pagePropertyTitle :: Parser PageProperty
 pagePropertyTitle = Title <$> waspPropertyStringLiteral "title"
 
-pagePropertyContent :: Parser PageProperty
-pagePropertyContent = Content <$> waspPropertyJsxClosure "content"
+pagePropertyComponent :: Parser PageProperty
+pagePropertyComponent = Component <$> waspProperty "component" Parser.JsImport.jsImport
 
-pagePropertyStyle :: Parser PageProperty
-pagePropertyStyle = Style <$> waspProperty "style" Parser.Style.style
-
-getPageContent :: [PageProperty] -> String
-getPageContent ps = head $ [c | Content c <- ps]
-
-getPageStyle :: [PageProperty] -> Maybe Wasp.Style.Style
-getPageStyle ps = listToMaybe [s | Style s <- ps]
+getPageComponent :: [PageProperty] -> Maybe JsImport
+getPageComponent ps = listToMaybe [c | Component c <- ps]
 
 -- | Top level parser, parses Page.
 page :: Parser Page.Page
@@ -46,7 +40,6 @@ page = do
     (pageName, pageProps) <- waspElementNameAndClosure reservedNamePage pageProperties
 
     return Page.Page
-        { Page.pageName = pageName
-        , Page.pageContent = getPageContent pageProps
-        , Page.pageStyle = getPageStyle pageProps
+        { Page._name = pageName
+        , Page._component = fromMaybe (error "Page component is missing.") (getPageComponent pageProps)
         }
