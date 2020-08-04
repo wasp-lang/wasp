@@ -2,9 +2,9 @@
 import React from 'react'
 import { Route, BrowserRouter as Router } from 'react-router-dom'
 
-{=# routes =}
-import {= targetPage =} from './{= targetPage =}'
-{=/ routes =}
+{=# pagesToImport =}
+import {= importWhat =} from "{= importFrom =}"
+{=/ pagesToImport =}
 
 
 const router = (

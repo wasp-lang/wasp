@@ -22,7 +22,8 @@ query = do
     (queryName, queryProps) <- C.waspElementNameAndClosure L.reservedNameQuery queryProperties
     return Wasp.Query.Query
         { Wasp.Query._name = queryName
-        , Wasp.Query._jsFunction = fromMaybe (error "Query js function is missing.") (getQueryJsFunction queryProps)
+        , Wasp.Query._jsFunction =
+            fromMaybe (error "Query js function is missing.") (getQueryJsFunction queryProps)
         }
 
 data QueryProperty = JsFunction !Wasp.JsImport.JsImport

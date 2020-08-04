@@ -10,7 +10,7 @@ import Wasp
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
 import qualified Wasp.Route as R
-import qualified Wasp.Style
+import qualified Wasp.Page
 import qualified Wasp.JsCode
 import qualified Wasp.Query
 import qualified Wasp.JsImport
@@ -35,36 +35,25 @@ spec_parseWasp =
                         { R._urlPath = "/"
                         , R._targetPage = "Landing"
                         }
-                    , WaspElementPage $ Page
-                        { pageName = "Landing"
-                        -- TODO: This is heavily hardcoded and hard to maintain, we should find
-                        --   better way to test this (test a property, not exact text?) Or keep valid.wasp simple?
-                        --   Or use manual snapshot file as Matija suggested?
-                        , pageContent = "<div>\n\
-                                        \          My landing page! I have { this.props.taskList.length } tasks.\n\
-                                        \\n\
-                                        \          <div>\n\
-                                        \            <TaskCreateForm\n\
-                                        \              onCreate={task => this.props.addTask(task)}\n\
-                                        \              submitButtonLabel={'Create new task'}\n\
-                                        \            />\n\
-                                        \          </div>\n\
-                                        \\n\
-                                        \          My tasks\n\
-                                        \          <TaskList />\n\
-                                        \        </div>"
-                        , pageStyle = Just $ Wasp.Style.CssCode "div {\n\
-                                      \          color: red\n\
-                                      \        }"
+                    , WaspElementPage $ Wasp.Page.Page
+                        { Wasp.Page._name = "Landing"
+                        , Wasp.Page._component = Wasp.JsImport.JsImport
+                            { Wasp.JsImport._defaultImport = Just "Landing"
+                            , Wasp.JsImport._namedImports = []
+                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|pages/Landing|]
+                            }
                         }
                     , WaspElementRoute $ R.Route
                         { R._urlPath = "/test"
                         , R._targetPage = "TestPage"
                         }
-                    , WaspElementPage $ Page
-                        { pageName = "TestPage"
-                        , pageContent = "<div>This is a test page!</div>"
-                        , pageStyle = Just $ Wasp.Style.ExtCodeCssFile $ SP.fromPathRelFile [P.relfile|test.css|]
+                    , WaspElementPage $ Wasp.Page.Page
+                        { Wasp.Page._name = "TestPage"
+                        , Wasp.Page._component = Wasp.JsImport.JsImport
+                            { Wasp.JsImport._defaultImport = Just "Test"
+                            , Wasp.JsImport._namedImports = []
+                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|pages/Test|]
+                            }
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"

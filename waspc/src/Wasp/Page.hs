@@ -3,20 +3,16 @@ module Wasp.Page
     ) where
 
 import Data.Aeson ((.=), object, ToJSON(..))
-
-import qualified Wasp.Style as WStyle
+import Wasp.JsImport (JsImport)
 
 
 data Page = Page
-    { pageName :: !String
-    , pageContent :: !String
-    -- | TODO(martin): I did not know how to apply strictness annotation (!) here.
-    , pageStyle :: Maybe WStyle.Style
+    { _name :: !String
+    , _component :: !JsImport
     } deriving (Show, Eq)
 
 instance ToJSON Page where
     toJSON page = object
-        [ "name" .= pageName page
-        , "content" .= pageContent page
-        , "style" .= pageStyle page
+        [ "name" .= _name page
+        , "component" .= _component page
         ]
