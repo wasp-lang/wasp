@@ -86,3 +86,7 @@ js=}
 action<Task> deleteDoneAction {=js
   tasks => tasks.filter(t => !t.isDone)
 js=} 
+
+query getTasks {
+  fn: import { getTasks } from "@ext/queries.js"
+}

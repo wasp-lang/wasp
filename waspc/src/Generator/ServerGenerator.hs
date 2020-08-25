@@ -9,8 +9,10 @@ import qualified StrongPath as SP
 import Wasp (Wasp)
 import CompileOptions (CompileOptions)
 import Generator.FileDraft (FileDraft)
+import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Generator.ServerGenerator.Common (asTmplFile, asServerFile)
 import qualified Generator.ServerGenerator.Common as C
+import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 
 
 genServer :: Wasp -> CompileOptions -> [FileDraft]
@@ -21,6 +23,7 @@ genServer wasp _ = concat
     , [genNvmrc wasp]
     , [genGitignore wasp]
     , genSrcDir wasp
+    , generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy wasp
     ]
 
 genReadme :: Wasp -> FileDraft
