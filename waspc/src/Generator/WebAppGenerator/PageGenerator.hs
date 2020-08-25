@@ -7,7 +7,7 @@ module Generator.WebAppGenerator.PageGenerator
        , generatePageStyle
        ) where
 
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Aeson ((.=), object)
 import qualified Data.Aeson as Aeson
 import qualified System.FilePath as FP
@@ -44,7 +44,7 @@ generatePage wasp page =
 generatePageComponent :: Wasp -> WP.Page -> FileDraft
 generatePageComponent wasp page = Common.makeTemplateFD tmplPath dstPath (Just templateData)
   where
-    tmplPath = (SP.fromPathRelFile [P.relfile|src/_Page.js|]) :: Path (Rel Common.WebAppTemplatesDir) File
+    tmplPath = SP.fromPathRelFile [P.relfile|src/_Page.js|] :: Path (Rel Common.WebAppTemplatesDir) File
     dstPath = Common.webAppSrcDirInWebAppRootDir </> pageDirPathInSrc
               </> (fromJust $ SP.parseRelFile $ (WP.pageName page) ++ ".js")
     templateData = object $
@@ -93,11 +93,11 @@ generatePageComponent wasp page = Common.makeTemplateFD tmplPath dstPath (Just t
 
     toJsImportData :: WJsImport.JsImport -> Aeson.Value
     toJsImportData jsImport = object
-        [ "what" .= WJsImport.jsImportWhat jsImport
+        [ "what" .= fromMaybe (error "Expected default JS import.") (WJsImport.jsImportDefaultImport jsImport)
         -- NOTE: Here we assume that "from" is relative to external code dir path.
         --   If this part will be reused, consider externalizing this assumption, so we don't have it on multiple places.
-        , "from" .= (buildImportPathFromPathInSrc $ extCodeDirInWebAppSrcDir
-                     </> (castRelPathFromSrcToGenExtCodeDir $ WJsImport.jsImportFrom jsImport))
+        , "from" .= buildImportPathFromPathInSrc
+            (extCodeDirInWebAppSrcDir </> castRelPathFromSrcToGenExtCodeDir (WJsImport.jsImportFrom jsImport))
         ]
 
 data PageDir

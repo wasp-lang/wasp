@@ -21,8 +21,7 @@ spec_parseWasp =
             isLeft (parseWasp "hoho") `shouldBe` True
 
         before (readFile "test/Parser/valid.wasp") $ do
-            it "When given a valid wasp source, should return correct\
-                \ Wasp" $ \wasp -> do
+            it "When given a valid wasp source, should return correct Wasp" $ \wasp -> do
                 parseWasp wasp
                 `shouldBe`
                 Right (fromWaspElems
@@ -120,5 +119,5 @@ spec_parseWasp =
                             ]
                         }
                     ]
-                    `setJsImports` [ JsImport "something" (SP.fromPathRelFile [P.relfile|some/file|]) ]
+                    `setJsImports` [ JsImport (Just "something") [] (SP.fromPathRelFile [P.relfile|some/file|]) ]
                 )

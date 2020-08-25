@@ -17,9 +17,15 @@ jsImport :: Parser Wasp.JsImport.JsImport
 jsImport = do
     L.whiteSpace
     _ <- L.reserved L.reservedNameImport
-    what <- L.identifier <|> L.braces L.identifier
+    -- For now we support only default import or one named import.
+    (defaultImport, namedImports) <- ((\i -> (Just i, [])) <$> L.identifier)
+                                     <|> ((\i -> (Nothing, [i])) <$> L.braces L.identifier)
     _ <- L.reserved L.reservedNameFrom
     -- TODO: For now we only support double quotes here, we should also support single quotes.
     --   We would need to write this from scratch, with single quote escaping enabled.
     from <- Parser.ExternalCode.extCodeFilePathString
-    return Wasp.JsImport.JsImport { Wasp.JsImport.jsImportWhat = what, Wasp.JsImport.jsImportFrom = from }
+    return Wasp.JsImport.JsImport
+        { Wasp.JsImport.jsImportDefaultImport = defaultImport
+        , Wasp.JsImport.jsImportNamedImports = namedImports
+        , Wasp.JsImport.jsImportFrom = from
+        }

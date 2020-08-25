@@ -15,19 +15,19 @@ spec_parseJsImport :: Spec
 spec_parseJsImport = do
     it "Parses external code js import with default import correctly" $ do
         runWaspParser jsImport "import something from \"@ext/some/file.js\""
-            `shouldBe` Right (Wasp.JsImport "something" (SP.fromPathRelFile [P.relfile|some/file.js|]))
+            `shouldBe` Right (Wasp.JsImport (Just "something") [] (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
     it "Parses correctly when there is whitespace up front" $ do
         runWaspParser jsImport " import something from \"@ext/some/file.js\""
-            `shouldBe` Right (Wasp.JsImport "something" (SP.fromPathRelFile [P.relfile|some/file.js|]))
+            `shouldBe` Right (Wasp.JsImport (Just "something") [] (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
     it "Parses correctly when 'from' is part of WHAT part" $ do
         runWaspParser jsImport "import somethingfrom from \"@ext/some/file.js\""
-            `shouldBe` Right (Wasp.JsImport "somethingfrom" (SP.fromPathRelFile [P.relfile|some/file.js|]))
+            `shouldBe` Right (Wasp.JsImport (Just "somethingfrom") [] (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
     it "Parses correctly when 'what' is a single named export" $ do
         runWaspParser jsImport "import { something } from \"@ext/some/file.js\""
-            `shouldBe` Right (Wasp.JsImport "something" (SP.fromPathRelFile [P.relfile|some/file.js|]))
+            `shouldBe` Right (Wasp.JsImport Nothing ["something"] (SP.fromPathRelFile [P.relfile|some/file.js|]))
 
     it "For now we don't support multiple named exports in WHAT part" $ do
         isLeft (runWaspParser jsImport "import { foo, bar } from \"@ext/some/file.js\"")
