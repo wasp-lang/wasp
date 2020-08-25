@@ -37,6 +37,9 @@ reservedNameEntityForm = "entity-form"
 reservedNameEntityList :: String
 reservedNameEntityList = "entity-list"
 
+reservedNameQuery :: String
+reservedNameQuery = "query"
+
 -- * Data types.
 
 reservedNameString :: String

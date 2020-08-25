@@ -31,7 +31,11 @@ module Wasp
     , module Wasp.Page
     , getPages
     , addPage
-    
+
+    , getQueries
+    , addQuery
+    , getQueryByName
+
     , setExternalCodeFiles
     , getExternalCodeFiles
     ) where
@@ -49,6 +53,7 @@ import Wasp.Route
 import Wasp.Button
 import Wasp.Action (Action)
 import qualified Wasp.Action
+import qualified Wasp.Query
 
 import qualified Util as U
 
@@ -69,6 +74,7 @@ data WaspElement
     | WaspElementEntityList !EL.EntityList
     | WaspElementButton !Button
     | WaspElementAction !Action
+    | WaspElementQuery !Wasp.Query.Query
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -154,6 +160,19 @@ getActionsForEntity :: Wasp -> Entity -> [Action]
 getActionsForEntity wasp entity = filter isActionOfGivenEntity (getActions wasp)
     where
         isActionOfGivenEntity action = entityName entity == Wasp.Action._entityName action
+
+-- * Query
+
+getQueries :: Wasp -> [Wasp.Query.Query]
+getQueries wasp = [query | (WaspElementQuery query) <- waspElements wasp]
+
+addQuery :: Wasp -> Wasp.Query.Query -> Wasp
+addQuery wasp query = wasp { waspElements = (WaspElementQuery query):(waspElements wasp) }
+
+-- | Gets query with a specified name from wasp, if such an action exists.
+-- We assume here that there are no two queries with same name.
+getQueryByName :: Wasp -> String -> Maybe Wasp.Query.Query
+getQueryByName wasp name = U.headSafe $ filter (\a -> Wasp.Query._name a == name) (getQueries wasp)
 
 -- * Entities
 

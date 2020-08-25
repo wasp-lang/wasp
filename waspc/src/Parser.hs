@@ -19,6 +19,7 @@ import Parser.JsImport (jsImport)
 import Parser.Button (button)
 import Parser.Action (action)
 import Parser.Common (runWaspParser)
+import qualified Parser.Query
 
 
 waspElement :: Parser Wasp.WaspElement
@@ -31,6 +32,7 @@ waspElement
     <|> waspElementEntityList
     <|> waspElementButton
     <|> waspElementAction
+    <|> waspElementQuery
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
@@ -56,6 +58,9 @@ waspElementEntityForm = Wasp.WaspElementEntityForm <$> entityForm
 waspElementEntityList :: Parser Wasp.WaspElement
 waspElementEntityList = Wasp.WaspElementEntityList <$> entityList
 
+waspElementQuery :: Parser Wasp.WaspElement
+waspElementQuery = Wasp.WaspElementQuery <$> Parser.Query.query
+
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp
 waspParser = do
@@ -74,8 +79,8 @@ waspParser = do
     -- e.g. check there is only 1 title - if not, throw a meaningful error.
     -- Also, check there is at least one Page defined.
 
-    return $ (Wasp.fromWaspElems waspElems) `Wasp.setJsImports` jsImports
+    return $ Wasp.fromWaspElems waspElems `Wasp.setJsImports` jsImports
 
 -- | Top level parser executor.
 parseWasp :: String -> Either ParseError Wasp.Wasp
-parseWasp input = runWaspParser waspParser input
+parseWasp = runWaspParser waspParser

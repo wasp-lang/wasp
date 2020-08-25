@@ -12,6 +12,8 @@ import qualified Wasp.EntityList as EL
 import qualified Wasp.Route as R
 import qualified Wasp.Style
 import qualified Wasp.JsCode
+import qualified Wasp.Query
+import qualified Wasp.JsImport
 
 
 spec_parseWasp :: Spec
@@ -102,7 +104,7 @@ spec_parseWasp =
                         , EL._entityName = "Task"
                         , EL._showHeader = Just False
                         , EL._fields =
-                            [ EL.Field 
+                            [ EL.Field
                                 { EL._fieldName = "description"
                                 , EL._fieldRender = Just $ Wasp.JsCode.JsCode "task => task.description"
                                 }
@@ -117,6 +119,14 @@ spec_parseWasp =
                                 , EL._filterPredicate = Wasp.JsCode.JsCode "task => !task.isDone"
                                 }
                             ]
+                        }
+                    , WaspElementQuery $  Wasp.Query.Query
+                        { Wasp.Query._name = "myQuery"
+                        , Wasp.Query._jsFunction = Wasp.JsImport.JsImport
+                            { Wasp.JsImport.jsImportDefaultImport = Nothing
+                            , Wasp.JsImport.jsImportNamedImports = [ "myJsQuery" ]
+                            , Wasp.JsImport.jsImportFrom = SP.fromPathRelFile [P.relfile|some/path|]
+                            }
                         }
                     ]
                     `setJsImports` [ JsImport (Just "something") [] (SP.fromPathRelFile [P.relfile|some/file|]) ]

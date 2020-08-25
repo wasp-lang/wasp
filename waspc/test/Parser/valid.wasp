@@ -83,3 +83,7 @@ entity-list<Task> TaskList {
         active: {=js task => !task.isDone js=}
     }
 }
+
+query myQuery {
+  fn: import { myJsQuery } from "@ext/some/path"
+}
