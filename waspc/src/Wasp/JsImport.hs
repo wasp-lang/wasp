@@ -11,14 +11,14 @@ import ExternalCode (SourceExternalCodeDir)
 
 -- | Represents javascript import -> "import <what> from <from>".
 data JsImport = JsImport
-    { jsImportDefaultImport :: !(Maybe String)
-    , jsImportNamedImports :: ![String]
-    , jsImportFrom :: !(Path (Rel SourceExternalCodeDir) File)
+    { _defaultImport :: !(Maybe String)
+    , _namedImports :: ![String]
+    , _from :: !(Path (Rel SourceExternalCodeDir) File)
     } deriving (Show, Eq)
 
 instance ToJSON JsImport where
     toJSON jsImport = object
-        [ "defaultImport" .= jsImportDefaultImport jsImport
-        , "namedImports" .= jsImportNamedImports jsImport
-        , "from" .= SP.toFilePath (jsImportFrom jsImport)
+        [ "defaultImport" .= _defaultImport jsImport
+        , "namedImports" .= _namedImports jsImport
+        , "from" .= SP.toFilePath (_from jsImport)
         ]

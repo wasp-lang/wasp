@@ -123,9 +123,9 @@ spec_parseWasp =
                     , WaspElementQuery $  Wasp.Query.Query
                         { Wasp.Query._name = "myQuery"
                         , Wasp.Query._jsFunction = Wasp.JsImport.JsImport
-                            { Wasp.JsImport.jsImportDefaultImport = Nothing
-                            , Wasp.JsImport.jsImportNamedImports = [ "myJsQuery" ]
-                            , Wasp.JsImport.jsImportFrom = SP.fromPathRelFile [P.relfile|some/path|]
+                            { Wasp.JsImport._defaultImport = Nothing
+                            , Wasp.JsImport._namedImports = [ "myJsQuery" ]
+                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|some/path|]
                             }
                         }
                     ]

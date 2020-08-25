@@ -93,11 +93,11 @@ generatePageComponent wasp page = Common.makeTemplateFD tmplPath dstPath (Just t
 
     toJsImportData :: WJsImport.JsImport -> Aeson.Value
     toJsImportData jsImport = object
-        [ "what" .= fromMaybe (error "Expected default JS import.") (WJsImport.jsImportDefaultImport jsImport)
+        [ "what" .= fromMaybe (error "Expected default JS import.") (WJsImport._defaultImport jsImport)
         -- NOTE: Here we assume that "from" is relative to external code dir path.
         --   If this part will be reused, consider externalizing this assumption, so we don't have it on multiple places.
         , "from" .= buildImportPathFromPathInSrc
-            (extCodeDirInWebAppSrcDir </> castRelPathFromSrcToGenExtCodeDir (WJsImport.jsImportFrom jsImport))
+            (extCodeDirInWebAppSrcDir </> castRelPathFromSrcToGenExtCodeDir (WJsImport._from jsImport))
         ]
 
 data PageDir

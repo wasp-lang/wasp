@@ -25,7 +25,7 @@ jsImport = do
     --   We would need to write this from scratch, with single quote escaping enabled.
     from <- Parser.ExternalCode.extCodeFilePathString
     return Wasp.JsImport.JsImport
-        { Wasp.JsImport.jsImportDefaultImport = defaultImport
-        , Wasp.JsImport.jsImportNamedImports = namedImports
-        , Wasp.JsImport.jsImportFrom = from
+        { Wasp.JsImport._defaultImport = defaultImport
+        , Wasp.JsImport._namedImports = namedImports
+        , Wasp.JsImport._from = from
         }

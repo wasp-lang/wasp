@@ -23,9 +23,9 @@ spec_parseQuery =
             let testQuery = Wasp.Query.Query
                     { Wasp.Query._name = testQueryName
                     , Wasp.Query._jsFunction = Wasp.JsImport.JsImport
-                        { Wasp.JsImport.jsImportDefaultImport = Nothing
-                        , Wasp.JsImport.jsImportNamedImports = [ testQueryJsFunctionName ]
-                        , Wasp.JsImport.jsImportFrom = testQueryJsFunctionFrom
+                        { Wasp.JsImport._defaultImport = Nothing
+                        , Wasp.JsImport._namedImports = [ testQueryJsFunctionName ]
+                        , Wasp.JsImport._from = testQueryJsFunctionFrom
                         }
                     }
             parseQuery ( "query " ++ testQueryName ++ " {\n" ++
