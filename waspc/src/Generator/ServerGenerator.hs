@@ -1,8 +1,10 @@
 module Generator.ServerGenerator
     ( genServer
+    , queriesRouteInRootRouter
     ) where
 
 import qualified Path as P
+import Data.Aeson ((.=), object)
 
 import StrongPath (Path, Rel, File)
 import qualified StrongPath as SP
@@ -10,6 +12,7 @@ import Wasp (Wasp)
 import CompileOptions (CompileOptions)
 import Generator.FileDraft (FileDraft)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Generator.ServerGenerator.QueryGenerator (genQueries)
 import Generator.ServerGenerator.Common (asTmplFile, asServerFile)
 import qualified Generator.ServerGenerator.Common as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
@@ -54,16 +57,23 @@ genSrcDir :: Wasp -> [FileDraft]
 genSrcDir wasp = concat
     [ [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|app.js|]]
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|server.js|]]
+    , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|utils.js|]]
     , genRoutesDir wasp
+    , genQueries wasp
     ]
 
 genRoutesDir :: Wasp -> [FileDraft]
 genRoutesDir _ =
     -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
     -- but I did not bother with it yet since it is used only here for now.
-    [ C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|routes/index.js|]
+    [ C.makeTemplateFD
+        (asTmplFile [P.relfile|src/routes/index.js|])
+        (asServerFile [P.relfile|src/routes/index.js|])
+        (Just $ object [ "queriesRouteInRootRouter" .= queriesRouteInRootRouter ])
     ]
 
+queriesRouteInRootRouter :: String
+queriesRouteInRootRouter = "queries"
 
 
 
