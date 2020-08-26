@@ -18,6 +18,7 @@ import qualified Generator.WebAppGenerator.ButtonGenerator as ButtonGenerator
 import Generator.WebAppGenerator.Common (asTmplFile, asWebAppFile, asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common as C
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
+import Generator.WebAppGenerator.QueryGenerator (genQueries)
 
 
 generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
@@ -65,29 +66,31 @@ generateSrcDir wasp
         , [P.relfile|serviceWorker.js|]
         , [P.relfile|store/index.js|]
         , [P.relfile|store/middleware/logger.js|]
+        , [P.relfile|config.js|]
         ]
     ++ EntityGenerator.generateEntities wasp
     ++ ButtonGenerator.generateButtons wasp
     ++ [generateReducersJs wasp]
+    ++ genQueries wasp
   where
     generateLogo = C.makeTemplateFD (asTmplFile [P.relfile|src/logo.png|])
-                                    (srcDir </> (asWebAppSrcFile [P.relfile|logo.png|]))
+                                    (srcDir </> asWebAppSrcFile [P.relfile|logo.png|])
                                     Nothing
     makeSimpleSrcTemplateFD path = C.makeTemplateFD (asTmplFile $ [P.reldir|src|] P.</> path)
-                                                    (srcDir </> (asWebAppSrcFile path))
+                                                    (srcDir </> asWebAppSrcFile path)
                                                     (Just $ toJSON wasp)
 
 generateReducersJs :: Wasp -> FileDraft
 generateReducersJs wasp = C.makeTemplateFD tmplPath dstPath (Just templateData)
   where
     tmplPath = asTmplFile [P.relfile|src/reducers.js|]
-    dstPath = srcDir </> (asWebAppSrcFile [P.relfile|reducers.js|])
+    dstPath = srcDir </> asWebAppSrcFile [P.relfile|reducers.js|]
     templateData = object
         [ "wasp" .= wasp
         , "entities" .= map toEntityData (getEntities wasp)
         ]
     toEntityData entity = object
         [ "entity" .= entity
-        , "entityLowerName" .= (Util.toLowerFirst $ entityName entity)
-        , "entityStatePath" .= ("./" ++ (SP.toFilePath $ EntityGenerator.entityStatePathInSrc entity))
+        , "entityLowerName" .= Util.toLowerFirst (entityName entity)
+        , "entityStatePath" .= ("./" ++ SP.toFilePath (EntityGenerator.entityStatePathInSrc entity))
         ]
