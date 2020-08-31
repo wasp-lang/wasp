@@ -3,9 +3,9 @@ import axios from 'axios'
 
 import config from '../config.js'
 
-const {= queryFnName =} = async ({ args, context }) => {
+const {= queryFnName =} = async (args) => {
   try {
-    const response = await axios.post(config.apiUrl + '/{= queryRoute =}', { args })
+    const response = await axios.post(config.apiUrl + '/{= queryRoute =}', args)
     return response.data
   } catch (error) {
     // TODO: This is a really crude error handling for now, and we should look into improving it,
@@ -17,5 +17,7 @@ const {= queryFnName =} = async ({ args, context }) => {
     throw e
   }
 }
+
+{= queryFnName =}.useQueryKey = '{= queryRoute =}'
 
 export default {= queryFnName =}

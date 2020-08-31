@@ -17,6 +17,7 @@ import qualified Generator.WebAppGenerator.Common as C
 genQueries :: Wasp -> [FileDraft]
 genQueries wasp = concat
     [ map (genQuery wasp) (Wasp.getQueries wasp)
+    , [C.makeSimpleTemplateFD (C.asTmplFile [P.relfile|src/queries/index.js|]) wasp]
     ]
 
 genQuery :: Wasp -> Wasp.Query.Query -> FileDraft

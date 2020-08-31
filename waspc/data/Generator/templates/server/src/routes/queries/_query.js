@@ -17,7 +17,9 @@ export default handleRejection(async (req, res) => {
   //   JSON objects or smth.
   //   So for now we are just going with POST that has JSON in the body -> generated code is not
   //   as human-like as it should be though.
-  const result = await {= queryJsFnIdentifier =}({ args: req.body || {}, context: {} })
-  res.json({ result })
+  const args = req.body || {}
+  const context = {}
+  const result = await {= queryJsFnIdentifier =}(args, context)
+  res.json(result)
 })
 

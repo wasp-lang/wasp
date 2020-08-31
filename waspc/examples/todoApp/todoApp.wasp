@@ -1,10 +1,3 @@
-import Todo from "@ext/Todo.js"  // Imports non-wasp code from external code dir (ext/).
-
-entity Task {
-    isDone :: boolean,
-    description :: string
-}
-
 app todoApp {
     title: "ToDo App"
 }
@@ -31,62 +24,11 @@ page Task {
     component: import Task from "@ext/pages/Task"
 }
 
-entity-form<Task> NewTaskForm {
-    fields: {
-        description: {
-            show: true,
-            label: none,
-            placeholder: "What needs to be done?"
-        },
-        isDone: {
-            show: false,
-            defaultValue: false
-        }
-    },
-    submit: {
-        onEnter: true,
-        button: { show: false }
-    }
-}
-
-entity-list<Task> TaskList {
-    showHeader: false,
-    fields: {
-        description: {
-            // The contract for render is that user must provide a function that:
-            // - Receives a task as an input.
-            // - Returns a React Node or something that can be rendered by JSX.
-            // - Does not depend on any outer context.
-            render: {=js (task) => task.isDone ? <s>{task.description}</s> : task.description js=}
-        }
-    },
-    mutuallyExclusiveFilters: {
-        completed: {=js task => task.isDone js=},
-        active: {=js task => !task.isDone js=}
-    }
-}
-
-button ToggleIsDoneButton {
-    label: "✓",
-    onClick: toggleIsDoneAction
-}
-
-button DeleteDoneButton {
-    label: "Delete completed",
-    onClick: deleteDoneAction
-}
-
-action<Task> toggleIsDoneAction {=js
-  tasks => {
-    const areAllDone = tasks.every(t => t.isDone)
-    return tasks.map(t => ({ ...t, isDone: !areAllDone }))
-  }
-js=} 
-
-action<Task> deleteDoneAction {=js
-  tasks => tasks.filter(t => !t.isDone)
-js=} 
-
 query getTasks {
   fn: import { getTasks } from "@ext/queries.js"
+}
+
+// TODO: This should be an action, not query! But we are cheating like this until we add support for actions.
+query createTask {
+  fn: import { createTask } from "@ext/actions.js"
 }
