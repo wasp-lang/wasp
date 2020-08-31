@@ -24,6 +24,13 @@ page Profile {
     component: import { profilePage } from "@ext/pages/ProfilePage"
 }
 
+// Page for viewing a specific task
+//
+route "/task/:id" -> page Task
+page Task {
+    component: import Task from "@ext/pages/Task"
+}
+
 entity-form<Task> NewTaskForm {
     fields: {
         description: {
