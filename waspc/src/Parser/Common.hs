@@ -23,11 +23,19 @@ runWaspParser waspParser input = parse waspParser sourceName input
 
 -- TODO(matija): rename to just "waspElement"?
 -- | Parses declaration of a wasp element (e.g. App or Page) and the closure content.
-waspElementNameAndClosure
+waspElementNameAndClosureContent
     :: String -- ^ Type of the wasp element (e.g. "app" or "page").
     -> Parser a -- ^ Parser to be used for parsing closure content of the wasp element.
     -> Parser (String, a) -- ^ Name of the element and parsed closure content.
-waspElementNameAndClosure elementType closure =
+waspElementNameAndClosureContent elementType closureContent =
+    waspElementNameAndClosure elementType (waspClosure closureContent)
+
+-- | Parses declaration of a wasp element (e.g. App or Page) and the belonging closure.
+waspElementNameAndClosure
+    :: String -- ^ Element type
+    -> Parser a -- ^ Closure parser (needs to parse braces as well, not just the content)
+    -> Parser (String, a) -- ^ Name of the element and parsed closure content.
+waspElementNameAndClosure elementType closure = 
     -- NOTE(matija): It is important to have `try` here because we don't want to consume the
     -- content intended for other parsers.
     -- E.g. if we tried to parse "entity-form" this parser would have been tried first for
@@ -41,12 +49,11 @@ waspElementNameAndClosure elementType closure =
     -- might not be the best for the performance and the clarity of error messages.
     -- On the other hand, it is safer?
     try $ do
-    -- TODO(matija): should we somehow check if this is a reserved name?
     L.reserved elementType
     elementName <- L.identifier
-    closureContent <- waspClosure closure
+    closureContent <- closure
 
-    return (elementName, closureContent)
+    return (elementName, closureContent) 
 
 -- | Parses declaration of a wasp element linked to an entity.
 -- E.g. "entity-form<Task> ..." or "action<Task> ..."
@@ -119,7 +126,7 @@ waspCssClosure :: Parser String
 waspCssClosure = waspNamedClosure "css"
 
 -- TODO(martin): write tests and comments.
--- | Parses wasp css closure, which is {=name...name=}. Returns content within the closure.
+-- | Parses named wasp closure, which is {=name...name=}. Returns content within the closure.
 waspNamedClosure :: String -> Parser String
 waspNamedClosure name = do
     _ <- closureStart

@@ -28,6 +28,11 @@ reservedNameButton = "button"
 reservedNameAction :: String
 reservedNameAction = "action"
 
+reservedNameEntityPSL :: String
+reservedNameEntityPSL = "entityPSL"
+
+
+-- TODO(matija): old Entity stuff, to be removed.
 reservedNameEntity :: String
 reservedNameEntity = "entity"
 
@@ -36,6 +41,7 @@ reservedNameEntityForm = "entity-form"
 
 reservedNameEntityList :: String
 reservedNameEntityList = "entity-list"
+
 
 reservedNameQuery :: String
 reservedNameQuery = "query"

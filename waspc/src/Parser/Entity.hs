@@ -25,7 +25,7 @@ import qualified Parser.Common as P
 -- | Top level parser, parses Entity.
 entity :: Parser Entity.Entity
 entity = do
-    (name, fields) <- P.waspElementNameAndClosure reservedNameEntity entityFields
+    (name, fields) <- P.waspElementNameAndClosureContent reservedNameEntity entityFields
 
     return Entity.Entity
         { Entity.entityName = name

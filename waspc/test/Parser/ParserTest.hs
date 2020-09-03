@@ -7,13 +7,17 @@ import qualified Path as P
 import qualified StrongPath as SP
 import Parser
 import Wasp
+
+-- TODO(matija): old Entity stuff, to be removed.
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
+
 import qualified Wasp.Route as R
 import qualified Wasp.Page
 import qualified Wasp.JsCode
 import qualified Wasp.Query
 import qualified Wasp.JsImport
+import qualified Wasp.EntityPSL
 
 
 spec_parseWasp :: Spec
@@ -54,6 +58,13 @@ spec_parseWasp =
                             , Wasp.JsImport._namedImports = []
                             , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|pages/Test|]
                             }
+                        }
+                    , WaspElementEntityPSL $ Wasp.EntityPSL.EntityPSL
+                        { Wasp.EntityPSL._name = "Task"
+                        , Wasp.EntityPSL._pslModelSchema = "\
+                                \id          Int     @id @default(autoincrement())\n\
+                            \    description String\n\
+                            \    isDone      Boolean @default(false)"
                         }
                     , WaspElementEntity $ Entity
                         { entityName = "Task"

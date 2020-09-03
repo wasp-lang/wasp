@@ -18,7 +18,14 @@ page TestPage {
     component: import Test from "@ext/pages/Test"
 }
 
-// Entity definition.
+entityPSL Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+psl=}
+
+
+// TODO(matija): old Entity stuff, to be removed.
 entity Task {
     description :: string,
     isDone :: boolean
@@ -61,6 +68,8 @@ entity-list<Task> TaskList {
         active: {=js task => !task.isDone js=}
     }
 }
+
+
 
 query myQuery {
   fn: import { myJsQuery } from "@ext/some/path"
