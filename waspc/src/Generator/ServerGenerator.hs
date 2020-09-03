@@ -58,6 +58,7 @@ genSrcDir wasp = concat
     [ [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|app.js|]]
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|server.js|]]
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|utils.js|]]
+    , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|core/HttpError.js|]]
     , genRoutesDir wasp
     , genQueries wasp
     ]
