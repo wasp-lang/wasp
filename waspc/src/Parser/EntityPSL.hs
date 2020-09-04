@@ -3,6 +3,7 @@ module Parser.EntityPSL
     ) where
 
 import Text.Parsec.String (Parser)
+import qualified Data.Text as Text
 
 import qualified Wasp.EntityPSL
 import qualified Parser.Common as P
@@ -15,5 +16,5 @@ entityPSL = do
 
     return Wasp.EntityPSL.EntityPSL
         { Wasp.EntityPSL._name = name
-        , Wasp.EntityPSL._pslModelSchema = pslModelSchema
+        , Wasp.EntityPSL._pslModelSchema = Text.pack $ pslModelSchema
         }

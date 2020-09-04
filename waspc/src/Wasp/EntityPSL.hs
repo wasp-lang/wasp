@@ -4,7 +4,9 @@ module Wasp.EntityPSL
     ( EntityPSL (..)
     ) where
 
+import Data.Text (Text)
+
 data EntityPSL = EntityPSL
     { _name :: !String
-    , _pslModelSchema :: !String
+    , _pslModelSchema :: !Text -- ^ PSL stands for Prisma Schema Language.
     } deriving (Show, Eq)
