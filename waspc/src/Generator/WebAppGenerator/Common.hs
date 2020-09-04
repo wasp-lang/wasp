@@ -66,7 +66,11 @@ copyTmplAsIs path = makeTemplateFD path (SP.castRel path) Nothing
 makeSimpleTemplateFD :: Path (Rel WebAppTemplatesDir) File -> Wasp -> FileDraft
 makeSimpleTemplateFD path wasp = makeTemplateFD path (SP.castRel path) (Just $ Aeson.toJSON wasp)
 
-makeTemplateFD :: Path (Rel WebAppTemplatesDir) File -> Path (Rel WebAppRootDir) File -> Maybe Aeson.Value -> FileDraft
+makeTemplateFD
+    :: Path (Rel WebAppTemplatesDir) File
+    -> Path (Rel WebAppRootDir) File
+    -> Maybe Aeson.Value
+    -> FileDraft
 makeTemplateFD srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplData =
     createTemplateFileDraft
         (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)

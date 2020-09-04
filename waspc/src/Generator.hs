@@ -16,6 +16,7 @@ import CompileOptions (CompileOptions)
 import Wasp (Wasp)
 import Generator.WebAppGenerator (generateWebApp)
 import Generator.ServerGenerator (genServer)
+import Generator.DbGenerator (genDb)
 import Generator.FileDraft (FileDraft, write)
 import Generator.Common (ProjectRootDir)
 
@@ -29,6 +30,7 @@ writeWebAppCode :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO
 writeWebAppCode wasp dstDir compileOptions = do
     writeFileDrafts dstDir (generateWebApp wasp compileOptions)
     writeFileDrafts dstDir (genServer wasp compileOptions)
+    writeFileDrafts dstDir (genDb wasp compileOptions)
     writeDotWaspInfo dstDir
 
 -- | Writes file drafts while using given destination dir as root dir.

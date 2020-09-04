@@ -2,6 +2,19 @@ app todoApp {
     title: "ToDo App"
 }
 
+entityPSL Project {=psl
+    id      Int     @id @default(autoincrement())
+    tasks   Tasks[]
+psl=}
+
+entityPSL Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+    project     Project @relation(fields: [projectId], references: [id])
+    projectId   Int
+psl=}
+
 route "/" -> page Main
 page Main {
     component: import Main from "@ext/pages/Main"
