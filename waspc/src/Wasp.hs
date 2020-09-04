@@ -45,9 +45,13 @@ import Data.Aeson ((.=), object, ToJSON(..))
 
 import qualified ExternalCode
 import Wasp.App
+
+-- TODO(matija): old Entity stuff, to be removed
 import Wasp.Entity
 import qualified Wasp.EntityForm as EF
 import qualified Wasp.EntityList as EL
+
+import Wasp.EntityPSL
 import Wasp.JsImport
 import Wasp.Page
 import Wasp.Route
@@ -70,9 +74,13 @@ data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
     | WaspElementRoute !Route
+    | WaspElementEntityPSL !Wasp.EntityPSL.EntityPSL
+
+    -- TODO(matija): old Entity stuff, to be removed
     | WaspElementEntity !Entity
     | WaspElementEntityForm !EF.EntityForm
     | WaspElementEntityList !EL.EntityList
+
     | WaspElementButton !Button
     | WaspElementAction !Action
     | WaspElementQuery !Wasp.Query.Query

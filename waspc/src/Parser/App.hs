@@ -33,7 +33,7 @@ getAppTitle ps = head $ [t | Title t <- ps]
 -- | Top level parser, parses App.
 app :: Parser App.App
 app = do
-    (appName, appProps) <- waspElementNameAndClosure reservedNameApp appProperties
+    (appName, appProps) <- waspElementNameAndClosureContent reservedNameApp appProperties
 
     return App.App
         { App.appName = appName

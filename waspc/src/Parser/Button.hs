@@ -35,7 +35,7 @@ getOnClickActionName ps = let actions = [a | OnClick a <- ps]
 
 button :: Parser Button.Button
 button = do
-    (buttonName, buttonProps) <- waspElementNameAndClosure L.reservedNameButton properties
+    (buttonName, buttonProps) <- waspElementNameAndClosureContent L.reservedNameButton properties
 
     return Button.Button
         { Button._name = buttonName

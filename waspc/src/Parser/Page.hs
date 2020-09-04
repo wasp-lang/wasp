@@ -37,7 +37,7 @@ getPageComponent ps = listToMaybe [c | Component c <- ps]
 -- | Top level parser, parses Page.
 page :: Parser Page.Page
 page = do
-    (pageName, pageProps) <- waspElementNameAndClosure reservedNamePage pageProperties
+    (pageName, pageProps) <- waspElementNameAndClosureContent reservedNamePage pageProperties
 
     return Page.Page
         { Page._name = pageName

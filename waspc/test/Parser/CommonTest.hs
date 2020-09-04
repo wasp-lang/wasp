@@ -13,25 +13,26 @@ spec_parseWaspCommon :: Spec
 spec_parseWaspCommon = do
     describe "Parsing wasp element linked to an entity" $ do
         it "When given a valid declaration, parses it correctly." $ do
-            runWaspParser (waspElementLinkedToEntity "entity-form" (waspClosure whiteSpace)) "entity-form<Task> TaskForm { }"
+            runWaspParser (waspElementLinkedToEntity "entity-form" (waspClosure whiteSpace))
+                          "entity-form<Task> TaskForm { }"
                 `shouldBe` Right ("Task", "TaskForm", ())
 
     describe "Parsing wasp element name and properties" $ do
-        let parseWaspElementNameAndClosure elemKeyword p input =
-                runWaspParser (waspElementNameAndClosure elemKeyword p) input
+        let parseWaspElementNameAndClosureContent elemKeyword p input =
+                runWaspParser (waspElementNameAndClosureContent elemKeyword p) input
 
         it "When given valid wasp element declaration along with whitespace parser,\
             \ returns an expected result" $ do
-            parseWaspElementNameAndClosure "app" whiteSpace "app someApp { }"
+            parseWaspElementNameAndClosureContent "app" whiteSpace "app someApp { }"
                 `shouldBe` Right ("someApp", ())
 
         it "When given valid wasp element declaration along with char parser, returns\
             \ an expected result" $ do
-            parseWaspElementNameAndClosure "app" (char 'a') "app someApp {a}"
+            parseWaspElementNameAndClosureContent "app" (char 'a') "app someApp {a}"
                 `shouldBe` Right ("someApp", 'a')
 
         it "When given wasp element declaration with invalid name, returns Left" $ do
-            (isLeft $ parseWaspElementNameAndClosure "app" whiteSpace "app 1someApp { }")
+            (isLeft $ parseWaspElementNameAndClosureContent "app" whiteSpace "app 1someApp { }")
                 `shouldBe` True
 
     describe "Parsing wasp closure" $ do

@@ -19,7 +19,8 @@ import qualified Lexer as L
 -- }
 query :: Parser Wasp.Query.Query
 query = do
-    (queryName, queryProps) <- C.waspElementNameAndClosure L.reservedNameQuery queryProperties
+    (queryName, queryProps) <- C.waspElementNameAndClosureContent L.reservedNameQuery
+                                                                  queryProperties
     return Wasp.Query.Query
         { Wasp.Query._name = queryName
         , Wasp.Query._jsFunction =
