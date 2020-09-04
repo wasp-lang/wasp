@@ -14,11 +14,10 @@ import Generator.FileDraft
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import qualified Generator.WebAppGenerator.EntityGenerator as EntityGenerator
 import qualified Generator.WebAppGenerator.RouterGenerator as RouterGenerator
-import qualified Generator.WebAppGenerator.ButtonGenerator as ButtonGenerator
 import Generator.WebAppGenerator.Common (asTmplFile, asWebAppFile, asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common as C
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
-import Generator.WebAppGenerator.QueryGenerator (genQueries)
+import Generator.WebAppGenerator.OperationsGenerator (genOperations)
 
 
 generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
@@ -69,9 +68,8 @@ generateSrcDir wasp
         , [P.relfile|config.js|]
         ]
     ++ EntityGenerator.generateEntities wasp
-    ++ ButtonGenerator.generateButtons wasp
     ++ [generateReducersJs wasp]
-    ++ genQueries wasp
+    ++ genOperations wasp
   where
     generateLogo = C.makeTemplateFD (asTmplFile [P.relfile|src/logo.png|])
                                     (srcDir </> asWebAppSrcFile [P.relfile|logo.png|])

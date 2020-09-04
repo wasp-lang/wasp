@@ -6,13 +6,11 @@ module Generator.WebAppGenerator.EntityGenerator
        , entityStatePathInSrc
        , entityActionsPathInSrc
 
-       , getImportInfoForAction
-
        -- EXPORTED FOR TESTING:
        , generateEntityClass
        , generateEntityState
-       , generateEntityActions
        , generateEntityActionTypes
+       , generateEntityActions
        , generateEntityCreateForm
 
        , entityTemplatesDirPath
@@ -21,12 +19,10 @@ module Generator.WebAppGenerator.EntityGenerator
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import qualified Path as P
-import Util (jsonSet)
 
 import StrongPath (Path, Rel, File, (</>))
 import qualified StrongPath as SP
 import Wasp
-import qualified Wasp.Action
 import Generator.FileDraft
 import qualified Generator.WebAppGenerator.Common as Common
 import Generator.WebAppGenerator.EntityGenerator.EntityFormGenerator (generateEntityCreateForm)
@@ -71,21 +67,7 @@ generateEntityActions wasp entity = createEntityFileDraft dstPath tmplPath (Just
   where
     dstPath = entityActionsPathInSrc entity
     tmplPath = asEntityTmplFile [P.relfile|actions.js|]
-    templateData = jsonSet "entityActions" (Aeson.toJSON entityActions) (entityTemplateData wasp entity)
-    entityActions = getActionsForEntity wasp entity
-
--- | Provides information on how to import and use given action.
--- Returns: (path to import action from, identifier under which it is exported).
--- NOTE: This function is in this module because this is where logic for generating action is,
---   but ideally that would move to more-standalone action generator and so would this function.
-getImportInfoForAction :: Wasp -> Wasp.Action.Action -> (Path (Rel Common.WebAppSrcDir) File, String)
-getImportInfoForAction wasp action = (pathInSrc, exportedIdentifier)
-  where
-    -- NOTE: For now here we bravely assume that entity with such name exists.
-    Just entity = Wasp.getEntityByName wasp $ Wasp.Action._entityName action
-    pathInSrc = entityActionsPathInSrc entity
-    exportedIdentifier = Wasp.Action._name action
-
+    templateData = entityTemplateData wasp entity
 
 generateEntityComponents :: Wasp -> Entity -> [FileDraft]
 generateEntityComponents wasp entity = concat

@@ -1,6 +1,6 @@
 module Generator.ServerGenerator
     ( genServer
-    , queriesRouteInRootRouter
+    , operationsRouteInRootRouter
     ) where
 
 import qualified Path as P
@@ -12,7 +12,7 @@ import Wasp (Wasp)
 import CompileOptions (CompileOptions)
 import Generator.FileDraft (FileDraft)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
-import Generator.ServerGenerator.QueryGenerator (genQueries)
+import Generator.ServerGenerator.OperationsGenerator (genOperations)
 import Generator.ServerGenerator.Common (asTmplFile, asServerFile)
 import qualified Generator.ServerGenerator.Common as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
@@ -60,7 +60,7 @@ genSrcDir wasp = concat
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|utils.js|]]
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|core/HttpError.js|]]
     , genRoutesDir wasp
-    , genQueries wasp
+    , genOperations wasp
     ]
 
 genRoutesDir :: Wasp -> [FileDraft]
@@ -70,11 +70,8 @@ genRoutesDir _ =
     [ C.makeTemplateFD
         (asTmplFile [P.relfile|src/routes/index.js|])
         (asServerFile [P.relfile|src/routes/index.js|])
-        (Just $ object [ "queriesRouteInRootRouter" .= queriesRouteInRootRouter ])
+        (Just $ object [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter ])
     ]
 
-queriesRouteInRootRouter :: String
-queriesRouteInRootRouter = "queries"
-
-
-
+operationsRouteInRootRouter :: String
+operationsRouteInRootRouter = "queries"

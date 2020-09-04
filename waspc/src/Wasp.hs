@@ -20,14 +20,6 @@ module Wasp
     , getEntityFormsForEntity
     , getEntityListsForEntity
 
-    , getButtons
-    , addButton
-
-    , getActions
-    , addAction
-    , getActionsForEntity
-    , getActionByName
-
     , module Wasp.Page
     , getPages
     , addPage
@@ -36,6 +28,10 @@ module Wasp
     , getQueries
     , addQuery
     , getQueryByName
+
+    , getActions
+    , addAction
+    , getActionByName
 
     , setExternalCodeFiles
     , getExternalCodeFiles
@@ -55,10 +51,8 @@ import Wasp.EntityPSL
 import Wasp.JsImport
 import Wasp.Page
 import Wasp.Route
-import Wasp.Button
-import Wasp.Action (Action)
-import qualified Wasp.Action
 import qualified Wasp.Query
+import qualified Wasp.Action
 
 import qualified Util as U
 
@@ -75,15 +69,14 @@ data WaspElement
     | WaspElementPage !Page
     | WaspElementRoute !Route
     | WaspElementEntityPSL !Wasp.EntityPSL.EntityPSL
+    | WaspElementQuery !Wasp.Query.Query
+    | WaspElementAction !Wasp.Action.Action
 
     -- TODO(matija): old Entity stuff, to be removed
     | WaspElementEntity !Entity
     | WaspElementEntityForm !EF.EntityForm
     | WaspElementEntityList !EL.EntityList
 
-    | WaspElementButton !Button
-    | WaspElementAction !Action
-    | WaspElementQuery !Wasp.Query.Query
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -143,45 +136,31 @@ getPages wasp = [page | (WaspElementPage page) <- waspElements wasp]
 addPage :: Wasp -> Page -> Wasp
 addPage wasp page = wasp { waspElements = (WaspElementPage page):(waspElements wasp) }
 
--- * Button
-
-getButtons :: Wasp -> [Button]
-getButtons wasp = [button | (WaspElementButton button) <- waspElements wasp]
-
-addButton :: Wasp -> Button -> Wasp
-addButton wasp button = wasp { waspElements = (WaspElementButton button):(waspElements wasp) }
-
--- * Action
-
-getActions :: Wasp -> [Action]
-getActions wasp = [action | (WaspElementAction action) <- waspElements wasp]
-
-addAction :: Wasp -> Action -> Wasp
-addAction wasp action = wasp { waspElements = (WaspElementAction action):(waspElements wasp) }
-
--- | Gets action with a specified name from wasp, if such an action exists.
--- We assume here that there are no two actions with same name.
-getActionByName :: Wasp -> String -> Maybe Action
-getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == name) (getActions wasp)
-
--- | Retrieves all actions that are performed on specific entity.
-getActionsForEntity :: Wasp -> Entity -> [Action]
-getActionsForEntity wasp entity = filter isActionOfGivenEntity (getActions wasp)
-    where
-        isActionOfGivenEntity action = entityName entity == Wasp.Action._entityName action
-
 -- * Query
 
 getQueries :: Wasp -> [Wasp.Query.Query]
 getQueries wasp = [query | (WaspElementQuery query) <- waspElements wasp]
 
 addQuery :: Wasp -> Wasp.Query.Query -> Wasp
-addQuery wasp query = wasp { waspElements = (WaspElementQuery query):(waspElements wasp) }
+addQuery wasp query = wasp { waspElements = WaspElementQuery query : waspElements wasp }
 
 -- | Gets query with a specified name from wasp, if such an action exists.
 -- We assume here that there are no two queries with same name.
 getQueryByName :: Wasp -> String -> Maybe Wasp.Query.Query
 getQueryByName wasp name = U.headSafe $ filter (\a -> Wasp.Query._name a == name) (getQueries wasp)
+
+-- * Action
+
+getActions :: Wasp -> [Wasp.Action.Action]
+getActions wasp = [action | (WaspElementAction action) <- waspElements wasp]
+
+addAction :: Wasp -> Wasp.Action.Action -> Wasp
+addAction wasp action = wasp { waspElements = WaspElementAction action : waspElements wasp }
+
+-- | Gets action with a specified name from wasp, if such an action exists.
+-- We assume here that there are no two actions with same name.
+getActionByName :: Wasp -> String -> Maybe Wasp.Action.Action
+getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == name) (getActions wasp)
 
 -- * Entities
 

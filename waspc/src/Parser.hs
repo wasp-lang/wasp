@@ -20,11 +20,9 @@ import Parser.Entity.EntityForm (entityForm)
 import Parser.Entity.EntityList (entityList)
 
 import Parser.JsImport (jsImport)
-import Parser.Button (button)
-import Parser.Action (action)
 import Parser.Common (runWaspParser)
 import qualified Parser.Query
-
+import qualified Parser.Action
 
 waspElement :: Parser Wasp.WaspElement
 waspElement
@@ -32,24 +30,16 @@ waspElement
     <|> waspElementPage
     <|> waspElementRoute
     <|> waspElementEntityPSL
+    <|> waspElementQuery
+    <|> waspElementAction
 
     -- TODO(matija): old Entity stuff, to be removed.
     <|> waspElementEntity
     <|> waspElementEntityForm
     <|> waspElementEntityList
 
-    <|> waspElementButton
-    <|> waspElementAction
-    <|> waspElementQuery
-
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
-
-waspElementButton :: Parser Wasp.WaspElement
-waspElementButton = Wasp.WaspElementButton <$> button
-
-waspElementAction :: Parser Wasp.WaspElement
-waspElementAction = Wasp.WaspElementAction <$> action
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page
@@ -74,6 +64,9 @@ waspElementEntityList = Wasp.WaspElementEntityList <$> entityList
 
 waspElementQuery :: Parser Wasp.WaspElement
 waspElementQuery = Wasp.WaspElementQuery <$> Parser.Query.query
+
+waspElementAction :: Parser Wasp.WaspElement
+waspElementAction = Wasp.WaspElementAction <$> Parser.Action.action
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp

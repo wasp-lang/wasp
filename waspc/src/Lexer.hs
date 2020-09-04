@@ -22,12 +22,6 @@ reservedNamePage = "page"
 reservedNameRoute :: String
 reservedNameRoute = "route"
 
-reservedNameButton :: String
-reservedNameButton = "button"
-
-reservedNameAction :: String
-reservedNameAction = "action"
-
 reservedNameEntityPSL :: String
 reservedNameEntityPSL = "entityPSL"
 
@@ -45,6 +39,9 @@ reservedNameEntityList = "entity-list"
 
 reservedNameQuery :: String
 reservedNameQuery = "query"
+
+reservedNameAction :: String
+reservedNameAction = "action"
 
 -- * Data types.
 
@@ -70,7 +67,7 @@ reservedNames =
     , reservedNameRoute
     , reservedNameEntity
     , reservedNameEntityForm
-    , reservedNameButton
+    , reservedNameQuery
     , reservedNameAction
     -- * Data types
     , reservedNameString
