@@ -1,14 +1,14 @@
 {{={= =}=}}
 import express from 'express'
 
-{=# queryRoutes =}
+{=# operationRoutes =}
 import {= importIdentifier =} from '{= importPath =}'
-{=/ queryRoutes =}
+{=/ operationRoutes =}
 
 const router = express.Router()
 
-{=# queryRoutes =}
+{=# operationRoutes =}
 router.post('{= routePath =}', {= importIdentifier =})
-{=/ queryRoutes =}
+{=/ operationRoutes =}
 
 export default router

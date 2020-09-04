@@ -12,6 +12,8 @@ import qualified Parser.JsImport
 import qualified Parser.Common as C
 import qualified Lexer as L
 
+-- TODO: Very similar to Parser.Action, we should look into maybe removing
+--   duplication in the future.
 
 -- | Parses query looking like this:
 -- query myQuery {

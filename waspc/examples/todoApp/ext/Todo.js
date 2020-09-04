@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
-import createTask from '@wasp/queries/createTask.js'
+import createTask from '@wasp/actions/createTask.js'
 
 const Todo = (props) => {
   const defaultNewTaskDescription = ''

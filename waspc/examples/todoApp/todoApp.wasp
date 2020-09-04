@@ -28,7 +28,6 @@ query getTasks {
   fn: import { getTasks } from "@ext/queries.js"
 }
 
-// TODO: This should be an action, not query! But we are cheating like this until we add support for actions.
-query createTask {
+action createTask {
   fn: import { createTask } from "@ext/actions.js"
 }
