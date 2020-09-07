@@ -1,5 +1,6 @@
 module Generator
        ( writeWebAppCode
+       , setup
        ) where
 
 import qualified Data.Text
@@ -9,6 +10,7 @@ import qualified Paths_waspc
 import qualified Data.Version
 import Control.Monad (mapM_)
 import qualified Path as P
+import System.Exit (ExitCode(..))
 
 import StrongPath (Path, Abs, Dir, (</>))
 import qualified StrongPath as SP
@@ -17,6 +19,7 @@ import Wasp (Wasp)
 import Generator.WebAppGenerator (generateWebApp)
 import Generator.ServerGenerator (genServer)
 import Generator.DbGenerator (genDb)
+import qualified Generator.ServerGenerator.Setup
 import Generator.FileDraft (FileDraft, write)
 import Generator.Common (ProjectRootDir)
 
@@ -37,7 +40,7 @@ writeWebAppCode wasp dstDir compileOptions = do
 --   TODO(martin): We could/should parallelize this.
 --     We could also skip writing files that are already on the disk with same checksum.
 writeFileDrafts :: Path Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
-writeFileDrafts dstDir fileDrafts = mapM_ (write dstDir) fileDrafts
+writeFileDrafts dstDir = mapM_ (write dstDir)
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path Abs (Dir ProjectRootDir) -> IO ()
@@ -47,3 +50,21 @@ writeDotWaspInfo dstDir = do
     let content = "Generated on " ++ (show currentTime) ++ " by waspc version " ++ (show version) ++ " ."
     let dstPath = dstDir </> SP.fromPathRelFile [P.relfile|.waspinfo|]
     Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
+
+setup :: Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO (Either String ())
+setup outDir _ = do
+   serverResult <- setupServer
+   webAppResult <- setupWebApp
+   return serverResult -- TODO: Should merge server results with web app results.
+  where
+      setupServer = do
+          (exitCode, stdout, stderr) <- Generator.ServerGenerator.Setup.setupServer outDir
+          print stdout
+          print stderr
+          case exitCode of
+              ExitSuccess -> return $ Right ()
+              ExitFailure failureCode -> return $ Left $ "Server installation failed with exit code " ++ (show failureCode)
+
+      setupWebApp = do -- TODO: Implement.
+          putStrLn "Pretending to be setting up web app."
+          return $ Right ()

@@ -1,5 +1,6 @@
 module Util.IO
     ( listDirectoryDeep
+    , listDirectory
     ) where
 
 import qualified System.Directory as Dir

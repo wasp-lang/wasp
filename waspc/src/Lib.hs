@@ -1,5 +1,6 @@
 module Lib
     ( compile
+    , setup
     , ProjectRootDir
     ) where
 
@@ -16,7 +17,7 @@ import Generator.Common (ProjectRootDir)
 
 type CompileError = String
 
-compile :: Path Abs File -> Path Abs (Dir ProjectRootDir)-> CompileOptions -> IO (Either CompileError ())
+compile :: Path Abs File -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO (Either CompileError ())
 compile waspFile outDir options = do
     waspStr <- readFile (SP.toFilePath waspFile)
 
@@ -27,3 +28,8 @@ compile waspFile outDir options = do
             generateCode $ wasp `setExternalCodeFiles` externalCodeFiles
   where
     generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
+
+type SetupError = String
+
+setup :: Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO (Either SetupError ())
+setup = Generator.setup

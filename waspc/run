@@ -18,7 +18,7 @@ BUILD_CMD="stack build"
 WATCH_CMD="$BUILD_CMD --file-watch"
 TEST_CMD="$BUILD_CMD --test"
 TEST_WATCH_CMD="$TEST_CMD --file-watch"
-EXEC_CMD="stack exec waspc-cli $ARGS"
+EXEC_CMD="stack exec wasp $ARGS"
 GHCID_CMD="ghcid --command=stack ghci"
 
 echo_and_eval () {
