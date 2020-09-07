@@ -53,11 +53,12 @@ library:
     - regex-compat
     - time
     - exceptions
+    - process
 
 executables:
-  waspc-cli:
+  wasp:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         cli 
     ghc-options:
       - -threaded
       - -rtsopts
@@ -67,6 +68,8 @@ executables:
       - filepath
       - path
       - directory
+      - mtl
+      - exceptions
 
 benchmarks:
   waspc-benchmarks:

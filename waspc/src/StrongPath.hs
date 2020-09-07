@@ -5,6 +5,7 @@ module StrongPath
     , toFilePath
     , (</>)
     , castRel
+    , castDir
     , parent
     , fromPathRelDir, fromPathRelFile, fromPathAbsDir, fromPathAbsFile
     , toPathRelDir, toPathRelFile, toPathAbsDir, toPathAbsFile
@@ -30,16 +31,16 @@ data File
 --   This means we would implement our own [reldir|foobar|] stuff.
 
 fromPathRelDir :: P.Path P.Rel P.Dir -> Path (Rel a) (Dir b)
-fromPathRelDir p = RelDir p
+fromPathRelDir = RelDir
 
 fromPathRelFile :: P.Path P.Rel P.File -> Path (Rel a) File
-fromPathRelFile p = RelFile p
+fromPathRelFile = RelFile
 
 fromPathAbsDir :: P.Path P.Abs P.Dir -> Path Abs (Dir a)
-fromPathAbsDir p = AbsDir p
+fromPathAbsDir = AbsDir
 
 fromPathAbsFile :: P.Path P.Abs P.File -> Path Abs File
-fromPathAbsFile p = AbsFile p
+fromPathAbsFile = AbsFile
 
 
 toPathRelDir :: Path (Rel a) (Dir b) -> P.Path P.Rel P.Dir
@@ -60,16 +61,16 @@ toPathAbsFile _ = impossible
 
 
 parseRelDir :: MonadThrow m => FilePath -> m (Path (Rel d1) (Dir d2))
-parseRelDir fp = P.parseRelDir fp >>= return . fromPathRelDir
+parseRelDir fp = fromPathRelDir <$> P.parseRelDir fp
 
 parseRelFile :: MonadThrow m => FilePath -> m (Path (Rel d) File)
-parseRelFile fp = P.parseRelFile fp >>= return . fromPathRelFile
+parseRelFile fp = fromPathRelFile <$> P.parseRelFile fp
 
 parseAbsDir :: MonadThrow m => FilePath -> m (Path Abs (Dir d))
-parseAbsDir fp = P.parseAbsDir fp >>= return . fromPathAbsDir
+parseAbsDir fp = fromPathAbsDir <$> P.parseAbsDir fp
 
 parseAbsFile :: MonadThrow m => FilePath -> m (Path Abs File)
-parseAbsFile fp = P.parseAbsFile fp >>= return . fromPathAbsFile
+parseAbsFile fp = fromPathAbsFile <$> P.parseAbsFile fp
 
 
 toFilePath :: Path b t -> FilePath
@@ -99,6 +100,10 @@ castRel (RelDir p) = RelDir p
 castRel (RelFile p) = RelFile p
 castRel _ = impossible
 
+castDir :: Path a (Dir d1) -> Path a (Dir d2)
+castDir (AbsDir p) = AbsDir p
+castDir (RelDir p) = RelDir p
+castDir _ = impossible
 
 impossible :: a
 impossible = error "This should be impossible."
