@@ -65,8 +65,12 @@ reservedNames =
     , reservedNameApp
     , reservedNamePage
     , reservedNameRoute
+    , reservedNameEntityPSL
+
+    -- TODO(matija): old entity stuff, to be removed.
     , reservedNameEntity
     , reservedNameEntityForm
+
     , reservedNameQuery
     , reservedNameAction
     -- * Data types

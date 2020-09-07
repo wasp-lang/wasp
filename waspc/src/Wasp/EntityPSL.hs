@@ -5,8 +5,15 @@ module Wasp.EntityPSL
     ) where
 
 import Data.Text (Text)
+import Data.Aeson (ToJSON(..), (.=), object)
 
 data EntityPSL = EntityPSL
     { _name :: !String
     , _pslModelSchema :: !Text -- ^ PSL stands for Prisma Schema Language.
     } deriving (Show, Eq)
+
+instance ToJSON EntityPSL where
+    toJSON entity = object
+        [ "name" .= _name entity
+        , "pslModelSchema" .= _pslModelSchema entity
+        ]

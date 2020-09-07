@@ -12,6 +12,9 @@ module Wasp
     , getApp
     , setApp
 
+    , getPSLEntities
+
+    -- TODO(matija): Old Entity stuff, to be removed.
     , module Wasp.Entity
     , getEntities
     , addEntity
@@ -164,6 +167,11 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 
 -- * Entities
 
+getPSLEntities :: Wasp -> [Wasp.EntityPSL.EntityPSL]
+getPSLEntities wasp = [entityPSL | (WaspElementEntityPSL entityPSL) <- (waspElements wasp)]
+
+
+-- TODO(matija): old Entity stuff, to be removed
 getEntities :: Wasp -> [Entity]
 getEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
 
