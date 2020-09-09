@@ -33,7 +33,7 @@ genPrismaSchema :: [EntityPSL] -> FileDraft
 genPrismaSchema entities = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
     where
         relSrcPath :: Path (Rel DbTemplatesDir) File
-        relSrcPath = (SP.fromPathRelFile [P.relfile|prisma.schema|])
+        relSrcPath = (SP.fromPathRelFile [P.relfile|schema.prisma|])
 
         relDstPath :: Path (Rel DbRootDir) File
         -- Generated schema file will be in the same relative location as the
