@@ -1,6 +1,7 @@
 module Lib
     ( compile
-    , setup
+    , Generator.setup
+    , Generator.start
     , ProjectRootDir
     ) where
 
@@ -28,8 +29,3 @@ compile waspFile outDir options = do
             generateCode $ wasp `setExternalCodeFiles` externalCodeFiles
   where
     generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
-
-type SetupError = String
-
-setup :: Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO (Either SetupError ())
-setup = Generator.setup

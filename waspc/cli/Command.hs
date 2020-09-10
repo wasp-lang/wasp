@@ -5,7 +5,7 @@ module Command
     , CommandError(..)
     ) where
 
-import Control.Monad.Except (MonadError, ExceptT, runExceptT)
+import Control.Monad.Except (ExceptT, MonadError, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 
 
@@ -17,9 +17,8 @@ runCommand cmd = do
     errorOrResult <- runExceptT $ _runCommand cmd
     case errorOrResult of
         Left cmdError -> putStrLn $ "Error: " ++ _errorMsg cmdError
-        Right _ -> return ()
+        Right _       -> return ()
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
 data CommandError = CommandError { _errorMsg :: !String }
-

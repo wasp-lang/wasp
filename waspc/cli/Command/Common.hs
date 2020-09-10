@@ -1,6 +1,7 @@
 module Command.Common
     ( findWaspProjectRootFromCwd
     , findWaspProjectRoot
+    , waspSays
     ) where
 
 import System.Directory (getCurrentDirectory, doesPathExist, doesFileExist)
@@ -36,3 +37,6 @@ findWaspProjectRootFromCwd :: Command (Path Abs (Dir WaspProjectDir))
 findWaspProjectRootFromCwd = do
     absCurrentDir <- liftIO getCurrentDirectory
     findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
+
+waspSays :: String -> Command ()
+waspSays what = liftIO $ putStrLn $ "\ESC[33m{= Wasp =}\ESC[0m " ++ what -- Yellow

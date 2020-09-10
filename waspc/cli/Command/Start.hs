@@ -13,7 +13,7 @@ import qualified StrongPath as SP
 import qualified Lib
 import qualified Util.IO
 import Command (Command, CommandError(..))
-import Command.Common (findWaspProjectRootFromCwd)
+import Command.Common (findWaspProjectRootFromCwd, waspSays)
 import qualified Common
 
 
@@ -26,8 +26,11 @@ start = do
             { externalCodeDirPath = waspRoot </> Common.extCodeDirInWaspProjectDir }
 
     -- TODO: This just compiles once. We need `wasp start` to do much more.
-    maybeError <- liftIO $ Lib.compile waspFile outDir options
-    liftIO $ either putStrLn (\_ -> print ("Code has been successfully (re)generated." :: String)) maybeError
+    waspSays "Compiling wasp code..."
+    errorOrResult <- liftIO $ Lib.compile waspFile outDir options
+    case errorOrResult of
+        Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
+        Right () -> waspSays "Code has been successfully compiled.\n"
 
     -- TODO: Do smart install -> if we need to install stuff, install it.
     --   This should be responsibility of Generator, it should tell us how to install stuff.
@@ -36,16 +39,21 @@ start = do
     --   Then, next time, we give it data we have about last installation, and it uses that
     --   to decide if installation needs to happen or not. If it happens, it returnes new data again.
     --   Right now we have setup/installation being called, but it has not support for being "smart" yet.
-    liftIO $ putStrLn "Setting up generated project..."
-    setupResult <- liftIO $ Lib.setup outDir options
+    waspSays "Setting up generated project..."
+    setupResult <- liftIO $ Lib.setup outDir
     case setupResult of
         Left setupError -> throwError $ CommandError $ "Setup failed: " ++ setupError
-        Right () -> liftIO $ putStrLn "Setup successful."
+        Right () -> waspSays "Setup successful.\n"
 
     -- TODO: Check node version and then run `npm start` on both web and server.
     --   Again, this is something that Generator should be responsible for, since it knows how the code is generated.
     --   It should tell us how to start stuff and we just start it. It should even do composing of the outputs,
     --   since it knows more than us about that.
+    waspSays "Starting up generated project..."
+    startResult <- liftIO $ Lib.start outDir
+    case startResult of
+        Left startError -> throwError $ CommandError $ "Start failed: " ++ startError
+        Right () -> error "This should never happen, start should never end."
 
     -- TODO: Listen for changes, if they happen, re-generate the code.
   where
