@@ -54,6 +54,10 @@ library:
     - time
     - exceptions
     - process
+    - conduit
+    - conduit-extra
+    - async
+    - bytestring
 
 executables:
   wasp:
