@@ -5,6 +5,7 @@ module Common
     , dotWaspRootFileInWaspProjectDir
     , extCodeDirInWaspProjectDir
     , generatedCodeDirInDotWaspDir
+    , waspSays
     ) where
 
 import qualified Path as P
@@ -31,3 +32,6 @@ dotWaspRootFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.wasproot|]
 
 extCodeDirInWaspProjectDir :: Path (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 extCodeDirInWaspProjectDir = SP.fromPathRelDir [P.reldir|ext|]
+
+waspSays :: String -> IO ()
+waspSays what = putStrLn $ "\ESC[33m{= Wasp =}\ESC[0m " ++ what -- Yellow

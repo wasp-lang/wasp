@@ -74,6 +74,9 @@ executables:
       - directory
       - mtl
       - exceptions
+      - fsnotify
+      - async
+      - time
 
 benchmarks:
   waspc-benchmarks:

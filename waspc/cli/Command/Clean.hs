@@ -8,13 +8,13 @@ import Control.Monad.IO.Class (liftIO)
 
 import qualified StrongPath as SP
 import Command (Command)
-import Command.Common (findWaspProjectRootFromCwd)
+import Command.Common (findWaspProjectRootDirFromCwd)
 import qualified Common
 
 clean :: Command ()
 clean = do
-    waspRoot <- findWaspProjectRootFromCwd
-    let dotWaspDirFp = SP.toFilePath $ waspRoot SP.</> Common.dotWaspDirInWaspProjectDir
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let dotWaspDirFp = SP.toFilePath $ waspProjectDir SP.</> Common.dotWaspDirInWaspProjectDir
     liftIO $ putStrLn "Deleting .wasp/ directory..." >> hFlush stdout
     doesDotWaspDirExist <- liftIO $ doesDirectoryExist dotWaspDirFp
     if doesDotWaspDirExist

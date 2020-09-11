@@ -1,7 +1,7 @@
 module Command.Common
-    ( findWaspProjectRootFromCwd
+    ( findWaspProjectRootDirFromCwd
     , findWaspProjectRoot
-    , waspSays
+    , waspSaysC
     ) where
 
 import System.Directory (getCurrentDirectory, doesPathExist, doesFileExist)
@@ -14,7 +14,7 @@ import Control.Monad (when, unless)
 import StrongPath (Path, Abs, Dir)
 import qualified StrongPath as SP
 import Command (Command, CommandError(..))
-import Common (WaspProjectDir, dotWaspRootFileInWaspProjectDir)
+import Common (WaspProjectDir, dotWaspRootFileInWaspProjectDir, waspSays)
 
 
 findWaspProjectRoot :: Path Abs (Dir ()) -> Command (Path Abs (Dir WaspProjectDir))
@@ -33,10 +33,10 @@ findWaspProjectRoot currentDir = do
       notFoundError = CommandError ("Couldn't find wasp project root - make sure"
                                     ++ " you are running this command from Wasp project.")
 
-findWaspProjectRootFromCwd :: Command (Path Abs (Dir WaspProjectDir))
-findWaspProjectRootFromCwd = do
+findWaspProjectRootDirFromCwd :: Command (Path Abs (Dir WaspProjectDir))
+findWaspProjectRootDirFromCwd = do
     absCurrentDir <- liftIO getCurrentDirectory
     findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
 
-waspSays :: String -> Command ()
-waspSays what = liftIO $ putStrLn $ "\ESC[33m{= Wasp =}\ESC[0m " ++ what -- Yellow
+waspSaysC :: String -> Command ()
+waspSaysC = liftIO . waspSays
