@@ -1,5 +1,7 @@
 module Generator.DbGenerator
     ( genDb
+    , dbRootDirInProjectRootDir
+    , dbSchemaFileInProjectRootDir
     ) where
 
 import qualified Path as P
@@ -24,6 +26,17 @@ dbRootDirInProjectRootDir = SP.fromPathRelDir [P.reldir|db|]
 dbTemplatesDirInTemplatesDir :: Path (Rel TemplatesDir) (Dir DbTemplatesDir)
 dbTemplatesDirInTemplatesDir = SP.fromPathRelDir [P.reldir|db|]
 
+dbSchemaFileInDbTemplatesDir :: Path (Rel DbTemplatesDir) File
+dbSchemaFileInDbTemplatesDir = SP.fromPathRelFile [P.relfile|schema.prisma|]
+
+dbSchemaFileInDbRootDir :: Path (Rel DbRootDir) File
+-- Generated schema file will be in the same relative location as the
+-- template file within templates dir.
+dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
+
+dbSchemaFileInProjectRootDir :: Path (Rel ProjectRootDir) File
+dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
+
 genDb :: Wasp -> CompileOptions -> [FileDraft]
 genDb wasp _ =
     [ genPrismaSchema $ Wasp.getPSLEntities wasp
@@ -32,16 +45,8 @@ genDb wasp _ =
 genPrismaSchema :: [EntityPSL] -> FileDraft
 genPrismaSchema entities = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
     where
-        relSrcPath :: Path (Rel DbTemplatesDir) File
-        relSrcPath = (SP.fromPathRelFile [P.relfile|schema.prisma|])
-
-        relDstPath :: Path (Rel DbRootDir) File
-        -- Generated schema file will be in the same relative location as the
-        -- template file within templates dir.
-        relDstPath = SP.castRel relSrcPath
-
-        dstPath = dbRootDirInProjectRootDir </> relDstPath
-        tmplSrcPath = dbTemplatesDirInTemplatesDir </> relSrcPath
+        dstPath = dbSchemaFileInProjectRootDir
+        tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
         templateData = object
             [ "entities" .= entities
