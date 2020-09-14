@@ -59,6 +59,7 @@ library:
     - conduit-extra
     - async
     - bytestring
+    - regex-tdfa
 
 executables:
   wasp:

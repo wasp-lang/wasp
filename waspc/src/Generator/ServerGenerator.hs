@@ -3,19 +3,22 @@ module Generator.ServerGenerator
     , operationsRouteInRootRouter
     ) where
 
-import qualified Path as P
-import Data.Aeson ((.=), object)
+import           Data.Aeson                                      (object, (.=))
+import qualified Path                                            as P
 
-import StrongPath (Path, Rel, File)
-import qualified StrongPath as SP
-import Wasp (Wasp)
-import CompileOptions (CompileOptions)
-import Generator.FileDraft (FileDraft)
-import Generator.ExternalCodeGenerator (generateExternalCodeDir)
-import Generator.ServerGenerator.OperationsGenerator (genOperations)
-import Generator.ServerGenerator.Common (asTmplFile, asServerFile)
-import qualified Generator.ServerGenerator.Common as C
+import           CompileOptions                                  (CompileOptions)
+import           Generator.Common                                (nodeVersionAsText)
+import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
+import           Generator.FileDraft                             (FileDraft)
+import           Generator.ServerGenerator.Common                (asServerFile,
+                                                                  asTmplFile)
+import qualified Generator.ServerGenerator.Common                as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import           Generator.ServerGenerator.OperationsGenerator   (genOperations)
+import           StrongPath                                      (File, Path,
+                                                                  Rel)
+import qualified StrongPath                                      as SP
+import           Wasp                                            (Wasp)
 
 
 genServer :: Wasp -> CompileOptions -> [FileDraft]
@@ -43,7 +46,7 @@ genNpmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|npmrc|])
 genNvmrc :: Wasp -> FileDraft
 genNvmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|nvmrc|])
                               (asServerFile [P.relfile|.nvmrc|])
-                              Nothing
+                              (Just (object ["nodeVersion" .= nodeVersionAsText]))
 
 genGitignore :: Wasp -> FileDraft
 genGitignore _ = C.makeTemplateFD (asTmplFile [P.relfile|gitignore|])
