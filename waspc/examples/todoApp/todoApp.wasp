@@ -5,6 +5,7 @@ app todoApp {
 entityPSL Project {=psl
     id      Int     @id @default(autoincrement())
     tasks   Task[]
+    name    String
 psl=}
 
 entityPSL Task {=psl

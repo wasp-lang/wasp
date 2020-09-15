@@ -1,5 +1,7 @@
 module Generator.DbGenerator.Jobs
     ( migrateSave
+    , migrateUp
+    , generateClient
     ) where
 
 import           Generator.Common                 (ProjectRootDir)
@@ -10,14 +12,12 @@ import qualified StrongPath                       as SP
 import           Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import           Generator.DbGenerator            (dbSchemaFileInProjectRootDir)
 
+-- | Runs `prisma migrate save` - creates migration folder for the latest schema changes.
 migrateSave :: Path Abs (Dir ProjectRootDir) -> String -> J.Job
 migrateSave projectDir migrationName = do
     let serverDir = projectDir </> serverRootDirInProjectRootDir
     let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
-    -- TODO(matija): should we make the type here J.Db? Although actually we are running this
-    -- from server currently so maybe it is ok? Or maybe that is internal stuff?
-    --
     -- NOTE(matija): We are running this command from server's root dir since that is where
     -- Prisma packages (cli and client) are currently installed.
     runNodeCommandAsJob serverDir "npx"
@@ -26,4 +26,30 @@ migrateSave projectDir migrationName = do
         , "--name", migrationName
         , "--create-db" -- Creates db if it doesn't already exist. Otherwise would stop and ask.
         , "--experimental"
-        ] J.Server
+        ] J.Db
+
+-- | Runs `prisma migrate up` - applies all the available migrations. 
+migrateUp :: Path Abs (Dir ProjectRootDir) -> J.Job
+migrateUp projectDir = do
+    let serverDir = projectDir </> serverRootDirInProjectRootDir
+    let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+    
+    runNodeCommandAsJob serverDir "npx"
+        [ "prisma", "migrate", "up"
+        , "--schema", (SP.toFilePath schemaFile)
+        , "--create-db" -- Creates db if it doesn't already exist. Otherwise would stop and ask.
+        , "--experimental"
+        ] J.Db
+
+-- | Runs `prisma generate` - (re)generates db client api.
+generateClient :: Path Abs (Dir ProjectRootDir) -> J.Job
+generateClient projectDir = do
+    let serverDir = projectDir </> serverRootDirInProjectRootDir
+    let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+    
+    runNodeCommandAsJob serverDir "npx"
+        [ "prisma", "generate"
+        , "--schema", (SP.toFilePath schemaFile)
+        ] J.Db
+
+
