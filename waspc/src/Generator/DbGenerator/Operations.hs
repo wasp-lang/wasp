@@ -13,6 +13,8 @@ import qualified Generator.Job as J
 import Generator.Job (JobMessage)
 import qualified Generator.DbGenerator.Jobs as DbJobs
 
+-- | Checks for the changes in db schema file and creates and saves db migration info, but it
+-- does not execute it.
 migrateSave :: Path Abs (Dir ProjectRootDir) -> String -> IO (Either String ())
 migrateSave projectDir migrationName = do
     chan <- newChan

@@ -1,4 +1,3 @@
--- TODO(matija): rename to Jobs.hs?
 module Generator.DbGenerator.Jobs
     ( migrateSave
     ) where
@@ -13,13 +12,14 @@ import           Generator.DbGenerator            (dbSchemaFileInProjectRootDir)
 
 migrateSave :: Path Abs (Dir ProjectRootDir) -> String -> J.Job
 migrateSave projectDir migrationName = do
-    -- NOTE(matija): We are running this command from server's root dir since that is where
-    -- Prisma packages (cli and client) are currently installed.
     let serverDir = projectDir </> serverRootDirInProjectRootDir
     let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
     -- TODO(matija): should we make the type here J.Db? Although actually we are running this
     -- from server currently so maybe it is ok? Or maybe that is internal stuff?
+    --
+    -- NOTE(matija): We are running this command from server's root dir since that is where
+    -- Prisma packages (cli and client) are currently installed.
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "migrate", "save"
         , "--schema", (SP.toFilePath schemaFile)
