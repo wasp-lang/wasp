@@ -51,7 +51,6 @@ library:
     - split
     - unordered-containers
     - path
-    - regex-compat
     - time
     - exceptions
     - process

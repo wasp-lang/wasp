@@ -10,6 +10,7 @@ import qualified StrongPath as SP
 import Generator.FileDraft
 
 import qualified Generator.MockWriteableMonad as Mock
+import Fixtures (fpRoot)
 
 
 spec_TemplateFileDraft :: Spec
@@ -26,14 +27,14 @@ spec_TemplateFileDraft = do
                 `shouldBe` [(SP.toFilePath expectedDstPath, mockTemplateContent)]
               where
                 (dstDir, dstPath, templatePath) =
-                    ( SP.fromPathAbsDir [P.absdir|/a/b|]
+                    ( SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|a/b|]
                     , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
                     , SP.fromPathRelFile [P.relfile|e/tmpl.txt|]
                     )
                 templateData = object [ "foo" .= ("bar" :: String) ]
                 fileDraft = createTemplateFileDraft dstPath templatePath (Just templateData)
                 expectedDstPath = dstDir SP.</> dstPath
-                mockTemplatesDirAbsPath = SP.fromPathAbsDir [P.absdir|/mock/templates/dir|]
+                mockTemplatesDirAbsPath = SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|mock/templates/dir|]
                 mockTemplateContent = "Mock template content" :: Text
                 mockConfig = Mock.defaultMockConfig
                     { Mock.getTemplatesDirAbsPath_impl = mockTemplatesDirAbsPath

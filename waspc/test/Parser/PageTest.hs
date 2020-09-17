@@ -4,10 +4,7 @@ import Test.Tasty.Hspec
 
 import Data.Either (isLeft)
 
-import StrongPath (Path, Rel, File)
-import qualified StrongPath as SP
-import qualified Path as P
-import ExternalCode (SourceExternalCodeDir)
+import qualified Path.Posix as PPosix
 
 import Parser.Common (runWaspParser)
 import Parser.Page (page)
@@ -25,8 +22,7 @@ spec_parsePage =
             let expectedPageComponentImport = Wasp.JsImport.JsImport
                     { Wasp.JsImport._defaultImport = Just "Main"
                     , Wasp.JsImport._namedImports = []
-                    , Wasp.JsImport._from = (SP.fromPathRelFile [P.relfile|pages/Main|])
-                        :: Path (Rel SourceExternalCodeDir) File
+                    , Wasp.JsImport._from = [PPosix.relfile|pages/Main|]
                     }
 
             parsePage (

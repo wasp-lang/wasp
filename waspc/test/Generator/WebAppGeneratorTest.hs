@@ -15,6 +15,7 @@ import qualified Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Generator.FileDraft.TextFileDraft as TextFD
 import qualified Generator.WebAppGenerator.Common as Common
 import Wasp
+import Fixtures (fpRoot)
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
 --   generator functions and then do property testing on them, that would be cool.
@@ -25,7 +26,7 @@ spec_WebAppGenerator = do
     let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
     let testWasp = (fromApp testApp) `addEntity` testEntity
     let testCompileOptions = CompileOptions.CompileOptions
-            { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir [P.absdir|/test/src|]
+            { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|test/src|]
             }
 
     describe "generateWebApp" $ do
@@ -53,8 +54,8 @@ spec_WebAppGenerator = do
                       , "reducers.js"
                       , "router.js"
                       , "serviceWorker.js"
-                      , "store/index.js"
-                      , "store/middleware/logger.js"
+                      , "store" </> "index.js"
+                      , "store" </> "middleware" </> "logger.js"
                       , testEntityDstDirInSrc </> "actions.js"
                       , testEntityDstDirInSrc </> "actionTypes.js"
                       , testEntityDstDirInSrc </> "state.js"

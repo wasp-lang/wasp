@@ -4,20 +4,17 @@ module Parser.ExternalCode
 
 import Text.Parsec (unexpected)
 import Text.Parsec.String (Parser)
-import qualified Path as P
+import qualified Path.Posix as PPosix
 
-import StrongPath (Path, Rel, File)
-import qualified StrongPath as SP
-import ExternalCode (SourceExternalCodeDir)
 import qualified Parser.Common
 
 
--- Parses string literal that is file path to file in external code dir.
+-- Parses string literal that is file path to file in source external code dir.
 -- Returns file path relative to the external code dir.
 -- Example of input: "@ext/some/file.txt". Output would be: "some/file.txt".
-extCodeFilePathString :: Parser (Path (Rel SourceExternalCodeDir) File)
+extCodeFilePathString :: Parser (PPosix.Path PPosix.Rel PPosix.File)
 extCodeFilePathString = do
-    path <- Parser.Common.relFilePathString
+    path <- Parser.Common.relPosixFilePathString
     maybe (unexpected $ "string \"" ++ (show path) ++ "\": External code file path should start with \"@ext/\".")
-          (return . SP.fromPathRelFile)
-          (P.stripProperPrefix [P.reldir|@ext|] path)
+          return
+          (PPosix.stripProperPrefix [PPosix.reldir|@ext|] path)

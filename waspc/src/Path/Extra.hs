@@ -1,29 +1,25 @@
 module Path.Extra
-    ( (./)
-    , reversePath
+    ( reversePosixPath
+    , toPosixFilePath
     ) where
 
 import Control.Exception (assert)
-import System.FilePath as FP
+import qualified System.FilePath.Posix as FPP
 import Path
 
-
--- NOTE: Here we return FilePath, because Path can't keep the "./" in it,
---   since it always normalizes the path. So the only way to have path with "./" in it
---   is to have it as a FilePath.
-(./) :: Path Rel a -> FP.FilePath
-(./) relPath = "." FP.</> (toFilePath relPath)
-
--- | For given path P, returns path P', such that (terminal pseudocode incoming)
+-- | For given posix path P, returns posix path P', such that (terminal pseudocode incoming)
 -- `pwd == (cd P && cd P' && pwd)`, or to put it differently, such that
 -- `cd P && cd P'` is noop (does nothing).
 -- It will always be either "." (only if input is ".") or a series of ".."
--- (e.g. reversePath [reldir|foo/bar|] == "../..").
-reversePath :: Path Rel Dir -> FilePath
-reversePath path
-    | length parts == 0 = "."
-    | otherwise         = assert (not (".." `elem` parts)) $
-                          FP.joinPath $ map (const "..") parts
+-- (e.g. reversePath "foo/bar" == "../..").
+reversePosixPath :: FilePath -> FilePath
+reversePosixPath path
+    | null parts = "."
+    | otherwise  = assert (".." `notElem` parts) $
+                   FPP.joinPath $ map (const "..") parts
   where
     parts :: [String]
-    parts = filter (not . (== ".")) $ FP.splitDirectories $ toFilePath path
+    parts = filter (/= ".") $ FPP.splitDirectories path
+
+toPosixFilePath :: Path Rel a -> FilePath
+toPosixFilePath path = map (\c -> if c == '\\' then '/' else c) $ toFilePath path

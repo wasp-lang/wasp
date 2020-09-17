@@ -4,16 +4,13 @@ module Wasp.Style
 
 import Data.Aeson (ToJSON(..))
 import Data.Text (Text)
-
-import StrongPath (Path, Rel, File)
-import qualified StrongPath as SP
-import ExternalCode (SourceExternalCodeDir)
+import qualified Path.Posix as PPosix
 
 
-data Style = ExtCodeCssFile !(Path (Rel SourceExternalCodeDir) File)
+data Style = ExtCodeCssFile !(PPosix.Path PPosix.Rel PPosix.File)
            | CssCode !Text
     deriving (Show, Eq)
 
 instance ToJSON Style where
-    toJSON (ExtCodeCssFile path) = toJSON $ SP.toFilePath path
+    toJSON (ExtCodeCssFile path) = toJSON $ PPosix.toFilePath path
     toJSON (CssCode code) = toJSON code

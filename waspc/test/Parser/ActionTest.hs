@@ -3,9 +3,8 @@ module Parser.ActionTest where
 import Test.Tasty.Hspec
 
 import Data.Either (isLeft)
-import Path (relfile)
+import qualified Path.Posix as PPosix
 
-import qualified StrongPath as SP
 import Parser.Common (runWaspParser)
 import Parser.Action (action)
 import qualified Wasp.Action
@@ -24,7 +23,7 @@ spec_parseAction =
         it "When given a valid action declaration, returns correct AST" $ do
             let testActionName = "myAction"
                 testActionJsFunctionName = "myJsAction"
-                testActionJsFunctionFrom = SP.fromPathRelFile [relfile|some/path|]
+                testActionJsFunctionFrom = [PPosix.relfile|some/path|]
             let testAction = Wasp.Action.Action
                     { Wasp.Action._name = testActionName
                     , Wasp.Action._jsFunction = Wasp.JsImport.JsImport
