@@ -1,0 +1,60 @@
+platform: x64
+
+version: '{build}'
+
+skip_commits:
+  message: /\[skip ci\]/
+
+environment:
+  PATH: c:/bin;%PATH%
+  STACK_ROOT: c:/stack
+  TMP: c:/tmp # https://github.com/haskell/cabal/issues/5386
+
+# `a -> b` means that cached item `a` will be invalidated if `b` changes.
+# Important: AppVeyor has 1GB limit on cache for free account.
+cache:
+  # We made these caches dependent on stack.yaml, because we want them
+  # to clear out if new resolver is set, otherwise they would be taking
+  # too much space if they would contain libraries for multiple versions
+  # of resolvers.
+  - c:/stack -> waspc/stack.yaml
+  # This dir is really big, hundreds of MBs, but it reduces build time from 20 to 2 minutes.
+  - c:/Users/appveyor/AppData/Local/Programs/stack -> waspc/stack.yaml
+
+install:
+  - ps: cd waspc
+  # Install latest stable stack.
+  - ps: |
+      curl -OutFile stack.zip -Uri https://get.haskellstack.org/stable/windows-x86_64.zip
+      7z x stack.zip stack.exe
+      mkdir c:/bin
+      mv stack.exe c:/bin
+
+build_script:
+  # Building external libraries/packages.
+  - cmd: stack setup > nul # Do it silently due to lot of not very interesting output.
+  - cmd: stack build --test --only-dependencies
+  # Building our source code.
+  - cmd: stack build --test --no-run-tests
+
+test_script:
+  - cmd: stack build --test # Run tests
+
+after_test:
+  - ps: mkdir appveyor-releases/
+  - ps: mv "$(stack path --local-install-root)/bin/wasp.exe" "appveyor-releases/wasp-windows.exe"
+
+artifacts:
+  - path: waspc/appveyor-releases/wasp-windows.exe
+    name: wasp-windows.exe
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: kyc1YtELeuOSAvRQtg6ppmMWYkbsP16z3eBRu09YozknJEXySteOJTHUUyaMocjC
+  description: "Automatic release"
+  artifact: wasp-windows.exe
+  force_update: true # Adds files to release even if it already exists.
+  on:
+    APPVEYOR_REPO_TAG: true # Deploy on tag push only.
+

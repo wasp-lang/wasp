@@ -8,6 +8,7 @@ import Text.Parsec (ParseError, parse, anyChar, manyTill, try, unexpected)
 import Text.Parsec.String (Parser)
 import qualified Data.Text as T
 import qualified Path as P
+import qualified Path.Posix as PPosix
 
 import qualified Lexer as L
 
@@ -146,3 +147,11 @@ relFilePathString = do
     maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
           return
           (P.parseRelFile path)
+
+-- | Parses relative posix file path, e.g. "my/file.txt".
+relPosixFilePathString :: Parser (PPosix.Path PPosix.Rel PPosix.File)
+relPosixFilePathString = do
+    path <- L.stringLiteral
+    maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
+          return
+          (PPosix.parseRelFile path)

@@ -17,6 +17,7 @@ import StrongPath (Path, Rel, Abs, Dir, File)
 import qualified StrongPath as SP
 import Generator.Templates (TemplatesDir)
 import Generator.FileDraft.WriteableMonad
+import Fixtures (fpRoot)
 
 
 -- TODO: Instead of manually defining mock like this, consider using monad-mock package,
@@ -25,8 +26,8 @@ import Generator.FileDraft.WriteableMonad
 
 defaultMockConfig :: MockWriteableMonadConfig
 defaultMockConfig = MockWriteableMonadConfig
-    { getTemplatesDirAbsPath_impl = SP.fromPathAbsDir [P.absdir|/mock/templates/dir|]
-    , getTemplateFileAbsPath_impl = \path -> SP.fromPathAbsDir [P.absdir|/mock/templates/dir|] SP.</> path
+    { getTemplatesDirAbsPath_impl = SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|mock/templates/dir|]
+    , getTemplateFileAbsPath_impl = \path -> SP.fromPathAbsDir (fpRoot P.</> [P.reldir|mock/templates/dir|]) SP.</> path
     , compileAndRenderTemplate_impl = \_ _ -> (pack "Mock template content")
     }
 

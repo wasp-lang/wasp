@@ -13,6 +13,10 @@
                                            |_|
 ```
 
+[![Build Status](https://travis-ci.com/wasp-lang/wasp.svg?branch=master)](https://travis-ci.com/wasp-lang/wasp)
+
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
+
 ## Setup
 Install `stack`.
 
@@ -116,6 +120,16 @@ You can run benchmark with `stack bench`.
 If using Hlint as linter, be aware that Hlint doesn't know which default extensions are we using via Stack/cabal, so it might be missing some extension and therefore report false errors.
 
 Hlint already adds a lot of extensions on its own so this is not a very often problem, but if that happens, add default extensions to .hlint.yaml so that Hlint knows to use them.
+
+## Deployment / CI
+
+Every commit is built and tested on Travis (linux, osx) and AppVeyor (win).
+
+Tagged commits are also deployed as github releases.
+
+If you put `[skip ci]` in commit message, that commit will be ignored by both Travis and AppVeyor.
+
+NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Travis/AppVeyor.
 
 ## Other
 

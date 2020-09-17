@@ -2,9 +2,8 @@ module Parser.ParserTest where
 
 import Test.Tasty.Hspec
 import Data.Either
-import qualified Path as P
+import qualified Path.Posix as PPosix
 
-import qualified StrongPath as SP
 import Parser
 import Wasp
 
@@ -44,7 +43,7 @@ spec_parseWasp =
                         , Wasp.Page._component = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Landing"
                             , Wasp.JsImport._namedImports = []
-                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|pages/Landing|]
+                            , Wasp.JsImport._from = [PPosix.relfile|pages/Landing|]
                             }
                         }
                     , WaspElementRoute $ R.Route
@@ -56,7 +55,7 @@ spec_parseWasp =
                         , Wasp.Page._component = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Test"
                             , Wasp.JsImport._namedImports = []
-                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|pages/Test|]
+                            , Wasp.JsImport._from = [PPosix.relfile|pages/Test|]
                             }
                         }
                     , WaspElementEntityPSL $ Wasp.EntityPSL.EntityPSL
@@ -125,9 +124,9 @@ spec_parseWasp =
                         , Wasp.Query._jsFunction = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Nothing
                             , Wasp.JsImport._namedImports = [ "myJsQuery" ]
-                            , Wasp.JsImport._from = SP.fromPathRelFile [P.relfile|some/path|]
+                            , Wasp.JsImport._from = [PPosix.relfile|some/path|]
                             }
                         }
                     ]
-                    `setJsImports` [ JsImport (Just "something") [] (SP.fromPathRelFile [P.relfile|some/file|]) ]
+                    `setJsImports` [ JsImport (Just "something") [] [PPosix.relfile|some/file|] ]
                 )
