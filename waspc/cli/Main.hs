@@ -6,6 +6,7 @@ import Command (runCommand)
 import Command.CreateNewProject (createNewProject)
 import Command.Start (start)
 import Command.Clean (clean)
+import Command.Compile (compile)
 import Command.Db.Migrate (migrateSave, migrateUp)
 
 
@@ -16,6 +17,7 @@ main = do
         ["new", projectName] -> runCommand $ createNewProject projectName
         ["start"] -> runCommand start
         ["clean"] -> runCommand clean
+        ["compile"] -> runCommand compile
         ("db":dbArgs) -> dbCli dbArgs
         _ -> printUsage
 
