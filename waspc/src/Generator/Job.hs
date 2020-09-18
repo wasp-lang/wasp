@@ -26,4 +26,4 @@ data JobMessageData = JobOutput String JobOutputType
 
 data JobOutputType = Stdout | Stderr deriving (Show)
 
-data JobType = WebApp | Server deriving (Show)
+data JobType = WebApp | Server | Db deriving (Show)

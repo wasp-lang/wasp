@@ -78,6 +78,7 @@ executables:
       - fsnotify
       - async
       - time
+      - path-io
 
 benchmarks:
   waspc-benchmarks:

@@ -32,6 +32,7 @@ setup projectDir = do
               J.JobExit {} -> case J._jobType jobMsg of
                   J.WebApp -> handleJobMessages chan (True, isServerDone)
                   J.Server -> handleJobMessages chan (isWebAppDone, True)
+                  J.Db -> error "This should never happen. No db job should be active."
 
       setupFailedMessage (serverExitCode, webAppExitCode) =
           let serverErrorMessage = case serverExitCode of

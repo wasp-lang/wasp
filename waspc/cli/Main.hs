@@ -6,7 +6,7 @@ import Command (runCommand)
 import Command.CreateNewProject (createNewProject)
 import Command.Start (start)
 import Command.Clean (clean)
-import Command.Db.Migrate (migrate)
+import Command.Db.Migrate (migrateSave, migrateUp)
 
 
 main :: IO ()
@@ -38,8 +38,20 @@ printUsage = putStrLn $ unlines
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-    ["migrate", migrationName] -> runCommand $ migrate migrationName
+    ["migrate-save", migrationName] -> runCommand $ migrateSave migrationName
+    ["migrate-up"] -> runCommand $ migrateUp
     _ -> printDbUsage
 
 printDbUsage :: IO ()
-printDbUsage = putStrLn "This is how to use db commands:"
+printDbUsage = putStrLn $ unlines
+    [ "Usage:"
+    , "  wasp db <command> [command-args]"
+    , ""
+    , "Commands:"
+    , "  migrate-save <migration-name>"
+    , "  migrate-up"
+    , ""
+    , "Examples:"
+    , "  wasp db migrate-save \"Added description field.\""
+    , "  wasp db migrate-up"
+    ]
