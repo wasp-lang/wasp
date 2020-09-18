@@ -7,7 +7,7 @@ import qualified System.Directory as Dir
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import Control.Exception (catch, throw)
-import Control.Monad (filterM, mapM)
+import Control.Monad (filterM)
 import qualified Path as P
 
 

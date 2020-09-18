@@ -3,7 +3,6 @@ module Command.Db.Migrate
     , migrateUp
     ) where
 
-import System.IO.Error (IOError)
 import Control.Monad.Catch (catch)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
