@@ -19,7 +19,7 @@ printJobMessage jobMsg = do
     let prefix = case J._jobType jobMsg of
             J.Server -> "\ESC[35mServer:\ESC[0m " -- Magenta
             J.WebApp -> "\ESC[36mWeb app:\ESC[0m " -- Cyan
-            J.Db     -> "\ESC[32mDb:\ESC[0m " -- Green
+            J.Db     -> "\ESC[37mDb:\ESC[0m " -- White
     let message = case J._data jobMsg of
             J.JobOutput output _ -> output
             J.JobExit ExitSuccess -> "Job exited successfully."

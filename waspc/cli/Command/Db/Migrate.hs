@@ -8,7 +8,7 @@ import Control.Monad.Catch (catch)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Path as P
-import Path.IO
+import qualified Path.IO as PathIO
 
 import StrongPath ((</>), Abs, Dir, Path)
 import qualified StrongPath as SP
@@ -25,20 +25,19 @@ import Generator.Common (ProjectRootDir)
 
 migrateSave :: String -> Command ()
 migrateSave migrationName = do
-    waspRootDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspRootDir </> Common.dotWaspDirInWaspProjectDir </>
-                            Common.generatedCodeDirInDotWaspDir
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let genProjectRootDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+                            </> Common.generatedCodeDirInDotWaspDir
 
     waspSaysC "Checking for changes in schema to save..."
     migrateSaveResult <- liftIO $ DbOps.migrateSave genProjectRootDir migrationName
     case migrateSaveResult of
-        Left migrateSaveError -> throwError $ CommandError $ "Migrate save failed: " ++
-                                 migrateSaveError
+        Left migrateSaveError -> throwError $ CommandError $ "Migrate save failed: "
+                                 ++ migrateSaveError
         Right () -> waspSaysC "Done."
 
     waspSaysC "Copying migrations folder from Prisma to Wasp project..."
-    copyDbMigDirResult <- liftIO $ copyDbMigrationsDir waspRootDir genProjectRootDir
-
+    copyDbMigDirResult <- liftIO $ copyDbMigrationsDir waspProjectDir genProjectRootDir
     case copyDbMigDirResult of
         Nothing -> waspSaysC "Done."
         Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
@@ -51,23 +50,23 @@ migrateSave migrationName = do
         copyDbMigrationsDir
             :: Path Abs (Dir WaspProjectDir)
             -> Path Abs (Dir ProjectRootDir)
-            -> IO (Maybe String)
-        copyDbMigrationsDir waspRootDir genProjectRootDir= do
+            -> IO (Maybe String) -- ^ Possibly contains error message.
+        copyDbMigrationsDir waspProjectDir genProjectRootDir= do
             let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
-            let dbMigrationsDirSrc = genProjectRootDir </> dbRootDirInProjectRootDir </>
-                                     dbMigrationsDirInDbRootDir
-            let dbMigrationsDirTarget = waspRootDir </> dbMigrationsDirInDbRootDir
+            let dbMigrationsDirSrc = genProjectRootDir </> dbRootDirInProjectRootDir
+                                     </> dbMigrationsDirInDbRootDir
+            let dbMigrationsDirTarget = waspProjectDir </> dbMigrationsDirInDbRootDir
             
-            ((Path.IO.copyDirRecur (SP.toPathAbsDir dbMigrationsDirSrc)
+            ((PathIO.copyDirRecur (SP.toPathAbsDir dbMigrationsDirSrc)
                                   (SP.toPathAbsDir dbMigrationsDirTarget)) >> return Nothing)
             `catch` (\e -> return $ Just $ show (e :: P.PathException))
             `catch` (\e -> return $ Just $ show (e :: IOError))
 
 migrateUp :: Command ()
 migrateUp = do
-    waspRootDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspRootDir </> Common.dotWaspDirInWaspProjectDir </>
-                            Common.generatedCodeDirInDotWaspDir
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let genProjectRootDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+                            </> Common.generatedCodeDirInDotWaspDir
 
     applyAvailableMigrationsAndGenerateClient genProjectRootDir
 
