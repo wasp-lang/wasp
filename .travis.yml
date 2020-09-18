@@ -13,9 +13,6 @@ cache:
     # Where GHC and Stackage packages (per specific resolver/snapshot) get installed.
     # Caching this avoids stack downloading GHC and building all the packages each time.
     - $HOME/.stack
-    # Where stack produces build artifacts while building our project.
-    # Caching this avoids stack having to re-build our whole project every time.
-    - $TRAVIS_BUILD_DIR/waspc/.stack-work
 
 # Ensure necessary system libraries are present.
 addons:
@@ -26,7 +23,6 @@ addons:
 before_install:
   - mkdir -p ~/.local/bin && export PATH=$HOME/.local/bin:$PATH
   # Download and install stack executable.
-  # NOTE: While it might seem redundant to do this on every build, it only takes about a second to download it.
   - |
     if [ "$TRAVIS_OS_NAME" = "osx" ]
     then
