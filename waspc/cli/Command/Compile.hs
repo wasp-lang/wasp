@@ -21,11 +21,12 @@ import qualified Util.IO
 
 compile :: Command ()
 compile = do
-    waspRoot <- findWaspProjectRootDirFromCwd
-    let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let outDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+                 </> Common.generatedCodeDirInDotWaspDir
 
     waspSaysC "Compiling wasp code..."
-    compilationResult <- liftIO $ compileIO waspRoot outDir
+    compilationResult <- liftIO $ compileIO waspProjectDir outDir
     case compilationResult of
         Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
         Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
