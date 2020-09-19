@@ -9,7 +9,7 @@ import           Control.Monad.IO.Class   (liftIO)
 import           Command                  (Command, CommandError (..))
 import           Command.Common           (findWaspProjectRootDirFromCwd,
                                            waspSaysC)
-import           Command.Compile          (compile)
+import           Command.Compile          (compileIO)
 import           Command.Watch            (watch)
 import qualified Common
 import qualified Lib
@@ -24,7 +24,7 @@ start = do
     let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
     waspSaysC "Compiling wasp code..."
-    compilationResult <- liftIO $ compile waspRoot outDir
+    compilationResult <- liftIO $ compileIO waspRoot outDir
     case compilationResult of
         Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
         Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"

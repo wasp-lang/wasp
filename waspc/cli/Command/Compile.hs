@@ -1,11 +1,16 @@
 module Command.Compile
-    ( compile
+    ( compileIO
+    , compile
     ) where
 
 import           Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Except     (throwError)
 import           Data.List              (find, isSuffixOf)
 import qualified Path                   as P
 
+import           Command                  (Command, CommandError (..))
+import           Command.Common           (findWaspProjectRootDirFromCwd,
+                                           waspSaysC)
 import qualified Common
 import           CompileOptions         (CompileOptions (..))
 import qualified Lib
@@ -14,12 +19,24 @@ import qualified StrongPath             as SP
 import qualified Util.IO
 
 
+compile :: Command ()
+compile = do
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let outDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+                 </> Common.generatedCodeDirInDotWaspDir
+
+    waspSaysC "Compiling wasp code..."
+    compilationResult <- liftIO $ compileIO waspProjectDir outDir
+    case compilationResult of
+        Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
+        Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
+
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
-compile :: Path Abs (Dir Common.WaspProjectDir)
+compileIO :: Path Abs (Dir Common.WaspProjectDir)
         -> Path Abs (Dir Lib.ProjectRootDir)
         -> IO (Either String ())
-compile waspProjectDir outDir = do
+compileIO waspProjectDir outDir = do
     maybeWaspFile <- findWaspFile waspProjectDir
     case maybeWaspFile of
         Nothing -> return $ Left "No *.wasp file present in the root of Wasp project."

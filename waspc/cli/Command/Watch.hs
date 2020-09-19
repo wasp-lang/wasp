@@ -8,7 +8,7 @@ import           Data.Time.Clock         (UTCTime, getCurrentTime)
 import qualified System.FilePath         as FP
 import qualified System.FSNotify         as FSN
 
-import           Command.Compile         (compile)
+import           Command.Compile         (compileIO)
 import           Common                  (waspSays)
 import qualified Common
 import qualified Lib
@@ -52,7 +52,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
       recompile :: IO ()
       recompile = do
           waspSays "Recompiling on file change..."
-          compilationResult <- compile waspProjectDir outDir
+          compilationResult <- compileIO waspProjectDir outDir
           case compilationResult of
               Left err -> waspSays $ "Recompilation on file change failed: " ++ err
               Right () -> waspSays "Recompilation on file change succeeded."
