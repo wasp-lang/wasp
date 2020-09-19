@@ -20,7 +20,7 @@
 ## Install
 To install latest release, run `curl -sSL https://raw.githubusercontent.com/wasp-lang/wasp/master/waspc/tools/install.sh | sh`!
 
-This will work for linux/osx and install prebuilt binary. Since such binary is dynamically built (for now), it might not work if you are missing some packages/libraries on your OS or if your OS distro is very different from the one it was built on.
+This will work for linux/osx and will install a prebuilt binary. Since the binary is dynamically built (for now), it might not work if you are missing some packages/libraries on your OS or if your OS distro is very different from the one it was built on.
 
 ## Setup
 Install `stack`.
