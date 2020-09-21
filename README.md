@@ -6,6 +6,8 @@
 <br>
 
 [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX)
+[![Build Status](https://travis-ci.com/wasp-lang/wasp.svg?branch=master)](https://travis-ci.com/wasp-lang/wasp)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
 
 - **Project page**: [https://wasp-lang.dev]
 - **Demo**: [https://wasp-lang.dev/#demo]

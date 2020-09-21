@@ -13,32 +13,24 @@
                                            |_|
 ```
 
-[![Build Status](https://travis-ci.com/wasp-lang/wasp.svg?branch=master)](https://travis-ci.com/wasp-lang/wasp)
-
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
-
 ## Install
+### From binary
 To install latest release, run `curl -sSL https://raw.githubusercontent.com/wasp-lang/wasp/master/waspc/tools/install.sh | sh`!
 
 This will work for linux/osx and will install a prebuilt binary. Since the binary is dynamically built (for now), it might not work if you are missing some packages/libraries on your OS or if your OS distro is very different from the one it was built on.
 
-## Setup
+### From source
 Install `stack`.
 
 Run `stack setup` in the project root to do initial setup.
 
+Run `stack build` to build the project, including wasp binary.
+
+Run `stack exec wasp <args>` to run wasp binary.
+
+
 ## Project configuration overview
 This is a [Stack](https://docs.haskellstack.org/en/stable/README/) project.
-
-Stack installs GHC and packages automatically, in reproducible manner, in an isolated environment just for your Haskell project.
-
-This project was created from `new-template` stack template and then modified inspired by `haskeleton` stack template.
-
-Most important configuration file is `package.yaml`. Here we define what is what in our project, how is it built. Stack generates `waspc.cabal` from this document.
-
-Also important is `stack.yaml` where we define Stack configuration for this project.
-
-We provided some pieces of Stack documentation in this README to make it easier to start with the project, but for any more detailed and guaranteed up-to-date docs check Stack docs at https://docs.haskellstack.org/en/stable/README/.
 
 ### Adding a package as a dependency
 This is just so you don't have to search Stack docs.

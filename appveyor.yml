@@ -59,6 +59,7 @@ deploy:
   description: "Automatic release"
   artifact: wasp-win-x86_64
   force_update: true # Adds files to release even if it already exists.
+  draft: true
   on:
     APPVEYOR_REPO_TAG: true # Deploy on tag push only.
 
