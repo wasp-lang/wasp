@@ -102,6 +102,11 @@ If you put `[skip ci]` in commit message, that commit will be ignored by both Tr
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Travis/AppVeyor.
 
+## Documentation
+External documentation, for users of Wasp, is hosted in [separate repo](https://wasp-lang.github.io/web/docs/language/getting-started).
+
+Make sure to update it when changes modify how Wasp works.
+
 ## Other
 
 Wasp ascii art used in the title is from https://www.asciiart.eu/animals/insects/bees, author: Stef00.
