@@ -8,16 +8,14 @@ COMMAND=${1:-watch}
 shift
 ARGS="$@"
 
-BOLD="\e[1m"
-UNDERLINED="\e[4m"
-RESET="\e[0m"
-LIGHT_CYAN="\e[96m"
-DEFAULT_COLOR="\e[39m"
+BOLD="\033[1m"
+UNDERLINED="\033[4m"
+RESET="\033[0m"
+LIGHT_CYAN="\033[96m"
+DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="stack build"
-WATCH_CMD="$BUILD_CMD --file-watch"
 TEST_CMD="$BUILD_CMD --test"
-TEST_WATCH_CMD="$TEST_CMD --file-watch"
 EXEC_CMD="stack exec wasp $ARGS"
 GHCID_CMD="ghcid --command=stack ghci"
 
@@ -38,26 +36,19 @@ print_usage () {
     echo            "Commands:"
     print_usage_cmd "build" \
                     "Builds the project."
-    print_usage_cmd "watch" \
-                    "Builds the project on any file change. (DEFAULT)"
     print_usage_cmd "test" \
                     "Builds the project and executes tests."
-    print_usage_cmd "test-watch" \
-                    "Builds the project and executes tests on any file change."
-    print_usage_cmd "exec" \
-                    "Builds the project once and runs the executable while forwarding arguments."
+    print_usage_cmd "exec <args>" \
+                    "Builds the project once and runs the wasp executable while forwarding arguments."
     print_usage_cmd "ghcid" \
-                    "Runs ghcid, which is much faster alternative to 'watch'."
+                    "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
-                    "Runs ghcid on tests, which is much faster alternative to 'test-watch'."
+                    "Runs ghcid on both source and tests."
 }
 
 case $COMMAND in
     build)
         echo_and_eval "$BUILD_CMD"
-        ;;
-    watch)
-        echo_and_eval "$WATCH_CMD"
         ;;
     ghcid)
         echo_and_eval "$GHCID_CMD"
@@ -70,9 +61,6 @@ case $COMMAND in
         ;;
     test)
         echo_and_eval "$TEST_CMD"
-        ;;
-    test-watch)
-        echo_and_eval "$TEST_WATCH_CMD"
         ;;
     exec)
         echo_and_eval "$BUILD_CMD"

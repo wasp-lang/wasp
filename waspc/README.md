@@ -5,82 +5,56 @@
 <br>
 
 ```
-                                                                  _  _
-                         __      ____ _ ___ _ __   ___           | )/ )
-                         \ \ /\ / / _` / __| '_ \ / __|       \\ |//,' __
-                          \ V  V / (_| \__ \ |_) | (__        (")(_)-"()))=-
-                           \_/\_/ \__,_|___/ .__/ \___|          (\\
-                                           |_|
+                                                                     _  _
+                            __      ____ _ ___ _ __   ___           | )/ )
+                            \ \ /\ / / _` / __| '_ \ / __|       \\ |//,' __
+                             \ V  V / (_| \__ \ |_) | (__        (")(_)-"()))=-
+                              \_/\_/ \__,_|___/ .__/ \___|          (\\
+                                              |_|
 ```
 
-## Install
-### From binary
-To install latest release, run `curl -sSL https://raw.githubusercontent.com/wasp-lang/wasp/master/waspc/tools/install.sh | sh`!
+This directory contains source code of Wasp compiler (waspc), and this README is aimed for contributors to the project. If you are a Wasp user and not contributor (yet :)), you might want to look into following resources instead:
 
-This will work for linux/osx and will install a prebuilt binary. Since the binary is dynamically built (for now), it might not work if you are missing some packages/libraries on your OS or if your OS distro is very different from the one it was built on.
-
-### From source
-Install `stack`.
-
-Run `stack setup` in the project root to do initial setup.
-
-Run `stack build` to build the project, including wasp binary.
-
-Run `stack exec wasp <args>` to run wasp binary.
+- [**Project page**](https://wasp-lang.dev)
+- [**Docs**](https://wasp-lang.github.io/web/docs)
 
 
-## Project configuration overview
-This is a [Stack](https://docs.haskellstack.org/en/stable/README/) project.
+## Setup
+This is a [Stack](https://docs.haskellstack.org/en/stable/README/) project, so you will need to install `stack` on your machine.
 
-### Adding a package as a dependency
-This is just so you don't have to search Stack docs.
-
-Just put it in package.yaml like this:
-```
-dependencies:
-  ...
-  - <package_name>
-  ...
-```
-
-If package you need is not in the Stack snapshot defined by `resolver`, add it to `extra-deps` instead of `dependencies`.
-
+Then run `stack setup` in the project root to do initial setup.
 
 ## Building / development
-You build the project with `stack build`. It uses `package.yaml`, `waspc.yaml` (and possibly some other files in the future) and source files to generate files and build the project.
 
-It is recommended using `stack build --pedantic` to turn on pedantic code checking (-Wall, -Werror).
+`stack build` to build the project, including `wasp` binary which is both CLI and compiler in one.
 
-`stack exec <my-executable>` will run executable in the context of stack project.
-In our case, `stack exec waspc-cli` will run waspc (build it first with `stack build`!).
+`stack exec wasp <arguments>` to run the `wasp` binary that you have built.
 
-Some useful command options when building:
-- `stack build --test` -> same as `stack test`.
+`stack test` to build the whole project + tests and then also run tests.
+
+Some other useful `stack` commands:
 - `stack build --file-watch` -> live watch, reruns every time a file changes.
 - `stack build --pedantic` -> sets -Wall and -Werror ghc options.
-- `stack build --ghc-options="-Wall -Werror"` -> sets ghc options.
-- `stack build --bench`
 - `stack build --profile`
 - `stack build --trace`
+- `stack install` -> builds the project and then copies it to the local path.
+- `stack ghci` -> opens ghci in the context of the project, allowing you to load and run local modules.
+- `stack clear` -> clear all generated files/artifacts.
 
-There is also `stack install` which builds the project and then copies it to the local bin path.
-
-Running `stack ghci` will open ghci in the context of the project, allowing you to load and run local modules, which can be useful for development.
-
-You can use `stack clear` to clear all the generated files/artifacts from the project.
-
-When developing, if you don't have full support for Haskell in your editor, consider using `stack build --file-watch` for live error checking, or `ghcid` as a faster alternative (install it globally with `stack install ghcid` and then just type `ghcid` when in the project.
+For live compilation and error checking of your code we recommend using `ghcid`.
+You can install it globally with `stack install ghcid` and then just type `ghcid --command=stack ghci` when in the project -> it will watch for anyfile changes and report errors.
 
 ### Run script
 For more convenient running of common build/dev commands, we created `run` script.
-It mostly runs stack commands described above.
+It mostly runs stack commands described above, reducing the number of characters you have to type to run certain commands.
 
 The idea is that you normally use this for development, and you use `stack` directly when you need more control.
+It is up to you, using `stack` directly is also perfectly fine.
 
 You can run `./run help` to learn how to use it.
 
 Examples:
- - `./run exec examples/todoMVC.wasp out/todoMVC` will run waspc on todoMVC example.
+ - `./run ghcid-test` will run ghcid that watches tests, while passing correct arguments to ghcid.
 
 
 ## Tests
@@ -122,7 +96,7 @@ Hlint already adds a lot of extensions on its own so this is not a very often pr
 
 Every commit is built and tested on Travis (linux, osx) and AppVeyor (win).
 
-Tagged commits are also deployed as github releases.
+If commit is tagged, github draft release is created from it containing binary packages.
 
 If you put `[skip ci]` in commit message, that commit will be ignored by both Travis and AppVeyor.
 
