@@ -38,7 +38,7 @@ print_usage () {
                     "Builds the project."
     print_usage_cmd "test" \
                     "Builds the project and executes tests."
-    print_usage_cmd "exec <args>" \
+    print_usage_cmd "wasp <args>" \
                     "Builds the project once and runs the wasp executable while forwarding arguments."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
@@ -62,7 +62,7 @@ case $COMMAND in
     test)
         echo_and_eval "$TEST_CMD"
         ;;
-    exec)
+    wasp)
         echo_and_eval "$BUILD_CMD"
         echo
         echo_and_eval "$EXEC_CMD"

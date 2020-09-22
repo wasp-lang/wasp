@@ -36,7 +36,9 @@ genReadme :: Wasp -> FileDraft
 genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
 
 genPackageJson :: Wasp -> FileDraft
-genPackageJson _ = C.copyTmplAsIs (asTmplFile [P.relfile|package.json|])
+genPackageJson _ = C.makeTemplateFD (asTmplFile [P.relfile|package.json|])
+                              (asServerFile [P.relfile|package.json|])
+                              (Just (object ["nodeVersion" .= nodeVersionAsText]))
 
 genNpmrc :: Wasp -> FileDraft
 genNpmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|npmrc|])
@@ -46,7 +48,7 @@ genNpmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|npmrc|])
 genNvmrc :: Wasp -> FileDraft
 genNvmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|nvmrc|])
                               (asServerFile [P.relfile|.nvmrc|])
-                              (Just (object ["nodeVersion" .= nodeVersionAsText]))
+                              (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
 
 genGitignore :: Wasp -> FileDraft
 genGitignore _ = C.makeTemplateFD (asTmplFile [P.relfile|gitignore|])
