@@ -5,6 +5,10 @@ version: '{build}'
 skip_commits:
   message: /\[skip ci\]/
 
+branches:
+  only:
+    - master # This will still build PRs.
+
 environment:
   PATH: c:/bin;%PATH%
   STACK_ROOT: c:/stack

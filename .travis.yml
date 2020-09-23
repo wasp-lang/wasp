@@ -5,6 +5,10 @@ os:
 # Do not choose a language; we provide our own build tools.
 language: generic
 
+branches:
+  only:
+    - master # This will still build PRs.
+
 # Caching so the next build will be fast too.
 cache:
   directories:
