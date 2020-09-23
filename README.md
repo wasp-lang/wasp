@@ -10,7 +10,6 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
 
 - [**Project page**](https://wasp-lang.dev)
-- [**Demo**](https://wasp-lang.dev/#demo)
 - [**Docs**](https://wasp-lang.github.io/web/docs)
 
 <br>
@@ -88,7 +87,7 @@ You can also:
  - :star: Star this repo to show your interest/support.
  - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
 
-For more technical details on building and contributing to `waspc` check [waspc/README.md](waspc/README.md).
+For more technical details on building and contributing to `waspc` check [waspc/](waspc/).
 
 # FAQ
 
