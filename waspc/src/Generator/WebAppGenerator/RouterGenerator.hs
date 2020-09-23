@@ -2,23 +2,23 @@ module Generator.WebAppGenerator.RouterGenerator
     ( generateRouter
     ) where
 
-import Data.Aeson (ToJSON(..), (.=), object)
-import qualified Path as P
+import           Data.Aeson                       (ToJSON (..), object, (.=))
+import qualified Path                             as P
 
-import StrongPath ((</>))
-
-import Wasp (Wasp)
-import qualified Wasp
-import qualified Wasp.Route
-import qualified Wasp.Page
-import qualified Wasp.JsImport
-
-import Generator.FileDraft (FileDraft)
-import Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
+import           Generator.FileDraft              (FileDraft)
+import           Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common as C
+import           StrongPath                       ((</>))
+import qualified StrongPath                       as SP
+import           Wasp                             (Wasp)
+import qualified Wasp
+import qualified Wasp.JsImport
+import qualified Wasp.Page
+import qualified Wasp.Route
+
 
 data RouterTemplateData = RouterTemplateData
-    { _routes :: ![Wasp.Route.Route]
+    { _routes        :: ![Wasp.Route.Route]
     , _pagesToImport :: ![PageTemplateData]
     }
 
@@ -57,7 +57,7 @@ createRouterTemplateData wasp = RouterTemplateData
 
 createPageTemplateData :: Wasp.Page.Page -> PageTemplateData
 createPageTemplateData page = PageTemplateData
-    { _importFrom = relPathToExtSrcDir ++ P.toFilePath (Wasp.JsImport._from pageComponent)
+    { _importFrom = relPathToExtSrcDir ++ SP.toFilePath (Wasp.JsImport._from pageComponent)
     , _importWhat = case Wasp.JsImport._namedImports pageComponent of
                         -- If no named imports, we go with the default import.
                         []              -> pageName

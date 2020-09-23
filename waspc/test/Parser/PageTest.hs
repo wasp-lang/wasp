@@ -1,15 +1,16 @@
 module Parser.PageTest where
 
-import Test.Tasty.Hspec
+import           Test.Tasty.Hspec
 
-import Data.Either (isLeft)
+import           Data.Either      (isLeft)
+import qualified Path.Posix       as PPosix
 
-import qualified Path.Posix as PPosix
-
-import Parser.Common (runWaspParser)
-import Parser.Page (page)
+import           Parser.Common    (runWaspParser)
+import           Parser.Page      (page)
+import qualified StrongPath       as SP
 import qualified Wasp.JsImport
 import qualified Wasp.Page
+
 
 spec_parsePage :: Spec
 spec_parsePage =
@@ -22,7 +23,7 @@ spec_parsePage =
             let expectedPageComponentImport = Wasp.JsImport.JsImport
                     { Wasp.JsImport._defaultImport = Just "Main"
                     , Wasp.JsImport._namedImports = []
-                    , Wasp.JsImport._from = [PPosix.relfile|pages/Main|]
+                    , Wasp.JsImport._from = (SP.fromPathRelFileP [PPosix.relfile|pages/Main|])
                     }
 
             parsePage (

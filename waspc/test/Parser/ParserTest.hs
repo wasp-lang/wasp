@@ -1,22 +1,22 @@
 module Parser.ParserTest where
 
-import Test.Tasty.Hspec
-import Data.Either
-import qualified Path.Posix as PPosix
+import           Data.Either
+import qualified Path.Posix       as PPosix
+import           Test.Tasty.Hspec
 
-import Parser
-import Wasp
+import           Parser
+import qualified StrongPath       as SP
+import           Wasp
+import qualified Wasp.EntityPSL
+import qualified Wasp.JsCode
+import qualified Wasp.JsImport
+import qualified Wasp.Page
+import qualified Wasp.Query
+import qualified Wasp.Route       as R
 
 -- TODO(matija): old Entity stuff, to be removed.
-import qualified Wasp.EntityForm as EF
-import qualified Wasp.EntityList as EL
-
-import qualified Wasp.Route as R
-import qualified Wasp.Page
-import qualified Wasp.JsCode
-import qualified Wasp.Query
-import qualified Wasp.JsImport
-import qualified Wasp.EntityPSL
+import qualified Wasp.EntityForm  as EF
+import qualified Wasp.EntityList  as EL
 
 
 spec_parseWasp :: Spec
@@ -43,7 +43,7 @@ spec_parseWasp =
                         , Wasp.Page._component = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Landing"
                             , Wasp.JsImport._namedImports = []
-                            , Wasp.JsImport._from = [PPosix.relfile|pages/Landing|]
+                            , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Landing|]
                             }
                         }
                     , WaspElementRoute $ R.Route
@@ -55,7 +55,7 @@ spec_parseWasp =
                         , Wasp.Page._component = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Test"
                             , Wasp.JsImport._namedImports = []
-                            , Wasp.JsImport._from = [PPosix.relfile|pages/Test|]
+                            , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Test|]
                             }
                         }
                     , WaspElementEntityPSL $ Wasp.EntityPSL.EntityPSL
@@ -124,9 +124,9 @@ spec_parseWasp =
                         , Wasp.Query._jsFunction = Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Nothing
                             , Wasp.JsImport._namedImports = [ "myJsQuery" ]
-                            , Wasp.JsImport._from = [PPosix.relfile|some/path|]
+                            , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|some/path|]
                             }
                         }
                     ]
-                    `setJsImports` [ JsImport (Just "something") [] [PPosix.relfile|some/file|] ]
+                    `setJsImports` [ JsImport (Just "something") [] (SP.fromPathRelFileP [PPosix.relfile|some/file|]) ]
                 )
