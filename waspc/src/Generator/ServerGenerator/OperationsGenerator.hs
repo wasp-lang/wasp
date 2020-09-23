@@ -60,7 +60,7 @@ getImportDetailsForOperationJsFn
 getImportDetailsForOperationJsFn operation relPathToExtCodeDir = (importIdentifier, importStmt)
   where
     importStmt = "import " ++ importWhat ++ " from '" ++ importFrom ++ "'"
-    importFrom = relPathToExtCodeDir ++ P.toFilePath (Wasp.JsImport._from jsImport)
+    importFrom = relPathToExtCodeDir ++ SP.toFilePath (Wasp.JsImport._from jsImport)
     (importIdentifier, importWhat) =
         case (Wasp.JsImport._defaultImport jsImport, Wasp.JsImport._namedImports jsImport) of
             (Just defaultImport, []) -> (defaultImport, defaultImport)

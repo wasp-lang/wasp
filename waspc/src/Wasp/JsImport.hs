@@ -2,21 +2,23 @@ module Wasp.JsImport
     ( JsImport(..)
     ) where
 
-import           Data.Aeson (ToJSON (..), object, (.=))
-import qualified Path.Posix as PPosix
+import           Data.Aeson   (ToJSON (..), object, (.=))
+
+import           ExternalCode (SourceExternalCodeDir)
+import           StrongPath   (File, Path', Posix, Rel)
+import qualified StrongPath   as SP
 
 
 -- | Represents javascript import -> "import <what> from <from>".
 data JsImport = JsImport
     { _defaultImport :: !(Maybe String)
     , _namedImports  :: ![String]
-    -- Relative to source external code dir.
-    , _from          :: !(PPosix.Path PPosix.Rel PPosix.File)
+    , _from          :: Path' Posix (Rel SourceExternalCodeDir) File
     } deriving (Show, Eq)
 
 instance ToJSON JsImport where
     toJSON jsImport = object
         [ "defaultImport" .= _defaultImport jsImport
         , "namedImports" .= _namedImports jsImport
-        , "from" .= PPosix.toFilePath (_from jsImport)
+        , "from" .= SP.toFilePath (_from jsImport)
         ]
