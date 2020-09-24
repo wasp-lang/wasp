@@ -1,8 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import Prisma from '@prisma/client'
 
-import state from './state.js'
-
 const prisma = new Prisma.PrismaClient()
 
 export const createTask = async (task, context) => {
