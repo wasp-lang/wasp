@@ -23,6 +23,7 @@ import Parser.JsImport (jsImport)
 import Parser.Common (runWaspParser)
 import qualified Parser.Query
 import qualified Parser.Action
+import qualified Parser.NpmDependencies
 
 waspElement :: Parser Wasp.WaspElement
 waspElement
@@ -37,6 +38,7 @@ waspElement
     <|> waspElementEntity
     <|> waspElementEntityForm
     <|> waspElementEntityList
+    <|> waspElementNpmDependencies
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
@@ -67,6 +69,10 @@ waspElementQuery = Wasp.WaspElementQuery <$> Parser.Query.query
 
 waspElementAction :: Parser Wasp.WaspElement
 waspElementAction = Wasp.WaspElementAction <$> Parser.Action.action
+
+waspElementNpmDependencies :: Parser Wasp.WaspElement
+waspElementNpmDependencies = Wasp.WaspElementNpmDependencies <$> Parser.NpmDependencies.npmDependencies
+
 
 -- | Top level parser, produces Wasp.
 waspParser :: Parser Wasp.Wasp

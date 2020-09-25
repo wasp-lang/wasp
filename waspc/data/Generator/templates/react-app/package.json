@@ -1,22 +1,9 @@
 {{={= =}=}}
 {
-  "name": "{= app.name =}",
+  "name": "{= wasp.app.name =}",
   "version": "0.0.0",
   "private": true,
-  "dependencies": {
-    "@material-ui/core": "^4.9.1",
-    "@reduxjs/toolkit": "^1.2.3",
-    "axios": "^0.20.0",
-    "lodash": "^4.17.15",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-query": "^2.14.1",
-    "react-redux": "^7.1.3",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.0",
-    "redux": "^4.0.5",
-    "uuid": "^3.4.0"
-  },
+  {=& depsChunk =},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

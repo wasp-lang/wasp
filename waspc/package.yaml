@@ -59,6 +59,7 @@ library:
     - async
     - bytestring
     - regex-tdfa
+    - utf8-string
 
 executables:
   wasp:
@@ -114,3 +115,4 @@ tests:
       - parsec
       - deepseq
       - path
+      - unordered-containers

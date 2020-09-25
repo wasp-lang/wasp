@@ -4,27 +4,32 @@ module Generator.ServerGenerator
     ) where
 
 import           Data.Aeson                                      (object, (.=))
+import           Data.List                                       (intercalate)
 import qualified Path                                            as P
 
 import           CompileOptions                                  (CompileOptions)
 import           Generator.Common                                (nodeVersionAsText)
 import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
 import           Generator.FileDraft                             (FileDraft)
+import           Generator.PackageJsonGenerator                  (resolveNpmDeps, toPackageJsonDependenciesString)
 import           Generator.ServerGenerator.Common                (asServerFile,
                                                                   asTmplFile)
 import qualified Generator.ServerGenerator.Common                as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import           Generator.ServerGenerator.OperationsGenerator   (genOperations)
+import qualified NpmDependency                                   as ND
 import           StrongPath                                      (File, Path,
                                                                   Rel)
 import qualified StrongPath                                      as SP
 import           Wasp                                            (Wasp)
+import qualified Wasp
+import qualified Wasp.NpmDependencies                            as WND
 
 
 genServer :: Wasp -> CompileOptions -> [FileDraft]
 genServer wasp _ = concat
     [ [genReadme wasp]
-    , [genPackageJson wasp]
+    , [genPackageJson wasp waspNpmDeps]
     , [genNpmrc wasp]
     , [genNvmrc wasp]
     , [genGitignore wasp]
@@ -35,10 +40,35 @@ genServer wasp _ = concat
 genReadme :: Wasp -> FileDraft
 genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
 
-genPackageJson :: Wasp -> FileDraft
-genPackageJson _ = C.makeTemplateFD (asTmplFile [P.relfile|package.json|])
-                              (asServerFile [P.relfile|package.json|])
-                              (Just (object ["nodeVersion" .= nodeVersionAsText]))
+genPackageJson :: Wasp -> [ND.NpmDependency] -> FileDraft
+genPackageJson wasp waspDeps = C.makeTemplateFD
+    (asTmplFile [P.relfile|package.json|])
+    (asServerFile [P.relfile|package.json|])
+    (Just $ object
+     [ "wasp" .= wasp
+     , "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps)
+     , "nodeVersion" .= nodeVersionAsText
+     ])
+  where
+    (resolvedWaspDeps, resolvedUserDeps) =
+        case resolveNpmDeps waspDeps userDeps of
+            Right deps -> deps
+            Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
+
+    userDeps :: [ND.NpmDependency]
+    userDeps = WND._dependencies $ Wasp.getNpmDependencies wasp
+
+waspNpmDeps :: [ND.NpmDependency]
+waspNpmDeps = ND.fromList
+    [ ("cookie-parser", "~1.4.4")
+    , ("cors", "^2.8.5")
+    , ("debug", "~2.6.9")
+    , ("express", "~4.16.1")
+    , ("morgan", "~1.9.1")
+    , ("@prisma/client", "2.x")
+    ]
+
+-- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
 
 genNpmrc :: Wasp -> FileDraft
 genNpmrc _ = C.makeTemplateFD (asTmplFile [P.relfile|npmrc|])

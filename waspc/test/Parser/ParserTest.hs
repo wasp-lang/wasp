@@ -1,22 +1,24 @@
 module Parser.ParserTest where
 
 import           Data.Either
-import qualified Path.Posix       as PPosix
+import qualified Path.Posix           as PPosix
 import           Test.Tasty.Hspec
 
+import           NpmDependency        as ND
 import           Parser
-import qualified StrongPath       as SP
+import qualified StrongPath           as SP
 import           Wasp
 import qualified Wasp.EntityPSL
 import qualified Wasp.JsCode
 import qualified Wasp.JsImport
+import qualified Wasp.NpmDependencies
 import qualified Wasp.Page
 import qualified Wasp.Query
-import qualified Wasp.Route       as R
+import qualified Wasp.Route           as R
 
 -- TODO(matija): old Entity stuff, to be removed.
-import qualified Wasp.EntityForm  as EF
-import qualified Wasp.EntityList  as EL
+import qualified Wasp.EntityForm      as EF
+import qualified Wasp.EntityList      as EL
 
 
 spec_parseWasp :: Spec
@@ -126,6 +128,14 @@ spec_parseWasp =
                             , Wasp.JsImport._namedImports = [ "myJsQuery" ]
                             , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|some/path|]
                             }
+                        }
+                     , WaspElementNpmDependencies $  Wasp.NpmDependencies.NpmDependencies
+                        { Wasp.NpmDependencies._dependencies =
+                          [ ND.NpmDependency
+                            { ND._name = "lodash"
+                            , ND._version = "^4.17.15"
+                            }
+                          ]
                         }
                     ]
                     `setJsImports` [ JsImport (Just "something") [] (SP.fromPathRelFileP [PPosix.relfile|some/file|]) ]

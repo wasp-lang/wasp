@@ -2,40 +2,79 @@ module Generator.WebAppGenerator
        ( generateWebApp
        ) where
 
-import Data.Aeson (ToJSON(..), (.=), object)
-import qualified Path as P
+import           Data.Aeson                                      (ToJSON (..),
+                                                                  object, (.=))
+import           Data.List                                       (intercalate)
+import qualified Path                                            as P
 
-import StrongPath (Path, Rel, Dir, (</>))
-import qualified StrongPath as SP
-import qualified Util
-import CompileOptions (CompileOptions)
-import Wasp
-import Generator.FileDraft
-import Generator.ExternalCodeGenerator (generateExternalCodeDir)
-import qualified Generator.WebAppGenerator.EntityGenerator as EntityGenerator
-import qualified Generator.WebAppGenerator.RouterGenerator as RouterGenerator
-import Generator.WebAppGenerator.Common (asTmplFile, asWebAppFile, asWebAppSrcFile)
-import qualified Generator.WebAppGenerator.Common as C
+import           CompileOptions                                  (CompileOptions)
+import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
+import           Generator.FileDraft
+import           Generator.PackageJsonGenerator                  (resolveNpmDeps, toPackageJsonDependenciesString)
+import           Generator.WebAppGenerator.Common                (asTmplFile,
+                                                                  asWebAppFile,
+                                                                  asWebAppSrcFile)
+import qualified Generator.WebAppGenerator.Common                as C
+import qualified Generator.WebAppGenerator.EntityGenerator       as EntityGenerator
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
-import Generator.WebAppGenerator.OperationsGenerator (genOperations)
+import           Generator.WebAppGenerator.OperationsGenerator   (genOperations)
+import qualified Generator.WebAppGenerator.RouterGenerator       as RouterGenerator
+import qualified NpmDependency                                   as ND
+import           StrongPath                                      (Dir, Path,
+                                                                  Rel, (</>))
+import qualified StrongPath                                      as SP
+import qualified Util
+import           Wasp
+import qualified Wasp.NpmDependencies                            as WND
 
 
 generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
-generateWebApp wasp _ = concatMap ($ wasp)
-    [ (:[]) . generateReadme
-    , (:[]) . generatePackageJson
-    , (:[]) . generateGitignore
-    , generatePublicDir
-    , generateSrcDir
-    , generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy
+generateWebApp wasp _ = concat
+    [ [generateReadme wasp]
+    , [genPackageJson wasp waspNpmDeps]
+    , [generateGitignore wasp]
+    , generatePublicDir wasp
+    , generateSrcDir wasp
+    , generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy wasp
     ]
-
 
 generateReadme :: Wasp -> FileDraft
 generateReadme wasp = C.makeSimpleTemplateFD (asTmplFile [P.relfile|README.md|]) wasp
 
-generatePackageJson :: Wasp -> FileDraft
-generatePackageJson wasp = C.makeSimpleTemplateFD (asTmplFile [P.relfile|package.json|]) wasp
+genPackageJson :: Wasp -> [ND.NpmDependency] -> FileDraft
+genPackageJson wasp waspDeps = C.makeTemplateFD
+    (C.asTmplFile [P.relfile|package.json|])
+    (C.asWebAppFile [P.relfile|package.json|])
+    (Just $ object
+     [ "wasp" .= wasp
+     , "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps)
+     ])
+  where
+    (resolvedWaspDeps, resolvedUserDeps) =
+        case resolveNpmDeps waspDeps userDeps of
+            Right deps -> deps
+            Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
+
+    userDeps :: [ND.NpmDependency]
+    userDeps = WND._dependencies $ Wasp.getNpmDependencies wasp
+
+waspNpmDeps :: [ND.NpmDependency]
+waspNpmDeps = ND.fromList
+    [ ("@material-ui/core", "^4.9.1")
+    , ("@reduxjs/toolkit", "^1.2.3")
+    , ("axios", "^0.20.0")
+    , ("lodash", "^4.17.15")
+    , ("react", "^16.12.0")
+    , ("react-dom", "^16.12.0")
+    , ("react-query", "^2.14.1")
+    , ("react-redux", "^7.1.3")
+    , ("react-router-dom", "^5.1.2")
+    , ("react-scripts", "3.4.0")
+    , ("redux", "^4.0.5")
+    , ("uuid", "^3.4.0")
+    ]
+
+-- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
 
 generateGitignore :: Wasp -> FileDraft
 generateGitignore wasp = C.makeTemplateFD (asTmplFile [P.relfile|gitignore|])
