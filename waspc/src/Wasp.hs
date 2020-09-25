@@ -38,38 +38,43 @@ module Wasp
 
     , setExternalCodeFiles
     , getExternalCodeFiles
+
+    , setNpmDependencies
+    , getNpmDependencies
     ) where
 
-import Data.Aeson ((.=), object, ToJSON(..))
+import           Data.Aeson           (ToJSON (..), object, (.=))
 
 import qualified ExternalCode
-import Wasp.App
+import qualified Util                 as U
+import qualified Wasp.Action
+import           Wasp.App
+import           Wasp.EntityPSL
+import           Wasp.JsImport
+import           Wasp.NpmDependencies (NpmDependencies)
+import qualified Wasp.NpmDependencies
+import           Wasp.Page
+import qualified Wasp.Query
+import           Wasp.Route
 
 -- TODO(matija): old Entity stuff, to be removed
-import Wasp.Entity
-import qualified Wasp.EntityForm as EF
-import qualified Wasp.EntityList as EL
+import           Wasp.Entity
+import qualified Wasp.EntityForm      as EF
+import qualified Wasp.EntityList      as EL
 
-import Wasp.EntityPSL
-import Wasp.JsImport
-import Wasp.Page
-import Wasp.Route
-import qualified Wasp.Query
-import qualified Wasp.Action
-
-import qualified Util as U
 
 -- * Wasp
 
 data Wasp = Wasp
-    { waspElements :: [WaspElement]
-    , waspJsImports :: [JsImport]
+    { waspElements      :: [WaspElement]
+    , waspJsImports     :: [JsImport]
     , externalCodeFiles :: [ExternalCode.File]
     } deriving (Show, Eq)
 
 data WaspElement
     = WaspElementApp !App
     | WaspElementPage !Page
+    | WaspElementNpmDependencies !NpmDependencies
     | WaspElementRoute !Route
     | WaspElementEntityPSL !Wasp.EntityPSL.EntityPSL
     | WaspElementQuery !Wasp.Query.Query
@@ -115,7 +120,7 @@ getApp wasp = let apps = getApps wasp in
 
 isAppElem :: WaspElement -> Bool
 isAppElem WaspElementApp{} = True
-isAppElem _ = False
+isAppElem _                = False
 
 getApps :: Wasp -> [App]
 getApps wasp = [app | (WaspElementApp app) <- waspElements wasp]
@@ -125,6 +130,25 @@ setApp wasp app = wasp { waspElements = (WaspElementApp app) : (filter (not . is
 
 fromApp :: App -> Wasp
 fromApp app = fromWaspElems [WaspElementApp app]
+
+-- * NpmDependencies
+
+getNpmDependencies :: Wasp -> NpmDependencies
+getNpmDependencies wasp
+    = let depses = [d | (WaspElementNpmDependencies d) <- waspElements wasp]
+      in case depses of
+         []     -> Wasp.NpmDependencies.empty
+         [deps] -> deps
+         _      -> error "Wasp can't contain more than one NpmDependencies element!"
+
+isNpmDependenciesElem :: WaspElement -> Bool
+isNpmDependenciesElem WaspElementNpmDependencies{} = True
+isNpmDependenciesElem _                            = False
+
+setNpmDependencies :: Wasp -> NpmDependencies -> Wasp
+setNpmDependencies wasp deps = wasp
+    { waspElements = WaspElementNpmDependencies deps : filter (not . isNpmDependenciesElem) (waspElements wasp)
+    }
 
 -- * Routes
 

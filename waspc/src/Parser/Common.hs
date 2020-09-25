@@ -36,7 +36,7 @@ waspElementNameAndClosure
     :: String -- ^ Element type
     -> Parser a -- ^ Closure parser (needs to parse braces as well, not just the content)
     -> Parser (String, a) -- ^ Name of the element and parsed closure content.
-waspElementNameAndClosure elementType closure = 
+waspElementNameAndClosure elementType closure =
     -- NOTE(matija): It is important to have `try` here because we don't want to consume the
     -- content intended for other parsers.
     -- E.g. if we tried to parse "entity-form" this parser would have been tried first for
@@ -54,7 +54,7 @@ waspElementNameAndClosure elementType closure =
     elementName <- L.identifier
     closureContent <- closure
 
-    return (elementName, closureContent) 
+    return (elementName, closureContent)
 
 -- | Parses declaration of a wasp element linked to an entity.
 -- E.g. "entity-form<Task> ..." or "action<Task> ..."

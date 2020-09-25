@@ -69,8 +69,10 @@ entity-list<Task> TaskList {
     }
 }
 
-
-
 query myQuery {
   fn: import { myJsQuery } from "@ext/some/path"
 }
+
+dependencies {=json
+  "lodash": "^4.17.15"
+json=}

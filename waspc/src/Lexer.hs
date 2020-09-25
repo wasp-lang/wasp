@@ -43,6 +43,9 @@ reservedNameQuery = "query"
 reservedNameAction :: String
 reservedNameAction = "action"
 
+reservedNameDependencies :: String
+reservedNameDependencies = "dependencies"
+
 -- * Data types.
 
 reservedNameString :: String
@@ -63,6 +66,7 @@ reservedNames =
     , reservedNameFrom
     -- * Wasp element types
     , reservedNameApp
+    , reservedNameDependencies
     , reservedNamePage
     , reservedNameRoute
     , reservedNameEntityPSL
