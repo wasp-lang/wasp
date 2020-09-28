@@ -6,9 +6,11 @@ import Prisma from '@prisma/client'
 const prisma = new Prisma.PrismaClient()
 
 export const getTasks = async (args, context) => {
+  /*
   if (Math.random() < 0.5) {
     throw new HttpError(400, 'Random error: getting tasks failed.')
   }
+  */
 
   const tasks = await prisma.task.findMany({})
 

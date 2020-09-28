@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
+import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
 
 const Todo = (props) => {
   const defaultNewTaskDescription = ''
@@ -42,9 +43,27 @@ const Todo = (props) => {
     return 'Error during fetching tasks: ' + (tasksError?.message || '')
   }
 
+  const handleTaskIsDoneChange = async (event) => {
+    const taskId = parseInt(event.target.id)
+    const newIsDoneVal = event.target.checked
+
+    try {
+      await updateTaskIsDone({ taskId, newIsDoneVal })
+      refetch()
+    } catch (err) {
+      console.log(err)
+      window.alert('Error:' + err.message)
+    }
+  }
+
   const Task = (props) => {
     return <div>
-      <input type="checkbox" checked={ props.task.isDone ? 'checked' : false } readOnly />
+      <input
+        type="checkbox"
+        id={props.task.id}
+        checked={props.task.isDone}
+        onChange={handleTaskIsDoneChange}
+      />
       <span> { props.task.description } </span>
     </div>
   }

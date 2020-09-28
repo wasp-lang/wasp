@@ -49,3 +49,7 @@ query getTasks {
 action createTask {
   fn: import { createTask } from "@ext/actions.js"
 }
+
+action updateTaskIsDone {
+  fn: import { updateTaskIsDone } from "@ext/actions.js"
+}
