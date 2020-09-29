@@ -4,6 +4,8 @@ import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
+import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
+import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
 
 const Todo = (props) => {
   const defaultNewTaskDescription = ''
@@ -68,6 +70,26 @@ const Todo = (props) => {
     </div>
   }
 
+  const handleDeleteCompletedTasks = async () => {
+    try {
+      await deleteCompletedTasks()
+      refetch()
+    } catch (err) {
+      console.log(err)
+      window.alert('Error:' + err.message)
+    }
+  }
+
+  const handleToggleAllTasks = async () => {
+    try {
+      await toggleAllTasks()
+      refetch()
+    } catch (err) {
+      console.log(err)
+      window.alert('Error:' + err.message)
+    }
+  }
+
   return (
     <div className="todos">
       <div className="todos__container">
@@ -76,8 +98,10 @@ const Todo = (props) => {
         <div className="todos__toggleAndInput">
           <button
             disabled={!isThereAnyTask()}
-            className="todos__toggleButton"
-          > ✓ </button>
+            onClick={handleToggleAllTasks}
+          >
+            ✓ 
+          </button>
 
           <form onSubmit={handleNewTaskSubmit}>
             <input type="text"
@@ -101,7 +125,12 @@ const Todo = (props) => {
             </div>
 
             <div className="todos__footer__clearCompleted">
-              <button className={isAnyTaskCompleted() ? '' : 'hidden' }> Delete completed </button>
+              <button
+                className={isAnyTaskCompleted() ? '' : 'hidden' }
+                onClick={handleDeleteCompletedTasks}
+              >
+                Delete completed
+              </button>
             </div>
           </div>
         </>)}
