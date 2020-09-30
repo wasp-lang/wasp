@@ -112,6 +112,9 @@ colon = Token.colon waspLexer
 braces :: Parser a -> Parser a
 braces = Token.braces waspLexer
 
+brackets :: Parser a -> Parser a
+brackets = Token.brackets waspLexer
+
 -- Parses content between '<' and '>'.
 angles :: Parser a -> Parser a
 angles = Token.angles waspLexer
