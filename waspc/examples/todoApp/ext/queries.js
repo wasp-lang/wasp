@@ -16,3 +16,9 @@ export const getTasks = async (args, context) => {
 
   return tasks
 }
+
+export const getTask = async ({ id }, context) => {
+  const task = await prisma.task.findOne({ where: { id } })
+
+  return task
+}
