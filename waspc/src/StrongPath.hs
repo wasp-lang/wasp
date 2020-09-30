@@ -16,12 +16,17 @@ module StrongPath
     , castRel
     , castDir
     , parent
+    , relDirToPosix, relFileToPosix, relDirToPosix', relFileToPosix'
     ) where
 
-import           Control.Monad.Catch (MonadThrow)
-import qualified Path                as P
-import qualified Path.Posix          as PP
-import qualified Path.Windows        as PW
+import           Control.Monad.Catch     (MonadThrow)
+import           Data.Maybe              (fromJust)
+import qualified Path                    as P
+import qualified Path.Posix              as PP
+import qualified Path.Windows            as PW
+import qualified System.FilePath         as FP
+import qualified System.FilePath.Posix   as FPP
+import qualified System.FilePath.Windows as FPW
 
 
 -- | s -> standard, b -> base, t -> type
@@ -70,6 +75,25 @@ data Posix
 
 
 -- Constructors
+-- TODO: Although here I specify which exact type of Path (P.Path, PP.Path or PW.Path) is to be
+--   given as first argument, I realized that if I do:
+--     SP.fromPathRelDirW [P.reldir|test\file|]
+--   compiler will not complain, although I put P instead of PW!
+--   I am not sure why is this happening, we should figure it out.
+--   This is not great because it means somebody can by accident construct
+--   StrongPath that should be Windows but is really Posix.
+--   Or can they? I am not sure if P.Path is just considered the same as PW.Path,
+--   or P.relfile and PW.relfile and PP.relfile for some weird reason are polymorhic
+--   in return type, or what is happening. I believe it is something close to the latter,
+--   in which case it is less of a problem, but I am not sure.
+--   Actually, it also does not complain if I do:
+--     SP.fromPathRelFileP [P.reldir|test/file|]
+--   so although I put reldir, and it should be relfile, it does not complain! How is that possible!?
+--   If I put absdir, then it does complain, however not if I put reldir. Very weird.
+--   NOTE: In Path, Path.Windows.Path and Path.Posix.Path are actually the same Path it seems
+--     so compiler does not differentiate them (because they are all exporting the same module containing Path),
+--     but Path.Windows.Rel and Path.Posix.Rel (and same for Abs/Dir/File) are not the same,
+--     because they are done via Include mechanism.
 fromPathRelDir   :: P.Path  P.Rel  P.Dir   -> Path' System  (Rel a) (Dir b)
 fromPathRelFile  :: P.Path  P.Rel  P.File  -> Path' System  (Rel a) File
 fromPathAbsDir   :: P.Path  P.Abs  P.Dir   -> Path' System  Abs     (Dir a)
@@ -114,31 +138,31 @@ toPathAbsDirP  :: Path' Posix   Abs     (Dir a) -> PP.Path PP.Abs PP.Dir
 toPathAbsFileP :: Path' Posix   Abs     File    -> PP.Path PP.Abs PP.File
 ---- System
 toPathRelDir (RelDir p) = p
-toPathRelDir _ = impossible
+toPathRelDir _          = impossible
 toPathRelFile (RelFile p) = p
-toPathRelFile _ = impossible
+toPathRelFile _           = impossible
 toPathAbsDir (AbsDir p) = p
-toPathAbsDir _ = impossible
+toPathAbsDir _          = impossible
 toPathAbsFile (AbsFile p) = p
-toPathAbsFile _ = impossible
+toPathAbsFile _           = impossible
 ---- Windows
 toPathRelDirW (RelDirW p) = p
-toPathRelDirW _ = impossible
+toPathRelDirW _           = impossible
 toPathRelFileW (RelFileW p) = p
-toPathRelFileW _ = impossible
+toPathRelFileW _            = impossible
 toPathAbsDirW (AbsDirW p) = p
-toPathAbsDirW _ = impossible
+toPathAbsDirW _           = impossible
 toPathAbsFileW (AbsFileW p) = p
-toPathAbsFileW _ = impossible
+toPathAbsFileW _            = impossible
 ---- Posix
 toPathRelDirP (RelDirP p) = p
-toPathRelDirP _ = impossible
+toPathRelDirP _           = impossible
 toPathRelFileP (RelFileP p) = p
-toPathRelFileP _ = impossible
+toPathRelFileP _            = impossible
 toPathAbsDirP (AbsDirP p) = p
-toPathAbsDirP _ = impossible
+toPathAbsDirP _           = impossible
 toPathAbsFileP (AbsFileP p) = p
-toPathAbsFileP _ = impossible
+toPathAbsFileP _            = impossible
 
 
 -- Parsers
@@ -249,6 +273,33 @@ castDir (RelDirW p) = RelDirW p
 castDir (AbsDirP p) = AbsDirP p
 castDir (RelDirP p) = RelDirP p
 castDir _           = impossible
+
+-- TODO: I was not able to unite these two functions (`relDirToPosix` and `relFileToPosix`) into just `toPosix``
+--   because Haskell did not believe me that I would be returning same "t" (Dir/File) in Path
+--   as was in first argument. I wonder if there is easy way to go around that or if
+--   we have to redo significant part of the StrongPath to be able to do smth like this.
+-- | Converts relative path to posix by replacing current path separators with posix path separators.
+--   Works well for "normal" relative paths like "a\b\c" (Win) or "a/b/c" (Posix).
+--   If path is weird but still considered relative, like just "C:" on Win,
+--   results can be unxpected, most likely resulting with error thrown.
+--   If path is already Posix, it will not change.
+relDirToPosix :: MonadThrow m => Path' s (Rel d1) (Dir d2) -> m (Path' Posix (Rel d1) (Dir d2))
+relDirToPosix sp@(RelDir _)  = parseRelDirP $ FPP.joinPath $ FP.splitDirectories $ toFilePath sp
+relDirToPosix sp@(RelDirW _) = parseRelDirP $ FPP.joinPath $ FPW.splitDirectories $ toFilePath sp
+relDirToPosix (RelDirP p)    = return $ RelDirP p
+relDirToPosix _              = impossible
+relFileToPosix :: MonadThrow m => Path' s (Rel d1) File -> m (Path' Posix (Rel d1) File)
+relFileToPosix sp@(RelFile _)  = parseRelFileP $ FPP.joinPath $ FP.splitDirectories $ toFilePath sp
+relFileToPosix sp@(RelFileW _) = parseRelFileP $ FPP.joinPath $ FPW.splitDirectories $ toFilePath sp
+relFileToPosix (RelFileP p)    = return $ RelFileP p
+relFileToPosix _              = impossible
+-- TODO: Should I name these unsafe versions differently? Maybe relDirToPosixU?
+-- Unsafe versions:
+relDirToPosix' :: Path' s (Rel d1) (Dir d2) -> Path' Posix (Rel d1) (Dir d2)
+relDirToPosix' = fromJust . relDirToPosix
+relFileToPosix' :: Path' s (Rel d1) File -> Path' Posix (Rel d1) File
+relFileToPosix' = fromJust . relFileToPosix
+
 
 impossible :: a
 impossible = error "This should be impossible."

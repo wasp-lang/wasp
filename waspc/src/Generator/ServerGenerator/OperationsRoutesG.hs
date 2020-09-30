@@ -1,26 +1,26 @@
-module Generator.ServerGenerator.OperationsGenerator
-    ( genOperations
+module Generator.ServerGenerator.OperationsRoutesG
+    ( genOperationsRoutes
     , operationRouteInOperationsRouter
     ) where
 
-import Data.Maybe (fromJust)
-import Data.Aeson ((.=), object)
-import qualified Path as P
+import           Data.Aeson                            (object, (.=))
+import           Data.Maybe                            (fromJust)
+import qualified Path                                  as P
+import qualified System.FilePath.Posix as FPPosix
 
-import qualified Util as U
-import StrongPath (Path, Rel, File, Dir, (</>))
-import qualified StrongPath as SP
-import Wasp (Wasp)
+import           Generator.FileDraft                   (FileDraft)
+import qualified Generator.ServerGenerator.Common      as C
+import           Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
+import           StrongPath                            (Dir, File, Path, Rel,
+                                                        (</>))
+import qualified StrongPath                            as SP
+import qualified Util                                  as U
+import           Wasp                                  (Wasp)
 import qualified Wasp
 import qualified Wasp.Action
-import qualified Wasp.Query
 import qualified Wasp.Operation
-import qualified Wasp.JsImport
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator.Common as C
+import qualified Wasp.Query
 
-genOperations :: Wasp -> [FileDraft]
-genOperations = genOperationsRoutes
 
 genOperationsRoutes :: Wasp -> [FileDraft]
 genOperationsRoutes wasp = concat
@@ -44,30 +44,11 @@ genOperationRoute _ operation tmplFile = C.makeTemplateFD tmplFile dstFile (Just
   where
     dstFile = operationsRoutesDirInServerRootDir </> operationRouteFileInOperationsRoutesDir operation
     tmplData = object
-        [ "jsFnImportStatement" .= importStmt
-        , "jsFnIdentifier" .= importIdentifier
+        [ "operationImportPath" .= operationImportPath
+        , "operationName" .= Wasp.Operation.getName operation
         ]
-    (importIdentifier, importStmt) = getImportDetailsForOperationJsFn operation
-                                                                      relPathFromOperationsRoutesDirToExtSrcDir
-
--- | Given Wasp operation, it returns details on how to import its js function and use it.
-getImportDetailsForOperationJsFn
-    :: Wasp.Operation.Operation
-    -> FilePath -- ^ Relative path from js file where you want to do importing to generated ext code dir.
-    -> ( String -- ^ importIdentifier -> Identifier via which you can access js function after you import it with importStmt.
-       , String -- ^ importStmt -> Import statement via which you should do the import.
-       )
-getImportDetailsForOperationJsFn operation relPathToExtCodeDir = (importIdentifier, importStmt)
-  where
-    importStmt = "import " ++ importWhat ++ " from '" ++ importFrom ++ "'"
-    importFrom = relPathToExtCodeDir ++ SP.toFilePath (Wasp.JsImport._from jsImport)
-    (importIdentifier, importWhat) =
-        case (Wasp.JsImport._defaultImport jsImport, Wasp.JsImport._namedImports jsImport) of
-            (Just defaultImport, []) -> (defaultImport, defaultImport)
-            (Nothing, [namedImport]) -> (namedImport, "{ " ++ namedImport ++ " }")
-            _ -> error "Expected either default import or single named import for operation (query/action) js function."
-    jsImport = Wasp.Operation.getJsFn operation
-
+    operationImportPath = relPosixPathFromOperationsRoutesDirToSrcDir
+        FPPosix.</> SP.toFilePath (SP.relFileToPosix' $ operationFileInSrcDir operation)
 
 data OperationsRoutesDir
 
@@ -81,8 +62,8 @@ operationRouteFileInOperationsRoutesDir :: Wasp.Operation.Operation -> Path (Rel
 operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $ Wasp.Operation.getName operation ++ ".js"
 
 -- | TODO: Make this not hardcoded! Maybe even use StrongPath? But I can't because of ../../ .
-relPathFromOperationsRoutesDirToExtSrcDir :: FilePath
-relPathFromOperationsRoutesDirToExtSrcDir = "../../ext-src/"
+relPosixPathFromOperationsRoutesDirToSrcDir :: FilePath -- Posix
+relPosixPathFromOperationsRoutesDirToSrcDir = "../.."
 
 
 genOperationsRouter :: Wasp -> FileDraft
@@ -99,7 +80,7 @@ genOperationsRouter wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         let operationName = Wasp.Operation.getName operation
         in object
            [ "importIdentifier" .= operationName
-           , "importPath" .= ("./" ++ SP.toFilePath (operationRouteFileInOperationsRoutesDir operation))
+           , "importPath" .= ("./" ++ SP.toFilePath (SP.relFileToPosix' $ operationRouteFileInOperationsRoutesDir operation))
            , "routePath" .= ("/" ++ operationRouteInOperationsRouter operation)
            ]
 

@@ -57,7 +57,7 @@ createRouterTemplateData wasp = RouterTemplateData
 
 createPageTemplateData :: Wasp.Page.Page -> PageTemplateData
 createPageTemplateData page = PageTemplateData
-    { _importFrom = relPathToExtSrcDir ++ SP.toFilePath (Wasp.JsImport._from pageComponent)
+    { _importFrom = relPathToExtSrcDir ++ SP.toFilePath (SP.relFileToPosix' $ Wasp.JsImport._from pageComponent)
     , _importWhat = case Wasp.JsImport._namedImports pageComponent of
                         -- If no named imports, we go with the default import.
                         []              -> pageName

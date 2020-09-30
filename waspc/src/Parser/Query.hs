@@ -2,41 +2,22 @@ module Parser.Query
     ( query
     ) where
 
-import Text.Parsec.String (Parser)
-import Data.Maybe (listToMaybe, fromMaybe)
+import           Data.Maybe         (fromMaybe)
+import           Text.Parsec.String (Parser)
 
-import qualified Wasp.Query
-import qualified Wasp.JsImport
+import qualified Lexer              as L
+import qualified Parser.Common      as C
+import qualified Parser.Operation   as Operation
+import           Wasp.Query         (Query)
+import qualified Wasp.Query         as Query
 
-import qualified Parser.JsImport
-import qualified Parser.Common as C
-import qualified Lexer as L
 
--- TODO: Very similar to Parser.Action, we should look into maybe removing
---   duplication in the future.
-
--- | Parses query looking like this:
--- query myQuery {
---   fn: import { myQueryInJs } from "..."
--- }
-query :: Parser Wasp.Query.Query
+query :: Parser Query
 query = do
-    (queryName, queryProps) <- C.waspElementNameAndClosureContent L.reservedNameQuery
-                                                                  queryProperties
-    return Wasp.Query.Query
-        { Wasp.Query._name = queryName
-        , Wasp.Query._jsFunction =
-            fromMaybe (error "Query js function is missing.") (getQueryJsFunction queryProps)
+    (name, props) <- C.waspElementNameAndClosureContent L.reservedNameQuery Operation.properties
+    return Query.Query
+        { Query._name = name
+        , Query._jsFunction =
+            fromMaybe (error "Query js function is missing.") (Operation.getJsFunctionFromProps props)
+        , Query._entities = Operation.getEntitiesFromProps props
         }
-
-data QueryProperty = JsFunction !Wasp.JsImport.JsImport
-    deriving (Show, Eq)
-
-queryProperties :: Parser [QueryProperty]
-queryProperties = L.commaSep1 queryPropertyJsFunction
-
-queryPropertyJsFunction :: Parser QueryProperty
-queryPropertyJsFunction = JsFunction <$> C.waspProperty "fn" Parser.JsImport.jsImport
-
-getQueryJsFunction :: [QueryProperty] -> Maybe Wasp.JsImport.JsImport
-getQueryJsFunction ps = listToMaybe [f | JsFunction f <- ps]
