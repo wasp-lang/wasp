@@ -23,3 +23,19 @@ export const updateTaskIsDone = async ({taskId, newIsDoneVal}, context) => {
     data: { isDone: newIsDoneVal }
   })
 }
+
+export const deleteCompletedTasks = async () => {
+  await prisma.task.deleteMany({
+    where: { isDone: true }
+  })
+}
+
+export const toggleAllTasks = async () => {
+  const notDoneTasksCount = await prisma.task.count({ where: { isDone: false } })
+
+  if (notDoneTasksCount > 0) {
+    await prisma.task.updateMany({ where: { isDone: false }, data: { isDone: true } })
+  } else {
+    await prisma.task.updateMany({ data: { isDone: false } })
+  }
+}

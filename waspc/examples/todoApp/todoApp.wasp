@@ -53,3 +53,11 @@ action createTask {
 action updateTaskIsDone {
   fn: import { updateTaskIsDone } from "@ext/actions.js"
 }
+
+action deleteCompletedTasks {
+  fn: import { deleteCompletedTasks } from "@ext/actions.js"
+}
+
+action toggleAllTasks {
+  fn: import { toggleAllTasks } from "@ext/actions.js"
+}
