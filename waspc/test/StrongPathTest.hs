@@ -1,7 +1,11 @@
 module StrongPathTest where
 
 import Test.Tasty.Hspec
+
+import Data.Maybe (fromJust)
 import qualified Path as P
+import qualified Path.Windows as PW
+import qualified Path.Posix as PP
 
 import StrongPath (Path, Abs, Rel, Dir, File, (</>))
 import qualified StrongPath as SP
@@ -34,3 +38,21 @@ spec_StrongPath = do
             `shouldBe` posixToSystemFp "/some/file.txt"
         (P.toFilePath $ SP.toPathAbsDir $ SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|some/dir/|])
             `shouldBe` posixToSystemFp "/some/dir/"
+
+    describe "Correctly converts relative strong path to Posix" $ do
+        it "When strong path is relative dir" $ do
+            let expectedPosixPath = SP.fromPathRelDirP [PP.reldir|test/dir/|]
+            fromJust (SP.relDirToPosix $ SP.fromPathRelDirW [PW.reldir|test\dir\|])
+                `shouldBe` expectedPosixPath
+            fromJust (SP.relDirToPosix $ SP.fromPathRelDirP [PP.reldir|test/dir/|])
+                `shouldBe` expectedPosixPath
+            fromJust (SP.relDirToPosix $ SP.fromPathRelDir [P.reldir|test/dir/|])
+                `shouldBe` expectedPosixPath
+        it "When strong path is relative file" $ do
+            let expectedPosixPath = SP.fromPathRelFileP [PP.relfile|test/file|]
+            fromJust (SP.relFileToPosix $ SP.fromPathRelFileW [PW.relfile|test\file|])
+                `shouldBe` expectedPosixPath
+            fromJust (SP.relFileToPosix $ SP.fromPathRelFileP [PP.relfile|test/file|])
+                `shouldBe` expectedPosixPath
+            fromJust (SP.relFileToPosix $ SP.fromPathRelFile [P.relfile|test/file|])
+                `shouldBe` expectedPosixPath

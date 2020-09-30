@@ -45,7 +45,8 @@ page Task {
 // --------- Queries --------- //
 
 query getTasks {
-  fn: import { getTasks } from "@ext/queries.js"
+  fn: import { getTasks } from "@ext/queries.js",
+  entities: [Task]
 }
 
 query getTask {
@@ -55,17 +56,21 @@ query getTask {
 // --------- Actions --------- //
 
 action createTask {
-  fn: import { createTask } from "@ext/actions.js"
+  fn: import { createTask } from "@ext/actions.js",
+  entities: [Task]
 }
 
 action updateTaskIsDone {
-  fn: import { updateTaskIsDone } from "@ext/actions.js"
+  fn: import { updateTaskIsDone } from "@ext/actions.js",
+  entities: [Task]
 }
 
 action deleteCompletedTasks {
-  fn: import { deleteCompletedTasks } from "@ext/actions.js"
+  fn: import { deleteCompletedTasks } from "@ext/actions.js",
+  entities: [Task]
 }
 
 action toggleAllTasks {
-  fn: import { toggleAllTasks } from "@ext/actions.js"
+  fn: import { toggleAllTasks } from "@ext/actions.js",
+  entities: [Task]
 }

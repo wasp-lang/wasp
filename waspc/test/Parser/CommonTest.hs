@@ -1,13 +1,15 @@
 module Parser.CommonTest where
 
-import Test.Tasty.Hspec
+import           Test.Tasty.Hspec
 
-import Text.Parsec
-import Data.Either
-import Path (relfile)
+import           Data.Either
+import           Path             (relfile)
+import           Text.Parsec
 
-import Lexer
-import Parser.Common
+import           Lexer
+import qualified Lexer            as L
+import           Parser.Common
+
 
 spec_parseWaspCommon :: Spec
 spec_parseWaspCommon = do
@@ -39,7 +41,7 @@ spec_parseWaspCommon = do
         it "Parses a closure with braces {}" $ do
             runWaspParser (waspClosure (symbol "content"))  "{ content }"
                 `shouldBe` Right "content"
-        
+
         it "Does not parse a closure with brackets []" $ do
             (isLeft $ runWaspParser (waspClosure (symbol "content")) "[ content ]")
                 `shouldBe` True
@@ -101,3 +103,8 @@ spec_parseWaspCommon = do
         --   Check out Path.Posix vs Path.Windows.
         -- it "When path is not relative, returns Left" $ do
         --     isLeft (runWaspParser relFilePathString "\"/foo/bar.txt\"") `shouldBe` True
+
+    describe "Parsing wasp array" $ do
+        it "Correctly parses array of identifiers" $ do
+            runWaspParser (waspList L.identifier) "[ Task, Project  ,User]"
+                `shouldBe` Right ["Task", "Project", "User"]

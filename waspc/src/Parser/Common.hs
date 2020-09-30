@@ -4,13 +4,14 @@
 
 module Parser.Common where
 
-import Text.Parsec (ParseError, parse, anyChar, manyTill, try, unexpected)
-import Text.Parsec.String (Parser)
-import qualified Data.Text as T
-import qualified Path as P
-import qualified Path.Posix as PPosix
+import qualified Data.Text          as T
+import qualified Path               as P
+import qualified Path.Posix         as PPosix
+import           Text.Parsec        (ParseError, anyChar, manyTill, parse, try,
+                                     unexpected)
+import           Text.Parsec.String (Parser)
 
-import qualified Lexer as L
+import qualified Lexer              as L
 
 
 -- | Runs given wasp parser on a specified input.
@@ -135,6 +136,11 @@ waspNamedClosure name = do
   where
       closureStart = L.symbol ("{=" ++ name)
       closureEnd = L.symbol (name ++ "=}")
+
+-- | Parses a list of items that can be parsed with given parser.
+--   For example, `waspList L.identifier` will parse "[foo, bar, t]" into ["foo", "bar", "t"].
+waspList :: Parser a -> Parser [a]
+waspList elementParser = L.brackets $ L.commaSep elementParser
 
 -- | Removes leading and trailing spaces from a string.
 strip :: String -> String

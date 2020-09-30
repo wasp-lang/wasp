@@ -32,6 +32,7 @@ spec_parseAction =
                         , Wasp.JsImport._namedImports = [ testActionJsFunctionName ]
                         , Wasp.JsImport._from = testActionJsFunctionFrom
                         }
+                    , Wasp.Action._entities = Nothing
                     }
             parseAction ( "action " ++ testActionName ++ " {\n" ++
                          "  fn: import { " ++ testActionJsFunctionName ++ " } from \"@ext/some/path\"\n" ++
