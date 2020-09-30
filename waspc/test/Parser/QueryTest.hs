@@ -28,9 +28,11 @@ spec_parseQuery =
                         , Wasp.JsImport._namedImports = [ testQueryJsFunctionName ]
                         , Wasp.JsImport._from = testQueryJsFunctionFrom
                         }
+                    , Wasp.Query._entities = Just ["Task", "Project"]
                     }
             parseQuery ( "query " ++ testQueryName ++ " {\n" ++
-                         "  fn: import { " ++ testQueryJsFunctionName ++ " } from \"@ext/some/path\"\n" ++
+                         "  fn: import { " ++ testQueryJsFunctionName ++ " } from \"@ext/some/path\",\n" ++
+                         "  entities: [Task, Project]\n" ++
                          "}"
                        ) `shouldBe` Right testQuery
         it "When given query wasp declaration without 'fn' property, should return Left" $ do
