@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Link } from "react-router-dom"
 
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
@@ -66,7 +67,7 @@ const Todo = (props) => {
         checked={props.task.isDone}
         onChange={handleTaskIsDoneChange}
       />
-      <span> { props.task.description } </span>
+      <Link to={`/task/${props.task.id}`}> { props.task.description } </Link>
     </div>
   }
 

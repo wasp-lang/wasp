@@ -1,23 +1,51 @@
-import React, { Component } from 'react'
-
+import React from 'react'
 import { Link } from "react-router-dom"
 
-export default class Task extends Component {
+import { useQuery } from '@wasp/queries'
+import getTask from '@wasp/queries/getTask.js'
 
-  render() {
+const Todo = (props) => {
+
+  const { data: task, isFetching, isError }
+    = useQuery(getTask, { id: parseInt(props.match.params.id) })
+
+  if (!task) {
     return (
-      <>
-        <div>
-          I am showing task with id: {this.props.match.params.id}.
-        </div>
-        <br/>
-        <div>
-          {/* We have to parse query string by ourselves, e.g. using 'query-string' package. */}
-          query string is: {this.props.location.search}
-        </div>
-        <br/>
-      <Link to="/">Go to dashboard</Link>
-      </>
+      <div>Task with id {props.match.params.id} does not exist.</div>
     )
   }
+
+  if (isError) {
+    return (
+      <div>Error occurred!</div>
+    )
+  }
+
+  return (
+    <>
+      { isFetching ? (
+        <div>
+          Fetching task ...
+        </div>
+      ) : (
+        <>
+          <h2>Task</h2>
+          <div>
+            id: {task.id}
+          </div>
+          <div>
+            description: {task.description}
+          </div>
+          <div>
+            is done: {task.isDone ? 'Yes' : 'No'}
+          </div>
+        </>
+      )}
+      <br/>
+    <Link to="/">Go to dashboard</Link>
+    </>
+  )
 }
+
+export default Todo
+
