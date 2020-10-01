@@ -2,19 +2,20 @@ module Generator.WebAppGenerator.OperationsGenerator
     ( genOperations
     ) where
 
-import Data.Maybe (fromJust)
-import Data.Aeson ((.=), object)
-import qualified Path as P
+import           Data.Aeson                                  (object, (.=))
+import           Data.Maybe                                  (fromJust)
+import qualified Path                                        as P
 
-import Wasp (Wasp)
+import           Generator.FileDraft                         (FileDraft)
+import qualified Generator.ServerGenerator                   as ServerGenerator
+import qualified Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
+import qualified Generator.WebAppGenerator.Common            as C
+import           Wasp                                        (Wasp)
 import qualified Wasp
+import qualified Wasp.Action
 import qualified Wasp.Operation
 import qualified Wasp.Query
-import qualified Wasp.Action
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator as ServerGenerator
-import qualified Generator.ServerGenerator.OperationsGenerator as ServerGenerator.OperationsGenerator
-import qualified Generator.WebAppGenerator.Common as C
+
 
 genOperations :: Wasp -> [FileDraft]
 genOperations wasp = concat
@@ -44,7 +45,7 @@ genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         [ "queryFnName" .= Wasp.Query._name query
         , "queryRoute" .=
             (ServerGenerator.operationsRouteInRootRouter
-             ++ "/" ++ ServerGenerator.OperationsGenerator.operationRouteInOperationsRouter operation)
+             ++ "/" ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation)
         ]
     operation = Wasp.Operation.QueryOp query
 
@@ -58,7 +59,7 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         [ "actionFnName" .= Wasp.Action._name action
         , "actionRoute" .=
             (ServerGenerator.operationsRouteInRootRouter
-             ++ "/" ++ ServerGenerator.OperationsGenerator.operationRouteInOperationsRouter operation)
+             ++ "/" ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation)
         ]
     operation = Wasp.Operation.ActionOp action
 

@@ -2,6 +2,7 @@ module Wasp.Operation
     ( Operation(..)
     , getName
     , getJsFn
+    , getEntities
     ) where
 
 -- TODO: Is this ok approach, should I instead use typeclass?
@@ -23,3 +24,7 @@ getName (ActionOp action) = Action._name action
 getJsFn :: Operation -> JsImport
 getJsFn (QueryOp query) = Query._jsFunction query
 getJsFn (ActionOp action) = Action._jsFunction action
+
+getEntities :: Operation -> Maybe [String]
+getEntities (QueryOp query) = Query._entities query
+getEntities (ActionOp action) = Action._entities action

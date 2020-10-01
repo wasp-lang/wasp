@@ -1,6 +1,7 @@
 {{={= =}=}}
 import { handleRejection } from '../../utils.js'
-{=& jsFnImportStatement =}
+
+import {= operationName =} from "{= operationImportPath =}"
 
 export default handleRejection(async (req, res) => {
   // TODO: When generating express route for query, generated code would be most human-like if we
@@ -12,7 +13,6 @@ export default handleRejection(async (req, res) => {
   //   as human-like as it should be though.
   const args = req.body || {}
   const context = {}
-  const result = await {= jsFnIdentifier =}(args, context)
+  const result = await {= operationName =}(args, context)
   res.json(result)
 })
-

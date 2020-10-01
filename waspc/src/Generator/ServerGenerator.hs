@@ -11,12 +11,14 @@ import           CompileOptions                                  (CompileOptions
 import           Generator.Common                                (nodeVersionAsText)
 import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
 import           Generator.FileDraft                             (FileDraft)
-import           Generator.PackageJsonGenerator                  (resolveNpmDeps, toPackageJsonDependenciesString)
+import           Generator.PackageJsonGenerator                  (resolveNpmDeps,
+                                                                  toPackageJsonDependenciesString)
 import           Generator.ServerGenerator.Common                (asServerFile,
                                                                   asTmplFile)
 import qualified Generator.ServerGenerator.Common                as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import           Generator.ServerGenerator.OperationsGenerator   (genOperations)
+import           Generator.ServerGenerator.OperationsG           (genOperations)
+import           Generator.ServerGenerator.OperationsRoutesG     (genOperationsRoutes)
 import qualified NpmDependency                                   as ND
 import           StrongPath                                      (File, Path,
                                                                   Rel)
@@ -95,6 +97,7 @@ genSrcDir wasp = concat
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|utils.js|]]
     , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|core/HttpError.js|]]
     , genRoutesDir wasp
+    , genOperationsRoutes wasp
     , genOperations wasp
     ]
 
