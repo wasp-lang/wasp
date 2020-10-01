@@ -50,7 +50,7 @@ genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         , "jsFnIdentifier" .= importIdentifier
         , "entities" .= map buildEntityData (fromMaybe [] $ Wasp.Operation.getEntities operation)
         ]
-    (importIdentifier, importStmt) = getImportDetailsForOperationUserJsFn operation relPathFromQueriesDirToExtSrcDir
+    (importIdentifier, importStmt) = getImportDetailsForOperationUserJsFn operation relPosixPathFromQueriesDirToExtSrcDir
     buildEntityData :: String -> Aeson.Value
     buildEntityData entityName = object [ "name" .= entityName
                                         , "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
@@ -74,7 +74,7 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         , "jsFnIdentifier" .= importIdentifier
         , "entities" .= map buildEntityData (fromMaybe [] $ Wasp.Operation.getEntities operation)
         ]
-    (importIdentifier, importStmt) = getImportDetailsForOperationUserJsFn operation relPathFromActionsDirToExtSrcDir
+    (importIdentifier, importStmt) = getImportDetailsForOperationUserJsFn operation relPosixPathFromActionsDirToExtSrcDir
     buildEntityData :: String -> Aeson.Value
     buildEntityData entityName = object [ "name" .= entityName
                                         , "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
@@ -87,35 +87,28 @@ actionFileInSrcDir action = SP.fromPathRelFile $
     -- | TODO: fromJust here could fail if there is some problem with the name, we should handle this.
     P.</> fromJust (P.parseRelFile $ Wasp.Action._name action ++ ".js")
 
--- | TODO: PROBLEM: Sometimes I need this as system path (when generating files on disk) and sometimes I need it as
---     Posix path (when using it in JS files). I have similar problems with some paths in OperationsRoutesG.hs.
---     What shall I do about this!? I could keep it as system path, and then convert it to posix path
---     when I need it to be posix path -> which is when using it in JS files. I could just have function for that
---     conversion. It would be applicable only for relative paths, of course, not abs. I would probably need one for
---     StrongPath and one for FilePath.
 operationFileInSrcDir :: Wasp.Operation.Operation -> Path (Rel C.ServerSrcDir) File
 operationFileInSrcDir (Wasp.Operation.QueryOp query) = queryFileInSrcDir query
 operationFileInSrcDir (Wasp.Operation.ActionOp action) = actionFileInSrcDir action
 
--- TODO: Here also: is this posix? Not? I need to care about this.
 -- | TODO: Make this not hardcoded! Maybe even use StrongPath? But I can't because of "../" .
-relPathFromQueriesDirToExtSrcDir :: FilePath
-relPathFromQueriesDirToExtSrcDir = "../ext-src/"
-relPathFromActionsDirToExtSrcDir :: FilePath
-relPathFromActionsDirToExtSrcDir = "../ext-src/"
+relPosixPathFromQueriesDirToExtSrcDir :: FilePath -- Posix
+relPosixPathFromQueriesDirToExtSrcDir = "../ext-src/"
+relPosixPathFromActionsDirToExtSrcDir :: FilePath -- Posix
+relPosixPathFromActionsDirToExtSrcDir = "../ext-src/"
 
 -- | Given Wasp operation, it returns details on how to import its user js function and use it,
 --   "user js function" meaning the one provided by user directly to wasp, untouched.
 getImportDetailsForOperationUserJsFn
     :: Wasp.Operation.Operation
-    -> FilePath -- ^ Relative path from js file where you want to do importing to generated ext code dir.
+    -> FilePath -- ^ Relative posix path from js file where you want to do importing to generated ext code dir.
     -> ( String -- ^ importIdentifier -> Identifier via which you can access js function after you import it with importStmt.
        , String -- ^ importStmt -> Import statement via which you should do the import.
        )
-getImportDetailsForOperationUserJsFn operation relPathToExtCodeDir = (importIdentifier, importStmt)
+getImportDetailsForOperationUserJsFn operation relPosixPathToExtCodeDir = (importIdentifier, importStmt)
   where
     importStmt = "import " ++ importWhat ++ " from '" ++ importFrom ++ "'"
-    importFrom = relPathToExtCodeDir ++ SP.toFilePath (Wasp.JsImport._from jsImport)
+    importFrom = relPosixPathToExtCodeDir ++ SP.toFilePath (Wasp.JsImport._from jsImport)
     (importIdentifier, importWhat) =
         case (Wasp.JsImport._defaultImport jsImport, Wasp.JsImport._namedImports jsImport) of
             (Just defaultImport, []) -> (defaultImport, defaultImport)

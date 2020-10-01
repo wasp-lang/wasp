@@ -47,7 +47,8 @@ genOperationRoute _ operation tmplFile = C.makeTemplateFD tmplFile dstFile (Just
         [ "operationImportPath" .= operationImportPath
         , "operationName" .= Wasp.Operation.getName operation
         ]
-    operationImportPath = relPosixPathFromOperationsRoutesDirToSrcDir FPPosix.</> SP.toFilePath (operationFileInSrcDir operation) -- TODO: Here I should actually convert this operationFileInSrcDir to Posix!
+    operationImportPath = relPosixPathFromOperationsRoutesDirToSrcDir
+        FPPosix.</> SP.toFilePath (SP.relFileToPosix' $ operationFileInSrcDir operation)
 
 data OperationsRoutesDir
 
@@ -79,7 +80,7 @@ genOperationsRouter wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         let operationName = Wasp.Operation.getName operation
         in object
            [ "importIdentifier" .= operationName
-           , "importPath" .= ("./" ++ SP.toFilePath (operationRouteFileInOperationsRoutesDir operation))
+           , "importPath" .= ("./" ++ SP.toFilePath (SP.relFileToPosix' $ operationRouteFileInOperationsRoutesDir operation))
            , "routePath" .= ("/" ++ operationRouteInOperationsRouter operation)
            ]
 
