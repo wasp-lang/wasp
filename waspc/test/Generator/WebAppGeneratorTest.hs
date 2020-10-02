@@ -14,7 +14,7 @@ import qualified Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Generator.FileDraft.TextFileDraft as TextFD
 import qualified Generator.WebAppGenerator.Common as Common
 import Wasp
-import Fixtures (fpRoot)
+import Fixtures (systemPathRoot)
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
 --   generator functions and then do property testing on them, that would be cool.
@@ -24,7 +24,7 @@ spec_WebAppGenerator = do
     let testApp = (App "TestApp" "Test App")
     let testWasp = (fromApp testApp)
     let testCompileOptions = CompileOptions.CompileOptions
-            { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|test/src|]
+            { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|test/src|]
             }
 
     describe "generateWebApp" $ do

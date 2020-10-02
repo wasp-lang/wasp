@@ -8,7 +8,7 @@ import qualified StrongPath as SP
 import Generator.FileDraft
 
 import qualified Generator.MockWriteableMonad as Mock
-import Fixtures (fpRoot)
+import Fixtures (systemPathRoot)
 
 
 spec_CopyFileDraft :: Spec
@@ -23,9 +23,9 @@ spec_CopyFileDraft = do
                 `shouldBe` [(SP.toFilePath expectedSrcPath, SP.toFilePath expectedDstPath)]
               where
                 (dstDir, dstPath, srcPath) =
-                    ( SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|a/b|]
+                    ( SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|a/b|]
                     , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
-                    , SP.fromPathAbsFile $ fpRoot P.</> [P.relfile|e/src.txt|]
+                    , SP.fromPathAbsFile $ systemPathRoot P.</> [P.relfile|e/src.txt|]
                     )
                 fileDraft = createCopyFileDraft dstPath srcPath
                 expectedSrcPath = srcPath
