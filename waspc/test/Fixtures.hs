@@ -75,5 +75,8 @@ formFieldIsDone = GEF.FormFieldTemplateData
     , GEF._fieldLabel = Nothing
     }
 
-fpRoot :: P.Path P.Abs P.Dir
-fpRoot = fromJust $ P.parseAbsDir $ if FP.pathSeparator == '\\' then "C:\\" else "/"
+systemPathRoot :: P.Path P.Abs P.Dir
+systemPathRoot = fromJust $ P.parseAbsDir systemFpRoot
+
+systemFpRoot :: FilePath
+systemFpRoot = if FP.pathSeparator == '\\' then "C:\\" else "/"
