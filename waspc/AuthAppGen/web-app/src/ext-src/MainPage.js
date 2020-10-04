@@ -3,9 +3,12 @@ import React, { useState } from 'react'
 import { useQuery } from '../queries'
 import getUsers from '../queries/getUsers.js'
 import createUser from '../actions/createUser.js'
+// Added by Matija
+import login from '../auth/login.js'
 
 const MainPage = () => {
 
+  // Signup form values
   const [emailFieldVal, setEmailFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
@@ -37,6 +40,46 @@ const MainPage = () => {
     </div>
   }
 
+  const LoginForm = () => {
+    const [loginEmail, setLoginEmail] = useState('')
+    const [loginPassword, setLoginPassword] = useState('')
+
+
+    const handleLogin = async (event) => {
+      event.preventDefault()
+
+      try {
+        await login(loginEmail, loginPassword)
+
+        setLoginEmail('')
+        setLoginPassword('')
+      } catch (err) {
+        console.log(err)
+        window.alert('Error:' + err.message)
+      }
+    }
+
+    return (
+      <form onSubmit={handleLogin}>
+        <h2>Email</h2>
+        <input
+          type="text"
+          value={loginEmail}
+          onChange={e => setLoginEmail(e.target.value)}
+        />
+        <h2>Password</h2>
+        <input
+          type="password"
+          value={loginPassword}
+          onChange={e => setLoginPassword(e.target.value)}
+        />
+        <div>
+          <input type="submit" value="Log in"/>
+        </div>
+      </form>
+    )
+  }
+
   return (
     <div>
       <h1>Sign up</h1>
@@ -58,6 +101,9 @@ const MainPage = () => {
           <input type="submit" value="Sign up"/>
         </div>
       </form>
+
+      <h1>Login</h1>
+      <LoginForm/>
 
       <h1>Users</h1>
       { isFetching ? (
