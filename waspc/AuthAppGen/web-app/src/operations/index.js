@@ -1,10 +1,9 @@
-import axios from 'axios'
-
+import api from '../api.js'
 import config from '../config.js'
 
 export const callOperation = async (operationRoute, args) => {
   try {
-    const response = await axios.post(config.apiUrl + '/' + operationRoute, args)
+    const response = await api.post(config.apiUrl + '/' + operationRoute, args)
     return response.data
   } catch (error) {
     if (error?.response) {

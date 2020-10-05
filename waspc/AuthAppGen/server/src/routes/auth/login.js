@@ -27,7 +27,7 @@ export default handleRejection(async (req, res) => {
   }
 
   // Email & password valid - generate token.
-  const token = await jwtSign({ is: user.id }, "someSecret")
+  const token = await jwtSign({ id: user.id }, "someSecret")
 
   // NOTE(matija): Possible option - instead of explicitly returning token here,
   // we could add to response header 'Set-Cookie {token}' directive which would then make

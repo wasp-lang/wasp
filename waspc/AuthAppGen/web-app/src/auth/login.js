@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import config from '../config.js'
+import { setAuthToken } from '../api.js'
 
 const login = async (email, password) => {
   // TODO(matija): make request to /auth/login/ here.
@@ -12,8 +13,7 @@ const login = async (email, password) => {
 
     console.log('got token: ', response.data)
 
-    // Make sure token is saved.
-
+    setAuthToken(response.data.token)
 
   } catch (error) {
     // TODO(matija): refine this, extract maybe from callOperation

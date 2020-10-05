@@ -106,10 +106,11 @@ const MainPage = () => {
       <LoginForm/>
 
       <h1>Users</h1>
+      <button onClick={refetch}>Refetch</button>
       { isFetching ? (
         <div>Fetching users...</div>
       ) : (
-        <Users users={users} />
+        users && <Users users={users} />
       )}
     </div>
   )
