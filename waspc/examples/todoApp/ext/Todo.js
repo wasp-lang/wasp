@@ -13,7 +13,7 @@ const Todo = (props) => {
 
   const [newTaskDescription, setNewTaskDescription] = useState(defaultNewTaskDescription)
 
-  const { data: tasks, refetch, isFetching, isError, error: tasksError } = useQuery(getTasks)
+  const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
 
   const isAnyTaskCompleted = () => tasks?.some(t => t.isDone)
 
@@ -22,7 +22,6 @@ const Todo = (props) => {
   const createNewTask = async (description) => {
     const task = { isDone: false, description }
     await createTask(task)
-    refetch()
   }
 
   const handleNewTaskSubmit = async (event) => {
@@ -52,7 +51,6 @@ const Todo = (props) => {
 
     try {
       await updateTaskIsDone({ taskId, newIsDoneVal })
-      refetch()
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
@@ -74,7 +72,6 @@ const Todo = (props) => {
   const handleDeleteCompletedTasks = async () => {
     try {
       await deleteCompletedTasks()
-      refetch()
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
@@ -84,7 +81,6 @@ const Todo = (props) => {
   const handleToggleAllTasks = async () => {
     try {
       await toggleAllTasks()
-      refetch()
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
@@ -113,7 +109,6 @@ const Todo = (props) => {
           </form>
         </div>
 
-        { isFetching && 'Fetching tasks...'}
 
         { isError && <TasksError/> }
 

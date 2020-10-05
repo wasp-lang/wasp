@@ -2,15 +2,19 @@ module Generator.WebAppGenerator.OperationsGenerator
     ( genOperations
     ) where
 
-import           Data.Aeson                                  (object, (.=))
-import           Data.Maybe                                  (fromJust)
-import qualified Path                                        as P
+import           Data.Aeson                                               (object,
+                                                                           (.=))
+import           Data.List                                                (intercalate)
+import           Data.Maybe                                               (fromJust,
+                                                                           fromMaybe)
+import qualified Path                                                     as P
 
-import           Generator.FileDraft                         (FileDraft)
-import qualified Generator.ServerGenerator                   as ServerGenerator
-import qualified Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import qualified Generator.WebAppGenerator.Common            as C
-import           Wasp                                        (Wasp)
+import           Generator.FileDraft                                      (FileDraft)
+import qualified Generator.ServerGenerator                                as ServerGenerator
+import qualified Generator.ServerGenerator.OperationsRoutesG              as ServerOperationsRoutesG
+import qualified Generator.WebAppGenerator.Common                         as C
+import qualified Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
+import           Wasp                                                     (Wasp)
 import qualified Wasp
 import qualified Wasp.Action
 import qualified Wasp.Operation
@@ -22,6 +26,7 @@ genOperations wasp = concat
     [ genQueries wasp
     , genActions wasp
     , [C.makeSimpleTemplateFD (C.asTmplFile [P.relfile|src/operations/index.js|]) wasp]
+    , Resources.genResources wasp
     ]
 
 genQueries :: Wasp -> [FileDraft]
@@ -46,6 +51,7 @@ genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         , "queryRoute" .=
             (ServerGenerator.operationsRouteInRootRouter
              ++ "/" ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation)
+        , "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
     operation = Wasp.Operation.QueryOp query
 
@@ -60,8 +66,15 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         , "actionRoute" .=
             (ServerGenerator.operationsRouteInRootRouter
              ++ "/" ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation)
+        , "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
     operation = Wasp.Operation.ActionOp action
+
+-- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
+--   E.g. "['Task', 'Project']"
+makeJsArrayOfEntityNames :: Wasp.Operation.Operation -> String
+makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]"
+  where entityStrings = map (\x -> "'" ++ x ++ "'") $ fromMaybe [] $ Wasp.Operation.getEntities operation
 
 getOperationDstFileName :: Wasp.Operation.Operation -> Maybe (P.Path P.Rel P.File)
 getOperationDstFileName operation = P.parseRelFile (Wasp.Operation.getName operation ++ ".js")

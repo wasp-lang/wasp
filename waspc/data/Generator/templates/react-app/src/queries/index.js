@@ -4,12 +4,12 @@ export const useQuery = (queryFn, queryFnArgs, config) => {
   if (typeof queryFn !== 'function') {
     throw new Error('useQuery requires queryFn to be a function.')
   }
-  if (!queryFn.useQueryKey) {
-    throw new Error('queryFn needs to have useQueryKey property defined.')
+  if (!queryFn.queryCacheKey) {
+    throw new Error('queryFn needs to have queryCacheKey property defined.')
   }
 
   const rqResult = rqUseQuery({
-    queryKey: [queryFn.useQueryKey, queryFnArgs],
+    queryKey: [queryFn.queryCacheKey, queryFnArgs],
     queryFn: (_key, args) => queryFn(args),
     config
   })
