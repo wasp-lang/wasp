@@ -105,6 +105,7 @@ generateSrcDir wasp
         , [P.relfile|store/index.js|]
         , [P.relfile|store/middleware/logger.js|]
         , [P.relfile|config.js|]
+        , [P.relfile|queryCache.js|]
         ]
     ++ EntityGenerator.generateEntities wasp
     ++ [generateReducersJs wasp]
