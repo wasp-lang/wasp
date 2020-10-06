@@ -26,17 +26,17 @@ runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan = do
     (CP.ClosedStream, stdoutStream, stderrStream, processHandle) <- CP.streamingProcess process
 
-    let stdout = runConduit $ stdoutStream .| CL.mapM_
+    let forwardStdoutToChan = runConduit $ stdoutStream .| CL.mapM_
             (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
                                                   , J._jobType = jobType })
 
-    let stderr = runConduit $ stderrStream .| CL.mapM_
+    let forwardStderrToChan = runConduit $ stderrStream .| CL.mapM_
             (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
                                                   , J._jobType = jobType })
 
     exitCode <- runConcurrently $
-        Concurrently stdout *>
-        Concurrently stderr *>
+        Concurrently forwardStdoutToChan *>
+        Concurrently forwardStderrToChan *>
         Concurrently (CP.waitForStreamingProcess processHandle)
 
     writeChan chan $ J.JobMessage { J._data = J.JobExit exitCode
