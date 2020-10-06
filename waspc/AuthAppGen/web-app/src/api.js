@@ -23,6 +23,7 @@ export const setAuthToken = (token) => {
 
 export const clearAuthToken = () => {
   authToken = undefined
+  window.localStorage && window.localStorage.removeItem(WASP_APP_AUTH_TOKEN_NAME)
 }
 
 api.interceptors.request.use(request => {

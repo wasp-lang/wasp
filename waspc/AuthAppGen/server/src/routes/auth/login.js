@@ -1,11 +1,7 @@
 import Prisma from '@prisma/client'
-import jwt from 'jsonwebtoken'
-import Promise from 'bluebird'
 
+import { sign } from '../../auth.js'
 import { handleRejection } from '../../utils.js'
-
-const jwtSign = Promise.promisify(jwt.sign)
-const jwtVerify = Promise.promisify(jwt.verify)
 
 const prisma = new Prisma.PrismaClient()
 
@@ -27,7 +23,7 @@ export default handleRejection(async (req, res) => {
   }
 
   // Email & password valid - generate token.
-  const token = await jwtSign({ id: user.id }, "someSecret")
+  const token = await sign(user.id)
 
   // NOTE(matija): Possible option - instead of explicitly returning token here,
   // we could add to response header 'Set-Cookie {token}' directive which would then make

@@ -5,8 +5,14 @@ import getUsers from '../queries/getUsers.js'
 import createUser from '../actions/createUser.js'
 // Added by Matija
 import login from '../auth/login.js'
+import logout from '../auth/logout.js'
+import useMe from '../auth/me.js'
+import { clearAuthToken } from '../api.js'
 
 const MainPage = () => {
+
+  const { me, refetchMe } = useMe()
+  console.log('MainPage useMe: ', me)
 
   // Signup form values
   const [emailFieldVal, setEmailFieldVal] = useState('')
@@ -40,10 +46,19 @@ const MainPage = () => {
     </div>
   }
 
+  const fetchUsers = async () => {
+    try {
+      await getUsers()
+    } catch (err) {
+      console.log(err)
+      window.alert('Error:' + err.message)
+    }
+
+  }
+
   const LoginForm = () => {
     const [loginEmail, setLoginEmail] = useState('')
     const [loginPassword, setLoginPassword] = useState('')
-
 
     const handleLogin = async (event) => {
       event.preventDefault()
@@ -82,6 +97,12 @@ const MainPage = () => {
 
   return (
     <div>
+      { me ? (
+        <span>You are logged in as {me.email}.</span>
+      ) : (
+        <span>You are not logged in.</span>
+      )}
+
       <h1>Sign up</h1>
 
       <form onSubmit={handleSignup}>
@@ -104,9 +125,14 @@ const MainPage = () => {
 
       <h1>Login</h1>
       <LoginForm/>
+      <button onClick={logout}>Logout</button>
 
       <h1>Users</h1>
+      <button onClick={fetchUsers}>Non-reactive fetch users</button>
       <button onClick={refetch}>Refetch</button>
+
+      { isError && <span>Error while fetching users.</span>}
+
       { isFetching ? (
         <div>Fetching users...</div>
       ) : (
