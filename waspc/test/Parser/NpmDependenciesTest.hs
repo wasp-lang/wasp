@@ -2,9 +2,7 @@ module Parser.NpmDependenciesTest where
 
 import           Test.Tasty.Hspec
 
-import           Data.Aeson             ((.=))
 import           Data.Either            (isLeft)
-import           Data.HashMap.Strict    (fromList)
 
 import qualified NpmDependency          as ND
 import           Parser.Common          (runWaspParser)

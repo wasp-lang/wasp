@@ -3,7 +3,8 @@ module Generator.Job.Process
     , runNodeCommandAsJob
     ) where
 
-import           Control.Concurrent    (writeChan)
+import           Control.Concurrent       (writeChan)
+import           Control.Concurrent.Async (Concurrently (..))
 import qualified Data.ByteString.Char8 as BS
 import           Data.Conduit          (runConduit, (.|))
 import qualified Data.Conduit.List     as CL
@@ -25,20 +26,18 @@ runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan = do
     (CP.ClosedStream, stdoutStream, stderrStream, processHandle) <- CP.streamingProcess process
 
-    -- TODO: Do I need to use Concurrently to run concurrently these three below:
-    --   stdout, sdterr, and waiting for process? They do it in documentation/tutorial:
-    --   https://github.com/snoyberg/conduit/blob/master/PROCESS.md .
-    --   But for me it works fine without it, for now.
+    let stdout = runConduit $ stdoutStream .| CL.mapM_
+            (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
+                                                  , J._jobType = jobType })
 
-    runConduit $ stdoutStream .| CL.mapM_
-        (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
-                                              , J._jobType = jobType })
+    let stderr = runConduit $ stderrStream .| CL.mapM_
+            (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
+                                                  , J._jobType = jobType })
 
-    runConduit $ stderrStream .| CL.mapM_
-        (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
-                                              , J._jobType = jobType })
-
-    exitCode <- CP.waitForStreamingProcess processHandle
+    exitCode <- runConcurrently $
+        Concurrently stdout *>
+        Concurrently stderr *>
+        Concurrently (CP.waitForStreamingProcess processHandle)
 
     writeChan chan $ J.JobMessage { J._data = J.JobExit exitCode
                                   , J._jobType = jobType }
