@@ -5,7 +5,6 @@ import api, { setAuthToken } from '../api.js'
 const getMe = async () => {
   try {
     const response = await api.get(config.apiUrl + '/auth/me')
-    console.log('got user: ', response.data)
 
     return response.data
   } catch (error) {
@@ -19,7 +18,6 @@ const getMe = async () => {
     throw error
   }
 }
-
 getMe.useQueryKey = 'auth/me'
 
 const useMe = () => {

@@ -7,7 +7,9 @@ const logout = () => {
   // TODO(matija): delete whole local storage.
 
   clearAuthToken()
+  // Should also invalidate non-public queries.
   queryCache.invalidateQueries('auth/me')
+  // Clear only non-public queries.
   queryCache.clear()
 }
 

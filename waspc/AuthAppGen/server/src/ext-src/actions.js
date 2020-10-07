@@ -1,6 +1,7 @@
 import HttpError from '../core/HttpError.js'
 import Prisma from '@prisma/client'
 
+// This comes from Wasp.
 import { createNewUser } from '../auth.js'
 
 const prisma = new Prisma.PrismaClient()

@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { useQuery } from '../queries'
 import getUsers from '../queries/getUsers.js'
 import createUser from '../actions/createUser.js'
+
 // Added by Matija
 import login from '../auth/login.js'
 import logout from '../auth/logout.js'
 import useMe from '../auth/me.js'
-import { clearAuthToken } from '../api.js'
 
 const MainPage = () => {
 

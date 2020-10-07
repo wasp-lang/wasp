@@ -8,6 +8,7 @@ const login = async (email, password) => {
     const response = await api.post(config.apiUrl + '/auth/login', args)
 
     setAuthToken(response.data.token)
+    // We should invalidate only non-public queries.
     queryCache.invalidateQueries()
   } catch (error) {
     // TODO(matija): refine this, extract maybe from callOperation

@@ -12,6 +12,7 @@ export default handleRejection(async (req, res) => {
   // Try to fetch user with the given email.
   const user = await prisma.user.findOne({ where: { email: args.email.toLowerCase() } })
   if (!user) {
+    // TODO: use res
     const error = new Error('No such user.')
     throw error
   }
@@ -19,6 +20,7 @@ export default handleRejection(async (req, res) => {
   // We got user - now check the password.
   // TODO(matija): not even hashed for now, fix that.
   if (args.password !== user.password) {
+    // TODO: use res
     throw new Error('Invalid password.')
   }
 
