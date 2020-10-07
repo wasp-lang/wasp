@@ -8,6 +8,11 @@ app test_app {
     title: "Hello World!"
 }
 
+auth {
+    userEntity: User,
+    methods: [ EmailAndPassword ]
+}
+
 route "/" -> page Landing
 page Landing {
     component: import Landing from "@ext/pages/Landing"
@@ -23,51 +28,6 @@ entityPSL Task {=psl
     description String
     isDone      Boolean @default(false)
 psl=}
-
-
-// TODO(matija): old Entity stuff, to be removed.
-entity Task {
-    description :: string,
-    isDone :: boolean
-}
-
-// NOTE(matija): this is only being parsed for now, no code is generated yet.
-// Entity form definition.
-entity-form<Task> CreateTaskForm {
-    fields: {
-        description: {
-            show: true,
-            defaultValue: "doable task",
-            label: none,
-            placeholder: "What will you do?"
-        },
-        isDone: {
-            show: false,
-            defaultValue: false  // Although not shown, this field will be set to "false".
-        }
-    },
-    submit: {
-        onEnter: false,
-        button: {
-            show: true
-        }
-    }
-}
-
-entity-list<Task> TaskList {
-    showHeader: false,
-    fields: {
-        description: {
-            render: {=js
-                task => task.description
-            js=}
-        }
-    },
-    mutuallyExclusiveFilters: {
-        completed: {=js task => task.isDone js=},
-        active: {=js task => !task.isDone js=}
-    }
-}
 
 query myQuery {
   fn: import { myJsQuery } from "@ext/some/path"

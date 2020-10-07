@@ -109,7 +109,6 @@ const Todo = (props) => {
           </form>
         </div>
 
-
         { isError && <TasksError/> }
 
         { isThereAnyTask() && (<>

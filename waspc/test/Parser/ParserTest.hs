@@ -9,17 +9,12 @@ import           Parser
 import qualified StrongPath           as SP
 import           Wasp
 import qualified Wasp.EntityPSL
-import qualified Wasp.JsCode
+import qualified Wasp.Auth
 import qualified Wasp.JsImport
 import qualified Wasp.NpmDependencies
 import qualified Wasp.Page
 import qualified Wasp.Query
 import qualified Wasp.Route           as R
-
--- TODO(matija): old Entity stuff, to be removed.
-import qualified Wasp.EntityForm      as EF
-import qualified Wasp.EntityList      as EL
-
 
 spec_parseWasp :: Spec
 spec_parseWasp =
@@ -35,6 +30,10 @@ spec_parseWasp =
                     [ WaspElementApp $ App
                         { appName = "test_app"
                         , appTitle = "Hello World!"
+                        }
+                    , WaspElementAuth $ Wasp.Auth.Auth
+                        { Wasp.Auth._userEntity = "User"
+                        , Wasp.Auth._methods = [Wasp.Auth.EmailAndPassword]
                         }
                     , WaspElementRoute $ R.Route
                         { R._urlPath = "/"
@@ -66,60 +65,6 @@ spec_parseWasp =
                                 \id          Int     @id @default(autoincrement())\n\
                             \    description String\n\
                             \    isDone      Boolean @default(false)"
-                        }
-                    , WaspElementEntity $ Entity
-                        { entityName = "Task"
-                        , entityFields =
-                            [ Wasp.EntityField "description" Wasp.EftString
-                            , Wasp.EntityField "isDone" Wasp.EftBoolean
-                            ]
-                        }
-                    , WaspElementEntityForm $ EF.EntityForm
-                        { EF._name = "CreateTaskForm"
-                        , EF._entityName = "Task"
-                        , EF._submit = Just EF.Submit
-                            { EF._onEnter = Just False
-                            , EF._submitButton = Just EF.SubmitButton
-                                { EF._submitButtonShow = Just True
-                                }
-                            }
-                        , EF._fields =
-                            [ EF.Field
-                                { EF._fieldName = "description"
-                                , EF._fieldShow = Just True
-                                , EF._fieldDefaultValue = Just $ EF.DefaultValueString "doable task"
-                                , EF._fieldLabel = Just Nothing
-                                , EF._fieldPlaceholder = Just "What will you do?"
-                                }
-                            , EF.Field
-                                { EF._fieldName = "isDone"
-                                , EF._fieldShow = Just False
-                                , EF._fieldDefaultValue = Just $ EF.DefaultValueBool False
-                                , EF._fieldLabel = Nothing
-                                , EF._fieldPlaceholder = Nothing
-                                }
-                            ]
-                        }
-                    , WaspElementEntityList $ EL.EntityList
-                        { EL._name = "TaskList"
-                        , EL._entityName = "Task"
-                        , EL._showHeader = Just False
-                        , EL._fields =
-                            [ EL.Field
-                                { EL._fieldName = "description"
-                                , EL._fieldRender = Just $ Wasp.JsCode.JsCode "task => task.description"
-                                }
-                            ]
-                        , EL._mutexFilters =
-                            [ EL.Filter
-                                { EL._filterName = "completed"
-                                , EL._filterPredicate = Wasp.JsCode.JsCode "task => task.isDone"
-                                }
-                            , EL.Filter
-                                { EL._filterName = "active"
-                                , EL._filterPredicate = Wasp.JsCode.JsCode "task => !task.isDone"
-                                }
-                            ]
                         }
                     , WaspElementQuery $  Wasp.Query.Query
                         { Wasp.Query._name = "myQuery"

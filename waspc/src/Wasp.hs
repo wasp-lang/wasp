@@ -49,6 +49,7 @@ import qualified ExternalCode
 import qualified Util                 as U
 import qualified Wasp.Action
 import           Wasp.App
+import qualified Wasp.Auth
 import           Wasp.EntityPSL
 import           Wasp.JsImport
 import           Wasp.NpmDependencies (NpmDependencies)
@@ -73,6 +74,7 @@ data Wasp = Wasp
 
 data WaspElement
     = WaspElementApp !App
+    | WaspElementAuth !Wasp.Auth.Auth
     | WaspElementPage !Page
     | WaspElementNpmDependencies !NpmDependencies
     | WaspElementRoute !Route

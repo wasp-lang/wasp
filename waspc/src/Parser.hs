@@ -10,6 +10,7 @@ import qualified Wasp
 import Lexer
 
 import Parser.App (app)
+import Parser.Auth (auth)
 import Parser.Route (route)
 import Parser.Page (page)
 import Parser.EntityPSL (entityPSL)
@@ -28,20 +29,24 @@ import qualified Parser.NpmDependencies
 waspElement :: Parser Wasp.WaspElement
 waspElement
     =   waspElementApp
+    <|> waspElementAuth
     <|> waspElementPage
     <|> waspElementRoute
     <|> waspElementEntityPSL
     <|> waspElementQuery
     <|> waspElementAction
+    <|> waspElementNpmDependencies
 
     -- TODO(matija): old Entity stuff, to be removed.
     <|> waspElementEntity
     <|> waspElementEntityForm
     <|> waspElementEntityList
-    <|> waspElementNpmDependencies
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
+
+waspElementAuth :: Parser Wasp.WaspElement
+waspElementAuth = Wasp.WaspElementAuth <$> auth
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page
