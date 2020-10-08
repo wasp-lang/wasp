@@ -37,9 +37,7 @@ authPropertyUserEntity :: Parser AuthProperty
 authPropertyUserEntity = AuthPropertyUserEntity <$> (P.waspProperty "userEntity" L.identifier)
 
 authPropertyMethods :: Parser AuthProperty
-authPropertyMethods = do
-    authMethods <- P.waspProperty "methods" (L.brackets $ L.commaSep1 authMethod)
-    return (AuthPropertyMethods authMethods)
+authPropertyMethods = AuthPropertyMethods <$> P.waspProperty "methods" (L.brackets $ L.commaSep1 authMethod)
 
 authMethod :: Parser Wasp.Auth.AuthMethod
 authMethod = L.symbol "EmailAndPassword" *> (pure Wasp.Auth.EmailAndPassword)
