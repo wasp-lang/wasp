@@ -4,6 +4,7 @@ module Generator.ServerGenerator.OperationsRoutesG
     ) where
 
 import           Data.Aeson                            (object, (.=))
+import qualified Data.Aeson                            as Aeson
 import           Data.Maybe                            (fromJust)
 import qualified Path                                  as P
 import qualified System.FilePath.Posix as FPPosix
@@ -20,6 +21,7 @@ import qualified Wasp
 import qualified Wasp.Action
 import qualified Wasp.Operation
 import qualified Wasp.Query
+import qualified Wasp.Auth
 
 
 genOperationsRoutes :: Wasp -> [FileDraft]
@@ -40,13 +42,21 @@ genQueryRoute wasp query = genOperationRoute wasp op tmplFile
           tmplFile = C.asTmplFile [P.relfile|src/routes/operations/_query.js|]
 
 genOperationRoute :: Wasp -> Wasp.Operation.Operation -> Path (Rel C.ServerTemplatesDir) File -> FileDraft
-genOperationRoute _ operation tmplFile = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genOperationRoute wasp operation tmplFile = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     dstFile = operationsRoutesDirInServerRootDir </> operationRouteFileInOperationsRoutesDir operation
-    tmplData = object
+
+    baseTmplData = object
         [ "operationImportPath" .= operationImportPath
         , "operationName" .= Wasp.Operation.getName operation
         ]
+
+    tmplData = case (Wasp.getAuth wasp) of
+        Nothing -> baseTmplData
+        Just auth -> U.jsonSet ("userEntityLower")
+                               (Aeson.toJSON (U.toLowerFirst $ Wasp.Auth._userEntity auth))
+                               baseTmplData
+
     operationImportPath = relPosixPathFromOperationsRoutesDirToSrcDir
         FPPosix.</> SP.toFilePath (SP.relFileToPosix' $ operationFileInSrcDir operation)
 

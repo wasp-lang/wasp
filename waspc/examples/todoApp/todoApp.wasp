@@ -2,6 +2,17 @@ app todoApp {
     title: "ToDo App"
 }
 
+auth {
+    userEntity: User,
+    methods: [ EmailAndPassword ]
+}
+
+entityPSL User {=psl
+    id          Int     @id @default(autoincrement())
+    email       String  @unique
+    password    String
+psl=}
+
 entityPSL Project {=psl
     id      Int     @id @default(autoincrement())
     name    String
@@ -19,6 +30,16 @@ entityPSL Task {=psl
     //project     Project @relation(fields: [projectId], references: [id])
     //projectId   Int
 psl=}
+
+route "/login" -> page Login
+page Login {
+    component: import Login from "@ext/pages/Login"
+}
+
+route "/signup" -> page Signup
+page Signup {
+    component: import Signup from "@ext/pages/Signup"
+}
 
 route "/" -> page Main
 page Main {
@@ -50,10 +71,16 @@ query getTasks {
 }
 
 query getTask {
-  fn: import { getTask } from "@ext/queries.js"
+  fn: import { getTask } from "@ext/queries.js",
+  entities: [Task]
 }
 
 // --------- Actions --------- //
+
+action signUp {
+  fn: import { signUp } from "@ext/actions.js",
+  entities: [User]
+}
 
 action createTask {
   fn: import { createTask } from "@ext/actions.js",

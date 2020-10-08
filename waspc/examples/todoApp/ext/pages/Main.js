@@ -1,17 +1,27 @@
-import React, { Component } from 'react'
+import React, { useState } from 'react'
 
+import { Link } from "react-router-dom"
+import useUser from '@wasp/auth/useUser.js'
+import logout from '@wasp/auth/logout.js'
 import Todo from "../Todo.js"
 
 import '../Main.css'
 
-export default class Main extends Component {
-  // TODO: Add propTypes.
+const Main = () => {
+  const { user } = useUser()
 
-  render() {
+  if (!user) {
     return (
-      <>
-        <Todo/>
-      </>
+      <span>
+        Please <Link to="/login">login</Link> or <Link to="/signup">sign up</Link>.
+      </span>
     )
+  } else {
+    return <>
+      <button onClick={logout}>Logout</button>
+      <Todo/>
+    </>
   }
 }
+
+export default Main
