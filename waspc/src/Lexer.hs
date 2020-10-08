@@ -25,6 +25,8 @@ reservedNameRoute = "route"
 reservedNameEntityPSL :: String
 reservedNameEntityPSL = "entityPSL"
 
+reservedNameAuth :: String
+reservedNameAuth = "auth"
 
 -- TODO(matija): old Entity stuff, to be removed.
 reservedNameEntity :: String
@@ -70,6 +72,7 @@ reservedNames =
     , reservedNamePage
     , reservedNameRoute
     , reservedNameEntityPSL
+    , reservedNameAuth
 
     -- TODO(matija): old entity stuff, to be removed.
     , reservedNameEntity
