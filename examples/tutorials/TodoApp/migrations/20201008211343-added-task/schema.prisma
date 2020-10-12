@@ -1,0 +1,17 @@
+
+datasource db {
+  provider = "sqlite"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../server/node_modules/.prisma/client"
+}
+
+model Task {
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+}
+

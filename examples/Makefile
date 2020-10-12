@@ -1,6 +1,6 @@
 
 .PHONY: buildTodoApp
-buildTodoApp: 
+buildTodoApp:
 	cd todoApp/out && npm install && npm run-script build
 
 .PHONY: deploy

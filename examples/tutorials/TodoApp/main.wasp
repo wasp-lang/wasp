@@ -1,0 +1,33 @@
+app TodoApp {
+  title: "TodoApp"
+}
+
+route "/" -> page Main
+page Main {
+  component: import Main from "@ext/MainPage.js"
+}
+
+entityPSL Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+psl=}
+
+query getTasks {
+  fn: import { getTasks } from "@ext/queries.js",
+  entities: [Task]
+}
+
+action createTask {
+  fn: import { createTask } from "@ext/actions.js",
+  entities: [Task]
+}
+
+action updateTask {
+  fn: import { updateTask } from "@ext/actions.js",
+  entities: [Task]
+}
+
+dependencies {=json
+  "react-clock": "3.0.0"
+json=}
