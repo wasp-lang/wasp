@@ -7,6 +7,8 @@ export const createTask = async ({ description }, context) => {
 export const updateTask = async (args, context) => {
   return context.entities.Task.update({
     where: { id: args.taskId },
-    data: args.data
+    data: {
+      isDone: args.data.isDone
+    }
   })
 }
