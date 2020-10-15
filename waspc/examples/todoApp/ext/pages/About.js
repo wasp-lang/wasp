@@ -1,15 +1,12 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-import { Link } from "react-router-dom"
+import { Link } from 'react-router-dom'
 
-export default class About extends Component {
-
-  render() {
-    return (
-      <>
-        <div>I am About page!</div>
-        <Link to="/">Go to dashboard</Link>
-      </>
-    )
-  }
+export default () => {
+  return (
+    <>
+      <div>I am About page!</div>
+      <Link to='/'>Go to dashboard</Link>
+    </>
+  )
 }

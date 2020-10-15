@@ -53,7 +53,7 @@ page About {
 
 route "/profile" -> page Profile
 page Profile {
-    component: import { profilePage } from "@ext/pages/ProfilePage"
+    component: import { ProfilePage } from "@ext/pages/ProfilePage"
 }
 
 // Page for viewing a specific task
