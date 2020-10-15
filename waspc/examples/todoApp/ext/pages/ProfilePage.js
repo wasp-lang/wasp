@@ -1,13 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-
-const profilePage = class Profile extends Component {
-
-  render() {
-    return (
-      <div>I am Profile page!</div>
-    )
-  }
+export const ProfilePage = () => {
+  return (
+    <div>I am Profile page!</div>
+  )
 }
-
-export { profilePage }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from "react-router-dom"
+import { Link } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks.js'
@@ -9,43 +9,78 @@ import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
 
 const Todo = (props) => {
-  const defaultNewTaskDescription = ''
-
-  const [newTaskDescription, setNewTaskDescription] = useState(defaultNewTaskDescription)
-
   const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
-
-  const isAnyTaskCompleted = () => tasks?.some(t => t.isDone)
 
   const isThereAnyTask = () => tasks?.length > 0
 
-
-  const createNewTask = async (description) => {
-    const task = { isDone: false, description }
-    await createTask(task)
+  const TasksError = (props) => {
+    return 'Error during fetching tasks: ' + (tasksError?.message || '')
   }
 
-  const handleNewTaskSubmit = async (event) => {
-    event.preventDefault()
+  return (
+    <div className='todos'>
+      <div className='todos__container'>
+        <h1> Todos </h1>
+
+        <div className='todos__toggleAndInput'>
+          <ToggleAllTasksButton disabled={!isThereAnyTask()} />
+          <NewTaskForm />
+        </div>
+
+        {isError && <TasksError />}
+
+        {isThereAnyTask() && (
+          <>
+            <Tasks tasks={tasks} />
+
+            <Footer tasks={tasks} />
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const Footer = (props) => {
+  const numCompletedTasks = props.tasks.filter(t => t.isDone).length
+  const numUncompletedTasks = props.tasks.filter(t => !t.isDone).length
+
+  const handleDeleteCompletedTasks = async () => {
     try {
-      await createNewTask(newTaskDescription)
-      setNewTaskDescription(defaultNewTaskDescription)
+      await deleteCompletedTasks()
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
     }
   }
 
-  const Tasks = (props) => {
-    return <div>
-      { props.tasks.map((task, idx) => <Task task={task} key={idx}/>) }
+  return (
+    <div className='todos__footer'>
+      <div className='todos__footer__itemsLeft'>
+        {numUncompletedTasks} items left
+      </div>
+
+      <div className='todos__footer__clearCompleted'>
+        <button
+          className={numCompletedTasks > 0 ? '' : 'hidden'}
+          onClick={handleDeleteCompletedTasks}
+        >
+          Delete completed
+        </button>
+      </div>
     </div>
-  }
+  )
+}
 
-  const TasksError = (props) => {
-    return 'Error during fetching tasks: ' + (tasksError?.message || '')
-  }
+const Tasks = (props) => {
+  return (
+    <div>
+      {props.tasks.map((task, idx) => <Task task={task} key={idx} />)}
+    </div>
+  )
+}
 
+const Task = (props) => {
   const handleTaskIsDoneChange = async (event) => {
     const taskId = parseInt(event.target.id)
     const newIsDoneVal = event.target.checked
@@ -58,27 +93,52 @@ const Todo = (props) => {
     }
   }
 
-  const Task = (props) => {
-    return <div>
+  return (
+    <div>
       <input
-        type="checkbox"
+        type='checkbox'
         id={props.task.id}
         checked={props.task.isDone}
         onChange={handleTaskIsDoneChange}
       />
-      <Link to={`/task/${props.task.id}`}> { props.task.description } </Link>
+      <Link to={`/task/${props.task.id}`}> {props.task.description} </Link>
     </div>
+  )
+}
+
+const NewTaskForm = (props) => {
+  const defaultDescription = ''
+  const [description, setDescription] = useState(defaultDescription)
+
+  const createNewTask = async (description) => {
+    const task = { isDone: false, description }
+    await createTask(task)
   }
 
-  const handleDeleteCompletedTasks = async () => {
+  const handleNewTaskSubmit = async (event) => {
+    event.preventDefault()
     try {
-      await deleteCompletedTasks()
+      await createNewTask(description)
+      setDescription(defaultDescription)
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
     }
   }
 
+  return (
+    <form onSubmit={handleNewTaskSubmit}>
+      <input
+        type='text'
+        value={description}
+        onChange={e => setDescription(e.target.value)}
+      />
+      <input type='submit' value='Create new task' />
+    </form>
+  )
+}
+
+const ToggleAllTasksButton = (props) => {
   const handleToggleAllTasks = async () => {
     try {
       await toggleAllTasks()
@@ -89,49 +149,12 @@ const Todo = (props) => {
   }
 
   return (
-    <div className="todos">
-      <div className="todos__container">
-        <h1> Todos </h1>
-
-        <div className="todos__toggleAndInput">
-          <button
-            disabled={!isThereAnyTask()}
-            onClick={handleToggleAllTasks}
-          >
-            ✓ 
-          </button>
-
-          <form onSubmit={handleNewTaskSubmit}>
-            <input type="text"
-                   value={newTaskDescription}
-                   onChange={e => setNewTaskDescription(e.target.value)}
-            />
-            <input type="submit" value="Create new task"/>
-          </form>
-        </div>
-
-        { isError && <TasksError/> }
-
-        { isThereAnyTask() && (<>
-          <Tasks tasks={tasks}/>
-
-          <div className="todos__footer">
-            <div className="todos__footer__itemsLeft">
-              { tasks.filter(t => !t.isDone).length } items left
-            </div>
-
-            <div className="todos__footer__clearCompleted">
-              <button
-                className={isAnyTaskCompleted() ? '' : 'hidden' }
-                onClick={handleDeleteCompletedTasks}
-              >
-                Delete completed
-              </button>
-            </div>
-          </div>
-        </>)}
-      </div>
-    </div>
+    <button
+      disabled={props.disabled}
+      onClick={handleToggleAllTasks}
+    >
+      ✓
+    </button>
   )
 }
 
