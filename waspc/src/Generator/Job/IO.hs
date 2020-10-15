@@ -6,6 +6,7 @@ import           System.Exit   (ExitCode (..))
 import           System.IO     (hPutStrLn, stderr, stdout)
 
 import qualified Generator.Job as J
+import qualified Util.Terminal as Term
 
 
 printJobMessage :: J.JobMessage -> IO ()
@@ -17,12 +18,12 @@ printJobMessage jobMsg = do
                     J.Stderr -> stderr
             J.JobExit _ -> stderr
     let prefix = case J._jobType jobMsg of
-            J.Server -> "\ESC[35mServer:\ESC[0m " -- Magenta
-            J.WebApp -> "\ESC[36mWeb app:\ESC[0m " -- Cyan
-            J.Db     -> "\ESC[37mDb:\ESC[0m " -- White
+            J.Server -> Term.applyStyles [Term.Magenta] "Server: "
+            J.WebApp -> Term.applyStyles [Term.Cyan] "Web app: "
+            J.Db     -> Term.applyStyles [Term.White] "Db: "
     let message = case J._data jobMsg of
             J.JobOutput output _ -> output
             J.JobExit ExitSuccess -> "Job exited successfully."
             J.JobExit (ExitFailure exitCode) -> "Job failed with exit code " ++ show exitCode
-    let outputLines = map (\l -> prefix ++ l) (lines message)
+    let outputLines = map (prefix ++) (lines message)
     mapM_ (hPutStrLn outHandle) outputLines

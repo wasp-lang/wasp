@@ -14,6 +14,7 @@ import StrongPath (Path, Rel, Dir, File)
 import qualified StrongPath as SP
 import ExternalCode (SourceExternalCodeDir)
 import qualified Generator.Common
+import qualified Util.Terminal as Term
 
 
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
@@ -34,4 +35,4 @@ extCodeDirInWaspProjectDir :: Path (Rel WaspProjectDir) (Dir SourceExternalCodeD
 extCodeDirInWaspProjectDir = SP.fromPathRelDir [P.reldir|ext|]
 
 waspSays :: String -> IO ()
-waspSays what = putStrLn $ "\ESC[33m{= Wasp =}\ESC[0m " ++ what -- Yellow
+waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
