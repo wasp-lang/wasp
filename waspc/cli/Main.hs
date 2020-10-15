@@ -33,7 +33,7 @@ printUsage = putStrLn $ unlines
     , "  db <commmand> [command-args]"
     , ""
     , "Examples:"
-    , "  wasp create MyApp"
+    , "  wasp new MyApp"
     , "  wasp start"
     ]
 
@@ -41,7 +41,7 @@ printUsage = putStrLn $ unlines
 dbCli :: [String] -> IO ()
 dbCli args = case args of
     ["migrate-save", migrationName] -> runCommand $ migrateSave migrationName
-    ["migrate-up"] -> runCommand $ migrateUp
+    ["migrate-up"] -> runCommand migrateUp
     _ -> printDbUsage
 
 printDbUsage :: IO ()

@@ -2,18 +2,19 @@ module Command.CreateNewProject
     ( createNewProject
     ) where
 
-import System.Directory (createDirectory, getCurrentDirectory)
-import qualified System.FilePath as FP
-import qualified Path as P
-import Text.Printf (printf)
-import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
+import           Control.Monad.Except   (throwError)
+import           Control.Monad.IO.Class (liftIO)
+import qualified Path                   as P
+import           System.Directory       (createDirectory, getCurrentDirectory)
+import qualified System.FilePath        as FP
+import           Text.Printf            (printf)
 
-import StrongPath (Path, Rel, File, (</>))
-import qualified StrongPath as SP
-import ExternalCode (SourceExternalCodeDir)
-import Command (Command, CommandError(..))
+import           Command                (Command, CommandError (..))
 import qualified Common
+import           ExternalCode           (SourceExternalCodeDir)
+import           StrongPath             (File, Path, Rel, (</>))
+import qualified StrongPath             as SP
+import qualified Util.Terminal          as Term
 
 
 createNewProject :: String -> Command ()
@@ -34,7 +35,16 @@ createNewProject projectName = do
         createDirectorySP extCodeDir
         writeFileSP (extCodeDir </> mainPageJsFileInExtCodeDir) mainPageJsFileContent
 
-    liftIO $ putStrLn $ "Created new Wasp project in ./" ++ projectName ++ " directory!"
+    liftIO $ do
+        putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp project in ./" ++ projectName ++ " directory!"
+        putStrLn $ "Move into created directory and type '"
+            ++ (Term.applyStyles [Term.Bold] "wasp start")
+            ++ "' to run the app."
+        putStrLn ""
+        putStrLn "Check the docs for any further information: https://wasp-lang.github.io/web/docs."
+        putStrLn $ "If you are new to Wasp, we recommend starting with Todo App tutorial:"
+            ++ " https://wasp-lang.github.io/web/docs/tutorials/todo-app."
+
   where
       mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
       mainWaspFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|main.wasp|]
