@@ -1,23 +1,24 @@
 {{={= =}=}}
 import jwt from 'jsonwebtoken'
-import SecurePassword from "secure-password"
-import Promise from 'bluebird'
+import SecurePassword from 'secure-password'
+import util from 'util'
 import Prisma from '@prisma/client'
+
+import { handleRejection } from '../utils.js'
 
 const prisma = new Prisma.PrismaClient()
 
-const jwtSign = Promise.promisify(jwt.sign)
-const jwtVerify = Promise.promisify(jwt.verify)
+const jwtSign = util.promisify(jwt.sign)
+const jwtVerify = util.promisify(jwt.verify)
 
-// TODO(matija): is this safe, to just define it here for start?
-// Let user somehow define this, ideally outside of the codebase, in some .env file.
-const JWT_SECRET = "someSecret"
+// TODO(matija): this is not safe, this value should come from some config file/environment
+// and shouldn't be commited to the version control.
+const JWT_SECRET = "developmentJwtSecret"
 
 export const sign = (id, options) => jwtSign({ id }, JWT_SECRET, options)
 export const verify = (token) => jwtVerify(token, JWT_SECRET)
 
-// TODO(matija): if this function throw an error, who handles it? Seems to be unhandled.
-const auth = async (req, res, next) => {
+const auth = handleRejection(async (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (!authHeader) {
     // NOTE(matija): for now we let tokenless requests through and make it operation's
@@ -43,7 +44,7 @@ const auth = async (req, res, next) => {
   }
 
   next()
-}
+})
 
 export const createNew{= userEntityUpper =} = async ({= userEntityLower =}Fields) => {
   const hashedPassword = await hashPassword({= userEntityLower =}Fields.password)

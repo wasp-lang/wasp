@@ -1,6 +1,6 @@
 {{={= =}=}}
 import Prisma from '@prisma/client'
-import SecurePassword from "secure-password"
+import SecurePassword from 'secure-password'
 
 import { sign, verifyPassword } from '../../core/auth.js'
 import { handleRejection } from '../../utils.js'

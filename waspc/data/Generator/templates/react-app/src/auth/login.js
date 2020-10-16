@@ -9,7 +9,9 @@ const login = async (email, password) => {
 
     setAuthToken(response.data.token)
 
-    // TODO(matija): We should invalidate only non-public queries.
+    // TODO(matija): Currently we are invalidating all the queries, but we should invalidate only
+    // non-public, user-dependent queries - public queries are expected not to change in respect
+    // to the currently logged in user.
     queryCache.invalidateQueries()
   } catch (error) {
     handleApiError(error)

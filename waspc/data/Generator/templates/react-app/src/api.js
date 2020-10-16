@@ -3,11 +3,9 @@ import config from './config'
 
 const api = axios.create({
   baseURL: config.apiUrl,
-  timeout: parseInt(process.env.REACT_APP_AXIOS_TIMEOUT) // Undefined is fine, will use default value.
 })
 
-// TODO(matija): this can be generated according to the app's name.
-const WASP_APP_AUTH_TOKEN_NAME = "waspAppAuthToken"
+const WASP_APP_AUTH_TOKEN_NAME = "authToken"
 
 let authToken = null
 if (window.localStorage) {
@@ -28,8 +26,6 @@ export const clearAuthToken = () => {
 }
 
 export const clearLocalStorage = () => {
-  // TODO(matija): this is a bit clumsy, we have this local variable so we also have to
-  // manage it, besides local storage. Can we get rid of it?
   authToken = undefined
 
   window.localStorage && window.localStorage.clear()
@@ -42,6 +38,11 @@ api.interceptors.request.use(request => {
   return request
 })
 
+/**
+ * Takes an error returned by the app's API (as returned by axios), and transforms into a more
+ * standard format to be further used by the client. It is also assumed that given API
+ * error has been formatted as implemented by HttpError on the server.
+ */
 export const handleApiError = (error) => {
   if (error?.response) {
     // If error came from HTTP response, we capture most informative message
