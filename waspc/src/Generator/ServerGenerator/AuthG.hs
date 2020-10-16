@@ -32,9 +32,9 @@ genCoreAuth auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> coreAuthRelToSrc
         dstFile = C.serverSrcDirInServerRootDir </> (C.asServerSrcFile coreAuthRelToSrc)
 
-        tmplData = object
-            [ "userEntityUpper" .= Wasp.Auth._userEntity auth
-            , "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
+        tmplData = let userEntity = (Wasp.Auth._userEntity auth) in object
+            [ "userEntityUpper" .= userEntity
+            , "userEntityLower" .= Util.toLowerFirst userEntity
             ]
 
 genAuthRoutesIndex :: FileDraft
@@ -47,9 +47,9 @@ genLoginRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> loginRouteRelToSrc
         dstFile = C.serverSrcDirInServerRootDir </> (C.asServerSrcFile loginRouteRelToSrc)
 
-        tmplData = object
-            [ "userEntityUpper" .= Wasp.Auth._userEntity auth
-            , "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
+        tmplData = let userEntity = (Wasp.Auth._userEntity auth) in object
+            [ "userEntityUpper" .= userEntity
+            , "userEntityLower" .= Util.toLowerFirst userEntity
             ]
 
 genMeRoute :: Wasp.Auth.Auth -> FileDraft

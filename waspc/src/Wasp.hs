@@ -141,7 +141,7 @@ getAuth wasp = let auths = [a | WaspElementAuth a <- waspElements wasp] in
     case auths of
         []  -> Nothing
         [a] -> Just a
-        _   -> error "Wasp has to contain exactly one WaspElementAuth element!"
+        _   -> error "Wasp can't contain more than one WaspElementAuth element!"
 
 -- * NpmDependencies
 
