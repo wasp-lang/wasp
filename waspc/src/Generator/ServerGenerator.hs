@@ -19,10 +19,8 @@ import qualified Generator.ServerGenerator.Common                as C
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import           Generator.ServerGenerator.OperationsG           (genOperations)
 import           Generator.ServerGenerator.OperationsRoutesG     (genOperationsRoutes)
+import           Generator.ServerGenerator.AuthG                 (genAuth)
 import qualified NpmDependency                                   as ND
-import           StrongPath                                      (File, Path,
-                                                                  Rel)
-import qualified StrongPath                                      as SP
 import           Wasp                                            (Wasp)
 import qualified Wasp
 import qualified Wasp.NpmDependencies                            as WND
@@ -68,6 +66,8 @@ waspNpmDeps = ND.fromList
     , ("express", "~4.16.1")
     , ("morgan", "~1.9.1")
     , ("@prisma/client", "2.x")
+    , ("jsonwebtoken", "^8.5.1")
+    , ("secure-password", "^4.0.0")
     ]
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
@@ -87,18 +87,16 @@ genGitignore _ = C.makeTemplateFD (asTmplFile [P.relfile|gitignore|])
                                   (asServerFile [P.relfile|.gitignore|])
                                   Nothing
 
-asTmplSrcFile :: P.Path P.Rel P.File -> Path (Rel C.ServerTemplatesSrcDir) File
-asTmplSrcFile = SP.fromPathRelFile
-
 genSrcDir :: Wasp -> [FileDraft]
 genSrcDir wasp = concat
-    [ [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|app.js|]]
-    , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|server.js|]]
-    , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|utils.js|]]
-    , [C.copySrcTmplAsIs $ asTmplSrcFile [P.relfile|core/HttpError.js|]]
+    [ [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|app.js|]]
+    , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|server.js|]]
+    , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|utils.js|]]
+    , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|core/HttpError.js|]]
     , genRoutesDir wasp
     , genOperationsRoutes wasp
     , genOperations wasp
+    , genAuth wasp
     ]
 
 genRoutesDir :: Wasp -> [FileDraft]

@@ -19,6 +19,7 @@ import qualified Generator.WebAppGenerator.EntityGenerator       as EntityGenera
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import           Generator.WebAppGenerator.OperationsGenerator   (genOperations)
 import qualified Generator.WebAppGenerator.RouterGenerator       as RouterGenerator
+import qualified Generator.WebAppGenerator.AuthG                 as AuthG
 import qualified NpmDependency                                   as ND
 import           StrongPath                                      (Dir, Path,
                                                                   Rel, (</>))
@@ -110,6 +111,7 @@ generateSrcDir wasp
     ++ EntityGenerator.generateEntities wasp
     ++ [generateReducersJs wasp]
     ++ genOperations wasp
+    ++ AuthG.genAuth wasp
   where
     generateLogo = C.makeTemplateFD (asTmplFile [P.relfile|src/logo.png|])
                                     (srcDir </> asWebAppSrcFile [P.relfile|logo.png|])

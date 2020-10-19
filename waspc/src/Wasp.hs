@@ -12,6 +12,7 @@ module Wasp
     , getApp
     , setApp
 
+    , getAuth
     , getPSLEntities
 
     -- TODO(matija): Old Entity stuff, to be removed.
@@ -132,6 +133,15 @@ setApp wasp app = wasp { waspElements = (WaspElementApp app) : (filter (not . is
 
 fromApp :: App -> Wasp
 fromApp app = fromWaspElems [WaspElementApp app]
+
+-- * Auth
+
+getAuth :: Wasp -> Maybe Wasp.Auth.Auth
+getAuth wasp = let auths = [a | WaspElementAuth a <- waspElements wasp] in 
+    case auths of
+        []  -> Nothing
+        [a] -> Just a
+        _   -> error "Wasp can't contain more than one WaspElementAuth element!"
 
 -- * NpmDependencies
 

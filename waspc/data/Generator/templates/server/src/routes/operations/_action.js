@@ -6,7 +6,12 @@ import {= operationName =} from "{= operationImportPath =}"
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
-  const context = {}
+
+  const context = {
+    {=# userEntityLower =}
+    user: req.user
+    {=/ userEntityLower =}
+  }
   const result = await {= operationName =}(args, context)
   res.json(result)
 })

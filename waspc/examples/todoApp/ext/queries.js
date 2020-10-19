@@ -2,6 +2,11 @@ import HttpError from '@wasp/core/HttpError.js'
 
 
 export const getTasks = async (args, context) => {
+  if (!context.user) {
+    throw new HttpError(403)
+  }
+  console.log('user who made the query: ', context.user)
+
   const Task = context.entities.Task
   /*
   if (Math.random() < 0.5) {
@@ -15,7 +20,12 @@ export const getTasks = async (args, context) => {
 }
 
 export const getTask = async ({ id }, context) => {
-  const task = await prisma.task.findOne({ where: { id } })
+  if (!context.user) {
+    throw new HttpError(403)
+  }
+
+  const Task = context.entities.Task
+  const task = await Task.findOne({ where: { id } })
 
   return task
 }

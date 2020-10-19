@@ -8,7 +8,9 @@ module Generator.ServerGenerator.Common
     , copySrcTmplAsIs
     , srcDirInServerTemplatesDir
     , asTmplFile
+    , asTmplSrcFile
     , asServerFile
+    , asServerSrcFile
     , ServerRootDir
     , ServerSrcDir
     , ServerTemplatesDir
@@ -35,9 +37,14 @@ data ServerTemplatesSrcDir
 asTmplFile :: P.Path P.Rel P.File -> Path (Rel ServerTemplatesDir) File
 asTmplFile = SP.fromPathRelFile
 
+asTmplSrcFile :: P.Path P.Rel P.File -> Path (Rel ServerTemplatesSrcDir) File
+asTmplSrcFile = SP.fromPathRelFile
+
 asServerFile :: P.Path P.Rel P.File -> Path (Rel ServerRootDir) File
 asServerFile = SP.fromPathRelFile
 
+asServerSrcFile :: P.Path P.Rel P.File -> Path (Rel ServerSrcDir) File
+asServerSrcFile = SP.fromPathRelFile
 
 -- * Paths
 

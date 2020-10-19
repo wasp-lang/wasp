@@ -12,7 +12,13 @@ export default handleRejection(async (req, res) => {
     So for now we are just going with POST that has JSON in the body -> generated code is not
     as human-like as it should be though. =}
   const args = req.body || {}
-  const context = {}
+
+  const context = {
+    {=# userEntityLower =}
+    user: req.user
+    {=/ userEntityLower =}
+  }
+
   const result = await {= operationName =}(args, context)
   res.json(result)
 })

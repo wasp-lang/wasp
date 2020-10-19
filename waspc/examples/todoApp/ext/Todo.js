@@ -19,6 +19,7 @@ const Todo = (props) => {
 
   const isThereAnyTask = () => tasks?.length > 0
 
+
   const createNewTask = async (description) => {
     const task = { isDone: false, description }
     await createTask(task)
