@@ -29,16 +29,16 @@ const auth = handleRejection(async (req, res, next) => {
 
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7, authHeader.length)
-    const {= userEntityLower =}IdFromToken = (await verify(token)).id
+    const userIdFromToken = (await verify(token)).id
 
-    const {= userEntityLower =} = await prisma.{= userEntityLower =}.findOne({ where: { id: {= userEntityLower =}IdFromToken } })
-    if (!{= userEntityLower =}) {
+    const user = await prisma.{= userEntityLower =}.findOne({ where: { id: userIdFromToken } })
+    if (!user) {
       return res.status(401).send()
     }
 
-    const { password, ...{= userEntityLower =}View } = {= userEntityLower =}
+    const { password, ...userView } = user
 
-    req.{= userEntityLower =} = {= userEntityLower =}View
+    req.user = userView
   } else {
     return res.status(401).send()
   }
@@ -46,17 +46,17 @@ const auth = handleRejection(async (req, res, next) => {
   next()
 })
 
-export const createNew{= userEntityUpper =} = async ({= userEntityLower =}Fields) => {
-  const hashedPassword = await hashPassword({= userEntityLower =}Fields.password)
+export const createNewUser = async (userFields) => {
+  const hashedPassword = await hashPassword(userFields.password)
 
-  const new{= userEntityUpper =} = await prisma.{= userEntityLower =}.create({
+  const newUser = await prisma.{= userEntityLower =}.create({
     data: {
-      ...{= userEntityLower =}Fields,
+      ...userFields,
       password: hashedPassword
     },
   })
 
-  return new{= userEntityUpper =}
+  return newUser
 }
 
 const SP = new SecurePassword()

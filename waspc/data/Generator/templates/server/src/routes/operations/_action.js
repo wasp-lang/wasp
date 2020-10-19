@@ -9,7 +9,7 @@ export default handleRejection(async (req, res) => {
 
   const context = {
     {=# userEntityLower =}
-    {= userEntityLower =}: req.{= userEntityLower =}
+    user: req.user
     {=/ userEntityLower =}
   }
   const result = await {= operationName =}(args, context)

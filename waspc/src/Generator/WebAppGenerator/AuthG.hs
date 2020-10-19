@@ -3,12 +3,8 @@ module Generator.WebAppGenerator.AuthG
     ) where
 
 import qualified Path as P
-import           Data.Aeson (object, (.=))
-import           Data.Maybe (fromJust)
 
-import qualified Util
 import Wasp (Wasp, getAuth)
-import qualified Wasp.Auth
 import Generator.FileDraft (FileDraft)
 import Generator.WebAppGenerator.Common as C
 
