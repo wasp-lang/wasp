@@ -14,10 +14,10 @@ import Generator.WebAppGenerator.Common as C
 
 genAuth :: Wasp -> [FileDraft]
 genAuth wasp = case maybeAuth of
-    Just auth -> [ genApi
+    Just _    -> [ genApi
                  , genLogin
                  , genLogout
-                 , genUseUser auth
+                 , genUseAuth
                  ]
     Nothing   -> []
     where
@@ -38,6 +38,14 @@ genLogout = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/logout.js|])
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
+genUseAuth :: FileDraft
+genUseAuth = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/useAuth.js|])
+
+
+{-
+-- | Generates React hook that Wasp developer can use in a component to get
+--   access to the currently logged in user (and check whether user is logged in
+--   ot not).
 genUseUser :: Wasp.Auth.Auth -> FileDraft
 genUseUser auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
     where
@@ -50,4 +58,4 @@ genUseUser auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 
         getUseUserDstFileName :: Wasp.Auth.Auth -> Maybe (P.Path P.Rel P.File)
         getUseUserDstFileName a = P.parseRelFile ("use" ++ (Wasp.Auth._userEntity a) ++ ".js")
-
+-}

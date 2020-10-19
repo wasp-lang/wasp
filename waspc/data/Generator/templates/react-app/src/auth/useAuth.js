@@ -1,4 +1,3 @@
-{{={= =}=}}
 import { useQuery } from '../queries'
 import config from '../config.js'
 import api, { setAuthToken, handleApiError } from '../api.js'
@@ -18,20 +17,8 @@ const getMe = async () => {
 }
 getMe.queryCacheKey = 'auth/me'
 
-const use{= userEntity =} = () => {
-  const {
-    data: {= userEntityLower =},
-    refetch: refetch{= userEntity =},
-    isFetching: isFetching{= userEntity =}, 
-  } = useQuery(getMe)
-
-  return {
-    {= userEntityLower =},
-    refetch{= userEntity =},
-    isFetching{= userEntity =}
-  }
+const useAuth = (queryFnArgs, config) => {
+  return useQuery(getMe, queryFnArgs, config)
 }
 
-export default use{= userEntity =}
-
-
+export default useAuth
