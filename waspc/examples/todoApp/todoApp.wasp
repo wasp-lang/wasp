@@ -11,24 +11,15 @@ entityPSL User {=psl
     id          Int     @id @default(autoincrement())
     email       String  @unique
     password    String
-psl=}
-
-entityPSL Project {=psl
-    id      Int     @id @default(autoincrement())
-    name    String
-
-    // NOTE(matija): not using relations yet.
-    //tasks   Task[]
+    tasks       Task[]
 psl=}
 
 entityPSL Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
-
-    // NOTE(matija): not using relations yet.
-    //project     Project @relation(fields: [projectId], references: [id])
-    //projectId   Int
+    user        User    @relation(fields: [userId], references: [id])
+    userId      Int
 psl=}
 
 route "/login" -> page Login
