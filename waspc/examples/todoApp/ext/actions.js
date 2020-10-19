@@ -11,15 +11,12 @@ export const createTask = async (task, context) => {
   }
 
   const Task = context.entities.Task
-  /*
-  if (Math.random() < 0.5) {
-    throw new HttpError(400, 'Failed to create task, random error!')
-  }
-  */
-
   return Task.create({
     data: {
-      description: task.description
+      description: task.description,
+      user: {
+        connect: { id: context.user.id }
+      }
     }
   })
 }
@@ -30,8 +27,8 @@ export const updateTaskIsDone = async ({ taskId, newIsDoneVal }, context) => {
   }
 
   const Task = context.entities.Task
-  return Task.update({
-    where: { id: taskId },
+  return Task.updateMany({
+    where: { id: taskId, user: { id: context.user.id } },
     data: { isDone: newIsDoneVal }
   })
 }
@@ -43,7 +40,7 @@ export const deleteCompletedTasks = async (args, context) => {
 
   const Task = context.entities.Task
   await Task.deleteMany({
-    where: { isDone: true }
+    where: { isDone: true, user: { id: context.user.id } }
   })
 }
 
@@ -52,12 +49,13 @@ export const toggleAllTasks = async (args, context) => {
     throw new HttpError(403)
   }
 
+  const whereIsDone = isDone => ({ isDone, user: { id: context.user.id } })
   const Task = context.entities.Task
-  const notDoneTasksCount = await Task.count({ where: { isDone: false } })
+  const notDoneTasksCount = await Task.count({ where: whereIsDone(false) })
 
   if (notDoneTasksCount > 0) {
-    await Task.updateMany({ where: { isDone: false }, data: { isDone: true } })
+    await Task.updateMany({ where: whereIsDone(false), data: { isDone: true } })
   } else {
-    await Task.updateMany({ data: { isDone: false } })
+    await Task.updateMany({ where: whereIsDone(true), data: { isDone: false } })
   }
 }

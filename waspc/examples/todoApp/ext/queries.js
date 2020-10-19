@@ -7,14 +7,9 @@ export const getTasks = async (args, context) => {
   console.log('user who made the query: ', context.user)
 
   const Task = context.entities.Task
-  /*
-  if (Math.random() < 0.5) {
-    throw new HttpError(400, 'Random error: getting tasks failed.')
-  }
-  */
-
-  const tasks = await Task.findMany({})
-
+  const tasks = await Task.findMany(
+    { where: { user: { id: context.user.id } } }
+  )
   return tasks
 }
 
@@ -24,7 +19,8 @@ export const getTask = async ({ id }, context) => {
   }
 
   const Task = context.entities.Task
-  const task = await Task.findOne({ where: { id } })
-
+  const task = await Task.findOne(
+    { where: { id, user: { id: context.user.id } } }
+  )
   return task
 }
