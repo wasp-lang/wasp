@@ -79,15 +79,13 @@ While the idea is to support multiple web tech stacks in the future, right now w
 
 Any way you want to contribute is a good way :)!
 
-Since we are so early, the best way might be to join us on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) to discuss how you could contribute the best, and we can also discuss about language design, new features, how to improve existing code, what do you think about Wasp in general, anything really.
+Best place to start is to check out [waspc/](waspc/), where you can find detailed steps for the first time contributors + technical details about the Wasp compiler.
 
-Even if you don't plan to submit any code, just joining discussion and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+Even if you don't plan to submit any code, just joining discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
  - :star: Star this repo to show your interest/support.
  - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
-
-For more technical details on building and contributing to `waspc` check [waspc/](waspc/).
 
 # FAQ
 
