@@ -3,6 +3,7 @@ module Main where
 import System.Environment
 
 import Command (runCommand)
+import Command.Db (runDbCommand)
 import Command.CreateNewProject (createNewProject)
 import Command.Start (start)
 import Command.Clean (clean)
@@ -40,8 +41,8 @@ printUsage = putStrLn $ unlines
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-    ["migrate-save", migrationName] -> runCommand $ migrateSave migrationName
-    ["migrate-up"] -> runCommand migrateUp
+    ["migrate-save", migrationName] -> runDbCommand $ migrateSave migrationName
+    ["migrate-up"] -> runDbCommand migrateUp
     _ -> printDbUsage
 
 printDbUsage :: IO ()
