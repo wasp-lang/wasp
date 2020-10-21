@@ -10,7 +10,9 @@ import qualified Path                                            as P
 import           CompileOptions                                  (CompileOptions)
 import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
 import           Generator.FileDraft
-import           Generator.PackageJsonGenerator                  (resolveNpmDeps, toPackageJsonDependenciesString)
+import           Generator.PackageJsonGenerator                  (resolveNpmDeps,
+                                                                  toPackageJsonDependenciesString)
+import qualified Generator.WebAppGenerator.AuthG                 as AuthG
 import           Generator.WebAppGenerator.Common                (asTmplFile,
                                                                   asWebAppFile,
                                                                   asWebAppSrcFile)
@@ -18,12 +20,9 @@ import qualified Generator.WebAppGenerator.Common                as C
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import           Generator.WebAppGenerator.OperationsGenerator   (genOperations)
 import qualified Generator.WebAppGenerator.RouterGenerator       as RouterGenerator
-import qualified Generator.WebAppGenerator.AuthG                 as AuthG
 import qualified NpmDependency                                   as ND
 import           StrongPath                                      (Dir, Path,
                                                                   Rel, (</>))
-import qualified StrongPath                                      as SP
-import qualified Util
 import           Wasp
 import qualified Wasp.NpmDependencies                            as WND
 
@@ -60,17 +59,13 @@ genPackageJson wasp waspDeps = C.makeTemplateFD
 
 waspNpmDeps :: [ND.NpmDependency]
 waspNpmDeps = ND.fromList
-    [ ("@material-ui/core", "^4.9.1")
-    , ("@reduxjs/toolkit", "^1.2.3")
-    , ("axios", "^0.20.0")
+    [ ("axios", "^0.20.0")
     , ("lodash", "^4.17.15")
     , ("react", "^16.12.0")
     , ("react-dom", "^16.12.0")
     , ("react-query", "^2.14.1")
-    , ("react-redux", "^7.1.3")
     , ("react-router-dom", "^5.1.2")
     , ("react-scripts", "3.4.0")
-    , ("redux", "^4.0.5")
     , ("uuid", "^3.4.0")
     ]
 
@@ -102,12 +97,9 @@ generateSrcDir wasp
         [ [P.relfile|index.js|]
         , [P.relfile|index.css|]
         , [P.relfile|serviceWorker.js|]
-        , [P.relfile|store/index.js|]
-        , [P.relfile|store/middleware/logger.js|]
         , [P.relfile|config.js|]
         , [P.relfile|queryCache.js|]
         ]
-    ++ [generateReducersJs wasp]
     ++ genOperations wasp
     ++ AuthG.genAuth wasp
   where
@@ -117,13 +109,3 @@ generateSrcDir wasp
     makeSimpleSrcTemplateFD path = C.makeTemplateFD (asTmplFile $ [P.reldir|src|] P.</> path)
                                                     (srcDir </> asWebAppSrcFile path)
                                                     (Just $ toJSON wasp)
-
--- TODO: Remove this
-generateReducersJs :: Wasp -> FileDraft
-generateReducersJs wasp = C.makeTemplateFD tmplPath dstPath (Just templateData)
-  where
-    tmplPath = asTmplFile [P.relfile|src/reducers.js|]
-    dstPath = srcDir </> asWebAppSrcFile [P.relfile|reducers.js|]
-    templateData = object
-        [ "wasp" .= wasp
-        ]

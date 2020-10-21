@@ -1,25 +1,18 @@
 {{={= =}=}}
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
 import { ReactQueryCacheProvider } from 'react-query'
 
 import router from './router'
-import { configureStore } from './store'
 import queryCache from './queryCache'
-import { rootReducer } from './reducers'
 import * as serviceWorker from './serviceWorker'
 
 import './index.css'
 
 
-const store = configureStore(rootReducer)
-
 ReactDOM.render(
   <ReactQueryCacheProvider queryCache={queryCache}>
-    <Provider store={store}>
-      { router }
-    </Provider>
+    { router }
   </ReactQueryCacheProvider>,
   document.getElementById('root')
 )
