@@ -65,8 +65,15 @@ You can pass more arguments by just adding them to the command, e.g.: `stack exe
 ### Run example app
 Position yourself in `waspc/examples/todoApp/` and run
 ```
+stack exec wasp db migrate-up
+```
+to update database schema (this is done only on schema changes).
+
+Then,
+```
 stack exec wasp start
 ```
+to run web app in development mode.
 
 If you are doing this for the very first time, it might take a minutes or so to download and install npm dependencies.
 
