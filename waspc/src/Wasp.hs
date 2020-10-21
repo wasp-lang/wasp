@@ -42,7 +42,7 @@ import qualified Util                 as U
 import qualified Wasp.Action
 import           Wasp.App
 import qualified Wasp.Auth
-import           Wasp.EntityPSL
+import           Wasp.Entity
 import           Wasp.JsImport
 import           Wasp.NpmDependencies (NpmDependencies)
 import qualified Wasp.NpmDependencies
@@ -65,7 +65,7 @@ data WaspElement
     | WaspElementPage !Page
     | WaspElementNpmDependencies !NpmDependencies
     | WaspElementRoute !Route
-    | WaspElementEntityPSL !Wasp.EntityPSL.EntityPSL
+    | WaspElementEntity !Wasp.Entity.Entity
     | WaspElementQuery !Wasp.Query.Query
     | WaspElementAction !Wasp.Action.Action
     deriving (Show, Eq)
@@ -183,8 +183,8 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 
 -- * Entities
 
-getPSLEntities :: Wasp -> [Wasp.EntityPSL.EntityPSL]
-getPSLEntities wasp = [entityPSL | (WaspElementEntityPSL entityPSL) <- (waspElements wasp)]
+getPSLEntities :: Wasp -> [Wasp.Entity.Entity]
+getPSLEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
 
 
 -- * ToJSON instances.

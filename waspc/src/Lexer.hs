@@ -22,8 +22,8 @@ reservedNamePage = "page"
 reservedNameRoute :: String
 reservedNameRoute = "route"
 
-reservedNameEntityPSL :: String
-reservedNameEntityPSL = "entityPSL"
+reservedNameEntity :: String
+reservedNameEntity = "entity"
 
 reservedNameAuth :: String
 reservedNameAuth = "auth"
@@ -60,7 +60,7 @@ reservedNames =
     , reservedNameDependencies
     , reservedNamePage
     , reservedNameRoute
-    , reservedNameEntityPSL
+    , reservedNameEntity
     , reservedNameAuth
     , reservedNameQuery
     , reservedNameAction
