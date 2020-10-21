@@ -6,7 +6,6 @@ import System.FilePath ((</>))
 import qualified Path as P
 
 import qualified StrongPath as SP
-import Util
 import qualified CompileOptions
 import Generator.WebAppGenerator
 import Generator.FileDraft
@@ -48,11 +47,8 @@ spec_WebAppGenerator = do
                       [ "logo.png"
                       , "index.css"
                       , "index.js"
-                      , "reducers.js"
                       , "router.js"
                       , "serviceWorker.js"
-                      , "store" </> "index.js"
-                      , "store" </> "middleware" </> "logger.js"
                       ]
                     ]
 
