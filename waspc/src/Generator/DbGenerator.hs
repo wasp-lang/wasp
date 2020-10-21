@@ -11,7 +11,7 @@ import StrongPath (Path, Rel, File, Dir, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
-import Wasp.EntityPSL (EntityPSL)
+import Wasp.Entity (Entity)
 import CompileOptions (CompileOptions)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Generator.Common (ProjectRootDir)
@@ -42,7 +42,7 @@ genDb wasp _ =
     [ genPrismaSchema $ Wasp.getPSLEntities wasp
     ]
 
-genPrismaSchema :: [EntityPSL] -> FileDraft
+genPrismaSchema :: [Entity] -> FileDraft
 genPrismaSchema entities = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
     where
         dstPath = dbSchemaFileInProjectRootDir

@@ -37,7 +37,7 @@ query getTasks {
   fn: import { getTasks } from "@ext/queries.js"
 }
 
-entityPSL Task {=psl
+entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)

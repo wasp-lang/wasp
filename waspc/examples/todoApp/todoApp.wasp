@@ -7,14 +7,14 @@ auth {
     methods: [ EmailAndPassword ]
 }
 
-entityPSL User {=psl
+entity User {=psl
     id          Int     @id @default(autoincrement())
     email       String  @unique
     password    String
     tasks       Task[]
 psl=}
 
-entityPSL Task {=psl
+entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)

@@ -8,7 +8,7 @@ import           NpmDependency        as ND
 import           Parser
 import qualified StrongPath           as SP
 import           Wasp
-import qualified Wasp.EntityPSL
+import qualified Wasp.Entity
 import qualified Wasp.Auth
 import qualified Wasp.JsImport
 import qualified Wasp.NpmDependencies
@@ -59,9 +59,9 @@ spec_parseWasp =
                             , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Test|]
                             }
                         }
-                    , WaspElementEntityPSL $ Wasp.EntityPSL.EntityPSL
-                        { Wasp.EntityPSL._name = "Task"
-                        , Wasp.EntityPSL._pslModelSchema = "\
+                    , WaspElementEntity $ Wasp.Entity.Entity
+                        { Wasp.Entity._name = "Task"
+                        , Wasp.Entity._pslModelSchema = "\
                                 \id          Int     @id @default(autoincrement())\n\
                             \    description String\n\
                             \    isDone      Boolean @default(false)"

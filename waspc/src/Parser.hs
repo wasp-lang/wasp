@@ -13,7 +13,7 @@ import Parser.App (app)
 import Parser.Auth (auth)
 import Parser.Route (route)
 import Parser.Page (page)
-import Parser.EntityPSL (entityPSL)
+import Parser.Entity (entity)
 
 import Parser.JsImport (jsImport)
 import Parser.Common (runWaspParser)
@@ -27,7 +27,7 @@ waspElement
     <|> waspElementAuth
     <|> waspElementPage
     <|> waspElementRoute
-    <|> waspElementEntityPSL
+    <|> waspElementEntity
     <|> waspElementQuery
     <|> waspElementAction
     <|> waspElementNpmDependencies
@@ -44,8 +44,8 @@ waspElementPage = Wasp.WaspElementPage <$> page
 waspElementRoute :: Parser Wasp.WaspElement
 waspElementRoute = Wasp.WaspElementRoute <$> route
 
-waspElementEntityPSL :: Parser Wasp.WaspElement
-waspElementEntityPSL = Wasp.WaspElementEntityPSL <$> entityPSL
+waspElementEntity :: Parser Wasp.WaspElement
+waspElementEntity = Wasp.WaspElementEntity <$> entity
 
 
 waspElementQuery :: Parser Wasp.WaspElement

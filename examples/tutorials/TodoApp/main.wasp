@@ -7,7 +7,7 @@ page Main {
   component: import Main from "@ext/MainPage.js"
 }
 
-entityPSL Task {=psl
+entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
