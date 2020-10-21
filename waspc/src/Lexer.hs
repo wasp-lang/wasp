@@ -28,17 +28,6 @@ reservedNameEntityPSL = "entityPSL"
 reservedNameAuth :: String
 reservedNameAuth = "auth"
 
--- TODO(matija): old Entity stuff, to be removed.
-reservedNameEntity :: String
-reservedNameEntity = "entity"
-
-reservedNameEntityForm :: String
-reservedNameEntityForm = "entity-form"
-
-reservedNameEntityList :: String
-reservedNameEntityList = "entity-list"
-
-
 reservedNameQuery :: String
 reservedNameQuery = "query"
 
@@ -73,11 +62,6 @@ reservedNames =
     , reservedNameRoute
     , reservedNameEntityPSL
     , reservedNameAuth
-
-    -- TODO(matija): old entity stuff, to be removed.
-    , reservedNameEntity
-    , reservedNameEntityForm
-
     , reservedNameQuery
     , reservedNameAction
     -- * Data types
