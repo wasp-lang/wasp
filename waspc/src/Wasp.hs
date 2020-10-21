@@ -15,15 +15,6 @@ module Wasp
     , getAuth
     , getPSLEntities
 
-    -- TODO(matija): Old Entity stuff, to be removed.
-    , module Wasp.Entity
-    , getEntities
-    , addEntity
-    , getEntityByName
-
-    , getEntityFormsForEntity
-    , getEntityListsForEntity
-
     , module Wasp.Page
     , getPages
     , addPage
@@ -59,11 +50,6 @@ import           Wasp.Page
 import qualified Wasp.Query
 import           Wasp.Route
 
--- TODO(matija): old Entity stuff, to be removed
-import           Wasp.Entity
-import qualified Wasp.EntityForm      as EF
-import qualified Wasp.EntityList      as EL
-
 
 -- * Wasp
 
@@ -82,12 +68,6 @@ data WaspElement
     | WaspElementEntityPSL !Wasp.EntityPSL.EntityPSL
     | WaspElementQuery !Wasp.Query.Query
     | WaspElementAction !Wasp.Action.Action
-
-    -- TODO(matija): old Entity stuff, to be removed
-    | WaspElementEntity !Entity
-    | WaspElementEntityForm !EF.EntityForm
-    | WaspElementEntityList !EL.EntityList
-
     deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -206,36 +186,6 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 getPSLEntities :: Wasp -> [Wasp.EntityPSL.EntityPSL]
 getPSLEntities wasp = [entityPSL | (WaspElementEntityPSL entityPSL) <- (waspElements wasp)]
 
-
--- TODO(matija): old Entity stuff, to be removed
-getEntities :: Wasp -> [Entity]
-getEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
-
--- | Gets entity with a specified name from wasp, if such an entity exists.
--- Entity name must be unique, so there can be no more than one such entity.
-getEntityByName :: Wasp -> String -> Maybe Entity
-getEntityByName wasp name = U.headSafe $ filter (\e -> entityName e == name) (getEntities wasp)
-
-addEntity :: Wasp -> Entity -> Wasp
-addEntity wasp entity = wasp { waspElements = (WaspElementEntity entity):(waspElements wasp) }
-
--- * EntityForm
-
--- | Retrieves all entity forms for a given entity from a Wasp record.
-getEntityFormsForEntity :: Wasp -> Entity -> [EF.EntityForm]
-getEntityFormsForEntity wasp entity = filter isFormOfGivenEntity allEntityForms
-    where
-        allEntityForms = [entityForm | (WaspElementEntityForm entityForm) <- waspElements wasp]
-        isFormOfGivenEntity ef = entityName entity == EF._entityName ef
-
--- * EntityList
-
--- | Retrieves all entity lists for a given entity from a Wasp record.
-getEntityListsForEntity :: Wasp -> Entity -> [EL.EntityList]
-getEntityListsForEntity wasp entity = filter isListOfGivenEntity allEntityLists
-    where
-        allEntityLists = [entityList | (WaspElementEntityList entityList) <- waspElements wasp]
-        isListOfGivenEntity el = entityName entity == EL._entityName el
 
 -- * ToJSON instances.
 

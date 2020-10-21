@@ -23,8 +23,7 @@ import Fixtures (fpRoot)
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
     let testApp = (App "TestApp" "Test App")
-    let testEntity = (Entity "TestEntity" [EntityField "testField" EftString])
-    let testWasp = (fromApp testApp) `addEntity` testEntity
+    let testWasp = (fromApp testApp)
     let testCompileOptions = CompileOptions.CompileOptions
             { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ fpRoot P.</> [P.reldir|test/src|]
             }
@@ -35,8 +34,6 @@ spec_WebAppGenerator = do
         --   destinations are correct.
         it "Given a simple Wasp, creates file drafts at expected destinations" $ do
             let fileDrafts = generateWebApp testWasp testCompileOptions
-            let testEntityDstDirInSrc
-                    = "entities" </> (Util.camelToKebabCase (entityName testEntity))
             let expectedFileDraftDstPaths = map ((SP.toFilePath Common.webAppRootDirInProjectRootDir) </>) $ concat $
                     [ [ "README.md"
                       , "package.json"
@@ -56,9 +53,6 @@ spec_WebAppGenerator = do
                       , "serviceWorker.js"
                       , "store" </> "index.js"
                       , "store" </> "middleware" </> "logger.js"
-                      , testEntityDstDirInSrc </> "actions.js"
-                      , testEntityDstDirInSrc </> "actionTypes.js"
-                      , testEntityDstDirInSrc </> "state.js"
                       ]
                     ]
 

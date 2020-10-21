@@ -15,7 +15,6 @@ import           Generator.WebAppGenerator.Common                (asTmplFile,
                                                                   asWebAppFile,
                                                                   asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common                as C
-import qualified Generator.WebAppGenerator.EntityGenerator       as EntityGenerator
 import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import           Generator.WebAppGenerator.OperationsGenerator   (genOperations)
 import qualified Generator.WebAppGenerator.RouterGenerator       as RouterGenerator
@@ -108,7 +107,6 @@ generateSrcDir wasp
         , [P.relfile|config.js|]
         , [P.relfile|queryCache.js|]
         ]
-    ++ EntityGenerator.generateEntities wasp
     ++ [generateReducersJs wasp]
     ++ genOperations wasp
     ++ AuthG.genAuth wasp
@@ -120,6 +118,7 @@ generateSrcDir wasp
                                                     (srcDir </> asWebAppSrcFile path)
                                                     (Just $ toJSON wasp)
 
+-- TODO: Remove this
 generateReducersJs :: Wasp -> FileDraft
 generateReducersJs wasp = C.makeTemplateFD tmplPath dstPath (Just templateData)
   where
@@ -127,10 +126,4 @@ generateReducersJs wasp = C.makeTemplateFD tmplPath dstPath (Just templateData)
     dstPath = srcDir </> asWebAppSrcFile [P.relfile|reducers.js|]
     templateData = object
         [ "wasp" .= wasp
-        , "entities" .= map toEntityData (getEntities wasp)
-        ]
-    toEntityData entity = object
-        [ "entity" .= entity
-        , "entityLowerName" .= Util.toLowerFirst (entityName entity)
-        , "entityStatePath" .= ("./" ++ SP.toFilePath (EntityGenerator.entityStatePathInSrc entity))
         ]
