@@ -9,6 +9,12 @@ generator client {
   output = "../server/node_modules/.prisma/client"
 }
 
+model User {
+    id          Int     @id @default(autoincrement())
+    email       String  @unique
+    password    String
+}
+
 model Task {
     id          Int     @id @default(autoincrement())
     description String

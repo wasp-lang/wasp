@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+import useAuth from '@wasp/auth/useAuth.js'
 
+import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
@@ -8,6 +11,11 @@ import Clocks from './Clocks'
 
 const MainPage = () => {
   const { data: tasks, isFetching, error } = useQuery(getTasks)
+
+  const { data: user } = useAuth()
+  if (!user) {
+    return <span> Please <Link to='/auth'>log in</Link>. </span>
+  }
 
   return (
     <div>
@@ -19,6 +27,8 @@ const MainPage = () => {
 
       {isFetching && 'Fetching...'}
       {error && 'Error: ' + error}
+
+      <button onClick={logout}> Logout </button>
     </div>
   )
 }
@@ -39,7 +49,7 @@ const Task = (props) => {
     <div>
       <input
         type='checkbox' id={props.task.id}
-        checked={props.task.isDone} readonly
+        checked={props.task.isDone} readOnly
         onChange={handleIsDoneChange}
       />
       {props.task.description}

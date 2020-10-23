@@ -2,20 +2,44 @@ app TodoApp {
   title: "TodoApp"
 }
 
+auth {
+    userEntity: User,
+    methods: [ EmailAndPassword ]
+}
+
 route "/" -> page Main
 page Main {
   component: import Main from "@ext/MainPage.js"
 }
 
+route "/auth" -> page Auth
+page Auth {
+  component: import Auth from "@ext/AuthPage.js"
+}
+
+entity User {=psl
+    id          Int     @id @default(autoincrement())
+    email       String  @unique
+    password    String
+    tasks       Task[]
+psl=}
+
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
     isDone      Boolean @default(false)
+    user        User?    @relation(fields: [userId], references: [id])
+    userId      Int?
 psl=}
 
 query getTasks {
   fn: import { getTasks } from "@ext/queries.js",
   entities: [Task]
+}
+
+action signUp {
+  fn: import { signUp } from "@ext/actions.js",
+  entities: [User]
 }
 
 action createTask {
