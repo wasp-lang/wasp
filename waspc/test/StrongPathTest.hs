@@ -213,22 +213,15 @@ spec_StrongPath = do
         let tests relDirParser relFileParser absDirParser absFileParser root = do
                 test (relDirParser "a/b") (relFileParser "c.txt") (relFileParser "a/b/c.txt")
                 test (relDirParser "a/b") (relFileParser "../c.txt") (relFileParser "a/c.txt")
-                -- I can't figure out why are these test below failing! Path tests show that Path behaves as it should,
-                -- and all the other parts also seem to behave ok, so what is causing the problem!?
-                -- TODO: fails on Win, for Posix standard: expected: RelFileP "c.txt" (ParentDir 2) but got: RelFileP "./c.txt" (ParentDir 2)
                 test (relDirParser "..") (relFileParser "../c.txt") (relFileParser "../../c.txt")
-                -- TODO: fails on Win, for Posix standard: expected: RelDirP "./" (ParentDir 2) but got: RelDirP "././" (ParentDir 2)
                 test (relDirParser "..") (relDirParser "..") (relDirParser "../..")
-                -- TODO: fails on Win, for Posix standard: expected: RelDirP "a/" (ParentDir 1) but got: RelDirP "./a/" (ParentDir 1)
                 test (relDirParser ".") (relDirParser "../a") (relDirParser "../a")
-                -- TODO: fails on Win, for Posix standard: expected: RelDirP "./" NoPrefix but got: RelDirP "././" NoPrefix
                 test (relDirParser ".") (relDirParser ".") (relDirParser ".")
                 test (relDirParser "a/b") (relDirParser "c/d") (relDirParser "a/b/c/d")
                 test (relDirParser "../a/b") (relDirParser "c/d") (relDirParser "../a/b/c/d")
                 test (absDirParser $ root ++ "a/b") (relFileParser "c.txt") (absFileParser $ root ++ "a/b/c.txt")
                 test (absDirParser $ root ++ "a/b") (relFileParser "../c.txt") (absFileParser $ root ++ "a/c.txt")
                 test (absDirParser $ root ++ "a") (relDirParser "../b") (absDirParser $ root ++ "b")
-                -- TODO: fails on Win, for Posix standard: expected: AbsDirP "/" "but got: AbsDirP "/./"
                 test (absDirParser $ root ++ "a/b") (relDirParser "../../../") (absDirParser root)
         describe "when standard is System" $
             tests parseRelDir parseRelFile parseAbsDir parseAbsFile systemFpRoot
@@ -255,6 +248,10 @@ spec_Path = do
         test [P.reldir|a|] [P.reldir|.|] [P.reldir|a|]
         test [P.reldir|.|] [P.reldir|a|] [P.reldir|a|]
         test [P.reldir|.|] [P.relfile|c.txt|] [P.relfile|c.txt|]
+
+    -- NOTE: All of the failing Path tests are due to the badly implemented Include mechanism in Path.
+    --   I made a PR for fix on Path, so when that gets in we can uncomment these tests and also remove
+    --   workarounds in StrongPath / StrongPath.Internal.
 
     -- describe "Concatenation of Win . paths works as expected" $ do
     --     let test lp rp ep =
