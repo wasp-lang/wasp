@@ -12,8 +12,10 @@ import qualified System.FilePath.Windows as FPW
 
 import           Fixtures                (systemFpRoot, systemPathRoot)
 import           StrongPath
+import           StrongPath.Internal     (RelPathPrefix (..),
+                                          extractRelPathPrefix,
+                                          relPathNumParentDirs)
 import           Test.Util               (posixToSystemFp, posixToWindowsFp)
-
 
 data Bar
 data Fizz
@@ -214,7 +216,7 @@ spec_StrongPath = do
                 -- I can't figure out why are these test below failing! Path tests show that Path behaves as it should,
                 -- and all the other parts also seem to behave ok, so what is causing the problem!?
                 -- TODO: fails on Win, for Posix standard: expected: RelFileP "c.txt" (ParentDir 2) but got: RelFileP "./c.txt" (ParentDir 2)
-                test (relDirParser "..") (relFileParser "../c.txt") (relFileParser "../../c.txt") 
+                test (relDirParser "..") (relFileParser "../c.txt") (relFileParser "../../c.txt")
                 -- TODO: fails on Win, for Posix standard: expected: RelDirP "./" (ParentDir 2) but got: RelDirP "././" (ParentDir 2)
                 test (relDirParser "..") (relDirParser "..") (relDirParser "../..")
                 -- TODO: fails on Win, for Posix standard: expected: RelDirP "a/" (ParentDir 1) but got: RelDirP "./a/" (ParentDir 1)
