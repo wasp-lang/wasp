@@ -1,7 +1,7 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 module StrongPath
     ( Path, Path'
-    , Abs, Rel, Dir, File
+    , Abs, Rel, Dir, File, File'
     , System, Windows, Posix
 
     , parseRelDir, parseRelFile, parseAbsDir, parseAbsFile
@@ -54,9 +54,7 @@ import           StrongPath.Internal
 
 -- TODO: If there is no other solution to all this duplication, do some template haskell magic to simplify it.
 
--- TODO: Add support for named/typed files, same as Dir is now.
-
--- TODO: Redo the types naming: Normal types should be Path Rel Dir File, while shortened ones should be
+-- TODO: Redo the types naming? Normal types should be Path Rel Dir File, while shortened ones should be
 --   Path' Rel' Dir' File'.
 --   This means that Path' is alias for Path System, Rel' for Rel (), Dir' for Dir (), File' for File ().
 
@@ -81,17 +79,17 @@ import           StrongPath.Internal
 --     but Path.Windows.Rel and Path.Posix.Rel (and same for Abs/Dir/File) are not the same,
 --     because they are done via Include mechanism.
 fromPathRelDir   :: P.Path  P.Rel  P.Dir   -> Path' System  (Rel a) (Dir b)
-fromPathRelFile  :: P.Path  P.Rel  P.File  -> Path' System  (Rel a) File
+fromPathRelFile  :: P.Path  P.Rel  P.File  -> Path' System  (Rel a) (File' f)
 fromPathAbsDir   :: P.Path  P.Abs  P.Dir   -> Path' System  Abs     (Dir a)
-fromPathAbsFile  :: P.Path  P.Abs  P.File  -> Path' System  Abs     File
+fromPathAbsFile  :: P.Path  P.Abs  P.File  -> Path' System  Abs     (File' f)
 fromPathRelDirW  :: PW.Path PW.Rel PW.Dir  -> Path' Windows (Rel a) (Dir b)
-fromPathRelFileW :: PW.Path PW.Rel PW.File -> Path' Windows (Rel a) File
+fromPathRelFileW :: PW.Path PW.Rel PW.File -> Path' Windows (Rel a) (File' f)
 fromPathAbsDirW  :: PW.Path PW.Abs PW.Dir  -> Path' Windows Abs     (Dir a)
-fromPathAbsFileW :: PW.Path PW.Abs PW.File -> Path' Windows Abs     File
+fromPathAbsFileW :: PW.Path PW.Abs PW.File -> Path' Windows Abs     (File' f)
 fromPathRelDirP  :: PP.Path PP.Rel PP.Dir  -> Path' Posix   (Rel a) (Dir b)
-fromPathRelFileP :: PP.Path PP.Rel PP.File -> Path' Posix   (Rel a) File
+fromPathRelFileP :: PP.Path PP.Rel PP.File -> Path' Posix   (Rel a) (File' f)
 fromPathAbsDirP  :: PP.Path PP.Abs PP.Dir  -> Path' Posix   Abs     (Dir a)
-fromPathAbsFileP :: PP.Path PP.Abs PP.File -> Path' Posix   Abs     File
+fromPathAbsFileP :: PP.Path PP.Abs PP.File -> Path' Posix   Abs     (File' f)
 ---- System
 fromPathRelDir p  = RelDir p NoPrefix
 fromPathRelFile p  = RelFile p NoPrefix
@@ -108,23 +106,22 @@ fromPathRelFileP p = RelFileP p NoPrefix
 fromPathAbsDirP  = AbsDirP
 fromPathAbsFileP = AbsFileP
 
-
 -- TODO: Should I go with MonadThrow here instead of just throwing error? Probably!
 --       I could, as error, return actual Path + info on how many ../ were there in StrongPath,
 --       so user can recover from error and continue, if they wish.
 -- Deconstructors
-toPathRelDir   :: Path' System  (Rel a) (Dir b) -> P.Path  P.Rel  P.Dir
-toPathRelFile  :: Path' System  (Rel a) File    -> P.Path  P.Rel  P.File
-toPathAbsDir   :: Path' System  Abs     (Dir a) -> P.Path  P.Abs  P.Dir
-toPathAbsFile  :: Path' System  Abs     File    -> P.Path  P.Abs  P.File
-toPathRelDirW  :: Path' Windows (Rel a) (Dir b) -> PW.Path PW.Rel PW.Dir
-toPathRelFileW :: Path' Windows (Rel a) File    -> PW.Path PW.Rel PW.File
-toPathAbsDirW  :: Path' Windows Abs     (Dir a) -> PW.Path PW.Abs PW.Dir
-toPathAbsFileW :: Path' Windows Abs     File    -> PW.Path PW.Abs PW.File
-toPathRelDirP  :: Path' Posix   (Rel a) (Dir b) -> PP.Path PP.Rel PP.Dir
-toPathRelFileP :: Path' Posix   (Rel a) File    -> PP.Path PP.Rel PP.File
-toPathAbsDirP  :: Path' Posix   Abs     (Dir a) -> PP.Path PP.Abs PP.Dir
-toPathAbsFileP :: Path' Posix   Abs     File    -> PP.Path PP.Abs PP.File
+toPathRelDir   :: Path' System  (Rel a) (Dir b)   -> P.Path  P.Rel  P.Dir
+toPathRelFile  :: Path' System  (Rel a) (File' f) -> P.Path  P.Rel  P.File
+toPathAbsDir   :: Path' System  Abs     (Dir a)   -> P.Path  P.Abs  P.Dir
+toPathAbsFile  :: Path' System  Abs     (File' f) -> P.Path  P.Abs  P.File
+toPathRelDirW  :: Path' Windows (Rel a) (Dir b)   -> PW.Path PW.Rel PW.Dir
+toPathRelFileW :: Path' Windows (Rel a) (File' f) -> PW.Path PW.Rel PW.File
+toPathAbsDirW  :: Path' Windows Abs     (Dir a)   -> PW.Path PW.Abs PW.Dir
+toPathAbsFileW :: Path' Windows Abs     (File' f) -> PW.Path PW.Abs PW.File
+toPathRelDirP  :: Path' Posix   (Rel a) (Dir b)   -> PP.Path PP.Rel PP.Dir
+toPathRelFileP :: Path' Posix   (Rel a) (File' f) -> PP.Path PP.Rel PP.File
+toPathAbsDirP  :: Path' Posix   Abs     (Dir a)   -> PP.Path PP.Abs PP.Dir
+toPathAbsFileP :: Path' Posix   Abs     (File' f) -> PP.Path PP.Abs PP.File
 ---- System
 toPathRelDir (RelDir p NoPrefix) = p
 toPathRelDir (RelDir _ _)        = relativeStrongPathWithPrefixToPathError
@@ -177,17 +174,17 @@ relativeStrongPathWithPrefixToPathError =
 --        that can be Posix besides being System (but e.g. root can't be Posix).
 --        Win/Posix* is analogous to System/Posix*.
 parseRelDir   :: MonadThrow m => FilePath -> m (Path' System  (Rel d1) (Dir d2))
-parseRelFile  :: MonadThrow m => FilePath -> m (Path' System  (Rel d)  File)
+parseRelFile  :: MonadThrow m => FilePath -> m (Path' System  (Rel d)  (File' f))
 parseAbsDir   :: MonadThrow m => FilePath -> m (Path' System  Abs      (Dir d))
-parseAbsFile  :: MonadThrow m => FilePath -> m (Path' System  Abs      File)
+parseAbsFile  :: MonadThrow m => FilePath -> m (Path' System  Abs      (File' f))
 parseRelDirW  :: MonadThrow m => FilePath -> m (Path' Windows (Rel d1) (Dir d2))
-parseRelFileW :: MonadThrow m => FilePath -> m (Path' Windows (Rel d)  File)
+parseRelFileW :: MonadThrow m => FilePath -> m (Path' Windows (Rel d)  (File' f))
 parseAbsDirW  :: MonadThrow m => FilePath -> m (Path' Windows Abs      (Dir d))
-parseAbsFileW :: MonadThrow m => FilePath -> m (Path' Windows Abs      File)
+parseAbsFileW :: MonadThrow m => FilePath -> m (Path' Windows Abs      (File' f))
 parseRelDirP  :: MonadThrow m => FilePath -> m (Path' Posix   (Rel d1) (Dir d2))
-parseRelFileP :: MonadThrow m => FilePath -> m (Path' Posix   (Rel d)  File)
+parseRelFileP :: MonadThrow m => FilePath -> m (Path' Posix   (Rel d)  (File' f))
 parseAbsDirP  :: MonadThrow m => FilePath -> m (Path' Posix   Abs      (Dir d))
-parseAbsFileP :: MonadThrow m => FilePath -> m (Path' Posix   Abs      File)
+parseAbsFileP :: MonadThrow m => FilePath -> m (Path' Posix   Abs      (File' f))
 ---- System
 parseRelDir  = parseRelFP RelDir [FP.pathSeparator, FPP.pathSeparator] P.parseRelDir
 parseRelFile = parseRelFP RelFile [FP.pathSeparator, FPP.pathSeparator] P.parseRelFile
@@ -243,29 +240,29 @@ toFilePath sp = case sp of
 -- These functions just call toFilePath, but their value is in
 -- their type: they allow you to capture expected type of the strong path
 -- that you want to convert into FilePath.
-fromRelDir   :: Path' System  (Rel r) (Dir d) -> FilePath
+fromRelDir   :: Path' System  (Rel r) (Dir d)   -> FilePath
 fromRelDir   = toFilePath
-fromRelFile  :: Path' System  (Rel r) File    -> FilePath
+fromRelFile  :: Path' System  (Rel r) (File' f) -> FilePath
 fromRelFile  = toFilePath
-fromAbsDir   :: Path' System  Abs     (Dir d) -> FilePath
+fromAbsDir   :: Path' System  Abs     (Dir d)   -> FilePath
 fromAbsDir   = toFilePath
-fromAbsFile  :: Path' System  Abs     File    -> FilePath
+fromAbsFile  :: Path' System  Abs     (File' f) -> FilePath
 fromAbsFile  = toFilePath
-fromRelDirP  :: Path' Posix   (Rel r) (Dir d) -> FilePath
+fromRelDirP  :: Path' Posix   (Rel r) (Dir d)   -> FilePath
 fromRelDirP  = toFilePath
-fromRelFileP :: Path' Posix   (Rel r) File    -> FilePath
+fromRelFileP :: Path' Posix   (Rel r) (File' f) -> FilePath
 fromRelFileP = toFilePath
-fromAbsDirP  :: Path' Posix   Abs     (Dir d) -> FilePath
+fromAbsDirP  :: Path' Posix   Abs     (Dir d)   -> FilePath
 fromAbsDirP  = toFilePath
-fromAbsFileP :: Path' Posix   Abs     File    -> FilePath
+fromAbsFileP :: Path' Posix   Abs     (File' f) -> FilePath
 fromAbsFileP = toFilePath
-fromRelDirW  :: Path' Windows (Rel r) (Dir d) -> FilePath
+fromRelDirW  :: Path' Windows (Rel r) (Dir d)   -> FilePath
 fromRelDirW  = toFilePath
-fromRelFileW :: Path' Windows (Rel r) File    -> FilePath
+fromRelFileW :: Path' Windows (Rel r) (File' f) -> FilePath
 fromRelFileW = toFilePath
-fromAbsDirW  :: Path' Windows Abs     (Dir d) -> FilePath
+fromAbsDirW  :: Path' Windows Abs     (Dir d)   -> FilePath
 fromAbsDirW  = toFilePath
-fromAbsFileW :: Path' Windows Abs     File    -> FilePath
+fromAbsFileW :: Path' Windows Abs     (File' f) -> FilePath
 fromAbsFileW = toFilePath
 
 -- | Either removes last entry or if there are no entries and just "../"s, adds one more "../".
@@ -394,7 +391,7 @@ relDirToPosix sp@(RelDir _ _)  = parseRelDirP $ FPP.joinPath $ FP.splitDirectori
 relDirToPosix sp@(RelDirW _ _) = parseRelDirP $ FPP.joinPath $ FPW.splitDirectories $ toFilePath sp
 relDirToPosix (RelDirP p pr)   = return $ RelDirP p pr
 relDirToPosix _                = impossible
-relFileToPosix :: MonadThrow m => Path' s (Rel d1) File -> m (Path' Posix (Rel d1) File)
+relFileToPosix :: MonadThrow m => Path' s (Rel d1) (File' f) -> m (Path' Posix (Rel d1) (File' f))
 relFileToPosix sp@(RelFile _ _)  = parseRelFileP $ FPP.joinPath $ FP.splitDirectories $ toFilePath sp
 relFileToPosix sp@(RelFileW _ _) = parseRelFileP $ FPP.joinPath $ FPW.splitDirectories $ toFilePath sp
 relFileToPosix (RelFileP p pr)   = return $ RelFileP p pr
@@ -403,5 +400,5 @@ relFileToPosix _                 = impossible
 -- Unsafe versions:
 relDirToPosix' :: Path' s (Rel d1) (Dir d2) -> Path' Posix (Rel d1) (Dir d2)
 relDirToPosix' = fromJust . relDirToPosix
-relFileToPosix' :: Path' s (Rel d1) File -> Path' Posix (Rel d1) File
+relFileToPosix' :: Path' s (Rel d1) (File' f) -> Path' Posix (Rel d1) (File' f)
 relFileToPosix' = fromJust . relFileToPosix

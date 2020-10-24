@@ -39,7 +39,9 @@ data Rel dir
 
 -- | type
 data Dir dir
-data File
+data File' file
+
+type File = File' ()
 
 -- | standard
 data System -- Depends on the platform, it is either Posix or Windows.
