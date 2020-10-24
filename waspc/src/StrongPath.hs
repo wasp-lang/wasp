@@ -3,15 +3,23 @@ module StrongPath
     ( Path, Path'
     , Abs, Rel, Dir, File
     , System, Windows, Posix
+
     , parseRelDir, parseRelFile, parseAbsDir, parseAbsFile
     , parseRelDirW, parseRelFileW, parseAbsDirW, parseAbsFileW
     , parseRelDirP, parseRelFileP, parseAbsDirP, parseAbsFileP
+
     , fromPathRelDir, fromPathRelFile, fromPathAbsDir, fromPathAbsFile
     , fromPathRelDirW, fromPathRelFileW, fromPathAbsDirW, fromPathAbsFileW
     , fromPathRelDirP, fromPathRelFileP, fromPathAbsDirP, fromPathAbsFileP
+
     , toPathRelDir, toPathRelFile, toPathAbsDir, toPathAbsFile
     , toPathRelDirW, toPathRelFileW, toPathAbsDirW, toPathAbsFileW
     , toPathRelDirP, toPathRelFileP, toPathAbsDirP, toPathAbsFileP
+
+    , fromRelDir, fromRelFile, fromAbsDir, fromAbsFile
+    , fromRelDirP, fromRelFileP, fromAbsDirP, fromAbsFileP
+    , fromRelDirW, fromRelFileW, fromAbsDirW, fromAbsFileW
+
     , toFilePath
     , (</>)
     , castRel
@@ -263,9 +271,6 @@ extractRelPathPrefix validSeparators path =
         | otherwise                 = (0, p)
 
 
--- TODO: In Path, they have type constrained versions of toFilePath that work for
---   specific path type: fromAbsDir, fromRelDir, ... -> we could add smth similar.
-
 toFilePath :: Path' s b t -> FilePath
 toFilePath sp = case sp of
     ---- System
@@ -301,13 +306,41 @@ toFilePath sp = case sp of
         | path `elem` [".", ['.', sep], "./"] && not (null prefix) = prefix
     combinePrefixWithPath _ prefix path = prefix ++ path
 
+-- These functions just call toFilePath, but their value is in
+-- their type: they allow you to capture expected type of the strong path
+-- that you want to convert into FilePath.
+fromRelDir   :: Path' System  (Rel r) (Dir d) -> FilePath
+fromRelDir   = toFilePath
+fromRelFile  :: Path' System  (Rel r) File    -> FilePath
+fromRelFile  = toFilePath
+fromAbsDir   :: Path' System  Abs     (Dir d) -> FilePath
+fromAbsDir   = toFilePath
+fromAbsFile  :: Path' System  Abs     File    -> FilePath
+fromAbsFile  = toFilePath
+fromRelDirP  :: Path' Posix   (Rel r) (Dir d) -> FilePath
+fromRelDirP  = toFilePath
+fromRelFileP :: Path' Posix   (Rel r) File    -> FilePath
+fromRelFileP = toFilePath
+fromAbsDirP  :: Path' Posix   Abs     (Dir d) -> FilePath
+fromAbsDirP  = toFilePath
+fromAbsFileP :: Path' Posix   Abs     File    -> FilePath
+fromAbsFileP = toFilePath
+fromRelDirW  :: Path' Windows (Rel r) (Dir d) -> FilePath
+fromRelDirW  = toFilePath
+fromRelFileW :: Path' Windows (Rel r) File    -> FilePath
+fromRelFileW = toFilePath
+fromAbsDirW  :: Path' Windows Abs     (Dir d) -> FilePath
+fromAbsDirW  = toFilePath
+fromAbsFileW :: Path' Windows Abs     File    -> FilePath
+fromAbsFileW = toFilePath
+
 -- | Either removes last entry or if there are no entries and just "../"s, adds one more "../".
 --   If path is absolute root and it has no parent, it will return unchanged path, same like Path.
 parent :: Path' s b t -> Path' s b (Dir d)
 parent path = case path of
     ---- System
     RelDir p prefix   -> relDirPathParent RelDir P.parent p prefix
-    RelFile p prefix  ->  RelDir (P.parent p) prefix
+    RelFile p prefix  -> RelDir (P.parent p) prefix
     AbsDir p          -> AbsDir $ P.parent p
     AbsFile p         -> AbsDir $ P.parent p
     ---- Windows
@@ -490,7 +523,6 @@ relDirToPosix' :: Path' s (Rel d1) (Dir d2) -> Path' Posix (Rel d1) (Dir d2)
 relDirToPosix' = fromJust . relDirToPosix
 relFileToPosix' :: Path' s (Rel d1) File -> Path' Posix (Rel d1) File
 relFileToPosix' = fromJust . relFileToPosix
-
 
 relPathNumParentDirs :: Path' s (Rel r) t -> Int
 relPathNumParentDirs = prefixNumParentDirs . relPathPrefix
