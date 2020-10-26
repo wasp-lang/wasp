@@ -1,5 +1,5 @@
 app TodoApp {
-  title: "TodoApp"
+  title: "Todo app"
 }
 
 auth {
