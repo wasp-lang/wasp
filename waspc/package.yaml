@@ -2,7 +2,7 @@
 # Cabal file when you run `stack build`. See the hpack website for help with
 # this file: <https://github.com/sol/hpack>.
 name:                waspc
-version:             0.1.0.0
+version:             0.1.2.0
 github:              "Martinsos/waspc"
 #license:             BSD3
 author:              "wasp-lang"
