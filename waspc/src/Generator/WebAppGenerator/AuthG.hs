@@ -10,18 +10,13 @@ import Generator.WebAppGenerator.Common as C
 
 genAuth :: Wasp -> [FileDraft]
 genAuth wasp = case maybeAuth of
-    Just _    -> [ genApi
-                 , genLogin
+    Just _    -> [ genLogin
                  , genLogout
                  , genUseAuth
                  ]
     Nothing   -> []
     where
         maybeAuth = getAuth wasp
-
--- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
-genApi :: FileDraft
-genApi = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/api.js|])
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: FileDraft
