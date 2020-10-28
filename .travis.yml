@@ -1,13 +1,13 @@
+# This ensures only commits on master, PRs towards master, and all tags are built.
+# Otherwise, build does not start.
+if: branch = master OR tag IS present
+
 os:
   - linux
   - osx
 
 # Do not choose a language; we provide our own build tools.
 language: generic
-
-branches:
-  only:
-    - master # This will still build PRs.
 
 # Caching so the next build will be fast too.
 cache:
