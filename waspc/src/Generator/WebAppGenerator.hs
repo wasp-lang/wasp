@@ -89,10 +89,19 @@ generatePublicDir wasp =
 srcDir :: Path (Rel C.WebAppRootDir) (Dir C.WebAppSrcDir)
 srcDir = C.webAppSrcDirInWebAppRootDir
 
+-- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
+-- although they are not used anywhere outside.
+-- We could further "templatize" this file so only what is needed is generated.
+--
+-- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
+genApi :: FileDraft
+genApi = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/api.js|])
+
 generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp
     = generateLogo
       : RouterGenerator.generateRouter wasp
+      : genApi
       : map makeSimpleSrcTemplateFD
         [ [P.relfile|index.js|]
         , [P.relfile|index.css|]
