@@ -4,6 +4,7 @@ module Generator.ServerGenerator
     ) where
 
 import           Data.Aeson                                      (object, (.=))
+import           Data.Maybe                                      (isJust)
 import           Data.List                                       (intercalate)
 import qualified Path                                            as P
 
@@ -21,7 +22,7 @@ import           Generator.ServerGenerator.OperationsG           (genOperations)
 import           Generator.ServerGenerator.OperationsRoutesG     (genOperationsRoutes)
 import           Generator.ServerGenerator.AuthG                 (genAuth)
 import qualified NpmDependency                                   as ND
-import           Wasp                                            (Wasp)
+import           Wasp                                            (Wasp, getAuth)
 import qualified Wasp
 import qualified Wasp.NpmDependencies                            as WND
 
@@ -100,13 +101,17 @@ genSrcDir wasp = concat
     ]
 
 genRoutesDir :: Wasp -> [FileDraft]
-genRoutesDir _ =
+genRoutesDir wasp =
     -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
     -- but I did not bother with it yet since it is used only here for now.
     [ C.makeTemplateFD
         (asTmplFile [P.relfile|src/routes/index.js|])
         (asServerFile [P.relfile|src/routes/index.js|])
-        (Just $ object [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter ])
+        (Just $ object 
+            [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter 
+            , "isAuthEnabled" .= (isJust $ getAuth wasp)
+            ]
+        )
     ]
 
 operationsRouteInRootRouter :: String
