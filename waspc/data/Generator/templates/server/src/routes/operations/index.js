@@ -1,7 +1,9 @@
 {{={= =}=}}
 import express from 'express'
 
+{=# isAuthEnabled =}
 import auth from '../../core/auth.js'
+{=/ isAuthEnabled =}
 
 {=# operationRoutes =}
 import {= importIdentifier =} from '{= importPath =}'
@@ -9,7 +11,9 @@ import {= importIdentifier =} from '{= importPath =}'
 
 const router = express.Router()
 
+{=# isAuthEnabled =}
 router.use(auth)
+{=/ isAuthEnabled =}
 
 {=# operationRoutes =}
 router.post('{= routePath =}', {= importIdentifier =})

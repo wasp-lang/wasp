@@ -5,7 +5,7 @@ module Generator.ServerGenerator.OperationsRoutesG
 
 import           Data.Aeson                            (object, (.=))
 import qualified Data.Aeson                            as Aeson
-import           Data.Maybe                            (fromJust)
+import           Data.Maybe                            (fromJust, isJust)
 import qualified Path                                  as P
 import qualified System.FilePath.Posix as FPPosix
 
@@ -16,7 +16,7 @@ import           StrongPath                            (Dir, File, Path, Rel,
                                                         (</>))
 import qualified StrongPath                            as SP
 import qualified Util                                  as U
-import           Wasp                                  (Wasp)
+import           Wasp                                  (Wasp, getAuth)
 import qualified Wasp
 import qualified Wasp.Action
 import qualified Wasp.Operation
@@ -85,6 +85,7 @@ genOperationsRouter wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
                  ++ map Wasp.Operation.QueryOp (Wasp.getQueries wasp)
     tmplData = object
         [ "operationRoutes" .= map makeOperationRoute operations
+        , "isAuthEnabled" .= (isJust $ getAuth wasp)
         ]
     makeOperationRoute operation =
         let operationName = Wasp.Operation.getName operation
