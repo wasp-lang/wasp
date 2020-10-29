@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Generator.Job.Process
     ( runProcessAsJob
     , runNodeCommandAsJob
@@ -5,44 +7,54 @@ module Generator.Job.Process
 
 import           Control.Concurrent       (writeChan)
 import           Control.Concurrent.Async (Concurrently (..))
-import qualified Data.ByteString.Char8 as BS
-import           Data.Conduit          (runConduit, (.|))
-import qualified Data.Conduit.List     as CL
-import qualified Data.Conduit.Process  as CP
-import           System.Exit           (ExitCode (..))
-import qualified System.Process        as P
-import           Text.Read             (readMaybe)
-import qualified Text.Regex.TDFA       as R
+import           Control.Exception        (bracket)
+import qualified Data.ByteString.Char8    as BS
+import           Data.Conduit             (runConduit, (.|))
+import qualified Data.Conduit.List        as CL
+import qualified Data.Conduit.Process     as CP
+import           System.Exit              (ExitCode (..))
+import qualified System.Process           as P
+import           Text.Read                (readMaybe)
+import qualified Text.Regex.TDFA          as R
 
-import qualified Generator.Common      as C
-import qualified Generator.Job         as J
-import           StrongPath            (Abs, Dir, Path)
-import qualified StrongPath            as SP
+import qualified Generator.Common         as C
+import qualified Generator.Job            as J
+import           StrongPath               (Abs, Dir, Path)
+import qualified StrongPath               as SP
 
 
 -- | Runs a given process while streaming its stderr and stdout to provided channel.
 --   Returns exit code of the process once it finishes, and also sends it to he channel.
+--   Makes sure to terminate the process if exception occurs.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
-runProcessAsJob process jobType chan = do
-    (CP.ClosedStream, stdoutStream, stderrStream, processHandle) <- CP.streamingProcess process
+runProcessAsJob process jobType chan = bracket
+    (CP.streamingProcess process)
+    (\(_, _, _, sph) -> terminateStreamingProcess sph)
+    runStreamingProcessAsJob
+  where
+    runStreamingProcessAsJob (CP.ClosedStream, stdoutStream, stderrStream, processHandle) = do
+      let forwardStdoutToChan = runConduit $ stdoutStream .| CL.mapM_
+              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
+                                                    , J._jobType = jobType })
 
-    let forwardStdoutToChan = runConduit $ stdoutStream .| CL.mapM_
-            (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
-                                                  , J._jobType = jobType })
+      let forwardStderrToChan = runConduit $ stderrStream .| CL.mapM_
+              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
+                                                    , J._jobType = jobType })
 
-    let forwardStderrToChan = runConduit $ stderrStream .| CL.mapM_
-            (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
-                                                  , J._jobType = jobType })
+      exitCode <- runConcurrently $
+          Concurrently forwardStdoutToChan *>
+          Concurrently forwardStderrToChan *>
+          Concurrently (CP.waitForStreamingProcess processHandle)
 
-    exitCode <- runConcurrently $
-        Concurrently forwardStdoutToChan *>
-        Concurrently forwardStderrToChan *>
-        Concurrently (CP.waitForStreamingProcess processHandle)
+      writeChan chan $ J.JobMessage { J._data = J.JobExit exitCode
+                                    , J._jobType = jobType }
 
-    writeChan chan $ J.JobMessage { J._data = J.JobExit exitCode
-                                  , J._jobType = jobType }
+      return exitCode
 
-    return exitCode
+    terminateStreamingProcess streamingProcessHandle = do
+        let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
+        P.terminateProcess processHandle
+        return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob fromDir command args jobType chan = do
