@@ -1,6 +1,8 @@
 module Main where
 
 import System.Environment
+import Paths_waspc (version)
+import Data.Version (showVersion)
 
 import Command (runCommand)
 import Command.Db (runDbCommand)
@@ -20,6 +22,7 @@ main = do
         ["clean"] -> runCommand clean
         ["compile"] -> runCommand compile
         ("db":dbArgs) -> dbCli dbArgs
+        ["version"] -> printVersion
         _ -> printUsage
 
 printUsage :: IO ()
@@ -32,11 +35,18 @@ printUsage = putStrLn $ unlines
     , "  start"
     , "  clean"
     , "  db <commmand> [command-args]"
+    , "  version"
     , ""
     , "Examples:"
     , "  wasp new MyApp"
     , "  wasp start"
+    , "  wasp db migrate-save \"init\""
+    , ""
+    , "Documentation is available at https://wasp-lang.dev/docs ."
     ]
+
+printVersion :: IO ()
+printVersion = putStrLn $ showVersion version
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
