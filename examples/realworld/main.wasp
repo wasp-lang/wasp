@@ -1,0 +1,8 @@
+app realworld {
+  title: "realworld"
+}
+
+route "/" -> page Main
+page Main {
+  component: import Main from "@ext/MainPage.js"
+}

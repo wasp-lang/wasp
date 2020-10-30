@@ -10,7 +10,7 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
 
 - [**Project page**](https://wasp-lang.dev)
-- [**Docs**](https://wasp-lang.github.io/web/docs)
+- [**Docs**](https://wasp-lang.dev/docs)
 
 <br>
 
@@ -53,10 +53,10 @@ Why is Wasp awesome:
 - **Flexible**: When you need more control than Wasp offers, you can write code in existing technologies such as js/html/css/... and combine it with Wasp code!
 - **No lock-in**: If Wasp becomes too limiting for you, simply eject and continue with the generated source code, which is human-readable.
 
-For more information about Wasp, check [**docs**](https://wasp-lang.github.io/web/docs).
+For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
 
 # Get started
-Check out [the docs](https://wasp-lang.github.io/web/docs/language/getting-started).
+Check out [the docs](https://wasp-lang.dev/docs/tutorials/getting-started).
 
 # This repository
 

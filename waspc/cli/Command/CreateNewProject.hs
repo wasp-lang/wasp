@@ -41,9 +41,9 @@ createNewProject projectName = do
             ++ (Term.applyStyles [Term.Bold] "wasp start")
             ++ "' to run the app."
         putStrLn ""
-        putStrLn "Check the docs for any further information: https://wasp-lang.github.io/web/docs."
+        putStrLn "Check the docs for any further information: https://wasp-lang.dev/docs."
         putStrLn $ "If you are new to Wasp, we recommend starting with Todo App tutorial:"
-            ++ " https://wasp-lang.github.io/web/docs/tutorials/todo-app."
+            ++ " https://wasp-lang.dev/docs/tutorials/todo-app."
 
   where
       mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File

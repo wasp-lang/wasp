@@ -2,7 +2,7 @@
 
 This directory contains source code of the `wasp` compiler (aka `waspc`), and this README is aimed at the contributors to the project.
 
-If you are a Wasp user and not a contributor (yet :)), you might want to look into following resources instead ([**Project page**](https://wasp-lang.dev), [**Docs**](https://wasp-lang.github.io/web/docs)).
+If you are a Wasp user and not a contributor (yet :)), you might want to look into following resources instead ([**Project page**](https://wasp-lang.dev), [**Docs**](https://wasp-lang.dev/docs)).
 
 
 ## First time contributor checklist
@@ -94,7 +94,7 @@ NOTE: Reload page if blank.
    In the future we will add automatic integration tests, but for now it is manual.
 6. When all is ready, squash commits into one commit (or a few if that makes sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
-7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.github.io/web/docs/language/getting-started).
+7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
 8. Work with reviewer(s) to get the PR approved.
    Keep adding fix commits until PR is approved, then again squash them all into one commit.
 9. Reviewer will merge the branch into `master`. Yay!
@@ -228,7 +228,7 @@ NOTE: If building of your commit is suddenly taking much longer time, it might b
 
 
 ## Documentation
-External documentation, for users of Wasp, is hosted in [separate repo](https://wasp-lang.github.io/web/docs/language/getting-started).
+External documentation, for users of Wasp, is hosted in [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
 
 Make sure to update it when changes modify how Wasp works.
 
