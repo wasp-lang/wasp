@@ -1,7 +1,13 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 const MainPage = () => {
-  return <p>Hello world!</p>
+  return (
+    <div>
+      <Link to='/login'> Sign in </Link>
+      <Link to='/register'> Sign up </Link>
+    </div>
+  )
 }
 
 export default MainPage

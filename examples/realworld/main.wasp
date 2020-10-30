@@ -1,8 +1,35 @@
-app realworld {
-  title: "realworld"
+app Conduit {
+  title: "Conduit"
 }
 
 route "/" -> page Main
 page Main {
   component: import Main from "@ext/MainPage.js"
+}
+
+route "/login" -> page Login
+page Login {
+  component: import Login from "@ext/LoginPage.js"
+}
+
+route "/register" -> page Signup
+page Signup {
+  component: import Signup from "@ext/SignupPage.js"
+}
+
+entity User {=psl
+    id          Int     @id @default(autoincrement())
+    username    String  @unique
+    email       String  @unique
+    password    String
+psl=}
+
+auth {
+  userEntity: User,
+  methods: [ EmailAndPassword ]
+}
+
+action signup {
+  fn: import { signup } from "@ext/actions.js",
+  entities: [User]
 }
