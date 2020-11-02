@@ -50,12 +50,17 @@ install_from_bin_package() {
     PACKAGE_URL="https://github.com/wasp-lang/wasp/releases/latest/download/$1"
     make_temp_dir
     info "Downloading binary package to temporary dir and unpacking it there..."
+    echo ""
     dl_to_file "$PACKAGE_URL" "$WASP_TEMP_DIR/$1"
+    echo ""
     mkdir -p "$WASP_TEMP_DIR/wasp"
     if ! tar xzf "$WASP_TEMP_DIR/$1" -C "$WASP_TEMP_DIR/wasp"; then
       die "Unpacking binary package failed."
     fi
 
+    # TODO: Consider installing into /usr/local/bin and /usr/local/share instead,
+    #   since those are always on the PATH and are standard place to install programs like this.
+    #   But then we need to run some commands below with sudo.
     DATA_DST_DIR="$HOME_LOCAL_SHARE"
     create_dir_if_missing "$DATA_DST_DIR"
     BIN_DST_DIR="$HOME_LOCAL_BIN"
@@ -63,26 +68,33 @@ install_from_bin_package() {
 
     # If our install locations are already occupied (by previous wasp installation or smth else),
     # inform user that they have to clean it up (or if FORCE is set, we do it for them).
+
+    OCCUPIED_PATH_ERRORS=""
     if [ -e "$DATA_DST_DIR/wasp" ]; then
         if [ "$FORCE" = "true" ]; then
-            echo "Removing already existing $DATA_DST_DIR/wasp"
-            rm -Ir "$DATA_DST_DIR/wasp"
+            info "Removing already existing $DATA_DST_DIR/wasp."
+            rm -r "$DATA_DST_DIR/wasp"
         else
-            die "$DATA_DST_DIR/wasp already exists, remove it manually in order to continue installation."
+            OCCUPIED_PATH_ERRORS=$OCCUPIED_PATH_ERRORS"Directory $DATA_DST_DIR/wasp already exists.\n"
         fi
     fi
     if [ -e "$BIN_DST_DIR/wasp" ]; then
-        if [ ! "$FORCE" = "true" ]; then
-            die "$BIN_DST_DIR/wasp already exists, remove it manually in order to continue installation."
+        if [ "$FORCE" = "true" ]; then
+            info "Writing over existing $BIN_DST_DIR/wasp."
+        else
+            OCCUPIED_PATH_ERRORS=$OCCUPIED_PATH_ERRORS"Binary file $BIN_DST_DIR/wasp already exists.\n"
         fi
     fi
+    if [ ! -z "$OCCUPIED_PATH_ERRORS" ]; then
+        die "\nInstallation failed!\n${OCCUPIED_PATH_ERRORS}Remove listed entries manually or run the installer with --force flag to write over them:\n  curl -sSL http://get.wasp-lang.dev | sh -s -- --force"
+    fi
 
-    info "Installing Wasp data to $DATA_DST_DIR..."
+    info "Installing Wasp data to $DATA_DST_DIR/wasp"
     if ! mv "$WASP_TEMP_DIR/wasp" "$DATA_DST_DIR/"; then
         die "Installing data to $DATA_DST_DIR failed."
     fi
 
-    info "Installing Wasp executable to $BIN_DST_DIR..."
+    info "Installing Wasp executable to $BIN_DST_DIR/wasp"
     # TODO: I should make sure here that $DATA_DST_DIR is abs path.
     #  It works for now because we set it to HOME_LOCAL_SHARE which
     #  we obtained using $HOME which is absolute, but if that changes
@@ -97,7 +109,9 @@ install_from_bin_package() {
     info "Wasp has been successfully installed! Type 'wasp' to start wasping :)."
 
     if ! on_path "$BIN_DST_DIR"; then
-        info "WARNING: It looks like '$BIN_DST_DIR' is not on your PATH, add it if you want to be able to invoke wasp command directly from anywhere."
+        info "\nWARNING: It looks like '$BIN_DST_DIR' is not on your PATH, add it if you want to be able to invoke wasp command directly from anywhere."
+        info "  You can add it to your PATH by adding following line into your profile file (~/.profile or ~/.zshrc or ~/.bash_profile or some other, depending on which shell you use):"
+        info '  export PATH=$PATH:'"$BIN_DST_DIR"
     fi
 }
 
@@ -127,12 +141,12 @@ cleanup_temp_dir() {
 
 # Print a message to stderr and exit with error code.
 die() {
-    echo "$@" >&2
+    echo -e "$@" >&2
     exit 1
 }
 
 info() {
-    echo -e "\033[0;33m{= Wasp installer =}\033[0m" "$@"
+    echo -e "$@"
 }
 
 # Download a URL to file using 'curl' or 'wget'.
