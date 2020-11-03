@@ -2,6 +2,7 @@ module Generator.DbGenerator.Jobs
     ( migrateSave
     , migrateUp
     , generateClient
+    , runStudio
     ) where
 
 import           Generator.Common                 (ProjectRootDir)
@@ -52,4 +53,15 @@ generateClient projectDir = do
         , "--schema", (SP.toFilePath schemaFile)
         ] J.Db
 
+-- | Runs `prisma studio` - Prisma's db inspector.
+runStudio :: Path Abs (Dir ProjectRootDir) -> J.Job
+runStudio projectDir = do
+    let serverDir = projectDir </> serverRootDirInProjectRootDir
+    let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+
+    runNodeCommandAsJob serverDir "npx"
+        [ "prisma", "studio"
+        , "--schema", (SP.toFilePath schemaFile)
+        , "--experimental"
+        ] J.Db
 
