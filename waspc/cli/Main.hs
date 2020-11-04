@@ -5,7 +5,6 @@ import Paths_waspc (version)
 import Data.Version (showVersion)
 
 import Command (runCommand)
--- TODO(matija): put studio cmd in its own file.
 import Command.Db (runDbCommand, studio)
 import Command.CreateNewProject (createNewProject)
 import Command.Start (start)

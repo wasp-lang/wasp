@@ -45,9 +45,6 @@ makeDbCommand cmd = do
         ExitSuccess -> waspSaysC "Database successfully set up!" >> cmd
         exitCode -> throwError $ CommandError $ dbSetupFailedMessage exitCode
 
-    -- TODO(matija): should we also run migrate up here, to make sure dev has the latest
-    -- db?
-
     where
         dbSetupFailedMessage exitCode = "Database setup failed" ++
             case exitCode of
@@ -61,6 +58,7 @@ makeDbCommand cmd = do
                 J.JobOutput {} -> printJobMessage jobMsg >> handleJobMessages chan
                 J.JobExit {} -> return ()
 
+-- TODO(matija): should we extract this into a separate file, like we did for migrate?
 studio :: Command ()
 studio = do
     waspProjectDir <- findWaspProjectRootDirFromCwd
