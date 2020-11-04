@@ -5,7 +5,7 @@ import Paths_waspc (version)
 import Data.Version (showVersion)
 
 import Command (runCommand)
-import Command.Db (runDbCommand)
+import Command.Db (runDbCommand, studio)
 import Command.CreateNewProject (createNewProject)
 import Command.Start (start)
 import Command.Clean (clean)
@@ -53,6 +53,7 @@ dbCli :: [String] -> IO ()
 dbCli args = case args of
     ["migrate-save", migrationName] -> runDbCommand $ migrateSave migrationName
     ["migrate-up"] -> runDbCommand migrateUp
+    ["studio"] -> runDbCommand studio
     _ -> printDbUsage
 
 printDbUsage :: IO ()
@@ -63,6 +64,7 @@ printDbUsage = putStrLn $ unlines
     , "Commands:"
     , "  migrate-save <migration-name>"
     , "  migrate-up"
+    , "  studio"
     , ""
     , "Examples:"
     , "  wasp db migrate-save \"Added description field.\""

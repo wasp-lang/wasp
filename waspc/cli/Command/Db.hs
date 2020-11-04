@@ -1,8 +1,9 @@
 module Command.Db
     ( runDbCommand
+    , studio
     ) where
 
-import Control.Concurrent.Async (concurrently)
+import Control.Concurrent.Async (concurrently, race)
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Except (throwError)
@@ -10,6 +11,7 @@ import System.Exit (ExitCode (..))
 
 import StrongPath ((</>))
 import Generator.ServerGenerator.Setup (setupServer)
+import Generator.DbGenerator.Jobs (runStudio)
 import Generator.Job.IO (printJobMessage)
 import qualified Generator.Job as J
 import Command (Command, CommandError(..), runCommand)
@@ -55,3 +57,23 @@ makeDbCommand cmd = do
             case J._data jobMsg of
                 J.JobOutput {} -> printJobMessage jobMsg >> handleJobMessages chan
                 J.JobExit {} -> return ()
+
+-- TODO(matija): should we extract this into a separate file, like we did for migrate?
+studio :: Command ()
+studio = do
+    waspProjectDir <- findWaspProjectRootDirFromCwd
+    let genProjectDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+                        </> Common.generatedCodeDirInDotWaspDir
+
+    waspSaysC "Running studio..."
+    chan <- liftIO newChan
+
+    result <- liftIO $ race (handleJobMessages chan) (runStudio genProjectDir chan)
+    case result of
+        Left _ -> error "This should never happen, listening to studio output should never stop."
+        Right _ -> error "This should never happen, studio should never stop."
+
+    where
+        handleJobMessages :: Chan J.JobMessage -> IO ()
+        handleJobMessages chan = readChan chan >>= printJobMessage >> handleJobMessages chan
+
