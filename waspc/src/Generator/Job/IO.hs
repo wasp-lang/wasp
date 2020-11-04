@@ -16,11 +16,13 @@ printJobMessage jobMsg = do
                 case outputType of
                     J.Stdout -> stdout
                     J.Stderr -> stderr
-            J.JobExit _ -> stderr
-    let prefix = case J._jobType jobMsg of
-            J.Server -> Term.applyStyles [Term.Magenta] "Server: "
-            J.WebApp -> Term.applyStyles [Term.Cyan] "Web app: "
-            J.Db     -> Term.applyStyles [Term.White] "Db: "
+            J.JobExit _ -> stdout
+    let jobType = case J._jobType jobMsg of
+            J.Server -> Term.applyStyles [Term.Magenta] "Server"
+            J.WebApp -> Term.applyStyles [Term.Cyan] "Web app"
+            J.Db     -> Term.applyStyles [Term.White] "Db"
+    let jobOutputType = if outHandle == stderr then " (stderr)" else ""
+    let prefix = jobType ++ jobOutputType ++ ": "
     let message = case J._data jobMsg of
             J.JobOutput output _ -> output
             J.JobExit ExitSuccess -> "Job exited successfully."
