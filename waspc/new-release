@@ -13,6 +13,7 @@ import           Control.Monad      (when)
 import qualified Data.Text          as T
 import qualified Data.Text.IO       as T.IO
 import           System.Environment (getArgs)
+import           System.Exit        (ExitCode (..))
 import qualified Text.Regex.TDFA    as TR
 import           Turtle             (empty, shell)
 
@@ -46,13 +47,18 @@ makeNewRelease newVersion = do
     -- TODO: Print what I am doing for each step.
 
     putStrLn "\nCreating new commit with updated package.yaml and pushing it.\n"
-    shell "git add package.yaml" empty
-    shell (T.pack $ "git commit -m \"Updated wasp version to " ++ newVersion ++ ".\"") empty
-    shell "git push" empty
+    ExitSuccess <- shell "git add package.yaml" empty
+    ExitSuccess <- shell (T.pack $ "git commit -m \"Updated wasp version to " ++ newVersion ++ ".\"") empty
+    gitPushExitCode <- shell "git push" empty
+    case gitPushExitCode of
+        ExitSuccess -> return ()
+        ExitFailure _ -> do
+            ExitSuccess <- shell "git reset --hard HEAD~1" empty
+            error "Failed to do `git push`, reverted changes."
 
     putStrLn $ "\nCreating tag " ++ tag ++ " and pushing it.\n"
-    shell (T.pack $ "git tag " ++ tag) empty
-    shell (T.pack $ "git push origin " ++ tag) empty
+    ExitSuccess <- shell (T.pack $ "git tag " ++ tag) empty
+    ExitSuccess <- shell (T.pack $ "git push origin " ++ tag) empty
 
     return ()
 
