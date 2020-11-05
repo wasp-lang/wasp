@@ -18,7 +18,7 @@ Wasp (**W**eb **A**pplication **Sp**ecification Language) is an extensible [DSL]
 
 Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
 
-NOTE: Wasp is still in alpha, meaning it has bugs and many critical featuers are still missing and it is stil changing a lot!
+NOTE: Wasp is still in alpha, meaning it has bugs, and many critical features are still missing and it is still changing a lot!
 
 ```js
 // todoApp.wasp:
@@ -79,9 +79,9 @@ While the idea is to support multiple web tech stacks in the future, right now w
 
 Any way you want to contribute is a good way :)!
 
-Best place to start is to check out [waspc/](waspc/), where you can find detailed steps for the first time contributors + technical details about the Wasp compiler.
+The best place to start is to check out [waspc/](waspc/), where you can find detailed steps for the first time contributors + technical details about the Wasp compiler.
 
-Even if you don't plan to submit any code, just joining discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
+Even if you don't plan to submit any code, just joining the discussion on discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) and giving your feedback is already great and helps a lot (motivates us and helps us figure out how to shape Wasp)!
 
 You can also:
  - :star: Star this repo to show your interest/support.
