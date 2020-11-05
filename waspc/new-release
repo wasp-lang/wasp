@@ -20,7 +20,7 @@ main = do
     args <- getArgs
     case args of
         [version] -> makeNewRelease version
-        _         -> putStrLn "Usage: ./new-release.sh <version>"
+        _         -> putStrLn "Usage: new-release <version>"
 
 makeNewRelease :: String -> IO ()
 makeNewRelease newVersion = do
