@@ -22,6 +22,9 @@ import qualified Generator.Job            as J
 import           StrongPath               (Abs, Dir, Path)
 import qualified StrongPath               as SP
 
+-- TODO:
+--   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
+--   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
 -- | Runs a given process while streaming its stderr and stdout to provided channel.
 --   Returns exit code of the process once it finishes, and also sends it to he channel.

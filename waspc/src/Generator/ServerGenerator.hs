@@ -115,4 +115,4 @@ genRoutesDir wasp =
     ]
 
 operationsRouteInRootRouter :: String
-operationsRouteInRootRouter = "queries"
+operationsRouteInRootRouter = "operations"
