@@ -1,0 +1,73 @@
+name: "*nix"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  cancel:
+    name: "Cleanup"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Get workflow id"
+        run: |
+          WORKFLOW_ID=$(curl "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/actions/workflows/linux.yml | jq '.id')
+          echo "Workflow id: ${WORKFLOW_ID}"
+          echo "WORKFLOW_ID=${WORKFLOW_ID}" >> $GITHUB_ENV
+
+      - uses: styfle/cancel-workflow-action@0.3.1
+        with:
+          access_token: ${{ github.token }}
+          workflow_id: ${{ env.WORKFLOW_ID }}
+
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-16.04
+          - macos-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          submodules: recursive
+
+      - name: Set up environment
+        run: |
+          mkdir -p ~/.local/bin
+          echo "$HOME/.local/bin:$PATH" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          sudo apt-fast update
+          sudo apt-fast install -yq libgmp-dev
+          curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+        if: matrix.os == 'ubuntu-16.04'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-fast update
+          sudo apt-fast install -yq libgmp-dev
+          curl --insecure -L https://get.haskellstack.org/stable/osx-x86_64.tar.gz | tar xz --strip-components=1 --include '*/stack' -C ~/.local/bin
+        if: matrix.os == 'macos-latest'
+
+      - name: Verify dependecies
+        run: |
+          stack --numeric-version
+          
+      - name: Build Wasp
+        run: |
+          cd waspc
+          stack --no-terminal --install-ghc test --only-dependencies
+      
+      - name: Tests
+        run: |
+          cd waspc
+          stack --no-terminal test
