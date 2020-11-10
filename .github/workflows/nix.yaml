@@ -1,4 +1,8 @@
 name: "*nix"
+
+# Triggered for commits/PRs on master branch
+# + new tags
+
 on:
   push:
     branches:
@@ -6,12 +10,16 @@ on:
   pull_request:
     branches:
       - master 
+  create:
+    tags:
+      - v*
 
 defaults:
   run:
     shell: bash -l {0}
 
 jobs:
+  # Cancel previous actions
   cancel:
     name: "Cleanup"
     runs-on: ubuntu-latest
@@ -27,6 +35,7 @@ jobs:
           access_token: ${{ github.token }}
           workflow_id: ${{ env.WORKFLOW_ID }}
 
+  # Main build
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -35,31 +44,31 @@ jobs:
           - ubuntu-latest
           - macos-latest
     steps:
+      # Checkout
       - uses: actions/checkout@main
         with:
           submodules: recursive
 
+      # Setup Haskell
       - uses: actions/setup-haskell@v1.1
         with:
           ghc-version: 'latest'
           enable-stack: true
           stack-version: 'latest'
 
-      - name: Set up environment
-        run: |
-          mkdir -p ~/.local/bin
-          echo "$HOME/.local/bin:$PATH" >> $GITHUB_PATH
-
-      - name: Verify Haskell/stack
+      # Verify everything's right
+      - name: Verify haskell/stack
         run: |
           stack --numeric-version
           ghc --version
           
+      # Build dependencies
       - name: Build dependencies 
         run: |
           cd waspc
-          stack --no-terminal --install-ghc test --only-dependencies
+          stack --no-terminal test --only-dependencies
       
+      # Build Wasp
       - name: Build Wasp
         run: |
           cd waspc
