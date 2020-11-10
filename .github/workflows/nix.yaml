@@ -43,14 +43,17 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+          - windows-latest
     steps:
       # Checkout
-      - uses: actions/checkout@main
+      - name: Checkout
+        uses: actions/checkout@main
         with:
           submodules: recursive
 
       # Setup Haskell
-      - uses: actions/setup-haskell@v1.1
+      - name: Setup environment
+        uses: actions/setup-haskell@v1.1
         with:
           ghc-version: 'latest'
           enable-stack: true
