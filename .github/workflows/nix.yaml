@@ -20,7 +20,7 @@ defaults:
 
 jobs:
   # Cancel previous actions
-  cancel:
+  cleanup:
     name: "Cleanup"
     runs-on: ubuntu-latest
     steps:
@@ -37,6 +37,7 @@ jobs:
 
   # Main build
   build:
+    name: "Build"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -70,9 +71,19 @@ jobs:
         run: |
           cd waspc
           stack --no-terminal test --only-dependencies
+
+      # Cache dependencies
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            $HOME/.ghc
+            $HOME/.cabal
+            $HOME/.stack
+          key: ${{ runner.os }}-haskell-
       
       # Build Wasp
-      - name: Build Wasp
+      - name: Build Wasp & Run tests
         run: |
           cd waspc
           stack --no-terminal test
