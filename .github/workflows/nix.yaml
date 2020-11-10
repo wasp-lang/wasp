@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: "Get workflow id"
         run: |
-          WORKFLOW_ID=$(curl "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/actions/workflows/${{ workflow_id }} | jq '.id')
+          WORKFLOW_ID=$(curl "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/actions/workflows/nix.yaml | jq '.id')
           echo "Workflow id: ${WORKFLOW_ID}"
           echo "WORKFLOW_ID=${WORKFLOW_ID}" >> $GITHUB_ENV
 
