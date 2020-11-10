@@ -1,13 +1,17 @@
 <p align=center>
   <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
-</p>
-
-<p align=center> A programming language that understands what a web app is. </p>
-<br>
-
-[![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX)
+  <br>
+  <span>A programming language that understands what a web app is.</span>
+  <br>
+  [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX)
 [![Build Status](https://travis-ci.com/wasp-lang/wasp.svg?branch=master)](https://travis-ci.com/wasp-lang/wasp)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
+</p>
+
+<p align=center>  </p>
+<br>
+
+
 
 - [**Project page**](https://wasp-lang.dev)
 - [**Docs**](https://wasp-lang.dev/docs)
