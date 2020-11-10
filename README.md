@@ -1,17 +1,18 @@
 <p align=center>
   <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
-  <br>
+</p>
+<p align=center>
   <span>A programming language that understands what a web app is.</span>
-  <br>
-  [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX)
-[![Build Status](https://travis-ci.com/wasp-lang/wasp.svg?branch=master)](https://travis-ci.com/wasp-lang/wasp)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/wasp-lang/wasp?branch=master&svg=true)](https://ci.appveyor.com/project/Martinsos/wasp/branch/master)
+</p>
+<br>
+<p align=center>
+  <a href="https://github.com/wasp-lang/wasp/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/github/license/wasp-lang/wasp"></a>
+  <a href="https://github.com/wasp-lang/wasp/search?l=haskell"><img alt="language" src="https://img.shields.io/badge/language-Haskell-purple.svg"></a>
+  <a href="https://github.com/wasp-lang/wasp/actions"><img alt="build status" src="https://img.shields.io/github/workflow/status/wasp-lang/wasp/CI"/></a>
+  <a href="https://discord.gg/rzdnErX"><img alt="discord" src="https://img.shields.io/discord/686873244791210014?label=chat%20@%20discord"/></a>
 </p>
 
-<p align=center>  </p>
-<br>
-
-
+------
 
 - [**Project page**](https://wasp-lang.dev)
 - [**Docs**](https://wasp-lang.dev/docs)
