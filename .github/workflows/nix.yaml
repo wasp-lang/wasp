@@ -27,6 +27,8 @@ jobs:
           access_token: ${{ github.token }}
           workflow_id: ${{ env.WORKFLOW_ID }}
 
+
+
   build:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -39,6 +41,12 @@ jobs:
         with:
           submodules: recursive
 
+      - uses: actions/setup-haskell@v1.1
+        with:
+          ghc-version: 'latest'
+          enable-stack: true
+          stack-version: 'latest'
+
       - name: Set up environment
         run: |
           mkdir -p ~/.local/bin
@@ -48,15 +56,7 @@ jobs:
         run: |
           sudo apt-fast update
           sudo apt-fast install -yq libgmp-dev
-          curl -L https://get.haskellstack.org/stable/linux-x86_64.tar.gz | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
         if: matrix.os == 'ubuntu-16.04'
-
-      - name: Install dependencies
-        run: |
-          sudo apt-fast update
-          sudo apt-fast install -yq libgmp-dev
-          curl --insecure -L https://get.haskellstack.org/stable/osx-x86_64.tar.gz | tar xz --strip-components=1 --include '*/stack' -C ~/.local/bin
-        if: matrix.os == 'macos-latest'
 
       - name: Verify dependecies
         run: |
