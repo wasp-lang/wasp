@@ -52,6 +52,17 @@ jobs:
         with:
           submodules: recursive
 
+      # Cache dependencies
+      - name: Cache dependencies
+        id: cache-dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            $HOME/.ghc
+            $HOME/.cabal
+            $HOME/.stack
+          key: ${{ runner.os }}-haskell
+
       # Setup Haskell
       - name: Setup environment
         uses: actions/setup-haskell@v1.1
@@ -71,16 +82,7 @@ jobs:
         run: |
           cd waspc
           stack --no-terminal test --only-dependencies
-
-      # Cache dependencies
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            $HOME/.ghc
-            $HOME/.cabal
-            $HOME/.stack
-          key: ${{ runner.os }}-haskell-
+        if: steps.cache-dependencies.outputs.cache-hit != 'true'
       
       # Build Wasp
       - name: Build Wasp & Run tests
