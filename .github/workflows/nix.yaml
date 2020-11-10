@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: "Get workflow id"
         run: |
-          WORKFLOW_ID=$(curl "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/actions/workflows/linux.yml | jq '.id')
+          WORKFLOW_ID=$(curl "Authorization: token ${{ github.token }}" https://api.github.com/repos/${{ github.repository }}/actions/workflows/nix.yml | jq '.id')
           echo "Workflow id: ${WORKFLOW_ID}"
           echo "WORKFLOW_ID=${WORKFLOW_ID}" >> $GITHUB_ENV
 
@@ -26,8 +26,6 @@ jobs:
         with:
           access_token: ${{ github.token }}
           workflow_id: ${{ env.WORKFLOW_ID }}
-
-
 
   build:
     runs-on: ${{ matrix.os }}
@@ -52,22 +50,17 @@ jobs:
           mkdir -p ~/.local/bin
           echo "$HOME/.local/bin:$PATH" >> $GITHUB_PATH
 
-      - name: Install dependencies
-        run: |
-          sudo apt-fast update
-          sudo apt-fast install -yq libgmp-dev
-        if: matrix.os == 'ubuntu-16.04'
-
-      - name: Verify dependecies
+      - name: Verify Haskell/stack
         run: |
           stack --numeric-version
+          ghc --version
           
-      - name: Build Wasp
+      - name: Build dependencies
         run: |
           cd waspc
           stack --no-terminal --install-ghc test --only-dependencies
       
-      - name: Tests
+      - name: Build Wasp
         run: |
           cd waspc
           stack --no-terminal test
