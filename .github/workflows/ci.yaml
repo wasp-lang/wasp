@@ -52,8 +52,8 @@ jobs:
         with:
           submodules: recursive
 
-      # Cache dependencies
-      - name: Cache dependencies
+      # Set up cache for dependencies
+      - name: Set up cache
         id: cache-dependencies
         uses: actions/cache@v2
         with:
@@ -64,7 +64,7 @@ jobs:
           key: ${{ runner.os }}-haskell
 
       # Setup Haskell
-      - name: Setup environment
+      - name: Set up environment
         uses: actions/setup-haskell@v1.1
         with:
           ghc-version: 'latest'
@@ -72,7 +72,7 @@ jobs:
           stack-version: 'latest'
 
       # Verify everything's right
-      - name: Verify haskell/stack
+      - name: Verify environment
         run: |
           stack --numeric-version
           ghc --version
