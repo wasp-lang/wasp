@@ -8,6 +8,10 @@ HOME_LOCAL_SHARE="$HOME/.local/share"
 WASP_TEMP_DIR=
 FORCE=
 
+RED="\033[31m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
 while [ $# -gt 0 ]; do
     case "$1" in
         -f|--force)
@@ -109,9 +113,9 @@ install_from_bin_package() {
     info "Wasp has been successfully installed! Type 'wasp' to start wasping :)."
 
     if ! on_path "$BIN_DST_DIR"; then
-        info "\nWARNING: It looks like '$BIN_DST_DIR' is not on your PATH, add it if you want to be able to invoke wasp command directly from anywhere."
+        info "\n\n${RED}WARNING${RESET}: It looks like '$BIN_DST_DIR' is not on your PATH! You will not be able to invoke wasp from the terminal by its name."
         info "  You can add it to your PATH by adding following line into your profile file (~/.profile or ~/.zshrc or ~/.bash_profile or some other, depending on which shell you use):"
-        info '  export PATH=$PATH:'"$BIN_DST_DIR"
+        info "  ${BOLD}"'export PATH=$PATH:'"$BIN_DST_DIR${RESET}"
     fi
 }
 
