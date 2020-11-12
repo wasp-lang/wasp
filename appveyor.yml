@@ -29,7 +29,7 @@ install:
   - ps: cd waspc
   # Install latest stable stack.
   - ps: |
-      curl -OutFile stack.zip -Uri https://get.haskellstack.org/stable/windows-x86_64.zip
+      curl -OutFile stack.zip -Uri http://get.haskellstack.org/stable/windows-x86_64.zip
       7z x stack.zip stack.exe
       mkdir c:/bin
       mv stack.exe c:/bin
