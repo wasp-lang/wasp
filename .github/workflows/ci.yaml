@@ -1,8 +1,5 @@
 name: "CI"
 
-# Triggered for commits/PRs on master branch
-# + new tags
-
 on:
   push:
     branches:
@@ -19,7 +16,6 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  # Cancel previous actions
   cleanup:
     name: "Cleanup"
     runs-on: ubuntu-latest
@@ -34,7 +30,6 @@ jobs:
           access_token: ${{ github.token }}
           workflow_id: ${{ env.WORKFLOW_ID }}
 
-  # Main build
   build:
     name: "Build"
     runs-on: ${{ matrix.os }}
@@ -45,13 +40,11 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      # Checkout
       - name: Checkout
         uses: actions/checkout@main
         with:
           submodules: recursive
 
-      # Set up cache for dependencies
       - name: Set up cache
         id: cache-dependencies
         uses: actions/cache@v2
@@ -62,7 +55,6 @@ jobs:
             $HOME/.stack
           key: ${{ runner.os }}-haskell
 
-      # Setup Haskell
       - name: Set up environment
         uses: actions/setup-haskell@v1.1
         with:
@@ -70,20 +62,17 @@ jobs:
           enable-stack: true
           stack-version: 'latest'
 
-      # Verify everything's right
       - name: Verify environment
         run: |
           stack --numeric-version
           ghc --version
           
-      # Build dependencies
       - name: Build dependencies 
         run: |
           cd waspc
           stack --no-terminal test --only-dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
       
-      # Build Wasp
       - name: Build Wasp & Run tests
         run: |
           cd waspc
