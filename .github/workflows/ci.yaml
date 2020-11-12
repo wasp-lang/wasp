@@ -16,8 +16,8 @@ defaults:
     shell: bash -l {0}
 
 jobs:
-  cleanup:
-    name: "Cleanup"
+  cancel:
+    name: "Cancel"
     runs-on: ubuntu-latest
     steps:
       - name: "Get workflow id"
