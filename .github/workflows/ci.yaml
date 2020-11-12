@@ -17,7 +17,7 @@ defaults:
 
 jobs:
   cancel:
-    name: "Cancel"
+    name: Cancel redundant actions already in progress
     runs-on: ubuntu-latest
     steps:
       - name: Cancel actions in progress of same workflow and same branch
