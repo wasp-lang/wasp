@@ -1,19 +1,13 @@
-name: "CI"
+name: CI
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master 
-  create:
-    tags:
-      - v*
+  push: { branches: [master] }
+  pull_request: { branches: [master] }
+  create: { tags: [v*] }
 
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash -l {0} # preserve the environment across steps
 
 jobs:
   cancel:
@@ -35,7 +29,10 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
+      # TODO: fix potential caching issues on Windows
       - name: Set up cache
         uses: actions/cache@v2
         with:
@@ -43,7 +40,7 @@ jobs:
             $HOME/.ghc
             $HOME/.cabal
             $HOME/.stack
-          key: ${{ runner.os }}-haskell
+          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}
 
       - name: Set up environment
         uses: actions/setup-haskell@v1.1
