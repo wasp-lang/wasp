@@ -26,7 +26,7 @@ jobs:
           access_token: ${{ github.token }}
 
   build:
-    name: "Build"
+    name: Build Wasp
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
