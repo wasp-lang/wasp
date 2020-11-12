@@ -60,7 +60,7 @@ jobs:
       - name: Build dependencies 
         run: |
           cd waspc
-          stack test --only-dependencies
+          stack --install-ghc test --only-dependencies
       
       - name: Build Wasp & Run tests
         run: |
