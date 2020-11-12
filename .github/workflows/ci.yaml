@@ -50,7 +50,7 @@ jobs:
         with:
           ghc-version: 'latest'
           enable-stack: true
-          stack-version: 'latest'
+          stack-version: latest
 
       - name: Verify environment
         run: |
