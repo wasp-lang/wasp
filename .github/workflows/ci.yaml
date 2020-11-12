@@ -37,7 +37,6 @@ jobs:
     steps:
 
       - name: Set up cache
-        id: cache-dependencies
         uses: actions/cache@v2
         with:
           path: |
@@ -62,7 +61,6 @@ jobs:
         run: |
           cd waspc
           stack test --only-dependencies
-        if: steps.cache-dependencies.outputs.cache-hit != 'true'
       
       - name: Build Wasp & Run tests
         run: |
