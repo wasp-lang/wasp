@@ -70,7 +70,7 @@ jobs:
       - name: Build dependencies 
         run: |
           cd waspc
-          stack --no-terminal test --only-dependencies
+          stack test --only-dependencies
         if: steps.cache-dependencies.outputs.cache-hit != 'true'
       
       - name: Build Wasp & Run tests
