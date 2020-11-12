@@ -7,7 +7,8 @@ on:
 
 defaults:
   run:
-    shell: bash -l {0} # preserve the environment across steps
+    shell: bash
+    working-directory: waspc
 
 jobs:
   cancel:
@@ -28,11 +29,14 @@ jobs:
           - ubuntu-latest
           - macos-latest
           - windows-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # TODO: fix potential caching issues on Windows
+      # TODO: We did not take Windows into account here.
+      #   From what we know so far they use different paths, so we should
+      #   add those also to cache (conditionally?).
       - name: Set up cache
         uses: actions/cache@v2
         with:
@@ -55,11 +59,9 @@ jobs:
           ghc --version
           
       - name: Build dependencies 
-        run: |
-          cd waspc
-          stack --install-ghc test --only-dependencies
+        run: stack --install-ghc test --only-dependencies
       
       - name: Build Wasp & Run tests
-        run: |
-          cd waspc
-          stack --no-terminal test
+        run: stack test
+
+# TODO: Add deployment of binaries to Github release.
