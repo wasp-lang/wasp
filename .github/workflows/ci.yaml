@@ -48,7 +48,7 @@ jobs:
       - name: Set up environment
         uses: actions/setup-haskell@v1.1
         with:
-          ghc-version: 'latest'
+          ghc-version: latest
           enable-stack: true
           stack-version: latest
 
