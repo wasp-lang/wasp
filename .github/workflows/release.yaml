@@ -94,9 +94,12 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la
+          pwd
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: wasp/waspc/${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
+          asset_path: waspc/${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
           asset_name: ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
           asset_content_type: application/gzip
 
@@ -104,6 +107,9 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ls -la
+          pwd
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/binary-package
