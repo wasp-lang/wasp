@@ -96,8 +96,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ${{ env.app-name }}-${{ matrix.os }}-x86_64.tar.gz
-          asset_name: ${{ env.app-name }}-${{ matrix.os }}-x86_64.tar.gz
+          asset_path: ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
+          asset_name: ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
           asset_content_type: application/gzip
 
       - name: Upload release asset (Windows)
@@ -107,4 +107,4 @@ jobs:
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/binary-package
-          asset_name: ${{ env.app-name }}-${{ matrix.os }}-x86_64
+          asset_name: ${{ env.app-name }}-${{ runner.os }}-x86_64
