@@ -66,7 +66,10 @@ jobs:
         run: stack test
 
       - name: Create package (*nix)
-        run: ./tools/make_binary_package.sh ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
+        run: |
+          ./tools/make_binary_package.sh ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
+          ls -la
+          pwd
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
 
       - name: Create package (Windows)
@@ -75,6 +78,8 @@ jobs:
           mv "$(stack path --local-install-root)/bin/wasp.exe" binary-package/wasp-x86_64.exe
           mv "$(stack path --project-root)/data" binary-package/data
           mv tools/run_wasp.ps1 binary-package/wasp.ps1
+          ls -la
+          pwd
         if: matrix.is == 'windows-latest'
 
       - name: Create release
@@ -94,9 +99,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ls -la
-          pwd
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
@@ -107,9 +109,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ls -la
-          pwd
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/binary-package
