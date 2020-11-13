@@ -67,6 +67,8 @@ jobs:
 
       - name: Create package (*nix)
         run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          brew install coreutils
           ./tools/make_binary_package.sh ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
           ls -la
           pwd
