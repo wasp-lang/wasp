@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  create: { tags: [v*] }
+
+env:
+  app-name: wasp
+
+defaults:
+  run:
+    shell: bash
+    working-directory: waspc
+
+jobs:
+  cancel:
+    name: Cancel redundant actions already in progress
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel actions in progress of same workflow and same branch
+        uses: styfle/cancel-workflow-action@0.6.0
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    name: Build Wasp
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # TODO: We did not take Windows into account here.
+      #   From what we know so far they use different paths, so we should
+      #   add those also to cache (conditionally?).
+      - name: Set up cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            $HOME/.ghc
+            $HOME/.cabal
+            $HOME/.stack
+          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}
+
+      - name: Set up environment
+        uses: actions/setup-haskell@v1.1
+        with:
+          ghc-version: latest
+          enable-stack: true
+          stack-version: latest
+
+      - name: Verify environment
+        run: |
+          stack --numeric-version
+          ghc --version
+          
+      - name: Build dependencies 
+        run: stack --install-ghc test --only-dependencies
+      
+      - name: Build Wasp & Run tests
+        run: stack test
+
+      - name: Create package (*nix)
+        run: ./tools/make_binary_package.sh ${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+
+      - name: Create package (Windows)
+        run: |
+          mkdir binary-package
+          mv "$(stack path --local-install-root)/bin/wasp.exe" binary-package/wasp-x86_64.exe
+          mv "$(stack path --project-root)/data" binary-package/data
+          mv tools/run_wasp.ps1 binary-package/wasp.ps1
+        if: matrix.is == 'windows-latest'
+
+      - name: Create release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          body: |
+            ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload release asset (*nix)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: ${{ env.app-name }}-${{ matrix.os }}-x86_64.tar.gz
+          asset_name: ${{ env.app-name }}-${{ matrix.os }}-x86_64.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload release asset (Windows)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: waspc/binary-package
+          asset_name: ${{ env.app-name }}-${{ matrix.os }}-x86_64
