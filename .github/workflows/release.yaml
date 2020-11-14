@@ -5,6 +5,7 @@ on:
 
 env:
   app-name: wasp
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 defaults:
   run:
@@ -83,20 +84,16 @@ jobs:
       - name: Create release
         id: create-release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: ${{ github.ref }}
           body: |
             ${{ github.ref }}
-          draft: false
+          draft: true
           prerelease: false
 
       - name: Upload release asset (*nix)
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/${{ env.app-name }}-${{ runner.os }}-x86_64.tar.gz
@@ -105,8 +102,6 @@ jobs:
 
       - name: Upload release asset (Windows)
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create-release.outputs.upload_url }}
           asset_path: waspc/binary-package
