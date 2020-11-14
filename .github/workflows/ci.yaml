@@ -64,7 +64,7 @@ jobs:
 
       # TODO: Remove this step once https://github.com/actions/cache/issues/445 is resolved.
       - name: Fix MacOS problem with corrupt cached executable
-        run: rm -r ~/.stack/setup-exe-cache
+        run: rm -rf ~/.stack/setup-exe-cache
         if: runner.os == 'macOS'
 
       - name: Set up environment
