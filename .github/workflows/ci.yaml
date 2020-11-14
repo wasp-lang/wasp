@@ -41,10 +41,31 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            $HOME/.ghc
-            $HOME/.cabal
-            $HOME/.stack
-          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}
+            ~/.ghc
+            ~/.cabal
+            ~/.stack
+          # TODO: Right now, actions/cache updates cache only if cache was not fetched.
+          #   This is not ideal for us, because we would ideally update cache even if it
+          #   was fetched, because we want to cache any newly installed packages.
+          #   This was working normally on Travis and Appveyor.
+          #   There is an issue for this, and for now we are using proposed "fix" from it,
+          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
+          #   which mitigates the problem by creating new cache for each job and then using
+          #   the feature of restore-keys which makes sure that next cache picked is the
+          #   latest one. However, this keeps creating new cache each time which is not
+          #   ideal because caches keep getting evicted, so for example if Win job
+          #   fails multiple times while others don't, its cache will likely get evicted,
+          #   making it even slower to test and fix (uffff).
+          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key
+          #   and also remove restore-keys.
+          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
+          restore-keys: |
+            haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
+
+      # TODO: Remove this step once https://github.com/actions/cache/issues/445 is resolved.
+      - name: Fix MacOS problem with corrupt cached executable
+        run: rm -r ~/.stack/setup-exe-cache
+        if: runner.os == 'macOS'
 
       - name: Set up environment
         uses: actions/setup-haskell@v1
