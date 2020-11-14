@@ -11,14 +11,16 @@ defaults:
     working-directory: waspc
 
 jobs:
-  cancel:
-    name: Cancel redundant actions already in progress
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.6.0
-        with:
-          access_token: ${{ github.token }}
+  # TODO: I commented this out because it was canceling jobs below.
+  #   Figure out what to do about this.
+  # cancel:
+  #   name: Cancel redundant actions already in progress
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Cancel actions in progress of same workflow and same branch
+  #       uses: styfle/cancel-workflow-action@0.6.0
+  #       with:
+  #         access_token: ${{ github.token }}
 
   build:
     name: Build Wasp
