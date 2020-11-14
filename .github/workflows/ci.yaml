@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.6.0
+        uses: styfle/cancel-workflow-action@0.6
         with:
           access_token: ${{ github.token }}
 
@@ -47,7 +47,7 @@ jobs:
           key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}
 
       - name: Set up environment
-        uses: actions/setup-haskell@v1.1
+        uses: actions/setup-haskell@v1
         with:
           ghc-version: latest
           enable-stack: true
