@@ -80,4 +80,8 @@ jobs:
       - name: Build Wasp & Run tests
         run: stack test
 
+      # TODO: Remove this step once https://github.com/actions/cache/issues/445 is resolved.
+      - name: Fix MacOS problem with corrupt cached executable
+        run: rm -r ~/.stack/setup-exe-cache
+
 # TODO: Add deployment of binaries to Github release.
