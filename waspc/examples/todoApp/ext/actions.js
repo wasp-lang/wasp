@@ -1,9 +1,4 @@
 import HttpError from '@wasp/core/HttpError.js'
-import { createNewUser } from '@wasp/core/auth.js'
-
-export const signUp = async (args, context) => {
-  await createNewUser({ email: args.email, password: args.password })
-}
 
 export const createTask = async (task, context) => {
   if (!context.user) {
