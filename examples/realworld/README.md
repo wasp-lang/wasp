@@ -27,6 +27,7 @@ What I wish I could do (& other notes):
 - I wish it was typed.
 - `auth` should complain if entity does not have email and password fields.
 - It is tricky to remember to run `wasp db migrate-save/up`.
+- I wish common Prisma errors were automatically converted into corresponding HttpErrors (although, is this security problem?).
 
 Can't implement for now due to lacking support in Wasp:
 - Unit tests
