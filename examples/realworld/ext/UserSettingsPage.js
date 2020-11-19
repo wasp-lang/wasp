@@ -5,6 +5,8 @@ import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
 import updateUser from '@wasp/actions/updateUser'
 
+import Navbar from './Navbar'
+
 const UserSettingsPage = () => {
   const { data: user, isError } = useAuth({ keepPreviousData: true })
   // TODO: Instead of this logic here, I wish I could use ACL via Wasp and just
@@ -13,13 +15,10 @@ const UserSettingsPage = () => {
     return <span> Please <Link to='/login'>log in</Link>. </span>
   }
 
-  // TODO: There is no navbar right now, but there should be one! It is only on Main page.
-  //   I wish I had a "layout" mechanism that I would apply on certain pages
-  //   and they would all have this same layout.
-  //   For now, I should probably implement a HOC that will take care of this.
-
   return (
     <div>
+      <Navbar />
+
       <UserSettings user={user}/>
     </div>
   )
