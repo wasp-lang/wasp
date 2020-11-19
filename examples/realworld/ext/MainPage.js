@@ -2,7 +2,6 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import useAuth from '@wasp/auth/useAuth.js'
-import logout from '@wasp/auth/logout.js'
 
 const MainPage = () => {
   const { data: user } = useAuth()
@@ -19,9 +18,8 @@ const UserWidget = (props) => {
     // TODO: Make links lead somewhere.
     return (
       <div>
-        <a href="#"> Settings </a>
-        <a href="#"> { props.user.username } </a>
-        <button onClick={logout}> Log out </button>
+        <Link to='/settings'> Settings </Link>
+        <a href={`/@${props.user.username}`}> { props.user.username } </a>
       </div>
     )
   } else {

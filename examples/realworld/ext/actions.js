@@ -13,3 +13,17 @@ export const signup = async ({ username, email, password }, context) => {
     throw err
   }
 }
+
+export const updateUser = async ({ email, username, bio, profilePictureUrl, newPassword }, context) => {
+  // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
+  //   useful error message about username being taken / not unique, and other validation errors.
+  await context.entities.User.update({
+    where: { email },
+    data: {
+      username,
+      bio,
+      profilePictureUrl,
+      password: newPassword || undefined
+    }
+  })
+}

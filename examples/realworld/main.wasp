@@ -17,11 +17,23 @@ page Signup {
   component: import Signup from "@ext/SignupPage.js"
 }
 
+route "/settings" -> page UserSettings
+page UserSettings {
+  component: import UserSettings from "@ext/UserSettingsPage.js"
+}
+
+route "/@:username" -> page UserProfile
+page UserProfile {
+  component: import UserProfile from "@ext/UserProfilePage.js"
+}
+
 entity User {=psl
     id          Int     @id @default(autoincrement())
     username    String  @unique
     email       String  @unique
     password    String
+    bio         String?
+    profilePictureUrl String?
 psl=}
 
 auth {
@@ -31,5 +43,15 @@ auth {
 
 action signup {
   fn: import { signup } from "@ext/actions.js",
+  entities: [User]
+}
+
+action updateUser {
+  fn: import { updateUser } from "@ext/actions.js",
+  entities: [User]
+}
+
+query getUser {
+  fn: import { getUser } from "@ext/queries.js",
   entities: [User]
 }
