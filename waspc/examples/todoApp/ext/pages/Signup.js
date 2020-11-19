@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import signUp from '@wasp/actions/signUp.js'
+import signup from '@wasp/auth/signup.js'
 import login from '@wasp/auth/login.js'
 
 const Signup = (props) => {
@@ -15,7 +15,7 @@ const Signup = (props) => {
     const handleSignup = async (event) => {
       event.preventDefault()
       try {
-        await signUp({ email: emailFieldVal, password: passwordFieldVal })
+        await signup({ email: emailFieldVal, password: passwordFieldVal })
         await login (emailFieldVal, passwordFieldVal)
 
         setEmailFieldVal('')

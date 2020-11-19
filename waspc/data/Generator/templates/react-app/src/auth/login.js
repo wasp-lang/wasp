@@ -19,4 +19,3 @@ const login = async (email, password) => {
 }
 
 export default login
-
