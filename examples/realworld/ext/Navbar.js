@@ -11,6 +11,7 @@ const Navbar = () => {
     return (
       <div>
         <Link to='/'> Home </Link>
+        <Link to='/editor'> New Article </Link>
         <Link to='/settings'> Settings </Link>
         <a href={`/@${user.username}`}> { user.username } </a>
       </div>

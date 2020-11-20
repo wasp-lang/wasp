@@ -27,6 +27,19 @@ page UserProfile {
   component: import UserProfile from "@ext/UserProfilePage.js"
 }
 
+route "/editor/:articleId" -> page ArticleEditor
+page ArticleEditor {
+  component: import ArticleEditor from "@ext/ArticleEditorPage.js"
+}
+
+// TODO: Instead of articleId, we should some combination of its title and
+//   a random string, if I got it right. Figure out better what is the spec
+//   and implement it correctly.
+route "/article/:articleId" -> page ArticleView
+page ArticleView {
+  component: import ArticleView from "@ext/ArticleViewPage.js"
+}
+
 entity User {=psl
     id          Int     @id @default(autoincrement())
     username    String  @unique
@@ -34,6 +47,18 @@ entity User {=psl
     password    String
     bio         String?
     profilePictureUrl String?
+    articles    Article[]
+psl=}
+
+// TODO: Add tags.
+// TODO: Add creation and update times.
+entity Article {=psl
+    id          Int     @id @default(autoincrement())
+    title       String
+    description String
+    markdownContent     String
+    user        User    @relation(fields: [userId], references: [id])
+    userId      Int
 psl=}
 
 auth {
@@ -54,4 +79,29 @@ action updateUser {
 query getUser {
   fn: import { getUser } from "@ext/queries.js",
   entities: [User]
+}
+
+query getArticlesByUser {
+  fn: import { getArticlesByUser } from "@ext/queries.js",
+  entities: [Article]
+}
+
+query getArticle {
+  fn: import { getArticle } from "@ext/queries.js",
+  entities: [Article]
+}
+
+action createArticle {
+  fn: import { createArticle } from "@ext/actions.js",
+  entities: [Article]
+}
+
+action updateArticle {
+  fn: import { updateArticle } from "@ext/actions.js",
+  entities: [Article]
+}
+
+action deleteArticle {
+  fn: import { deleteArticle } from "@ext/actions.js",
+  entities: [Article]
 }

@@ -5,6 +5,7 @@ import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
 import updateUser from '@wasp/actions/updateUser'
 import getUser from '@wasp/queries/getUser'
+import getArticlesByUser from '@wasp/queries/getArticlesByUser'
 import { useQuery } from '@wasp/queries'
 
 import Navbar from './Navbar'
@@ -36,10 +37,37 @@ const UserProfilePage = (props) => {
       <p> { user.username } </p>
       <p> { user.bio } </p>
       <div>
+        { /* TODO: Show this link only if user is logged in. */ }
         <Link to='/settings'>Edit Profile Settings</Link>
       </div>
+
+      <Articles user={user} />
     </div>
   ) : null
+}
+
+const Articles = (props) => {
+  // TODO: Should I have pagination here, probably I should?
+
+  const { data: articles } = useQuery(getArticlesByUser, { username: props.user.username })
+
+  return articles ? (
+    <div>
+      { articles.map(article => <Article article={article} key={article.id} />) }
+    </div>
+  ) : null
+}
+
+const Article = (props) => {
+  const article = props.article
+  return (
+    <div>
+      <Link to={`/article/${article.id}`}>
+        <h2> { article.title } </h2>
+      </Link>
+      <p> { article.description } </p>
+    </div>
+  )
 }
 
 export default UserProfilePage
