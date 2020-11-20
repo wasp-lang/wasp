@@ -14,7 +14,7 @@ genAuth wasp = case maybeAuth of
                  , genLogin
                  , genLogout
                  , genUseAuth
-                 ]
+                 ] ++ genAuthPages
     Nothing   -> []
     where
         maybeAuth = getAuth wasp
@@ -36,3 +36,15 @@ genLogout = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/logout.js|])
 --   ot not).
 genUseAuth :: FileDraft
 genUseAuth = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/useAuth.js|])
+
+genAuthPages :: [FileDraft]
+genAuthPages =
+    [ genSignupPage
+    , genLoginPage
+    ]
+
+genLoginPage :: FileDraft
+genLoginPage = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/pages/Login.js|])
+
+genSignupPage :: FileDraft
+genSignupPage = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/pages/Signup.js|])

@@ -12,11 +12,6 @@ page Main {
   component: import Main from "@ext/MainPage.js"
 }
 
-route "/auth" -> page Auth
-page Auth {
-  component: import Auth from "@ext/AuthPage.js"
-}
-
 entity User {=psl
     id          Int     @id @default(autoincrement())
     email       String  @unique
