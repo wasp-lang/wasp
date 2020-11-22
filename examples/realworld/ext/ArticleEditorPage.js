@@ -25,6 +25,8 @@ const ArticleEditorPage = (props) => {
     return <span> Please <Link to='/login'>log in</Link>. </span>
   }
 
+  console.log('here', article)
+
   return articleError
     ? articleError.message || articleError
     : (
@@ -38,6 +40,8 @@ const ArticleEditorPage = (props) => {
 const ArticleEditor = (props) => {
   const user = props.user
   const article = props.article
+
+  console.log(article)
 
   const history = useHistory()
 

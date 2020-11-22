@@ -27,7 +27,7 @@ page UserProfile {
   component: import UserProfile from "@ext/UserProfilePage.js"
 }
 
-route "/editor/:articleId" -> page ArticleEditor
+route "/editor/:articleId?" -> page ArticleEditor
 page ArticleEditor {
   component: import ArticleEditor from "@ext/ArticleEditorPage.js"
 }
