@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 
-import signup from '@wasp/auth/signup.js'
-import login from '@wasp/auth/login.js'
+import signup from '../signup.js'
+import login from '../login.js'
 
 const Signup = (props) => {
 
@@ -30,23 +30,29 @@ const Signup = (props) => {
     }
     
     return (
-      <form onSubmit={handleSignup}>
-        <h2>Email</h2>
-        <input
-          type="text"
-          value={emailFieldVal}
-          onChange={e => setEmailFieldVal(e.target.value)}
-        />
-        <h2>Password</h2>
-        <input
-          type="password"
-          value={passwordFieldVal}
-          onChange={e => setPasswordFieldVal(e.target.value)}
-        />
-        <div>
-          <input type="submit" value="Sign up"/>
-        </div>
-      </form>
+      <>
+        <form onSubmit={handleSignup}>
+          <h2>Email</h2>
+          <input
+            type="text"
+            value={emailFieldVal}
+            onChange={e => setEmailFieldVal(e.target.value)}
+          />
+          <h2>Password</h2>
+          <input
+            type="password"
+            value={passwordFieldVal}
+            onChange={e => setPasswordFieldVal(e.target.value)}
+          />
+          <div>
+            <input type="submit" value="Sign up"/>
+          </div>
+        </form>
+        <br/>
+        <span>
+          I already have an account (<Link to="/login">go to login</Link>).
+        </span>
+      </>
     )
   }
 
@@ -58,3 +64,4 @@ const Signup = (props) => {
 }
 
 export default Signup
+

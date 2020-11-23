@@ -14,7 +14,7 @@ const MainPage = () => {
 
   const { data: user } = useAuth()
   if (!user) {
-    return <span> Please <Link to='/auth'>log in</Link>. </span>
+    return <span> Please <Link to='/login'>log in</Link>. </span>
   }
 
   return (
