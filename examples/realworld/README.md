@@ -6,14 +6,19 @@ Realworld app
 Here, we implement it in Wasp, by following their [specification](https://github.com/gothinkster/realworld/tree/master/spec).
 
 Todo:
-- [ ] User + auth (JWT).
-- [ ] Login and signup pages.
-- [ ] Settings page with logout button (no user deletion needed).
-- [ ] Profile page that shows basic user info.
-- [ ] Home page with navbar.
-- [ ] CRUD Articles (created from Markdown).
+- [x] User + auth (JWT).
+- [x] Login and signup pages.
+- [x] Settings page with logout button (no user deletion needed).
+- [x] Profile page that shows basic user info.
+- [x] Home page with navbar.
+- [x] CRUD Articles (created from Markdown).
+- [ ] On /article page, show author username and date of creation (of article).
+- [ ] Render article content as markdown.
+- [ ] For Article, use special id which contains title in the name, and display it in url?
 - [ ] CR*D Comments on articles.
 - [ ] Paginated list of articles.
+- [ ] Show paginated list of all articles (Global Feed) on the home page.
+- [ ] Show Popular Tags on home page.
 - [ ] Favorite articles.
 - [ ] Following other users.
 - [ ] Use Bootstrap 4 styling.
