@@ -29,11 +29,11 @@ export const getArticlesByUser = async ({ username }, context) => {
   return articles
 }
 
-export const getArticle = async ({ id }, context) => {
+export const getArticle = async ({ slug }, context) => {
   // TODO: Do some error handling?
   const article = await context.entities.Article
     .findOne({
-      where: { id },
+      where: { slug },
       include: {
         user: {
           // TODO: Tricky, if you forget this you could return unwanted fields

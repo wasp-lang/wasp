@@ -16,8 +16,8 @@ const ArticleViewPage = (props) => {
   const history = useHistory()
   const { data: user } = useAuth({ keepPreviousData: true })
 
-  const articleId = parseInt(props.match.params.articleId)
-  const { data: article } = useQuery(getArticle, { id: articleId })
+  const articleSlug = props.match.params.articleSlug
+  const { data: article } = useQuery(getArticle, { slug: articleSlug })
 
   // TODO: If there is no such article, we get null here under `article`,
   //   and we don't handle that properly, we just return blank screen (return null).
@@ -32,7 +32,7 @@ const ArticleViewPage = (props) => {
   const isMyArticle = user?.id && (user?.id === article?.userId)
 
   const handleEditArticle = () => {
-    history.push(`/editor/${article.id}`)
+    history.push(`/editor/${article.slug}`)
   }
 
   const handleDeleteArticle = async () => {

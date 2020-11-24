@@ -1,8 +1,10 @@
 import { createNewUser } from '@wasp/core/auth.js'
 import HttpError from '@wasp/core/HttpError.js'
+import slug from 'slug'
 
 export const signup = async ({ username, email, password }, context) => {
   try {
+    console.log('juhu')
     await createNewUser({ username, email, password })
   } catch (err) {
     // TODO: I wish I didn't have to do this, I would love this to be in some
@@ -45,6 +47,7 @@ export const createArticle = async ({ title, description, markdownContent }, con
   return await context.entities.Article.create({
     data: {
       title,
+      slug: slug(title) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36),
       description,
       markdownContent,
       user: { connect: { id: context.user.id } }

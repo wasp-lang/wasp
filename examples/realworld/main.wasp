@@ -27,15 +27,12 @@ page UserProfile {
   component: import UserProfile from "@ext/UserProfilePage.js"
 }
 
-route "/editor/:articleId?" -> page ArticleEditor
+route "/editor/:articleSlug?" -> page ArticleEditor
 page ArticleEditor {
   component: import ArticleEditor from "@ext/ArticleEditorPage.js"
 }
 
-// TODO: Instead of articleId, we should some combination of its title and
-//   a random string, if I got it right. Figure out better what is the spec
-//   and implement it correctly.
-route "/article/:articleId" -> page ArticleView
+route "/article/:articleSlug" -> page ArticleView
 page ArticleView {
   component: import ArticleView from "@ext/ArticleViewPage.js"
 }
@@ -54,7 +51,9 @@ psl=}
 // TODO: Add creation and update times.
 entity Article {=psl
     id              Int      @id @default(autoincrement())
+    slug            String   @unique
     createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
     title           String
     description     String
     markdownContent String
@@ -109,5 +108,6 @@ action deleteArticle {
 
 dependencies {=json
   "react-markdown": "5.0.3",
-  "moment": "2.29.1"
+  "moment": "2.29.1",
+  "slug": "4.0.2"
 json=}

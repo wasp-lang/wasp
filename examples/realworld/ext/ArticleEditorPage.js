@@ -14,18 +14,16 @@ const ArticleEditorPage = (props) => {
   const { data: user, isError } = useAuth({ keepPreviousData: true })
 
   // TODO: Here, as in some other places, it feels tricky to figure out what is happening regarding the state.
-  //   When is article null, when not, should I look into combination of article and articleId, then
+  //   When is article null, when not, should I look into combination of article and articleSlug, then
   //   there is this 'enabled' which I need on the other hand -> uff. And what if I get error? humpf!
-  const articleId = parseInt(props.match.params.articleId)
-  const { data: article, error: articleError } = useQuery(getArticle, { id: articleId }, { enabled: articleId })
+  const articleSlug = props.match.params.articleSlug
+  const { data: article, error: articleError } = useQuery(getArticle, { slug: articleSlug }, { enabled: articleSlug })
 
   // TODO: Instead of this logic here, I wish I could use ACL via Wasp and just
   //   receive user via props instead of useAuth().
   if (!user || isError) {
     return <span> Please <Link to='/login'>log in</Link>. </span>
   }
-
-  console.log('here', article)
 
   return articleError
     ? articleError.message || articleError
@@ -55,7 +53,7 @@ const ArticleEditor = (props) => {
     event.preventDefault()
     setSubmitError(null)
     try {
-      let articleId
+      let articleSlug
       if (article?.id) {
         await updateArticle({
           id: article.id,
@@ -63,16 +61,16 @@ const ArticleEditor = (props) => {
           description,
           markdownContent
         })
-        articleId = article.id
+        articleSlug = article.slug
       } else {
         const newArticle = await createArticle({
           title,
           description,
           markdownContent
         })
-        articleId = newArticle.id
+        articleSlug = newArticle.slug
       }
-      history.push(`/article/${articleId}`)
+      history.push(`/article/${articleSlug}`)
     } catch (err) {
       setSubmitError(err)
     }

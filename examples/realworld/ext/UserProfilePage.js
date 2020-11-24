@@ -62,7 +62,7 @@ const Article = (props) => {
   const article = props.article
   return (
     <div>
-      <Link to={`/article/${article.id}`}>
+      <Link to={`/article/${article.slug}`}>
         <h2> { article.title } </h2>
       </Link>
       <p> { article.description } </p>
