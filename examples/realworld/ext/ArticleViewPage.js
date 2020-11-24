@@ -1,10 +1,13 @@
 import React from 'react'
 import { useHistory } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
+import moment from 'moment'
 
 import useAuth from '@wasp/auth/useAuth.js'
 import { useQuery } from '@wasp/queries'
 
 import getArticle from '@wasp/queries/getArticle'
+import getUser from '@wasp/queries/getUser'
 import deleteArticle from '@wasp/actions/deleteArticle'
 
 import Navbar from './Navbar'
@@ -47,9 +50,16 @@ const ArticleViewPage = (props) => {
       <Navbar />
 
       <div>
+        <div> Author: { article.user.username } </div>
+        <div> Created at: { moment(article.createdAt).format('MMMM DD, YYYY') } </div>
+      </div>
+
+      <div>
         <p> { article.title } </p>
         <p> { article.description } </p>
-        <p> { article.markdownContent } </p>
+        <p>
+          <ReactMarkdown children={article.markdownContent} />
+        </p>
       </div>
 
       { isMyArticle && (

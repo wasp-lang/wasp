@@ -12,8 +12,8 @@ Todo:
 - [x] Profile page that shows basic user info.
 - [x] Home page with navbar.
 - [x] CRUD Articles (created from Markdown).
-- [ ] On /article page, show author username and date of creation (of article).
-- [ ] Render article content as markdown.
+- [x] On /article page, show author username and date of creation (of article).
+- [x] Render article content as markdown.
 - [ ] For Article, use special id which contains title in the name, and display it in url?
 - [ ] CR*D Comments on articles.
 - [ ] Paginated list of articles.

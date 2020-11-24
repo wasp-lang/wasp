@@ -102,8 +102,7 @@ const ArticleEditor = (props) => {
         />
 
         <h2>Markdown content</h2>
-        <input
-          type='text'
+        <textarea
           value={markdownContent}
           onChange={e => setMarkdownContent(e.target.value)}
         />

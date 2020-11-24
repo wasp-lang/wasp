@@ -86,8 +86,7 @@ const UserSettings = (props) => {
         />
 
         <h2>Short bio</h2>
-        <input
-          type='text'
+        <textarea
           value={bio}
           onChange={e => setBio(e.target.value)}
         />

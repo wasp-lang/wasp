@@ -53,12 +53,13 @@ psl=}
 // TODO: Add tags.
 // TODO: Add creation and update times.
 entity Article {=psl
-    id          Int     @id @default(autoincrement())
-    title       String
-    description String
-    markdownContent     String
-    user        User    @relation(fields: [userId], references: [id])
-    userId      Int
+    id              Int      @id @default(autoincrement())
+    createdAt       DateTime @default(now())
+    title           String
+    description     String
+    markdownContent String
+    user            User     @relation(fields: [userId], references: [id])
+    userId          Int
 psl=}
 
 auth {
@@ -105,3 +106,8 @@ action deleteArticle {
   fn: import { deleteArticle } from "@ext/actions.js",
   entities: [Article]
 }
+
+dependencies {=json
+  "react-markdown": "5.0.3",
+  "moment": "2.29.1"
+json=}
