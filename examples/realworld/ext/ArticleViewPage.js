@@ -1,20 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import moment from 'moment'
+import PropTypes from 'prop-types'
 
 import useAuth from '@wasp/auth/useAuth.js'
 import { useQuery } from '@wasp/queries'
 
 import getArticle from '@wasp/queries/getArticle'
+import getArticleComments from '@wasp/queries/getArticleComments'
 import getUser from '@wasp/queries/getUser'
 import deleteArticle from '@wasp/actions/deleteArticle'
+import createComment from '@wasp/actions/createComment'
+import deleteComment from '@wasp/actions/deleteComment'
 
 import Navbar from './Navbar'
 
 const ArticleViewPage = (props) => {
   const history = useHistory()
-  const { data: user } = useAuth({ keepPreviousData: true })
+  const { data: me } = useAuth({ keepPreviousData: true })
 
   const articleSlug = props.match.params.articleSlug
   const { data: article } = useQuery(getArticle, { slug: articleSlug })
@@ -29,7 +33,7 @@ const ArticleViewPage = (props) => {
   //   and that object contains article then -> then it is very clear if something got returned,
   //   or if it is that initial null.
 
-  const isMyArticle = user?.id && (user?.id === article?.userId)
+  const isMyArticle = me?.id && (me?.id === article?.userId)
 
   const handleEditArticle = () => {
     history.push(`/editor/${article.slug}`)
@@ -68,8 +72,101 @@ const ArticleViewPage = (props) => {
           <button onClick={handleDeleteArticle}> Delete Article </button>
         </div>
       )}
+
+      <Comments article={article}/>
     </div>
   ) : null
+}
+
+const Comments = (props) => {
+  const article = props.article
+
+  const { data: me } = useAuth()
+
+  const { data: comments } = useQuery(getArticleComments, { articleId: article.id })
+
+  return comments ? (
+    <div>
+      { me
+        ? <CreateComment article={article} />
+        : null // TODO: Instead of nothing, tell them they need to sign up / sign in to comment.
+      }
+
+      <div>
+        { comments.length
+          ? comments.map(c => <Comment comment={c} key={c.id} />)
+          : 'No comments yet!'
+        }
+      </div>
+    </div>
+  ) : null
+}
+Comments.propTypes = {
+  article: PropTypes.object.isRequired
+}
+
+const Comment = (props) => {
+  const comment = props.comment
+
+  const { data: me } = useAuth()
+
+  const onDelete = async () => {
+    try {
+      await deleteComment({ id: comment.id })
+    } catch (err) {
+      console.error(err)
+      window.alert(err)
+    }
+  }
+
+  return (
+    <div style={{ border: '1px solid black', width: '300px' }}>
+      <div> { comment.content } </div>
+      <div> { moment(comment.createdAt).format('MMMM DD, YYYY') } </div>
+      { /* TODO: Show user's profile picture. */ }
+      { /* TODO: Make username a link to the user profile. */ }
+      <div> { comment.user.username } </div>
+      { (me && me.id === comment.userId)
+        ? <button onClick={onDelete}> Delete </button>
+        : null
+      }
+    </div>
+  )
+}
+Comment.propTypes = {
+  comment: PropTypes.object.isRequired
+}
+
+const CreateComment = (props) => {
+  const article = props.article
+
+  const [content, setContent] = useState('')
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    try {
+      await createComment({ articleId: article.id, content })
+    } catch (err) {
+      console.error(err)
+      window.alert(err)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <textarea
+        value={content}
+        onChange={e => setContent(e.target.value)}
+        style={{ width: '300px' }}
+      />
+      <div>
+        <input type='submit' value='Post Comment' />
+      </div>
+    </form>
+  )
+}
+CreateComment.propTypes = {
+  article: PropTypes.object.isRequired
 }
 
 export default ArticleViewPage

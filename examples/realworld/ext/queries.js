@@ -45,3 +45,19 @@ export const getArticle = async ({ slug }, context) => {
     })
   return article
 }
+
+export const getArticleComments = async ({ slug }, context) => {
+  // TODO: Do some error handling?
+  const comments = await context.entities.Comment.findMany({
+    where: { article: { slug } },
+    include: {
+      user: {
+        // TODO: Tricky, if you forget this you could return unwanted fields
+        //   like hashed password!
+        //   It would be cool if we had some protection against making this mistake easily.
+        select: userPublicSelection
+      }
+    }
+  })
+  return comments
+}

@@ -38,27 +38,45 @@ page ArticleView {
 }
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    username    String  @unique
-    email       String  @unique
-    password    String
-    bio         String?
+    id                Int       @id @default(autoincrement())
+    username          String    @unique
+    email             String    @unique
+    password          String
+    bio               String?
     profilePictureUrl String?
-    articles    Article[]
+
+    articles          Article[]
+    comments          Comment[]
 psl=}
 
 // TODO: Add tags.
-// TODO: Add creation and update times.
 entity Article {=psl
     id              Int      @id @default(autoincrement())
     slug            String   @unique
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
+
     title           String
     description     String
     markdownContent String
+
     user            User     @relation(fields: [userId], references: [id])
     userId          Int
+
+    comments        Comment[]
+psl=}
+
+entity Comment {=psl
+    id              Int      @id @default(autoincrement())
+    createdAt       DateTime @default(now())
+
+    content         String
+
+    user            User     @relation(fields: [userId], references: [id])
+    userId          Int
+
+    article         Article  @relation(fields: [articleId], references: [id])
+    articleId       Int
 psl=}
 
 auth {
@@ -91,6 +109,11 @@ query getArticle {
   entities: [Article]
 }
 
+query getArticleComments {
+  fn: import { getArticleComments } from "@ext/queries.js",
+  entities: [Comment]
+}
+
 action createArticle {
   fn: import { createArticle } from "@ext/actions.js",
   entities: [Article]
@@ -106,7 +129,18 @@ action deleteArticle {
   entities: [Article]
 }
 
+action createComment {
+  fn: import { createComment } from "@ext/actions.js",
+  entities: [Comment]
+}
+
+action deleteComment {
+  fn: import { deleteComment } from "@ext/actions.js",
+  entities: [Comment]
+}
+
 dependencies {=json
+  "prop-types": "15.7.2",
   "react-markdown": "5.0.3",
   "moment": "2.29.1",
   "slug": "4.0.2"

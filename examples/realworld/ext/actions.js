@@ -79,3 +79,27 @@ export const deleteArticle = async ({ id }, context) => {
     where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
   })
 }
+
+export const createComment = async ({ articleId, content }, context) => {
+  if (!context.user) { throw new HttpError(403) }
+
+  // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
+  //   useful error message about username being taken / not unique, and other validation errors.
+  return await context.entities.Comment.create({
+    data: {
+      content,
+      user: { connect: { id: context.user.id } },
+      article: { connect: { id: articleId } }
+    }
+  })
+}
+
+export const deleteComment = async ({ id }, context) => {
+  if (!context.user) { throw new HttpError(403) }
+
+  // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
+  //   useful error message about username being taken / not unique, and other validation errors.
+  await context.entities.Comment.deleteMany({
+    where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
+  })
+}
