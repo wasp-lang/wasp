@@ -121,7 +121,12 @@ const ArticleEditor = (props) => {
           }}
         />
         <div>
-          { tags.map(tag => <div> {tag.name} </div>) }
+          { tags.map(tag => (
+            <div key={tag.name}>
+              {tag.name}
+              <button onClick={() => setTags(tags.filter(t => t !== tag))}> X </button>
+            </div>
+          ))}
         </div>
 
         <div>
