@@ -64,6 +64,9 @@ const ArticleViewPage = (props) => {
         <p>
           <ReactMarkdown children={article.markdownContent} />
         </p>
+        <p>
+          Tags: { article.tags.map(tag => <div> {tag.name} </div>) }
+        </p>
       </div>
 
       { isMyArticle && (

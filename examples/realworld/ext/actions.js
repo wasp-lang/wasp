@@ -39,7 +39,7 @@ export const updateUser = async ({ email, username, bio, profilePictureUrl, newP
   })
 }
 
-export const createArticle = async ({ title, description, markdownContent }, context) => {
+export const createArticle = async ({ title, description, markdownContent, tags }, context) => {
   if (!context.user) { throw new HttpError(403) }
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
@@ -50,22 +50,30 @@ export const createArticle = async ({ title, description, markdownContent }, con
       slug: slug(title) + '-' + (Math.random() * Math.pow(36, 6) | 0).toString(36),
       description,
       markdownContent,
-      user: { connect: { id: context.user.id } }
+      user: { connect: { id: context.user.id } },
+      tags: { connectOrCreate: tags.map(tag => ({ where: tag, create: tag })) }
     }
   })
 }
 
-export const updateArticle = async ({ id, title, description, markdownContent }, context) => {
+export const updateArticle = async ({ id, title, description, markdownContent, tags }, context) => {
   if (!context.user) { throw new HttpError(403) }
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
   //   useful error message about username being taken / not unique, and other validation errors.
-  await context.entities.Article.updateMany({
-    where: { id, user: { id: context.user.id }}, // TODO: This line is not fun to write.
+  if (!await context.entities.Article.findFirst({
+    where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
+  })) {
+    throw new HttpError(404)
+  }
+
+  await context.entities.Article.update({
+    where: { id },
     data: {
       title,
       description,
-      markdownContent
+      markdownContent,
+      tags: { connectOrCreate: tags.map(tag => ({ where: tag, create: tag })) }
     }
   })
 }

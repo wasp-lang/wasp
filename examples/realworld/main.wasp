@@ -49,34 +49,36 @@ entity User {=psl
     comments          Comment[]
 psl=}
 
-// TODO: Add tags.
 entity Article {=psl
     id              Int      @id @default(autoincrement())
     slug            String   @unique
     createdAt       DateTime @default(now())
     updatedAt       DateTime @updatedAt
-
     title           String
     description     String
     markdownContent String
 
     user            User     @relation(fields: [userId], references: [id])
     userId          Int
-
     comments        Comment[]
+    tags            ArticleTag[]
 psl=}
 
 entity Comment {=psl
     id              Int      @id @default(autoincrement())
     createdAt       DateTime @default(now())
-
     content         String
 
     user            User     @relation(fields: [userId], references: [id])
     userId          Int
-
     article         Article  @relation(fields: [articleId], references: [id])
     articleId       Int
+psl=}
+
+entity ArticleTag {=psl
+    name          String    @id
+
+    articles      Article[]
 psl=}
 
 auth {

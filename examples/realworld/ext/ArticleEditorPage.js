@@ -39,13 +39,13 @@ const ArticleEditor = (props) => {
   const user = props.user
   const article = props.article
 
-  console.log(article)
-
   const history = useHistory()
 
   const [title, setTitle] = useState(article?.title || '')
   const [description, setDescription] = useState(article?.description || '')
   const [markdownContent, setMarkdownContent] = useState(article?.markdownContent || '')
+  const [tags, setTags] = useState(article?.tags || [])
+  const [newTagName, setNewTagName] = useState('')
 
   const [submitError, setSubmitError] = useState(null)
 
@@ -59,14 +59,16 @@ const ArticleEditor = (props) => {
           id: article.id,
           title,
           description,
-          markdownContent
+          markdownContent,
+          tags
         })
         articleSlug = article.slug
       } else {
         const newArticle = await createArticle({
           title,
           description,
-          markdownContent
+          markdownContent,
+          tags
         })
         articleSlug = newArticle.slug
       }
@@ -104,6 +106,23 @@ const ArticleEditor = (props) => {
           value={markdownContent}
           onChange={e => setMarkdownContent(e.target.value)}
         />
+
+        <h2>Enter tags</h2>
+        <input
+          type="text"
+          value={newTagName}
+          onChange={e => setNewTagName(e.target.value)}
+          onKeyPress={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              setTags([...tags, { name: newTagName }])
+              setNewTagName('')
+            }
+          }}
+        />
+        <div>
+          { tags.map(tag => <div> {tag.name} </div>) }
+        </div>
 
         <div>
           <input type='submit' value='Publish Article' />

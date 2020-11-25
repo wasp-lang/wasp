@@ -40,7 +40,8 @@ export const getArticle = async ({ slug }, context) => {
           //   like hashed password!
           //   It would be cool if we had some protection against making this mistake easily.
           select: userPublicSelection
-        }
+        },
+        tags: true
       }
     })
   return article
