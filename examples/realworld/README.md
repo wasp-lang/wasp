@@ -17,9 +17,6 @@ Todo:
 - [x] For Article, use special id which contains title in the name, and display it in url?
 - [x] CR*D Comments on articles.
 - [x] Add tags to articles.
-- [ ] Make article tags deleteable. Right now I have something but it does not delete them from the database!
-      I think I am using Prisma wrong here, the problem is probably in connectOrCreate when updating,
-      it does not seem to delete the ones that are missing now.
 - [ ] Show Popular Tags on home page.
 - [ ] Favorite articles.
 - [ ] Following other users.

@@ -61,11 +61,18 @@ export const updateArticle = async ({ id, title, description, markdownContent, t
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
   //   useful error message about username being taken / not unique, and other validation errors.
-  if (!await context.entities.Article.findFirst({
-    where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
-  })) {
+
+  const article = await context.entities.Article.findFirst({
+    where: { id, user: { id: context.user.id }}, // TODO: This line is not fun to write.
+    include: { tags: true }
+  })
+  if (!article) {
     throw new HttpError(404)
   }
+
+  const subtractTags = (tags1, tags2) => tags1.filter(t1 => !tags2.find(t2 => t2.name === t1.name))
+  const tagsToAdd = tags ? subtractTags(tags, article.tags) : []
+  const tagsToRemove = tags ? subtractTags(article.tags, tags) : []
 
   await context.entities.Article.update({
     where: { id },
@@ -73,7 +80,10 @@ export const updateArticle = async ({ id, title, description, markdownContent, t
       title,
       description,
       markdownContent,
-      tags: { connectOrCreate: tags.map(tag => ({ where: tag, create: tag })) }
+      tags: {
+        connectOrCreate: tagsToAdd.map(tag => ({ where: tag, create: tag })),
+        disconnect: tagsToRemove
+      }
     }
   })
 }
