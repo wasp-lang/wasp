@@ -121,3 +121,13 @@ export const deleteComment = async ({ id }, context) => {
     where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
   })
 }
+
+export const getTags = async (_args, context) => {
+  const tags = await context.entities.ArticleTag.findMany()
+  // NOTE: This is expensive operation, it might make sense to cache it for some time period,
+  //   or do some other trick to make it less expensive.
+  for (const tag of tags) {
+    tag.numArticles = await context.entities.Article.count({ where: { tags: { some: { name: tag.name }}}})
+  }
+  return tags
+}

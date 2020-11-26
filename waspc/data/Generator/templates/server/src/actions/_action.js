@@ -11,7 +11,7 @@ const prisma = new Prisma.PrismaClient()
 export default async (args, context) => {
   context = { ...context, entities: {
     {=# entities =}
-    {= name =}: prisma.{= prismaIdentifier =}
+    {= name =}: prisma.{= prismaIdentifier =},
     {=/ entities =}
   }}
   return {= jsFnIdentifier =}(args, context)

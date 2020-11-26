@@ -17,7 +17,7 @@ Todo:
 - [x] For Article, use special id which contains title in the name, and display it in url?
 - [x] CR*D Comments on articles.
 - [x] Add tags to articles.
-- [ ] Show Popular Tags on home page.
+- [x] Show Popular Tags on home page.
 - [ ] Favorite articles.
 - [ ] Following other users.
 - [ ] Paginated lists of articles (on profile page, on home page).

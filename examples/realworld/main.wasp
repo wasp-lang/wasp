@@ -141,6 +141,11 @@ action deleteComment {
   entities: [Comment]
 }
 
+query getTags {
+  fn: import { getTags } from "@ext/actions.js",
+  entities: [ArticleTag, Article]
+}
+
 dependencies {=json
   "prop-types": "15.7.2",
   "react-markdown": "5.0.3",
