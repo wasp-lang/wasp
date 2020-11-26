@@ -2,11 +2,9 @@
 import jwt from 'jsonwebtoken'
 import SecurePassword from 'secure-password'
 import util from 'util'
-import Prisma from '@prisma/client'
 
+import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
-
-const prisma = new Prisma.PrismaClient()
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -47,14 +45,7 @@ const auth = handleRejection(async (req, res, next) => {
 })
 
 export const createNewUser = async (userFields) => {
-  const hashedPassword = await hashPassword(userFields.password)
-
-  const newUser = await prisma.{= userEntityLower =}.create({
-    data: {
-      ...userFields,
-      password: hashedPassword
-    },
-  })
+  const newUser = await prisma.{= userEntityLower =}.create({ data: userFields })
 
   return newUser
 }

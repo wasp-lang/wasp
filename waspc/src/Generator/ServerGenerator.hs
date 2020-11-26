@@ -4,9 +4,10 @@ module Generator.ServerGenerator
     ) where
 
 import           Data.Aeson                                      (object, (.=))
-import           Data.Maybe                                      (isJust)
+import           Data.Maybe                                      (isJust, fromJust)
 import           Data.List                                       (intercalate)
 import qualified Path                                            as P
+import           StrongPath                                      ((</>))
 
 import           CompileOptions                                  (CompileOptions)
 import           Generator.Common                                (nodeVersionAsText)
@@ -24,6 +25,7 @@ import           Generator.ServerGenerator.AuthG                 (genAuth)
 import qualified NpmDependency                                   as ND
 import           Wasp                                            (Wasp, getAuth)
 import qualified Wasp
+import qualified Wasp.Auth
 import qualified Wasp.NpmDependencies                            as WND
 
 
@@ -94,11 +96,26 @@ genSrcDir wasp = concat
     , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|server.js|]]
     , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|utils.js|]]
     , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|core/HttpError.js|]]
+    , [genDbClient wasp]
     , genRoutesDir wasp
     , genOperationsRoutes wasp
     , genOperations wasp
     , genAuth wasp
     ]
+
+genDbClient :: Wasp -> FileDraft
+genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+    where
+        maybeAuth = getAuth wasp
+
+        dbClientRelToSrcP = [P.relfile|dbClient.js|]
+        tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> dbClientRelToSrcP
+        dstFile = C.serverSrcDirInServerRootDir </> (C.asServerSrcFile dbClientRelToSrcP)
+
+        tmplData =
+            if (isJust maybeAuth)
+                then object [ "userEntityUpper" .= (Wasp.Auth._userEntity $ fromJust maybeAuth) ]
+                else object []
 
 genRoutesDir :: Wasp -> [FileDraft]
 genRoutesDir wasp =
