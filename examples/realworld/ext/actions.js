@@ -56,7 +56,7 @@ export const createArticle = async ({ title, description, markdownContent, tags 
   })
 }
 
-export const updateArticle = async ({ id, title, description, markdownContent, tags }, context) => {
+export const updateArticle = async ({ id, title, description, markdownContent, tags, favorited }, context) => {
   if (!context.user) { throw new HttpError(403) }
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
@@ -93,8 +93,24 @@ export const deleteArticle = async ({ id }, context) => {
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
   //   useful error message about username being taken / not unique, and other validation errors.
-  await context.entities.Article.deleteMany({
+  await context.entities.Article.deleteMany({ // TODO: Prisma quirk: I use deleteMany instead of delete so I can specify user.
     where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
+  })
+}
+
+export const setArticleFavorited = async ({ id, favorited }, context) => {
+  if (!context.user) { throw new HttpError(403) }
+
+  await context.entities.Article.update({
+    where: { id },
+    data: {
+      favoritedBy: {
+        ...(favorited === true  ? { connect:    { username: context.user.username } } :
+            favorited === false ? { disconnect: { username: context.user.username } } :
+            {}
+           )
+      }
+    }
   })
 }
 
@@ -117,14 +133,14 @@ export const deleteComment = async ({ id }, context) => {
 
   // TODO: Nicer error handling! Right now everything is returned as 500 while it could be instead
   //   useful error message about username being taken / not unique, and other validation errors.
-  await context.entities.Comment.deleteMany({
+  await context.entities.Comment.deleteMany({ // TODO: Prisma quirk: I use deleteMany instead of delete so I can specify user.
     where: { id, user: { id: context.user.id }} // TODO: This line is not fun to write.
   })
 }
 
 export const getTags = async (_args, context) => {
   const tags = await context.entities.ArticleTag.findMany()
-  // NOTE: This is expensive operation, it might make sense to cache it for some time period,
+  // NOTE: This is expensi
   //   or do some other trick to make it less expensive.
   for (const tag of tags) {
     tag.numArticles = await context.entities.Article.count({ where: { tags: { some: { name: tag.name }}}})

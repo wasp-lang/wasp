@@ -31,7 +31,7 @@ const auth = handleRejection(async (req, res, next) => {
     const token = authHeader.substring(7, authHeader.length)
     const userIdFromToken = (await verify(token)).id
 
-    const user = await prisma.{= userEntityLower =}.findOne({ where: { id: userIdFromToken } })
+    const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
     if (!user) {
       return res.status(401).send()
     }

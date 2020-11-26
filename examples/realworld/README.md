@@ -18,7 +18,7 @@ Todo:
 - [x] CR*D Comments on articles.
 - [x] Add tags to articles.
 - [x] Show Popular Tags on home page.
-- [ ] Favorite articles.
+- [x] Favorite articles.
 - [ ] Following other users.
 - [ ] Paginated lists of articles (on profile page, on home page).
 - [ ] Use Bootstrap 4 styling.

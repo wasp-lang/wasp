@@ -47,6 +47,7 @@ entity User {=psl
 
     articles          Article[]
     comments          Comment[]
+    favoriteArticles  Article[] @relation("FavoritedArticles")
 psl=}
 
 entity Article {=psl
@@ -62,6 +63,7 @@ entity Article {=psl
     userId          Int
     comments        Comment[]
     tags            ArticleTag[]
+    favoritedBy     User[]   @relation("FavoritedArticles")
 psl=}
 
 entity Comment {=psl
@@ -106,6 +108,11 @@ query getArticlesByUser {
   entities: [Article]
 }
 
+query getFavoritedArticles {
+  fn: import { getFavoritedArticles } from "@ext/queries.js",
+  entities: [Article]
+}
+
 query getArticle {
   fn: import { getArticle } from "@ext/queries.js",
   entities: [Article]
@@ -128,6 +135,11 @@ action updateArticle {
 
 action deleteArticle {
   fn: import { deleteArticle } from "@ext/actions.js",
+  entities: [Article]
+}
+
+action setArticleFavorited {
+  fn: import { setArticleFavorited } from "@ext/actions.js",
   entities: [Article]
 }
 
