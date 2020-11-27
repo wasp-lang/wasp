@@ -1,37 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 
-const userPublicSelection = {
-  id: true,
-  username: true,
-  email: true,
-  bio: true,
-  profilePictureUrl: true
-}
-
-export const getUser = async ({ username }, context) => {
-  // TODO: Do some error handling?
-  const user = await context.entities.User.findUnique({
-    where: { username },
-    // TODO: Tricky, if you forget this you could return unwanted fields
-    //   like hashed password!
-    //   It would be cool if we had some protection against making this mistake easily.
-    select: {
-      ...userPublicSelection,
-      followedBy: { select: { id: true } }
-    }
-  })
-  if (!user) throw new HttpError(404, 'No user with username ' + username)
-
-  userSetFollowedFields(user, context.user)
-
-  return user
-}
-
-const userSetFollowedFields = (user, me) => {
-  user.following = me && user.followedBy.find(({ id }) => id === me.id)
-  user.followersCount = user.followedBy.length
-  delete user.followedBy
-}
+import { userPublicSelection } from '../user/queries.js'
 
 // TODO: I extracted this articleInclude and articleSetFavoritedFields to enable
 //   reusing of logic that shapes articles as they come out of the server,
@@ -124,4 +93,14 @@ export const getArticleComments = async ({ slug }, context) => {
     }
   })
   return comments
+}
+
+export const getTags = async (_args, context) => {
+  const tags = await context.entities.ArticleTag.findMany()
+  // NOTE: This is expensi
+  //   or do some other trick to make it less expensive.
+  for (const tag of tags) {
+    tag.numArticles = await context.entities.Article.count({ where: { tags: { some: { name: tag.name }}}})
+  }
+  return tags
 }

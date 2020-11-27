@@ -90,88 +90,88 @@ auth {
   methods: [ EmailAndPassword ]
 }
 
+query getUser {
+  fn: import { getUser } from "@ext/user/queries.js",
+  entities: [User]
+}
+
 action signup {
-  fn: import { signup } from "@ext/actions.js",
+  fn: import { signup } from "@ext/user/actions.js",
   entities: [User]
 }
 
 action updateUser {
-  fn: import { updateUser } from "@ext/actions.js",
-  entities: [User]
-}
-
-query getUser {
-  fn: import { getUser } from "@ext/queries.js",
+  fn: import { updateUser } from "@ext/user/actions.js",
   entities: [User]
 }
 
 action followUser {
-  fn: import { followUser } from "@ext/actions.js",
+  fn: import { followUser } from "@ext/user/actions.js",
   entities: [User]
 }
 
 query getArticlesByUser {
-  fn: import { getArticlesByUser } from "@ext/queries.js",
+  fn: import { getArticlesByUser } from "@ext/article/queries.js",
   entities: [Article]
 }
 
 query getFavoritedArticles {
-  fn: import { getFavoritedArticles } from "@ext/queries.js",
+  fn: import { getFavoritedArticles } from "@ext/article/queries.js",
   entities: [Article]
 }
 
 query getFollowedArticles {
-  fn: import { getFollowedArticles } from "@ext/queries.js",
+  fn: import { getFollowedArticles } from "@ext/article/queries.js",
   entities: [Article, User]
 }
 
 query getAllArticles {
-  fn: import { getAllArticles } from "@ext/queries.js",
+  fn: import { getAllArticles } from "@ext/article/queries.js",
   entities: [Article]
 }
 
 query getArticle {
-  fn: import { getArticle } from "@ext/queries.js",
+  fn: import { getArticle } from "@ext/article/queries.js",
   entities: [Article]
 }
 
 query getArticleComments {
-  fn: import { getArticleComments } from "@ext/queries.js",
+  fn: import { getArticleComments } from "@ext/article/queries.js",
   entities: [Comment]
 }
 
 action createArticle {
-  fn: import { createArticle } from "@ext/actions.js",
+  fn: import { createArticle } from "@ext/article/actions.js",
   entities: [Article]
 }
 
 action updateArticle {
-  fn: import { updateArticle } from "@ext/actions.js",
+  fn: import { updateArticle } from "@ext/article/actions.js",
   entities: [Article]
 }
 
 action deleteArticle {
-  fn: import { deleteArticle } from "@ext/actions.js",
+  fn: import { deleteArticle } from "@ext/article/actions.js",
   entities: [Article]
 }
 
 action setArticleFavorited {
-  fn: import { setArticleFavorited } from "@ext/actions.js",
+  fn: import { setArticleFavorited } from "@ext/article/actions.js",
   entities: [Article]
 }
 
 action createComment {
-  fn: import { createComment } from "@ext/actions.js",
+  fn: import { createComment } from "@ext/article/actions.js",
   entities: [Comment]
 }
 
 action deleteComment {
-  fn: import { deleteComment } from "@ext/actions.js",
+  fn: import { deleteComment } from "@ext/article/actions.js",
   entities: [Comment]
 }
 
 query getTags {
-  fn: import { getTags } from "@ext/actions.js",
+  fn: import { getTags } from "@ext/article/queries.js",
   entities: [ArticleTag, Article]
 }
 
