@@ -114,7 +114,10 @@ genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 
         tmplData =
             if (isJust maybeAuth)
-                then object [ "userEntityUpper" .= (Wasp.Auth._userEntity $ fromJust maybeAuth) ]
+                then object
+                    [ "isAuthEnabled" .= True
+                    , "userEntityUpper" .= (Wasp.Auth._userEntity $ fromJust maybeAuth)
+                    ]
                 else object []
 
 genRoutesDir :: Wasp -> [FileDraft]

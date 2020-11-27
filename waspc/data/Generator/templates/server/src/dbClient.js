@@ -3,14 +3,14 @@ import Prisma from '@prisma/client'
 
 import { hashPassword } from './core/auth.js'
 
-{=# userEntityUpper =}
+{=# isAuthEnabled =}
 const PASSWORD_FIELD = 'password'
 
-{=/ userEntityUpper =}
+{=/ isAuthEnabled =}
 const createDbClient = () => {
   const prismaClient = new Prisma.PrismaClient()
 
-  {=# userEntityUpper =}
+  {=# isAuthEnabled =}
   prismaClient.$use(async (params, next) => {
     // Make sure password is always hashed before storing to the database.
     if (params.model === '{= userEntityUpper =}') {
@@ -35,7 +35,7 @@ const createDbClient = () => {
     return result
   })
 
-  {=/ userEntityUpper =}
+  {=/ isAuthEnabled =}
   return prismaClient
 }
 

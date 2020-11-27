@@ -44,6 +44,9 @@ const auth = handleRejection(async (req, res, next) => {
   next()
 })
 
+// TODO(matija): since this function is not doing much anymore, we can remove it.
+// Make sure to replace its invocations with direct calls to prisma client's create().
+// Github issue: https://github.com/wasp-lang/wasp/issues/150
 export const createNewUser = async (userFields) => {
   const newUser = await prisma.{= userEntityLower =}.create({ data: userFields })
 
