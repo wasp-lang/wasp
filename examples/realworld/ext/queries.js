@@ -33,7 +33,7 @@ const articleInclude = {
     //   It would be cool if we had some protection against making this mistake easily.
     select: userPublicSelection
   },
-  //tags: true, // TODO: This causes prisma to explode, uncomment once I get it working.
+  tags: true,
   favoritedBy: {
     select: {
       // TODO: Tricky, if I forgot this select here, sensitive data could leak out (hashed password).
@@ -57,7 +57,6 @@ const getArticles = async ({ where }, context) => {
 
   for (const article of articles) {
     articleSetFavoritedFields(article, context.user)
-    article.tags = [] // TODO: Remove this, it is just temporary fix until we fix problem with including tags.
   }
 
   return articles
@@ -81,7 +80,6 @@ export const getArticle = async ({ slug }, context) => {
     include: articleInclude
   })
   articleSetFavoritedFields(article, context.user)
-  article.tags = [] // TODO: Remove this, it is just temporary fix until we fix problem with including tags.
   return article
 }
 

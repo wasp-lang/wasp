@@ -1,11 +1,3 @@
 # Prisma Migrate lockfile v1
 
-20201030161549-user
-20201030185724-fixed-user
-20201117145436-added-bio-and-picture-to-user
-20201119144622-added-article-entity
-20201124192901-added-created-at-to-article
-20201124195623-added-slug-to-article
-20201124212222-added-comment
-20201125134317-added-article-tag
-20201126162628-added-favorite-articles
+20201127131647-init
