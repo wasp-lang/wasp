@@ -85,6 +85,21 @@ export const getFavoritedArticles = async (args, context) => {
   }, context)
 }
 
+export const getFollowedArticles = async (_args, context) => {
+  if (!context.user) { throw new HttpError(403) }
+
+  const followedUsersIds = (await context.entities.User.findUnique({
+    where: { id: context.user.id },
+    include: { following: { select: { id: true } } }
+  })).following.map(({ id }) => id)
+
+  return await getArticles({ where: { user: { id: { in: followedUsersIds } } } }, context)
+}
+
+export const getAllArticles = async (_args, context) => {
+  return await getArticles({}, context)
+}
+
 export const getArticle = async ({ slug }, context) => {
   // TODO: Do some error handling?
   const article = await context.entities.Article.findUnique({

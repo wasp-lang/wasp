@@ -1,18 +1,15 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
-import moment from 'moment'
 
 import useAuth from '@wasp/auth/useAuth.js'
-import logout from '@wasp/auth/logout.js'
-import updateUser from '@wasp/actions/updateUser'
 import getUser from '@wasp/queries/getUser'
 import getArticlesByUser from '@wasp/queries/getArticlesByUser'
 import getFavoritedArticles from '@wasp/queries/getFavoritedArticles'
-import setArticleFavorited from '@wasp/actions/setArticleFavorited'
 import followUser from '@wasp/actions/followUser'
 import { useQuery } from '@wasp/queries'
 
 import Navbar from './Navbar'
+import ArticleList from './ArticleList'
 import smileyImageUrl from './smiley.jpg'
 
 const UserProfilePage = (props) => {
@@ -87,47 +84,6 @@ const Articles = (props) => {
       <ArticleList articles={authoredArticles} />
       <h1> Favorited Articles </h1>
       <ArticleList articles={favoritedArticles} />
-    </div>
-  )
-}
-
-const ArticleList = (props) => {
-  const articles = props.articles
-  // TODO: Should I have pagination here, probably I should?
-  return articles ? (
-    <div>
-      { articles.map(article => <Article article={article} key={article.id} />) }
-    </div>
-  ) : null
-}
-
-const Article = (props) => {
-  const article = props.article
-
-  const toggleArticleFavorited = async () => {
-    await setArticleFavorited({ id: article.id, favorited: !article.favorited })
-  }
-
-  return (
-    <div style={{ border: '1px solid black' }}>
-      <Link to={`/article/${article.slug}`}>
-        <h2> { article.title } </h2>
-      </Link>
-      <p> { article.description } </p>
-      <p>
-        <em> Tags: </em>
-        { article.tags.map(t => t.name).join('; ') }
-      </p>
-      <p>
-        <img src={ article.user.profilePictureUrl || smileyImageUrl } width='30px' />
-        <div> { article.user.username } </div>
-        <div> { moment(article.createdAt).format('MMMM DD, YYYY') } </div>
-      </p>
-      <div>
-        <button onClick={toggleArticleFavorited}>
-          { article.favorited ? 'Unlike' : 'Like' } ({ article.favoritesCount })
-        </button>
-      </div>
     </div>
   )
 }

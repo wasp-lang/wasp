@@ -19,11 +19,10 @@ Todo:
 - [x] Add tags to articles.
 - [x] Show Popular Tags on home page.
 - [x] Favorite articles.
-- [ ] Make tags work again (Prisma problems!).
-- [ ] Following other users.
+- [x] Make tags work again (Prisma problems!).
+- [x] Following other users.
 - [ ] Paginated lists of articles (on profile page, on home page).
 - [ ] Use Bootstrap 4 styling.
-- [ ] Use proposed url routes.
 
 What I wish I could do (& other notes):
 - Write less boilerplate -> declaration in Wasp, implementation in JS, it is boilerplaitish, easy to forget smth.

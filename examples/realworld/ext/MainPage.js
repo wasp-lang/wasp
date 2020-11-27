@@ -4,13 +4,18 @@ import _ from 'lodash'
 
 import useAuth from '@wasp/auth/useAuth.js'
 import getTags from '@wasp/queries/getTags'
+import getFollowedArticles from '@wasp/queries/getFollowedArticles'
+import getAllArticles from '@wasp/queries/getAllArticles'
 import { useQuery } from '@wasp/queries'
 
 import Navbar from './Navbar'
+import ArticleList from './ArticleList'
 
 const MainPage = () => {
-  const { data: user } = useAuth()
+  const { data: me } = useAuth()
 
+  const { data: followedArticles } = useQuery(getFollowedArticles)
+  const { data: allArticles } = useQuery(getAllArticles)
 
   return (
     <div>
@@ -18,7 +23,18 @@ const MainPage = () => {
 
       <Tags />
 
-      TODO: Main page
+      { me && (
+        <div>
+          <h1> Your Feed </h1>
+          <ArticleList articles={followedArticles || []} />
+        </div>
+      )}
+
+      <div>
+        <h1> Global Feed </h1>
+        <ArticleList articles={allArticles || []} />
+      </div>
+
     </div>
   )
 }

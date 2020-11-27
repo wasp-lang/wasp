@@ -120,6 +120,16 @@ query getFavoritedArticles {
   entities: [Article]
 }
 
+query getFollowedArticles {
+  fn: import { getFollowedArticles } from "@ext/queries.js",
+  entities: [Article, User]
+}
+
+query getAllArticles {
+  fn: import { getAllArticles } from "@ext/queries.js",
+  entities: [Article]
+}
+
 query getArticle {
   fn: import { getArticle } from "@ext/queries.js",
   entities: [Article]
