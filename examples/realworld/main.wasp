@@ -48,6 +48,8 @@ entity User {=psl
     articles          Article[]
     comments          Comment[]
     favoriteArticles  Article[] @relation("FavoritedArticles")
+    followedBy        User[]    @relation("FollowedUser", references: [id])
+    following         User[]    @relation("FollowedUser", references: [id])
 psl=}
 
 entity Article {=psl
@@ -100,6 +102,11 @@ action updateUser {
 
 query getUser {
   fn: import { getUser } from "@ext/queries.js",
+  entities: [User]
+}
+
+action followUser {
+  fn: import { followUser } from "@ext/actions.js",
   entities: [User]
 }
 

@@ -4,7 +4,6 @@ import slug from 'slug'
 
 export const signup = async ({ username, email, password }, context) => {
   try {
-    console.log('juhu')
     await createNewUser({ username, email, password })
   } catch (err) {
     // TODO: I wish I didn't have to do this, I would love this to be in some
@@ -107,6 +106,22 @@ export const setArticleFavorited = async ({ id, favorited }, context) => {
       favoritedBy: {
         ...(favorited === true  ? { connect:    { username: context.user.username } } :
             favorited === false ? { disconnect: { username: context.user.username } } :
+            {}
+           )
+      }
+    }
+  })
+}
+
+export const followUser = async ({ username, follow }, context) => {
+  if (!context.user) { throw new HttpError(403) }
+
+  await context.entities.User.update({
+    where: { username },
+    data: {
+      followedBy: {
+        ...(follow === true  ? { connect:    { id: context.user.id } } :
+            follow === false ? { disconnect: { id: context.user.id } } :
             {}
            )
       }

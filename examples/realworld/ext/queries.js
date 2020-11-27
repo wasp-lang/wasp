@@ -15,10 +15,22 @@ export const getUser = async ({ username }, context) => {
     // TODO: Tricky, if you forget this you could return unwanted fields
     //   like hashed password!
     //   It would be cool if we had some protection against making this mistake easily.
-    select: userPublicSelection
+    select: {
+      ...userPublicSelection,
+      followedBy: { select: { id: true } }
+    }
   })
   if (!user) throw new HttpError(404, 'No user with username ' + username)
+
+  userSetFollowedFields(user, context.user)
+
   return user
+}
+
+const userSetFollowedFields = (user, me) => {
+  user.following = me && user.followedBy.find(({ id }) => id === me.id)
+  user.followersCount = user.followedBy.length
+  delete user.followedBy
 }
 
 // TODO: I extracted this articleInclude and articleSetFavoritedFields to enable
