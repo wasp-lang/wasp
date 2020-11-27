@@ -29,10 +29,10 @@ const articleSetFavoritedFields = (article, user) => {
   delete article.favoritedBy
 }
 
-const getArticles = async ({ where }, context) => {
+const getArticles = async (queryArgs, context) => {
   // TODO: Do some error handling?
   const articles = await context.entities.Article.findMany({
-    where,
+    ...queryArgs,
     include: articleInclude
   })
 
@@ -40,18 +40,22 @@ const getArticles = async ({ where }, context) => {
     articleSetFavoritedFields(article, context.user)
   }
 
+  // TODO: This does not work well because it returns count for the query that contains
+  //   skip and take which is not useful!
   return articles
 }
 
 export const getArticlesByUser = async ({ username }, context) => {
-  return await getArticles({ where: { user: { username } } }, context)
+  const articles = await getArticles({ where: { user: { username } } }, context)
+  return articles
 }
 
 export const getFavoritedArticles = async (args, context) => {
   if (!context.user) { throw new HttpError(403) }
-  return await getArticles({
+  const articles = await getArticles({
     where: { favoritedBy: { some: { username: context.user.username } } },
   }, context)
+  return articles
 }
 
 export const getFollowedArticles = async (_args, context) => {
@@ -62,11 +66,14 @@ export const getFollowedArticles = async (_args, context) => {
     include: { following: { select: { id: true } } }
   })).following.map(({ id }) => id)
 
-  return await getArticles({ where: { user: { id: { in: followedUsersIds } } } }, context)
+  const articles = await getArticles({ where: { user: { id: { in: followedUsersIds } } } }, context)
+  return articles
 }
 
-export const getAllArticles = async (_args, context) => {
-  return await getArticles({}, context)
+export const getAllArticles = async ({ skip, take }, context) => {
+  const articles = await getArticles({ skip, take }, context)
+  const count = await context.entities.Article.count()
+  return { articles, count }
 }
 
 export const getArticle = async ({ slug }, context) => {

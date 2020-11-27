@@ -8,7 +8,6 @@ import smileyImageUrl from './smiley.jpg'
 
 const ArticleList = (props) => {
   const articles = props.articles
-  // TODO: Should I have pagination here, probably I should?
   return articles ? (
     <div>
       { articles.map(article => <Article article={article} key={article.id} />) }

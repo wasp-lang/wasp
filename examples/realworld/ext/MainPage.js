@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import _ from 'lodash'
 
@@ -15,7 +15,21 @@ const MainPage = () => {
   const { data: me } = useAuth()
 
   const { data: followedArticles } = useQuery(getFollowedArticles)
-  const { data: allArticles } = useQuery(getAllArticles)
+
+  const allArticlesPageSize = 1
+  // TODO: Make the page idx persistent in the URL as query param.
+  const [allArticlesPageIdx, setAllArticlesPageIdx] = useState(0)
+  const { data: allArticlesData } = useQuery(
+    getAllArticles,
+    {
+      skip: allArticlesPageIdx * allArticlesPageSize,
+      take: allArticlesPageSize
+    }
+  )
+  const allArticles = allArticlesData?.articles
+  const allArticlesCount = allArticlesData?.count
+  const allArticlesPageCount = Math.trunc(allArticlesCount / allArticlesPageSize)
+  console.log(allArticles, allArticlesCount, allArticlesPageCount)
 
   return (
     <div>
@@ -33,6 +47,24 @@ const MainPage = () => {
       <div>
         <h1> Global Feed </h1>
         <ArticleList articles={allArticles || []} />
+        { allArticlesPageCount > 0 && (
+          <div>
+            { allArticlesPageIdx > 0 && (
+              <>
+                <button> 1 </button>
+                <button> &lt; </button>
+              </>
+            ) }
+            { /* TODO: Make the current page number an input which user can change. */ }
+            { allArticlesPageIdx + 1 }
+            { allArticlesPageIdx < allArticlesPageCount - 1 && (
+              <>
+                <button> &gt; </button>
+                <button> { allArticlesPageCount } </button>
+              </>
+            )}
+          </div>
+        ) }
       </div>
 
     </div>
