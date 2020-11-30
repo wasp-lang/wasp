@@ -40,25 +40,25 @@ const getArticles = async (queryArgs, context) => {
     articleSetFavoritedFields(article, context.user)
   }
 
-  // TODO: This does not work well because it returns count for the query that contains
-  //   skip and take which is not useful!
   return articles
 }
 
-export const getArticlesByUser = async ({ username }, context) => {
-  const articles = await getArticles({ where: { user: { username } } }, context)
-  return articles
+export const getArticlesByUser = async ({ username, skip, take }, context) => {
+  const where = { user: { username } }
+  const articles = await getArticles({ where, skip, take }, context)
+  const count = await context.entities.Article.count({ where })
+  return { articles, count }
 }
 
-export const getFavoritedArticles = async (args, context) => {
+export const getFavoritedArticles = async ({ username, skip, take }, context) => {
   if (!context.user) { throw new HttpError(403) }
-  const articles = await getArticles({
-    where: { favoritedBy: { some: { username: context.user.username } } },
-  }, context)
-  return articles
+  const where = { favoritedBy: { some: { username: context.user.username } } }
+  const articles = await getArticles({ where, skip, take }, context)
+  const count = await context.entities.Article.count({ where })
+  return { articles, count }
 }
 
-export const getFollowedArticles = async (_args, context) => {
+export const getFollowedArticles = async ({ skip, take }, context) => {
   if (!context.user) { throw new HttpError(403) }
 
   const followedUsersIds = (await context.entities.User.findUnique({
@@ -66,8 +66,10 @@ export const getFollowedArticles = async (_args, context) => {
     include: { following: { select: { id: true } } }
   })).following.map(({ id }) => id)
 
-  const articles = await getArticles({ where: { user: { id: { in: followedUsersIds } } } }, context)
-  return articles
+  const where = { user: { id: { in: followedUsersIds } } }
+  const articles = await getArticles({ where, skip, take }, context)
+  const count = await context.entities.Article.count({ where })
+  return { articles, count }
 }
 
 export const getAllArticles = async ({ skip, take }, context) => {
@@ -104,8 +106,8 @@ export const getArticleComments = async ({ slug }, context) => {
 
 export const getTags = async (_args, context) => {
   const tags = await context.entities.ArticleTag.findMany()
-  // NOTE: This is expensi
-  //   or do some other trick to make it less expensive.
+  // NOTE: This is expensive!
+  //   Consider using a time-limited cache or do some other trick to make it less expensive.
   for (const tag of tags) {
     tag.numArticles = await context.entities.Article.count({ where: { tags: { some: { name: tag.name }}}})
   }

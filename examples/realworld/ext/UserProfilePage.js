@@ -9,7 +9,7 @@ import followUser from '@wasp/actions/followUser'
 import { useQuery } from '@wasp/queries'
 
 import Navbar from './Navbar'
-import ArticleList from './ArticleList'
+import ArticleListPaginated from './ArticleListPaginated'
 import smileyImageUrl from './smiley.jpg'
 
 const UserProfilePage = (props) => {
@@ -75,15 +75,20 @@ const FollowUserButton = (props) => {
 const Articles = (props) => {
   const user = props.user
 
-  const { data: authoredArticles } = useQuery(getArticlesByUser, { username: props.user.username })
-  const { data: favoritedArticles } = useQuery(getFavoritedArticles, { username: props.user.username })
-
   return (
     <div>
       <h1> My Articles </h1>
-      <ArticleList articles={authoredArticles} />
+      <ArticleListPaginated
+        query={getArticlesByUser}
+        makeQueryArgs={({ skip, take }) => ({ username: props.user.username, skip, take })}
+        pageSize={2}
+      />
       <h1> Favorited Articles </h1>
-      <ArticleList articles={favoritedArticles} />
+      <ArticleListPaginated
+        query={getFavoritedArticles}
+        makeQueryArgs={({ skip, take }) => ({ username: props.user.username, skip, take })}
+        pageSize={2}
+      />
     </div>
   )
 }
