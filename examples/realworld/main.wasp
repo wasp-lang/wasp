@@ -9,32 +9,32 @@ page Main {
 
 route "/login" -> page Login
 page Login {
-  component: import Login from "@ext/LoginPage.js"
+  component: import Login from "@ext/auth/LoginPage.js"
 }
 
 route "/register" -> page Signup
 page Signup {
-  component: import Signup from "@ext/SignupPage.js"
+  component: import Signup from "@ext/auth/SignupPage.js"
 }
 
 route "/settings" -> page UserSettings
 page UserSettings {
-  component: import UserSettings from "@ext/UserSettingsPage.js"
+  component: import UserSettings from "@ext/user/components/UserSettingsPage.js"
 }
 
 route "/@:username" -> page UserProfile
 page UserProfile {
-  component: import UserProfile from "@ext/UserProfilePage.js"
+  component: import UserProfile from "@ext/user/components/UserProfilePage.js"
 }
 
 route "/editor/:articleSlug?" -> page ArticleEditor
 page ArticleEditor {
-  component: import ArticleEditor from "@ext/ArticleEditorPage.js"
+  component: import ArticleEditor from "@ext/article/components/ArticleEditorPage.js"
 }
 
 route "/article/:articleSlug" -> page ArticleView
 page ArticleView {
-  component: import ArticleView from "@ext/ArticleViewPage.js"
+  component: import ArticleView from "@ext/article/components/ArticleViewPage.js"
 }
 
 entity User {=psl

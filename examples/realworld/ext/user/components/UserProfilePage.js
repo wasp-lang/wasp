@@ -2,15 +2,15 @@ import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 import useAuth from '@wasp/auth/useAuth.js'
+import { useQuery } from '@wasp/queries'
+
 import getUser from '@wasp/queries/getUser'
 import getArticlesByUser from '@wasp/queries/getArticlesByUser'
 import getFavoritedArticles from '@wasp/queries/getFavoritedArticles'
 import followUser from '@wasp/actions/followUser'
-import { useQuery } from '@wasp/queries'
-
-import Navbar from './Navbar'
-import ArticleListPaginated from './ArticleListPaginated'
-import smileyImageUrl from './smiley.jpg'
+import Navbar from '../../Navbar'
+import ArticleListPaginated from '../../article/components/ArticleListPaginated'
+import smileyImageUrl from '../../smiley.jpg'
 
 const UserProfilePage = (props) => {
   const history = useHistory()

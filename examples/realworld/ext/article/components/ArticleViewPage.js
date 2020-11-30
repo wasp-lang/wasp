@@ -14,7 +14,7 @@ import deleteArticle from '@wasp/actions/deleteArticle'
 import createComment from '@wasp/actions/createComment'
 import deleteComment from '@wasp/actions/deleteComment'
 
-import Navbar from './Navbar'
+import Navbar from '../../Navbar'
 
 const ArticleViewPage = (props) => {
   const history = useHistory()

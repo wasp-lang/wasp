@@ -3,12 +3,13 @@ import { Link, useHistory } from 'react-router-dom'
 
 import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
+import { useQuery } from '@wasp/queries'
+
 import createArticle from '@wasp/actions/createArticle'
 import updateArticle from '@wasp/actions/updateArticle'
-import { useQuery } from '@wasp/queries'
 import getArticle from '@wasp/queries/getArticle'
 
-import Navbar from './Navbar'
+import Navbar from '../../Navbar'
 
 const ArticleEditorPage = (props) => {
   const { data: user, isError } = useAuth({ keepPreviousData: true })

@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom'
 import _ from 'lodash'
 
 import useAuth from '@wasp/auth/useAuth.js'
+import { useQuery } from '@wasp/queries'
+
 import getTags from '@wasp/queries/getTags'
 import getFollowedArticles from '@wasp/queries/getFollowedArticles'
 import getAllArticles from '@wasp/queries/getAllArticles'
-import { useQuery } from '@wasp/queries'
-
 import Navbar from './Navbar'
-import ArticleListPaginated from './ArticleListPaginated'
+import ArticleListPaginated from './article/components/ArticleListPaginated'
 
 const MainPage = () => {
   const { data: me } = useAuth()
@@ -39,7 +39,6 @@ const MainPage = () => {
           pageSize={2}
         />
       </div>
-
     </div>
   )
 }

@@ -3,9 +3,10 @@ import { Link, useHistory } from 'react-router-dom'
 
 import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
+
 import updateUser from '@wasp/actions/updateUser'
 
-import Navbar from './Navbar'
+import Navbar from '../../Navbar'
 
 const UserSettingsPage = () => {
   const { data: user, isError } = useAuth({ keepPreviousData: true })

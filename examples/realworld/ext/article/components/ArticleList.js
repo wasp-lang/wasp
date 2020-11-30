@@ -4,7 +4,7 @@ import moment from 'moment'
 
 import setArticleFavorited from '@wasp/actions/setArticleFavorited'
 
-import smileyImageUrl from './smiley.jpg'
+import smileyImageUrl from '../../smiley.jpg'
 
 const ArticleList = (props) => {
   const articles = props.articles

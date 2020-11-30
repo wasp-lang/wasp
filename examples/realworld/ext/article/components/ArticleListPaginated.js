@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 
 import { useQuery } from '@wasp/queries'
+
 import ArticleList from './ArticleList'
 
 const ArticleListPaginated = (props) => {
