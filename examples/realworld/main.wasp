@@ -7,14 +7,18 @@ page Main {
   component: import Main from "@ext/MainPage.js"
 }
 
-route "/login" -> page Login
-page Login {
-  component: import Login from "@ext/auth/LoginPage.js"
+// TODO: I had to change route to '/signin' because Wasp right now occupies
+//   '/login' with its own login page. By RWA spec, url should be '/login'.
+//   We should change this back to '/login' once we make Wasp more flexible
+//   in this regard.
+route "/signin" -> page LogIn
+page LogIn {
+  component: import LogIn from "@ext/auth/LoginPage.js"
 }
 
-route "/register" -> page Signup
-page Signup {
-  component: import Signup from "@ext/auth/SignupPage.js"
+route "/register" -> page SignUp
+page SignUp {
+  component: import SignUp from "@ext/auth/SignupPage.js"
 }
 
 route "/settings" -> page UserSettings

@@ -23,6 +23,7 @@ Todo:
 - [x] Following other users.
 - [x] Paginated lists of articles (on profile page, on home page).
 - [ ] Implement design (use Bootstrap 4 styling?).
+- [ ] Display proper error messages on login/signup.
 - [ ] Improve error handling in React, we don't do a really good job there.
 
 

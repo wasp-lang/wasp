@@ -1,10 +1,11 @@
-import { createNewUser } from '@wasp/core/auth.js'
 import HttpError from '@wasp/core/HttpError.js'
-import slug from 'slug'
 
 export const signup = async ({ username, email, password }, context) => {
   try {
-    await createNewUser({ username, email, password })
+    console.log(username, email, password)
+    return await context.entities.User.create({
+      data: { username, email, password }
+    })
   } catch (err) {
     // TODO: I wish I didn't have to do this, I would love this to be in some
     //   degree done automatically.
@@ -27,13 +28,7 @@ export const updateUser = async ({ email, username, bio, profilePictureUrl, newP
       username,
       bio,
       profilePictureUrl,
-      // TODO: This is a problem because I save non-hashed password!!!!
-      //   We somehow need to make it really hard (or impossible) for user to do this by mistake,
-      //   because if even I did it by mistake, it is likely to happen again.
-      //   I was used to mongoose doing hashing on save and was not aware it will just save it plain as day.
-      //   Actually, is there even a mechanism I can use to change this password?
-      //   I don't think so!
-      password: newPassword || undefined
+      ...(newPassword ? { password: newPassword } : {})
     }
   })
 }

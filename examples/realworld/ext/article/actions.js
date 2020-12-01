@@ -1,3 +1,5 @@
+import slug from 'slug'
+
 import HttpError from '@wasp/core/HttpError.js'
 
 
