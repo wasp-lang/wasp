@@ -2,11 +2,9 @@
 import jwt from 'jsonwebtoken'
 import SecurePassword from 'secure-password'
 import util from 'util'
-import Prisma from '@prisma/client'
 
+import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
-
-const prisma = new Prisma.PrismaClient()
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -46,15 +44,11 @@ const auth = handleRejection(async (req, res, next) => {
   next()
 })
 
+// TODO(matija): since this function is not doing much anymore, we can remove it.
+// Make sure to replace its invocations with direct calls to prisma client's create().
+// Github issue: https://github.com/wasp-lang/wasp/issues/150
 export const createNewUser = async (userFields) => {
-  const hashedPassword = await hashPassword(userFields.password)
-
-  const newUser = await prisma.{= userEntityLower =}.create({
-    data: {
-      ...userFields,
-      password: hashedPassword
-    },
-  })
+  const newUser = await prisma.{= userEntityLower =}.create({ data: userFields })
 
   return newUser
 }

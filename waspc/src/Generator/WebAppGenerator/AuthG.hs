@@ -10,13 +10,18 @@ import Generator.WebAppGenerator.Common as C
 
 genAuth :: Wasp -> [FileDraft]
 genAuth wasp = case maybeAuth of
-    Just _    -> [ genLogin
+    Just _    -> [ genSignup
+                 , genLogin
                  , genLogout
                  , genUseAuth
-                 ]
+                 ] ++ genAuthPages
     Nothing   -> []
     where
         maybeAuth = getAuth wasp
+
+-- | Generates file with signup function to be used by Wasp developer.
+genSignup :: FileDraft
+genSignup = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/signup.js|])
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: FileDraft
@@ -32,21 +37,14 @@ genLogout = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/logout.js|])
 genUseAuth :: FileDraft
 genUseAuth = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/useAuth.js|])
 
+genAuthPages :: [FileDraft]
+genAuthPages =
+    [ genSignupPage
+    , genLoginPage
+    ]
 
-{-
--- | Generates React hook that Wasp developer can use in a component to get
---   access to the currently logged in user (and check whether user is logged in
---   ot not).
-genUseUser :: Wasp.Auth.Auth -> FileDraft
-genUseUser auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
-    where
-        tmplFile = C.asTmplFile [P.relfile|src/auth/_useUser.js|]
-        dstFile = C.asWebAppFile $ [P.reldir|src/auth/|] P.</> fromJust (getUseUserDstFileName auth)
-        tmplData = object
-            [ "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
-            , "userEntity" .= (Wasp.Auth._userEntity auth)
-            ]
+genLoginPage :: FileDraft
+genLoginPage = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/pages/Login.js|])
 
-        getUseUserDstFileName :: Wasp.Auth.Auth -> Maybe (P.Path P.Rel P.File)
-        getUseUserDstFileName a = P.parseRelFile ("use" ++ (Wasp.Auth._userEntity a) ++ ".js")
--}
+genSignupPage :: FileDraft
+genSignupPage = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/pages/Signup.js|])

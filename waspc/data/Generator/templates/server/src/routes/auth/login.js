@@ -38,4 +38,3 @@ export default handleRejection(async (req, res) => {
 
   return res.json({ token })
 })
-

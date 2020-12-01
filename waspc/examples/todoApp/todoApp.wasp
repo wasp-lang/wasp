@@ -22,16 +22,6 @@ entity Task {=psl
     userId      Int
 psl=}
 
-route "/login" -> page Login
-page Login {
-    component: import Login from "@ext/pages/Login"
-}
-
-route "/signup" -> page Signup
-page Signup {
-    component: import Signup from "@ext/pages/Signup"
-}
-
 route "/" -> page Main
 page Main {
     component: import Main from "@ext/pages/Main"
@@ -67,11 +57,6 @@ query getTask {
 }
 
 // --------- Actions --------- //
-
-action signUp {
-  fn: import { signUp } from "@ext/actions.js",
-  entities: [User]
-}
 
 action createTask {
   fn: import { createTask } from "@ext/actions.js",
