@@ -2,6 +2,13 @@ app Conduit {
   title: "Conduit"
 }
 
+auth {
+  userEntity: User,
+  methods: [ EmailAndPassword ]
+}
+
+// ----------------- Pages ------------------ //
+
 route "/" -> page Main
 page Main {
   component: import Main from "@ext/MainPage.js"
@@ -40,6 +47,8 @@ route "/article/:articleSlug" -> page ArticleView
 page ArticleView {
   component: import ArticleView from "@ext/article/components/ArticleViewPage.js"
 }
+
+// ----------------- Entities ------------------ //
 
 entity User {=psl
     id                Int       @id @default(autoincrement())
@@ -89,18 +98,10 @@ entity ArticleTag {=psl
     articles      Article[]
 psl=}
 
-auth {
-  userEntity: User,
-  methods: [ EmailAndPassword ]
-}
+// ----------------- User operations ------------------ //
 
 query getUser {
   fn: import { getUser } from "@ext/user/queries.js",
-  entities: [User]
-}
-
-action signup {
-  fn: import { signup } from "@ext/user/actions.js",
   entities: [User]
 }
 
@@ -113,6 +114,8 @@ action followUser {
   fn: import { followUser } from "@ext/user/actions.js",
   entities: [User]
 }
+
+// ----------------- Article operations ------------------ //
 
 query getArticlesByUser {
   fn: import { getArticlesByUser } from "@ext/article/queries.js",
@@ -178,6 +181,8 @@ query getTags {
   fn: import { getTags } from "@ext/article/queries.js",
   entities: [ArticleTag, Article]
 }
+
+// -------------------------------------------- //
 
 dependencies {=json
   "prop-types": "15.7.2",

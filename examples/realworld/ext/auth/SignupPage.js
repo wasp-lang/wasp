@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import login from '@wasp/auth/login.js'
-import signup from '@wasp/actions/signup'
+import login from '@wasp/auth/login'
+import signup from '@wasp/auth/signup'
 
 export default () => {
   const history = useHistory()

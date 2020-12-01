@@ -5,7 +5,7 @@ import { userPublicSelection } from '../user/queries.js'
 // TODO: I extracted this articleInclude and articleSetFavoritedFields to enable
 //   reusing of logic that shapes articles as they come out of the server,
 //   but I wonder if there is a more elegant way - here there are a lot of assumptions,
-//   and it is easy to not use where it should be used or use it in wrong setting.
+//   and it is easy to not use where it should be used or use it in a wrong setting.
 
 const articleInclude = {
   user: {
