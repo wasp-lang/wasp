@@ -13,7 +13,7 @@ generator client {
 
 {=# entities =}
 model {= name =} {
-    {= pslModelSchema =}
+    {=& pslModelSchema =}
 }
 
 {=/ entities =}

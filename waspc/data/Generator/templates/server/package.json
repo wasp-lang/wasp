@@ -9,6 +9,9 @@
     "debug": "DEBUG=server:* npm start",
     "standard": "standard"
   },
+  "nodemonConfig": {
+    "delay": "1000"
+  },
   "engines": {
     "node": ">={= nodeVersion =}"
   },

@@ -1,33 +1,37 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
-import signup from '@wasp/actions/signup'
+import login from '@wasp/auth/login.js'
 
-export default () => {
+// TODO: A lot of duplication with the Sign up page, extract it into one component
+//   and then just use it in both LoginPage and SignupPage?
+
+const LoginPage = () => {
   const history = useHistory()
-  const [username, setUsername] = useState()
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
+  const [submitError, setSubmitError] = useState()
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    setSubmitError(null)
     try {
-      await signup({ username, email, password })
+      await login(email, password)
       history.push('/')
-      // TODO: What to do after sign up?
     } catch (err) {
-      // TODO: How should we handle errors?
-      window.alert('Error:' + err.message)
+      // TODO: If error is 401, inform user that either username or password is not right.
+      setSubmitError(err)
     }
   }
 
   // TODO: I should look into using bootstrap v4, it might make all this simpler.
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <h2> Username </h2>
-        <input type='text' value={username} onChange={e => setUsername(e.target.value)} />
+      { submitError && (
+          <p> { submitError.message || submitError } </p>
+      ) }
 
+      <form onSubmit={handleSubmit}>
         <h2> Email </h2>
         <input type='text' value={email} onChange={e => setEmail(e.target.value)} />
 
@@ -35,8 +39,10 @@ export default () => {
         <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
 
         <br />
-        <input type='submit' value='Sign up' />
+        <input type='submit' value='Sign in' />
       </form>
     </div>
   )
 }
+
+export default LoginPage

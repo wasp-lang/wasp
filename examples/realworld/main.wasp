@@ -2,34 +2,191 @@ app Conduit {
   title: "Conduit"
 }
 
-route "/" -> page Main
-page Main {
-  component: import Main from "@ext/MainPage.js"
-}
-
-route "/login" -> page Login
-page Login {
-  component: import Login from "@ext/LoginPage.js"
-}
-
-route "/register" -> page Signup
-page Signup {
-  component: import Signup from "@ext/SignupPage.js"
-}
-
-entity User {=psl
-    id          Int     @id @default(autoincrement())
-    username    String  @unique
-    email       String  @unique
-    password    String
-psl=}
-
 auth {
   userEntity: User,
   methods: [ EmailAndPassword ]
 }
 
-action signup {
-  fn: import { signup } from "@ext/actions.js",
+// ----------------- Pages ------------------ //
+
+route "/" -> page Main
+page Main {
+  component: import Main from "@ext/MainPage.js"
+}
+
+// TODO: I had to change route to '/signin' because Wasp right now occupies
+//   '/login' with its own login page. By RWA spec, url should be '/login'.
+//   We should change this back to '/login' once we make Wasp more flexible
+//   in this regard.
+route "/signin" -> page LogIn
+page LogIn {
+  component: import LogIn from "@ext/auth/LoginPage.js"
+}
+
+route "/register" -> page SignUp
+page SignUp {
+  component: import SignUp from "@ext/auth/SignupPage.js"
+}
+
+route "/settings" -> page UserSettings
+page UserSettings {
+  component: import UserSettings from "@ext/user/components/UserSettingsPage.js"
+}
+
+route "/@:username" -> page UserProfile
+page UserProfile {
+  component: import UserProfile from "@ext/user/components/UserProfilePage.js"
+}
+
+route "/editor/:articleSlug?" -> page ArticleEditor
+page ArticleEditor {
+  component: import ArticleEditor from "@ext/article/components/ArticleEditorPage.js"
+}
+
+route "/article/:articleSlug" -> page ArticleView
+page ArticleView {
+  component: import ArticleView from "@ext/article/components/ArticleViewPage.js"
+}
+
+// ----------------- Entities ------------------ //
+
+entity User {=psl
+    id                Int       @id @default(autoincrement())
+    username          String    @unique
+    email             String    @unique
+    password          String
+    bio               String?
+    profilePictureUrl String?
+
+    articles          Article[]
+    comments          Comment[]
+    favoriteArticles  Article[] @relation("FavoritedArticles")
+    followedBy        User[]    @relation("FollowedUser", references: [id])
+    following         User[]    @relation("FollowedUser", references: [id])
+psl=}
+
+entity Article {=psl
+    id              Int      @id @default(autoincrement())
+    slug            String   @unique
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+    title           String
+    description     String
+    markdownContent String
+
+    user            User     @relation(fields: [userId], references: [id])
+    userId          Int
+    comments        Comment[]
+    tags            ArticleTag[]
+    favoritedBy     User[]   @relation("FavoritedArticles")
+psl=}
+
+entity Comment {=psl
+    id              Int      @id @default(autoincrement())
+    createdAt       DateTime @default(now())
+    content         String
+
+    user            User     @relation(fields: [userId], references: [id])
+    userId          Int
+    article         Article  @relation(fields: [articleId], references: [id])
+    articleId       Int
+psl=}
+
+entity ArticleTag {=psl
+    name          String    @id
+
+    articles      Article[]
+psl=}
+
+// ----------------- User operations ------------------ //
+
+query getUser {
+  fn: import { getUser } from "@ext/user/queries.js",
   entities: [User]
 }
+
+action updateUser {
+  fn: import { updateUser } from "@ext/user/actions.js",
+  entities: [User]
+}
+
+action followUser {
+  fn: import { followUser } from "@ext/user/actions.js",
+  entities: [User]
+}
+
+// ----------------- Article operations ------------------ //
+
+query getArticlesByUser {
+  fn: import { getArticlesByUser } from "@ext/article/queries.js",
+  entities: [Article]
+}
+
+query getFavoritedArticles {
+  fn: import { getFavoritedArticles } from "@ext/article/queries.js",
+  entities: [Article]
+}
+
+query getFollowedArticles {
+  fn: import { getFollowedArticles } from "@ext/article/queries.js",
+  entities: [Article, User]
+}
+
+query getAllArticles {
+  fn: import { getAllArticles } from "@ext/article/queries.js",
+  entities: [Article]
+}
+
+query getArticle {
+  fn: import { getArticle } from "@ext/article/queries.js",
+  entities: [Article]
+}
+
+query getArticleComments {
+  fn: import { getArticleComments } from "@ext/article/queries.js",
+  entities: [Comment]
+}
+
+action createArticle {
+  fn: import { createArticle } from "@ext/article/actions.js",
+  entities: [Article]
+}
+
+action updateArticle {
+  fn: import { updateArticle } from "@ext/article/actions.js",
+  entities: [Article]
+}
+
+action deleteArticle {
+  fn: import { deleteArticle } from "@ext/article/actions.js",
+  entities: [Article]
+}
+
+action setArticleFavorited {
+  fn: import { setArticleFavorited } from "@ext/article/actions.js",
+  entities: [Article]
+}
+
+action createComment {
+  fn: import { createComment } from "@ext/article/actions.js",
+  entities: [Comment]
+}
+
+action deleteComment {
+  fn: import { deleteComment } from "@ext/article/actions.js",
+  entities: [Comment]
+}
+
+query getTags {
+  fn: import { getTags } from "@ext/article/queries.js",
+  entities: [ArticleTag, Article]
+}
+
+// -------------------------------------------- //
+
+dependencies {=json
+  "prop-types": "15.7.2",
+  "react-markdown": "5.0.3",
+  "moment": "2.29.1",
+  "slug": "4.0.2"
+json=}

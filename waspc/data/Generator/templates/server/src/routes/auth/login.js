@@ -12,7 +12,7 @@ export default handleRejection(async (req, res) => {
   const context = {}
 
   // Try to fetch user with the given email.
-  const {= userEntityLower =} = await prisma.{= userEntityLower =}.findOne({ where: { email: args.email.toLowerCase() } })
+  const {= userEntityLower =} = await prisma.{= userEntityLower =}.findUnique({ where: { email: args.email.toLowerCase() } })
   if (!user) {
     return res.status(401).send()
   }
