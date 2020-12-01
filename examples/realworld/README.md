@@ -1,7 +1,7 @@
 Realworld app
 =================
 
-[Realworld app](https://github.com/gothinkster/realworld) (RWA) is a benchmark for implementing a relatively complex app in a specific web dev solution.
+[Realworld app](https://github.com/gothinkster/realworld) (RWA) is a benchmark for implementing a relatively complex app in a specific web dev technology.
 
 Here, we implement it in Wasp, by following their [specification](https://github.com/gothinkster/realworld/tree/master/spec).
 
