@@ -29,7 +29,7 @@ Todo:
 
 Thoughts while implementing the RWA:
 - I wish I could write less boilerplate -> declaration in Wasp, implementation in JS, it is boilerplaitish, easy to forget smth.
-  Solutions is probably to introduce inline JS and Wasp modules.
+  Solution is probably to introduce inline JS and Wasp modules.
 - I wish I could write forms faster. Writing forms in React is too complicated, I don't like that, all the details,
   thinking about e.target value and what not. Might be cool if Wasp had sub-DSL for forms -> it could generate HTML that is semantically correct (correctly uses labels and correctly constructs form), takes case of stuff like validation, and then wasper can apply any CSS they want.
 - I wish I didn't have to write signup and login forms + supporting logic -> it is boring and I did nothing smart there.
