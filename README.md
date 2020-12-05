@@ -69,16 +69,12 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 
 # Project status
 
-We are still very early (pre-alpha). Specifically, we are developing `waspc` (Wasp compiler) and also designing language as we go.
-
-Currently, `waspc` is in a state where the main parts are there (code analysis and generation) and we are successfully generating code.
-
-The language itself supports a narrow set of features for now, not enough for serious web app development, but we believe it is a good basis to build upon.  
-The next step is to expand the language (and compiler) so it can serve the role of a smart code generator - it will still not have enough features to keep you from ejecting for a very long time, but it will be enough to give you a quick start.  
-Finally, as it grows further, it should allow the development of web apps of increasing complexity without the need to eject!
+Currently, Wasp is in alpha and has enough features so that you can develop a basic web app in it!
+You might find that it misses flexibility in some places or that some bigger features are missing, but the basics are there and we are not adding on top of them.
+In the case you get stuck, you can take the generated code and continue with it.
+As Wasp grows further, it should allow the development of web apps of increasing complexity, without the need to eject!
 
 While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
-
 
 # Contributing
 
