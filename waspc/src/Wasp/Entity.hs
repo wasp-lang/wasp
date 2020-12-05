@@ -1,19 +1,51 @@
--- TODO(matija): remove PSL suffix, added it to avoid clashes with the existing Entity module.
--- Once the old Entity module is removed, rename to "Entity".
 module Wasp.Entity
     ( Entity (..)
+    , Field (..)
+    , FieldType (..)
+    , Scalar (..)
+    , Composite (..)
     ) where
 
-import Data.Text (Text)
 import Data.Aeson (ToJSON(..), (.=), object)
+
+import qualified Psl.Ast.Model
+
 
 data Entity = Entity
     { _name :: !String
-    , _pslModelSchema :: !Text -- ^ PSL stands for Prisma Schema Language.
-    } deriving (Show, Eq)
+    , _fields :: ![Field]
+    , _pslModelBody :: !Psl.Ast.Model.Body
+    }
+    deriving (Show, Eq)
+
+data Field = Field
+    { _fieldName :: !String
+    , _fieldType :: !FieldType
+    }
+    deriving (Show, Eq)
+
+data FieldType = FieldTypeScalar Scalar | FieldTypeComposite Composite
+    deriving (Show, Eq)
+
+data Composite = Optional Scalar | List Scalar
+    deriving (Show, Eq)
+
+data Scalar
+    = String
+    | Boolean
+    | Int
+    | Float
+    | DateTime
+    | Json
+    -- | Name of the user-defined type.
+    -- This could be another entity, or maybe an enum,
+    -- we don't know here yet.
+    | UserType String
+    deriving (Show, Eq)
 
 instance ToJSON Entity where
     toJSON entity = object
         [ "name" .= _name entity
-        , "pslModelSchema" .= _pslModelSchema entity
+        , "fields" .= show (_fields entity)
+        , "pslModelBody" .= show (_pslModelBody entity)
         ]

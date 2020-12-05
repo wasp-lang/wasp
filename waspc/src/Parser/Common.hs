@@ -132,7 +132,7 @@ waspCssClosure = waspNamedClosure "css"
 waspNamedClosure :: String -> Parser String
 waspNamedClosure name = do
     _ <- closureStart
-    strip <$> (manyTill anyChar (try closureEnd))
+    strip <$> manyTill anyChar (try closureEnd)
   where
       closureStart = L.symbol ("{=" ++ name)
       closureEnd = L.symbol (name ++ "=}")
