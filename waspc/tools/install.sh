@@ -9,6 +9,7 @@ WASP_TEMP_DIR=
 FORCE=
 
 RED="\033[31m"
+GREEN="\033[32m"
 BOLD="\033[1m"
 RESET="\033[0m"
 
@@ -53,8 +54,7 @@ install_based_on_os() {
 install_from_bin_package() {
     PACKAGE_URL="https://github.com/wasp-lang/wasp/releases/latest/download/$1"
     make_temp_dir
-    info "Downloading binary package to temporary dir and unpacking it there..."
-    echo ""
+    info "Downloading binary package to temporary dir and unpacking it there...\n"
     dl_to_file "$PACKAGE_URL" "$WASP_TEMP_DIR/$1"
     echo ""
     mkdir -p "$WASP_TEMP_DIR/wasp"
@@ -93,12 +93,12 @@ install_from_bin_package() {
         die "\nInstallation failed!\n${OCCUPIED_PATH_ERRORS}Remove listed entries manually or run the installer with --force flag to write over them:\n  curl -sSL http://get.wasp-lang.dev | sh -s -- --force"
     fi
 
-    info "Installing Wasp data to $DATA_DST_DIR/wasp"
+    info "Installing Wasp data to $DATA_DST_DIR/wasp."
     if ! mv "$WASP_TEMP_DIR/wasp" "$DATA_DST_DIR/"; then
         die "Installing data to $DATA_DST_DIR failed."
     fi
 
-    info "Installing Wasp executable to $BIN_DST_DIR/wasp"
+    info "Installing Wasp executable to $BIN_DST_DIR/wasp."
     # TODO: I should make sure here that $DATA_DST_DIR is abs path.
     #  It works for now because we set it to HOME_LOCAL_SHARE which
     #  we obtained using $HOME which is absolute, but if that changes
@@ -110,7 +110,7 @@ install_from_bin_package() {
         die "Failed to make $BIN_DST_DIR/wasp executable."
     fi
 
-    info "Wasp has been successfully installed! Type 'wasp' to start wasping :)."
+    info "${GREEN}Wasp has been successfully installed! Type 'wasp' to start wasping :).${RESET}"
 
     if ! on_path "$BIN_DST_DIR"; then
         info "\n\n${RED}WARNING${RESET}: It looks like '$BIN_DST_DIR' is not on your PATH! You will not be able to invoke wasp from the terminal by its name."
@@ -145,12 +145,12 @@ cleanup_temp_dir() {
 
 # Print a message to stderr and exit with error code.
 die() {
-    echo -e "$@" >&2
+    printf "${RED}$@${RESET}\n" >&2
     exit 1
 }
 
 info() {
-    echo -e "$@"
+    printf "$@\n"
 }
 
 # Download a URL to file using 'curl' or 'wget'.
@@ -185,12 +185,20 @@ has_cmd() {
 
 # Check whether the given (query) path is listed in the PATH environment variable.
 on_path() {
-    # We normalize PATH and query regarding ~ by ensuring ~ is expanded to $HOME, avoiding
+    # Below we normalize PATH and query regarding ~ by ensuring ~ is expanded to $HOME, avoiding
     # false negatives in case where ~ is expanded in query but not in PATH and vice versa.
-    local PATH_BOUNDED=":$PATH:"
-    local PATH_NORMALIZED="${PATH_BOUNDED//:\~/:$HOME}" # Expand all ~ that are after :
-    local QUERY_NORMALIZED=":${1/#\~/$HOME}:" # Expand ~ if it is first character.
-    echo "$PATH_NORMALIZED" | grep -q "$QUERY_NORMALIZED"
+
+    # NOTE: If $PATH or $1 have '|' somewhere in it, sed commands bellow will fail due to using | as their delimiter.
+
+    # If ~ is after : or if it is the first character in the path, replace it with expanded $HOME.
+    # For example, if $PATH is ~/martin/bin:~/martin/~tmp/bin,
+    # result will be /home/martin/bin:/home/martin/~tmp/bin .
+    local PATH_NORMALIZED=$(printf '%s' "$PATH" | sed -e "s|:~|:$HOME|g" | sed -e "s|^~|$HOME|")
+
+    # Replace ~ with expanded $HOME if it is the first character in the query path.
+    local QUERY_NORMALIZED=$(printf '%s' "$1" | sed -e "s|^~|$HOME|")
+
+    echo ":$PATH_NORMALIZED:" | grep -q ":$QUERY_NORMALIZED:"
 }
 
 main
