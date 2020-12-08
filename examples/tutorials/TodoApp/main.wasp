@@ -4,11 +4,13 @@ app TodoApp {
 
 auth {
     userEntity: User,
-    methods: [ EmailAndPassword ]
+    methods: [ EmailAndPassword ],
+    onAuthFailedRedirectTo: "/login"
 }
 
 route "/" -> page Main
 page Main {
+  authRequired: true,
   component: import Main from "@ext/MainPage.js"
 }
 

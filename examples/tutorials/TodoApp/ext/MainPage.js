@@ -9,13 +9,8 @@ import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
 import Clocks from './Clocks'
 
-const MainPage = () => {
+const MainPage = ({ user }) => {
   const { data: tasks, isFetching, error } = useQuery(getTasks)
-
-  const { data: user } = useAuth()
-  if (!user) {
-    return <span> Please <Link to='/login'>log in</Link>. </span>
-  }
 
   return (
     <div>

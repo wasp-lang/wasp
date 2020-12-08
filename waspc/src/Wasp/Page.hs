@@ -9,6 +9,7 @@ import Wasp.JsImport (JsImport)
 data Page = Page
     { _name :: !String
     , _component :: !JsImport
+    , _authRequired :: Maybe Bool
     } deriving (Show, Eq)
 
 instance ToJSON Page where

@@ -4,7 +4,8 @@ app todoApp {
 
 auth {
     userEntity: User,
-    methods: [ EmailAndPassword ]
+    methods: [ EmailAndPassword ],
+    onAuthFailedRedirectTo: "/login"
 }
 
 entity User {=psl
@@ -34,6 +35,7 @@ page Login {
 
 route "/" -> page Main
 page Main {
+    authRequired: true,
     component: import Main from "@ext/pages/Main"
 }
 
@@ -44,6 +46,7 @@ page About {
 
 route "/profile" -> page Profile
 page Profile {
+    authRequired: true,
     component: import { ProfilePage } from "@ext/pages/ProfilePage"
 }
 
@@ -51,6 +54,7 @@ page Profile {
 //
 route "/task/:id" -> page Task
 page Task {
+    authRequired: true,
     component: import Task from "@ext/pages/Task"
 }
 

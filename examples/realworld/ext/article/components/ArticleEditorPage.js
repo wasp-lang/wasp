@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
-import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
 
@@ -12,26 +11,18 @@ import getArticle from '@wasp/queries/getArticle'
 import Navbar from '../../Navbar'
 
 const ArticleEditorPage = (props) => {
-  const { data: user, isError } = useAuth({ keepPreviousData: true })
-
   // TODO: Here, as in some other places, it feels tricky to figure out what is happening regarding the state.
   //   When is article null, when not, should I look into combination of article and articleSlug, then
   //   there is this 'enabled' which I need on the other hand -> uff. And what if I get error? humpf!
   const articleSlug = props.match.params.articleSlug
   const { data: article, error: articleError } = useQuery(getArticle, { slug: articleSlug }, { enabled: articleSlug })
 
-  // TODO: Instead of this logic here, I wish I could use ACL via Wasp and just
-  //   receive user via props instead of useAuth().
-  if (!user || isError) {
-    return <span> Please <Link to='/login'>log in</Link>. </span>
-  }
-
   return articleError
     ? articleError.message || articleError
     : (
       <div>
         <Navbar />
-        <ArticleEditor user={user} article={article} />
+        <ArticleEditor user={props.user} article={article} />
       </div>
     )
 }

@@ -15,7 +15,8 @@ auth {
 
 route "/" -> page Landing
 page Landing {
-    component: import Landing from "@ext/pages/Landing"
+    component: import Landing from "@ext/pages/Landing",
+    authRequired: false
 }
 
 route "/test" -> page TestPage

@@ -46,6 +46,7 @@ spec_parseWasp =
                             , Wasp.JsImport._namedImports = []
                             , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Landing|]
                             }
+                        , Wasp.Page._authRequired = Just False
                         }
                     , WaspElementRoute $ R.Route
                         { R._urlPath = "/test"
@@ -58,6 +59,7 @@ spec_parseWasp =
                             , Wasp.JsImport._namedImports = []
                             , Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Test|]
                             }
+                        , Wasp.Page._authRequired = Nothing
                         }
                     , WaspElementEntity $ Wasp.Entity.Entity
                         { Wasp.Entity._name = "Task"

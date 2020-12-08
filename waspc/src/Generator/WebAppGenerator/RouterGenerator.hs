@@ -18,7 +18,7 @@ import qualified Wasp.Route
 
 
 data RouterTemplateData = RouterTemplateData
-    { _routes        :: ![Wasp.Route.Route]
+    { _routes        :: ![RouteTemplateData]
     , _pagesToImport :: ![PageTemplateData]
     }
 
@@ -26,6 +26,17 @@ instance ToJSON RouterTemplateData where
     toJSON routerTD = object
         [ "routes" .= _routes routerTD
         , "pagesToImport" .= _pagesToImport routerTD
+        ]
+
+data RouteTemplateData = RouteTemplateData
+    { _urlPath :: !String
+    , _targetComponent :: !String
+    }
+
+instance ToJSON RouteTemplateData where
+    toJSON routeTD = object
+        [ "urlPath" .= _urlPath routeTD
+        , "targetComponent" .= _targetComponent routeTD
         ]
 
 data PageTemplateData = PageTemplateData
@@ -55,8 +66,34 @@ createRouterTemplateData wasp = RouterTemplateData
     , _pagesToImport = pages
     }
     where
-        routes = Wasp.getRoutes wasp
+        routes = map (createRouteTemplateData wasp) $ Wasp.getRoutes wasp
         pages = map createPageTemplateData $ Wasp.getPages wasp
+
+createRouteTemplateData :: Wasp -> Wasp.Route.Route -> RouteTemplateData
+createRouteTemplateData wasp route = RouteTemplateData
+    { _urlPath = Wasp.Route._urlPath route
+    , _targetComponent = determineRouteTargetComponent wasp route
+    }
+
+determineRouteTargetComponent :: Wasp -> Wasp.Route.Route -> String
+determineRouteTargetComponent wasp route =
+    maybe
+        targetPageName 
+        determineRouteTargetComponent'
+        (Wasp.Page._authRequired pageFromRoute)
+    where
+        targetPageName = Wasp.Route._targetPage route
+        -- NOTE(matija): if no page with the name specified in the route, head will fail.
+        pageFromRoute = head $ filter (((==) targetPageName) . Wasp.Page._name) (Wasp.getPages wasp)
+
+        -- | Applied if authRequired property is present.
+        determineRouteTargetComponent' :: Bool -> String
+        determineRouteTargetComponent' authRequired =
+            if authRequired 
+            -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
+            then "createAuthRequiredPage(" ++ targetPageName ++ ")"
+            else targetPageName
+
 
 
 createPageTemplateData :: Wasp.Page.Page -> PageTemplateData

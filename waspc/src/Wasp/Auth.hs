@@ -6,6 +6,7 @@ module Wasp.Auth
 data Auth = Auth
     { _userEntity :: !String
     , _methods :: [AuthMethod]
+    , _onAuthFailedRedirectTo :: !String
     } deriving (Show, Eq)
 
 data AuthMethod

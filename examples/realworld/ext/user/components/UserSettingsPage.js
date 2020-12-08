@@ -1,21 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
-import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
 
 import updateUser from '@wasp/actions/updateUser'
 
 import Navbar from '../../Navbar'
 
-const UserSettingsPage = () => {
-  const { data: user, isError } = useAuth({ keepPreviousData: true })
-  // TODO: Instead of this logic here, I wish I could use ACL via Wasp and just
-  //   receive user via props instead of useAuth().
-  if (!user || isError) {
-    return <span> Please <Link to='/login'>log in</Link>. </span>
-  }
-
+const UserSettingsPage = ({ user }) => {
   return (
     <div>
       <Navbar />
