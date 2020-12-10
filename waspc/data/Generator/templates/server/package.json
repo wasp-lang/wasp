@@ -19,6 +19,6 @@
   "devDependencies": {
     "nodemon": "^2.0.4",
     "standard": "^14.3.4",
-    "@prisma/cli": "2.x"
+    "@prisma/cli": "2.12.1"
   }
 }
