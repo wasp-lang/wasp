@@ -1,7 +1,8 @@
 {{={= =}=}}
 import Prisma from '@prisma/client'
-
+{=# isAuthEnabled =}
 import { hashPassword } from './core/auth.js'
+{=/ isAuthEnabled =}
 
 {=# isAuthEnabled =}
 const PASSWORD_FIELD = 'password'
