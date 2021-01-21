@@ -23,7 +23,7 @@ const ArticleEditorPage = (props) => {
   // TODO: Instead of this logic here, I wish I could use ACL via Wasp and just
   //   receive user via props instead of useAuth().
   if (!user || isError) {
-    return <span> Please <Link to='/signin'>log in</Link>. </span>
+    return <span> Please <Link to='/login'>log in</Link>. </span>
   }
 
   return articleError

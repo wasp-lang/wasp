@@ -12,6 +12,16 @@ page Main {
   component: import Main from "@ext/MainPage.js"
 }
 
+route "/signup" -> page Signup
+page Signup {
+    component: import Signup from "@ext/SignupPage"
+}
+
+route "/login" -> page Login
+page Login {
+    component: import Login from "@ext/LoginPage"
+}
+
 entity User {=psl
     id          Int     @id @default(autoincrement())
     email       String  @unique
