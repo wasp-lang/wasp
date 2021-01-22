@@ -80,6 +80,11 @@ executables:
       - async
       - time
       - path-io
+      - uuid
+      - cryptonite
+      - aeson
+      - utf8-string
+      - http-conduit
 
 benchmarks:
   waspc-benchmarks:

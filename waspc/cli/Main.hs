@@ -1,29 +1,42 @@
 module Main where
 
-import System.Environment
-import Paths_waspc (version)
-import Data.Version (showVersion)
+import           Control.Concurrent       (threadDelay)
+import qualified Control.Concurrent.Async as Async
+import           Control.Monad            (void)
+import           Data.Version             (showVersion)
+import           Paths_waspc              (version)
+import           System.Environment
 
-import Command (runCommand)
-import Command.Db (runDbCommand, studio)
-import Command.CreateNewProject (createNewProject)
-import Command.Start (start)
-import Command.Clean (clean)
-import Command.Compile (compile)
-import Command.Db.Migrate (migrateSave, migrateUp)
+import           Command                  (runCommand)
+import           Command.Clean            (clean)
+import           Command.Compile          (compile)
+import           Command.CreateNewProject (createNewProject)
+import           Command.Db               (runDbCommand, studio)
+import           Command.Db.Migrate       (migrateSave, migrateUp)
+import           Command.Start            (start)
+import qualified Command.Telemetry        as Telemetry
 
 
 main :: IO ()
 main = do
+    telemetryThread <- Async.async $ runCommand Telemetry.considerSendingData
+
     args <- getArgs
     case args of
         ["new", projectName] -> runCommand $ createNewProject projectName
-        ["start"] -> runCommand start
-        ["clean"] -> runCommand clean
-        ["compile"] -> runCommand compile
-        ("db":dbArgs) -> dbCli dbArgs
-        ["version"] -> printVersion
-        _ -> printUsage
+        ["start"]            -> runCommand start
+        ["clean"]            -> runCommand clean
+        ["compile"]          -> runCommand compile
+        ("db":dbArgs)        -> dbCli dbArgs
+        ["version"]          -> printVersion
+        _                    -> printUsage
+
+    -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
+    -- We also make sure here to catch all errors that might get thrown and silence them.
+    void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
+  where
+      threadDelaySeconds = let microsecondsInASecond = 1000000
+                           in threadDelay . (* microsecondsInASecond)
 
 printUsage :: IO ()
 printUsage = putStrLn $ unlines

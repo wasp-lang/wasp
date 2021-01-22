@@ -4,17 +4,20 @@ module Command.Common
     , waspSaysC
     ) where
 
-import System.Directory (getCurrentDirectory, doesPathExist, doesFileExist)
-import qualified System.FilePath as FP
-import Data.Maybe (fromJust)
-import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
-import Control.Monad (when, unless)
+import           Control.Monad          (unless, when)
+import           Control.Monad.Except   (throwError)
+import           Control.Monad.IO.Class (liftIO)
+import           Data.Maybe             (fromJust)
+import           System.Directory       (doesFileExist, doesPathExist,
+                                         getCurrentDirectory)
+import qualified System.FilePath        as FP
 
-import StrongPath (Path, Abs, Dir)
-import qualified StrongPath as SP
-import Command (Command, CommandError(..))
-import Common (WaspProjectDir, dotWaspRootFileInWaspProjectDir, waspSays)
+import           Command                (Command, CommandError (..))
+import           Common                 (WaspProjectDir,
+                                         dotWaspRootFileInWaspProjectDir,
+                                         waspSays)
+import           StrongPath             (Abs, Dir, Path)
+import qualified StrongPath             as SP
 
 
 findWaspProjectRoot :: Path Abs (Dir ()) -> Command (Path Abs (Dir WaspProjectDir))
