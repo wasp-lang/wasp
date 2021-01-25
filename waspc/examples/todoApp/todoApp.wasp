@@ -22,6 +22,16 @@ entity Task {=psl
     userId      Int
 psl=}
 
+route "/signup" -> page Signup
+page Signup {
+    component: import Signup from "@ext/pages/auth/Signup"
+}
+
+route "/login" -> page Login
+page Login {
+    component: import Login from "@ext/pages/auth/Login"
+}
+
 route "/" -> page Main
 page Main {
     component: import Main from "@ext/pages/Main"

@@ -19,7 +19,7 @@ const Navbar = () => {
   } else {
     return (
       <div>
-        <Link to='/signin'> Sign in </Link>
+        <Link to='/login'> Sign in </Link>
         <Link to='/register'> Sign up </Link>
       </div>
     )
