@@ -11,11 +11,12 @@ import StrongPath (Path, Rel, File, Dir, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
-import Wasp.Entity (Entity)
 import CompileOptions (CompileOptions)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Generator.Common (ProjectRootDir)
 import Generator.Templates (TemplatesDir)
+
+-- * Path definitions
 
 data DbRootDir
 data DbTemplatesDir
@@ -37,17 +38,26 @@ dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
 dbSchemaFileInProjectRootDir :: Path (Rel ProjectRootDir) File
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
 
+-- * Db generator
+
 genDb :: Wasp -> CompileOptions -> [FileDraft]
 genDb wasp _ =
-    [ genPrismaSchema $ Wasp.getPSLEntities wasp
+    [ genPrismaSchema wasp
     ]
 
-genPrismaSchema :: [Entity] -> FileDraft
-genPrismaSchema entities = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
+genPrismaSchema :: Wasp -> FileDraft
+genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
     where
         dstPath = dbSchemaFileInProjectRootDir
         tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
+        isBuild = Wasp.getIsBuild wasp
+
+        datasourceProvider = if isBuild then "postgresql" else "sqlite"
+        datasourceUrl = if isBuild then "env(\"DATABASE_URL\")" else "\"file:./dev.db\""
+
         templateData = object
-            [ "entities" .= entities
+            [ "entities" .= (Wasp.getPSLEntities wasp)
+            , "datasourceProvider" .= (datasourceProvider :: String)
+            , "datasourceUrl"      .= (datasourceUrl :: String)
             ]

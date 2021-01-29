@@ -5,6 +5,7 @@ module Common
     , dotWaspRootFileInWaspProjectDir
     , extCodeDirInWaspProjectDir
     , generatedCodeDirInDotWaspDir
+    , buildDirInDotWaspDir
     , waspSays
     ) where
 
@@ -20,6 +21,7 @@ import qualified Util.Terminal as Term
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data DotWaspDir -- Here we put everything that wasp generates.
 
+
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = SP.fromPathRelDir [P.reldir|.wasp|]
@@ -27,6 +29,9 @@ dotWaspDirInWaspProjectDir = SP.fromPathRelDir [P.reldir|.wasp|]
 -- TODO: Hm this has different name than it has in Generator.
 generatedCodeDirInDotWaspDir :: Path (Rel DotWaspDir) (Dir Generator.Common.ProjectRootDir)
 generatedCodeDirInDotWaspDir = SP.fromPathRelDir [P.reldir|out|]
+
+buildDirInDotWaspDir :: Path (Rel DotWaspDir) (Dir Generator.Common.ProjectRootDir)
+buildDirInDotWaspDir = SP.fromPathRelDir [P.reldir|build|]
 
 dotWaspRootFileInWaspProjectDir :: Path (Rel WaspProjectDir) File
 dotWaspRootFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.wasproot|]

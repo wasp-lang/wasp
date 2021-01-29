@@ -11,4 +11,5 @@ import ExternalCode(SourceExternalCodeDir)
 --   Maybe it is, even more than this!
 data CompileOptions = CompileOptions
     { externalCodeDirPath :: !(Path Abs (Dir SourceExternalCodeDir))
+    , isBuild :: !Bool
     }
