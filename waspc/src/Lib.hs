@@ -24,12 +24,12 @@ compile waspFile outDir options = do
 
     case Parser.parseWasp waspStr of
         Left err -> return $ Left (show err)
-        Right wasp -> expandWaspASTWithCompileOptions wasp options >>= generateCode
+        Right wasp -> enrichWaspASTBasedOnCompileOptions wasp options >>= generateCode
   where
     generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
     
-expandWaspASTWithCompileOptions :: Wasp -> CompileOptions -> IO Wasp
-expandWaspASTWithCompileOptions wasp options = do
+enrichWaspASTBasedOnCompileOptions :: Wasp -> CompileOptions -> IO Wasp
+enrichWaspASTBasedOnCompileOptions wasp options = do
     externalCodeFiles <- ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
     return (wasp
            `setExternalCodeFiles` externalCodeFiles 

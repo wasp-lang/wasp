@@ -1,6 +1,7 @@
 module Command.Compile
     ( compileIO
     , compile
+    , compileIOWithOptions
     ) where
 
 import           Control.Monad.IO.Class (liftIO)
@@ -8,7 +9,8 @@ import           Control.Monad.Except     (throwError)
 
 import           Command                  (Command, CommandError (..))
 import           Command.Common           (findWaspProjectRootDirFromCwd,
-                                           waspSaysC, compileIOWithOptions)
+                                           findWaspFile,
+                                           waspSaysC)
 import qualified Common
 import           CompileOptions         (CompileOptions (..))
 import qualified Lib
@@ -38,3 +40,13 @@ compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir ou
         { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir
         , isBuild = False
         }
+
+compileIOWithOptions :: CompileOptions
+                     -> Path Abs (Dir Common.WaspProjectDir)
+                     -> Path Abs (Dir Lib.ProjectRootDir)
+                     -> IO (Either String ())
+compileIOWithOptions options waspProjectDir outDir = do
+    maybeWaspFile <- findWaspFile waspProjectDir
+    case maybeWaspFile of
+        Nothing -> return $ Left "No *.wasp file present in the root of Wasp project."
+        Just waspFile -> Lib.compile waspFile outDir options

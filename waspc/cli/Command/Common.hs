@@ -2,7 +2,6 @@ module Command.Common
     ( findWaspProjectRootDirFromCwd
     , findWaspProjectRoot
     , findWaspFile
-    , compileIOWithOptions
     , waspSaysC
     ) where
 
@@ -20,21 +19,10 @@ import           Command                (Command, CommandError (..))
 import           Common                 (WaspProjectDir,
                                          dotWaspRootFileInWaspProjectDir,
                                          waspSays)
-import qualified Lib
-import           CompileOptions         (CompileOptions (..))
 import           StrongPath             (Abs, Dir, Path)
 import qualified StrongPath             as SP
 import qualified Util.IO
 
-compileIOWithOptions :: CompileOptions
-                    -> Path Abs (Dir WaspProjectDir)
-                    -> Path Abs (Dir Lib.ProjectRootDir)
-                    -> IO (Either String ())
-compileIOWithOptions options waspProjectDir outDir = do
-    maybeWaspFile <- findWaspFile waspProjectDir
-    case maybeWaspFile of
-        Nothing -> return $ Left "No *.wasp file present in the root of Wasp project."
-        Just waspFile -> Lib.compile waspFile outDir options
     
 findWaspFile :: Path Abs (Dir d) -> IO (Maybe (Path Abs SP.File))
 findWaspFile dir = do

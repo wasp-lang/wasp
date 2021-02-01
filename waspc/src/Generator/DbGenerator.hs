@@ -52,10 +52,8 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
         tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
         isBuild = Wasp.getIsBuild wasp
-
-        datasourceProvider = if isBuild then "postgresql" else "sqlite"
-        datasourceUrl = if isBuild then "env(\"DATABASE_URL\")" else "\"file:./dev.db\""
-
+        (datasourceProvider, datasourceUrl) = if isBuild then ("postgresql", "env(\"DATABASE_URL\")")
+                                                         else ("sqlite",     "\"file:./dev.db\"")
         templateData = object
             [ "entities" .= (Wasp.getPSLEntities wasp)
             , "datasourceProvider" .= (datasourceProvider :: String)

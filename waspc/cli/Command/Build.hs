@@ -7,7 +7,8 @@ import           Control.Monad.Except     (throwError)
 
 import           Command                  (Command, CommandError (..))
 import           Command.Common           (findWaspProjectRootDirFromCwd,
-                                           waspSaysC, compileIOWithOptions)
+                                           waspSaysC)
+import           Command.Compile          (compileIOWithOptions)
 import           StrongPath               (Abs, Dir, Path, (</>))
 import           CompileOptions           (CompileOptions (..))
 import qualified Common
@@ -23,7 +24,7 @@ build = do
     buildResult <- liftIO $ buildIO waspProjectDir outDir
     case buildResult of
         Left compileError -> throwError $ CommandError $ "Build failed: " ++ compileError
-        Right () -> waspSaysC "Code has been successfully built!\n"
+        Right () -> waspSaysC "Code has been successfully built! Check it out in .wasp/build directory.\n"
     
 
 buildIO :: Path Abs (Dir Common.WaspProjectDir)
