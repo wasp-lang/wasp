@@ -9,13 +9,15 @@ app test_app {
 }
 
 auth {
+    onAuthFailedRedirectTo: "/test",
     userEntity: User,
     methods: [ EmailAndPassword ]
 }
 
 route "/" -> page Landing
 page Landing {
-    component: import Landing from "@ext/pages/Landing"
+    component: import Landing from "@ext/pages/Landing",
+    authRequired: false
 }
 
 route "/test" -> page TestPage

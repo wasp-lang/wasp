@@ -4,7 +4,8 @@ app Conduit {
 
 auth {
   userEntity: User,
-  methods: [ EmailAndPassword ]
+  methods: [ EmailAndPassword ],
+  onAuthFailedRedirectTo: "/login"
 }
 
 // ----------------- Pages ------------------ //
@@ -26,6 +27,7 @@ page SignUp {
 
 route "/settings" -> page UserSettings
 page UserSettings {
+  authRequired: true,
   component: import UserSettings from "@ext/user/components/UserSettingsPage.js"
 }
 
@@ -36,6 +38,7 @@ page UserProfile {
 
 route "/editor/:articleSlug?" -> page ArticleEditor
 page ArticleEditor {
+  authRequired: true,
   component: import ArticleEditor from "@ext/article/components/ArticleEditorPage.js"
 }
 

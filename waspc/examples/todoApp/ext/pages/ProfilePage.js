@@ -1,7 +1,7 @@
 import React from 'react'
 
-export const ProfilePage = () => {
+export const ProfilePage = ({ user }) => {
   return (
-    <div>I am Profile page!</div>
+    <div>I am Profile page for { user.email }!</div>
   )
 }
