@@ -31,6 +31,9 @@ module Wasp
     , setExternalCodeFiles
     , getExternalCodeFiles
 
+    , setIsBuild
+    , getIsBuild
+
     , setNpmDependencies
     , getNpmDependencies
     ) where
@@ -57,6 +60,7 @@ data Wasp = Wasp
     { waspElements      :: [WaspElement]
     , waspJsImports     :: [JsImport]
     , externalCodeFiles :: [ExternalCode.File]
+    , isBuild           :: Bool
     } deriving (Show, Eq)
 
 data WaspElement
@@ -75,7 +79,16 @@ fromWaspElems elems = Wasp
     { waspElements = elems
     , waspJsImports = []
     , externalCodeFiles = []
+    , isBuild = False
     }
+
+-- * Build
+
+getIsBuild :: Wasp -> Bool
+getIsBuild = isBuild
+
+setIsBuild :: Wasp -> Bool -> Wasp
+setIsBuild wasp isBuildNew = wasp { isBuild = isBuildNew }
 
 -- * External code files
 

@@ -14,6 +14,7 @@ import           Command.CreateNewProject (createNewProject)
 import           Command.Db               (runDbCommand, studio)
 import           Command.Db.Migrate       (migrateSave, migrateUp)
 import           Command.Start            (start)
+import           Command.Build            (build)
 import qualified Command.Telemetry        as Telemetry
 
 
@@ -29,6 +30,7 @@ main = do
         ["compile"]          -> runCommand compile
         ("db":dbArgs)        -> dbCli dbArgs
         ["version"]          -> printVersion
+        ["build"]            -> runCommand build
         _                    -> printUsage
 
     -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.

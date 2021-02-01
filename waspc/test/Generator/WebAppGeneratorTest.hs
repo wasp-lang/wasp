@@ -25,6 +25,7 @@ spec_WebAppGenerator = do
     let testWasp = (fromApp testApp)
     let testCompileOptions = CompileOptions.CompileOptions
             { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|test/src|]
+            , CompileOptions.isBuild = False
             }
 
     describe "generateWebApp" $ do
