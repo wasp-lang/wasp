@@ -9,6 +9,7 @@ app test_app {
 }
 
 auth {
+    onAuthFailedRedirectTo: "/test",
     userEntity: User,
     methods: [ EmailAndPassword ]
 }

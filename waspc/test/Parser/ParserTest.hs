@@ -34,6 +34,7 @@ spec_parseWasp =
                     , WaspElementAuth $ Wasp.Auth.Auth
                         { Wasp.Auth._userEntity = "User"
                         , Wasp.Auth._methods = [Wasp.Auth.EmailAndPassword]
+                        , Wasp.Auth._onAuthFailedRedirectTo = "/test"
                         }
                     , WaspElementRoute $ R.Route
                         { R._urlPath = "/"

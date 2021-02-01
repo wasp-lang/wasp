@@ -15,19 +15,19 @@ auth = do
     L.reserved L.reservedNameAuth
     authProperties <- P.waspClosure (L.commaSep1 authProperty)
 
-    let userEntityPs = [s | AuthPropertyUserEntity s <- authProperties]
-    failIfPropMissing propUserEntityName userEntityPs
+    let userEntityProps = [s | AuthPropertyUserEntity s <- authProperties]
+    failIfPropMissing propUserEntityName userEntityProps
 
-    let methodsPs = [ms | AuthPropertyMethods ms <- authProperties]
-    failIfPropMissing propMethodsName methodsPs
+    let methodsProps = [ms | AuthPropertyMethods ms <- authProperties]
+    failIfPropMissing propMethodsName methodsProps
 
-    let redirectPs = [r | AuthPropertyOnAuthFailedRedirectTo r <- authProperties]
-    failIfPropMissing propOnAuthFailedRedirectToName redirectPs
+    let redirectProps = [r | AuthPropertyOnAuthFailedRedirectTo r <- authProperties]
+    failIfPropMissing propOnAuthFailedRedirectToName redirectProps
 
     return Wasp.Auth.Auth
-        { Wasp.Auth._userEntity = head userEntityPs
-        , Wasp.Auth._methods = head methodsPs
-        , Wasp.Auth._onAuthFailedRedirectTo = head redirectPs
+        { Wasp.Auth._userEntity = head userEntityProps
+        , Wasp.Auth._methods = head methodsProps
+        , Wasp.Auth._onAuthFailedRedirectTo = head redirectProps
         }
 
 -- TODO(matija): this should be extracted if we want to use in other places too.

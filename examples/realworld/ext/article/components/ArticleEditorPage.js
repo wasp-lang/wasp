@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Link, useHistory } from 'react-router-dom'
 
 import logout from '@wasp/auth/logout.js'
@@ -26,6 +27,11 @@ const ArticleEditorPage = (props) => {
       </div>
     )
 }
+
+ArticleEditorPage.propTypes = {
+  user: PropTypes.object
+}
+
 
 const ArticleEditor = (props) => {
   const user = props.user

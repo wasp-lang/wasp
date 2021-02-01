@@ -80,11 +80,11 @@ determineRouteTargetComponent wasp route =
     maybe
         targetPageName 
         determineRouteTargetComponent'
-        (Wasp.Page._authRequired pageFromRoute)
+        (Wasp.Page._authRequired targetPage)
     where
         targetPageName = Wasp.Route._targetPage route
         -- NOTE(matija): if no page with the name specified in the route, head will fail.
-        pageFromRoute = head $ filter (((==) targetPageName) . Wasp.Page._name) (Wasp.getPages wasp)
+        targetPage = head $ filter (((==) targetPageName) . Wasp.Page._name) (Wasp.getPages wasp)
 
         -- | Applied if authRequired property is present.
         determineRouteTargetComponent' :: Bool -> String
