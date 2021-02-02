@@ -2,10 +2,11 @@ import debug from 'debug'
 import http from 'http'
 
 import app from './app.js'
+import config from './config.js'
 
 const debugLog = debug('server:server')
 
-const port = normalizePort(process.env.PORT || '3001')
+const port = normalizePort(config.port)
 app.set('port', port)
 
 const server = http.createServer(app)

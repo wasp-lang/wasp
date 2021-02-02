@@ -5,13 +5,12 @@ import util from 'util'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
+import config from '../config.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
 
-// TODO(matija): this is not safe, this value should come from some config file/environment
-// and shouldn't be commited to the version control.
-const JWT_SECRET = "developmentJwtSecret"
+const JWT_SECRET = config.auth.jwtSecret
 
 export const sign = (id, options) => jwtSign({ id }, JWT_SECRET, options)
 export const verify = (token) => jwtVerify(token, JWT_SECRET)
@@ -27,6 +26,8 @@ const auth = handleRejection(async (req, res, next) => {
 
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7, authHeader.length)
+    // TODO: If token verification fails, this will throw error that will end up
+    //   being propagated as 500 error. Should we handle it better, turn it into 403 error?
     const userIdFromToken = (await verify(token)).id
 
     const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
