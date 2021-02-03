@@ -55,7 +55,7 @@ genPackageJson wasp waspDeps = C.makeTemplateFD
      , "nodeVersion" .= nodeVersionAsText
      , "startProductionScript" .= concat
          [ if not (null $ Wasp.getPSLEntities wasp) then "npm run db-migrate && " else ""
-         , "node ./src/server.js"
+         , "NODE_ENV=production node ./src/server.js"
          ]
      ])
   where
