@@ -11,6 +11,7 @@ app :: App
 app = App
     { appName = "test_app"
     , appTitle = "Hello World!"
+    , appHead = Nothing
     }
 
 routeHome :: RouteAST.Route

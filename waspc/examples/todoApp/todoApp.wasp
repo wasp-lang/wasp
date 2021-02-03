@@ -1,6 +1,13 @@
 app todoApp {
-    title: "ToDo App"
+    title: "ToDo App",
+    head: [
+        "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+    ]
 }
+
+dependencies {=json
+  "@material-ui/core": "4.11.3"
+json=}
 
 auth {
     userEntity: User,

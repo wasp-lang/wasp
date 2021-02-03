@@ -39,7 +39,6 @@ pagePropertyAuthRequired = AuthRequired <$> waspPropertyBool "authRequired"
 getPageAuthRequired :: [PageProperty] -> Maybe Bool
 getPageAuthRequired ps = listToMaybe [a | AuthRequired a <- ps]
 
-
 getPageComponent :: [PageProperty] -> Maybe JsImport
 getPageComponent ps = listToMaybe [c | Component c <- ps]
 
