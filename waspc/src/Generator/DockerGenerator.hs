@@ -2,7 +2,7 @@ module Generator.DockerGenerator
     ( genDockerFiles
     ) where
 
-import           Data.Aeson          (object, (.=))
+import           Data.Aeson          (object)
 import qualified Path                as P
 import           StrongPath          (File, Path, Rel)
 import qualified StrongPath          as SP
@@ -21,7 +21,7 @@ genDockerFiles wasp _ = concat
 
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: Wasp -> FileDraft
-genDockerfile wasp = createTemplateFileDraft
+genDockerfile _ = createTemplateFileDraft
     (SP.fromPathRelFile [P.relfile|Dockerfile|] :: Path (Rel ProjectRootDir) File)
     (SP.fromPathRelFile [P.relfile|Dockerfile|] :: Path (Rel TemplatesDir) File)
     (Just $ object [])
