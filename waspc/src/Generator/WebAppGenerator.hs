@@ -35,6 +35,7 @@ generateWebApp wasp _ = concat
     , generatePublicDir wasp
     , generateSrcDir wasp
     , generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy wasp
+    , [C.makeSimpleTemplateFD (asTmplFile [P.relfile|netlify.toml|]) wasp]
     ]
 
 generateReadme :: Wasp -> FileDraft

@@ -7,6 +7,9 @@
   "scripts": {
     "start": "nodemon ./src/server.js",
     "debug": "DEBUG=server:* npm start",
+    "db-migrate-save": "prisma --experimental migrate save --schema=../db/schema.prisma",
+    "db-migrate": "prisma --experimental migrate up --schema=../db/schema.prisma",
+    "start-production": "{=& startProductionScript =}",
     "standard": "standard"
   },
   "nodemonConfig": {

@@ -4,8 +4,9 @@ module Generator.ServerGenerator
     ) where
 
 import           Data.Aeson                                      (object, (.=))
-import           Data.Maybe                                      (isJust, fromJust)
 import           Data.List                                       (intercalate)
+import           Data.Maybe                                      (fromJust,
+                                                                  isJust)
 import qualified Path                                            as P
 import           StrongPath                                      ((</>))
 
@@ -15,13 +16,14 @@ import           Generator.ExternalCodeGenerator                 (generateExtern
 import           Generator.FileDraft                             (FileDraft)
 import           Generator.PackageJsonGenerator                  (resolveNpmDeps,
                                                                   toPackageJsonDependenciesString)
+import           Generator.ServerGenerator.AuthG                 (genAuth)
 import           Generator.ServerGenerator.Common                (asServerFile,
                                                                   asTmplFile)
 import qualified Generator.ServerGenerator.Common                as C
+import           Generator.ServerGenerator.ConfigG               (genConfigFile)
 import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import           Generator.ServerGenerator.OperationsG           (genOperations)
 import           Generator.ServerGenerator.OperationsRoutesG     (genOperationsRoutes)
-import           Generator.ServerGenerator.AuthG                 (genAuth)
 import qualified NpmDependency                                   as ND
 import           Wasp                                            (Wasp, getAuth)
 import qualified Wasp
@@ -51,6 +53,10 @@ genPackageJson wasp waspDeps = C.makeTemplateFD
      [ "wasp" .= wasp
      , "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps)
      , "nodeVersion" .= nodeVersionAsText
+     , "startProductionScript" .= concat
+         [ if not (null $ Wasp.getPSLEntities wasp) then "npm run db-migrate && " else ""
+         , "NODE_ENV=production node ./src/server.js"
+         ]
      ])
   where
     (resolvedWaspDeps, resolvedUserDeps) =
@@ -97,6 +103,7 @@ genSrcDir wasp = concat
     , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|utils.js|]]
     , [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|core/HttpError.js|]]
     , [genDbClient wasp]
+    , [genConfigFile wasp]
     , genRoutesDir wasp
     , genOperationsRoutes wasp
     , genOperations wasp
@@ -110,13 +117,13 @@ genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 
         dbClientRelToSrcP = [P.relfile|dbClient.js|]
         tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> dbClientRelToSrcP
-        dstFile = C.serverSrcDirInServerRootDir </> (C.asServerSrcFile dbClientRelToSrcP)
+        dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile dbClientRelToSrcP
 
         tmplData =
-            if (isJust maybeAuth)
+            if isJust maybeAuth
                 then object
                     [ "isAuthEnabled" .= True
-                    , "userEntityUpper" .= (Wasp.Auth._userEntity $ fromJust maybeAuth)
+                    , "userEntityUpper" .= Wasp.Auth._userEntity (fromJust maybeAuth)
                     ]
                 else object []
 
@@ -127,9 +134,9 @@ genRoutesDir wasp =
     [ C.makeTemplateFD
         (asTmplFile [P.relfile|src/routes/index.js|])
         (asServerFile [P.relfile|src/routes/index.js|])
-        (Just $ object 
-            [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter 
-            , "isAuthEnabled" .= (isJust $ getAuth wasp)
+        (Just $ object
+            [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter
+            , "isAuthEnabled" .= isJust (getAuth wasp)
             ]
         )
     ]

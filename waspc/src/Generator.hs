@@ -16,6 +16,7 @@ import           Generator.Common          (ProjectRootDir)
 import           Generator.DbGenerator     (genDb)
 import           Generator.FileDraft       (FileDraft, write)
 import           Generator.ServerGenerator (genServer)
+import           Generator.DockerGenerator (genDockerFiles)
 import qualified Generator.Setup
 import qualified Generator.Start
 import           Generator.WebAppGenerator (generateWebApp)
@@ -34,6 +35,7 @@ writeWebAppCode wasp dstDir compileOptions = do
     writeFileDrafts dstDir (generateWebApp wasp compileOptions)
     writeFileDrafts dstDir (genServer wasp compileOptions)
     writeFileDrafts dstDir (genDb wasp compileOptions)
+    writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
     writeDotWaspInfo dstDir
 
 -- | Writes file drafts while using given destination dir as root dir.
