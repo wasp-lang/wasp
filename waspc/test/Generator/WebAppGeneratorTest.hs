@@ -21,7 +21,7 @@ import Fixtures (systemPathRoot)
 
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
-    let testApp = (App "TestApp" "Test App")
+    let testApp = (App "TestApp" "Test App" Nothing)
     let testWasp = (fromApp testApp)
     let testCompileOptions = CompileOptions.CompileOptions
             { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|test/src|]

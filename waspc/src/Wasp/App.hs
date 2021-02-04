@@ -8,6 +8,7 @@ import Data.Aeson ((.=), object, ToJSON(..))
 data App = App
     { appName :: !String -- Identifier
     , appTitle :: !String
+    , appHead :: !(Maybe [String])
     } deriving (Show, Eq)
 
 instance ToJSON App where

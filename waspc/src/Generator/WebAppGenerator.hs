@@ -23,7 +23,9 @@ import qualified Generator.WebAppGenerator.RouterGenerator       as RouterGenera
 import qualified NpmDependency                                   as ND
 import           StrongPath                                      (Dir, Path,
                                                                   Rel, (</>))
+import qualified StrongPath as SP
 import           Wasp
+import qualified Wasp.App
 import qualified Wasp.NpmDependencies                            as WND
 
 
@@ -80,10 +82,22 @@ generateGitignore wasp = C.makeTemplateFD (asTmplFile [P.relfile|gitignore|])
 generatePublicDir :: Wasp -> [FileDraft]
 generatePublicDir wasp =
     C.copyTmplAsIs (asTmplFile [P.relfile|public/favicon.ico|])
+    : generatePublicIndexHtml wasp
     : map (\path -> C.makeSimpleTemplateFD (asTmplFile $ [P.reldir|public|] P.</> path) wasp)
-        [ [P.relfile|index.html|]
-        , [P.relfile|manifest.json|]
+        [ [P.relfile|manifest.json|]
         ]
+
+generatePublicIndexHtml :: Wasp -> FileDraft
+generatePublicIndexHtml wasp = C.makeTemplateFD
+    (asTmplFile $ [P.relfile|public/index.html|]) 
+    targetPath
+    (Just templateData)
+    where
+        targetPath = SP.fromPathRelFile [P.relfile|public/index.html|]
+        templateData = object
+            [ "title" .= (Wasp.App.appTitle $ getApp wasp) 
+            , "head" .= (maybe "" (intercalate "\n") (Wasp.App.appHead $ getApp wasp))
+            ]
 
 -- * Src dir
 

@@ -24,7 +24,7 @@ compile waspFile outDir options = do
 
     case Parser.parseWasp waspStr of
         Left err -> return $ Left (show err)
-        Right wasp -> enrichWaspASTBasedOnCompileOptions wasp options >>= generateCode
+        Right wasp -> (enrichWaspASTBasedOnCompileOptions wasp options >>= generateCode)
   where
     generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
     

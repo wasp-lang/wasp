@@ -30,6 +30,7 @@ spec_parseWasp =
                     [ WaspElementApp $ App
                         { appName = "test_app"
                         , appTitle = "Hello World!"
+                        , appHead = Nothing
                         }
                     , WaspElementAuth $ Wasp.Auth.Auth
                         { Wasp.Auth._userEntity = "User"
