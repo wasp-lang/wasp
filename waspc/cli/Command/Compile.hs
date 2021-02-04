@@ -4,13 +4,15 @@ module Command.Compile
     , compileIOWithOptions
     ) where
 
+import           Control.Monad.Except   (throwError)
 import           Control.Monad.IO.Class (liftIO)
-import           Control.Monad.Except     (throwError)
 
-import           Command                  (Command, CommandError (..))
-import           Command.Common           (findWaspProjectRootDirFromCwd,
-                                           findWaspFile,
-                                           waspSaysC)
+import           Command                (Command, CommandError (..))
+import           Command.Common         (findWaspFile,
+                                         findWaspProjectRootDirFromCwd,
+                                         waspSaysC)
+import           Command.Db.Migrate     (copyDbMigrationsDir, MigrationDirCopyDirection(..))
+
 import qualified Common
 import           CompileOptions         (CompileOptions (..))
 import qualified Lib
@@ -46,7 +48,16 @@ compileIOWithOptions :: CompileOptions
                      -> Path Abs (Dir Lib.ProjectRootDir)
                      -> IO (Either String ())
 compileIOWithOptions options waspProjectDir outDir = do
+    -- TODO: Use ExceptT monad here, for short circuiting.
     maybeWaspFile <- findWaspFile waspProjectDir
     case maybeWaspFile of
         Nothing -> return $ Left "No *.wasp file present in the root of Wasp project."
-        Just waspFile -> Lib.compile waspFile outDir options
+        Just waspFile -> do
+            compileResult <- Lib.compile waspFile outDir options
+            case compileResult of
+                Left err -> return $ Left err
+                Right () -> do
+                    copyMigrationResult <- copyDbMigrationsDir CopyMigDirDown waspProjectDir outDir
+                    case copyMigrationResult of
+                        Just err -> return $ Left $ "Copying migration folder failed: " ++ err
+                        Nothing -> return $ Right ()

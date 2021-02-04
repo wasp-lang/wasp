@@ -1,6 +1,8 @@
 module Command.Db.Migrate
     ( migrateSave
     , migrateUp
+    , copyDbMigrationsDir
+    , MigrationDirCopyDirection(..)
     ) where
 
 import Control.Monad.Catch (catch)
@@ -122,11 +124,11 @@ copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir = do
                  else dbMigrationsDirInGenProjectDirAbs
 
     doesSrcDirExist <- PathIO.doesDirExist (SP.toPathAbsDir src)
-    if doesSrcDirExist == True then
-        ((PathIO.copyDirRecur (SP.toPathAbsDir src)
-                              (SP.toPathAbsDir target)) >> return Nothing)
-        `catch` (\e -> return $ Just $ show (e :: P.PathException))
-        `catch` (\e -> return $ Just $ show (e :: IOError))
-        
+    if doesSrcDirExist
+        then ((PathIO.copyDirRecur (SP.toPathAbsDir src)
+                                   (SP.toPathAbsDir target))
+                 >> return Nothing)
+             `catch` (\e -> return $ Just $ show (e :: P.PathException))
+             `catch` (\e -> return $ Just $ show (e :: IOError))
         else return Nothing
 
