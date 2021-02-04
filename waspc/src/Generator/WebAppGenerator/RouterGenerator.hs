@@ -28,6 +28,7 @@ instance ToJSON RouterTemplateData where
     toJSON routerTD = object
         [ "routes" .= _routes routerTD
         , "pagesToImport" .= _pagesToImport routerTD
+        , "isAuthEnabled" .= _isAuthEnabled routerTD
         ]
 
 data RouteTemplateData = RouteTemplateData
