@@ -3,6 +3,7 @@ module Generator.WebAppGenerator.RouterGenerator
     ) where
 
 import           Data.Aeson                       (ToJSON (..), object, (.=))
+import           Data.Maybe                       (isJust)
 import qualified Path                             as P
 
 import           Generator.FileDraft              (FileDraft)
@@ -18,8 +19,9 @@ import qualified Wasp.Route
 
 
 data RouterTemplateData = RouterTemplateData
-    { _routes        :: ![RouteTemplateData]
-    , _pagesToImport :: ![PageTemplateData]
+    { _routes         :: ![RouteTemplateData]
+    , _pagesToImport  :: ![PageTemplateData]
+    , _isAuthEnabled  :: Bool
     }
 
 instance ToJSON RouterTemplateData where
@@ -29,7 +31,7 @@ instance ToJSON RouterTemplateData where
         ]
 
 data RouteTemplateData = RouteTemplateData
-    { _urlPath :: !String
+    { _urlPath         :: !String
     , _targetComponent :: !String
     }
 
@@ -58,12 +60,13 @@ generateRouter wasp = C.makeTemplateFD
     where
         routerPath = [P.relfile|router.js|]
         templateData = createRouterTemplateData wasp
-        targetPath = C.webAppSrcDirInWebAppRootDir </> (asWebAppSrcFile routerPath)
+        targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
 createRouterTemplateData :: Wasp -> RouterTemplateData
 createRouterTemplateData wasp = RouterTemplateData
     { _routes = routes
     , _pagesToImport = pages
+    , _isAuthEnabled = isJust $ Wasp.getAuth wasp
     }
     where
         routes = map (createRouteTemplateData wasp) $ Wasp.getRoutes wasp
@@ -78,18 +81,18 @@ createRouteTemplateData wasp route = RouteTemplateData
 determineRouteTargetComponent :: Wasp -> Wasp.Route.Route -> String
 determineRouteTargetComponent wasp route =
     maybe
-        targetPageName 
+        targetPageName
         determineRouteTargetComponent'
         (Wasp.Page._authRequired targetPage)
     where
         targetPageName = Wasp.Route._targetPage route
         -- NOTE(matija): if no page with the name specified in the route, head will fail.
-        targetPage = head $ filter (((==) targetPageName) . Wasp.Page._name) (Wasp.getPages wasp)
+        targetPage = head $ filter ((==) targetPageName . Wasp.Page._name) (Wasp.getPages wasp)
 
         -- | Applied if authRequired property is present.
         determineRouteTargetComponent' :: Bool -> String
         determineRouteTargetComponent' authRequired =
-            if authRequired 
+            if authRequired
             -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
             then "createAuthRequiredPage(" ++ targetPageName ++ ")"
             else targetPageName
