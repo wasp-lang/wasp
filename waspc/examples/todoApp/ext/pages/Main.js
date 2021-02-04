@@ -1,4 +1,5 @@
 import React from 'react'
+import Button from '@material-ui/core/Button'
 
 import { Link } from 'react-router-dom'
 import useAuth from '@wasp/auth/useAuth.js'
@@ -9,7 +10,11 @@ import '../Main.css'
 const Main = ({ user }) => {
   return (
     <>
-      <button onClick={logout}>Logout</button>
+      <Button
+        variant='contained' color='primary'
+        onClick={logout}>
+        Logout
+      </Button>
       <Todo />
     </>
   )
