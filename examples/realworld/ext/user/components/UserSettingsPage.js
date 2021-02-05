@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
+import Container from '@material-ui/core/Container'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import { makeStyles } from '@material-ui/core/styles'
+
 import logout from '@wasp/auth/logout.js'
 
 import updateUser from '@wasp/actions/updateUser'
@@ -9,16 +15,31 @@ import Navbar from '../../Navbar'
 
 const UserSettingsPage = ({ user }) => {
   return (
-    <div>
+    <Container maxWidth="lg">
       <Navbar />
-
-      <UserSettings user={user}/>
-    </div>
+      <Grid container direction="row" justify="center">
+        <Grid item xs={6}>
+          <UserSettings user={user}/>
+        </Grid>
+      </Grid>
+    </Container>
   )
 
 }
 
+const useStyles = makeStyles((theme) => ({
+  textField: {
+    //width: '25ch',
+    marginBottom: theme.spacing(3)
+  },
+  logoutButton: {
+    marginTop: theme.spacing(3)
+  }
+}))
+
 const UserSettings = (props) => {
+  const classes = useStyles()
+
   const user = props.user
 
   const history = useHistory()
@@ -64,46 +85,59 @@ const UserSettings = (props) => {
 
       <form onSubmit={handleSubmit}>
 
-        <h2>URL of profile picture</h2>
-        <input
-          type='text'
-          value={profilePictureUrl}
+        <TextField
+          className={classes.textField}
+          label="URL of profile picture"
+          fullWidth
+          value={profilePictureUrl} 
           onChange={e => setProfilePictureUrl(e.target.value)}
         />
 
-        <h2>Username</h2>
-        <input
-          type='text'
-          value={username}
+        <TextField
+          className={classes.textField}
+          label="Username"
+          fullWidth
+          value={username} 
           onChange={e => setUsername(e.target.value)}
         />
 
-        <h2>Short bio</h2>
-        <textarea
-          value={bio}
+        <TextField
+          className={classes.textField}
+          label="Short bio"
+          multiline
+          rows={3}
+          fullWidth
+          value={bio} 
           onChange={e => setBio(e.target.value)}
         />
 
-        <h2>Email</h2>
-        <input
-          type='text'
-          value={email}
+        <TextField
+          className={classes.textField}
+          label="Email"
+          fullWidth
+          value={email} 
           onChange={e => setEmail(e.target.value)}
         />
 
-        <h2>New password</h2>
-        <input
-          type='password'
-          value={newPassword}
+        <TextField
+          className={classes.textField}
+          label="New password"
+          type="password"
+          fullWidth
+          value={newPassword} 
           onChange={e => setNewPassword(e.target.value)}
         />
 
-        <div>
-          <input type='submit' value='Update Settings' />
-        </div>
+        <Button type="submit" color="primary" variant="contained">Update Settings</Button>
       </form>
 
-      <button onClick={handleLogout}> Log out </button>
+      <Button
+        className={classes.logoutButton}
+        type="submit" color="secondary"
+        variant="contained" onClick={handleLogout}
+      >
+        Log out
+      </Button>
     </div>
   )
 }

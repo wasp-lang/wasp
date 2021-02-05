@@ -1,5 +1,9 @@
 app Conduit {
-  title: "Conduit"
+  title: "Conduit",
+  
+  head: [
+    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+  ]
 }
 
 auth {
@@ -187,5 +191,7 @@ dependencies {=json
   "prop-types": "15.7.2",
   "react-markdown": "5.0.3",
   "moment": "2.29.1",
+  "@material-ui/core": "4.11.3",
+  "@material-ui/icons": "4.11.2",
   "slug": "4.0.2"
 json=}

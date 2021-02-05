@@ -2,6 +2,13 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { Link, useHistory } from 'react-router-dom'
 
+import Container from '@material-ui/core/Container'
+import TextField from '@material-ui/core/TextField'
+import Grid from '@material-ui/core/Grid'
+import Chip from '@material-ui/core/Chip'
+import Button from '@material-ui/core/Button'
+import { makeStyles } from '@material-ui/core/styles'
+
 import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
 
@@ -10,6 +17,27 @@ import updateArticle from '@wasp/actions/updateArticle'
 import getArticle from '@wasp/queries/getArticle'
 
 import Navbar from '../../Navbar'
+
+const useStyles = makeStyles((theme) => ({
+  /*
+  root: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  */
+  textField: {
+    //marginLeft: theme.spacing(1),
+    //width: '25ch',
+    marginBottom: theme.spacing(3)
+  },
+
+  tags: {
+    '& *:not(:last-child)': {
+      marginRight: theme.spacing(0.5)
+    },
+    marginBottom: theme.spacing(3)
+  }
+}))
 
 const ArticleEditorPage = (props) => {
   // TODO: Here, as in some other places, it feels tricky to figure out what is happening regarding the state.
@@ -21,10 +49,14 @@ const ArticleEditorPage = (props) => {
   return articleError
     ? articleError.message || articleError
     : (
-      <div>
+      <Container maxWidth="lg">
         <Navbar />
-        <ArticleEditor user={props.user} article={article} />
-      </div>
+        <Grid container direction="row" justify="center">
+          <Grid item xs={8}>
+            <ArticleEditor user={props.user} article={article} />
+          </Grid>
+        </Grid>
+      </Container>
     )
 }
 
@@ -32,8 +64,9 @@ ArticleEditorPage.propTypes = {
   user: PropTypes.object
 }
 
-
 const ArticleEditor = (props) => {
+  const classes = useStyles()
+
   const user = props.user
   const article = props.article
 
@@ -85,30 +118,37 @@ const ArticleEditor = (props) => {
       ) }
 
       <form onSubmit={handleSubmit}>
-        <h2>Article title</h2>
-        <input
-          type='text'
-          value={title}
+        <TextField
+          className={classes.textField}
+          label="Article Title"
+          fullWidth
+          value={title} 
           onChange={e => setTitle(e.target.value)}
         />
 
-        <h2>What's this article about?</h2>
-        <input
-          type='text'
-          value={description}
+        <TextField
+          className={classes.textField}
+          label="What's this article about"
+          fullWidth
+          value={description} 
           onChange={e => setDescription(e.target.value)}
         />
 
-        <h2>Markdown content</h2>
-        <textarea
-          value={markdownContent}
+        <TextField
+          className={classes.textField}
+          label="Markdown content"
+          multiline
+          rows={3}
+          fullWidth
+          value={markdownContent} 
           onChange={e => setMarkdownContent(e.target.value)}
         />
 
-        <h2>Enter tags</h2>
-        <input
-          type="text"
-          value={newTagName}
+        <TextField
+          className={classes.textField}
+          label="Enter tags"
+          fullWidth
+          value={newTagName} 
           onChange={e => setNewTagName(e.target.value)}
           onKeyPress={e => {
             if (e.key === 'Enter') {
@@ -118,18 +158,14 @@ const ArticleEditor = (props) => {
             }
           }}
         />
-        <div>
+        <div className={classes.tags}>
           { tags.map(tag => (
-            <div key={tag.name}>
-              {tag.name}
-              <button onClick={() => setTags(tags.filter(t => t !== tag))}> X </button>
-            </div>
+            <Chip label={tag.name} onDelete={() => setTags(tags.filter(t => t !== tag))}/>
           ))}
         </div>
 
-        <div>
-          <input type='submit' value='Publish Article' />
-        </div>
+        <Button type='submit' color='primary' variant='contained'>Publish Article</Button>
+
       </form>
     </div>
   )

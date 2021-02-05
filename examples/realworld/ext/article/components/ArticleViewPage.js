@@ -4,6 +4,19 @@ import ReactMarkdown from 'react-markdown'
 import moment from 'moment'
 import PropTypes from 'prop-types'
 
+import Container from '@material-ui/core/Container'
+import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardActions from '@material-ui/core/CardActions'
+import CardHeader from '@material-ui/core/CardHeader'
+import TextField from '@material-ui/core/TextField'
+import Typography from '@material-ui/core/Typography'
+import Avatar from '@material-ui/core/Avatar'
+import Chip from '@material-ui/core/Chip'
+import Button from '@material-ui/core/Button'
+import { makeStyles } from '@material-ui/core/styles'
+
 import useAuth from '@wasp/auth/useAuth.js'
 import { useQuery } from '@wasp/queries'
 
@@ -16,7 +29,35 @@ import deleteComment from '@wasp/actions/deleteComment'
 
 import Navbar from '../../Navbar'
 
+const useStyles = makeStyles((theme) => ({
+  tags: {
+    '& *:not(:last-child)': {
+      marginRight: theme.spacing(0.5)
+    },
+    marginBottom: theme.spacing(3)
+  },
+  comments: {
+    '& *:not(:last-child)': {
+      marginBottom: theme.spacing(0.5)
+    },
+  },
+  ownArticleButtons: {
+    '& *:not(:last-child)': {
+      marginRight: theme.spacing(0.5)
+    },
+    marginBottom: theme.spacing(3)
+  },
+  textField: {
+    marginBottom: theme.spacing(3)
+  },
+  postCommentButton: {
+    marginBottom: theme.spacing(3)
+  }
+}))
+
 const ArticleViewPage = (props) => {
+  const classes = useStyles()
+
   const history = useHistory()
   const { data: me } = useAuth({ keepPreviousData: true })
 
@@ -50,59 +91,77 @@ const ArticleViewPage = (props) => {
   }
 
   return article ? (
-    <div>
+    <Container maxWidth="lg">
       <Navbar />
 
-      <div>
-        <div> Author: { article.user.username } </div>
-        <div> Created at: { moment(article.createdAt).format('MMMM DD, YYYY') } </div>
-      </div>
+      <Grid container direction="row" justify="center">
+        <Grid item xs={8}>
+          <Typography variant="h2">{ article.title }</Typography>
 
-      <div>
-        <p> { article.title } </p>
-        <p> { article.description } </p>
-        <p>
-          <ReactMarkdown children={article.markdownContent} />
-        </p>
-        <p>
-          Tags: { article.tags.map(tag => <div> {tag.name} </div>) }
-        </p>
-      </div>
+          <div>
+            <div> Author: { article.user.username } </div>
+            <div> Created at: { moment(article.createdAt).format('MMMM DD, YYYY') } </div>
+          </div>
+        </Grid>
 
-      { isMyArticle && (
-        <div>
-          <button onClick={handleEditArticle}> Edit Article </button>
-          <button onClick={handleDeleteArticle}> Delete Article </button>
-        </div>
-      )}
+        <Grid item xs={8}>
+          <p>
+            <Typography variant="h5">
+              <ReactMarkdown children={article.markdownContent} />
+            </Typography>
+          </p>
+        </Grid>
 
-      <Comments article={article}/>
-    </div>
+        <Grid item xs={8}>
+          <div className={classes.tags}>
+            <span>Tags:</span>
+            { article.tags.map(tag => <Chip label={tag.name} />) }
+          </div>
+
+          { isMyArticle && (
+            <div className={classes.ownArticleButtons}>
+              <Button color="primary" variant="outlined" onClick={handleEditArticle}>
+                Edit Article
+              </Button>
+              <Button color="secondary" variant="outlined" onClick={handleDeleteArticle}>
+                Delete Article
+              </Button>
+            </div>
+          )}
+
+          <Comments article={article}/>
+        </Grid>
+
+      </Grid>
+    </Container>
   ) : null
 }
 
 const Comments = (props) => {
+  const classes = useStyles()
+
   const article = props.article
 
   const { data: me } = useAuth()
 
   const { data: comments } = useQuery(getArticleComments, { articleId: article.id })
 
-  return comments ? (
+  return (
     <div>
       { me
         ? <CreateComment article={article} />
         : null // TODO: Instead of nothing, tell them they need to sign up / sign in to comment.
       }
-
-      <div>
-        { comments.length
-          ? comments.map(c => <Comment comment={c} key={c.id} />)
-          : 'No comments yet!'
-        }
-      </div>
+      { comments ? (
+        <div className={classes.comments}>
+          { comments.length
+            ? comments.map(c => <Comment comment={c} key={c.id} />)
+            : 'No comments yet!'
+          }
+        </div>
+      ) : null }
     </div>
-  ) : null
+  )
 }
 Comments.propTypes = {
   article: PropTypes.object.isRequired
@@ -123,17 +182,28 @@ const Comment = (props) => {
   }
 
   return (
-    <div style={{ border: '1px solid black', width: '300px' }}>
-      <div> { comment.content } </div>
-      <div> { moment(comment.createdAt).format('MMMM DD, YYYY') } </div>
-      { /* TODO: Show user's profile picture. */ }
-      { /* TODO: Make username a link to the user profile. */ }
-      <div> { comment.user.username } </div>
-      { (me && me.id === comment.userId)
-        ? <button onClick={onDelete}> Delete </button>
-        : null
-      }
-    </div>
+    <>
+      <Card>
+        <CardHeader
+          avatar={<Avatar>R</Avatar>}
+          title={comment.user.username}
+          subheader={ moment(comment.createdAt).format('MMMM DD, YYYY') }
+        />
+
+        <CardContent>
+          <Typography variant="body1">
+            { comment.content }
+          </Typography>
+        </CardContent>
+
+        <CardActions>
+          { (me && me.id === comment.userId)
+            ? <Button size="small" color="primary" onClick={onDelete}>Delete</Button>
+            : null
+          }
+        </CardActions>
+      </Card>
+    </>
   )
 }
 Comment.propTypes = {
@@ -141,6 +211,8 @@ Comment.propTypes = {
 }
 
 const CreateComment = (props) => {
+  const classes = useStyles()
+
   const article = props.article
 
   const [content, setContent] = useState('')
@@ -157,13 +229,17 @@ const CreateComment = (props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <textarea
+      <TextField
+        className={classes.textField}
+        label='Leave a comment'
+        multiline
+        fullWidth
+        rows={3}
         value={content}
         onChange={e => setContent(e.target.value)}
-        style={{ width: '300px' }}
       />
-      <div>
-        <input type='submit' value='Post Comment' />
+      <div className={classes.postCommentButton}>
+        <Button type="submit" color="primary" variant="contained">Post Comment</Button>
       </div>
     </form>
   )
