@@ -4,7 +4,7 @@ module Command.Compile
     , compileIOWithOptions
     ) where
 
-import           Control.Monad.Except   (throwError)
+import           Control.Monad.Except   (throwError, runExceptT)
 import           Control.Monad.IO.Class (liftIO)
 
 import           Command                (Command, CommandError (..))
@@ -47,17 +47,11 @@ compileIOWithOptions :: CompileOptions
                      -> Path Abs (Dir Common.WaspProjectDir)
                      -> Path Abs (Dir Lib.ProjectRootDir)
                      -> IO (Either String ())
-compileIOWithOptions options waspProjectDir outDir = do
-    -- TODO: Use ExceptT monad here, for short circuiting.
-    maybeWaspFile <- findWaspFile waspProjectDir
-    case maybeWaspFile of
-        Nothing -> return $ Left "No *.wasp file present in the root of Wasp project."
-        Just waspFile -> do
-            compileResult <- Lib.compile waspFile outDir options
-            case compileResult of
-                Left err -> return $ Left err
-                Right () -> do
-                    copyMigrationResult <- copyDbMigrationsDir CopyMigDirDown waspProjectDir outDir
-                    case copyMigrationResult of
-                        Just err -> return $ Left $ "Copying migration folder failed: " ++ err
-                        Nothing -> return $ Right ()
+compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
+    -- TODO: Use throwIO instead of Either to return exceptions?
+    waspFile <- liftIO (findWaspFile waspProjectDir)
+        >>= maybe (throwError "No *.wasp file present in the root of Wasp project.") return
+    liftIO (Lib.compile waspFile outDir options)
+        >>= either throwError return
+    liftIO (copyDbMigrationsDir CopyMigDirDown waspProjectDir outDir)
+        >>= maybe (return ()) (throwError . ("Copying migration folder failed: " ++))
