@@ -9,7 +9,6 @@ import           Command.Common            (findWaspProjectRootDirFromCwd)
 import           Control.Monad             (void, when)
 import           Crypto.Hash               (SHA256 (..), hashWith)
 import           Data.Aeson                ((.=))
-import           Control.Monad.IO.Class    (liftIO)
 import qualified Data.Aeson                as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8      as ByteStringUTF8
@@ -23,27 +22,46 @@ import qualified System.Directory          as SD
 import qualified System.Info
 
 import           Command                   (Command)
+import qualified Command.Call
 import           Command.Telemetry.Common  (TelemetryCacheDir)
 import           Command.Telemetry.User    (UserSignature (..))
 import           StrongPath                (Abs, Dir, File, Path)
 import qualified StrongPath                as SP
 
 
-considerSendingData :: Path Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> IO ()
-considerSendingData telemetryCacheDirPath userSignature projectHash = do
-    projectCache <- liftIO $ readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash
-    shouldSendData <- liftIO $ case _lastCheckIn projectCache of
-        Nothing -> return True
-        Just lastCheckIn -> do
-            now <- T.getCurrentTime
-            let secondsSinceLastCheckIn = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` lastCheckIn)
-            return $ let numSecondsInHour = 3600
-                      in secondsSinceLastCheckIn > 12 * numSecondsInHour
+considerSendingData :: Path Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
+considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
+    projectCache <- readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash
+
+    let relevantLastCheckIn = case cmdCall of
+            Command.Call.Build -> _lastCheckInBuild projectCache
+            _                  -> _lastCheckIn projectCache
+
+    shouldSendData <- case relevantLastCheckIn of
+        Nothing          -> return True
+        Just lastCheckIn -> isOlderThan12Hours lastCheckIn
+
     when shouldSendData $ do
-        liftIO $ sendTelemetryData $ getProjectTelemetryData userSignature projectHash
-        now <- liftIO T.getCurrentTime
-        let projectCache' = projectCache { _lastCheckIn = Just now }
-        liftIO $ writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
+        sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall
+        projectCache' <- newProjectCache projectCache
+        writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
+  where
+      isOlderThan12Hours :: T.UTCTime -> IO Bool
+      isOlderThan12Hours time = do
+          now <- T.getCurrentTime
+          let secondsSinceLastCheckIn = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
+          return $ let numSecondsInHour = 3600
+                   in secondsSinceLastCheckIn > 12 * numSecondsInHour
+
+      newProjectCache :: ProjectTelemetryCache -> IO ProjectTelemetryCache
+      newProjectCache currentProjectCache = do
+          now <- T.getCurrentTime
+          return currentProjectCache
+              { _lastCheckIn      = Just now
+              , _lastCheckInBuild = case cmdCall of
+                      Command.Call.Build -> Just now
+                      _                  -> _lastCheckInBuild currentProjectCache
+              }
 
 -- * Project hash.
 
@@ -58,14 +76,16 @@ getWaspProjectPathHash = ProjectHash . take 16 . sha256 . SP.toFilePath <$> find
 -- * Project telemetry cache.
 
 data ProjectTelemetryCache = ProjectTelemetryCache
-    { _lastCheckIn :: Maybe T.UTCTime }
+    { _lastCheckIn      :: Maybe T.UTCTime -- Last time when CLI was called for this project, any command.
+    , _lastCheckInBuild :: Maybe T.UTCTime -- Last time when CLI was called for this project, with Build command.
+    }
     deriving (Generic, Show)
 
 instance Aeson.ToJSON ProjectTelemetryCache
 instance Aeson.FromJSON ProjectTelemetryCache
 
 initialCache :: ProjectTelemetryCache
-initialCache = ProjectTelemetryCache { _lastCheckIn = Nothing }
+initialCache = ProjectTelemetryCache { _lastCheckIn = Nothing, _lastCheckInBuild = Nothing }
 
 -- * Project telemetry cache file.
 
@@ -96,14 +116,18 @@ data ProjectTelemetryData = ProjectTelemetryData
     , _projectHash   :: ProjectHash
     , _waspVersion   :: String
     , _os            :: String
+    , _isBuild       :: Bool
     } deriving (Show)
 
-getProjectTelemetryData :: UserSignature -> ProjectHash -> ProjectTelemetryData
-getProjectTelemetryData userSignature projectHash = ProjectTelemetryData
+getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.Call -> ProjectTelemetryData
+getProjectTelemetryData userSignature projectHash cmdCall = ProjectTelemetryData
     { _userSignature = userSignature
     , _projectHash = projectHash
     , _waspVersion = showVersion version
     , _os = System.Info.os
+    , _isBuild = case cmdCall of
+            Command.Call.Build -> True
+            _                  -> False
     }
 
 sendTelemetryData :: ProjectTelemetryData -> IO ()
@@ -119,6 +143,7 @@ sendTelemetryData telemetryData = do
                 , "project_hash" .= _projectHashValue (_projectHash telemetryData)
                 , "wasp_version" .= _waspVersion telemetryData
                 , "os" .= _os telemetryData
+                , "is_build" .= _isBuild telemetryData
                 ]
             ]
         request = HTTP.setRequestBodyJSON reqBodyJson $

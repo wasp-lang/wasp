@@ -9,6 +9,7 @@ import           Data.Maybe                (isJust)
 import qualified System.Environment        as ENV
 
 import           Command                   (Command, CommandError (..))
+import qualified Command.Call
 import           Command.Telemetry.Common  (ensureTelemetryCacheDirExists)
 import qualified Command.Telemetry.Project as TlmProject
 import qualified Command.Telemetry.User    as TlmUser
@@ -17,8 +18,8 @@ import qualified Command.Telemetry.User    as TlmUser
 -- If we are not in the Wasp project at the moment, nothing happens.
 -- If telemetry data was already sent for this project in the last 12 hours, nothing happens.
 -- If env var WASP_TELEMETRY_DISABLE is set, nothing happens.
-considerSendingData :: Command ()
-considerSendingData = (`catchError` const (return ())) $ do
+considerSendingData :: Command.Call.Call -> Command ()
+considerSendingData cmdCall = (`catchError` const (return ())) $ do
     isTelemetryDisabled <- liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
     when isTelemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
 
@@ -29,4 +30,4 @@ considerSendingData = (`catchError` const (return ())) $ do
     maybeProjectHash <- (Just <$> TlmProject.getWaspProjectPathHash) `catchError` const (return Nothing)
     case maybeProjectHash of
         Nothing -> return ()
-        Just projectHash -> liftIO $ TlmProject.considerSendingData telemetryCacheDirPath userSignature projectHash
+        Just projectHash -> liftIO $ TlmProject.considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall
