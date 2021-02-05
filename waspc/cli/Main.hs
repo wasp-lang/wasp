@@ -8,30 +8,41 @@ import           Paths_waspc              (version)
 import           System.Environment
 
 import           Command                  (runCommand)
+import           Command.Build            (build)
+import qualified Command.Call
 import           Command.Clean            (clean)
 import           Command.Compile          (compile)
 import           Command.CreateNewProject (createNewProject)
 import           Command.Db               (runDbCommand, studio)
 import           Command.Db.Migrate       (migrateSave, migrateUp)
 import           Command.Start            (start)
-import           Command.Build            (build)
 import qualified Command.Telemetry        as Telemetry
 
 
 main :: IO ()
 main = do
-    telemetryThread <- Async.async $ runCommand Telemetry.considerSendingData
-
     args <- getArgs
-    case args of
-        ["new", projectName] -> runCommand $ createNewProject projectName
-        ["start"]            -> runCommand start
-        ["clean"]            -> runCommand clean
-        ["compile"]          -> runCommand compile
-        ("db":dbArgs)        -> dbCli dbArgs
-        ["version"]          -> printVersion
-        ["build"]            -> runCommand build
-        _                    -> printUsage
+    let commandCall = case args of
+            ["new", projectName] -> Command.Call.New projectName
+            ["start"]            -> Command.Call.Start
+            ["clean"]            -> Command.Call.Clean
+            ["compile"]          -> Command.Call.Compile
+            ("db":dbArgs)        -> Command.Call.Db dbArgs
+            ["version"]          -> Command.Call.Version
+            ["build"]            -> Command.Call.Build
+            _                    -> Command.Call.Unknown args
+
+    telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
+
+    case commandCall of
+        Command.Call.New projectName -> runCommand $ createNewProject projectName
+        Command.Call.Start -> runCommand start
+        Command.Call.Clean -> runCommand clean
+        Command.Call.Compile -> runCommand compile
+        Command.Call.Db dbArgs -> dbCli dbArgs
+        Command.Call.Version -> printVersion
+        Command.Call.Build -> runCommand build
+        Command.Call.Unknown _ -> printUsage
 
     -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
     -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -50,6 +61,7 @@ printUsage = putStrLn $ unlines
     , "  start"
     , "  clean"
     , "  db <commmand> [command-args]"
+    , "  build"
     , "  version"
     , ""
     , "Examples:"
