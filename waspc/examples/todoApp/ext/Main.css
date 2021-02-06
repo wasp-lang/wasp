@@ -47,6 +47,10 @@ button.selected {
     margin-left: 10px;
 }
 
+.todos__newTaskForm__input {
+  margin: 0 26px !important;
+}
+
 .todos__footer {
     width: 100%;
     margin-top: 10px;
