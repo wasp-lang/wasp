@@ -38,6 +38,13 @@ api.interceptors.request.use(request => {
   return request
 })
 
+api.interceptors.response.use(response => {
+  if(response.status === 401) {
+    clearAuthToken()
+  }
+  return response
+})
+
 /**
  * Takes an error returned by the app's API (as returned by axios), and transforms into a more
  * standard format to be further used by the client. It is also assumed that given API
