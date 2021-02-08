@@ -90,7 +90,7 @@ install_from_bin_package() {
         fi
     fi
     if [ ! -z "$OCCUPIED_PATH_ERRORS" ]; then
-        die "\nInstallation failed!\n${OCCUPIED_PATH_ERRORS}Remove listed entries manually or run the installer with --force flag to write over them:\n  curl -sSL http://get.wasp-lang.dev | sh -s -- --force"
+        die "\nInstallation failed!\n\n${OCCUPIED_PATH_ERRORS}\nRemove listed entries manually or run the installer with --force flag to write over them:\n\n  ${BOLD}curl -sSL http://get.wasp-lang.dev | sh -s -- --force${RESET}\n"
     fi
 
     info "Installing Wasp data to $DATA_DST_DIR/wasp."
@@ -110,13 +110,17 @@ install_from_bin_package() {
         die "Failed to make $BIN_DST_DIR/wasp executable."
     fi
 
-    info "${GREEN}Wasp has been successfully installed! Type 'wasp' to start wasping :).${RESET}"
-
     if ! on_path "$BIN_DST_DIR"; then
-        info "\n\n${RED}WARNING${RESET}: It looks like '$BIN_DST_DIR' is not on your PATH! You will not be able to invoke wasp from the terminal by its name."
-        info "  You can add it to your PATH by adding following line into your profile file (~/.profile or ~/.zshrc or ~/.bash_profile or some other, depending on which shell you use):"
-        info "  ${BOLD}"'export PATH=$PATH:'"$BIN_DST_DIR${RESET}"
+        info "\n${RED}WARNING${RESET}: It looks like '$BIN_DST_DIR' is not on your PATH! You will not be able to invoke wasp from the terminal by its name."
+        info "  You can add it to your PATH by adding following line into your profile file (~/.profile or ~/.zshrc or ~/.bash_profile or ~/.bashrc or some other, depending on your configuration):"
+        info "      ${BOLD}"'export PATH=$PATH:'"$BIN_DST_DIR${RESET}"
     fi
+
+    info "\n${GREEN}Wasp has been successfully installed! To create your first app, do:${RESET}"
+    if ! on_path "$BIN_DST_DIR"; then
+        info " - Add wasp to your PATH as described above."
+    fi
+    info " - ${BOLD}wasp new MyApp${RESET}\n"
 }
 
 create_dir_if_missing() {
