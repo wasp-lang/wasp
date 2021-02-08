@@ -30,7 +30,12 @@ const auth = handleRejection(async (req, res, next) => {
     try {
       var userIdFromToken = (await verify(token)).id
     } catch (error) {
-      return res.status(401).send()
+      if (error.name.match(/^(TokenExpiredError|JsonWebTokenError|NotBeforeError)$/)) {
+        return res.status(401).send()
+      }
+      else {
+        console.error(error)
+      }
     }
 
     const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
