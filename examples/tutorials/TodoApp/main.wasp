@@ -44,11 +44,6 @@ query getTasks {
   entities: [Task]
 }
 
-action signUp {
-  fn: import { signUp } from "@ext/actions.js",
-  entities: [User]
-}
-
 action createTask {
   fn: import { createTask } from "@ext/actions.js",
   entities: [Task]
