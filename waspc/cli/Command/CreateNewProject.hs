@@ -36,15 +36,12 @@ createNewProject projectName = do
         writeFileSP (extCodeDir </> mainPageJsFileInExtCodeDir) mainPageJsFileContent
 
     liftIO $ do
-        putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp project in ./" ++ projectName ++ " directory!"
-        putStrLn $ "Move into created directory and type '"
-            ++ (Term.applyStyles [Term.Bold] "wasp start")
-            ++ "' to run the app."
+        putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
+        putStrLn "To run it, do:"
         putStrLn ""
-        putStrLn "Check the docs for any further information: https://wasp-lang.dev/docs."
-        putStrLn $ "If you are new to Wasp, we recommend starting with Todo App tutorial:"
-            ++ " https://wasp-lang.dev/docs/tutorials/todo-app."
-
+        putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
+        putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
+        putStrLn ""
   where
       mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
       mainWaspFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|main.wasp|]
