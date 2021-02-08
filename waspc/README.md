@@ -34,6 +34,28 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 ### Setup
 We use [Stack](https://docs.haskellstack.org/en/stable/README/) for building the project, so you will need to install `stack` on your machine.
 
+`NOTE:` For macOS Big Sur users there is a bug in older GHC versions (<= 8.10.3) causing system frameworks to load improperly and will fail when building the project. This can be fixed with the following steps:
+
+<details>
+   <summary>Show details</summary>
+
+   1. Clean up stack cache which could have been carried over from previous OS versions using below command.
+
+      ```
+      rm -Rf ~/.stack/setup-exe-cache/x86_64-osx
+      ```
+
+   2. Run `stack build` until it fails with error `can't load framework: Cocoa (not found)`.
+   3. Checkout and build this [workaround](https://github.com/yairchu/macos11-haskell-workaround).
+   4. Re-run stack build with workaround using below command and it should build without errors.
+
+      ```
+      DYLD_INSERT_LIBRARIES=~/macos11-haskell-workaround/macos11ghcwa.dylib stack build
+      ```
+</details>
+
+<br/>
+
 ### Repo
 Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
 
