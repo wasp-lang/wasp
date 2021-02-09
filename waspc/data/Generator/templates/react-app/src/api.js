@@ -38,11 +38,11 @@ api.interceptors.request.use(request => {
   return request
 })
 
-api.interceptors.response.use(response => {
-  if(response.status === 401) {
+api.interceptors.response.use(undefined, error => {
+  if (error.response?.status === 401) {
     clearAuthToken()
   }
-  return response
+  return Promise.reject(error)
 })
 
 /**

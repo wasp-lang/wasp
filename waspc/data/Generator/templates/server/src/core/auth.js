@@ -27,13 +27,13 @@ const auth = handleRejection(async (req, res, next) => {
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7, authHeader.length)
 
+    let userIdFromToken
     try {
-      var userIdFromToken = (await verify(token)).id
+      userIdFromToken = (await verify(token)).id
     } catch (error) {
       if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
         return res.status(401).send()
-      }
-      else {
+      } else {
         throw error
       }
     }
