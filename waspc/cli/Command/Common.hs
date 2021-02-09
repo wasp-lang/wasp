@@ -3,6 +3,7 @@ module Command.Common
     , findWaspProjectRoot
     , findWaspFile
     , waspSaysC
+    , alphaWarningMessage
     ) where
 
 import           Control.Monad          (unless, when)
@@ -56,3 +57,7 @@ findWaspProjectRootDirFromCwd = do
 
 waspSaysC :: String -> Command ()
 waspSaysC = liftIO . waspSays
+
+alphaWarningMessage :: String
+alphaWarningMessage = ("NOTE: Wasp is still in Alpha, therefore not yet production ready "
+                       ++ "and might change significantly in the future versions.")

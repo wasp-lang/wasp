@@ -2,17 +2,17 @@ module Command.Build
     ( build
     ) where
 
-import           Control.Monad.IO.Class   (liftIO)
-import           Control.Monad.Except     (throwError)
+import           Control.Monad.Except   (throwError)
+import           Control.Monad.IO.Class (liftIO)
 
-import           Command                  (Command, CommandError (..))
-import           Command.Common           (findWaspProjectRootDirFromCwd,
-                                           waspSaysC)
-import           Command.Compile          (compileIOWithOptions)
-import           StrongPath               (Abs, Dir, Path, (</>))
-import           CompileOptions           (CompileOptions (..))
+import           Command                (Command, CommandError (..))
+import           Command.Common         (alphaWarningMessage,
+                                         findWaspProjectRootDirFromCwd)
+import           Command.Compile        (compileIOWithOptions)
 import qualified Common
+import           CompileOptions         (CompileOptions (..))
 import qualified Lib
+import           StrongPath             (Abs, Dir, Path, (</>))
 
 build :: Command ()
 build = do
@@ -20,12 +20,12 @@ build = do
     let outDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
                  </> Common.buildDirInDotWaspDir
 
-    waspSaysC "Building wasp project..."
+    liftIO $ putStrLn "Building wasp project..."
     buildResult <- liftIO $ buildIO waspProjectDir outDir
     case buildResult of
         Left compileError -> throwError $ CommandError $ "Build failed: " ++ compileError
-        Right () -> waspSaysC "Code has been successfully built! Check it out in .wasp/build directory.\n"
-    
+        Right () -> liftIO $ putStrLn "Code has been successfully built! Check it out in .wasp/build directory.\n"
+    liftIO $ putStrLn alphaWarningMessage
 
 buildIO :: Path Abs (Dir Common.WaspProjectDir)
         -> Path Abs (Dir Lib.ProjectRootDir)

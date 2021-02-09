@@ -11,6 +11,7 @@ import qualified System.FilePath        as FP
 import           Text.Printf            (printf)
 
 import           Command                (Command, CommandError (..))
+import qualified Command.Common
 import qualified Common
 import qualified Data
 import           ExternalCode           (SourceExternalCodeDir)
@@ -59,6 +60,7 @@ createNewProject projectName = do
         putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
         putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
         putStrLn ""
+        putStrLn Command.Common.alphaWarningMessage
   where
       copyTemplateFile
           :: Path Abs (Dir Data.DataDir)
