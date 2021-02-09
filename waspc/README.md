@@ -34,6 +34,19 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 ### Setup
 We use [Stack](https://docs.haskellstack.org/en/stable/README/) for building the project, so you will need to install `stack` on your machine.
 
+### Repo
+Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
+
+Position yourself in this directory (`waspc/`) and make sure that you are on the `master` branch.
+
+### Build
+```
+stack build
+```
+to build the library and `wasp` executable.
+
+This might take a longer time (10 mins) if you are doing it for the very first time, since `stack` will need to download the external dependencies.
+
 `NOTE:` For macOS Big Sur users there is a bug in older GHC versions (<= 8.10.3) causing system frameworks to load improperly and will fail when building the project. This can be fixed with the following steps:
 
 <details>
@@ -55,19 +68,6 @@ We use [Stack](https://docs.haskellstack.org/en/stable/README/) for building the
 </details>
 
 <br/>
-
-### Repo
-Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
-
-Position yourself in this directory (`waspc/`) and make sure that you are on the `master` branch.
-
-### Build
-```
-stack build
-```
-to build the library and `wasp` executable.
-
-This might take a longer time (10 mins) if you are doing it for the very first time, since `stack` will need to download the external dependencies.
 
 ### Test
 ```
