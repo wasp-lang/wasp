@@ -13,6 +13,7 @@ import           Data.Conduit             (runConduit, (.|))
 import qualified Data.Conduit.List        as CL
 import qualified Data.Conduit.Process     as CP
 import           System.Exit              (ExitCode (..))
+import           System.IO.Error          (catchIOError, isDoesNotExistError)
 import qualified System.Process           as P
 import           Text.Read                (readMaybe)
 import qualified Text.Regex.TDFA          as R
@@ -66,7 +67,7 @@ runNodeCommandAsJob fromDir command args jobType chan = do
         Left errorMsg -> exitWithError (ExitFailure 1) errorMsg
         Right nodeVersion -> if nodeVersion < C.nodeVersion
             then exitWithError (ExitFailure 1)
-                 ("Your node version is too low, it should be >= " ++ C.nodeVersionAsText)
+                 ("Your node version is too low. " ++ waspNodeRequirementMessage)
             else do
                 let process = (P.proc command args) { P.cwd = Just $ SP.toFilePath fromDir }
                 runProcessAsJob process jobType chan
@@ -82,11 +83,16 @@ runNodeCommandAsJob fromDir command args jobType chan = do
       getNodeVersion :: IO (Either String (Int, Int, Int))
       getNodeVersion = do
           (exitCode, stdout, stderr) <- P.readProcessWithExitCode "node" ["--version"] ""
+              `catchIOError` (\e -> if isDoesNotExistError e
+                                    then return (ExitFailure 1, "", "Command 'node' not found.")
+                                    else ioError e)
           return $ case exitCode of
-              ExitFailure _ -> Left $ "Running 'node --version' failed: " ++ stderr
+              ExitFailure _ -> Left ("Running 'node --version' failed: " ++ stderr
+                                     ++ " " ++ waspNodeRequirementMessage)
               ExitSuccess -> case parseNodeVersion stdout of
-                                 Nothing -> Left "Wasp failed to parse node version."
-                                 Just version -> Right version
+                  Nothing -> Left ("Wasp failed to parse node version."
+                                   ++ " This is most likely a bug in Wasp, please file an issue.")
+                  Just version -> Right version
 
       parseNodeVersion :: String -> Maybe (Int, Int, Int)
       parseNodeVersion nodeVersionStr =
@@ -97,3 +103,6 @@ runNodeCommandAsJob fromDir command args jobType chan = do
                   patch <- readMaybe patchStr
                   return (major, minor, patch)
               _ -> Nothing
+
+      waspNodeRequirementMessage = "Wasp requires node >= " ++ C.nodeVersionAsText ++ " ."
+          ++ " Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements ."

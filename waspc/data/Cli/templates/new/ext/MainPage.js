@@ -21,6 +21,7 @@ const MainPage = () => {
             className="button button-filled"
             href="https://wasp-lang.dev/docs/tutorials/todo-app"
             target="_blank"
+            rel="noreferrer noopener"
           >
             Take the Tutorial
           </a>
@@ -28,6 +29,7 @@ const MainPage = () => {
             className="button button-outline"
             href="https://discord.com/invite/rzdnErX"
             target="_blank"
+            rel="noreferrer noopener"
           >
             Chat on Discord
           </a>
