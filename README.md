@@ -19,27 +19,29 @@
 
 <br>
 
-Wasp (**W**eb **A**pplication **Sp**ecification Language) is an extensible [DSL](https://en.wikipedia.org/wiki/Domain-specific_language) (domain-specific language) for building modern web apps with less code.
+Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative DSL (domain-specific language) for developing, building and deploying modern full-stack web apps with less code.
 
 Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
 
-NOTE: Wasp is still in alpha, meaning it has bugs, and many critical features are still missing and it is still changing a lot!
+While describing high-level features with Wasp, you still write the rest of your logic in your favorite technologies (currently React, NodeJS, Prisma).
+
+NOTE: Wasp is in alpha and is therefore likely to change a lot, have bugs and miss important features.
 
 ```js
-// todoApp.wasp:
+// file: main.wasp
 
 app TodoApp {
-  title: "ToDo app",
-  favicon: "./todo-logo.png"
+  title: "Todo App"
 }
 
 route "/" -> page Main
 page Main {
-    component: import Main from "@ext/pages/Main"
+    component: import Main from "@ext/pages/Main.js" // Importing React component.
 }
 
 query getTasks {
-  fn: import { getTasks } from "@ext/queries.js"
+  fn: import { getTasks } from "@ext/queries.js", // Importing NodeJS code.
+  entities: [Task]
 }
 
 entity Task {=psl
@@ -49,9 +51,9 @@ entity Task {=psl
 psl=}
 ```
 
-Source files (`.wasp`, `.js(x)`, `.css`, ...) are compiled (transpiled) by `waspc` (Wasp compiler) into the web technology stack of your choice (e.g. React + Redux + ExpressJS + ...).
+Source files (`.wasp`, `.js(x)`, `.css`, ...) are compiled by `waspc` (Wasp compiler) into the web technology stack of your choice (currently React + NodeJS/ExpressJS + Prisma).
 
-:arrow_forward: Check out [TodoApp example](waspc/examples/todoApp) for complete code example. :arrow_backward:
+:arrow_forward: Check out [TodoApp example](/examples/TodoApp) for the complete code example. :arrow_backward:
 
 Why is Wasp awesome:
 - **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
@@ -61,7 +63,14 @@ Why is Wasp awesome:
 For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
 
 # Get started
-Check out [the docs](https://wasp-lang.dev/docs/tutorials/getting-started).
+
+Run
+```
+curl -sSL http://get.wasp-lang.dev | sh
+```
+to install Wasp on OSX/Linux. From there, just follow the instructions to run your first app in less then a minute!
+
+For more details (including installing on Windows) check out [the docs](https://wasp-lang.dev/docs).
 
 # This repository
 
@@ -70,7 +79,7 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 # Project status
 
 Currently, Wasp is in alpha and has enough features so that you can develop a basic web app in it!
-You might find that it misses flexibility in some places or that some bigger features are missing, but the basics are there and we are not adding on top of them.
+You might find that it misses flexibility in some places or that some bigger features are missing, but the basics are there and we are now adding on top of them.
 In the case you get stuck, you can take the generated code and continue with it.
 As Wasp grows further, it should allow the development of web apps of increasing complexity, without the need to eject!
 
@@ -87,7 +96,3 @@ Even if you don't plan to submit any code, just joining the discussion on discor
 You can also:
  - :star: Star this repo to show your interest/support.
  - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
-
-# FAQ
-
-Check out https://wasp-lang.dev/#faq.
