@@ -1,19 +1,16 @@
 import React from 'react'
-
 import waspLogo from './waspLogo.png'
-
 import './Main.css'
 
 const MainPage = () => {
-  
   return (
     <div className="container">
       <main>
         <div className="logo">
           <img src={waspLogo} alt="wasp" />
         </div>
-        
-        <h2 className="welcome-title">Welcome to Wasp - you just started a new app!</h2>
+
+        <h2 className="welcome-title"> Welcome to Wasp - you just started a new app! </h2>
         <h3 className="welcome-subtitle">
           This is page <code>Main</code> located at route <code>/</code>.
           Open <code>ext/MainPage.js</code> to edit it.
@@ -24,7 +21,6 @@ const MainPage = () => {
             className="button button-filled"
             href="https://wasp-lang.dev/docs/tutorials/todo-app"
             target="_blank"
-            rel="noopener noreferrer"
           >
             Take the Tutorial
           </a>
@@ -32,7 +28,6 @@ const MainPage = () => {
             className="button button-outline"
             href="https://discord.com/invite/rzdnErX"
             target="_blank"
-            rel="noopener noreferrer"
           >
             Chat on Discord
           </a>
@@ -41,5 +36,4 @@ const MainPage = () => {
     </div>
   )
 }
-
 export default MainPage
