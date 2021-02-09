@@ -68,7 +68,7 @@ waspNpmDeps = ND.fromList
     , ("react-dom", "^16.12.0")
     , ("react-query", "^2.14.1")
     , ("react-router-dom", "^5.1.2")
-    , ("react-scripts", "4.0.0")
+    , ("react-scripts", "4.0.2")
     , ("uuid", "^3.4.0")
     ]
 
