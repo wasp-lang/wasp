@@ -2,7 +2,7 @@ module Generator.Templates
        ( getTemplatesDirAbsPath
        , getTemplateFileAbsPath
        , compileAndRenderTemplate
-       , DataDir, TemplatesDir
+       , TemplatesDir
        ) where
 
 import qualified Text.Mustache as Mustache
@@ -12,41 +12,28 @@ import Data.Text (Text)
 import Text.Printf (printf)
 import qualified Path as P
 
+import qualified Data
 import StrongPath (Path, File, Dir, Abs, Rel, (</>))
 import qualified StrongPath as SP
 
 
-import qualified Paths_waspc
-
 -- TODO: Write tests for this file! But first we need to decouple logic from IO
 --   so that we can mock it.
 
-data DataDir
 data TemplatesDir
 
 -- | Returns absolute path of templates root directory.
 getTemplatesDirAbsPath :: IO (Path Abs (Dir TemplatesDir))
-getTemplatesDirAbsPath = do
-    dataDir <- getAbsDataDirPath
-    return $ dataDir </> templatesDirPathInDataDir
+getTemplatesDirAbsPath = (</> templatesDirPathInDataDir) <$> Data.getAbsDataDirPath
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
 getTemplateFileAbsPath :: Path (Rel TemplatesDir) File -> IO (Path Abs File)
-getTemplateFileAbsPath tmplFilePathInTemplatesDir = absPathOfTemplateFileInDataDir tmplFilePathInDataDir
-  where
-    tmplFilePathInDataDir :: Path (Rel DataDir) File
-    tmplFilePathInDataDir = templatesDirPathInDataDir </> tmplFilePathInTemplatesDir
+getTemplateFileAbsPath relTmplFilePath = (</> relTmplFilePath) <$> getTemplatesDirAbsPath
 
-    absPathOfTemplateFileInDataDir :: Path (Rel DataDir) File -> IO (Path Abs File)
-    absPathOfTemplateFileInDataDir filePath =
-        (Paths_waspc.getDataFileName $ SP.toFilePath filePath) >>= SP.parseAbsFile
-
-templatesDirPathInDataDir :: Path (Rel DataDir) (Dir TemplatesDir)
+templatesDirPathInDataDir :: Path (Rel Data.DataDir) (Dir TemplatesDir)
 templatesDirPathInDataDir = SP.fromPathRelDir [P.reldir|Generator/templates|]
 
-getAbsDataDirPath :: IO (Path Abs (Dir DataDir))
-getAbsDataDirPath = Paths_waspc.getDataDir >>= SP.parseAbsDir
 
 compileAndRenderTemplate
     :: Path (Rel TemplatesDir) File  -- ^ Path to the template file.
@@ -70,7 +57,7 @@ compileMustacheTemplate relTmplPath = do
         printf "Compilation of template %s failed. %s" (show relTmplPath) (show err)
 
 areAllErrorsSectionDataNotFound :: [SubstitutionError] -> Bool
-areAllErrorsSectionDataNotFound subsErrors = all isSectionDataNotFoundError subsErrors
+areAllErrorsSectionDataNotFound = all isSectionDataNotFoundError
   where
     isSectionDataNotFoundError e = case e of
         SectionTargetNotFound _ -> True
@@ -85,7 +72,6 @@ renderMustacheTemplate mustacheTemplate templateData = do
     -- NOTE(matija): Mustache reports errors when object does
     -- not have a property specified in the template, which we use to implement
     -- conditionals. This is why we ignore these errors.
-    if (null errors) || (areAllErrorsSectionDataNotFound errors)
-        then (return fileText)
-        else (error $ "Unexpected errors occured while rendering template: "
-            ++ (show errors))
+    if null errors || areAllErrorsSectionDataNotFound errors
+        then return fileText
+        else error $ "Unexpected errors occured while rendering template: " ++ show errors

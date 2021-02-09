@@ -2,31 +2,22 @@ module Command.CreateNewProject
     ( createNewProject
     ) where
 
-import qualified System.Directory
 import           Control.Monad.Except   (throwError)
 import           Control.Monad.IO.Class (liftIO)
 import qualified Path                   as P
 import           System.Directory       (createDirectory, getCurrentDirectory)
+import qualified System.Directory
 import qualified System.FilePath        as FP
 import           Text.Printf            (printf)
 
 import           Command                (Command, CommandError (..))
 import qualified Common
+import qualified Data
 import           ExternalCode           (SourceExternalCodeDir)
-import           StrongPath             (File, Path, Rel, (</>), Abs, Dir)
+import           StrongPath             (Abs, Dir, File, Path, Rel, (</>))
 import qualified StrongPath             as SP
 import qualified Util.Terminal          as Term
 
--- TODO(matija): is it ok to import this from here, should we extract it somewhere?
-import Generator.Templates (DataDir)
-
-import qualified Paths_waspc
-
--- Should this be defined somewhere else?
-data CliTemplatesDir
-
-getAbsDataDirPath :: IO (Path Abs (Dir DataDir))
-getAbsDataDirPath = Paths_waspc.getDataDir >>= SP.parseAbsDir
 
 createNewProject :: String -> Command ()
 createNewProject projectName = do
@@ -45,25 +36,21 @@ createNewProject projectName = do
     let extCodeDir = waspProjectDir </> Common.extCodeDirInWaspProjectDir
     liftIO $ do
         createDirectorySP extCodeDir
-        dataDir <- getAbsDataDirPath
+        dataDir <- Data.getAbsDataDirPath
 
-        -- Scaffold MainPage.js
-        System.Directory.copyFile
-            (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </>
-                            SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|]))
-            (SP.toFilePath (extCodeDir </> mainPageJsFileInExtCodeDir))
+        let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
 
-        -- Scaffold Main.css
-        System.Directory.copyFile
-            (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </>
-                            SP.fromPathRelFile [P.relfile|new/ext/Main.css|]))
-            (SP.toFilePath (extCodeDir </> mainCssFileInExtCodeDir))
+        copyTemplateFile'
+            (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
+            mainPageJsFileInExtCodeDir
 
-        -- Scaffold waspLogo.png
-        System.Directory.copyFile
-            (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </>
-                            SP.fromPathRelFile [P.relfile|new/ext/waspLogo.png|]))
-            (SP.toFilePath (extCodeDir </> waspLogoFileInExtCodeDir))
+        copyTemplateFile'
+            (SP.fromPathRelFile [P.relfile|new/ext/Main.css|])
+            mainCssFileInExtCodeDir
+
+        copyTemplateFile'
+            (SP.fromPathRelFile [P.relfile|new/ext/waspLogo.png|])
+            waspLogoFileInExtCodeDir
 
     liftIO $ do
         putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
@@ -73,7 +60,17 @@ createNewProject projectName = do
         putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
         putStrLn ""
   where
-      cliTemplatesDirInDataDir :: Path (Rel DataDir) (Dir CliTemplatesDir)
+      copyTemplateFile
+          :: Path Abs (Dir Data.DataDir)
+          -> Path Abs (Dir SourceExternalCodeDir)
+          -> Path (Rel Common.CliTemplatesDir) File
+          -> Path (Rel SourceExternalCodeDir) File
+          -> IO ()
+      copyTemplateFile dataDir extCodeDir srcTmplFile dstExtDirFile = System.Directory.copyFile
+          (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
+          (SP.toFilePath (extCodeDir </> dstExtDirFile))
+
+      cliTemplatesDirInDataDir :: Path (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
       cliTemplatesDirInDataDir = SP.fromPathRelDir [P.reldir|Cli/templates|]
 
       mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
@@ -102,7 +99,7 @@ createNewProject projectName = do
 
       mainCssFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
       mainCssFileInExtCodeDir = SP.fromPathRelFile [P.relfile|Main.css|]
-      
+
       waspLogoFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
       waspLogoFileInExtCodeDir = SP.fromPathRelFile [P.relfile|waspLogo.png|]
 
