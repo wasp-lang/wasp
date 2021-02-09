@@ -1,6 +1,7 @@
 module Common
     ( WaspProjectDir
     , DotWaspDir
+    , CliTemplatesDir
     , dotWaspDirInWaspProjectDir
     , dotWaspRootFileInWaspProjectDir
     , extCodeDirInWaspProjectDir
@@ -20,6 +21,7 @@ import qualified Util.Terminal as Term
 
 data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data DotWaspDir -- Here we put everything that wasp generates.
+data CliTemplatesDir
 
 
 -- TODO: SHould this be renamed to include word "root"?

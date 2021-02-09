@@ -22,6 +22,7 @@ extra-source-files:
 data-dir: data/
 data-files:
   - Generator/templates/**/*
+  - Cli/templates/**/*
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
