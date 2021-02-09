@@ -30,11 +30,11 @@ const auth = handleRejection(async (req, res, next) => {
     try {
       var userIdFromToken = (await verify(token)).id
     } catch (error) {
-      if (error.name.match(/^(TokenExpiredError|JsonWebTokenError|NotBeforeError)$/)) {
+      if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
         return res.status(401).send()
       }
       else {
-        console.error(error)
+        throw error
       }
     }
 
