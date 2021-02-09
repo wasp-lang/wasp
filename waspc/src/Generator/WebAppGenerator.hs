@@ -62,7 +62,7 @@ genPackageJson wasp waspDeps = C.makeTemplateFD
 
 waspNpmDeps :: [ND.NpmDependency]
 waspNpmDeps = ND.fromList
-    [ ("axios", "^0.20.0")
+    [ ("axios", "^0.21.1")
     , ("lodash", "^4.17.15")
     , ("react", "^16.12.0")
     , ("react-dom", "^16.12.0")
