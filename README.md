@@ -19,13 +19,13 @@
 
 <br>
 
-Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative DSL (domain-specific language) for developing, building and deploying modern web apps with less code.
+Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative DSL (domain-specific language) for developing, building and deploying modern full-stack web apps with less code.
 
 Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
 
 While describing high-level features with Wasp, you still write the rest of your logic in your favorite technologies (currently React, NodeJS, Prisma).
 
-NOTE: Wasp is still in alpha, meaning it has bugs, and many critical features are still missing and it is still changing a lot!
+NOTE: Wasp is in alpha and is therefore likely to change a lot, have bugs and miss important features.
 
 ```js
 // file: main.wasp
@@ -53,7 +53,7 @@ psl=}
 
 Source files (`.wasp`, `.js(x)`, `.css`, ...) are compiled by `waspc` (Wasp compiler) into the web technology stack of your choice (currently React + NodeJS/ExpressJS + Prisma).
 
-:arrow_forward: Check out [TodoApp example](/examples/TodoApp) for complete code example. :arrow_backward:
+:arrow_forward: Check out [TodoApp example](/examples/TodoApp) for the complete code example. :arrow_backward:
 
 Why is Wasp awesome:
 - **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
@@ -63,7 +63,14 @@ Why is Wasp awesome:
 For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
 
 # Get started
-Check out [the docs](https://wasp-lang.dev/docs).
+
+Run
+```
+curl -sSL http://get.wasp-lang.dev | sh
+```
+to install Wasp on OSX/Linux.
+
+For more details (including installing on Windows) check out [the docs](https://wasp-lang.dev/docs).
 
 # This repository
 
