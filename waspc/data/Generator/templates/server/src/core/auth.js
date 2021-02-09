@@ -26,9 +26,17 @@ const auth = handleRejection(async (req, res, next) => {
 
   if (authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7, authHeader.length)
-    // TODO: If token verification fails, this will throw error that will end up
-    //   being propagated as 500 error. Should we handle it better, turn it into 403 error?
-    const userIdFromToken = (await verify(token)).id
+
+    let userIdFromToken
+    try {
+      userIdFromToken = (await verify(token)).id
+    } catch (error) {
+      if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
+        return res.status(401).send()
+      } else {
+        throw error
+      }
+    }
 
     const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
     if (!user) {
