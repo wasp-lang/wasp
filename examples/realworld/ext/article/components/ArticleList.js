@@ -76,7 +76,7 @@ const Article = (props) => {
           { article.favorited ? 'Unlike' : 'Like' } ({ article.favoritesCount })
         </Button>
 
-        <Button size="small" color="primary">
+        <Button component={ Link } to={`/article/${article.slug}`} size="small" color="primary">
           Read more
         </Button>
 
