@@ -144,20 +144,8 @@ const ArticleEditor = (props) => {
           onChange={e => setMarkdownContent(e.target.value)}
         />
 
-        <TextField
-          className={classes.textField}
-          label="Enter tags"
-          fullWidth
-          value={newTagName} 
-          onChange={e => setNewTagName(e.target.value)}
-          onKeyPress={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              setTags([...tags, { name: newTagName }])
-              setNewTagName('')
-            }
-          }}
-        />
+        {/* TODO(matija): For some reason Prisma dies if we two articles share tag, so we disabled adding tags for now. */}
+
         <div className={classes.tags}>
           { tags.map(tag => (
             <Chip label={tag.name} onDelete={() => setTags(tags.filter(t => t !== tag))}/>
