@@ -53,7 +53,7 @@ psl=}
 
 Source files (`.wasp`, `.js(x)`, `.css`, ...) are compiled by `waspc` (Wasp compiler) into the web technology stack of your choice (currently React + NodeJS/ExpressJS + Prisma).
 
-:arrow_forward: Check out [TodoApp example](/examples/TodoApp) for the complete code example. :arrow_backward:
+:arrow_forward: Check out [TodoApp example](/examples/tutorials/TodoApp) for the complete code example. :arrow_backward:
 
 Why is Wasp awesome:
 - **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
