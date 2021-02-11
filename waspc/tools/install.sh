@@ -32,6 +32,7 @@ done
 
 main() {
     trap cleanup_temp_dir EXIT
+    send_telemetry > /dev/null 2>&1 &
     install_based_on_os
 }
 
@@ -45,6 +46,20 @@ install_based_on_os() {
             ;;
         *)
             die "Sorry, this installer does not support your operating system: $(uname)."
+    esac
+}
+
+get_os_info() {
+    case "$(uname)" in
+        "Linux")
+            echo "Linux"
+            ;;
+        "Darwin")
+            echo "Darwin"
+            ;;
+        *)
+            echo "Unknown"
+            ;;
     esac
 }
 
@@ -203,6 +218,20 @@ on_path() {
     local QUERY_NORMALIZED=$(printf '%s' "$1" | sed -e "s|^~|$HOME|")
 
     echo ":$PATH_NORMALIZED:" | grep -q ":$QUERY_NORMALIZED:"
+}
+
+send_telemetry() {
+    DATA='{ "api_key": "CdDd2A0jKTI2vFAsrI9JWm3MqpOcgHz1bMyogAcwsE4", "type": "capture", "event": "install-script:run", "distinct_id": "'$RANDOM`date +'%s%N'`'", "properties": { "os": "'`get_os_info`'" } }'
+    URL="https://app.posthog.com/capture"
+    HEADER="Content-Type: application/json"
+
+    if [ -z "$WASP_TELEMETRY_DISABLE" ]; then
+        if has_curl; then
+            curl -sfL -d "$DATA" --header "$HEADER" "$URL" > /dev/null 2>&1
+        elif has_wget; then
+            wget -q --post-data="$DATA" --header="$HEADER" "$URL" > /dev/null 2>&1
+        fi
+    fi
 }
 
 main
