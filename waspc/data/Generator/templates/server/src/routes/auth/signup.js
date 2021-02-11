@@ -1,10 +1,10 @@
-import { createNewUser } from '../../core/auth.js'
+import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}
 
-  await createNewUser(userFields)
+  await prisma.{= userEntityLower =}.create({ data: userFields })
 
   res.send()
 })
