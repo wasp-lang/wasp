@@ -52,10 +52,10 @@ install_based_on_os() {
 get_os_info() {
     case "$(uname)" in
         "Linux")
-            echo "Linux"
+            echo "linux"
             ;;
         "Darwin")
-            echo "Darwin"
+            echo "osx"
             ;;
         *)
             echo "Unknown"
