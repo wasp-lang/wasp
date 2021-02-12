@@ -1,121 +1,143 @@
 module Command.CreateNewProject
-    ( createNewProject
-    ) where
+  ( createNewProject,
+  )
+where
 
-import           Control.Monad.Except   (throwError)
-import           Control.Monad.IO.Class (liftIO)
-import qualified Path                   as P
-import           System.Directory       (createDirectory, getCurrentDirectory)
-import qualified System.Directory
-import qualified System.FilePath        as FP
-import           Text.Printf            (printf)
-
-import qualified Cli.Common             as Common
-import           Command                (Command, CommandError (..))
+import qualified Cli.Common as Common
+import Command (Command, CommandError (..))
 import qualified Command.Common
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data
-import           ExternalCode           (SourceExternalCodeDir)
-import           StrongPath             (Abs, Dir, File, Path, Rel, (</>))
-import qualified StrongPath             as SP
-import qualified Util.Terminal          as Term
+import Data.Char (isLetter)
+import ExternalCode (SourceExternalCodeDir)
+import qualified Path as P
+import StrongPath (Abs, Dir, File, Path, Rel, (</>))
+import qualified StrongPath as SP
+import System.Directory (createDirectory, getCurrentDirectory)
+import qualified System.Directory
+import qualified System.FilePath as FP
+import Text.Printf (printf)
+import qualified Util.Terminal as Term
 
+newtype ProjectName = ProjectName {_projectName :: String}
 
 createNewProject :: String -> Command ()
-createNewProject projectName = do
-    absCwd <- liftIO getCurrentDirectory
-    waspProjectDir <- case SP.parseAbsDir $ absCwd FP.</> projectName of
-        Left err -> throwError $ CommandError ("Failed to parse absolute path to wasp project dir: "
-                                               ++ show err)
-        Right sp -> return sp
-    liftIO $ do
-        createDirectorySP waspProjectDir
-        writeFileSP (waspProjectDir </> mainWaspFileInWaspProjectDir) mainWaspFileContent
-        writeFileSP (waspProjectDir </> gitignoreFileInWaspProjectDir) gitignoreFileContent
-        writeFileSP (waspProjectDir </> Common.dotWaspRootFileInWaspProjectDir)
-            "File marking the root of Wasp project."
-
-    let extCodeDir = waspProjectDir </> Common.extCodeDirInWaspProjectDir
-    liftIO $ do
-        createDirectorySP extCodeDir
-        dataDir <- Data.getAbsDataDirPath
-
-        let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
-
-        writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
-
-        copyTemplateFile'
-            (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
-            mainPageJsFileInExtCodeDir
-
-        copyTemplateFile'
-            (SP.fromPathRelFile [P.relfile|new/ext/Main.css|])
-            mainCssFileInExtCodeDir
-
-        copyTemplateFile'
-            (SP.fromPathRelFile [P.relfile|new/ext/waspLogo.png|])
-            waspLogoFileInExtCodeDir
-
-    liftIO $ do
-        putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
-        putStrLn "To run it, do:"
-        putStrLn ""
-        putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
-        putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
-        putStrLn ""
-        putStrLn Command.Common.alphaWarningMessage
+createNewProject projectNameStr = do
+  case parseProjectName projectNameStr of
+    Left err -> throwError $ CommandError err
+    Right projectName -> createNewProject' projectName
   where
-      copyTemplateFile
-          :: Path Abs (Dir Data.DataDir)
-          -> Path Abs (Dir SourceExternalCodeDir)
-          -> Path (Rel Common.CliTemplatesDir) File
-          -> Path (Rel SourceExternalCodeDir) File
-          -> IO ()
-      copyTemplateFile dataDir extCodeDir srcTmplFile dstExtDirFile = System.Directory.copyFile
-          (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
-          (SP.toFilePath (extCodeDir </> dstExtDirFile))
+    parseProjectName name =
+      if all isLetter name
+        then Right $ ProjectName name
+        else Left "Please use only letters for project name."
 
-      cliTemplatesDirInDataDir :: Path (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
-      cliTemplatesDirInDataDir = SP.fromPathRelDir [P.reldir|Cli/templates|]
+createNewProject' :: ProjectName -> Command ()
+createNewProject' (ProjectName projectName) = do
+  absCwd <- liftIO getCurrentDirectory
+  waspProjectDir <- case SP.parseAbsDir $ absCwd FP.</> projectName of
+    Left err ->
+      throwError $
+        CommandError
+          ( "Failed to parse absolute path to wasp project dir: "
+              ++ show err
+          )
+    Right sp -> return sp
+  liftIO $ do
+    createDirectorySP waspProjectDir
+    writeFileSP (waspProjectDir </> mainWaspFileInWaspProjectDir) mainWaspFileContent
+    writeFileSP (waspProjectDir </> gitignoreFileInWaspProjectDir) gitignoreFileContent
+    writeFileSP
+      (waspProjectDir </> Common.dotWaspRootFileInWaspProjectDir)
+      "File marking the root of Wasp project."
 
-      mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
-      mainWaspFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|main.wasp|]
+  let extCodeDir = waspProjectDir </> Common.extCodeDirInWaspProjectDir
+  liftIO $ do
+    createDirectorySP extCodeDir
+    dataDir <- Data.getAbsDataDirPath
 
-      mainWaspFileContent = unlines
-          [ "app %s {" `printf` projectName
-          , "  title: \"%s\"" `printf` projectName
-          , "}"
-          , ""
-          , "route \"/\" -> page Main"
-          , "page Main {"
-          , "  component: import Main from \"@ext/MainPage.js\""
-          , "}"
-          ]
+    let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
 
-      gitignoreFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
-      gitignoreFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.gitignore|]
+    writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
 
-      gitignoreFileContent = unlines
-          [ "/.wasp/"
-          , "/.env"
-          ]
+    copyTemplateFile'
+      (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
+      mainPageJsFileInExtCodeDir
 
-      waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-      waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+    copyTemplateFile'
+      (SP.fromPathRelFile [P.relfile|new/ext/Main.css|])
+      mainCssFileInExtCodeDir
 
-      waspignoreFileContent = unlines
-          [ "# Ignore editor tmp files"
-          , "**/*~"
-          , "**/#*#"
-          ]
+    copyTemplateFile'
+      (SP.fromPathRelFile [P.relfile|new/ext/waspLogo.png|])
+      waspLogoFileInExtCodeDir
 
-      mainPageJsFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-      mainPageJsFileInExtCodeDir = SP.fromPathRelFile [P.relfile|MainPage.js|]
+  liftIO $ do
+    putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
+    putStrLn "To run it, do:"
+    putStrLn ""
+    putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
+    putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
+    putStrLn ""
+    putStrLn Command.Common.alphaWarningMessage
+  where
+    copyTemplateFile ::
+      Path Abs (Dir Data.DataDir) ->
+      Path Abs (Dir SourceExternalCodeDir) ->
+      Path (Rel Common.CliTemplatesDir) File ->
+      Path (Rel SourceExternalCodeDir) File ->
+      IO ()
+    copyTemplateFile dataDir extCodeDir srcTmplFile dstExtDirFile =
+      System.Directory.copyFile
+        (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
+        (SP.toFilePath (extCodeDir </> dstExtDirFile))
 
-      mainCssFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-      mainCssFileInExtCodeDir = SP.fromPathRelFile [P.relfile|Main.css|]
+    cliTemplatesDirInDataDir :: Path (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
+    cliTemplatesDirInDataDir = SP.fromPathRelDir [P.reldir|Cli/templates|]
 
-      waspLogoFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-      waspLogoFileInExtCodeDir = SP.fromPathRelFile [P.relfile|waspLogo.png|]
+    mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
+    mainWaspFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|main.wasp|]
 
-      writeFileSP = writeFile . SP.toFilePath
-      createDirectorySP = createDirectory . SP.toFilePath
+    mainWaspFileContent =
+      unlines
+        [ "app %s {" `printf` projectName,
+          "  title: \"%s\"" `printf` projectName,
+          "}",
+          "",
+          "route \"/\" -> page Main",
+          "page Main {",
+          "  component: import Main from \"@ext/MainPage.js\"",
+          "}"
+        ]
+
+    gitignoreFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
+    gitignoreFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.gitignore|]
+
+    gitignoreFileContent =
+      unlines
+        [ "/.wasp/",
+          "/.env"
+        ]
+
+    waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+    waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+
+    waspignoreFileContent =
+      unlines
+        [ "# Ignore editor tmp files",
+          "**/*~",
+          "**/#*#"
+        ]
+
+    mainPageJsFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+    mainPageJsFileInExtCodeDir = SP.fromPathRelFile [P.relfile|MainPage.js|]
+
+    mainCssFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+    mainCssFileInExtCodeDir = SP.fromPathRelFile [P.relfile|Main.css|]
+
+    waspLogoFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+    waspLogoFileInExtCodeDir = SP.fromPathRelFile [P.relfile|waspLogo.png|]
+
+    writeFileSP = writeFile . SP.toFilePath
+    createDirectorySP = createDirectory . SP.toFilePath
