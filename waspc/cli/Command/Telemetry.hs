@@ -18,7 +18,9 @@ import qualified Command.Telemetry.User    as TlmUser
 telemetry :: Command ()
 telemetry = do
     isTelemetryDisabled <- liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
-    waspSaysC "Telemetry is currently: " <> (if isTelemetryDisabled then "DISABLED" else "ENABLED") 
+    waspSaysC $ "Telemetry is currently: " <> (if isTelemetryDisabled
+        then "DISABLED"
+        else "ENABLED") 
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.
