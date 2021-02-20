@@ -21,7 +21,7 @@ isTelemetryDisabled = liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
 
 telemetry :: Command ()
 telemetry = do
-    telemetryDisabled <- isTelemetryDisabled
+    telemetryDisabled <- liftIO isTelemetryDisabled
     waspSaysC $ "Telemetry is currently: " <> (if telemetryDisabled
         then "DISABLED"
         else "ENABLED") 
@@ -32,7 +32,7 @@ telemetry = do
 -- If env var WASP_TELEMETRY_DISABLE is set, nothing happens.
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
-    telemetryDisabled <- isTelemetryDisabled
+    telemetryDisabled <- liftIO isTelemetryDisabled
     when telemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
 
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
