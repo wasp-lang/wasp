@@ -1,5 +1,6 @@
 module Command.Telemetry
     ( considerSendingData
+    , telemetry
     ) where
 
 import           Control.Monad             (when)
@@ -9,16 +10,19 @@ import           Data.Maybe                (isJust)
 import qualified System.Environment        as ENV
 
 import           Command                   (Command, CommandError (..))
-import           Command.Common           (waspSaysC)
+import           Command.Common            (waspSaysC)
 import qualified Command.Call
 import           Command.Telemetry.Common  (ensureTelemetryCacheDirExists)
 import qualified Command.Telemetry.Project as TlmProject
 import qualified Command.Telemetry.User    as TlmUser
 
+isTelemetryDisabled :: IO Bool
+isTelemetryDisabled = liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
+
 telemetry :: Command ()
 telemetry = do
-    isTelemetryDisabled <- liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
-    waspSaysC $ "Telemetry is currently: " <> (if isTelemetryDisabled
+    telemetryDisabled <- isTelemetryDisabled
+    waspSaysC $ "Telemetry is currently: " <> (if telemetryDisabled
         then "DISABLED"
         else "ENABLED") 
 
@@ -28,8 +32,8 @@ telemetry = do
 -- If env var WASP_TELEMETRY_DISABLE is set, nothing happens.
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
-    isTelemetryDisabled <- liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
-    when isTelemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
+    telemetryDisabled <- isTelemetryDisabled
+    when telemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
 
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 
