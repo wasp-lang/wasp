@@ -9,10 +9,16 @@ import           Data.Maybe                (isJust)
 import qualified System.Environment        as ENV
 
 import           Command                   (Command, CommandError (..))
+import           Command.Common           (waspSaysC)
 import qualified Command.Call
 import           Command.Telemetry.Common  (ensureTelemetryCacheDirExists)
 import qualified Command.Telemetry.Project as TlmProject
 import qualified Command.Telemetry.User    as TlmUser
+
+telemetry :: Command ()
+telemetry = do
+    isTelemetryDisabled <- liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
+    waspSaysC "Telemetry is currently: " <> (if isTelemetryDisabled then "DISABLED" else "ENABLED") 
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.
