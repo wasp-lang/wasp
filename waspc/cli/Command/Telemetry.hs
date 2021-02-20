@@ -17,7 +17,7 @@ import qualified Command.Telemetry.Project as TlmProject
 import qualified Command.Telemetry.User    as TlmUser
 
 isTelemetryDisabled :: IO Bool
-isTelemetryDisabled = liftIO $ isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
+isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
 
 telemetry :: Command ()
 telemetry = do

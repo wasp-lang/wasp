@@ -17,7 +17,7 @@ import           Command.CreateNewProject (createNewProject)
 import           Command.Db               (runDbCommand, studio)
 import           Command.Db.Migrate       (migrateSave, migrateUp)
 import           Command.Start            (start)
-import           Command.Telemetry        (considerSendingData, telemetry)
+import qualified Command.Telemetry        as Telemetry
 import qualified Util.Terminal            as Term
 
 
@@ -35,7 +35,7 @@ main = do
             ["telemetry"]        -> Command.Call.Telemetry
             _                    -> Command.Call.Unknown args
 
-    telemetryThread <- Async.async $ runCommand $ considerSendingData commandCall
+    telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
     case commandCall of
         Command.Call.New projectName -> runCommand $ createNewProject projectName
@@ -45,7 +45,7 @@ main = do
         Command.Call.Db dbArgs -> dbCli dbArgs
         Command.Call.Version -> printVersion
         Command.Call.Build -> runCommand build
-        Command.Call.Telemetry -> runCommand telemetry
+        Command.Call.Telemetry -> runCommand Telemetry.telemetry
         Command.Call.Unknown _ -> printUsage
 
     -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
