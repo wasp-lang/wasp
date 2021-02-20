@@ -32,6 +32,7 @@ main = do
             ("db":dbArgs)        -> Command.Call.Db dbArgs
             ["version"]          -> Command.Call.Version
             ["build"]            -> Command.Call.Build
+            ["telemetry"]        -> Command.Call.Telemetry
             _                    -> Command.Call.Unknown args
 
     telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -44,6 +45,7 @@ main = do
         Command.Call.Db dbArgs -> dbCli dbArgs
         Command.Call.Version -> printVersion
         Command.Call.Build -> runCommand build
+        Command.Call.Telemetry -> runCommand Telemetry.telemetry
         Command.Call.Unknown _ -> printUsage
 
     -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -62,6 +64,7 @@ printUsage = putStrLn $ unlines
     , title "  GENERAL"
     , cmd   "    new <project-name>    Creates new Wasp project."
     , cmd   "    version               Prints current version of CLI."
+    , cmd   "    telemetry             Prints information about telemetry sent to Wasp"    -- FIXME: the wording has to change
     , title "  IN PROJECT"
     , cmd   "    start                 Runs Wasp app in development mode, watching for file changes."
     , cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info."
