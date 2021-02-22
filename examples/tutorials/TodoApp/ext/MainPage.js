@@ -18,7 +18,7 @@ const MainPage = ({ user }) => {
 
       {tasks && <TasksList tasks={tasks} />}
 
-      <p> <Clocks /> </p>
+      <div> <Clocks /> </div>
 
       {isFetching && 'Fetching...'}
       {error && 'Error: ' + error}
