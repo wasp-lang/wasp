@@ -7,4 +7,5 @@ data Call = New String -- project name
           | Db [String] -- db args
           | Build
           | Version
+          | Telemetry
           | Unknown [String] -- all args
