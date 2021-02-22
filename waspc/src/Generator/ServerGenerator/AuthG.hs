@@ -18,7 +18,7 @@ genAuth wasp = case maybeAuth of
                    -- Auth routes
                  , genAuthRoutesIndex
                  , genLoginRoute auth
-                 , genSignupRoute
+                 , genSignupRoute auth
                  , genMeRoute auth
                  ]
     Nothing   -> []
@@ -53,8 +53,16 @@ genLoginRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
             , "userEntityLower" .= Util.toLowerFirst userEntity
             ]
 
-genSignupRoute :: FileDraft
-genSignupRoute = C.copySrcTmplAsIs (C.asTmplSrcFile [P.relfile|routes/auth/signup.js|])
+genSignupRoute :: Wasp.Auth.Auth -> FileDraft
+genSignupRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+    where
+        signupRouteRelToSrc = [P.relfile|routes/auth/signup.js|]
+        tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> signupRouteRelToSrc
+        dstFile = C.serverSrcDirInServerRootDir </> (C.asServerSrcFile signupRouteRelToSrc)
+
+        tmplData = object
+            [ "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
+            ]
 
 genMeRoute :: Wasp.Auth.Auth -> FileDraft
 genMeRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
