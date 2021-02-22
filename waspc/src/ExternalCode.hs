@@ -7,8 +7,11 @@ module ExternalCode
     , SourceExternalCodeDir
     ) where
 
+import Control.Exception (catch)
+import System.IO.Error (isDoesNotExistError)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
+import Data.Maybe (catMaybes)
 import Data.Text (Text)
 
 import qualified Util.IO
@@ -60,7 +63,14 @@ readFiles extCodeDirPath = do
     --     or create new file draft that will support that.
     --     In generator, when creating TextFileDraft, give it function/logic for text transformation,
     --     and it will be taken care of when draft will be written to the disk.
-    fileTexts <- mapM (TextL.IO.readFile . SP.toFilePath) absFilePaths
+    fileTexts <- catMaybes <$> mapM (tryReadFile . SP.toFilePath) absFilePaths
     let files = map (\(path, text) -> File path extCodeDirPath text) (zip relFilePaths fileTexts)
     return files
-
+    where
+        -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed
+        -- but then got deleted before actual reading was invoked.
+        -- That would make this function crash, so we just ignore those errors.
+        tryReadFile :: FilePath -> IO (Maybe TextL.Text)
+        tryReadFile fp = (Just <$> (TextL.IO.readFile fp)) `catch` (\e -> if isDoesNotExistError e
+                                                                          then return Nothing
+                                                                          else ioError e)

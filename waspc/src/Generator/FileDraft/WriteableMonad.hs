@@ -3,6 +3,8 @@ module Generator.FileDraft.WriteableMonad
        ) where
 
 
+import Control.Exception (catch)
+import System.IO.Error (isDoesNotExistError)
 import qualified System.Directory
 import qualified Data.Text.IO
 import Data.Aeson as Aeson
@@ -48,7 +50,16 @@ class (Monad m) => WriteableMonad m where
 
 instance WriteableMonad IO where
     createDirectoryIfMissing = System.Directory.createDirectoryIfMissing
-    copyFile = System.Directory.copyFile
+    -- TODO(matija): we should rename this function to make it clear it won't throw an exception when
+    -- a file does not exist.
+    copyFile src dst = do
+        -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed
+        -- when the filedraft was created but then got deleted before actual copying was invoked.
+        -- That would make this function crash, so we just ignore those errors.
+        (System.Directory.copyFile src dst) `catch` (\e -> if isDoesNotExistError e
+                                                           then return ()
+                                                           else ioError e)
+
     writeFileFromText = Data.Text.IO.writeFile
     getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
     getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
