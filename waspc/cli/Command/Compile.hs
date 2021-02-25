@@ -40,6 +40,7 @@ compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir ou
   where
     options = CompileOptions
         { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir
+        , waspIgnoreFilePath = waspProjectDir </> Common.waspIgnoreFileInWaspProjectDir
         , isBuild = False
         }
 

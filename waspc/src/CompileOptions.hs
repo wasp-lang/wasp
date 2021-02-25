@@ -2,7 +2,7 @@ module CompileOptions
     ( CompileOptions(..)
     ) where
 
-import StrongPath (Path, Abs, Dir)
+import StrongPath (Path, Abs, Dir, File)
 import ExternalCode(SourceExternalCodeDir)
 
 
@@ -11,5 +11,6 @@ import ExternalCode(SourceExternalCodeDir)
 --   Maybe it is, even more than this!
 data CompileOptions = CompileOptions
     { externalCodeDirPath :: !(Path Abs (Dir SourceExternalCodeDir))
+    , waspIgnoreFilePath :: !(Path Abs File)
     , isBuild :: !Bool
     }
