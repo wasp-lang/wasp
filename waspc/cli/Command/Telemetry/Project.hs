@@ -3,6 +3,8 @@
 module Command.Telemetry.Project
     ( getWaspProjectPathHash
     , considerSendingData
+    , readProjectTelemetryFile
+    , getTimeOfLastTelemetryDataSent
     ) where
 
 import           Command.Common            (findWaspProjectRootDirFromCwd)
@@ -89,21 +91,29 @@ initialCache = ProjectTelemetryCache { _lastCheckIn = Nothing, _lastCheckInBuild
 
 -- * Project telemetry cache file.
 
-readOrCreateProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
-readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
+getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
+getTimeOfLastTelemetryDataSent cache = maximum [_lastCheckIn cache, _lastCheckInBuild cache]
+
+readProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
+readProjectTelemetryFile telemetryCacheDirPath projectHash = do
     fileExists <- SD.doesFileExist filePathFP
-    maybeCache <- if fileExists then readCacheFile else return Nothing
-    case maybeCache of
-        Just cache -> return cache
-        Nothing -> writeProjectTelemetryFile telemetryCacheDirPath projectHash initialCache >> return initialCache
+    if fileExists then readCacheFile else return Nothing
   where
       filePathFP = SP.toFilePath $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
       readCacheFile = Aeson.decode . ByteStringLazyUTF8.fromString <$> readFile filePathFP
 
+readOrCreateProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
+readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
+    maybeProjectTelemetryCache <- readProjectTelemetryFile telemetryCacheDirPath projectHash
+    case maybeProjectTelemetryCache of
+        Just cache -> return cache
+        Nothing    -> writeProjectTelemetryFile telemetryCacheDirPath projectHash initialCache >> return initialCache
+
 writeProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> ProjectTelemetryCache -> IO ()
 writeProjectTelemetryFile telemetryCacheDirPath projectHash cache = do
-    let filePathFP = SP.toFilePath $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
     writeFile filePathFP (ByteStringLazyUTF8.toString $ Aeson.encode cache)
+  where
+    filePathFP = SP.toFilePath $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
 
 getProjectTelemetryFilePath :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> Path Abs File
 getProjectTelemetryFilePath telemetryCacheDir (ProjectHash projectHash) =
@@ -149,5 +159,3 @@ sendTelemetryData telemetryData = do
         request = HTTP.setRequestBodyJSON reqBodyJson $
                   HTTP.parseRequest_ "POST https://app.posthog.com/capture"
     void $ HTTP.httpNoBody request
-
-
