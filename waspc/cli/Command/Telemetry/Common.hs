@@ -1,6 +1,7 @@
 module Command.Telemetry.Common
     ( TelemetryCacheDir
     , ensureTelemetryCacheDirExists
+    , getTelemetryCacheDirPath
     ) where
 
 import           Path                      (reldir)
