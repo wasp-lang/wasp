@@ -1,7 +1,7 @@
-module WaspIgnoreFile
-    ( WaspIgnoreFile
-    , parseWaspIgnoreFile
-    , readWaspIgnoreFile
+module WaspignoreFile
+    ( WaspignoreFile
+    , parseWaspignoreFile
+    , readWaspignoreFile
     , ignores
     ) where
 
@@ -10,10 +10,10 @@ import System.IO.Error (isDoesNotExistError)
 import StrongPath (Path, Abs, File, toFilePath)
 import System.FilePath.Glob (Pattern, compile, match)
 
-newtype WaspIgnoreFile = WaspIgnoreFile [Pattern]
+newtype WaspignoreFile = WaspignoreFile [Pattern]
 
 {-|
-  Parses a string to a 'WaspIgnoreFile'.
+  Parses a string to a 'WaspignoreFile'.
 
   An ignore file contains lines that are one of:
   * blank
@@ -29,8 +29,8 @@ newtype WaspIgnoreFile = WaspIgnoreFile [Pattern]
   [@[^xyz\]@] Matches a single character not in the set `xyz`.
   [@**/@] Matches a string of at least 1 character, including slashes.
 -}
-parseWaspIgnoreFile :: String -> WaspIgnoreFile
-parseWaspIgnoreFile = WaspIgnoreFile . map compile . filter isPatternLine . lines
+parseWaspignoreFile :: String -> WaspignoreFile
+parseWaspignoreFile = WaspignoreFile . map compile . filter isPatternLine . lines
     where
         -- | A line is a pattern line if it's not a comment (doesn't start with
         --   '#') and it's not a blank line
@@ -40,29 +40,29 @@ parseWaspIgnoreFile = WaspIgnoreFile . map compile . filter isPatternLine . line
         isPatternLine _ = True
 
 {-|
-  Reads and parses the wasp ignore file. See 'parseIgnoreFile' for details of
+  Reads and parses the wasp ignore file. See 'parseWaspignoreFile' for details of
   the file format, but it is very similar to `.gitignore`'s format.
 
   If the ignore file does not exist, it is interpreted as a blank file.
 -}
-readWaspIgnoreFile :: Path Abs File -> IO WaspIgnoreFile
-readWaspIgnoreFile fp = do
+readWaspignoreFile :: Path Abs File -> IO WaspignoreFile
+readWaspignoreFile fp = do
     text <- readFile (toFilePath fp)
             `catch` (\e -> if isDoesNotExistError e then return ""
                            else ioError e)
-    return $ parseWaspIgnoreFile text
+    return $ parseWaspignoreFile text
 
 {-|
-  Tests whether a file should be ignored according to an IgnoreFile.
+  Tests whether a file should be ignored according to a 'WaspignoreFile'.
 
   Example:
 
   @
-  let ignoreFile = parseIgnoreFile "**/.tmp"
+  let ignoreFile = parseWaspignoreFile "**/.tmp"
   ignoreFile `ignores` "out.tmp" -- True
   ignoreFile `ignores` "src/a.tmp" -- True
   ignoreFile `ignores` "src/a.js" -- False
   @
 -}
-ignores :: WaspIgnoreFile -> FilePath -> Bool
-ignores (WaspIgnoreFile pats) fp = any (`match` fp) pats
+ignores :: WaspignoreFile -> FilePath -> Bool
+ignores (WaspignoreFile pats) fp = any (`match` fp) pats

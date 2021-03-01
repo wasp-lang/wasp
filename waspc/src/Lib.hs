@@ -32,7 +32,7 @@ enrichWaspASTBasedOnCompileOptions :: Wasp -> CompileOptions -> IO Wasp
 enrichWaspASTBasedOnCompileOptions wasp options = do
     externalCodeFiles <- ExternalCode.readFiles
                              (CompileOptions.externalCodeDirPath options)
-                             (CompileOptions.waspIgnoreFilePath options)
+                             (CompileOptions.waspignoreFilePath options)
     return (wasp
            `setExternalCodeFiles` externalCodeFiles 
            `setIsBuild` CompileOptions.isBuild options

@@ -17,7 +17,7 @@ import Data.Text (Text)
 import qualified Util.IO
 import StrongPath (Path, Abs, Rel, Dir, (</>))
 import qualified StrongPath as SP
-import WaspIgnoreFile (readWaspIgnoreFile, ignores)
+import WaspignoreFile (readWaspignoreFile, ignores)
 
 -- | External code directory in Wasp source, from which external code files are read.
 data SourceExternalCodeDir
@@ -52,9 +52,9 @@ fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 -}
 -- | Returns all files contained in the specified external code dir, recursively.
 readFiles :: Path Abs (Dir SourceExternalCodeDir) -> Path Abs SP.File -> IO [File]
-readFiles extCodeDirPath waspIgnoreFilePath = do
-    waspIgnoreFile <- readWaspIgnoreFile waspIgnoreFilePath
-    relFilePaths <- filter (not . ignores waspIgnoreFile . SP.toFilePath) .
+readFiles extCodeDirPath waspignoreFilePath = do
+    waspignoreFile <- readWaspignoreFile waspignoreFilePath
+    relFilePaths <- filter (not . ignores waspignoreFile . SP.toFilePath) .
                     map SP.fromPathRelFile <$>
                     Util.IO.listDirectoryDeep (SP.toPathAbsDir extCodeDirPath)
     let absFilePaths = map (extCodeDirPath </>) relFilePaths
