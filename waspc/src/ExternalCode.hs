@@ -46,11 +46,8 @@ fileText = TextL.toStrict . _text
 fileAbsPath :: ExternalCode.File -> Path Abs SP.File
 fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 
-{-|
-  Returns all files contained in the specified external code dir, recursively,
-  except files ignores by the specified waspignore file.
--}
--- | Returns all files contained in the specified external code dir, recursively.
+-- | Returns all files contained in the specified external code dir, recursively,
+--   except files ignores by the specified waspignore file.
 readFiles :: Path Abs (Dir SourceExternalCodeDir) -> Path Abs SP.File -> IO [File]
 readFiles extCodeDirPath waspignoreFilePath = do
     waspignoreFile <- readWaspignoreFile waspignoreFilePath
