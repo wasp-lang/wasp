@@ -31,7 +31,6 @@ createNewProject projectName = do
         createDirectorySP waspProjectDir
         writeFileSP (waspProjectDir </> mainWaspFileInWaspProjectDir) mainWaspFileContent
         writeFileSP (waspProjectDir </> gitignoreFileInWaspProjectDir) gitignoreFileContent
-        writeFileSP (waspProjectDir </> waspignoreFileInWaspProjectDir) waspignoreFileContent
         writeFileSP (waspProjectDir </> Common.dotWaspRootFileInWaspProjectDir)
             "File marking the root of Wasp project."
 
@@ -41,6 +40,8 @@ createNewProject projectName = do
         dataDir <- Data.getAbsDataDirPath
 
         let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
+
+        writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
 
         copyTemplateFile'
             (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
@@ -97,11 +98,11 @@ createNewProject projectName = do
           [ "/.wasp/"
           ]
         
-      waspignoreFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
-      waspignoreFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+      waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+      waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
 
       waspignoreFileContent = unlines
-          [ "# Ignore editor tmp files in ext/"
+          [ "# Ignore editor tmp files"
           , "**/*~"
           , "**/#*#"
           ]

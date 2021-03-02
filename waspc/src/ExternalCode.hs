@@ -13,6 +13,7 @@ import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
 import Data.Maybe (catMaybes)
 import Data.Text (Text)
+import qualified Path as P
 
 import qualified Util.IO
 import StrongPath (Path, Abs, Rel, Dir, (</>))
@@ -46,10 +47,14 @@ fileText = TextL.toStrict . _text
 fileAbsPath :: ExternalCode.File -> Path Abs SP.File
 fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 
+waspignorePathInExtCodeDir :: Path (Rel SourceExternalCodeDir) SP.File 
+waspignorePathInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+
 -- | Returns all files contained in the specified external code dir, recursively,
 --   except files ignores by the specified waspignore file.
-readFiles :: Path Abs (Dir SourceExternalCodeDir) -> Path Abs SP.File -> IO [File]
-readFiles extCodeDirPath waspignoreFilePath = do
+readFiles :: Path Abs (Dir SourceExternalCodeDir) -> IO [File]
+readFiles extCodeDirPath = do
+    let waspignoreFilePath = extCodeDirPath </> waspignorePathInExtCodeDir
     waspignoreFile <- readWaspignoreFile waspignoreFilePath
     relFilePaths <- filter (not . ignores waspignoreFile . SP.toFilePath) .
                     map SP.fromPathRelFile <$>

@@ -34,6 +34,5 @@ buildIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir outD
     where
         options = CompileOptions
             { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir
-            , waspignoreFilePath = waspProjectDir </> Common.waspignoreFileInWaspProjectDir
             , isBuild = True
             }

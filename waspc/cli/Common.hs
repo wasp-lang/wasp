@@ -5,7 +5,6 @@ module Common
     , dotWaspDirInWaspProjectDir
     , dotWaspRootFileInWaspProjectDir
     , extCodeDirInWaspProjectDir
-    , waspignoreFileInWaspProjectDir
     , generatedCodeDirInDotWaspDir
     , buildDirInDotWaspDir
     , waspSays
@@ -41,9 +40,6 @@ dotWaspRootFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.wasproot|]
 
 extCodeDirInWaspProjectDir :: Path (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 extCodeDirInWaspProjectDir = SP.fromPathRelDir [P.reldir|ext|]
-
-waspignoreFileInWaspProjectDir :: Path (Rel WaspProjectDir) File
-waspignoreFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.waspignore|]
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what

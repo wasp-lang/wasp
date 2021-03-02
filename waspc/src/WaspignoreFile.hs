@@ -12,12 +12,18 @@ import System.FilePath.Glob (Pattern, compile, match)
 
 newtype WaspignoreFile = WaspignoreFile [Pattern]
 
+-- | These patterns are ignored by every 'WaspignoreFile'
+defaultIgnorePatterns :: [Pattern]
+defaultIgnorePatterns = map compile [".waspignore"]
+
 -- | Parses a string to a 'WaspignoreFile'.
 --
 --   An ignore file contains lines that are one of:
 --   * blank
 --   * comments (starting with '#')
 --   * a pattern
+--
+--   An ignore file always ignores `.waspignore`.
 --
 --   Patterns are glob 'Pattern's, for full details "System.FilePath.Glob". A
 --   brief description is:
@@ -28,7 +34,11 @@ newtype WaspignoreFile = WaspignoreFile [Pattern]
 --   [@[^xyz\]@] Matches a single character not in the set `xyz`.
 --   [@**/@] Matches a string of at least 1 character, including slashes.
 parseWaspignoreFile :: String -> WaspignoreFile
-parseWaspignoreFile = WaspignoreFile . map compile . filter isPatternLine . lines
+parseWaspignoreFile = WaspignoreFile .
+                      (defaultIgnorePatterns++) .
+                      map compile .
+                      filter isPatternLine .
+                      lines
     where
         isPatternLine :: String -> Bool
         isPatternLine [] = False
@@ -51,7 +61,7 @@ readWaspignoreFile fp = do
 --   Example:
 --
 --   @
---   let ignoreFile = parseWaspignoreFile "**/.tmp"
+--   let ignoreFile = parseWaspignoreFile "**/*.tmp"
 --   ignoreFile `ignores` "out.tmp" -- True
 --   ignoreFile `ignores` "src/a.tmp" -- True
 --   ignoreFile `ignores` "src/a.js" -- False
