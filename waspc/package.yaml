@@ -61,6 +61,7 @@ library:
     - bytestring
     - regex-tdfa
     - utf8-string
+    - Glob
 
 executables:
   wasp:

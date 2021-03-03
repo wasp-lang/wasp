@@ -13,10 +13,12 @@ import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
 import Data.Maybe (catMaybes)
 import Data.Text (Text)
+import qualified Path as P
 
 import qualified Util.IO
 import StrongPath (Path, Abs, Rel, Dir, (</>))
 import qualified StrongPath as SP
+import WaspignoreFile (readWaspignoreFile, ignores)
 
 -- | External code directory in Wasp source, from which external code files are read.
 data SourceExternalCodeDir
@@ -45,10 +47,18 @@ fileText = TextL.toStrict . _text
 fileAbsPath :: ExternalCode.File -> Path Abs SP.File
 fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 
--- | Returns all files contained in the specified external code dir, recursively.
+waspignorePathInExtCodeDir :: Path (Rel SourceExternalCodeDir) SP.File 
+waspignorePathInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+
+-- | Returns all files contained in the specified external code dir, recursively,
+--   except files ignores by the specified waspignore file.
 readFiles :: Path Abs (Dir SourceExternalCodeDir) -> IO [File]
 readFiles extCodeDirPath = do
-    relFilePaths <- Util.IO.listDirectoryDeep (SP.toPathAbsDir extCodeDirPath) >>= return . (map SP.fromPathRelFile)
+    let waspignoreFilePath = extCodeDirPath </> waspignorePathInExtCodeDir
+    waspignoreFile <- readWaspignoreFile waspignoreFilePath
+    relFilePaths <- filter (not . ignores waspignoreFile . SP.toFilePath) .
+                    map SP.fromPathRelFile <$>
+                    Util.IO.listDirectoryDeep (SP.toPathAbsDir extCodeDirPath)
     let absFilePaths = map (extCodeDirPath </>) relFilePaths
     -- NOTE: We read text from all the files, regardless if they are text files or not, because
     --   we don't know if they are a text file or not.

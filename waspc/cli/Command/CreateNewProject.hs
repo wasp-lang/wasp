@@ -41,6 +41,8 @@ createNewProject projectName = do
 
         let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
 
+        writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
+
         copyTemplateFile'
             (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
             mainPageJsFileInExtCodeDir
@@ -94,6 +96,15 @@ createNewProject projectName = do
 
       gitignoreFileContent = unlines
           [ "/.wasp/"
+          ]
+        
+      waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
+      waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+
+      waspignoreFileContent = unlines
+          [ "# Ignore editor tmp files"
+          , "**/*~"
+          , "**/#*#"
           ]
 
       mainPageJsFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
