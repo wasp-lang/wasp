@@ -8,10 +8,11 @@ module Generator.Job.Process
 import           Control.Concurrent       (writeChan)
 import           Control.Concurrent.Async (Concurrently (..))
 import           Control.Exception        (bracket)
-import qualified Data.ByteString.Char8    as BS
 import           Data.Conduit             (runConduit, (.|))
 import qualified Data.Conduit.List        as CL
 import qualified Data.Conduit.Process     as CP
+import qualified Data.Text                as T
+import           Data.Text.Encoding       (decodeUtf8)
 import           System.Exit              (ExitCode (..))
 import           System.IO.Error          (catchIOError, isDoesNotExistError)
 import qualified System.Process           as P
@@ -27,8 +28,8 @@ import qualified StrongPath               as SP
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process while streaming its stderr and stdout to provided channel.
---   Returns exit code of the process once it finishes, and also sends it to he channel.
+-- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
+--   Returns exit code of the process once it finishes, and also sends it to the channel.
 --   Makes sure to terminate the process if exception occurs.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan = bracket
@@ -36,13 +37,13 @@ runProcessAsJob process jobType chan = bracket
     (\(_, _, _, sph) -> terminateStreamingProcess sph)
     runStreamingProcessAsJob
   where
-    runStreamingProcessAsJob (CP.ClosedStream, stdoutStream, stderrStream, processHandle) = do
+    runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan = runConduit $ stdoutStream .| CL.mapM_
-              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stdout
+              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout
                                                     , J._jobType = jobType })
 
       let forwardStderrToChan = runConduit $ stderrStream .| CL.mapM_
-              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (BS.unpack bs) J.Stderr
+              (\bs -> writeChan chan $ J.JobMessage { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr
                                                     , J._jobType = jobType })
 
       exitCode <- runConcurrently $
@@ -64,10 +65,10 @@ runNodeCommandAsJob :: Path Abs (Dir a) -> String -> [String] -> J.JobType -> J.
 runNodeCommandAsJob fromDir command args jobType chan = do
     errorOrNodeVersion <- getNodeVersion
     case errorOrNodeVersion of
-        Left errorMsg -> exitWithError (ExitFailure 1) errorMsg
+        Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
         Right nodeVersion -> if nodeVersion < C.nodeVersion
             then exitWithError (ExitFailure 1)
-                 ("Your node version is too low. " ++ waspNodeRequirementMessage)
+                 (T.pack $ "Your node version is too low. " ++ waspNodeRequirementMessage)
             else do
                 let process = (P.proc command args) { P.cwd = Just $ SP.toFilePath fromDir }
                 runProcessAsJob process jobType chan

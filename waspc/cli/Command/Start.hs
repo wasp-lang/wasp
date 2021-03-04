@@ -39,10 +39,10 @@ start = do
     waspSaysC "Setting up generated project..."
     setupResult <- liftIO $ Lib.setup outDir
     case setupResult of
-        Left setupError -> throwError $ CommandError $ "Setup failed: " ++ setupError
-        Right () -> waspSaysC "Setup successful.\n"
+        Left setupError -> throwError $ CommandError $ "\nSetup failed: " ++ setupError
+        Right () -> waspSaysC "\nSetup successful.\n"
 
-    waspSaysC "Listening for file changes..."
+    waspSaysC "\nListening for file changes..."
     waspSaysC "Starting up generated project..."
     watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Lib.start outDir)
     case watchOrStartResult of

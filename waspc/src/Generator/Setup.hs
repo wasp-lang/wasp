@@ -8,7 +8,7 @@ import           System.Exit                     (ExitCode (..))
 
 import           Generator.Common                (ProjectRootDir)
 import qualified Generator.Job                   as J
-import           Generator.Job.IO                (printJobMessage)
+import           Generator.Job.IO                (printPrefixedJobMessage)
 import           Generator.ServerGenerator.Setup (setupServer)
 import           Generator.WebAppGenerator.Setup (setupWebApp)
 import           StrongPath                      (Abs, Dir, Path)
@@ -18,21 +18,24 @@ setup :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
 setup projectDir = do
     chan <- newChan
     let runSetupJobs = concurrently (setupServer projectDir chan) (setupWebApp projectDir chan)
-    (_, result) <- concurrently (handleJobMessages chan (False, False)) runSetupJobs
+    (_, result) <- concurrently (handleJobMessages chan) runSetupJobs
     case result of
         (ExitSuccess, ExitSuccess) -> return $ Right ()
         exitCodes -> return $ Left $ setupFailedMessage exitCodes
   where
-      handleJobMessages :: Chan J.JobMessage -> (Bool, Bool) -> IO ()
-      handleJobMessages _ (True, True) = return ()
-      handleJobMessages chan (isWebAppDone, isServerDone) = do
-          jobMsg <- readChan chan
-          case J._data jobMsg of
-              J.JobOutput {} -> printJobMessage jobMsg >> handleJobMessages chan (isWebAppDone, isServerDone)
-              J.JobExit {} -> case J._jobType jobMsg of
-                  J.WebApp -> handleJobMessages chan (True, isServerDone)
-                  J.Server -> handleJobMessages chan (isWebAppDone, True)
-                  J.Db -> error "This should never happen. No db job should be active."
+      handleJobMessages = go Nothing (False, False)
+        where
+          go :: Maybe J.JobMessage -> (Bool, Bool) -> Chan J.JobMessage -> IO ()
+          go _ (True, True) _ = return ()
+          go prevJobMsg (isWebAppDone, isServerDone) chan = do
+              jobMsg <- readChan chan
+              case J._data jobMsg of
+                  J.JobOutput {} -> printPrefixedJobMessage prevJobMsg jobMsg
+                                    >> go (Just jobMsg) (isWebAppDone, isServerDone) chan
+                  J.JobExit {} -> case J._jobType jobMsg of
+                      J.WebApp -> go (Just jobMsg) (True, isServerDone) chan
+                      J.Server -> go (Just jobMsg) (isWebAppDone, True) chan
+                      J.Db -> error "This should never happen. No db job should be active."
 
       setupFailedMessage (serverExitCode, webAppExitCode) =
           let serverErrorMessage = case serverExitCode of
