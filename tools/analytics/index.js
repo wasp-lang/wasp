@@ -20,7 +20,7 @@ const main = async () => {
 
   const eventsByProject = _.groupBy(events, e => e.distinct_id + e.properties.project_hash)
 
-  console.log('Number of unique Wasp projects created so far:')
+  console.log('Number of Wasp projects created so far:')
   console.log(Object.keys(eventsByProject).length)
 
   const numProjectsCreatedSinceDatetime = (datetime) => {
@@ -30,8 +30,11 @@ const main = async () => {
       .length
   }
 
-  console.log('Number of unique Wasp projects created since 2021-02-12:')
+  console.log('Number of Wasp projects created since 2021-02-12:')
   console.log(numProjectsCreatedSinceDatetime('2021-02-12'))
+
+  console.log('Number of Wasp projects that were built:')
+  console.log(Object.values(eventsByProject).filter(events => events.some(e => e.properties.is_build)).length)
 }
 
 const fetchEvents = async (url) => {
