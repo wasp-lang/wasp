@@ -90,7 +90,6 @@ attribute = do
 attrArgument :: Parser Model.AttributeArg
 attrArgument = do
     arg <- try namedArg <|> try unnamedArg
-    _ <- try $ lookAhead $ oneOf argDelimiters
     return arg
   where
     namedArg :: Parser Model.AttributeArg
