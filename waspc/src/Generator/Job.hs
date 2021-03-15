@@ -7,6 +7,7 @@ module Generator.Job
     ) where
 
 import           Control.Concurrent (Chan)
+import           Data.Text          (Text)
 import           System.Exit        (ExitCode)
 
 
@@ -20,10 +21,10 @@ data JobMessage = JobMessage
     }
     deriving (Show)
 
-data JobMessageData = JobOutput String JobOutputType
+data JobMessageData = JobOutput Text JobOutputType
                     | JobExit ExitCode
     deriving (Show)
 
-data JobOutputType = Stdout | Stderr deriving (Show)
+data JobOutputType = Stdout | Stderr deriving (Show, Eq)
 
-data JobType = WebApp | Server | Db deriving (Show)
+data JobType = WebApp | Server | Db deriving (Show, Eq)

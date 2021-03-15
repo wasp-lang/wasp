@@ -23,7 +23,7 @@ migrateSave projectDir migrationName = do
     -- Prisma packages (cli and client) are currently installed.
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "migrate", "save"
-        , "--schema", (SP.toFilePath schemaFile)
+        , "--schema", SP.toFilePath schemaFile
         , "--name", migrationName
         , "--create-db" -- Creates db if it doesn't already exist. Otherwise would stop and ask.
         , "--experimental"
@@ -34,10 +34,10 @@ migrateUp :: Path Abs (Dir ProjectRootDir) -> J.Job
 migrateUp projectDir = do
     let serverDir = projectDir </> serverRootDirInProjectRootDir
     let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-    
+
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "migrate", "up"
-        , "--schema", (SP.toFilePath schemaFile)
+        , "--schema", SP.toFilePath schemaFile
         , "--create-db" -- Creates db if it doesn't already exist. Otherwise would stop and ask.
         , "--experimental"
         ] J.Db
@@ -47,10 +47,10 @@ generateClient :: Path Abs (Dir ProjectRootDir) -> J.Job
 generateClient projectDir = do
     let serverDir = projectDir </> serverRootDirInProjectRootDir
     let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-    
+
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "generate"
-        , "--schema", (SP.toFilePath schemaFile)
+        , "--schema", SP.toFilePath schemaFile
         ] J.Db
 
 -- | Runs `prisma studio` - Prisma's db inspector.
@@ -61,7 +61,7 @@ runStudio projectDir = do
 
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "studio"
-        , "--schema", (SP.toFilePath schemaFile)
+        , "--schema", SP.toFilePath schemaFile
         , "--experimental"
         ] J.Db
 
