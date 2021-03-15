@@ -6,10 +6,12 @@ import           Test.Tasty.Hspec
 
 import           NpmDependency        as ND
 import           Parser
+import           Parser.Common        (runWaspParser)
+import qualified Psl.Parser.Model
 import qualified StrongPath           as SP
 import           Wasp
-import qualified Wasp.Entity
 import qualified Wasp.Auth
+import qualified Wasp.Entity
 import qualified Wasp.JsImport
 import qualified Wasp.NpmDependencies
 import qualified Wasp.Page
@@ -65,10 +67,25 @@ spec_parseWasp =
                         }
                     , WaspElementEntity $ Wasp.Entity.Entity
                         { Wasp.Entity._name = "Task"
-                        , Wasp.Entity._pslModelSchema = "\
-                                \id          Int     @id @default(autoincrement())\n\
-                            \    description String\n\
-                            \    isDone      Boolean @default(false)"
+                        , Wasp.Entity._fields =
+                          [ Wasp.Entity.Field
+                            { Wasp.Entity._fieldName = "id"
+                            , Wasp.Entity._fieldType = Wasp.Entity.FieldTypeScalar Wasp.Entity.Int
+                            }
+                          , Wasp.Entity.Field
+                            { Wasp.Entity._fieldName = "description"
+                            , Wasp.Entity._fieldType = Wasp.Entity.FieldTypeScalar Wasp.Entity.String
+                            }
+                          , Wasp.Entity.Field
+                            { Wasp.Entity._fieldName = "isDone"
+                            , Wasp.Entity._fieldType = Wasp.Entity.FieldTypeScalar Wasp.Entity.Boolean
+                            }
+                          ]
+                        , Wasp.Entity._pslModelBody = fromRight (error "failed to parse") $
+                            runWaspParser Psl.Parser.Model.body "\
+                              \    id          Int     @id @default(autoincrement())\n\
+                              \    description String\n\
+                              \    isDone      Boolean @default(false)"
                         }
                     , WaspElementQuery $  Wasp.Query.Query
                         { Wasp.Query._name = "myQuery"

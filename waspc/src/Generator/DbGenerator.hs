@@ -4,17 +4,21 @@ module Generator.DbGenerator
     , dbSchemaFileInProjectRootDir
     ) where
 
-import qualified Path as P
-import Data.Aeson ((.=), object)
+import           Data.Aeson          (object, (.=))
+import qualified Path                as P
 
-import StrongPath (Path, Rel, File, Dir, (</>))
-import qualified StrongPath as SP
-import Wasp (Wasp)
+import           CompileOptions      (CompileOptions)
+import           Generator.Common    (ProjectRootDir)
+import           Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import           Generator.Templates (TemplatesDir)
+import qualified Psl.Ast.Model
+import qualified Psl.Generator.Model
+import           StrongPath          (Dir, File, Path, Rel, (</>))
+import qualified StrongPath          as SP
+import           Wasp                (Wasp)
 import qualified Wasp
-import CompileOptions (CompileOptions)
-import Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import Generator.Common (ProjectRootDir)
-import Generator.Templates (TemplatesDir)
+import           Wasp.Entity         (Entity)
+import qualified Wasp.Entity
 
 -- * Path definitions
 
@@ -51,11 +55,16 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
         dstPath = dbSchemaFileInProjectRootDir
         tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
-        isBuild = Wasp.getIsBuild wasp
-        (datasourceProvider, datasourceUrl) = if isBuild then ("postgresql", "env(\"DATABASE_URL\")")
-                                                         else ("sqlite",     "\"file:./dev.db\"")
         templateData = object
-            [ "entities" .= (Wasp.getPSLEntities wasp)
+            [ "modelSchemas" .= map entityToPslModelSchema (Wasp.getPSLEntities wasp)
             , "datasourceProvider" .= (datasourceProvider :: String)
             , "datasourceUrl"      .= (datasourceUrl :: String)
             ]
+
+        isBuild = Wasp.getIsBuild wasp
+        (datasourceProvider, datasourceUrl) = if isBuild then ("postgresql", "env(\"DATABASE_URL\")")
+                                                         else ("sqlite",     "\"file:./dev.db\"")
+
+        entityToPslModelSchema :: Entity -> String
+        entityToPslModelSchema entity = Psl.Generator.Model.generateModel $
+            Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)

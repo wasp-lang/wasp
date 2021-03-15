@@ -11,9 +11,6 @@ generator client {
   output = "../server/node_modules/.prisma/client"
 }
 
-{=# entities =}
-model {= name =} {
-    {=& pslModelSchema =}
-}
-
-{=/ entities =}
+{=# modelSchemas =}
+{=& . =}
+{=/ modelSchemas =}
