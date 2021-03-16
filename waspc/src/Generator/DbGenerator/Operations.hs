@@ -1,7 +1,5 @@
 module Generator.DbGenerator.Operations
-    ( migrateSave
-    , migrateUp
-    , generateClient
+    ( migrateDev
     ) where
 
 import Control.Concurrent (Chan, newChan, readChan)
@@ -22,32 +20,11 @@ printJobMsgsUntilExitReceived chan = do
         J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
         J.JobExit {} -> return ()
 
--- | Checks for the changes in db schema file and creates and saves db migration info, but it
--- does not execute it.
-migrateSave :: Path Abs (Dir ProjectRootDir) -> String -> IO (Either String ())
-migrateSave projectDir migrationName = do
+migrateDev :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
+migrateDev projectDir = do
     chan <- newChan
     (_, dbExitCode) <- concurrently (printJobMsgsUntilExitReceived chan)
-                                    (DbJobs.migrateSave projectDir migrationName chan)
+                                    (DbJobs.migrateDev projectDir chan)
     case dbExitCode of
         ExitSuccess -> return (Right ())
-        ExitFailure code -> return $ Left $ "Migrate save failed with exit code: " ++ show code
-
-migrateUp :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
-migrateUp projectDir = do
-    chan <- newChan
-    (_, dbExitCode) <- concurrently (printJobMsgsUntilExitReceived chan)
-                                    (DbJobs.migrateUp projectDir chan)
-    case dbExitCode of
-        ExitSuccess -> return (Right ())
-        ExitFailure code -> return $ Left $ "Migrate up failed with exit code: " ++ show code
-
-generateClient :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
-generateClient projectDir = do
-    chan <- newChan
-    (_, dbExitCode) <- concurrently (printJobMsgsUntilExitReceived chan)
-                                    (DbJobs.generateClient projectDir chan)
-    case dbExitCode of
-        ExitSuccess -> return (Right ())
-        ExitFailure code -> return $ Left $ "Client generation failed with exit code: " ++ show code
-
+        ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
