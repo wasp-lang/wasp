@@ -22,12 +22,27 @@ data Field = Field
     }
     deriving (Show, Eq)
 
-data FieldType = String | Boolean | Int | Float | DateTime | Json | UserType String
+data FieldType = String
+               | Boolean
+               | Int
+               | BigInt
+               | Float
+               | Decimal
+               | DateTime
+               | Json
+               | Bytes
+               | Unsupported String
+               | UserType String
     deriving (Show, Eq)
 
 data FieldTypeModifier = List | Optional
     deriving (Show, Eq)
 
+-- NOTE: We don't differentiate "native database type" attributes from normal attributes right now,
+--   they are all represented with `data Attribute`.
+--   We just represent them as a normal attribute with attrName being e.g. "db.VarChar".
+-- TODO: In the future, we might want to be "smarter" about this and actually have a special representation
+--   for them -> but let's see if that will be needed.
 data Attribute = Attribute
     { _attrName :: String
     , _attrArgs :: [AttributeArg]

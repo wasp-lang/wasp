@@ -61,11 +61,15 @@ field = do
          [ ("String",   Model.String)
          , ("Boolean",  Model.Boolean)
          , ("Int",      Model.Int)
+         , ("BigInt",   Model.BigInt)
          , ("Float",    Model.Float)
+         , ("Decimal",  Model.Decimal)
          , ("DateTime", Model.DateTime)
          , ("Json",     Model.Json)
+         , ("Bytes",    Model.Bytes)
          ]
         )
+        <|> (try $ Model.Unsupported <$> (T.symbol lexer "Unsupported" >> T.parens lexer (T.stringLiteral lexer)))
         <|> Model.UserType <$> T.identifier lexer
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
@@ -79,9 +83,22 @@ attribute :: Parser Model.Attribute
 attribute = do
     _ <- char '@'
     name <- T.identifier lexer
+    -- NOTE: we support potential "selector" in order to support native database type attributes.
+    --   These have names with single . in them, like this: @db.VarChar(200), @db.TinyInt(1), ... .
+    --   We are not trying to be very smart here though: we don't check that "db" part matches
+    --   the name of the datasource block name (as it should), and we don't check that "VarChar" part is PascalCase
+    --   (as it should be) or that it is one of the valid values.
+    --   We just treat it as any other attribute, where "db.VarChar" becomes an attribute name.
+    --   In case that we wanted to be smarter, we could expand the AST to have special representation for it.
+    --   Also, we could do some additional checks here in parser (PascalCase), and some additional checks
+    --   in th generator ("db" matching the datasource block name).
+    maybeSelector <- optionMaybe $ try $ char '.' >> T.identifier lexer
+
     maybeArgs <- optionMaybe (T.parens lexer (T.commaSep1 lexer (try attrArgument)))
     return $ Model.Attribute
-        { Model._attrName = name
+        { Model._attrName = case maybeSelector of
+                Just selector -> name ++ "." ++ selector
+                Nothing -> name
         , Model._attrArgs = fromMaybe [] maybeArgs
         }
 

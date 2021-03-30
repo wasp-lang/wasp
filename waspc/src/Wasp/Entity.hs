@@ -34,13 +34,17 @@ data Scalar
     = String
     | Boolean
     | Int
+    | BigInt
     | Float
+    | Decimal
     | DateTime
     | Json
+    | Bytes
     -- | Name of the user-defined type.
     -- This could be another entity, or maybe an enum,
     -- we don't know here yet.
     | UserType String
+    | Unsupported String
     deriving (Show, Eq)
 
 instance ToJSON Entity where

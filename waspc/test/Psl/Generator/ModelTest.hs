@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Psl.Generator.ModelTest where
 
@@ -23,9 +24,6 @@ spec_generatePslModel = do
 prop_generatePslModel :: Property
 prop_generatePslModel = mapSize (const 100) $ \modelAst -> within 1000000 $
     runWaspParser Psl.Parser.Model.model (generateModel modelAst) `shouldBe` Right modelAst
-
--- TODO: Figure out what to do with these orphand Arbitrary instances.
---   Should they go into src/Psl/Ast/Model.hs?
 
 instance Arbitrary AST.Model where
     arbitrary = AST.Model <$> arbitraryIdentifier <*> arbitrary
@@ -59,9 +57,13 @@ instance Arbitrary AST.FieldType where
         [ return AST.String
         , return AST.Boolean
         , return AST.Int
+        , return AST.BigInt
         , return AST.Float
+        , return AST.Decimal
         , return AST.DateTime
         , return AST.Json
+        , return AST.Bytes
+        , AST.Unsupported . show <$> arbitraryIdentifier
         , AST.UserType <$> arbitraryIdentifier ]
 
 instance Arbitrary AST.FieldTypeModifier where
@@ -69,7 +71,10 @@ instance Arbitrary AST.FieldTypeModifier where
 
 instance Arbitrary AST.Attribute where
     arbitrary = do
-        name <- arbitraryIdentifier
+        name <- frequency
+            [ (2, arbitraryIdentifier)
+            , (1, ("db." ++) <$> arbitraryIdentifier)
+            ]
         args <- scale (const 5) arbitrary
         return $ AST.Attribute { AST._attrName = name, AST._attrArgs = args }
 
