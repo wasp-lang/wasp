@@ -7,8 +7,8 @@
   "scripts": {
     "start": "nodemon -r dotenv/config ./src/server.js",
     "debug": "DEBUG=server:* npm start",
-    "db-migrate-prod": "prisma migrate deploy --preview-feature --schema=../db/schema.prisma",
-    "db-migrate-dev": "prisma migrate dev --preview-feature --schema=../db/schema.prisma",
+    "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
+    "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}",
     "standard": "standard"
   },
@@ -22,6 +22,6 @@
   "devDependencies": {
     "nodemon": "^2.0.4",
     "standard": "^14.3.4",
-    "prisma": "2.18.0"
+    "prisma": "2.19.0"
   }
 }

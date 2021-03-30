@@ -21,7 +21,6 @@ migrateDev projectDir = do
     -- Prisma packages (cli and client) are currently installed.
     runNodeCommandAsJob serverDir "npx"
         [ "prisma", "migrate", "dev"
-        , "--preview-feature"
         , "--schema", SP.toFilePath schemaFile
         ] J.Db
 

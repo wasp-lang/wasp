@@ -108,7 +108,7 @@ waspNpmDeps = ND.fromList
     , ("debug", "~2.6.9")
     , ("express", "~4.16.1")
     , ("morgan", "~1.9.1")
-    , ("@prisma/client", "2.18.0")
+    , ("@prisma/client", "2.19.0")
     , ("jsonwebtoken", "^8.5.1")
     , ("secure-password", "^4.0.0")
     , ("dotenv", "8.2.0")
