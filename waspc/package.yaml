@@ -62,6 +62,7 @@ library:
     - regex-tdfa
     - utf8-string
     - Glob
+    - unliftio
 
 executables:
   wasp:

@@ -3,7 +3,7 @@ module Command.Db
     , studio
     ) where
 
-import Control.Concurrent.Async (concurrently, race)
+import Control.Concurrent.Async (concurrently)
 import Control.Concurrent (newChan)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Except (throwError)
@@ -60,7 +60,5 @@ studio = do
     waspSaysC "Running studio..."
     chan <- liftIO newChan
 
-    result <- liftIO $ race (readJobMessagesAndPrintThemPrefixed chan) (runStudio genProjectDir chan)
-    case result of
-        Left _ -> error "This should never happen, listening to studio output should never stop."
-        Right _ -> error "This should never happen, studio should never stop."
+    _ <- liftIO $ concurrently (readJobMessagesAndPrintThemPrefixed chan) (runStudio genProjectDir chan)
+    error "This should never happen, studio should never stop."

@@ -3,7 +3,7 @@ module Generator.Start
        ) where
 
 import           Control.Concurrent              (newChan)
-import           Control.Concurrent.Async        (race)
+import           Control.Concurrent.Async        (race, concurrently)
 
 import           Generator.Common                (ProjectRootDir)
 import           Generator.Job.IO                (readJobMessagesAndPrintThemPrefixed)
@@ -13,15 +13,12 @@ import           StrongPath                      (Abs, Dir, Path)
 
 
 -- | This is a blocking action, that will start the processes that run web app and server.
---   It will wait for those processes to end, but since they are made to keep running until error
---   occurs, so will this action, run until one of them fails or it fails itself.
+--   It will run as long as one of those processes does not fail.
 start :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
 start projectDir = do
     chan <- newChan
     let runStartJobs = race (startServer projectDir chan) (startWebApp projectDir chan)
-    result <- race (readJobMessagesAndPrintThemPrefixed chan) runStartJobs
-    case result of
-        Left () -> error "App start: Reading job messages stopped too early, this should never happen."
-        Right serverOrWebExitCode -> case serverOrWebExitCode of
-            Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
-            Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."
+    (_, serverOrWebExitCode) <- concurrently (readJobMessagesAndPrintThemPrefixed chan) runStartJobs
+    case serverOrWebExitCode of
+        Left serverExitCode -> return $ Left $ "Server failed with exit code " ++ show serverExitCode ++ "."
+        Right webAppExitCode -> return $ Left $ "Web app failed with exit code " ++ show webAppExitCode ++ "."

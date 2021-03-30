@@ -5,7 +5,7 @@ module WaspignoreFile
     , ignores
     ) where
 
-import Control.Exception (catch)
+import UnliftIO.Exception (catch, throwIO)
 import System.IO.Error (isDoesNotExistError)
 import StrongPath (Path, Abs, File, toFilePath)
 import System.FilePath.Glob (Pattern, compile, match)
@@ -53,7 +53,7 @@ readWaspignoreFile :: Path Abs File -> IO WaspignoreFile
 readWaspignoreFile fp = do
     text <- readFile (toFilePath fp)
             `catch` (\e -> if isDoesNotExistError e then return ""
-                           else ioError e)
+                           else throwIO e)
     return $ parseWaspignoreFile text
 
 -- | Tests whether a file should be ignored according to a 'WaspignoreFile'.

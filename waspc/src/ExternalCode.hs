@@ -7,7 +7,7 @@ module ExternalCode
     , SourceExternalCodeDir
     ) where
 
-import Control.Exception (catch)
+import UnliftIO.Exception (catch, throwIO)
 import System.IO.Error (isDoesNotExistError)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
@@ -33,7 +33,7 @@ instance Show File where
     show = show . _pathInExtCodeDir
 
 instance Eq File where
-    f1 == f2 = (_pathInExtCodeDir f1) == (_pathInExtCodeDir f2)
+    f1 == f2 = _pathInExtCodeDir f1 == _pathInExtCodeDir f2
 
 -- | Returns path relative to the external code directory.
 filePathInExtCodeDir :: File -> Path (Rel SourceExternalCodeDir) SP.File
@@ -47,7 +47,7 @@ fileText = TextL.toStrict . _text
 fileAbsPath :: ExternalCode.File -> Path Abs SP.File
 fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 
-waspignorePathInExtCodeDir :: Path (Rel SourceExternalCodeDir) SP.File 
+waspignorePathInExtCodeDir :: Path (Rel SourceExternalCodeDir) SP.File
 waspignorePathInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
 
 -- | Returns all files contained in the specified external code dir, recursively,
@@ -81,6 +81,6 @@ readFiles extCodeDirPath = do
         -- but then got deleted before actual reading was invoked.
         -- That would make this function crash, so we just ignore those errors.
         tryReadFile :: FilePath -> IO (Maybe TextL.Text)
-        tryReadFile fp = (Just <$> (TextL.IO.readFile fp)) `catch` (\e -> if isDoesNotExistError e
+        tryReadFile fp = (Just <$> TextL.IO.readFile fp) `catch` (\e -> if isDoesNotExistError e
                                                                           then return Nothing
-                                                                          else ioError e)
+                                                                          else throwIO e)

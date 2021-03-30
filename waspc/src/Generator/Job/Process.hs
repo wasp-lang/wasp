@@ -7,7 +7,7 @@ module Generator.Job.Process
 
 import           Control.Concurrent       (writeChan)
 import           Control.Concurrent.Async (Concurrently (..))
-import           Control.Exception        (bracket)
+import           UnliftIO.Exception       (bracket)
 import           Data.Conduit             (runConduit, (.|))
 import qualified Data.Conduit.List        as CL
 import qualified Data.Conduit.Process     as CP

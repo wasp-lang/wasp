@@ -3,7 +3,7 @@ module Generator.FileDraft.WriteableMonad
        ) where
 
 
-import Control.Exception (catch)
+import UnliftIO.Exception (catch, throwIO)
 import System.IO.Error (isDoesNotExistError)
 import qualified System.Directory
 import qualified Data.Text.IO
@@ -56,9 +56,9 @@ instance WriteableMonad IO where
         -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed
         -- when the filedraft was created but then got deleted before actual copying was invoked.
         -- That would make this function crash, so we just ignore those errors.
-        (System.Directory.copyFile src dst) `catch` (\e -> if isDoesNotExistError e
-                                                           then return ()
-                                                           else ioError e)
+        System.Directory.copyFile src dst `catch` (\e -> if isDoesNotExistError e
+                                                         then return ()
+                                                         else throwIO e)
 
     writeFileFromText = Data.Text.IO.writeFile
     getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
