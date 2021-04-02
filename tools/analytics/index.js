@@ -15,12 +15,12 @@ const main = async () => {
   const events = (await fetchEvents('https://app.posthog.com/api/event/?event=cli'))
         .filter(e => ! ourDistinctIds.includes(e.distinct_id) )
 
-  console.log('Number of CLI events so far:')
+  console.log('\nNumber of CLI events so far:')
   console.log(events.length)
 
   const eventsByProject = _.groupBy(events, e => e.distinct_id + e.properties.project_hash)
 
-  console.log('Number of Wasp projects created so far:')
+  console.log('\nNumber of Wasp projects created so far:')
   console.log(Object.keys(eventsByProject).length)
 
   const numProjectsCreatedSinceDatetime = (datetime) => {
@@ -30,11 +30,23 @@ const main = async () => {
       .length
   }
 
-  console.log('Number of Wasp projects created since 2021-02-12:')
-  console.log(numProjectsCreatedSinceDatetime('2021-02-12'))
+  const numProjectsCreatedUntilDatetime = (datetime) => {
+    return Object.values(eventsByProject)
+      .map(events => moment.min(events.map(e => moment(e.timestamp))))
+      .filter(dt => dt.isSameOrBefore(datetime))
+      .length
+  }
 
-  console.log('Number of Wasp projects that were built:')
+  console.log('\nNumber of Wasp projects that were built so far:')
   console.log(Object.values(eventsByProject).filter(events => events.some(e => e.properties.is_build)).length)
+
+  console.log('\nNumber of Wasp projects created from monday to monday.')
+  let monday = moment('2021-01-25')
+  while (monday.isBefore(moment.now())) {
+    const numProjects = numProjectsCreatedUntilDatetime(monday)
+    console.log(numProjects + ', ' + monday.format('YYYY MM DD'))
+    monday.add(7, 'days')
+  }
 }
 
 const fetchEvents = async (url) => {
