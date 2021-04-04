@@ -56,7 +56,5 @@ const config = {
   }
 }
 
-console.log('config: ', config.all);
-
 const resolvedConfig = _.merge(config.all, config[env])
 export default resolvedConfig
