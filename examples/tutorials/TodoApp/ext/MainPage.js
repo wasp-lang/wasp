@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import useAuth from '@wasp/auth/useAuth.js'
 
@@ -58,14 +58,12 @@ const TasksList = (props) => {
 }
 
 const NewTaskForm = (props) => {
-  const defaultDescription = ''
-  const [description, setDescription] = useState(defaultDescription)
-
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {
+      const description = event.target.description.value
+      event.target.reset()
       await createTask({ description })
-      setDescription(defaultDescription)
     } catch (err) {
       window.alert('Error: ' + err.message)
     }
@@ -74,9 +72,9 @@ const NewTaskForm = (props) => {
   return (
     <form onSubmit={handleSubmit}>
       <input
+        name='description'
         type='text'
-        value={description}
-        onChange={e => setDescription(e.target.value)}
+        defaultValue=''
       />
       <input type='submit' value='Create task' />
     </form>
