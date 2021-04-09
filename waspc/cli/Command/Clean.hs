@@ -2,14 +2,15 @@ module Command.Clean
     ( clean
     ) where
 
-import System.Directory (doesDirectoryExist, removeDirectoryRecursive)
-import System.IO (hFlush, stdout)
-import Control.Monad.IO.Class (liftIO)
+import           Control.Monad.IO.Class (liftIO)
+import           System.Directory       (doesDirectoryExist,
+                                         removeDirectoryRecursive)
+import           System.IO              (hFlush, stdout)
 
-import qualified StrongPath as SP
-import Command (Command)
-import Command.Common (findWaspProjectRootDirFromCwd)
-import qualified Common
+import qualified Cli.Common             as Common
+import           Command                (Command)
+import           Command.Common         (findWaspProjectRootDirFromCwd)
+import qualified StrongPath             as SP
 
 clean :: Command ()
 clean = do

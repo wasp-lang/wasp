@@ -3,6 +3,7 @@ module Generator.FileDraft
        , Writeable(..)
        , createTemplateFileDraft
        , createCopyFileDraft
+       , createCopyFileDraftIfExists
        , createTextFileDraft
        ) where
 
@@ -45,7 +46,19 @@ createTemplateFileDraft dstPath tmplSrcPath tmplData =
 
 createCopyFileDraft :: Path (Rel ProjectRootDir) File -> Path Abs File -> FileDraft
 createCopyFileDraft dstPath srcPath =
-    FileDraftCopyFd $ CopyFD.CopyFileDraft { CopyFD._dstPath = dstPath, CopyFD._srcPath = srcPath}
+    FileDraftCopyFd $ CopyFD.CopyFileDraft
+    { CopyFD._dstPath = dstPath
+    , CopyFD._srcPath = srcPath
+    , CopyFD._failIfSrcDoesNotExist = True
+    }
+
+createCopyFileDraftIfExists :: Path (Rel ProjectRootDir) File -> Path Abs File -> FileDraft
+createCopyFileDraftIfExists dstPath srcPath =
+    FileDraftCopyFd $ CopyFD.CopyFileDraft
+    { CopyFD._dstPath = dstPath
+    , CopyFD._srcPath = srcPath
+    , CopyFD._failIfSrcDoesNotExist = False
+    }
 
 createTextFileDraft :: Path (Rel ProjectRootDir) File -> Text -> FileDraft
 createTextFileDraft dstPath content =

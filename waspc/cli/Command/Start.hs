@@ -6,12 +6,12 @@ import           Control.Concurrent.Async (race)
 import           Control.Monad.Except     (throwError)
 import           Control.Monad.IO.Class   (liftIO)
 
+import qualified Cli.Common               as Common
 import           Command                  (Command, CommandError (..))
 import           Command.Common           (findWaspProjectRootDirFromCwd,
                                            waspSaysC)
 import           Command.Compile          (compileIO)
 import           Command.Watch            (watch)
-import qualified Common
 import qualified Lib
 import           StrongPath               ((</>))
 

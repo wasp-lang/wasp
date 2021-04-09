@@ -28,7 +28,8 @@ defaultMockConfig :: MockWriteableMonadConfig
 defaultMockConfig = MockWriteableMonadConfig
     { getTemplatesDirAbsPath_impl = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|mock/templates/dir|]
     , getTemplateFileAbsPath_impl = \path -> SP.fromPathAbsDir (systemPathRoot P.</> [P.reldir|mock/templates/dir|]) SP.</> path
-    , compileAndRenderTemplate_impl = \_ _ -> (pack "Mock template content")
+    , compileAndRenderTemplate_impl = \_ _ -> pack "Mock template content"
+    , doesFileExist_impl = const True
     }
 
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
@@ -54,12 +55,21 @@ instance WriteableMonad MockWriteableMonad where
     getTemplateFileAbsPath path = MockWriteableMonad $ do
         modifyLogs (getTemplateFileAbsPath_addCall path)
         (_, config) <- get
-        return $ (getTemplateFileAbsPath_impl config) path
+        return $ getTemplateFileAbsPath_impl config path
 
     compileAndRenderTemplate path json = MockWriteableMonad $ do
         modifyLogs (compileAndRenderTemplate_addCall path json)
         (_, config) <- get
-        return $ (compileAndRenderTemplate_impl config) path json
+        return $ compileAndRenderTemplate_impl config path json
+
+    doesFileExist path = MockWriteableMonad $ do
+        (_, config) <- get
+        return $ doesFileExist_impl config path
+
+    throwIO = throwIO
+
+instance MonadIO MockWriteableMonad where
+    liftIO = undefined
 
 modifyLogs :: MonadState (a, b) m => (a -> a) -> m ()
 modifyLogs f = modify (\(logs, config) -> (f logs, config))
@@ -82,6 +92,7 @@ data MockWriteableMonadConfig = MockWriteableMonadConfig
     { getTemplatesDirAbsPath_impl :: Path Abs (Dir TemplatesDir)
     , getTemplateFileAbsPath_impl :: Path (Rel TemplatesDir) File -> Path Abs File
     , compileAndRenderTemplate_impl :: Path (Rel TemplatesDir) File -> Aeson.Value -> Text
+    , doesFileExist_impl :: FilePath -> Bool
     }
 
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs

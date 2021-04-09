@@ -31,6 +31,9 @@ module Wasp
     , setExternalCodeFiles
     , getExternalCodeFiles
 
+    , setDotEnvFile
+    , getDotEnvFile
+
     , setIsBuild
     , getIsBuild
 
@@ -39,6 +42,7 @@ module Wasp
     ) where
 
 import           Data.Aeson           (ToJSON (..), object, (.=))
+import           StrongPath           (Path, Abs, File)
 
 import qualified ExternalCode
 import qualified Util                 as U
@@ -60,6 +64,7 @@ data Wasp = Wasp
     { waspElements      :: [WaspElement]
     , waspJsImports     :: [JsImport]
     , externalCodeFiles :: [ExternalCode.File]
+    , dotEnvFile        :: Maybe (Path Abs File)
     , isBuild           :: Bool
     } deriving (Show, Eq)
 
@@ -79,6 +84,7 @@ fromWaspElems elems = Wasp
     { waspElements = elems
     , waspJsImports = []
     , externalCodeFiles = []
+    , dotEnvFile = Nothing
     , isBuild = False
     }
 
@@ -97,6 +103,14 @@ getExternalCodeFiles = externalCodeFiles
 
 setExternalCodeFiles :: Wasp -> [ExternalCode.File] -> Wasp
 setExternalCodeFiles wasp files = wasp { externalCodeFiles = files }
+
+-- * Dot env files
+
+getDotEnvFile :: Wasp -> Maybe (Path Abs File)
+getDotEnvFile = dotEnvFile
+
+setDotEnvFile :: Wasp -> Maybe (Path Abs File) -> Wasp
+setDotEnvFile wasp file = wasp { dotEnvFile = file }
 
 -- * Js imports
 

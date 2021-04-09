@@ -5,11 +5,11 @@ module Command.Build
 import           Control.Monad.Except   (throwError)
 import           Control.Monad.IO.Class (liftIO)
 
+import qualified Cli.Common             as Common
 import           Command                (Command, CommandError (..))
 import           Command.Common         (alphaWarningMessage,
                                          findWaspProjectRootDirFromCwd)
 import           Command.Compile        (compileIOWithOptions)
-import qualified Common
 import           CompileOptions         (CompileOptions (..))
 import qualified Lib
 import           StrongPath             (Abs, Dir, Path, (</>))

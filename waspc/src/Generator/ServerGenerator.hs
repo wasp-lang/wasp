@@ -9,11 +9,12 @@ import           Data.Maybe                                      (fromJust,
                                                                   isJust)
 import qualified Path                                            as P
 import           StrongPath                                      ((</>))
+import qualified StrongPath                                      as SP
 
 import           CompileOptions                                  (CompileOptions)
 import           Generator.Common                                (nodeVersionAsText)
 import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
-import           Generator.FileDraft                             (FileDraft)
+import           Generator.FileDraft                             (FileDraft, createCopyFileDraft)
 import           Generator.PackageJsonGenerator                  (resolveNpmDeps,
                                                                   toPackageJsonDependenciesString)
 import           Generator.ServerGenerator.AuthG                 (genAuth)
@@ -40,7 +41,18 @@ genServer wasp _ = concat
     , [genGitignore wasp]
     , genSrcDir wasp
     , generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy wasp
+    , genDotEnv wasp
     ]
+
+genDotEnv :: Wasp -> [FileDraft]
+genDotEnv wasp =
+    case Wasp.getDotEnvFile wasp of
+        Just srcFilePath ->
+            [ createCopyFileDraft
+              (C.serverRootDirInProjectRootDir </> SP.fromPathRelFile [P.relfile|.env|])
+              srcFilePath
+            ]
+        Nothing -> []
 
 genReadme :: Wasp -> FileDraft
 genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
@@ -77,6 +89,7 @@ waspNpmDeps = ND.fromList
     , ("@prisma/client", "2.12.1")
     , ("jsonwebtoken", "^8.5.1")
     , ("secure-password", "^4.0.0")
+    , ("dotenv", "8.2.0")
     ]
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).

@@ -16,7 +16,7 @@ import Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Command (Command, CommandError(..), runCommand)
 import Command.Compile (compile)
 import Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
-import qualified Common
+import qualified Cli.Common as Common
 
 runDbCommand :: Command a -> IO ()
 runDbCommand = runCommand . makeDbCommand
