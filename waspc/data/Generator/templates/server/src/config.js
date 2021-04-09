@@ -9,9 +9,9 @@ const env = process.env.NODE_ENV || 'development'
 //  https://codingsans.com/blog/node-config-best-practices
 
 const defaultOrigins = [
-  'localhost',
-  'https://localhost:3000',
-  'http://localhost:3000'
+    'localhost',
+    'https://localhost:3000',
+    'http://localhost:3000'
 ];
 
 /**
@@ -24,8 +24,8 @@ const defaultOrigins = [
 const parseAllowedOrigins = () => {
   const { ORIGINS: origins } = process.env;
   return [
-    ...origins.split(','),
-    ...defaultOrigins
+      ...origins.split(','),
+      ...defaultOrigins
   ];
 }
 

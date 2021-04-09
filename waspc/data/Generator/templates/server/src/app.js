@@ -15,7 +15,7 @@ const app = express()
 app.use(cors({
   origin: config.origins,
   credentials: true
-}))
+})) // TODO: Consider configuring CORS to be more restrictive, right now it allows all CORS requests.
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
