@@ -16,6 +16,7 @@ import           Generator.Common          (ProjectRootDir)
 import           Generator.DbGenerator     (genDb)
 import           Generator.FileDraft       (FileDraft, write)
 import           Generator.ServerGenerator (genServer)
+import qualified Generator.ServerGenerator as ServerGenerator
 import           Generator.DockerGenerator (genDockerFiles)
 import qualified Generator.Setup
 import qualified Generator.Start
@@ -33,6 +34,7 @@ import           Wasp                      (Wasp)
 writeWebAppCode :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 writeWebAppCode wasp dstDir compileOptions = do
     writeFileDrafts dstDir (generateWebApp wasp compileOptions)
+    ServerGenerator.preCleanup wasp dstDir compileOptions
     writeFileDrafts dstDir (genServer wasp compileOptions)
     writeFileDrafts dstDir (genDb wasp compileOptions)
     writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
