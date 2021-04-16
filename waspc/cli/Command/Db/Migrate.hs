@@ -15,7 +15,7 @@ import StrongPath ((</>), Abs, Dir, Path)
 import qualified StrongPath as SP
 import Command (Command, CommandError(..))
 import Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
-import qualified Common
+import qualified Cli.Common
 import Common (WaspProjectDir)
 
 -- Wasp generator interface.
@@ -27,8 +27,8 @@ import Generator.Common (ProjectRootDir)
 migrateSave :: String -> Command ()
 migrateSave migrationName = do
     waspProjectDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
-                            </> Common.generatedCodeDirInDotWaspDir
+    let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
+                            </> Cli.Common.generatedCodeDirInDotWaspDir
 
     -- TODO(matija): It might make sense that this (copying migrations folder from source to
     -- the generated proejct) is responsibility of the generator. Since migrations can also be
@@ -67,8 +67,8 @@ migrateSave migrationName = do
 migrateUp :: Command ()
 migrateUp = do
     waspProjectDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspProjectDir </> Common.dotWaspDirInWaspProjectDir
-                            </> Common.generatedCodeDirInDotWaspDir
+    let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
+                            </> Cli.Common.generatedCodeDirInDotWaspDir
 
     waspSaysC "Copying migrations folder from Wasp to Prisma project..."
     copyDbMigDirResult <- liftIO $ copyDbMigrationsDir CopyMigDirDown waspProjectDir

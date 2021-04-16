@@ -1,4 +1,4 @@
-module Common
+module Cli.Common
     ( WaspProjectDir
     , DotWaspDir
     , CliTemplatesDir
@@ -10,16 +10,16 @@ module Common
     , waspSays
     ) where
 
-import qualified Path as P
+import qualified Path             as P
 
-import StrongPath (Path, Rel, Dir, File)
-import qualified StrongPath as SP
-import ExternalCode (SourceExternalCodeDir)
+import           Common           (WaspProjectDir)
+import           ExternalCode     (SourceExternalCodeDir)
 import qualified Generator.Common
-import qualified Util.Terminal as Term
+import           StrongPath       (Dir, File, Path, Rel)
+import qualified StrongPath       as SP
+import qualified Util.Terminal    as Term
 
 
-data WaspProjectDir -- Root dir of Wasp project, containing source files.
 data DotWaspDir -- Here we put everything that wasp generates.
 data CliTemplatesDir
 

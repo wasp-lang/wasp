@@ -5,6 +5,7 @@ export const getTasks = async (args, context) => {
     throw new HttpError(403)
   }
   console.log('user who made the query: ', context.user)
+  console.log('TEST_ENV_VAR', process.env.TEST_ENV_VAR)
 
   const Task = context.entities.Task
   const tasks = await Task.findMany(

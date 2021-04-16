@@ -10,9 +10,9 @@ import qualified System.Directory
 import qualified System.FilePath        as FP
 import           Text.Printf            (printf)
 
+import qualified Cli.Common             as Common
 import           Command                (Command, CommandError (..))
 import qualified Command.Common
-import qualified Common
 import qualified Data
 import           ExternalCode           (SourceExternalCodeDir)
 import           StrongPath             (Abs, Dir, File, Path, Rel, (</>))
@@ -96,8 +96,9 @@ createNewProject projectName = do
 
       gitignoreFileContent = unlines
           [ "/.wasp/"
+          , "/.env"
           ]
-        
+
       waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
       waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
 

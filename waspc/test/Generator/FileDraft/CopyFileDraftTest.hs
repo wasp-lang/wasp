@@ -1,14 +1,14 @@
 module Generator.FileDraft.CopyFileDraftTest where
 
-import Test.Tasty.Hspec
+import           Test.Tasty.Hspec
 
-import qualified Path as P
+import qualified Path                         as P
 
-import qualified StrongPath as SP
-import Generator.FileDraft
+import           Generator.FileDraft
+import qualified StrongPath                   as SP
 
+import           Fixtures                     (systemPathRoot)
 import qualified Generator.MockWriteableMonad as Mock
-import Fixtures (systemPathRoot)
 
 
 spec_CopyFileDraft :: Spec
@@ -21,12 +21,12 @@ spec_CopyFileDraft = do
                 `shouldBe` [(True, SP.toFilePath $ SP.parent expectedDstPath)]
             Mock.copyFile_calls mockLogs
                 `shouldBe` [(SP.toFilePath expectedSrcPath, SP.toFilePath expectedDstPath)]
-              where
-                (dstDir, dstPath, srcPath) =
-                    ( SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|a/b|]
-                    , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
-                    , SP.fromPathAbsFile $ systemPathRoot P.</> [P.relfile|e/src.txt|]
-                    )
-                fileDraft = createCopyFileDraft dstPath srcPath
-                expectedSrcPath = srcPath
-                expectedDstPath = dstDir SP.</> dstPath
+  where
+      (dstDir, dstPath, srcPath) =
+          ( SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|a/b|]
+          , SP.fromPathRelFile [P.relfile|c/d/dst.txt|]
+          , SP.fromPathAbsFile $ systemPathRoot P.</> [P.relfile|e/src.txt|]
+          )
+      fileDraft = createCopyFileDraft dstPath srcPath
+      expectedSrcPath = srcPath
+      expectedDstPath = dstDir SP.</> dstPath

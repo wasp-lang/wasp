@@ -1,5 +1,6 @@
 module Generator.ServerGenerator
     ( genServer
+    , preCleanup
     , operationsRouteInRootRouter
     ) where
 
@@ -8,12 +9,17 @@ import           Data.List                                       (intercalate)
 import           Data.Maybe                                      (fromJust,
                                                                   isJust)
 import qualified Path                                            as P
-import           StrongPath                                      ((</>))
+import           StrongPath                                      ((</>), Path, Rel, File, Abs, Dir)
+import qualified StrongPath                                      as SP
+import           System.Directory                                (removeFile)
+import           UnliftIO.Exception                              (catch, throwIO)
+import           System.IO.Error                                 (isDoesNotExistError)
+import           Control.Monad                                   (when)
 
 import           CompileOptions                                  (CompileOptions)
-import           Generator.Common                                (nodeVersionAsText)
+import           Generator.Common                                (nodeVersionAsText, ProjectRootDir)
 import           Generator.ExternalCodeGenerator                 (generateExternalCodeDir)
-import           Generator.FileDraft                             (FileDraft)
+import           Generator.FileDraft                             (FileDraft, createCopyFileDraft)
 import           Generator.PackageJsonGenerator                  (resolveNpmDeps,
                                                                   toPackageJsonDependenciesString)
 import           Generator.ServerGenerator.AuthG                 (genAuth)
@@ -40,7 +46,35 @@ genServer wasp _ = concat
     , [genGitignore wasp]
     , genSrcDir wasp
     , generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy wasp
+    , genDotEnv wasp
     ]
+
+-- Cleanup to be performed before generating new server code.
+-- This might be needed in case if outDir is not empty (e.g. we already generated server code there before).
+-- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
+--   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
+--   for progress of this.
+preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
+preCleanup _ outDir _ = do
+    -- If .env gets removed but there is old .env file in generated project from previous attempts,
+    -- we need to make sure we remove it.
+    removeFile dotEnvAbsFilePath
+        `catch` \e -> when (not $ isDoesNotExistError e) $ throwIO e
+  where
+      dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
+
+genDotEnv :: Wasp -> [FileDraft]
+genDotEnv wasp =
+    case Wasp.getDotEnvFile wasp of
+        Just srcFilePath ->
+            [ createCopyFileDraft
+              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+              srcFilePath
+            ]
+        Nothing -> []
+
+dotEnvInServerRootDir :: Path (Rel C.ServerRootDir) File
+dotEnvInServerRootDir = asServerFile [P.relfile|.env|]
 
 genReadme :: Wasp -> FileDraft
 genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
@@ -77,6 +111,7 @@ waspNpmDeps = ND.fromList
     , ("@prisma/client", "2.12.1")
     , ("jsonwebtoken", "^8.5.1")
     , ("secure-password", "^4.0.0")
+    , ("dotenv", "8.2.0")
     ]
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).

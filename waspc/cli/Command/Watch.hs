@@ -8,9 +8,9 @@ import           Data.Time.Clock         (UTCTime, getCurrentTime)
 import qualified System.FilePath         as FP
 import qualified System.FSNotify         as FSN
 
+import           Cli.Common              (waspSays)
+import qualified Cli.Common              as Common
 import           Command.Compile         (compileIO)
-import           Common                  (waspSays)
-import qualified Common
 import qualified Lib
 import           StrongPath              (Abs, Dir, Path, (</>))
 import qualified StrongPath              as SP
