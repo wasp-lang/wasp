@@ -11,6 +11,7 @@ import Lexer
 
 import Parser.App (app)
 import Parser.Auth (auth)
+import Parser.Db (db)
 import Parser.Route (route)
 import Parser.Page (page)
 import Parser.Entity (entity)
@@ -26,6 +27,7 @@ waspElement
     =   waspElementApp
     <|> waspElementAuth
     <|> waspElementPage
+    <|> waspElementDb
     <|> waspElementRoute
     <|> waspElementEntity
     <|> waspElementQuery
@@ -37,6 +39,9 @@ waspElementApp = Wasp.WaspElementApp <$> app
 
 waspElementAuth :: Parser Wasp.WaspElement
 waspElementAuth = Wasp.WaspElementAuth <$> auth
+
+waspElementDb :: Parser Wasp.WaspElement
+waspElementDb = Wasp.WaspElementDb <$> db
 
 waspElementPage :: Parser Wasp.WaspElement
 waspElementPage = Wasp.WaspElementPage <$> page

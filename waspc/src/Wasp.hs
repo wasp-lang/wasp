@@ -49,6 +49,7 @@ import qualified Util                 as U
 import qualified Wasp.Action
 import           Wasp.App
 import qualified Wasp.Auth
+import qualified Wasp.Db
 import           Wasp.Entity
 import           Wasp.JsImport
 import           Wasp.NpmDependencies (NpmDependencies)
@@ -71,6 +72,7 @@ data Wasp = Wasp
 data WaspElement
     = WaspElementApp !App
     | WaspElementAuth !Wasp.Auth.Auth
+    | WaspElementDb !Wasp.Db.Db
     | WaspElementPage !Page
     | WaspElementNpmDependencies !NpmDependencies
     | WaspElementRoute !Route
@@ -144,11 +146,20 @@ fromApp app = fromWaspElems [WaspElementApp app]
 -- * Auth
 
 getAuth :: Wasp -> Maybe Wasp.Auth.Auth
-getAuth wasp = let auths = [a | WaspElementAuth a <- waspElements wasp] in 
+getAuth wasp = let auths = [a | WaspElementAuth a <- waspElements wasp] in
     case auths of
         []  -> Nothing
         [a] -> Just a
         _   -> error "Wasp can't contain more than one WaspElementAuth element!"
+
+-- * Db
+
+getDb :: Wasp -> Maybe Wasp.Db.Db
+getDb wasp = let dbs = [db | WaspElementDb db <- waspElements wasp] in
+    case dbs of
+        []  -> Nothing
+        [db] -> Just db
+        _   -> error "Wasp can't contain more than one Db element!"
 
 -- * NpmDependencies
 
