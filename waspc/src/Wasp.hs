@@ -15,6 +15,8 @@ module Wasp
     , getAuth
     , getPSLEntities
 
+    , getDb
+
     , module Wasp.Page
     , getPages
     , addPage

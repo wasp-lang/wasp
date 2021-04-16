@@ -6,6 +6,7 @@ module Generator.DbGenerator
 
 import           Data.Aeson          (object, (.=))
 import qualified Path                as P
+import           Data.Maybe          (fromMaybe)
 
 import           CompileOptions      (CompileOptions)
 import           Generator.Common    (ProjectRootDir)
@@ -17,6 +18,7 @@ import           StrongPath          (Dir, File, Path, Rel, (</>))
 import qualified StrongPath          as SP
 import           Wasp                (Wasp)
 import qualified Wasp
+import qualified Wasp.Db
 import           Wasp.Entity         (Entity)
 import qualified Wasp.Entity
 
@@ -61,9 +63,13 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
             , "datasourceUrl"      .= (datasourceUrl :: String)
             ]
 
-        isBuild = Wasp.getIsBuild wasp
-        (datasourceProvider, datasourceUrl) = if isBuild then ("postgresql", "env(\"DATABASE_URL\")")
-                                                         else ("sqlite",     "\"file:./dev.db\"")
+        dbSystem = fromMaybe Wasp.Db.SQLite $ Wasp.Db._system <$> Wasp.getDb wasp
+        (datasourceProvider, datasourceUrl) = case dbSystem of
+            Wasp.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
+                                  -- TODO: Report this error with some better mechanism, not `error`.
+            Wasp.Db.SQLite     -> if Wasp.getIsBuild wasp
+                                  then error "SQLite is not supported in production. Set db.system to smth else."
+                                  else ("sqlite",     "\"file:./dev.db\"")
 
         entityToPslModelSchema :: Entity -> String
         entityToPslModelSchema entity = Psl.Generator.Model.generateModel $
