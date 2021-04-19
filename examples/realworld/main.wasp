@@ -12,6 +12,10 @@ auth {
   onAuthFailedRedirectTo: "/login"
 }
 
+db {
+  system: PostgreSQL
+}
+
 // ----------------- Pages ------------------ //
 
 route "/" -> page Main
