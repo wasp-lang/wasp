@@ -87,7 +87,7 @@ You can pass more arguments by just adding them to the command, e.g.: `stack exe
 ### Run example app
 Position yourself in `waspc/examples/todoApp/` and run
 ```
-stack exec wasp db migrate-up
+stack exec wasp db migrate-dev
 ```
 to update database schema (this is done only on schema changes).
 
