@@ -49,7 +49,6 @@ spec_parsePage =
                     , Wasp.Page._component = expectedPageComponentImport
                     , Wasp.Page._authRequired = Just True
                     })
-            
 
         it "When given page wasp declaration without 'page', should return Left" $ do
             isLeft (parsePage "Landing { component: import Main from \"@ext/pages/Main\" }") `shouldBe` True

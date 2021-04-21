@@ -28,6 +28,9 @@ reservedNameEntity = "entity"
 reservedNameAuth :: String
 reservedNameAuth = "auth"
 
+reservedNameDb :: String
+reservedNameDb = "db"
+
 reservedNameQuery :: String
 reservedNameQuery = "query"
 

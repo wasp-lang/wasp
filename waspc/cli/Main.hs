@@ -3,10 +3,10 @@ module Main where
 import           Control.Concurrent       (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import           Control.Monad            (void)
+import           Data.Char                (isSpace)
 import           Data.Version             (showVersion)
 import           Paths_waspc              (version)
 import           System.Environment
-import           Data.Char                (isSpace)
 
 import           Command                  (runCommand)
 import           Command.Build            (build)
@@ -15,7 +15,7 @@ import           Command.Clean            (clean)
 import           Command.Compile          (compile)
 import           Command.CreateNewProject (createNewProject)
 import           Command.Db               (runDbCommand, studio)
-import           Command.Db.Migrate       (migrateSave, migrateUp)
+import qualified Command.Db.Migrate
 import           Command.Start            (start)
 import qualified Command.Telemetry        as Telemetry
 import qualified Util.Terminal            as Term
@@ -74,7 +74,7 @@ printUsage = putStrLn $ unlines
     , title "EXAMPLES"
     ,       "  wasp new MyApp"
     ,       "  wasp start"
-    ,       "  wasp db migrate-save \"init\""
+    ,       "  wasp db migrate-dev"
     ,       ""
     , Term.applyStyles [Term.Green] "Docs:" ++ " https://wasp-lang.dev/docs"
     , Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX"
@@ -86,10 +86,9 @@ printVersion = putStrLn $ showVersion version
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-    ["migrate-save", migrationName] -> runDbCommand $ migrateSave migrationName
-    ["migrate-up"] -> runDbCommand migrateUp
-    ["studio"] -> runDbCommand studio
-    _ -> printDbUsage
+    ["migrate-dev"] -> runDbCommand Command.Db.Migrate.migrateDev
+    ["studio"]      -> runDbCommand studio
+    _               -> printDbUsage
 
 printDbUsage :: IO ()
 printDbUsage = putStrLn $ unlines
@@ -97,13 +96,16 @@ printDbUsage = putStrLn $ unlines
     ,       "  wasp db <command> [command-args]"
     ,       ""
     , title "COMMANDS"
-    , cmd   "  migrate-save <migration-name>   Saves a migration for updating to current schema."
-    , cmd   "  migrate-up                      Applies all migrations, updating your db to the current schema."
-    , cmd   "  studio                          GUI for inspecting your database."
+    , cmd   (
+            "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):\n" <>
+            "                  - Generates a new migration if there are changes in the schema.\n" <>
+            "                  - Applies any pending migrations to the database."
+            )
+    , cmd   "  studio        GUI for inspecting your database."
     ,       ""
     , title "EXAMPLES"
-    ,       "  wasp db migrate-save \"Added description field.\""
-    ,       "  wasp db migrate-up"
+    ,       "  wasp db migrate-dev"
+    ,       "  wasp db studio"
     ]
 
 title :: String -> String

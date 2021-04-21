@@ -8,8 +8,9 @@ sampleBodySchema :: String
 sampleBodySchema =
   unlines
   [ "  id Int @id @default(value: autoincrement())"
-  , "  email String?"
+  , "  email String? @db.VarChar(200)"
   , "  posts Post[] @relation(\"UserPosts\", references: [id]) @customattr"
+  , "  weirdType Unsupported(\"weird\")"
   , ""
   , "  @@someattr([id, email], 2 + 4, [posts])"
   ]
@@ -42,7 +43,14 @@ sampleBodyAst =
           { AST._name = "email"
           , AST._type = AST.String
           , AST._typeModifiers = [AST.Optional]
-          , AST._attrs = []
+          , AST._attrs =
+            [  AST.Attribute
+                { AST._attrName = "db.VarChar"
+                , AST._attrArgs =
+                  [ AST.AttrArgUnnamed (AST.AttrArgNumber "200")
+                  ]
+                }
+            ]
           }
       )
   , AST.ElementField
@@ -63,6 +71,14 @@ sampleBodyAst =
                 , AST._attrArgs = []
                 }
             ]
+          }
+      )
+  , AST.ElementField
+      ( AST.Field
+          { AST._name = "weirdType"
+          , AST._type = AST.Unsupported "weird"
+          , AST._typeModifiers = []
+          , AST._attrs = []
           }
       )
   , AST.ElementBlockAttribute

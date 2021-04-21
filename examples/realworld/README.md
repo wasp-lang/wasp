@@ -5,7 +5,19 @@ Realworld app
 
 Here, we implement it in Wasp, by following their [specification](https://github.com/gothinkster/realworld/tree/master/spec).
 
-Todo:
+# Development
+
+### Database
+Wasp needs postgre database running - provide it with database connection URL via env var `DATABASE_URL` - best to do it via .env file.
+
+Easy way to get going with postgresql database: run db with `docker run --rm --publish 5432:5432 -v postgresql-data:/var/lib/postgresql/data --env POSTGRES_PASSWORD=devpass postgres`.
+`DATABASE_URL` in this case is `postgresql://postgres:devpass@localhost:5432/postgres`.
+
+### Running
+`wasp start`
+
+## TODO
+
 - [x] User + auth (JWT).
 - [x] Login and signup pages.
 - [x] Settings page with logout button (no user deletion needed).
@@ -22,7 +34,7 @@ Todo:
 - [x] Make tags work again (Prisma problems!).
 - [x] Following other users.
 - [x] Paginated lists of articles (on profile page, on home page).
-- [ ] Implement design (use Bootstrap 4 styling?).
+- [x] Implement design (use Bootstrap 4 styling?).
 - [ ] Display proper error messages on login/signup.
 - [ ] Improve error handling in React, we don't do a really good job there.
 

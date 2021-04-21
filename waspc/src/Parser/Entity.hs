@@ -50,10 +50,14 @@ getEntityFields (PslModel.Body pslElements) = map pslFieldToEntityField pslField
 
     pslFieldTypeToScalar :: PslModel.FieldType -> Entity.Scalar
     pslFieldTypeToScalar fType = case fType of
-        PslModel.String        -> Entity.String
-        PslModel.Boolean       -> Entity.Boolean
-        PslModel.Int           -> Entity.Int
-        PslModel.Float         -> Entity.Float
-        PslModel.DateTime      -> Entity.DateTime
-        PslModel.Json          -> Entity.Json
-        PslModel.UserType name -> Entity.UserType name
+        PslModel.String               -> Entity.String
+        PslModel.Boolean              -> Entity.Boolean
+        PslModel.Int                  -> Entity.Int
+        PslModel.BigInt               -> Entity.BigInt
+        PslModel.Float                -> Entity.Float
+        PslModel.Decimal              -> Entity.Decimal
+        PslModel.DateTime             -> Entity.DateTime
+        PslModel.Json                 -> Entity.Json
+        PslModel.Bytes                -> Entity.Bytes
+        PslModel.UserType typeName    -> Entity.UserType typeName
+        PslModel.Unsupported typeName -> Entity.Unsupported typeName

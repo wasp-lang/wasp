@@ -1,33 +1,34 @@
 module Command.Db.Migrate
-    ( migrateSave
-    , migrateUp
+    ( migrateDev
     , copyDbMigrationsDir
     , MigrationDirCopyDirection(..)
     ) where
 
-import Control.Monad.Catch (catch)
-import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
-import qualified Path as P
-import qualified Path.IO as PathIO
+import           Control.Monad.Catch              (catch)
+import           Control.Monad.Except             (throwError)
+import           Control.Monad.IO.Class           (liftIO)
+import qualified Path                             as P
+import qualified Path.IO                          as PathIO
 
-import StrongPath ((</>), Abs, Dir, Path)
-import qualified StrongPath as SP
-import Command (Command, CommandError(..))
-import Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import           Command                          (Command, CommandError (..))
+import           Command.Common                   (findWaspProjectRootDirFromCwd,
+                                                   waspSaysC)
+import           Common                           (WaspProjectDir)
 import qualified Cli.Common
-import Common (WaspProjectDir)
+import           StrongPath                       (Abs, Dir, Path, (</>))
+import qualified StrongPath                       as SP
 
 -- Wasp generator interface.
+import           Generator.Common                 (ProjectRootDir)
+import           Generator.DbGenerator            (dbRootDirInProjectRootDir)
 import qualified Generator.DbGenerator.Operations as DbOps
-import Generator.DbGenerator (dbRootDirInProjectRootDir)
-import Generator.Common (ProjectRootDir)
 
 
-migrateSave :: String -> Command ()
-migrateSave migrationName = do
+migrateDev :: Command ()
+migrateDev = do
     waspProjectDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
+    let genProjectRootDir = waspProjectDir
+                            </> Cli.Common.dotWaspDirInWaspProjectDir
                             </> Cli.Common.generatedCodeDirInDotWaspDir
 
     -- TODO(matija): It might make sense that this (copying migrations folder from source to
@@ -35,66 +36,31 @@ migrateSave migrationName = do
     -- considered part of a "source" code, then generator could take care of it and this command
     -- wouldn't have to deal with it. We opened an issue on Github about this.
     --
-    -- NOTE(matija): we need to copy migrations down before running "migrate save" to make sure
+    -- NOTE(matija): we need to copy migrations down before running "migrate dev" to make sure
     -- all the latest migrations are in the generated project (e.g. Wasp dev checked out something
-    -- new) - otherwise "save" would create a new migration for that and we would end up with two
+    -- new) - otherwise "dev" would create a new migration for that and we would end up with two
     -- migrations doing the same thing (which might result in conflict, e.g. during db creation).
     waspSaysC "Copying migrations folder from Wasp to Prisma project..."
-    copyDbMigDirDownResult <- liftIO $ copyDbMigrationsDir CopyMigDirDown waspProjectDir
-                                                           genProjectRootDir
-    case copyDbMigDirDownResult of
-        Nothing -> waspSaysC "Done."
-        Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
+    copyDbMigrationDir waspProjectDir genProjectRootDir CopyMigDirDown
 
-    waspSaysC "Checking for changes in schema to save..."
-    migrateSaveResult <- liftIO $ DbOps.migrateSave genProjectRootDir migrationName
-    case migrateSaveResult of
-        Left migrateSaveError -> throwError $ CommandError $ "Migrate save failed: "
-                                 ++ migrateSaveError
-        Right () -> waspSaysC "Done."
+    waspSaysC "Performing migration..."
+    migrateResult <- liftIO $ DbOps.migrateDev genProjectRootDir
+    case migrateResult of
+        Left migrateError ->
+            throwError $ CommandError $ "Migrate dev failed: " <> migrateError
+        Right () -> waspSaysC "Migration done."
 
     waspSaysC "Copying migrations folder from Prisma to Wasp project..."
-    copyDbMigDirUpResult <- liftIO $ copyDbMigrationsDir CopyMigDirUp waspProjectDir
-                                                         genProjectRootDir
-    case copyDbMigDirUpResult of
-        Nothing -> waspSaysC "Done."
-        Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
-
-    applyAvailableMigrationsAndGenerateClient genProjectRootDir
+    copyDbMigrationDir waspProjectDir genProjectRootDir CopyMigDirUp
 
     waspSaysC "All done!"
-
-migrateUp :: Command ()
-migrateUp = do
-    waspProjectDir <- findWaspProjectRootDirFromCwd
-    let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
-                            </> Cli.Common.generatedCodeDirInDotWaspDir
-
-    waspSaysC "Copying migrations folder from Wasp to Prisma project..."
-    copyDbMigDirResult <- liftIO $ copyDbMigrationsDir CopyMigDirDown waspProjectDir
-                                                       genProjectRootDir
-    case copyDbMigDirResult of
-        Nothing -> waspSaysC "Done."
-        Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
-
-    applyAvailableMigrationsAndGenerateClient genProjectRootDir
-
-    waspSaysC "All done!"
-
-applyAvailableMigrationsAndGenerateClient :: Path Abs (Dir ProjectRootDir) -> Command ()
-applyAvailableMigrationsAndGenerateClient genProjectRootDir = do
-    waspSaysC "Checking for migrations to apply..."
-    migrateUpResult <- liftIO $ DbOps.migrateUp genProjectRootDir
-    case migrateUpResult of
-        Left migrateUpError -> throwError $ CommandError $ "Migrate up failed: " ++ migrateUpError
-        Right () -> waspSaysC "Done."
-
-    waspSaysC "Generating Prisma client..."
-    genClientResult <- liftIO $ DbOps.generateClient genProjectRootDir
-    case genClientResult of
-        Left genClientError -> throwError $ CommandError $ "Generating client failed: " ++
-                               genClientError
-        Right () -> waspSaysC "Done."
+  where
+    copyDbMigrationDir waspProjectDir genProjectRootDir copyDirection = do
+        copyDbMigDirResult <-
+            liftIO $ copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir
+        case copyDbMigDirResult of
+            Nothing -> waspSaysC "Done copying migrations folder."
+            Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
 
 
 data MigrationDirCopyDirection = CopyMigDirUp | CopyMigDirDown deriving (Eq)
