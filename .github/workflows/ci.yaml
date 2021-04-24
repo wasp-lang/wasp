@@ -20,9 +20,17 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  # Check that Haskell code is formatted.
+  code-formatter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: mrkkrp/ormolu-action@v2
+
   build:
     name: Build Wasp
     runs-on: ${{ matrix.os }}
+    needs: code-formatter
     strategy:
       matrix:
         os:
