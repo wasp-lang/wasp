@@ -42,7 +42,7 @@ install_based_on_os() {
             install_from_bin_package "wasp-linux-x86_64.tar.gz"
             ;;
         "Darwin")
-            install_from_bin_package "wasp-osx-x86_64.tar.gz"
+            install_from_bin_package "wasp-macos-x86_64.tar.gz"
             ;;
         *)
             die "Sorry, this installer does not support your operating system: $(uname)."

@@ -1,9 +1,12 @@
 #!/bin/sh -e
 
-# Takes already built binary from stack and packages it
-# together with data into .tar.gz package.
+# Takes last binary built by stack and packages it together with data
+# into .tar.gz package.
 
-DST=$(realpath ${1:-wasp.tar.gz})
+# First and only argument is the filename of the package to be generated.
+# It is optional.
+
+DST=$PWD/${1:-wasp.tar.gz}
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t wasp-bin-package)"
 

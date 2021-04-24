@@ -11,8 +11,6 @@ defaults:
     working-directory: waspc
 
 jobs:
-  # TODO: Should I make this a first step in `build`, instead of it being a separate job?
-  #   Docs suggest it should be a step.
   cancel:
     name: Cancel redundant actions already in progress
     runs-on: ubuntu-latest
@@ -38,7 +36,7 @@ jobs:
 
       - name: Cache (Unix)
         uses: actions/cache@v2
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux' || runner.os == 'macOS'
         with:
           path: |
             ~/.ghc
@@ -63,12 +61,10 @@ jobs:
 
       - name: Cache (Windows)
         uses: actions/cache@v2
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
         with:
           path: |
-            C:\Users\runneradmin\AppData\Local\Programs\stack
-            C:\Users\runneradmin\AppData\Roaming\stack
-          # TODO: Replace paths above with C:\sr?
+            C:\sr
           # TODO: Check TODO in caching for Unix above.
           key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
           restore-keys: |
@@ -99,16 +95,19 @@ jobs:
         run: stack test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')
         run: |
-          ./tools/make_binary_package.sh wasp-${{ runner.os }}-x86_64.tar.gz
+          OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
+          mkdir artifacts
+          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')
         with:
           draft: true
           allowUpdates: true
-          artifacts: "wasp-${{ runner.os }}-x86_64.tar.gz"
+          artifacts: "waspc/artifacts/*"
           artifactErrorsFailBuild: true
+          replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
