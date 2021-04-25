@@ -38,8 +38,8 @@ jobs:
         uses: actions/cache@v2
         if: runner.os == 'Linux' || runner.os == 'macOS'
         with:
+          # ~/.ghc
           path: |
-            ~/.ghc
             ~/.stack
           # TODO: Right now, actions/cache updates cache only if cache was not fetched.
           #   This is not ideal for us, because we would ideally update cache even if it
@@ -63,6 +63,10 @@ jobs:
         uses: actions/cache@v2
         if: runner.os == 'Windows'
         with:
+          # C\:sr is where stack installs compiled dependencies.
+          # Caching this path reduces build time by 20 minutes while occupying only ~50mbs of cache space.
+          # To shave off 3 more minutes, we could add C:\Users\runneradmin\AppData\Local\Programs\stack
+          # to the cache -> this is where stack installs GHC. However, this adds ~900mb to the cache size!
           path: |
             C:\sr
           # TODO: Check TODO in caching for Unix above.
