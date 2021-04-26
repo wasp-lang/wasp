@@ -237,6 +237,11 @@ If using Hlint as a linter, be aware that Hlint doesn't know which default exten
 
 Hlint already adds a lot of extensions on its own so this is not a very often problem, but if that happens, add default extensions to .hlint.yaml so that Hlint knows to use them.
 
+## Formatting
+For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
+
+## Commit message conventions
+We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
 ## Deployment / CI
 We use Github Actions for CI.
@@ -251,7 +256,6 @@ If you put `[skip ci]` in commit message, that commit will be ignored by Github 
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
-
 
 ## Documentation
 External documentation, for users of Wasp, is hosted in [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
