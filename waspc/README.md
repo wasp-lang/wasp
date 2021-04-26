@@ -105,9 +105,9 @@ NOTE: Reload page if blank.
 
 ## Typical development workflow
 1. Create a new feature branch from `master`.
-2. Run `run ghcid`: this will run a process that watches the project and reports any compiler errors. Leave it running.  
+2. Run `run ghcid`: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first, you can do it with `stack install ghcid`.
-3. Do a change in the codebase (most often in `lib/` or `cli/`) (together with tests if that makes sense: see "Tests").
+3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by `ghcid`.
    Rinse and repeat.
 4. Once close to done, run `stack test` to confirm that project is passing tests (new and old).
@@ -173,7 +173,7 @@ Some useful stack commands:
 - `stack build --pedantic` -> sets -Wall and -Werror ghc options.
 - `stack build --profile`
 - `stack build --trace`
-- `stack install` -> builds the project and then copies it to the local path.
+- `stack install` -> builds the project and places the binary so it is in PATH (and you can call it directly with `wasp`).
 - `stack ghci` -> opens ghci in the context of the project, allowing you to load and run local modules.
 - `stack clear` -> clear all generated files/artifacts.
 
@@ -239,13 +239,18 @@ Hlint already adds a lot of extensions on its own so this is not a very often pr
 
 
 ## Deployment / CI
-Every commit is built and tested on Travis (linux, osx) and AppVeyor (win).
+We use Github Actions for CI.
 
-If commit is tagged, github draft release is created from it containing binary packages.
+CI runs for any commits on `master` branch, for pull requests, and for any commits tagged with tag that starts with `v`.
 
-If you put `[skip ci]` in commit message, that commit will be ignored by both Travis and AppVeyor.
+During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
-NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Travis/AppVeyor.
+If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
+
+If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
+
+NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
+If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 
 ## Documentation
