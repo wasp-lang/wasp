@@ -1,15 +1,14 @@
 module Parser.Style
-    ( style
-    ) where
+  ( style,
+  )
+where
 
-import Text.Parsec ((<|>))
-import Text.Parsec.String (Parser)
 import qualified Data.Text as Text
-
 import qualified Parser.Common
 import qualified Parser.ExternalCode
+import Text.Parsec ((<|>))
+import Text.Parsec.String (Parser)
 import qualified Wasp.Style
-
 
 style :: Parser Wasp.Style.Style
 style = cssFile <|> cssCode

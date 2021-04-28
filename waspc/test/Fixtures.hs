@@ -1,27 +1,29 @@
 module Fixtures where
 
-import qualified Path as P
 import Data.Maybe (fromJust)
+import qualified Path as P
 import qualified System.FilePath as FP
-
 import Wasp
 import qualified Wasp.Route as RouteAST
 
 app :: App
-app = App
-    { appName = "test_app"
-    , appTitle = "Hello World!"
-    , appHead = Nothing
+app =
+  App
+    { appName = "test_app",
+      appTitle = "Hello World!",
+      appHead = Nothing
     }
 
 routeHome :: RouteAST.Route
-routeHome = RouteAST.Route
-    { RouteAST._urlPath = "/home"
-    , RouteAST._targetPage = "Home"
+routeHome =
+  RouteAST.Route
+    { RouteAST._urlPath = "/home",
+      RouteAST._targetPage = "Home"
     }
 
 wasp :: Wasp
-wasp = fromWaspElems
+wasp =
+  fromWaspElems
     [ WaspElementApp app
     ]
 

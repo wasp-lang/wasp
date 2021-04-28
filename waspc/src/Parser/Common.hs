@@ -4,15 +4,19 @@
 
 module Parser.Common where
 
-import qualified Data.Text          as T
-import qualified Path               as P
-import qualified Path.Posix         as PPosix
-import           Text.Parsec        (ParseError, anyChar, manyTill, parse, try,
-                                     unexpected)
-import           Text.Parsec.String (Parser)
-
-import qualified Lexer              as L
-
+import qualified Data.Text as T
+import qualified Lexer as L
+import qualified Path as P
+import qualified Path.Posix as PPosix
+import Text.Parsec
+  ( ParseError,
+    anyChar,
+    manyTill,
+    parse,
+    try,
+    unexpected,
+  )
+import Text.Parsec.String (Parser)
 
 -- | Runs given wasp parser on a specified input.
 runWaspParser :: Parser a -> String -> Either ParseError a
@@ -24,33 +28,40 @@ runWaspParser waspParser input = parse waspParser sourceName input
     sourceName = ""
 
 -- TODO(matija): rename to just "waspElement"?
+
 -- | Parses declaration of a wasp element (e.g. App or Page) and the closure content.
-waspElementNameAndClosureContent
-    :: String -- ^ Type of the wasp element (e.g. "app" or "page").
-    -> Parser a -- ^ Parser to be used for parsing closure content of the wasp element.
-    -> Parser (String, a) -- ^ Name of the element and parsed closure content.
+waspElementNameAndClosureContent ::
+  -- | Type of the wasp element (e.g. "app" or "page").
+  String ->
+  -- | Parser to be used for parsing closure content of the wasp element.
+  Parser a ->
+  -- | Name of the element and parsed closure content.
+  Parser (String, a)
 waspElementNameAndClosureContent elementType closureContent =
-    waspElementNameAndClosure elementType (waspClosure closureContent)
+  waspElementNameAndClosure elementType (waspClosure closureContent)
 
 -- | Parses declaration of a wasp element (e.g. App or Page) and the belonging closure.
-waspElementNameAndClosure
-    :: String -- ^ Element type
-    -> Parser a -- ^ Closure parser (needs to parse braces as well, not just the content)
-    -> Parser (String, a) -- ^ Name of the element and parsed closure content.
+waspElementNameAndClosure ::
+  -- | Element type
+  String ->
+  -- | Closure parser (needs to parse braces as well, not just the content)
+  Parser a ->
+  -- | Name of the element and parsed closure content.
+  Parser (String, a)
 waspElementNameAndClosure elementType closure =
-    -- NOTE(matija): It is important to have `try` here because we don't want to consume the
-    -- content intended for other parsers.
-    -- E.g. if we tried to parse "entity-form" this parser would have been tried first for
-    -- "entity" and would consume "entity", so entity-form parser would also fail.
-    -- This way when entity parser fails, it will backtrack and allow
-    -- entity-form parser to succeed.
-    --
-    -- TODO(matija): should I push this try higher, to the specific case of entity parser
-    -- which is causing the trouble?
-    -- This way try will be executed in more cases where it is not neccessary, this
-    -- might not be the best for the performance and the clarity of error messages.
-    -- On the other hand, it is safer?
-    try $ do
+  -- NOTE(matija): It is important to have `try` here because we don't want to consume the
+  -- content intended for other parsers.
+  -- E.g. if we tried to parse "entity-form" this parser would have been tried first for
+  -- "entity" and would consume "entity", so entity-form parser would also fail.
+  -- This way when entity parser fails, it will backtrack and allow
+  -- entity-form parser to succeed.
+  --
+  -- TODO(matija): should I push this try higher, to the specific case of entity parser
+  -- which is causing the trouble?
+  -- This way try will be executed in more cases where it is not neccessary, this
+  -- might not be the best for the performance and the clarity of error messages.
+  -- On the other hand, it is safer?
+  try $ do
     L.reserved elementType
     elementName <- L.identifier
     closureContent <- closure
@@ -59,16 +70,19 @@ waspElementNameAndClosure elementType closure =
 
 -- | Parses declaration of a wasp element linked to an entity.
 -- E.g. "entity-form<Task> ..." or "action<Task> ..."
-waspElementLinkedToEntity
-    :: String -- ^ Type of the linked wasp element (e.g. "entity-form").
-    -> Parser a -- ^ Parser to be used for parsing body of the wasp element.
-    -> Parser (String, String, a) -- ^ Name of the linked entity, element name and body.
+waspElementLinkedToEntity ::
+  -- | Type of the linked wasp element (e.g. "entity-form").
+  String ->
+  -- | Parser to be used for parsing body of the wasp element.
+  Parser a ->
+  -- | Name of the linked entity, element name and body.
+  Parser (String, String, a)
 waspElementLinkedToEntity elementType bodyParser = do
-    L.reserved elementType
-    linkedEntityName <- L.angles L.identifier
-    elementName <- L.identifier
-    body <- bodyParser
-    return (linkedEntityName, elementName, body)
+  L.reserved elementType
+  linkedEntityName <- L.angles L.identifier
+  elementName <- L.identifier
+  body <- bodyParser
+  return (linkedEntityName, elementName, body)
 
 -- | Parses wasp property along with the key, "key: value".
 waspProperty :: String -> Parser a -> Parser a
@@ -88,10 +102,10 @@ waspPropertyBool key = waspProperty key L.bool
 -- form "FIELD_NAME: {...}" -> FIELD_NAME is then an identifier we need.
 waspPropertyWithIdentifierAsKey :: Parser a -> Parser (String, a)
 waspPropertyWithIdentifierAsKey valueP = do
-    identifier <- L.identifier <* L.colon
-    value <- valueP
+  identifier <- L.identifier <* L.colon
+  value <- valueP
 
-    return (identifier, value)
+  return (identifier, value)
 
 -- | Parses wasp closure, which is {...}. Returns parsed content within the closure.
 waspClosure :: Parser a -> Parser a
@@ -128,14 +142,15 @@ waspCssClosure :: Parser String
 waspCssClosure = waspNamedClosure "css"
 
 -- TODO(martin): write tests and comments.
+
 -- | Parses named wasp closure, which is {=name...name=}. Returns content within the closure.
 waspNamedClosure :: String -> Parser String
 waspNamedClosure name = do
-    _ <- closureStart
-    strip <$> manyTill anyChar (try closureEnd)
+  _ <- closureStart
+  strip <$> manyTill anyChar (try closureEnd)
   where
-      closureStart = L.symbol ("{=" ++ name)
-      closureEnd = L.symbol (name ++ "=}")
+    closureStart = L.symbol ("{=" ++ name)
+    closureEnd = L.symbol (name ++ "=}")
 
 -- | Parses a list of items that can be parsed with given parser.
 --   For example, `waspList L.identifier` will parse "[foo, bar, t]" into ["foo", "bar", "t"].
@@ -149,15 +164,17 @@ strip = T.unpack . T.strip . T.pack
 -- | Parses relative file path, e.g. "my/file.txt".
 relFilePathString :: Parser (P.Path P.Rel P.File)
 relFilePathString = do
-    path <- L.stringLiteral
-    maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
-          return
-          (P.parseRelFile path)
+  path <- L.stringLiteral
+  maybe
+    (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
+    return
+    (P.parseRelFile path)
 
 -- | Parses relative posix file path, e.g. "my/file.txt".
 relPosixFilePathString :: Parser (PPosix.Path PPosix.Rel PPosix.File)
 relPosixFilePathString = do
-    path <- L.stringLiteral
-    maybe (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
-          return
-          (PPosix.parseRelFile path)
+  path <- L.stringLiteral
+  maybe
+    (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
+    return
+    (PPosix.parseRelFile path)

@@ -1,13 +1,15 @@
 module Wasp.Db
-    ( Db (..)
-    , DbSystem (..)
-    ) where
+  ( Db (..),
+    DbSystem (..),
+  )
+where
 
 data Db = Db
-    { _system :: !DbSystem
-    } deriving (Show, Eq)
+  { _system :: !DbSystem
+  }
+  deriving (Show, Eq)
 
 data DbSystem
-    = PostgreSQL
-    | SQLite
-    deriving (Show, Eq)
+  = PostgreSQL
+  | SQLite
+  deriving (Show, Eq)

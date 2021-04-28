@@ -1,20 +1,22 @@
 module Wasp.NpmDependencies
-    ( NpmDependencies(..)
-    , empty
-    ) where
+  ( NpmDependencies (..),
+    empty,
+  )
+where
 
-import           Data.Aeson    (ToJSON (..), object, (.=))
-import           NpmDependency
-
+import Data.Aeson (ToJSON (..), object, (.=))
+import NpmDependency
 
 data NpmDependencies = NpmDependencies
-    { _dependencies :: ![NpmDependency]
-    } deriving (Show, Eq)
+  { _dependencies :: ![NpmDependency]
+  }
+  deriving (Show, Eq)
 
 empty :: NpmDependencies
-empty = NpmDependencies { _dependencies = [] }
+empty = NpmDependencies {_dependencies = []}
 
 instance ToJSON NpmDependencies where
-    toJSON deps = object
-        [ "dependencies" .= _dependencies deps
-        ]
+  toJSON deps =
+    object
+      [ "dependencies" .= _dependencies deps
+      ]

@@ -1,8 +1,8 @@
 module Lexer where
 
-import Text.Parsec (letter, alphaNum, (<|>), char, between)
-import Text.Parsec.String (Parser)
+import Text.Parsec (alphaNum, between, char, letter, (<|>))
 import Text.Parsec.Language (emptyDef)
+import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as Token
 
 reservedNameImport :: String
@@ -56,32 +56,33 @@ reservedNameBooleanFalse = "false"
 
 reservedNames :: [String]
 reservedNames =
-    [ reservedNameImport
-    , reservedNameFrom
+  [ reservedNameImport,
+    reservedNameFrom,
     -- Wasp element types
-    , reservedNameApp
-    , reservedNameDependencies
-    , reservedNamePage
-    , reservedNameRoute
-    , reservedNameEntity
-    , reservedNameAuth
-    , reservedNameQuery
-    , reservedNameAction
+    reservedNameApp,
+    reservedNameDependencies,
+    reservedNamePage,
+    reservedNameRoute,
+    reservedNameEntity,
+    reservedNameAuth,
+    reservedNameQuery,
+    reservedNameAction,
     -- Data types
-    , reservedNameString
-    , reservedNameBoolean
-    , reservedNameBooleanTrue
-    , reservedNameBooleanFalse
-    ]
+    reservedNameString,
+    reservedNameBoolean,
+    reservedNameBooleanTrue,
+    reservedNameBooleanFalse
+  ]
 
 waspLanguageDef :: Token.LanguageDef ()
-waspLanguageDef = emptyDef
-    { Token.commentLine = "//"
-    , Token.reservedNames = reservedNames
-    , Token.caseSensitive = True
-    -- Identifier
-    , Token.identStart = letter
-    , Token.identLetter = alphaNum <|> char '_'
+waspLanguageDef =
+  emptyDef
+    { Token.commentLine = "//",
+      Token.reservedNames = reservedNames,
+      Token.caseSensitive = True,
+      -- Identifier
+      Token.identStart = letter,
+      Token.identLetter = alphaNum <|> char '_'
     }
 
 waspLexer :: Token.TokenParser ()

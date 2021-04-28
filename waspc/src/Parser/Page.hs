@@ -1,30 +1,30 @@
 module Parser.Page
-    ( page
-    ) where
+  ( page,
+  )
+where
 
-import Text.Parsec
-import Text.Parsec.String (Parser)
-import Data.Maybe (listToMaybe, fromMaybe)
-
-import qualified Wasp.Page as Page
-import Wasp.JsImport (JsImport)
-
+import Data.Maybe (fromMaybe, listToMaybe)
 import Lexer
 import Parser.Common
 import qualified Parser.JsImport
+import Text.Parsec
+import Text.Parsec.String (Parser)
+import Wasp.JsImport (JsImport)
+import qualified Wasp.Page as Page
 
 data PageProperty
-    = Title !String
-    | Component !JsImport
-    | AuthRequired !Bool
-    deriving (Show, Eq)
+  = Title !String
+  | Component !JsImport
+  | AuthRequired !Bool
+  deriving (Show, Eq)
 
 -- | Parses Page properties, separated by a comma.
 pageProperties :: Parser [PageProperty]
-pageProperties = commaSep1 $
+pageProperties =
+  commaSep1 $
     pagePropertyTitle
-    <|> pagePropertyComponent
-    <|> pagePropertyAuthRequired
+      <|> pagePropertyComponent
+      <|> pagePropertyAuthRequired
 
 -- NOTE(matija): this is currently unused?
 pagePropertyTitle :: Parser PageProperty
@@ -45,10 +45,11 @@ getPageComponent ps = listToMaybe [c | Component c <- ps]
 -- | Top level parser, parses Page.
 page :: Parser Page.Page
 page = do
-    (pageName, pageProps) <- waspElementNameAndClosureContent reservedNamePage pageProperties
+  (pageName, pageProps) <- waspElementNameAndClosureContent reservedNamePage pageProperties
 
-    return Page.Page
-        { Page._name = pageName
-        , Page._component = fromMaybe (error "Page component is missing.") (getPageComponent pageProps)
-        , Page._authRequired = getPageAuthRequired pageProps
-        }
+  return
+    Page.Page
+      { Page._name = pageName,
+        Page._component = fromMaybe (error "Page component is missing.") (getPageComponent pageProps),
+        Page._authRequired = getPageAuthRequired pageProps
+      }

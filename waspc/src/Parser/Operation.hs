@@ -1,31 +1,32 @@
 module Parser.Operation
-    ( jsFunctionPropParser
-    , entitiesPropParser
-    , getJsFunctionFromProps
-    , getEntitiesFromProps
-    , properties
+  ( jsFunctionPropParser,
+    entitiesPropParser,
+    getJsFunctionFromProps,
+    getEntitiesFromProps,
+    properties,
     -- FOR TESTS:
-    , Property(..)
-    ) where
+    Property (..),
+  )
+where
 
-import           Data.Maybe         (listToMaybe)
-import           Text.Parsec        ((<|>))
-import           Text.Parsec.String (Parser)
-
-import qualified Lexer              as L
-import qualified Parser.Common      as C
+import Data.Maybe (listToMaybe)
+import qualified Lexer as L
+import qualified Parser.Common as C
 import qualified Parser.JsImport
+import Text.Parsec ((<|>))
+import Text.Parsec.String (Parser)
 import qualified Wasp.JsImport
 
-
-data Property = JsFunction !Wasp.JsImport.JsImport
-              | Entities ![String]
-    deriving (Show, Eq)
+data Property
+  = JsFunction !Wasp.JsImport.JsImport
+  | Entities ![String]
+  deriving (Show, Eq)
 
 properties :: Parser [Property]
-properties = L.commaSep1 $
+properties =
+  L.commaSep1 $
     jsFunctionPropParser
-    <|> entitiesPropParser
+      <|> entitiesPropParser
 
 jsFunctionPropParser :: Parser Property
 jsFunctionPropParser = JsFunction <$> C.waspProperty "fn" Parser.JsImport.jsImport

@@ -1,14 +1,15 @@
 module WaspignoreFile
-    ( WaspignoreFile
-    , parseWaspignoreFile
-    , readWaspignoreFile
-    , ignores
-    ) where
+  ( WaspignoreFile,
+    parseWaspignoreFile,
+    readWaspignoreFile,
+    ignores,
+  )
+where
 
-import UnliftIO.Exception (catch, throwIO)
-import System.IO.Error (isDoesNotExistError)
-import StrongPath (Path, Abs, File, toFilePath)
+import StrongPath (Abs, File, Path, toFilePath)
 import System.FilePath.Glob (Pattern, compile, match)
+import System.IO.Error (isDoesNotExistError)
+import UnliftIO.Exception (catch, throwIO)
 
 newtype WaspignoreFile = WaspignoreFile [Pattern]
 
@@ -34,16 +35,17 @@ defaultIgnorePatterns = map compile [".waspignore"]
 --   [@[^xyz\]@] Matches a single character not in the set `xyz`.
 --   [@**/@] Matches a string of at least 1 character, including slashes.
 parseWaspignoreFile :: String -> WaspignoreFile
-parseWaspignoreFile = WaspignoreFile .
-                      (defaultIgnorePatterns++) .
-                      map compile .
-                      filter isPatternLine .
-                      lines
-    where
-        isPatternLine :: String -> Bool
-        isPatternLine [] = False
-        isPatternLine ('#':_) = False
-        isPatternLine _ = True
+parseWaspignoreFile =
+  WaspignoreFile
+    . (defaultIgnorePatterns ++)
+    . map compile
+    . filter isPatternLine
+    . lines
+  where
+    isPatternLine :: String -> Bool
+    isPatternLine [] = False
+    isPatternLine ('#' : _) = False
+    isPatternLine _ = True
 
 -- | Reads and parses the wasp ignore file. See 'parseWaspignoreFile' for details of
 --   the file format, but it is very similar to `.gitignore`'s format.
@@ -51,10 +53,14 @@ parseWaspignoreFile = WaspignoreFile .
 --   If the ignore file does not exist, it is interpreted as a blank file.
 readWaspignoreFile :: Path Abs File -> IO WaspignoreFile
 readWaspignoreFile fp = do
-    text <- readFile (toFilePath fp)
-            `catch` (\e -> if isDoesNotExistError e then return ""
-                           else throwIO e)
-    return $ parseWaspignoreFile text
+  text <-
+    readFile (toFilePath fp)
+      `catch` ( \e ->
+                  if isDoesNotExistError e
+                    then return ""
+                    else throwIO e
+              )
+  return $ parseWaspignoreFile text
 
 -- | Tests whether a file should be ignored according to a 'WaspignoreFile'.
 --
