@@ -1,8 +1,9 @@
 module Generator.Common
-    ( ProjectRootDir
-    , nodeVersion
-    , nodeVersionAsText
-    ) where
+  ( ProjectRootDir,
+    nodeVersion,
+    nodeVersionAsText,
+  )
+where
 
 import Text.Printf (printf)
 
@@ -16,4 +17,5 @@ nodeVersion = (12, 18, 0) -- Latest LTS version.
 
 nodeVersionAsText :: String
 nodeVersionAsText = printf "%d.%d.%d" major minor patch
-  where (major, minor, patch) = nodeVersion
+  where
+    (major, minor, patch) = nodeVersion

@@ -1,29 +1,30 @@
 module Parser.App
-    ( app
-    ) where
+  ( app,
+  )
+where
 
+import Data.Maybe (listToMaybe)
+import Lexer
+import qualified Lexer as L
+import Parser.Common
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Data.Maybe (listToMaybe)
-
-import Lexer
 import qualified Wasp.App as App
-import Parser.Common
-import qualified Lexer as L
 
 -- | A type that describes supported app properties.
 data AppProperty
-    = Title !String
-    | Favicon !String
-    | Head [String]
-    deriving (Show, Eq)
+  = Title !String
+  | Favicon !String
+  | Head [String]
+  deriving (Show, Eq)
 
 -- | Parses supported app properties, expects format "key1: value1, key2: value2, ..."
 appProperties :: Parser [AppProperty]
-appProperties = commaSep1
-    $ appPropertyTitle
-    <|> appPropertyFavicon
-    <|> appPropertyHead
+appProperties =
+  commaSep1 $
+    appPropertyTitle
+      <|> appPropertyFavicon
+      <|> appPropertyHead
 
 appPropertyTitle :: Parser AppProperty
 appPropertyTitle = Title <$> waspPropertyStringLiteral "title"
@@ -45,11 +46,12 @@ getAppHead ps = listToMaybe [hs | Head hs <- ps]
 -- | Top level parser, parses App.
 app :: Parser App.App
 app = do
-    (appName, appProps) <- waspElementNameAndClosureContent reservedNameApp appProperties
+  (appName, appProps) <- waspElementNameAndClosureContent reservedNameApp appProperties
 
-    return App.App
-        { App.appName = appName
-        , App.appTitle = getAppTitle appProps
-        , App.appHead = getAppHead appProps
-          -- TODO(matija): add favicon.
-        }
+  return
+    App.App
+      { App.appName = appName,
+        App.appTitle = getAppTitle appProps,
+        App.appHead = getAppHead appProps
+        -- TODO(matija): add favicon.
+      }

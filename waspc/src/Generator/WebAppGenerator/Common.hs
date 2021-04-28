@@ -1,34 +1,34 @@
 module Generator.WebAppGenerator.Common
-    ( webAppRootDirInProjectRootDir
-    , webAppSrcDirInWebAppRootDir
-    , copyTmplAsIs
-    , makeSimpleTemplateFD
-    , makeTemplateFD
-    , webAppSrcDirInProjectRootDir
-    , webAppTemplatesDirInTemplatesDir
-    , asTmplFile
-    , asWebAppFile
-    , asWebAppSrcFile
-    , WebAppRootDir
-    , WebAppSrcDir
-    , WebAppTemplatesDir
-    ) where
+  ( webAppRootDirInProjectRootDir,
+    webAppSrcDirInWebAppRootDir,
+    copyTmplAsIs,
+    makeSimpleTemplateFD,
+    makeTemplateFD,
+    webAppSrcDirInProjectRootDir,
+    webAppTemplatesDirInTemplatesDir,
+    asTmplFile,
+    asWebAppFile,
+    asWebAppSrcFile,
+    WebAppRootDir,
+    WebAppSrcDir,
+    WebAppTemplatesDir,
+  )
+where
 
 import qualified Data.Aeson as Aeson
-import qualified Path as P
-
-import StrongPath (Path, Rel, Dir, File, (</>))
-import qualified StrongPath as SP
-import Wasp (Wasp)
 import Generator.Common (ProjectRootDir)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Generator.Templates (TemplatesDir)
-
+import qualified Path as P
+import StrongPath (Dir, File, Path, Rel, (</>))
+import qualified StrongPath as SP
+import Wasp (Wasp)
 
 data WebAppRootDir
-data WebAppSrcDir
-data WebAppTemplatesDir
 
+data WebAppSrcDir
+
+data WebAppTemplatesDir
 
 asTmplFile :: P.Path P.Rel P.File -> Path (Rel WebAppTemplatesDir) File
 asTmplFile = SP.fromPathRelFile
@@ -38,7 +38,6 @@ asWebAppFile = SP.fromPathRelFile
 
 asWebAppSrcFile :: P.Path P.Rel P.File -> Path (Rel WebAppSrcDir) File
 asWebAppSrcFile = SP.fromPathRelFile
-
 
 -- * Paths
 
@@ -53,7 +52,6 @@ webAppSrcDirInWebAppRootDir = SP.fromPathRelDir [P.reldir|src|]
 webAppSrcDirInProjectRootDir :: Path (Rel ProjectRootDir) (Dir WebAppSrcDir)
 webAppSrcDirInProjectRootDir = webAppRootDirInProjectRootDir </> webAppSrcDirInWebAppRootDir
 
-
 -- * Templates
 
 -- | Path in templates directory where web app templates reside.
@@ -66,13 +64,13 @@ copyTmplAsIs path = makeTemplateFD path (SP.castRel path) Nothing
 makeSimpleTemplateFD :: Path (Rel WebAppTemplatesDir) File -> Wasp -> FileDraft
 makeSimpleTemplateFD path wasp = makeTemplateFD path (SP.castRel path) (Just $ Aeson.toJSON wasp)
 
-makeTemplateFD
-    :: Path (Rel WebAppTemplatesDir) File
-    -> Path (Rel WebAppRootDir) File
-    -> Maybe Aeson.Value
-    -> FileDraft
+makeTemplateFD ::
+  Path (Rel WebAppTemplatesDir) File ->
+  Path (Rel WebAppRootDir) File ->
+  Maybe Aeson.Value ->
+  FileDraft
 makeTemplateFD srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplData =
-    createTemplateFileDraft
-        (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)
-        (webAppTemplatesDirInTemplatesDir </> srcPathInWebAppTemplatesDir)
-        tmplData
+  createTemplateFileDraft
+    (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)
+    (webAppTemplatesDirInTemplatesDir </> srcPathInWebAppTemplatesDir)
+    tmplData

@@ -1,26 +1,26 @@
 module Parser.Route
-    ( route
-    ) where
-
-import Text.Parsec.String (Parser)
+  ( route,
+  )
+where
 
 import qualified Lexer as L
+import Text.Parsec.String (Parser)
 import qualified Wasp.Route as Route
 
 -- | Top level parser, parses route Wasp element.
 route :: Parser Route.Route
 route = do
-    -- route "some/url/path"
-    L.reserved L.reservedNameRoute
-    urlPath <- L.stringLiteral
+  -- route "some/url/path"
+  L.reserved L.reservedNameRoute
+  urlPath <- L.stringLiteral
 
-    -- -> page somePage
-    L.reserved "->"
-    L.reserved L.reservedNamePage
-    targetPage <- L.identifier
+  -- -> page somePage
+  L.reserved "->"
+  L.reserved L.reservedNamePage
+  targetPage <- L.identifier
 
-    return Route.Route
-        { Route._urlPath = urlPath
-        , Route._targetPage = targetPage
-        }
-
+  return
+    Route.Route
+      { Route._urlPath = urlPath,
+        Route._targetPage = targetPage
+      }

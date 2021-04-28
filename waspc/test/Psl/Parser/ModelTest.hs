@@ -1,57 +1,55 @@
 module Psl.Parser.ModelTest where
 
-import           Test.Tasty.Hspec
-
-import           Data.Either          (isLeft)
-import           Parser.Common        (runWaspParser)
-import qualified Psl.Ast.Model        as AST
-import           Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
-import           Psl.Parser.Model     (attrArgument, body, model)
-
+import Data.Either (isLeft)
+import Parser.Common (runWaspParser)
+import qualified Psl.Ast.Model as AST
+import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
+import Psl.Parser.Model (attrArgument, body, model)
+import Test.Tasty.Hspec
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do
-    describe "Complex example" $ do
-        let pslModel = "model User {\n" ++ sampleBodySchema ++ "\n}"
-            expectedModelAst = AST.Model "User" sampleBodyAst
+  describe "Complex example" $ do
+    let pslModel = "model User {\n" ++ sampleBodySchema ++ "\n}"
+        expectedModelAst = AST.Model "User" sampleBodyAst
 
-        it "Body parser correctly parses" $ do
-          runWaspParser body sampleBodySchema `shouldBe` Right sampleBodyAst
+    it "Body parser correctly parses" $ do
+      runWaspParser body sampleBodySchema `shouldBe` Right sampleBodyAst
 
-        it "Model parser correctly parses" $ do
-          runWaspParser model pslModel `shouldBe` Right expectedModelAst
+    it "Model parser correctly parses" $ do
+      runWaspParser model pslModel `shouldBe` Right expectedModelAst
 
-    describe "Body parser" $ do
-      describe "Fails if input is not valid PSL" $ do
-          let runTest psl = it psl $ isLeft (runWaspParser body psl) `shouldBe` True
-          mapM_ runTest
-              [ "  noType"
-              , "  @startsWithAttribute"
-              , "  @@@tooManyMonkeys"
-              ]
+  describe "Body parser" $ do
+    describe "Fails if input is not valid PSL" $ do
+      let runTest psl = it psl $ isLeft (runWaspParser body psl) `shouldBe` True
+      mapM_
+        runTest
+        [ "  noType",
+          "  @startsWithAttribute",
+          "  @@@tooManyMonkeys"
+        ]
 
-    describe "Attribute argument parser" $ do
-        let tests =
-                [ ( "[foo, bar],"
-                  , AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["foo", "bar"])
-                  )
-                , ( "\"test\")"
-                  , AST.AttrArgUnnamed (AST.AttrArgString "test")
-                  )
-                , ( "foo: bar(),"
-                  , AST.AttrArgNamed "foo" (AST.AttrArgFunc "bar")
-                  )
-                , ( "Bob,"
-                  , AST.AttrArgUnnamed (AST.AttrArgIdentifier "Bob")
-                  )
-                , ( "42.3)"
-                  , AST.AttrArgUnnamed (AST.AttrArgNumber "42.3")
-                  )
-                , ( "2 + 3,"
-                  , AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 3")
-                  )
-
-                ]
-        let runTest (psl, expected) =
-                it ("correctly parses " ++ psl) $ runWaspParser attrArgument psl `shouldBe` Right expected
-        mapM_ runTest tests
+  describe "Attribute argument parser" $ do
+    let tests =
+          [ ( "[foo, bar],",
+              AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["foo", "bar"])
+            ),
+            ( "\"test\")",
+              AST.AttrArgUnnamed (AST.AttrArgString "test")
+            ),
+            ( "foo: bar(),",
+              AST.AttrArgNamed "foo" (AST.AttrArgFunc "bar")
+            ),
+            ( "Bob,",
+              AST.AttrArgUnnamed (AST.AttrArgIdentifier "Bob")
+            ),
+            ( "42.3)",
+              AST.AttrArgUnnamed (AST.AttrArgNumber "42.3")
+            ),
+            ( "2 + 3,",
+              AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 3")
+            )
+          ]
+    let runTest (psl, expected) =
+          it ("correctly parses " ++ psl) $ runWaspParser attrArgument psl `shouldBe` Right expected
+    mapM_ runTest tests

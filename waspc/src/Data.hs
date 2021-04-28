@@ -1,13 +1,12 @@
 module Data
-    ( DataDir
-    , getAbsDataDirPath
-    ) where
-
-import           StrongPath  (Abs, Dir, Path)
-import qualified StrongPath  as SP
+  ( DataDir,
+    getAbsDataDirPath,
+  )
+where
 
 import qualified Paths_waspc
-
+import StrongPath (Abs, Dir, Path)
+import qualified StrongPath as SP
 
 data DataDir
 

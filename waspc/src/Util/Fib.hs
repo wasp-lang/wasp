@@ -1,6 +1,7 @@
-module Util.Fib (
-  fibonacci
-) where
+module Util.Fib
+  ( fibonacci,
+  )
+where
 
 fibonacci :: Int -> Int
 fibonacci 0 = 0

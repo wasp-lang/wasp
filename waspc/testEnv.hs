@@ -14,13 +14,12 @@
  Run it either as an executable or with `stack SCRIPT_NAME`.
 -}
 
-import Text.Pretty.Simple (pPrint)
 import Data.Aeson
 import Data.Aeson.Encode.Pretty
 import Data.ByteString.Lazy.Char8 as L
-
-import Parser.Common (runWaspParser)
 import Fixtures
+import Parser.Common (runWaspParser)
+import Text.Pretty.Simple (pPrint)
 
 -- | Prints any ToJSON instance, useful when testing parser.
 printJSON :: ToJSON a => a -> IO ()

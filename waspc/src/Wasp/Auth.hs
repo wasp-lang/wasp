@@ -1,14 +1,16 @@
 module Wasp.Auth
-    ( Auth (..)
-    , AuthMethod (..)
-    ) where
+  ( Auth (..),
+    AuthMethod (..),
+  )
+where
 
 data Auth = Auth
-    { _userEntity :: !String
-    , _methods :: [AuthMethod]
-    , _onAuthFailedRedirectTo :: !String
-    } deriving (Show, Eq)
+  { _userEntity :: !String,
+    _methods :: [AuthMethod],
+    _onAuthFailedRedirectTo :: !String
+  }
+  deriving (Show, Eq)
 
 data AuthMethod
-    = EmailAndPassword
-    deriving (Show, Eq)
+  = EmailAndPassword
+  deriving (Show, Eq)

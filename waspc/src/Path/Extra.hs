@@ -1,11 +1,12 @@
 module Path.Extra
-    ( reversePosixPath
-    , toPosixFilePath
-    ) where
+  ( reversePosixPath,
+    toPosixFilePath,
+  )
+where
 
 import Control.Exception (assert)
-import qualified System.FilePath.Posix as FPP
 import Path
+import qualified System.FilePath.Posix as FPP
 
 -- | For given posix path P, returns posix path P', such that (terminal pseudocode incoming)
 -- `pwd == (cd P && cd P' && pwd)`, or to put it differently, such that
@@ -14,9 +15,10 @@ import Path
 -- (e.g. reversePath "foo/bar" == "../..").
 reversePosixPath :: FilePath -> FilePath
 reversePosixPath path
-    | null parts = "."
-    | otherwise  = assert (".." `notElem` parts) $
-                   FPP.joinPath $ map (const "..") parts
+  | null parts = "."
+  | otherwise =
+    assert (".." `notElem` parts) $
+      FPP.joinPath $ map (const "..") parts
   where
     parts :: [String]
     parts = filter (/= ".") $ FPP.splitDirectories path

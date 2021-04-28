@@ -1,8 +1,9 @@
 module Wasp.JsCode
-    ( JsCode(..)
-    ) where
+  ( JsCode (..),
+  )
+where
 
-import Data.Aeson (ToJSON(..))
+import Data.Aeson (ToJSON (..))
 import Data.Text (Text)
 
 data JsCode = JsCode !Text deriving (Show, Eq)
@@ -11,4 +12,4 @@ data JsCode = JsCode !Text deriving (Show, Eq)
 -- ideal. Ideally all the generation logic would be in the generator. But for now this was
 -- the simplest way to implement it.
 instance ToJSON JsCode where
-    toJSON (JsCode code) = toJSON code
+  toJSON (JsCode code) = toJSON code

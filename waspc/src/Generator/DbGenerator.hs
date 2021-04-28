@@ -1,30 +1,31 @@
 module Generator.DbGenerator
-    ( genDb
-    , dbRootDirInProjectRootDir
-    , dbSchemaFileInProjectRootDir
-    ) where
+  ( genDb,
+    dbRootDirInProjectRootDir,
+    dbSchemaFileInProjectRootDir,
+  )
+where
 
-import           Data.Aeson          (object, (.=))
-import qualified Path                as P
-import           Data.Maybe          (fromMaybe)
-
-import           CompileOptions      (CompileOptions)
-import           Generator.Common    (ProjectRootDir)
-import           Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import           Generator.Templates (TemplatesDir)
+import CompileOptions (CompileOptions)
+import Data.Aeson (object, (.=))
+import Data.Maybe (fromMaybe)
+import Generator.Common (ProjectRootDir)
+import Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Generator.Templates (TemplatesDir)
+import qualified Path as P
 import qualified Psl.Ast.Model
 import qualified Psl.Generator.Model
-import           StrongPath          (Dir, File, Path, Rel, (</>))
-import qualified StrongPath          as SP
-import           Wasp                (Wasp)
+import StrongPath (Dir, File, Path, Rel, (</>))
+import qualified StrongPath as SP
+import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Db
-import           Wasp.Entity         (Entity)
+import Wasp.Entity (Entity)
 import qualified Wasp.Entity
 
 -- * Path definitions
 
 data DbRootDir
+
 data DbTemplatesDir
 
 dbRootDirInProjectRootDir :: Path (Rel ProjectRootDir) (Dir DbRootDir)
@@ -48,29 +49,32 @@ dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRoo
 
 genDb :: Wasp -> CompileOptions -> [FileDraft]
 genDb wasp _ =
-    [ genPrismaSchema wasp
-    ]
+  [ genPrismaSchema wasp
+  ]
 
 genPrismaSchema :: Wasp -> FileDraft
 genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
-    where
-        dstPath = dbSchemaFileInProjectRootDir
-        tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
+  where
+    dstPath = dbSchemaFileInProjectRootDir
+    tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
-        templateData = object
-            [ "modelSchemas" .= map entityToPslModelSchema (Wasp.getPSLEntities wasp)
-            , "datasourceProvider" .= (datasourceProvider :: String)
-            , "datasourceUrl"      .= (datasourceUrl :: String)
-            ]
+    templateData =
+      object
+        [ "modelSchemas" .= map entityToPslModelSchema (Wasp.getPSLEntities wasp),
+          "datasourceProvider" .= (datasourceProvider :: String),
+          "datasourceUrl" .= (datasourceUrl :: String)
+        ]
 
-        dbSystem = fromMaybe Wasp.Db.SQLite $ Wasp.Db._system <$> Wasp.getDb wasp
-        (datasourceProvider, datasourceUrl) = case dbSystem of
-            Wasp.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
-                                  -- TODO: Report this error with some better mechanism, not `error`.
-            Wasp.Db.SQLite     -> if Wasp.getIsBuild wasp
-                                  then error "SQLite is not supported in production. Set db.system to smth else."
-                                  else ("sqlite",     "\"file:./dev.db\"")
+    dbSystem = fromMaybe Wasp.Db.SQLite $ Wasp.Db._system <$> Wasp.getDb wasp
+    (datasourceProvider, datasourceUrl) = case dbSystem of
+      Wasp.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
+      -- TODO: Report this error with some better mechanism, not `error`.
+      Wasp.Db.SQLite ->
+        if Wasp.getIsBuild wasp
+          then error "SQLite is not supported in production. Set db.system to smth else."
+          else ("sqlite", "\"file:./dev.db\"")
 
-        entityToPslModelSchema :: Entity -> String
-        entityToPslModelSchema entity = Psl.Generator.Model.generateModel $
-            Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)
+    entityToPslModelSchema :: Entity -> String
+    entityToPslModelSchema entity =
+      Psl.Generator.Model.generateModel $
+        Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)

@@ -1,14 +1,13 @@
 module Generator.WebAppGenerator.OperationsGenerator.ResourcesG
-    ( genResources
-    ) where
+  ( genResources,
+  )
+where
 
-import           Data.Aeson                                  (object)
-import qualified Path                                        as P
-
-import           Generator.FileDraft                         (FileDraft)
-import qualified Generator.WebAppGenerator.Common            as C
-import           Wasp                                        (Wasp)
-
+import Data.Aeson (object)
+import Generator.FileDraft (FileDraft)
+import qualified Generator.WebAppGenerator.Common as C
+import qualified Path as P
+import Wasp (Wasp)
 
 genResources :: Wasp -> [FileDraft]
 genResources _ = [C.makeTemplateFD tmplFile dstFile (Just tmplData)]
