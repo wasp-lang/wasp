@@ -62,13 +62,13 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 queryFileInSrcDir :: Wasp.Query.Query -> Path (Rel C.ServerSrcDir) File
 queryFileInSrcDir query = SP.fromPathRelFile $
     [P.reldir|queries|]
-    -- | TODO: fromJust here could fail if there is some problem with the name, we should handle this.
+    -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
     P.</> fromJust (P.parseRelFile $ Wasp.Query._name query ++ ".js")
 
 actionFileInSrcDir :: Wasp.Action.Action -> Path (Rel C.ServerSrcDir) File
 actionFileInSrcDir action = SP.fromPathRelFile $
     [P.reldir|actions|]
-    -- | TODO: fromJust here could fail if there is some problem with the name, we should handle this.
+    -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
     P.</> fromJust (P.parseRelFile $ Wasp.Action._name action ++ ".js")
 
 operationFileInSrcDir :: Wasp.Operation.Operation -> Path (Rel C.ServerSrcDir) File
@@ -98,9 +98,10 @@ operationTmplData operation = object
 getImportDetailsForOperationUserJsFn
     :: Wasp.Operation.Operation
     -> FilePath -- ^ Relative posix path from js file where you want to do importing to generated ext code dir.
-    -> ( String -- ^ importIdentifier -> Identifier via which you can access js function after you import it with importStmt.
-       , String -- ^ importStmt -> Import statement via which you should do the import.
-       )
+    -- | (importIdentifier, importStmt)
+    -- - importIdentifier -> Identifier via which you can access js function after you import it with importStmt.
+    -- - importStmt -> Import statement via which you should do the import.
+    -> (String, String)
 getImportDetailsForOperationUserJsFn operation relPosixPathToExtCodeDir = (importIdentifier, importStmt)
   where
     importStmt = "import " ++ importWhat ++ " from '" ++ importFrom ++ "'"

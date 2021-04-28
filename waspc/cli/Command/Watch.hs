@@ -42,7 +42,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
           event <- readChan chan
           let eventTime = FSN.eventTime event
           if eventTime < lastCompileTime
-              -- | If event happened before last compilation started, skip it.
+              -- If event happened before last compilation started, skip it.
               then listenForEvents chan lastCompileTime
               else do
                   currentTime <- getCurrentTime

@@ -15,9 +15,9 @@ import qualified StrongPath                         as SP
 
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft
-    -- | Path where the file will be copied to.
-    { _dstPath               :: !(Path (Rel ProjectRootDir) File)
-    -- | Absolute path of source file to copy.
+    { -- | Path where the file will be copied to.
+      _dstPath               :: !(Path (Rel ProjectRootDir) File)
+      -- | Absolute path of source file to copy.
     , _srcPath               :: !(Path Abs File)
     , _failIfSrcDoesNotExist :: Bool
     }
@@ -29,7 +29,7 @@ instance Writeable CopyFileDraft where
         if srcFileExists
             then do
                 createDirectoryIfMissing True (SP.toFilePath $ SP.parent absDraftDstPath)
-                copyFile srcFilePath (SP.toFilePath $ absDraftDstPath)
+                copyFile srcFilePath (SP.toFilePath absDraftDstPath)
             else
                 when
                 (_failIfSrcDoesNotExist draft)

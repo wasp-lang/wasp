@@ -58,7 +58,7 @@ reservedNames :: [String]
 reservedNames =
     [ reservedNameImport
     , reservedNameFrom
-    -- * Wasp element types
+    -- Wasp element types
     , reservedNameApp
     , reservedNameDependencies
     , reservedNamePage
@@ -67,7 +67,7 @@ reservedNames =
     , reservedNameAuth
     , reservedNameQuery
     , reservedNameAction
-    -- * Data types
+    -- Data types
     , reservedNameString
     , reservedNameBoolean
     , reservedNameBooleanTrue
@@ -119,7 +119,7 @@ whiteSpace :: Parser ()
 whiteSpace = Token.whiteSpace waspLexer
 
 singleQuotes :: Parser a -> Parser a
-singleQuotes p = between (symbol "'") (symbol "'") p
+singleQuotes = between (symbol "'") (symbol "'")
 
 stringLiteral :: Parser String
 stringLiteral = Token.stringLiteral waspLexer
