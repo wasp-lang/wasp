@@ -63,3 +63,9 @@ packages:
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+
+# (Martin): I added this per instructions from haskell-language-server, in order to
+#   enable type information and documentation on hover for dependencies.
+#   This will cause compilation errors if a dependency contains invalid Haddock markup for older versions of GHC.
+ghc-options:
+  "$everything": -haddock
