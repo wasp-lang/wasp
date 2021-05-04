@@ -262,6 +262,5 @@ External documentation, for users of Wasp, is hosted in [separate repo](https://
 
 Make sure to update it when changes modify how Wasp works.
 
-
-## Other
-Wasp ascii art used in the title is from https://www.asciiart.eu/animals/insects/bees, author: Stef00.
+## Haskell
+We are documenting best practices related to Haskell in our [Haskell Handbook](https://github.com/wasp-lang/haskell-handbook).
