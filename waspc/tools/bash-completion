@@ -1,0 +1,27 @@
+_wasp()
+{
+    
+    local cur prev
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+    case ${COMP_CWORD} in
+        1)
+            # auto complete for wasp <command>
+            _wasp_commands=$( wasp commands )
+            COMPREPLY=( $(compgen -W "${_wasp_commands}" -- "${cur}") )
+            ;;
+        2)
+            case ${prev} in
+                db)
+                    # auto complete for wasp db <command>
+                    _wasp_commands_db=$( wasp commands-db )
+                    COMPREPLY=( $(compgen -W "${_wasp_commands_db}" -- "${cur}") )
+                    ;;
+            esac
+            ;;
+        *)
+            COMPREPLY=()
+    esac
+}
+complete -o default -o nospace -F _wasp wasp
