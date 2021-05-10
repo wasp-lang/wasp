@@ -34,6 +34,8 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
+        ["commands"] -> Command.Call.Commands
+        ["commands-db"] -> Command.Call.CommandsDb
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -48,6 +50,8 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.Commands -> listCommands
+    Command.Call.CommandsDb -> listCommandsDb
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -88,6 +92,12 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = putStrLn $ showVersion version
+
+listCommands :: IO()
+listCommands = putStrLn $ unlines [ "new", "version", "start", "db", "clean", "build", "telemetry" ]
+
+listCommandsDb :: IO()
+listCommandsDb = putStrLn $ unlines [ "migrate-dev", "studio" ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
