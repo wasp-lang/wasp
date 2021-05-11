@@ -71,7 +71,7 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
       -- TODO: Report this error with some better mechanism, not `error`.
       Wasp.Db.SQLite ->
         if Wasp.getIsBuild wasp
-          then error "SQLite is not supported in production. Set db.system to smth else."
+          then error "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/basic-elements/#migrating-from-sqlite-to-postgresql ."
           else ("sqlite", "\"file:./dev.db\"")
 
     entityToPslModelSchema :: Entity -> String
