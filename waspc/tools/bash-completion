@@ -8,17 +8,13 @@ _wasp()
     case ${COMP_CWORD} in
         1)
             # auto complete for wasp <command>
-            _wasp_commands=$( wasp commands )
+            _wasp_commands=$( wasp commands all )
             COMPREPLY=( $(compgen -W "${_wasp_commands}" -- "${cur}") )
             ;;
         2)
-            case ${prev} in
-                db)
-                    # auto complete for wasp db <command>
-                    _wasp_commands_db=$( wasp commands-db )
-                    COMPREPLY=( $(compgen -W "${_wasp_commands_db}" -- "${cur}") )
-                    ;;
-            esac
+            # auto complete for subcommand wasp <command> <subcommand>
+            _wasp_second_commands=$( wasp commands ${prev} )
+            COMPREPLY=( $(compgen -W "${_wasp_second_commands}" -- "${cur}") )
             ;;
         *)
             COMPREPLY=()

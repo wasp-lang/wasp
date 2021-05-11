@@ -34,8 +34,7 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
-        ["commands"] -> Command.Call.Commands
-        ["commands-db"] -> Command.Call.CommandsDb
+        ("commands" : keyword) -> Command.Call.Commands keyword
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -50,8 +49,7 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
-    Command.Call.Commands -> listCommands
-    Command.Call.CommandsDb -> listCommandsDb
+    Command.Call.Commands keyword -> bashCompletion keyword
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -93,11 +91,24 @@ printUsage =
 printVersion :: IO ()
 printVersion = putStrLn $ showVersion version
 
-listCommands :: IO()
-listCommands = putStrLn $ unlines [ "new", "version", "start", "db", "clean", "build", "telemetry" ]
+-- dynamically generate available option for wasp bash completion script tools/bash-completion
+bashCompletion :: [String] -> IO ()
+bashCompletion args = case args of
+  ["all"] -> listCommands
+  ["db"] -> listCommandsDb
+  _ -> printNoSuggestion
 
+-- return available options for wasp <command>
+listCommands :: IO()
+listCommands = putStrLn $ unlines ["new", "version", "start", "db", "clean", "build", "telemetry"]
+
+-- return available options for wasp db <command>
 listCommandsDb :: IO()
-listCommandsDb = putStrLn $ unlines [ "migrate-dev", "studio" ]
+listCommandsDb = putStrLn $ unlines ["migrate-dev", "studio"]
+
+-- return an empty list if the command is unknown
+printNoSuggestion :: IO()
+printNoSuggestion = putStrLn $ unlines [ ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

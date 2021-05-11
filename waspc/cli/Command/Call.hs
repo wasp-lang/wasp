@@ -10,6 +10,5 @@ data Call
   | Version
   | Telemetry
   | Deps
-  | Commands
-  | CommandsDb
+  | Commands [String]
   | Unknown [String] -- all args
