@@ -10,6 +10,7 @@ import Command.Db (runDbCommand, studio)
 import qualified Command.Db.Migrate
 import Command.Start (start)
 import qualified Command.Telemetry as Telemetry
+import Command.Deps (deps)
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad (void)
@@ -31,6 +32,7 @@ main = do
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
+        ["deps"] -> Command.Call.Deps
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -44,6 +46,7 @@ main = do
     Command.Call.Version -> printVersion
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
+    Command.Call.Deps -> runCommand deps
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.

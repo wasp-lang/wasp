@@ -9,4 +9,5 @@ data Call
   | Build
   | Version
   | Telemetry
+  | Deps
   | Unknown [String] -- all args
