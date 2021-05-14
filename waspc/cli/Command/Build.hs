@@ -14,7 +14,11 @@ import CompileOptions (CompileOptions (..))
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Lib
-import StrongPath (Abs, Dir, Path, (</>))
+import StrongPath (Abs, Dir, Path, (</>), toFilePath)
+import System.Directory
+  ( doesDirectoryExist,
+    removeDirectoryRecursive,
+  )
 
 build :: Command ()
 build = do
@@ -22,7 +26,17 @@ build = do
   let outDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.buildDirInDotWaspDir
+      buildDirFilePath = toFilePath outDir
 
+  liftIO $ putStrLn "Clearing the content of the .wasp/build directory..."
+  doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
+  if doesBuildDirExist
+    then liftIO $ do
+      removeDirectoryRecursive buildDirFilePath
+      putStrLn "Successfully cleared the contents of the .wasp/build directory.\n"
+    else liftIO $ do
+      putStrLn "Nothing to clear: .wasp/build directory wasn't found.\n"
+  
   liftIO $ putStrLn "Building wasp project..."
   buildResult <- liftIO $ buildIO waspProjectDir outDir
   case buildResult of
