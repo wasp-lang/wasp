@@ -3,18 +3,22 @@ module Command.Build
   )
 where
 
-import qualified Cli.Common             as Common
-import           Command                (Command, CommandError (..))
-import           Command.Common         (alphaWarningMessage,
-                                         findWaspProjectRootDirFromCwd)
-import           Command.Compile        (compileIOWithOptions)
-import           CompileOptions         (CompileOptions (..))
-import           Control.Monad.Except   (throwError)
-import           Control.Monad.IO.Class (liftIO)
+import qualified Cli.Common as Common
+import Command (Command, CommandError (..))
+import Command.Common
+  ( alphaWarningMessage,
+    findWaspProjectRootDirFromCwd,
+  )
+import Command.Compile (compileIOWithOptions)
+import CompileOptions (CompileOptions (..))
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
 import qualified Lib
-import           StrongPath             (Abs, Dir, Path, toFilePath, (</>))
-import           System.Directory       (doesDirectoryExist,
-                                         removeDirectoryRecursive)
+import StrongPath (Abs, Dir, Path, toFilePath, (</>))
+import System.Directory
+  ( doesDirectoryExist,
+    removeDirectoryRecursive,
+  )
 
 build :: Command ()
 build = do
