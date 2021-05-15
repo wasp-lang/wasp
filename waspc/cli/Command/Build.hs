@@ -31,9 +31,10 @@ build = do
 
   liftIO $ putStrLn "Clearing the content of the .wasp/build directory..."
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
-  when doesBuildDirExist $ do
-    removeDirectoryRecursive buildDirFilePath
-    putStrLn "Successfully cleared the contents of the .wasp/build directory.\n"
+  when doesBuildDirExist $
+    liftIO $ do
+      removeDirectoryRecursive buildDirFilePath
+      putStrLn "Successfully cleared the contents of the .wasp/build directory.\n"
 
   liftIO $ putStrLn "Building wasp project..."
   buildResult <- liftIO $ buildIO waspProjectDir buildDir
