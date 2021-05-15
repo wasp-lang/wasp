@@ -1,0 +1,36 @@
+.tags-sidebar {
+    height: 100%;
+    /* NOTE: I added min-width because width was not respected, it was narrower than 300px.
+       I don't understand why! When I use min-width, actual width is 300px. */
+    width: 300px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+.tags-sidebar-tag {
+    padding: 5px;
+    text-decoration: none;
+}
+.tags-sidebar-tag:hover {
+    font-weight: bold;
+}
+.tags-sidebar-tag.active {
+    text-decoration: underline;
+}
+
+.new-thought-link {
+    color: grey;
+    text-decoration: none;
+    border: 1px grey dashed;
+    font-size: 20px;
+    padding: 10px;
+    margin-bottom: 20px;
+    font-weight: 200;
+    text-align: center;
+}
+.new-thought-link:hover {
+    font-weight: 400;
+    border: 1px grey solid;
+}

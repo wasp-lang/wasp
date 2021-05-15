@@ -1,0 +1,79 @@
+.thought {
+    min-height: 90vh;
+    margin-right: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.thought form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 50px;
+    margin-bottom: 50px;
+}
+
+.thought-preview {
+    width: 800px;
+    height: 66vh;
+    font-size: 20px;
+    border: 0px;
+    border-radius: 2px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    resize: none;
+    margin-bottom: 10px;
+    padding: 20px;
+}
+
+.thought-editor textarea {
+    width: 800px;
+    height: 66vh;
+    font-size: 20px;
+    border: 0px;
+    border-radius: 2px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    resize: none;
+    margin-bottom: 10px;
+    padding: 20px;
+}
+.thought-editor textarea:focus {
+    outline: none;
+}
+
+.thought-tags {
+    display: flex;
+    flex-wrap: wrap;
+    flex-flow: flex-start;
+    padding: 10px;
+}
+
+.thought-tags-tag {
+    margin: 0px 10px;
+}
+.thought-tags-tag:hover{
+    text-decoration: line-through;
+    cursor: pointer;
+}
+.thought-tags-tag::before {
+    content: "#";
+}
+
+.thought-tags-new {
+    color: grey;
+    margin-left: 10px;
+}
+
+.thought-tags-new input {
+    border: 0px;
+    font: inherit;
+}
+.thought-tags-new input:focus {
+    outline: none;
+}
+
+.thought-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
