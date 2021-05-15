@@ -29,10 +29,10 @@ build = do
           </> Common.buildDirInDotWaspDir
       buildDirFilePath = toFilePath buildDir
 
-  liftIO $ putStrLn "Clearing the content of the .wasp/build directory..."
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
   when doesBuildDirExist $
     liftIO $ do
+      putStrLn "Clearing the content of the .wasp/build directory..."
       removeDirectoryRecursive buildDirFilePath
       putStrLn "Successfully cleared the contents of the .wasp/build directory.\n"
 
