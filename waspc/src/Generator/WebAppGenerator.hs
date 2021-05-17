@@ -1,5 +1,6 @@
 module Generator.WebAppGenerator
   ( generateWebApp,
+    waspNpmDeps,
   )
 where
 
