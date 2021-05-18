@@ -122,7 +122,8 @@ waspNpmDeps =
       ("@prisma/client", "2.22.1"),
       ("jsonwebtoken", "^8.5.1"),
       ("secure-password", "^4.0.0"),
-      ("dotenv", "8.2.0")
+      ("dotenv", "8.2.0"),
+      ("helmet", "^4.6.0")
     ]
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
