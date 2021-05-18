@@ -8,9 +8,9 @@ import Command.Compile (compile)
 import Command.CreateNewProject (createNewProject)
 import Command.Db (runDbCommand, studio)
 import qualified Command.Db.Migrate
+import Command.Deps (deps)
 import Command.Start (start)
 import qualified Command.Telemetry as Telemetry
-import Command.Deps (deps)
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad (void)
