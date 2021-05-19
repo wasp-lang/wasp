@@ -6,10 +6,10 @@ where
 import Cli.Common (waspSays)
 import qualified Cli.Common as Common
 import Command.Compile (compileIO)
-import Control.Monad.IO.Class (liftIO)
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Monad (when)
+import Control.Monad.IO.Class (liftIO)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import qualified Lib
