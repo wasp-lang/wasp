@@ -6,7 +6,9 @@ where
 import Cli.Common (waspSays)
 import qualified Cli.Common as Common
 import Command.Compile (compileIO)
-import Control.Concurrent.Chan (Chan, newChan, readChan)
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Chan (Chan, newChan, readChan, writeChan)
+import Control.Monad (when)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import qualified Lib
@@ -37,6 +39,17 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   _ <- FSN.watchTreeChan mgr (SP.toFilePath $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
   listenForEvents chan currentTime
   where
+    oneSecond :: Int
+    oneSecond = 1000000
+
+    recurCheck :: Chan Bool -> IO (Chan Bool)
+    recurCheck ch = do
+      timeChan <- newChan
+      -- FIXME?: unsure if this would "reset" the timer or keep adding to a "main" timer
+      threadDelay oneSecond
+      writeChan timeChan True
+      pure $ timeChan
+
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
     listenForEvents chan lastCompileTime = do
       event <- readChan chan
@@ -45,9 +58,11 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
         then -- If event happened before last compilation started, skip it.
           listenForEvents chan lastCompileTime
         else do
-          currentTime <- getCurrentTime
-          recompile
-          listenForEvents chan currentTime
+          done <- readChan $ liftIO $ recurCheck timeChan
+          when done $ do
+            currentTime <- getCurrentTime
+            recompile
+            listenForEvents chan currentTime
 
     recompile :: IO ()
     recompile = do
