@@ -18,7 +18,10 @@ fromList :: [(String, String)] -> [NpmDependency]
 fromList = map (\(name, version) -> NpmDependency {_name = name, _version = version})
 
 printDep :: NpmDependency -> String
-printDep (NpmDependency {_name = name, _version = version}) = Term.applyStyles [Term.Cyan] name ++ "@" ++ Term.applyStyles [Term.Yellow] version
+printDep dep =
+  Term.applyStyles [Term.Cyan] (_name dep)
+    ++ "@"
+    ++ Term.applyStyles [Term.Yellow] (_version dep)
 
 instance ToJSON NpmDependency where
   toJSON npmDep =

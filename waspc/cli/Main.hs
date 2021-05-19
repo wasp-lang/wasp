@@ -1,5 +1,6 @@
 module Main where
 
+import Cli.Terminal (title)
 import Command (runCommand)
 import Command.Build (build)
 import qualified Command.Call
@@ -74,6 +75,7 @@ printUsage =
         cmd "    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
+        cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",
@@ -113,9 +115,6 @@ printDbUsage =
         "  wasp db migrate-dev",
         "  wasp db studio"
       ]
-
-title :: String -> String
-title = Term.applyStyles [Term.Bold]
 
 cmd :: String -> String
 cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])

@@ -3,12 +3,12 @@ module Command.Deps
   )
 where
 
+import Cli.Terminal (title)
 import Command (Command)
 import Control.Monad.IO.Class (liftIO)
-import Generator.ServerGenerator as Server (waspNpmDeps)
-import qualified Generator.WebAppGenerator as WebApp (waspNpmDeps)
+import qualified Generator.ServerGenerator as ServerGenerator
+import qualified Generator.WebAppGenerator as WebAppGenerator
 import NpmDependency (printDep)
-import qualified Util.Terminal as Term
 
 deps :: Command ()
 deps =
@@ -16,12 +16,12 @@ deps =
     putStrLn $
       unlines $
         [ "",
-          title "WASP DEPENDENCIES",
+          title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
+          "",
           title "Server dependencies:"
         ]
-          ++ map printDep Server.waspNpmDeps
-          ++ ["", title "Webapp dependencies:"]
-          ++ map printDep WebApp.waspNpmDeps
-
-title :: String -> String
-title = Term.applyStyles [Term.Bold]
+          ++ map printDep ServerGenerator.waspNpmDeps
+          ++ [ "",
+               title "Webapp dependencies:"
+             ]
+          ++ map printDep WebAppGenerator.waspNpmDeps
