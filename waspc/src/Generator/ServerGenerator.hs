@@ -2,6 +2,7 @@ module Generator.ServerGenerator
   ( genServer,
     preCleanup,
     operationsRouteInRootRouter,
+    waspNpmDeps,
   )
 where
 

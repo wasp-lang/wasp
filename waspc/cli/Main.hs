@@ -1,5 +1,6 @@
 module Main where
 
+import Cli.Terminal (title)
 import Command (runCommand)
 import Command.Build (build)
 import qualified Command.Call
@@ -8,6 +9,7 @@ import Command.Compile (compile)
 import Command.CreateNewProject (createNewProject)
 import Command.Db (runDbCommand, studio)
 import qualified Command.Db.Migrate
+import Command.Deps (deps)
 import Command.Start (start)
 import qualified Command.Telemetry as Telemetry
 import Control.Concurrent (threadDelay)
@@ -31,6 +33,7 @@ main = do
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
+        ["deps"] -> Command.Call.Deps
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -44,6 +47,7 @@ main = do
     Command.Call.Version -> printVersion
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
+    Command.Call.Deps -> runCommand deps
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -71,6 +75,7 @@ printUsage =
         cmd "    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
+        cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",
@@ -110,9 +115,6 @@ printDbUsage =
         "  wasp db migrate-dev",
         "  wasp db studio"
       ]
-
-title :: String -> String
-title = Term.applyStyles [Term.Bold]
 
 cmd :: String -> String
 cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])
