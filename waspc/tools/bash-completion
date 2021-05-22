@@ -8,7 +8,7 @@ _wasp()
     case ${COMP_CWORD} in
         1)
             # auto complete for wasp <command>
-            _wasp_commands=$( wasp commands all )
+            _wasp_commands=$( wasp commands )
             COMPREPLY=( $(compgen -W "${_wasp_commands}" -- "${cur}") )
             ;;
         2)
