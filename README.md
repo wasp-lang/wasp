@@ -72,6 +72,13 @@ to install Wasp on OSX/Linux. From there, just follow the instructions to run yo
 
 For more details (including installing on Windows) check out [the docs](https://wasp-lang.dev/docs).
 
+# Bash completion
+Wasp CLI comes with a bash completion plugin which you can find in <url-to-the-bash-completion-script>.
+
+To install it, simply download the above script to your chosen directory and then
+- on Linux: add `source <your-download-wasp-completion-script` to your profile at `~/.bashrc`
+- on MacOS (OS X): add `source <your-download-wasp-completion-script` to your profile at `~/.bash_profile`
+
 # This repository
 
 This is the main repo of the Wasp universe, containing core code (mostly `waspc` - Wasp compiler) and the supporting materials.

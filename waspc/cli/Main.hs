@@ -85,6 +85,7 @@ printUsage =
         "  wasp start",
         "  wasp db migrate-dev",
         "",
+        Term.applyStyles [Term.Green] "Wasp CLI comes with its bash completion available via instructions at:" ++ "<url-to-the-instruction>",
         Term.applyStyles [Term.Green] "Docs:" ++ " https://wasp-lang.dev/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX"
       ]
