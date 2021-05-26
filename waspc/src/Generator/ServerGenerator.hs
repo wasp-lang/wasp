@@ -123,7 +123,7 @@ waspNpmDeps =
       ("debug", "~2.6.9"),
       ("express", "~4.16.1"),
       ("morgan", "~1.9.1"),
-      ("@prisma/client", "2.21.0"),
+      ("@prisma/client", "2.22.1"),
       ("jsonwebtoken", "^8.5.1"),
       ("secure-password", "^4.0.0"),
       ("dotenv", "8.2.0"),
@@ -135,7 +135,7 @@ waspNpmDevDeps =
   ND.fromList
     [ ("nodemon", "^2.0.4"),
       ("standard", "^14.3.4"),
-      ("prisma", "2.21.0")
+      ("prisma", "2.22.1")
     ]
 
 genNpmrc :: Wasp -> FileDraft

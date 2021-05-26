@@ -59,14 +59,16 @@ resolveNpmDeps waspDeps userDeps =
     isDepWithNameInWaspDeps :: String -> Bool
     isDepWithNameInWaspDeps name = any ((name ==) . ND._name) waspDeps
 
-toPackageJsonDependenciesString :: [ND.NpmDependency] -> String
-toPackageJsonDependenciesString deps =
-  "\"dependencies\": {"
+dependencyToString :: [ND.NpmDependency] -> String -> String
+dependencyToString deps depType =
+  "\""
+    ++ depType
+    ++ "\": {"
     ++ intercalate ",\n  " (map (\dep -> "\"" ++ ND._name dep ++ "\": \"" ++ ND._version dep ++ "\"") deps)
     ++ "\n}"
 
+toPackageJsonDependenciesString :: [ND.NpmDependency] -> String
+toPackageJsonDependenciesString deps = dependencyToString deps "dependencies"
+
 toPackageJsonDevDependenciesString :: [ND.NpmDependency] -> String
-toPackageJsonDevDependenciesString deps =
-  "\"devDependencies\": {"
-    ++ intercalate ",\n  " (map (\dep -> "\"" ++ ND._name dep ++ "\": \"" ++ ND._version dep ++ "\"") deps)
-    ++ "\n}"
+toPackageJsonDevDependenciesString deps = dependencyToString deps "devDependencies"
