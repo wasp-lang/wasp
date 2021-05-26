@@ -126,7 +126,8 @@ waspNpmDeps =
       ("@prisma/client", "2.21.0"),
       ("jsonwebtoken", "^8.5.1"),
       ("secure-password", "^4.0.0"),
-      ("dotenv", "8.2.0")
+      ("dotenv", "8.2.0"),
+      ("helmet", "^4.6.0")
     ]
 
 waspNpmDevDeps :: [ND.NpmDependency]
