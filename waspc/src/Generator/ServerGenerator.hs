@@ -19,9 +19,9 @@ import Generator.Common (ProjectRootDir, nodeVersionAsText)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Generator.PackageJsonGenerator
-  ( resolveNpmDeps,
-    toPackageJsonDependenciesString,
-    toPackageJsonDevDependenciesString,
+  ( npmDepsToPackageJsonEntry,
+    npmDevDepsToPackageJsonEntry,
+    resolveNpmDeps,
   )
 import Generator.ServerGenerator.AuthG (genAuth)
 import Generator.ServerGenerator.Common
@@ -96,8 +96,8 @@ genPackageJson wasp waspDeps waspDevDeps =
     ( Just $
         object
           [ "wasp" .= wasp,
-            "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps),
-            "devDepsChunk" .= toPackageJsonDevDependenciesString waspDevDeps,
+            "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
+            "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
               .= concat
