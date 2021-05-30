@@ -1,15 +1,13 @@
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 
-import './Main.css'
-import './Thought.css'
 import TagsSidebar from './TagsSidebar.js'
 import TopNavbar from './TopNavbar.js'
 import { getTagColor } from './tag.js'
 
 import createThought from '@wasp/actions/createThought'
-import { useQuery } from '@wasp/queries'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -29,19 +27,126 @@ import { useQuery } from '@wasp/queries'
 //   - Support sharing thoughts (making them public). Not sure how this would go.
 //   - Refactor and improve code.
 
+const StyledMainPage = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+const MainContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+`
+
 const MainPage = ({ user }) => {
   // TODO: Remove duplication! layout, navbar, sidebar, ...
   return (
-    <div className="main-page">
+    <StyledMainPage>
       <TopNavbar user={user} />
 
-      <div className="main-container">
+      <MainContainer>
         <TagsSidebar />
         <Thought />
-      </div>
-    </div>
+      </MainContainer>
+    </StyledMainPage>
   )
 }
+
+const StyledThought = styled.div`
+  min-height: 90vh;
+  margin-right: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+const ThoughtForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  margin-top: 50px;
+  margin-bottom: 50px;
+`
+
+const ThoughtTags = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  flex-flow: flex-start;
+  padding: 10px;
+`
+
+const ThoughtTag = styled.div`
+  margin: 0px 10px;
+  &:hover {
+    text-decoration: line-through;
+    cursor: pointer;
+  }
+  &:before {
+    text-decoration: line-through;
+    cursor: pointer;
+  }
+`
+
+const ThoughtPreview = styled.div`
+  width: 800px;
+  height: 66vh;
+  font-size: 20px;
+  border: 0px;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  resize: none;
+  margin-bottom: 10px;
+  padding: 20px;
+`
+
+const ThoughtEditor = styled.textarea`
+  width: 800px;
+  height: 66vh;
+  font-size: 20px;
+  border: 0px;
+  border-radius: 2px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  resize: none;
+  margin-bottom: 10px;
+  padding: 20px;
+  &:focus {
+    outline: none;
+  }
+`
+
+const ThougtNewTag = styled.span`
+  color: grey;
+  margin-left: 10px;
+`
+
+const ThoughtNewInput = styled.input`
+  border: 0px;
+  font: inherit;
+  &:focus {
+    outline: none;
+  }
+`
+
+const ThoughtButtons = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+`
+
+const PlainButton = styled.button`
+  border: none;
+  outline: none;
+  padding: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  text-decoration: underline;
+  &:hover {
+    cursor: pointer;
+  }
+`
 
 const Thought = (props) => {
   const defaultTextMd = ''
@@ -60,10 +165,6 @@ const Thought = (props) => {
     setTagNames(defaultTagNames)
     setNewTagName(defaultNewTagName)
     setInPreviewMode(defaultInPreviewMode)
-  }
-
-  const togglePreviewMode = () => {
-    setInPreviewMode(!inPreviewMode)
   }
 
   const setNewTagNameIfValid = (tagName) => {
@@ -124,57 +225,51 @@ const Thought = (props) => {
   }
 
   return (
-    <div className="thought">
-      <form ref={formRef}>
-
-        <div className="thought-tags">
+    <StyledThought>
+      <ThoughtForm ref={formRef}>
+        <ThoughtTags>
           { tagNames.map(tagName => (
-            <div className="thought-tags-tag"
+            <ThoughtTag
                  onClick={() => removeTag(tagName)}
                  key={tagName}
                  style={{ color: getTagColor(tagName) }}>
               { tagName }
-            </div>
+            </ThoughtTag>
           ))}
-          <span className="thought-tags-new">
+          <ThougtNewTag>
             #
-            <input
+            <ThoughtNewInput
               type="text" value={newTagName} onChange={e => setNewTagNameIfValid(e.target.value)}
               onKeyDown={handleTagsKeyPress}
               onBlur={handleTagsBlur}
               placeholder="add.tags.here..."
             />
-          </span>
-        </div>
-
-        <div className="thought-text">
+          </ThougtNewTag>
+        </ThoughtTags>
+        <div>
           { inPreviewMode
-            ? <div className="thought-preview">
+            ? <ThoughtPreview>
                 <ReactMarkdown children={textMd} />
-              </div>
-            : <div className="thought-editor">
-                <textarea
-                  value={textMd}
-                  onChange={e => setTextMd(e.target.value)}
-                  onKeyDown={handleThoughtEditorKeyPress}
-                  placeholder="Write here (Markdown supported, Alt+Enter to submit) ..."
-                  autoFocus={true}
-                />
-              </div>
+              </ThoughtPreview>
+            : <ThoughtEditor
+                value={textMd}
+                onChange={e => setTextMd(e.target.value)}
+                onKeyDown={handleThoughtEditorKeyPress}
+                placeholder="Write here (Markdown supported, Alt+Enter to submit) ..."
+                autoFocus={true}
+              />
           }
         </div>
-
-        <div className="thought-buttons">
-          <button className="plain"
+        <ThoughtButtons>
+          <PlainButton
                   onClick={e => { e.preventDefault(); toggleInPreviewMode() }}>
             { inPreviewMode ? 'edit' : 'preview' }
-          </button>
+          </PlainButton>
           &nbsp;|&nbsp;
-          <button className="plain" onClick={submit}> submit </button>
-        </div>
-
-      </form>
-    </div>
+          <PlainButton onClick={submit}> submit </PlainButton>
+        </ThoughtButtons>
+      </ThoughtForm>
+    </StyledThought>
   )
 }
 
