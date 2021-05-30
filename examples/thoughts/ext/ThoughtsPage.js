@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import './Main.css'
 import './ThoughtsPage.css'
@@ -11,13 +11,12 @@ import TopNavbar from './TopNavbar.js'
 import getThoughts from '@wasp/queries/getThoughts'
 import { useQuery } from '@wasp/queries'
 
-
 const ThoughtsPage = (props) => {
   const queryParams = new URLSearchParams(useLocation().search)
   const tag = queryParams.get('tag')
 
   // TODO: Handle possible errors and fetching.
-  const { data: thoughts, isFetching, error } = useQuery(getThoughts, { tagName: tag })
+  const { data: thoughts } = useQuery(getThoughts, { tagName: tag })
 
   // TODO: Duplication! layout, navbar, sidebar, ...
   return (

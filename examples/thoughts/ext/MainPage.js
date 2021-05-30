@@ -9,7 +9,6 @@ import TopNavbar from './TopNavbar.js'
 import { getTagColor } from './tag.js'
 
 import createThought from '@wasp/actions/createThought'
-import { useQuery } from '@wasp/queries'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -60,10 +59,6 @@ const Thought = (props) => {
     setTagNames(defaultTagNames)
     setNewTagName(defaultNewTagName)
     setInPreviewMode(defaultInPreviewMode)
-  }
-
-  const togglePreviewMode = () => {
-    setInPreviewMode(!inPreviewMode)
   }
 
   const setNewTagNameIfValid = (tagName) => {
