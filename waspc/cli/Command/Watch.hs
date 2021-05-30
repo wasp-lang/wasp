@@ -7,9 +7,10 @@ import Cli.Common (waspSays)
 import qualified Cli.Common as Common
 import Command.Compile (compileIO)
 import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Monad (when)
-import Control.Monad.IO.Class (liftIO)
+import Data.Either (fromRight)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import qualified Lib
@@ -43,9 +44,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     oneSecond :: Int
     oneSecond = 1000000
 
-    recurCheck :: IO Bool
-    recurCheck = do
-      -- FIXME?: unsure if this would "reset" the timer or keep adding to a "main" timer
+    oneSecondDelay :: IO Bool
+    oneSecondDelay = do
       threadDelay oneSecond
       pure True
 
@@ -57,8 +57,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
         then -- If event happened before last compilation started, skip it.
           listenForEvents chan lastCompileTime
         else do
-          done <- liftIO $ recurCheck
-          when done $ do
+          done <- race (listenForEvents chan lastCompileTime) oneSecondDelay
+          when (fromRight False done) $ do
             currentTime <- getCurrentTime
             recompile
             listenForEvents chan currentTime
