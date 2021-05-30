@@ -9,7 +9,7 @@ import { useQuery } from '@wasp/queries'
 
 // Props: active  TODO: document this properly.
 const TagsSidebar = (props) => {
-  const { data: tags, isFetching, error } = useQuery(getTags)
+  const { data: tags } = useQuery(getTags)
 
   return (
     <div className="tags-sidebar">
