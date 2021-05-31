@@ -3,6 +3,7 @@ module Generator.ServerGenerator
     preCleanup,
     operationsRouteInRootRouter,
     waspNpmDeps,
+    waspNpmDevDeps,
   )
 where
 
@@ -18,8 +19,9 @@ import Generator.Common (ProjectRootDir, nodeVersionAsText)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Generator.PackageJsonGenerator
-  ( resolveNpmDeps,
-    toPackageJsonDependenciesString,
+  ( npmDepsToPackageJsonEntry,
+    npmDevDepsToPackageJsonEntry,
+    resolveNpmDeps,
   )
 import Generator.ServerGenerator.AuthG (genAuth)
 import Generator.ServerGenerator.Common
@@ -47,7 +49,7 @@ genServer :: Wasp -> CompileOptions -> [FileDraft]
 genServer wasp _ =
   concat
     [ [genReadme wasp],
-      [genPackageJson wasp waspNpmDeps],
+      [genPackageJson wasp waspNpmDeps waspNpmDevDeps],
       [genNpmrc wasp],
       [genNvmrc wasp],
       [genGitignore wasp],
@@ -86,15 +88,16 @@ dotEnvInServerRootDir = asServerFile [P.relfile|.env|]
 genReadme :: Wasp -> FileDraft
 genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
 
-genPackageJson :: Wasp -> [ND.NpmDependency] -> FileDraft
-genPackageJson wasp waspDeps =
+genPackageJson :: Wasp -> [ND.NpmDependency] -> [ND.NpmDependency] -> FileDraft
+genPackageJson wasp waspDeps waspDevDeps =
   C.makeTemplateFD
     (asTmplFile [P.relfile|package.json|])
     (asServerFile [P.relfile|package.json|])
     ( Just $
         object
           [ "wasp" .= wasp,
-            "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps),
+            "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
+            "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
               .= concat
@@ -127,7 +130,13 @@ waspNpmDeps =
       ("helmet", "^4.6.0")
     ]
 
--- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
+waspNpmDevDeps :: [ND.NpmDependency]
+waspNpmDevDeps =
+  ND.fromList
+    [ ("nodemon", "^2.0.4"),
+      ("standard", "^14.3.4"),
+      ("prisma", "2.22.1")
+    ]
 
 genNpmrc :: Wasp -> FileDraft
 genNpmrc _ =

@@ -1,6 +1,7 @@
 module Generator.PackageJsonGenerator
   ( resolveNpmDeps,
-    toPackageJsonDependenciesString,
+    npmDepsToPackageJsonEntry,
+    npmDevDepsToPackageJsonEntry,
   )
 where
 
@@ -58,8 +59,16 @@ resolveNpmDeps waspDeps userDeps =
     isDepWithNameInWaspDeps :: String -> Bool
     isDepWithNameInWaspDeps name = any ((name ==) . ND._name) waspDeps
 
-toPackageJsonDependenciesString :: [ND.NpmDependency] -> String
-toPackageJsonDependenciesString deps =
-  "\"dependencies\": {"
+npmDepsToPackageJsonEntryWithKey :: [ND.NpmDependency] -> String -> String
+npmDepsToPackageJsonEntryWithKey deps key =
+  "\""
+    ++ key
+    ++ "\": {"
     ++ intercalate ",\n  " (map (\dep -> "\"" ++ ND._name dep ++ "\": \"" ++ ND._version dep ++ "\"") deps)
     ++ "\n}"
+
+npmDepsToPackageJsonEntry :: [ND.NpmDependency] -> String
+npmDepsToPackageJsonEntry deps = npmDepsToPackageJsonEntryWithKey deps "dependencies"
+
+npmDevDepsToPackageJsonEntry :: [ND.NpmDependency] -> String
+npmDevDepsToPackageJsonEntry deps = npmDepsToPackageJsonEntryWithKey deps "devDependencies"
