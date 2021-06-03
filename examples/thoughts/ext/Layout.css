@@ -1,0 +1,12 @@
+.base-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.base-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}

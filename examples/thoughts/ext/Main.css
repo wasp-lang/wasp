@@ -4,19 +4,6 @@
     box-sizing: border-box;
 }
 
-.main-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.main-container {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-}
-
 button.plain {
     border: none;
     outline: none;
