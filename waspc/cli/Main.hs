@@ -35,7 +35,9 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
-        ("commands": subCommand) -> Command.Call.Commands subCommand
+        ["completion"] -> Command.Call.Commands ["bash-completion-instruction"]
+        ["completion:generate"] -> Command.Call.Commands ["bash-completion-generate"]
+        ("completion:list" : subCommand) -> Command.Call.Commands subCommand
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -85,7 +87,6 @@ printUsage =
         "  wasp start",
         "  wasp db migrate-dev",
         "",
-        Term.applyStyles [Term.Green] "Wasp CLI comes with its bash completion available via instructions at:" ++ "<url-to-the-instruction>",
         Term.applyStyles [Term.Green] "Docs:" ++ " https://wasp-lang.dev/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX"
       ]
