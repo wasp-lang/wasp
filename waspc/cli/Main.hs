@@ -18,7 +18,7 @@ import qualified Control.Concurrent.Async as Async
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
-import Paths_waspc (version)
+import Paths_waspc (getDataFileName, version)
 import System.Environment
 import qualified Util.Terminal as Term
 
@@ -35,8 +35,8 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
-        ["completion"] -> Command.Call.Commands ["bash-completion-instruction"]
-        ["completion:generate"] -> Command.Call.Commands ["bash-completion-generate"]
+        ["completion"] -> Command.Call.PrintBashCompletionInstruction
+        ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ("completion:list" : subCommand) -> Command.Call.Commands subCommand
         _ -> Command.Call.Unknown args
 
@@ -52,6 +52,8 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.PrintBashCompletionInstruction -> printBashCompletionInstruction
+    Command.Call.GenerateBashCompletionScript -> generateBashCompletionScript
     Command.Call.Commands subCommand -> runCommand $ bashCompletion subCommand
     Command.Call.Unknown _ -> printUsage
 
@@ -93,6 +95,28 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = putStrLn $ showVersion version
+
+-- generat the bash completion script
+generateBashCompletionScript :: IO ()
+generateBashCompletionScript =
+  getDataFileName "Cli/bash-completion" >>= readFile >>= putStr
+
+-- return the bash completion instruction
+printBashCompletionInstruction :: IO ()
+printBashCompletionInstruction =
+  putStrLn $
+    unlines
+      [ "Run the following command to generate bash completion script for wasp on your machine:",
+        "",
+        "wasp completion:generate > <your-chosen-directory>/wasp-completion",
+        "",
+        "After that, depending on your system, you will need to edit your bash profile:",
+        "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
+        "- on Linux: you will normally want to edit ~/.bash_profile",
+        "and add this line:",
+        "  source <your-chosen-directory>/wasp-completion",
+        "then reset your terminal session."
+      ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
