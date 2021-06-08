@@ -12,4 +12,5 @@ import StrongPath (Abs, Dir, Path, (</>))
 setupWebApp :: Path Abs (Dir ProjectRootDir) -> J.Job
 setupWebApp projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  runNodeCommandAsJob webAppDir "npm" ["install"] J.WebApp
+  _ <- runNodeCommandAsJob webAppDir "npm" ["install"] J.WebApp
+  runNodeCommandAsJob webAppDir "npm" ["ls"] J.WebApp

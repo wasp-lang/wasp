@@ -12,4 +12,5 @@ import StrongPath (Abs, Dir, Path, (</>))
 setupServer :: Path Abs (Dir ProjectRootDir) -> J.Job
 setupServer projectDir = do
   let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir "npm" ["install"] J.Server
+  _ <- runNodeCommandAsJob serverDir "npm" ["install"] J.Server
+  runNodeCommandAsJob serverDir "npm" ["ls"] J.Server
