@@ -1,5 +1,6 @@
 module Generator.WebAppGenerator
   ( generateWebApp,
+    waspNpmDeps,
   )
 where
 
@@ -13,8 +14,8 @@ import Data.List (intercalate)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Generator.FileDraft
 import Generator.PackageJsonGenerator
-  ( resolveNpmDeps,
-    toPackageJsonDependenciesString,
+  ( npmDepsToPackageJsonEntry,
+    resolveNpmDeps,
   )
 import qualified Generator.WebAppGenerator.AuthG as AuthG
 import Generator.WebAppGenerator.Common
@@ -62,7 +63,7 @@ genPackageJson wasp waspDeps =
     ( Just $
         object
           [ "wasp" .= wasp,
-            "depsChunk" .= toPackageJsonDependenciesString (resolvedWaspDeps ++ resolvedUserDeps)
+            "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
           ]
     )
   where
