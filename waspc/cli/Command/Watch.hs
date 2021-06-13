@@ -10,8 +10,7 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import qualified Control.Concurrent.MVar as MVar
-import Control.Monad (when)
-import Data.Either (fromRight)
+import Control.Monad (unless, when)
 import Data.List (isSuffixOf)
 import Data.Time.Clock
   ( UTCTime,
@@ -51,18 +50,22 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     oneSecond :: Int
     oneSecond = 1000000
 
-    oneSecondDelay :: MVar.MVar UTCTime -> IO Bool
+    oneSecondDelay :: MVar.MVar UTCTime -> IO ()
     oneSecondDelay timeOfLastEventMVar = do
       threadDelay oneSecond
       currentDelayTime <- MVar.readMVar timeOfLastEventMVar
       currentTime <- getCurrentTime
       let timeDiff = nominalDiffTimeToSeconds $ diffUTCTime currentTime currentDelayTime
-      if timeDiff < (fromIntegral oneSecond)
-        then do
-          threadDelay (floor . (* 1e9) $ timeDiff)
-          oneSecondDelay timeOfLastEventMVar -- FIXME?: not sure if the recursive call is necessary here
-        else do
-          pure True
+      when (timeDiff < fromIntegral oneSecond) $ do
+        threadDelay (oneSecond - (floor . (* 1e9) $ timeDiff))
+        oneSecondDelay timeOfLastEventMVar
+
+    recurEventCheck :: Chan FSN.Event -> UTCTime -> MVar.MVar UTCTime -> IO ()
+    recurEventCheck chan currentTime timeOfLastEventMVar = do
+      event <- readChan chan
+      let eventTime = FSN.eventTime event
+      unless (eventTime < currentTime) $ do
+        MVar.putMVar timeOfLastEventMVar eventTime
 
     listenForEvents :: Chan FSN.Event -> UTCTime -> MVar.MVar UTCTime -> IO ()
     listenForEvents chan lastCompileTime timeOfLastEventMVar = do
@@ -76,10 +79,10 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
         else do
           currentTime <- getCurrentTime
           MVar.putMVar timeOfLastEventMVar currentTime
-          done <- race (listenForEvents chan currentTime timeOfLastEventMVar) (oneSecondDelay timeOfLastEventMVar)
-          when (fromRight False done) $ do
-            recompile
-            listenForEvents chan currentTime timeOfLastEventMVar
+          _ <- race (recurEventCheck chan currentTime timeOfLastEventMVar) (oneSecondDelay timeOfLastEventMVar)
+          -- These will be executed only after race is completed
+          recompile
+          listenForEvents chan currentTime timeOfLastEventMVar
 
     recompile :: IO ()
     recompile = do
