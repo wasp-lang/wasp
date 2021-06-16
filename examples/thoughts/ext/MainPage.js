@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { useHistory } from 'react-router-dom'
+import Tag from './Tag'
 
 import './Main.css'
 import './Thought.css'
-import { getTagColor } from './tag.js'
-
 import createThought from '@wasp/actions/createThought'
 import Layout from './Layout'
 
@@ -117,12 +116,12 @@ const Thought = (props) => {
 
         <div className="thought-tags">
           { tagNames.map(tagName => (
-            <div className="thought-tags-tag"
-                 onClick={() => removeTag(tagName)}
-                 key={tagName}
-                 style={{ color: getTagColor(tagName) }}>
-              { tagName }
-            </div>
+            <Tag
+              key={tagName}
+              name={tagName}
+              onClick={() => removeTag(tagName)}
+              isDeletable={true}
+            />
           ))}
           <span className="thought-tags-new">
             #
