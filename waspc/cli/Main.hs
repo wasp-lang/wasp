@@ -2,7 +2,7 @@ module Main where
 
 import Cli.Terminal (title)
 import Command (runCommand)
-import Command.BashCompletion (bashCompletion)
+import Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Command.Build (build)
 import qualified Command.Call
 import Command.Clean (clean)
@@ -18,7 +18,7 @@ import qualified Control.Concurrent.Async as Async
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
-import Paths_waspc (getDataFileName, version)
+import Paths_waspc (version)
 import System.Environment
 import qualified Util.Terminal as Term
 
@@ -37,7 +37,7 @@ main = do
         ["deps"] -> Command.Call.Deps
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
-        ("completion:list" : subCommand) -> Command.Call.Commands subCommand
+        ("completion:list" : subCommand) -> Command.Call.BashCompletionListCommands subCommand
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -52,9 +52,9 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
-    Command.Call.PrintBashCompletionInstruction -> printBashCompletionInstruction
-    Command.Call.GenerateBashCompletionScript -> generateBashCompletionScript
-    Command.Call.Commands subCommand -> runCommand $ bashCompletion subCommand
+    Command.Call.PrintBashCompletionInstruction -> runCommand $ printBashCompletionInstruction
+    Command.Call.GenerateBashCompletionScript -> runCommand $ generateBashCompletionScript
+    Command.Call.BashCompletionListCommands subCommand -> runCommand $ bashCompletion subCommand
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -95,28 +95,6 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = putStrLn $ showVersion version
-
--- generat the bash completion script
-generateBashCompletionScript :: IO ()
-generateBashCompletionScript =
-  getDataFileName "Cli/bash-completion" >>= readFile >>= putStr
-
--- return the bash completion instruction
-printBashCompletionInstruction :: IO ()
-printBashCompletionInstruction =
-  putStrLn $
-    unlines
-      [ "Run the following command to generate bash completion script for wasp on your machine:",
-        "",
-        "wasp completion:generate > <your-chosen-directory>/wasp-completion",
-        "",
-        "After that, depending on your system, you will need to edit your bash profile:",
-        "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
-        "- on Linux: you will normally want to edit ~/.bash_profile",
-        "and add this line:",
-        "  source <your-chosen-directory>/wasp-completion",
-        "then reset your terminal session."
-      ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

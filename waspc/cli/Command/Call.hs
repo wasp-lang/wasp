@@ -12,5 +12,5 @@ data Call
   | Deps
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
-  | Commands [String]
+  | BashCompletionListCommands [String]
   | Unknown [String] -- all args
