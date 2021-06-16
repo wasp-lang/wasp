@@ -4,11 +4,10 @@ import { useHistory } from 'react-router-dom'
 
 import './Main.css'
 import './Thought.css'
-import TagsSidebar from './TagsSidebar.js'
-import TopNavbar from './TopNavbar.js'
 import { getTagColor } from './tag.js'
 
 import createThought from '@wasp/actions/createThought'
+import Layout from './Layout'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -29,16 +28,10 @@ import createThought from '@wasp/actions/createThought'
 //   - Refactor and improve code.
 
 const MainPage = ({ user }) => {
-  // TODO: Remove duplication! layout, navbar, sidebar, ...
   return (
-    <div className="main-page">
-      <TopNavbar user={user} />
-
-      <div className="main-container">
-        <TagsSidebar />
-        <Thought />
-      </div>
-    </div>
+    <Layout user={user}>
+      <Thought />
+    </Layout>
   )
 }
 
