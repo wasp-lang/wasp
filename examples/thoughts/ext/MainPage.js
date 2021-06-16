@@ -5,6 +5,7 @@ import Tag from './Tag'
 
 import './Main.css'
 import './Thought.css'
+
 import createThought from '@wasp/actions/createThought'
 import Layout from './Layout'
 

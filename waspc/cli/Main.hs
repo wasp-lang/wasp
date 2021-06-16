@@ -2,6 +2,7 @@ module Main where
 
 import Cli.Terminal (title)
 import Command (runCommand)
+import Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Command.Build (build)
 import qualified Command.Call
 import Command.Clean (clean)
@@ -34,6 +35,9 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
+        ["completion"] -> Command.Call.PrintBashCompletionInstruction
+        ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
+        ("completion:list" : subCommand) -> Command.Call.BashCompletionListCommands subCommand
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -48,6 +52,9 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.PrintBashCompletionInstruction -> runCommand $ printBashCompletionInstruction
+    Command.Call.GenerateBashCompletionScript -> runCommand $ generateBashCompletionScript
+    Command.Call.BashCompletionListCommands subCommand -> runCommand $ bashCompletion subCommand
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.

@@ -1,10 +1,10 @@
-.base-page {
+.layout-root {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.base-container {
+.layout-content {
     width: 100%;
     display: flex;
     flex-direction: row;

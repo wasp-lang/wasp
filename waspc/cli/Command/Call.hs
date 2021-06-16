@@ -10,4 +10,7 @@ data Call
   | Version
   | Telemetry
   | Deps
+  | PrintBashCompletionInstruction
+  | GenerateBashCompletionScript
+  | BashCompletionListCommands [String]
   | Unknown [String] -- all args
