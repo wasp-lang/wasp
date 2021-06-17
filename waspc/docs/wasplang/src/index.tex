@@ -16,11 +16,12 @@ and the standard library.
 
 \begin{verbatim}
 <wasp>    ::= <import>* <stmt>*
-<stmt>    ::= <decl> | <defn>
+<stmt>    ::= <decl> | <defn> | <export>
 
 <decl>    ::= <ident> <ident> <expr>
 <defn>    ::= <ident> '=' <expr>
-<import> ::= 'import' <string> 'as' <ident>
+<import>  ::= 'import' <string> 'as' <ident>
+<export>  ::= 'export' <ident> (',' <ident>)* from <string>
 
 <expr>    ::= <dict> | <list> | <dot>
             | <string> | <extimport> | <quoter>
@@ -61,13 +62,19 @@ type system. Some special conventions are followed:
     \Gamma \vdash \texttt{x} : \tau
   }
 
-  \inferrule[Incl]{
+  \inferrule[Import]{
     \Gamma_{other} \vdash \texttt{x1} : \tau_1 \\ \ldots \\ \Gamma_{other} \vdash \texttt{xn} : \tau_n
   }{
-    \texttt{include "other" as } Q \\
+    \texttt{import "other" as } Q \\
     \Gamma = \Gamma, Q : \{
       \texttt{x1} : \tau_1, \ldots, \texttt{xn} : \tau_n  
     \}
+  }
+
+  \inferrule[Export]{
+    \Gamma_{other} \vdash \texttt{x1} : \tau_1 \\ \ldots \\ \Gamma_{other} \vdash \texttt{xn} : \tau_n
+  }{
+    \texttt{export x1, ..., xn from "other"}
   }
 
   \inferrule[Decl]{
@@ -153,13 +160,13 @@ and if \texttt{x}'s type is $[\{\}]$ or $[\{ a: number? \}]$.
 There are two phases to the type checker:
 
 \begin{enumerate}
-  \item Included files are type checked, then the \textsc{Incl}
+  \item Imported files are type checked, then the \textsc{Import}
         rule is applied.
   \item Binding declaration types: The conclusion of \textsc{Decl} is assumed
         for all \texttt{<decl>}s, essentially forward declaring each of them.
   \item Type checking of statements:
         \begin{enumerate}
-          \item \textsc{Defn} and the premise of \textsc{Decl}
+          \item \textsc{Defn}, \textsc{Export} and the premise of \textsc{Decl}
                 are checked against statements in their lexical order.
           \item Quoted text (ex. \texttt{\{=json [1] json=\}}) is parsed.
           \item Recovery should be attempted on a type error, to allow reporting
@@ -176,17 +183,23 @@ unspecified. When declarations are evaluated, so are their arguments.
 Only the values of declarations are visible to the caller of the wasp
 interpreter.
 
-\subsubsection{Includes}
+\subsubsection{Imports and Exports}
 
-At the beginning of a wasp file, a list of include statements is allowed. When
-a wasp file is included in another, evaluated before the includer. The
-\textsc{Incl} rule is used for type checking. 
+At the beginning of a wasp file, a list of import statements is allowed. When
+a wasp file is imported in another, it is evaluated before the importer. The
+\textsc{Import} rule is used for type checking. 
 
-\texttt{include "other.wasp" as Q} binds the variables and declarations from
+\texttt{import "other.wasp" as Q} binds the variables and declarations from
 other.wasp to a variable \texttt{Q} in the current file.
 
 Note that expressions in other.wasp can not refer to any
-bindings in the includer.
+bindings in the importer.
+
+Exports are related to imports. You can re-export bindings from another wasp
+file. \textsc{Export} is the rule used for type checking these statements. All
+that is required is that the binding exist, which means exporting bindings
+created by definitions is possible (in the type system). This action will cause
+an evaluation-time error.
 
 \subsection{Standard Library}
 
@@ -368,15 +381,14 @@ take = mapMaybe $ \case
 
 \subsection{Evaluation}
 
-Evaluation of definitions is simple, just compute them in order. Includes also
-are pretty intuitive. The only problem is circular inclusions. I think these
-should not be allowed. Evaluating declarations is a bit more nuanced,
+Evaluation of definitions is simple, just compute them in order. Imports also
+are pretty intuitive. In case of a cyclical import path, an evaluation time
+error will be generated. Evaluating declarations is a bit more nuanced,
 since they can refer to declarations declared lexically after themselves.
 
 One possible solution is sort the declarations topographically before
 evaluation. This poses a problem for mutually recursive declarations, since
-sorting a cyclical directed graph isn't well defined. I have not spent much
-time thinking about this problem.
+no traversal order of a cyclical graph will work.
 
 Alternatively, time travel could be used to make the final results of
 evaluation available to every single declaration, which solves
