@@ -116,15 +116,6 @@ type system. Some special conventions are followed:
     \}
   }
 
-  \inferrule[DictInst]{
-    \Gamma \vdash e : \{
-      \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n,
-      \texttt{j}: \sigma
-    \}
-  }{
-    \Gamma \vdash e : \{ \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n \}
-  }
-
   \inferrule[List]{
     \Gamma \vdash e_1, \ldots, e_n : \tau
   }{
@@ -132,7 +123,7 @@ type system. Some special conventions are followed:
   }
 
   \inferrule[Dot]{
-    \Gamma \vdash e : \{ \texttt{k}: \tau \}
+    \Gamma \vdash e : \{ \texttt{k}: \tau, \ldots \}
   }{
     \Gamma \vdash e\texttt{.k} : \tau
   }
@@ -152,9 +143,7 @@ type system. Some special conventions are followed:
 \end{mathparpagebreakable}
 
 \textsc{DictNone} allows omitting optional entries from a dictionary, and
-\textsc{DictSome} allows including optional entries. \textsc{DictInst} allows
-including extra entries in dictionaries, and is generally required for proofs
-involving \textsc{Dot}.
+\textsc{DictSome} allows including optional entries.
 
 An ambiguity that arises is whether \texttt{x = [\{a: 1\}, \{\}]} is well-typed,
 and if \texttt{x}'s type is $[\{\}]$ or $[\{ a: number? \}]$.
