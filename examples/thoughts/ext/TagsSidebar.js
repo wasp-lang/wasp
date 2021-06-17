@@ -2,10 +2,10 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import './TagsSidebar.css'
-import { getTagColor } from './tag.js'
 
 import getTags from '@wasp/queries/getTags'
 import { useQuery } from '@wasp/queries'
+import Tag from './Tag'
 
 // Props: active  TODO: document this properly.
 const TagsSidebar = (props) => {
@@ -14,19 +14,19 @@ const TagsSidebar = (props) => {
   return (
     <div className="tags-sidebar">
       <Link to="/" className="new-thought-link"> New thought </Link>
-      <Link to={`/thoughts`}
-            className={`tags-sidebar-tag tags-sidebar-tag-all ${props.active === '_all' ? 'active' : ''}`}
-            style={{ color: 'black' }}
-            key="_all">
-        all
-      </Link>
+      <Tag
+        name={'all'}
+        href={'/thoughts'}
+        isActive={props.active === '_all'}
+        key={'_all'}
+      />
       { tags && tags.map(tag => (
-        <Link to={`/thoughts?tag=${tag.name}`}
-              className={`tags-sidebar-tag ${props.active === tag.name ? 'active' : ''}`}
-              style={{ color: getTagColor(tag.name)}}
-              key={tag.name}>
-          #{tag.name}
-        </Link>
+        <Tag
+          name={tag.name}
+          href={`/thoughts?tag=${tag.name}`}
+          isActive={props.active === tag.name}
+          key={tag.name}
+        />
       ))}
     </div>
   )
