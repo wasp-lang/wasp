@@ -1,0 +1,49 @@
+\documentclass[10pt]{article}
+
+\usepackage{fontspec}
+\usepackage[english]{babel}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{xparse}
+\usepackage{hyperref}
+\usepackage{mathpartir}
+
+\definecolor{bluekeywords}{rgb}{0.13,0.13,1}
+\definecolor{greencomments}{rgb}{0,0.5,0}
+\definecolor{turqusnumbers}{rgb}{0.17,0.57,0.69}
+\definecolor{redstrings}{rgb}{0.5,0,0}
+
+\lstset{
+  language=Haskell,
+  basicstyle=\footnotesize\ttfamily,
+  commentstyle=\color{greencomments},
+  keywordstyle=\color{bluekeywords},
+  numberstyle=\color{turqusnumbers},
+  stringstyle=\color{redstrings},
+  keepspaces=true,
+  numbers=left,
+  % float
+  stepnumber=1,
+}
+
+\hypersetup{
+  colorlinks = true,
+}
+
+\setmainfont{texgyrepagella}[
+  Extension = .otf,
+  UprightFont = *-regular,
+  BoldFont = *-bold,
+  ItalicFont = *-italic,
+  BoldItalicFont = *-bolditalic,
+]
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+\renewcommand{\baselinestretch}{1.2}
+
+\title{Wasp DSL}
+\author{Craig McIlwrath}
+\date{March 2021}
+
+\begin{document}

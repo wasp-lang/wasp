@@ -1,0 +1,431 @@
+\section{Introduction}
+
+In this document, I propose a new design for wasp's DSL. The description
+of the new DSL will be broke into three parts: a formal definition, my
+motivation for key decisions, and ideas on its potential implementation.
+
+From here on, the new version of wasp's DSL will be referred to as \strong{wasp}
+and the current version as \strong{old wasp}.
+
+\section{Formal Definition}
+
+Wasp is composed of four parts: the syntax, a type system, evaluation method,
+and the standard library.
+
+\subsection{Syntax}
+
+\begin{verbatim}
+<wasp>    ::= <import>* <stmt>*
+<stmt>    ::= <decl> | <call> | <defn>
+
+<decl>    ::= <ident> <ident> <expr>
+<call>    ::= <ident> <expr>
+<defn>    ::= <ident> '=' <expr>
+<import> ::= 'import' <string> 'as' <ident>
+
+<expr>    ::= <dict> | <list> | <dot>
+            | <string> | <extimport> | <quoter>
+            | <ident> | <num>
+<dict>    ::= '{' <dictval> (',' <dictval>)* '}'
+            | '{' '}'
+<dictentry> ::= <ident> : <expr>
+<list>    ::= '[' <expr> (',' <expr>)* ']' | '[' ']'
+
+<extimport>  ::= 'import' <name> 'from' <string>
+<name>    ::= '{' <ident> '}' | <ident>
+<dot>     ::= <ident> '.' <ident>
+<quoter>  ::= '{=' <ident> <anything> <ident> '=}'
+\end{verbatim}
+
+The nonterminals for strings, numbers, and identifers are not shown.
+
+\subsection{Type System}
+
+Wasp is a statically typed language. The following inference rules describe the
+type system. Some special conventions are followed:
+
+\begin{itemize}
+  \item $\tau_i$ and $\sigma_i$ are types
+  \item $e_i$ is an expression
+  \item \texttt{ki}, \texttt{ji}, \texttt{xi} are identifiers
+  \item \texttt{monospace} words are tokens from a wasp file
+  \item The syntax $\Gamma = \Gamma, \texttt{x} : \tau$ updates $\Gamma$ such that
+        $\texttt{x} : \tau \in \Gamma$
+\end{itemize}
+
+\subsubsection{Type Rules}
+
+\begin{mathparpagebreakable}
+  \inferrule[Var]{
+    \texttt{x} : \tau \in \Gamma
+  }{
+    \Gamma \vdash \texttt{x} : \tau
+  }
+
+  \inferrule[Incl]{
+    \Gamma_{other} \vdash \texttt{x1} : \tau_1 \\ \ldots \\ \Gamma_{other} \vdash \texttt{xn} : \tau_n
+  }{
+    \texttt{include "other" as } Q \\
+    \Gamma = \Gamma, Q : \{
+      \texttt{x1} : \tau_1, \ldots, \texttt{xn} : \tau_n  
+    \}
+  }
+
+  \inferrule[Call]{
+    \Gamma \vdash e : \tau \\
+    \texttt{func funcName = } \tau
+  }{
+    \texttt{funcName } e
+  }
+
+  \inferrule[Decl]{
+    \Gamma \vdash e : \tau \\
+    \texttt{data typeName = } \tau
+  }{
+    \texttt{typeName x = } e \\
+    \Gamma = \Gamma, \texttt{x} : typeName
+  }
+
+  \inferrule[Defn]{
+    \Gamma \vdash e : \tau \\
+  }{
+    \Gamma \vdash \texttt{x = } e \\
+    \Gamma = \Gamma, \texttt{x} : \tau
+  }
+
+  \inferrule[Enum]{
+    \texttt{enum enumName = } \ldots \texttt{|} E_i \texttt{|} \ldots
+  }{
+    \Gamma \vdash E_i : enumName
+  }
+
+  \inferrule[Dict]{
+    \Gamma \vdash e_1 : \tau_1 \\ \ldots \\ \Gamma \vdash e_n : \tau_n
+  }{
+    \Gamma \vdash \texttt{\{ k1:} e_1\texttt{,} \ldots\texttt{,} \texttt{kn:} e_n \texttt{\}} :
+                  \{ k1: \tau_1, \ldots, kn: \tau_n \}
+  }
+
+  \inferrule[DictNone]{
+    \Gamma \vdash e : \{ \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n \}
+  }{
+    \Gamma \vdash e : \{
+      \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n,
+      \texttt{j}: \sigma?
+    \}
+  }
+
+  \inferrule[DictSome]{
+    \Gamma \vdash e : \{ \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n, \texttt{j}: \sigma \}
+  }{
+    \Gamma \vdash e : \{
+      \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n,
+      \texttt{j}: \sigma?  
+    \}
+  }
+
+  \inferrule[DictInst]{
+    \Gamma \vdash e : \{
+      \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n,
+      \texttt{j}: \sigma
+    \}
+  }{
+    \Gamma \vdash e : \{ \texttt{k1}: \tau_1, \ldots, \texttt{kn}: \tau_n \}
+  }
+
+  \inferrule[List]{
+    \Gamma \vdash e_1, \ldots, e_n : \tau
+  }{
+    \Gamma \vdash \texttt{[ } e_1 \texttt{,} \ldots \texttt{,} e_n \texttt{ ]} : [\tau]
+  }
+
+  \inferrule[Dot]{
+    \Gamma \vdash e : \{ \texttt{k}: \tau \}
+  }{
+    \Gamma \vdash e\texttt{.k} : \tau
+  }
+
+  \inferrule[String]{ }{\Gamma \vdash \texttt{"string"} : string}
+
+  \inferrule[Number]{ }{\Gamma \vdash \texttt{3.14} : number}
+
+  \inferrule[Import]{ }{
+    \Gamma \vdash \texttt{import ImportName from "file"} : import \\
+    \Gamma \vdash \texttt{import { importName } from "file"} : import
+  }
+
+  \inferrule[Quote]{ }{
+    \Gamma \vdash \texttt{\{=quot } \ldots \texttt{ quot=\}} : quot
+  }
+\end{mathparpagebreakable}
+
+\textsc{DictNone} allows omitting optional entries from a dictionary, and
+\textsc{DictSome} allows including optional entries. \textsc{DictInst} allows
+including extra entries in dictionaries, and is generally required for proofs
+involving \textsc{Dot}.
+
+An ambiguity that arises is whether \texttt{x = [\{a: 1\}, \{\}]} is well-typed,
+and if \texttt{x}'s type is $[\{\}]$ or $[\{ a: number? \}]$.
+
+\subsubsection{Type Checking}
+
+There are two phases to the type checker:
+
+\begin{enumerate}
+  \item Included files are type checked, then the \textsc{Incl}
+        rule is applied.
+  \item Binding declaration types: The conclusion of \textsc{Decl} is assumed
+        for all \texttt{<decl>}s, essentially forward declaring each of them.
+  \item Type checking of statements:
+        \begin{enumerate}
+          \item \textsc{Call}, \textsc{Defn}, and the premise of \textsc{Decl}
+                are checked against statements in their lexical order.
+          \item Quoted text (ex. \texttt{\{=json [1] json=\}}) is parsed.
+          \item Recovery should be attempted on a type error, to allow reporting
+                of multiple errors per compilation.
+        \end{enumerate}
+\end{enumerate}
+
+\subsection{Evaluation}
+
+Since wasp has no control flow, evaluation is simple. Definitions must be
+evaluated in order. The evaluation order of declarations and calls is left
+unspecified. When declarations and calls are evaluated, so are their arguments.
+
+Only the values of declarations and calls are visible to the caller of the wasp
+interpreter.
+
+\subsubsection{Includes}
+
+At the beginning of a wasp file, a list of include statements is allowed. When
+a wasp file is included in another, evaluated before the includer. The
+\textsc{Incl} rule is used for type checking. 
+
+\texttt{include "other.wasp" as Q} binds the variables and declarations from
+other.wasp to a variable \texttt{Q} in the current file.
+
+Note that expressions in other.wasp can not refer to any
+bindings in the includer.
+
+\subsection{Standard Library}
+
+Described below is the standard library for wasp. The syntax of the definitions
+here are the same as used in the type rules.
+
+\begin{verbatim}
+enum authMethod = EmailAndPassword
+enum paramType = StringParam | NumberParam
+
+data app = { title : string }
+data page = { component : import
+            , authRequired : bool?
+            , params : [{ name : string, paramType : paramType }]?
+            }
+data entity = psl
+data query = { fn : import, entities : [entity] }
+data action = { fn : import, entities : [entity] }
+data route = { path : string
+             , page : page
+             }
+
+func auth = { userEntity : entity
+            , methods : [authMethod]
+            , onAuthFailedRedirectTo : route
+            }
+func dependencies = json
+\end{verbatim}
+
+\section{Motivation}
+
+The four main things considered in the design of wasp are:
+
+\begin{enumerate}
+  \item Similarity to old wasp
+  \item Safety
+  \item Extensibility
+  \item Simplicity
+\end{enumerate}
+
+\subsection{Similarity to old wasp}
+
+This was the driving force for this design. Old wasp is very clear to read and
+works well for its purpose. Wasp is mostly a formalized version of old wasp.
+
+Not counting new features, the two DSLs are very similar. When translating
+from old wasp to wasp, only the following changes must be kept in mind:
+
+\begin{itemize}
+  \item \texttt{route} is now a declaration instead of a function
+  \item \texttt{page} has an optional \texttt{params} parameter to specify
+        path parameters
+  \item The \texttt{onAuthFailedRedirectTo} field in \texttt{auth} now requires
+        a \texttt{route} instead of a string
+\end{itemize}
+
+\subsection{Safety}
+
+The type system introduces new mechanisms for safely writing wasp
+configurations: \texttt{route} was changed to a declaration to allow for
+type safe URLs; \texttt{page} specifies path parameters so that, in the future,
+a typescript codebase could generate types for path parameters.
+
+\subsection{Extensibility}
+
+Defining wasp's configuration objects in types instead of as syntax will make
+it easier for maintainers to add new objects to wasp. In old wasp's
+implementation, a custom parser had to be written for each type. Now, a
+developer just needs to declare a new type in the wasp library. A suggestion
+for how this might look is described in section 4.2.
+
+Additionally, having all wasp objects described through the same mechanism will
+make it more worth the effort to develop a detailed error system for more
+helpful syntax and type errors when compiling a wasp project.
+
+Finally, wasp's flexibility makes possible a plugin system to add more features
+to wasp without bloating its core library.
+
+\subsection{Simplicity}
+
+While wasp is much more complex than old wasp, it is still fairly simple.
+Noteably, control flow is absent. I wanted wasp to be as simple as possible
+to make experimenting with its implementation less painful. Hopefully, when
+a good implementation is found, it will be flexible enough to bring
+in more complex features as needed.
+
+\section{Implementation Suggestions}
+
+The following sections describes my ideas for parts of the implementation of
+wasp.
+
+\subsection{Parsing}
+
+\href{https://github.com/wasp-lang/wasp/issues/109}{Issue \#109} has good notes
+about parsing, but I think the best option would be a parser generator (Happy
+is mentioned in the issue). Writing a parser by hand, even with a parser
+combinator library, seems wasteful when there is a formal grammar available.
+On the other hand, parser combinators have the advantage of being able to
+directly produce a structure most convenient for the next phases.
+
+\subsection{Type checking}
+
+The actual strategy of type checking should be relatively simple. There are no
+polymorphic types or type inference of recursive definitions, thus no constraint
+solving is necessary to verify the program. This should make the type of each
+expression and statement easy to check.
+
+I instead want to focus on defining types in wasp. It seems very possible that
+non-primitive types could be defined and used in the following way (omitting
+language extensions and imports):
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
+data ParamType = StringParam | NumParam
+                 deriving (Generic)
+newtype PageParam = PageParam { name :: String
+                              , paramType :: ParamType
+                              } deriving (Generic)
+newtype Page = Page { componenent :: WaspLang.Primitive.Import
+                    , authRequired :: Maybe Bool
+                    , params :: Maybe [PageParam]
+                    } deriving (Generic)
+                 
+newtype Dependencies = Dependencies WaspLang.Primitive.Json
+                       deriving (Generic)
+
+interpretWithLib :: String -> Either WaspLang.Error WaspLang.Result
+interpretWithLib = WaspLang.interpret $ do
+  WaspLang.registerEnumType @ParamType
+  WaspLang.registerDataType @Page
+  WaspLang.registerFuncType @Dependencies
+
+-- To use pages declared by a wasp file
+printPageComponents :: WaspLang.Result -> IO ()
+printPageComponents result = do
+  let pageDecls = WaspLang.Decl.take @Page $ WaspLang.Result.decls result
+  mapM_
+    (\(name, page) -> putStrLn $ name ++ ": " ++ show (component page))
+    pageDecls
+\end{lstlisting}
+\end{minipage}
+
+\texttt{registerEnumType}, \texttt{registerDataType}, and \texttt{registerFuncType}
+would all be implemented using GHC generics. Additionally, some type classes
+would be used to only allow types in specific forms:
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
+-- `IsWaspEnum` ensures `a` is in the form `data A = A1 | ... | An`
+registerEnumType :: (Monad m, Generic a, IsWaspEnum a) => WaspMonad ()
+-- `IsWaspType` ensures `a` has one constructor that either:
+--   - Has one parameter
+--   - Uses record syntax
+--  And only contains:
+--   - Wasp primitives
+--   - Maybe
+--   - IsWaspEnums
+--   - IsWaspTypes
+registerDeclType :: (Generic a, IsWaspType a) => WaspMonad ()
+registerFuncType :: (Generic a, IsWaspType a) => WaspMonad ()
+\end{lstlisting}
+\end{minipage}
+
+An important function is \texttt{WaspLang.Decl.take}, which extracts a specific
+type from the existentially quantified type \texttt{Decl}:
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE TypeApplications #-}
+import Data.Typeable (Typeable, cast)
+import Data.Maybe (mapMaybe)
+
+data Decl where
+  Decl :: (Typeable a) => String -> a -> Decl
+
+take :: (Typeable a) => [Decl] -> [(String, a)]
+take = mapMaybe $ \case
+  Decl x -> cast x
+\end{lstlisting}
+\end{minipage}
+
+The type for \texttt{Call} (complementary to \texttt{registerFuncType}) would
+look very similar.
+
+\subsection{Evaluation}
+
+Evaluation of definitions is simple, just compute them in order. Includes also
+are pretty intuitive. The only problem is circular inclusions. I think these
+should not be allowed.Evaluating declarations and calls is a bit more nuanced,
+since they can refer to declarations declared lexically after themselves.
+
+One possible solution is sort the declarations and calls topographically before
+evaluation. This poses a problem for mutually recursive declarations, since
+sorting a cyclical directed graph isn't well defined. I have not spent much
+time thinking about this problem.
+
+Alternatively, time travel could be used to make the final results of
+evaluation available to every single declaration and call, which solves
+the circular reference problem. If unfamiliar with time travel in Haskell, read
+\href{https://blog.csongor.co.uk/time-travel-in-haskell-for-dummies/}{this article}
+for an introduction. This may have performance consequences.
+
+Another interesting part is what structure to store the evaluated result in.
+Following from 4.2, it makes sense to use the registered ADTs as the result
+types. \texttt{Data.Data} seems to be the module to use for this.
+
+The \texttt{Data.Data} allows constructing values of arbitrary constructors.
+If type checking succeeds, we can then create the proper data types to return
+in \texttt{Result.decls} and \texttt{Result.calls}. I have investigated the
+\texttt{Data.Data} module and I am confident this will work, but
+\texttt{unsafeCoerce} might be needed.
+
+\section{Closing Thoughts}
+
+This is not a finished design. It definitely needs more work before
+implementing it, especially because its implementation will take a lot of work
+and require changes across the existing code base.
+
+Because this implementation is quite large, I think it would make the most
+sense to start by defining its API and the boundaries between the three systems
+of the DSL. Then, the implementation could be divided into three
+sub-projects.
