@@ -16,10 +16,9 @@ and the standard library.
 
 \begin{verbatim}
 <wasp>    ::= <import>* <stmt>*
-<stmt>    ::= <decl> | <call> | <defn>
+<stmt>    ::= <decl> | <defn>
 
 <decl>    ::= <ident> <ident> <expr>
-<call>    ::= <ident> <expr>
 <defn>    ::= <ident> '=' <expr>
 <import> ::= 'import' <string> 'as' <ident>
 
@@ -69,13 +68,6 @@ type system. Some special conventions are followed:
     \Gamma = \Gamma, Q : \{
       \texttt{x1} : \tau_1, \ldots, \texttt{xn} : \tau_n  
     \}
-  }
-
-  \inferrule[Call]{
-    \Gamma \vdash e : \tau \\
-    \texttt{func funcName = } \tau
-  }{
-    \texttt{funcName } e
   }
 
   \inferrule[Decl]{
@@ -178,7 +170,7 @@ There are two phases to the type checker:
         for all \texttt{<decl>}s, essentially forward declaring each of them.
   \item Type checking of statements:
         \begin{enumerate}
-          \item \textsc{Call}, \textsc{Defn}, and the premise of \textsc{Decl}
+          \item \textsc{Defn} and the premise of \textsc{Decl}
                 are checked against statements in their lexical order.
           \item Quoted text (ex. \texttt{\{=json [1] json=\}}) is parsed.
           \item Recovery should be attempted on a type error, to allow reporting
@@ -189,10 +181,10 @@ There are two phases to the type checker:
 \subsection{Evaluation}
 
 Since wasp has no control flow, evaluation is simple. Definitions must be
-evaluated in order. The evaluation order of declarations and calls is left
-unspecified. When declarations and calls are evaluated, so are their arguments.
+evaluated in order. The evaluation order of declarations is left
+unspecified. When declarations are evaluated, so are their arguments.
 
-Only the values of declarations and calls are visible to the caller of the wasp
+Only the values of declarations are visible to the caller of the wasp
 interpreter.
 
 \subsubsection{Includes}
@@ -216,7 +208,13 @@ here are the same as used in the type rules.
 enum authMethod = EmailAndPassword
 enum paramType = StringParam | NumberParam
 
-data app = { title : string }
+data app = { title : string
+           , auth : { userEntity : entity
+                    , methods : [authMethod]
+                    , onAuthFailedRedirectTo : route
+                    }
+           , dependencies : json
+           }
 data page = { component : import
             , authRequired : bool?
             , params : [{ name : string, paramType : paramType }]?
@@ -227,12 +225,6 @@ data action = { fn : import, entities : [entity] }
 data route = { path : string
              , page : page
              }
-
-func auth = { userEntity : entity
-            , methods : [authMethod]
-            , onAuthFailedRedirectTo : route
-            }
-func dependencies = json
 \end{verbatim}
 
 \section{Motivation}
@@ -255,11 +247,13 @@ Not counting new features, the two DSLs are very similar. When translating
 from old wasp to wasp, only the following changes must be kept in mind:
 
 \begin{itemize}
-  \item \texttt{route} is now a declaration instead of a function
+  \item \texttt{route}s are now named
   \item \texttt{page} has an optional \texttt{params} parameter to specify
         path parameters
   \item The \texttt{onAuthFailedRedirectTo} field in \texttt{auth} now requires
         a \texttt{route} instead of a string
+  \item \texttt{authentication} and \texttt{dependencies} are now fields in the
+        \texttt{app} declaration.
 \end{itemize}
 
 \subsection{Safety}
@@ -328,29 +322,25 @@ newtype Page = Page { componenent :: WaspLang.Primitive.Import
                     , authRequired :: Maybe Bool
                     , params :: Maybe [PageParam]
                     } deriving (Generic)
-                 
-newtype Dependencies = Dependencies WaspLang.Primitive.Json
-                       deriving (Generic)
 
-interpretWithLib :: String -> Either WaspLang.Error WaspLang.Result
+interpretWithLib :: String -> Either WaspLang.Error [WaspLang.Decl]
 interpretWithLib = WaspLang.interpret $ do
   WaspLang.registerEnumType @ParamType
   WaspLang.registerDataType @Page
-  WaspLang.registerFuncType @Dependencies
 
 -- To use pages declared by a wasp file
 printPageComponents :: WaspLang.Result -> IO ()
-printPageComponents result = do
-  let pageDecls = WaspLang.Decl.take @Page $ WaspLang.Result.decls result
+printPageComponents decls = do
+  let pageDecls = WaspLang.Decl.take @Page $ decls
   mapM_
     (\(name, page) -> putStrLn $ name ++ ": " ++ show (component page))
     pageDecls
 \end{lstlisting}
 \end{minipage}
 
-\texttt{registerEnumType}, \texttt{registerDataType}, and \texttt{registerFuncType}
-would all be implemented using GHC generics. Additionally, some type classes
-would be used to only allow types in specific forms:
+\texttt{registerEnumType} and \texttt{registerDataType} would all be
+implemented using GHC generics. Additionally, some type classes would be used
+to only allow types in specific forms:
 
 \begin{minipage}{\linewidth}
 \begin{lstlisting}
@@ -365,7 +355,6 @@ registerEnumType :: (Monad m, Generic a, IsWaspEnum a) => WaspMonad ()
 --   - IsWaspEnums
 --   - IsWaspTypes
 registerDeclType :: (Generic a, IsWaspType a) => WaspMonad ()
-registerFuncType :: (Generic a, IsWaspType a) => WaspMonad ()
 \end{lstlisting}
 \end{minipage}
 
@@ -388,23 +377,20 @@ take = mapMaybe $ \case
 \end{lstlisting}
 \end{minipage}
 
-The type for \texttt{Call} (complementary to \texttt{registerFuncType}) would
-look very similar.
-
 \subsection{Evaluation}
 
 Evaluation of definitions is simple, just compute them in order. Includes also
 are pretty intuitive. The only problem is circular inclusions. I think these
-should not be allowed.Evaluating declarations and calls is a bit more nuanced,
+should not be allowed. Evaluating declarations is a bit more nuanced,
 since they can refer to declarations declared lexically after themselves.
 
-One possible solution is sort the declarations and calls topographically before
+One possible solution is sort the declarations topographically before
 evaluation. This poses a problem for mutually recursive declarations, since
 sorting a cyclical directed graph isn't well defined. I have not spent much
 time thinking about this problem.
 
 Alternatively, time travel could be used to make the final results of
-evaluation available to every single declaration and call, which solves
+evaluation available to every single declaration, which solves
 the circular reference problem. If unfamiliar with time travel in Haskell, read
 \href{https://blog.csongor.co.uk/time-travel-in-haskell-for-dummies/}{this article}
 for an introduction. This may have performance consequences.
@@ -414,10 +400,9 @@ Following from 4.2, it makes sense to use the registered ADTs as the result
 types. \texttt{Data.Data} seems to be the module to use for this.
 
 The \texttt{Data.Data} allows constructing values of arbitrary constructors.
-If type checking succeeds, we can then create the proper data types to return
-in \texttt{Result.decls} and \texttt{Result.calls}. I have investigated the
-\texttt{Data.Data} module and I am confident this will work, but
-\texttt{unsafeCoerce} might be needed.
+If type checking succeeds, we can then create the proper data types to return.
+I have investigated the \texttt{Data.Data} module and I am confident this will
+work, but \texttt{unsafeCoerce} might be needed.
 
 \section{Closing Thoughts}
 
