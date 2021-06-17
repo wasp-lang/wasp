@@ -1,7 +1,7 @@
 \section{Introduction}
 
 In this document, I propose a new design for wasp's DSL. The description
-of the new DSL will be broke into three parts: a formal definition, my
+of the new DSL will be divided into three parts: a formal definition, my
 motivation for key decisions, and ideas on its potential implementation.
 
 From here on, the new version of wasp's DSL will be referred to as \strong{wasp}
@@ -26,14 +26,14 @@ and the standard library.
 <expr>    ::= <dict> | <list> | <dot>
             | <string> | <extimport> | <quoter>
             | <ident> | <num>
-<dict>    ::= '{' <dictval> (',' <dictval>)* '}'
+<dict>    ::= '{' <dictentry> (',' <dictentry>)* '}'
             | '{' '}'
 <dictentry> ::= <ident> : <expr>
 <list>    ::= '[' <expr> (',' <expr>)* ']' | '[' ']'
 
 <extimport>  ::= 'import' <name> 'from' <string>
 <name>    ::= '{' <ident> '}' | <ident>
-<dot>     ::= <ident> '.' <ident>
+<dot>     ::= <expr> '.' <ident>
 <quoter>  ::= '{=' <ident> <anything> <ident> '=}'
 \end{verbatim}
 
@@ -139,7 +139,7 @@ type system. Some special conventions are followed:
 
   \inferrule[Number]{ }{\Gamma \vdash \texttt{3.14} : number}
 
-  \inferrule[Import]{ }{
+  \inferrule[ExtImport]{ }{
     \Gamma \vdash \texttt{import ImportName from "file"} : import \\
     \Gamma \vdash \texttt{import { importName } from "file"} : import
   }
@@ -186,7 +186,7 @@ interpreter.
 \subsubsection{Imports and Exports}
 
 At the beginning of a wasp file, a list of import statements is allowed. When
-a wasp file is imported in another, it is evaluated before the importer. The
+a wasp file is imported into another, it is evaluated before the importer. The
 \textsc{Import} rule is used for type checking. 
 
 \texttt{import "other.wasp" as Q} binds the variables and declarations from
@@ -239,6 +239,9 @@ The four main things considered in the design of wasp are:
   \item Extensibility
   \item Simplicity
 \end{enumerate}
+
+For more context on revisions of this proposal, see
+\href{https://github.com/wasp-lang/wasp/issues/109}{Issue \#109}.
 
 \subsection{Similarity to old wasp}
 
@@ -320,20 +323,20 @@ data ParamType = StringParam | NumParam
 newtype PageParam = PageParam { name :: String
                               , paramType :: ParamType
                               } deriving (Generic)
-newtype Page = Page { componenent :: WaspLang.Primitive.Import
+newtype Page = Page { componenent :: Analyzer.Primitive.Import
                     , authRequired :: Maybe Bool
                     , params :: Maybe [PageParam]
                     } deriving (Generic)
 
-interpretWithLib :: String -> Either WaspLang.Error [WaspLang.Decl]
-interpretWithLib = WaspLang.interpret $ do
-  WaspLang.registerEnumType @ParamType
-  WaspLang.registerDataType @Page
+interpretWithLib :: String -> Either Analyzer.Error [Analyzer.Decl]
+interpretWithLib = Analyzer.interpret $ do
+  Analyzer.registerEnumType @ParamType
+  Analyzer.registerDataType @Page
 
 -- To use pages declared by a wasp file
-printPageComponents :: WaspLang.Result -> IO ()
+printPageComponents :: Analyzer.Result -> IO ()
 printPageComponents decls = do
-  let pageDecls = WaspLang.Decl.take @Page $ decls
+  let pageDecls = Analyzer.Decl.take @Page $ decls
   mapM_
     (\(name, page) -> putStrLn $ name ++ ": " ++ show (component page))
     pageDecls
@@ -347,20 +350,20 @@ to only allow types in specific forms:
 \begin{minipage}{\linewidth}
 \begin{lstlisting}
 -- `IsWaspEnum` ensures `a` is in the form `data A = A1 | ... | An`
-registerEnumType :: (Monad m, Generic a, IsWaspEnum a) => WaspMonad ()
+registerEnumType :: (Generic a, IsWaspEnum a) => WaspMonad ()
 -- `IsWaspType` ensures `a` has one constructor that either:
 --   - Has one parameter
 --   - Uses record syntax
 --  And only contains:
 --   - Wasp primitives
---   - Maybe
+--   - Maybes, Lists
 --   - IsWaspEnums
 --   - IsWaspTypes
 registerDeclType :: (Generic a, IsWaspType a) => WaspMonad ()
 \end{lstlisting}
 \end{minipage}
 
-An important function is \texttt{WaspLang.Decl.take}, which extracts a specific
+An important function is \texttt{Analyzer.Decl.take}, which extracts a specific
 type from the existentially quantified type \texttt{Decl}:
 
 \begin{minipage}{\linewidth}
@@ -383,12 +386,15 @@ take = mapMaybe $ \case
 
 Evaluation of definitions is simple, just compute them in order. Imports also
 are pretty intuitive. In case of a cyclical import path, an evaluation time
-error will be generated. Evaluating declarations is a bit more nuanced,
-since they can refer to declarations declared lexically after themselves.
+error will be generated. Exports are very straightforward, but some care should
+be taken to avoid evaluating a wasp file twice when both importing and
+exporting it.
 
-One possible solution is sort the declarations topographically before
-evaluation. This poses a problem for mutually recursive declarations, since
-no traversal order of a cyclical graph will work.
+Evaluating declarations is a bit more nuanced, since they can refer to
+declarations declared lexically after themselves. One possible solution is to
+sort the declarations topographically before evaluation. This poses a problem
+for mutually recursive declarations, since no traversal order of a cyclical
+graph will work.
 
 Alternatively, time travel could be used to make the final results of
 evaluation available to every single declaration, which solves
