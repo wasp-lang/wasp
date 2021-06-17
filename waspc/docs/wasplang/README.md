@@ -1,3 +1,8 @@
+Here is the formal description of the Wasp language with a LaTeX document
+containing the grammar, type system, and evaluation rules.
+
+To view the PDF, you will need to generate it yourself (see below instructions).
+
 ## Which files to edit
 
 Edit the document in `src/index.tex`. Add more packages (if needed) and set up
