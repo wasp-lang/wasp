@@ -2,6 +2,7 @@ module Generator.DbGenerator
   ( genDb,
     dbRootDirInProjectRootDir,
     dbSchemaFileInProjectRootDir,
+    syncedPrismaSchemaChecksumFileInProjectRootDir,
   )
 where
 
@@ -14,7 +15,7 @@ import Generator.Templates (TemplatesDir)
 import qualified Path as P
 import qualified Psl.Ast.Model
 import qualified Psl.Generator.Model
-import StrongPath (Dir, File, Path, Rel, (</>))
+import StrongPath (Abs, Dir, File, Path, Rel, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
@@ -44,6 +45,9 @@ dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
 
 dbSchemaFileInProjectRootDir :: Path (Rel ProjectRootDir) File
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
+
+syncedPrismaSchemaChecksumFileInProjectRootDir :: Path (Rel ProjectRootDir) File
+syncedPrismaSchemaChecksumFileInProjectRootDir = SP.fromPathRelFile [P.relfile|.waspinfo.synced-db-schema-checksum|]
 
 -- * Db generator
 
@@ -79,5 +83,10 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
       Psl.Generator.Model.generateModel $
         Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)
 
-writePrismaSchemaChecksumToFile :: IO ()
-writePrismaSchemaChecksumToFile = undefined
+-- TODO: Consider in the future storing this information into .waspinfo instead of creating a new file.
+writePrismaSchemaChecksumToFile :: Path Abs (Dir ProjectRootDir) -> IO ()
+writePrismaSchemaChecksumToFile projectRootDir = do
+  let prismaSchemaPathAbs = projectRootDir </> dbSchemaFileInProjectRootDir
+  let dstFile = projectRootDir </> syncedPrismaSchemaChecksumFileInProjectRootDir
+  checksum <- calcFileChecksum prismaSchemaPathAbs
+  writeFile (SP.toFilePath dstFile) checksum
