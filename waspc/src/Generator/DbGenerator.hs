@@ -78,3 +78,6 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
     entityToPslModelSchema entity =
       Psl.Generator.Model.generateModel $
         Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)
+
+writePrismaSchemaChecksumToFile :: IO ()
+writePrismaSchemaChecksumToFile = undefined

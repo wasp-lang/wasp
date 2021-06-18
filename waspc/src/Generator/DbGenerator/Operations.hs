@@ -6,6 +6,7 @@ where
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
 import Generator.Common (ProjectRootDir)
+import Generator.DbGenerator (writePrismaSchemaChecksumToFile)
 import qualified Generator.DbGenerator.Jobs as DbJobs
 import Generator.Job (JobMessage)
 import qualified Generator.Job as J
@@ -28,5 +29,7 @@ migrateDev projectDir = do
       (printJobMsgsUntilExitReceived chan)
       (DbJobs.migrateDev projectDir chan)
   case dbExitCode of
-    ExitSuccess -> return (Right ())
+    ExitSuccess -> do
+      writePrismaSchemaChecksumToFile
+      return (Right ())
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
