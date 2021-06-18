@@ -90,3 +90,12 @@ writePrismaSchemaChecksumToFile projectRootDir = do
   let dstFile = projectRootDir </> syncedPrismaSchemaChecksumFileInProjectRootDir
   checksum <- calcFileChecksum prismaSchemaPathAbs
   writeFile (SP.toFilePath dstFile) checksum
+
+-- TODO: We should use either MD5 or SHA256 to calculate checksum, here are some libraries:
+-- SHA256 would be slightly better!
+-- https://stackoverflow.com/questions/30536583/compute-md5-digest-of-file-in-haskell
+-- https://hackage.haskell.org/package/cryptohash-sha256-0.11.102.0/docs/Crypto-Hash-SHA256.html
+-- https://github.com/haskell-hvr/cryptohash-md5
+
+calcFileChecksum :: Path Abs File -> IO String
+calcFileChecksum = undefined
