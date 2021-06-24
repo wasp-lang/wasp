@@ -16,24 +16,24 @@ import Control.Monad.Trans.Class (lift)
 %error { parseError }
 
 %monad { Parser }
-%lexer { lexer } { TEOF }
+%lexer { lexer } { Token { tokenClass = TEOF } }
 
 %token
-  import { TImport }
-  from { TFrom }
-  string { TString $$ }
-  int { TInt $$ }
-  double { TDouble $$ }
-  true { TTrue }
-  false { TFalse }
-  quoter { TQuoter $$ }
-  ident { TIdent $$ }
-  '{' { TLCurly }
-  '}' { TRCurly }
-  ',' { TComma }
-  ':' { TColon }
-  '[' { TLSquare }
-  ']' { TRSquare }
+  import { Token { tokenClass = TImport } }
+  from { Token { tokenClass = TFrom } }
+  string { Token { tokenClass = TString $$ } }
+  int { Token { tokenClass = TInt $$ } }
+  double { Token { tokenClass = TDouble $$ } }
+  true { Token { tokenClass = TTrue } }
+  false { Token { tokenClass = TFalse } }
+  quoter {Token { tokenClass =  TQuoter $$ } }
+  ident { Token { tokenClass = TIdent $$ } }
+  '{' { Token { tokenClass = TLCurly } }
+  '}' { Token { tokenClass = TRCurly } }
+  ',' { Token { tokenClass = TComma } }
+  ':' { Token { tokenClass = TColon } }
+  '[' { Token { tokenClass = TLSquare } }
+  ']' { Token { tokenClass = TRSquare } }
 
 %%
 
@@ -52,7 +52,7 @@ Expr : Dict { $1 }
      | double { DoubleLiteral $1 }
      | true { BoolLiteral True }
      | false { BoolLiteral False }
-     | ident { Var $1 }
+     | ident { Identifier $1 }
 
 Dict : '{' DictEntries '}' { Dict $2 }
      | '{' DictEntries ',' '}' { Dict $2 }
@@ -73,9 +73,7 @@ Name : ident { ExtImportModule $1 }
 
 {
 parseError :: Token -> Parser a
-parseError token = do
-     pos <- psPosn <$> get
-     lift $ throwE $ ParseError token pos
+parseError token = lift $ throwE $ ParseError token
 
 parse :: String -> Either ParseError AST
 parse source = runExcept $ evalStateT parseTokens $ initialState source

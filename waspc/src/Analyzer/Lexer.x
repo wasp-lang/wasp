@@ -6,13 +6,11 @@ module Analyzer.Lexer
   ) where
 
 import Analyzer.ParserUtil (AlexInput, Parser, ParseState (..), updatePosn, putInput)
-import Analyzer.Syntax (ParseError (..), Token (..))
+import Analyzer.Syntax (ParseError (..), Token (..), TokenClass (..))
 import Control.Monad.Trans.State.Lazy (get)
 import Control.Monad.Trans.Except (throwE)
 import Control.Monad.Trans.Class (lift)
 import Data.Word (Word8)
-import Data.Char (ord)
-import qualified Data.Bits
 import Codec.Binary.UTF8.String (encodeChar)
 }
 
@@ -33,34 +31,35 @@ tokens :-
 
 -- Quoters — For now a dirty method that hardcodes json and psl in lexer
 -- TODO: figure out how to make this better
-  "{=json" $any* "json=}" { \s -> TQuoter ("json", (unquote 6 s), "json") }
-  "{=psl" $any* "psl=}" { \s -> TQuoter ("psl", (unquote 5 s), "psl") }
+  "{=json" $any* "json=}" { token $ \s -> TQuoter ("json", (unquote 6 s), "json") }
+  "{=psl" $any* "psl=}" { token $ \s -> TQuoter ("psl", (unquote 5 s), "psl") }
 
 -- Simple tokens
-  "{" { const TLCurly }
-  "}" { const TRCurly }
-  "," { const TComma }
-  ":" { const TColon }
-  "[" { const TLSquare }
-  "]" { const TRSquare }
-  "import" { const TImport }
-  "from" { const TFrom }
-  "true" { const TTrue }
-  "false" { const TFalse }
+  "{" { fromClass TLCurly }
+  "}" { fromClass TRCurly }
+  "," { fromClass TComma }
+  ":" { fromClass TColon }
+  "[" { fromClass TLSquare }
+  "]" { fromClass TRSquare }
+  "import" { fromClass TImport }
+  "from" { fromClass TFrom }
+  "true" { fromClass TTrue }
+  "false" { fromClass TFalse }
 
 -- Strings, numbers, identifiers
-  @string { \s -> TString (init $ tail s) }
-  @double { \s -> TDouble $ read s }
-  @integer { \s -> TInt $ read s }
-  @ident { \s -> TIdent s }
+  @string { token $ \s -> TString (init $ tail s) }
+  @double { token $ \s -> TDouble $ read s }
+  @integer { token $ \s -> TInt $ read s }
+  @ident { token $ \s -> TIdent s }
 
 {
 
 alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
 alexGetByte (c, (b:bs), s) = Just (b, (c, bs, s))
-alexGetByte (c, [], []) = Nothing
+alexGetByte (_, [], []) = Nothing
 alexGetByte (_, [], (c:s)) = case encodeChar c of
                                (b:bs) -> Just (b, (c, bs, s))
+                               [] -> Nothing
 
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar (c, _, _) = c
@@ -69,8 +68,9 @@ lexer :: (Token -> Parser a) -> Parser a
 lexer cont = do
   inp@(c, _, str) <- psInput <$> get
   case alexScan inp 0 of
-    AlexEOF -> cont TEOF
-    AlexError e -> do
+    AlexEOF -> do
+      fromClass TEOF "" >>= cont
+    AlexError _ -> do
       pos <- psPosn <$> get
       lift $ throwE $ UnexpectedChar c pos
     AlexSkip inp' len -> do
@@ -78,9 +78,10 @@ lexer cont = do
       putInput inp'
       lexer cont
     AlexToken inp' len act -> do
+      tok <- act $ take len str
       updatePosn str len
       putInput inp'
-      cont $ act (take len str)
+      cont tok
 
 -- | Removes wasp quoter beginning ending block of length `len`
 unquote :: Int -> String -> String
@@ -88,4 +89,15 @@ unquote len s = let takeLen = length s - len * 2
                 in  if takeLen < 0
                       then ""
                       else take takeLen $ drop len s
+
+fromClass :: TokenClass -> (String -> Parser Token)
+fromClass tc str = do
+  posn <- psPosn <$> get
+  return $ Token { tokenClass = tc
+                 , tokenPosn = posn
+                 , tokenLexeme = str
+                 }
+
+token :: (String -> TokenClass) -> (String -> Parser Token)
+token f str = fromClass (f str) str
 }

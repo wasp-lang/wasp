@@ -1,5 +1,6 @@
 module Analyzer.Syntax
   ( Token (..)
+  , TokenClass (..)
   , AST (..)
   , Stmt (..)
   , Expr (..)
@@ -11,23 +12,29 @@ module Analyzer.Syntax
 
 -- TOKEN TYPES
 
-data Token = TLCurly
-           | TRCurly
-           | TComma
-           | TColon
-           | TLSquare
-           | TRSquare
-           | TImport
-           | TFrom
-           | TString String
-           | TInt Integer
-           | TDouble Double
-           | TTrue
-           | TFalse
-           | TQuoter (String, String, String)
-           | TIdent String
-           | TEOF
-           deriving (Eq, Show)
+data TokenClass
+  = TLCurly
+  | TRCurly
+  | TComma
+  | TColon
+  | TLSquare
+  | TRSquare
+  | TImport
+  | TFrom
+  | TString String
+  | TInt Integer
+  | TDouble Double
+  | TTrue
+  | TFalse
+  | TQuoter (String, String, String)
+  | TIdent String
+  | TEOF
+  deriving (Eq, Show)
+
+data Token = Token { tokenClass :: TokenClass
+                   , tokenPosn :: Posn
+                   , tokenLexeme :: String
+                   } deriving (Eq, Show)
 
 -- AST TYPES
 
@@ -44,7 +51,7 @@ data Expr = Dict [(Ident, Expr)]
           | DoubleLiteral Double
           | BoolLiteral Bool
           | ExtImport ExtImportName String
-          | Var Ident
+          | Identifier Ident
           | Quoter Ident String Ident deriving (Eq, Show)
 
 data ExtImportName = ExtImportModule Ident | ExtImportField Ident deriving (Eq, Show)
@@ -54,5 +61,5 @@ data ExtImportName = ExtImportModule Ident | ExtImportField Ident deriving (Eq, 
 data Posn = Posn { line :: Int, col :: Int } deriving (Eq, Show)
 
 data ParseError = UnexpectedChar Char Posn
-                | ParseError Token Posn
+                | ParseError Token
                   deriving (Eq, Show)
