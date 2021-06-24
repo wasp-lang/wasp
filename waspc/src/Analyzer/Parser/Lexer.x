@@ -54,6 +54,9 @@ tokens :-
 
 {
 
+-- | Get a byte from the input.
+--
+--   This function is taken from the Alex basic wrapper.
 alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
 alexGetByte (c, (b:bs), s) = Just (b, (c, bs, s))
 alexGetByte (_, [], []) = Nothing
@@ -61,9 +64,16 @@ alexGetByte (_, [], (c:s)) = case encodeChar c of
                                (b:bs) -> Just (b, (c, bs, s))
                                [] -> Nothing
 
+-- | Get the previous character from the input.
+--
+--   This function is taken from the Alex basic wrapper.
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar (c, _, _) = c
 
+-- | Lexes a single token from the input.
+--
+--   This function is designed for use with the Happy threaded lexer, which
+--   is why it uses a CPS-style.
 lexer :: (Token -> Parser a) -> Parser a
 lexer cont = do
   inp@(c, _, str) <- psInput <$> get
@@ -78,6 +88,8 @@ lexer cont = do
       putInput inp'
       lexer cont
     AlexToken inp' len act -> do
+      -- Token is made before `updatePosn` so that its `tokenPosn` points to
+      -- the start of the token's lexeme.
       tok <- act $ take len str
       updatePosn str len
       putInput inp'
@@ -90,6 +102,7 @@ unquote len s = let takeLen = length s - len * 2
                       then ""
                       else take takeLen $ drop len s
 
+-- | Makes an action that creates a token from a constant TokenClass.
 fromClass :: TokenClass -> (String -> Parser Token)
 fromClass tc str = do
   posn <- psPosn <$> get
@@ -98,6 +111,7 @@ fromClass tc str = do
                  , tokenLexeme = str
                  }
 
+-- | Makes an action that creates a token using the input lexeme.
 token :: (String -> TokenClass) -> (String -> Parser Token)
 token f str = fromClass (f str) str
 }

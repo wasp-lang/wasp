@@ -26,6 +26,7 @@ data TokenClass
   | TDouble Double
   | TTrue
   | TFalse
+  -- | Open quote tag, contents, Close quote tag
   | TQuoter (String, String, String)
   | TIdent String
   | TEOF
@@ -52,14 +53,25 @@ data Expr = Dict [(Ident, Expr)]
           | BoolLiteral Bool
           | ExtImport ExtImportName String
           | Identifier Ident
-          | Quoter Ident String Ident deriving (Eq, Show)
+          | Quoter Ident String Ident
+          deriving (Eq, Show)
 
-data ExtImportName = ExtImportModule Ident | ExtImportField Ident deriving (Eq, Show)
+data ExtImportName
+  -- | Represents external imports like @import Ident from "file.js"@
+  = ExtImportModule Ident
+  -- | Represents external imports like @import { Ident } from "file.js"@
+  | ExtImportField Ident
+  deriving (Eq, Show)
 
 -- ERROR TYPES
 
+-- | The first character on the first line is at position @Posn { line = 1, col = 1 }@
 data Posn = Posn { line :: Int, col :: Int } deriving (Eq, Show)
 
-data ParseError = UnexpectedChar Char Posn
-                | ParseError Token
-                  deriving (Eq, Show)
+data ParseError
+  -- | A lexical error representing an invalid character
+  = UnexpectedChar Char Posn
+  -- | A parse error. This type will be refined eventually, as "unexpected
+  --   token" is not very helpful.
+  | ParseError Token
+  deriving (Eq, Show)
