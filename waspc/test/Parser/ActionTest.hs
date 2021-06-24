@@ -1,6 +1,7 @@
 module Parser.ActionTest where
 
 import Data.Either (isLeft)
+import Data.Char (toLower)
 import Parser.Action (action)
 import Parser.Common (runWaspParser)
 import qualified Path.Posix as PPosix
@@ -19,12 +20,23 @@ spec_parseAction =
   describe "Parsing action declaration" $ do
     let parseAction = runWaspParser action
 
-    it "When given a valid action declaration, returns correct AST" $ do
-      let testActionName = "myAction"
-          testActionJsFunctionName = "myJsAction"
-          testActionJsFunctionFrom = SP.fromPathRelFileP [PPosix.relfile|some/path|]
-      let testAction =
-            Wasp.Action.Action
+    it "When given a valid action declaration, returns correct AST (no auth)" $ do
+      let testAction = genActionAST Nothing
+      let testActionInput = genActionInput Nothing
+      parseAction testActionInput `shouldBe` Right testAction
+    it "When given a valid action declaration, returns correct AST (auth = true)" $ do
+      let testAction = genActionAST (Just True)
+      let testActionInput = genActionInput (Just True)
+      parseAction testActionInput `shouldBe` Right testAction
+    it "When given a valid action declaration, returns correct AST (auth = false)" $ do
+      let testAction = genActionAST (Just False)
+      let testActionInput = genActionInput (Just False)
+      parseAction testActionInput `shouldBe` Right testAction      
+    it "When given action wasp declaration without 'fn' property, should return Left" $ do
+      isLeft (parseAction "action myAction { }") `shouldBe` True
+      where
+        genActionAST :: Maybe Bool -> Wasp.Action.Action
+        genActionAST aApplyAuth = Wasp.Action.Action
               { Wasp.Action._name = testActionName,
                 Wasp.Action._jsFunction =
                   Wasp.JsImport.JsImport
@@ -32,15 +44,21 @@ spec_parseAction =
                       Wasp.JsImport._namedImports = [testActionJsFunctionName],
                       Wasp.JsImport._from = testActionJsFunctionFrom
                     },
-                Wasp.Action._entities = Nothing
+                Wasp.Action._entities = Nothing,
+                Wasp.Action._auth = aApplyAuth
               }
-      parseAction
-        ( "action " ++ testActionName ++ " {\n"
-            ++ "  fn: import { "
-            ++ testActionJsFunctionName
-            ++ " } from \"@ext/some/path\"\n"
-            ++ "}"
-        )
-        `shouldBe` Right testAction
-    it "When given action wasp declaration without 'fn' property, should return Left" $ do
-      isLeft (parseAction "action myAction { }") `shouldBe` True
+        genActionInput :: Maybe Bool -> String
+        genActionInput aApplyAuth = ( 
+            "action " ++ testActionName ++ " {\n"
+              ++ "  fn: import { "
+              ++ testActionJsFunctionName
+              ++ " } from \"@ext/some/path\""
+              ++ authStr aApplyAuth
+              ++ "}"
+          )
+        authStr :: Maybe Bool -> String
+        authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
+        authStr _ = "\n"        
+        testActionJsFunctionFrom = SP.fromPathRelFileP [PPosix.relfile|some/path|]
+        testActionJsFunctionName = "myJsAction"
+        testActionName = "myAction"

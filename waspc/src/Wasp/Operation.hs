@@ -3,6 +3,7 @@ module Wasp.Operation
     getName,
     getJsFn,
     getEntities,
+    getAuth
   )
 where
 
@@ -30,3 +31,7 @@ getJsFn (ActionOp action) = Action._jsFunction action
 getEntities :: Operation -> Maybe [String]
 getEntities (QueryOp query) = Query._entities query
 getEntities (ActionOp action) = Action._entities action
+
+getAuth :: Operation -> Maybe Bool
+getAuth (QueryOp query) = Query._auth query
+getAuth (ActionOp action) = Action._auth action

@@ -19,5 +19,6 @@ query = do
       { Query._name = name,
         Query._jsFunction =
           fromMaybe (error "Query js function is missing.") (Operation.getJsFunctionFromProps props),
-        Query._entities = Operation.getEntitiesFromProps props
+        Query._entities = Operation.getEntitiesFromProps props,
+        Query._auth = Operation.getAuthEnabledFromProps props
       }

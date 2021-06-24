@@ -11,12 +11,8 @@ import {= importIdentifier =} from '{= importPath =}'
 
 const router = express.Router()
 
-{=# isAuthEnabled =}
-router.use(auth)
-{=/ isAuthEnabled =}
-
 {=# operationRoutes =}
-router.post('{= routePath =}', {= importIdentifier =})
+router.post('{= routePath =}', {=# isAuthEnabled =} auth, {=/ isAuthEnabled =} {= importIdentifier =})
 {=/ operationRoutes =}
 
 export default router

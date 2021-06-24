@@ -19,5 +19,6 @@ action = do
       { Action._name = name,
         Action._jsFunction =
           fromMaybe (error "Action js function is missing.") (Operation.getJsFunctionFromProps props),
-        Action._entities = Operation.getEntitiesFromProps props
+        Action._entities = Operation.getEntitiesFromProps props,
+        Action._auth = Operation.getAuthEnabledFromProps props
       }

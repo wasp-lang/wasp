@@ -108,7 +108,8 @@ spec_parseWasp =
                               Wasp.JsImport._namedImports = ["myJsQuery"],
                               Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|some/path|]
                             },
-                        Wasp.Query._entities = Nothing
+                        Wasp.Query._entities = Nothing,
+                        Wasp.Query._auth = Nothing
                       },
                   WaspElementNpmDependencies $
                     Wasp.NpmDependencies.NpmDependencies
