@@ -1,6 +1,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Analyzer.ParserUtil
+module Analyzer.Parser.Util
   ( ParseState (..)
   , initialState
   , Parser
@@ -9,7 +9,7 @@ module Analyzer.ParserUtil
   , AlexInput
   ) where
 
-import Analyzer.Syntax (ParseError, Posn (..))
+import Analyzer.Parser.Syntax (ParseError, Posn (..))
 import Data.Word (Word8)
 import Control.Monad.Trans.State.Lazy (StateT, get, modify)
 import Control.Monad.Trans.Except (Except)

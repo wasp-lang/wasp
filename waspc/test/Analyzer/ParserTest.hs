@@ -1,7 +1,6 @@
 module Analyzer.ParserTest where
 
 import Test.Tasty.Hspec
-import Analyzer.Syntax
 import Analyzer.Parser
 
 spec_Parser :: Spec

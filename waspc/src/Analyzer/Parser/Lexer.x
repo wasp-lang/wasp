@@ -1,12 +1,12 @@
 {
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Analyzer.Lexer
+module Analyzer.Parser.Lexer
   ( lexer
   ) where
 
-import Analyzer.ParserUtil (AlexInput, Parser, ParseState (..), updatePosn, putInput)
-import Analyzer.Syntax (ParseError (..), Token (..), TokenClass (..))
+import Analyzer.Parser.Util (AlexInput, Parser, ParseState (..), updatePosn, putInput)
+import Analyzer.Parser.Syntax (ParseError (..), Token (..), TokenClass (..))
 import Control.Monad.Trans.State.Lazy (get)
 import Control.Monad.Trans.Except (throwE)
 import Control.Monad.Trans.Class (lift)

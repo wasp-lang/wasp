@@ -1,4 +1,4 @@
-module Analyzer.Syntax
+module Analyzer.Parser.Syntax
   ( Token (..)
   , TokenClass (..)
   , AST (..)

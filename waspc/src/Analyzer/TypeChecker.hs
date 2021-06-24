@@ -7,7 +7,7 @@ module Analyzer.TypeChecker
   , typeCheck
   ) where
 
-import Analyzer.Syntax (AST, Ident, ExtImportName)
+import Analyzer.Parser (AST, Ident, ExtImportName)
 import Analyzer.Type (Type (..))
 import Analyzer.Lib (Lib)
 

@@ -1,17 +1,17 @@
 {
-module Analyzer.Parser
+module Analyzer.Parser.Parser
   ( parse
   ) where
 
-import Analyzer.Lexer
-import Analyzer.Syntax
-import Analyzer.ParserUtil (Parser, initialState, ParseState (..))
+import Analyzer.Parser.Lexer
+import Analyzer.Parser.Syntax
+import Analyzer.Parser.Util (Parser, initialState, ParseState (..))
 import Control.Monad.Trans.State.Lazy (evalStateT, get)
 import Control.Monad.Trans.Except (throwE, runExcept)
 import Control.Monad.Trans.Class (lift)
 }
 
-%name parseTokens
+%name parse
 %tokentype { Token }
 %error { parseError }
 
@@ -74,7 +74,4 @@ Name : ident { ExtImportModule $1 }
 {
 parseError :: Token -> Parser a
 parseError token = lift $ throwE $ ParseError token
-
-parse :: String -> Either ParseError AST
-parse source = runExcept $ evalStateT parseTokens $ initialState source
 }
