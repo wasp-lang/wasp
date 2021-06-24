@@ -7,8 +7,7 @@ module Analyzer.TypeChecker
   , typeCheck
   ) where
 
-import Analyzer.Parser (Ident, ExtImportName)
-import qualified Analyzer.Parser as P
+import Analyzer.Syntax (AST, Ident, ExtImportName)
 import Analyzer.Type (Type (..))
 import Analyzer.Lib (Lib)
 
@@ -43,5 +42,5 @@ data TypeError
 
 -- | Checks that an AST conforms to the type rules of Wasp and produces a
 --   an AST labelled with type information.
-typeCheck :: Lib -> P.AST -> Either TypeError TypedAST
+typeCheck :: Lib -> AST -> Either TypeError TypedAST
 typeCheck _ _ = Right $ TypedAST { typedStmts = [] }

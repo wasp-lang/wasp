@@ -64,6 +64,8 @@ library:
     - utf8-string
     - Glob
     - unliftio
+    - array
+    - transformers
 
 executables:
   wasp:

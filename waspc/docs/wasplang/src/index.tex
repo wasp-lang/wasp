@@ -25,16 +25,17 @@ and the standard library.
 
 <expr>    ::= <dict> | <list> | <dot>
             | <string> | <extimport> | <quoter>
-            | <ident> | <num>
+            | <ident> | <num> | <bool>
 <dict>    ::= '{' <dictentry> (',' <dictentry>)* '}'
             | '{' '}'
-<dictentry> ::= <ident> : <expr>
+<dictentry> ::= <ident> ':' <expr>
 <list>    ::= '[' <expr> (',' <expr>)* ']' | '[' ']'
 
 <extimport>  ::= 'import' <name> 'from' <string>
 <name>    ::= '{' <ident> '}' | <ident>
 <dot>     ::= <expr> '.' <ident>
 <quoter>  ::= '{=' <ident> <anything> <ident> '=}'
+<bool>    ::= 'true' | 'false'
 \end{verbatim}
 
 The nonterminals for strings, numbers, and identifers are not shown.
