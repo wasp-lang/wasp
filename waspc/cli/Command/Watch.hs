@@ -10,7 +10,7 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import qualified Control.Concurrent.MVar as MVar
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import Data.List (isSuffixOf)
 import Data.Time.Clock
   ( UTCTime,
@@ -44,45 +44,42 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.toFilePath waspProjectDir) eventFilter chan
   _ <- FSN.watchTreeChan mgr (SP.toFilePath $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
-  timeOfLastEvent <- MVar.newMVar currentTime
-  listenForEvents chan currentTime timeOfLastEvent
+  listenForEvents chan currentTime
   where
-    oneSecond :: Int
-    oneSecond = 1000000
+    oneSecondInMicroSeconds :: Int
+    oneSecondInMicroSeconds = 1000000
 
-    oneSecondDelay :: MVar.MVar UTCTime -> IO ()
-    oneSecondDelay timeOfLastEventMVar = do
-      threadDelay oneSecond
-      currentDelayTime <- MVar.readMVar timeOfLastEventMVar
+    waitForOneSecondOfNoEvents :: MVar.MVar UTCTime -> IO ()
+    waitForOneSecondOfNoEvents timeOfLastEventMVar = do
       currentTime <- getCurrentTime
-      let timeDiff = nominalDiffTimeToSeconds $ diffUTCTime currentTime currentDelayTime
-      when (timeDiff < fromIntegral oneSecond) $ do
-        threadDelay (oneSecond - (floor . (* 1e9) $ timeDiff))
-        oneSecondDelay timeOfLastEventMVar
+      timeOfLastEvent <- MVar.readMVar timeOfLastEventMVar
+      let timeDiff = nominalDiffTimeToSeconds $ diffUTCTime currentTime timeOfLastEvent
+      threadDelay (oneSecondInMicroSeconds - (floor . (* 1e9) $ timeDiff))
+      when (timeDiff < fromIntegral oneSecondInMicroSeconds) $ do
+        waitForOneSecondOfNoEvents timeOfLastEventMVar
 
-    recurEventCheck :: Chan FSN.Event -> UTCTime -> MVar.MVar UTCTime -> IO ()
-    recurEventCheck chan currentTime timeOfLastEventMVar = do
+    listenForEventsAndUpdateLastEventTime :: Chan FSN.Event -> MVar.MVar UTCTime -> IO ()
+    listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar = do
       event <- readChan chan
       let eventTime = FSN.eventTime event
-      unless (eventTime < currentTime) $ do
-        MVar.putMVar timeOfLastEventMVar eventTime
+      timeInMVar <- MVar.readMVar timeOfLastEventMVar
+      MVar.putMVar timeOfLastEventMVar (max eventTime timeInMVar)
+      listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar
 
-    listenForEvents :: Chan FSN.Event -> UTCTime -> MVar.MVar UTCTime -> IO ()
-    listenForEvents chan lastCompileTime timeOfLastEventMVar = do
+    listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
+    listenForEvents chan lastCompileTime = do
       event <- readChan chan
       let eventTime = FSN.eventTime event
       if eventTime < lastCompileTime
         then do
           -- If event happened before last compilation started, skip it.
-          MVar.putMVar timeOfLastEventMVar lastCompileTime
-          listenForEvents chan lastCompileTime timeOfLastEventMVar
+          listenForEvents chan lastCompileTime
         else do
-          currentTime <- getCurrentTime
-          MVar.putMVar timeOfLastEventMVar currentTime
-          _ <- race (recurEventCheck chan currentTime timeOfLastEventMVar) (oneSecondDelay timeOfLastEventMVar)
-          -- These will be executed only after race is completed
+          timeOfLastEventMVar <- MVar.newMVar eventTime
+          _ <- race (listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar) (waitForOneSecondOfNoEvents timeOfLastEventMVar)
           recompile
-          listenForEvents chan currentTime timeOfLastEventMVar
+          currentTime <- getCurrentTime
+          listenForEvents chan currentTime
 
     recompile :: IO ()
     recompile = do
@@ -101,8 +98,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     eventFilter event =
       let filename = FP.takeFileName $ FSN.eventPath event
        in not (null filename)
-            && not (take 2 filename == ".#") -- Ignore emacs lock files.
+            && take 2 filename /= ".#" -- Ignore emacs lock files.
             && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
-            && not (last filename == '~') -- Ignore emacs and vim backup files.
+            && last filename /= '~' -- Ignore emacs and vim backup files.
             && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
             && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.
