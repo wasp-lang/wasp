@@ -6,17 +6,18 @@
 -- module.
 
 module Analyzer.StdLib
-  ( AuthMethod (..)
-  , App (..)
-  , stdLib
-  ) where
+  ( AuthMethod (..),
+    App (..),
+    stdLib,
+  )
+where
 
-import GHC.Generics (Generic)
 import qualified Analyzer.Lib as Lib
+import GHC.Generics (Generic)
 
-data AuthMethod = EmailAndPassword deriving Generic
+data AuthMethod = EmailAndPassword deriving (Generic)
 
-data App = App { title :: String, authMethod :: AuthMethod } deriving Generic
+data App = App {title :: String, authMethod :: AuthMethod} deriving (Generic)
 
 -- | A Wasp Library containing all of the standard types required for Wasp to
 --   work.

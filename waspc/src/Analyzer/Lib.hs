@@ -1,33 +1,37 @@
-{-# LANGUAGE AllowAmbiguousTypes, TypeApplications, ScopedTypeVariables #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Analyzer.Lib
-  ( Lib (..)
-  , empty
-  , addEnumType
-  , addDeclType
-  , EnumType (..)
-  , DeclType (..)
-  , IsEnum
-  , IsDecl
-  ) where
+  ( Lib (..),
+    empty,
+    addEnumType,
+    addDeclType,
+    EnumType (..),
+    DeclType (..),
+    IsEnum,
+    IsDecl,
+  )
+where
 
 import Analyzer.Type (Type)
 import qualified Data.HashMap.Strict as M
 
-newtype EnumType = EnumType { variants :: [String] }
+newtype EnumType = EnumType {variants :: [String]}
 
-newtype DeclType = DeclType { declType :: Type }
+newtype DeclType = DeclType {declType :: Type}
 
 -- | Contains information for type-checking declarations and enums and for
 --   constructing instances of Haskell types corresponding to the declarations
 --   and enums.
-data Lib = Lib { decls :: M.HashMap String DeclType
-               , enums :: M.HashMap String EnumType
-               }
+data Lib = Lib
+  { decls :: M.HashMap String DeclType,
+    enums :: M.HashMap String EnumType
+  }
 
 -- | A library with no types
 empty :: Lib
-empty = Lib { decls = M.empty, enums = M.empty }
+empty = Lib {decls = M.empty, enums = M.empty}
 
 -- | Add a declaration type to a library. Requires the type to be in the form
 --   of a Wasp decl. See "IsDecl" for requirements.
@@ -40,8 +44,9 @@ empty = Lib { decls = M.empty, enums = M.empty }
 --  let exampleLib = addDeclType @App empty
 --  @
 addDeclType :: forall typ. (IsDecl typ) => Lib -> Lib
-addDeclType lib = let decl = DeclType { declType = _declType @typ }
-                  in  lib { decls = M.insert (_declName @typ) decl $ decls lib }
+addDeclType lib =
+  let decl = DeclType {declType = _declType @typ}
+   in lib {decls = M.insert (_declName @typ) decl $ decls lib}
 
 -- | Add an enum type to a library. Requires the type to be in the form
 --   of a Wasp enum. See "IsEnum" for requirements.
@@ -54,8 +59,9 @@ addDeclType lib = let decl = DeclType { declType = _declType @typ }
 --   let exampleLib = addEnumType @ParamType empty
 --   @
 addEnumType :: forall typ. (IsEnum typ) => Lib -> Lib
-addEnumType lib = let enum = EnumType { variants = _enumVariants @typ }
-                  in  lib { enums = M.insert (_enumName @typ) enum $ enums lib }
+addEnumType lib =
+  let enum = EnumType {variants = _enumVariants @typ}
+   in lib {enums = M.insert (_enumName @typ) enum $ enums lib}
 
 -- | Encodes the requirements of a Wasp decl.
 --

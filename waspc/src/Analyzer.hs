@@ -1,12 +1,13 @@
 module Analyzer
-  ( analyze
-  ) where
+  ( analyze,
+  )
+where
 
+import Analyzer.Decl (Decl)
 import qualified Analyzer.Evaluator as E
 import qualified Analyzer.Parser as P
-import qualified Analyzer.TypeChecker as T
 import Analyzer.StdLib (stdLib)
-import Analyzer.Decl (Decl)
+import qualified Analyzer.TypeChecker as T
 import Control.Arrow (left)
 import Control.Monad ((>=>))
 
@@ -18,7 +19,7 @@ data AnalyzeError
 -- | Takes a Wasp source file and produces a list of declarations or a
 --   description of an error in the source file.
 analyze :: String -> Either AnalyzeError [Decl]
-analyze = (left ParseError . P.parse) >=>
-          (left TypeError . T.typeCheck stdLib) >=>
-          (left EvaluationError . E.evaluate stdLib)
-
+analyze =
+  (left ParseError . P.parse)
+    >=> (left TypeError . T.typeCheck stdLib)
+    >=> (left EvaluationError . E.evaluate stdLib)

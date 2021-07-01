@@ -1,11 +1,12 @@
 module Analyzer.Evaluator
-  ( EvaluationError
-  , evaluate
-  ) where
+  ( EvaluationError,
+    evaluate,
+  )
+where
 
-import Analyzer.TypeChecker (TypedAST)
 import Analyzer.Decl (Decl)
 import Analyzer.Lib (Lib)
+import Analyzer.TypeChecker (TypedAST)
 
 data EvaluationError
 

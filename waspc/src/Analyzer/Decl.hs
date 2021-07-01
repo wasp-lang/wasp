@@ -3,13 +3,14 @@
 {-# LANGUAGE TupleSections #-}
 
 module Analyzer.Decl
-  ( Decl (..)
-  , takeDecls
-  ) where
+  ( Decl (..),
+    takeDecls,
+  )
+where
 
-import Data.Typeable (Typeable, cast)
-import Data.Maybe (mapMaybe)
 import Analyzer.Lib (IsDecl)
+import Data.Maybe (mapMaybe)
+import Data.Typeable (Typeable, cast)
 
 -- | Used to store a heterogenous lists of evaluated declarations during
 --   evaluation.
