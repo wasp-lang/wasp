@@ -54,9 +54,7 @@ tokens :-
 
 {
 
--- | Get a byte from the input.
---
---   This function is taken from the Alex basic wrapper.
+-- | This function is taken from the Alex basic wrapper.
 alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
 alexGetByte (c, (b:bs), s) = Just (b, (c, bs, s))
 alexGetByte (_, [], []) = Nothing
@@ -64,9 +62,7 @@ alexGetByte (_, [], (c:s)) = case encodeChar c of
                                (b:bs) -> Just (b, (c, bs, s))
                                [] -> Nothing
 
--- | Get the previous character from the input.
---
---   This function is taken from the Alex basic wrapper.
+-- | This function is taken from the Alex basic wrapper.
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar (c, _, _) = c
 
@@ -95,7 +91,7 @@ lexer cont = do
       putInput inp'
       cont tok
 
--- | Removes wasp quoter beginning ending block of length `len`
+-- | Removes wasp quoter beginning and ending block of length `len`
 unquote :: Int -> String -> String
 unquote len s = let takeLen = length s - len * 2
                 in  if takeLen < 0

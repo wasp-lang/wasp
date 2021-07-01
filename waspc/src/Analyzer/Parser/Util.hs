@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Analyzer.Parser.Util
   ( ParseState (..)
   , initialState
@@ -24,14 +22,14 @@ data ParseState = ParseState { psPosn :: Posn
 
 -- | Create an initial state from a source string
 initialState :: String -> ParseState
-initialState source = ParseState { psPosn = Posn { line = 1, col = 1 }
+initialState source = ParseState { psPosn = Posn 1 1
                                  , psInput = ('\n', [], source)
                                  }
 
 type Parser a = StateT ParseState (Except ParseError) a
 
--- | Updates the parse state position based on the first `len` characters in
---   `str`.
+-- | @updatePosn str n@ updates the parse state position based on the first
+--   @n@ characters in @str@, incrementing line count on newlines only.
 updatePosn :: String -> Int -> Parser ()
 updatePosn str len = do
   pos <- psPosn <$> get
@@ -39,10 +37,9 @@ updatePosn str len = do
   modify $ \s -> s { psPosn = pos' }
 
   -- Scan the string character by character to look for newlines
-  where go [] pos = pos
-        go (c:cs) Posn { line, col } = case c of
-                                         '\n' -> go cs $ Posn { line = line + 1, col = 1 }
-                                         _ -> go cs $ Posn { line = line, col = col + 1 }
+  where go []         pos            = pos
+        go ('\n':cs) (Posn line _)   = go cs $ Posn (line + 1) 1
+        go (_   :cs) (Posn line col) = go cs $ Posn line       (col + 1)
 
 -- | Shorthand to replace the current lexer input in the parser state.
 putInput :: AlexInput -> Parser ()

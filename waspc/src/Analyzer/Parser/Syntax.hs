@@ -37,8 +37,6 @@ data Token = Token { tokenClass :: TokenClass
                    , tokenLexeme :: String
                    } deriving (Eq, Show)
 
--- AST TYPES
-
 type Ident = String
 
 newtype AST = AST { astStmts :: [Stmt] } deriving (Eq, Show)
@@ -63,15 +61,12 @@ data ExtImportName
   | ExtImportField Ident
   deriving (Eq, Show)
 
--- ERROR TYPES
-
--- | The first character on the first line is at position @Posn { line = 1, col = 1 }@
-data Posn = Posn { line :: Int, col :: Int } deriving (Eq, Show)
+-- | The first character on the first line is at position @Posn 1 1@
+data Posn = Posn Int Int deriving (Eq, Show)
 
 data ParseError
   -- | A lexical error representing an invalid character
   = UnexpectedChar Char Posn
-  -- | A parse error. This type will be refined eventually, as "unexpected
-  --   token" is not very helpful.
+  -- | A parse error caused by some token
   | ParseError Token
   deriving (Eq, Show)
