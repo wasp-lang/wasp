@@ -30,6 +30,6 @@ migrateDev projectDir = do
       (DbJobs.migrateDev projectDir chan)
   case dbExitCode of
     ExitSuccess -> do
-      writePrismaSchemaChecksumToFile
+      writePrismaSchemaChecksumToFile projectDir
       return (Right ())
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code

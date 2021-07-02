@@ -3,11 +3,14 @@ module Generator.DbGenerator
     dbRootDirInProjectRootDir,
     dbSchemaFileInProjectRootDir,
     syncedPrismaSchemaChecksumFileInProjectRootDir,
+    writePrismaSchemaChecksumToFile,
   )
 where
 
 import CompileOptions (CompileOptions)
+import qualified Crypto.Hash.SHA256 as SHA256
 import Data.Aeson (object, (.=))
+import qualified Data.ByteString
 import Data.Maybe (fromMaybe)
 import Generator.Common (ProjectRootDir)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
@@ -98,4 +101,6 @@ writePrismaSchemaChecksumToFile projectRootDir = do
 -- https://github.com/haskell-hvr/cryptohash-md5
 
 calcFileChecksum :: Path Abs File -> IO String
-calcFileChecksum = undefined
+calcFileChecksum prismaSchemaPathAbs = do
+  print $ SHA256.hash (Data.ByteString.pack [0 .. 255])
+  return "nniN"
