@@ -11,6 +11,7 @@ import CompileOptions (CompileOptions)
 import qualified Crypto.Hash.SHA256 as SHA256
 import Data.Aeson (object, (.=))
 import qualified Data.ByteString
+import Data.ByteString.UTF8 as BSU
 import Data.Maybe (fromMaybe)
 import Generator.Common (ProjectRootDir)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
@@ -100,7 +101,10 @@ writePrismaSchemaChecksumToFile projectRootDir = do
 -- https://hackage.haskell.org/package/cryptohash-sha256-0.11.102.0/docs/Crypto-Hash-SHA256.html
 -- https://github.com/haskell-hvr/cryptohash-md5
 
+-- TODO: Move this to more general module (utils?).
 calcFileChecksum :: Path Abs File -> IO String
-calcFileChecksum prismaSchemaPathAbs = do
-  print $ SHA256.hash (Data.ByteString.pack [0 .. 255])
-  return "nniN"
+calcFileChecksum filePath = do
+  fileContentString <- readFile (SP.fromAbsFile filePath)
+  let fileContentByteString = BSU.fromString fileContentString
+  let fileHashByteString = SHA256.hash fileContentByteString
+  return $ BSU.toString fileHashByteString
