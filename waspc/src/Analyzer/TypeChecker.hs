@@ -9,6 +9,7 @@ module Analyzer.TypeChecker
     unify,
     unifyTypes,
     checkExpr,
+    checkStmt,
     exprType,
     typeCheck,
   )
@@ -17,6 +18,9 @@ where
 import Analyzer.Parser (AST)
 import qualified Analyzer.Parser as P
 import Analyzer.Type
+  ( DictEntryType (DictOptional, DictRequired),
+    Type (DeclType, DictType, EnumType, ListType),
+  )
 import Analyzer.TypeChecker.AST
   ( TypeError (..),
     TypedAST (..),
@@ -26,6 +30,7 @@ import Analyzer.TypeChecker.AST
   )
 import Analyzer.TypeChecker.Internal
 import Analyzer.TypeDefinitions (TypeDefinitions)
+import qualified Analyzer.TypeDefinitions as TD
 import Control.Monad (foldM)
 import qualified Data.HashMap.Strict as H
 
@@ -124,7 +129,10 @@ hoistDeclarations (P.AST stmts) = mapM_ hoistDeclaration stmts
   where
     hoistDeclaration :: P.Stmt -> T ()
     -- Todo: check that typName is a real DeclType
-    hoistDeclaration (P.Decl typName ident _) = setType ident $ DeclType typName
+    hoistDeclaration (P.Decl typName ident _) =
+      lookupDecl typName >>= \case
+        Nothing -> throw $ TypeError $ "Invalid declaration type '" ++ typName ++ "'"
+        Just _ -> setType ident $ DeclType typName
 
 -- | Determine the type of an expression
 checkExpr :: P.Expr -> T TypedExpr
@@ -162,7 +170,14 @@ checkExpr (P.List values) = do
 
 -- | Checks that statements have valid types
 checkStmt :: P.Stmt -> T TypedStmt
-checkStmt (P.Decl typName _ expr) = error "check decl unimplemented"
+checkStmt (P.Decl typName name expr) =
+  lookupDecl typName >>= \case
+    Nothing -> throw $ TypeError $ "Invalid declaration type '" ++ typName ++ "'"
+    Just (TD.DeclType _ expectedType) -> do
+      mTypedExpr <- weaken expectedType <$> checkExpr expr
+      case mTypedExpr of
+        Left e -> throw e
+        Right typedExpr -> return $ Decl name typedExpr (DeclType typName)
 
 checkAST :: AST -> T TypedAST
 checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
@@ -173,4 +188,4 @@ check ast = hoistDeclarations ast >> checkAST ast
 -- | Checks that an AST conforms to the type rules of Wasp and produces a
 --   an AST labelled with type information.
 typeCheck :: TypeDefinitions -> AST -> Either TypeError TypedAST
-typeCheck _ ast = runT $ check ast
+typeCheck tds ast = runT tds $ check ast
