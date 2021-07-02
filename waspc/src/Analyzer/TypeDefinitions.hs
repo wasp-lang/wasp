@@ -3,8 +3,10 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Analyzer.TypeDefinitions
-  ( TypeDefinitions,
+  ( TypeDefinitions (..),
     empty,
+    getDeclTypes,
+    getEnumTypes,
     getDeclType,
     getEnumType,
     addDeclType,
@@ -40,6 +42,12 @@ data TypeDefinitions = TypeDefinitions
 
 empty :: TypeDefinitions
 empty = TypeDefinitions {declTypes = M.empty, enumTypes = M.empty}
+
+getDeclTypes :: TypeDefinitions -> [DeclType]
+getDeclTypes = M.elems . declTypes
+
+getEnumTypes :: TypeDefinitions -> [EnumType]
+getEnumTypes = M.elems . enumTypes
 
 getDeclType :: String -> TypeDefinitions -> Maybe DeclType
 getDeclType name (TypeDefinitions dts _) = M.lookup name dts
