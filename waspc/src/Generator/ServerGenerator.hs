@@ -6,6 +6,8 @@ module Generator.ServerGenerator
   )
 where
 
+import qualified Cli.Common
+import Command.Common (findWaspProjectRootDirFromCwd)
 import CompileOptions (CompileOptions)
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
@@ -15,6 +17,7 @@ import Data.Maybe
     isJust,
   )
 import Generator.Common (ProjectRootDir, nodeVersionAsText)
+import Generator.DbGenerator (dbRootDirInProjectRootDir)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Generator.PackageJsonGenerator
@@ -35,7 +38,7 @@ import qualified NpmDependency as ND
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path, Rel, (</>))
 import qualified StrongPath as SP
-import System.Directory (removeFile)
+import System.Directory (removeDirectoryRecursive, removeFile)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp (Wasp, getAuth)
@@ -63,12 +66,17 @@ genServer wasp _ =
 --   for progress of this.
 preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
-  -- If .env gets removed but there is old .env file in generated project from previous attempts,
-  -- we need to make sure we remove it.
+  waspProjectDir <- findWaspProjectRootDirFromCwd
+  let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
+  let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
+  let dbMigrationsDirInGenProjectDirAbs = SP.toFilePath $ genProjectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
+  let dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
+
+  removeDirectoryRecursive dbMigrationsDirInGenProjectDirAbs
   removeFile dotEnvAbsFilePath
-    `catch` \e -> when (not $ isDoesNotExistError e) $ throwIO e
-  where
-    dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
+
+-- If .env gets removed but there is old .env file in generated project from previous attempts,
+-- we need to make sure we remove it.
 
 genDotEnv :: Wasp -> [FileDraft]
 genDotEnv wasp =
