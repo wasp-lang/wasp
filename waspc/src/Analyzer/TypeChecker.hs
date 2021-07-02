@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TupleSections #-}
 
 module Analyzer.TypeChecker
   ( TypedAST (..),
@@ -6,6 +7,7 @@ module Analyzer.TypeChecker
     TypedExpr (..),
     TypeError (..),
     unify,
+    unifyTypes,
     checkExpr,
     exprType,
     typeCheck,
@@ -24,44 +26,96 @@ import Analyzer.TypeChecker.AST
   )
 import Analyzer.TypeChecker.Internal
 import Analyzer.TypeDefinitions (TypeDefinitions)
+import Control.Monad (foldM)
+import qualified Data.HashMap.Strict as H
 
--- | @isSuperType sup sub@ returns @True@ if @sup@ is a super type of @sub@.
+-- | Fold map over the keys and values of a hash map, using a monoid embedded in a monad
+--   to collect the values.
+foldMapMWithKey :: (Monad m, Monoid s) => (k -> v -> m s) -> H.HashMap k v -> m s
+foldMapMWithKey f = H.foldlWithKey' (\m k v -> m >>= \s -> (s <>) <$> f k v) $ return mempty
+
+-- | @weaken expr typ@ attempts to weaken the type of @expr@ to @typ@, if
+--   @typ@ is a super type of the type of @expr@.
+weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
+weaken typ expr
+  | exprType expr == typ = Right expr
+weaken typ' (List vals _) = flip List typ' <$> mapM (weaken typ') vals
+weaken (DictType typ') (Dict entries _) = do
+  entries' <- mapM go entries
+  mapM_ guardHasEntry $ H.toList typ'
+  return $ Dict entries' $ DictType typ'
+  where
+    -- Tries to apply DictSome and DictNone rules to the entries of the dict
+    go :: (String, TypedExpr) -> Either TypeError (P.Ident, TypedExpr)
+    go (k, s) = case H.lookup k typ' of
+      -- expr has an extra key, so typ' is not more general
+      Nothing -> Left $ TypeError $ "Can't weaken: extra key '" ++ k ++ "'"
+      -- No rules applied to expr
+      Just (DictRequired t) -> (k,) <$> weaken t s
+      -- DictSome applied to expr
+      Just (DictOptional t) -> (k,) <$> weaken t s
+    -- Checks that all DictRequired entries in typ' exist in entries
+    guardHasEntry :: (String, DictEntryType) -> Either TypeError ()
+    guardHasEntry (k, DictOptional t) = case lookup k entries of
+      -- DictNone applied to expr
+      Nothing -> Right ()
+      -- DictSome applied to expr
+      Just expr | exprType expr == t -> Right ()
+      _ -> Left $ TypeError $ "Can't weaken: wrong key type for '" ++ k ++ "'"
+    guardHasEntry (k, DictRequired t) = case lookup k entries of
+      Nothing -> Left $ TypeError $ "Can't weaken: missing key '" ++ k ++ "'"
+      Just expr | exprType expr == t -> Right ()
+      _ -> Left $ TypeError $ "Can't weaken: wrong key type for '" ++ k ++ "'"
+weaken _ _ = Left $ TypeError "Can't weaken expr to typ"
+
+-- | @unifyTypes s t@ find the strongest type that both s and t can be typed to.
 --
 --   ==== __Examples__
 --
---   >>> isSuperType NumberType NumberType
---   True
+--   >>> unifyTypes StringType StringType
+--   Right StringType
 --
---   >>> isSuperType NumberType StringType
---   False
---
---   >>> let maybe = DictType [DictOptionalEntry "a" NumberType]
---   >>> let none = DictType []
---   >>> let just = DictType [DictEntry "a" NumberType]
---   >>> (isSuperType maybe none, isSuperType maybe just)
---   (True, True)
-isSuperType :: Type -> Type -> Bool
-isSuperType sup sub
-  | sup == sub = True
-  | otherwise = case (sup, sub) of
-    (DictType entries', DictType entries) -> False
-    (ListType typ', ListType typ) -> isSuperType typ' typ
-
--- | @unify exprs@ will attempt to find the least general type @typ@ such that
---   every @expr@ in @exprs@ is a sub-type of @typ@. It returns a modified structure
---   where each typed expression is given the generalized type.
---
---   The structure @exprs@ must be non-empty.
-unify :: (Traversable f) => f TypedExpr -> T (f TypedExpr)
-unify exprs = do
-  typ <- findLeastGeneralType exprs
-  generalize typ exprs
+--   >>> unifyTypes (DictType $ H.empty) (DictType $ H.singleton "a" (DictRequired NumberType))
+--   Right (DictType (H.singleton "a" (DictOptional NumberType)))
+unifyTypes :: Type -> Type -> Either TypeError Type
+unifyTypes s t
+  | s == t = Right s
+unifyTypes (ListType s) (ListType t) = ListType <$> unifyTypes s t
+unifyTypes (DeclType _) _ = Left $ TypeError "Can't unify DeclType with anything"
+unifyTypes (EnumType _) _ = Left $ TypeError "Can't unify EnumType with anything"
+unifyTypes (DictType s) (DictType t) = do
+  -- Rules are applied in both directions, then unioned because s may not
+  -- have keys that t does, or vice versa
+  -- TODO: should this be improved?
+  onS <- foldMapMWithKey (go t) s
+  onT <- foldMapMWithKey (go s) t
+  return $ DictType $ onS <> onT
   where
-    findLeastGeneralType :: (Traversable f) => f TypedExpr -> T Type
-    findLeastGeneralType = return . foldr1 (error "findLeastGeneralType not implemented") . fmap exprType
+    -- Tries to apply DictSome and DictNone rules to s and u
+    go :: H.HashMap String DictEntryType -> String -> DictEntryType -> Either TypeError (H.HashMap String DictEntryType)
+    go u k (DictRequired s') = case H.lookup k u of
+      -- DictSome on s, DictNone on u
+      Nothing -> Right $ H.singleton k (DictOptional s')
+      -- No rules applied to s or u
+      Just (DictRequired u') -> H.singleton k . DictRequired <$> unifyTypes s' u'
+      -- DictNone on s
+      Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
+    go u k (DictOptional s') = case H.lookup k u of
+      -- DictNone on u
+      Nothing -> Right $ H.singleton k (DictOptional s')
+      -- DictSome on u
+      Just (DictRequired u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
+      -- No rules applied to s or u
+      Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
+unifyTypes _ _ = Left $ TypeError "Unification error"
 
-    generalize :: (Functor f) => Type -> f TypedExpr -> T (f TypedExpr)
-    generalize sup = error "generalize not implemented"
+-- | @unify exprs@ tries to weaken the types of the expressions in @expr@ so
+--   they all have the same type.
+unify :: [TypedExpr] -> Either TypeError [TypedExpr]
+unify [] = Right []
+unify (expr : exprs) = do
+  sup <- foldM unifyTypes (exprType expr) $ fmap exprType exprs
+  mapM (weaken sup) $ expr : exprs
 
 -- | Create bindings for all declarations in the file to allow recursive
 --   or out-of-lexical-order references.
@@ -86,8 +140,25 @@ checkExpr (P.Identifier ident) =
 checkExpr (P.Quoter "json" s) = return $ JSON s
 checkExpr (P.Quoter "psl" s) = return $ PSL s
 checkExpr (P.Quoter tag _) = throw $ TypeError $ "Unknown Quoter tag '" ++ tag ++ "'"
-checkExpr (P.Dict entries) = error "dict type check unimplemented"
-checkExpr (P.List entries) = error "list type check unimplemented"
+checkExpr (P.Dict entries) = do
+  guardUnique $ map fst entries
+  typedEntries <- zip (map fst entries) <$> mapM (checkExpr . snd) entries
+  let dictType = H.fromList $ map (\(key, val) -> (key, DictRequired $ exprType val)) typedEntries
+  return $ Dict typedEntries (DictType dictType)
+  where
+    guardUnique :: [String] -> T ()
+    guardUnique [] = pure ()
+    guardUnique (x : xs)
+      | x `notElem` xs = guardUnique xs
+      | otherwise = throw $ TypeError $ "Dict has duplicate field '" ++ x ++ "'"
+checkExpr (P.List values) = do
+  typedValues <- mapM checkExpr values
+  let unifiedValues = unify typedValues
+  case unifiedValues of
+    Left e -> throw e
+    -- TODO: type check empty list. this will require type inference...
+    Right [] -> throw $ TypeError "Empty lists type checking not implemented"
+    Right xs@(x : _) -> return $ List xs (ListType $ exprType x)
 
 -- | Checks that statements have valid types
 checkStmt :: P.Stmt -> T TypedStmt

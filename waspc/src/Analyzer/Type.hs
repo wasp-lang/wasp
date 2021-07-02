@@ -1,10 +1,12 @@
 module Analyzer.Type where
 
+import qualified Data.HashMap.Strict as H
+
 -- | All possible types in Wasp.
 data Type
   = DeclType String
   | EnumType String
-  | DictType [DictEntryType]
+  | DictType (H.HashMap String DictEntryType)
   | ListType Type
   | StringType
   | NumberType
@@ -15,12 +17,12 @@ data Type
 
 -- | The type of an entry in a `Dict`.
 data DictEntryType
-  = DictEntry {dictEntryName :: String, dictEntryType :: Type}
-  | DictOptionalEntry {dictEntryName :: String, dictEntryType :: Type}
+  = DictRequired {dictEntryType :: Type}
+  | DictOptional {dictEntryType :: Type}
   deriving (Eq, Show)
 
 -- | Determines whether the entry must be present in an instance of its parent
 --   `Dict` type.
 dictEntryRequired :: DictEntryType -> Bool
-dictEntryRequired DictEntry {} = True
-dictEntryRequired DictOptionalEntry {} = False
+dictEntryRequired DictRequired {} = True
+dictEntryRequired DictOptional {} = False
