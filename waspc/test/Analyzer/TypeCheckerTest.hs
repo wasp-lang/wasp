@@ -5,7 +5,7 @@ import Analyzer.Type
 import Analyzer.TypeChecker
 import Analyzer.TypeChecker.Internal (Bindings, runT, runTWithBound)
 import qualified Analyzer.TypeDefinitions as TD
-import Data.Either (isLeft, isRight)
+import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
@@ -82,7 +82,7 @@ spec_Parser = do
         actual `shouldBe` expected
       it "Fails to type check quoters with tag besides json or psl" $ do
         let actual = checkExpr' H.empty (P.Quoter "toml" "field = \"value\"")
-        let expected = Left $ TypeError "Unknown Quoter tag 'toml'"
+        let expected = Left $ QuoterUnknownTag "toml"
         actual `shouldBe` expected
 
       it "Types identifier as the type in the bindings" $ do
@@ -93,7 +93,7 @@ spec_Parser = do
       it "Fails to type check identifiers not given a type in the bindings" $ do
         let bindings = H.empty
         let actual = exprType <$> checkExpr' bindings (P.Identifier "pi")
-        let expected = Left $ TypeError "Undefined identifier 'pi'"
+        let expected = Left $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 
       it "Type checks a dictionary" $ do
@@ -104,7 +104,7 @@ spec_Parser = do
       it "Fails to type check a dictionary with duplicated keys" $ do
         let ast = P.Dict [("a", P.IntegerLiteral 5), ("a", P.IntegerLiteral 6)]
         let actual = exprType <$> checkExpr' H.empty ast
-        actual `shouldSatisfy` isLeft
+        actual `shouldBe` Left (DictDuplicateField "a")
 
       it "Type checks an empty list" $ do
         (exprType <$> checkExpr' H.empty (P.List [])) `shouldSatisfy` isRight
@@ -116,7 +116,8 @@ spec_Parser = do
       it "Fails to type check a list containing strings and numbers" $ do
         let ast = P.List [P.IntegerLiteral 5, P.StringLiteral "4"]
         let actual = exprType <$> checkExpr' H.empty ast
-        actual `shouldSatisfy` isLeft
+        let expected = Left $ UnificationError ReasonUncoercable NumberType StringType
+        actual `shouldBe` expected
       it "Type checks a list of dictionaries that unify but have different types" $ do
         let ast =
               P.List
@@ -141,7 +142,12 @@ spec_Parser = do
                   P.Dict [("a", P.StringLiteral "string")]
                 ]
         let actual = exprType <$> checkExpr' H.empty ast
-        actual `shouldSatisfy` isLeft
+        let expectedError =
+              UnificationError
+                (ReasonDictWrongKeyType "a" (UnificationError ReasonUncoercable NumberType StringType))
+                (DictType $ H.singleton "a" (DictRequired NumberType))
+                (DictType $ H.singleton "a" (DictRequired StringType))
+        actual `shouldBe` Left expectedError
 
     describe "checkStmt" $ do
       it "Type checks existing declaration type with correct argument" $ do
@@ -153,7 +159,7 @@ spec_Parser = do
       it "Fails to type check non-existant declaration type" $ do
         let ast = P.Decl "string" "App" (P.StringLiteral "Wasp")
         let actual = runT TD.empty $ checkStmt ast
-        actual `shouldSatisfy` isLeft
+        actual `shouldBe` Left (NoDeclarationType "string")
       it "Fails to type check existing declaration type with incorrect argument" $ do
         let ast = P.Decl "string" "App" (P.IntegerLiteral 5)
         let lib =
@@ -162,7 +168,8 @@ spec_Parser = do
                   TD.enumTypes = H.empty
                 }
         let actual = runT lib $ checkStmt ast
-        actual `shouldSatisfy` isLeft
+        let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
+        actual `shouldBe` Left expectedError
       it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
         let ast = P.Decl "maybeString" "App" (P.Dict [("val", P.StringLiteral "Wasp")])
         let lib =
@@ -216,7 +223,8 @@ spec_Parser = do
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck lib ast
-        actual `shouldSatisfy` isLeft
+        let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
+        actual `shouldBe` Left expectedError
       it "Type checks an existing enum value" $ do
         let ast = P.AST [P.Decl "food" "Cucumber" (P.Identifier "Dill")]
         let lib =

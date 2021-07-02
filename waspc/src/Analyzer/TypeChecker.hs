@@ -6,6 +6,7 @@ module Analyzer.TypeChecker
     TypedStmt (..),
     TypedExpr (..),
     TypeError (..),
+    TypeCoerceReason (..),
     unify,
     unifyTypes,
     checkExpr,
@@ -22,7 +23,8 @@ import Analyzer.Type
     Type (DeclType, DictType, EnumType, ListType),
   )
 import Analyzer.TypeChecker.AST
-  ( TypeError (..),
+  ( TypeCoerceReason (..),
+    TypeError (..),
     TypedAST (..),
     TypedExpr (..),
     TypedStmt (..),
@@ -31,6 +33,7 @@ import Analyzer.TypeChecker.AST
 import Analyzer.TypeChecker.Internal
 import Analyzer.TypeDefinitions (TypeDefinitions)
 import qualified Analyzer.TypeDefinitions as TD
+import Control.Arrow (left)
 import Control.Monad (foldM)
 import qualified Data.HashMap.Strict as H
 
@@ -44,8 +47,11 @@ foldMapMWithKey f = H.foldlWithKey' (\m k v -> m >>= \s -> (s <>) <$> f k v) $ r
 weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
 weaken typ expr
   | exprType expr == typ = Right expr
-weaken typ' (List vals _) = flip List typ' <$> mapM (weaken typ') vals
-weaken (DictType typ') (Dict entries _) = do
+weaken typ' expr@(List vals _) =
+  fmap (flip List typ') $
+    left (\e -> WeakenError (ReasonList e) expr typ') $
+      mapM (weaken typ') vals
+weaken (DictType typ') expr@(Dict entries _) = do
   entries' <- mapM go entries
   mapM_ guardHasEntry $ H.toList typ'
   return $ Dict entries' $ DictType typ'
@@ -54,24 +60,32 @@ weaken (DictType typ') (Dict entries _) = do
     go :: (String, TypedExpr) -> Either TypeError (P.Ident, TypedExpr)
     go (k, s) = case H.lookup k typ' of
       -- expr has an extra key, so typ' is not more general
-      Nothing -> Left $ TypeError $ "Can't weaken: extra key '" ++ k ++ "'"
+      Nothing -> Left $ WeakenError (ReasonDictExtraKey k) expr (DictType typ')
       -- No rules applied to expr
-      Just (DictRequired t) -> (k,) <$> weaken t s
+      Just (DictRequired t) -> (k,) <$> annotateError k (weaken t s)
       -- DictSome applied to expr
-      Just (DictOptional t) -> (k,) <$> weaken t s
+      Just (DictOptional t) -> (k,) <$> annotateError k (weaken t s)
+
     -- Checks that all DictRequired entries in typ' exist in entries
     guardHasEntry :: (String, DictEntryType) -> Either TypeError ()
     guardHasEntry (k, DictOptional t) = case lookup k entries of
       -- DictNone applied to expr
       Nothing -> Right ()
       -- DictSome applied to expr
-      Just expr | exprType expr == t -> Right ()
-      _ -> Left $ TypeError $ "Can't weaken: wrong key type for '" ++ k ++ "'"
+      Just entryVal -> case weaken t entryVal of
+        Left e -> Left $ WeakenError (ReasonDictWrongKeyType k e) expr (DictType typ')
+        Right _ -> return ()
     guardHasEntry (k, DictRequired t) = case lookup k entries of
-      Nothing -> Left $ TypeError $ "Can't weaken: missing key '" ++ k ++ "'"
-      Just expr | exprType expr == t -> Right ()
-      _ -> Left $ TypeError $ "Can't weaken: wrong key type for '" ++ k ++ "'"
-weaken _ _ = Left $ TypeError "Can't weaken expr to typ"
+      -- entries is missing a required key
+      Nothing -> Left $ WeakenError (ReasonDictNoKey k) expr (DictType typ')
+      Just entryVal -> case weaken t entryVal of
+        Left e -> Left $ WeakenError (ReasonDictWrongKeyType k e) expr (DictType typ')
+        Right _ -> return ()
+
+    -- Wraps a ReasonDictWrongKeyType error around a type error
+    annotateError :: String -> Either TypeError a -> Either TypeError a
+    annotateError k = left (\e -> WeakenError (ReasonDictWrongKeyType k e) expr (DictType typ'))
+weaken typ' expr = Left $ WeakenError ReasonUncoercable expr typ'
 
 -- | @unifyTypes s t@ find the strongest type that both s and t can be typed to.
 --
@@ -85,10 +99,13 @@ weaken _ _ = Left $ TypeError "Can't weaken expr to typ"
 unifyTypes :: Type -> Type -> Either TypeError Type
 unifyTypes s t
   | s == t = Right s
-unifyTypes (ListType s) (ListType t) = ListType <$> unifyTypes s t
-unifyTypes (DeclType _) _ = Left $ TypeError "Can't unify DeclType with anything"
-unifyTypes (EnumType _) _ = Left $ TypeError "Can't unify EnumType with anything"
-unifyTypes (DictType s) (DictType t) = do
+unifyTypes typS@(ListType s) typT@(ListType t) =
+  fmap ListType $
+    left (\e -> UnificationError (ReasonList e) typS typT) $
+      unifyTypes s t
+unifyTypes s@(DeclType _) t = Left $ UnificationError ReasonDecl s t
+unifyTypes s@(EnumType _) t = Left $ UnificationError ReasonEnum s t
+unifyTypes typS@(DictType s) typT@(DictType t) = do
   -- Rules are applied in both directions, then unioned because s may not
   -- have keys that t does, or vice versa
   -- TODO: should this be improved?
@@ -98,21 +115,24 @@ unifyTypes (DictType s) (DictType t) = do
   where
     -- Tries to apply DictSome and DictNone rules to s and u
     go :: H.HashMap String DictEntryType -> String -> DictEntryType -> Either TypeError (H.HashMap String DictEntryType)
-    go u k (DictRequired s') = case H.lookup k u of
+    go u k (DictRequired s') = annotateError k $ case H.lookup k u of
       -- DictSome on s, DictNone on u
       Nothing -> Right $ H.singleton k (DictOptional s')
       -- No rules applied to s or u
       Just (DictRequired u') -> H.singleton k . DictRequired <$> unifyTypes s' u'
       -- DictNone on s
       Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
-    go u k (DictOptional s') = case H.lookup k u of
+    go u k (DictOptional s') = annotateError k $ case H.lookup k u of
       -- DictNone on u
       Nothing -> Right $ H.singleton k (DictOptional s')
       -- DictSome on u
       Just (DictRequired u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
       -- No rules applied to s or u
       Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
-unifyTypes _ _ = Left $ TypeError "Unification error"
+
+    annotateError :: String -> Either TypeError a -> Either TypeError a
+    annotateError k = left (\e -> UnificationError (ReasonDictWrongKeyType k e) typS typT)
+unifyTypes s t = Left $ UnificationError ReasonUncoercable s t
 
 -- | @unify exprs@ tries to weaken the types of the expressions in @expr@ so
 --   they all have the same type.
@@ -131,7 +151,7 @@ hoistDeclarations (P.AST stmts) = mapM_ hoistDeclaration stmts
     -- Todo: check that typName is a real DeclType
     hoistDeclaration (P.Decl typName ident _) =
       lookupDecl typName >>= \case
-        Nothing -> throw $ TypeError $ "Invalid declaration type '" ++ typName ++ "'"
+        Nothing -> throw $ NoDeclarationType typName
         Just _ -> setType ident $ DeclType typName
 
 -- | Determine the type of an expression
@@ -143,11 +163,11 @@ checkExpr (P.BoolLiteral b) = return $ BoolLiteral b
 checkExpr (P.ExtImport n s) = return $ ExtImport n s
 checkExpr (P.Identifier ident) =
   lookupType ident >>= \case
-    Nothing -> throw $ TypeError $ "Undefined identifier '" ++ ident ++ "'"
+    Nothing -> throw $ UndefinedIdentifier ident
     Just typ -> return $ Var ident typ
 checkExpr (P.Quoter "json" s) = return $ JSON s
 checkExpr (P.Quoter "psl" s) = return $ PSL s
-checkExpr (P.Quoter tag _) = throw $ TypeError $ "Unknown Quoter tag '" ++ tag ++ "'"
+checkExpr (P.Quoter tag _) = throw $ QuoterUnknownTag tag
 checkExpr (P.Dict entries) = do
   guardUnique $ map fst entries
   typedEntries <- zip (map fst entries) <$> mapM (checkExpr . snd) entries
@@ -158,21 +178,21 @@ checkExpr (P.Dict entries) = do
     guardUnique [] = pure ()
     guardUnique (x : xs)
       | x `notElem` xs = guardUnique xs
-      | otherwise = throw $ TypeError $ "Dict has duplicate field '" ++ x ++ "'"
+      | otherwise = throw $ DictDuplicateField x
 checkExpr (P.List values) = do
   typedValues <- mapM checkExpr values
   let unifiedValues = unify typedValues
   case unifiedValues of
     Left e -> throw e
     -- TODO: type check empty list. this will require type inference...
-    Right [] -> throw $ TypeError "Empty lists type checking not implemented"
+    Right [] -> throw EmptyListNotImplemented
     Right xs@(x : _) -> return $ List xs (ListType $ exprType x)
 
 -- | Checks that statements have valid types
 checkStmt :: P.Stmt -> T TypedStmt
 checkStmt (P.Decl typName name expr) =
   lookupDecl typName >>= \case
-    Nothing -> throw $ TypeError $ "Invalid declaration type '" ++ typName ++ "'"
+    Nothing -> throw $ NoDeclarationType typName
     Just (TD.DeclType _ expectedType) -> do
       mTypedExpr <- weaken expectedType <$> checkExpr expr
       case mTypedExpr of
