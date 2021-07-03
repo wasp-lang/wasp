@@ -9,11 +9,11 @@ import Generator.DbGenerator (dbSchemaFileInProjectRootDir)
 import qualified Generator.Job as J
 import Generator.Job.Process (runNodeCommandAsJob)
 import Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
-import StrongPath (Abs, Dir, Path, (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.Info
 
-migrateDev :: Path Abs (Dir ProjectRootDir) -> J.Job
+migrateDev :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateDev projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
@@ -38,7 +38,7 @@ migrateDev projectDir = do
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
 -- | Runs `prisma studio` - Prisma's db inspector.
-runStudio :: Path Abs (Dir ProjectRootDir) -> J.Job
+runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
 runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir

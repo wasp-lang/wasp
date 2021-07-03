@@ -64,6 +64,7 @@ library:
     - utf8-string
     - Glob
     - unliftio
+    - strong-path
 
 executables:
   wasp:
@@ -89,6 +90,7 @@ executables:
       - aeson
       - utf8-string
       - http-conduit
+      - strong-path
 
 benchmarks:
   waspc-benchmarks:
@@ -125,3 +127,4 @@ tests:
       - deepseq
       - path
       - unordered-containers
+      - strong-path

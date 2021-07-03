@@ -17,7 +17,7 @@ import qualified Generator.ServerGenerator as ServerGenerator
 import qualified Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import qualified Generator.WebAppGenerator.Common as C
 import qualified Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
-import qualified Path as P
+import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
 import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Action
@@ -29,7 +29,7 @@ genOperations wasp =
   concat
     [ genQueries wasp,
       genActions wasp,
-      [C.makeSimpleTemplateFD (C.asTmplFile [P.relfile|src/operations/index.js|]) wasp],
+      [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/operations/index.js|]) wasp],
       Resources.genResources wasp
     ]
 
@@ -37,7 +37,7 @@ genQueries :: Wasp -> [FileDraft]
 genQueries wasp =
   concat
     [ map (genQuery wasp) (Wasp.getQueries wasp),
-      [C.makeSimpleTemplateFD (C.asTmplFile [P.relfile|src/queries/index.js|]) wasp]
+      [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/queries/index.js|]) wasp]
     ]
 
 genActions :: Wasp -> [FileDraft]
@@ -49,9 +49,9 @@ genActions wasp =
 genQuery :: Wasp -> Wasp.Query.Query -> FileDraft
 genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.asTmplFile [P.relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
 
-    dstFile = C.asWebAppFile $ [P.reldir|src/queries/|] P.</> fromJust (getOperationDstFileName operation)
+    dstFile = C.asWebAppFile $ [reldir|src/queries/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
         [ "queryFnName" .= Wasp.Query._name query,
@@ -67,9 +67,9 @@ genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 genAction :: Wasp -> Wasp.Action.Action -> FileDraft
 genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.asTmplFile [P.relfile|src/actions/_action.js|]
+    tmplFile = C.asTmplFile [relfile|src/actions/_action.js|]
 
-    dstFile = C.asWebAppFile $ [P.reldir|src/actions/|] P.</> fromJust (getOperationDstFileName operation)
+    dstFile = C.asWebAppFile $ [reldir|src/actions/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
         [ "actionFnName" .= Wasp.Action._name action,
@@ -89,5 +89,5 @@ makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]
   where
     entityStrings = map (\x -> "'" ++ x ++ "'") $ fromMaybe [] $ Wasp.Operation.getEntities operation
 
-getOperationDstFileName :: Wasp.Operation.Operation -> Maybe (P.Path P.Rel P.File)
-getOperationDstFileName operation = P.parseRelFile (Wasp.Operation.getName operation ++ ".js")
+getOperationDstFileName :: Wasp.Operation.Operation -> Maybe (Path' Rel' File')
+getOperationDstFileName operation = parseRelFile (Wasp.Operation.getName operation ++ ".js")

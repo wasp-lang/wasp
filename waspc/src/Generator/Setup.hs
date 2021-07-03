@@ -10,10 +10,10 @@ import qualified Generator.Job as J
 import Generator.Job.IO (printPrefixedJobMessage)
 import Generator.ServerGenerator.Setup (setupServer)
 import Generator.WebAppGenerator.Setup (setupWebApp)
-import StrongPath (Abs, Dir, Path)
+import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 
-setup :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
+setup :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 setup projectDir = do
   chan <- newChan
   let runSetupJobs = concurrently (setupServer projectDir chan) (setupWebApp projectDir chan)

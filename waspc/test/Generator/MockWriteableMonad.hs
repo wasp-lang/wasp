@@ -13,12 +13,10 @@ where
 import Control.Monad.State
 import qualified Data.Aeson as Aeson
 import Data.Text (Text, pack)
-import Fixtures (systemPathRoot)
+import Fixtures (systemSPRoot)
 import Generator.FileDraft.WriteableMonad
 import Generator.Templates (TemplatesDir)
-import qualified Path as P
-import StrongPath (Abs, Dir, File, Path, Rel)
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
 
 -- TODO: Instead of manually defining mock like this, consider using monad-mock package,
 --   it should do most of this automatically, now there is a lot of boilerplate.
@@ -27,8 +25,8 @@ import qualified StrongPath as SP
 defaultMockConfig :: MockWriteableMonadConfig
 defaultMockConfig =
   MockWriteableMonadConfig
-    { getTemplatesDirAbsPath_impl = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|mock/templates/dir|],
-      getTemplateFileAbsPath_impl = \path -> SP.fromPathAbsDir (systemPathRoot P.</> [P.reldir|mock/templates/dir|]) SP.</> path,
+    { getTemplatesDirAbsPath_impl = systemSPRoot </> [reldir|mock/templates/dir|],
+      getTemplateFileAbsPath_impl = \path -> systemSPRoot </> [reldir|mock/templates/dir|] </> path,
       compileAndRenderTemplate_impl = \_ _ -> pack "Mock template content",
       doesFileExist_impl = const True
     }
@@ -85,14 +83,14 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     getTemplatesDirAbsPath_calls :: [()],
     createDirectoryIfMissing_calls :: [(Bool, FilePath)],
     copyFile_calls :: [(FilePath, FilePath)],
-    getTemplateFileAbsPath_calls :: [(Path (Rel TemplatesDir) File)],
-    compileAndRenderTemplate_calls :: [(Path (Rel TemplatesDir) File, Aeson.Value)]
+    getTemplateFileAbsPath_calls :: [(Path' (Rel TemplatesDir) File')],
+    compileAndRenderTemplate_calls :: [(Path' (Rel TemplatesDir) File', Aeson.Value)]
   }
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
-  { getTemplatesDirAbsPath_impl :: Path Abs (Dir TemplatesDir),
-    getTemplateFileAbsPath_impl :: Path (Rel TemplatesDir) File -> Path Abs File,
-    compileAndRenderTemplate_impl :: Path (Rel TemplatesDir) File -> Aeson.Value -> Text,
+  { getTemplatesDirAbsPath_impl :: Path' Abs (Dir TemplatesDir),
+    getTemplateFileAbsPath_impl :: Path' (Rel TemplatesDir) File' -> Path' Abs File',
+    compileAndRenderTemplate_impl :: Path' (Rel TemplatesDir) File' -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool
   }
 
@@ -104,7 +102,7 @@ getTemplatesDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLo
 getTemplatesDirAbsPath_addCall logs =
   logs {getTemplatesDirAbsPath_calls = () : (getTemplatesDirAbsPath_calls logs)}
 
-getTemplateFileAbsPath_addCall :: Path (Rel TemplatesDir) File -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+getTemplateFileAbsPath_addCall :: Path' (Rel TemplatesDir) File' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplateFileAbsPath_addCall path logs =
   logs {getTemplateFileAbsPath_calls = (path) : (getTemplateFileAbsPath_calls logs)}
 
@@ -120,7 +118,7 @@ createDirectoryIfMissing_addCall createParents path logs =
     }
 
 compileAndRenderTemplate_addCall ::
-  Path (Rel TemplatesDir) File ->
+  Path' (Rel TemplatesDir) File' ->
   Aeson.Value ->
   MockWriteableMonadLogs ->
   MockWriteableMonadLogs
