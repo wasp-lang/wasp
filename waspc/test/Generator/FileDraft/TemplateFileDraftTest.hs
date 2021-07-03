@@ -2,10 +2,9 @@ module Generator.FileDraft.TemplateFileDraftTest where
 
 import Data.Aeson (object, (.=))
 import Data.Text (Text)
-import Fixtures (systemPathRoot)
+import Fixtures (systemSPRoot)
 import Generator.FileDraft
 import qualified Generator.MockWriteableMonad as Mock
-import qualified Path as P
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 
@@ -23,14 +22,14 @@ spec_TemplateFileDraft = do
         `shouldBe` [(SP.toFilePath expectedDstPath, mockTemplateContent)]
   where
     (dstDir, dstPath, templatePath) =
-      ( SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|a/b|],
-        SP.fromPathRelFile [P.relfile|c/d/dst.txt|],
-        SP.fromPathRelFile [P.relfile|e/tmpl.txt|]
+      ( systemSPRoot SP.</> [SP.reldir|a/b|],
+        [SP.relfile|c/d/dst.txt|],
+        [SP.relfile|e/tmpl.txt|]
       )
     templateData = object ["foo" .= ("bar" :: String)]
     fileDraft = createTemplateFileDraft dstPath templatePath (Just templateData)
     expectedDstPath = dstDir SP.</> dstPath
-    mockTemplatesDirAbsPath = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|mock/templates/dir|]
+    mockTemplatesDirAbsPath = systemSPRoot SP.</> [SP.reldir|mock/templates/dir|]
     mockTemplateContent = "Mock template content" :: Text
     mockConfig =
       Mock.defaultMockConfig

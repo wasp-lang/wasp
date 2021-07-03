@@ -25,12 +25,12 @@ import Data.Version (showVersion)
 import GHC.Generics
 import qualified Network.HTTP.Simple as HTTP
 import Paths_waspc (version)
-import StrongPath (Abs, Dir, File, Path)
+import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.Info
 
-considerSendingData :: Path Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
+considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
 considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
   projectCache <- readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash
 
@@ -96,28 +96,28 @@ initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild 
 getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
 getTimeOfLastTelemetryDataSent cache = maximum [_lastCheckIn cache, _lastCheckInBuild cache]
 
-readProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
+readProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
 readProjectTelemetryFile telemetryCacheDirPath projectHash = do
   fileExists <- SD.doesFileExist filePathFP
   if fileExists then readCacheFile else return Nothing
   where
-    filePathFP = SP.toFilePath $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
+    filePathFP = SP.fromAbsFile $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
     readCacheFile = Aeson.decode . ByteStringLazyUTF8.fromString <$> readFile filePathFP
 
-readOrCreateProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
+readOrCreateProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
 readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
   maybeProjectTelemetryCache <- readProjectTelemetryFile telemetryCacheDirPath projectHash
   case maybeProjectTelemetryCache of
     Just cache -> return cache
     Nothing -> writeProjectTelemetryFile telemetryCacheDirPath projectHash initialCache >> return initialCache
 
-writeProjectTelemetryFile :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> ProjectTelemetryCache -> IO ()
+writeProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> ProjectTelemetryCache -> IO ()
 writeProjectTelemetryFile telemetryCacheDirPath projectHash cache = do
   writeFile filePathFP (ByteStringLazyUTF8.toString $ Aeson.encode cache)
   where
-    filePathFP = SP.toFilePath $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
+    filePathFP = SP.fromAbsFile $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
 
-getProjectTelemetryFilePath :: Path Abs (Dir TelemetryCacheDir) -> ProjectHash -> Path Abs File
+getProjectTelemetryFilePath :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> Path' Abs File'
 getProjectTelemetryFilePath telemetryCacheDir (ProjectHash projectHash) =
   telemetryCacheDir SP.</> fromJust (SP.parseRelFile $ "project-" ++ projectHash)
 

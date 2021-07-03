@@ -16,7 +16,7 @@ import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Generator.FileDraft.TextFileDraft as TextFD
 import Generator.FileDraft.Writeable
 import Generator.Templates (TemplatesDir)
-import StrongPath (Abs, File, Path, Rel)
+import StrongPath (Abs, File', Path', Rel)
 
 -- | FileDraft unites different file draft types into a single type,
 --   so that in the rest of the system they can be passed around as heterogeneous
@@ -33,8 +33,8 @@ instance Writeable FileDraft where
   write dstDir (FileDraftTextFd draft) = write dstDir draft
 
 createTemplateFileDraft ::
-  Path (Rel ProjectRootDir) File ->
-  Path (Rel TemplatesDir) File ->
+  Path' (Rel ProjectRootDir) File' ->
+  Path' (Rel TemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
 createTemplateFileDraft dstPath tmplSrcPath tmplData =
@@ -45,7 +45,7 @@ createTemplateFileDraft dstPath tmplSrcPath tmplData =
         TmplFD._tmplData = tmplData
       }
 
-createCopyFileDraft :: Path (Rel ProjectRootDir) File -> Path Abs File -> FileDraft
+createCopyFileDraft :: Path' (Rel ProjectRootDir) File' -> Path' Abs File' -> FileDraft
 createCopyFileDraft dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
@@ -54,7 +54,7 @@ createCopyFileDraft dstPath srcPath =
         CopyFD._failIfSrcDoesNotExist = True
       }
 
-createCopyFileDraftIfExists :: Path (Rel ProjectRootDir) File -> Path Abs File -> FileDraft
+createCopyFileDraftIfExists :: Path' (Rel ProjectRootDir) File' -> Path' Abs File' -> FileDraft
 createCopyFileDraftIfExists dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
@@ -63,6 +63,6 @@ createCopyFileDraftIfExists dstPath srcPath =
         CopyFD._failIfSrcDoesNotExist = False
       }
 
-createTextFileDraft :: Path (Rel ProjectRootDir) File -> Text -> FileDraft
+createTextFileDraft :: Path' (Rel ProjectRootDir) File' -> Text -> FileDraft
 createTextFileDraft dstPath content =
   FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = dstPath, TextFD._content = content}

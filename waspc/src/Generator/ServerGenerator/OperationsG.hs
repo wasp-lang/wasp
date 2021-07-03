@@ -12,8 +12,7 @@ import Data.Char (toLower)
 import Data.Maybe (fromJust, fromMaybe)
 import Generator.FileDraft (FileDraft)
 import qualified Generator.ServerGenerator.Common as C
-import qualified Path as P
-import StrongPath (File, Path, Rel, (</>))
+import StrongPath (File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
@@ -48,7 +47,7 @@ genQuery :: Wasp -> Wasp.Query.Query -> FileDraft
 genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     operation = Wasp.Operation.QueryOp query
-    tmplFile = C.asTmplFile [P.relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir query
     tmplData = operationTmplData operation
 
@@ -57,25 +56,23 @@ genAction :: Wasp -> Wasp.Action.Action -> FileDraft
 genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     operation = Wasp.Operation.ActionOp action
-    tmplFile = C.asTmplFile [P.relfile|src/actions/_action.js|]
+    tmplFile = [relfile|src/actions/_action.js|]
     dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir action
     tmplData = operationTmplData operation
 
-queryFileInSrcDir :: Wasp.Query.Query -> Path (Rel C.ServerSrcDir) File
+queryFileInSrcDir :: Wasp.Query.Query -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir query =
-  SP.fromPathRelFile $
-    [P.reldir|queries|]
-      -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-      P.</> fromJust (P.parseRelFile $ Wasp.Query._name query ++ ".js")
+  [reldir|queries|]
+    -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
+    </> fromJust (SP.parseRelFile $ Wasp.Query._name query ++ ".js")
 
-actionFileInSrcDir :: Wasp.Action.Action -> Path (Rel C.ServerSrcDir) File
+actionFileInSrcDir :: Wasp.Action.Action -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir action =
-  SP.fromPathRelFile $
-    [P.reldir|actions|]
-      -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-      P.</> fromJust (P.parseRelFile $ Wasp.Action._name action ++ ".js")
+  [reldir|actions|]
+    -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
+    </> fromJust (SP.parseRelFile $ Wasp.Action._name action ++ ".js")
 
-operationFileInSrcDir :: Wasp.Operation.Operation -> Path (Rel C.ServerSrcDir) File
+operationFileInSrcDir :: Wasp.Operation.Operation -> Path' (Rel C.ServerSrcDir) File'
 operationFileInSrcDir (Wasp.Operation.QueryOp query) = queryFileInSrcDir query
 operationFileInSrcDir (Wasp.Operation.ActionOp action) = actionFileInSrcDir action
 

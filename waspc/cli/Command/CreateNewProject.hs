@@ -11,8 +11,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data
 import Data.Char (isLetter)
 import ExternalCode (SourceExternalCodeDir)
-import qualified Path as P
-import StrongPath (Abs, Dir, File, Path, Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
 import qualified System.Directory
@@ -62,15 +61,15 @@ createNewProject' (ProjectName projectName) = do
     writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
 
     copyTemplateFile'
-      (SP.fromPathRelFile [P.relfile|new/ext/MainPage.js|])
+      [relfile|new/ext/MainPage.js|]
       mainPageJsFileInExtCodeDir
 
     copyTemplateFile'
-      (SP.fromPathRelFile [P.relfile|new/ext/Main.css|])
+      [relfile|new/ext/Main.css|]
       mainCssFileInExtCodeDir
 
     copyTemplateFile'
-      (SP.fromPathRelFile [P.relfile|new/ext/waspLogo.png|])
+      [relfile|new/ext/waspLogo.png|]
       waspLogoFileInExtCodeDir
 
   liftIO $ do
@@ -83,21 +82,21 @@ createNewProject' (ProjectName projectName) = do
     putStrLn Command.Common.alphaWarningMessage
   where
     copyTemplateFile ::
-      Path Abs (Dir Data.DataDir) ->
-      Path Abs (Dir SourceExternalCodeDir) ->
-      Path (Rel Common.CliTemplatesDir) File ->
-      Path (Rel SourceExternalCodeDir) File ->
+      Path' Abs (Dir Data.DataDir) ->
+      Path' Abs (Dir SourceExternalCodeDir) ->
+      Path' (Rel Common.CliTemplatesDir) File' ->
+      Path' (Rel SourceExternalCodeDir) File' ->
       IO ()
     copyTemplateFile dataDir extCodeDir srcTmplFile dstExtDirFile =
       System.Directory.copyFile
-        (SP.toFilePath (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
-        (SP.toFilePath (extCodeDir </> dstExtDirFile))
+        (SP.fromAbsFile (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
+        (SP.fromAbsFile (extCodeDir </> dstExtDirFile))
 
-    cliTemplatesDirInDataDir :: Path (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
-    cliTemplatesDirInDataDir = SP.fromPathRelDir [P.reldir|Cli/templates|]
+    cliTemplatesDirInDataDir :: Path' (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
+    cliTemplatesDirInDataDir = [reldir|Cli/templates|]
 
-    mainWaspFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
-    mainWaspFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|main.wasp|]
+    mainWaspFileInWaspProjectDir :: Path' (Rel Common.WaspProjectDir) File'
+    mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
 
     mainWaspFileContent =
       unlines
@@ -111,8 +110,8 @@ createNewProject' (ProjectName projectName) = do
           "}"
         ]
 
-    gitignoreFileInWaspProjectDir :: Path (Rel Common.WaspProjectDir) File
-    gitignoreFileInWaspProjectDir = SP.fromPathRelFile [P.relfile|.gitignore|]
+    gitignoreFileInWaspProjectDir :: Path' (Rel Common.WaspProjectDir) File'
+    gitignoreFileInWaspProjectDir = [relfile|.gitignore|]
 
     gitignoreFileContent =
       unlines
@@ -120,8 +119,8 @@ createNewProject' (ProjectName projectName) = do
           "/.env"
         ]
 
-    waspignoreFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-    waspignoreFileInExtCodeDir = SP.fromPathRelFile [P.relfile|.waspignore|]
+    waspignoreFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
+    waspignoreFileInExtCodeDir = [relfile|.waspignore|]
 
     waspignoreFileContent =
       unlines
@@ -130,14 +129,14 @@ createNewProject' (ProjectName projectName) = do
           "**/#*#"
         ]
 
-    mainPageJsFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-    mainPageJsFileInExtCodeDir = SP.fromPathRelFile [P.relfile|MainPage.js|]
+    mainPageJsFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
+    mainPageJsFileInExtCodeDir = [relfile|MainPage.js|]
 
-    mainCssFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-    mainCssFileInExtCodeDir = SP.fromPathRelFile [P.relfile|Main.css|]
+    mainCssFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
+    mainCssFileInExtCodeDir = [relfile|Main.css|]
 
-    waspLogoFileInExtCodeDir :: Path (Rel SourceExternalCodeDir) File
-    waspLogoFileInExtCodeDir = SP.fromPathRelFile [P.relfile|waspLogo.png|]
+    waspLogoFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
+    waspLogoFileInExtCodeDir = [relfile|waspLogo.png|]
 
-    writeFileSP = writeFile . SP.toFilePath
-    createDirectorySP = createDirectory . SP.toFilePath
+    writeFileSP = writeFile . SP.fromAbsFile
+    createDirectorySP = createDirectory . SP.fromAbsDir

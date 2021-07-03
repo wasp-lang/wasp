@@ -3,14 +3,13 @@ module Parser.JsImportTest where
 import Data.Either (isLeft)
 import Parser.Common (runWaspParser)
 import Parser.JsImport (jsImport)
-import Path.Posix (relfile)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp
 
 spec_parseJsImport :: Spec
 spec_parseJsImport = do
-  let someFilePath = SP.fromPathRelFileP [relfile|some/file.js|]
+  let someFilePath = [SP.relfileP|some/file.js|]
 
   it "Parses external code js import with default import correctly" $ do
     runWaspParser jsImport "import something from \"@ext/some/file.js\""

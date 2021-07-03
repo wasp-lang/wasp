@@ -3,7 +3,6 @@ module Parser.PageTest where
 import Data.Either (isLeft)
 import Parser.Common (runWaspParser)
 import Parser.Page (page)
-import qualified Path.Posix as PPosix
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.JsImport
@@ -18,7 +17,7 @@ spec_parsePage =
           Wasp.JsImport.JsImport
             { Wasp.JsImport._defaultImport = Just "Main",
               Wasp.JsImport._namedImports = [],
-              Wasp.JsImport._from = (SP.fromPathRelFileP [PPosix.relfile|pages/Main|])
+              Wasp.JsImport._from = [SP.relfileP|pages/Main|]
             }
 
     it "When given a valid page declaration, returns correct AST" $ do

@@ -20,7 +20,7 @@ import CompileOptions (CompileOptions (..))
 import Control.Monad.Except (runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Lib
-import StrongPath (Abs, Dir, Path, (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 
 compile :: Command ()
 compile = do
@@ -38,8 +38,8 @@ compile = do
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
-  Path Abs (Dir WaspProjectDir) ->
-  Path Abs (Dir Lib.ProjectRootDir) ->
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir Lib.ProjectRootDir) ->
   IO (Either String ())
 compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir outDir
   where
@@ -51,8 +51,8 @@ compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir ou
 
 compileIOWithOptions ::
   CompileOptions ->
-  Path Abs (Dir Cli.Common.WaspProjectDir) ->
-  Path Abs (Dir Lib.ProjectRootDir) ->
+  Path' Abs (Dir Cli.Common.WaspProjectDir) ->
+  Path' Abs (Dir Lib.ProjectRootDir) ->
   IO (Either String ())
 compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
   -- TODO: Use throwIO instead of Either to return exceptions?

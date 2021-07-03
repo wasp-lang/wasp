@@ -9,8 +9,7 @@ where
 import qualified Data
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
-import qualified Path as P
-import StrongPath (Abs, Dir, File, Path, Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import qualified Text.Mustache as Mustache
 import Text.Mustache.Render (SubstitutionError (..))
@@ -22,20 +21,20 @@ import Text.Printf (printf)
 data TemplatesDir
 
 -- | Returns absolute path of templates root directory.
-getTemplatesDirAbsPath :: IO (Path Abs (Dir TemplatesDir))
+getTemplatesDirAbsPath :: IO (Path' Abs (Dir TemplatesDir))
 getTemplatesDirAbsPath = (</> templatesDirPathInDataDir) <$> Data.getAbsDataDirPath
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
-getTemplateFileAbsPath :: Path (Rel TemplatesDir) File -> IO (Path Abs File)
+getTemplateFileAbsPath :: Path' (Rel TemplatesDir) File' -> IO (Path' Abs File')
 getTemplateFileAbsPath relTmplFilePath = (</> relTmplFilePath) <$> getTemplatesDirAbsPath
 
-templatesDirPathInDataDir :: Path (Rel Data.DataDir) (Dir TemplatesDir)
-templatesDirPathInDataDir = SP.fromPathRelDir [P.reldir|Generator/templates|]
+templatesDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir TemplatesDir)
+templatesDirPathInDataDir = [reldir|Generator/templates|]
 
 compileAndRenderTemplate ::
   -- | Path to the template file.
-  Path (Rel TemplatesDir) File ->
+  Path' (Rel TemplatesDir) File' ->
   -- | JSON to be provided as template data.
   Aeson.Value ->
   IO Text
@@ -45,15 +44,15 @@ compileAndRenderTemplate relTmplPath tmplData = do
 
 compileMustacheTemplate ::
   -- | Path to the template file.
-  Path (Rel TemplatesDir) File ->
+  Path' (Rel TemplatesDir) File' ->
   IO Mustache.Template
 compileMustacheTemplate relTmplPath = do
   templatesDirAbsPath <- getTemplatesDirAbsPath
   absTmplPath <- getTemplateFileAbsPath relTmplPath
   eitherTemplate <-
     Mustache.automaticCompile
-      [SP.toFilePath templatesDirAbsPath]
-      (SP.toFilePath absTmplPath)
+      [SP.fromAbsDir templatesDirAbsPath]
+      (SP.fromAbsFile absTmplPath)
   return $ either raiseCompileError id eitherTemplate
   where
     raiseCompileError err =

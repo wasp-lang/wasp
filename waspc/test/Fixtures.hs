@@ -2,6 +2,7 @@ module Fixtures where
 
 import Data.Maybe (fromJust)
 import qualified Path as P
+import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp
 import qualified Wasp.Route as RouteAST
@@ -26,6 +27,9 @@ wasp =
   fromWaspElems
     [ WaspElementApp app
     ]
+
+systemSPRoot :: SP.Path' SP.Abs (SP.Dir d)
+systemSPRoot = fromJust $ SP.parseAbsDir systemFpRoot
 
 systemPathRoot :: P.Path P.Abs P.Dir
 systemPathRoot = fromJust $ P.parseAbsDir systemFpRoot

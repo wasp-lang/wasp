@@ -15,7 +15,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import qualified Generator.Common as C
 import qualified Generator.Job as J
-import StrongPath (Abs, Dir, Path)
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
@@ -82,7 +82,7 @@ runProcessAsJob process jobType chan =
       P.terminateProcess processHandle
       return $ ExitFailure 1
 
-runNodeCommandAsJob :: Path Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob fromDir command args jobType chan = do
   errorOrNodeVersion <- getNodeVersion
   case errorOrNodeVersion of
@@ -94,7 +94,7 @@ runNodeCommandAsJob fromDir command args jobType chan = do
             (ExitFailure 1)
             (T.pack $ "Your node version is too low. " ++ waspNodeRequirementMessage)
         else do
-          let process = (P.proc command args) {P.cwd = Just $ SP.toFilePath fromDir}
+          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
   where
     exitWithError exitCode errorMsg = do
