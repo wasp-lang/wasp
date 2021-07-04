@@ -53,9 +53,9 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     waitForOneSecondOfNoEvents timeOfLastEventMVar = do
       currentTime <- getCurrentTime
       timeOfLastEvent <- MVar.readMVar timeOfLastEventMVar
-      let timeDiff = nominalDiffTimeToSeconds $ diffUTCTime currentTime timeOfLastEvent
-      threadDelay (oneSecondInMicroSeconds - (floor . (* 1e9) $ timeDiff))
-      when (timeDiff < fromIntegral oneSecondInMicroSeconds) $ do
+      let timeInSecondsSinceLastEvent = nominalDiffTimeToSeconds $ diffUTCTime currentTime timeOfLastEvent
+      when (timeInSecondsSinceLastEvent < fromIntegral oneSecondInMicroSeconds) $ do
+        threadDelay (oneSecondInMicroSeconds - (floor . (* 1e9) $ timeInSecondsSinceLastEvent))
         waitForOneSecondOfNoEvents timeOfLastEventMVar
 
     listenForEventsAndUpdateLastEventTime :: Chan FSN.Event -> MVar.MVar UTCTime -> IO ()
@@ -77,9 +77,9 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
         else do
           timeOfLastEventMVar <- MVar.newMVar eventTime
           _ <- race (listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar) (waitForOneSecondOfNoEvents timeOfLastEventMVar)
+          recompilationStartTime <- getCurrentTime
           recompile
-          currentTime <- getCurrentTime
-          listenForEvents chan currentTime
+          listenForEvents chan recompilationStartTime
 
     recompile :: IO ()
     recompile = do
@@ -98,7 +98,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     eventFilter event =
       let filename = FP.takeFileName $ FSN.eventPath event
        in not (null filename)
-            && take 2 filename /= ".#" -- Ignore emacs lock files.
+            && not (take 2 filename == ".#") -- Ignore emacs lock files.
             && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
             && last filename /= '~' -- Ignore emacs and vim backup files.
             && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
