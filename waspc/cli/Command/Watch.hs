@@ -1,5 +1,7 @@
 module Command.Watch
   ( watch,
+    recompile,
+    listenForEvents
   )
 where
 
@@ -44,7 +46,45 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.toFilePath waspProjectDir) eventFilter chan
   _ <- FSN.watchTreeChan mgr (SP.toFilePath $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
-  listenForEvents chan currentTime
+  listenForEvents chan currentTime $ recompile waspProjectDir outDir
+  where
+    -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
+    --   create next to the source code. Bad thing here is that users can't modify this,
+    --   so better approach would be probably to use information from .gitignore instead, or
+    --   maybe combining the two somehow.
+    eventFilter :: FSN.Event -> Bool
+    eventFilter event =
+      let filename = FP.takeFileName $ FSN.eventPath event
+       in not (null filename)
+            && not (take 2 filename == ".#") -- Ignore emacs lock files.
+            && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
+            && last filename /= '~' -- Ignore emacs and vim backup files.
+            && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
+            && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.
+
+recompile :: Path Abs (Dir Common.WaspProjectDir) -> Path Abs (Dir Lib.ProjectRootDir) -> IO ()
+recompile waspProjectDir outDir = do
+  waspSays "Recompiling on file change..."
+  compilationResult <- compileIO waspProjectDir outDir
+  case compilationResult of
+    Left err -> waspSays $ "Recompilation on file change failed: " ++ err
+    Right () -> waspSays "Recompilation on file change succeeded."
+  return ()
+
+listenForEvents :: Chan FSN.Event -> UTCTime -> IO () -> IO ()
+listenForEvents eventChan lastCompileTime recompilationFn = do
+  event <- readChan eventChan
+  let eventTime = FSN.eventTime event
+  if eventTime < lastCompileTime
+    then do
+      -- If event happened before last compilation started, skip it.
+      listenForEvents eventChan lastCompileTime recompilationFn
+    else do
+      timeOfLastEventMVar <- MVar.newMVar eventTime
+      _ <- race (listenForEventsAndUpdateLastEventTime eventChan timeOfLastEventMVar) (waitForOneSecondOfNoEvents timeOfLastEventMVar)
+      recompilationStartTime <- getCurrentTime
+      recompilationFn
+      listenForEvents eventChan recompilationStartTime recompilationFn
   where
     oneSecondInMicroSeconds :: Int
     oneSecondInMicroSeconds = 1000000
@@ -65,41 +105,3 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
       timeInMVar <- MVar.readMVar timeOfLastEventMVar
       MVar.putMVar timeOfLastEventMVar (max eventTime timeInMVar)
       listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar
-
-    listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
-    listenForEvents chan lastCompileTime = do
-      event <- readChan chan
-      let eventTime = FSN.eventTime event
-      if eventTime < lastCompileTime
-        then do
-          -- If event happened before last compilation started, skip it.
-          listenForEvents chan lastCompileTime
-        else do
-          timeOfLastEventMVar <- MVar.newMVar eventTime
-          _ <- race (listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar) (waitForOneSecondOfNoEvents timeOfLastEventMVar)
-          recompilationStartTime <- getCurrentTime
-          recompile
-          listenForEvents chan recompilationStartTime
-
-    recompile :: IO ()
-    recompile = do
-      waspSays "Recompiling on file change..."
-      compilationResult <- compileIO waspProjectDir outDir
-      case compilationResult of
-        Left err -> waspSays $ "Recompilation on file change failed: " ++ err
-        Right () -> waspSays "Recompilation on file change succeeded."
-      return ()
-
-    -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
-    --   create next to the source code. Bad thing here is that users can't modify this,
-    --   so better approach would be probably to use information from .gitignore instead, or
-    --   maybe combining the two somehow.
-    eventFilter :: FSN.Event -> Bool
-    eventFilter event =
-      let filename = FP.takeFileName $ FSN.eventPath event
-       in not (null filename)
-            && not (take 2 filename == ".#") -- Ignore emacs lock files.
-            && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
-            && last filename /= '~' -- Ignore emacs and vim backup files.
-            && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
-            && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.
