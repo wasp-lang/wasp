@@ -1,14 +1,25 @@
 module Command.Watch
   ( watch,
+    recompile,
+    listenForEvents
   )
 where
 
 import Cli.Common (waspSays)
 import qualified Cli.Common as Common
 import Command.Compile (compileIO)
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
+import qualified Control.Concurrent.MVar as MVar
+import Control.Monad (when)
 import Data.List (isSuffixOf)
-import Data.Time.Clock (UTCTime, getCurrentTime)
+import Data.Time.Clock
+  ( UTCTime,
+    diffUTCTime,
+    getCurrentTime,
+    nominalDiffTimeToSeconds,
+  )
 import qualified Lib
 import StrongPath (Abs, Dir, Path, (</>))
 import qualified StrongPath as SP
@@ -35,29 +46,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.toFilePath waspProjectDir) eventFilter chan
   _ <- FSN.watchTreeChan mgr (SP.toFilePath $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
-  listenForEvents chan currentTime
+  listenForEvents chan currentTime $ recompile waspProjectDir outDir
   where
-    listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
-    listenForEvents chan lastCompileTime = do
-      event <- readChan chan
-      let eventTime = FSN.eventTime event
-      if eventTime < lastCompileTime
-        then -- If event happened before last compilation started, skip it.
-          listenForEvents chan lastCompileTime
-        else do
-          currentTime <- getCurrentTime
-          recompile
-          listenForEvents chan currentTime
-
-    recompile :: IO ()
-    recompile = do
-      waspSays "Recompiling on file change..."
-      compilationResult <- compileIO waspProjectDir outDir
-      case compilationResult of
-        Left err -> waspSays $ "Recompilation on file change failed: " ++ err
-        Right () -> waspSays "Recompilation on file change succeeded."
-      return ()
-
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
     --   so better approach would be probably to use information from .gitignore instead, or
@@ -68,6 +58,50 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
        in not (null filename)
             && not (take 2 filename == ".#") -- Ignore emacs lock files.
             && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
-            && not (last filename == '~') -- Ignore emacs and vim backup files.
+            && last filename /= '~' -- Ignore emacs and vim backup files.
             && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
             && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.
+
+recompile :: Path Abs (Dir Common.WaspProjectDir) -> Path Abs (Dir Lib.ProjectRootDir) -> IO ()
+recompile waspProjectDir outDir = do
+  waspSays "Recompiling on file change..."
+  compilationResult <- compileIO waspProjectDir outDir
+  case compilationResult of
+    Left err -> waspSays $ "Recompilation on file change failed: " ++ err
+    Right () -> waspSays "Recompilation on file change succeeded."
+  return ()
+
+listenForEvents :: Chan FSN.Event -> UTCTime -> IO () -> IO ()
+listenForEvents eventChan lastCompileTime recompilationFn = do
+  event <- readChan eventChan
+  let eventTime = FSN.eventTime event
+  if eventTime < lastCompileTime
+    then do
+      -- If event happened before last compilation started, skip it.
+      listenForEvents eventChan lastCompileTime recompilationFn
+    else do
+      timeOfLastEventMVar <- MVar.newMVar eventTime
+      _ <- race (listenForEventsAndUpdateLastEventTime eventChan timeOfLastEventMVar) (waitForOneSecondOfNoEvents timeOfLastEventMVar)
+      recompilationStartTime <- getCurrentTime
+      recompilationFn
+      listenForEvents eventChan recompilationStartTime recompilationFn
+  where
+    oneSecondInMicroSeconds :: Int
+    oneSecondInMicroSeconds = 1000000
+
+    waitForOneSecondOfNoEvents :: MVar.MVar UTCTime -> IO ()
+    waitForOneSecondOfNoEvents timeOfLastEventMVar = do
+      currentTime <- getCurrentTime
+      timeOfLastEvent <- MVar.readMVar timeOfLastEventMVar
+      let timeInSecondsSinceLastEvent = nominalDiffTimeToSeconds $ diffUTCTime currentTime timeOfLastEvent
+      when (timeInSecondsSinceLastEvent < fromIntegral oneSecondInMicroSeconds) $ do
+        threadDelay (oneSecondInMicroSeconds - (floor . (* 1e9) $ timeInSecondsSinceLastEvent))
+        waitForOneSecondOfNoEvents timeOfLastEventMVar
+
+    listenForEventsAndUpdateLastEventTime :: Chan FSN.Event -> MVar.MVar UTCTime -> IO ()
+    listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar = do
+      event <- readChan chan
+      let eventTime = FSN.eventTime event
+      timeInMVar <- MVar.readMVar timeOfLastEventMVar
+      MVar.putMVar timeOfLastEventMVar (max eventTime timeInMVar)
+      listenForEventsAndUpdateLastEventTime chan timeOfLastEventMVar
