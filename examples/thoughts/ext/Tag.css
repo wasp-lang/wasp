@@ -1,0 +1,23 @@
+.tag {
+  margin: 0 10px;
+  text-decoration: none;
+  cursor: text;
+}
+
+.tag.deletable:hover {
+  text-decoration: line-through;
+  cursor: pointer;
+}
+
+.tag.link {
+  padding: 5px;
+}
+
+.tag.link:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tag.link.active {
+  text-decoration: underline;
+}
