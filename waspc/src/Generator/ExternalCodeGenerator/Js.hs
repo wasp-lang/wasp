@@ -8,10 +8,10 @@ import Data.Maybe (fromJust)
 import Data.Text (Text, unpack)
 import qualified Data.Text as T
 import qualified ExternalCode as EC
+import FilePath.Extra (reversePosixPath)
 import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import qualified Generator.ExternalCodeGenerator.Common as C
 import qualified Generator.FileDraft as FD
-import Path.Extra (reversePosixPath)
 import StrongPath (Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified Text.Regex.TDFA as TR
