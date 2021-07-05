@@ -1,0 +1,113 @@
+app trello {
+  title: "trello"
+}
+
+db {
+  system: PostgreSQL
+}
+
+auth {
+    userEntity: User,
+    methods: [ EmailAndPassword ],
+    onAuthFailedRedirectTo: "/login"
+}
+
+route "/" -> page Main
+page Main {
+    authRequired: true,
+    component: import Main from "@ext/MainPage.js"
+}
+
+route "/signup" -> page Signup
+page Signup {
+    component: import Signup from "@ext/SignupPage"
+}
+
+route "/login" -> page Login
+page Login {
+    component: import Login from "@ext/LoginPage"
+}
+
+// Entities
+
+entity User {=psl
+    id          Int     @id @default(autoincrement())
+    email       String  @unique
+    password    String
+    lists       List[]
+    cards       Card[]
+psl=}
+
+entity List {=psl
+    id          Int     @id @default(autoincrement())
+    name        String
+    pos         Float
+
+    // List has a single author.
+    user        User    @relation(fields: [userId], references: [id])
+    userId      Int
+
+    cards       Card[]
+psl=}
+
+entity Card {=psl
+    id          Int     @id @default(autoincrement())
+    title       String
+    pos         Float
+
+    // Card belongs to a single list.
+    list        List    @relation(fields: [listId], references: [id])
+    listId      Int
+
+    // Card has a single author.
+    author      User    @relation(fields: [authorId], references: [id])
+    authorId    Int
+psl=}
+
+// ------------------- Queries and actions
+
+query getListsAndCards {
+    fn: import { getListsAndCards } from "@ext/queries.js",
+    entities: [List, Card]
+}
+
+// Lists
+
+action createList {
+    fn: import { createList } from "@ext/actions.js",
+    entities: [List]
+}
+
+action updateList {
+    fn: import { updateList } from "@ext/actions.js",
+    entities: [List]
+}
+
+action deleteList {
+    fn: import { deleteList } from "@ext/actions.js",
+    entities: [List, Card]
+}
+
+// Cards
+
+query getCards {
+    fn: import { getCards } from "@ext/queries.js",
+    entities: [Card]
+}
+
+action createCard {
+    fn: import { createCard } from "@ext/actions.js",
+    entities: [Card]
+}
+
+action updateCard {
+    fn: import { updateCard } from "@ext/actions.js",
+    entities: [Card]
+}
+
+dependencies {=json
+    "react-feather": "2.0.9",
+    "classnames": "2.3.1",
+    "react-tiny-popover": "6.0.5",
+    "react-beautiful-dnd": "13.1.0"
+json=}

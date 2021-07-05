@@ -1,0 +1,25 @@
+.auth-root-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #F9FAFC;
+}
+
+.auth-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 400px;
+  padding: 25px 40px;
+  border-radius: 3px;
+  box-shadow: rgb(0 0 0 / 10%) 0 0 10px;
+  background-color: #FFF;
+}
+
+.main-logo {
+  height: 42px;
+  margin: 40px auto;
+}
+
