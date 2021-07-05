@@ -4,7 +4,6 @@ import Data.Either (isLeft)
 import Data.Char (toLower)
 import Parser.Action (action)
 import Parser.Common (runWaspParser)
-import qualified Path.Posix as PPosix
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.Action
@@ -19,7 +18,6 @@ spec_parseAction :: Spec
 spec_parseAction =
   describe "Parsing action declaration" $ do
     let parseAction = runWaspParser action
-
     it "When given a valid action declaration, returns correct AST (no auth)" $ do
       let testAction = genActionAST Nothing
       let testActionInput = genActionInput Nothing
@@ -59,6 +57,6 @@ spec_parseAction =
         authStr :: Maybe Bool -> String
         authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
         authStr _ = "\n"        
-        testActionJsFunctionFrom = SP.fromPathRelFileP [PPosix.relfile|some/path|]
+        testActionJsFunctionFrom = [SP.relfileP|some/path|]
         testActionJsFunctionName = "myJsAction"
         testActionName = "myAction"

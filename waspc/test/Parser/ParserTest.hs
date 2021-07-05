@@ -4,7 +4,6 @@ import Data.Either
 import NpmDependency as ND
 import Parser
 import Parser.Common (runWaspParser)
-import qualified Path.Posix as PPosix
 import qualified Psl.Parser.Model
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
@@ -53,7 +52,7 @@ spec_parseWasp =
                           Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Landing",
                               Wasp.JsImport._namedImports = [],
-                              Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Landing|]
+                              Wasp.JsImport._from = [SP.relfileP|pages/Landing|]
                             },
                         Wasp.Page._authRequired = Just False
                       },
@@ -69,7 +68,7 @@ spec_parseWasp =
                           Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Just "Test",
                               Wasp.JsImport._namedImports = [],
-                              Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|pages/Test|]
+                              Wasp.JsImport._from = [SP.relfileP|pages/Test|]
                             },
                         Wasp.Page._authRequired = Nothing
                       },
@@ -106,7 +105,7 @@ spec_parseWasp =
                           Wasp.JsImport.JsImport
                             { Wasp.JsImport._defaultImport = Nothing,
                               Wasp.JsImport._namedImports = ["myJsQuery"],
-                              Wasp.JsImport._from = SP.fromPathRelFileP [PPosix.relfile|some/path|]
+                              Wasp.JsImport._from = [SP.relfileP|some/path|]
                             },
                         Wasp.Query._entities = Nothing,
                         Wasp.Query._auth = Nothing
@@ -121,5 +120,5 @@ spec_parseWasp =
                           ]
                       }
                 ]
-                `setJsImports` [JsImport (Just "something") [] (SP.fromPathRelFileP [PPosix.relfile|some/file|])]
+                `setJsImports` [JsImport (Just "something") [] [SP.relfileP|some/file|]]
             )

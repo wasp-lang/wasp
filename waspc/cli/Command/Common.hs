@@ -16,7 +16,7 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path)
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory
   ( doesFileExist,
@@ -25,12 +25,12 @@ import System.Directory
   )
 import qualified System.FilePath as FP
 
-findWaspProjectRoot :: Path Abs (Dir ()) -> Command (Path Abs (Dir WaspProjectDir))
+findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRoot currentDir = do
-  let absCurrentDirFp = SP.toFilePath currentDir
+  let absCurrentDirFp = SP.fromAbsDir currentDir
   doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
   unless doesCurrentDirExist (throwError notFoundError)
-  let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.toFilePath dotWaspRootFileInWaspProjectDir
+  let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile dotWaspRootFileInWaspProjectDir
   isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
   if isCurrentDirRoot
     then return $ SP.castDir currentDir
@@ -45,7 +45,7 @@ findWaspProjectRoot currentDir = do
             ++ " you are running this command from Wasp project."
         )
 
-findWaspProjectRootDirFromCwd :: Command (Path Abs (Dir WaspProjectDir))
+findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRootDirFromCwd = do
   absCurrentDir <- liftIO getCurrentDirectory
   findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)

@@ -28,14 +28,14 @@ import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExtern
 import Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Generator.WebAppGenerator.RouterGenerator as RouterGenerator
 import qualified NpmDependency as ND
-import qualified Path as P
 import StrongPath
   ( Dir,
-    Path,
+    Path',
     Rel,
+    reldir,
+    relfile,
     (</>),
   )
-import qualified StrongPath as SP
 import Wasp
 import qualified Wasp.App
 import qualified Wasp.NpmDependencies as WND
@@ -49,17 +49,17 @@ generateWebApp wasp _ =
       generatePublicDir wasp,
       generateSrcDir wasp,
       generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy wasp,
-      [C.makeSimpleTemplateFD (asTmplFile [P.relfile|netlify.toml|]) wasp]
+      [C.makeSimpleTemplateFD (asTmplFile [relfile|netlify.toml|]) wasp]
     ]
 
 generateReadme :: Wasp -> FileDraft
-generateReadme wasp = C.makeSimpleTemplateFD (asTmplFile [P.relfile|README.md|]) wasp
+generateReadme wasp = C.makeSimpleTemplateFD (asTmplFile [relfile|README.md|]) wasp
 
 genPackageJson :: Wasp -> [ND.NpmDependency] -> FileDraft
 genPackageJson wasp waspDeps =
   C.makeTemplateFD
-    (C.asTmplFile [P.relfile|package.json|])
-    (C.asWebAppFile [P.relfile|package.json|])
+    (C.asTmplFile [relfile|package.json|])
+    (C.asWebAppFile [relfile|package.json|])
     ( Just $
         object
           [ "wasp" .= wasp,
@@ -93,27 +93,27 @@ waspNpmDeps =
 generateGitignore :: Wasp -> FileDraft
 generateGitignore wasp =
   C.makeTemplateFD
-    (asTmplFile [P.relfile|gitignore|])
-    (asWebAppFile [P.relfile|.gitignore|])
+    (asTmplFile [relfile|gitignore|])
+    (asWebAppFile [relfile|.gitignore|])
     (Just $ toJSON wasp)
 
 generatePublicDir :: Wasp -> [FileDraft]
 generatePublicDir wasp =
-  C.copyTmplAsIs (asTmplFile [P.relfile|public/favicon.ico|]) :
+  C.copyTmplAsIs (asTmplFile [relfile|public/favicon.ico|]) :
   generatePublicIndexHtml wasp :
   map
-    (\path -> C.makeSimpleTemplateFD (asTmplFile $ [P.reldir|public|] P.</> path) wasp)
-    [ [P.relfile|manifest.json|]
+    (\path -> C.makeSimpleTemplateFD (asTmplFile $ [reldir|public|] </> path) wasp)
+    [ [relfile|manifest.json|]
     ]
 
 generatePublicIndexHtml :: Wasp -> FileDraft
 generatePublicIndexHtml wasp =
   C.makeTemplateFD
-    (asTmplFile $ [P.relfile|public/index.html|])
+    (asTmplFile [relfile|public/index.html|])
     targetPath
     (Just templateData)
   where
-    targetPath = SP.fromPathRelFile [P.relfile|public/index.html|]
+    targetPath = [relfile|public/index.html|]
     templateData =
       object
         [ "title" .= (Wasp.App.appTitle $ getApp wasp),
@@ -122,7 +122,7 @@ generatePublicIndexHtml wasp =
 
 -- * Src dir
 
-srcDir :: Path (Rel C.WebAppRootDir) (Dir C.WebAppSrcDir)
+srcDir :: Path' (Rel C.WebAppRootDir) (Dir C.WebAppSrcDir)
 srcDir = C.webAppSrcDirInWebAppRootDir
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
@@ -132,7 +132,7 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: FileDraft
-genApi = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/api.js|])
+genApi = C.copyTmplAsIs (C.asTmplFile [relfile|src/api.js|])
 
 generateSrcDir :: Wasp -> [FileDraft]
 generateSrcDir wasp =
@@ -141,22 +141,22 @@ generateSrcDir wasp =
   genApi :
   map
     makeSimpleSrcTemplateFD
-    [ [P.relfile|index.js|],
-      [P.relfile|index.css|],
-      [P.relfile|serviceWorker.js|],
-      [P.relfile|config.js|],
-      [P.relfile|queryCache.js|]
+    [ [relfile|index.js|],
+      [relfile|index.css|],
+      [relfile|serviceWorker.js|],
+      [relfile|config.js|],
+      [relfile|queryCache.js|]
     ]
     ++ genOperations wasp
     ++ AuthG.genAuth wasp
   where
     generateLogo =
       C.makeTemplateFD
-        (asTmplFile [P.relfile|src/logo.png|])
-        (srcDir </> asWebAppSrcFile [P.relfile|logo.png|])
+        (asTmplFile [relfile|src/logo.png|])
+        (srcDir </> asWebAppSrcFile [relfile|logo.png|])
         Nothing
     makeSimpleSrcTemplateFD path =
       C.makeTemplateFD
-        (asTmplFile $ [P.reldir|src|] P.</> path)
+        (asTmplFile $ [reldir|src|] </> path)
         (srcDir </> asWebAppSrcFile path)
         (Just $ toJSON wasp)

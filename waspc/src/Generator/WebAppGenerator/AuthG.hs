@@ -6,8 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import Generator.FileDraft (FileDraft)
 import Generator.WebAppGenerator.Common as C
-import qualified Path as P
-import StrongPath ((</>))
+import StrongPath (reldir, relfile, (</>))
 import Wasp (Wasp, getAuth)
 import qualified Wasp.Auth
 
@@ -27,25 +26,25 @@ genAuth wasp = case maybeAuth of
 
 -- | Generates file with signup function to be used by Wasp developer.
 genSignup :: FileDraft
-genSignup = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/signup.js|])
+genSignup = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/signup.js|])
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: FileDraft
-genLogin = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/login.js|])
+genLogin = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/login.js|])
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: FileDraft
-genLogout = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/logout.js|])
+genLogout = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/logout.js|])
 
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: Wasp.Auth.Auth -> FileDraft
 genCreateAuthRequiredPage auth =
   C.makeTemplateFD
-    (asTmplFile $ [P.reldir|src|] P.</> authReqPagePath)
+    (asTmplFile $ [reldir|src|] </> authReqPagePath)
     targetPath
     (Just templateData)
   where
-    authReqPagePath = [P.relfile|auth/pages/createAuthRequiredPage.js|]
+    authReqPagePath = [relfile|auth/pages/createAuthRequiredPage.js|]
     targetPath = C.webAppSrcDirInWebAppRootDir </> (asWebAppSrcFile authReqPagePath)
     templateData = object ["onAuthFailedRedirectTo" .= (Wasp.Auth._onAuthFailedRedirectTo auth)]
 
@@ -53,7 +52,7 @@ genCreateAuthRequiredPage auth =
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: FileDraft
-genUseAuth = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/useAuth.js|])
+genUseAuth = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/useAuth.js|])
 
 genAuthForms :: [FileDraft]
 genAuthForms =
@@ -62,7 +61,7 @@ genAuthForms =
   ]
 
 genLoginForm :: FileDraft
-genLoginForm = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/forms/Login.js|])
+genLoginForm = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/forms/Login.js|])
 
 genSignupForm :: FileDraft
-genSignupForm = C.copyTmplAsIs (C.asTmplFile [P.relfile|src/auth/forms/Signup.js|])
+genSignupForm = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/forms/Signup.js|])

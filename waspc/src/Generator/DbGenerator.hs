@@ -11,10 +11,9 @@ import Data.Maybe (fromMaybe)
 import Generator.Common (ProjectRootDir)
 import Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Generator.Templates (TemplatesDir)
-import qualified Path as P
 import qualified Psl.Ast.Model
 import qualified Psl.Generator.Model
-import StrongPath (Dir, File, Path, Rel, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
@@ -28,21 +27,21 @@ data DbRootDir
 
 data DbTemplatesDir
 
-dbRootDirInProjectRootDir :: Path (Rel ProjectRootDir) (Dir DbRootDir)
-dbRootDirInProjectRootDir = SP.fromPathRelDir [P.reldir|db|]
+dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
+dbRootDirInProjectRootDir = [reldir|db|]
 
-dbTemplatesDirInTemplatesDir :: Path (Rel TemplatesDir) (Dir DbTemplatesDir)
-dbTemplatesDirInTemplatesDir = SP.fromPathRelDir [P.reldir|db|]
+dbTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir DbTemplatesDir)
+dbTemplatesDirInTemplatesDir = [reldir|db|]
 
-dbSchemaFileInDbTemplatesDir :: Path (Rel DbTemplatesDir) File
-dbSchemaFileInDbTemplatesDir = SP.fromPathRelFile [P.relfile|schema.prisma|]
+dbSchemaFileInDbTemplatesDir :: Path' (Rel DbTemplatesDir) File'
+dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 
-dbSchemaFileInDbRootDir :: Path (Rel DbRootDir) File
+dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
 -- Generated schema file will be in the same relative location as the
 -- template file within templates dir.
 dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
 
-dbSchemaFileInProjectRootDir :: Path (Rel ProjectRootDir) File
+dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
 
 -- * Db generator

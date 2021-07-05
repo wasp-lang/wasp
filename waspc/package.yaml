@@ -2,7 +2,7 @@
 # Cabal file when you run `stack build`. See the hpack website for help with
 # this file: <https://github.com/sol/hpack>.
 name:                waspc
-version:             0.2.0.1 # %WASP_VERSION% - annotation for new-release script.
+version:             0.2.1.0 # %WASP_VERSION% - annotation for new-release script.
 github:              "Martinsos/waspc"
 license:             MIT
 author:              "wasp-lang"
@@ -64,6 +64,7 @@ library:
     - utf8-string
     - Glob
     - unliftio
+    - strong-path
 
 executables:
   wasp:
@@ -89,6 +90,7 @@ executables:
       - aeson
       - utf8-string
       - http-conduit
+      - strong-path
 
 benchmarks:
   waspc-benchmarks:
@@ -125,3 +127,4 @@ tests:
       - deepseq
       - path
       - unordered-containers
+      - strong-path

@@ -8,7 +8,7 @@ import Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text.IO
 import qualified Generator.Templates as Templates
-import StrongPath (Abs, Dir, File, Path, Rel)
+import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified System.Directory
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (Exception, catch)
@@ -39,14 +39,14 @@ class (MonadIO m) => WriteableMonad m where
 
   getTemplateFileAbsPath ::
     -- | Template file path.
-    Path (Rel Templates.TemplatesDir) File ->
-    m (Path Abs File)
+    Path' (Rel Templates.TemplatesDir) File' ->
+    m (Path' Abs File')
 
-  getTemplatesDirAbsPath :: m (Path Abs (Dir Templates.TemplatesDir))
+  getTemplatesDirAbsPath :: m (Path' Abs (Dir Templates.TemplatesDir))
 
   compileAndRenderTemplate ::
     -- | Template file path.
-    Path (Rel Templates.TemplatesDir) File ->
+    Path' (Rel Templates.TemplatesDir) File' ->
     -- | JSON to be provided as template data.
     Aeson.Value ->
     m Text

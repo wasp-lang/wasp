@@ -35,7 +35,7 @@ where
 
 import Data.Aeson (ToJSON (..), object, (.=))
 import qualified ExternalCode
-import StrongPath (Abs, File, Path)
+import StrongPath (Abs, File', Path')
 import qualified Util as U
 import qualified Wasp.Action
 import Wasp.App
@@ -55,7 +55,7 @@ data Wasp = Wasp
   { waspElements :: [WaspElement],
     waspJsImports :: [JsImport],
     externalCodeFiles :: [ExternalCode.File],
-    dotEnvFile :: Maybe (Path Abs File),
+    dotEnvFile :: Maybe (Path' Abs File'),
     isBuild :: Bool
   }
   deriving (Show, Eq)
@@ -100,10 +100,10 @@ setExternalCodeFiles wasp files = wasp {externalCodeFiles = files}
 
 -- * Dot env files
 
-getDotEnvFile :: Wasp -> Maybe (Path Abs File)
+getDotEnvFile :: Wasp -> Maybe (Path' Abs File')
 getDotEnvFile = dotEnvFile
 
-setDotEnvFile :: Wasp -> Maybe (Path Abs File) -> Wasp
+setDotEnvFile :: Wasp -> Maybe (Path' Abs File') -> Wasp
 setDotEnvFile wasp file = wasp {dotEnvFile = file}
 
 -- * Js imports

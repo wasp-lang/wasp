@@ -4,7 +4,7 @@ import Data.Either
 import Lexer
 import qualified Lexer as L
 import Parser.Common
-import Path (relfile)
+import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Text.Parsec
 
@@ -99,7 +99,7 @@ spec_parseWaspCommon = do
   describe "Parsing relative file path string" $ do
     it "Correctly parses relative path in double quotes" $ do
       runWaspParser relFilePathString "\"foo/bar.txt\""
-        `shouldBe` Right [relfile|foo/bar.txt|]
+        `shouldBe` Right [SP.relfile|foo/bar.txt|]
 
   -- TODO: It is not passing on Windows, due to Path differently parsing paths on Windows.
   --   Check out Path.Posix vs Path.Windows.

@@ -6,8 +6,8 @@ module Parser.Common where
 
 import qualified Data.Text as T
 import qualified Lexer as L
-import qualified Path as P
-import qualified Path.Posix as PPosix
+import StrongPath (File, Path, Posix, Rel, System)
+import qualified StrongPath as SP
 import Text.Parsec
   ( ParseError,
     anyChar,
@@ -162,19 +162,19 @@ strip :: String -> String
 strip = T.unpack . T.strip . T.pack
 
 -- | Parses relative file path, e.g. "my/file.txt".
-relFilePathString :: Parser (P.Path P.Rel P.File)
+relFilePathString :: Parser (Path System (Rel d) (File f))
 relFilePathString = do
   path <- L.stringLiteral
   maybe
     (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
     return
-    (P.parseRelFile path)
+    (SP.parseRelFile path)
 
 -- | Parses relative posix file path, e.g. "my/file.txt".
-relPosixFilePathString :: Parser (PPosix.Path PPosix.Rel PPosix.File)
+relPosixFilePathString :: Parser (Path Posix (Rel d) (File f))
 relPosixFilePathString = do
   path <- L.stringLiteral
   maybe
     (unexpected $ "string \"" ++ path ++ "\": Expected relative file path.")
     return
-    (PPosix.parseRelFile path)
+    (SP.parseRelFileP path)

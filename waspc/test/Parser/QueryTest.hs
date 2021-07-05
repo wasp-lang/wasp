@@ -3,7 +3,6 @@ module Parser.QueryTest where
 import Data.Either (isLeft)
 import Parser.Common (runWaspParser)
 import Parser.Query (query)
-import qualified Path.Posix as PPosix
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.JsImport
@@ -14,7 +13,6 @@ spec_parseQuery :: Spec
 spec_parseQuery =
   describe "Parsing query declaration" $ do
     let parseQuery = runWaspParser query
-
     it "When given a valid query declaration, returns correct AST(without auth)" $ do
       let testQuery = genQueryAST Nothing
       let testQueryInput = genQueryInput Nothing
@@ -57,5 +55,5 @@ spec_parseQuery =
               }
           testQueryName = "myQuery"
           testQueryJsFunctionName = "myJsQuery"
-          testQueryJsFunctionFrom = SP.fromPathRelFileP [PPosix.relfile|some/path|]
+          testQueryJsFunctionFrom = [SP.relfileP|some/path|]
 

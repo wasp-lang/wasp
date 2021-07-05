@@ -34,8 +34,7 @@ import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExtern
 import Generator.ServerGenerator.OperationsG (genOperations)
 import Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified NpmDependency as ND
-import qualified Path as P
-import StrongPath (Abs, Dir, File, Path, Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
@@ -63,7 +62,7 @@ genServer wasp _ =
 -- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
 --   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
 --   for progress of this.
-preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
+preCleanup :: Wasp -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
   -- If .env gets removed but there is old .env file in generated project from previous attempts,
   -- we need to make sure we remove it.
@@ -82,17 +81,17 @@ genDotEnv wasp =
       ]
     Nothing -> []
 
-dotEnvInServerRootDir :: Path (Rel C.ServerRootDir) File
-dotEnvInServerRootDir = asServerFile [P.relfile|.env|]
+dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
+dotEnvInServerRootDir = [relfile|.env|]
 
 genReadme :: Wasp -> FileDraft
-genReadme _ = C.copyTmplAsIs (asTmplFile [P.relfile|README.md|])
+genReadme _ = C.copyTmplAsIs (asTmplFile [relfile|README.md|])
 
 genPackageJson :: Wasp -> [ND.NpmDependency] -> [ND.NpmDependency] -> FileDraft
 genPackageJson wasp waspDeps waspDevDeps =
   C.makeTemplateFD
-    (asTmplFile [P.relfile|package.json|])
-    (asServerFile [P.relfile|package.json|])
+    (asTmplFile [relfile|package.json|])
+    (asServerFile [relfile|package.json|])
     ( Just $
         object
           [ "wasp" .= wasp,
@@ -141,31 +140,31 @@ waspNpmDevDeps =
 genNpmrc :: Wasp -> FileDraft
 genNpmrc _ =
   C.makeTemplateFD
-    (asTmplFile [P.relfile|npmrc|])
-    (asServerFile [P.relfile|.npmrc|])
+    (asTmplFile [relfile|npmrc|])
+    (asServerFile [relfile|.npmrc|])
     Nothing
 
 genNvmrc :: Wasp -> FileDraft
 genNvmrc _ =
   C.makeTemplateFD
-    (asTmplFile [P.relfile|nvmrc|])
-    (asServerFile [P.relfile|.nvmrc|])
+    (asTmplFile [relfile|nvmrc|])
+    (asServerFile [relfile|.nvmrc|])
     (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
 
 genGitignore :: Wasp -> FileDraft
 genGitignore _ =
   C.makeTemplateFD
-    (asTmplFile [P.relfile|gitignore|])
-    (asServerFile [P.relfile|.gitignore|])
+    (asTmplFile [relfile|gitignore|])
+    (asServerFile [relfile|.gitignore|])
     Nothing
 
 genSrcDir :: Wasp -> [FileDraft]
 genSrcDir wasp =
   concat
-    [ [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|app.js|]],
-      [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|server.js|]],
-      [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|utils.js|]],
-      [C.copySrcTmplAsIs $ C.asTmplSrcFile [P.relfile|core/HttpError.js|]],
+    [ [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|app.js|]],
+      [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|server.js|]],
+      [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|utils.js|]],
+      [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|core/HttpError.js|]],
       [genDbClient wasp],
       [genConfigFile wasp],
       genRoutesDir wasp,
@@ -179,8 +178,8 @@ genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     maybeAuth = getAuth wasp
 
-    dbClientRelToSrcP = [P.relfile|dbClient.js|]
-    tmplFile = C.asTmplFile $ [P.reldir|src|] P.</> dbClientRelToSrcP
+    dbClientRelToSrcP = [relfile|dbClient.js|]
+    tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile dbClientRelToSrcP
 
     tmplData =
@@ -197,8 +196,8 @@ genRoutesDir wasp =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
   [ C.makeTemplateFD
-      (asTmplFile [P.relfile|src/routes/index.js|])
-      (asServerFile [P.relfile|src/routes/index.js|])
+      (asTmplFile [relfile|src/routes/index.js|])
+      (asServerFile [relfile|src/routes/index.js|])
       ( Just $
           object
             [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter,
