@@ -109,6 +109,28 @@ spec_Parser = do
       let ast = AST [Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n"]
       parse source `shouldBe` Right ast
 
+    it "Parses multiple quoters" $ do
+      let source =
+            unlines
+              [ "test JSON {=json",
+                "  \"key\": \"value\"",
+                "json=}",
+                "test JSON2 {=json",
+                "  \"key\": \"value\"",
+                "json=}"
+              ]
+      let ast =
+            AST
+              [ Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n",
+                Decl "test" "JSON2" $ Quoter "json" "\n  \"key\": \"value\"\n"
+              ]
+      parse source `shouldBe` Right ast
+
+    it "Fails to parse a quoter with unmatched tags" $ do
+      let source = "test Failure {=a b=}"
+      let err = QuoterDifferentTags ("a", SourcePosition 1 17) ("b", SourcePosition 1 21)
+      parse source `shouldBe` Left err
+
     it "Requires dictionaries to have an ending bracket" $ do
       let source = "test Decl {"
       let expected =

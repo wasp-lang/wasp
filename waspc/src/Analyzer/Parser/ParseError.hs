@@ -7,4 +7,5 @@ data ParseError
     UnexpectedChar Char SourcePosition
   | -- | A parse error caused by some token
     ParseError Token
+  | QuoterDifferentTags (String, SourcePosition) (String, SourcePosition)
   deriving (Eq, Show)

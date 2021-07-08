@@ -17,8 +17,9 @@ data TokenClass
   | TDouble Double
   | TTrue
   | TFalse
-  | -- | Quote tag, contents
-    TQuoter (String, String)
+  | TLQuote String
+  | TRQuote String
+  | TQuoted String
   | TIdentifier String
   | TEOF
   deriving (Eq, Show)

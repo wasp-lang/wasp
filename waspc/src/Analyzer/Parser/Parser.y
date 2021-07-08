@@ -43,7 +43,9 @@ import Control.Monad.Trans.Class (lift)
   double { Token { tokenClass = TDouble $$ } }
   true   { Token { tokenClass = TTrue } }
   false  { Token { tokenClass = TFalse } }
-  quoter {Token { tokenClass =  TQuoter $$ } }
+  '{='   { Token { tokenClass = TLQuote $$ } }
+  quoted { Token { tokenClass = TQuoted $$ } }
+  '=}'   { Token { tokenClass =  TRQuote $$ } }
   ident  { Token { tokenClass = TIdentifier $$ } }
   '{'    { Token { tokenClass = TLCurly } }
   '}'    { Token { tokenClass = TRCurly } }
@@ -67,7 +69,7 @@ Expr :: { Expr }
   : Dict { $1 }
   | List { $1 }
   | Extimport { $1 }
-  | quoter { let (tag, body) = $1 in Quoter tag body }
+  | Quoter { $1 }
   | string { StringLiteral $1 }
   | int { IntegerLiteral $1 }
   | double { DoubleLiteral $1 }
@@ -98,6 +100,18 @@ Extimport :: { Expr }
 Name :: { ExtImportName }
   : ident { ExtImportModule $1 }
   | '{' ident '}' { ExtImportField $2 }
+
+Quoter :: { Expr }
+  : SourcePosition '{=' Quoted SourcePosition '=}' {% if $2 /= $5
+                                                       then lift $ throwE $ QuoterDifferentTags ($2, $1) ($5, $4)
+                                                       else return $ Quoter $2 $3
+                                                   }
+Quoted :: { String }
+  : quoted { $1 }
+  | Quoted quoted { $1 ++ $2 }
+
+SourcePosition :: { SourcePosition }
+  : {- empty -} {% fmap parserSourcePosition get }
 
 {
 parseError :: Token -> Parser a

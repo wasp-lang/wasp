@@ -4,6 +4,7 @@ module Analyzer.Parser.Util
     Parser,
     updatePosition,
     putInput,
+    setStartCode,
     ParserInput,
   )
 where
@@ -19,7 +20,8 @@ import Data.Word (Word8)
 --   - Current input to the lexer
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
-    parserRemainingInput :: ParserInput
+    parserRemainingInput :: ParserInput,
+    parserStartCode :: Int
   }
   deriving (Show)
 
@@ -28,7 +30,8 @@ initialState :: String -> ParserState
 initialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
-      parserRemainingInput = ('\n', [], source)
+      parserRemainingInput = ('\n', [], source),
+      parserStartCode = 0
     }
 
 type Parser a = StateT ParserState (Except ParseError) a
@@ -49,6 +52,10 @@ updatePosition str = do
 -- | Shorthand to replace the current lexer input in the parser state.
 putInput :: ParserInput -> Parser ()
 putInput inp = modify $ \s -> s {parserRemainingInput = inp}
+
+setStartCode :: Int -> Parser ()
+setStartCode state = do
+  modify $ \s -> s {parserStartCode = state}
 
 -- | The type of the input given to the parser/lexer
 --

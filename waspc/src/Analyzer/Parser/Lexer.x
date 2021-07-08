@@ -8,7 +8,7 @@ module Analyzer.Parser.Lexer
   ( lexer
   ) where
 
-import Analyzer.Parser.Util (ParserInput, Parser, ParserState (..), updatePosition, putInput)
+import Analyzer.Parser.Util (ParserInput, Parser, ParserState (..), updatePosition, putInput, setStartCode)
 import Analyzer.Parser.Token (Token (..), TokenClass (..))
 import Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.Trans.State.Lazy (get)
@@ -16,6 +16,8 @@ import Control.Monad.Trans.Except (throwE)
 import Control.Monad.Trans.Class (lift)
 import Data.Word (Word8)
 import Codec.Binary.UTF8.String (encodeChar)
+
+import Debug.Trace
 }
 
 -- Character set aliases
@@ -34,30 +36,30 @@ $any = [.$white]
 tokens :-
 
 -- Skips whitespace
-  $white+ ;
+<0>       $white+ ;
 
--- Quoters — For now a dirty method that hardcodes json and psl in lexer
--- TODO: figure out how to make this better
-  "{=json" $any* "json=}" { createValueToken $ \s -> TQuoter ("json", (unquote 6 s)) }
-  "{=psl" $any* "psl=}" { createValueToken $ \s -> TQuoter ("psl", (unquote 5 s)) }
+-- Quoter rules
+<0>       "{=" @ident { beginQuoter }
+<quoter>  @ident "=}" { endQuoter }
+<quoter>  $any { createValueToken TQuoted }
 
 -- Simple tokens
-  "{" { createConstToken TLCurly }
-  "}" { createConstToken TRCurly }
-  "," { createConstToken TComma }
-  ":" { createConstToken TColon }
-  "[" { createConstToken TLSquare }
-  "]" { createConstToken TRSquare }
-  "import" { createConstToken TImport }
-  "from" { createConstToken TFrom }
-  "true" { createConstToken TTrue }
-  "false" { createConstToken TFalse }
+<0>       "{" { createConstToken TLCurly }
+<0>       "}" { createConstToken TRCurly }
+<0>       "," { createConstToken TComma }
+<0>       ":" { createConstToken TColon }
+<0>       "[" { createConstToken TLSquare }
+<0>       "]" { createConstToken TRSquare }
+<0>       "import" { createConstToken TImport }
+<0>       "from" { createConstToken TFrom }
+<0>       "true" { createConstToken TTrue }
+<0>       "false" { createConstToken TFalse }
 
 -- Strings, numbers, identifiers
-  @string { createValueToken $ \s -> TString $ read s }
-  @double { createValueToken $ \s -> TDouble $ read s }
-  @integer { createValueToken $ \s -> TInt $ read s }
-  @ident { createValueToken $ \s -> TIdentifier s }
+<0>       @string { createValueToken $ \s -> TString $ read s }
+<0>       @double { createValueToken $ \s -> TDouble $ read s }
+<0>       @integer { createValueToken $ \s -> TInt $ read s }
+<0>       @ident { createValueToken $ \s -> TIdentifier s }
 
 {
 
@@ -88,11 +90,13 @@ alexInputPrevChar (c, _, _) = c
 lexer :: (Token -> Parser a) -> Parser a
 lexer parseToken = do
   input@(c, _, str) <- parserRemainingInput <$> get
-  case alexScan input 0 of
+  startCode <- parserStartCode <$> get
+  case alexScan input startCode of
     AlexEOF -> do
       createConstToken TEOF "" >>= parseToken
     AlexError _ -> do
       pos <- parserSourcePosition <$> get
+      trace (show startCode) $ pure ()
       lift $ throwE $ UnexpectedChar c pos
     AlexSkip input' len -> do
       updatePosition $ take len str
@@ -106,12 +110,19 @@ lexer parseToken = do
       putInput input'
       parseToken tok
 
--- | Removes wasp quoter beginning and ending block of length `len`
-unquote :: Int -> String -> String
-unquote len s = let takeLen = length s - len * 2
-                in  if takeLen < 0
-                      then ""
-                      else take takeLen $ drop len s
+-- | Takes a lexeme like "{=json" and sets the quoter start code
+beginQuoter :: String -> Parser Token
+beginQuoter leftQuoteTag = do
+  setStartCode quoter
+  let tag = drop 2 leftQuoteTag
+  createConstToken (TLQuote tag) leftQuoteTag
+
+-- | Takes a lexeme like "json=}" and returns to start code 0
+endQuoter :: String -> Parser Token
+endQuoter rightQuoteTag = do
+  setStartCode 0
+  let tag = take (length rightQuoteTag - 2) rightQuoteTag
+  createConstToken (TRQuote tag) rightQuoteTag
 
 -- | Makes an action that creates a token from a constant TokenClass.
 createConstToken :: TokenClass -> (String -> Parser Token)
