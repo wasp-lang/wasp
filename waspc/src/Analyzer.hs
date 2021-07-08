@@ -6,7 +6,7 @@ where
 import Analyzer.Decl (Decl)
 import qualified Analyzer.Evaluator as E
 import qualified Analyzer.Parser as P
-import Analyzer.StdLib (stdLib)
+import Analyzer.StdTypes (stdTypes)
 import qualified Analyzer.TypeChecker as T
 import Control.Arrow (left)
 import Control.Monad ((>=>))
@@ -21,5 +21,5 @@ data AnalyzeError
 analyze :: String -> Either AnalyzeError [Decl]
 analyze =
   (left ParseError . P.parse)
-    >=> (left TypeError . T.typeCheck stdLib)
-    >=> (left EvaluationError . E.evaluate stdLib)
+    >=> (left TypeError . T.typeCheck stdTypes)
+    >=> (left EvaluationError . E.evaluate stdTypes)

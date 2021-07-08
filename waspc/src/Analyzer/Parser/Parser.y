@@ -1,39 +1,56 @@
 {
+-- This file is processed by Happy (https://www.haskell.org/happy/) and generates
+-- the module `Analyzer.Parser.Parser`
+
 module Analyzer.Parser.Parser
   ( parse
   ) where
 
 import Analyzer.Parser.Lexer
-import Analyzer.Parser.Syntax
-import Analyzer.Parser.Util (Parser, initialState, ParseState (..))
+import Analyzer.Parser.AST
+import Analyzer.Parser.Token
+import Analyzer.Parser.ParseError
+import Analyzer.Parser.Util (Parser, initialState, ParserState (..))
 import Control.Monad.Trans.State.Lazy (evalStateT, get)
 import Control.Monad.Trans.Except (throwE, runExcept)
 import Control.Monad.Trans.Class (lift)
 }
 
+-- These lines tell Happy to call the main parsing function `parse`, that it
+-- will operate on the `Token` type, and to call `parseError` when the parser
+-- encounters an error.
 %name parse
 %tokentype { Token }
 %error { parseError }
 
+-- This sets up Happy to use a monadic parser and threaded lexer
+-- This means that Happy will request tokens as it needs them instead of
+-- requiring a list of all tokens up front. A monad can also be used in the
+-- lexer and parser to track state and errors.
 %monad { Parser }
 %lexer { lexer } { Token { tokenClass = TEOF } }
 
+-- This section defines the names that are used in the grammar section to
+-- refer to each type of token.
+
+-- The "$$" means that the value of the token is the pattern in that location
+
 %token
   import { Token { tokenClass = TImport } }
-  from { Token { tokenClass = TFrom } }
+  from   { Token { tokenClass = TFrom } }
   string { Token { tokenClass = TString $$ } }
-  int { Token { tokenClass = TInt $$ } }
+  int    { Token { tokenClass = TInt $$ } }
   double { Token { tokenClass = TDouble $$ } }
-  true { Token { tokenClass = TTrue } }
-  false { Token { tokenClass = TFalse } }
+  true   { Token { tokenClass = TTrue } }
+  false  { Token { tokenClass = TFalse } }
   quoter {Token { tokenClass =  TQuoter $$ } }
-  ident { Token { tokenClass = TIdent $$ } }
-  '{' { Token { tokenClass = TLCurly } }
-  '}' { Token { tokenClass = TRCurly } }
-  ',' { Token { tokenClass = TComma } }
-  ':' { Token { tokenClass = TColon } }
-  '[' { Token { tokenClass = TLSquare } }
-  ']' { Token { tokenClass = TRSquare } }
+  ident  { Token { tokenClass = TIdentifier $$ } }
+  '{'    { Token { tokenClass = TLCurly } }
+  '}'    { Token { tokenClass = TRCurly } }
+  ','    { Token { tokenClass = TComma } }
+  ':'    { Token { tokenClass = TColon } }
+  '['    { Token { tokenClass = TLSquare } }
+  ']'    { Token { tokenClass = TRSquare } }
 
 %%
 
@@ -50,7 +67,7 @@ Expr :: { Expr }
   : Dict { $1 }
   | List { $1 }
   | Extimport { $1 }
-  | quoter { let (open, body, close) = $1 in Quoter open body close }
+  | quoter { let (tag, body) = $1 in Quoter tag body }
   | string { StringLiteral $1 }
   | int { IntegerLiteral $1 }
   | double { DoubleLiteral $1 }

@@ -8,9 +8,17 @@ module Analyzer.TypeChecker
   )
 where
 
-import Analyzer.Lib (Lib)
 import Analyzer.Parser (AST, ExtImportName, Ident)
 import Analyzer.Type (Type (..))
+import Analyzer.TypeDefinitions (TypeDefinitions)
+
+-- | Checks that an AST conforms to the type rules of Wasp and produces a
+--   an AST labelled with type information.
+typeCheck :: TypeDefinitions -> AST -> Either TypeError TypedAST
+typeCheck _ _ = Right $ TypedAST {typedStmts = []}
+
+-- TODO: instead of having separate AST for type checker, give `Parser.AST` a
+-- "content" type argument that type information can be attached to
 
 newtype TypedAST = TypedAST {typedStmts :: [TypedStmt]}
 
@@ -22,8 +30,9 @@ data TypedExpr
   | StringLiteral String
   | IntegerLiteral Integer
   | DoubleLiteral Double
+  | BoolLiteral Bool
   | ExtImport ExtImportName String
-  | Var Ident Type
+  | Identifier Ident Type
   | -- TODO: What type to represent these?
     JSON String
   | PSL String
@@ -35,14 +44,10 @@ exprType (List _ t) = t
 exprType (StringLiteral _) = StringType
 exprType (IntegerLiteral _) = NumberType
 exprType (DoubleLiteral _) = NumberType
+exprType (BoolLiteral _) = BoolType
 exprType (ExtImport _ _) = ExtImportType
-exprType (Var _ t) = t
-exprType (JSON _) = JSONType
-exprType (PSL _) = PSLType
+exprType (Identifier _ t) = t
+exprType (JSON _) = QuoterType "json"
+exprType (PSL _) = QuoterType "psl"
 
 data TypeError
-
--- | Checks that an AST conforms to the type rules of Wasp and produces a
---   an AST labelled with type information.
-typeCheck :: Lib -> AST -> Either TypeError TypedAST
-typeCheck _ _ = Right $ TypedAST {typedStmts = []}

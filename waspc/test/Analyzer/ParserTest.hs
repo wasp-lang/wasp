@@ -11,6 +11,7 @@ spec_Parser = do
             unlines
               [ "test Decl {",
                 "  string: \"Hello Wasp =}\",",
+                "  escapedString: \"Look, a \\\"\",",
                 "  integer: 42,",
                 "  real: 3.14,",
                 "  yes: true,",
@@ -23,6 +24,7 @@ spec_Parser = do
               [ Decl "test" "Decl" $
                   Dict
                     [ ("string", StringLiteral "Hello Wasp =}"),
+                      ("escapedString", StringLiteral "Look, a \""),
                       ("integer", IntegerLiteral 42),
                       ("real", DoubleLiteral 3.14),
                       ("yes", BoolLiteral True),
@@ -94,7 +96,7 @@ spec_Parser = do
                 "  id Int @id",
                 "psl=}"
               ]
-      let ast = AST [Decl "test" "PSL" $ Quoter "psl" "\n  id Int @id\n" "psl"]
+      let ast = AST [Decl "test" "PSL" $ Quoter "psl" "\n  id Int @id\n"]
       parse source `shouldBe` Right ast
 
     it "Parses quoted JSON" $ do
@@ -104,7 +106,7 @@ spec_Parser = do
                 "  \"key\": \"value\"",
                 "json=}"
               ]
-      let ast = AST [Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n" "json"]
+      let ast = AST [Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n"]
       parse source `shouldBe` Right ast
 
     it "Requires dictionaries to have an ending bracket" $ do
@@ -114,7 +116,7 @@ spec_Parser = do
               ParseError $
                 Token
                   { tokenClass = TEOF,
-                    tokenPosn = Posn 1 12,
+                    tokenPosition = SourcePosition 1 12,
                     tokenLexeme = ""
                   }
       parse source `shouldBe` expected

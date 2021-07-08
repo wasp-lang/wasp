@@ -1,14 +1,15 @@
 module Analyzer.Parser.Util
-  ( ParseState (..),
+  ( ParserState (..),
     initialState,
     Parser,
-    updatePosn,
+    updatePosition,
     putInput,
-    AlexInput,
+    ParserInput,
   )
 where
 
-import Analyzer.Parser.Syntax (ParseError, Posn (..))
+import Analyzer.Parser.ParseError (ParseError)
+import Analyzer.Parser.Token (SourcePosition (..))
 import Control.Monad.Trans.Except (Except)
 import Control.Monad.Trans.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
@@ -16,38 +17,43 @@ import Data.Word (Word8)
 -- | Tracks state of the parser, which is
 --   - Current line/column position
 --   - Current input to the lexer
-data ParseState = ParseState
-  { psPosn :: Posn,
-    psInput :: AlexInput
+data ParserState = ParserState
+  { parserSourcePosition :: SourcePosition,
+    parserRemainingInput :: ParserInput
   }
   deriving (Show)
 
 -- | Create an initial state from a source string
-initialState :: String -> ParseState
+initialState :: String -> ParserState
 initialState source =
-  ParseState
-    { psPosn = Posn 1 1,
-      psInput = ('\n', [], source)
+  ParserState
+    { parserSourcePosition = SourcePosition 1 1,
+      parserRemainingInput = ('\n', [], source)
     }
 
-type Parser a = StateT ParseState (Except ParseError) a
+type Parser a = StateT ParserState (Except ParseError) a
 
--- | @updatePosn str n@ updates the parse state position based on the first
---   @n@ characters in @str@, incrementing line count on newlines only.
-updatePosn :: String -> Int -> Parser ()
-updatePosn str len = do
-  pos <- psPosn <$> get
-  let pos' = go (take len str) pos
-  modify $ \s -> s {psPosn = pos'}
+-- | @updatePosition str@ updates the parse state position based on the
+--   characters in @str@, incrementing line count on newlines only.
+updatePosition :: String -> Parser ()
+updatePosition str = do
+  pos <- parserSourcePosition <$> get
+  let pos' = go str pos
+  modify $ \s -> s {parserSourcePosition = pos'}
   where
     -- Scan the string character by character to look for newlines
     go [] pos = pos
-    go ('\n' : cs) (Posn line _) = go cs $ Posn (line + 1) 1
-    go (_ : cs) (Posn line col) = go cs $ Posn line (col + 1)
+    go ('\n' : cs) (SourcePosition line _) = go cs $ SourcePosition (line + 1) 1
+    go (_ : cs) (SourcePosition line col) = go cs $ SourcePosition line (col + 1)
 
 -- | Shorthand to replace the current lexer input in the parser state.
-putInput :: AlexInput -> Parser ()
-putInput inp = modify $ \s -> s {psInput = inp}
+putInput :: ParserInput -> Parser ()
+putInput inp = modify $ \s -> s {parserRemainingInput = inp}
 
--- | The type of the input given to the lexer
-type AlexInput = (Char, [Word8], String)
+-- | The type of the input given to the parser/lexer
+--
+--   An input @(c, bs, str)@ represents
+--   - @c@ The previous character consumed by the lexer
+--   - @bs@ The UTF8 bytes of the current character being lexed
+--   - @str@ The remaining input to be lexed and parsed
+type ParserInput = (Char, [Word8], String)

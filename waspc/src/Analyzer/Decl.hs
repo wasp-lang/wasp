@@ -8,16 +8,17 @@ module Analyzer.Decl
   )
 where
 
-import Analyzer.Lib (IsDecl)
+import Analyzer.TypeDefinitions (IsDeclType)
 import Data.Maybe (mapMaybe)
 import Data.Typeable (Typeable, cast)
 
 -- | Used to store a heterogenous lists of evaluated declarations during
 --   evaluation.
 data Decl where
-  Decl :: (Typeable a, IsDecl a) => String -> a -> Decl
+  -- | @Decl "Name" value@ results from a declaration statement "type Name value".
+  Decl :: (Typeable a, IsDeclType a) => String -> a -> Decl
 
--- | Extracts all declarations of a certain type from a list of `Decl`s.
+-- | Extracts all declarations of a certain type from a @[Decl]@s
 --
 --  Example:
 --
@@ -30,6 +31,6 @@ data Decl where
 --              ]
 --  takeDecls @Person decls == [("Bob", Person "Bob" 42), ("Alice", Person "Alice" 32)]
 --  @
-takeDecls :: (Typeable a, IsDecl a) => [Decl] -> [(String, a)]
+takeDecls :: (Typeable a, IsDeclType a) => [Decl] -> [(String, a)]
 takeDecls = mapMaybe $ \case
   Decl name value -> (name,) <$> cast value

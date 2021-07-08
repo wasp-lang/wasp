@@ -13,9 +13,9 @@ data Type
   | ListType Type
   | StringType
   | NumberType
+  | BoolType
   | ExtImportType
-  | JSONType
-  | PSLType
+  | QuoterType String
 
 -- | The type of an entry in a `Dict`.
 data DictEntryType
