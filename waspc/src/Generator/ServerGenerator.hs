@@ -7,7 +7,7 @@ module Generator.ServerGenerator
 where
 
 import qualified Cli.Common
-import Command.Common (findWaspProjectRootDirFromCwd)
+import Command.Common (findWaspProjectRootDirFromCwdIO)
 import CompileOptions (CompileOptions)
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
@@ -66,7 +66,7 @@ genServer wasp _ =
 --   for progress of this.
 preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  waspProjectDir <- findWaspProjectRootDirFromCwdIO
   let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
   let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
   let dbMigrationsDirInGenProjectDirAbs = SP.toFilePath $ genProjectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
@@ -74,9 +74,6 @@ preCleanup _ outDir _ = do
 
   removeDirectoryRecursive dbMigrationsDirInGenProjectDirAbs
   removeFile dotEnvAbsFilePath
-
--- If .env gets removed but there is old .env file in generated project from previous attempts,
--- we need to make sure we remove it.
 
 genDotEnv :: Wasp -> [FileDraft]
 genDotEnv wasp =

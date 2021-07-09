@@ -1,6 +1,8 @@
 module Command.Common
-  ( findWaspProjectRootDirFromCwd,
-    findWaspProjectRoot,
+  ( findWaspProjectRootDirFromCwdIO,
+    findWaspProjectRootDirFromCwdCmd,
+    findWaspProjectRootIO,
+    findWaspProjectRootCmd,
     waspSaysC,
     alphaWarningMessage,
   )
@@ -25,30 +27,46 @@ import System.Directory
   )
 import qualified System.FilePath as FP
 
-findWaspProjectRoot :: Path Abs (Dir ()) -> Command (Path Abs (Dir WaspProjectDir))
-findWaspProjectRoot currentDir = do
+-- Damiano: this is for IO
+findWaspProjectRootIO :: Path Abs (Dir ()) -> IO (Maybe (Path Abs (Dir WaspProjectDir)))
+findWaspProjectRootIO currentDir = do
   let absCurrentDirFp = SP.toFilePath currentDir
-  doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
-  unless doesCurrentDirExist (throwError notFoundError)
-  let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.toFilePath dotWaspRootFileInWaspProjectDir
-  isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
-  if isCurrentDirRoot
-    then return $ SP.castDir currentDir
+  absCurrentDirFpExists <- doesPathExist absCurrentDirFp
+  if (not absCurrentDirFpExists)
+    then return Nothing
     else do
-      let parentDir = SP.parent currentDir
-      when (parentDir == currentDir) (throwError notFoundError)
-      findWaspProjectRoot parentDir
-  where
-    notFoundError =
-      CommandError
-        ( "Couldn't find wasp project root - make sure"
-            ++ " you are running this command from Wasp project."
-        )
+      let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.toFilePath dotWaspRootFileInWaspProjectDir
+      dotWaspRootFilePathExists <- doesFileExist dotWaspRootFilePath
+      if (not dotWaspRootFilePathExists)
+        then do
+          let parentDir = SP.parent currentDir
+          if (parentDir == currentDir)
+            then return Nothing
+            else findWaspProjectRootIO parentDir
+        else return $ Just (SP.castDir currentDir)
 
-findWaspProjectRootDirFromCwd :: Command (Path Abs (Dir WaspProjectDir))
-findWaspProjectRootDirFromCwd = do
+-- Damiano: this is for Command
+findWaspProjectRootCmd :: Path Abs (Dir ()) -> Command (Path Abs (Dir WaspProjectDir))
+findWaspProjectRootCmd currentDir = do
+  maybeWaspProjectRoot <- liftIO (findWaspProjectRootIO currentDir)
+  case maybeWaspProjectRoot of
+    Nothing -> error "Project root directory not found!"
+    Just waspProjectRoot -> return waspProjectRoot
+
+-- Damiano: IO
+findWaspProjectRootDirFromCwdIO :: IO (Path Abs (Dir WaspProjectDir))
+findWaspProjectRootDirFromCwdIO = do
   absCurrentDir <- liftIO getCurrentDirectory
-  findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
+  maybeWaspProjectRoot <- findWaspProjectRootIO (fromJust $ SP.parseAbsDir absCurrentDir)
+  case maybeWaspProjectRoot of
+    Nothing -> error "Project root directory not found!"
+    Just waspProjectRoot -> return waspProjectRoot
+
+-- Damiano: Command
+findWaspProjectRootDirFromCwdCmd :: Command (Path Abs (Dir WaspProjectDir))
+findWaspProjectRootDirFromCwdCmd = do
+  absCurrentDir <- liftIO getCurrentDirectory
+  findWaspProjectRootCmd (fromJust $ SP.parseAbsDir absCurrentDir)
 
 waspSaysC :: String -> Command ()
 waspSaysC = liftIO . waspSays
