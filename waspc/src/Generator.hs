@@ -36,8 +36,13 @@ writeWebAppCode wasp dstDir compileOptions = do
   ServerGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genServer wasp compileOptions)
   writeFileDrafts dstDir (genDb wasp compileOptions)
+  if checkIfPrismaSchemaChanged
+    then error "Your Prisma schema has changed, you should run wasp db migrate-dev."
+    else return ()
   writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
   writeDotWaspInfo dstDir
+
+checkIfPrismaSchemaChanged = undefined
 
 -- | Writes file drafts while using given destination dir as root dir.
 --   TODO(martin): We could/should parallelize this.
