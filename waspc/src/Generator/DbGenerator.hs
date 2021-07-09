@@ -4,6 +4,8 @@ module Generator.DbGenerator
     dbSchemaFileInProjectRootDir,
     syncedPrismaSchemaChecksumFileInProjectRootDir,
     writePrismaSchemaChecksumToFile,
+    readPrismaSchemaChecksumFromFile,
+    calcFileChecksum,
   )
 where
 
@@ -94,6 +96,9 @@ writePrismaSchemaChecksumToFile projectRootDir = do
   let dstFile = projectRootDir </> syncedPrismaSchemaChecksumFileInProjectRootDir
   checksum <- calcFileChecksum prismaSchemaPathAbs
   writeFile (SP.toFilePath dstFile) checksum
+
+readPrismaSchemaChecksumFromFile :: Path Abs (Dir ProjectRootDir) -> IO String
+readPrismaSchemaChecksumFromFile projectRootDir = undefined
 
 -- TODO: Move this to more general module (utils?).
 calcFileChecksum :: Path Abs File -> IO String
