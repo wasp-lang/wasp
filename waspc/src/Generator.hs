@@ -6,6 +6,7 @@ module Generator
 where
 
 import CompileOptions (CompileOptions)
+import Control.Monad (when)
 import qualified Data.Text
 import qualified Data.Text.IO
 import Data.Time.Clock
@@ -36,13 +37,19 @@ writeWebAppCode wasp dstDir compileOptions = do
   ServerGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genServer wasp compileOptions)
   writeFileDrafts dstDir (genDb wasp compileOptions)
-  if checkIfPrismaSchemaChanged
-    then error "Your Prisma schema has changed, you should run wasp db migrate-dev."
-    else return ()
+  when checkIfPrismaSchemaIsSyncedWithTheDb $ error "Your Prisma schema has changed, you should run wasp db migrate-dev."
   writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
   writeDotWaspInfo dstDir
 
-checkIfPrismaSchemaChanged = undefined
+-- TODO: Where to put it?
+checkIfPrismaSchemaIsSyncedWithTheDb :: IO Bool
+checkIfPrismaSchemaIsSyncedWithTheDb = do
+  -- 1. Read the checksum of the last synced prisma schema.
+  syncedPrismaSchemaChecksum <- readPrismaSchemaChecksumFromFile projectRootDir -- TODO: not a very good name (sync!?)
+  -- 2. Generate checksum for the current prisma schema (one that was just generated).
+  -- 3. Compare the two checksums.
+  -- 4. If they are different, return false, otherwise true.
+  return True
 
 -- | Writes file drafts while using given destination dir as root dir.
 --   TODO(martin): We could/should parallelize this.
