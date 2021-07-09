@@ -18,18 +18,11 @@ spec_parseAction :: Spec
 spec_parseAction =
   describe "Parsing action declaration" $ do
     let parseAction = runWaspParser action
-    it "When given a valid action declaration, returns correct AST (no auth)" $ do
-      let testAction = genActionAST Nothing
-      let testActionInput = genActionInput Nothing
-      parseAction testActionInput `shouldBe` Right testAction
-    it "When given a valid action declaration, returns correct AST (auth = true)" $ do
-      let testAction = genActionAST (Just True)
-      let testActionInput = genActionInput (Just True)
-      parseAction testActionInput `shouldBe` Right testAction
-    it "When given a valid action declaration, returns correct AST (auth = false)" $ do
-      let testAction = genActionAST (Just False)
-      let testActionInput = genActionInput (Just False)
-      parseAction testActionInput `shouldBe` Right testAction      
+    let testWhenAuth auth = it ("When given a valid action declaration, returns correct AST(action.auth = " ++ show auth ++ ")") $
+          parseAction (genActionCode auth) `shouldBe` Right (genActionAST auth)
+    testWhenAuth (Just True)
+    testWhenAuth (Just False)
+    testWhenAuth (Nothing)
     it "When given action wasp declaration without 'fn' property, should return Left" $ do
       isLeft (parseAction "action myAction { }") `shouldBe` True
       where
@@ -45,8 +38,8 @@ spec_parseAction =
                 Wasp.Action._entities = Nothing,
                 Wasp.Action._auth = aApplyAuth
               }
-        genActionInput :: Maybe Bool -> String
-        genActionInput aApplyAuth = ( 
+        genActionCode :: Maybe Bool -> String
+        genActionCode aApplyAuth = ( 
             "action " ++ testActionName ++ " {\n"
               ++ "  fn: import { "
               ++ testActionJsFunctionName
@@ -54,6 +47,7 @@ spec_parseAction =
               ++ authStr aApplyAuth
               ++ "}"
           )
+
         authStr :: Maybe Bool -> String
         authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
         authStr _ = "\n"        

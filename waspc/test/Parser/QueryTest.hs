@@ -13,23 +13,16 @@ spec_parseQuery :: Spec
 spec_parseQuery =
   describe "Parsing query declaration" $ do
     let parseQuery = runWaspParser query
-    it "When given a valid query declaration, returns correct AST(without auth)" $ do
-      let testQuery = genQueryAST Nothing
-      let testQueryInput = genQueryInput Nothing
-      parseQuery testQueryInput `shouldBe` Right testQuery
+    let testWhenAuth auth = it ("When given a valid query declaration, returns correct AST(query.auth = " ++ show auth ++ ")") $
+          parseQuery (genQueryCode auth) `shouldBe` Right (genQueryAST auth)
+    testWhenAuth (Just True)
+    testWhenAuth (Just False)
+    testWhenAuth (Nothing)
     it "When given query wasp declaration without 'fn' property, should return Left" $ do
       isLeft (parseQuery "query myQuery { }") `shouldBe` True
-    it "When given a valid query declaration, returns correct AST(with auth=true)" $ do
-      let testQuery = genQueryAST (Just True)
-      let testQueryInput = genQueryInput (Just True)
-      parseQuery testQueryInput `shouldBe` Right testQuery
-    it "When given a valid query declaration, returns correct AST(with auth=false)" $ do
-      let testQuery = genQueryAST (Just False)
-      let testQueryInput = genQueryInput (Just False)
-      parseQuery testQueryInput `shouldBe` Right testQuery
         where
-          genQueryInput :: Maybe Bool -> String
-          genQueryInput qApplyAuth = (
+          genQueryCode :: Maybe Bool -> String
+          genQueryCode qApplyAuth = (
                 "query " ++ testQueryName ++ " {\n"
                   ++ "  fn: import { "
                   ++ testQueryJsFunctionName
@@ -37,10 +30,7 @@ spec_parseQuery =
                   ++ "  entities: [Task, Project]"
                   ++ authStr qApplyAuth
                   ++ "}"
-                )
-          authStr :: Maybe Bool -> String
-          authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
-          authStr _ = "\n"                
+                )                
           genQueryAST :: Maybe Bool -> Wasp.Query.Query
           genQueryAST qApplyAuth = Wasp.Query.Query
               { Wasp.Query._name = testQueryName,
@@ -53,6 +43,10 @@ spec_parseQuery =
                 Wasp.Query._entities = Just ["Task", "Project"],
                 Wasp.Query._auth = qApplyAuth
               }
+
+          authStr :: Maybe Bool -> String
+          authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
+          authStr _ = "\n"
           testQueryName = "myQuery"
           testQueryJsFunctionName = "myJsQuery"
           testQueryJsFunctionFrom = [SP.relfileP|some/path|]

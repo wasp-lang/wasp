@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isJust)
 import Generator.FileDraft (FileDraft)
 import qualified Generator.ServerGenerator.Common as C
 import Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
@@ -89,19 +89,19 @@ genOperationsRouter wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,
-          "isAuthEnabled" .= (or $ map authEnabled operations)
+          "isAuthEnabled" .= (isJust $ getAuth wasp)
         ]
     makeOperationRoute operation =
       let operationName = Wasp.Operation.getName operation
        in object
             [ "importIdentifier" .= operationName,
               "importPath" .= ("./" ++ SP.fromRelFileP (fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation)),
-              "routePath" .= ("/" ++ operationRouteInOperationsRouter operation)
-              "isAuthEnabled" .= (authEnabled operation)
+              "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
+              "isUsingAuth" .= (isUsingAuth operation)
             ]
       
-    authEnabled :: Wasp.Operation.Operation -> Bool
-    authEnabled op = (Wasp.Operation.getAuth op /= Just False)            
+    isUsingAuth :: Wasp.Operation.Operation -> Bool
+    isUsingAuth op = (Wasp.Operation.getAuth op /= Just False)            
 
 operationRouteInOperationsRouter :: Wasp.Operation.Operation -> String
 operationRouteInOperationsRouter = U.camelToKebabCase . Wasp.Operation.getName
