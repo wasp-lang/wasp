@@ -1,4 +1,4 @@
-module Analyzer.Parser.Util
+module Analyzer.Parser.Monad
   ( ParserState (..),
     initialState,
     Parser,
@@ -15,9 +15,8 @@ import Control.Monad.Trans.Except (Except)
 import Control.Monad.Trans.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
 
--- | Tracks state of the parser, which is
---   - Current line/column position
---   - Current input to the lexer
+type Parser a = StateT ParserState (Except ParseError) a
+
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
     parserRemainingInput :: ParserInput,
@@ -25,7 +24,6 @@ data ParserState = ParserState
   }
   deriving (Show)
 
--- | Create an initial state from a source string
 initialState :: String -> ParserState
 initialState source =
   ParserState
@@ -33,8 +31,6 @@ initialState source =
       parserRemainingInput = ('\n', [], source),
       parserStartCode = 0
     }
-
-type Parser a = StateT ParserState (Except ParseError) a
 
 -- | Updates the current position of parser in the source based on the
 --   latest parsed piece of source.

@@ -26,10 +26,10 @@ module Analyzer.Parser
 where
 
 import Analyzer.Parser.AST
+import Analyzer.Parser.Monad (initialState)
 import Analyzer.Parser.ParseError
 import qualified Analyzer.Parser.Parser as P
 import Analyzer.Parser.Token
-import Analyzer.Parser.Util (initialState)
 import Control.Monad.Trans.Except (runExcept)
 import Control.Monad.Trans.State (evalStateT)
 

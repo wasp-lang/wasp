@@ -23,11 +23,18 @@ data EnumType = EnumType {etName :: String, etVariants :: [String]}
 
 data DeclType = DeclType {dtName :: String, dtBodyType :: Type}
 
--- | Defines the declaration types and enum type that Analyzer is to take into
---   consideration
+-- | The parser, type-checking, and evaluator require information about declaration,
+--   enum, and quoter types, but the specific types are not hardcoded into each
+--   phase of the analyzer.
 --
---   The are used during type-checking and for constructing instances of
---   Haskell types that correspond to these declaration and enums.
+--   Instead, this information is injected into them via 'TypeDefinitions',
+--   which defines in one place the specific declaration/enum/quoter types.
+--
+--   This enables us to easily modify / add / remove specific types as Wasp evolves as a language without
+--   having to touch the core functionality of the Analyzer.
+--
+--   The type definitions are used for type-checking and constructing instances
+--   of Haskell types that correspond to the declarations and enums in the Wasp file.
 data TypeDefinitions = TypeDefinitions
   { declTypes :: M.HashMap String DeclType,
     enumTypes :: M.HashMap String EnumType
@@ -77,7 +84,7 @@ addEnumType lib =
 --   Analyzer.Type, this allows us to specify it as a haskell type which knows how to translate itself into Analyzer.Type representation and back.
 --   If this haskell type satisfies certain requirements, the knowledge to translate itself back and forth into Analyzer.Type representation can be automatically derived from its shape.
 --
-Requirements on type:
+--  Requirements on type:
 --   - The type must be an instance of `Generic`.
 --   - The type must be an ADT with one constructor.
 --   - The type must have just one field OR use record syntax (in which case it can have multiple fields).
@@ -114,7 +121,8 @@ class IsDeclType a where
   _declTypeName :: String
   _declTypeBodyType :: Type
 
--- | Encodes the requirements of a Wasp enum.
+-- | Marks Haskell type as a representation of a specific Wasp enum type.
+--   Check "IsDeclType" above for more details.
 --
 -- Requirements on type:
 --   - The type must be an instance of 'Generic'.

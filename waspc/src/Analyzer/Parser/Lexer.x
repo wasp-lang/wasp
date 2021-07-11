@@ -8,7 +8,7 @@ module Analyzer.Parser.Lexer
   ( lexer
   ) where
 
-import Analyzer.Parser.Util (ParserInput, Parser, ParserState (..), updatePosition, putInput, setStartCode)
+import Analyzer.Parser.Monad (ParserInput, Parser, ParserState (..), updatePosition, putInput, setStartCode)
 import Analyzer.Parser.Token (Token (..), TokenClass (..))
 import Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.Trans.State.Lazy (get)
@@ -16,8 +16,6 @@ import Control.Monad.Trans.Except (throwE)
 import Control.Monad.Trans.Class (lift)
 import Data.Word (Word8)
 import Codec.Binary.UTF8.String (encodeChar)
-
-import Debug.Trace
 }
 
 -- Character set aliases
@@ -39,7 +37,11 @@ tokens :-
 -- Skips whitespace
 <0>       $white+ ;
 
--- Quoter rules
+-- Quoter rules:
+-- Uses Alex start codes to lex quoted characters with different rules:
+-- - On "{=tag", enter <quoter> start code and make a TLQuote token
+-- - While in <quoter>, if "tag=}" is seen, enter <0> (default) start code and make a TRQuote token
+-- - Otherwise, take one character at a time and make a TQuoted token
 <0>       "{=" @ident { beginQuoter }
 <quoter>  @ident "=}" { endQuoter }
 <quoter>  $any { createValueToken TQuoted }
@@ -102,17 +104,16 @@ lexer parseToken = do
       createConstToken TEOF "" >>= parseToken
     AlexError _ -> do
       pos <- parserSourcePosition <$> get
-      trace (show startCode) $ pure ()
-      lift $ throwE $ UnexpectedChar c pos
+      lift $ throwE $ UnexpectedChar previousChar pos
     AlexSkip input' numCharsSkipped -> do
-      updatePosition $ take len str
+      updatePosition $ take numCharsSkipped remainingSource
       putInput input'
       lexer parseToken
     AlexToken input' tokenLength action -> do
       -- Token is made before `updatePosition` so that its `tokenPosition` points to
       -- the start of the token's lexeme.
-      token <- action $ take len str
-      updatePosition $ take len str
+      token <- action $ take tokenLength remainingSource
+      updatePosition $ take tokenLength remainingSource
       putInput input'
       parseToken token
 

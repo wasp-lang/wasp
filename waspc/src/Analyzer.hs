@@ -6,7 +6,7 @@ where
 import Analyzer.Decl (Decl)
 import qualified Analyzer.Evaluator as E
 import qualified Analyzer.Parser as P
-import Analyzer.StdTypes (stdTypes)
+import Analyzer.StdTypeDefinitions (stdTypes)
 import qualified Analyzer.TypeChecker as T
 import Control.Arrow (left)
 import Control.Monad ((>=>))

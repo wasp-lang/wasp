@@ -10,7 +10,7 @@ import Analyzer.Parser.Lexer
 import Analyzer.Parser.AST
 import Analyzer.Parser.Token
 import Analyzer.Parser.ParseError
-import Analyzer.Parser.Util (Parser, initialState, ParserState (..))
+import Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
 import Control.Monad.Trans.State.Lazy (evalStateT, get)
 import Control.Monad.Trans.Except (throwE, runExcept)
 import Control.Monad.Trans.Class (lift)
