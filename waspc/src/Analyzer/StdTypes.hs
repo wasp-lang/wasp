@@ -5,7 +5,7 @@
 -- When the Analyzer is finished, these types should be moved to the `Wasp`
 -- module.
 
-module Analyzer.StdTypes
+module Analyzer.StdTypeDefinitions
   ( AuthMethod (..),
     App (..),
     stdTypes,

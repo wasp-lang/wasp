@@ -33,7 +33,6 @@ data TypeDefinitions = TypeDefinitions
     enumTypes :: M.HashMap String EnumType
   }
 
--- | A library with no types
 empty :: TypeDefinitions
 empty = TypeDefinitions {declTypes = M.empty, enumTypes = M.empty}
 
@@ -73,11 +72,15 @@ addEnumType lib =
   let enum = EnumType {etName = _enumTypeName @typ, etVariants = _enumTypeVariants @typ}
    in lib {enumTypes = M.insert (_enumTypeName @typ) enum $ enumTypes lib}
 
--- | Encodes the requirements of a Wasp decl.
+-- | Marks haskell type as a representation of a specific Wasp declaration type.
+--   Instead of defining a Wasp declaration type manually by constructing it with constructors from
+--   Analyzer.Type, this allows us to specify it as a haskell type which knows how to translate itself into Analyzer.Type representation and back.
+--   If this haskell type satisfies certain requirements, the knowledge to translate itself back and forth into Analyzer.Type representation can be automatically derived from its shape.
 --
---   For an instance to be created for a type with a `Generic` instance,
---   - The type must be an ADT with one constructor
---   - The type must have one field OR use record syntax
+Requirements on type:
+--   - The type must be an instance of `Generic`.
+--   - The type must be an ADT with one constructor.
+--   - The type must have just one field OR use record syntax (in which case it can have multiple fields).
 --
 --   Some assumptions are required of `_declType` and `a`:
 --   - If `_declType` is a `Dict`, then
@@ -113,9 +116,10 @@ class IsDeclType a where
 
 -- | Encodes the requirements of a Wasp enum.
 --
---   For an instance to be created for a type with a `Generic` instance,
---   - The type must be an ADT with at least one constructor
---   - Each constructor of the type must have 0 fields
+-- Requirements on type:
+--   - The type must be an instance of 'Generic'.
+--   - The type must be an ADT with at least one constructor.
+--   - Each constructor of the type must have 0 fields.
 --
 --   Some properties are required of `_enumVariants` and `a`:
 --   - If and only if there is a string `x` in `_enumVariants`, then `a` has

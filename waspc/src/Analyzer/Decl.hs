@@ -15,7 +15,7 @@ import Data.Typeable (Typeable, cast)
 -- | Used to store a heterogenous lists of evaluated declarations during
 --   evaluation.
 data Decl where
-  -- | @Decl "Name" value@ results from a declaration statement "type Name value".
+  -- | @Decl "Name" value@ results from a declaration statement "declType Name value".
   Decl :: (Typeable a, IsDeclType a) => String -> a -> Decl
 
 -- | Extracts all declarations of a certain type from a @[Decl]@s

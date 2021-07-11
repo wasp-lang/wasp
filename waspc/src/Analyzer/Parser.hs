@@ -3,17 +3,15 @@ module Analyzer.Parser
 
     -- | The "Analyzer.Parser" module is built of two parts:
     --
-    -- - The lexer, generated with Alex, which creates tokens from a string of
-    --   the wasp language
+    -- - The lexer, generated with Alex, which creates tokens from wasp source.
     -- - The parser, generated with Happy, which builds an abstract syntax
-    --   tree from the tokens
+    --   tree from the tokens.
     --
-    -- These two parts don't really exist as separate passes over the source:
-    -- they happen simultaneously. The parser asks the lexer to create tokens
-    -- one at a time as needed.
+    -- Lexing and parsing are not implemented as two separate phases that happen one after another.
+    -- Instead, parser controls and uses lexer internally to produce tokens as needed, on the go.
     --
-    -- A "Parser" monad ties both of the parts together; it manages state and
-    -- exceptions for the parser and the lexer.
+    -- Both lexer and parser are operating in a "Parser" monad, which manages state and exceptions for the parser,
+    -- and therefore also for the lexer, which functions as a part of and is controlled by the parser.
     parse,
     AST (..),
     Stmt (..),

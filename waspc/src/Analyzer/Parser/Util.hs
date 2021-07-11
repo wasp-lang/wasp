@@ -36,26 +36,26 @@ initialState source =
 
 type Parser a = StateT ParserState (Except ParseError) a
 
--- | @updatePosition str@ updates the parse state position based on the
---   characters in @str@, incrementing line count on newlines only.
+-- | Updates the current position of parser in the source based on the
+--   latest parsed piece of source.
 updatePosition :: String -> Parser ()
-updatePosition str = do
-  pos <- parserSourcePosition <$> get
-  let pos' = go str pos
-  modify $ \s -> s {parserSourcePosition = pos'}
+updatePosition parsedSourcePiece = do
+  position <- parserSourcePosition <$> get
+  let position' = calcNewPosition parsedSourcePiece position
+  modify $ \s -> s {parserSourcePosition = position'}
   where
     -- Scan the string character by character to look for newlines
-    go [] pos = pos
-    go ('\n' : cs) (SourcePosition line _) = go cs $ SourcePosition (line + 1) 1
-    go (_ : cs) (SourcePosition line col) = go cs $ SourcePosition line (col + 1)
+    calcNewPosition [] position = position
+    calcNewPosition ('\n' : cs) (SourcePosition line _) = calcNewPosition cs $ SourcePosition (line + 1) 1
+    calcNewPosition (_ : cs) (SourcePosition line col) = calcNewPosition cs $ SourcePosition line (col + 1)
 
 -- | Shorthand to replace the current lexer input in the parser state.
 putInput :: ParserInput -> Parser ()
-putInput inp = modify $ \s -> s {parserRemainingInput = inp}
+putInput input = modify $ \s -> s {parserRemainingInput = input}
 
 setStartCode :: Int -> Parser ()
-setStartCode state = do
-  modify $ \s -> s {parserStartCode = state}
+setStartCode startCode = do
+  modify $ \s -> s {parserStartCode = startCode}
 
 -- | The type of the input given to the parser/lexer
 --
