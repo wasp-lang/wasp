@@ -11,9 +11,8 @@ module Analyzer.Parser.Lexer
 import Analyzer.Parser.Monad (ParserInput, Parser, ParserState (..), updatePosition, putInput, setStartCode)
 import Analyzer.Parser.Token (Token (..), TokenClass (..))
 import Analyzer.Parser.ParseError (ParseError (..))
-import Control.Monad.Trans.State.Lazy (get)
-import Control.Monad.Trans.Except (throwE)
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.State.Lazy (get)
+import Control.Monad.Except (throwError)
 import Data.Word (Word8)
 import Codec.Binary.UTF8.String (encodeChar)
 }
@@ -104,7 +103,7 @@ lexer parseToken = do
       createConstToken TEOF "" >>= parseToken
     AlexError _ -> do
       pos <- parserSourcePosition <$> get
-      lift $ throwE $ UnexpectedChar previousChar pos
+      throwError $ UnexpectedChar previousChar pos
     AlexSkip input' numCharsSkipped -> do
       updatePosition $ take numCharsSkipped remainingSource
       putInput input'

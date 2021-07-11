@@ -30,8 +30,8 @@ import Analyzer.Parser.Monad (initialState)
 import Analyzer.Parser.ParseError
 import qualified Analyzer.Parser.Parser as P
 import Analyzer.Parser.Token
-import Control.Monad.Trans.Except (runExcept)
-import Control.Monad.Trans.State (evalStateT)
+import Control.Monad.Except (runExcept)
+import Control.Monad.State (evalStateT)
 
 parse :: String -> Either ParseError AST
 parse = runExcept . evalStateT P.parse . initialState

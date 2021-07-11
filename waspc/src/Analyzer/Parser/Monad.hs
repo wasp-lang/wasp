@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Analyzer.Parser.Monad
   ( ParserState (..),
     initialState,
@@ -11,11 +13,28 @@ where
 
 import Analyzer.Parser.ParseError (ParseError)
 import Analyzer.Parser.Token (SourcePosition (..))
-import Control.Monad.Trans.Except (Except)
-import Control.Monad.Trans.State.Lazy (StateT, get, modify)
+import Control.Monad.Except (Except)
+import Control.Monad.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
 
 type Parser a = StateT ParserState (Except ParseError) a
+
+updatePosition :: String -> Parser ()
+updatePosition parsedSourcePiece = do
+  position <- parserSourcePosition <$> get
+  let position' = calcNewPosition parsedSourcePiece position
+  modify $ \s -> s {parserSourcePosition = position'}
+  where
+    -- Scan the string character by character to look for newlines
+    calcNewPosition [] position = position
+    calcNewPosition ('\n' : cs) (SourcePosition line _) = calcNewPosition cs $ SourcePosition (line + 1) 1
+    calcNewPosition (_ : cs) (SourcePosition line col) = calcNewPosition cs $ SourcePosition line (col + 1)
+
+putInput :: ParserInput -> Parser ()
+putInput input = modify $ \s -> s {parserRemainingInput = input}
+
+setStartCode :: Int -> Parser ()
+setStartCode startCode = modify $ \s -> s {parserStartCode = startCode}
 
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
@@ -31,27 +50,6 @@ initialState source =
       parserRemainingInput = ('\n', [], source),
       parserStartCode = 0
     }
-
--- | Updates the current position of parser in the source based on the
---   latest parsed piece of source.
-updatePosition :: String -> Parser ()
-updatePosition parsedSourcePiece = do
-  position <- parserSourcePosition <$> get
-  let position' = calcNewPosition parsedSourcePiece position
-  modify $ \s -> s {parserSourcePosition = position'}
-  where
-    -- Scan the string character by character to look for newlines
-    calcNewPosition [] position = position
-    calcNewPosition ('\n' : cs) (SourcePosition line _) = calcNewPosition cs $ SourcePosition (line + 1) 1
-    calcNewPosition (_ : cs) (SourcePosition line col) = calcNewPosition cs $ SourcePosition line (col + 1)
-
--- | Shorthand to replace the current lexer input in the parser state.
-putInput :: ParserInput -> Parser ()
-putInput input = modify $ \s -> s {parserRemainingInput = input}
-
-setStartCode :: Int -> Parser ()
-setStartCode startCode = do
-  modify $ \s -> s {parserStartCode = startCode}
 
 -- | The type of the input given to the parser/lexer
 --

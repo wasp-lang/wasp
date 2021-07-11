@@ -11,9 +11,8 @@ import Analyzer.Parser.AST
 import Analyzer.Parser.Token
 import Analyzer.Parser.ParseError
 import Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
-import Control.Monad.Trans.State.Lazy (evalStateT, get)
-import Control.Monad.Trans.Except (throwE, runExcept)
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.State.Lazy (get)
+import Control.Monad.Except (throwError)
 }
 
 -- Lines below tell Happy:
@@ -105,7 +104,7 @@ Name :: { ExtImportName }
 
 Quoter :: { Expr }
   : SourcePosition '{=' Quoted SourcePosition '=}' {% if $2 /= $5
-                                                       then lift $ throwE $ QuoterDifferentTags ($2, $1) ($5, $4)
+                                                       then throwError $ QuoterDifferentTags ($2, $1) ($5, $4)
                                                        else return $ Quoter $2 $3
                                                    }
 Quoted :: { String }
@@ -117,5 +116,5 @@ SourcePosition :: { SourcePosition }
 
 {
 parseError :: Token -> Parser a
-parseError token = lift $ throwE $ ParseError token
+parseError token = throwError $ ParseError token
 }

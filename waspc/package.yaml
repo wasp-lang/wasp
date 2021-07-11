@@ -69,7 +69,7 @@ library:
     - Glob
     - unliftio
     - array
-    - transformers
+    - mtl
 
 executables:
   wasp:
