@@ -6,7 +6,7 @@ where
 
 import qualified Cli.Common as Common
 import Command (Command, CommandError (..), runCommand)
-import Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import Command.Common (findWaspProjectRootDirFromCwdCmd, waspSaysC)
 import Command.Compile (compile)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
@@ -27,7 +27,7 @@ runDbCommand = runCommand . makeDbCommand
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
-  waspRoot <- findWaspProjectRootDirFromCwd
+  waspRoot <- findWaspProjectRootDirFromCwdCmd
   let genProjectDir =
         waspRoot </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
@@ -54,7 +54,7 @@ makeDbCommand cmd = do
 -- TODO(matija): should we extract this into a separate file, like we did for migrate?
 studio :: Command ()
 studio = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  waspProjectDir <- findWaspProjectRootDirFromCwdCmd
   let genProjectDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir

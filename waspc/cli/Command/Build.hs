@@ -7,7 +7,7 @@ import qualified Cli.Common as Common
 import Command (Command, CommandError (..))
 import Command.Common
   ( alphaWarningMessage,
-    findWaspProjectRootDirFromCwd,
+    findWaspProjectRootDirFromCwdCmd,
   )
 import Command.Compile (compileIOWithOptions)
 import CompileOptions (CompileOptions (..))
@@ -23,7 +23,7 @@ import System.Directory
 
 build :: Command ()
 build = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  waspProjectDir <- findWaspProjectRootDirFromCwdCmd
   let buildDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.buildDirInDotWaspDir

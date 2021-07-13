@@ -8,7 +8,7 @@ where
 import qualified Cli.Common
 import Command (Command, CommandError (..))
 import Command.Common
-  ( findWaspProjectRootDirFromCwd,
+  ( findWaspProjectRootDirFromCwdCmd,
     waspSaysC,
   )
 import Command.Db.Migrate
@@ -24,7 +24,7 @@ import StrongPath (Abs, Dir, Path, (</>))
 
 compile :: Command ()
 compile = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  waspProjectDir <- findWaspProjectRootDirFromCwdCmd
   let outDir =
         waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
           </> Cli.Common.generatedCodeDirInDotWaspDir

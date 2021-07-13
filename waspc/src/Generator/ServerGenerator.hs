@@ -6,8 +6,6 @@ module Generator.ServerGenerator
   )
 where
 
-import qualified Cli.Common
-import Command.Common (findWaspProjectRootDirFromCwdIO)
 import CompileOptions (CompileOptions)
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
@@ -66,10 +64,8 @@ genServer wasp _ =
 --   for progress of this.
 preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
-  waspProjectDir <- findWaspProjectRootDirFromCwdIO
-  let genProjectRootDir = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
   let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
-  let dbMigrationsDirInGenProjectDirAbs = SP.toFilePath $ genProjectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
+  let dbMigrationsDirInGenProjectDirAbs = SP.toFilePath $ outDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
   let dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
   removeDirectoryRecursive dbMigrationsDirInGenProjectDirAbs

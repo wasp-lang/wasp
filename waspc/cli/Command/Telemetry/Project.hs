@@ -10,7 +10,7 @@ where
 
 import Command (Command)
 import qualified Command.Call
-import Command.Common (findWaspProjectRootDirFromCwd)
+import Command.Common (findWaspProjectRootDirFromCwdCmd)
 import Command.Telemetry.Common (TelemetryCacheDir)
 import Command.Telemetry.User (UserSignature (..))
 import Control.Monad (void, when)
@@ -71,7 +71,7 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
 newtype ProjectHash = ProjectHash {_projectHashValue :: String} deriving (Show)
 
 getWaspProjectPathHash :: Command ProjectHash
-getWaspProjectPathHash = ProjectHash . take 16 . sha256 . SP.toFilePath <$> findWaspProjectRootDirFromCwd
+getWaspProjectPathHash = ProjectHash . take 16 . sha256 . SP.toFilePath <$> findWaspProjectRootDirFromCwdCmd
   where
     sha256 :: String -> String
     sha256 = show . hashWith SHA256 . ByteStringUTF8.fromString

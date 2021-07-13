@@ -8,7 +8,7 @@ where
 import qualified Cli.Common
 import Command (Command, CommandError (..))
 import Command.Common
-  ( findWaspProjectRootDirFromCwd,
+  ( findWaspProjectRootDirFromCwdCmd,
     waspSaysC,
   )
 import Common (WaspProjectDir)
@@ -26,7 +26,7 @@ import qualified StrongPath as SP
 
 migrateDev :: Command ()
 migrateDev = do
-  waspProjectDir <- findWaspProjectRootDirFromCwd
+  waspProjectDir <- findWaspProjectRootDirFromCwdCmd
   let genProjectRootDir =
         waspProjectDir
           </> Cli.Common.dotWaspDirInWaspProjectDir

@@ -6,7 +6,7 @@ where
 import qualified Cli.Common as Common
 import Command (Command, CommandError (..))
 import Command.Common
-  ( findWaspProjectRootDirFromCwd,
+  ( findWaspProjectRootDirFromCwdCmd,
     waspSaysC,
   )
 import Command.Compile (compileIO)
@@ -21,7 +21,7 @@ import StrongPath ((</>))
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  waspRoot <- findWaspProjectRootDirFromCwd
+  waspRoot <- findWaspProjectRootDirFromCwdCmd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
   waspSaysC "Compiling wasp code..."
