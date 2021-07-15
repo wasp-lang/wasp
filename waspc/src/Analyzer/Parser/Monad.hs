@@ -8,6 +8,7 @@ module Analyzer.Parser.Monad
     putInput,
     setStartCode,
     ParserInput,
+    LexerStartCode (..),
   )
 where
 
@@ -33,14 +34,22 @@ updatePosition parsedSourcePiece = do
 putInput :: ParserInput -> Parser ()
 putInput input = modify $ \s -> s {parserRemainingInput = input}
 
-setStartCode :: Int -> Parser ()
-setStartCode startCode = modify $ \s -> s {parserStartCode = startCode}
+setStartCode :: LexerStartCode -> Parser ()
+setStartCode startCode = modify $ \s -> s {parserLexerStartCode = startCode}
 
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
     parserRemainingInput :: ParserInput,
-    parserStartCode :: Int
+    parserLexerStartCode :: LexerStartCode
   }
+  deriving (Show)
+
+-- | A representation of the lexer's start code: https://www.haskell.org/alex/doc/html/alex-files.html#startcodes
+data LexerStartCode
+  = -- | For a start code @DefaultStartCode@, the lexer is in start code <0>
+    DefaultStartCode
+  | -- | For a start code @QuoterStartCode tag@, the lexer is in start code <quoter> and the opening tag was @tag@
+    QuoterStartCode String
   deriving (Show)
 
 initialState :: String -> ParserState
@@ -48,7 +57,7 @@ initialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
       parserRemainingInput = ('\n', [], source),
-      parserStartCode = 0
+      parserLexerStartCode = DefaultStartCode
     }
 
 -- | The type of the input given to the parser/lexer

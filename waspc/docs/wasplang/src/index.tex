@@ -38,6 +38,10 @@ and the standard library.
 <bool>    ::= 'true' | 'false'
 \end{verbatim}
 
+The \texttt{<anything>} inside \texttt{<quoter>} is ambiguous, so to correctly
+parse wasp, a quoter starting with \texttt{\{=tag} must contain all text until
+the first \texttt{tag=\}} or until the end of the input.
+
 The nonterminals for strings, numbers, and identifers are not shown.
 
 \subsection{Type System}

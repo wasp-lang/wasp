@@ -32,12 +32,10 @@ data DeclType = DeclType {dtName :: String, dtBodyType :: Type}
 --
 --   This enables us to easily modify / add / remove specific types as Wasp evolves as a language without
 --   having to touch the core functionality of the Analyzer.
---
---   The type definitions are used for type-checking and constructing instances
---   of Haskell types that correspond to the declarations and enums in the Wasp file.
 data TypeDefinitions = TypeDefinitions
   { declTypes :: M.HashMap String DeclType,
     enumTypes :: M.HashMap String EnumType
+    -- TODO: In the future, add quoters to the type definitions
   }
 
 empty :: TypeDefinitions

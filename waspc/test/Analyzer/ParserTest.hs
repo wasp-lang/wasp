@@ -1,6 +1,7 @@
 module Analyzer.ParserTest where
 
 import Analyzer.Parser
+import Data.Either (isLeft)
 import Test.Tasty.Hspec
 
 spec_Parser :: Spec
@@ -128,8 +129,19 @@ spec_Parser = do
 
     it "Fails to parse a quoter with unmatched tags" $ do
       let source = "test Failure {=a b=}"
-      let err = QuoterDifferentTags ("a", SourcePosition 1 17) ("b", SourcePosition 1 21)
-      parse source `shouldBe` Left err
+      parse source `shouldSatisfy` isLeft
+
+    it "Parses nested quoters correctly" $ do
+      parse "test Case1 {=foo {=foo foo=} foo=}" `shouldSatisfy` isLeft
+      parse "test Case2 {=foo foo=} foo=}" `shouldSatisfy` isLeft
+      parse "test Case3 {=foo {=foo foo=}"
+        `shouldBe` Right (AST [Decl "test" "Case3" $ Quoter "foo" " {=foo "])
+      parse "test Case4 {=foo {=bar foo=}"
+        `shouldBe` Right (AST [Decl "test" "Case4" $ Quoter "foo" " {=bar "])
+      parse "test Case5 {=foo bar=} foo=}"
+        `shouldBe` Right (AST [Decl "test" "Case5" $ Quoter "foo" " bar=} "])
+      parse "test Case6 {=foo {=bar bar=} foo=}"
+        `shouldBe` Right (AST [Decl "test" "Case6" $ Quoter "foo" " {=bar bar=} "])
 
     it "Requires dictionaries to have an ending bracket" $ do
       let source = "test Decl {"
