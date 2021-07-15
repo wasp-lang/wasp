@@ -9,7 +9,7 @@ module Analyzer.Parser.Lexer
   ) where
 
 import Analyzer.Parser.Monad
-import Analyzer.Parser.Token (Token (..), TokenClass (..))
+import Analyzer.Parser.Token (Token (..), TokenType (..))
 import Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.State.Lazy (gets)
 import Control.Monad.Except (throwError)
@@ -143,16 +143,16 @@ lexQuoterEndTag rightQuoteTag = gets parserLexerStartCode >>= \startCode -> case
   where
     tag = take (length rightQuoteTag - 2) rightQuoteTag
 
--- | Makes an action that creates a token from a constant TokenClass.
-createConstToken :: TokenClass -> (String -> Parser Token)
-createConstToken tc lexeme = do
+-- | Makes an action that creates a token from a constant TokenType.
+createConstToken :: TokenType -> (String -> Parser Token)
+createConstToken tokType lexeme = do
   position <- gets parserSourcePosition
-  return $ Token { tokenClass = tc
+  return $ Token { tokenType = tokType
                  , tokenPosition = position
                  , tokenLexeme = lexeme
                  }
 
 -- | Makes an action that creates a token using the input lexeme.
-createValueToken :: (String -> TokenClass) -> (String -> Parser Token)
-createValueToken getTokenClass lexeme = createConstToken (getTokenClass lexeme) lexeme
+createValueToken :: (String -> TokenType) -> (String -> Parser Token)
+createValueToken getTokenType lexeme = createConstToken (getTokenType lexeme) lexeme
 }

@@ -29,30 +29,30 @@ import Control.Monad.Except (throwError)
 -- Both lexer and parser operate in the 'Parser' monad, which can be used to track shared state and errors.
 -- Check https://www.haskell.org/happy/doc/html/sec-monads.html#sec-lexers for more details.
 %monad { Parser }
-%lexer { lexer } { Token { tokenClass = TEOF } }
+%lexer { lexer } { Token { tokenType = TEOF } }
 
 -- This section defines the names that are used in the grammar section to
 -- refer to each type of token.
 
 
 %token
-  import { Token { tokenClass = TImport } }
-  from   { Token { tokenClass = TFrom } }
-  string { Token { tokenClass = TString $$ } }
-  int    { Token { tokenClass = TInt $$ } }
-  double { Token { tokenClass = TDouble $$ } }
-  true   { Token { tokenClass = TTrue } }
-  false  { Token { tokenClass = TFalse } }
-  '{='   { Token { tokenClass = TLQuote $$ } }
-  quoted { Token { tokenClass = TQuoted $$ } }
-  '=}'   { Token { tokenClass =  TRQuote $$ } }
-  ident  { Token { tokenClass = TIdentifier $$ } }
-  '{'    { Token { tokenClass = TLCurly } }
-  '}'    { Token { tokenClass = TRCurly } }
-  ','    { Token { tokenClass = TComma } }
-  ':'    { Token { tokenClass = TColon } }
-  '['    { Token { tokenClass = TLSquare } }
-  ']'    { Token { tokenClass = TRSquare } }
+  import { Token { tokenType = TImport } }
+  from   { Token { tokenType = TFrom } }
+  string { Token { tokenType = TString $$ } }
+  int    { Token { tokenType = TInt $$ } }
+  double { Token { tokenType = TDouble $$ } }
+  true   { Token { tokenType = TTrue } }
+  false  { Token { tokenType = TFalse } }
+  '{='   { Token { tokenType = TLQuote $$ } }
+  quoted { Token { tokenType = TQuoted $$ } }
+  '=}'   { Token { tokenType =  TRQuote $$ } }
+  ident  { Token { tokenType = TIdentifier $$ } }
+  '{'    { Token { tokenType = TLCurly } }
+  '}'    { Token { tokenType = TRCurly } }
+  ','    { Token { tokenType = TComma } }
+  ':'    { Token { tokenType = TColon } }
+  '['    { Token { tokenType = TLSquare } }
+  ']'    { Token { tokenType = TRSquare } }
 
 %%
 -- Grammar rules

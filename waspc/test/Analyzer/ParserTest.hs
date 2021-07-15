@@ -149,7 +149,7 @@ spec_Parser = do
             Left $
               ParseError $
                 Token
-                  { tokenClass = TEOF,
+                  { tokenType = TEOF,
                     tokenPosition = SourcePosition 1 12,
                     tokenLexeme = ""
                   }

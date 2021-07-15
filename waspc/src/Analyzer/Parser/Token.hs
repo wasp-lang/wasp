@@ -3,7 +3,7 @@ module Analyzer.Parser.Token where
 -- | The first character on the first line is at position @Position 1 1@
 data SourcePosition = SourcePosition Int Int deriving (Eq, Show)
 
-data TokenClass
+data TokenType
   = TLCurly
   | TRCurly
   | TComma
@@ -25,7 +25,7 @@ data TokenClass
   deriving (Eq, Show)
 
 data Token = Token
-  { tokenClass :: TokenClass,
+  { tokenType :: TokenType,
     tokenPosition :: SourcePosition,
     tokenLexeme :: String
   }

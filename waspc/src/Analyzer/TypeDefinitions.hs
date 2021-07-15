@@ -59,8 +59,8 @@ getEnumType name (TypeDefinitions _ ets) = M.lookup name ets
 --  @
 addDeclType :: forall typ. (IsDeclType typ) => TypeDefinitions -> TypeDefinitions
 addDeclType lib =
-  let decl = DeclType {dtName = _declTypeName @typ, dtBodyType = _declTypeBodyType @typ}
-   in lib {declTypes = M.insert (_declTypeName @typ) decl $ declTypes lib}
+  let decl = DeclType {dtName = declTypeName @typ, dtBodyType = declTypeBodyType @typ}
+   in lib {declTypes = M.insert (declTypeName @typ) decl $ declTypes lib}
 
 -- | Add an enum type to type definitions. Requires the type to be in the form
 --   of a Wasp enum. See "IsEnum" for requirements.
@@ -74,8 +74,8 @@ addDeclType lib =
 --   @
 addEnumType :: forall typ. (IsEnumType typ) => TypeDefinitions -> TypeDefinitions
 addEnumType lib =
-  let enum = EnumType {etName = _enumTypeName @typ, etVariants = _enumTypeVariants @typ}
-   in lib {enumTypes = M.insert (_enumTypeName @typ) enum $ enumTypes lib}
+  let enum = EnumType {etName = enumTypeName @typ, etVariants = enumTypeVariants @typ}
+   in lib {enumTypes = M.insert (enumTypeName @typ) enum $ enumTypes lib}
 
 -- | Marks haskell type as a representation of a specific Wasp declaration type.
 --   Instead of defining a Wasp declaration type manually by constructing it with constructors from
@@ -87,13 +87,13 @@ addEnumType lib =
 --   - The type must be an ADT with one constructor.
 --   - The type must have just one field OR use record syntax (in which case it can have multiple fields).
 --
---   Some assumptions are required of `_declType` and `a`:
---   - If `_declType` is a `Dict`, then
+--   Some assumptions are required of `declType` and `a`:
+--   - If and only if `declType` is a `Dict`, then
 --     - `a` uses record syntax.
---     - If and only if there is a key `x` in `_declType`, then `a` has a
+--     - If and only if there is a key `x` in `declType`, then `a` has a
 --       record `x` with the same type.
 --     - If a key `x` is optional, then the record `x` in `a` is a `Maybe`
---   - Otherwise, `a` has one field and `_declType` maps to the type of that
+--   - Otherwise, `a` has one field and `declType` maps to the type of that
 --     field.
 --
 --   Examples:
@@ -102,9 +102,9 @@ addEnumType lib =
 --
 --   @
 --   >>> data User = User { name :: String, email :: Maybe String } deriving Generic
---   >>> _declName @User
+--   >>> declTypeName @User
 --   "user"
---   >>> _declType @User
+--   >>> declTypeBodyType @User
 --   DictType [DictEntry "name" StringType, DictOptionalEntry "email" StringLiteral]
 --   @
 --
@@ -112,12 +112,12 @@ addEnumType lib =
 --
 --   @
 --   >>> data Admins = Admins [User] deriving Generic
---   >>> _declType @Admins
+--   >>> declTypeBodyType @Admins
 --   ListType (DeclType "User")
 --   @
 class IsDeclType a where
-  _declTypeName :: String
-  _declTypeBodyType :: Type
+  declTypeName :: String
+  declTypeBodyType :: Type
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
 --   Check "IsDeclType" above for more details.
@@ -127,8 +127,8 @@ class IsDeclType a where
 --   - The type must be an ADT with at least one constructor.
 --   - Each constructor of the type must have 0 fields.
 --
---   Some properties are required of `_enumVariants` and `a`:
---   - If and only if there is a string `x` in `_enumVariants`, then `a` has
+--   Some properties are required of `enumTypeVariants` and `a`:
+--   - If and only if there is a string `x` in `enumTypeVariants`, then `a` has
 --     a constructor called `x`.
 --
 --    Examples:
@@ -137,11 +137,11 @@ class IsDeclType a where
 --
 --   @
 --   >>> data AuthMethod = OAuth2 | EmailAndPassword deriving Generic
---   >>> _enumTypeName @AuthMethod
+--   >>> enumTypeName @AuthMethod
 --   "authMethod"
---   >>> _enumTypeVariants @AuthMethod
+--   >>> enumTypeVariants @AuthMethod
 --   ["OAuth2", "EmailAndPassword"]
 --   @
 class IsEnumType a where
-  _enumTypeName :: String
-  _enumTypeVariants :: [String]
+  enumTypeName :: String
+  enumTypeVariants :: [String]

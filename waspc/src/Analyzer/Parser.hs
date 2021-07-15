@@ -21,7 +21,7 @@ module Analyzer.Parser
     ParseError (..),
     SourcePosition (..),
     Token (..),
-    TokenClass (..),
+    TokenType (..),
   )
 where
 
