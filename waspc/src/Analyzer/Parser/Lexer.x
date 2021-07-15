@@ -133,8 +133,7 @@ beginQuoter leftQuoteTag = do
 -- | Takes a lexeme like "json=}" and either ends a quoter or add quoted text to the quoter
 lexQuoterEndTag :: String -> Parser Token
 lexQuoterEndTag rightQuoteTag = gets parserLexerStartCode >>= \startCode -> case startCode of
-  DefaultStartCode -> do
-    createConstToken (TRQuote tag) rightQuoteTag
+  DefaultStartCode -> error "impossible: lexQuoterEndTag with DefaultStartCode"
   QuoterStartCode startTag | startTag == tag -> do
     setStartCode DefaultStartCode
     createConstToken (TRQuote tag) rightQuoteTag
