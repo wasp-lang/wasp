@@ -3,6 +3,7 @@ module Analyzer.Parser.AST where
 type Ident = String
 
 newtype AST = AST {astStmts :: [Stmt]} deriving (Eq, Show)
+
 -- Decl <declType> <name> <body>
 data Stmt = Decl Ident Ident Expr deriving (Eq, Show)
 
