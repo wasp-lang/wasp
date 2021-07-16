@@ -57,7 +57,8 @@ import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
 import Control.Arrow (left)
 import Control.Monad (foldM)
-import qualified Data.HashMap.Strict as H
+import Data.Foldable (foldl')
+import qualified Data.HashMap.Strict as M
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
 
 check :: AST -> T TypedAST
@@ -124,7 +125,7 @@ checkExpr (P.List values) = do
 checkExpr (P.Dict entries) = do
   guardUnique $ map fst entries
   typedEntries <- zip (map fst entries) <$> mapM (checkExpr . snd) entries
-  let dictType = H.fromList $ map (\(key, val) -> (key, DictRequired $ exprType val)) typedEntries
+  let dictType = M.fromList $ map (\(key, val) -> (key, DictRequired $ exprType val)) typedEntries
   return $ Dict typedEntries (DictType dictType)
   where
     guardUnique :: [String] -> T ()
@@ -153,8 +154,8 @@ unify (expr :| exprs) = do
 --   >>> unifyTypes StringType StringType
 --   Right StringType
 --
---   >>> unifyTypes (DictType $ H.empty) (DictType $ H.singleton "a" (DictRequired NumberType))
---   Right (DictType (H.singleton "a" (DictOptional NumberType)))
+--   >>> unifyTypes (DictType $ M.empty) (DictType $ M.singleton "a" (DictRequired NumberType))
+--   Right (DictType (M.singleton "a" (DictOptional NumberType)))
 unifyTypes :: Type -> Type -> Either TypeError Type
 -- Trivial case: two identical types unify to themselves
 unifyTypes s t
@@ -169,30 +170,26 @@ unifyTypes s@(DeclType _) t = Left $ UnificationError ReasonDecl s t
 unifyTypes s@(EnumType _) t = Left $ UnificationError ReasonEnum s t
 -- The unification of two dictionaries is defined by the [DictNone] and [DictSome] rules
 unifyTypes typS@(DictType s) typT@(DictType t) = do
-  -- Rules are applied in both directions, then unioned because s may not
-  -- have keys that t does, or vice versa
-  -- TODO: should this be improved?
-  onS <- foldMapMWithKey (go t) s
-  onT <- foldMapMWithKey (go s) t
-  return $ DictType $ onS <> onT
+  let keys = M.keysSet s <> M.keysSet t
+  unifiedType <- foldMapM (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
+  return $ DictType unifiedType
   where
-    -- Tries to apply [DictSome] and [DictNone] rules to s and u
-    -- TODO: better name
-    go :: H.HashMap String DictEntryType -> String -> DictEntryType -> Either TypeError (H.HashMap String DictEntryType)
-    go u k (DictRequired s') = annotateError k $ case H.lookup k u of
-      -- [DictSome] on s, [DictNone] on u
-      Nothing -> Right $ H.singleton k (DictOptional s')
-      -- No rules applied to s or u
-      Just (DictRequired u') -> H.singleton k . DictRequired <$> unifyTypes s' u'
-      -- [DictNone] on s
-      Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
-    go u k (DictOptional s') = annotateError k $ case H.lookup k u of
-      -- [DictNone] on u
-      Nothing -> Right $ H.singleton k (DictOptional s')
-      -- [DictSome] on u
-      Just (DictRequired u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
-      -- No rules applied to s or u
-      Just (DictOptional u') -> H.singleton k . DictOptional <$> unifyTypes s' u'
+    unifyEntryTypesForKey :: String -> Either TypeError DictEntryType
+    unifyEntryTypesForKey key = annotateError key $ case (M.lookup key s, M.lookup key t) of
+      (Nothing, Nothing) ->
+        error "impossible: unifyTypes.unifyEntryTypesForKey should be called with only the keys of s and t"
+      -- [DictSome] on s, [DictNone] on t
+      (Just sType, Nothing) ->
+        Right $ DictOptional $ dictEntryType sType
+      -- [DictNone] on s, [DictSome] on t
+      (Nothing, Just tType) ->
+        Right $ DictOptional $ dictEntryType tType
+      -- Both require @key@, so it must be a required entry of the unified entry types
+      (Just (DictRequired sType), Just (DictRequired tType)) ->
+        DictRequired <$> unifyTypes sType tType
+      -- One of s or t has @key@ optionally, so it must be an optional entry of the unified entry types
+      (Just sType, Just tType) ->
+        DictOptional <$> unifyTypes (dictEntryType sType) (dictEntryType tType)
 
     annotateError :: String -> Either TypeError a -> Either TypeError a
     annotateError k = left (\e -> UnificationError (ReasonDictWrongKeyType k e) typS typT)
@@ -217,12 +214,12 @@ weaken (ListType typ') expr@(List vals _) =
       mapM (weaken typ') vals
 weaken (DictType typ') expr@(Dict entries _) = do
   entries' <- mapM weakenEntry entries
-  mapM_ guardHasEntry $ H.toList typ'
+  mapM_ guardHasEntry $ M.toList typ'
   return $ Dict entries' $ DictType typ'
   where
     -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
     weakenEntry :: (String, TypedExpr) -> Either TypeError (Ident, TypedExpr)
-    weakenEntry (key, value) = case H.lookup key typ' of
+    weakenEntry (key, value) = case M.lookup key typ' of
       -- @key@ is missing from @typ'@ => extra keys are not allowed
       Nothing -> Left $ WeakenError (ReasonDictExtraKey key) expr (DictType typ')
       -- @key@ is required and present => only need to weaken the value's type
@@ -253,6 +250,5 @@ weaken (DictType typ') expr@(Dict entries _) = do
 -- All other cases can not be weakened
 weaken typ' expr = Left $ WeakenError ReasonUncoercable expr typ'
 
--- | Like @foldMap@, but runs in a monad @m@ and is specialised for entries of a "HashMap".
-foldMapMWithKey :: (Monad m, Monoid s) => (k -> v -> m s) -> H.HashMap k v -> m s
-foldMapMWithKey f = H.foldlWithKey' (\m k v -> m >>= \s -> (s <>) <$> f k v) $ return mempty
+foldMapM :: (Foldable t, Monad m, Monoid s) => (a -> m s) -> t a -> m s
+foldMapM f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
