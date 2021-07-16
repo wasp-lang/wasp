@@ -1,53 +1,34 @@
+{{={= =}=}}
 import debug from 'debug'
 import http from 'http'
 
 import app from './app.js'
 import config from './config.js'
 
-const debugLog = debug('server:server')
+{=# doesServerSetupFnExist =}
+{=& serverSetupJsFnImportStatement =}
+{=/ doesServerSetupFnExist =}
 
-const port = normalizePort(config.port)
-app.set('port', port)
 
-const server = http.createServer(app)
+const startServer = async () => {
+  const debugLog = debug('server:server')
 
-server.listen(port)
-server.on('error', onError)
-server.on('listening', onListening)
+  const port = normalizePort(config.port)
+  app.set('port', port)
 
-/**
- * Normalize a port into a number, string, or false.
- */
-function normalizePort (val) {
-  var port = parseInt(val, 10)
+  {=# doesServerSetupFnExist =}
+  await {= serverSetupJsFnIdentifier =}()
+  {=/ doesServerSetupFnExist =}
 
-  if (isNaN(port)) {
-    // named pipe
-    return val
-  }
+  const server = http.createServer(app)
 
-  if (port >= 0) {
-    // port number
-    return port
-  }
+  server.listen(port)
 
-  return false
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-function onError (error) {
-  if (error.syscall !== 'listen') {
-    throw error
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
+  server.on('error', () => {
+    if (error.syscall !== 'listen') throw error
+    const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
     case 'EACCES':
       console.error(bind + ' requires elevated privileges')
       process.exit(1)
@@ -56,16 +37,24 @@ function onError (error) {
       process.exit(1)
     default:
       throw error
-  }
+    }
+  })
+
+  server.on('listening', () => {
+    const addr = server.address()
+    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
+    debugLog('Listening on ' + bind)
+  })
 }
 
+startServer().catch(e => console.error(e))
+
 /**
- * Event listener for HTTP server "listening" event.
+ * Normalize a port into a number, string, or false.
  */
-function onListening () {
-  var addr = server.address()
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port
-  debugLog('Listening on ' + bind)
+function normalizePort (val) {
+  const port = parseInt(val, 10)
+  if (isNaN(port)) return val // named pipe
+  if (port >= 0) return port // port number
+  return false
 }

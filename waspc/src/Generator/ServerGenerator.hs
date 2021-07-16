@@ -13,11 +13,14 @@ import Data.Aeson (object, (.=))
 import Data.List (intercalate)
 import Data.Maybe
   ( fromJust,
+    fromMaybe,
     isJust,
   )
 import Generator.Common (ProjectRootDir, nodeVersionAsText)
 import Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Generator.JsImport (getImportDetailsForJsFnImport)
 import Generator.PackageJsonGenerator
   ( npmDepsToPackageJsonEntry,
     npmDevDepsToPackageJsonEntry,
@@ -25,7 +28,8 @@ import Generator.PackageJsonGenerator
   )
 import Generator.ServerGenerator.AuthG (genAuth)
 import Generator.ServerGenerator.Common
-  ( asServerFile,
+  ( ServerSrcDir,
+    asServerFile,
     asTmplFile,
   )
 import qualified Generator.ServerGenerator.Common as C
@@ -34,7 +38,7 @@ import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExtern
 import Generator.ServerGenerator.OperationsG (genOperations)
 import Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified NpmDependency as ND
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
@@ -43,6 +47,7 @@ import Wasp (Wasp, getAuth)
 import qualified Wasp
 import qualified Wasp.Auth
 import qualified Wasp.NpmDependencies as WND
+import qualified Wasp.Server
 
 genServer :: Wasp -> CompileOptions -> [FileDraft]
 genServer wasp _ =
@@ -170,7 +175,8 @@ genSrcDir wasp =
       genRoutesDir wasp,
       genOperationsRoutes wasp,
       genOperations wasp,
-      genAuth wasp
+      genAuth wasp,
+      [genServerJs wasp]
     ]
 
 genDbClient :: Wasp -> FileDraft
@@ -190,6 +196,28 @@ genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
               "userEntityUpper" .= Wasp.Auth._userEntity (fromJust maybeAuth)
             ]
         else object []
+
+genServerJs :: Wasp -> FileDraft
+genServerJs wasp =
+  C.makeTemplateFD
+    (asTmplFile [relfile|src/server.js|])
+    (asServerFile [relfile|src/server.js|])
+    ( Just $
+        object
+          [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
+            "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
+            "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+          ]
+    )
+  where
+    maybeSetupJsFunction = Wasp.Server._setupJsFunction <$> Wasp.getServer wasp
+    maybeSetupJsFnImportDetails = getImportDetailsForJsFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+-- | TODO: Make this not hardcoded!
+relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
 genRoutesDir :: Wasp -> [FileDraft]
 genRoutesDir wasp =
