@@ -3,12 +3,20 @@ module Analyzer.TypeCheckerTest where
 import qualified Analyzer.Parser as P
 import Analyzer.Type
 import Analyzer.TypeChecker
-import Analyzer.TypeChecker.Internal (Bindings, runT, runTWithBound)
+import Analyzer.TypeChecker.Internal
+import Analyzer.TypeChecker.Monad (Bindings, runT, runTWithBound)
 import qualified Analyzer.TypeDefinitions as TD
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
+import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
+
+-- TODO:
+-- Having Arbitrary instances for Types and TypedAST would allow much more thorough testing
+-- of the type checker, and is probably worth the effort to figure out how to make instances
+-- given how complex the code is, how many corner cases there are, and how well-defined the
+-- required properties of the type-checking functions are.
 
 chooseType :: Gen Type
 chooseType =
@@ -30,25 +38,25 @@ spec_Parser = do
     describe "unify" $ do
       it "Doesn't affect 2 expressions of the same type" $ do
         property $ \(a, b) ->
-          let initial = [IntegerLiteral a, DoubleLiteral b]
+          let initial = IntegerLiteral a :| [DoubleLiteral b]
               actual = unify initial
-           in actual == Right initial
+           in actual == Right (initial, NumberType)
       it "Unifies two same-typed dictionaries to their original type" $ do
         let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
         let a = Dict [("a", BoolLiteral True), ("b", IntegerLiteral 2)] typ
         let b = Dict [("a", BoolLiteral True), ("b", DoubleLiteral 3.14)] typ
-        unify [a, b]
-          `shouldBe` Right [a, b]
+        unify (a :| [b])
+          `shouldBe` Right (a :| [b], typ)
       it "Unifies an empty dict and a dict with one property" $ do
         let a = Dict [] (DictType H.empty)
         let b = Dict [("a", BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
         let expected = DictType $ H.singleton "a" $ DictOptional BoolType
-        fmap (map exprType) (unify [a, b])
-          `shouldBe` Right [expected, expected]
+        fmap (fmap exprType . fst) (unify (a :| [b]))
+          `shouldBe` Right (expected :| [expected])
       it "Is idempotent when unifying an empty dict and a singleton dict" $ do
         let a = Dict [] (DictType H.empty)
         let b = Dict [("a", BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
-        unify [a, b] `shouldBe` (unify [a, b] >>= unify)
+        unify (a :| [b]) `shouldBe` (unify (a :| [b]) >>= unify . fst)
 
     describe "checkExpr" $ do
       it "Types string literals as StringType" $ do
