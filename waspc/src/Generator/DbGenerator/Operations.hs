@@ -10,7 +10,7 @@ import qualified Generator.DbGenerator.Jobs as DbJobs
 import Generator.Job (JobMessage)
 import qualified Generator.Job as J
 import Generator.Job.IO (printJobMessage)
-import StrongPath (Abs, Dir, Path)
+import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 
 printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
@@ -20,7 +20,7 @@ printJobMsgsUntilExitReceived chan = do
     J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
     J.JobExit {} -> return ()
 
-migrateDev :: Path Abs (Dir ProjectRootDir) -> IO (Either String ())
+migrateDev :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 migrateDev projectDir = do
   chan <- newChan
   (_, dbExitCode) <-

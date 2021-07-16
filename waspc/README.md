@@ -120,6 +120,13 @@ NOTE: Reload page if blank.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
 9. Reviewer will merge the branch into `master`. Yay!
 
+## Design docs (aka RFCs)
+If the feature you are implementing is complex, be it regarding its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
+It is a great way to share the idea you have with others while also getting help and feedback.
+
+To create one, make a PR that adds a markdown document under `wasp/docs/design-docs`, and in that markdown document explain the thinking behind and choice made when deciding how to implement a feature.
+
+Others will comment on your design doc, and once it has gone through needed iterations and is approved, you can start with the implementation of the feature (in a separate PR).
 
 ## Codebase overview
 Wasp is implemented in Haskell.

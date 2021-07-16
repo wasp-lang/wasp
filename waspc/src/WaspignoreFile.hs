@@ -6,7 +6,8 @@ module WaspignoreFile
   )
 where
 
-import StrongPath (Abs, File, Path, toFilePath)
+import StrongPath (Abs, File', Path')
+import qualified StrongPath as SP
 import System.FilePath.Glob (Pattern, compile, match)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
@@ -51,10 +52,10 @@ parseWaspignoreFile =
 --   the file format, but it is very similar to `.gitignore`'s format.
 --
 --   If the ignore file does not exist, it is interpreted as a blank file.
-readWaspignoreFile :: Path Abs File -> IO WaspignoreFile
+readWaspignoreFile :: Path' Abs File' -> IO WaspignoreFile
 readWaspignoreFile fp = do
   text <-
-    readFile (toFilePath fp)
+    readFile (SP.fromAbsFile fp)
       `catch` ( \e ->
                   if isDoesNotExistError e
                     then return ""

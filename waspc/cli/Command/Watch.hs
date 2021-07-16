@@ -10,7 +10,7 @@ import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import qualified Lib
-import StrongPath (Abs, Dir, Path, (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
@@ -29,12 +29,12 @@ import qualified System.FilePath as FP
 
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
-watch :: Path Abs (Dir Common.WaspProjectDir) -> Path Abs (Dir Lib.ProjectRootDir) -> IO ()
+watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Lib.ProjectRootDir) -> IO ()
 watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
-  _ <- FSN.watchDirChan mgr (SP.toFilePath waspProjectDir) eventFilter chan
-  _ <- FSN.watchTreeChan mgr (SP.toFilePath $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
+  _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
+  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
   listenForEvents chan currentTime
   where
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()

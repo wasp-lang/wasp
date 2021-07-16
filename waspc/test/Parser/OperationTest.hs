@@ -3,7 +3,6 @@ module Parser.OperationTest where
 import Data.List (intercalate)
 import Parser.Common (runWaspParser)
 import Parser.Operation
-import qualified Path.Posix as PPosix
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.JsImport
@@ -15,7 +14,7 @@ spec_parseOperation =
 
     it "When given a valid list of properties, correctly parses them" $ do
       let testJsFnName = "myJsFn"
-          testJsFnFrom = SP.fromPathRelFileP [PPosix.relfile|some/path|]
+          testJsFnFrom = [SP.relfileP|some/path|]
       let testProps =
             [ JsFunction $
                 Wasp.JsImport.JsImport

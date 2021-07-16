@@ -11,6 +11,8 @@ import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 
+-- TODO: Convert these to use StrongPath?
+
 -- TODO: write tests.
 
 -- | Lists all files in the directory recursively.

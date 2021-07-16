@@ -1,1 +1,3 @@
 .dir-locals.el
+# Local Netlify folder
+.netlify

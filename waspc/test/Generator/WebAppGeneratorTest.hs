@@ -1,14 +1,13 @@
 module Generator.WebAppGeneratorTest where
 
 import qualified CompileOptions
-import Fixtures (systemPathRoot)
+import Fixtures (systemSPRoot)
 import Generator.FileDraft
 import qualified Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Generator.FileDraft.TextFileDraft as TextFD
 import Generator.WebAppGenerator
 import qualified Generator.WebAppGenerator.Common as Common
-import qualified Path as P
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -23,7 +22,7 @@ spec_WebAppGenerator = do
   let testWasp = (fromApp testApp)
   let testCompileOptions =
         CompileOptions.CompileOptions
-          { CompileOptions.externalCodeDirPath = SP.fromPathAbsDir $ systemPathRoot P.</> [P.reldir|test/src|],
+          { CompileOptions.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
             CompileOptions.isBuild = False
           }
 

@@ -3,7 +3,6 @@ module Parser.StyleTest where
 import Data.Either (isLeft)
 import Parser.Common (runWaspParser)
 import Parser.Style (style)
-import qualified Path.Posix as PPosix
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.Style
@@ -12,7 +11,7 @@ spec_parseStyle :: Spec
 spec_parseStyle = do
   it "Parses external code file path correctly" $ do
     runWaspParser style "\"@ext/some/file.css\""
-      `shouldBe` Right (Wasp.Style.ExtCodeCssFile (SP.fromPathRelFileP [PPosix.relfile|some/file.css|]))
+      `shouldBe` Right (Wasp.Style.ExtCodeCssFile [SP.relfileP|some/file.css|])
 
   it "Parses css closure correctly" $ do
     runWaspParser style "{=css Some css code css=}"

@@ -21,8 +21,8 @@ import Generator.DbGenerator (dbRootDirInProjectRootDir)
 import qualified Generator.DbGenerator.Operations as DbOps
 import qualified Path as P
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, Path, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', reldir, (</>))
+import qualified StrongPath.Path as SP.Path
 
 migrateDev :: Command ()
 migrateDev = do
@@ -69,11 +69,11 @@ data MigrationDirCopyDirection = CopyMigDirUp | CopyMigDirDown deriving (Eq)
 copyDbMigrationsDir ::
   -- | Copy direction (source -> gen or gen-> source)
   MigrationDirCopyDirection ->
-  Path Abs (Dir WaspProjectDir) ->
-  Path Abs (Dir ProjectRootDir) ->
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir ProjectRootDir) ->
   IO (Maybe String)
 copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir = do
-  let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
+  let dbMigrationsDirInDbRootDir = [reldir|migrations|]
 
   -- Migration folder in Wasp source (seen by Wasp dev and versioned).
   let dbMigrationsDirInWaspProjectDirAbs = waspProjectDir </> dbMigrationsDirInDbRootDir
@@ -93,12 +93,12 @@ copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir = do
           then dbMigrationsDirInWaspProjectDirAbs
           else dbMigrationsDirInGenProjectDirAbs
 
-  doesSrcDirExist <- PathIO.doesDirExist (SP.toPathAbsDir src)
+  doesSrcDirExist <- PathIO.doesDirExist (SP.Path.toPathAbsDir src)
   if doesSrcDirExist
     then
       ( ( PathIO.copyDirRecur
-            (SP.toPathAbsDir src)
-            (SP.toPathAbsDir target)
+            (SP.Path.toPathAbsDir src)
+            (SP.Path.toPathAbsDir target)
         )
           >> return Nothing
       )

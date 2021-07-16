@@ -8,8 +8,7 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
 import Generator.FileDraft (FileDraft)
 import qualified Generator.ServerGenerator.Common as C
-import qualified Path as P
-import StrongPath (File, Path, Rel, (</>))
+import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp, getAuth)
 
@@ -23,5 +22,5 @@ genConfigFile wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         [ "isAuthEnabled" .= isJust (getAuth wasp)
         ]
 
-configFileInSrcDir :: Path (Rel C.ServerSrcDir) File
-configFileInSrcDir = SP.fromPathRelFile [P.relfile|config.js|]
+configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+configFileInSrcDir = [relfile|config.js|]
