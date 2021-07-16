@@ -30,6 +30,10 @@ entity Task {=psl
     userId      Int
 psl=}
 
+server {
+  setupFn: import setup from "@ext/serverSetup.js"
+}
+
 route "/signup" -> page Signup
 page Signup {
     component: import Signup from "@ext/pages/auth/Signup"

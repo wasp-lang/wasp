@@ -10,14 +10,15 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import Data.Maybe (fromJust, fromMaybe)
+import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Generator.FileDraft (FileDraft)
+import Generator.JsImport (getImportDetailsForJsFnImport)
 import qualified Generator.ServerGenerator.Common as C
-import StrongPath (File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp (Wasp)
 import qualified Wasp
 import qualified Wasp.Action
-import qualified Wasp.JsImport
 import qualified Wasp.Operation
 import qualified Wasp.Query
 
@@ -76,9 +77,9 @@ operationFileInSrcDir :: Wasp.Operation.Operation -> Path' (Rel C.ServerSrcDir) 
 operationFileInSrcDir (Wasp.Operation.QueryOp query) = queryFileInSrcDir query
 operationFileInSrcDir (Wasp.Operation.ActionOp action) = actionFileInSrcDir action
 
--- | TODO: Make this not hardcoded! Maybe even use StrongPath? But I can't because of "../" .
-relPosixPathFromOperationFileToExtSrcDir :: FilePath -- Posix
-relPosixPathFromOperationFileToExtSrcDir = "../ext-src/"
+-- | TODO: Make this not hardcoded!
+relPosixPathFromOperationFileToExtSrcDir :: Path Posix (Rel Dir') (Dir GeneratedExternalCodeDir)
+relPosixPathFromOperationFileToExtSrcDir = [reldirP|../ext-src/|]
 
 operationTmplData :: Wasp.Operation.Operation -> Aeson.Value
 operationTmplData operation =
@@ -89,31 +90,11 @@ operationTmplData operation =
     ]
   where
     (importIdentifier, importStmt) =
-      getImportDetailsForOperationUserJsFn operation relPosixPathFromOperationFileToExtSrcDir
+      getImportDetailsForJsFnImport relPosixPathFromOperationFileToExtSrcDir $
+        Wasp.Operation.getJsFn operation
     buildEntityData :: String -> Aeson.Value
     buildEntityData entityName =
       object
         [ "name" .= entityName,
           "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
         ]
-
--- | Given Wasp operation, it returns details on how to import its user js function and use it,
---   "user js function" meaning the one provided by user directly to wasp, untouched.
-getImportDetailsForOperationUserJsFn ::
-  Wasp.Operation.Operation ->
-  -- | Relative posix path from js file where you want to do importing to generated ext code dir.
-  -- | (importIdentifier, importStmt)
-  -- - importIdentifier -> Identifier via which you can access js function after you import it with importStmt.
-  -- - importStmt -> Import statement via which you should do the import.
-  FilePath ->
-  (String, String)
-getImportDetailsForOperationUserJsFn operation relPosixPathToExtCodeDir = (importIdentifier, importStmt)
-  where
-    importStmt = "import " ++ importWhat ++ " from '" ++ importFrom ++ "'"
-    importFrom = relPosixPathToExtCodeDir ++ SP.toFilePath (Wasp.JsImport._from jsImport)
-    (importIdentifier, importWhat) =
-      case (Wasp.JsImport._defaultImport jsImport, Wasp.JsImport._namedImports jsImport) of
-        (Just defaultImport, []) -> (defaultImport, defaultImport)
-        (Nothing, [namedImport]) -> (namedImport, "{ " ++ namedImport ++ " }")
-        _ -> error "Expected either default import or single named import for operation (query/action) js function."
-    jsImport = Wasp.Operation.getJsFn operation

@@ -10,6 +10,7 @@ module Wasp
     getApp,
     setApp,
     getAuth,
+    getServer,
     getPSLEntities,
     getDb,
     module Wasp.Page,
@@ -48,6 +49,7 @@ import qualified Wasp.NpmDependencies
 import Wasp.Page
 import qualified Wasp.Query
 import Wasp.Route
+import qualified Wasp.Server
 
 -- * Wasp
 
@@ -70,6 +72,7 @@ data WaspElement
   | WaspElementEntity !Wasp.Entity.Entity
   | WaspElementQuery !Wasp.Query.Query
   | WaspElementAction !Wasp.Action.Action
+  | WaspElementServer !Wasp.Server.Server
   deriving (Show, Eq)
 
 fromWaspElems :: [WaspElement] -> Wasp
@@ -220,6 +223,16 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 getPSLEntities :: Wasp -> [Wasp.Entity.Entity]
 getPSLEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
 
+-- * Get server
+
+getServer :: Wasp -> Maybe Wasp.Server.Server
+getServer wasp =
+  let servers = [s | WaspElementServer s <- waspElements wasp]
+   in case servers of
+        [] -> Nothing
+        [s] -> Just s
+        _ -> error "Wasp can't contain more than one WaspElementAuth element!"
+
 -- * ToJSON instances.
 
 instance ToJSON Wasp where
@@ -228,5 +241,6 @@ instance ToJSON Wasp where
       [ "app" .= getApp wasp,
         "pages" .= getPages wasp,
         "routes" .= getRoutes wasp,
-        "jsImports" .= getJsImports wasp
+        "jsImports" .= getJsImports wasp,
+        "server" .= getServer wasp
       ]

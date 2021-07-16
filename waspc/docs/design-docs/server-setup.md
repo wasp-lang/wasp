@@ -90,4 +90,9 @@ For the very first version, I will go with basic requirements -> no args, and re
 
 In the future we can consider implementing some of the advanced requirements.
 
+NOTE: I actually ended up simplifying the MVP even further.
+      Instead of `server { setup { fn: ... } }`, I went with `server { setupFn: ... }` since it was less work to implement it.
+      Also, I didn't implement injection of returned object into `context`, since it is not simple and is not really needed.
+      If dev wants to make resources available to the rest of the code, they can instead make the module that exposes setup function a "singleton" and set the values there.
+      Then other parts of the code can import that module and directly access those values. No need for injection via `context`.
 

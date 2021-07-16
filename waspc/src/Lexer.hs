@@ -40,6 +40,9 @@ reservedNameAction = "action"
 reservedNameDependencies :: String
 reservedNameDependencies = "dependencies"
 
+reservedNameServer :: String
+reservedNameServer = "server"
+
 -- * Data types.
 
 reservedNameString :: String

@@ -15,6 +15,7 @@ import qualified Parser.NpmDependencies
 import Parser.Page (page)
 import qualified Parser.Query
 import Parser.Route (route)
+import qualified Parser.Server
 import Text.Parsec (ParseError, eof, many, many1, (<|>))
 import Text.Parsec.String (Parser)
 import qualified Wasp
@@ -30,6 +31,7 @@ waspElement =
     <|> waspElementQuery
     <|> waspElementAction
     <|> waspElementNpmDependencies
+    <|> waspElementServer
 
 waspElementApp :: Parser Wasp.WaspElement
 waspElementApp = Wasp.WaspElementApp <$> app
@@ -54,6 +56,9 @@ waspElementQuery = Wasp.WaspElementQuery <$> Parser.Query.query
 
 waspElementAction :: Parser Wasp.WaspElement
 waspElementAction = Wasp.WaspElementAction <$> Parser.Action.action
+
+waspElementServer :: Parser Wasp.WaspElement
+waspElementServer = Wasp.WaspElementServer <$> Parser.Server.server
 
 waspElementNpmDependencies :: Parser Wasp.WaspElement
 waspElementNpmDependencies = Wasp.WaspElementNpmDependencies <$> Parser.NpmDependencies.npmDependencies

@@ -1,4 +1,5 @@
 import HttpError from '@wasp/core/HttpError.js'
+import { getSomeResource } from './serverSetup.js'
 
 export const createTask = async (task, context) => {
   if (!context.user) {
@@ -6,6 +7,9 @@ export const createTask = async (task, context) => {
   }
 
   const Task = context.entities.Task
+
+  console.log('New task created! Btw, current value of someResource is: ' + getSomeResource())
+
   return Task.create({
     data: {
       description: task.description,
