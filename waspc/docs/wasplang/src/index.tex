@@ -25,17 +25,22 @@ and the standard library.
 
 <expr>    ::= <dict> | <list> | <dot>
             | <string> | <extimport> | <quoter>
-            | <ident> | <num>
+            | <ident> | <num> | <bool>
 <dict>    ::= '{' <dictentry> (',' <dictentry>)* '}'
             | '{' '}'
-<dictentry> ::= <ident> : <expr>
+<dictentry> ::= <ident> ':' <expr>
 <list>    ::= '[' <expr> (',' <expr>)* ']' | '[' ']'
 
 <extimport>  ::= 'import' <name> 'from' <string>
 <name>    ::= '{' <ident> '}' | <ident>
 <dot>     ::= <expr> '.' <ident>
 <quoter>  ::= '{=' <ident> <anything> <ident> '=}'
+<bool>    ::= 'true' | 'false'
 \end{verbatim}
+
+The \texttt{<anything>} inside \texttt{<quoter>} is ambiguous, so to correctly
+parse wasp, a quoter starting with \texttt{\{=tag} must contain all text until
+the first \texttt{tag=\}} or until the end of the input.
 
 The nonterminals for strings, numbers, and identifers are not shown.
 

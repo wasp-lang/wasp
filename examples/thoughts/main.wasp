@@ -50,24 +50,35 @@ query getTags {
 }
 
 entity Thought {=psl
-    id          Int     @id @default(autoincrement())
-    textMarkdown        String
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    id          Int       @id @default(autoincrement())
+    textMarkdown          String
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
     tags        Tag[]
+
+    user        User      @relation(fields: [userId], references: [id])
+    userId      Int
 psl=}
 
 entity Tag {=psl
-    id          Int     @id @default(autoincrement())
-    name        String  @unique
-    createdAt   DateTime @default(now())
+    id          Int       @id @default(autoincrement())
+    name        String
+    createdAt   DateTime  @default(now())
     thoughts    Thought[]
+
+    user        User      @relation(fields: [userId], references: [id])
+    userId      Int
+
+    @@unique([name, userId])
 psl=}
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    email       String  @unique
+    id          Int       @id @default(autoincrement())
+    email       String    @unique
     password    String
+
+    thoughts    Thought[]
+    tags        Tag[]
 psl=}
 
 dependencies {=json

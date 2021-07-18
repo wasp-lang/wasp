@@ -27,3 +27,5 @@ Here I write down how I felt while developing this app, so we can use this feedb
 - Handling errors in React and fetching data -> boring, also not sure how to do it.
 - I forgot to run `wasp db migrate-dev` after I switched db.system to PostgreSQL, and it took me some time to figure out why it is still using SQLite.
 - I got a message from Prisma that I should remove my migrations directory. It can be confusing for the newcomers as to what really needs to be done.
+- When I came back after some time, I forgot: how to run the database, what is the name of the heroku app. I luckily had command for running the database in the terminal history, and for deploying I opened the wasp docs and followed instructions.
+- When deploying after making changes to schema that require data migration (adding required fields to entities), I deleted the whole database on Heroku. If I actually had to do a data migration, I am not sure how I would have done it though, so that is a very important question and something we need to figure out.
