@@ -72,6 +72,12 @@ query getTasks {
   entities: [Task]
 }
 
+query getNumTasks {
+  fn: import { getNumTasks } from "@ext/queries.js",
+  entities: [Task],
+  auth: false
+}
+
 query getTask {
   fn: import { getTask } from "@ext/queries.js",
   entities: [Task]

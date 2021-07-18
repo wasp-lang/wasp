@@ -14,6 +14,10 @@ export const getTasks = async (args, context) => {
   return tasks
 }
 
+export const getNumTasks = async (args, context) => {
+  return context.entities.Task.count()
+}
+
 export const getTask = async ({ id }, context) => {
   if (!context.user) {
     throw new HttpError(403)
