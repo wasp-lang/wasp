@@ -36,7 +36,7 @@ import qualified NpmDependency as ND
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path, Rel, (</>))
 import qualified StrongPath as SP
-import System.Directory (removeDirectoryRecursive, removeFile)
+import System.Directory (removeFile, removePathForcibly)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Wasp (Wasp, getAuth)
@@ -64,12 +64,13 @@ genServer wasp _ =
 --   for progress of this.
 preCleanup :: Wasp -> Path Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
+  -- TODO: this is already defined in Command/Db/Migrate.hs and should be moved into Lib, issue actually tackled by #105
   let dbMigrationsDirInDbRootDir = SP.fromPathRelDir [P.reldir|migrations|]
   let dbMigrationsDirInGenProjectDirAbs = SP.toFilePath $ outDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
   let dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
-  removeDirectoryRecursive dbMigrationsDirInGenProjectDirAbs
-  removeFile dotEnvAbsFilePath
+  removePathForcibly dbMigrationsDirInGenProjectDirAbs `catch` \e -> when (not $ isDoesNotExistError e) $ throwIO e
+  removeFile dotEnvAbsFilePath `catch` \e -> when (not $ isDoesNotExistError e) $ throwIO e
 
 genDotEnv :: Wasp -> [FileDraft]
 genDotEnv wasp =
