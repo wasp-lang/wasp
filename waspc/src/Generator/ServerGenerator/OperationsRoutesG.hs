@@ -80,7 +80,7 @@ relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 
 genOperationsRouter :: Wasp -> FileDraft
 genOperationsRouter wasp
-   -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
+  -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
   | usingAuthOnAnyOperation && (not isAuthEnabled) = error "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
   | otherwise = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
@@ -103,10 +103,10 @@ genOperationsRouter wasp
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
               "isUsingAuth" .= (isUsingAuth operation)
             ]
-    
+
     isAuthEnabled = (isJust $ getAuth wasp)
     isUsingAuth :: Wasp.Operation.Operation -> Bool
-    isUsingAuth op = (Wasp.Operation.getAuth op /= Just False)            
+    isUsingAuth op = (Wasp.Operation.getAuth op /= Just False)
 
 operationRouteInOperationsRouter :: Wasp.Operation.Operation -> String
 operationRouteInOperationsRouter = U.camelToKebabCase . Wasp.Operation.getName

@@ -3,7 +3,7 @@ module Wasp.Operation
     getName,
     getJsFn,
     getEntities,
-    getAuth
+    getAuth,
   )
 where
 
