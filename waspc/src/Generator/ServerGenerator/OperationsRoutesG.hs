@@ -79,25 +79,34 @@ relPosixPathFromOperationsRoutesDirToSrcDir :: Path Posix (Rel OperationsRoutesD
 relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 
 genOperationsRouter :: Wasp -> FileDraft
-genOperationsRouter wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genOperationsRouter wasp
+  -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
+  | usingAuthOnAnyOperation && (not isAuthEnabled) = error "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
+  | otherwise = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
+    usingAuthOnAnyOperation = or $ map isUsingAuth operations
     operations =
       map Wasp.Operation.ActionOp (Wasp.getActions wasp)
         ++ map Wasp.Operation.QueryOp (Wasp.getQueries wasp)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,
-          "isAuthEnabled" .= (isJust $ getAuth wasp)
+          "isAuthEnabled" .= isAuthEnabled
         ]
     makeOperationRoute operation =
       let operationName = Wasp.Operation.getName operation
        in object
             [ "importIdentifier" .= operationName,
               "importPath" .= ("./" ++ SP.fromRelFileP (fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation)),
-              "routePath" .= ("/" ++ operationRouteInOperationsRouter operation)
+              "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
+              "isUsingAuth" .= (isUsingAuth operation)
             ]
+
+    isAuthEnabled = (isJust $ getAuth wasp)
+    isUsingAuth :: Wasp.Operation.Operation -> Bool
+    isUsingAuth op = (Wasp.Operation.getAuth op /= Just False)
 
 operationRouteInOperationsRouter :: Wasp.Operation.Operation -> String
 operationRouteInOperationsRouter = U.camelToKebabCase . Wasp.Operation.getName

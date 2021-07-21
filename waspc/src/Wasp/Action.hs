@@ -11,7 +11,8 @@ import Wasp.JsImport (JsImport)
 data Action = Action
   { _name :: !String,
     _jsFunction :: !JsImport,
-    _entities :: !(Maybe [String])
+    _entities :: !(Maybe [String]),
+    _auth :: !(Maybe Bool)
   }
   deriving (Show, Eq)
 
@@ -20,5 +21,6 @@ instance ToJSON Action where
     object
       [ "name" .= _name action,
         "jsFunction" .= _jsFunction action,
-        "entities" .= _entities action
+        "entities" .= _entities action,
+        "auth" .= _auth action
       ]
