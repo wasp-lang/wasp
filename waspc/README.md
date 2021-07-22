@@ -247,6 +247,10 @@ Hlint already adds a lot of extensions on its own so this is not a very often pr
 ## Formatting
 For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
 
+Normally we set it up in our editors to run on file save.
+
+There is also a check in CI that will ensure your PR has been formatted using ormolu.
+
 ## Commit message conventions
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
