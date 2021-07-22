@@ -6,9 +6,9 @@ import Analyzer.Parser.AST
 import Analyzer.Type
 import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
-import Control.Monad.Except
-import Control.Monad.Reader
-import Control.Monad.State
+import Control.Monad.Except (Except, runExcept, throwError)
+import Control.Monad.Reader (ReaderT, asks, runReaderT)
+import Control.Monad.State (StateT, evalStateT, gets, modify)
 import qualified Data.HashMap.Strict as H
 
 type Bindings = H.HashMap Ident Type
@@ -24,19 +24,20 @@ setType ident typ = modify $ H.insert ident typ
 throw :: TypeError -> T a
 throw = throwError
 
-lookupDecl :: String -> T (Maybe TD.DeclType)
-lookupDecl name = asks $ TD.getDeclType name
+lookupDeclType :: String -> T (Maybe TD.DeclType)
+lookupDeclType name = asks $ TD.getDeclType name
 
 runTWithBound :: Bindings -> TD.TypeDefinitions -> T a -> Either TypeError a
-runTWithBound bindings tds t = runExcept $ flip runReaderT tds $ evalStateT t bindings
+runTWithBound bindings typeDefs t = runExcept $ flip runReaderT typeDefs $ evalStateT t bindings
 
 runT :: TD.TypeDefinitions -> T a -> Either TypeError a
-runT tds = runTWithBound bindings tds
+runT typeDefs = runTWithBound bindings typeDefs
   where
+    enumValueBindings :: [(String, Type)]
+    enumValueBindings =
+      concatMap
+        (\(TD.EnumType name variants) -> zip variants (repeat $ EnumType name))
+        $ TD.getEnumTypes typeDefs
+
     bindings :: Bindings
-    -- Binds all enum values to the correct enum types
-    bindings =
-      foldr
-        (\(TD.EnumType name variants) b -> H.fromList (map (,EnumType name) variants) <> b)
-        H.empty
-        $ TD.getEnumTypes tds
+    bindings = H.fromList enumValueBindings

@@ -4,38 +4,24 @@
 -- | This module implements the type rules defined by the wasplang document
 -- in two phases.
 --
--- First, the bindings created by declaration statements are hoisted. Next, the
--- types of the argument to each declaration is checked to see if it matches the
--- type definition's corresponding "Analyzer.TypeDefintions.DeclType".
---
 -- = Hoisting Declarations
 --
--- The process of hoisting declarations is simple: for each declaration in the
--- AST, the name of the declaration is bound to the correct "Analyzer.Type.DeclType", without
--- checking the type of its argument.
---
--- For example, the wasp source file
+-- First, the variables bound by each declaration statement, e.g.
 --
 -- @
 -- app Todo {
 --   title: "Todo App"
 -- }
---
--- page Home {
---   component: import HomePage from '@ext/Home.jsx'
--- }
 -- @
 --
--- would have the bindings @[("Todo", DeclType "app"), ("Home", DeclType "page")] after
--- this phase.
+-- are created, without checking any types. In the above example, the bindings
+-- created would be @[("Todo", DeclType "app")]@.
 --
 -- = Statement Type Checking
 --
--- In this phase, the type rules are applied to the @expr@ of each @Decl typeName name expr@ to
--- determine it's type. That type is then compared to the type of @typeName@ to determine
--- if the statement is well-typed.
---
--- For the implementation of the type inference rules, see "checkExpr".
+-- In this second phase, the types of the argument to each declaration are checked
+-- to ensure they are valid for the declaration type. The implementation of the
+-- type inference rules is in "checkExpr", "unifyTypes", and "weaken".
 module Analyzer.TypeChecker.Internal
   ( check,
     hoistDeclarations,
@@ -68,22 +54,17 @@ hoistDeclarations :: AST -> T ()
 hoistDeclarations (P.AST stmts) = mapM_ hoistDeclaration stmts
   where
     hoistDeclaration :: P.Stmt -> T ()
-    hoistDeclaration (P.Decl typName ident _) =
-      lookupDecl typName >>= \case
-        Nothing -> throw $ NoDeclarationType typName
-        Just _ -> setType ident $ DeclType typName
+    hoistDeclaration (P.Decl typName ident _) = setType ident $ DeclType typName
 
 checkAST :: AST -> T TypedAST
 checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
 
--- | Checks that statements have valid types
 checkStmt :: P.Stmt -> T TypedStmt
 checkStmt (P.Decl typName name expr) =
-  lookupDecl typName >>= \case
+  lookupDeclType typName >>= \case
     Nothing -> throw $ NoDeclarationType typName
     Just (TD.DeclType _ expectedType) -> do
-      -- Applies type inference on rules on the expression to try to prove that
-      -- "Γ ⊢ expr : expectedType"
+      -- Decides whether the argument to the declaration has the correct type
       mTypedExpr <- weaken expectedType <$> checkExpr expr
       case mTypedExpr of
         Left e -> throw e
@@ -93,22 +74,20 @@ checkStmt (P.Decl typName name expr) =
 -- the wasplang document. Some these rules are referenced by name in the comments
 -- of the following functions using [Brackets].
 checkExpr :: P.Expr -> T TypedExpr
--- Literals are straight forward: each one can have one type
 checkExpr (P.StringLiteral s) = return $ StringLiteral s
 checkExpr (P.IntegerLiteral i) = return $ IntegerLiteral i
 checkExpr (P.DoubleLiteral d) = return $ DoubleLiteral d
 checkExpr (P.BoolLiteral b) = return $ BoolLiteral b
 checkExpr (P.ExtImport n s) = return $ ExtImport n s
+checkExpr (P.Identifier ident) =
+  lookupType ident >>= \case
+    Nothing -> throw $ UndefinedIdentifier ident
+    Just typ -> return $ Var ident typ
 -- For now, the two quoter types are hardcoded here, it is an error to use a different one
 -- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions"
 checkExpr (P.Quoter "json" s) = return $ JSON s
 checkExpr (P.Quoter "psl" s) = return $ PSL s
 checkExpr (P.Quoter tag _) = throw $ QuoterUnknownTag tag
--- Identifiers must have a type assigned to be used, so its type is checked in the bindings
-checkExpr (P.Identifier ident) =
-  lookupType ident >>= \case
-    Nothing -> throw $ UndefinedIdentifier ident
-    Just typ -> return $ Var ident typ
 -- The type of a list is the unified type of its values.
 -- This poses a problem for empty lists, there is not enough information to choose a type.
 -- TODO: fix this in the future, probably by adding an additional phase to resolve type variables
@@ -134,13 +113,13 @@ checkExpr (P.Dict entries) = do
       | x `notElem` xs = guardUnique xs
       | otherwise = throw $ DictDuplicateField x
 
--- | @unify exprs == Right (exprs', typ)@ is a proof that for all @expr@ in @exprs@
--- "Γ ⊢ expr : typ". Additionally, the following property is guaranteed:
+-- | @unify exprs == Right (exprs', typ)@ shows that all expressions in @exprs@
+-- can be typed as @typ@. Additionally, The following property is guaranteed:
 --
 -- * @all ((==typ) . exprType) exprs == True@
 --
--- A @Left@ return value is a proof that there is no @typ@ such that each @expr@
--- can be judged as that type.
+-- When a @Left@ value is returned, then there is no @typ@ that all expressions in
+-- @expr@ can be typed as.
 unify :: NonEmpty TypedExpr -> Either TypeError (NonEmpty TypedExpr, Type)
 unify (expr :| []) = Right (expr :| [], exprType expr)
 unify (expr :| exprs) = do
@@ -157,7 +136,6 @@ unify (expr :| exprs) = do
 --   >>> unifyTypes (DictType $ M.empty) (DictType $ M.singleton "a" (DictRequired NumberType))
 --   Right (DictType (M.singleton "a" (DictOptional NumberType)))
 unifyTypes :: Type -> Type -> Either TypeError Type
--- Trivial case: two identical types unify to themselves
 unifyTypes s t
   | s == t = Right s
 -- Two lists unify only if their inner types unify
@@ -171,7 +149,7 @@ unifyTypes s@(EnumType _) t = Left $ UnificationError ReasonEnum s t
 -- The unification of two dictionaries is defined by the [DictNone] and [DictSome] rules
 unifyTypes typS@(DictType s) typT@(DictType t) = do
   let keys = M.keysSet s <> M.keysSet t
-  unifiedType <- foldMapM (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
+  unifiedType <- foldMapM' (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
   return $ DictType unifiedType
   where
     unifyEntryTypesForKey :: String -> Either TypeError DictEntryType
@@ -195,16 +173,15 @@ unifyTypes typS@(DictType s) typT@(DictType t) = do
     annotateError k = left (\e -> UnificationError (ReasonDictWrongKeyType k e) typS typT)
 unifyTypes s t = Left $ UnificationError ReasonUncoercable s t
 
--- | @weaken expr typ@ attempts to weaken the type of @expr@ to @typ@. @weaken expr typ == Right expr'@
--- is a proof that "Γ ⊢ expr : typ". Additionally, the following property is guaranteed:
+-- | @weaken expr typ == Right expr'@ establishes that @expr@ can be typed as @typ@.
+-- Additionally, the following property is guaranteed:
 --
 -- * @exprType expr == typ@
 --
--- A @Left@ return value is a proof that "Γ ⊢ expr : typ" is false.
+-- When a @Left@ value is returned, then @expr@ can not be typed as @typ@.
 weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
--- Trivial case: @expr@ already has type @typ@.
-weaken typ expr
-  | exprType expr == typ = Right expr
+weaken typ' expr
+  | exprType expr == typ' = Right expr
 -- A list can be weakened to @typ@ if
 -- - @typ@ is of the form @ListType typ'@
 -- - Every value in the list can be weakened to @typ'@
@@ -250,5 +227,6 @@ weaken (DictType typ') expr@(Dict entries _) = do
 -- All other cases can not be weakened
 weaken typ' expr = Left $ WeakenError ReasonUncoercable expr typ'
 
-foldMapM :: (Foldable t, Monad m, Monoid s) => (a -> m s) -> t a -> m s
-foldMapM f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
+-- | "Prelude.foldMap'" (using a strict left fold), but in a monad "m".
+foldMapM' :: (Foldable t, Monad m, Monoid s) => (a -> m s) -> t a -> m s
+foldMapM' f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
