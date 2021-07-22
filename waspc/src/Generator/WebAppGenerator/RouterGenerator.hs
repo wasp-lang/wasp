@@ -4,7 +4,8 @@ module Generator.WebAppGenerator.RouterGenerator
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import Data.Maybe (fromJust, isJust)
+import Data.List (find)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Generator.FileDraft (FileDraft)
 import Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Generator.WebAppGenerator.Common as C
@@ -92,8 +93,10 @@ determineRouteTargetComponent wasp route =
     (Wasp.Page._authRequired targetPage)
   where
     targetPageName = Wasp.Route._targetPage route
-    -- NOTE(matija): if no page with the name specified in the route, head will fail.
-    targetPage = head $ filter ((==) targetPageName . Wasp.Page._name) (Wasp.getPages wasp)
+    targetPage =
+      fromMaybe
+        (error $ "Can't find page with name '" ++ targetPageName ++ "', pointed to by route '" ++ Wasp.Route._urlPath route ++ "'")
+        (find ((==) targetPageName . Wasp.Page._name) (Wasp.getPages wasp))
 
     determineRouteTargetComponent' :: Bool -> String
     determineRouteTargetComponent' authRequired =
