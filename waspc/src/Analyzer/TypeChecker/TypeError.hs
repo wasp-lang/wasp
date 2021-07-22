@@ -1,7 +1,8 @@
 module Analyzer.TypeChecker.TypeError
-  ( TypeError (..)
-  , TypeCoerceReason (..)
-  ) where
+  ( TypeError (..),
+    TypeCoerceReason (..),
+  )
+where
 
 import Analyzer.Type
 import Analyzer.TypeChecker.AST
@@ -12,9 +13,8 @@ data TypeError
   | NoDeclarationType String
   | UndefinedIdentifier String
   | QuoterUnknownTag String
-  | QuoterDifferentTags String String
   | DictDuplicateField String
-  | -- | Temperory "solution" to missing type inference for empty lists
+  | -- | Temporary "solution" to missing type inference for empty lists
     EmptyListNotImplemented
   deriving (Eq, Show)
 

@@ -114,8 +114,9 @@ spec_Parser = do
         let actual = exprType <$> checkExpr' H.empty ast
         actual `shouldBe` Left (DictDuplicateField "a")
 
-      it "Type checks an empty list" $ do
-        (exprType <$> checkExpr' H.empty (P.List [])) `shouldSatisfy` isRight
+      it "Fails to type check an empty list" $ do
+        -- TODO: this test must be removed/changed when empty lists are implemented.
+        (exprType <$> checkExpr' H.empty (P.List [])) `shouldBe` Left EmptyListNotImplemented
       it "Type checks a list where all elements have the same type" $ do
         let ast = P.List [P.IntegerLiteral 5, P.DoubleLiteral 1.6]
         let actual = exprType <$> checkExpr' H.empty ast
