@@ -2,13 +2,12 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
 
-module Analyzer.Decl
-  ( Decl (..),
+module Analyzer.Evaluator.Decl
+  ( Decl (Decl),
     takeDecls,
   )
 where
 
-import Analyzer.TypeDefinitions (IsDeclType)
 import Data.Maybe (mapMaybe)
 import Data.Typeable (Typeable, cast)
 
@@ -16,7 +15,7 @@ import Data.Typeable (Typeable, cast)
 --   evaluation.
 data Decl where
   -- | @Decl "Name" value@ results from a declaration statement "declType Name value".
-  Decl :: (Typeable a, IsDeclType a) => String -> a -> Decl
+  Decl :: (Typeable a) => String -> a -> Decl
 
 -- | Extracts all declarations of a certain type from a @[Decl]@s
 --
@@ -31,6 +30,5 @@ data Decl where
 --              ]
 --  takeDecls @Person decls == [("Bob", Person "Bob" 42), ("Alice", Person "Alice" 32)]
 --  @
-takeDecls :: (Typeable a, IsDeclType a) => [Decl] -> [(String, a)]
-takeDecls = mapMaybe $ \case
-  Decl name value -> (name,) <$> cast value
+takeDecls :: (Typeable a) => [Decl] -> [(String, a)]
+takeDecls = mapMaybe $ \(Decl name value) -> (name,) <$> cast value

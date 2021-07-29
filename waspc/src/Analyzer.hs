@@ -3,7 +3,7 @@ module Analyzer
   )
 where
 
-import Analyzer.Decl (Decl)
+import Analyzer.Evaluator (Decl)
 import qualified Analyzer.Evaluator as E
 import qualified Analyzer.Parser as P
 import Analyzer.StdTypeDefinitions (stdTypes)

@@ -63,7 +63,7 @@ checkStmt :: P.Stmt -> TypeChecker TypedStmt
 checkStmt (P.Decl typeName name expr) =
   lookupDeclType typeName >>= \case
     Nothing -> throw $ NoDeclarationType typeName
-    Just (TD.DeclType _ expectedType) -> do
+    Just (TD.DeclType _ expectedType _) -> do
       -- Decides whether the argument to the declaration has the correct type
       mTypedExpr <- weaken expectedType <$> inferExprType expr
       case mTypedExpr of
