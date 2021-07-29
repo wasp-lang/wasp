@@ -11,29 +11,29 @@ import Control.Monad.Reader (ReaderT, asks, runReaderT)
 import Control.Monad.State (StateT, evalStateT, gets, modify)
 import qualified Data.HashMap.Strict as H
 
-type Bindings = H.HashMap Ident Type
+type Bindings = H.HashMap Identifier Type
 
-type T a = StateT Bindings (ReaderT TD.TypeDefinitions (Except TypeError)) a
+type TypeChecker a = StateT Bindings (ReaderT TD.TypeDefinitions (Except TypeError)) a
 
-lookupType :: Ident -> T (Maybe Type)
+lookupType :: Identifier -> TypeChecker (Maybe Type)
 lookupType ident = gets $ H.lookup ident
 
-setType :: Ident -> Type -> T ()
+setType :: Identifier -> Type -> TypeChecker ()
 setType ident typ = modify $ H.insert ident typ
 
-throw :: TypeError -> T a
+throw :: TypeError -> TypeChecker a
 throw = throwError
 
-lookupDeclType :: String -> T (Maybe TD.DeclType)
+lookupDeclType :: String -> TypeChecker (Maybe TD.DeclType)
 lookupDeclType name = asks $ TD.getDeclType name
 
-runTWithBound :: Bindings -> TD.TypeDefinitions -> T a -> Either TypeError a
-runTWithBound bindings typeDefs t = runExcept $ flip runReaderT typeDefs $ evalStateT t bindings
+runWithBound :: Bindings -> TD.TypeDefinitions -> TypeChecker a -> Either TypeError a
+runWithBound bindings typeDefs t = runExcept $ flip runReaderT typeDefs $ evalStateT t bindings
 
-runT :: TD.TypeDefinitions -> T a -> Either TypeError a
-runT typeDefs = runTWithBound bindings typeDefs
+run :: TD.TypeDefinitions -> TypeChecker a -> Either TypeError a
+run typeDefs = runWithBound bindings typeDefs
   where
-    enumValueBindings :: [(String, Type)]
+    enumValueBindings :: [(Identifier, Type)]
     enumValueBindings =
       concatMap
         (\(TD.EnumType name variants) -> zip variants (repeat $ EnumType name))

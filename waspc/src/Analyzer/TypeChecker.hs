@@ -23,11 +23,11 @@ where
 import Analyzer.Parser.AST (AST)
 import Analyzer.TypeChecker.AST
 import Analyzer.TypeChecker.Internal (check)
-import Analyzer.TypeChecker.Monad (runT)
+import Analyzer.TypeChecker.Monad (run)
 import Analyzer.TypeChecker.TypeError
 import Analyzer.TypeDefinitions (TypeDefinitions)
 
 -- | Checks that an AST conforms to the type rules of Wasp and produces
 --   an AST labelled with type information.
 typeCheck :: TypeDefinitions -> AST -> Either TypeError TypedAST
-typeCheck typeDefs ast = runT typeDefs $ check ast
+typeCheck typeDefs ast = run typeDefs $ check ast

@@ -16,7 +16,7 @@ module Analyzer.Parser
     AST (..),
     Stmt (..),
     Expr (..),
-    Ident,
+    Identifier,
     ExtImportName (..),
     ParseError (..),
     SourcePosition (..),

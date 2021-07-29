@@ -82,10 +82,10 @@ Dict :: { Expr }
   : '{' DictEntries '}' { Dict $2 }
   | '{' DictEntries ',' '}' { Dict $2 }
   | '{' '}' { Dict [] }
-DictEntries :: { [(Ident, Expr)] }
+DictEntries :: { [(Identifier, Expr)] }
   : DictEntry { [$1] }
   | DictEntries ',' DictEntry { $1 ++ [$3] }
-DictEntry :: { (Ident, Expr) }
+DictEntry :: { (Identifier, Expr) }
   : ident ':' Expr { ($1, $3) }
 
 List :: { Expr }
