@@ -185,10 +185,10 @@ weaken typ' expr
 -- A list can be weakened to @typ@ if
 -- - @typ@ is of the form @ListType typ'@
 -- - Every value in the list can be weakened to @typ'@
-weaken (ListType typ') expr@(List vals _) =
-  fmap (\values -> List values (ListType typ')) $
-    left (\e -> WeakenError (ReasonList e) expr typ') $
-      mapM (weaken typ') vals
+weaken type'@(ListType elemType') expr@(List elems _) = do
+  elems' <- left (\e -> WeakenError (ReasonList e) expr elemType') $
+    mapM (weaken elemType') elems
+  return $ List elems' type'
 weaken (DictType typ') expr@(Dict entries _) = do
   entries' <- mapM weakenEntry entries
   mapM_ guardHasEntry $ M.toList typ'
