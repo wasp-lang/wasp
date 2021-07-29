@@ -32,8 +32,19 @@ chooseType =
 checkExpr' :: Bindings -> P.Expr -> Either TypeError TypedExpr
 checkExpr' bindings expr = runWithBound bindings TD.empty $ checkExpr expr
 
-spec_Parser :: Spec
-spec_Parser = do
+test :: String -> P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
+test name expr expected = it name $ do
+  let actual = exprType <$> checkExpr' H.empty expr
+  actual `shouldBe` expected
+
+testSuccess :: String -> P.Expr -> Type -> SpecWith (Arg Expectation)
+testSuccess name expr = test name expr . Right
+
+testFail :: String -> P.Expr -> TypeError -> SpecWith (Arg Expectation)
+testFail name expr = test name expr . Left
+
+spec_Internal :: Spec
+spec_Internal = do
   describe "Analyzer.TypeChecker.Internal" $ do
     describe "unify" $ do
       it "Doesn't affect 2 expressions of the same type" $ do
@@ -59,39 +70,21 @@ spec_Parser = do
         unify (a :| [b]) `shouldBe` (unify (a :| [b]) >>= unify . fst)
 
     describe "checkExpr" $ do
-      it "Types string literals as StringType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.StringLiteral "string")
-        let expected = Right StringType
-        actual `shouldBe` expected
-      it "Types integer literals as NumberType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.IntegerLiteral 42)
-        let expected = Right NumberType
-        actual `shouldBe` expected
-      it "Types double literals as NumberType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.DoubleLiteral 3.14)
-        let expected = Right NumberType
-        actual `shouldBe` expected
-      it "Types bool literals as BoolType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.BoolLiteral True)
-        let expected = Right BoolType
-        actual `shouldBe` expected
-      it "Types external imports as ExtImportType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.ExtImport (P.ExtImportModule "Main") "main.js")
-        let expected = Right ExtImportType
-        actual `shouldBe` expected
+      testSuccess "Types string literals as StringType" (P.StringLiteral "string") StringType
+      testSuccess "Types integer literals as NumberType" (P.IntegerLiteral 42) NumberType
+      testSuccess "Types double literals as NumberType" (P.DoubleLiteral 3.14) NumberType
+      testSuccess "Types bool literals as BoolType" (P.BoolLiteral True) BoolType
+      testSuccess
+        "Types external imports as ExtImportType"
+        (P.ExtImport (P.ExtImportModule "Main") "main.js")
+        ExtImportType
 
-      it "Types quoted json as JSONType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.Quoter "json" "\"field\": \"value\"")
-        let expected = Right $ QuoterType "json"
-        actual `shouldBe` expected
-      it "Types quoted psl as PSLType" $ do
-        let actual = exprType <$> checkExpr' H.empty (P.Quoter "psl" "id Int @id")
-        let expected = Right $ QuoterType "psl"
-        actual `shouldBe` expected
-      it "Fails to type check quoters with tag besides json or psl" $ do
-        let actual = checkExpr' H.empty (P.Quoter "toml" "field = \"value\"")
-        let expected = Left $ QuoterUnknownTag "toml"
-        actual `shouldBe` expected
+      testSuccess "Types quoted json as JSONType" (P.Quoter "json" "\"key\": \"value\"") (QuoterType "json")
+      testSuccess "Types quoted psl as PSLType" (P.Quoter "psl" "id Int @id") (QuoterType "psl")
+      testFail
+        "Fails to type check quoters with tag besides json or psl"
+        (P.Quoter "toml" "key = \"value\"")
+        (QuoterUnknownTag "toml")
 
       it "Types identifier as the type in the bindings" $ do
         forAll chooseType $ \typ ->
@@ -104,65 +97,62 @@ spec_Parser = do
         let expected = Left $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 
-      it "Type checks a dictionary" $ do
-        let ast = P.Dict [("a", P.IntegerLiteral 5), ("b", P.StringLiteral "string")]
-        let actual = exprType <$> checkExpr' H.empty ast
-        let expected = Right $ DictType $ H.fromList [("a", DictRequired NumberType), ("b", DictRequired StringType)]
-        actual `shouldBe` expected
-      it "Fails to type check a dictionary with duplicated keys" $ do
-        let ast = P.Dict [("a", P.IntegerLiteral 5), ("a", P.IntegerLiteral 6)]
-        let actual = exprType <$> checkExpr' H.empty ast
-        actual `shouldBe` Left (DictDuplicateField "a")
+      testSuccess
+        "Type checks a dictionary"
+        (P.Dict [("a", P.IntegerLiteral 5), ("b", P.StringLiteral "string")])
+        (DictType $ H.fromList [("a", DictRequired NumberType), ("b", DictRequired StringType)])
+      testFail
+        "Fails to type check a dictionary with duplicated keys"
+        (P.Dict [("a", P.IntegerLiteral 5), ("a", P.IntegerLiteral 6)])
+        (DictDuplicateField "a")
 
-      it "Fails to type check an empty list" $ do
-        -- TODO: this test must be removed/changed when empty lists are implemented.
-        (exprType <$> checkExpr' H.empty (P.List [])) `shouldBe` Left EmptyListNotImplemented
-      it "Type checks a list where all elements have the same type" $ do
-        let ast = P.List [P.IntegerLiteral 5, P.DoubleLiteral 1.6]
-        let actual = exprType <$> checkExpr' H.empty ast
-        let expected = Right $ ListType NumberType
-        actual `shouldBe` expected
-      it "Fails to type check a list containing strings and numbers" $ do
-        let ast = P.List [P.IntegerLiteral 5, P.StringLiteral "4"]
-        let actual = exprType <$> checkExpr' H.empty ast
-        let expected = Left $ UnificationError ReasonUncoercable NumberType StringType
-        actual `shouldBe` expected
-      it "Type checks a list of dictionaries that unify but have different types" $ do
-        let ast =
-              P.List
-                [ P.Dict [("a", P.IntegerLiteral 5)],
-                  P.Dict [],
-                  P.Dict [("b", P.StringLiteral "string")]
+      -- TODO: this test must be removed/changed when empty lists are implemented.
+      testFail
+        "Fails to type check an empty list"
+        (P.List [])
+        EmptyListNotImplemented
+      testSuccess
+        "Type checks a list where all elements have the same type"
+        (P.List [P.IntegerLiteral 5, P.DoubleLiteral 1.6])
+        (ListType NumberType)
+      testFail
+        "Fails to type check a list containing strings and numbers"
+        (P.List [P.IntegerLiteral 5, P.StringLiteral "4"])
+        (UnificationError ReasonUncoercable NumberType StringType)
+
+      testSuccess
+        "Type checks a list of dictionaries that unify but have different types"
+        ( P.List
+            [ P.Dict [("a", P.IntegerLiteral 5)],
+              P.Dict [],
+              P.Dict [("b", P.StringLiteral "string")]
+            ]
+        )
+        ( ListType $
+            DictType $
+              H.fromList
+                [ ("a", DictOptional NumberType),
+                  ("b", DictOptional StringType)
                 ]
-        let actual = exprType <$> checkExpr' H.empty ast
-        let expected =
-              Right $
-                ListType $
-                  DictType $
-                    H.fromList
-                      [ ("a", DictOptional NumberType),
-                        ("b", DictOptional StringType)
-                      ]
-        actual `shouldBe` expected
-      it "Fails to type check a list of dictionaries that do not unify" $ do
-        let ast =
-              P.List
-                [ P.Dict [("a", P.IntegerLiteral 5)],
-                  P.Dict [("a", P.StringLiteral "string")]
-                ]
-        let actual = exprType <$> checkExpr' H.empty ast
-        let expectedError =
-              UnificationError
-                (ReasonDictWrongKeyType "a" (UnificationError ReasonUncoercable NumberType StringType))
-                (DictType $ H.singleton "a" (DictRequired NumberType))
-                (DictType $ H.singleton "a" (DictRequired StringType))
-        actual `shouldBe` Left expectedError
+        )
+      testFail
+        "Fails to type check a list of dictionaries that do not unify"
+        ( P.List
+            [ P.Dict [("a", P.IntegerLiteral 5)],
+              P.Dict [("a", P.StringLiteral "string")]
+            ]
+        )
+        ( UnificationError
+            (ReasonDictWrongKeyType "a" (UnificationError ReasonUncoercable NumberType StringType))
+            (DictType $ H.singleton "a" (DictRequired NumberType))
+            (DictType $ H.singleton "a" (DictRequired StringType))
+        )
 
     describe "checkStmt" $ do
       it "Type checks existing declaration type with correct argument" $ do
         let ast = P.Decl "string" "App" (P.StringLiteral "Wasp")
-        let lib = TD.TypeDefinitions {TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType), TD.enumTypes = H.empty}
-        let actual = run lib $ checkStmt ast
+        let typeDefs = TD.TypeDefinitions {TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType), TD.enumTypes = H.empty}
+        let actual = run typeDefs $ checkStmt ast
         let expected = Right $ Decl "App" (StringLiteral "Wasp") (DeclType "string")
         actual `shouldBe` expected
       it "Fails to type check non-existant declaration type" $ do
@@ -171,17 +161,17 @@ spec_Parser = do
         actual `shouldBe` Left (NoDeclarationType "string")
       it "Fails to type check existing declaration type with incorrect argument" $ do
         let ast = P.Decl "string" "App" (P.IntegerLiteral 5)
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType),
                   TD.enumTypes = H.empty
                 }
-        let actual = run lib $ checkStmt ast
+        let actual = run typeDefs $ checkStmt ast
         let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
         actual `shouldBe` Left expectedError
       it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
         let ast = P.Decl "maybeString" "App" (P.Dict [("val", P.StringLiteral "Wasp")])
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes =
                     H.singleton "maybeString" $
@@ -189,7 +179,7 @@ spec_Parser = do
                         DictType $ H.singleton "val" (DictOptional StringType),
                   TD.enumTypes = H.empty
                 }
-        let actual = run lib $ checkStmt ast
+        let actual = run typeDefs $ checkStmt ast
         let expected =
               Right $
                 Decl
