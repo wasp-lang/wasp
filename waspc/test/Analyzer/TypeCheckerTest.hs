@@ -8,8 +8,8 @@ import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec
 
-spec_Parser :: Spec
-spec_Parser = do
+spec_TypeChecker :: Spec
+spec_TypeChecker = do
   describe "Analyzer.TypeChecker" $ do
     describe "typeCheck" $ do
       it "Type checks a simple, well-typed example" $ do

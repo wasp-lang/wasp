@@ -26,7 +26,7 @@ data TypeCoerceReason
     ReasonEnum
   | -- | There is no relationship between the types in the coercion
     ReasonUncoercable
-  | -- | A coercion of the type contained in a list fialed
+  | -- | A coercion of the type contained in a list failed
     ReasonList TypeError
   | -- | A coercion failed because a dictionary was missing a key
     ReasonDictNoKey String
