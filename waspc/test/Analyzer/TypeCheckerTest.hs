@@ -18,7 +18,7 @@ spec_TypeChecker = do
                 [ P.Decl "app" "Todo" (P.Dict [("title", P.StringLiteral "Todo App")]),
                   P.Decl "app" "Trello" (P.Dict [("title", P.StringLiteral "Trello Clone")])
                 ]
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes =
                     H.fromList
@@ -32,16 +32,16 @@ spec_TypeChecker = do
                       ],
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck lib ast
+        let actual = typeCheck typeDefs ast
         actual `shouldSatisfy` isRight
       it "Fails to type check a simple, ill-typed example" $ do
         let ast = P.AST [P.Decl "string" "App" (P.IntegerLiteral 5)]
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType),
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck lib ast
+        let actual = typeCheck typeDefs ast
         let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
@@ -52,20 +52,20 @@ spec_TypeChecker = do
               DictType $
                 H.fromList
                   [("value", DictRequired NumberType), ("next", DictOptional $ DeclType "llnode")]
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "llnode" (TD.DeclType "llnode" llnodeArgType),
                   TD.enumTypes = H.empty
                 }
-        let actual = typeCheck lib ast
+        let actual = typeCheck typeDefs ast
         actual `shouldSatisfy` isRight
       it "Type checks an existing enum value" $ do
         let ast = P.AST [P.Decl "food" "Cucumber" (P.Identifier "Dill")]
-        let lib =
+        let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor")),
                   TD.enumTypes = H.singleton "flavor" (TD.EnumType "flavor" ["Fresh", "Dill"])
                 }
-        let actual = typeCheck lib ast
+        let actual = typeCheck typeDefs ast
         let expected = Right $ TypedAST [Decl "Cucumber" (Var "Dill" (EnumType "flavor")) (DeclType "food")]
         actual `shouldBe` expected

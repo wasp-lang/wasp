@@ -2,29 +2,29 @@ module Analyzer.TypeChecker.AST
   ( TypedAST (..),
     TypedStmt (..),
     TypedExpr (..),
-    Ident,
+    Identifier,
     ExtImportName,
     exprType,
   )
 where
 
-import Analyzer.Parser (ExtImportName, Ident)
+import Analyzer.Parser (ExtImportName, Identifier)
 import Analyzer.Type
 
 newtype TypedAST = TypedAST {typedStmts :: [TypedStmt]} deriving (Eq, Show)
 
-data TypedStmt = Decl Ident TypedExpr Type deriving (Eq, Show)
+data TypedStmt = Decl Identifier TypedExpr Type deriving (Eq, Show)
 
 data TypedExpr
-  = Dict [(Ident, TypedExpr)] Type
+  = Dict [(Identifier, TypedExpr)] Type
   | List [TypedExpr] Type
   | StringLiteral String
   | IntegerLiteral Integer
   | DoubleLiteral Double
   | BoolLiteral Bool
   | ExtImport ExtImportName String
-  | Var Ident Type
-  | -- TODO: What type to represent these?
+  | Var Identifier Type
+  | -- TODO: When adding quoters to TypeDefinitions, these JSON/PSL variants will have to be changed
     JSON String
   | PSL String
   deriving (Eq, Show)

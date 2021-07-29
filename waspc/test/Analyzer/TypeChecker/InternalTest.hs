@@ -4,7 +4,7 @@ import qualified Analyzer.Parser as P
 import Analyzer.Type
 import Analyzer.TypeChecker.AST
 import Analyzer.TypeChecker.Internal
-import Analyzer.TypeChecker.Monad (Bindings, runT, runTWithBound)
+import Analyzer.TypeChecker.Monad (Bindings, run, runWithBound)
 import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
 import qualified Data.HashMap.Strict as H
@@ -30,7 +30,7 @@ chooseType =
     ]
 
 checkExpr' :: Bindings -> P.Expr -> Either TypeError TypedExpr
-checkExpr' bindings expr = runTWithBound bindings TD.empty $ checkExpr expr
+checkExpr' bindings expr = runWithBound bindings TD.empty $ checkExpr expr
 
 spec_Parser :: Spec
 spec_Parser = do
@@ -162,12 +162,12 @@ spec_Parser = do
       it "Type checks existing declaration type with correct argument" $ do
         let ast = P.Decl "string" "App" (P.StringLiteral "Wasp")
         let lib = TD.TypeDefinitions {TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType), TD.enumTypes = H.empty}
-        let actual = runT lib $ checkStmt ast
+        let actual = run lib $ checkStmt ast
         let expected = Right $ Decl "App" (StringLiteral "Wasp") (DeclType "string")
         actual `shouldBe` expected
       it "Fails to type check non-existant declaration type" $ do
         let ast = P.Decl "string" "App" (P.StringLiteral "Wasp")
-        let actual = runT TD.empty $ checkStmt ast
+        let actual = run TD.empty $ checkStmt ast
         actual `shouldBe` Left (NoDeclarationType "string")
       it "Fails to type check existing declaration type with incorrect argument" $ do
         let ast = P.Decl "string" "App" (P.IntegerLiteral 5)
@@ -176,7 +176,7 @@ spec_Parser = do
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType),
                   TD.enumTypes = H.empty
                 }
-        let actual = runT lib $ checkStmt ast
+        let actual = run lib $ checkStmt ast
         let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
         actual `shouldBe` Left expectedError
       it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
@@ -189,7 +189,7 @@ spec_Parser = do
                         DictType $ H.singleton "val" (DictOptional StringType),
                   TD.enumTypes = H.empty
                 }
-        let actual = runT lib $ checkStmt ast
+        let actual = run lib $ checkStmt ast
         let expected =
               Right $
                 Decl
