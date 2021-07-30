@@ -69,3 +69,13 @@ spec_TypeChecker = do
         let actual = typeCheck typeDefs ast
         let expected = Right $ TypedAST [Decl "Cucumber" (Var "Dill" (EnumType "flavor")) (DeclType "food")]
         actual `shouldBe` expected
+      it "Type checks an empty list in a declaration" $ do
+        let ast = P.AST [P.Decl "rooms" "Bedrooms" (P.List [])]
+        let typeDefs =
+              TD.TypeDefinitions
+                { TD.declTypes = H.singleton "rooms" (TD.DeclType "rooms" $ ListType StringType),
+                  TD.enumTypes = H.empty
+                }
+        let actual = typeCheck typeDefs ast
+        let expected = Right $ TypedAST [Decl "Bedrooms" (List [] (ListType StringType)) (DeclType "rooms")]
+        actual `shouldBe` expected
