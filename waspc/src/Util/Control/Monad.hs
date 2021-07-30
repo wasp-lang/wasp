@@ -1,11 +1,14 @@
 module Util.Control.Monad
   ( foldMapM',
+    foldM1,
   )
 where
 
+import Control.Monad (foldM)
 import Data.List (foldl')
+import Data.List.NonEmpty (NonEmpty ((:|)))
 
--- | Analogous to "Prelude.foldMap'", except that its result is encapsulated in a
+-- | Analogous to "Data.Foldable.foldMap'", except that its result is encapsulated in a
 -- monad.
 --
 -- @
@@ -25,3 +28,13 @@ import Data.List (foldl')
 -- Right 22
 foldMapM' :: (Foldable t, Monad m, Monoid s) => (a -> m s) -> t a -> m s
 foldMapM' f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
+
+-- | A variant of "Control.Monad.foldM" that has no base case and can only be
+-- applied to a non empty list.
+--
+-- __Examples__
+--
+-- >>> foldM1 (\l r -> Right $ l + r) $ 1 :| [2..4]
+-- Right 10
+foldM1 :: (Monad m) => (a -> a -> m a) -> NonEmpty a -> m a
+foldM1 f (x :| xs) = foldM f x xs

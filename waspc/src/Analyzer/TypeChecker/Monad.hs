@@ -1,6 +1,16 @@
 {-# LANGUAGE TupleSections #-}
 
-module Analyzer.TypeChecker.Monad where
+module Analyzer.TypeChecker.Monad
+  ( TypeChecker,
+    Bindings,
+    lookupType,
+    setType,
+    throw,
+    lookupDeclType,
+    runWithBound,
+    run,
+  )
+where
 
 import Analyzer.Parser.AST
 import Analyzer.Type
