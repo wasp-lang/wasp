@@ -15,12 +15,13 @@ module Analyzer.Evaluator.Combinators
     maybeField,
     list,
     build,
+    Transform,
+    TransformDict,
   )
 where
 
 import Analyzer.Evaluator.Decl
 import Analyzer.Evaluator.EvaluationError
-import Analyzer.Type
 import Analyzer.TypeChecker.AST (TypedExpr (..))
 import qualified Analyzer.TypeDefinitions as TD
 import qualified Data.HashMap.Internal.Strict as H

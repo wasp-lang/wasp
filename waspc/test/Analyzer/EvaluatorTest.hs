@@ -1,11 +1,12 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Analyzer.EvaluatorTest where
 
 import Analyzer.Evaluator
-import Analyzer.Evaluator.Combinators
+import Analyzer.Evaluator.TH
 import Analyzer.Parser (parse)
 import Analyzer.Type
 import Analyzer.TypeChecker
@@ -20,21 +21,19 @@ fromRight (Left e) = error $ show e
 
 newtype Simple = Simple String deriving (Eq, Show, Data)
 
-instance TD.IsDeclType Simple where
-  declTypeName = "simple"
-  declTypeBodyType = StringType
-  declTypeFromAST = build $ Simple <$> string
+makeDecl ''Simple
 
 data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data)
 
-instance TD.IsDeclType Fields where
-  declTypeName = "fields"
-  declTypeBodyType = DictType $ H.fromList [("a", DictRequired StringType), ("b", DictOptional NumberType)]
-  declTypeFromAST = build $ dict $ Fields <$> field "a" string <*> maybeField "b" double
+makeDecl ''Fields
 
 data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data)
 
+makeDecl ''Person
+
 data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data)
+
+makeEnum ''BusinessType
 
 data Business = Business
   { employees :: [Person],
@@ -44,37 +43,7 @@ data Business = Business
   }
   deriving (Eq, Show, Data)
 
-instance TD.IsDeclType Person where
-  declTypeName = "person"
-  declTypeBodyType = DictType $ H.fromList [("name", DictRequired StringType), ("age", DictRequired NumberType)]
-  declTypeFromAST = build $ dict $ Person <$> field "name" string <*> field "age" integer
-
-instance TD.IsEnumType BusinessType where
-  enumTypeName = "businessType"
-  enumTypeVariants = ["Manufacturer", "Seller", "Store"]
-  enumTypeFromVariant "Manufacturer" = Right Manufacturer
-  enumTypeFromVariant "Seller" = Right Seller
-  enumTypeFromVariant "Store" = Right Store
-  enumTypeFromVariant _ = error "invalid IsEnumType instance for BusinessType"
-
-instance TD.IsDeclType Business where
-  declTypeName = "business"
-  declTypeBodyType =
-    DictType $
-      H.fromList
-        [ ("employees", DictRequired $ ListType $ DeclType "person"),
-          ("worth", DictRequired NumberType),
-          ("businessType", DictRequired $ EnumType "businessType"),
-          ("location", DictOptional StringType)
-        ]
-  declTypeFromAST =
-    build $
-      dict $
-        Business
-          <$> field "employees" (list decl)
-          <*> field "worth" double
-          <*> field "businessType" enum
-          <*> maybeField "location" string
+makeDecl ''Business
 
 spec_Evaluator :: Spec
 spec_Evaluator = do
