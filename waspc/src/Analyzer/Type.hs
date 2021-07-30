@@ -13,6 +13,11 @@ data Type
   | EnumType String
   | DictType (H.HashMap String DictEntryType)
   | ListType Type
+  | -- | A temporary type given to an empty list. All occurences of this type
+    -- will have been changed to an appropriate "ListType" when "typeCheck" is
+    -- finished. See section 2.2 of the wasplang document for more information
+    -- on this.
+    EmptyListType
   | StringType
   | NumberType
   | BoolType

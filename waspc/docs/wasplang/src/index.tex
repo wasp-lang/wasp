@@ -134,6 +134,16 @@ type system. Some special conventions are followed:
     \Gamma \vdash \texttt{[ } e_1 \texttt{,} \ldots \texttt{,} e_n \texttt{ ]} : [\tau]
   }
 
+  \inferrule[EmptyList]{ }{
+    \Gamma \vdash \texttt{[]} : emptyList
+  }
+
+  \inferrule[AnyList]{
+    \Gamma \vdash e : emptyList
+  }{
+    \Gamma \vdash e : [\tau], \forall \tau
+  }
+
   \inferrule[Dot]{
     \Gamma \vdash e : \{ \texttt{k}: \tau, \ldots \}
   }{
@@ -159,6 +169,13 @@ type system. Some special conventions are followed:
 
 An ambiguity that arises is whether \texttt{x = [\{a: 1\}, \{\}]} is well-typed,
 and if \texttt{x}'s type is $[\{\}]$ or $[\{ a: number? \}]$.
+
+The rules \textsc{EmptyList} and \textsc{AnyList} are one way of allowing empty
+lists to type check, since \textsc{List} does not allow picking a type for an
+empty list. An alternative would be allowing type variables to be given to any
+ambiguous expressions, like an empty list, and having a separate pass to resolve
+the ambiguities from surrounding context. The current method for checking empty
+lists was chosen as it gives a much simpler implementation.
 
 \subsubsection{Type Checking}
 

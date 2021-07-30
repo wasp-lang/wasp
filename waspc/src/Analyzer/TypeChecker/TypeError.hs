@@ -29,8 +29,6 @@ data TypeError
   | UndefinedIdentifier String
   | QuoterUnknownTag String
   | DictDuplicateField String
-  | -- | TODO: Temporary "solution" to missing type inference for empty lists
-    EmptyListNotImplemented
   deriving (Eq, Show)
 
 -- | Describes a reason that a @UnificationError@ or @WeakenError@ happened

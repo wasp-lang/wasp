@@ -95,7 +95,8 @@ inferExprType (P.Quoter tag _) = throw $ QuoterUnknownTag tag
 inferExprType (P.List values) = do
   typedValues <- mapM inferExprType values
   case unify <$> nonEmpty typedValues of
-    Nothing -> throw EmptyListNotImplemented
+    -- Apply [EmptyList]
+    Nothing -> return $ List [] EmptyListType
     Just (Left e) ->
       throw e
     Just (Right (unifiedValues, unifiedType)) ->
@@ -151,7 +152,10 @@ unify exprs = do
 unifyTypes :: Type -> Type -> Either TypeError Type
 unifyTypes type1 type2
   | type1 == type2 = Right type1
--- Two lists unify only if their inner types unify
+-- Apply [AnyList]: an empty list can unify with any other list
+unifyTypes EmptyListType typ@(ListType _) = Right typ
+unifyTypes typ@(ListType _) EmptyListType = Right typ
+-- Two non-empty lists unify only if their inner types unify
 unifyTypes type1@(ListType elemType1) type2@(ListType elemType2) =
   annotateError $ ListType <$> unifyTypes elemType1 elemType2
   where
@@ -198,7 +202,9 @@ unifyTypes type1 type2 = Left $ UnificationError ReasonUncoercable type1 type2
 weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
 weaken type' expr
   | exprType expr == type' = Right expr
--- A list can be weakened to @typ@ if
+-- Apply [AnyList]: An empty list can be weakened to any list type
+weaken type'@(ListType _) (List [] EmptyListType) = return $ List [] type'
+-- A non-empty list can be weakened to @typ@ if
 -- - @typ@ is of the form @ListType type'@
 -- - Every value in the list can be weakened to @type'@
 weaken type'@(ListType elemType') expr@(List elems _) = do

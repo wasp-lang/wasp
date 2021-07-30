@@ -72,6 +72,12 @@ spec_Internal = do
         let a = Dict [] (DictType H.empty)
         let b = Dict [("a", BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
         unify (a :| [b]) `shouldBe` (unify (a :| [b]) >>= unify . fst)
+      it "Unifies an empty list with any other list" $ do
+        let a = List [] EmptyListType
+        let b = List [StringLiteral "a"] (ListType StringType)
+        let expected = ListType StringType
+        fmap (fmap exprType . fst) (unify (a :| [b]))
+          `shouldBe` Right (expected :| [expected])
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (P.StringLiteral "string") StringType
@@ -110,11 +116,10 @@ spec_Internal = do
         (P.Dict [("a", P.IntegerLiteral 5), ("a", P.IntegerLiteral 6)])
         (DictDuplicateField "a")
 
-      -- TODO: this test must be removed/changed when empty lists are implemented.
-      testFail
-        "Fails to type check an empty list"
+      testSuccess
+        "Type checks an empty list as EmptyListType"
         (P.List [])
-        EmptyListNotImplemented
+        EmptyListType
       testSuccess
         "Type checks a list where all elements have the same type"
         (P.List [P.IntegerLiteral 5, P.DoubleLiteral 1.6])
