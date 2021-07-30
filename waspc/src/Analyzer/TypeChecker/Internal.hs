@@ -21,13 +21,13 @@
 --
 -- In this second phase, the types of the argument to each declaration are checked
 -- to ensure they are valid for the declaration type. The implementation of the
--- type inference rules is in "checkExpr", "unifyTypes", and "weaken".
+-- type inference rules is in "inferExprType", "unifyTypes", and "weaken".
 module Analyzer.TypeChecker.Internal
   ( check,
     hoistDeclarations,
     checkAST,
     checkStmt,
-    checkExpr,
+    inferExprType,
     unify,
     unifyTypes,
     weaken,
@@ -41,11 +41,11 @@ import Analyzer.TypeChecker.AST
 import Analyzer.TypeChecker.Monad
 import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
-import Control.Arrow (left)
+import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
 import qualified Data.HashMap.Strict as M
-import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
-import Util.Control.Monad (foldMapM')
+import Data.List.NonEmpty (NonEmpty, nonEmpty, toList)
+import Util.Control.Monad (foldM1, foldMapM')
 
 check :: AST -> TypeChecker TypedAST
 check ast = hoistDeclarations ast >> checkAST ast
@@ -65,7 +65,7 @@ checkStmt (P.Decl typeName name expr) =
     Nothing -> throw $ NoDeclarationType typeName
     Just (TD.DeclType _ expectedType) -> do
       -- Decides whether the argument to the declaration has the correct type
-      mTypedExpr <- weaken expectedType <$> checkExpr expr
+      mTypedExpr <- weaken expectedType <$> inferExprType expr
       case mTypedExpr of
         Left e -> throw e
         Right typedExpr -> return $ Decl name typedExpr (DeclType typeName)
@@ -73,27 +73,27 @@ checkStmt (P.Decl typeName name expr) =
 -- | Determine the type of an expression, following the inference rules described in
 -- the wasplang document. Some these rules are referenced by name in the comments
 -- of the following functions using [Brackets].
-checkExpr :: P.Expr -> TypeChecker TypedExpr
-checkExpr (P.StringLiteral s) = return $ StringLiteral s
-checkExpr (P.IntegerLiteral i) = return $ IntegerLiteral i
-checkExpr (P.DoubleLiteral d) = return $ DoubleLiteral d
-checkExpr (P.BoolLiteral b) = return $ BoolLiteral b
-checkExpr (P.ExtImport n s) = return $ ExtImport n s
-checkExpr (P.Identifier ident) =
+inferExprType :: P.Expr -> TypeChecker TypedExpr
+inferExprType (P.StringLiteral s) = return $ StringLiteral s
+inferExprType (P.IntegerLiteral i) = return $ IntegerLiteral i
+inferExprType (P.DoubleLiteral d) = return $ DoubleLiteral d
+inferExprType (P.BoolLiteral b) = return $ BoolLiteral b
+inferExprType (P.ExtImport n s) = return $ ExtImport n s
+inferExprType (P.Identifier ident) =
   lookupType ident >>= \case
     Nothing -> throw $ UndefinedIdentifier ident
     Just typ -> return $ Var ident typ
 -- For now, the two quoter types are hardcoded here, it is an error to use a different one
 -- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions"
-checkExpr (P.Quoter "json" s) = return $ JSON s
-checkExpr (P.Quoter "psl" s) = return $ PSL s
-checkExpr (P.Quoter tag _) = throw $ QuoterUnknownTag tag
+inferExprType (P.Quoter "json" s) = return $ JSON s
+inferExprType (P.Quoter "psl" s) = return $ PSL s
+inferExprType (P.Quoter tag _) = throw $ QuoterUnknownTag tag
 -- The type of a list is the unified type of its values.
 -- This poses a problem for empty lists, there is not enough information to choose a type.
 -- TODO: fix this in the future, probably by adding an additional phase to resolve type variables
 --       that would be assigned here
-checkExpr (P.List values) = do
-  typedValues <- mapM checkExpr values
+inferExprType (P.List values) = do
+  typedValues <- mapM inferExprType values
   case unify <$> nonEmpty typedValues of
     Nothing -> throw EmptyListNotImplemented
     Just (Left e) ->
@@ -101,26 +101,26 @@ checkExpr (P.List values) = do
     Just (Right (unifiedValues, unifiedType)) ->
       return $ List (toList unifiedValues) (ListType unifiedType)
 -- Apply [Dict], and also check that there are no duplicate keys in the dictionary
-checkExpr (P.Dict entries) = do
-  guardUnique $ map fst entries
-  typedEntries <- zip (map fst entries) <$> mapM (checkExpr . snd) entries
-  let dictType = M.fromList $ map (\(key, val) -> (key, DictRequired $ exprType val)) typedEntries
+inferExprType (P.Dict entries) = do
+  typedEntries <- zip (map fst entries) <$> mapM (inferExprType . snd) entries
+  dictType <-
+    foldM insertIfUniqueElseThrow M.empty $
+      second (DictRequired . exprType) <$> typedEntries
   return $ Dict typedEntries (DictType dictType)
   where
-    guardUnique :: [String] -> TypeChecker ()
-    guardUnique [] = pure ()
-    guardUnique (x : xs)
-      | x `notElem` xs = guardUnique xs
-      | otherwise = throw $ DictDuplicateField x
+    insertIfUniqueElseThrow :: M.HashMap Identifier v -> (Identifier, v) -> TypeChecker (M.HashMap Identifier v)
+    insertIfUniqueElseThrow m (key, value)
+      | key `M.member` m = throw $ DictDuplicateField key
+      | otherwise = return $ M.insert key value m
 
--- | @unify exprs == Right (exprs', typ)@ shows that all expressions in @exprs@
--- can be typed as @typ@. Additionally, The following properties are guaranteed:
+-- | Finds the strongest common type for all of the given expressions, "common" meaning
+-- all the expressions can be typed with it and "strongest" meaning it is as specific
+-- as possible. If such a type exists, it returns that type and all of the given expressions
+-- typed with the new type. If no such type exists, it returns an error.
 --
--- * @typ@ is the strongest type that all @exprs@ can be typed as
--- * @all ((==typ) . exprType) exprs' == True@
+-- The following property is gauranteed:
 --
--- When a @Left@ value is returned, then there is no @typ@ that all expressions in
--- @expr@ can be typed as.
+-- * If @unify exprs == Right (exprs', commonType)@ then @all ((==commonType) . exprType) exprs'@
 --
 -- __Examples__
 --
@@ -130,10 +130,14 @@ checkExpr (P.Dict entries) = do
 -- >>> unify (Dict [("a", IntegerLiteral 2) _ :| Dict [] _)
 -- Right (Dict [("a", IntegerLiteral 2)] _ :| Dict [] _, DictType (M.singleton "a" (DictOptional NumberType)))
 unify :: NonEmpty TypedExpr -> Either TypeError (NonEmpty TypedExpr, Type)
-unify (expr :| []) = Right (expr :| [], exprType expr)
-unify (expr :| exprs) = do
-  superType <- foldM unifyTypes (exprType expr) $ fmap exprType exprs
-  fmap (,superType) $ mapM (weaken superType) $ expr :| exprs
+unify exprs = do
+  superType <- foldM1 unifyTypes (exprType <$> exprs)
+  (,superType) <$> mapM (weaken superType) exprs
+
+-- unify (expr :| []) = Right (expr :| [], exprType expr)
+-- unify (expr :| exprs) = do
+--   superType <- foldM unifyTypes (exprType expr) $ fmap exprType exprs
+--   fmap (,superType) $ mapM (weaken superType) $ expr :| exprs
 
 -- | @unifyTypes s t@ finds the strongest type that both @s@ and @t@ are a sub-type of.
 --
@@ -150,7 +154,8 @@ unifyTypes type1 type2
 -- Two lists unify only if their inner types unify
 unifyTypes type1@(ListType elemType1) type2@(ListType elemType2) =
   annotateError $ ListType <$> unifyTypes elemType1 elemType2
-  where annotateError = left (\e -> UnificationError (ReasonList e) type1 type2)
+  where
+    annotateError = left (\e -> UnificationError (ReasonList e) type1 type2)
 -- Declarations and enums can not unify with anything
 unifyTypes type1@(DeclType _) type2 = Left $ UnificationError ReasonDecl type1 type2
 unifyTypes type1@(EnumType _) type2 = Left $ UnificationError ReasonEnum type1 type2
@@ -181,23 +186,26 @@ unifyTypes type1@(DictType entryTypes1) type2@(DictType entryTypes2) = do
     annotateError k = left (\e -> UnificationError (ReasonDictWrongKeyType k e) type1 type2)
 unifyTypes type1 type2 = Left $ UnificationError ReasonUncoercable type1 type2
 
--- | @weaken expr typ == Right expr'@ establishes that @expr@ can be typed as @typ@.
--- Additionally, the following properties are guaranteed:
+-- | Converts a typed expression from its current type to the given weaker type, "weaker"
+-- meaning it is a super-type of the original type. If that is possible, it returns the
+-- converted expression. If not, an error is returned.
 --
--- * @expr'@ has the same value as @expr@
--- * @exprType expr' == typ@
+-- The following property is guaranteed:
+--
+-- * If @weaken typ expr == Right expr'@ then @exprType expr' == typ@
 --
 -- When a @Left@ value is returned, then @expr@ can not be typed as @typ@.
 weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
-weaken typ' expr
-  | exprType expr == typ' = Right expr
+weaken type' expr
+  | exprType expr == type' = Right expr
 -- A list can be weakened to @typ@ if
--- - @typ@ is of the form @ListType typ'@
--- - Every value in the list can be weakened to @typ'@
+-- - @typ@ is of the form @ListType type'@
+-- - Every value in the list can be weakened to @type'@
 weaken type'@(ListType elemType') expr@(List elems _) = do
   elems' <- annotateError $ mapM (weaken elemType') elems
   return $ List elems' type'
-  where annotateError = left (\e -> WeakenError (ReasonList e) expr elemType')
+  where
+    annotateError = left (\e -> WeakenError (ReasonList e) expr elemType')
 weaken (DictType entryTypes') expr@(Dict entries _) = do
   entries' <- mapM weakenEntry entries
   mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes'

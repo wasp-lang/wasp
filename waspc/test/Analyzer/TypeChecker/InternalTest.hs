@@ -18,6 +18,10 @@ import Test.Tasty.QuickCheck
 -- given how complex the code is, how many corner cases there are, and how well-defined the
 -- required properties of the type-checking functions are.
 
+-- TODO:
+-- Use the parser to generate AST instead of writing it by hand. Consider using quasiquotes
+-- instead of calling "parse" directly.
+
 chooseType :: Gen Type
 chooseType =
   elements
@@ -29,12 +33,12 @@ chooseType =
       QuoterType "psl"
     ]
 
-checkExpr' :: Bindings -> P.Expr -> Either TypeError TypedExpr
-checkExpr' bindings expr = runWithBound bindings TD.empty $ checkExpr expr
+inferExprType' :: Bindings -> P.Expr -> Either TypeError TypedExpr
+inferExprType' bindings expr = runWithBound bindings TD.empty $ inferExprType expr
 
 test :: String -> P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
 test name expr expected = it name $ do
-  let actual = exprType <$> checkExpr' H.empty expr
+  let actual = exprType <$> inferExprType' H.empty expr
   actual `shouldBe` expected
 
 testSuccess :: String -> P.Expr -> Type -> SpecWith (Arg Expectation)
@@ -69,7 +73,7 @@ spec_Internal = do
         let b = Dict [("a", BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
         unify (a :| [b]) `shouldBe` (unify (a :| [b]) >>= unify . fst)
 
-    describe "checkExpr" $ do
+    describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (P.StringLiteral "string") StringType
       testSuccess "Types integer literals as NumberType" (P.IntegerLiteral 42) NumberType
       testSuccess "Types double literals as NumberType" (P.DoubleLiteral 3.14) NumberType
@@ -89,11 +93,11 @@ spec_Internal = do
       it "Types identifier as the type in the bindings" $ do
         forAll chooseType $ \typ ->
           let bindings = H.singleton "var" typ
-              actual = exprType <$> checkExpr' bindings (P.Identifier "var")
+              actual = exprType <$> inferExprType' bindings (P.Identifier "var")
            in actual == Right typ
       it "Fails to type check identifiers not given a type in the bindings" $ do
         let bindings = H.empty
-        let actual = exprType <$> checkExpr' bindings (P.Identifier "pi")
+        let actual = exprType <$> inferExprType' bindings (P.Identifier "pi")
         let expected = Left $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 

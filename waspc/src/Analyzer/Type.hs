@@ -1,4 +1,9 @@
-module Analyzer.Type where
+module Analyzer.Type
+  ( Type (..),
+    DictEntryType (..),
+    dictEntryRequired,
+  )
+where
 
 import qualified Data.HashMap.Strict as H
 
