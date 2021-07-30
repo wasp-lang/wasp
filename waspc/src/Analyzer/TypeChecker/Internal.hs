@@ -149,9 +149,8 @@ unifyTypes type1 type2
   | type1 == type2 = Right type1
 -- Two lists unify only if their inner types unify
 unifyTypes type1@(ListType elemType1) type2@(ListType elemType2) =
-  fmap ListType $
-    left (\e -> UnificationError (ReasonList e) type1 type2) $
-      unifyTypes elemType1 elemType2
+  annotateError $ ListType <$> unifyTypes elemType1 elemType2
+  where annotateError = left (\e -> UnificationError (ReasonList e) type1 type2)
 -- Declarations and enums can not unify with anything
 unifyTypes type1@(DeclType _) type2 = Left $ UnificationError ReasonDecl type1 type2
 unifyTypes type1@(EnumType _) type2 = Left $ UnificationError ReasonEnum type1 type2
@@ -196,10 +195,9 @@ weaken typ' expr
 -- - @typ@ is of the form @ListType typ'@
 -- - Every value in the list can be weakened to @typ'@
 weaken type'@(ListType elemType') expr@(List elems _) = do
-  elems' <-
-    left (\e -> WeakenError (ReasonList e) expr elemType') $
-      mapM (weaken elemType') elems
+  elems' <- annotateError $ mapM (weaken elemType') elems
   return $ List elems' type'
+  where annotateError = left (\e -> WeakenError (ReasonList e) expr elemType')
 weaken (DictType entryTypes') expr@(Dict entries _) = do
   entries' <- mapM weakenEntry entries
   mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes'
