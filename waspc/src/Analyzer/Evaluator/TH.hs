@@ -10,6 +10,7 @@ module Analyzer.Evaluator.TH (makeDecl, makeEnum) where
 
 import Analyzer.Evaluator.Combinators
 import Analyzer.Evaluator.EvaluationError
+import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import Analyzer.TypeDefinitions.Class
 import qualified Data.HashMap.Strict as H
@@ -89,28 +90,22 @@ genDecl _ = fail "makeDecl on non-decl type"
 -- | Create an "IsDeclType" instance for types in the form @data Type = Type x@
 genPrimDecl :: Name -> Type -> Q [DecQ]
 genPrimDecl name typ =
-  map pure
-    <$> [d|
-      declTypeName = $(lowerNameStrE name)
-
-      declTypeBodyType = $(genTypeE typ)
-
-      declTypeFromAST = build $ $(conE name) <$> $(genTransformE typ)
-      |]
+  pure
+    [ func 'declTypeName $ lowerNameStrE name,
+      func 'declTypeBodyType $ genTypeE typ,
+      func 'declTypeFromAST [|build $ $(conE name) <$> $(genTransformE typ)|]
+    ]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
 genRecDecl name recs = do
   -- recs is reversed to make sure the applications for transformDictE are in the right order
   (dictEntryTypesE, transformDictE) <- genRecEntryTypesAndTransform name $ reverse recs
-  map pure
-    <$> [d|
-      declTypeName = $(lowerNameStrE name)
-
-      declTypeBodyType = T.DictType $ H.fromList $dictEntryTypesE
-
-      declTypeFromAST = build $ dict $transformDictE
-      |]
+  pure
+    [ func 'declTypeName $ lowerNameStrE name,
+      func 'declTypeBodyType [|T.DictType $ H.fromList $dictEntryTypesE|],
+      func 'declTypeFromAST [|build $ dict $transformDictE|]
+    ]
 
 -- | Write a wasp @Type@ for a Haskell type
 genTypeE :: Type -> ExpQ
@@ -121,8 +116,11 @@ genTypeE typ =
     KDouble -> [|T.NumberType|]
     KBool -> [|T.BoolType|]
     KList elemType -> [|T.ListType $(genTypeE elemType)|]
-    KDecl -> [|T.DeclType declTypeName @ $(pure typ)|]
-    KEnum -> [|T.EnumType enumTypeName @ $(pure typ)|]
+    KImport -> [|T.ExtImportType|]
+    KJSON -> [|T.QuoterType "json"|]
+    KPSL -> [|T.QuoterType "psl"|]
+    KDecl -> [|T.DeclType $ declTypeName @ $(pure typ)|]
+    KEnum -> [|T.EnumType $ enumTypeName @ $(pure typ)|]
     KOptional _ -> fail "Maybe only allowed in record fields"
 
 -- | Write a @Transform@ for a Haskell type
@@ -134,6 +132,9 @@ genTransformE typ =
     KDouble -> [|double|]
     KBool -> [|bool|]
     KList elemType -> [|list $(genTransformE elemType)|]
+    KImport -> [|extImport|]
+    KJSON -> [|json|]
+    KPSL -> [|psl|]
     KDecl -> [|decl @ $(pure typ)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe only allowed in record fields"
@@ -170,6 +171,9 @@ data WaspKind
   | KDouble
   | KBool
   | KList Type
+  | KImport
+  | KJSON
+  | KPSL
   | KDecl
   | KEnum
   | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
@@ -191,6 +195,9 @@ waspKindOfType typ = do
             | name == ''Integer -> pure KInteger
             | name == ''Double -> pure KDouble
             | name == ''Bool -> pure KBool
+            | name == ''E.ExtImport -> pure KImport
+            | name == ''E.JSON -> pure KJSON
+            | name == ''E.PSL -> pure KPSL
           ListT `AppT` elemType -> pure (KList elemType)
           ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
           _ -> fail $ "No translation to wasp type for type " ++ show typ
@@ -201,21 +208,17 @@ waspKindOfType typ = do
 
 genEnum :: Name -> [Name] -> Q [DecQ]
 genEnum tyConName cons =
-  map pure . concat
-    <$> sequence
-      [ [d|
-          enumTypeName = $(lowerNameStrE tyConName)
+  pure
+    [ func 'enumTypeName $ lowerNameStrE tyConName,
+      func 'enumTypeVariants $ listE $ map nameStrE cons,
+      genEnumFromVariants cons
+    ]
 
-          enumTypeVariants = $(listE $ map nameStrE cons)
-          |],
-        genEnumFromVariants cons
-      ]
-
-genEnumFromVariants :: [Name] -> Q [Dec]
+genEnumFromVariants :: [Name] -> DecQ
 genEnumFromVariants conNames = do
   let clauses = map genClause conNames
   let leftClause = clause [[p|x|]] (normalB [|Left $ EvaluationError $ "Invalid variant " ++ show x ++ " for enum"|]) []
-  (: []) <$> funD 'enumTypeFromVariant (clauses ++ [leftClause])
+  funD 'enumTypeFromVariant (clauses ++ [leftClause])
   where
     genClause :: Name -> ClauseQ
     genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
@@ -237,3 +240,7 @@ lowerNameStrE = litE . stringL . toLowerFirst . nameBase
 -- | Get an expression representing the string form of a name
 nameStrE :: Name -> ExpQ
 nameStrE = litE . stringL . nameBase
+
+-- | @func name expr@ writes a function like @name = expr@
+func :: Name -> ExpQ -> DecQ
+func name expr = funD name [clause [] (normalB expr) []]

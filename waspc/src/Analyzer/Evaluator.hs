@@ -5,11 +5,13 @@ module Analyzer.Evaluator
     evaluate,
     Decl,
     takeDecls,
+    module Analyzer.Evaluator.Types,
   )
 where
 
 import Analyzer.Evaluator.Decl (Decl, takeDecls)
 import Analyzer.Evaluator.EvaluationError
+import Analyzer.Evaluator.Types
 import Analyzer.Type
 import qualified Analyzer.TypeChecker.AST as AST
 import qualified Analyzer.TypeDefinitions as TD
@@ -39,4 +41,4 @@ evalStmt (AST.Decl name param (DeclType declTypeName)) =
         Right decl -> do
           modify $ H.insert name decl
           pure decl
-evalStmt _ = error "impossible: incorrectly typed Decl statement after type checking"
+evalStmt _ = error "impossible: Decl statement has non-Decl type after type checking"

@@ -4,25 +4,36 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Analyzer.Evaluator.Combinators
-  ( string,
+  ( -- * Types
+    Transform,
+    TransformDict,
+
+    -- * Functions
+    build,
+
+    -- * "Transform" combinators
+    string,
     integer,
     double,
     bool,
     decl,
     enum,
     dict,
+    list,
+    extImport,
+    json,
+    psl,
+
+    -- * "TransformDict" combinators
     field,
     maybeField,
-    list,
-    build,
-    Transform,
-    TransformDict,
   )
 where
 
 import Analyzer.Evaluator.Decl
 import Analyzer.Evaluator.EvaluationError
-import Analyzer.TypeChecker.AST (TypedExpr (..))
+import qualified Analyzer.Evaluator.Types as E
+import Analyzer.TypeChecker.AST (ExtImportName (..), TypedExpr (..))
 import qualified Analyzer.TypeDefinitions as TD
 import qualified Data.HashMap.Internal.Strict as H
 import Data.Typeable (cast)
@@ -81,6 +92,26 @@ dict inner = Transform $ \case
   (typeDefs, bindings, Dict entries _) -> runTransformDict inner (typeDefs, bindings, entries)
   _ -> error "Expected DictType (invalid instance of IsDeclType)"
 
+list :: Transform a -> Transform [a]
+list inner = Transform $ \case
+  (typeDefs, bindings, List values _) -> map (\expr -> runTransform inner (typeDefs, bindings, expr)) values
+  _ -> error "Expected ListType (invalid instance of IsDeclType)"
+
+extImport :: Transform E.ExtImport
+extImport = Transform $ \case
+  (_, _, ExtImport name file) -> E.ExtImport name file
+  _ -> error "Expected ExtImport (invalid instance of IsDeclType)"
+
+json :: Transform E.JSON
+json = Transform $ \case
+  (_, _, JSON str) -> E.JSON str
+  _ -> error "Expected JSON (invalid instance of IsDeclType)"
+
+psl :: Transform E.PSL
+psl = Transform $ \case
+  (_, _, PSL str) -> E.PSL str
+  _ -> error "Expected PSL (invalid instance of IsDeclType)"
+
 field :: String -> Transform a -> TransformDict a
 field key valueTransform = TransformDict $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> error $ "Missing field " ++ key ++ " (invalid instance of IsDeclType)"
@@ -90,8 +121,3 @@ maybeField :: String -> Transform a -> TransformDict (Maybe a)
 maybeField key valueTransform = TransformDict $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> Nothing
   Just value -> Just $ runTransform valueTransform (typeDefs, bindings, value)
-
-list :: Transform a -> Transform [a]
-list inner = Transform $ \case
-  (typeDefs, bindings, List values _) -> map (\expr -> runTransform inner (typeDefs, bindings, expr)) values
-  _ -> error "Expected ListType (invalid instance of IsDeclType)"
