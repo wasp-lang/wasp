@@ -60,7 +60,7 @@ spec_TypeChecker = do
         let actual = typeCheck typeDefs ast
         actual `shouldSatisfy` isRight
       it "Type checks an existing enum value" $ do
-        let ast = P.AST [P.Decl "food" "Cucumber" (P.Identifier "Dill")]
+        let ast = P.AST [P.Decl "food" "Cucumber" (P.Var "Dill")]
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor")),

@@ -76,7 +76,7 @@ Expr :: { Expr }
   | double { DoubleLiteral $1 }
   | true { BoolLiteral True }
   | false { BoolLiteral False }
-  | ident { Identifier $1 }
+  | ident { Var $1 }
 
 Dict :: { Expr }
   : '{' DictEntries '}' { Dict $2 }

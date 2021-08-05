@@ -2,13 +2,14 @@
 
 module Analyzer.TypeChecker.Monad
   ( TypeChecker,
-    Bindings,
     lookupType,
     setType,
     throw,
     lookupDeclType,
-    runWithBound,
     run,
+    -- Exported for testing
+    Bindings,
+    runWithBound,
   )
 where
 

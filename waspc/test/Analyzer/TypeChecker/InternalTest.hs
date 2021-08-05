@@ -99,11 +99,11 @@ spec_Internal = do
       it "Types identifier as the type in the bindings" $ do
         forAll chooseType $ \typ ->
           let bindings = H.singleton "var" typ
-              actual = exprType <$> inferExprType' bindings (P.Identifier "var")
+              actual = exprType <$> inferExprType' bindings (P.Var "var")
            in actual == Right typ
       it "Fails to type check identifiers not given a type in the bindings" $ do
         let bindings = H.empty
-        let actual = exprType <$> inferExprType' bindings (P.Identifier "pi")
+        let actual = exprType <$> inferExprType' bindings (P.Var "pi")
         let expected = Left $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 
