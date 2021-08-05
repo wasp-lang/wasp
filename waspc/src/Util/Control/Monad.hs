@@ -11,6 +11,8 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 -- | Analogous to "Data.Foldable.foldMap'", except that its result is encapsulated in a
 -- monad.
 --
+-- TODO: write tests for this function
+--
 -- @
 -- foldMapM f [x1, x2, ..., xn] ==
 --   do
@@ -31,6 +33,8 @@ foldMapM' f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
 
 -- | A variant of "Control.Monad.foldM" that has no base case and can only be
 -- applied to a non empty list.
+--
+-- TODO: write tests for this function
 --
 -- __Examples__
 --
