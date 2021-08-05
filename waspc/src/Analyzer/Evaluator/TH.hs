@@ -33,11 +33,11 @@ import Util (toLowerFirst)
 -- -- "IsDeclType Person" instance is generated
 -- @
 makeDecl :: Name -> Q [Dec]
-makeDecl ty = do
-  (TyConI tyCon) <- reify ty
+makeDecl typeName = do
+  (TyConI tyCon) <- reify typeName
   (tyConName, con) <- case tyCon of
-    (DataD _ nm [] _ [con] _) -> pure (nm, con)
-    (NewtypeD _ nm [] _ con _) -> pure (nm, con)
+    (DataD _ name [] _ [con] _) -> pure (name, con)
+    (NewtypeD _ name [] _ con _) -> pure (name, con)
     _ -> fail "Invalid name for makeDecl"
   let instanceType = conT ''IsDeclType `appT` conT tyConName
   instanceDecs <- genDecl con
@@ -60,11 +60,11 @@ makeDecl ty = do
 -- -- "IsEnumType Job" instance is generated
 -- @
 makeEnum :: Name -> Q [Dec]
-makeEnum ty = do
-  (TyConI tyCon) <- reify ty
+makeEnum typeName = do
+  (TyConI tyCon) <- reify typeName
   (tyConName, cons) <- case tyCon of
-    (DataD _ nm [] _ cons _) -> pure (nm, cons)
-    (NewtypeD _ nm [] _ con _) -> pure (nm, [con])
+    (DataD _ name [] _ cons _) -> pure (name, cons)
+    (NewtypeD _ name [] _ con _) -> pure (name, [con])
     _ -> fail "Invalid name for makeEnum"
   let instanceType = conT ''IsEnumType `appT` conT tyConName
   conNames <- enumConNames cons
@@ -78,24 +78,38 @@ makeEnum ty = do
 -- | Top-level "IsDeclType" instance generator.
 genDecl :: Con -> Q [DecQ]
 -- The constructor is in the form @data Type = Type x@
-genDecl (NormalC nm [(_, typ)]) = genPrimDecl nm typ
+genDecl (NormalC name [(_, typ)]) = genPrimDecl name typ
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
-genDecl (NormalC nm _) = fail $ "Too many non-record values in makeDecl for " ++ show nm
+genDecl (NormalC name _) = fail $ "Too many non-record values in makeDecl for " ++ show name
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-genDecl (RecC nm recs) = genRecDecl nm $ map (\(recNm, _, typ) -> (recNm, typ)) recs
+genDecl (RecC name recs) = genRecDecl name $ map (\(recName, _, typ) -> (recName, typ)) recs
 -- The constructor is in an unsupported form
 genDecl _ = fail "makeDecl on non-decl type"
 
 -- | Create an "IsDeclType" instance for types in the form @data Type = Type x@
 genPrimDecl :: Name -> Type -> Q [DecQ]
-genPrimDecl nm typ =
+genPrimDecl name typ =
   map pure
     <$> [d|
-      declTypeName = $(lowerNameStrE nm)
+      declTypeName = $(lowerNameStrE name)
 
       declTypeBodyType = $(genTypeE typ)
 
-      declTypeFromAST = build $ $(conE nm) <$> $(genTransformE typ)
+      declTypeFromAST = build $ $(conE name) <$> $(genTransformE typ)
+      |]
+
+-- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
+genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
+genRecDecl name recs = do
+  -- recs is reversed to make sure the applications for transformDictE are in the right order
+  (dictEntryTypesE, transformDictE) <- genRecEntryTypesAndTransform name $ reverse recs
+  map pure
+    <$> [d|
+      declTypeName = $(lowerNameStrE name)
+
+      declTypeBodyType = T.DictType $ H.fromList $dictEntryTypesE
+
+      declTypeFromAST = build $ dict $transformDictE
       |]
 
 -- | Write a wasp @Type@ for a Haskell type
@@ -124,28 +138,14 @@ genTransformE typ =
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe only allowed in record fields"
 
--- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
-genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
-genRecDecl nm recs = do
-  -- recs is reversed to make sure the applications for transformDictE are in the right order
-  (dictEntryTypesE, transformDictE) <- genRecEntryTypesAndTransform nm $ reverse recs
-  map pure
-    <$> [d|
-      declTypeName = $(lowerNameStrE nm)
-
-      declTypeBodyType = T.DictType $ H.fromList $dictEntryTypesE
-
-      declTypeFromAST = build $ dict $transformDictE
-      |]
-
 -- | Write the @DictEntryType@s and @TransformDict@ for the records in a
 -- Haskell constructor.
 genRecEntryTypesAndTransform :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genRecEntryTypesAndTransform conNm [] = pure (listE [], varE 'pure `appE` conE conNm)
-genRecEntryTypesAndTransform conNm ((recNm, typ) : rest) = do
-  (restDictType, restTransform) <- genRecEntryTypesAndTransform conNm rest
-  let thisDictTypeE = [|($(nameStrE recNm), $(genFieldTypeE typ)) : $restDictType|]
-  let thisTransformE = [|$restTransform <*> $(genTransformDictE recNm typ)|]
+genRecEntryTypesAndTransform conName [] = pure (listE [], varE 'pure `appE` conE conName)
+genRecEntryTypesAndTransform conName ((recName, typ) : rest) = do
+  (restDictType, restTransform) <- genRecEntryTypesAndTransform conName rest
+  let thisDictTypeE = [|($(nameStrE recName), $(genFieldTypeE typ)) : $restDictType|]
+  let thisTransformE = [|$restTransform <*> $(genTransformDictE recName typ)|]
   pure (thisDictTypeE, thisTransformE)
 
 -- | Write a @DictEntryType@ for a Haskell type.
@@ -157,10 +157,10 @@ genFieldTypeE typ =
 
 -- | Write a @TransformDict@ for a Haskell type.
 genTransformDictE :: Name -> Type -> ExpQ
-genTransformDictE recNm typ =
+genTransformDictE recName typ =
   waspKindOfType typ >>= \case
-    KOptional elemType -> [|maybeField $(nameStrE recNm) $(genTransformE elemType)|]
-    _ -> [|field $(nameStrE recNm) $(genTransformE typ)|]
+    KOptional elemType -> [|maybeField $(nameStrE recName) $(genTransformE elemType)|]
+    _ -> [|field $(nameStrE recName) $(genTransformE typ)|]
 
 -- | An intermediate mapping between Haskell types and Wasp types, used for
 -- generating @Types@, @Transforms@, @DictEntryTypes@, and @TransformDicts@.
@@ -186,13 +186,13 @@ waspKindOfType typ = do
       if typIsEnum
         then pure KEnum
         else case typ of
-          ConT nm
-            | nm == ''String -> pure KString
-            | nm == ''Integer -> pure KInteger
-            | nm == ''Double -> pure KDouble
-            | nm == ''Bool -> pure KBool
+          ConT name
+            | name == ''String -> pure KString
+            | name == ''Integer -> pure KInteger
+            | name == ''Double -> pure KDouble
+            | name == ''Bool -> pure KBool
           ListT `AppT` elemType -> pure (KList elemType)
-          ConT nm `AppT` elemType | nm == ''Maybe -> pure (KOptional elemType)
+          ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
           _ -> fail $ "No translation to wasp type for type " ++ show typ
 
 -- ========================================
@@ -218,12 +218,12 @@ genEnumFromVariants conNames = do
   (: []) <$> funD 'enumTypeFromVariant (clauses ++ [leftClause])
   where
     genClause :: Name -> ClauseQ
-    genClause nm = clause [litP $ stringL $ nameBase nm] (normalB [|Right $(conE nm)|]) []
+    genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
 
 enumConNames :: [Con] -> Q [Name]
 enumConNames = mapM conName
   where
-    conName (NormalC nm []) = pure nm
+    conName (NormalC name []) = pure name
     conName _ = fail "Enum variant should have only one value"
 
 -- ========================================
