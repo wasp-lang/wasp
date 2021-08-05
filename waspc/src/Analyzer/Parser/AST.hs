@@ -15,7 +15,7 @@ data Expr
   | DoubleLiteral Double
   | BoolLiteral Bool
   | ExtImport ExtImportName String
-  | Identifier Identifier
+  | Var Identifier
   | Quoter Identifier String
   deriving (Eq, Show)
 

@@ -79,7 +79,7 @@ inferExprType (P.IntegerLiteral i) = return $ IntegerLiteral i
 inferExprType (P.DoubleLiteral d) = return $ DoubleLiteral d
 inferExprType (P.BoolLiteral b) = return $ BoolLiteral b
 inferExprType (P.ExtImport n s) = return $ ExtImport n s
-inferExprType (P.Identifier ident) =
+inferExprType (P.Var ident) =
   lookupType ident >>= \case
     Nothing -> throw $ UndefinedIdentifier ident
     Just typ -> return $ Var ident typ

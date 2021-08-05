@@ -30,7 +30,7 @@ spec_Parser = do
                       ("real", DoubleLiteral 3.14),
                       ("yes", BoolLiteral True),
                       ("no", BoolLiteral False),
-                      ("ident", Identifier "Wasp")
+                      ("ident", Var "Wasp")
                     ]
               ]
       parse source `shouldBe` Right ast
