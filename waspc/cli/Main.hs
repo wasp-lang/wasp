@@ -86,6 +86,7 @@ printUsage =
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
+        cmd "    info                  Prints information related to your Wasp project.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",
