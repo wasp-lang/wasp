@@ -3,6 +3,7 @@ module Lib
     Generator.setup,
     Generator.start,
     ProjectRootDir,
+    findWaspFile,
   )
 where
 
