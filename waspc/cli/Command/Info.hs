@@ -25,9 +25,9 @@ info :: Command ()
 info =
   do
     waspDir <- findWaspProjectRootDirFromCwd
-    let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInOutDir
-    eitherWasp <- liftIO $ parseWaspFile waspDir
-    case eitherWasp of
+    let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
+    eitherStringWasp <- liftIO $ parseWaspFile waspDir
+    case eitherStringWasp of
       Left err -> waspSaysC err
       Right wasp -> do
         compileInfo <- liftIO $ readDotWaspInfoFile dotWaspInfoFile
