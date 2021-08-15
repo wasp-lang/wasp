@@ -16,7 +16,8 @@ import Lib (findWaspFile)
 import qualified Parser
 import StrongPath (Abs, Dir, File', Path', relfile, toFilePath)
 import StrongPath.Operations
-import System.Directory (doesDirectoryExist, doesFileExist, getFileSize, listDirectory)
+import System.Directory (doesFileExist, getFileSize)
+import System.Directory.Recursive (getDirRecursive)
 import qualified Util.Terminal as Term
 import Wasp (Wasp, appName, getApp)
 
@@ -30,7 +31,7 @@ info =
       Left err -> waspSaysC err
       Right wasp -> do
         buildInfo <- liftIO $ readDotWaspInfoFile dotWaspInfoFile
-        projectSize <- liftIO $ directorySize $ toFilePath waspDir
+        projectSize <- liftIO $ getDirectorySize $ toFilePath waspDir
         liftIO $
           putStrLn $
             unlines
@@ -44,8 +45,13 @@ info =
                   buildInfo,
                 printInfo
                   "Project size"
-                  (show projectSize)
+                  (show $ projectSize `div` 1000)
+                  ++ " "
+                  ++ "KB"
               ]
+
+getDirectorySize :: FilePath -> IO Integer
+getDirectorySize path = sum <$> (getDirRecursive path >>= mapM getFileSize)
 
 readDotWaspInfoFile :: Path' Abs File' -> IO String
 readDotWaspInfoFile path = do
@@ -68,14 +74,3 @@ parseWaspFile waspDir = do
       case Parser.parseWasp waspStr of
         Left err -> return (Left ("Couldn't parse .wasp file: " <> show err))
         Right wasp -> return (Right wasp)
-
-directorySize :: FilePath -> IO Integer
-directorySize path = do
-  isFile <- doesFileExist path
-  if isFile
-    then getFileSize path
-    else do
-      isDir <- doesDirectoryExist path
-      if isDir
-        then sum <$> (listDirectory path >>= mapM directorySize)
-        else return 0
