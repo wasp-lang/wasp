@@ -14,7 +14,7 @@ import Common (WaspProjectDir)
 import Control.Monad.IO.Class (liftIO)
 import Lib (findWaspFile)
 import qualified Parser
-import StrongPath (Abs, Dir, File', Path', relfile, toFilePath)
+import StrongPath (Abs, Dir, File', Path', toFilePath)
 import StrongPath.Operations
 import System.Directory (doesFileExist, getFileSize)
 import System.Directory.Recursive (getDirRecursive)
@@ -25,7 +25,7 @@ info :: Command ()
 info =
   do
     waspDir <- findWaspProjectRootDirFromCwd
-    let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> [relfile|.waspinfo|]
+    let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInOutDir
     maybeWasp <- liftIO $ parseWaspFile waspDir
     case maybeWasp of
       Left err -> waspSaysC err
