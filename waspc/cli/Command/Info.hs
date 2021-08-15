@@ -49,6 +49,9 @@ info =
                   ++ "KB"
               ]
 
+printInfo :: String -> String -> String
+printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
+
 getDirectorySize :: FilePath -> IO Integer
 getDirectorySize path = sum <$> (getDirRecursive path >>= mapM getFileSize)
 
@@ -58,9 +61,6 @@ readDotWaspInfoFile path = do
   if dotWaspInfoFileExists
     then do readFile (toFilePath path)
     else return "No compile information found"
-
-printInfo :: String -> String -> String
-printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
 
 parseWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String Wasp)
 parseWaspFile waspDir = do
