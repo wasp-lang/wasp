@@ -32,8 +32,7 @@ info =
       Right wasp -> do
         compileInfo <- liftIO $ readDotWaspInfoFile dotWaspInfoFile
         projectSize <- liftIO $ getDirectorySize $ toFilePath waspDir
-        liftIO $
-          putStrLn $
+        waspSaysC $
             unlines
               [ "",
                 title "Project information",
@@ -55,7 +54,7 @@ getDirectorySize path = sum <$> (getDirRecursive path >>= mapM getFileSize)
 
 readDotWaspInfoFile :: Path' Abs File' -> IO String
 readDotWaspInfoFile path = do
-  dotWaspInfoFileExists <- liftIO $ doesFileExist $ toFilePath path
+  dotWaspInfoFileExists <- doesFileExist $ toFilePath path
   if dotWaspInfoFileExists
     then do readFile (toFilePath path)
     else return "No compile information found"
@@ -69,7 +68,7 @@ parseWaspFile waspDir = do
   case maybeWaspFile of
     Nothing -> return (Left "Couldn't find a single *.wasp file.")
     Just waspFile -> do
-      waspStr <- liftIO $ readFile (toFilePath waspFile)
+      waspStr <- readFile (toFilePath waspFile)
 
       case Parser.parseWasp waspStr of
         Left err -> return (Left ("Couldn't parse .wasp file: " <> show err))
