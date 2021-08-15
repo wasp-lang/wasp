@@ -30,7 +30,7 @@ info =
     case maybeWasp of
       Left err -> waspSaysC err
       Right wasp -> do
-        buildInfo <- liftIO $ readDotWaspInfoFile dotWaspInfoFile
+        compileInfo <- liftIO $ readDotWaspInfoFile dotWaspInfoFile
         projectSize <- liftIO $ getDirectorySize $ toFilePath waspDir
         liftIO $
           putStrLn $
@@ -41,8 +41,8 @@ info =
                   "Name"
                   (appName $ getApp wasp),
                 printInfo
-                  "Last build"
-                  buildInfo,
+                  "Compilation"
+                  compileInfo,
                 printInfo
                   "Project size"
                   (show $ projectSize `div` 1000)
@@ -58,7 +58,7 @@ readDotWaspInfoFile path = do
   dotWaspInfoFileExists <- liftIO $ doesFileExist $ toFilePath path
   if dotWaspInfoFileExists
     then do readFile (toFilePath path)
-    else return "No builds yet"
+    else return "No compile information found"
 
 printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
