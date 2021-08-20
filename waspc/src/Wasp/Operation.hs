@@ -19,6 +19,7 @@ import qualified Wasp.Query as Query
 data Operation
   = QueryOp Query
   | ActionOp Action
+  deriving (Show)
 
 getName :: Operation -> String
 getName (QueryOp query) = Query._name query

@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Generator.FileDraft (FileDraft)
 import qualified Generator.ServerGenerator.Common as C
 import Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
@@ -81,19 +81,18 @@ relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 genOperationsRouter :: Wasp -> FileDraft
 genOperationsRouter wasp
   -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
-  | usingAuthOnAnyOperation && (not isAuthEnabled) = error "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
+  | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = error "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
   | otherwise = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
-    usingAuthOnAnyOperation = or $ map isUsingAuth operations
     operations =
       map Wasp.Operation.ActionOp (Wasp.getActions wasp)
         ++ map Wasp.Operation.QueryOp (Wasp.getQueries wasp)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,
-          "isAuthEnabled" .= isAuthEnabled
+          "isAuthEnabled" .= isAuthEnabledGlobally
         ]
     makeOperationRoute operation =
       let operationName = Wasp.Operation.getName operation
@@ -101,12 +100,12 @@ genOperationsRouter wasp
             [ "importIdentifier" .= operationName,
               "importPath" .= ("./" ++ SP.fromRelFileP (fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation)),
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
-              "isUsingAuth" .= (isUsingAuth operation)
+              "isUsingAuth" .= isAuthEnabledForOperation operation
             ]
 
-    isAuthEnabled = (isJust $ getAuth wasp)
-    isUsingAuth :: Wasp.Operation.Operation -> Bool
-    isUsingAuth op = (Wasp.Operation.getAuth op /= Just False)
+    isAuthEnabledGlobally = isJust $ getAuth wasp
+    isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (Wasp.Operation.getAuth operation)
+    isAuthSpecifiedForOperation operation = isJust $ Wasp.Operation.getAuth operation
 
 operationRouteInOperationsRouter :: Wasp.Operation.Operation -> String
 operationRouteInOperationsRouter = U.camelToKebabCase . Wasp.Operation.getName
