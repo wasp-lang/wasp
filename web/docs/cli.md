@@ -23,7 +23,7 @@ COMMANDS
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
-    info                  Prints information related to your Wasp project.
+    info                  Prints basic information about current Wasp project.
 
 EXAMPLES
   wasp new MyApp
@@ -76,7 +76,7 @@ Discord (chat): https://discord.gg/rzdnErX
 
    ```
  - `wasp deps` prints the dependencies that Wasp uses in your project.
- - `wasp info` prints information related to your Wasp project.
+ - `wasp info` prints basic information about current Wasp project.
 
    
 #### Database 
