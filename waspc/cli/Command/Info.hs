@@ -27,12 +27,12 @@ info :: Command ()
 info =
   do
     waspDir <- findWaspProjectRootDirFromCwd
+    compileInfo <- liftIO $ readCompileInformation waspDir
+    projectSize <- liftIO $ readDirectorySizeMB waspDir
     waspAstOrError <- liftIO $ parseWaspFile waspDir
     case waspAstOrError of
       Left err -> waspSaysC err
       Right wasp -> do
-        compileInfo <- liftIO $ readCompileInformation waspDir
-        projectSize <- liftIO $ readDirectorySizeMB waspDir
         waspSaysC $
           unlines
             [ "",
