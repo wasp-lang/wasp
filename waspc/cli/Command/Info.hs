@@ -31,7 +31,7 @@ info =
     case waspAstOrError of
       Left err -> waspSaysC err
       Right wasp -> do
-        compileInfo <- liftIO $ readDotWaspInfoFile waspDir
+        compileInfo <- liftIO $ readCompileInformation waspDir
         projectSize <- liftIO $ getDirectorySizeMB waspDir
         waspSaysC $
           unlines
@@ -56,8 +56,8 @@ printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyl
 getDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO Integer
 getDirectorySizeMB path = (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.toFilePath))
 
-readDotWaspInfoFile :: Path' Abs (Dir WaspProjectDir) -> IO String
-readDotWaspInfoFile waspDir = do
+readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
+readCompileInformation waspDir = do
   let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
   dotWaspInfoFileExists <- doesFileExist $ toFilePath dotWaspInfoFile
   if dotWaspInfoFileExists
