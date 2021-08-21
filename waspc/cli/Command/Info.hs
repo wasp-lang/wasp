@@ -15,7 +15,7 @@ import Control.Monad.IO.Class (liftIO)
 import Lib (findWaspFile)
 import qualified Parser
 import qualified Path as P
-import StrongPath (Abs, Dir, Path', toFilePath)
+import StrongPath (Abs, Dir, Path', toFilePath, fromAbsFile)
 import StrongPath.Operations
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesFileExist, getFileSize)
