@@ -41,7 +41,7 @@ info =
                 "Name"
                 (appName $ getApp wasp),
               printInfo
-                "Last compilation"
+                "Last compile"
                 compileInfo,
               printInfo
                 "Project size"
