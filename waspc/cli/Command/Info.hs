@@ -32,7 +32,7 @@ info =
       Left err -> waspSaysC err
       Right wasp -> do
         compileInfo <- liftIO $ readCompileInformation waspDir
-        projectSize <- liftIO $ getDirectorySizeMB waspDir
+        projectSize <- liftIO $ readDirectorySizeMB waspDir
         waspSaysC $
           unlines
             [ "",
@@ -45,16 +45,14 @@ info =
                 compileInfo,
               printInfo
                 "Project size"
-                (show projectSize)
-                ++ " "
-                ++ "MB"
+                projectSize
             ]
 
 printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
 
-getDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO Integer
-getDirectorySizeMB path = (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.toFilePath))
+readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
+readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.toFilePath))
 
 readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
 readCompileInformation waspDir = do
