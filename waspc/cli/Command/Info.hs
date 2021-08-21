@@ -56,7 +56,7 @@ readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDi
 
 readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
 readCompileInformation waspDir = do
-  let dotWaspInfoFile = toFilePath $ waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
+  let dotWaspInfoFile = fromAbsFile $ waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
   dotWaspInfoFileExists <- doesFileExist dotWaspInfoFile
   if dotWaspInfoFileExists
     then do readFile dotWaspInfoFile
