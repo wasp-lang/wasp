@@ -69,6 +69,4 @@ parseWaspFile waspDir = do
     Nothing -> return (Left "Couldn't find a single *.wasp file.")
     Just waspFile -> do
       waspStr <- readFile (toFilePath waspFile)
-      case Parser.parseWasp waspStr of
-        Left err -> return (Left ("Couldn't parse .wasp file: " <> show err))
-        Right wasp -> return (Right wasp)
+      return $ left (("Couldn't parse .wasp file: " <>) . show) $ Parser.parseWasp waspStr
