@@ -22,6 +22,7 @@ import System.Directory (doesFileExist, getFileSize)
 import Util.IO (listDirectoryDeep)
 import qualified Util.Terminal as Term
 import Wasp (Wasp, appName, getApp)
+import Control.Arrow (ArrowChoice(left))
 
 info :: Command ()
 info =
