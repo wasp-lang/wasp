@@ -53,7 +53,7 @@ printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
 
 readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
-readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.toFilePath))
+readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.fromRelFile))
 
 readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
 readCompileInformation waspDir = do
