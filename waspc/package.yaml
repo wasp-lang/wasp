@@ -97,7 +97,6 @@ executables:
       - utf8-string
       - http-conduit
       - strong-path
-      - dir-traverse
 
 benchmarks:
   waspc-benchmarks:

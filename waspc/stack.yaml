@@ -42,7 +42,6 @@ extra-deps:
   - strong-path-1.0.0.0
   - path-0.9.0
   - path-io-1.6.3
-  - dir-traverse-0.2.3.0
 
 # Override default flag values for local packages and extra-deps
 # flags:
