@@ -31,7 +31,7 @@ info =
     case waspAstOrError of
       Left err -> waspSaysC err
       Right wasp -> do
-        -- compileInfo <- liftIO $ readDotWaspInfoFile waspDir
+        compileInfo <- liftIO $ readDotWaspInfoFile waspDir
         projectSize <- liftIO $ getDirectorySizeMB waspDir
         waspSaysC $
           unlines
@@ -40,9 +40,9 @@ info =
               printInfo
                 "Name"
                 (appName $ getApp wasp),
-              -- printInfo
-              --   "Last compilation"
-              --   compileInfo,
+              printInfo
+                "Last compilation"
+                compileInfo,
               printInfo
                 "Project size"
                 (show projectSize)
@@ -61,7 +61,7 @@ readDotWaspInfoFile waspDir = do
   let dotWaspInfoFile = waspDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
   dotWaspInfoFileExists <- doesFileExist $ toFilePath dotWaspInfoFile
   if dotWaspInfoFileExists
-    then do readFile (toFilePath waspDir)
+    then do readFile $ toFilePath dotWaspInfoFile
     else return "No compile information found"
 
 parseWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String Wasp)
