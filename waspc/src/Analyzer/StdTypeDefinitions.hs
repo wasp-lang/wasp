@@ -1,9 +1,10 @@
-{-# LANGUAGE DeriveGeneric #-}
+-- {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- Todo:
--- When the Analyzer is finished, these types should be moved to the `Wasp`
--- module.
+-- The types in the "Wasp" module should have their enum/decl instances created
+-- and used here to add to the standard types. This will take some refactoring
+-- of those types so that the instances of the right field names.
 
 module Analyzer.StdTypeDefinitions
   ( AuthMethod (..),
@@ -12,17 +13,21 @@ module Analyzer.StdTypeDefinitions
   )
 where
 
+import Analyzer.Evaluator.TH (makeDecl, makeEnum)
 import qualified Analyzer.TypeDefinitions as TD
-import GHC.Generics (Generic)
 
-data AuthMethod = EmailAndPassword deriving (Generic)
+data AuthMethod = EmailAndPassword deriving (Show, Eq)
 
-data App = App {title :: String, authMethod :: AuthMethod} deriving (Generic)
+data App = App {title :: String, authMethod :: AuthMethod} deriving (Show, Eq)
+
+makeEnum ''AuthMethod
+
+makeDecl ''App
 
 -- | A Wasp Library containing all of the standard types required for Wasp to
 --   work.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
-  -- addEnumType @AuthMethod $
-  -- addDeclType @App $
-  TD.empty
+  TD.addEnumType @AuthMethod $
+    TD.addDeclType @App $
+      TD.empty

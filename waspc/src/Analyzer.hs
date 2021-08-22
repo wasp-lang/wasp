@@ -1,5 +1,6 @@
 module Analyzer
   ( analyze,
+    E.takeDecls,
   )
 where
 
@@ -15,6 +16,7 @@ data AnalyzeError
   = ParseError P.ParseError
   | TypeError T.TypeError
   | EvaluationError E.EvaluationError
+  deriving (Show, Eq)
 
 -- | Takes a Wasp source file and produces a list of declarations or a
 --   description of an error in the source file.
