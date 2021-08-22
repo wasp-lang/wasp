@@ -93,18 +93,18 @@ genPrimDecl name typ =
   pure
     [ func 'declTypeName $ lowerNameStrE name,
       func 'declTypeBodyType $ genTypeE typ,
-      func 'declTypeFromAST [|build $ $(conE name) <$> $(genTransformE typ)|]
+      func 'declTypeFromAST [|build $ $(conE name) <$> $(genEvaluatorE typ)|]
     ]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
 genRecDecl name recs = do
-  -- recs is reversed to make sure the applications for transformDictE are in the right order
-  (dictEntryTypesE, transformDictE) <- genRecEntryTypesAndTransform name $ reverse recs
+  -- recs is reversed to make sure the applications for dictEvaluatorE are in the right order
+  (dictEntryTypesE, dictEvaluatorE) <- genRecEntryTypesAndEvaluator name $ reverse recs
   pure
     [ func 'declTypeName $ lowerNameStrE name,
       func 'declTypeBodyType [|T.DictType $ H.fromList $dictEntryTypesE|],
-      func 'declTypeFromAST [|build $ dict $transformDictE|]
+      func 'declTypeFromAST [|build $ dict $dictEvaluatorE|]
     ]
 
 -- | Write a wasp @Type@ for a Haskell type
@@ -123,15 +123,15 @@ genTypeE typ =
     KEnum -> [|T.EnumType $ enumTypeName @ $(pure typ)|]
     KOptional _ -> fail "Maybe only allowed in record fields"
 
--- | Write a @Transform@ for a Haskell type
-genTransformE :: Type -> ExpQ
-genTransformE typ =
+-- | Write an @Evaluator@ for a Haskell type
+genEvaluatorE :: Type -> ExpQ
+genEvaluatorE typ =
   waspKindOfType typ >>= \case
     KString -> [|string|]
     KInteger -> [|integer|]
     KDouble -> [|double|]
     KBool -> [|bool|]
-    KList elemType -> [|list $(genTransformE elemType)|]
+    KList elemType -> [|list $(genEvaluatorE elemType)|]
     KImport -> [|extImport|]
     KJSON -> [|json|]
     KPSL -> [|psl|]
@@ -139,15 +139,15 @@ genTransformE typ =
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe only allowed in record fields"
 
--- | Write the @DictEntryType@s and @TransformDict@ for the records in a
+-- | Write the @DictEntryType@s and @DictEvaluator@ for the records in a
 -- Haskell constructor.
-genRecEntryTypesAndTransform :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genRecEntryTypesAndTransform conName [] = pure (listE [], varE 'pure `appE` conE conName)
-genRecEntryTypesAndTransform conName ((recName, typ) : rest) = do
-  (restDictType, restTransform) <- genRecEntryTypesAndTransform conName rest
+genRecEntryTypesAndEvaluator :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genRecEntryTypesAndEvaluator conName [] = pure (listE [], varE 'pure `appE` conE conName)
+genRecEntryTypesAndEvaluator conName ((recName, typ) : rest) = do
+  (restDictType, restEvaluator) <- genRecEntryTypesAndEvaluator conName rest
   let thisDictTypeE = [|($(nameStrE recName), $(genFieldTypeE typ)) : $restDictType|]
-  let thisTransformE = [|$restTransform <*> $(genTransformDictE recName typ)|]
-  pure (thisDictTypeE, thisTransformE)
+  let thisEvaluatorE = [|$restEvaluator <*> $(genDictEvaluatorE recName typ)|]
+  pure (thisDictTypeE, thisEvaluatorE)
 
 -- | Write a @DictEntryType@ for a Haskell type.
 genFieldTypeE :: Type -> ExpQ
@@ -156,15 +156,15 @@ genFieldTypeE typ =
     KOptional elemType -> [|T.DictOptional $(genTypeE elemType)|]
     _ -> [|T.DictRequired $(genTypeE typ)|]
 
--- | Write a @TransformDict@ for a Haskell type.
-genTransformDictE :: Name -> Type -> ExpQ
-genTransformDictE recName typ =
+-- | Write a @DictEvaluator@ for a Haskell type.
+genDictEvaluatorE :: Name -> Type -> ExpQ
+genDictEvaluatorE recName typ =
   waspKindOfType typ >>= \case
-    KOptional elemType -> [|maybeField $(nameStrE recName) $(genTransformE elemType)|]
-    _ -> [|field $(nameStrE recName) $(genTransformE typ)|]
+    KOptional elemType -> [|maybeField $(nameStrE recName) $(genEvaluatorE elemType)|]
+    _ -> [|field $(nameStrE recName) $(genEvaluatorE typ)|]
 
 -- | An intermediate mapping between Haskell types and Wasp types, used for
--- generating @Types@, @Transforms@, @DictEntryTypes@, and @TransformDicts@.
+-- generating @Types@, @Evaluator@, @DictEntryTypes@, and @DictEvaluator@.
 data WaspKind
   = KString
   | KInteger

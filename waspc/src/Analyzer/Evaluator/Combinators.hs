@@ -84,17 +84,17 @@ dictEvaluator = DictEvaluator . Compose
 runDictEvaluator :: DictEvaluator a -> EvalCtx [(String, TypedExpr)] -> Either EvaluationError a
 runDictEvaluator (DictEvaluator f) = getCompose f
 
--- | A convenience function for running a "Evaluator".
+-- | A convenience function for running an "Evaluator".
 build :: Evaluator a -> TD.TypeDefinitions -> H.HashMap String Decl -> TypedExpr -> Either EvaluationError a
-build transform typeDefs bindings expr = runEvaluator transform (typeDefs, bindings, expr)
+build eval typeDefs bindings expr = runEvaluator eval (typeDefs, bindings, expr)
 
--- | A transform that expects a "StringLiteral".
+-- | An evaluator that expects a "StringLiteral".
 string :: Evaluator String
 string = evaluator $ \case
   (_, _, StringLiteral str) -> pure str
   (_, _, expr) -> Left $ ExpectedType T.StringType (exprType expr)
 
--- | A transform that expects a "IntegerLiteral" or "DoubleLiteral". A
+-- | An evaluator that expects an "IntegerLiteral" or "DoubleLiteral". A
 -- "DoubleLiteral" is rounded to the nearest whole number.
 integer :: Evaluator Integer
 integer = evaluator $ \case
@@ -102,20 +102,20 @@ integer = evaluator $ \case
   (_, _, DoubleLiteral x) -> pure $ round x
   (_, _, expr) -> Left $ ExpectedType T.NumberType (exprType expr)
 
--- | A transform that expects a "IntegerLiteral" or "DoubleLiteral".
+-- | An evaluator that expects a "IntegerLiteral" or "DoubleLiteral".
 double :: Evaluator Double
 double = evaluator $ \case
   (_, _, IntegerLiteral i) -> pure $ fromIntegral i
   (_, _, DoubleLiteral x) -> pure x
   (_, _, expr) -> Left $ ExpectedType T.NumberType (exprType expr)
 
--- | A transform that expects a "BoolLiteral".
+-- | An evaluator that expects a "BoolLiteral".
 bool :: Evaluator Bool
 bool = evaluator $ \case
   (_, _, BoolLiteral b) -> pure b
   (_, _, expr) -> Left $ ExpectedType T.BoolType (exprType expr)
 
--- | A transform that expects a "Var" bound to a "Decl" of type "a".
+-- | An evaluator that expects a "Var" bound to a "Decl" of type "a".
 decl :: forall a. TD.IsDeclType a => Evaluator a
 decl = evaluator $ \case
   (_, bindings, Var var typ) -> case H.lookup var bindings of
@@ -125,51 +125,51 @@ decl = evaluator $ \case
       Just a -> Right a
   (_, _, expr) -> Left $ ExpectedType (T.DeclType $ TD.declTypeName @a) (exprType expr)
 
--- | A transform that expects a "Var" bound to an "EnumType" for "a".
+-- | An evaluator that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => Evaluator a
 enum = evaluator $ \case
   (_, _, Var var _) -> let x = TD.enumTypeFromVariant @a var in x
   (_, _, expr) -> Left $ ExpectedType (T.EnumType $ TD.enumTypeName @a) (exprType expr)
 
--- | A transform that runs a "DictEvaluator". Expects a "Dict" expression and
+-- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> Evaluator a
 dict inner = evaluator $ \case
   (typeDefs, bindings, Dict entries _) -> runDictEvaluator inner (typeDefs, bindings, entries)
   (_, _, expr) -> Left $ ExpectedDictType $ exprType expr
 
--- | A transform that expects a "List" and runs the "inner" transform on each
+-- | An evaluator that expects a "List" and runs the inner evaluator on each
 -- item in the list.
 list :: Evaluator a -> Evaluator [a]
 list inner = evaluator $ \case
   (typeDefs, bindings, List values _) -> left InList $ mapM (\expr -> runEvaluator inner (typeDefs, bindings, expr)) values
   (_, _, expr) -> Left $ ExpectedListType $ exprType expr
 
--- | A transform that expects an "ExtImport".
+-- | An evaluator that expects an "ExtImport".
 extImport :: Evaluator E.ExtImport
 extImport = evaluator $ \case
   (_, _, ExtImport name file) -> pure $ E.ExtImport name file
   (_, _, expr) -> Left $ ExpectedType T.ExtImportType (exprType expr)
 
--- | A transform that expects a "JSON".
+-- | An evaluator that expects a "JSON".
 json :: Evaluator E.JSON
 json = evaluator $ \case
   (_, _, JSON str) -> pure $ E.JSON str
   (_, _, expr) -> Left $ ExpectedType (T.QuoterType "json") (exprType expr)
 
--- | A transform that expects a "PSL".
+-- | An evaluator that expects a "PSL".
 psl :: Evaluator E.PSL
 psl = evaluator $ \case
   (_, _, PSL str) -> pure $ E.PSL str
   (_, _, expr) -> Left $ ExpectedType (T.QuoterType "psl") (exprType expr)
 
--- | A dictionary transform that requires the field to exist.
+-- | A dictionary evaluator that requires the field to exist.
 field :: String -> Evaluator a -> DictEvaluator a
 field key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> Left $ MissingField key
   Just value -> left (InField key) $ runEvaluator valueEvaluator (typeDefs, bindings, value)
 
--- | A dictionary transform that allows the field to be missing.
+-- | A dictionary evaluator that allows the field to be missing.
 maybeField :: String -> Evaluator a -> DictEvaluator (Maybe a)
 maybeField key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> pure Nothing

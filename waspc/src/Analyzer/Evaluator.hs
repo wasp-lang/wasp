@@ -20,16 +20,20 @@ import Control.Monad.Reader
 import Control.Monad.State
 import qualified Data.HashMap.Strict as H
 
-type E a = StateT (H.HashMap String Decl) (ReaderT TD.TypeDefinitions (Except EvaluationError)) a
+type Eval a = StateT (H.HashMap String Decl) (ReaderT TD.TypeDefinitions (Except EvaluationError)) a
 
 -- | Evaluate type-checked AST to produce a list of declarations.
 evaluate :: TD.TypeDefinitions -> AST.TypedAST -> Either EvaluationError [Decl]
 evaluate typeDefs (AST.TypedAST stmts) = runExcept $ flip runReaderT typeDefs $ evalStateT (evalStmts stmts) H.empty
 
-evalStmts :: [AST.TypedStmt] -> E [Decl]
+-- TODO:
+-- Currently, trying to reference declarations declared after the current one
+-- fails. There are some solutions mentioned in docs/wasplang that should be
+-- investigated.
+evalStmts :: [AST.TypedStmt] -> Eval [Decl]
 evalStmts = foldr (\stmt -> (<*>) ((:) <$> evalStmt stmt)) (pure [])
 
-evalStmt :: AST.TypedStmt -> E Decl
+evalStmt :: AST.TypedStmt -> Eval Decl
 evalStmt (AST.Decl name param (DeclType declTypeName)) =
   asks (TD.getDeclType declTypeName) >>= \case
     Nothing -> error "impossible: Decl statement has non-existant type after type checking"
