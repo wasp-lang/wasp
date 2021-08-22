@@ -211,13 +211,13 @@ genEnum tyConName cons =
   pure
     [ func 'enumTypeName $ lowerNameStrE tyConName,
       func 'enumTypeVariants $ listE $ map nameStrE cons,
-      genEnumFromVariants cons
+      genEnumFromVariants tyConName cons
     ]
 
-genEnumFromVariants :: [Name] -> DecQ
-genEnumFromVariants conNames = do
+genEnumFromVariants :: Name -> [Name] -> DecQ
+genEnumFromVariants tyConName conNames = do
   let clauses = map genClause conNames
-  let leftClause = clause [[p|x|]] (normalB [|Left $ EvaluationError $ "Invalid variant " ++ show x ++ " for enum"|]) []
+  let leftClause = clause [[p|x|]] (normalB [|Left $ InValidEnumVariant $(nameStrE tyConName) (show x)|]) []
   funD 'enumTypeFromVariant (clauses ++ [leftClause])
   where
     genClause :: Name -> ClauseQ

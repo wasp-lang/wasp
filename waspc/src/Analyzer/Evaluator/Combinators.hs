@@ -49,8 +49,10 @@ where
 import Analyzer.Evaluator.Decl
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
-import Analyzer.TypeChecker.AST (TypedExpr (..))
+import qualified Analyzer.Type as T
+import Analyzer.TypeChecker.AST (TypedExpr (..), exprType)
 import qualified Analyzer.TypeDefinitions as TD
+import Control.Arrow (left)
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import qualified Data.HashMap.Strict as H
 import Data.Typeable (cast)
@@ -90,7 +92,7 @@ build transform typeDefs bindings expr = runEvaluator transform (typeDefs, bindi
 string :: Evaluator String
 string = evaluator $ \case
   (_, _, StringLiteral str) -> pure str
-  _ -> Left $ EvaluationError "expected StringType (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType T.StringType (exprType expr)
 
 -- | A transform that expects a "IntegerLiteral" or "DoubleLiteral". A
 -- "DoubleLiteral" is rounded to the nearest whole number.
@@ -98,77 +100,77 @@ integer :: Evaluator Integer
 integer = evaluator $ \case
   (_, _, IntegerLiteral i) -> pure i
   (_, _, DoubleLiteral x) -> pure $ round x
-  _ -> Left $ EvaluationError "expected NumberType (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType T.NumberType (exprType expr)
 
 -- | A transform that expects a "IntegerLiteral" or "DoubleLiteral".
 double :: Evaluator Double
 double = evaluator $ \case
   (_, _, IntegerLiteral i) -> pure $ fromIntegral i
   (_, _, DoubleLiteral x) -> pure x
-  _ -> Left $ EvaluationError "expected NumberType (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType T.NumberType (exprType expr)
 
 -- | A transform that expects a "BoolLiteral".
 bool :: Evaluator Bool
 bool = evaluator $ \case
   (_, _, BoolLiteral b) -> pure b
-  _ -> Left $ EvaluationError "expected BoolType (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType T.BoolType (exprType expr)
 
 -- | A transform that expects a "Var" bound to a "Decl" of type "a".
 decl :: forall a. TD.IsDeclType a => Evaluator a
 decl = evaluator $ \case
-  (_, bindings, Var var _) -> case H.lookup var bindings of
-    Nothing -> Left $ EvaluationError $ "undefined variable " ++ var
+  (_, bindings, Var var typ) -> case H.lookup var bindings of
+    Nothing -> Left $ UndefinedVariable var
     Just (Decl _ value) -> case cast value :: Maybe a of
-      Nothing -> Left $ EvaluationError $ "wrong type for variable " ++ var
+      Nothing -> Left $ ForVariable var (ExpectedType (T.DeclType $ TD.declTypeName @a) typ)
       Just a -> Right a
-  _ -> Left $ EvaluationError "expected Var (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType (T.DeclType $ TD.declTypeName @a) (exprType expr)
 
 -- | A transform that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => Evaluator a
 enum = evaluator $ \case
   (_, _, Var var _) -> let x = TD.enumTypeFromVariant @a var in x
-  _ -> Left $ EvaluationError "expected Var (invalid instance of IsEnumType)"
+  (_, _, expr) -> Left $ ExpectedType (T.EnumType $ TD.enumTypeName @a) (exprType expr)
 
 -- | A transform that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> Evaluator a
 dict inner = evaluator $ \case
   (typeDefs, bindings, Dict entries _) -> runDictEvaluator inner (typeDefs, bindings, entries)
-  _ -> Left $ EvaluationError "Expected DictType (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedDictType $ exprType expr
 
 -- | A transform that expects a "List" and runs the "inner" transform on each
 -- item in the list.
 list :: Evaluator a -> Evaluator [a]
 list inner = evaluator $ \case
-  (typeDefs, bindings, List values _) -> mapM (\expr -> runEvaluator inner (typeDefs, bindings, expr)) values
-  _ -> Left $ EvaluationError "Expected ListType (invalid instance of IsDeclType)"
+  (typeDefs, bindings, List values _) -> left InList $ mapM (\expr -> runEvaluator inner (typeDefs, bindings, expr)) values
+  (_, _, expr) -> Left $ ExpectedListType $ exprType expr
 
 -- | A transform that expects an "ExtImport".
 extImport :: Evaluator E.ExtImport
 extImport = evaluator $ \case
   (_, _, ExtImport name file) -> pure $ E.ExtImport name file
-  _ -> Left $ EvaluationError "Expected ExtImport (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType T.ExtImportType (exprType expr)
 
 -- | A transform that expects a "JSON".
 json :: Evaluator E.JSON
 json = evaluator $ \case
   (_, _, JSON str) -> pure $ E.JSON str
-  _ -> Left $ EvaluationError "Expected JSON (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType (T.QuoterType "json") (exprType expr)
 
 -- | A transform that expects a "PSL".
 psl :: Evaluator E.PSL
 psl = evaluator $ \case
   (_, _, PSL str) -> pure $ E.PSL str
-  _ -> Left $ EvaluationError "Expected PSL (invalid instance of IsDeclType)"
+  (_, _, expr) -> Left $ ExpectedType (T.QuoterType "psl") (exprType expr)
 
 -- | A dictionary transform that requires the field to exist.
 field :: String -> Evaluator a -> DictEvaluator a
 field key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
-  Nothing -> Left $ EvaluationError $ "Missing field " ++ key ++ " (invalid instance of IsDeclType)"
-  Just value -> runEvaluator valueEvaluator (typeDefs, bindings, value)
+  Nothing -> Left $ MissingField key
+  Just value -> left (InField key) $ runEvaluator valueEvaluator (typeDefs, bindings, value)
 
 -- | A dictionary transform that allows the field to be missing.
 maybeField :: String -> Evaluator a -> DictEvaluator (Maybe a)
 maybeField key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> pure Nothing
-  Just value -> Just <$> runEvaluator valueEvaluator (typeDefs, bindings, value)
+  Just value -> Just <$> left (InField key) (runEvaluator valueEvaluator (typeDefs, bindings, value))
