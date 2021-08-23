@@ -11,6 +11,7 @@ import Command.CreateNewProject (createNewProject)
 import Command.Db (runDbCommand, studio)
 import qualified Command.Db.Migrate
 import Command.Deps (deps)
+import Command.Info (info)
 import Command.Start (start)
 import qualified Command.Telemetry as Telemetry
 import Control.Concurrent (threadDelay)
@@ -35,6 +36,7 @@ main = do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
+        ["info"] -> Command.Call.Info
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ("completion:list" : subCommand) -> Command.Call.BashCompletionListCommands subCommand
@@ -52,6 +54,7 @@ main = do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.Info -> runCommand info
     Command.Call.PrintBashCompletionInstruction -> runCommand $ printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand $ generateBashCompletionScript
     Command.Call.BashCompletionListCommands subCommand -> runCommand $ bashCompletion subCommand
@@ -83,6 +86,7 @@ printUsage =
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
+        cmd "    info                  Prints basic information about current Wasp project.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",

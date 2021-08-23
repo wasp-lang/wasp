@@ -4,6 +4,7 @@ module Cli.Common
     CliTemplatesDir,
     dotWaspDirInWaspProjectDir,
     dotWaspRootFileInWaspProjectDir,
+    dotWaspInfoFileInGeneratedCodeDir,
     extCodeDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     buildDirInDotWaspDir,
@@ -34,6 +35,9 @@ buildDirInDotWaspDir = [reldir|build|]
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
+
+dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Generator.Common.ProjectRootDir) File'
+dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 extCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 extCodeDirInWaspProjectDir = [reldir|ext|]

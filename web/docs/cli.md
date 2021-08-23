@@ -22,6 +22,8 @@ COMMANDS
     clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
     telemetry             Prints telemetry status.
+    deps                  Prints the dependencies that Wasp uses in your project.
+    info                  Prints basic information about current Wasp project.
 
 EXAMPLES
   wasp new MyApp
@@ -73,6 +75,9 @@ Discord (chat): https://discord.gg/rzdnErX
    Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details.
 
    ```
+ - `wasp deps` prints the dependencies that Wasp uses in your project.
+ - `wasp info` prints basic information about current Wasp project.
+
    
 #### Database 
 Wasp has a set of commands for working with the database. They all start with `db` and mostly call prisma commands in the background.
