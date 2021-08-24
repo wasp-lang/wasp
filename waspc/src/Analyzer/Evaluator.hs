@@ -34,15 +34,13 @@ evalStmts :: [AST.TypedStmt] -> Eval [Decl]
 evalStmts = foldr (\stmt -> (<*>) ((:) <$> evalStmt stmt)) (pure [])
 
 evalStmt :: AST.TypedStmt -> Eval Decl
-evalStmt (AST.Decl name param (DeclType declTypeName)) =
-  asks (TD.getDeclType declTypeName) >>= \case
-    Nothing -> error "impossible: Decl statement has non-existant type after type checking"
-    Just declType -> do
-      typeDefs <- ask
-      bindings <- get
-      case TD.dtDeclFromAST declType typeDefs bindings name param of
-        Left err -> throwError err
-        Right decl -> do
-          modify $ H.insert name decl
-          pure decl
+evalStmt (AST.Decl name param (DeclType declTypeName)) = do
+  declType <- fromMaybe
+    (error "impossible: Decl statement has non-existant type after type checking")
+    <$> asks $ TD.getDeclType declTypeName
+  typeDefs <- ask
+  bindings <- get
+  case TD.dtDeclFromAST declType typeDefs bindings name param of
+    Left err -> throwError err
+    Right decl -> modify (H.insert name decl) >> return decl
 evalStmt _ = error "impossible: Decl statement has non-Decl type after type checking"

@@ -15,7 +15,7 @@ data EvaluationError
   | -- | "UndefinedVariable varName"
     UndefinedVariable String
   | -- | "InvalidEnumVariant enumType enumValue"
-    InValidEnumVariant String String
+    InvalidEnumVariant String String
   | -- | "MissingField fieldName"
     MissingField String
   | -- | An evaluation error for a named variable

@@ -73,7 +73,7 @@ evaluator = Evaluator . Compose
 runEvaluator :: Evaluator a -> EvalCtx TypedExpr -> Either EvaluationError a
 runEvaluator (Evaluator f) = getCompose f
 
--- | A transformation from a dictionary entry to some type. A "Evaluator" can
+-- | A transformation from dictionary definition (which is a list of dictionary entries) to some type. A "Evaluator" can
 -- be created from a "DictEvaluator" with the "dict" combinator.
 newtype DictEvaluator a = DictEvaluator ([(String, TypedExpr)] |> a)
   deriving (Functor, Applicative)
@@ -134,7 +134,7 @@ enum = evaluator $ \case
 -- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> Evaluator a
-dict inner = evaluator $ \case
+dict dictEvalutor = evaluator $ \case
   (typeDefs, bindings, Dict entries _) -> runDictEvaluator inner (typeDefs, bindings, entries)
   (_, _, expr) -> Left $ ExpectedDictType $ exprType expr
 

@@ -28,6 +28,8 @@ makeDecl ''App
 --   work.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
+  {- ORMOLU_DISABLE -}
   TD.addEnumType @AuthMethod $
-    TD.addDeclType @App $
-      TD.empty
+  TD.addDeclType @App $
+  TD.empty
+  {- ORMOLU_ENABLE -}

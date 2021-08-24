@@ -78,16 +78,16 @@ makeEnum typeName = do
 
 -- | Top-level "IsDeclType" instance generator.
 genDecl :: Con -> Q [DecQ]
--- The constructor is in the form @data Type = Type x@
+-- The data constructor is in the form @data Type = Type x@
 genDecl (NormalC name [(_, typ)]) = genPrimDecl name typ
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
-genDecl (NormalC name _) = fail $ "Too many non-record values in makeDecl for " ++ show name
+genDecl (NormalC name values) = fail $ "makeDecl expects given type " ++ (show name) ++ " to be a record or to have one data constructor with exactly 1 value, but instead it was given a data constructor with " ++ show (length values) ++ "values.".
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-genDecl (RecC name recs) = genRecDecl name $ map (\(recName, _, typ) -> (recName, typ)) recs
+genDecl (RecC name recordFields) = genRecDecl name $ map (\(fieldName, _, typ) -> (fieldName, typ)) recordFields
 -- The constructor is in an unsupported form
 genDecl _ = fail "makeDecl on non-decl type"
 
--- | Create an "IsDeclType" instance for types in the form @data Type = Type x@
+-- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genPrimDecl :: Name -> Type -> Q [DecQ]
 genPrimDecl name typ =
   pure
@@ -121,7 +121,7 @@ genTypeE typ =
     KPSL -> [|T.QuoterType "psl"|]
     KDecl -> [|T.DeclType $ declTypeName @ $(pure typ)|]
     KEnum -> [|T.EnumType $ enumTypeName @ $(pure typ)|]
-    KOptional _ -> fail "Maybe only allowed in record fields"
+    KOptional _ -> fail "Maybe is only allowed in record fields"
 
 -- | Write an @Evaluator@ for a Haskell type
 genEvaluatorE :: Type -> ExpQ
@@ -137,10 +137,10 @@ genEvaluatorE typ =
     KPSL -> [|psl|]
     KDecl -> [|decl @ $(pure typ)|]
     KEnum -> [|enum @ $(pure typ)|]
-    KOptional _ -> fail "Maybe only allowed in record fields"
+    KOptional _ -> fail "Maybe is only allowed in record fields"
 
 -- | Write the @DictEntryType@s and @DictEvaluator@ for the records in a
--- Haskell constructor.
+-- Haskell data constructor.
 genRecEntryTypesAndEvaluator :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
 genRecEntryTypesAndEvaluator conName [] = pure (listE [], varE 'pure `appE` conE conName)
 genRecEntryTypesAndEvaluator conName ((recName, typ) : rest) = do
@@ -223,7 +223,7 @@ genEnumFromVariants tyConName conNames = do
     genClause :: Name -> ClauseQ
     genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
 
-enumConNames :: [Con] -> Q [Name]
+getNamesOfEnumDataConstructors :: [Con] -> Q [Name]
 enumConNames = mapM conName
   where
     conName (NormalC name []) = pure name
@@ -234,11 +234,11 @@ enumConNames = mapM conName
 -- ========================================
 
 -- | Get an expression representing the string form of a name, starting with a lowercase letter
-lowerNameStrE :: Name -> ExpQ
+nameToLowerFirstStringLiteralExpr :: Name -> ExpQ
 lowerNameStrE = litE . stringL . toLowerFirst . nameBase
 
 -- | Get an expression representing the string form of a name
-nameStrE :: Name -> ExpQ
+nameToStringLiteralExpr :: Name -> ExpQ
 nameStrE = litE . stringL . nameBase
 
 -- | @func name expr@ writes a function like @name = expr@
