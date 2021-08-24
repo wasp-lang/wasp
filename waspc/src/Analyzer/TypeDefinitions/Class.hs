@@ -55,6 +55,13 @@ import Data.Typeable (Typeable)
 class Typeable a => IsDeclType a where
   declTypeName :: String
   declTypeBodyType :: Type
+
+  -- | Evaluates a Wasp "TypedExpr" to a Haskell value, or an error.
+  --
+  -- For @declTypeFromAST typeDefs bindings expr@:
+  -- - "typeDefs" is the type definitions used in the Analyzer
+  -- - "bindings" contains the values of all the declarations evaluated so far
+  -- - "expr" is the expression that should be evaluated by this function
   declTypeFromAST :: TypeDefinitions -> M.HashMap String Decl -> TypedExpr -> Either EvaluationError a
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
@@ -69,7 +76,7 @@ class Typeable a => IsDeclType a where
 --   - If and only if there is a string `x` in `enumTypeVariants`, then `a` has
 --     a constructor called `x`.
 --
---    Examples:
+--   Examples:
 --
 --   An allowed enum type:
 --
@@ -83,4 +90,16 @@ class Typeable a => IsDeclType a where
 class Typeable a => IsEnumType a where
   enumTypeName :: String
   enumTypeVariants :: [String]
+
+  -- | Converts a string to a Haskell value of this type.
+  --
+  -- @mapM_ enumTypeFromVariant enumTypeVariants == Right ()@ should be true
+  -- for all instances of "IsEnumType".
+  --
+  -- __Examples__
+  --
+  -- >>> data Example = Foo | Bar
+  -- >>> instance IsEnumType Example where {- omitted -}
+  -- >>> enumTypeFromVariant "Foo"
+  -- Foo
   enumTypeFromVariant :: String -> Either EvaluationError a

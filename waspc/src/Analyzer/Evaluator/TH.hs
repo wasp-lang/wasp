@@ -8,6 +8,9 @@
 -- either of these functions, a Haskell type error is raised.
 module Analyzer.Evaluator.TH (makeDecl, makeEnum) where
 
+-- TODO:
+-- Split into a module for Decls and a module for Enums
+
 import Analyzer.Evaluator.Combinators
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
@@ -35,14 +38,17 @@ import Util (toLowerFirst)
 -- @
 makeDecl :: Name -> Q [Dec]
 makeDecl typeName = do
-  (TyConI tyCon) <- reify typeName
-  (tyConName, con) <- case tyCon of
-    (DataD _ name [] _ [con] _) -> pure (name, con)
-    (NewtypeD _ name [] _ con _) -> pure (name, con)
-    _ -> fail "Invalid name for makeDecl"
-  let instanceType = conT ''IsDeclType `appT` conT tyConName
-  instanceDecs <- genDecl con
-  sequence [instanceD (return []) instanceType instanceDecs]
+  (TyConI typeDeclaration) <- reify typeName
+  dataConstructor <- case typeDeclaration of
+    (DataD _ _ [] _ [dataConstructor] _) -> pure dataConstructor
+    DataD {} -> fail "makeDecl expects a type declared with `data` to have exactly one constructor"
+    (NewtypeD _ _ [] _ dataConstructor _) -> pure dataConstructor
+    _ -> fail "makeDecl expects the given name to be for a type declared with `data` or `newtype`"
+  let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
+      instanceContext = pure []
+      instanceType = [t|IsDeclType $(conT typeName)|]
+      instanceDefinition = makeIsDeclTypeDefinition dataConstructor
+  sequence [instanceDeclaration]
 
 -- | @makeEnum ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described in the
@@ -63,48 +69,50 @@ makeDecl typeName = do
 makeEnum :: Name -> Q [Dec]
 makeEnum typeName = do
   (TyConI tyCon) <- reify typeName
-  (tyConName, cons) <- case tyCon of
-    (DataD _ name [] _ cons _) -> pure (name, cons)
-    (NewtypeD _ name [] _ con _) -> pure (name, [con])
-    _ -> fail "Invalid name for makeEnum"
-  let instanceType = conT ''IsEnumType `appT` conT tyConName
-  conNames <- enumConNames cons
-  instanceDecs <- genEnum tyConName conNames
-  sequence [instanceD (return []) instanceType instanceDecs]
+  dataConstructors <- case tyCon of
+    (DataD _ _ [] _ dataConstructors _) -> pure dataConstructors
+    (NewtypeD _ _ [] _ dataConstructor _) -> pure [dataConstructor]
+    _ -> fail "makeEnum expects the given name to be for a type declared with `data` or `newtype`"
+  dataConstructorNames <- namesOfEnumDataConstructors dataConstructors
+  let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
+      instanceContext = pure []
+      instanceType = [t|IsEnumType $(conT typeName)|]
+      instanceDefinition = makeIsEnumTypeDefinition typeName dataConstructorNames
+  sequence [instanceDeclaration]
 
 -- ========================================
 -- IsDeclType generation
 -- ========================================
 
 -- | Top-level "IsDeclType" instance generator.
-genDecl :: Con -> Q [DecQ]
--- The data constructor is in the form @data Type = Type x@
-genDecl (NormalC name [(_, typ)]) = genPrimDecl name typ
+makeIsDeclTypeDefinition :: Con -> Q [DecQ]
+-- The constructor is in the form @data Type = Type x@
+makeIsDeclTypeDefinition (NormalC dataConstructorName [(_, typ)]) = genPrimDecl dataConstructorName typ
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
-genDecl (NormalC name values) = fail $ "makeDecl expects given type " ++ (show name) ++ " to be a record or to have one data constructor with exactly 1 value, but instead it was given a data constructor with " ++ show (length values) ++ "values.".
+makeIsDeclTypeDefinition (NormalC name values) = fail $ "makeDecl expects given type " ++ show name ++ " to be a record or to have one data constructor with exactly 1 value, but instead it was given a data constructor with " ++ show (length values) ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-genDecl (RecC name recordFields) = genRecDecl name $ map (\(fieldName, _, typ) -> (fieldName, typ)) recordFields
+makeIsDeclTypeDefinition (RecC dataConstructorName records) = genRecDecl dataConstructorName $ map (\(fieldName, _, typ) -> (fieldName, typ)) records
 -- The constructor is in an unsupported form
-genDecl _ = fail "makeDecl on non-decl type"
+makeIsDeclTypeDefinition _ = fail "makeDecl expects given type to have a normal or record constructor"
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genPrimDecl :: Name -> Type -> Q [DecQ]
 genPrimDecl name typ =
   pure
-    [ func 'declTypeName $ lowerNameStrE name,
+    [ func 'declTypeName $ nameToLowerFirstStringLiteralExpr name,
       func 'declTypeBodyType $ genTypeE typ,
-      func 'declTypeFromAST [|build $ $(conE name) <$> $(genEvaluatorE typ)|]
+      func 'declTypeFromAST [|runEvaluator $ $(conE name) <$> $(genEvaluatorE typ)|]
     ]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
 genRecDecl name recs = do
   -- recs is reversed to make sure the applications for dictEvaluatorE are in the right order
-  (dictEntryTypesE, dictEvaluatorE) <- genRecEntryTypesAndEvaluator name $ reverse recs
+  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecords name $ reverse recs
   pure
-    [ func 'declTypeName $ lowerNameStrE name,
+    [ func 'declTypeName $ nameToLowerFirstStringLiteralExpr name,
       func 'declTypeBodyType [|T.DictType $ H.fromList $dictEntryTypesE|],
-      func 'declTypeFromAST [|build $ dict $dictEvaluatorE|]
+      func 'declTypeFromAST [|runEvaluator $ dict $dictEvaluatorE|]
     ]
 
 -- | Write a wasp @Type@ for a Haskell type
@@ -140,12 +148,12 @@ genEvaluatorE typ =
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
 -- | Write the @DictEntryType@s and @DictEvaluator@ for the records in a
--- Haskell data constructor.
-genRecEntryTypesAndEvaluator :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genRecEntryTypesAndEvaluator conName [] = pure (listE [], varE 'pure `appE` conE conName)
-genRecEntryTypesAndEvaluator conName ((recName, typ) : rest) = do
-  (restDictType, restEvaluator) <- genRecEntryTypesAndEvaluator conName rest
-  let thisDictTypeE = [|($(nameStrE recName), $(genFieldTypeE typ)) : $restDictType|]
+-- Haskell constructor.
+genDictEntryTypesAndEvaluatorForRecords :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictEntryTypesAndEvaluatorForRecords conName [] = pure (listE [], varE 'pure `appE` conE conName)
+genDictEntryTypesAndEvaluatorForRecords conName ((recName, typ) : rest) = do
+  (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecords conName rest
+  let thisDictTypeE = [|($(nameToStringLiteralExpr recName), $(genFieldTypeE typ)) : $restDictType|]
   let thisEvaluatorE = [|$restEvaluator <*> $(genDictEvaluatorE recName typ)|]
   pure (thisDictTypeE, thisEvaluatorE)
 
@@ -156,12 +164,13 @@ genFieldTypeE typ =
     KOptional elemType -> [|T.DictOptional $(genTypeE elemType)|]
     _ -> [|T.DictRequired $(genTypeE typ)|]
 
--- | Write a @DictEvaluator@ for a Haskell type.
+-- | "genDictEvaluatorE fieldName typ" writes a "DictEvaluator" for a haskell record
+-- named "fieldName" with a value "typ".
 genDictEvaluatorE :: Name -> Type -> ExpQ
 genDictEvaluatorE recName typ =
   waspKindOfType typ >>= \case
-    KOptional elemType -> [|maybeField $(nameStrE recName) $(genEvaluatorE elemType)|]
-    _ -> [|field $(nameStrE recName) $(genEvaluatorE typ)|]
+    KOptional elemType -> [|maybeField $(nameToStringLiteralExpr recName) $(genEvaluatorE elemType)|]
+    _ -> [|field $(nameToStringLiteralExpr recName) $(genEvaluatorE typ)|]
 
 -- | An intermediate mapping between Haskell types and Wasp types, used for
 -- generating @Types@, @Evaluator@, @DictEntryTypes@, and @DictEvaluator@.
@@ -206,25 +215,25 @@ waspKindOfType typ = do
 -- IsEnumType generation
 -- ========================================
 
-genEnum :: Name -> [Name] -> Q [DecQ]
-genEnum tyConName cons =
+makeIsEnumTypeDefinition :: Name -> [Name] -> Q [DecQ]
+makeIsEnumTypeDefinition typeName dataConstructorNames =
   pure
-    [ func 'enumTypeName $ lowerNameStrE tyConName,
-      func 'enumTypeVariants $ listE $ map nameStrE cons,
-      genEnumFromVariants tyConName cons
+    [ func 'enumTypeName $ nameToLowerFirstStringLiteralExpr typeName,
+      func 'enumTypeVariants $ listE $ map nameToStringLiteralExpr dataConstructorNames,
+      genEnumFromVariants typeName dataConstructorNames
     ]
 
 genEnumFromVariants :: Name -> [Name] -> DecQ
-genEnumFromVariants tyConName conNames = do
-  let clauses = map genClause conNames
-  let leftClause = clause [[p|x|]] (normalB [|Left $ InValidEnumVariant $(nameStrE tyConName) (show x)|]) []
+genEnumFromVariants typeName dataConstructorNames = do
+  let clauses = map genClause dataConstructorNames
+  let leftClause = clause [[p|x|]] (normalB [|Left $ InvalidEnumVariant $(nameToStringLiteralExpr typeName) (show x)|]) []
   funD 'enumTypeFromVariant (clauses ++ [leftClause])
   where
     genClause :: Name -> ClauseQ
     genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
 
-getNamesOfEnumDataConstructors :: [Con] -> Q [Name]
-enumConNames = mapM conName
+namesOfEnumDataConstructors :: [Con] -> Q [Name]
+namesOfEnumDataConstructors = mapM conName
   where
     conName (NormalC name []) = pure name
     conName _ = fail "Enum variant should have only one value"
@@ -235,11 +244,11 @@ enumConNames = mapM conName
 
 -- | Get an expression representing the string form of a name, starting with a lowercase letter
 nameToLowerFirstStringLiteralExpr :: Name -> ExpQ
-lowerNameStrE = litE . stringL . toLowerFirst . nameBase
+nameToLowerFirstStringLiteralExpr = litE . stringL . toLowerFirst . nameBase
 
 -- | Get an expression representing the string form of a name
 nameToStringLiteralExpr :: Name -> ExpQ
-nameStrE = litE . stringL . nameBase
+nameToStringLiteralExpr = litE . stringL . nameBase
 
 -- | @func name expr@ writes a function like @name = expr@
 func :: Name -> ExpQ -> DecQ

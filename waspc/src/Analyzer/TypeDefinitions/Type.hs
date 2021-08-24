@@ -19,6 +19,13 @@ data EnumType = EnumType
 data DeclType = DeclType
   { dtName :: String,
     dtBodyType :: Type,
+    -- | Same as "IsDeclType.declTypeFromAST", but also takes the name of the
+    -- declaration and returns a "Decl".
+    --
+    -- __Examples__
+    --
+    -- Wasp code @test Example 4@ would call this function with
+    -- @dtDeclFromAST declType typeDefs bindings "Example" (NumberLiteral 4)@
     dtDeclFromAST :: TypeDefinitions -> M.HashMap String Decl -> String -> TypedExpr -> Either EvaluationError Decl
   }
 

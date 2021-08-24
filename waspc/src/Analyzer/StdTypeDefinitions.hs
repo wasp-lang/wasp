@@ -4,7 +4,11 @@
 -- Todo:
 -- The types in the "Wasp" module should have their enum/decl instances created
 -- and used here to add to the standard types. This will take some refactoring
--- of those types so that the instances of the right field names.
+-- so that those types follow the restrictions set by "IsDeclType" and
+-- "IsEnumType".
+--
+-- The types currently in this file are just for testing, and should be removed
+-- after the above is finished.
 
 module Analyzer.StdTypeDefinitions
   ( AuthMethod (..),

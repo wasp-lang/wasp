@@ -19,6 +19,7 @@ import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
 import qualified Data.HashMap.Strict as H
+import Data.Maybe (fromMaybe)
 
 type Eval a = StateT (H.HashMap String Decl) (ReaderT TD.TypeDefinitions (Except EvaluationError)) a
 
@@ -35,9 +36,12 @@ evalStmts = foldr (\stmt -> (<*>) ((:) <$> evalStmt stmt)) (pure [])
 
 evalStmt :: AST.TypedStmt -> Eval Decl
 evalStmt (AST.Decl name param (DeclType declTypeName)) = do
-  declType <- fromMaybe
-    (error "impossible: Decl statement has non-existant type after type checking")
-    <$> asks $ TD.getDeclType declTypeName
+  declType <-
+    asks
+      ( fromMaybe
+          (error "impossible: Decl statement has non-existant type after type checking")
+          . TD.getDeclType declTypeName
+      )
   typeDefs <- ask
   bindings <- get
   case TD.dtDeclFromAST declType typeDefs bindings name param of

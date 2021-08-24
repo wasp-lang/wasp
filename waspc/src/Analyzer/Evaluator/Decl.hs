@@ -31,4 +31,5 @@ data Decl where
 --  takeDecls @Person decls == [("Bob", Person "Bob" 42), ("Alice", Person "Alice" 32)]
 --  @
 takeDecls :: (Typeable a) => [Decl] -> [(String, a)]
-takeDecls = mapMaybe $ \(Decl name value) -> (name,) <$> cast value
+takeDecls = mapMaybe $ \case
+  Decl name value -> (name,) <$> cast value

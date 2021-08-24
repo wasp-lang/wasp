@@ -4,8 +4,8 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
--- | This module contains combinators for building evaluators for converting
--- "TypedExpr" to arbitrary types.
+-- | This module contains combinators for building evaluators to convert
+-- typed Wasp AST into Haskell values.
 --
 -- A typical use:
 --
@@ -25,7 +25,7 @@ module Analyzer.Evaluator.Combinators
     DictEvaluator,
 
     -- * Functions
-    build,
+    runEvaluator,
 
     -- * "Evaluator" combinators
     string,
@@ -57,8 +57,11 @@ import Data.Functor.Compose (Compose (Compose, getCompose))
 import qualified Data.HashMap.Strict as H
 import Data.Typeable (cast)
 
+-- | Bindings for currently evaluated declarations
+type Bindings = H.HashMap String Decl
+
 -- | The context in an evaluation.
-type EvalCtx a = (TD.TypeDefinitions, H.HashMap String Decl, a)
+type EvalCtx a = (TD.TypeDefinitions, Bindings, a)
 
 -- | An evaluation from "a" to "b" with the evaluation context.
 type (|>) a b = Compose ((->) (EvalCtx a)) (Either EvaluationError) b
@@ -70,8 +73,8 @@ newtype Evaluator a = Evaluator (TypedExpr |> a)
 evaluator :: (EvalCtx TypedExpr -> Either EvaluationError a) -> Evaluator a
 evaluator = Evaluator . Compose
 
-runEvaluator :: Evaluator a -> EvalCtx TypedExpr -> Either EvaluationError a
-runEvaluator (Evaluator f) = getCompose f
+runEvaluator :: Evaluator a -> TD.TypeDefinitions -> Bindings -> TypedExpr -> Either EvaluationError a
+runEvaluator (Evaluator f) typeDefs bindings expr = getCompose f (typeDefs, bindings, expr)
 
 -- | A transformation from dictionary definition (which is a list of dictionary entries) to some type. A "Evaluator" can
 -- be created from a "DictEvaluator" with the "dict" combinator.
@@ -81,12 +84,8 @@ newtype DictEvaluator a = DictEvaluator ([(String, TypedExpr)] |> a)
 dictEvaluator :: (EvalCtx [(String, TypedExpr)] -> Either EvaluationError a) -> DictEvaluator a
 dictEvaluator = DictEvaluator . Compose
 
-runDictEvaluator :: DictEvaluator a -> EvalCtx [(String, TypedExpr)] -> Either EvaluationError a
-runDictEvaluator (DictEvaluator f) = getCompose f
-
--- | A convenience function for running an "Evaluator".
-build :: Evaluator a -> TD.TypeDefinitions -> H.HashMap String Decl -> TypedExpr -> Either EvaluationError a
-build eval typeDefs bindings expr = runEvaluator eval (typeDefs, bindings, expr)
+runDictEvaluator :: DictEvaluator a -> TD.TypeDefinitions -> Bindings -> [(String, TypedExpr)] -> Either EvaluationError a
+runDictEvaluator (DictEvaluator f) typeDefs bindings entries = getCompose f (typeDefs, bindings, entries)
 
 -- | An evaluator that expects a "StringLiteral".
 string :: Evaluator String
@@ -128,21 +127,21 @@ decl = evaluator $ \case
 -- | An evaluator that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => Evaluator a
 enum = evaluator $ \case
-  (_, _, Var var _) -> let x = TD.enumTypeFromVariant @a var in x
+  (_, _, Var var _) -> TD.enumTypeFromVariant @a var
   (_, _, expr) -> Left $ ExpectedType (T.EnumType $ TD.enumTypeName @a) (exprType expr)
 
 -- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> Evaluator a
 dict dictEvalutor = evaluator $ \case
-  (typeDefs, bindings, Dict entries _) -> runDictEvaluator inner (typeDefs, bindings, entries)
+  (typeDefs, bindings, Dict entries _) -> runDictEvaluator dictEvalutor typeDefs bindings entries
   (_, _, expr) -> Left $ ExpectedDictType $ exprType expr
 
 -- | An evaluator that expects a "List" and runs the inner evaluator on each
 -- item in the list.
 list :: Evaluator a -> Evaluator [a]
 list inner = evaluator $ \case
-  (typeDefs, bindings, List values _) -> left InList $ mapM (\expr -> runEvaluator inner (typeDefs, bindings, expr)) values
+  (typeDefs, bindings, List values _) -> left InList $ mapM (runEvaluator inner typeDefs bindings) values
   (_, _, expr) -> Left $ ExpectedListType $ exprType expr
 
 -- | An evaluator that expects an "ExtImport".
@@ -167,10 +166,10 @@ psl = evaluator $ \case
 field :: String -> Evaluator a -> DictEvaluator a
 field key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> Left $ MissingField key
-  Just value -> left (InField key) $ runEvaluator valueEvaluator (typeDefs, bindings, value)
+  Just value -> left (InField key) $ runEvaluator valueEvaluator typeDefs bindings value
 
 -- | A dictionary evaluator that allows the field to be missing.
 maybeField :: String -> Evaluator a -> DictEvaluator (Maybe a)
 maybeField key valueEvaluator = dictEvaluator $ \(typeDefs, bindings, entries) -> case lookup key entries of
   Nothing -> pure Nothing
-  Just value -> Just <$> left (InField key) (runEvaluator valueEvaluator (typeDefs, bindings, value))
+  Just value -> Just <$> left (InField key) (runEvaluator valueEvaluator typeDefs bindings value)
