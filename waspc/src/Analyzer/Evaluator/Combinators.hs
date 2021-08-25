@@ -5,9 +5,24 @@
 {-# LANGUAGE TypeOperators #-}
 
 -- | This module contains combinators for building evaluators to convert
--- typed Wasp AST into Haskell values.
+-- TypeChecker.AST into Wasp AST (Wasp.hs).
 --
--- A typical use:
+-- In this context, evaluator is a function that takes a piece of TypeChecker.AST,
+-- some additional context, and returns a piece of Wasp AST (or error if evaluation fails).
+--
+-- Evaluator combinator is a function that takes some arguments and returns evaluator.
+-- In other words, an evaluator builder.
+--
+-- This module exposes all the combinators that are needed to build evaluators to parse the
+-- whole TypeChecker.AST into Wasp AST.
+--
+-- Since our evaluation code is created automatically from Wasp AST by the TH functions (TH.hs),
+-- these combinators are mostly used there, in the evaluator functions that TH functions generate.
+--
+-- Evaluator is an instance of Applicative in order to allow easy composing of multiple evaluators.
+--
+-- An example of usage, where we are building an evalutor @page@ that evalutes a piece of TypeChecker.AST
+-- into a @Page@, which is part of the Wasp AST:
 --
 -- @
 -- data Page = Page { title :: String, author :: Maybe String, content :: String }
@@ -16,7 +31,7 @@
 -- page = dict $ Page <$> field "title" string <*> maybeField "author" string <*> field "content" string
 -- @
 --
--- This creates a "Evaluator" @page@ that would turn the Wasp expression
+-- This evaluator would turn the Wasp expression
 -- @{ title: "Home", content: "Hello world" }@ into
 -- @Page { title = "Home", author = Nothing, content = "Hello world" }@
 module Analyzer.Evaluator.Combinators
@@ -64,6 +79,8 @@ type Bindings = H.HashMap String Decl
 type EvalCtx a = (TD.TypeDefinitions, Bindings, a)
 
 -- | An evaluation from "a" to "b" with the evaluation context.
+-- We are using `Compose` because it results in an Applicative when it composes two Applicatives,
+-- meaning that our evaluators automatically become instance of Applicative.
 type (|>) a b = Compose ((->) (EvalCtx a)) (Either EvaluationError) b
 
 -- | An evaluation from a typed expression to a value.
