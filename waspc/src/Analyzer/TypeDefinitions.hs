@@ -19,7 +19,7 @@ module Analyzer.TypeDefinitions
   )
 where
 
-import Analyzer.Evaluator.Decl (Decl (Decl))
+import Analyzer.Evaluator.Decl.Operations (makeDecl)
 import Analyzer.TypeDefinitions.Class
 import Analyzer.TypeDefinitions.Type
 import qualified Data.HashMap.Strict as M
@@ -55,7 +55,7 @@ addDeclType lib =
         DeclType
           { dtName = declTypeName @typ,
             dtBodyType = declTypeBodyType @typ,
-            dtDeclFromAST = \typeDefs bindings name value -> Decl name <$> declTypeFromAST @typ typeDefs bindings value
+            dtDeclFromAST = \typeDefs bindings name value -> makeDecl name <$> declTypeFromAST @typ typeDefs bindings value
           }
    in lib {declTypes = M.insert (declTypeName @typ) decl $ declTypes lib}
 

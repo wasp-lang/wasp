@@ -47,6 +47,7 @@ module Analyzer.Evaluator.Combinators
 where
 
 import Analyzer.Evaluator.Decl
+import Analyzer.Evaluator.Decl.Operations (fromDecl)
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
@@ -55,7 +56,6 @@ import qualified Analyzer.TypeDefinitions as TD
 import Control.Arrow (left)
 import Data.Functor.Compose (Compose (Compose, getCompose))
 import qualified Data.HashMap.Strict as H
-import Data.Typeable (cast)
 
 -- | Bindings for currently evaluated declarations
 type Bindings = H.HashMap String Decl
@@ -119,9 +119,9 @@ decl :: forall a. TD.IsDeclType a => Evaluator a
 decl = evaluator $ \case
   (_, bindings, Var var typ) -> case H.lookup var bindings of
     Nothing -> Left $ UndefinedVariable var
-    Just (Decl _ value) -> case cast value :: Maybe a of
+    Just dcl -> case fromDecl @a dcl of
       Nothing -> Left $ ForVariable var (ExpectedType (T.DeclType $ TD.declTypeName @a) typ)
-      Just a -> Right a
+      Just (_, declValue) -> Right declValue
   (_, _, expr) -> Left $ ExpectedType (T.DeclType $ TD.declTypeName @a) (exprType expr)
 
 -- | An evaluator that expects a "Var" bound to an "EnumType" for "a".
