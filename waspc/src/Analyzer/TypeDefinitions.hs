@@ -19,7 +19,6 @@ module Analyzer.TypeDefinitions
   )
 where
 
-import Analyzer.Evaluator.Decl.Operations (makeDecl)
 import Analyzer.TypeDefinitions.Class
 import Analyzer.TypeDefinitions.Type
 import qualified Data.HashMap.Strict as M
@@ -50,14 +49,9 @@ getEnumType name (TypeDefinitions _ ets) = M.lookup name ets
 --  let exampleDefinitions = addDeclType @App empty
 --  @
 addDeclType :: forall typ. (IsDeclType typ) => TypeDefinitions -> TypeDefinitions
-addDeclType lib =
-  let decl =
-        DeclType
-          { dtName = declTypeName @typ,
-            dtBodyType = declTypeBodyType @typ,
-            dtDeclFromAST = \typeDefs bindings name value -> makeDecl name <$> declTypeFromAST @typ typeDefs bindings value
-          }
-   in lib {declTypes = M.insert (declTypeName @typ) decl $ declTypes lib}
+addDeclType typeDefs =
+  let declType' = declType @typ
+   in typeDefs {declTypes = M.insert (dtName declType') declType' $ declTypes typeDefs}
 
 -- | Add an enum type to type definitions. Requires the type to be in the form
 --   of a Wasp enum. See "IsEnum" for requirements.
@@ -71,5 +65,5 @@ addDeclType lib =
 --   @
 addEnumType :: forall typ. (IsEnumType typ) => TypeDefinitions -> TypeDefinitions
 addEnumType lib =
-  let enum = EnumType {etName = enumTypeName @typ, etVariants = enumTypeVariants @typ}
-   in lib {enumTypes = M.insert (enumTypeName @typ) enum $ enumTypes lib}
+  let enumType' = enumType @typ
+   in lib {enumTypes = M.insert (etName enumType') enumType' $ enumTypes lib}

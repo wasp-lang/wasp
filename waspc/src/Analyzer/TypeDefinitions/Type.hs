@@ -19,8 +19,13 @@ data EnumType = EnumType
 data DeclType = DeclType
   { dtName :: String,
     dtBodyType :: Type,
-    -- | Same as "IsDeclType.declTypeFromAST", but also takes the name of the
-    -- declaration and returns a "Decl".
+    -- | Evaluates a Wasp "TypedExpr" to a Wasp AST declaration, or an error.
+    --
+    -- For @dtDeclFromAST typeDefs bindings name expr@:
+    -- - "typeDefs" is the type definitions used in the Analyzer
+    -- - "bindings" contains the values of all the declarations evaluated so far
+    -- - "name" is name of the declaration
+    -- - "expr" is the expression that should be evaluated by this function
     --
     -- __Examples__
     --

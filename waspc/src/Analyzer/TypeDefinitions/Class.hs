@@ -6,12 +6,8 @@ module Analyzer.TypeDefinitions.Class
   )
 where
 
-import Analyzer.Evaluator.Decl (Decl)
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
-import Analyzer.Type
-import Analyzer.TypeChecker.AST (TypedExpr)
 import Analyzer.TypeDefinitions.Type
-import qualified Data.HashMap.Strict as M
 import Data.Typeable (Typeable)
 
 -- | Marks haskell type as a representation of a specific Wasp declaration type.
@@ -39,9 +35,9 @@ import Data.Typeable (Typeable)
 --
 --   @
 --   >>> data User = User { name :: String, email :: Maybe String } deriving Generic
---   >>> declTypeName @User
+--   >>> dtName $ declType @User
 --   "user"
---   >>> declTypeBodyType @User
+--   >>> dtBodyType $ declType @User
 --   DictType [DictEntry "name" StringType, DictOptionalEntry "email" StringLiteral]
 --   @
 --
@@ -49,20 +45,11 @@ import Data.Typeable (Typeable)
 --
 --   @
 --   >>> data Admins = Admins [User] deriving Generic
---   >>> declTypeBodyType @Admins
+--   >>> dtBodyType $ declType @Admins
 --   ListType (DeclType "User")
 --   @
 class Typeable a => IsDeclType a where
-  declTypeName :: String
-  declTypeBodyType :: Type
-
-  -- | Evaluates a Wasp "TypedExpr" to a Haskell value, or an error.
-  --
-  -- For @declTypeFromAST typeDefs bindings expr@:
-  -- - "typeDefs" is the type definitions used in the Analyzer
-  -- - "bindings" contains the values of all the declarations evaluated so far
-  -- - "expr" is the expression that should be evaluated by this function
-  declTypeFromAST :: TypeDefinitions -> M.HashMap String Decl -> TypedExpr -> Either EvaluationError a
+  declType :: DeclType
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
 --   Check "IsDeclType" above for more details.
@@ -72,8 +59,8 @@ class Typeable a => IsDeclType a where
 --   - The type must be an ADT with at least one constructor.
 --   - Each constructor of the type must have 0 fields.
 --
---   Some properties are required of `enumTypeVariants` and `a`:
---   - If and only if there is a string `x` in `enumTypeVariants`, then `a` has
+--   Some properties are required of `etVariants` (in generated `EnumType`) and `a`:
+--   - If and only if there is a string `x` in `etVariants`, then `a` has
 --     a constructor called `x`.
 --
 --   Examples:
@@ -82,18 +69,17 @@ class Typeable a => IsDeclType a where
 --
 --   @
 --   >>> data AuthMethod = OAuth2 | EmailAndPassword deriving Generic
---   >>> enumTypeName @AuthMethod
+--   >>> etName $ enumType @AuthMethod
 --   "authMethod"
---   >>> enumTypeVariants @AuthMethod
+--   >>> etVariants $ enumType @AuthMethod
 --   ["OAuth2", "EmailAndPassword"]
 --   @
 class Typeable a => IsEnumType a where
-  enumTypeName :: String
-  enumTypeVariants :: [String]
+  enumType :: EnumType
 
   -- | Converts a string to a Haskell value of this type.
   --
-  -- @mapM_ enumTypeFromVariant enumTypeVariants == Right ()@ should be true
+  -- @mapM_ enumTypeFromVariant (etVariants enumType) == Right ()@ should be true
   -- for all instances of "IsEnumType".
   --
   -- __Examples__
