@@ -1,23 +1,5 @@
-_wasp()
-{
-    
-    local cur prev
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-
-    case ${COMP_CWORD} in
-        1)
-            # auto complete for wasp <command>
-            _wasp_commands=$( wasp completion:list )
-            COMPREPLY=( $(compgen -W "${_wasp_commands}" -- "${cur}") )
-            ;;
-        2)
-            # auto complete for subcommand wasp <command> <subcommand>
-            _wasp_second_commands=$( wasp completion:list ${prev} )
-            COMPREPLY=( $(compgen -W "${_wasp_second_commands}" -- "${cur}") )
-            ;;
-        *)
-            COMPREPLY=()
-    esac
+function _wasp {
+    wasp completion:list
 }
-complete -o default -o nospace -F _wasp wasp
+
+complete -o default -o nospace -C _wasp wasp

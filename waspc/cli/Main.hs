@@ -37,7 +37,7 @@ main = do
         ["deps"] -> Command.Call.Deps
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
-        ("completion:list" : subCommand) -> Command.Call.BashCompletionListCommands subCommand
+        ["completion:list"] -> Command.Call.BashCompletionListCommands
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -54,7 +54,7 @@ main = do
     Command.Call.Deps -> runCommand deps
     Command.Call.PrintBashCompletionInstruction -> runCommand $ printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand $ generateBashCompletionScript
-    Command.Call.BashCompletionListCommands subCommand -> runCommand $ bashCompletion subCommand
+    Command.Call.BashCompletionListCommands -> runCommand $ bashCompletion
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
