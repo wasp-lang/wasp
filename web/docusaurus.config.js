@@ -56,7 +56,7 @@ module.exports = {
       ],
     },
     prism: {
-      additionalLanguages: ['shell-session']
+      additionalLanguages: ['shell-session', 'haskell']
     },
     footer: {
       style: 'dark',
