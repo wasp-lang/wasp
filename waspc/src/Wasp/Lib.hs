@@ -28,7 +28,7 @@ compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir ProjectRootDir) ->
   CompileOptions ->
-  IO (Either CompileError ())
+  IO (Either CompileError Wasp)
 compile waspDir outDir options = do
   maybeWaspFile <- findWaspFile waspDir
   case maybeWaspFile of
@@ -46,7 +46,7 @@ compile waspDir outDir options = do
             )
             >>= generateCode
   where
-    generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
+    generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right wasp)
 
 enrichWaspASTBasedOnCompileOptions :: Wasp -> CompileOptions -> IO Wasp
 enrichWaspASTBasedOnCompileOptions wasp options = do

@@ -8,6 +8,7 @@ where
 import Control.Monad.Except (runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
+import Wasp
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -33,14 +34,14 @@ compile = do
   compilationResult <- liftIO $ compileIO waspProjectDir outDir
   case compilationResult of
     Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
-    Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
+    Right _ -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
-  IO (Either String ())
+  IO (Either String Wasp)
 compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir outDir
   where
     options =
@@ -53,10 +54,12 @@ compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
-  IO (Either String ())
+  IO (Either String Wasp)
 compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
   -- TODO: Use throwIO instead of Either to return exceptions?
-  liftIO (Wasp.Lib.compile waspProjectDir outDir options)
-    >>= either throwError return
+  wasp <-
+    liftIO (Wasp.Lib.compile waspProjectDir outDir options)
+      >>= either throwError return
   liftIO (copyDbMigrationsDir CopyMigDirDown waspProjectDir outDir)
     >>= maybe (return ()) (throwError . ("Copying migration folder failed: " ++))
+  return wasp

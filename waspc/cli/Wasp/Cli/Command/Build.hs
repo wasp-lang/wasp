@@ -21,6 +21,7 @@ import Wasp.Cli.Command.Compile (compileIOWithOptions)
 import qualified Wasp.Cli.Common as Common
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
+import Wasp (Wasp)
 
 build :: Command ()
 build = do
@@ -41,13 +42,13 @@ build = do
   buildResult <- liftIO $ buildIO waspProjectDir buildDir
   case buildResult of
     Left compileError -> throwError $ CommandError $ "Build failed: " ++ compileError
-    Right () -> liftIO $ putStrLn "Code has been successfully built! Check it out in .wasp/build directory.\n"
+    Right _ -> liftIO $ putStrLn "Code has been successfully built! Check it out in .wasp/build directory.\n"
   liftIO $ putStrLn alphaWarningMessage
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
-  IO (Either String ())
+  IO (Either String Wasp)
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
