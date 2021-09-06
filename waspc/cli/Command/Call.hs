@@ -13,5 +13,5 @@ data Call
   | Info
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
-  | BashCompletionListCommands [String]
+  | BashCompletionListCommands
   | Unknown [String] -- all args
