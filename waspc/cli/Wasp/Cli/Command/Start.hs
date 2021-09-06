@@ -24,12 +24,6 @@ start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  waspSaysC "Compiling wasp code..."
-  compilationResult <- liftIO $ compileIO waspRoot outDir
-  case compilationResult of
-    Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
-    Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
-
   -- TODO: Do smart install -> if we need to install stuff, install it, otherwise don't.
   --   This should be responsibility of Generator, it should tell us how to install stuff.
   --   But who checks out if stuff needs to be installed at all? That should probably be
@@ -43,11 +37,19 @@ start = do
     Left setupError -> throwError $ CommandError $ "\nSetup failed: " ++ setupError
     Right () -> waspSaysC "\nSetup successful.\n"
 
-  waspSaysC "\nListening for file changes..."
-  waspSaysC "Starting up generated project..."
-  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir)
-  case watchOrStartResult of
-    Left () -> error "This should never happen, listening for file changes should never end but it did."
-    Right startResult -> case startResult of
-      Left startError -> throwError $ CommandError $ "Start failed: " ++ startError
-      Right () -> error "This should never happen, start should never end but it did."
+  waspSaysC "Compiling wasp code..."
+  compilationResult <- liftIO $ compileIO waspRoot outDir
+  case compilationResult of
+    Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
+    Right wasp -> do
+
+      waspSaysC "Code has been successfully compiled, project has been generated.\n"
+      waspSaysC "\nListening for file changes..."
+      waspSaysC "Starting up generated project..."
+
+      watchOrStartResult <- liftIO $ race (watch waspRoot outDir wasp) (Wasp.Lib.start outDir)
+      case watchOrStartResult of
+        Left () -> error "This should never happen, listening for file changes should never end but it did."
+        Right startResult -> case startResult of
+          Left startError -> throwError $ CommandError $ "Start failed: " ++ startError
+          Right () -> error "This should never happen, start should never end but it did."
