@@ -42,7 +42,6 @@ start = do
   case compilationResult of
     Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
     Right wasp -> do
-
       waspSaysC "Code has been successfully compiled, project has been generated.\n"
       waspSaysC "\nListening for file changes..."
       waspSaysC "Starting up generated project..."
