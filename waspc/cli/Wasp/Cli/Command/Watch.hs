@@ -3,17 +3,32 @@ module Wasp.Cli.Command.Watch
   )
 where
 
+import Cli.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, waspSays)
+import qualified Cli.Common as Common
+import Command (Command, CommandError (..))
+import Command.Compile (compileIO)
+import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
+import Control.Monad (when)
+import Control.Monad.Except (throwError)
+import Control.Monad.State (MonadIO (liftIO))
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
+import qualified Generator.Job as J
+import Generator.Job.Process (runNodeCommandAsJob)
+import qualified Generator.WebAppGenerator.Common as Common
+import Generator.WebAppGenerator.Setup (setupWebApp)
+import qualified Lib
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
+import System.Exit (ExitCode (ExitSuccess))
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Common (waspSays)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Lib
+import Wasp (Wasp, getNpmDependencies)
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
 --   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
@@ -29,8 +44,8 @@ import qualified Wasp.Lib
 
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
-watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> IO ()
-watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
+watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> Wasp -> IO ()
+watch waspProjectDir outDir initialWasp = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
@@ -46,17 +61,28 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
           listenForEvents chan lastCompileTime
         else do
           currentTime <- getCurrentTime
-          recompile
+          recompile initialWasp
           listenForEvents chan currentTime
 
-    recompile :: IO ()
-    recompile = do
+    recompile :: Wasp -> IO ()
+    recompile lastCompiledWasp = do
       waspSays "Recompiling on file change..."
       compilationResult <- compileIO waspProjectDir outDir
       case compilationResult of
         Left err -> waspSays $ "Recompilation on file change failed: " ++ err
-        Right () -> waspSays "Recompilation on file change succeeded."
-      return ()
+        Right currentWasp -> do
+          let dependenciesChanged = getNpmDependencies lastCompiledWasp /= getNpmDependencies currentWasp
+          when dependenciesChanged $ do
+            waspSays "Dependencies changed, please restart the server"
+            recompile currentWasp
+            -- WIP: Restart server or re-run setup and compile phase
+            -- chan <- newChan
+            -- let path = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.buildDirInDotWaspDir
+            -- let _ = concurrently (setupWebApp path chan)
+            -- waspSays "NPM Installed again"
+            -- recompile currentWasp
+            -- WIP
+            return ()
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
