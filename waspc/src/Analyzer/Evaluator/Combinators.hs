@@ -137,15 +137,17 @@ decl = evaluator $ \case
   (_, bindings, Var var typ) -> case H.lookup var bindings of
     Nothing -> Left $ UndefinedVariable var
     Just dcl -> case fromDecl @a dcl of
-      Nothing -> Left $ ForVariable var (ExpectedType (T.DeclType $ TD.declTypeName @a) typ)
-      Just (_, declValue) -> Right declValue
-  (_, _, expr) -> Left $ ExpectedType (T.DeclType $ TD.declTypeName @a) (exprType expr)
+      Nothing -> Left $ ForVariable var (ExpectedType (T.DeclType declTypeName) typ)
+      Just (_dclName, dclValue) -> Right dclValue
+  (_, _, expr) -> Left $ ExpectedType (T.DeclType declTypeName) (exprType expr)
+  where
+    declTypeName = TD.dtName $ TD.declType @a
 
 -- | An evaluator that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => Evaluator a
 enum = evaluator $ \case
   (_, _, Var var _) -> TD.enumTypeFromVariant @a var
-  (_, _, expr) -> Left $ ExpectedType (T.EnumType $ TD.enumTypeName @a) (exprType expr)
+  (_, _, expr) -> Left $ ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (exprType expr)
 
 -- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".

@@ -12,10 +12,12 @@ module Analyzer.Evaluator.TH (makeDecl, makeEnum) where
 -- Split into a module for Decls and a module for Enums
 
 import Analyzer.Evaluator.Combinators
+import qualified Analyzer.Evaluator.Decl.Operations as DeclOperations
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import Analyzer.TypeDefinitions.Class
+import Analyzer.TypeDefinitions.Type as TD
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Util (toLowerFirst)
@@ -25,7 +27,7 @@ import Util (toLowerFirst)
 -- definition of @IsDeclType@.
 --
 -- In addition to satisfying the requirements of "IsDeclType", the generated
--- instance for @Type@ has @declTypeName == "type"@ (the first letter is
+-- instance for @Type@ has @dtName declType == "type"@ (the first letter is
 -- always changed to lowercase).
 --
 -- __Example__
@@ -54,9 +56,8 @@ makeDecl typeName = do
 -- error is raised if @Type@ does not fit the criteria described in the
 -- definition of @IsEnumType@.
 --
--- In addition to satisfying the requirements of "IsEnumType", the generaed
--- instance for @Type@ has @enumTypeName == "Type"@ (the name is not modified
--- at all).
+-- In addition to satisfying the requirements of "IsEnumType", the generated
+-- instance returns EnumType that has the same name as @Type@ (the name is not modified at all).
 --
 -- __Example__
 --
@@ -87,7 +88,8 @@ makeEnum typeName = do
 -- | Top-level "IsDeclType" instance generator.
 makeIsDeclTypeDefinition :: Con -> Q [DecQ]
 -- The constructor is in the form @data Type = Type x@
-makeIsDeclTypeDefinition (NormalC dataConstructorName [(_, typ)]) = genPrimDecl dataConstructorName typ
+makeIsDeclTypeDefinition (NormalC dataConstructorName [(_, dataConstructorType)]) =
+  genPrimDecl dataConstructorName dataConstructorType
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
 makeIsDeclTypeDefinition (NormalC name values) = fail $ "makeDecl expects given type " ++ show name ++ " to be a record or to have one data constructor with exactly 1 value, but instead it was given a data constructor with " ++ show (length values) ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
@@ -97,23 +99,34 @@ makeIsDeclTypeDefinition _ = fail "makeDecl expects given type to have a normal 
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genPrimDecl :: Name -> Type -> Q [DecQ]
-genPrimDecl name typ =
-  pure
-    [ func 'declTypeName $ nameToLowerFirstStringLiteralExpr name,
-      func 'declTypeBodyType $ genTypeE typ,
-      func 'declTypeFromAST [|runEvaluator $ $(conE name) <$> $(genEvaluatorE typ)|]
-    ]
+genPrimDecl dataConstructorName dataConstructorType = do
+  let evaluateE = [|runEvaluator $ $(conE dataConstructorName) <$> $(genEvaluatorE dataConstructorType)|]
+  let bodyTypeE = genTypeE dataConstructorType
+  pure [genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
-genRecDecl name recs = do
+genRecDecl dataConstructorName recs = do
   -- recs is reversed to make sure the applications for dictEvaluatorE are in the right order
-  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecords name $ reverse recs
-  pure
-    [ func 'declTypeName $ nameToLowerFirstStringLiteralExpr name,
-      func 'declTypeBodyType [|T.DictType $ H.fromList $dictEntryTypesE|],
-      func 'declTypeFromAST [|runEvaluator $ dict $dictEvaluatorE|]
-    ]
+  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecords dataConstructorName $ reverse recs
+  let evaluateE = [|runEvaluator $ dict $dictEvaluatorE|]
+  let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
+  pure [genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE]
+
+-- | Generates 'declType' function for a definition of IsDeclType instance.
+-- A helper function for 'genPrimDecl' and 'genRecDecl'.
+genIsDeclTypeInstanceDeclTypeFunc :: Name -> ExpQ -> ExpQ -> DecQ
+genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE =
+  func
+    'declType
+    [|
+      TD.DeclType
+        { TD.dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
+          TD.dtBodyType = $bodyTypeE,
+          TD.dtDeclFromAST = \typeDefs bindings name value ->
+            DeclOperations.makeDecl name <$> $evaluateE typeDefs bindings value
+        }
+      |]
 
 -- | Write a wasp @Type@ for a Haskell type
 genTypeE :: Type -> ExpQ
@@ -127,8 +140,8 @@ genTypeE typ =
     KImport -> [|T.ExtImportType|]
     KJSON -> [|T.QuoterType "json"|]
     KPSL -> [|T.QuoterType "psl"|]
-    KDecl -> [|T.DeclType $ declTypeName @ $(pure typ)|]
-    KEnum -> [|T.EnumType $ enumTypeName @ $(pure typ)|]
+    KDecl -> [|T.DeclType $ dtName $ declType @ $(pure typ)|]
+    KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
 -- | Write an @Evaluator@ for a Haskell type
@@ -218,9 +231,17 @@ waspKindOfType typ = do
 makeIsEnumTypeDefinition :: Name -> [Name] -> Q [DecQ]
 makeIsEnumTypeDefinition typeName dataConstructorNames =
   pure
-    [ func 'enumTypeName $ nameToLowerFirstStringLiteralExpr typeName,
-      func 'enumTypeVariants $ listE $ map nameToStringLiteralExpr dataConstructorNames,
-      genEnumFromVariants typeName dataConstructorNames
+    [ func
+        'enumType
+        [|
+          TD.EnumType
+            { etName = $(nameToLowerFirstStringLiteralExpr typeName),
+              etVariants = $(listE $ map nameToStringLiteralExpr dataConstructorNames)
+            }
+          |],
+      genEnumFromVariants
+        typeName
+        dataConstructorNames
     ]
 
 genEnumFromVariants :: Name -> [Name] -> DecQ
