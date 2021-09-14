@@ -9,7 +9,8 @@ module Analyzer.Evaluator
   )
 where
 
-import Analyzer.Evaluator.Decl (Decl, takeDecls)
+import Analyzer.Evaluator.Decl (Decl)
+import Analyzer.Evaluator.Decl.Operations (takeDecls)
 import Analyzer.Evaluator.EvaluationError
 import Analyzer.Evaluator.Types
 import Analyzer.Type
