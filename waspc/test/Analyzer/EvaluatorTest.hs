@@ -19,23 +19,23 @@ fromRight (Left e) = error $ show e
 
 newtype Simple = Simple String deriving (Eq, Show, Data)
 
-makeDecl ''Simple
+makeDeclType ''Simple
 
 data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data)
 
-makeDecl ''Fields
+makeDeclType ''Fields
 
 data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data)
 
-makeDecl ''Person
+makeDeclType ''Person
 
 data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data)
 
-makeEnum ''BusinessType
+makeEnumType ''BusinessType
 
 data Special = Special {imps :: [ExtImport], json :: JSON, psl :: PSL} deriving (Eq, Show)
 
-makeDecl ''Special
+makeDeclType ''Special
 
 data Business = Business
   { employees :: [Person],
@@ -45,7 +45,7 @@ data Business = Business
   }
   deriving (Eq, Show, Data)
 
-makeDecl ''Business
+makeDeclType ''Business
 
 eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
 eval typeDefs source = evaluate typeDefs $ fromRight $ typeCheck typeDefs $ fromRight $ parse $ unlines source

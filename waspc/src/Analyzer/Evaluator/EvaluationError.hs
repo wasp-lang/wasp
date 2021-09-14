@@ -1,5 +1,6 @@
 module Analyzer.Evaluator.EvaluationError
   ( EvaluationError (..),
+    EvaluationErrorContext (..),
   )
 where
 
@@ -18,10 +19,13 @@ data EvaluationError
     InvalidEnumVariant String String
   | -- | "MissingField fieldName"
     MissingField String
-  | -- | An evaluation error for a named variable
-    ForVariable String EvaluationError
-  | -- | "InField fieldName innerError"
-    InField String EvaluationError
-  | -- | "InList innerError"
-    InList EvaluationError
+  | WithContext EvaluationErrorContext EvaluationError
+  deriving (Show, Eq)
+
+data EvaluationErrorContext
+  = -- | InField fieldName
+    InField String
+  | InList
+  | -- | ForVariable varName
+    ForVariable String
   deriving (Show, Eq)

@@ -2,17 +2,21 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
--- This module exports two TH functions, @makeDecl@ and @makeEnum@, which
+-- This module exports two TH functions, @makeDeclType@ and @makeEnumType@, which
 -- write instances for @IsDeclType@ and @IsEnumType@, respectively. Only correct
 -- instances will be generated. If a non-decl or non-enum type name is given to
 -- either of these functions, a Haskell type error is raised.
-module Analyzer.Evaluator.TH (makeDecl, makeEnum) where
+module Analyzer.Evaluator.TH
+  ( makeDeclType,
+    makeEnumType,
+  )
+where
 
 -- TODO:
 -- Split into a module for Decls and a module for Enums
 
 import Analyzer.Evaluator.Combinators
-import qualified Analyzer.Evaluator.Decl.Operations as DeclOperations
+import Analyzer.Evaluator.Decl.Operations (makeDecl)
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
@@ -22,7 +26,7 @@ import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Util (toLowerFirst)
 
--- | @makeDecl ''Type@ writes an @IsDeclType@ instance for @Type@. A type
+-- | @makeDeclType ''Type@ writes an @IsDeclType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described in the
 -- definition of @IsDeclType@.
 --
@@ -35,24 +39,24 @@ import Util (toLowerFirst)
 -- @
 -- {-# LANGUAGE TemplateHaskell #-}
 -- data Person = Person { name :: String, age :: Int }
--- makeDecl ''Person
+-- makeDeclType ''Person
 -- -- "IsDeclType Person" instance is generated
 -- @
-makeDecl :: Name -> Q [Dec]
-makeDecl typeName = do
+makeDeclType :: Name -> Q [Dec]
+makeDeclType typeName = do
   (TyConI typeDeclaration) <- reify typeName
   dataConstructor <- case typeDeclaration of
     (DataD _ _ [] _ [dataConstructor] _) -> pure dataConstructor
-    DataD {} -> fail "makeDecl expects a type declared with `data` to have exactly one constructor"
+    DataD {} -> fail "makeDeclType expects a type declared with `data` to have exactly one constructor"
     (NewtypeD _ _ [] _ dataConstructor _) -> pure dataConstructor
-    _ -> fail "makeDecl expects the given name to be for a type declared with `data` or `newtype`"
+    _ -> fail "makeDeclType expects the given name to be for a type declared with `data` or `newtype`"
   let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
       instanceContext = pure []
       instanceType = [t|IsDeclType $(conT typeName)|]
-      instanceDefinition = makeIsDeclTypeDefinition dataConstructor
+      instanceDefinition = makeIsDeclTypeInstanceDefinition dataConstructor
   sequence [instanceDeclaration]
 
--- | @makeEnum ''Type@ writes an @IsEnumType@ instance for @Type@. A type
+-- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described in the
 -- definition of @IsEnumType@.
 --
@@ -64,16 +68,16 @@ makeDecl typeName = do
 -- @
 -- {-# LANGUAGE TemplateHaskell #-}
 -- data Job = Programmer | Manager
--- makeEnum ''Job
+-- makeEnumType ''Job
 -- -- "IsEnumType Job" instance is generated
 -- @
-makeEnum :: Name -> Q [Dec]
-makeEnum typeName = do
+makeEnumType :: Name -> Q [Dec]
+makeEnumType typeName = do
   (TyConI tyCon) <- reify typeName
   dataConstructors <- case tyCon of
     (DataD _ _ [] _ dataConstructors _) -> pure dataConstructors
     (NewtypeD _ _ [] _ dataConstructor _) -> pure [dataConstructor]
-    _ -> fail "makeEnum expects the given name to be for a type declared with `data` or `newtype`"
+    _ -> fail "makeEnumType expects the given name to be for a type declared with `data` or `newtype`"
   dataConstructorNames <- namesOfEnumDataConstructors dataConstructors
   let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
       instanceContext = pure []
@@ -86,57 +90,65 @@ makeEnum typeName = do
 -- ========================================
 
 -- | Top-level "IsDeclType" instance generator.
-makeIsDeclTypeDefinition :: Con -> Q [DecQ]
+makeIsDeclTypeInstanceDefinition :: Con -> Q [DecQ]
 -- The constructor is in the form @data Type = Type x@
-makeIsDeclTypeDefinition (NormalC dataConstructorName [(_, dataConstructorType)]) =
-  genPrimDecl dataConstructorName dataConstructorType
+makeIsDeclTypeInstanceDefinition _dataConstructor@(NormalC name [(_, typ)]) =
+  genIsDeclTypeInstanceDefinitionFromNormalDataConstructor name typ
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
-makeIsDeclTypeDefinition (NormalC name values) = fail $ "makeDecl expects given type " ++ show name ++ " to be a record or to have one data constructor with exactly 1 value, but instead it was given a data constructor with " ++ show (length values) ++ "values."
+makeIsDeclTypeInstanceDefinition _dataConstructor@(NormalC name values) =
+  fail $
+    "makeDeclType expects given type " ++ show name
+      ++ " to be a record or to have one data constructor with exactly 1 value, "
+      ++ "but instead it was given a data constructor with "
+      ++ show (length values)
+      ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-makeIsDeclTypeDefinition (RecC dataConstructorName records) = genRecDecl dataConstructorName $ map (\(fieldName, _, typ) -> (fieldName, typ)) records
+makeIsDeclTypeInstanceDefinition _dataConstructor@(RecC name records) =
+  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor name $ map (\(fieldName, _, typ) -> (fieldName, typ)) records
 -- The constructor is in an unsupported form
-makeIsDeclTypeDefinition _ = fail "makeDecl expects given type to have a normal or record constructor"
+makeIsDeclTypeInstanceDefinition _ = fail "makeDeclType expects given type to have a normal or record constructor"
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
-genPrimDecl :: Name -> Type -> Q [DecQ]
-genPrimDecl dataConstructorName dataConstructorType = do
-  let evaluateE = [|runEvaluator $ $(conE dataConstructorName) <$> $(genEvaluatorE dataConstructorType)|]
-  let bodyTypeE = genTypeE dataConstructorType
-  pure [genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE]
+genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Type -> Q [DecQ]
+genIsDeclTypeInstanceDefinitionFromNormalDataConstructor dataConstructorName dataConstructorType = do
+  let evaluateE = [|runEvaluator $ $(conE dataConstructorName) <$> $(genEvaluatorExprForHaskellType dataConstructorType)|]
+  let bodyTypeE = genWaspTypeFromHaskellType dataConstructorType
+  pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
-genRecDecl :: Name -> [(Name, Type)] -> Q [DecQ]
-genRecDecl dataConstructorName recs = do
+genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> [(Name, Type)] -> Q [DecQ]
+genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName recs = do
   -- recs is reversed to make sure the applications for dictEvaluatorE are in the right order
-  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecords dataConstructorName $ reverse recs
+  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName $ reverse recs
   let evaluateE = [|runEvaluator $ dict $dictEvaluatorE|]
   let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
-  pure [genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE]
+  pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
 
 -- | Generates 'declType' function for a definition of IsDeclType instance.
 -- A helper function for 'genPrimDecl' and 'genRecDecl'.
-genIsDeclTypeInstanceDeclTypeFunc :: Name -> ExpQ -> ExpQ -> DecQ
-genIsDeclTypeInstanceDeclTypeFunc dataConstructorName bodyTypeE evaluateE =
+genDeclTypeFuncOfIsDeclTypeInstance :: Name -> ExpQ -> ExpQ -> DecQ
+genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE =
   func
     'declType
     [|
       TD.DeclType
         { TD.dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
           TD.dtBodyType = $bodyTypeE,
-          TD.dtDeclFromAST = \typeDefs bindings name value ->
-            DeclOperations.makeDecl name <$> $evaluateE typeDefs bindings value
+          TD.dtEvaluate = \typeDefs bindings declName declBodyExpr ->
+            makeDecl declName <$> $evaluateE typeDefs bindings declBodyExpr
         }
       |]
 
--- | Write a wasp @Type@ for a Haskell type
-genTypeE :: Type -> ExpQ
-genTypeE typ =
+-- | Generates an expression that constructs a wasp @Type@ that corresponds to a given Haskell type.
+-- Haskell type -> Wasp type.
+genWaspTypeFromHaskellType :: Type -> ExpQ
+genWaspTypeFromHaskellType typ =
   waspKindOfType typ >>= \case
     KString -> [|T.StringType|]
     KInteger -> [|T.NumberType|]
     KDouble -> [|T.NumberType|]
     KBool -> [|T.BoolType|]
-    KList elemType -> [|T.ListType $(genTypeE elemType)|]
+    KList elemType -> [|T.ListType $(genWaspTypeFromHaskellType elemType)|]
     KImport -> [|T.ExtImportType|]
     KJSON -> [|T.QuoterType "json"|]
     KPSL -> [|T.QuoterType "psl"|]
@@ -144,15 +156,15 @@ genTypeE typ =
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
--- | Write an @Evaluator@ for a Haskell type
-genEvaluatorE :: Type -> ExpQ
-genEvaluatorE typ =
+-- | Generates and expression that is @Evaluator@ that evaluates to a given Haskell type.
+genEvaluatorExprForHaskellType :: Type -> ExpQ
+genEvaluatorExprForHaskellType typ =
   waspKindOfType typ >>= \case
     KString -> [|string|]
     KInteger -> [|integer|]
     KDouble -> [|double|]
     KBool -> [|bool|]
-    KList elemType -> [|list $(genEvaluatorE elemType)|]
+    KList elemType -> [|list $(genEvaluatorExprForHaskellType elemType)|]
     KImport -> [|extImport|]
     KJSON -> [|json|]
     KPSL -> [|psl|]
@@ -160,30 +172,29 @@ genEvaluatorE typ =
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
--- | Write the @DictEntryType@s and @DictEvaluator@ for the records in a
--- Haskell constructor.
-genDictEntryTypesAndEvaluatorForRecords :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genDictEntryTypesAndEvaluatorForRecords conName [] = pure (listE [], varE 'pure `appE` conE conName)
-genDictEntryTypesAndEvaluatorForRecords conName ((recName, typ) : rest) = do
-  (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecords conName rest
-  let thisDictTypeE = [|($(nameToStringLiteralExpr recName), $(genFieldTypeE typ)) : $restDictType|]
-  let thisEvaluatorE = [|$restEvaluator <*> $(genDictEvaluatorE recName typ)|]
+-- | Write the @DictEntryType@s and @DictEvaluator@ for the Haskell record with given data constructor name and fields.
+genDictEntryTypesAndEvaluatorForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictEntryTypesAndEvaluatorForRecord dataConstructorName [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
+genDictEntryTypesAndEvaluatorForRecord dataConstructorName ((fieldName, fieldType) : restOfFields) = do
+  (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName restOfFields
+  let thisDictTypeE = [|($(nameToStringLiteralExpr fieldName), $(genDictEntryTypeFromHaskellType fieldType)) : $restDictType|]
+  let thisEvaluatorE = [|$restEvaluator <*> $(genDictEntryEvaluatorForRecordField fieldName fieldType)|]
   pure (thisDictTypeE, thisEvaluatorE)
 
--- | Write a @DictEntryType@ for a Haskell type.
-genFieldTypeE :: Type -> ExpQ
-genFieldTypeE typ =
+-- | Write a @DictEntryType@ that corresponds to a given a Haskell type.
+genDictEntryTypeFromHaskellType :: Type -> ExpQ
+genDictEntryTypeFromHaskellType typ =
   waspKindOfType typ >>= \case
-    KOptional elemType -> [|T.DictOptional $(genTypeE elemType)|]
-    _ -> [|T.DictRequired $(genTypeE typ)|]
+    KOptional elemType -> [|T.DictOptional $(genWaspTypeFromHaskellType elemType)|]
+    _ -> [|T.DictRequired $(genWaspTypeFromHaskellType typ)|]
 
--- | "genDictEvaluatorE fieldName typ" writes a "DictEvaluator" for a haskell record
+-- | "genDictEvaluatorE fieldName typ" writes a "DictEvaluator" for a haskell record field
 -- named "fieldName" with a value "typ".
-genDictEvaluatorE :: Name -> Type -> ExpQ
-genDictEvaluatorE recName typ =
-  waspKindOfType typ >>= \case
-    KOptional elemType -> [|maybeField $(nameToStringLiteralExpr recName) $(genEvaluatorE elemType)|]
-    _ -> [|field $(nameToStringLiteralExpr recName) $(genEvaluatorE typ)|]
+genDictEntryEvaluatorForRecordField :: Name -> Type -> ExpQ
+genDictEntryEvaluatorForRecordField fieldName fieldType =
+  waspKindOfType fieldType >>= \case
+    KOptional elemType -> [|maybeField $(nameToStringLiteralExpr fieldName) $(genEvaluatorExprForHaskellType elemType)|]
+    _ -> [|field $(nameToStringLiteralExpr fieldName) $(genEvaluatorExprForHaskellType fieldType)|]
 
 -- | An intermediate mapping between Haskell types and Wasp types, used for
 -- generating @Types@, @Evaluator@, @DictEntryTypes@, and @DictEvaluator@.

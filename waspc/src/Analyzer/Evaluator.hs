@@ -45,7 +45,7 @@ evalStmt (AST.Decl name param (DeclType declTypeName)) = do
       )
   typeDefs <- ask
   bindings <- get
-  case TD.dtDeclFromAST declType typeDefs bindings name param of
+  case TD.dtEvaluate declType typeDefs bindings name param of
     Left err -> throwError err
     Right decl -> modify (H.insert name decl) >> return decl
 evalStmt _ = error "impossible: Decl statement has non-Decl type after type checking"

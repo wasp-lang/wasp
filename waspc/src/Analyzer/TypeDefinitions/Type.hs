@@ -11,27 +11,45 @@ import Analyzer.Type (Type)
 import Analyzer.TypeChecker.AST (TypedExpr)
 import qualified Data.HashMap.Strict as M
 
-data EnumType = EnumType
-  { etName :: String,
-    etVariants :: [String]
-  }
+-- TODO: HashMap here is really bindings, and that concept already exists in Evalutor,
+-- so should we somehow name them that way? Maybe even combine TypeDefinitions and bindings into
+-- and eval context (EvalCtx) and pass that as a single thing? Yes, I think we should do this, especially
+-- the EvalCtx part.
 
+-- | Describes a specific declaration type in Wasp.
+-- For example, such declaration type could be @page@, or @route@.
+-- Declaration type is defined by its name (@dtName@) and the type of its body (@dtBodyType@).
+-- Additionally, we also need to know how to evaluate it from the type checked AST into the Wasp AST,
+-- which is what @dtEvaluate@ function does.
 data DeclType = DeclType
-  { dtName :: String,
+  { dtName :: DeclTypeName,
     dtBodyType :: Type,
-    -- | Evaluates a Wasp "TypedExpr" to a Wasp AST declaration, or an error.
+    -- | Evaluates a given Wasp "TypedExpr" to a Wasp AST declaration, assuming it is of
+    -- declaration type described by dtBodyType and dtName.
     --
-    -- For @dtDeclFromAST typeDefs bindings name expr@:
+    -- For @dtEvaluate typeDefs bindings declName declBodyExpr@:
     -- - "typeDefs" is the type definitions used in the Analyzer
     -- - "bindings" contains the values of all the declarations evaluated so far
-    -- - "name" is name of the declaration
-    -- - "expr" is the expression that should be evaluated by this function
+    -- - "declName" is name of the declaration
+    -- - "declBodyExpr" is the expression describing declaration body, that should be evaluated by this function
     --
     -- __Examples__
     --
-    -- Wasp code @test Example 4@ would call this function with
-    -- @dtDeclFromAST declType typeDefs bindings "Example" (NumberLiteral 4)@
-    dtDeclFromAST :: TypeDefinitions -> M.HashMap String Decl -> String -> TypedExpr -> Either EvaluationError Decl
+    -- Imagine that we have Wasp code @test Example 4@.
+    -- Here, @test@ is declaration type name, @Example@ is declaration name, and @4@ is declaration body.
+    -- @dtEvaluate@ function would then be called somewhat like:
+    -- @dtEvaluate declType typeDefs bindings "Example" (NumberLiteral 4)@
+    -- where @declType@ is the one describing @test@ declaration type.
+    dtEvaluate :: TypeDefinitions -> M.HashMap DeclName Decl -> DeclName -> TypedExpr -> Either EvaluationError Decl
+  }
+
+-- | Describes a specific enum type in Wasp.
+-- For example, such enum type could be @AuthMethod@, or @DbType@.
+-- Enum type is defined by its name (@etName@) and its variations (possible values) (@etVariants@).
+-- Example: @EnumType { etName = "AuthMethod", etVariants = ["Google", "EmailAndPassword", "LinkedIn"] }@.
+data EnumType = EnumType
+  { etName :: EnumTypeName,
+    etVariants :: [String]
   }
 
 -- | The parser, type-checking, and evaluator require information about declaration,
@@ -44,7 +62,13 @@ data DeclType = DeclType
 --   This enables us to easily modify / add / remove specific types as Wasp evolves as a language without
 --   having to touch the core functionality of the Analyzer.
 data TypeDefinitions = TypeDefinitions
-  { declTypes :: M.HashMap String DeclType,
-    enumTypes :: M.HashMap String EnumType
+  { declTypes :: M.HashMap DeclTypeName DeclType,
+    enumTypes :: M.HashMap EnumTypeName EnumType
     -- TODO: In the future, add quoters to the type definitions
   }
+
+type DeclName = String
+
+type DeclTypeName = String
+
+type EnumTypeName = String

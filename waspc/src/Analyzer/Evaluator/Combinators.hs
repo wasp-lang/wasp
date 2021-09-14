@@ -59,7 +59,8 @@ where
 
 import Analyzer.Evaluator.Decl
 import Analyzer.Evaluator.Decl.Operations (fromDecl)
-import Analyzer.Evaluator.EvaluationError
+import Analyzer.Evaluator.EvaluationError (EvaluationError)
+import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import Analyzer.TypeChecker.AST (TypedExpr (..), exprType)
@@ -103,7 +104,7 @@ newtype TypedDictEntries = TypedDictEntries [(String, TypedExpr)]
 string :: TypedExprEvaluator String
 string = evaluator' $ \case
   StringLiteral str -> pure str
-  expr -> Left $ ExpectedType T.StringType (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType T.StringType (exprType expr)
 
 -- | An evaluator that expects an "IntegerLiteral" or "DoubleLiteral". A
 -- "DoubleLiteral" is rounded to the nearest whole number.
@@ -111,30 +112,34 @@ integer :: TypedExprEvaluator Integer
 integer = evaluator' $ \case
   IntegerLiteral i -> pure i
   DoubleLiteral x -> pure $ round x
-  expr -> Left $ ExpectedType T.NumberType (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType T.NumberType (exprType expr)
 
 -- | An evaluator that expects a "IntegerLiteral" or "DoubleLiteral".
 double :: TypedExprEvaluator Double
 double = evaluator' $ \case
   IntegerLiteral i -> pure $ fromIntegral i
   DoubleLiteral x -> pure x
-  expr -> Left $ ExpectedType T.NumberType (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType T.NumberType (exprType expr)
 
 -- | An evaluator that expects a "BoolLiteral".
 bool :: TypedExprEvaluator Bool
 bool = evaluator' $ \case
   BoolLiteral b -> pure b
-  expr -> Left $ ExpectedType T.BoolType (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType T.BoolType (exprType expr)
 
 -- | An evaluator that expects a "Var" bound to a "Decl" of type "a".
 decl :: forall a. TD.IsDeclType a => TypedExprEvaluator a
 decl = evaluator $ \(_, bindings) -> \case
   Var var typ -> case H.lookup var bindings of
-    Nothing -> Left $ UndefinedVariable var
+    Nothing -> Left $ EvaluationError.UndefinedVariable var
     Just dcl -> case fromDecl @a dcl of
-      Nothing -> Left $ ForVariable var (ExpectedType (T.DeclType declTypeName) typ)
+      Nothing ->
+        Left $
+          EvaluationError.WithContext
+            (EvaluationError.ForVariable var)
+            (EvaluationError.ExpectedType (T.DeclType declTypeName) typ)
       Just (_dclName, dclValue) -> Right dclValue
-  expr -> Left $ ExpectedType (T.DeclType declTypeName) (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType (T.DeclType declTypeName) (exprType expr)
   where
     declTypeName = TD.dtName $ TD.declType @a
 
@@ -142,50 +147,58 @@ decl = evaluator $ \(_, bindings) -> \case
 enum :: forall a. TD.IsEnumType a => TypedExprEvaluator a
 enum = evaluator' $ \case
   Var var _ -> TD.enumTypeFromVariant @a var
-  expr -> Left $ ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (exprType expr)
 
 -- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> TypedExprEvaluator a
 dict dictEvalutor = evaluator $ \(typeDefs, bindings) -> \case
   Dict entries _ -> runEvaluator dictEvalutor typeDefs bindings $ TypedDictEntries entries
-  expr -> Left $ ExpectedDictType $ exprType expr
+  expr -> Left $ EvaluationError.ExpectedDictType $ exprType expr
 
 -- | An evaluator that expects a "List" and runs the inner evaluator on each
 -- item in the list.
 list :: TypedExprEvaluator a -> TypedExprEvaluator [a]
 list inner = evaluator $ \(typeDefs, bindings) -> \case
-  List values _ -> left InList $ mapM (runEvaluator inner typeDefs bindings) values
-  expr -> Left $ ExpectedListType $ exprType expr
+  List values _ ->
+    left (EvaluationError.WithContext EvaluationError.InList) $
+      mapM (runEvaluator inner typeDefs bindings) values
+  expr -> Left $ EvaluationError.ExpectedListType $ exprType expr
 
 -- | An evaluator that expects an "ExtImport".
 extImport :: TypedExprEvaluator E.ExtImport
 extImport = evaluator' $ \case
   ExtImport name file -> pure $ E.ExtImport name file
-  expr -> Left $ ExpectedType T.ExtImportType (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType T.ExtImportType (exprType expr)
 
 -- | An evaluator that expects a "JSON".
 json :: TypedExprEvaluator E.JSON
 json = evaluator' $ \case
   JSON str -> pure $ E.JSON str
-  expr -> Left $ ExpectedType (T.QuoterType "json") (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (exprType expr)
 
 -- | An evaluator that expects a "PSL".
 psl :: TypedExprEvaluator E.PSL
 psl = evaluator' $ \case
   PSL str -> pure $ E.PSL str
-  expr -> Left $ ExpectedType (T.QuoterType "psl") (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "psl") (exprType expr)
 
 -- | A dictionary evaluator that requires the field to exist.
 field :: String -> TypedExprEvaluator a -> DictEvaluator a
 field key valueEvaluator = evaluator $
   \(typeDefs, bindings) (TypedDictEntries entries) -> case lookup key entries of
-    Nothing -> Left $ MissingField key
-    Just value -> left (InField key) $ runEvaluator valueEvaluator typeDefs bindings value
+    Nothing -> Left $ EvaluationError.MissingField key
+    Just value ->
+      left (EvaluationError.WithContext (EvaluationError.InField key)) $
+        runEvaluator valueEvaluator typeDefs bindings value
 
 -- | A dictionary evaluator that allows the field to be missing.
 maybeField :: String -> TypedExprEvaluator a -> DictEvaluator (Maybe a)
 maybeField key valueEvaluator = evaluator $
   \(typeDefs, bindings) (TypedDictEntries entries) -> case lookup key entries of
     Nothing -> pure Nothing
-    Just value -> Just <$> left (InField key) (runEvaluator valueEvaluator typeDefs bindings value)
+    Just value ->
+      Just
+        <$> left
+          (EvaluationError.WithContext (EvaluationError.InField key))
+          (runEvaluator valueEvaluator typeDefs bindings value)

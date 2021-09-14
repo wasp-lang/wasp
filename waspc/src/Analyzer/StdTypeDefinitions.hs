@@ -17,16 +17,16 @@ module Analyzer.StdTypeDefinitions
   )
 where
 
-import Analyzer.Evaluator.TH (makeDecl, makeEnum)
+import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Analyzer.TypeDefinitions as TD
 
 data AuthMethod = EmailAndPassword deriving (Show, Eq)
 
 data App = App {title :: String, authMethod :: AuthMethod} deriving (Show, Eq)
 
-makeEnum ''AuthMethod
+makeEnumType ''AuthMethod
 
-makeDecl ''App
+makeDeclType ''App
 
 -- | A Wasp Library containing all of the standard types required for Wasp to
 --   work.
