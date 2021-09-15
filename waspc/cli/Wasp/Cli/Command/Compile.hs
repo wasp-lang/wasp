@@ -55,7 +55,6 @@ compileIOWithOptions ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String Wasp)
--- TODO: Use throwIO instead of Either to return exceptions?
 compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
   -- TODO: Use throwIO instead of Either to return exceptions?
   wasp <-
