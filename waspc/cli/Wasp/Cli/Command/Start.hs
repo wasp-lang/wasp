@@ -24,25 +24,26 @@ start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  -- TODO: Do smart install -> if we need to install stuff, install it, otherwise don't.
-  --   This should be responsibility of Generator, it should tell us how to install stuff.
-  --   But who checks out if stuff needs to be installed at all? That should probably be
-  --   Generator again. After installation, it should return some kind of data that describes that installation.
-  --   Then, next time, we give it data we have about last installation, and it uses that
-  --   to decide if installation needs to happen or not. If it happens, it returnes new data again.
-  --   Right now we have setup/installation being called, but it has not support for being "smart" yet.
-  waspSaysC "Setting up generated project..."
-  setupResult <- liftIO $ Wasp.Lib.setup outDir
-  case setupResult of
-    Left setupError -> throwError $ CommandError $ "\nSetup failed: " ++ setupError
-    Right () -> waspSaysC "\nSetup successful.\n"
-
   waspSaysC "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspRoot outDir
   case compilationResult of
     Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
     Right wasp -> do
       waspSaysC "Code has been successfully compiled, project has been generated.\n"
+
+      -- TODO: Do smart install -> if we need to install stuff, install it, otherwise don't.
+      --   This should be responsibility of Generator, it should tell us how to install stuff.
+      --   But who checks out if stuff needs to be installed at all? That should probably be
+      --   Generator again. After installation, it should return some kind of data that describes that installation.
+      --   Then, next time, we give it data we have about last installation, and it uses that
+      --   to decide if installation needs to happen or not. If it happens, it returnes new data again.
+      --   Right now we have setup/installation being called, but it has not support for being "smart" yet.
+      waspSaysC "Setting up generated project..."
+      setupResult <- liftIO $ Wasp.Lib.setup outDir
+      case setupResult of
+        Left setupError -> throwError $ CommandError $ "\nSetup failed: " ++ setupError
+        Right () -> waspSaysC "\nSetup successful.\n"
+
       waspSaysC "\nListening for file changes..."
       waspSaysC "Starting up generated project..."
 
