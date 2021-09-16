@@ -10,7 +10,7 @@ module Analyzer
     --
     --  1. "Analyzer.Parser", which transforms source text into "Analyzer.Parser.AST",
     --     which captures basic structure like literals, lists, dictionaries, declarations, ...,
-    --     without getting too much into details of them.
+    --     without getting too much into details of them (it doesn't care about types, or exact declaration types, ...).
     --  2. "Analyzer.TypeChecker", which transforms "Analyzer.Parser.AST" into "Analyzer.TypeChecker.AST",
     --     which is almost the same as parser AST but is enriched with type information (what is of which type).
     --     While enriching AST with type information, type checker also checks that actual types match expected types.
@@ -26,7 +26,7 @@ module Analyzer
     --  1. __fundamental__ types, which we can further divide into primitive types
     --     (@string@, @bool@, @integer@, ...) and composite types (@dict@ and @list@).
     --  2. __domain__ types (e.g. @page@, @route@, ...), which can be many and various
-    --     but are always of either Decl (Declaration) kind or of Enum kind (kind is a type of a type).
+    --     but are always of either Decl (Declaration) kind or of Enum (Enumeration) kind (kind is a type of a type).
     --
     -- While fundamental types are here to be basic building blocks of a language,
     -- domain types are here to bring the D into the DSL, to model the concepts of a web app like
@@ -46,22 +46,23 @@ module Analyzer
     -- > page DashboardPage { ... }
     --
     -- we have @MyApp@, a value of domain type @app@.
-    -- Domain type @app@ is a declaration whose definition is a dict with fields
+    -- Domain type @app@ is of kind Declaration and its definition is a dict with fields
     -- @auth@, @homePage@ and @title@ (and possibly some more optional fields).
     -- @title@ field is of fundamental type @string@.
-    -- @homePage@ field is of domain type @page@ which is a declaration.
-    -- @auth@ field is of domain type @AuthMethod@ which is an enum (one of whose values is @UsernameAndPassword@).
+    -- @homePage@ field is of domain type @page@ which is a Declaration.
+    -- @auth@ field is of domain type @AuthMethod@ which is an Enum (one of whose values is @UsernameAndPassword@).
 
     -- *** Domain types and how to define them
 
     -- |
     -- Domain types are specific in a sense that there are two kinds of them (kind is a type of a type):
-    -- Decl (Declaration) and Enum.
+    -- Decl (Declaration) and Enum (Enumeration).
     --
     -- "Analyzer" is implemented in such a way that it is aware of this and can work with any number and variety
     -- of domain types that are of Decl or Enum kind, as long as enough information is provided about them.
     -- This means that while fundamental types are hardcoded in "Analyzer",
     -- domain types are much more flexible and we can easily modify, add or remove them in our code
+    -- (in Wasp compiler code, which is what you are looking at right now, not actual Wasp language code (.wasp))
     -- without doing almost any changes to the "Analyzer", which is what enables us to quickly iterate on the Wasp language.
     --
     -- This \"dependency injection\" of domain types into "Analyzer" is accomplished through
@@ -76,12 +77,12 @@ module Analyzer
     --
     -- 'DeclType' (or 'EnumType') describes a specific type (e.g. @page@) in two distinct ways:
     --
-    --  1. What is it's type shaped like in Wasp type system (usually it is a Dict of smth).
+    --  1. What is its type shaped like in Wasp type system (e.g. it could be a dict of smth).
     --  2. How it evaluates from a node in typechecked AST into the node in Wasp AST.
     --
     -- "Wasp" AST is output of "Analyzer" and input into "Generator", and it is central AST in Wasp compiler.
     -- It is not tied to "Analyzer" or "Generator" -> it is standalone and directly describes the web app domain.
-    -- Every type of node in "Wasp" AST directly corresponds to a single Wasp domain type,
+    -- Nodes in "Wasp" AST directly correspond to a Wasp domain types,
     -- with top level nodes in "Wasp" AST always being of Decl kind
     -- (therefore making "Wasp" AST basically a list of declarations).
     -- Therefore, following previous example, if our Wasp language has declarations @page@ and @route@,
@@ -89,7 +90,7 @@ module Analyzer
     --
     -- Therefore, when defining 'TypeDefinitions' to inject into "Analyzer",
     -- we will always be defining them based on "Wasp" AST and types of nodes it has.
-    -- Since this is a tedious process (defining manually for each domain type what is it's shape
+    -- Since this is a tedious process (defining manually for each domain type what is its shape
     -- and how it evaluates from typechecked AST into Wasp AST),
     -- we implemented Template Haskell functions ("Analyzer.Evaluator.TH") which generate these automatically
     -- based on "Wasp" AST!

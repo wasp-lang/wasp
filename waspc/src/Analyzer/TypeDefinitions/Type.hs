@@ -25,7 +25,7 @@ data DeclType = DeclType
   { dtName :: DeclTypeName,
     dtBodyType :: Type,
     -- | Evaluates a given Wasp "TypedExpr" to a Wasp AST declaration, assuming it is of
-    -- declaration type described by dtBodyType and dtName.
+    -- declaration type described by dtBodyType and dtName (otherwise throws an error).
     --
     -- For @dtEvaluate typeDefs bindings declName declBodyExpr@:
     -- - "typeDefs" is the type definitions used in the Analyzer

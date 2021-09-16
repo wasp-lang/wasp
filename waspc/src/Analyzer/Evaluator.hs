@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Analyzer.Evaluator
   ( EvaluationError (..),
     evaluate,
@@ -30,7 +28,7 @@ evaluate typeDefs (AST.TypedAST stmts) = runExcept $ flip runReaderT typeDefs $ 
 -- fails. There are some solutions mentioned in docs/wasplang that should be
 -- investigated.
 evalStmts :: [AST.TypedStmt] -> Eval [Decl]
-evalStmts = foldr (\stmt -> (<*>) ((:) <$> evalStmt stmt)) (pure [])
+evalStmts = traverse evalStmt
 
 evalStmt :: AST.TypedStmt -> Eval Decl
 evalStmt (AST.Decl name param (Type.DeclType declTypeName)) = do
