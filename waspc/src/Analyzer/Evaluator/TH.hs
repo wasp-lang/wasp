@@ -27,28 +27,66 @@ import Language.Haskell.TH
 import Util (toLowerFirst)
 
 -- | @makeDeclType ''Type@ writes an @IsDeclType@ instance for @Type@. A type
--- error is raised if @Type@ does not fit the criteria described in the
--- definition of @IsDeclType@.
+-- error is raised if @Type@ does not fit the criteria described below.
 --
--- In addition to satisfying the requirements of "IsDeclType", the generated
--- instance for @Type@ has @dtName declType == "type"@ (the first letter is
--- always changed to lowercase).
+-- Requirements on @Type@ for this to work:
+--  - The type must be an ADT with one constructor.
+--  - The type must have just one field OR use record syntax (in which case it can have multiple fields).
 --
--- __Example__
+-- Properties that hold for @Type@ and its generated @IsDeclType@ instance:
+--   - For the rest of the bullet points below, let's say that
+--     @let bodyType = dtBodyType (declType \@Type)@.
+--   - If @Type@ uses record syntax, then
+--     - @bodyType@ is a @Dict@
+--     - If and only if there is a key @x@ in @bodyType@,
+--       then @Type@ has a record @x@ with the same type.
+--     - If a key @x@ is optional, then the record @x@ in @Type@ is a @Maybe@.
+--   - If @Type@ is a simple ADT (not record) with one field, then @bodyType@ maps to the type of that field.
+--   - @dtName (declType \@Type) == "type"@ -> the name of declaration type is the same as the name of @Type@
+--     but with the first letter changed to lowercase.
 --
+-- One way to summarize the crux of properties above is to say: If given @Type@ is a simple ADT with one field,
+-- it is translated into a declaration which has body corresponding to that field. If instead @Type@
+-- is a record, it is translated into a declaration whose body is a dictionary with same fields as the record.
+--
+-- __Examples__
+--
+-- __Calling @makeDeclType@ on record__
 -- @
--- {-# LANGUAGE TemplateHaskell #-}
--- data Person = Person { name :: String, age :: Int }
--- makeDeclType ''Person
--- -- "IsDeclType Person" instance is generated
+-- >>> data User = User { name :: String, email :: Maybe String }
+-- >>> makeDeclType ''User   -- "IsDeclType User" instance is generated.
+-- >>> dtName $ declType @User
+-- "user"
+-- >>> dtBodyType $ declType @User
+-- DictType [DictEntry "name" StringType, DictOptionalEntry "email" StringLiteral]
+-- @
+--
+-- Such declaration type would be used in Wasp lang source somewhat like:
+-- @
+-- user MyUser { name: "testUser", email: "testuser@wasp-lang.dev" }
+-- @
+--
+--
+-- __Calling @makeDeclType@ on a simple ADT with one field__
+-- @
+-- >>> data Admins = Admins [User]
+-- >>> makeDeclType ''Admins  -- "IsDeclType Admins" instance is generated.
+-- >>> dtBodyType $ declType @Admins
+-- ListType (DeclType "User")
+-- @
+--
+-- Such declaration type would be used in Wasp lang source somewhat like:
+-- @
+-- admins MainAdmins [MyUser, SomeOtherUser]
 -- @
 makeDeclType :: Name -> Q [Dec]
 makeDeclType typeName = do
   (TyConI typeDeclaration) <- reify typeName
   dataConstructor <- case typeDeclaration of
     (DataD _ _ [] _ [dataConstructor] _) -> pure dataConstructor
-    DataD {} -> fail "makeDeclType expects a type declared with `data` to have exactly one constructor"
+    DataD {} -> fail "makeDeclType expects a type declared with `data` to have exactly one constructor and no type variables."
     (NewtypeD _ _ [] _ dataConstructor _) -> pure dataConstructor
+    NewtypeD {} -> fail "makeDeclType expects a type declared with `newtype` to have no type variables."
     _ -> fail "makeDeclType expects the given name to be for a type declared with `data` or `newtype`"
   let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
       instanceContext = pure []
@@ -57,27 +95,36 @@ makeDeclType typeName = do
   sequence [instanceDeclaration]
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
--- error is raised if @Type@ does not fit the criteria described in the
--- definition of @IsEnumType@.
+-- error is raised if @Type@ does not fit the criteria described below.
 --
--- In addition to satisfying the requirements of "IsEnumType", the generated
--- instance returns EnumType that has the same name as @Type@ (the name is not modified at all).
+-- Requirements on @Type@ for this to work:
+--   - The type must be an ADT with at least one constructor.
+--   - Each constructor of the type must have 0 fields.
+--
+-- Properties that hold for @Type@ and its generated instance of @IsEnumType@:
+--  - If and only if there is a string @x@ in @etVariants (enumType \@Type)@, then @Type@ has
+--    a constructor called @x@.
+--  - @etName (enumType \@Type) == "Type"@ -> enum type has same name as @Type@.
 --
 -- __Example__
 --
 -- @
--- {-# LANGUAGE TemplateHaskell #-}
--- data Job = Programmer | Manager
--- makeEnumType ''Job
--- -- "IsEnumType Job" instance is generated
+-- >>> data AuthMethod = OAuth2 | EmailAndPassword deriving Generic
+-- >>> makeEnumType ''AuthMethod  -- "IsEnumType AuthMethod" instance is generated.
+-- >>> etName $ enumType @AuthMethod
+-- "authMethod"
+-- >>> etVariants $ enumType @AuthMethod
+-- ["OAuth2", "EmailAndPassword"]
 -- @
 makeEnumType :: Name -> Q [Dec]
 makeEnumType typeName = do
   (TyConI tyCon) <- reify typeName
   dataConstructors <- case tyCon of
     (DataD _ _ [] _ dataConstructors _) -> pure dataConstructors
+    DataD {} -> fail "makeEnumType expects a type declared with `data` to have no type variables."
     (NewtypeD _ _ [] _ dataConstructor _) -> pure [dataConstructor]
-    _ -> fail "makeEnumType expects the given name to be for a type declared with `data` or `newtype`"
+    NewtypeD {} -> fail "makeEnumType expects a type declared with `newtype` to have no type variables."
+    _ -> fail "makeEnumType expects the given name to be for a type declared with `data` or `newtype`."
   dataConstructorNames <- namesOfEnumDataConstructors dataConstructors
   let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
       instanceContext = pure []
@@ -117,9 +164,8 @@ genIsDeclTypeInstanceDefinitionFromNormalDataConstructor dataConstructorName dat
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> [(Name, Type)] -> Q [DecQ]
-genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName recs = do
-  -- recs is reversed to make sure the applications for dictEvaluatorE are in the right order
-  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName $ reverse recs
+genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName fields = do
+  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName fields
   let evaluateE = [|runEvaluator $ dict $dictEvaluatorE|]
   let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
   pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
@@ -128,7 +174,7 @@ genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName rec
 -- A helper function for 'genPrimDecl' and 'genRecDecl'.
 genDeclTypeFuncOfIsDeclTypeInstance :: Name -> ExpQ -> ExpQ -> DecQ
 genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE =
-  func
+  genFunc
     'declType
     [|
       TD.DeclType
@@ -174,12 +220,19 @@ genEvaluatorExprForHaskellType typ =
 
 -- | Write the @DictEntryType@s and @DictEvaluator@ for the Haskell record with given data constructor name and fields.
 genDictEntryTypesAndEvaluatorForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genDictEntryTypesAndEvaluatorForRecord dataConstructorName [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
-genDictEntryTypesAndEvaluatorForRecord dataConstructorName ((fieldName, fieldType) : restOfFields) = do
-  (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName restOfFields
-  let thisDictTypeE = [|($(nameToStringLiteralExpr fieldName), $(genDictEntryTypeFromHaskellType fieldType)) : $restDictType|]
-  let thisEvaluatorE = [|$restEvaluator <*> $(genDictEntryEvaluatorForRecordField fieldName fieldType)|]
-  pure (thisDictTypeE, thisEvaluatorE)
+genDictEntryTypesAndEvaluatorForRecord dataConstructorName fields =
+  go $ reverse fields -- Reversing enables us to apply evaluators in right order.
+  where
+    go [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
+    go ((fieldName, fieldType) : restOfFields) = do
+      (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName restOfFields
+      let thisDictTypeE =
+            [|
+              ($(nameToStringLiteralExpr fieldName), $(genDictEntryTypeFromHaskellType fieldType)) :
+              $restDictType
+              |]
+      let thisEvaluatorE = [|$restEvaluator <*> $(genDictEntryEvaluatorForRecordField fieldName fieldType)|]
+      pure (thisDictTypeE, thisEvaluatorE)
 
 -- | Write a @DictEntryType@ that corresponds to a given a Haskell type.
 genDictEntryTypeFromHaskellType :: Type -> ExpQ
@@ -242,7 +295,7 @@ waspKindOfType typ = do
 makeIsEnumTypeDefinition :: Name -> [Name] -> Q [DecQ]
 makeIsEnumTypeDefinition typeName dataConstructorNames =
   pure
-    [ func
+    [ genFunc
         'enumType
         [|
           TD.EnumType
@@ -282,6 +335,6 @@ nameToLowerFirstStringLiteralExpr = litE . stringL . toLowerFirst . nameBase
 nameToStringLiteralExpr :: Name -> ExpQ
 nameToStringLiteralExpr = litE . stringL . nameBase
 
--- | @func name expr@ writes a function like @name = expr@
-func :: Name -> ExpQ -> DecQ
-func name expr = funD name [clause [] (normalB expr) []]
+-- | @genFunc name expr@ writes a function like @name = expr@
+genFunc :: Name -> ExpQ -> DecQ
+genFunc name expr = funD name [clause [] (normalB expr) []]

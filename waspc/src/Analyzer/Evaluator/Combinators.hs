@@ -63,7 +63,7 @@ import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
-import Analyzer.TypeChecker.AST (TypedExpr (..), exprType)
+import qualified Analyzer.TypeChecker.AST as TypedAST
 import qualified Analyzer.TypeDefinitions as TD
 import Control.Arrow (left)
 import Data.Functor.Compose (Compose (Compose, getCompose))
@@ -71,13 +71,15 @@ import qualified Data.HashMap.Strict as H
 
 -- TODO: Split into TypedExprEvaluator and DictEvaluator?
 
--- | Bindings for currently evaluated declarations
-type Bindings = H.HashMap String Decl
+-- | Bindings for declarations that have been evaluated so far.
+type Bindings = H.HashMap DeclName Decl
+
+type DeclName = String
 
 -- | The context in an evaluation.
 type EvalCtx = (TD.TypeDefinitions, Bindings)
 
--- | An evaluation from "a" to "b" with the evaluation context.
+-- | An evaluation of "a" into "b". It has evaluation context and it can return an evaluation error.
 -- We are using `Compose` because it results in an Applicative when it composes two Applicatives,
 -- meaning that our evaluators automatically become instance of Applicative.
 newtype Evaluator a b = Evaluator (Compose ((->) EvalCtx) (Compose ((->) a) (Either EvaluationError)) b)
@@ -92,45 +94,45 @@ evaluator' = evaluator . const
 runEvaluator :: Evaluator a b -> TD.TypeDefinitions -> Bindings -> a -> Either EvaluationError b
 runEvaluator (Evaluator f) typeDefs bindings = getCompose (getCompose f (typeDefs, bindings))
 
-type TypedExprEvaluator a = Evaluator TypedExpr a
+type TypedExprEvaluator a = Evaluator TypedAST.TypedExpr a
 
 -- | A transformation from dictionary definition (which is a list of dictionary entries) to some type. A "Evaluator" can
 -- be created from a "DictEvaluator" with the "dict" combinator.
 type DictEvaluator a = Evaluator TypedDictEntries a
 
-newtype TypedDictEntries = TypedDictEntries [(String, TypedExpr)]
+newtype TypedDictEntries = TypedDictEntries [(String, TypedAST.TypedExpr)]
 
 -- | An evaluator that expects a "StringLiteral".
 string :: TypedExprEvaluator String
 string = evaluator' $ \case
-  StringLiteral str -> pure str
-  expr -> Left $ EvaluationError.ExpectedType T.StringType (exprType expr)
+  TypedAST.StringLiteral str -> pure str
+  expr -> Left $ EvaluationError.ExpectedType T.StringType (TypedAST.exprType expr)
 
 -- | An evaluator that expects an "IntegerLiteral" or "DoubleLiteral". A
 -- "DoubleLiteral" is rounded to the nearest whole number.
 integer :: TypedExprEvaluator Integer
 integer = evaluator' $ \case
-  IntegerLiteral i -> pure i
-  DoubleLiteral x -> pure $ round x
-  expr -> Left $ EvaluationError.ExpectedType T.NumberType (exprType expr)
+  TypedAST.IntegerLiteral i -> pure i
+  TypedAST.DoubleLiteral x -> pure $ round x
+  expr -> Left $ EvaluationError.ExpectedType T.NumberType (TypedAST.exprType expr)
 
 -- | An evaluator that expects a "IntegerLiteral" or "DoubleLiteral".
 double :: TypedExprEvaluator Double
 double = evaluator' $ \case
-  IntegerLiteral i -> pure $ fromIntegral i
-  DoubleLiteral x -> pure x
-  expr -> Left $ EvaluationError.ExpectedType T.NumberType (exprType expr)
+  TypedAST.IntegerLiteral i -> pure $ fromIntegral i
+  TypedAST.DoubleLiteral x -> pure x
+  expr -> Left $ EvaluationError.ExpectedType T.NumberType (TypedAST.exprType expr)
 
 -- | An evaluator that expects a "BoolLiteral".
 bool :: TypedExprEvaluator Bool
 bool = evaluator' $ \case
-  BoolLiteral b -> pure b
-  expr -> Left $ EvaluationError.ExpectedType T.BoolType (exprType expr)
+  TypedAST.BoolLiteral b -> pure b
+  expr -> Left $ EvaluationError.ExpectedType T.BoolType (TypedAST.exprType expr)
 
 -- | An evaluator that expects a "Var" bound to a "Decl" of type "a".
 decl :: forall a. TD.IsDeclType a => TypedExprEvaluator a
 decl = evaluator $ \(_, bindings) -> \case
-  Var var typ -> case H.lookup var bindings of
+  TypedAST.Var var typ -> case H.lookup var bindings of
     Nothing -> Left $ EvaluationError.UndefinedVariable var
     Just dcl -> case fromDecl @a dcl of
       Nothing ->
@@ -139,49 +141,49 @@ decl = evaluator $ \(_, bindings) -> \case
             (EvaluationError.ForVariable var)
             (EvaluationError.ExpectedType (T.DeclType declTypeName) typ)
       Just (_dclName, dclValue) -> Right dclValue
-  expr -> Left $ EvaluationError.ExpectedType (T.DeclType declTypeName) (exprType expr)
+  expr -> Left $ EvaluationError.ExpectedType (T.DeclType declTypeName) (TypedAST.exprType expr)
   where
     declTypeName = TD.dtName $ TD.declType @a
 
 -- | An evaluator that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => TypedExprEvaluator a
 enum = evaluator' $ \case
-  Var var _ -> TD.enumTypeFromVariant @a var
-  expr -> Left $ EvaluationError.ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (exprType expr)
+  TypedAST.Var var _ -> TD.enumTypeFromVariant @a var
+  expr -> Left $ EvaluationError.ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (TypedAST.exprType expr)
 
 -- | An evaluator that runs a "DictEvaluator". Expects a "Dict" expression and
 -- uses its entries to run the "DictEvaluator".
 dict :: DictEvaluator a -> TypedExprEvaluator a
 dict dictEvalutor = evaluator $ \(typeDefs, bindings) -> \case
-  Dict entries _ -> runEvaluator dictEvalutor typeDefs bindings $ TypedDictEntries entries
-  expr -> Left $ EvaluationError.ExpectedDictType $ exprType expr
+  TypedAST.Dict entries _ -> runEvaluator dictEvalutor typeDefs bindings $ TypedDictEntries entries
+  expr -> Left $ EvaluationError.ExpectedDictType $ TypedAST.exprType expr
 
 -- | An evaluator that expects a "List" and runs the inner evaluator on each
 -- item in the list.
 list :: TypedExprEvaluator a -> TypedExprEvaluator [a]
-list inner = evaluator $ \(typeDefs, bindings) -> \case
-  List values _ ->
+list elemEvaluator = evaluator $ \(typeDefs, bindings) -> \case
+  TypedAST.List values _ ->
     left (EvaluationError.WithContext EvaluationError.InList) $
-      mapM (runEvaluator inner typeDefs bindings) values
-  expr -> Left $ EvaluationError.ExpectedListType $ exprType expr
+      mapM (runEvaluator elemEvaluator typeDefs bindings) values
+  expr -> Left $ EvaluationError.ExpectedListType $ TypedAST.exprType expr
 
 -- | An evaluator that expects an "ExtImport".
 extImport :: TypedExprEvaluator E.ExtImport
 extImport = evaluator' $ \case
-  ExtImport name file -> pure $ E.ExtImport name file
-  expr -> Left $ EvaluationError.ExpectedType T.ExtImportType (exprType expr)
+  TypedAST.ExtImport name file -> pure $ E.ExtImport name file
+  expr -> Left $ EvaluationError.ExpectedType T.ExtImportType (TypedAST.exprType expr)
 
 -- | An evaluator that expects a "JSON".
 json :: TypedExprEvaluator E.JSON
 json = evaluator' $ \case
-  JSON str -> pure $ E.JSON str
-  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (exprType expr)
+  TypedAST.JSON str -> pure $ E.JSON str
+  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)
 
 -- | An evaluator that expects a "PSL".
 psl :: TypedExprEvaluator E.PSL
 psl = evaluator' $ \case
-  PSL str -> pure $ E.PSL str
-  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "psl") (exprType expr)
+  TypedAST.PSL str -> pure $ E.PSL str
+  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "psl") (TypedAST.exprType expr)
 
 -- | A dictionary evaluator that requires the field to exist.
 field :: String -> TypedExprEvaluator a -> DictEvaluator a

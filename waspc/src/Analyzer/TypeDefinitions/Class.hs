@@ -10,72 +10,31 @@ import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Analyzer.TypeDefinitions.Type
 import Data.Typeable (Typeable)
 
--- | Marks haskell type as a representation of a specific Wasp declaration type.
---   Instead of defining a Wasp declaration type manually by constructing it with constructors from
---   Analyzer.Type, this allows us to specify it as a haskell type which knows how to translate itself into Analyzer.Type representation and back.
---   If this haskell type satisfies certain requirements, the knowledge to translate itself back and forth into Analyzer.Type representation can be automatically derived from its shape.
+-- | Marks Haskell type as a representation of a specific Wasp declaration type.
+-- This is supposed to be used on types from Wasp AST (the IR between Analyzer and Generator)
+-- in order to enrich them with information on how are they to be analyzed
+-- (and therefore make them part of the Wasp language).
 --
---  Requirements on type:
---   - The type must be an instance of `Generic`.
---   - The type must be an ADT with one constructor.
---   - The type must have just one field OR use record syntax (in which case it can have multiple fields).
---
---   Some assumptions are required of `declType` and `a`:
---   - If and only if `declType` is a `Dict`, then
---     - `a` uses record syntax.
---     - If and only if there is a key `x` in `declType`, then `a` has a
---       record `x` with the same type.
---     - If a key `x` is optional, then the record `x` in `a` is a `Maybe`
---   - Otherwise, `a` has one field and `declType` maps to the type of that
---     field.
---
---   Examples:
---
---   Using record fields for dictionary types:
---
---   @
---   >>> data User = User { name :: String, email :: Maybe String } deriving Generic
---   >>> dtName $ declType @User
---   "user"
---   >>> dtBodyType $ declType @User
---   DictType [DictEntry "name" StringType, DictOptionalEntry "email" StringLiteral]
---   @
---
---   No records for a type that doesn't use a dictionary:
---
---   @
---   >>> data Admins = Admins [User] deriving Generic
---   >>> dtBodyType $ declType @Admins
---   ListType (DeclType "User")
---   @
+-- NOTE: If this Haskell type satisfies certain requirements, the IsDeclType instance for it
+-- can be automatically derived from its shape by using 'Analyzer.Evaluator.TH.makeDeclType'.
 class Typeable a => IsDeclType a where
   declType :: DeclType
 
+-- TODO: Implement declEvaluate here? We don't really need it, but that way
+--   it would be consistent with IsEnumType below, and if we need it we have it.
+--   dtEvaluate would then use declEvaluate.
+
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
---   Check "IsDeclType" above for more details.
+-- Analogous to IsDeclType, but for enums.
 --
--- Requirements on type:
---   - The type must be an instance of 'Generic'.
---   - The type must be an ADT with at least one constructor.
---   - Each constructor of the type must have 0 fields.
---
---   Some properties are required of `etVariants` (in generated `EnumType`) and `a`:
---   - If and only if there is a string `x` in `etVariants`, then `a` has
---     a constructor called `x`.
---
---   Examples:
---
---   An allowed enum type:
---
---   @
---   >>> data AuthMethod = OAuth2 | EmailAndPassword deriving Generic
---   >>> etName $ enumType @AuthMethod
---   "authMethod"
---   >>> etVariants $ enumType @AuthMethod
---   ["OAuth2", "EmailAndPassword"]
---   @
+-- NOTE: If this Haskell type satisfies certain requirements, the IsEnumType instance for it
+-- can be automatically derived from its shape by using 'Analyzer.Evaluator.TH.makeEnumType'.
 class Typeable a => IsEnumType a where
   enumType :: EnumType
+
+  -- TODO: Elevate this function so it takes TypedExpr instead of a String?
+  --   By doing so it will be more similar to dtEvaluate from DeclType,
+  --   and then we can also rename it to enumEvaluate.
 
   -- | Converts a string to a Haskell value of this type.
   --

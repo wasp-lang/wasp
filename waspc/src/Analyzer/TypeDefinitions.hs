@@ -1,9 +1,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Analyzer.TypeDefinitions
+-- TODO: Don't export internals of TypeDefinitions! So, we should have TypeDefinitions here, not TypeDefinitions(..).
+--   We can put internals into Internal if we need them for testing, or we can use the functions exposed here in tests also.
   ( TypeDefinitions (..),
     empty,
     getDeclTypes,

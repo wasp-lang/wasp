@@ -1,14 +1,4 @@
--- {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
-
--- Todo:
--- The types in the "Wasp" module should have their enum/decl instances created
--- and used here to add to the standard types. This will take some refactoring
--- so that those types follow the restrictions set by "IsDeclType" and
--- "IsEnumType".
---
--- The types currently in this file are just for testing, and should be removed
--- after the above is finished.
 
 module Analyzer.StdTypeDefinitions
   ( AuthMethod (..),
@@ -20,16 +10,9 @@ where
 import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Analyzer.TypeDefinitions as TD
 
-data AuthMethod = EmailAndPassword deriving (Show, Eq)
-
-data App = App {title :: String, authMethod :: AuthMethod} deriving (Show, Eq)
-
-makeEnumType ''AuthMethod
-
-makeDeclType ''App
-
--- | A Wasp Library containing all of the standard types required for Wasp to
---   work.
+-- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
+-- These are injected this way instead of hardcoding them into the Analyzer in order to make it
+-- easier to modify and maintain the Wasp compiler/language.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
   {- ORMOLU_DISABLE -}
@@ -37,3 +20,17 @@ stdTypes =
   TD.addDeclType @App $
   TD.empty
   {- ORMOLU_ENABLE -}
+
+-- TODO: Remove these from here and instead use types from the Wasp module (Wasp AST).
+-- For that we will need to make sure that those types are correctly shaped so that our
+-- TH functions can automatically create appropriate instances for them.
+---------- Test/mock types ------------
+data AuthMethod = EmailAndPassword deriving (Show, Eq)
+
+data App = App {title :: String, authMethod :: AuthMethod} deriving (Show, Eq)
+
+makeEnumType ''AuthMethod
+
+makeDeclType ''App
+---------------------------------------
+
