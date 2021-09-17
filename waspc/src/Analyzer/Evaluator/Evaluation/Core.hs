@@ -1,6 +1,5 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 
--- TODO: Rename to Internal?
 module Analyzer.Evaluator.Evaluation.Core
   ( runEvaluation,
     evaluation,
