@@ -15,8 +15,8 @@ where
 -- TODO:
 -- Split into a module for Decls and a module for Enums
 
-import Analyzer.Evaluator.Combinators
 import Analyzer.Evaluator.Decl.Operations (makeDecl)
+import Analyzer.Evaluator.Evaluation
 import Analyzer.Evaluator.EvaluationError
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
@@ -158,15 +158,15 @@ makeIsDeclTypeInstanceDefinition _ = fail "makeDeclType expects given type to ha
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Type -> Q [DecQ]
 genIsDeclTypeInstanceDefinitionFromNormalDataConstructor dataConstructorName dataConstructorType = do
-  let evaluateE = [|runEvaluator $ $(conE dataConstructorName) <$> $(genEvaluatorExprForHaskellType dataConstructorType)|]
+  let evaluateE = [|runEvaluation $ $(conE dataConstructorName) <$> $(genEvaluationExprForHaskellType dataConstructorType)|]
   let bodyTypeE = genWaspTypeFromHaskellType dataConstructorType
   pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> [(Name, Type)] -> Q [DecQ]
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName fields = do
-  (dictEntryTypesE, dictEvaluatorE) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName fields
-  let evaluateE = [|runEvaluator $ dict $dictEvaluatorE|]
+  (dictEntryTypesE, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConstructorName fields
+  let evaluateE = [|runEvaluation $ dict $dictEvaluationE|]
   let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
   pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
 
@@ -202,15 +202,15 @@ genWaspTypeFromHaskellType typ =
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
--- | Generates and expression that is @Evaluator@ that evaluates to a given Haskell type.
-genEvaluatorExprForHaskellType :: Type -> ExpQ
-genEvaluatorExprForHaskellType typ =
+-- | Generates an expression that is @Evaluation@ that evaluates to a given Haskell type.
+genEvaluationExprForHaskellType :: Type -> ExpQ
+genEvaluationExprForHaskellType typ =
   waspKindOfType typ >>= \case
     KString -> [|string|]
     KInteger -> [|integer|]
     KDouble -> [|double|]
     KBool -> [|bool|]
-    KList elemType -> [|list $(genEvaluatorExprForHaskellType elemType)|]
+    KList elemType -> [|list $(genEvaluationExprForHaskellType elemType)|]
     KImport -> [|extImport|]
     KJSON -> [|json|]
     KPSL -> [|psl|]
@@ -218,21 +218,21 @@ genEvaluatorExprForHaskellType typ =
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
--- | Write the @DictEntryType@s and @DictEvaluator@ for the Haskell record with given data constructor name and fields.
-genDictEntryTypesAndEvaluatorForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genDictEntryTypesAndEvaluatorForRecord dataConstructorName fields =
-  go $ reverse fields -- Reversing enables us to apply evaluators in right order.
+-- | Write the @DictEntryType@s and @DictEvaluation@ for the Haskell record with given data constructor name and fields.
+genDictEntryTypesAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictEntryTypesAndEvaluationForRecord dataConstructorName fields =
+  go $ reverse fields -- Reversing enables us to apply evaluations in right order.
   where
     go [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
     go ((fieldName, fieldType) : restOfFields) = do
-      (restDictType, restEvaluator) <- go restOfFields
+      (restDictType, restEvaluation) <- go restOfFields
       let thisDictTypeE =
             [|
               ($(nameToStringLiteralExpr fieldName), $(genDictEntryTypeFromHaskellType fieldType)) :
               $restDictType
               |]
-      let thisEvaluatorE = [|$restEvaluator <*> $(genDictEntryEvaluatorForRecordField fieldName fieldType)|]
-      pure (thisDictTypeE, thisEvaluatorE)
+      let thisEvaluationE = [|$restEvaluation <*> $(genDictEntryEvaluationForRecordField fieldName fieldType)|]
+      pure (thisDictTypeE, thisEvaluationE)
 
 -- | Write a @DictEntryType@ that corresponds to a given a Haskell type.
 genDictEntryTypeFromHaskellType :: Type -> ExpQ
@@ -241,16 +241,16 @@ genDictEntryTypeFromHaskellType typ =
     KOptional elemType -> [|T.DictOptional $(genWaspTypeFromHaskellType elemType)|]
     _ -> [|T.DictRequired $(genWaspTypeFromHaskellType typ)|]
 
--- | "genDictEvaluatorE fieldName typ" writes a "DictEvaluator" for a haskell record field
+-- | "genDictEvaluationE fieldName typ" writes a "DictEvaluation" for a haskell record field
 -- named "fieldName" with a value "typ".
-genDictEntryEvaluatorForRecordField :: Name -> Type -> ExpQ
-genDictEntryEvaluatorForRecordField fieldName fieldType =
+genDictEntryEvaluationForRecordField :: Name -> Type -> ExpQ
+genDictEntryEvaluationForRecordField fieldName fieldType =
   waspKindOfType fieldType >>= \case
-    KOptional elemType -> [|maybeField $(nameToStringLiteralExpr fieldName) $(genEvaluatorExprForHaskellType elemType)|]
-    _ -> [|field $(nameToStringLiteralExpr fieldName) $(genEvaluatorExprForHaskellType fieldType)|]
+    KOptional elemType -> [|maybeField $(nameToStringLiteralExpr fieldName) $(genEvaluationExprForHaskellType elemType)|]
+    _ -> [|field $(nameToStringLiteralExpr fieldName) $(genEvaluationExprForHaskellType fieldType)|]
 
 -- | An intermediate mapping between Haskell types and Wasp types, used for
--- generating @Types@, @Evaluator@, @DictEntryTypes@, and @DictEvaluator@.
+-- generating @Types@, @Evaluation@, @DictEntryTypes@, and @DictEvaluation@.
 data WaspKind
   = KString
   | KInteger
