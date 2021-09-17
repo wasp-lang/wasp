@@ -7,6 +7,7 @@ module Analyzer.Evaluator
   )
 where
 
+import Analyzer.Evaluator.Bindings (Bindings)
 import Analyzer.Evaluator.Decl (Decl)
 import Analyzer.Evaluator.Decl.Operations (takeDecls)
 import Analyzer.Evaluator.EvaluationError (EvaluationError (..))
@@ -46,9 +47,3 @@ evalStmt (AST.Decl name param (Type.DeclType declTypeName)) = do
 evalStmt AST.Decl {} = error "impossible: Decl statement has non-Decl type after type checking"
 
 type Eval a = StateT Bindings (ReaderT TD.TypeDefinitions (Except EvaluationError)) a
-
--- TODO: Again we have bindings here! This is third time? Should we look into externalizing it as a type somehow?
---   Or at least extracting the type alias so it is reused instead of redefined?
-type Bindings = (H.HashMap DeclName Decl)
-
-type DeclName = String

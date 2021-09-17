@@ -8,11 +8,10 @@ module Analyzer.Evaluator.Evaluation.Core
   )
 where
 
-import Analyzer.Evaluator.Decl
+import Analyzer.Evaluator.Bindings
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import qualified Analyzer.TypeDefinitions as TD
 import Data.Functor.Compose (Compose (Compose, getCompose))
-import qualified Data.HashMap.Strict as H
 
 -- | An evaluation of "a" into "b". It has evaluation context and it can return an evaluation error.
 -- We are using `Compose` because it results in an Applicative when it composes two Applicatives,
@@ -24,13 +23,6 @@ newtype Evaluation a b = Evaluation (Compose ((->) EvalCtx) (Compose ((->) a) (E
 type EvalCtx =
   -- | Evaluation context.
   (TD.TypeDefinitions, Bindings)
-
--- TODO: Extract these into Analyzer.Evaluator.Bindings?
-type Bindings =
-  -- | Declarations evaluated so far.
-  H.HashMap DeclName Decl
-
-type DeclName = String
 
 evaluation :: (EvalCtx -> a -> Either EvaluationError b) -> Evaluation a b
 evaluation f = Evaluation $ Compose $ \ctx -> Compose $ f ctx

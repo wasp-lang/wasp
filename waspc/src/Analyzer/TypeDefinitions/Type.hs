@@ -11,11 +11,6 @@ import Analyzer.Type (Type)
 import Analyzer.TypeChecker.AST (TypedExpr)
 import qualified Data.HashMap.Strict as M
 
--- TODO: HashMap here is really bindings, and that concept already exists in Evalutor,
--- so should we somehow name them that way? Maybe even combine TypeDefinitions and bindings into
--- and eval context (EvalCtx) and pass that as a single thing? Yes, I think we should do this, especially
--- the EvalCtx part.
-
 -- | Describes a specific declaration type in Wasp.
 -- For example, such declaration type could be @page@, or @route@.
 -- Declaration type is defined by its name (@dtName@) and the type of its body (@dtBodyType@).
