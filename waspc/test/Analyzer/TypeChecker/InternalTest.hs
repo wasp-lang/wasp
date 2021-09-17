@@ -7,6 +7,7 @@ import Analyzer.TypeChecker.Internal
 import Analyzer.TypeChecker.Monad (Bindings, run, runWithBound)
 import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
+import qualified Analyzer.TypeDefinitions.Internal as TD
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec

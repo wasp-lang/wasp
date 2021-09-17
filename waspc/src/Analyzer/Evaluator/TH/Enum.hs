@@ -7,8 +7,7 @@ where
 
 import Analyzer.Evaluator.EvaluationError
 import Analyzer.Evaluator.TH.Common
-import Analyzer.TypeDefinitions.Class
-import Analyzer.TypeDefinitions.Type as TD
+import Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
 import Language.Haskell.TH
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
@@ -55,7 +54,7 @@ makeIsEnumTypeDefinition typeName dataConstructorNames =
     [ genFunc
         'enumType
         [|
-          TD.EnumType
+          EnumType
             { etName = $(nameToLowerFirstStringLiteralExpr typeName),
               etVariants = $(listE $ map nameToStringLiteralExpr dataConstructorNames)
             }

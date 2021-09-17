@@ -1,10 +1,11 @@
-module Analyzer.TypeDefinitions.Type
+module Analyzer.TypeDefinitions.Internal
   ( EnumType (..),
     DeclType (..),
     TypeDefinitions (..),
   )
 where
 
+import Analyzer.Evaluator.Bindings (Bindings, DeclName)
 import Analyzer.Evaluator.Decl (Decl)
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Analyzer.Type (Type)
@@ -35,7 +36,7 @@ data DeclType = DeclType
     -- @dtEvaluate@ function would then be called somewhat like:
     -- @dtEvaluate declType typeDefs bindings "Example" (NumberLiteral 4)@
     -- where @declType@ is the one describing @test@ declaration type.
-    dtEvaluate :: TypeDefinitions -> M.HashMap DeclName Decl -> DeclName -> TypedExpr -> Either EvaluationError Decl
+    dtEvaluate :: TypeDefinitions -> Bindings -> DeclName -> TypedExpr -> Either EvaluationError Decl
   }
 
 -- | Describes a specific enum type in Wasp.
@@ -61,8 +62,6 @@ data TypeDefinitions = TypeDefinitions
     enumTypes :: M.HashMap EnumTypeName EnumType
     -- TODO: In the future, add quoters to the type definitions
   }
-
-type DeclName = String
 
 type DeclTypeName = String
 

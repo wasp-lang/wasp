@@ -8,7 +8,7 @@ module Analyzer.Evaluator.Decl.Operations
 where
 
 import Analyzer.Evaluator.Decl.Internal
-import Analyzer.TypeDefinitions.Class (IsDeclType)
+import Analyzer.TypeDefinitions (IsDeclType)
 import Data.Maybe (mapMaybe)
 import Data.Typeable (Typeable, cast)
 

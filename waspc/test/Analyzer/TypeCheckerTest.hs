@@ -4,6 +4,7 @@ import qualified Analyzer.Parser as P
 import Analyzer.Type
 import Analyzer.TypeChecker
 import qualified Analyzer.TypeDefinitions as TD
+import qualified Analyzer.TypeDefinitions.Internal as TD
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec

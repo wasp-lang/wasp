@@ -12,8 +12,7 @@ import Analyzer.Evaluator.Evaluation
 import Analyzer.Evaluator.TH.Common
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
-import Analyzer.TypeDefinitions.Class
-import Analyzer.TypeDefinitions.Type as TD
+import Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 
@@ -126,10 +125,10 @@ genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE =
   genFunc
     'declType
     [|
-      TD.DeclType
-        { TD.dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
-          TD.dtBodyType = $bodyTypeE,
-          TD.dtEvaluate = \typeDefs bindings declName declBodyExpr ->
+      DeclType
+        { dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
+          dtBodyType = $bodyTypeE,
+          dtEvaluate = \typeDefs bindings declName declBodyExpr ->
             makeDecl declName <$> $evaluateE typeDefs bindings declBodyExpr
         }
       |]

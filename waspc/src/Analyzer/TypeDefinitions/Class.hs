@@ -7,7 +7,7 @@ module Analyzer.TypeDefinitions.Class
 where
 
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
-import Analyzer.TypeDefinitions.Type
+import Analyzer.TypeDefinitions.Internal (DeclType, EnumType)
 import Data.Typeable (Typeable)
 
 -- | Marks Haskell type as a representation of a specific Wasp declaration type.
