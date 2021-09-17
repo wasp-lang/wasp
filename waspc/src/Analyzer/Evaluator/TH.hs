@@ -225,7 +225,7 @@ genDictEntryTypesAndEvaluatorForRecord dataConstructorName fields =
   where
     go [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
     go ((fieldName, fieldType) : restOfFields) = do
-      (restDictType, restEvaluator) <- genDictEntryTypesAndEvaluatorForRecord dataConstructorName restOfFields
+      (restDictType, restEvaluator) <- go restOfFields
       let thisDictTypeE =
             [|
               ($(nameToStringLiteralExpr fieldName), $(genDictEntryTypeFromHaskellType fieldType)) :
