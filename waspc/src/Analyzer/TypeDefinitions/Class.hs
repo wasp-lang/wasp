@@ -6,8 +6,10 @@ module Analyzer.TypeDefinitions.Class
   )
 where
 
+import Analyzer.Evaluator.Bindings (Bindings)
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
-import Analyzer.TypeDefinitions.Internal (DeclType, EnumType)
+import Analyzer.TypeChecker.AST (TypedExpr)
+import Analyzer.TypeDefinitions.Internal (DeclType, EnumType, TypeDefinitions)
 import Data.Typeable (Typeable)
 
 -- | Marks Haskell type as a representation of a specific Wasp declaration type.
@@ -20,9 +22,8 @@ import Data.Typeable (Typeable)
 class Typeable a => IsDeclType a where
   declType :: DeclType
 
--- TODO: Implement declEvaluate here? We don't really need it, but that way
---   it would be consistent with IsEnumType below, and if we need it we have it.
---   dtEvaluate would then use declEvaluate.
+  -- | TODO: comments
+  declEvaluate :: TypeDefinitions -> Bindings -> TypedExpr -> Either EvaluationError a
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
 -- Analogous to IsDeclType, but for enums.

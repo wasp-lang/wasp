@@ -81,57 +81,60 @@ makeDeclType typeName = do
   let instanceDeclaration = instanceD instanceContext instanceType =<< instanceDefinition
       instanceContext = pure []
       instanceType = [t|IsDeclType $(conT typeName)|]
-      instanceDefinition = makeIsDeclTypeInstanceDefinition dataConstructor
+      instanceDefinition = makeIsDeclTypeInstanceDefinition typeName dataConstructor
   sequence [instanceDeclaration]
 
 -- | Top-level "IsDeclType" instance generator.
-makeIsDeclTypeInstanceDefinition :: Con -> Q [DecQ]
+makeIsDeclTypeInstanceDefinition :: Name -> Con -> Q [DecQ]
 -- The constructor is in the form @data Type = Type x@
-makeIsDeclTypeInstanceDefinition _dataConstructor@(NormalC name [(_, typ)]) =
-  genIsDeclTypeInstanceDefinitionFromNormalDataConstructor name typ
+makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC conName [(_, conType)]) =
+  genIsDeclTypeInstanceDefinitionFromNormalDataConstructor typeName conName conType
 -- The constructor is in the form @data Type = Type x1 x2 ... xn@, which is not valid for a decl
-makeIsDeclTypeInstanceDefinition _dataConstructor@(NormalC name values) =
+makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC _ values) =
   fail $
-    "makeDeclType expects given type " ++ show name
+    "makeDeclType expects given type " ++ show typeName
       ++ " to be a record or to have one data constructor with exactly 1 value, "
       ++ "but instead it was given a data constructor with "
       ++ show (length values)
       ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-makeIsDeclTypeInstanceDefinition _dataConstructor@(RecC name records) =
-  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor name $ map (\(fieldName, _, typ) -> (fieldName, typ)) records
+makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(RecC conName records) =
+  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName conName $
+    map (\(fieldName, _, fieldType) -> (fieldName, fieldType)) records
 -- The constructor is in an unsupported form
-makeIsDeclTypeInstanceDefinition _ = fail "makeDeclType expects given type to have a normal or record constructor"
+makeIsDeclTypeInstanceDefinition _ _ = fail "makeDeclType expects given type to have a normal or record constructor"
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
-genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Type -> Q [DecQ]
-genIsDeclTypeInstanceDefinitionFromNormalDataConstructor dataConstructorName dataConstructorType = do
+genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Name -> Type -> Q [DecQ]
+genIsDeclTypeInstanceDefinitionFromNormalDataConstructor typeName dataConstructorName dataConstructorType = do
   let evaluateE = [|runEvaluation $ $(conE dataConstructorName) <$> $(genEvaluationExprForHaskellType dataConstructorType)|]
   let bodyTypeE = genWaspTypeFromHaskellType dataConstructorType
-  pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
+  pure $ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
-genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> [(Name, Type)] -> Q [DecQ]
-genIsDeclTypeInstanceDefinitionFromRecordDataConstructor dataConstructorName fields = do
+genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> Name -> [(Name, Type)] -> Q [DecQ]
+genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName dataConstructorName fields = do
   (dictEntryTypesE, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConstructorName fields
   let evaluateE = [|runEvaluation $ dict $dictEvaluationE|]
   let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
-  pure [genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE]
+  pure $ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 -- | Generates 'declType' function for a definition of IsDeclType instance.
 -- A helper function for 'genPrimDecl' and 'genRecDecl'.
-genDeclTypeFuncOfIsDeclTypeInstance :: Name -> ExpQ -> ExpQ -> DecQ
-genDeclTypeFuncOfIsDeclTypeInstance dataConstructorName bodyTypeE evaluateE =
-  genFunc
-    'declType
-    [|
-      DeclType
-        { dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
-          dtBodyType = $bodyTypeE,
-          dtEvaluate = \typeDefs bindings declName declBodyExpr ->
-            makeDecl declName <$> $evaluateE typeDefs bindings declBodyExpr
-        }
-      |]
+genIsDeclTypeInstanceDefinition :: Name -> Name -> ExpQ -> ExpQ -> [DecQ]
+genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE =
+  [ genFunc
+      'declType
+      [|
+        DeclType
+          { dtName = $(nameToLowerFirstStringLiteralExpr dataConstructorName),
+            dtBodyType = $bodyTypeE,
+            dtEvaluate = \typeDefs bindings declName declBodyExpr ->
+              makeDecl @ $(conT typeName) declName <$> declEvaluate typeDefs bindings declBodyExpr
+          }
+        |],
+    genFunc 'declEvaluate evaluateE
+  ]
 
 --------------- Dict ------------------
 
