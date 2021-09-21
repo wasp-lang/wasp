@@ -22,7 +22,20 @@ import Data.Typeable (Typeable)
 class Typeable a => IsDeclType a where
   declType :: DeclType
 
-  -- | TODO: comments
+  -- | Evaluates a given Wasp "TypedExpr" to a value of this type, assuming it is of
+  -- declaration type described by (dtBodyType . declType) and (dtName . declType) (otherwise throws an error).
+  --
+  -- For @declEvaluate typeDefs bindings declBodyExpr@:
+  -- - "typeDefs" is the type definitions used in the Analyzer
+  -- - "bindings" contains the values of all the declarations evaluated so far
+  -- - "declBodyExpr" is the expression describing declaration body, that should be evaluated by this function
+  --
+  -- __Examples__
+  --
+  -- Imagine that we have Wasp code @test Example 4@, and we have @instance IsDeclType Test@.
+  -- Here, @test@ is declaration type name, @Example@ is declaration name, and @4@ is declaration body.
+  -- @declEvaluate@ function would then be called somewhat like:
+  -- @declEvaluate @Test typeDefs bindings (NumberLiteral 4)@
   declEvaluate :: TypeDefinitions -> Bindings -> TypedExpr -> Either EvaluationError a
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
@@ -33,19 +46,15 @@ class Typeable a => IsDeclType a where
 class Typeable a => IsEnumType a where
   enumType :: EnumType
 
-  -- TODO: Elevate this function so it takes TypedExpr instead of a String?
-  --   By doing so it will be more similar to dtEvaluate from DeclType,
-  --   and then we can also rename it to enumEvaluate.
-
   -- | Converts a string to a Haskell value of this type.
   --
-  -- @mapM_ enumTypeFromVariant (etVariants enumType) == Right ()@ should be true
+  -- @mapM_ enumEvaluate (etVariants enumType) == Right ()@ should be true
   -- for all instances of "IsEnumType".
   --
   -- __Examples__
   --
   -- >>> data Example = Foo | Bar
   -- >>> instance IsEnumType Example where {- omitted -}
-  -- >>> enumTypeFromVariant "Foo"
+  -- >>> enumEvaluate "Foo"
   -- Foo
-  enumTypeFromVariant :: String -> Either EvaluationError a
+  enumEvaluate :: String -> Either EvaluationError a

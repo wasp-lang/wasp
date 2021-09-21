@@ -73,7 +73,7 @@ decl = evaluation $ \(_, bindings) -> \case
 -- | An evaluation that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => TypedExprEvaluation a
 enum = evaluation' $ \case
-  TypedAST.Var var _ -> TD.enumTypeFromVariant @a var
+  TypedAST.Var var _ -> TD.enumEvaluate @a var
   expr -> Left $ EvaluationError.ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "List" and runs the inner evaluation on each

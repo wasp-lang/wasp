@@ -23,19 +23,8 @@ data DeclType = DeclType
     -- | Evaluates a given Wasp "TypedExpr" to a Wasp AST declaration, assuming it is of
     -- declaration type described by dtBodyType and dtName (otherwise throws an error).
     --
-    -- For @dtEvaluate typeDefs bindings declName declBodyExpr@:
-    -- - "typeDefs" is the type definitions used in the Analyzer
-    -- - "bindings" contains the values of all the declarations evaluated so far
-    -- - "declName" is name of the declaration
-    -- - "declBodyExpr" is the expression describing declaration body, that should be evaluated by this function
-    --
-    -- __Examples__
-    --
-    -- Imagine that we have Wasp code @test Example 4@.
-    -- Here, @test@ is declaration type name, @Example@ is declaration name, and @4@ is declaration body.
-    -- @dtEvaluate@ function would then be called somewhat like:
-    -- @dtEvaluate declType typeDefs bindings "Example" (NumberLiteral 4)@
-    -- where @declType@ is the one describing @test@ declaration type.
+    -- Check @declEvaluate@ of @IsDeclType@ typeclass for more information,
+    -- since @dtEvaluate@ is really a value-level version of @declEvaluate@.
     dtEvaluate :: TypeDefinitions -> Bindings -> DeclName -> TypedExpr -> Either EvaluationError Decl
   }
 

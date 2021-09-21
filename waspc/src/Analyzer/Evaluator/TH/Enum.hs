@@ -68,7 +68,7 @@ genEnumFromVariants :: Name -> [Name] -> DecQ
 genEnumFromVariants typeName dataConstructorNames = do
   let clauses = map genClause dataConstructorNames
   let leftClause = clause [[p|x|]] (normalB [|Left $ InvalidEnumVariant $(nameToStringLiteralExpr typeName) (show x)|]) []
-  funD 'enumTypeFromVariant (clauses ++ [leftClause])
+  funD 'enumEvaluate (clauses ++ [leftClause])
   where
     genClause :: Name -> ClauseQ
     genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
