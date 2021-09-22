@@ -3,12 +3,12 @@ module Analyzer.TypeChecker.AST
     TypedStmt (..),
     TypedExpr (..),
     Identifier,
-    ExtImportName,
+    ExtImportName (..),
     exprType,
   )
 where
 
-import Analyzer.Parser (ExtImportName, Identifier)
+import Analyzer.Parser (ExtImportName (..), Identifier)
 import Analyzer.Type
 
 newtype TypedAST = TypedAST {typedStmts :: [TypedStmt]} deriving (Eq, Show)

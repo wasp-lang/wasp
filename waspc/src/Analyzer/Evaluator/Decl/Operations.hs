@@ -1,22 +1,16 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
 
-module Analyzer.Decl
-  ( Decl (..),
-    takeDecls,
+module Analyzer.Evaluator.Decl.Operations
+  ( takeDecls,
+    makeDecl,
+    fromDecl,
   )
 where
 
+import Analyzer.Evaluator.Decl.Internal
 import Analyzer.TypeDefinitions (IsDeclType)
 import Data.Maybe (mapMaybe)
 import Data.Typeable (Typeable, cast)
-
--- | Used to store a heterogenous lists of evaluated declarations during
---   evaluation.
-data Decl where
-  -- | @Decl "Name" value@ results from a declaration statement "declType Name value".
-  Decl :: (Typeable a, IsDeclType a) => String -> a -> Decl
 
 -- | Extracts all declarations of a certain type from a @[Decl]@s
 --
@@ -32,5 +26,10 @@ data Decl where
 --  takeDecls @Person decls == [("Bob", Person "Bob" 42), ("Alice", Person "Alice" 32)]
 --  @
 takeDecls :: (Typeable a, IsDeclType a) => [Decl] -> [(String, a)]
-takeDecls = mapMaybe $ \case
-  Decl name value -> (name,) <$> cast value
+takeDecls = mapMaybe fromDecl
+
+makeDecl :: (Typeable a, IsDeclType a) => String -> a -> Decl
+makeDecl = Decl
+
+fromDecl :: (Typeable a, IsDeclType a) => Decl -> Maybe (String, a)
+fromDecl (Decl name value) = (name,) <$> cast value

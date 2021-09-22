@@ -1,7 +1,10 @@
 .stack-work/
+stack*.yaml.lock
+dist-newstyle
 waspc.cabal
+
+/out
+
 *~
 .dir-locals.el
-stack*.yaml.lock
-/out
-dist-newstyle
+.projectile

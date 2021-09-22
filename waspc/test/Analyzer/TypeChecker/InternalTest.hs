@@ -7,6 +7,7 @@ import Analyzer.TypeChecker.Internal
 import Analyzer.TypeChecker.Monad (Bindings, run, runWithBound)
 import Analyzer.TypeChecker.TypeError
 import qualified Analyzer.TypeDefinitions as TD
+import qualified Analyzer.TypeDefinitions.Internal as TD
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -160,7 +161,7 @@ spec_Internal = do
     describe "checkStmt" $ do
       it "Type checks existing declaration type with correct argument" $ do
         let ast = P.Decl "string" "App" (P.StringLiteral "Wasp")
-        let typeDefs = TD.TypeDefinitions {TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType), TD.enumTypes = H.empty}
+        let typeDefs = TD.TypeDefinitions {TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined), TD.enumTypes = H.empty}
         let actual = run typeDefs $ checkStmt ast
         let expected = Right $ Decl "App" (StringLiteral "Wasp") (DeclType "string")
         actual `shouldBe` expected
@@ -172,7 +173,7 @@ spec_Internal = do
         let ast = P.Decl "string" "App" (P.IntegerLiteral 5)
         let typeDefs =
               TD.TypeDefinitions
-                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType),
+                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = run typeDefs $ checkStmt ast
@@ -184,8 +185,10 @@ spec_Internal = do
               TD.TypeDefinitions
                 { TD.declTypes =
                     H.singleton "maybeString" $
-                      TD.DeclType "maybeString" $
-                        DictType $ H.singleton "val" (DictOptional StringType),
+                      TD.DeclType
+                        "maybeString"
+                        (DictType $ H.singleton "val" (DictOptional StringType))
+                        undefined,
                   TD.enumTypes = H.empty
                 }
         let actual = run typeDefs $ checkStmt ast

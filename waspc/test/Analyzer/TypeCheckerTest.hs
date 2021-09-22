@@ -4,6 +4,7 @@ import qualified Analyzer.Parser as P
 import Analyzer.Type
 import Analyzer.TypeChecker
 import qualified Analyzer.TypeDefinitions as TD
+import qualified Analyzer.TypeDefinitions.Internal as TD
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec
@@ -23,11 +24,14 @@ spec_TypeChecker = do
                 { TD.declTypes =
                     H.fromList
                       [ ( "app",
-                          TD.DeclType "app" $
-                            DictType $
-                              H.fromList
-                                [ ("title", DictOptional StringType)
-                                ]
+                          TD.DeclType
+                            "app"
+                            ( DictType $
+                                H.fromList
+                                  [ ("title", DictOptional StringType)
+                                  ]
+                            )
+                            undefined
                         )
                       ],
                   TD.enumTypes = H.empty
@@ -38,7 +42,7 @@ spec_TypeChecker = do
         let ast = P.AST [P.Decl "string" "App" (P.IntegerLiteral 5)]
         let typeDefs =
               TD.TypeDefinitions
-                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType),
+                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck typeDefs ast
@@ -54,7 +58,7 @@ spec_TypeChecker = do
                   [("value", DictRequired NumberType), ("next", DictOptional $ DeclType "llnode")]
         let typeDefs =
               TD.TypeDefinitions
-                { TD.declTypes = H.singleton "llnode" (TD.DeclType "llnode" llnodeArgType),
+                { TD.declTypes = H.singleton "llnode" (TD.DeclType "llnode" llnodeArgType undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck typeDefs ast
@@ -63,7 +67,7 @@ spec_TypeChecker = do
         let ast = P.AST [P.Decl "food" "Cucumber" (P.Var "Dill")]
         let typeDefs =
               TD.TypeDefinitions
-                { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor")),
+                { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor") undefined),
                   TD.enumTypes = H.singleton "flavor" (TD.EnumType "flavor" ["Fresh", "Dill"])
                 }
         let actual = typeCheck typeDefs ast
@@ -73,7 +77,7 @@ spec_TypeChecker = do
         let ast = P.AST [P.Decl "rooms" "Bedrooms" (P.List [])]
         let typeDefs =
               TD.TypeDefinitions
-                { TD.declTypes = H.singleton "rooms" (TD.DeclType "rooms" $ ListType StringType),
+                { TD.declTypes = H.singleton "rooms" (TD.DeclType "rooms" (ListType StringType) undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck typeDefs ast
