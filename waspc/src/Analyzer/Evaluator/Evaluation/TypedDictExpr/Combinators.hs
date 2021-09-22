@@ -7,7 +7,7 @@ module Analyzer.Evaluator.Evaluation.TypedDictExpr.Combinators
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Core (evaluation, runEvaluation)
+import Analyzer.Evaluator.Evaluation.Internal (evaluation, runEvaluation)
 import Analyzer.Evaluator.Evaluation.TypedDictExpr (TypedDictEntries (..), TypedDictExprEvaluation)
 import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Analyzer.Evaluator.EvaluationError as EvaluationError

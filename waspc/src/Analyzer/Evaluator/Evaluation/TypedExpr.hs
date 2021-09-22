@@ -3,7 +3,7 @@ module Analyzer.Evaluator.Evaluation.TypedExpr
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Core (Evaluation)
+import Analyzer.Evaluator.Evaluation.Internal (Evaluation)
 import qualified Analyzer.TypeChecker.AST as TypedAST
 
 type TypedExprEvaluation a = Evaluation TypedAST.TypedExpr a

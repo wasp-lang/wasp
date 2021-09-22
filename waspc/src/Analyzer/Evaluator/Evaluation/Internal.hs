@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 
-module Analyzer.Evaluator.Evaluation.Core
+module Analyzer.Evaluator.Evaluation.Internal
   ( runEvaluation,
     evaluation,
     evaluation',

@@ -35,4 +35,4 @@ module Analyzer.Evaluator.Evaluation
 where
 
 import Analyzer.Evaluator.Evaluation.Combinators
-import Analyzer.Evaluator.Evaluation.Core (runEvaluation)
+import Analyzer.Evaluator.Evaluation.Internal (runEvaluation)

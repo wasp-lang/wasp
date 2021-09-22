@@ -17,7 +17,7 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
 where
 
 import Analyzer.Evaluator.Decl.Operations (fromDecl)
-import Analyzer.Evaluator.Evaluation.Core (evaluation, evaluation', runEvaluation)
+import Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
 import qualified Analyzer.Evaluator.Types as E

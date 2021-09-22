@@ -4,7 +4,7 @@ module Analyzer.Evaluator.Evaluation.TypedDictExpr
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Core (Evaluation)
+import Analyzer.Evaluator.Evaluation.Internal (Evaluation)
 import qualified Analyzer.TypeChecker.AST as TypedAST
 
 -- | A transformation from dictionary definition (which is a list of dictionary entries) to some type. An "Evaluation" can
