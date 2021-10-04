@@ -135,6 +135,7 @@ module.exports = {
     ],
   ],
   scripts: [
-    '/scripts/posthog.js'
+    '/scripts/posthog.js',
+    '/js/fix-multiple-trailing-slashes.js'
   ]
 };

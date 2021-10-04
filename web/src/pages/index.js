@@ -320,7 +320,7 @@ export default () => {
     }
 
     return (
-      Object.keys(CodeExample).map(k => <Button codeExampleKey={k}/>)
+      Object.keys(CodeExample).map((k, idx) => <Button codeExampleKey={k} key={idx} />)
     )
   }
 

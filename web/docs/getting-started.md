@@ -20,10 +20,10 @@ $ node -v  # >= v12.18.0
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
 <details>
-  <summary style={{cursor: 'pointer', 'text-decoration': 'underline'}}>
+  <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
     Quick guide on installing/using nvm
   </summary>
-  <p style={{background: '#eeeeee', padding: '10px'}}>
+  <div style={{background: '#eeeeee', padding: '10px'}}>
 
   Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
 
@@ -46,7 +46,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Check NVM repo for more details: https://github.com/nvm-sh/nvm .
 
-  </p>
+  </div>
 </details>
 
 
