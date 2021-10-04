@@ -9,7 +9,10 @@ properties of your app. Currently, it is very simple:
 
 ```css
 app todoApp {
-    title: "ToDo App"
+    title: "ToDo App",
+    head: [
+        "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+    ]
 }
 ```
 
@@ -18,6 +21,10 @@ Name of your app.
 
 #### `title: string`
 Title of your app. It will be displayed in the browser tab, next to the favicon.
+
+#### `head: array of strings`
+Head of your HTML Document. Your app's metadata (styles, links, etc) can be added here.
+
 
 ## Page
 
