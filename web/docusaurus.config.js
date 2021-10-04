@@ -5,18 +5,16 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'Wasp',
   tagline: 'A simple language for developing full-stack web apps with less code.',
-  // NOTE: Although Docusaurus says that 'url' should not contain anything after the hostname,
-  //   and instead that part should go into 'baseUrl', that doesn't work for us, assets are not loaded
-  //   successfully. Instead, we add '/wasp/' to the end of the 'url' and we set 'baseUrl' to '/'
-  //   and that works.
-  url: 'https://wasp-lang.github.io/wasp/',
-  baseUrl: '/', // Should be name of repo if hosted on Github Pages.
+  // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
+  // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
+  url: 'https://wasp-lang.github.io',
+  baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
   organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
   projectName: 'wasp', // Should be repo name if hosted on Github Pages.
+  trailingSlash: false,
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  trailingSlash: false,
   themeConfig: {
     navbar: {
       title: '.wasp (alpha)',
