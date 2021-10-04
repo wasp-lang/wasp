@@ -14,6 +14,10 @@
 
 ------
 
+<p align="center">
+  {= <a href="https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672">We are hiring!</a> =}
+</p>
+
 - [**Project page**](https://wasp-lang.dev)
 - [**Docs**](https://wasp-lang.dev/docs)
 
