@@ -18,7 +18,6 @@ module.exports = {
   favicon: 'img/favicon.ico',
   trailingSlash: false,
   themeConfig: {
-    sidebarCollapsible: true,
     navbar: {
       title: '.wasp (alpha)',
       logo: {
@@ -118,6 +117,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
+          sidebarCollapsible: true,
           // Please change this to your repo.
           editUrl:
             'https://github.com/wasp-lang/wasp/edit/master/web',
