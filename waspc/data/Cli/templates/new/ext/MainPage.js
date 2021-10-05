@@ -16,7 +16,7 @@ const MainPage = () => {
           Open <code>ext/MainPage.js</code> to edit it.
         </h3>
 
-        <div class="buttons">
+        <div className="buttons">
           <a
             className="button button-filled"
             href="https://wasp-lang.dev/docs/tutorials/todo-app"
