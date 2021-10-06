@@ -5,6 +5,8 @@ Thoughts
 
 Run `wasp start` to start the app in development mode.
 
+This app is deployed at https://wasp-thoughts.netlify.app/ .
+
 ## TODO
 
 ## How it felt so far to build this app in Wasp

@@ -5,6 +5,8 @@ Realworld app
 
 Here, we implement it in Wasp, by following their [specification](https://github.com/gothinkster/realworld/tree/master/spec).
 
+This app is deployed at https://wasp-rwa.netlify.app/ .
+
 # Development
 
 ### Database
