@@ -526,7 +526,7 @@ function Home() {
 
               <div className={clsx(styles.tryWaspContainer)}>
                 <div className={clsx(styles.startCliCmd)}>
-                  <span><code>curl -sSL http://get.wasp-lang.dev | sh</code></span>
+                  <span><code>curl -sSL https://get.wasp-lang.dev/installer.sh | sh</code></span>
                 </div>
 
                 {/* TODO: Martin commented tihs out because both buttons started showing up on desktop after upgrading to newer docusaurus. This happens when built for deployment, not during serving for development. Instead, he replaced it with just one version of button, below, instead of having one button for mobile and one for desktop.
@@ -586,7 +586,7 @@ function Home() {
 
                       <h2 className="modal-step-title">1. Open your terminal and run:</h2>
                       <div className={clsx(styles.startCliCmd)} style={{ height: '40px' }}>
-                        <span><code>curl -sSL http://get.wasp-lang.dev | sh</code></span>
+                        <span><code>curl -sSL https://get.wasp-lang.dev/installer.sh | sh</code></span>
                       </div>
 
                       <h2 className="modal-step-title "style={{marginTop: '4rem'}}>2. Create a new project:</h2>

@@ -70,7 +70,7 @@ For more information about Wasp, check [**docs**](https://wasp-lang.dev/docs).
 
 Run
 ```
-curl -sSL http://get.wasp-lang.dev | sh
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 to install Wasp on OSX/Linux. From there, just follow the instructions to run your first app in less then a minute!
 

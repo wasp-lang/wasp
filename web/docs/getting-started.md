@@ -66,7 +66,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 Open your terminal and run:
 
 ```bash
-curl -sSL http://get.wasp-lang.dev | sh
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
 </div>
