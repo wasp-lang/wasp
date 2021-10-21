@@ -186,7 +186,7 @@ genWaspTypeFromHaskellType typ =
     KImport -> [|T.ExtImportType|]
     KJSON -> [|T.QuoterType "json"|]
     KPSL -> [|T.QuoterType "psl"|]
-    KDecl t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
+    KDeclRef t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
@@ -202,33 +202,17 @@ genEvaluationExprForHaskellType typ =
     KImport -> [|extImport|]
     KJSON -> [|json|]
     KPSL -> [|psl|]
-    KDecl t -> [|decl @ $(pure t)|]
+    KDeclRef t -> [|declRef @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
-
--- | An intermediate mapping between Haskell types and Wasp types, used for
--- generating @Types@, @Evaluation@, @DictEntryTypes@, and @DictEvaluation@.
-data WaspKind
-  = KString
-  | KInteger
-  | KDouble
-  | KBool
-  | KList Type
-  | KImport
-  | KJSON
-  | KPSL
-  | KDecl Type
-  | KEnum
-  | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
-    KOptional Type
 
 -- | Find the "WaspKind" of a Haskell type.
 waspKindOfType :: Type -> Q WaspKind
 waspKindOfType typ = do
-  maybeDeclKind <- tryCastingToDeclKind typ
+  maybeDeclRefKind <- tryCastingToDeclRefKind typ
   maybeEnumKind <- tryCastingToEnumKind typ
-  case maybeDeclKind of
-    Just declKind -> pure declKind
+  case maybeDeclRefKind of
+    Just declRefKind -> pure declRefKind
     Nothing -> case maybeEnumKind of
       Just enumKind -> pure enumKind
       Nothing -> case typ of
@@ -244,15 +228,33 @@ waspKindOfType typ = do
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
         _ -> fail $ "No translation to wasp type for type " ++ show typ
   where
-    tryCastingToDeclKind :: Type -> Q (Maybe WaspKind)
-    tryCastingToDeclKind (ConT name `AppT` subType) | name == ''Ref = do
+    tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
+    tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do
       isDeclTypeRef <- isInstance ''IsDeclType [subType]
-      return $ if isDeclTypeRef then Just (KDecl subType) else Nothing
-    tryCastingToDeclKind _ = return Nothing
+      return $ if isDeclTypeRef then Just (KDeclRef subType) else Nothing
+    tryCastingToDeclRefKind _ = return Nothing
 
     tryCastingToEnumKind :: Type -> Q (Maybe WaspKind)
     tryCastingToEnumKind t = do
       isEnumType <- isInstance ''IsEnumType [t]
       return $ if isEnumType then Just KEnum else Nothing
+
+-- | An intermediate mapping between Haskell types and Wasp types, we use it internally
+-- in this module when generating @Types@, @Evaluation@, @DictEntryTypes@, and @DictEvaluation@
+-- so that we have easier time when figuring out what we are dealing with.
+data WaspKind
+  = KString
+  | KInteger
+  | KDouble
+  | KBool
+  | KList Type
+  | KImport
+  | KJSON
+  | KPSL
+  | -- | Reference to a declaration type @Type@.
+    KDeclRef Type
+  | KEnum
+  | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
+    KOptional Type
 
 ---------------------------------------

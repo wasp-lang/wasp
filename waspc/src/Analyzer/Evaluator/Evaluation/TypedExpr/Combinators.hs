@@ -7,7 +7,7 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
     integer,
     double,
     bool,
-    decl,
+    declRef,
     enum,
     list,
     extImport,
@@ -55,8 +55,8 @@ bool = evaluation' $ \case
   expr -> Left $ EvaluationError.ExpectedType T.BoolType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "Var" bound to a "Decl" of type "a".
-decl :: forall a. TD.IsDeclType a => TypedExprEvaluation (Ref a)
-decl = evaluation' $ \case
+declRef :: forall a. TD.IsDeclType a => TypedExprEvaluation (Ref a)
+declRef = evaluation' $ \case
   TypedAST.Var varName varType ->
     case varType of
       T.DeclType declTypeName | declTypeName == expectedDeclTypeName -> pure $ Ref.Ref varName

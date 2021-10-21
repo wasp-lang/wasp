@@ -5,11 +5,7 @@ module AnalyzerTest where
 import AST (App (..), AuthMethod (..), Page (..))
 import AST.Core.Ref (Ref (..))
 import Analyzer
-import qualified Analyzer.Evaluator as E
-import qualified Analyzer.Evaluator.EvaluationError as E.Error
-import qualified Analyzer.Type as T
 import qualified Analyzer.TypeChecker as TC
-import qualified Analyzer.TypeChecker.TypeError as T.Error
 import Data.Either (isRight)
 import Test.Tasty.Hspec
 
