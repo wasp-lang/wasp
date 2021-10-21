@@ -25,9 +25,6 @@ import Data.Maybe (fromMaybe)
 evaluate :: TD.TypeDefinitions -> AST.TypedAST -> Either EvaluationError [Decl]
 evaluate typeDefs (AST.TypedAST stmts) = runExcept $ flip runReaderT typeDefs $ evalStateT (evalStmts stmts) H.empty
 
--- TODO: Currently, trying to reference declarations declared after the current one
--- fails. There are some solutions mentioned in docs/wasplang that should be
--- investigated.
 evalStmts :: [AST.TypedStmt] -> Eval [Decl]
 evalStmts = traverse evalStmt
 
