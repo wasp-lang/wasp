@@ -1,14 +1,19 @@
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Analyzer.StdTypeDefinitions
-  ( AuthMethod (..),
-    App (..),
-    stdTypes,
+  ( stdTypes,
   )
 where
 
+import qualified AST
 import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Analyzer.TypeDefinitions as TD
+
+makeEnumType ''AST.AuthMethod
+makeDeclType ''AST.Page
+
+makeDeclType ''AST.App
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -16,22 +21,8 @@ import qualified Analyzer.TypeDefinitions as TD
 -- easier to modify and maintain the Wasp compiler/language.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
-  TD.addEnumType @AuthMethod $
-  TD.addDeclType @App $
+  TD.addEnumType @AST.AuthMethod $
+  TD.addDeclType @AST.Page $
+  TD.addDeclType @AST.App $
   TD.empty
 {- ORMOLU_ENABLE -}
-
--- | TODO: Remove these types from here and instead use types from the Wasp module (Wasp AST).
--- For that we will need to make sure that those types are correctly shaped so that our
--- TH functions can automatically create appropriate instances for them.
-
---------- MOCK TYPES ----------
-data AuthMethod = EmailAndPassword deriving (Show, Eq)
-
-data App = App {title :: String, authMethod :: AuthMethod} deriving (Show, Eq)
-
-makeEnumType ''AuthMethod
-
-makeDeclType ''App
-
--------- / MOCK TYPES ---------

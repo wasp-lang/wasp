@@ -7,6 +7,7 @@ module Analyzer.Evaluator.TH.Decl
   )
 where
 
+import AST.Core.Ref (Ref)
 import Analyzer.Evaluator.Decl.Operations (makeDecl)
 import Analyzer.Evaluator.Evaluation
 import Analyzer.Evaluator.TH.Common
@@ -185,7 +186,7 @@ genWaspTypeFromHaskellType typ =
     KImport -> [|T.ExtImportType|]
     KJSON -> [|T.QuoterType "json"|]
     KPSL -> [|T.QuoterType "psl"|]
-    KDecl -> [|T.DeclType $ dtName $ declType @ $(pure typ)|]
+    KDecl t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
@@ -201,7 +202,7 @@ genEvaluationExprForHaskellType typ =
     KImport -> [|extImport|]
     KJSON -> [|json|]
     KPSL -> [|psl|]
-    KDecl -> [|decl @ $(pure typ)|]
+    KDecl t -> [|decl @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
 
@@ -216,7 +217,7 @@ data WaspKind
   | KImport
   | KJSON
   | KPSL
-  | KDecl
+  | KDecl Type
   | KEnum
   | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
     KOptional Type
@@ -224,24 +225,34 @@ data WaspKind
 -- | Find the "WaspKind" of a Haskell type.
 waspKindOfType :: Type -> Q WaspKind
 waspKindOfType typ = do
-  typIsDecl <- isInstance ''IsDeclType [typ]
-  typIsEnum <- isInstance ''IsEnumType [typ]
-  if typIsDecl
-    then pure KDecl
-    else
-      if typIsEnum
-        then pure KEnum
-        else case typ of
-          ConT name
-            | name == ''String -> pure KString
-            | name == ''Integer -> pure KInteger
-            | name == ''Double -> pure KDouble
-            | name == ''Bool -> pure KBool
-            | name == ''E.ExtImport -> pure KImport
-            | name == ''E.JSON -> pure KJSON
-            | name == ''E.PSL -> pure KPSL
-          ListT `AppT` elemType -> pure (KList elemType)
-          ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
-          _ -> fail $ "No translation to wasp type for type " ++ show typ
+  maybeDeclKind <- tryCastingToDeclKind typ
+  maybeEnumKind <- tryCastingToEnumKind typ
+  case maybeDeclKind of
+    Just declKind -> pure declKind
+    Nothing -> case maybeEnumKind of
+      Just enumKind -> pure enumKind
+      Nothing -> case typ of
+        ConT name
+          | name == ''String -> pure KString
+          | name == ''Integer -> pure KInteger
+          | name == ''Double -> pure KDouble
+          | name == ''Bool -> pure KBool
+          | name == ''E.ExtImport -> pure KImport
+          | name == ''E.JSON -> pure KJSON
+          | name == ''E.PSL -> pure KPSL
+        ListT `AppT` elemType -> pure (KList elemType)
+        ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
+        _ -> fail $ "No translation to wasp type for type " ++ show typ
+  where
+    tryCastingToDeclKind :: Type -> Q (Maybe WaspKind)
+    tryCastingToDeclKind (ConT name `AppT` subType) | name == ''Ref = do
+      isDeclTypeRef <- isInstance ''IsDeclType [subType]
+      return $ if isDeclTypeRef then Just (KDecl subType) else Nothing
+    tryCastingToDeclKind _ = return Nothing
+
+    tryCastingToEnumKind :: Type -> Q (Maybe WaspKind)
+    tryCastingToEnumKind t = do
+      isEnumType <- isInstance ''IsEnumType [t]
+      return $ if isEnumType then Just KEnum else Nothing
 
 ---------------------------------------

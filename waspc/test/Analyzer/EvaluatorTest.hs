@@ -5,6 +5,7 @@
 
 module Analyzer.EvaluatorTest where
 
+import AST.Core.Ref (Ref (..))
 import Analyzer.Evaluator
 import Analyzer.Evaluator.TH
 import Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
@@ -38,7 +39,7 @@ data Special = Special {imps :: [ExtImport], json :: JSON, psl :: PSL} deriving 
 makeDeclType ''Special
 
 data Business = Business
-  { employees :: [Person],
+  { employees :: [Ref Person],
     worth :: Double,
     businessType :: BusinessType,
     location :: Maybe String
@@ -83,10 +84,7 @@ spec_Evaluator = do
           `shouldBe` Right
             [ ( "Grocer",
                 Business
-                  { employees =
-                      [ Person "Tim Stocker" 40,
-                        Person "John Cashier" 23
-                      ],
+                  { employees = [Ref "Tim", Ref "John"],
                     businessType = Store,
                     worth = 115.0,
                     location = Nothing
