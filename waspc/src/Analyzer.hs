@@ -111,6 +111,7 @@ module Analyzer
     -- * API
     analyze,
     E.takeDecls,
+    AnalyzeError (..),
   )
 where
 

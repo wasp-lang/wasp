@@ -7,7 +7,7 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
     integer,
     double,
     bool,
-    decl,
+    declRef,
     enum,
     list,
     extImport,
@@ -16,7 +16,8 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
-import Analyzer.Evaluator.Decl.Operations (fromDecl)
+import AST.Core.Ref (Ref)
+import qualified AST.Core.Ref as Ref
 import Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
@@ -25,7 +26,6 @@ import qualified Analyzer.Type as T
 import qualified Analyzer.TypeChecker.AST as TypedAST
 import qualified Analyzer.TypeDefinitions as TD
 import Control.Arrow (left)
-import qualified Data.HashMap.Strict as H
 
 -- | An evaluation that expects a "StringLiteral".
 string :: TypedExprEvaluation String
@@ -55,20 +55,20 @@ bool = evaluation' $ \case
   expr -> Left $ EvaluationError.ExpectedType T.BoolType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "Var" bound to a "Decl" of type "a".
-decl :: forall a. TD.IsDeclType a => TypedExprEvaluation a
-decl = evaluation $ \(_, bindings) -> \case
-  TypedAST.Var var typ -> case H.lookup var bindings of
-    Nothing -> Left $ EvaluationError.UndefinedVariable var
-    Just dcl -> case fromDecl @a dcl of
-      Nothing ->
+declRef :: forall a. TD.IsDeclType a => TypedExprEvaluation (Ref a)
+declRef = evaluation' $ \case
+  TypedAST.Var varName varType ->
+    case varType of
+      T.DeclType declTypeName | declTypeName == expectedDeclTypeName -> pure $ Ref.Ref varName
+      _ ->
         Left $
           EvaluationError.WithContext
-            (EvaluationError.ForVariable var)
-            (EvaluationError.ExpectedType (T.DeclType declTypeName) typ)
-      Just (_dclName, dclValue) -> Right dclValue
-  expr -> Left $ EvaluationError.ExpectedType (T.DeclType declTypeName) (TypedAST.exprType expr)
+            (EvaluationError.ForVariable varName)
+            (EvaluationError.ExpectedType expectedType varType)
+  expr -> Left $ EvaluationError.ExpectedType expectedType (TypedAST.exprType expr)
   where
-    declTypeName = TD.dtName $ TD.declType @a
+    expectedDeclTypeName = TD.dtName $ TD.declType @a
+    expectedType = T.DeclType expectedDeclTypeName
 
 -- | An evaluation that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => TypedExprEvaluation a
