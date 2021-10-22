@@ -19,7 +19,7 @@ json=}
 
 Run (if it is already running, stop it first and then run it again)
 ```shell-session
-$ wasp start
+wasp start
 ```
 to have Wasp download and install new dependency (that happens on start of `wasp start`).
 

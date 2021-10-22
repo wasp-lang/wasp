@@ -29,7 +29,7 @@ psl=}
 
 Run:
 ```shell-session
-$ wasp db migrate-dev
+wasp db migrate-dev
 ```
 to propagate the schema change (we added User).
 
@@ -157,7 +157,7 @@ Ok, time to try out how this works!
 
 Now, we can again run
 ```shell-session
-$ wasp start
+wasp start
 ```
 
 Try going to `/` in our web app -> it will now ask you to log in, and if you follow the link, you will end up at `/login`.
@@ -165,7 +165,7 @@ Once you log in or sign up, you will be sent back to `/` and you will see the to
 
 Let's now see how things look in the database! Run:
 ```shell-session
-$ wasp db studio
+wasp db studio
 ```
 <img alt="Database demonstration - password hashing"
      src={useBaseUrl('img/wasp_db_hash_demonstration.gif')}
@@ -201,7 +201,7 @@ psl=}
 
 We modified entities by adding User-Task relation, so let's run
 ```shell-session
-$ wasp db migrate-dev
+wasp db migrate-dev
 ```
 to create a database schema migration and apply it to the database.
 
@@ -256,13 +256,13 @@ Right, that should be it!
 
 Run
 ```shell-session
-$ wasp start
+wasp start
 ```
 and everything should work as expected now! Each user has their own tasks only they can see and edit.
 
 Try playing around with our app, adding a few users and some tasks. Then run:
 ```shell-session
-$ wasp db studio
+wasp db studio
 ```
 <img alt="Database demonstration"
      src={useBaseUrl('img/wasp_db_demonstration.gif')}
