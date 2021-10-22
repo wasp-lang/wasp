@@ -16,8 +16,6 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
-import AST.Core.Ref (Ref)
-import qualified AST.Core.Ref as Ref
 import Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
@@ -25,6 +23,8 @@ import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import qualified Analyzer.TypeChecker.AST as TypedAST
 import qualified Analyzer.TypeDefinitions as TD
+import AppSpec.AST.Ref (Ref)
+import qualified AppSpec.AST.Ref as Ref
 import Control.Arrow (left)
 
 -- | An evaluation that expects a "StringLiteral".
