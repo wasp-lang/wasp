@@ -7,7 +7,7 @@ where
 
 import AST.Core.Ref (Ref)
 
--- TODO: Make AST full-features, so it supports latest version of waps-lang.
+-- TODO: Make AST full-featured, so it supports latest version of waps-lang.
 
 -- TODO: Split into multiple files (one for App, one for Page, ...).
 
