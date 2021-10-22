@@ -99,9 +99,9 @@ Check [waspc/](https://github.com/wasp-lang/wasp/tree/master/waspc) for more det
 
 ## 3. Creating and running your first app
 ```shell-session
-$ wasp new MyNewApp # Creates a new web app named MyNewApp.
-$ cd MyNewApp
-$ wasp start # Serves the web app.
+wasp new MyNewApp # Creates a new web app named MyNewApp.
+cd MyNewApp
+wasp start # Serves the web app.
 ```
 
 That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
