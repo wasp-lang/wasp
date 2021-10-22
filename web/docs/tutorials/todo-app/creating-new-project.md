@@ -6,12 +6,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Run the following command in your terminal to create a new Wasp project:
 ```shell-session
-$ wasp new TodoApp
+wasp new TodoApp
 ```
 Enter the created directory and run:
 ```shell-session
-$ cd TodoApp
-$ wasp start
+cd TodoApp
+wasp start
 ```
 You have just ran your app in the development mode!
 

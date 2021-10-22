@@ -14,7 +14,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ### Node.js >= 12.18.0
 
 ```shell-session
-$ node -v  # >= v12.18.0
+node -v  # >= v12.18.0
 ```
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
@@ -29,18 +29,18 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of node that you need (any >= 12.18.0), e.g.:
   ```shell-session
-  $ nvm install 12
+  nvm install 12
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  $ nvm use 12
+  nvm use 12
   ```
   to set the node version for current shell session.
 
   You can run
   ```shell-session
-  $ node -v
+  node -v
   ```
   to check the version of node currently being used in this shell session.
 
