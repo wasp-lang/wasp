@@ -17,7 +17,6 @@ import Generator.Common (ProjectRootDir)
 import qualified Parser
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
-import qualified StrongPath.Path as SP.Path
 import System.Directory (doesFileExist)
 import qualified Util.IO
 import Wasp (Wasp)
@@ -60,7 +59,7 @@ enrichWaspASTBasedOnCompileOptions wasp options = do
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
-  files <- map SP.Path.fromPathRelFile . fst <$> Util.IO.listDirectory (SP.Path.toPathAbsDir waspDir)
+  files <- fst <$> Util.IO.listDirectory waspDir
   return $ (waspDir SP.</>) <$> find isWaspFile files
   where
     isWaspFile path =

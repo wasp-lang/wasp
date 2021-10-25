@@ -14,7 +14,6 @@ import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
-import qualified StrongPath.Path as SP.Path
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import qualified Util.IO
@@ -59,8 +58,7 @@ readFiles extCodeDirPath = do
   waspignoreFile <- readWaspignoreFile waspignoreFilePath
   relFilePaths <-
     filter (not . ignores waspignoreFile . SP.toFilePath)
-      . map SP.Path.fromPathRelFile
-      <$> Util.IO.listDirectoryDeep (SP.Path.toPathAbsDir extCodeDirPath)
+      <$> Util.IO.listDirectoryDeep extCodeDirPath
   let absFilePaths = map (extCodeDirPath </>) relFilePaths
   -- NOTE: We read text from all the files, regardless if they are text files or not, because
   --   we don't know if they are a text file or not.
