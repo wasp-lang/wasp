@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Link } from 'react-router-dom'
 
-export default () => {
+const About = () => {
   return (
     <>
       <div>I am About page!</div>
@@ -10,3 +10,5 @@ export default () => {
     </>
   )
 }
+
+export default About;

@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
 
-const Login = (props) => {
+const Login = () => {
   return (
     <>
       <LoginForm/>
