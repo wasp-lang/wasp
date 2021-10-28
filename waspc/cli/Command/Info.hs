@@ -15,10 +15,8 @@ import Control.Arrow (ArrowChoice (left))
 import Control.Monad.IO.Class (liftIO)
 import Lib (findWaspFile)
 import qualified Parser
-import qualified Path as P
-import StrongPath (Abs, Dir, Path', fromAbsFile, toFilePath)
+import StrongPath (Abs, Dir, Path', fromAbsFile, fromRelFile, toFilePath)
 import StrongPath.Operations
-import StrongPath.Path (toPathAbsDir)
 import System.Directory (doesFileExist, getFileSize)
 import Util.IO (listDirectoryDeep)
 import qualified Util.Terminal as Term
@@ -53,7 +51,7 @@ printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
 
 readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
-readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDirectoryDeep (toPathAbsDir path) >>= mapM (getFileSize . P.fromRelFile))
+readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> (listDirectoryDeep path >>= mapM (getFileSize . fromRelFile))
 
 readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
 readCompileInformation waspDir = do
