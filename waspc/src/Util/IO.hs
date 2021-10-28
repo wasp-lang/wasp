@@ -6,7 +6,7 @@ where
 
 import Control.Monad (filterM)
 import StrongPath (Abs, Dir, File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
-import qualified System.Directory as Dir'
+import qualified System.Directory
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
@@ -42,7 +42,7 @@ listDirectoryDeep absDirPath = do
 -- | Lists files and directories at top lvl of the directory.
 listDirectory :: Path' Abs (Dir d) -> IO ([Path' (Rel r) (File f)], [Path' (Rel r) (Dir d)])
 listDirectory absDirPath = do
-  fpRelItemPaths <- Dir'.listDirectory fpAbsDirPath
+  fpRelItemPaths <- System.Directory.listDirectory fpAbsDirPath
   relFilePaths <- filterFiles fpAbsDirPath fpRelItemPaths
   relDirPaths <- filterDirs fpAbsDirPath fpRelItemPaths
   return (relFilePaths, relDirPaths)
@@ -52,10 +52,10 @@ listDirectory absDirPath = do
 
     filterFiles :: FilePath -> [FilePath] -> IO [Path' (Rel r) (File f)]
     filterFiles absDir relItems =
-      filterM (Dir'.doesFileExist . (absDir FilePath.</>)) relItems
+      filterM (System.Directory.doesFileExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelFile
 
     filterDirs :: FilePath -> [FilePath] -> IO [Path' (Rel r) (Dir d)]
     filterDirs absDir relItems =
-      filterM (Dir'.doesDirectoryExist . (absDir FilePath.</>)) relItems
+      filterM (System.Directory.doesDirectoryExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelDir
