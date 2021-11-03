@@ -4,7 +4,8 @@ module Wasp.Generator.WebAppGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (reldir, relfile, (</>))
+import Data.Aeson.Types (Pair)
+import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Wasp (Wasp, getAuth)
@@ -19,7 +20,7 @@ genAuth wasp = case maybeAuth of
       genUseAuth,
       genCreateAuthRequiredPage auth
     ]
-      ++ genAuthForms
+      ++ genAuthForms auth
   Nothing -> []
   where
     maybeAuth = getAuth wasp
@@ -39,14 +40,9 @@ genLogout = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/logout.js|])
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: Wasp.Auth.Auth -> FileDraft
 genCreateAuthRequiredPage auth =
-  C.makeTemplateFD
-    (asTmplFile $ [reldir|src|] </> authReqPagePath)
-    targetPath
-    (Just templateData)
-  where
-    authReqPagePath = [relfile|auth/pages/createAuthRequiredPage.js|]
-    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile authReqPagePath
-    templateData = object ["onAuthFailedRedirectTo" .= Wasp.Auth._onAuthFailedRedirectTo auth]
+  compileTmplToSamePath
+    [relfile|auth/pages/createAuthRequiredPage.js|]
+    ["onAuthFailedRedirectTo" .= Wasp.Auth._onAuthFailedRedirectTo auth]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
@@ -54,14 +50,30 @@ genCreateAuthRequiredPage auth =
 genUseAuth :: FileDraft
 genUseAuth = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/useAuth.js|])
 
-genAuthForms :: [FileDraft]
-genAuthForms =
-  [ genLoginForm,
-    genSignupForm
+genAuthForms :: Wasp.Auth.Auth -> [FileDraft]
+genAuthForms auth =
+  [ genLoginForm auth,
+    genSignupForm auth
   ]
 
-genLoginForm :: FileDraft
-genLoginForm = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/forms/Login.js|])
+genLoginForm :: Wasp.Auth.Auth -> FileDraft
+genLoginForm auth =
+  compileTmplToSamePath
+    [relfile|auth/forms/Login.js|]
+    ["onAuthSucceededRedirectTo" .= Wasp.Auth._onAuthSucceededRedirectTo auth]
 
-genSignupForm :: FileDraft
-genSignupForm = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/forms/Signup.js|])
+genSignupForm :: Wasp.Auth.Auth -> FileDraft
+genSignupForm auth =
+  compileTmplToSamePath
+    [relfile|auth/forms/Signup.js|]
+    ["onAuthSucceededRedirectTo" .= Wasp.Auth._onAuthSucceededRedirectTo auth]
+
+compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> FileDraft
+compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
+  C.makeTemplateFD
+    (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
+    targetPath
+    (Just templateData)
+  where
+    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile tmplFileInTmplSrcDir
+    templateData = object keyValuePairs
