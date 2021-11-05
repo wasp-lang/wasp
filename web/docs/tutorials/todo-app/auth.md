@@ -89,7 +89,7 @@ import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
 
-const LoginPage = (props) => {
+const LoginPage = () => {
   return (
     <>
       <LoginForm/>
@@ -112,7 +112,7 @@ import { Link } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
 
-const SignupPage = (props) => {
+const SignupPage = () => {
   return (
     <>
       <SignupForm/>
