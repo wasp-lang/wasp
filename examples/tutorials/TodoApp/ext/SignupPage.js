@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
 
-const SignupPage = (props) => {
+const SignupPage = () => {
   return (
     <>
       <SignupForm/>

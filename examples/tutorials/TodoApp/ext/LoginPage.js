@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
 
-const LoginPage = (props) => {
+const LoginPage = () => {
   return (
     <>
       <LoginForm/>
