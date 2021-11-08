@@ -1,6 +1,4 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import useAuth from '@wasp/auth/useAuth.js'
 
 import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
@@ -9,7 +7,7 @@ import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
 import Clocks from './Clocks'
 
-const MainPage = ({ user }) => {
+const MainPage = () => {
   const { data: tasks, isFetching, error } = useQuery(getTasks)
 
   return (
@@ -57,7 +55,7 @@ const TasksList = (props) => {
   return props.tasks.map((task, idx) => <Task task={task} key={idx} />)
 }
 
-const NewTaskForm = (props) => {
+const NewTaskForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {

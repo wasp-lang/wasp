@@ -7,7 +7,6 @@ import Paper from '@material-ui/core/Paper'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
-import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 
@@ -156,7 +155,7 @@ const NewTaskForm = (props) => {
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
-      <Button 
+      <Button
         variant="contained" color="primary" type='submit'
         >
         Create new task
