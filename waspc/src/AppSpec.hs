@@ -3,7 +3,7 @@ module AppSpec
   )
 where
 
-import AppSpec.AST.Core.Decl (Decl)
+import AppSpec.Core.Decl (Decl)
 -- TODO: Move definition of ExternalCode.File to the AppSpec.ExternalCode?
 --   So it doesn't rely on external modules and is self contained?
 import qualified ExternalCode

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.AST.Domain.Page
+module AppSpec.Page
   ( Page (..),
   )
 where

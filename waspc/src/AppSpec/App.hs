@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.AST.Domain.App (App (..)) where
+module AppSpec.App (App (..)) where
 
-import AppSpec.AST.Core.Ref (Ref)
-import AppSpec.AST.Domain.AuthMethod (AuthMethod)
-import AppSpec.AST.Domain.Page (Page)
+import AppSpec.AuthMethod (AuthMethod)
+import AppSpec.Core.Ref (Ref)
+import AppSpec.Page (Page)
 import Data.Data (Data)
 
 data App = App

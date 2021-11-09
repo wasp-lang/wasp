@@ -4,7 +4,7 @@ module Analyzer.Evaluator.Bindings
   )
 where
 
-import AppSpec.AST.Core.Decl (Decl)
+import AppSpec.Core.Decl (Decl)
 import qualified Data.HashMap.Strict as H
 
 -- | Declarations that have been evaluated so far + names to which they are bound.

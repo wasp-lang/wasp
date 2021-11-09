@@ -23,8 +23,8 @@ import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import qualified Analyzer.TypeChecker.AST as TypedAST
 import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.AST.Core.Ref (Ref)
-import qualified AppSpec.AST.Core.Ref as Ref
+import AppSpec.Core.Ref (Ref)
+import qualified AppSpec.Core.Ref as Ref
 import Control.Arrow (left)
 
 -- | An evaluation that expects a "StringLiteral".

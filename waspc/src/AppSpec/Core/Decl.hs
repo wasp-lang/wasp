@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TupleSections #-}
 
-module AppSpec.AST.Core.Decl
+module AppSpec.Core.Decl
   ( Decl,
     takeDecls,
     makeDecl,
@@ -13,7 +13,7 @@ import Data.Maybe (mapMaybe)
 import Data.Typeable (Typeable, cast)
 
 -- | Used to store a heterogenous lists of Wasp declarations, which make the top level
---   of AppSpec AST.
+--   of AppSpec.
 data Decl where
   Decl :: (Typeable a) => String -> a -> Decl
 

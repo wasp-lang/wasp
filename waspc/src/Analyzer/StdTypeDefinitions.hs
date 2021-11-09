@@ -8,9 +8,9 @@ where
 
 import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.AST.Domain.App (App)
-import AppSpec.AST.Domain.AuthMethod (AuthMethod)
-import AppSpec.AST.Domain.Page (Page)
+import AppSpec.App (App)
+import AppSpec.AuthMethod (AuthMethod)
+import AppSpec.Page (Page)
 
 makeEnumType ''AuthMethod
 makeDeclType ''Page
