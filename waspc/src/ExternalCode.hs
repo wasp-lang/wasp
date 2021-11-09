@@ -1,4 +1,5 @@
 module ExternalCode
+-- TODO: Remove re-export of File and its functions here. Whoever imports them from here should instead import them from AppSpec.ExternalCode .
   ( File,
     filePathInExtCodeDir,
     fileAbsPath,

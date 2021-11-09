@@ -7,6 +7,8 @@ module AppSpec.ExternalCode
   )
 where
 
+-- TODO: Write docs about this module. Explain what External code is as a concept, provide some context on it.
+
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TextL
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
