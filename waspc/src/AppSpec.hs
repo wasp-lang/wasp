@@ -4,9 +4,7 @@ module AppSpec
 where
 
 import AppSpec.Core.Decl (Decl)
--- TODO: Move definition of ExternalCode.File to the AppSpec.ExternalCode?
---   So it doesn't rely on external modules and is self contained?
-import qualified ExternalCode
+import qualified AppSpec.ExternalCode as ExternalCode
 
 data AppSpec = AppSpec
   { decls :: [Decl],

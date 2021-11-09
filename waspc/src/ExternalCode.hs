@@ -8,8 +8,8 @@ module ExternalCode
   )
 where
 
+import AppSpec.ExternalCode (File (..), SourceExternalCodeDir, fileAbsPath, filePathInExtCodeDir, fileText)
 import Data.Maybe (catMaybes)
-import Data.Text (Text)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
@@ -19,34 +19,6 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import qualified Util.IO
 import WaspignoreFile (ignores, readWaspignoreFile)
-
--- | External code directory in Wasp source, from which external code files are read.
-data SourceExternalCodeDir
-
-data File = File
-  { _pathInExtCodeDir :: !(Path' (Rel SourceExternalCodeDir) File'),
-    _extCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
-    -- | File content. It will throw error when evaluated if file is not textual file.
-    _text :: TextL.Text
-  }
-
-instance Show File where
-  show = show . _pathInExtCodeDir
-
-instance Eq File where
-  f1 == f2 = _pathInExtCodeDir f1 == _pathInExtCodeDir f2
-
--- | Returns path relative to the external code directory.
-filePathInExtCodeDir :: File -> Path' (Rel SourceExternalCodeDir) File'
-filePathInExtCodeDir = _pathInExtCodeDir
-
--- | Unsafe method: throws error if text could not be read (if file is not a textual file)!
-fileText :: File -> Text
-fileText = TextL.toStrict . _text
-
--- | Returns absolute path of the external code file.
-fileAbsPath :: ExternalCode.File -> Path' Abs File'
-fileAbsPath file = _extCodeDirPath file </> _pathInExtCodeDir file
 
 waspignorePathInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
 waspignorePathInExtCodeDir = [relfile|.waspignore|]
@@ -76,7 +48,7 @@ readFiles extCodeDirPath = do
   --     In generator, when creating TextFileDraft, give it function/logic for text transformation,
   --     and it will be taken care of when draft will be written to the disk.
   fileTexts <- catMaybes <$> mapM (tryReadFile . SP.toFilePath) absFilePaths
-  let files = map (\(path, text) -> File path extCodeDirPath text) (zip relFilePaths fileTexts)
+  let files = zipWith (\rfp txt -> File rfp extCodeDirPath txt) relFilePaths fileTexts
   return files
   where
     -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed
