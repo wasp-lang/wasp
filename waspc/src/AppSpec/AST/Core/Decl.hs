@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TupleSections #-}
 
-module AppSpec.AST.Decl
+module AppSpec.AST.Core.Decl
   ( Decl,
     takeDecls,
     makeDecl,

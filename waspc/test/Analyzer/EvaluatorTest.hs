@@ -10,7 +10,7 @@ import Analyzer.Evaluator.TH
 import Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
 import Analyzer.TypeChecker (typeCheck)
 import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.AST.Ref (Ref (..))
+import AppSpec.AST.Core.Ref (Ref (..))
 import Data.Data (Data)
 import Test.Tasty.Hspec
 

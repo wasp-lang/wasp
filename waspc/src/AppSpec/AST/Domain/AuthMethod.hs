@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.AST.AuthMethod
+module AppSpec.AST.Domain.AuthMethod
   ( AuthMethod (..),
   )
 where

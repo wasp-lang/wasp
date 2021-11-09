@@ -13,7 +13,7 @@ import Analyzer.Evaluator.Types
 import qualified Analyzer.Type as Type
 import qualified Analyzer.TypeChecker.AST as AST
 import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.AST.Decl (Decl, takeDecls)
+import AppSpec.AST.Core.Decl (Decl, takeDecls)
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State

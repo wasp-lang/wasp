@@ -12,8 +12,8 @@ import Analyzer.Evaluator.TH.Common
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
-import AppSpec.AST.Decl (makeDecl)
-import AppSpec.AST.Ref (Ref)
+import AppSpec.AST.Core.Decl (makeDecl)
+import AppSpec.AST.Core.Ref (Ref)
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 

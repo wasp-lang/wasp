@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.AST.Ref
+module AppSpec.AST.Core.Ref
   ( Ref (..),
   )
 where

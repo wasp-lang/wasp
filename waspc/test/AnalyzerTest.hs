@@ -4,12 +4,12 @@ module AnalyzerTest where
 
 import Analyzer
 import qualified Analyzer.TypeChecker as TC
-import AppSpec.AST.App (App)
-import qualified AppSpec.AST.App as App
-import qualified AppSpec.AST.AuthMethod as AuthMethod
-import AppSpec.AST.Page (Page)
-import qualified AppSpec.AST.Page as Page
-import AppSpec.AST.Ref (Ref (..))
+import AppSpec.AST.Core.Ref (Ref (..))
+import AppSpec.AST.Domain.App (App)
+import qualified AppSpec.AST.Domain.App as App
+import qualified AppSpec.AST.Domain.AuthMethod as AuthMethod
+import AppSpec.AST.Domain.Page (Page)
+import qualified AppSpec.AST.Domain.Page as Page
 import Data.Either (isRight)
 import Test.Tasty.Hspec
 

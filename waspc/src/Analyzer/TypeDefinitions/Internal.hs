@@ -9,7 +9,7 @@ import Analyzer.Evaluator.Bindings (Bindings, DeclName)
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Analyzer.Type (Type)
 import Analyzer.TypeChecker.AST (TypedExpr)
-import AppSpec.AST.Decl (Decl)
+import AppSpec.AST.Core.Decl (Decl)
 import qualified Data.HashMap.Strict as M
 
 -- | Describes a specific declaration type in Wasp.
