@@ -1,3 +1,4 @@
+{-# LANGUAGE  ViewPatterns #-}
 module Command.CreateNewProject
   ( createNewProject,
   )
@@ -10,6 +11,7 @@ import qualified Command.Common
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data
+import Data.List (intercalate)
 import Data.Char (isLetter)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
@@ -18,19 +20,16 @@ import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import qualified Util.Terminal as Term
+import Lexer (reservedNames)
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
 createNewProject :: String -> Command ()
-createNewProject projectNameStr = do
-  case parseProjectName projectNameStr of
-    Left err -> throwError $ CommandError err
-    Right projectName -> createNewProject' projectName
-  where
-    parseProjectName name =
-      if all isLetter name
-        then Right $ ProjectName name
-        else Left "Please use only letters for project name."
+createNewProject (all isLetter -> False) =
+  throwError $ CommandError "Please use only letters for a new project's name."
+createNewProject ((`elem` reservedNames) -> True) =
+  throwError . CommandError $ "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
+createNewProject name = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
 createNewProject' (ProjectName projectName) = do
