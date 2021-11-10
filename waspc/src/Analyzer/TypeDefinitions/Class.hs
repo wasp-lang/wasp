@@ -10,6 +10,7 @@ import Analyzer.Evaluator.Bindings (Bindings)
 import Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Analyzer.TypeChecker.AST (TypedExpr)
 import Analyzer.TypeDefinitions.Internal (DeclType, EnumType, TypeDefinitions)
+import qualified AppSpec.Core.Decl
 import Data.Typeable (Typeable)
 
 -- | Marks Haskell type as a representation of a specific Wasp declaration type.
@@ -19,7 +20,7 @@ import Data.Typeable (Typeable)
 --
 -- NOTE: If this Haskell type satisfies certain requirements, the IsDeclType instance for it
 -- can be automatically derived from its shape by using 'Analyzer.Evaluator.TH.makeDeclType'.
-class Typeable a => IsDeclType a where
+class (Typeable a, AppSpec.Core.Decl.IsDecl a) => IsDeclType a where
   declType :: DeclType
 
   -- | Evaluates a given Wasp "TypedExpr" to a value of this type, assuming it is of

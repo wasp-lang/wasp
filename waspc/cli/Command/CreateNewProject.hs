@@ -3,6 +3,7 @@ module Command.CreateNewProject
   )
 where
 
+import AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Cli.Common as Common
 import Command (Command, CommandError (..))
 import qualified Command.Common
@@ -10,7 +11,6 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data
 import Data.Char (isLetter)
-import ExternalCode (SourceExternalCodeDir)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)

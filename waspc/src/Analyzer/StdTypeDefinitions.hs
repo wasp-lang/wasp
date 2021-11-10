@@ -6,14 +6,15 @@ module Analyzer.StdTypeDefinitions
   )
 where
 
-import qualified AST
 import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Analyzer.TypeDefinitions as TD
+import AppSpec.App (App)
+import AppSpec.AuthMethod (AuthMethod)
+import AppSpec.Page (Page)
 
-makeEnumType ''AST.AuthMethod
-makeDeclType ''AST.Page
-
-makeDeclType ''AST.App
+makeEnumType ''AuthMethod
+makeDeclType ''Page
+makeDeclType ''App
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -21,8 +22,8 @@ makeDeclType ''AST.App
 -- easier to modify and maintain the Wasp compiler/language.
 stdTypes :: TD.TypeDefinitions
 stdTypes =
-  TD.addEnumType @AST.AuthMethod $
-  TD.addDeclType @AST.Page $
-  TD.addDeclType @AST.App $
+  TD.addEnumType @AuthMethod $
+  TD.addDeclType @Page $
+  TD.addDeclType @App $
   TD.empty
 {- ORMOLU_ENABLE -}

@@ -2,10 +2,14 @@
 
 module AnalyzerTest where
 
-import AST (App (..), AuthMethod (..), Page (..))
-import AST.Core.Ref (Ref (..))
 import Analyzer
 import qualified Analyzer.TypeChecker as TC
+import AppSpec.App (App)
+import qualified AppSpec.App as App
+import qualified AppSpec.AuthMethod as AuthMethod
+import AppSpec.Core.Ref (Ref (..))
+import AppSpec.Page (Page)
+import qualified AppSpec.Page as Page
 import Data.Either (isRight)
 import Test.Tasty.Hspec
 
@@ -23,9 +27,23 @@ spec_Analyzer = do
                 "page HomePage { content: \"Hello world\" }"
               ]
       let decls = analyze source
-      let expectedApps = [("Todo", App {title = "Todo App", authMethod = EmailAndPassword, defaultPage = Ref "HomePage"})]
+      let expectedApps =
+            [ ( "Todo",
+                App.App
+                  { App.title = "Todo App",
+                    App.authMethod = AuthMethod.EmailAndPassword,
+                    App.defaultPage = Ref "HomePage"
+                  }
+              )
+            ]
       takeDecls @App <$> decls `shouldBe` Right expectedApps
-      let expectedPages = [("HomePage", Page {content = "Hello world"})]
+      let expectedPages =
+            [ ( "HomePage",
+                Page.Page
+                  { Page.content = "Hello world"
+                  }
+              )
+            ]
       takeDecls @Page <$> decls `shouldBe` Right expectedPages
 
     it "Returns a type error if unexisting declaration is referenced" $ do

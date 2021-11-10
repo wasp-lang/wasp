@@ -7,13 +7,13 @@ module Analyzer.Evaluator.TH.Decl
   )
 where
 
-import AST.Core.Ref (Ref)
-import Analyzer.Evaluator.Decl.Operations (makeDecl)
 import Analyzer.Evaluator.Evaluation
 import Analyzer.Evaluator.TH.Common
 import qualified Analyzer.Evaluator.Types as E
 import qualified Analyzer.Type as T
 import Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
+import AppSpec.Core.Decl (makeDecl)
+import AppSpec.Core.Ref (Ref)
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 
