@@ -34,8 +34,8 @@ module Wasp
   )
 where
 
+import qualified AppSpec.ExternalCode as ExternalCode
 import Data.Aeson (ToJSON (..), object, (.=))
-import qualified ExternalCode
 import StrongPath (Abs, File', Path')
 import qualified Util as U
 import qualified Wasp.Action
@@ -122,7 +122,7 @@ setJsImports wasp jsImports = wasp {waspJsImports = jsImports}
 getApp :: Wasp -> App
 getApp wasp =
   let apps = getApps wasp
-   in if (length apps /= 1)
+   in if length apps /= 1
         then error "Wasp has to contain exactly one WaspElementApp element!"
         else head apps
 
@@ -134,7 +134,7 @@ getApps :: Wasp -> [App]
 getApps wasp = [app | (WaspElementApp app) <- waspElements wasp]
 
 setApp :: Wasp -> App -> Wasp
-setApp wasp app = wasp {waspElements = (WaspElementApp app) : (filter (not . isAppElem) (waspElements wasp))}
+setApp wasp app = wasp {waspElements = WaspElementApp app : filter (not . isAppElem) (waspElements wasp)}
 
 fromApp :: App -> Wasp
 fromApp app = fromWaspElems [WaspElementApp app]
@@ -190,7 +190,7 @@ getPages :: Wasp -> [Page]
 getPages wasp = [page | (WaspElementPage page) <- waspElements wasp]
 
 addPage :: Wasp -> Page -> Wasp
-addPage wasp page = wasp {waspElements = (WaspElementPage page) : (waspElements wasp)}
+addPage wasp page = wasp {waspElements = WaspElementPage page : waspElements wasp}
 
 -- * Query
 
@@ -221,7 +221,7 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 -- * Entities
 
 getPSLEntities :: Wasp -> [Wasp.Entity.Entity]
-getPSLEntities wasp = [entity | (WaspElementEntity entity) <- (waspElements wasp)]
+getPSLEntities wasp = [entity | (WaspElementEntity entity) <- waspElements wasp]
 
 -- * Get server
 

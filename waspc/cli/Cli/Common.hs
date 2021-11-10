@@ -12,8 +12,8 @@ module Cli.Common
   )
 where
 
+import AppSpec.ExternalCode (SourceExternalCodeDir)
 import Common (WaspProjectDir)
-import ExternalCode (SourceExternalCodeDir)
 import qualified Generator.Common
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
 import qualified Util.Terminal as Term

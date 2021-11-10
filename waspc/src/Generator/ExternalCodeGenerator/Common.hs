@@ -6,8 +6,8 @@ module Generator.ExternalCodeGenerator.Common
   )
 where
 
+import AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Text (Text)
-import ExternalCode (SourceExternalCodeDir)
 import Generator.Common (ProjectRootDir)
 import StrongPath (Dir, File', Path', Rel)
 import qualified StrongPath as SP

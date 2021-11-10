@@ -4,10 +4,10 @@ module Generator.ExternalCodeGenerator.Js
   )
 where
 
+import qualified AppSpec.ExternalCode as EC
 import Data.Maybe (fromJust)
 import Data.Text (Text, unpack)
 import qualified Data.Text as T
-import qualified ExternalCode as EC
 import FilePath.Extra (reversePosixPath)
 import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import qualified Generator.ExternalCodeGenerator.Common as C
@@ -25,7 +25,7 @@ generateJsFile strategy file = FD.createTextFileDraft dstPath text'
     filePathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir filePathInSrcExtCodeDir
 
     text = EC.fileText file
-    text' = (C._resolveJsFileWaspImports strategy) filePathInGenExtCodeDir text
+    text' = C._resolveJsFileWaspImports strategy filePathInGenExtCodeDir text
     dstPath = C._extCodeDirInProjectRootDir strategy </> filePathInGenExtCodeDir
 
 -- | Replaces imports that start with "@wasp/" with imports that start from the src dir of the app.

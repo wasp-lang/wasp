@@ -1,15 +1,9 @@
 module ExternalCode
--- TODO: Remove re-export of File and its functions here. Whoever imports them from here should instead import them from AppSpec.ExternalCode .
-  ( File,
-    filePathInExtCodeDir,
-    fileAbsPath,
-    fileText,
-    readFiles,
-    SourceExternalCodeDir,
+  ( readFiles,
   )
 where
 
-import AppSpec.ExternalCode (File (..), SourceExternalCodeDir, fileAbsPath, filePathInExtCodeDir, fileText)
+import AppSpec.ExternalCode (File (..), SourceExternalCodeDir)
 import Data.Maybe (catMaybes)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
@@ -49,7 +43,7 @@ readFiles extCodeDirPath = do
   --     In generator, when creating TextFileDraft, give it function/logic for text transformation,
   --     and it will be taken care of when draft will be written to the disk.
   fileTexts <- catMaybes <$> mapM (tryReadFile . SP.toFilePath) absFilePaths
-  let files = zipWith (\rfp txt -> File rfp extCodeDirPath txt) relFilePaths fileTexts
+  let files = zipWith (`File` extCodeDirPath) relFilePaths fileTexts
   return files
   where
     -- NOTE(matija): we had cases (e.g. tmp Vim files) where a file initially existed

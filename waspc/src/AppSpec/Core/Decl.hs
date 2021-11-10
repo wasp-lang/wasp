@@ -15,8 +15,9 @@ import Data.Typeable (Typeable, cast)
 
 class (Typeable a) => IsDecl a
 
--- | Used to store a heterogenous lists of Wasp declarations, which make the top level
---   of AppSpec.
+-- | A container for any (IsDecl a) type, allowing you to have a heterogenous list of
+--   Wasp declarations as [Decl].
+--   Declarations make the top level of AppSpec.
 data Decl where
   Decl :: (IsDecl a) => String -> a -> Decl
 

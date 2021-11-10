@@ -3,7 +3,7 @@ module Generator.ExternalCodeGenerator
   )
 where
 
-import qualified ExternalCode as EC
+import qualified AppSpec.ExternalCode as EC
 import qualified Generator.ExternalCodeGenerator.Common as C
 import Generator.ExternalCodeGenerator.Js (generateJsFile)
 import qualified Generator.FileDraft as FD

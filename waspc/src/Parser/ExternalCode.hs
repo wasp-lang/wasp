@@ -3,7 +3,7 @@ module Parser.ExternalCode
   )
 where
 
-import ExternalCode (SourceExternalCodeDir)
+import AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Parser.Common
 import qualified Path.Posix as PPosix
 import StrongPath (File', Path, Posix, Rel)
