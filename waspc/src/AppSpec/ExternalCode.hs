@@ -1,13 +1,18 @@
 module AppSpec.ExternalCode
-  ( File (..),
+  ( -- | Wasp project consists of Wasp code (.wasp files) and external code (e.g. .js files) that is
+    -- used/referenced by the Wasp code.
+    -- Therefore, the whole specification of the web app is not just Wasp code, but a combination of
+    -- Wasp code and external code.
+    -- Main unit of external code is File, and external code is currently all organized in a single
+    -- directory in Wasp project which we call source external code dir (source because it is in the
+    -- Wasp project \/ source dir, and not in the generated project \/ source).
+    File (..),
     filePathInExtCodeDir,
     fileAbsPath,
     fileText,
     SourceExternalCodeDir,
   )
 where
-
--- TODO: Write docs about this module. Explain what External code is as a concept, provide some context on it.
 
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TextL
@@ -20,7 +25,8 @@ data SourceExternalCodeDir
 data File = File
   { _pathInExtCodeDir :: !(Path' (Rel SourceExternalCodeDir) File'),
     _extCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
-    -- | File content. It will throw error when evaluated if file is not textual file.
+    -- | File content. Since it is lazy, it might throw error when evaluated,
+    -- since reading will happen only then. E.g. it will throw error if file is not a textual file.
     _text :: TextL.Text
   }
 
