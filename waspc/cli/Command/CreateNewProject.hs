@@ -1,4 +1,5 @@
-{-# LANGUAGE  ViewPatterns #-}
+{-# LANGUAGE ViewPatterns #-}
+
 module Command.CreateNewProject
   ( createNewProject,
   )
@@ -11,8 +12,9 @@ import qualified Command.Common
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data
-import Data.List (intercalate)
 import Data.Char (isLetter)
+import Data.List (intercalate)
+import Lexer (reservedNames)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
@@ -20,7 +22,6 @@ import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import qualified Util.Terminal as Term
-import Lexer (reservedNames)
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
