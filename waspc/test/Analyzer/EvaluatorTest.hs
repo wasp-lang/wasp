@@ -10,6 +10,7 @@ import Analyzer.Evaluator.TH
 import Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
 import Analyzer.TypeChecker (typeCheck)
 import qualified Analyzer.TypeDefinitions as TD
+import AppSpec.Core.Decl (IsDecl)
 import AppSpec.Core.Ref (Ref (..))
 import Data.Data (Data)
 import Test.Tasty.Hspec
@@ -20,13 +21,19 @@ fromRight (Left e) = error $ show e
 
 newtype Simple = Simple String deriving (Eq, Show, Data)
 
+instance IsDecl Simple
+
 makeDeclType ''Simple
 
 data Fields = Fields {a :: String, b :: Maybe Double} deriving (Eq, Show, Data)
 
+instance IsDecl Fields
+
 makeDeclType ''Fields
 
 data Person = Person {name :: String, age :: Integer} deriving (Eq, Show, Data)
+
+instance IsDecl Person
 
 makeDeclType ''Person
 
@@ -35,6 +42,8 @@ data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data)
 makeEnumType ''BusinessType
 
 data Special = Special {imps :: [ExtImport], json :: JSON, psl :: PSL} deriving (Eq, Show)
+
+instance IsDecl Special
 
 makeDeclType ''Special
 
@@ -45,6 +54,8 @@ data Business = Business
     location :: Maybe String
   }
   deriving (Eq, Show, Data)
+
+instance IsDecl Business
 
 makeDeclType ''Business
 
