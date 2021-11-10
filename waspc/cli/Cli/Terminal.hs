@@ -3,7 +3,7 @@ module Cli.Terminal
   )
 where
 
-import qualified Util.Terminal as Term
+import qualified Wasp.Util.Terminal as Term
 
 title :: String -> String
 title = Term.applyStyles [Term.Bold]

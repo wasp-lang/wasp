@@ -1,17 +1,17 @@
-module Generator.ExternalCodeGenerator
+module Wasp.Generator.ExternalCodeGenerator
   ( generateExternalCodeDir,
   )
 where
 
-import qualified AppSpec.ExternalCode as EC
-import qualified Generator.ExternalCodeGenerator.Common as C
-import Generator.ExternalCodeGenerator.Js (generateJsFile)
-import qualified Generator.FileDraft as FD
 import StrongPath (File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
-import Wasp (Wasp)
-import qualified Wasp
+import qualified Wasp.AppSpec.ExternalCode as EC
+import qualified Wasp.Generator.ExternalCodeGenerator.Common as C
+import Wasp.Generator.ExternalCodeGenerator.Js (generateJsFile)
+import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
 
 -- | Takes external code files from Wasp and generates them in new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.

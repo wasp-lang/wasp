@@ -1,4 +1,4 @@
-module Psl.Ast.Model where
+module Wasp.Psl.Ast.Model where
 
 data Model
   = Model

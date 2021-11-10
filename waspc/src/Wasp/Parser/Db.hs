@@ -1,14 +1,14 @@
-module Parser.Db
+module Wasp.Parser.Db
   ( db,
   )
 where
 
 import Data.Maybe (fromMaybe, listToMaybe)
-import qualified Lexer as L
-import qualified Parser.Common as P
 import Text.Parsec (try, (<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp.Db
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as P
+import qualified Wasp.Wasp.Db as Wasp.Db
 
 db :: Parser Wasp.Db.Db
 db = do

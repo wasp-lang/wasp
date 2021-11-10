@@ -1,15 +1,15 @@
-module Generator.Setup
+module Wasp.Generator.Setup
   ( setup,
   )
 where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
-import Generator.Common (ProjectRootDir)
-import qualified Generator.Job as J
-import Generator.Job.IO (printPrefixedJobMessage)
-import Generator.ServerGenerator.Setup (setupServer)
-import Generator.WebAppGenerator.Setup (setupWebApp)
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (printPrefixedJobMessage)
+import Wasp.Generator.ServerGenerator.Setup (setupServer)
+import Wasp.Generator.WebAppGenerator.Setup (setupWebApp)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 

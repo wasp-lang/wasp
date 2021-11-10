@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 
-module Analyzer.TypeChecker.Monad
+module Wasp.Analyzer.TypeChecker.Monad
   ( TypeChecker,
     lookupType,
     setType,
@@ -13,10 +13,10 @@ module Analyzer.TypeChecker.Monad
   )
 where
 
-import Analyzer.Parser.AST
-import Analyzer.Type
-import Analyzer.TypeChecker.TypeError
-import qualified Analyzer.TypeDefinitions as TD
+import Wasp.Analyzer.Parser.AST
+import Wasp.Analyzer.Type
+import Wasp.Analyzer.TypeChecker.TypeError
+import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.Reader (ReaderT, asks, runReaderT)
 import Control.Monad.State (StateT, evalStateT, gets, modify)

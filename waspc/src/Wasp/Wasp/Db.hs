@@ -1,4 +1,4 @@
-module Wasp.Db
+module Wasp.Wasp.Db
   ( Db (..),
     DbSystem (..),
   )

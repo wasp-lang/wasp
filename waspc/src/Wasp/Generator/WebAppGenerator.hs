@@ -1,33 +1,15 @@
-module Generator.WebAppGenerator
+module Wasp.Generator.WebAppGenerator
   ( generateWebApp,
     waspNpmDeps,
   )
 where
 
-import CompileOptions (CompileOptions)
 import Data.Aeson
   ( ToJSON (..),
     object,
     (.=),
   )
 import Data.List (intercalate)
-import Generator.ExternalCodeGenerator (generateExternalCodeDir)
-import Generator.FileDraft
-import Generator.PackageJsonGenerator
-  ( npmDepsToPackageJsonEntry,
-    resolveNpmDeps,
-  )
-import qualified Generator.WebAppGenerator.AuthG as AuthG
-import Generator.WebAppGenerator.Common
-  ( asTmplFile,
-    asWebAppFile,
-    asWebAppSrcFile,
-  )
-import qualified Generator.WebAppGenerator.Common as C
-import qualified Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
-import Generator.WebAppGenerator.OperationsGenerator (genOperations)
-import qualified Generator.WebAppGenerator.RouterGenerator as RouterGenerator
-import qualified NpmDependency as ND
 import StrongPath
   ( Dir,
     Path',
@@ -36,9 +18,27 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp
-import qualified Wasp.App
-import qualified Wasp.NpmDependencies as WND
+import Wasp.CompileOptions (CompileOptions)
+import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Wasp.Generator.FileDraft
+import Wasp.Generator.PackageJsonGenerator
+  ( npmDepsToPackageJsonEntry,
+    resolveNpmDeps,
+  )
+import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
+import Wasp.Generator.WebAppGenerator.Common
+  ( asTmplFile,
+    asWebAppFile,
+    asWebAppSrcFile,
+  )
+import qualified Wasp.Generator.WebAppGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
+import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
+import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
+import qualified Wasp.NpmDependency as ND
+import Wasp.Wasp
+import qualified Wasp.Wasp.App as Wasp.App
+import qualified Wasp.Wasp.NpmDependencies as WND
 
 generateWebApp :: Wasp -> CompileOptions -> [FileDraft]
 generateWebApp wasp _ =
@@ -73,7 +73,7 @@ genPackageJson wasp waspDeps =
         Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
 
     userDeps :: [ND.NpmDependency]
-    userDeps = WND._dependencies $ Wasp.getNpmDependencies wasp
+    userDeps = WND._dependencies $ Wasp.Wasp.getNpmDependencies wasp
 
 waspNpmDeps :: [ND.NpmDependency]
 waspNpmDeps =

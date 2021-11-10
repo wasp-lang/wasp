@@ -1,7 +1,7 @@
 module Generator.PackageJsonGeneratorTest where
 
-import Generator.PackageJsonGenerator (resolveNpmDeps)
-import qualified NpmDependency as ND
+import Wasp.Generator.PackageJsonGenerator (resolveNpmDeps)
+import qualified Wasp.NpmDependency as ND
 import Test.Tasty.Hspec
 
 spec_resolveNpmDeps :: Spec

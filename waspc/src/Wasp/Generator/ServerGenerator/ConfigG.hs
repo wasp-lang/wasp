@@ -1,4 +1,4 @@
-module Generator.ServerGenerator.ConfigG
+module Wasp.Generator.ServerGenerator.ConfigG
   ( genConfigFile,
     configFileInSrcDir,
   )
@@ -6,11 +6,11 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator.Common as C
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.ServerGenerator.Common as C
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp, getAuth)
+import Wasp.Wasp (Wasp, getAuth)
 
 genConfigFile :: Wasp -> FileDraft
 genConfigFile wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)

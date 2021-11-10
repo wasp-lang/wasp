@@ -1,20 +1,20 @@
 module Parser.ParserTest where
 
 import Data.Either
-import NpmDependency as ND
-import Parser
-import Parser.Common (runWaspParser)
-import qualified Psl.Parser.Model
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import Wasp
-import qualified Wasp.Auth
-import qualified Wasp.Entity
-import qualified Wasp.JsImport
-import qualified Wasp.NpmDependencies
-import qualified Wasp.Page
-import qualified Wasp.Query
-import qualified Wasp.Route as R
+import Wasp.NpmDependency as ND
+import Wasp.Parser
+import Wasp.Parser.Common (runWaspParser)
+import qualified Wasp.Psl.Parser.Model
+import Wasp.Wasp
+import qualified Wasp.Wasp.Auth as Wasp.Auth
+import qualified Wasp.Wasp.Entity as Wasp.Entity
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
+import qualified Wasp.Wasp.NpmDependencies as Wasp.NpmDependencies
+import qualified Wasp.Wasp.Page as Wasp.Page
+import qualified Wasp.Wasp.Query as Wasp.Query
+import qualified Wasp.Wasp.Route as R
 
 spec_parseWasp :: Spec
 spec_parseWasp =
@@ -92,7 +92,7 @@ spec_parseWasp =
                         Wasp.Entity._pslModelBody =
                           fromRight (error "failed to parse") $
                             runWaspParser
-                              Psl.Parser.Model.body
+                              Wasp.Psl.Parser.Model.body
                               "\
                               \    id          Int     @id @default(autoincrement())\n\
                               \    description String\n\

@@ -1,4 +1,4 @@
-module Wasp.JsCode
+module Wasp.Wasp.JsCode
   ( JsCode (..),
   )
 where

@@ -1,12 +1,12 @@
-module Generator.WebAppGenerator.ExternalCodeGenerator
+module Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extCodeDirInWebAppSrcDir,
     generatorStrategy,
   )
 where
 
-import Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy (..), GeneratedExternalCodeDir)
-import Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
-import qualified Generator.WebAppGenerator.Common as C
+import Wasp.Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy (..), GeneratedExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
+import qualified Wasp.Generator.WebAppGenerator.Common as C
 import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 

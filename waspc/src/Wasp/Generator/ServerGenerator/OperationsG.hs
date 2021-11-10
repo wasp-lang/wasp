@@ -1,4 +1,4 @@
-module Generator.ServerGenerator.OperationsG
+module Wasp.Generator.ServerGenerator.OperationsG
   ( genOperations,
     queryFileInSrcDir,
     actionFileInSrcDir,
@@ -10,17 +10,17 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import Data.Maybe (fromJust, fromMaybe)
-import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Generator.FileDraft (FileDraft)
-import Generator.JsImport (getImportDetailsForJsFnImport)
-import qualified Generator.ServerGenerator.Common as C
 import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp)
-import qualified Wasp
-import qualified Wasp.Action
-import qualified Wasp.Operation
-import qualified Wasp.Query
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (getImportDetailsForJsFnImport)
+import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.Action as Wasp.Action
+import qualified Wasp.Wasp.Operation as Wasp.Operation
+import qualified Wasp.Wasp.Query as Wasp.Query
 
 genOperations :: Wasp -> [FileDraft]
 genOperations wasp =

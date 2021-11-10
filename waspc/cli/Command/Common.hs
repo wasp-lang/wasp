@@ -11,7 +11,7 @@ import Cli.Common
     waspSays,
   )
 import Command (Command, CommandError (..))
-import Common (WaspProjectDir)
+import Wasp.Common (WaspProjectDir)
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)

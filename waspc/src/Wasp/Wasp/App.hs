@@ -1,4 +1,4 @@
-module Wasp.App
+module Wasp.Wasp.App
   ( App (..),
   )
 where

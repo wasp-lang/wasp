@@ -1,11 +1,11 @@
-module Wasp.NpmDependencies
+module Wasp.Wasp.NpmDependencies
   ( NpmDependencies (..),
     empty,
   )
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import NpmDependency
+import Wasp.NpmDependency
 
 data NpmDependencies = NpmDependencies
   { _dependencies :: ![NpmDependency]

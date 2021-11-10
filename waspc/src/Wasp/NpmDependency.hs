@@ -1,4 +1,4 @@
-module NpmDependency
+module Wasp.NpmDependency
   ( NpmDependency (..),
     fromList,
     printDep,
@@ -6,7 +6,7 @@ module NpmDependency
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import qualified Util.Terminal as Term
+import qualified Wasp.Util.Terminal as Term
 
 data NpmDependency = NpmDependency
   { _name :: !String,

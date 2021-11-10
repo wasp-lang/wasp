@@ -1,16 +1,16 @@
-module Generator.DockerGenerator
+module Wasp.Generator.DockerGenerator
   ( genDockerFiles,
   )
 where
 
-import CompileOptions (CompileOptions)
 import Data.Aeson (object, (.=))
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import Generator.Templates (TemplatesDir)
 import StrongPath (File', Path', Rel, relfile)
-import Wasp (Wasp)
-import qualified Wasp
+import Wasp.CompileOptions (CompileOptions)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
 
 genDockerFiles :: Wasp -> CompileOptions -> [FileDraft]
 genDockerFiles wasp _ =

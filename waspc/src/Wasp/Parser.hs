@@ -1,24 +1,24 @@
-module Parser
+module Wasp.Parser
   ( parseWasp,
   )
 where
 
-import Lexer
-import qualified Parser.Action
-import Parser.App (app)
-import Parser.Auth (auth)
-import Parser.Common (runWaspParser)
-import Parser.Db (db)
-import Parser.Entity (entity)
-import Parser.JsImport (jsImport)
-import qualified Parser.NpmDependencies
-import Parser.Page (page)
-import qualified Parser.Query
-import Parser.Route (route)
-import qualified Parser.Server
 import Text.Parsec (ParseError, eof, many, many1, (<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp
+import Wasp.Lexer
+import qualified Wasp.Parser.Action as Parser.Action
+import Wasp.Parser.App (app)
+import Wasp.Parser.Auth (auth)
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Db (db)
+import Wasp.Parser.Entity (entity)
+import Wasp.Parser.JsImport (jsImport)
+import qualified Wasp.Parser.NpmDependencies as Parser.NpmDependencies
+import Wasp.Parser.Page (page)
+import qualified Wasp.Parser.Query as Parser.Query
+import Wasp.Parser.Route (route)
+import qualified Wasp.Parser.Server as Parser.Server
+import qualified Wasp.Wasp as Wasp
 
 waspElement :: Parser Wasp.WaspElement
 waspElement =

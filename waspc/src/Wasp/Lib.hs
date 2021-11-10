@@ -1,4 +1,4 @@
-module Lib
+module Wasp.Lib
   ( compile,
     Generator.setup,
     Generator.start,
@@ -7,20 +7,20 @@ module Lib
   )
 where
 
-import Common (WaspProjectDir)
-import CompileOptions (CompileOptions)
-import qualified CompileOptions
 import Data.List (find, isSuffixOf)
-import qualified ExternalCode
-import qualified Generator
-import Generator.Common (ProjectRootDir)
-import qualified Parser
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
-import qualified Util.IO
-import Wasp (Wasp)
-import qualified Wasp
+import Wasp.Common (WaspProjectDir)
+import Wasp.CompileOptions (CompileOptions)
+import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.ExternalCode as ExternalCode
+import qualified Wasp.Generator as Generator
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Parser as Parser
+import qualified Wasp.Util.IO as Util.IO
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
 
 type CompileError = String
 

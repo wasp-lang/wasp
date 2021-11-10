@@ -1,4 +1,4 @@
-module Generator.FileDraft.WriteableMonad
+module Wasp.Generator.FileDraft.WriteableMonad
   ( WriteableMonad (..),
   )
 where
@@ -7,7 +7,7 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text.IO
-import qualified Generator.Templates as Templates
+import qualified Wasp.Generator.Templates as Templates
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified System.Directory
 import System.IO.Error (isDoesNotExistError)

@@ -1,4 +1,4 @@
-module Parser.NpmDependencies
+module Wasp.Parser.NpmDependencies
   ( npmDependencies,
   )
 where
@@ -6,13 +6,13 @@ where
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import qualified Data.HashMap.Strict as M
-import qualified Lexer as L
-import qualified NpmDependency as ND
-import qualified Parser.Common as P
+import qualified Wasp.Lexer as L
+import qualified Wasp.NpmDependency as ND
+import qualified Wasp.Parser.Common as P
 import Text.Parsec (try)
 import Text.Parsec.String (Parser)
-import Wasp.NpmDependencies (NpmDependencies)
-import qualified Wasp.NpmDependencies as NpmDependencies
+import Wasp.Wasp.NpmDependencies (NpmDependencies)
+import qualified Wasp.Wasp.NpmDependencies as NpmDependencies
 
 npmDependencies :: Parser NpmDependencies
 npmDependencies = try $ do

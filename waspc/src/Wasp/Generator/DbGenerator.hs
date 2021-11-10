@@ -1,25 +1,25 @@
-module Generator.DbGenerator
+module Wasp.Generator.DbGenerator
   ( genDb,
     dbRootDirInProjectRootDir,
     dbSchemaFileInProjectRootDir,
   )
 where
 
-import CompileOptions (CompileOptions)
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe)
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import Generator.Templates (TemplatesDir)
-import qualified Psl.Ast.Model
-import qualified Psl.Generator.Model
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp)
-import qualified Wasp
-import qualified Wasp.Db
-import Wasp.Entity (Entity)
-import qualified Wasp.Entity
+import Wasp.CompileOptions (CompileOptions)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
+import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.Db as Wasp.Db
+import Wasp.Wasp.Entity (Entity)
+import qualified Wasp.Wasp.Entity as Wasp.Entity
 
 -- * Path definitions
 

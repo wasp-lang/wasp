@@ -1,4 +1,4 @@
-module Generator.ServerGenerator.OperationsRoutesG
+module Wasp.Generator.ServerGenerator.OperationsRoutesG
   ( genOperationsRoutes,
     operationRouteInOperationsRouter,
   )
@@ -7,18 +7,18 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, fromMaybe, isJust)
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator.Common as C
-import Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
-import qualified Util as U
-import Wasp (Wasp, getAuth)
-import qualified Wasp
-import qualified Wasp.Action
-import qualified Wasp.Auth
-import qualified Wasp.Operation
-import qualified Wasp.Query
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
+import qualified Wasp.Util as U
+import Wasp.Wasp (Wasp, getAuth)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.Action as Wasp.Action
+import qualified Wasp.Wasp.Auth as Wasp.Auth
+import qualified Wasp.Wasp.Operation as Wasp.Operation
+import qualified Wasp.Wasp.Query as Wasp.Query
 
 genOperationsRoutes :: Wasp -> [FileDraft]
 genOperationsRoutes wasp =

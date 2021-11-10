@@ -1,15 +1,15 @@
-module Generator.ServerGenerator.AuthG
+module Wasp.Generator.ServerGenerator.AuthG
   ( genAuth,
   )
 where
 
 import Data.Aeson (object, (.=))
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator.Common as C
 import StrongPath (reldir, relfile, (</>))
-import qualified Util
-import Wasp (Wasp, getAuth)
-import qualified Wasp.Auth
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.Util as Util
+import Wasp.Wasp (Wasp, getAuth)
+import qualified Wasp.Wasp.Auth as Wasp.Auth
 
 genAuth :: Wasp -> [FileDraft]
 genAuth wasp = case maybeAuth of

@@ -1,4 +1,4 @@
-module Analyzer.Parser.Token where
+module Wasp.Analyzer.Parser.Token where
 
 -- | The first character on the first line is at position @Position 1 1@
 data SourcePosition = SourcePosition Int Int deriving (Eq, Show)

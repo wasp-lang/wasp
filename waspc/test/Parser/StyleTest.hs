@@ -1,11 +1,11 @@
 module Parser.StyleTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.Style (style)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.Style
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Style (style)
+import qualified Wasp.Wasp.Style as Wasp.Style
 
 spec_parseStyle :: Spec
 spec_parseStyle = do

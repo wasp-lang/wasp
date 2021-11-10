@@ -1,7 +1,7 @@
 module Generator.ExternalCodeGenerator.JsTest where
 
-import Generator.ExternalCodeGenerator.Common (asGenExtFile)
-import Generator.ExternalCodeGenerator.Js as Js
+import Wasp.Generator.ExternalCodeGenerator.Common (asGenExtFile)
+import Wasp.Generator.ExternalCodeGenerator.Js as Js
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 

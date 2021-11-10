@@ -1,4 +1,4 @@
-module Util.Terminal
+module Wasp.Util.Terminal
   ( Style (..),
     applyStyles,
   )

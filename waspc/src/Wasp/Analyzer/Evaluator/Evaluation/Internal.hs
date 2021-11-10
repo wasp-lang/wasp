@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 
-module Analyzer.Evaluator.Evaluation.Internal
+module Wasp.Analyzer.Evaluator.Evaluation.Internal
   ( runEvaluation,
     evaluation,
     evaluation',
@@ -8,9 +8,9 @@ module Analyzer.Evaluator.Evaluation.Internal
   )
 where
 
-import Analyzer.Evaluator.Bindings
-import Analyzer.Evaluator.EvaluationError (EvaluationError)
-import qualified Analyzer.TypeDefinitions as TD
+import Wasp.Analyzer.Evaluator.Bindings
+import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
+import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Data.Functor.Compose (Compose (Compose, getCompose))
 
 -- | An evaluation of "a" into "b". It has evaluation context and it can return an evaluation error.

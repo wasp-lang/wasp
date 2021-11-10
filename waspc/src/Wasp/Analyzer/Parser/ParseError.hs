@@ -1,6 +1,6 @@
-module Analyzer.Parser.ParseError where
+module Wasp.Analyzer.Parser.ParseError where
 
-import Analyzer.Parser.Token
+import Wasp.Analyzer.Parser.Token
 
 data ParseError
   = -- | A lexical error representing an invalid character

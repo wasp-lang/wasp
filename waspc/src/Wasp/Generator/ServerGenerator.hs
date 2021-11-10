@@ -1,4 +1,4 @@
-module Generator.ServerGenerator
+module Wasp.Generator.ServerGenerator
   ( genServer,
     preCleanup,
     operationsRouteInRootRouter,
@@ -7,7 +7,6 @@ module Generator.ServerGenerator
   )
 where
 
-import CompileOptions (CompileOptions)
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
@@ -16,38 +15,39 @@ import Data.Maybe
     fromMaybe,
     isJust,
   )
-import Generator.Common (ProjectRootDir, nodeVersionAsText)
-import Generator.ExternalCodeGenerator (generateExternalCodeDir)
-import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Generator.JsImport (getImportDetailsForJsFnImport)
-import Generator.PackageJsonGenerator
-  ( npmDepsToPackageJsonEntry,
-    npmDevDepsToPackageJsonEntry,
-    resolveNpmDeps,
-  )
-import Generator.ServerGenerator.AuthG (genAuth)
-import Generator.ServerGenerator.Common
-  ( ServerSrcDir,
-    asServerFile,
-    asTmplFile,
-  )
-import qualified Generator.ServerGenerator.Common as C
-import Generator.ServerGenerator.ConfigG (genConfigFile)
-import qualified Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import Generator.ServerGenerator.OperationsG (genOperations)
-import Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified NpmDependency as ND
 import StrongPath (Abs, Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Wasp (Wasp, getAuth)
-import qualified Wasp
-import qualified Wasp.Auth
-import qualified Wasp.NpmDependencies as WND
-import qualified Wasp.Server
+import Wasp.CompileOptions (CompileOptions)
+import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText)
+import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.JsImport (getImportDetailsForJsFnImport)
+import Wasp.Generator.PackageJsonGenerator
+  ( npmDepsToPackageJsonEntry,
+    npmDevDepsToPackageJsonEntry,
+    resolveNpmDeps,
+  )
+import Wasp.Generator.ServerGenerator.AuthG (genAuth)
+import Wasp.Generator.ServerGenerator.Common
+  ( ServerSrcDir,
+    asServerFile,
+    asTmplFile,
+  )
+import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
+import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import qualified Wasp.NpmDependency as ND
+import Wasp.Wasp (Wasp, getAuth)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.Auth as Wasp.Auth
+import qualified Wasp.Wasp.NpmDependencies as WND
+import qualified Wasp.Wasp.Server as Wasp.Server
 
 genServer :: Wasp -> CompileOptions -> [FileDraft]
 genServer wasp _ =

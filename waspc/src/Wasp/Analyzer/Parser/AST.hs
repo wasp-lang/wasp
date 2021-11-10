@@ -1,4 +1,4 @@
-module Analyzer.Parser.AST where
+module Wasp.Analyzer.Parser.AST where
 
 type Identifier = String
 

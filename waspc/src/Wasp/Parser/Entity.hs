@@ -1,20 +1,20 @@
-module Parser.Entity
+module Wasp.Parser.Entity
   ( entity,
   )
 where
 
-import qualified Lexer as L
-import qualified Psl.Ast.Model as PslModel
-import qualified Psl.Parser.Model
 import Text.Parsec.String (Parser)
-import qualified Wasp.Entity as Entity
+import qualified Wasp.Lexer as L
+import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Psl.Parser.Model
+import qualified Wasp.Wasp.Entity as Entity
 
 entity :: Parser Entity.Entity
 entity = do
   _ <- L.reserved L.reservedNameEntity
   name <- L.identifier
   _ <- L.symbol "{=psl"
-  pslModelBody <- Psl.Parser.Model.body
+  pslModelBody <- Wasp.Psl.Parser.Model.body
   _ <- L.symbol "psl=}"
 
   return

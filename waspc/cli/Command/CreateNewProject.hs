@@ -3,13 +3,11 @@ module Command.CreateNewProject
   )
 where
 
-import AppSpec.ExternalCode (SourceExternalCodeDir)
 import qualified Cli.Common as Common
 import Command (Command, CommandError (..))
 import qualified Command.Common
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Data
 import Data.Char (isLetter)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
@@ -17,7 +15,9 @@ import System.Directory (createDirectory, getCurrentDirectory)
 import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
-import qualified Util.Terminal as Term
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import qualified Wasp.Data
+import qualified Wasp.Util.Terminal as Term
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
@@ -54,7 +54,7 @@ createNewProject' (ProjectName projectName) = do
   let extCodeDir = waspProjectDir </> Common.extCodeDirInWaspProjectDir
   liftIO $ do
     createDirectorySP extCodeDir
-    dataDir <- Data.getAbsDataDirPath
+    dataDir <- Wasp.Data.getAbsDataDirPath
 
     let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
 
@@ -82,7 +82,7 @@ createNewProject' (ProjectName projectName) = do
     putStrLn Command.Common.alphaWarningMessage
   where
     copyTemplateFile ::
-      Path' Abs (Dir Data.DataDir) ->
+      Path' Abs (Dir Wasp.Data.DataDir) ->
       Path' Abs (Dir SourceExternalCodeDir) ->
       Path' (Rel Common.CliTemplatesDir) File' ->
       Path' (Rel SourceExternalCodeDir) File' ->
@@ -92,7 +92,7 @@ createNewProject' (ProjectName projectName) = do
         (SP.fromAbsFile (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
         (SP.fromAbsFile (extCodeDir </> dstExtDirFile))
 
-    cliTemplatesDirInDataDir :: Path' (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
+    cliTemplatesDirInDataDir :: Path' (Rel Wasp.Data.DataDir) (Dir Common.CliTemplatesDir)
     cliTemplatesDirInDataDir = [reldir|Cli/templates|]
 
     mainWaspFileInWaspProjectDir :: Path' (Rel Common.WaspProjectDir) File'

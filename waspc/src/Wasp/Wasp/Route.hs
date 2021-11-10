@@ -1,4 +1,4 @@
-module Wasp.Route
+module Wasp.Wasp.Route
   ( Route (..),
   )
 where

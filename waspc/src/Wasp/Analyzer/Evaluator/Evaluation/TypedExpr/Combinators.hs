@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
+module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   ( string,
     integer,
     double,
@@ -16,15 +16,15 @@ module Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
-import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
-import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
-import qualified Analyzer.Evaluator.Types as E
-import qualified Analyzer.Type as T
-import qualified Analyzer.TypeChecker.AST as TypedAST
-import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.Core.Ref (Ref)
-import qualified AppSpec.Core.Ref as Ref
+import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
+import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
+import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
+import qualified Wasp.Analyzer.Evaluator.Types as E
+import qualified Wasp.Analyzer.Type as T
+import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
+import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.AppSpec.Core.Ref (Ref)
+import qualified Wasp.AppSpec.Core.Ref as Ref
 import Control.Arrow (left)
 
 -- | An evaluation that expects a "StringLiteral".

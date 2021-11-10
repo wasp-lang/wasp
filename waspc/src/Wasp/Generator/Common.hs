@@ -1,4 +1,4 @@
-module Generator.Common
+module Wasp.Generator.Common
   ( ProjectRootDir,
     nodeVersion,
     nodeVersionAsText,

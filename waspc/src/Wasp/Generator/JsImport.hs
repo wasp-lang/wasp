@@ -1,12 +1,12 @@
-module Generator.JsImport
+module Wasp.Generator.JsImport
   ( getImportDetailsForJsFnImport,
   )
 where
 
-import Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import StrongPath (Dir, Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
-import qualified Wasp.JsImport
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
 
 getImportDetailsForJsFnImport ::
   -- | Path to generated external code directory, relative to the directory in which file doing the importing is.

@@ -1,12 +1,12 @@
-module Generator.FileDraft.TextFileDraft
+module Wasp.Generator.FileDraft.TextFileDraft
   ( TextFileDraft (..),
   )
 where
 
 import Data.Text (Text)
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft.Writeable
-import Generator.FileDraft.WriteableMonad
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft.Writeable
+import Wasp.Generator.FileDraft.WriteableMonad
 import StrongPath (File', Path', Rel, (</>))
 import qualified StrongPath as SP
 

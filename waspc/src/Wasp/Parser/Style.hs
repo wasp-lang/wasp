@@ -1,20 +1,20 @@
-module Parser.Style
+module Wasp.Parser.Style
   ( style,
   )
 where
 
 import qualified Data.Text as Text
-import qualified Parser.Common
-import qualified Parser.ExternalCode
 import Text.Parsec ((<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp.Style
+import qualified Wasp.Parser.Common
+import qualified Wasp.Parser.ExternalCode
+import qualified Wasp.Wasp.Style as Wasp.Style
 
 style :: Parser Wasp.Style.Style
 style = cssFile <|> cssCode
 
 cssFile :: Parser Wasp.Style.Style
-cssFile = Wasp.Style.ExtCodeCssFile <$> Parser.ExternalCode.extCodeFilePathString
+cssFile = Wasp.Style.ExtCodeCssFile <$> Wasp.Parser.ExternalCode.extCodeFilePathString
 
 cssCode :: Parser Wasp.Style.Style
-cssCode = (Wasp.Style.CssCode . Text.pack) <$> Parser.Common.waspNamedClosure "css"
+cssCode = (Wasp.Style.CssCode . Text.pack) <$> Wasp.Parser.Common.waspNamedClosure "css"

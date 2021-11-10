@@ -2,7 +2,7 @@ module Util.FibTest where
 
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
-import Util.Fib
+import Wasp.Util.Fib
 
 spec_fibonacci :: Spec
 spec_fibonacci = do

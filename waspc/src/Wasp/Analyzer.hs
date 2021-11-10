@@ -1,4 +1,4 @@
-module Analyzer
+module Wasp.Analyzer
   ( -- * Overview
 
     -- |
@@ -115,11 +115,11 @@ module Analyzer
   )
 where
 
-import Analyzer.Evaluator (Decl)
-import qualified Analyzer.Evaluator as E
-import qualified Analyzer.Parser as P
-import Analyzer.StdTypeDefinitions (stdTypes)
-import qualified Analyzer.TypeChecker as T
+import Wasp.Analyzer.Evaluator (Decl)
+import qualified Wasp.Analyzer.Evaluator as E
+import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
+import qualified Wasp.Analyzer.TypeChecker as T
 import Control.Arrow (left)
 import Control.Monad ((>=>))
 

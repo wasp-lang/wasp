@@ -1,4 +1,4 @@
-module Analyzer.Parser
+module Wasp.Analyzer.Parser
   ( -- * Overview
 
     -- | The "Analyzer.Parser" module is built of two parts:
@@ -25,13 +25,13 @@ module Analyzer.Parser
   )
 where
 
-import Analyzer.Parser.AST
-import Analyzer.Parser.Monad (initialState)
-import Analyzer.Parser.ParseError
-import qualified Analyzer.Parser.Parser as P
-import Analyzer.Parser.Token
 import Control.Monad.Except (runExcept)
 import Control.Monad.State (evalStateT)
+import Wasp.Analyzer.Parser.AST
+import Wasp.Analyzer.Parser.Monad (initialState)
+import Wasp.Analyzer.Parser.ParseError
+import qualified Wasp.Analyzer.Parser.Parser as P
+import Wasp.Analyzer.Parser.Token
 
 parse :: String -> Either ParseError AST
 parse = runExcept . evalStateT P.parse . initialState

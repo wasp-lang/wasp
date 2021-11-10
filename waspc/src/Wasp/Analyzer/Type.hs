@@ -1,4 +1,4 @@
-module Analyzer.Type
+module Wasp.Analyzer.Type
   ( Type (..),
     DictEntryType (..),
     dictEntryRequired,

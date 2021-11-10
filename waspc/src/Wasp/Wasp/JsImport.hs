@@ -1,9 +1,9 @@
-module Wasp.JsImport
+module Wasp.Wasp.JsImport
   ( JsImport (..),
   )
 where
 
-import AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Aeson (ToJSON (..), object, (.=))
 import StrongPath (File', Path, Posix, Rel)
 import qualified StrongPath as SP

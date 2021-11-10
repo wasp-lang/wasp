@@ -1,10 +1,10 @@
 module Parser.DbTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.Db (db)
 import Test.Tasty.Hspec
-import qualified Wasp.Db
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Db (db)
+import qualified Wasp.Wasp.Db as Wasp.Db
 
 spec_parseDb :: Spec
 spec_parseDb =

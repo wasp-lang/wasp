@@ -1,16 +1,16 @@
 {
 -- This file is processed by Happy (https://www.haskell.org/happy/) and generates
--- the module `Analyzer.Parser.Parser`
+-- the module `Wasp.Analyzer.Parser.Parser`
 
-module Analyzer.Parser.Parser
+module Wasp.Analyzer.Parser.Parser
   ( parse
   ) where
 
-import Analyzer.Parser.Lexer
-import Analyzer.Parser.AST
-import Analyzer.Parser.Token
-import Analyzer.Parser.ParseError
-import Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
+import Wasp.Analyzer.Parser.Lexer
+import Wasp.Analyzer.Parser.AST
+import Wasp.Analyzer.Parser.Token
+import Wasp.Analyzer.Parser.ParseError
+import Wasp.Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
 import Control.Monad.State.Lazy (get)
 import Control.Monad.Except (throwError)
 }

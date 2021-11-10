@@ -1,4 +1,4 @@
-module Generator.PackageJsonGenerator
+module Wasp.Generator.PackageJsonGenerator
   ( resolveNpmDeps,
     npmDepsToPackageJsonEntry,
     npmDevDepsToPackageJsonEntry,
@@ -7,7 +7,7 @@ where
 
 import Data.List (find, intercalate)
 import Data.Maybe (fromJust, isJust)
-import qualified NpmDependency as ND
+import qualified Wasp.NpmDependency as ND
 
 type NpmDependenciesConflictError = String
 

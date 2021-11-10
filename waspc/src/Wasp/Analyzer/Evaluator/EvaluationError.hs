@@ -1,10 +1,10 @@
-module Analyzer.Evaluator.EvaluationError
+module Wasp.Analyzer.Evaluator.EvaluationError
   ( EvaluationError (..),
     EvaluationErrorContext (..),
   )
 where
 
-import Analyzer.Type (Type)
+import Wasp.Analyzer.Type (Type)
 
 data EvaluationError
   = -- | "ExpectedType expected actual"

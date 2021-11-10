@@ -1,9 +1,8 @@
-module ExternalCode
+module Wasp.ExternalCode
   ( readFiles,
   )
 where
 
-import AppSpec.ExternalCode (File (..), SourceExternalCodeDir)
 import Data.Maybe (catMaybes)
 import qualified Data.Text.Lazy as TextL
 import qualified Data.Text.Lazy.IO as TextL.IO
@@ -11,8 +10,9 @@ import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import qualified Util.IO
-import WaspignoreFile (ignores, readWaspignoreFile)
+import Wasp.AppSpec.ExternalCode (File (..), SourceExternalCodeDir)
+import qualified Wasp.Util.IO
+import Wasp.WaspignoreFile (ignores, readWaspignoreFile)
 
 waspignorePathInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
 waspignorePathInExtCodeDir = [relfile|.waspignore|]
@@ -25,7 +25,7 @@ readFiles extCodeDirPath = do
   waspignoreFile <- readWaspignoreFile waspignoreFilePath
   relFilePaths <-
     filter (not . ignores waspignoreFile . SP.toFilePath)
-      <$> Util.IO.listDirectoryDeep extCodeDirPath
+      <$> Wasp.Util.IO.listDirectoryDeep extCodeDirPath
   let absFilePaths = map (extCodeDirPath </>) relFilePaths
   -- NOTE: We read text from all the files, regardless if they are text files or not, because
   --   we don't know if they are a text file or not.

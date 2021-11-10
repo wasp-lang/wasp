@@ -1,12 +1,12 @@
-module Generator.ServerGenerator.Setup
+module Wasp.Generator.ServerGenerator.Setup
   ( setupServer,
   )
 where
 
-import Generator.Common (ProjectRootDir)
-import qualified Generator.Job as J
-import Generator.Job.Process (runNodeCommandAsJob)
-import qualified Generator.ServerGenerator.Common as Common
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Generator.ServerGenerator.Common as Common
 import StrongPath (Abs, Dir, Path', (</>))
 
 setupServer :: Path' Abs (Dir ProjectRootDir) -> J.Job

@@ -1,4 +1,4 @@
-module Util.Control.Monad
+module Wasp.Util.Control.Monad
   ( foldMapM',
     foldM1,
   )

@@ -28,11 +28,11 @@
 -- This evaluation would turn the Wasp expression
 -- @{ title: "Home", content: "Hello world" }@ into
 -- @Page { title = "Home", author = Nothing, content = "Hello world" }@
-module Analyzer.Evaluator.Evaluation
+module Wasp.Analyzer.Evaluator.Evaluation
   ( runEvaluation,
-    module Analyzer.Evaluator.Evaluation.Combinators,
+    module Wasp.Analyzer.Evaluator.Evaluation.Combinators,
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Combinators
-import Analyzer.Evaluator.Evaluation.Internal (runEvaluation)
+import Wasp.Analyzer.Evaluator.Evaluation.Combinators
+import Wasp.Analyzer.Evaluator.Evaluation.Internal (runEvaluation)

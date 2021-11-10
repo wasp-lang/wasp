@@ -21,7 +21,7 @@ import Data.Char (isSpace)
 import Data.Version (showVersion)
 import Paths_waspc (version)
 import System.Environment
-import qualified Util.Terminal as Term
+import qualified Wasp.Util.Terminal as Term
 
 main :: IO ()
 main = do

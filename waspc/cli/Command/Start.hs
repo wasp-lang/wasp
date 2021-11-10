@@ -14,8 +14,8 @@ import Command.Watch (watch)
 import Control.Concurrent.Async (race)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Lib
 import StrongPath ((</>))
+import qualified Wasp.Lib
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -38,14 +38,14 @@ start = do
   --   to decide if installation needs to happen or not. If it happens, it returnes new data again.
   --   Right now we have setup/installation being called, but it has not support for being "smart" yet.
   waspSaysC "Setting up generated project..."
-  setupResult <- liftIO $ Lib.setup outDir
+  setupResult <- liftIO $ Wasp.Lib.setup outDir
   case setupResult of
     Left setupError -> throwError $ CommandError $ "\nSetup failed: " ++ setupError
     Right () -> waspSaysC "\nSetup successful.\n"
 
   waspSaysC "\nListening for file changes..."
   waspSaysC "Starting up generated project..."
-  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Lib.start outDir)
+  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
     Right startResult -> case startResult of

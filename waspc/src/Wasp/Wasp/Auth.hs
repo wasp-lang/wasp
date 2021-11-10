@@ -1,4 +1,4 @@
-module Wasp.Auth
+module Wasp.Wasp.Auth
   ( Auth (..),
     AuthMethod (..),
   )

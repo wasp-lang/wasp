@@ -1,14 +1,14 @@
-module Parser.Auth
+module Wasp.Parser.Auth
   ( auth,
   )
 where
 
 import Control.Monad (when)
-import qualified Lexer as L
-import qualified Parser.Common as P
 import Text.Parsec ((<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp.Auth
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as P
+import qualified Wasp.Wasp.Auth as Wasp.Auth
 
 auth :: Parser Wasp.Auth.Auth
 auth = do

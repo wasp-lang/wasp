@@ -1,4 +1,4 @@
-module Util.Fib
+module Wasp.Util.Fib
   ( fibonacci,
   )
 where

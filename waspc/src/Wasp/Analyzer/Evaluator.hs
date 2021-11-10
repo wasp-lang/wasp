@@ -1,24 +1,24 @@
-module Analyzer.Evaluator
+module Wasp.Analyzer.Evaluator
   ( EvaluationError (..),
     evaluate,
     Decl,
     takeDecls,
-    module Analyzer.Evaluator.Types,
+    module Wasp.Analyzer.Evaluator.Types,
   )
 where
 
-import Analyzer.Evaluator.Bindings (Bindings)
-import Analyzer.Evaluator.EvaluationError (EvaluationError (..))
-import Analyzer.Evaluator.Types
-import qualified Analyzer.Type as Type
-import qualified Analyzer.TypeChecker.AST as AST
-import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.Core.Decl (Decl, takeDecls)
 import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.State
 import qualified Data.HashMap.Strict as H
 import Data.Maybe (fromMaybe)
+import Wasp.Analyzer.Evaluator.Bindings (Bindings)
+import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError (..))
+import Wasp.Analyzer.Evaluator.Types
+import qualified Wasp.Analyzer.Type as Type
+import qualified Wasp.Analyzer.TypeChecker.AST as AST
+import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
 
 -- | Evaluate type-checked AST to produce a list of declarations, which are the final output of Analyzer.
 evaluate :: TD.TypeDefinitions -> AST.TypedAST -> Either EvaluationError [Decl]

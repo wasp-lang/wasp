@@ -2,10 +2,10 @@
    Common functions used among Wasp parsers.
 -}
 
-module Parser.Common where
+module Wasp.Parser.Common where
 
 import qualified Data.Text as T
-import qualified Lexer as L
+import qualified Wasp.Lexer as L
 import StrongPath (File, Path, Posix, Rel, System)
 import qualified StrongPath as SP
 import Text.Parsec

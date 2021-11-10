@@ -2,18 +2,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Analyzer.Evaluator.TH.Decl
+module Wasp.Analyzer.Evaluator.TH.Decl
   ( makeDeclType,
   )
 where
 
-import Analyzer.Evaluator.Evaluation
-import Analyzer.Evaluator.TH.Common
-import qualified Analyzer.Evaluator.Types as E
-import qualified Analyzer.Type as T
-import Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
-import AppSpec.Core.Decl (makeDecl)
-import AppSpec.Core.Ref (Ref)
+import Wasp.Analyzer.Evaluator.Evaluation
+import Wasp.Analyzer.Evaluator.TH.Common
+import qualified Wasp.Analyzer.Evaluator.Types as E
+import qualified Wasp.Analyzer.Type as T
+import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
+import Wasp.AppSpec.Core.Decl (makeDecl)
+import Wasp.AppSpec.Core.Ref (Ref)
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Util.IO
+module Wasp.Util.IO
   ( listDirectoryDeep,
     listDirectory,
   )

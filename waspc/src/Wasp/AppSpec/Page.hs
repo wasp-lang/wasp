@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.Page
+module Wasp.AppSpec.Page
   ( Page (..),
   )
 where
 
-import AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.Decl (IsDecl)
 import Data.Data (Data)
 
 data Page = Page

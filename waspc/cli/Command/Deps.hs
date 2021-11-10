@@ -6,9 +6,9 @@ where
 import Cli.Terminal (title)
 import Command (Command)
 import Control.Monad.IO.Class (liftIO)
-import qualified Generator.ServerGenerator as ServerGenerator
-import qualified Generator.WebAppGenerator as WebAppGenerator
-import NpmDependency (printDep)
+import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
+import Wasp.NpmDependency (printDep)
 
 deps :: Command ()
 deps =

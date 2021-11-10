@@ -1,14 +1,14 @@
-module Generator.Start
+module Wasp.Generator.Start
   ( start,
   )
 where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently, race)
-import Generator.Common (ProjectRootDir)
-import Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Generator.ServerGenerator.Start (startServer)
-import Generator.WebAppGenerator.Start (startWebApp)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.ServerGenerator.Start (startServer)
+import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import StrongPath (Abs, Dir, Path')
 
 -- | This is a blocking action, that will start the processes that run web app and server.

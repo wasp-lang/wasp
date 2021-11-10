@@ -12,11 +12,11 @@ module Cli.Common
   )
 where
 
-import AppSpec.ExternalCode (SourceExternalCodeDir)
-import Common (WaspProjectDir)
-import qualified Generator.Common
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
-import qualified Util.Terminal as Term
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.Common (WaspProjectDir)
+import qualified Wasp.Generator.Common
+import qualified Wasp.Util.Terminal as Term
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
@@ -27,16 +27,16 @@ dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
 
 -- TODO: Hm this has different name than it has in Generator.
-generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.Common.ProjectRootDir)
+generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
-buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Generator.Common.ProjectRootDir)
+buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir Wasp.Generator.Common.ProjectRootDir)
 buildDirInDotWaspDir = [reldir|build|]
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 
-dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Generator.Common.ProjectRootDir) File'
+dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 extCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)

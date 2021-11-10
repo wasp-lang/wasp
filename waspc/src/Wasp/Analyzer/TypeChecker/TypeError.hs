@@ -1,4 +1,4 @@
-module Analyzer.TypeChecker.TypeError
+module Wasp.Analyzer.TypeChecker.TypeError
   ( TypeError (..),
     TypeCoerceReason (..),
   )
@@ -19,8 +19,8 @@ where
 --     unification and weaken errors (users shouldn't have to know what unification
 --     and weakening is).
 
-import Analyzer.Type
-import Analyzer.TypeChecker.AST
+import Wasp.Analyzer.Type
+import Wasp.Analyzer.TypeChecker.AST
 
 data TypeError
   = UnificationError TypeCoerceReason Type Type

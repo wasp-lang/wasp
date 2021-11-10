@@ -5,13 +5,13 @@
 
 module Analyzer.EvaluatorTest where
 
-import Analyzer.Evaluator
-import Analyzer.Evaluator.TH
-import Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
-import Analyzer.TypeChecker (typeCheck)
-import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.Core.Decl (IsDecl)
-import AppSpec.Core.Ref (Ref (..))
+import Wasp.Analyzer.Evaluator
+import Wasp.Analyzer.Evaluator.TH
+import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
+import Wasp.Analyzer.TypeChecker (typeCheck)
+import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.Ref (Ref (..))
 import Data.Data (Data)
 import Test.Tasty.Hspec
 

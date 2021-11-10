@@ -1,4 +1,4 @@
-module Data
+module Wasp.Data
   ( DataDir,
     getAbsDataDirPath,
   )

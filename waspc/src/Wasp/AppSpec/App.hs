@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.App (App (..)) where
+module Wasp.AppSpec.App (App (..)) where
 
-import AppSpec.AuthMethod (AuthMethod)
-import AppSpec.Core.Decl (IsDecl)
-import AppSpec.Core.Ref (Ref)
-import AppSpec.Page (Page)
+import Wasp.AppSpec.AuthMethod (AuthMethod)
+import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.Ref (Ref)
+import Wasp.AppSpec.Page (Page)
 import Data.Data (Data)
 
 data App = App

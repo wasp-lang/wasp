@@ -2,12 +2,12 @@ module Parser.ActionTest where
 
 import Data.Char (toLower)
 import Data.Either (isLeft)
-import Parser.Action (action)
-import Parser.Common (runWaspParser)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.Action
-import qualified Wasp.JsImport
+import Wasp.Parser.Action (action)
+import Wasp.Parser.Common (runWaspParser)
+import qualified Wasp.Wasp.Action as Wasp.Action
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
 
 -- TODO: This file is mostly just duplication of Parser.QueryTest.
 --   We might want to look into generalizing the two, to avoid all this

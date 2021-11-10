@@ -1,4 +1,4 @@
-module Generator.FileDraft
+module Wasp.Generator.FileDraft
   ( FileDraft (..),
     Writeable (..),
     createTemplateFileDraft,
@@ -10,12 +10,12 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
-import Generator.Common (ProjectRootDir)
-import qualified Generator.FileDraft.CopyFileDraft as CopyFD
-import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
-import qualified Generator.FileDraft.TextFileDraft as TextFD
-import Generator.FileDraft.Writeable
-import Generator.Templates (TemplatesDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
+import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
+import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
+import Wasp.Generator.FileDraft.Writeable
+import Wasp.Generator.Templates (TemplatesDir)
 import StrongPath (Abs, File', Path', Rel)
 
 -- | FileDraft unites different file draft types into a single type,

@@ -1,15 +1,15 @@
-module Parser.Query
+module Wasp.Parser.Query
   ( query,
   )
 where
 
 import Data.Maybe (fromMaybe)
-import qualified Lexer as L
-import qualified Parser.Common as C
-import qualified Parser.Operation as Operation
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as C
+import qualified Wasp.Parser.Operation as Operation
 import Text.Parsec.String (Parser)
-import Wasp.Query (Query)
-import qualified Wasp.Query as Query
+import Wasp.Wasp.Query (Query)
+import qualified Wasp.Wasp.Query as Query
 
 query :: Parser Query
 query = do

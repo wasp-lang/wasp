@@ -1,4 +1,4 @@
-module Wasp.Entity
+module Wasp.Wasp.Entity
   ( Entity (..),
     Field (..),
     FieldType (..),
@@ -8,12 +8,12 @@ module Wasp.Entity
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import qualified Psl.Ast.Model
+import qualified Wasp.Psl.Ast.Model
 
 data Entity = Entity
   { _name :: !String,
     _fields :: ![Field],
-    _pslModelBody :: !Psl.Ast.Model.Body
+    _pslModelBody :: !Wasp.Psl.Ast.Model.Body
   }
   deriving (Show, Eq)
 

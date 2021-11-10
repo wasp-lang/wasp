@@ -1,4 +1,4 @@
-module Lexer where
+module Wasp.Lexer where
 
 import Text.Parsec (alphaNum, between, char, letter, (<|>))
 import Text.Parsec.Language (emptyDef)

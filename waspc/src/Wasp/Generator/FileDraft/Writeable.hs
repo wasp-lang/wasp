@@ -1,10 +1,10 @@
-module Generator.FileDraft.Writeable
+module Wasp.Generator.FileDraft.Writeable
   ( Writeable (..),
   )
 where
 
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft.WriteableMonad
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft.WriteableMonad
 import StrongPath (Abs, Dir, Path')
 
 class Writeable w where

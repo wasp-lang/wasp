@@ -2,12 +2,12 @@ module Parser.QueryTest where
 
 import Data.Char (toLower)
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.Query (query)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.JsImport
-import qualified Wasp.Query
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Query (query)
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
+import qualified Wasp.Wasp.Query as Wasp.Query
 
 spec_parseQuery :: Spec
 spec_parseQuery =

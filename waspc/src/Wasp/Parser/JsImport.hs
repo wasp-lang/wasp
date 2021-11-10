@@ -1,13 +1,13 @@
-module Parser.JsImport
+module Wasp.Parser.JsImport
   ( jsImport,
   )
 where
 
-import qualified Lexer as L
-import qualified Parser.ExternalCode
 import Text.Parsec ((<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp.JsImport
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.ExternalCode
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
 
 -- | Parses subset of JS import statement (only default or single named import, and only external code files):
 --   import <identifier> from "@ext/..."
@@ -23,7 +23,7 @@ jsImport = do
   _ <- L.reserved L.reservedNameFrom
   -- TODO: For now we only support double quotes here, we should also support single quotes.
   --   We would need to write this from scratch, with single quote escaping enabled.
-  from <- Parser.ExternalCode.extCodeFilePathString
+  from <- Wasp.Parser.ExternalCode.extCodeFilePathString
   return
     Wasp.JsImport.JsImport
       { Wasp.JsImport._defaultImport = defaultImport,

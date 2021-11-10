@@ -1,4 +1,4 @@
-module WaspignoreFile
+module Wasp.WaspignoreFile
   ( WaspignoreFile,
     parseWaspignoreFile,
     readWaspignoreFile,

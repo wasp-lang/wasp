@@ -1,10 +1,10 @@
-module Psl.Generator.Model
+module Wasp.Psl.Generator.Model
   ( generateModel,
   )
 where
 
 import Data.List (intercalate)
-import qualified Psl.Ast.Model as Ast
+import qualified Wasp.Psl.Ast.Model as Ast
 
 generateModel :: Ast.Model -> String
 generateModel (Ast.Model name body) = "model " ++ name ++ " {\n" ++ generateBody body ++ "\n}"

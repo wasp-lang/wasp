@@ -1,11 +1,11 @@
-module Wasp
+module Wasp.Wasp
   ( Wasp,
     WaspElement (..),
     fromWaspElems,
-    module Wasp.JsImport,
+    module Wasp.Wasp.JsImport,
     getJsImports,
     setJsImports,
-    module Wasp.App,
+    module Wasp.Wasp.App,
     fromApp,
     getApp,
     setApp,
@@ -13,7 +13,7 @@ module Wasp
     getServer,
     getPSLEntities,
     getDb,
-    module Wasp.Page,
+    module Wasp.Wasp.Page,
     getPages,
     addPage,
     getRoutes,
@@ -34,22 +34,22 @@ module Wasp
   )
 where
 
-import qualified AppSpec.ExternalCode as ExternalCode
 import Data.Aeson (ToJSON (..), object, (.=))
 import StrongPath (Abs, File', Path')
-import qualified Util as U
-import qualified Wasp.Action
-import Wasp.App
-import qualified Wasp.Auth
-import qualified Wasp.Db
-import Wasp.Entity
-import Wasp.JsImport
-import Wasp.NpmDependencies (NpmDependencies)
-import qualified Wasp.NpmDependencies
-import Wasp.Page
-import qualified Wasp.Query
-import Wasp.Route
-import qualified Wasp.Server
+import qualified Wasp.AppSpec.ExternalCode as ExternalCode
+import qualified Wasp.Util as U
+import qualified Wasp.Wasp.Action as Wasp.Action
+import Wasp.Wasp.App
+import qualified Wasp.Wasp.Auth as Wasp.Auth
+import qualified Wasp.Wasp.Db as Wasp.Db
+import Wasp.Wasp.Entity
+import Wasp.Wasp.JsImport
+import Wasp.Wasp.NpmDependencies (NpmDependencies)
+import qualified Wasp.Wasp.NpmDependencies as Wasp.NpmDependencies
+import Wasp.Wasp.Page
+import qualified Wasp.Wasp.Query as Wasp.Query
+import Wasp.Wasp.Route
+import qualified Wasp.Wasp.Server as Wasp.Server
 
 -- * Wasp
 
@@ -69,7 +69,7 @@ data WaspElement
   | WaspElementPage !Page
   | WaspElementNpmDependencies !NpmDependencies
   | WaspElementRoute !Route
-  | WaspElementEntity !Wasp.Entity.Entity
+  | WaspElementEntity !Wasp.Wasp.Entity.Entity
   | WaspElementQuery !Wasp.Query.Query
   | WaspElementAction !Wasp.Action.Action
   | WaspElementServer !Wasp.Server.Server
@@ -220,7 +220,7 @@ getActionByName wasp name = U.headSafe $ filter (\a -> Wasp.Action._name a == na
 
 -- * Entities
 
-getPSLEntities :: Wasp -> [Wasp.Entity.Entity]
+getPSLEntities :: Wasp -> [Wasp.Wasp.Entity.Entity]
 getPSLEntities wasp = [entity | (WaspElementEntity entity) <- waspElements wasp]
 
 -- * Get server

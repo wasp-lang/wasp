@@ -1,4 +1,4 @@
-module Generator.WebAppGenerator.OperationsGenerator
+module Wasp.Generator.WebAppGenerator.OperationsGenerator
   ( genOperations,
   )
 where
@@ -12,17 +12,17 @@ import Data.Maybe
   ( fromJust,
     fromMaybe,
   )
-import Generator.FileDraft (FileDraft)
-import qualified Generator.ServerGenerator as ServerGenerator
-import qualified Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import qualified Generator.WebAppGenerator.Common as C
-import qualified Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
-import Wasp (Wasp)
-import qualified Wasp
-import qualified Wasp.Action
-import qualified Wasp.Operation
-import qualified Wasp.Query
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
+import qualified Wasp.Generator.WebAppGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.Action as Wasp.Action
+import qualified Wasp.Wasp.Operation as Wasp.Operation
+import qualified Wasp.Wasp.Query as Wasp.Query
 
 genOperations :: Wasp -> [FileDraft]
 genOperations wasp =

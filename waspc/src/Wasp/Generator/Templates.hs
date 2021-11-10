@@ -1,4 +1,4 @@
-module Generator.Templates
+module Wasp.Generator.Templates
   ( getTemplatesDirAbsPath,
     getTemplateFileAbsPath,
     compileAndRenderTemplate,
@@ -6,7 +6,6 @@ module Generator.Templates
   )
 where
 
-import qualified Data
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
@@ -14,6 +13,7 @@ import qualified StrongPath as SP
 import qualified Text.Mustache as Mustache
 import Text.Mustache.Render (SubstitutionError (..))
 import Text.Printf (printf)
+import qualified Wasp.Data
 
 -- TODO: Write tests for this file! But first we need to decouple logic from IO
 --   so that we can mock it.
@@ -22,14 +22,14 @@ data TemplatesDir
 
 -- | Returns absolute path of templates root directory.
 getTemplatesDirAbsPath :: IO (Path' Abs (Dir TemplatesDir))
-getTemplatesDirAbsPath = (</> templatesDirPathInDataDir) <$> Data.getAbsDataDirPath
+getTemplatesDirAbsPath = (</> templatesDirPathInDataDir) <$> Wasp.Data.getAbsDataDirPath
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
 getTemplateFileAbsPath :: Path' (Rel TemplatesDir) File' -> IO (Path' Abs File')
 getTemplateFileAbsPath relTmplFilePath = (</> relTmplFilePath) <$> getTemplatesDirAbsPath
 
-templatesDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir TemplatesDir)
+templatesDirPathInDataDir :: Path' (Rel Wasp.Data.DataDir) (Dir TemplatesDir)
 templatesDirPathInDataDir = [reldir|Generator/templates|]
 
 compileAndRenderTemplate ::

@@ -4,13 +4,13 @@
 
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Analyzer.Parser.Lexer
+module Wasp.Analyzer.Parser.Lexer
   ( lexer
   ) where
 
-import Analyzer.Parser.Monad
-import Analyzer.Parser.Token (Token (..), TokenType (..))
-import Analyzer.Parser.ParseError (ParseError (..))
+import Wasp.Analyzer.Parser.Monad
+import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
+import Wasp.Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.State.Lazy (gets)
 import Control.Monad.Except (throwError)
 import Data.Word (Word8)

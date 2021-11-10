@@ -1,4 +1,4 @@
-module Generator.Job.IO
+module Wasp.Generator.Job.IO
   ( readJobMessagesAndPrintThemPrefixed,
     printPrefixedJobMessage,
     printJobMessage,
@@ -8,10 +8,10 @@ where
 import Control.Concurrent (Chan, readChan)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import qualified Generator.Job as J
+import qualified Wasp.Generator.Job as J
 import System.Exit (ExitCode (..))
 import System.IO (Handle, hFlush, stderr, stdout)
-import qualified Util.Terminal as Term
+import qualified Wasp.Util.Terminal as Term
 
 readJobMessagesAndPrintThemPrefixed :: Chan J.JobMessage -> IO ()
 readJobMessagesAndPrintThemPrefixed =

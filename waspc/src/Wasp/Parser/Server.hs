@@ -1,16 +1,16 @@
-module Parser.Server
+module Wasp.Parser.Server
   ( server,
   )
 where
 
 import Data.Maybe (fromMaybe, listToMaybe)
-import qualified Lexer as L
-import qualified Parser.Common as C
-import qualified Parser.JsImport
 import Text.Parsec.String (Parser)
-import qualified Wasp.JsImport
-import Wasp.Server (Server)
-import qualified Wasp.Server as Server
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as C
+import qualified Wasp.Parser.JsImport
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
+import Wasp.Wasp.Server (Server)
+import qualified Wasp.Wasp.Server as Server
 
 server :: Parser Server
 server = do
@@ -32,7 +32,7 @@ properties =
   L.commaSep1 setupJsFunctionPropParser
 
 setupJsFunctionPropParser :: Parser Property
-setupJsFunctionPropParser = SetupJsFunction <$> C.waspProperty "setupFn" Parser.JsImport.jsImport
+setupJsFunctionPropParser = SetupJsFunction <$> C.waspProperty "setupFn" Wasp.Parser.JsImport.jsImport
 
 getSetupJsFunctionFromProps :: [Property] -> Maybe Wasp.JsImport.JsImport
 getSetupJsFunctionFromProps ps = listToMaybe [f | SetupJsFunction f <- ps]

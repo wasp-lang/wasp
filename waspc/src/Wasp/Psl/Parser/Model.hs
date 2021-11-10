@@ -1,4 +1,4 @@
-module Psl.Parser.Model
+module Wasp.Psl.Parser.Model
   ( model,
     body,
     -- NOTE: Only for testing:
@@ -7,7 +7,7 @@ module Psl.Parser.Model
 where
 
 import Data.Maybe (fromMaybe, maybeToList)
-import qualified Psl.Ast.Model as Model
+import qualified Wasp.Psl.Ast.Model as Model
 import Text.Parsec
   ( alphaNum,
     char,

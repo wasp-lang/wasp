@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE TupleSections #-}
 
-module AppSpec.Core.Decl
+module Wasp.AppSpec.Core.Decl
   ( Decl,
     IsDecl,
     takeDecls,

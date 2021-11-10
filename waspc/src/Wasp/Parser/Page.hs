@@ -1,16 +1,16 @@
-module Parser.Page
+module Wasp.Parser.Page
   ( page,
   )
 where
 
 import Data.Maybe (fromMaybe, listToMaybe)
-import Lexer
-import Parser.Common
-import qualified Parser.JsImport
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import Wasp.JsImport (JsImport)
-import qualified Wasp.Page as Page
+import Wasp.Lexer
+import Wasp.Parser.Common
+import qualified Wasp.Parser.JsImport
+import Wasp.Wasp.JsImport (JsImport)
+import qualified Wasp.Wasp.Page as Page
 
 data PageProperty
   = Title !String
@@ -31,7 +31,7 @@ pagePropertyTitle :: Parser PageProperty
 pagePropertyTitle = Title <$> waspPropertyStringLiteral "title"
 
 pagePropertyComponent :: Parser PageProperty
-pagePropertyComponent = Component <$> waspProperty "component" Parser.JsImport.jsImport
+pagePropertyComponent = Component <$> waspProperty "component" Wasp.Parser.JsImport.jsImport
 
 pagePropertyAuthRequired :: Parser PageProperty
 pagePropertyAuthRequired = AuthRequired <$> waspPropertyBool "authRequired"

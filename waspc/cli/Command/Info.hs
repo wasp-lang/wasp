@@ -10,17 +10,17 @@ import Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
-import Common (WaspProjectDir)
 import Control.Arrow (ArrowChoice (left))
 import Control.Monad.IO.Class (liftIO)
-import Lib (findWaspFile)
-import qualified Parser
 import StrongPath (Abs, Dir, Path', fromAbsFile, fromRelFile, toFilePath)
 import StrongPath.Operations
 import System.Directory (doesFileExist, getFileSize)
-import Util.IO (listDirectoryDeep)
-import qualified Util.Terminal as Term
-import Wasp (Wasp, appName, getApp)
+import Wasp.Common (WaspProjectDir)
+import Wasp.Lib (findWaspFile)
+import qualified Wasp.Parser
+import Wasp.Util.IO (listDirectoryDeep)
+import qualified Wasp.Util.Terminal as Term
+import Wasp.Wasp (Wasp, appName, getApp)
 
 info :: Command ()
 info =
@@ -68,4 +68,4 @@ parseWaspFile waspDir = do
     Nothing -> return (Left "Couldn't find a single *.wasp file.")
     Just waspFile -> do
       waspStr <- readFile (toFilePath waspFile)
-      return $ left (("Couldn't parse .wasp file: " <>) . show) $ Parser.parseWasp waspStr
+      return $ left (("Couldn't parse .wasp file: " <>) . show) $ Wasp.Parser.parseWasp waspStr

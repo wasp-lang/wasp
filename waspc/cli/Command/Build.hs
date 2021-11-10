@@ -10,17 +10,17 @@ import Command.Common
     findWaspProjectRootDirFromCwd,
   )
 import Command.Compile (compileIOWithOptions)
-import CompileOptions (CompileOptions (..))
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Lib
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory
   ( doesDirectoryExist,
     removeDirectoryRecursive,
   )
+import Wasp.CompileOptions (CompileOptions (..))
+import qualified Wasp.Lib
 
 build :: Command ()
 build = do
@@ -46,7 +46,7 @@ build = do
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->
-  Path' Abs (Dir Lib.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where

@@ -1,28 +1,28 @@
-module Generator
+module Wasp.Generator
   ( writeWebAppCode,
-    Generator.Setup.setup,
-    Generator.Start.start,
+    Wasp.Generator.Setup.setup,
+    Wasp.Generator.Start.start,
   )
 where
 
-import CompileOptions (CompileOptions)
 import qualified Data.Text
 import qualified Data.Text.IO
 import Data.Time.Clock
 import qualified Data.Version
-import Generator.Common (ProjectRootDir)
-import Generator.DbGenerator (genDb)
-import Generator.DockerGenerator (genDockerFiles)
-import Generator.FileDraft (FileDraft, write)
-import Generator.ServerGenerator (genServer)
-import qualified Generator.ServerGenerator as ServerGenerator
-import qualified Generator.Setup
-import qualified Generator.Start
-import Generator.WebAppGenerator (generateWebApp)
 import qualified Paths_waspc
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp)
+import Wasp.CompileOptions (CompileOptions)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.DbGenerator (genDb)
+import Wasp.Generator.DockerGenerator (genDockerFiles)
+import Wasp.Generator.FileDraft (FileDraft, write)
+import Wasp.Generator.ServerGenerator (genServer)
+import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import qualified Wasp.Generator.Setup
+import qualified Wasp.Generator.Start
+import Wasp.Generator.WebAppGenerator (generateWebApp)
+import Wasp.Wasp (Wasp)
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.

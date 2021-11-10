@@ -1,15 +1,15 @@
-module Analyzer.TypeDefinitions.Internal
+module Wasp.Analyzer.TypeDefinitions.Internal
   ( EnumType (..),
     DeclType (..),
     TypeDefinitions (..),
   )
 where
 
-import Analyzer.Evaluator.Bindings (Bindings, DeclName)
-import Analyzer.Evaluator.EvaluationError (EvaluationError)
-import Analyzer.Type (Type)
-import Analyzer.TypeChecker.AST (TypedExpr)
-import AppSpec.Core.Decl (Decl)
+import Wasp.Analyzer.Evaluator.Bindings (Bindings, DeclName)
+import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
+import Wasp.Analyzer.Type (Type)
+import Wasp.Analyzer.TypeChecker.AST (TypedExpr)
+import Wasp.AppSpec.Core.Decl (Decl)
 import qualified Data.HashMap.Strict as M
 
 -- | Describes a specific declaration type in Wasp.

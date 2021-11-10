@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Generator.Job.Process
+module Wasp.Generator.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
   )
@@ -13,8 +13,8 @@ import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
-import qualified Generator.Common as C
-import qualified Generator.Job as J
+import qualified Wasp.Generator.Common as C
+import qualified Wasp.Generator.Job as J
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))

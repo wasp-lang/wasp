@@ -1,10 +1,10 @@
-module AppSpec
+module Wasp.AppSpec
   ( AppSpec (..),
   )
 where
 
-import AppSpec.Core.Decl (Decl)
-import qualified AppSpec.ExternalCode as ExternalCode
+import Wasp.AppSpec.Core.Decl (Decl)
+import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.

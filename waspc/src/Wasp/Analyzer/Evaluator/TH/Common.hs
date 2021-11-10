@@ -1,7 +1,7 @@
-module Analyzer.Evaluator.TH.Common where
+module Wasp.Analyzer.Evaluator.TH.Common where
 
 import Language.Haskell.TH
-import Util (toLowerFirst)
+import Wasp.Util (toLowerFirst)
 
 -- | Get an expression representing the string form of a name, starting with a lowercase letter
 nameToLowerFirstStringLiteralExpr :: Name -> ExpQ

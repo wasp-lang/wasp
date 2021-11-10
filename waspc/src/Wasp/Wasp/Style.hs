@@ -1,9 +1,9 @@
-module Wasp.Style
+module Wasp.Wasp.Style
   ( Style (..),
   )
 where
 
-import AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Aeson (ToJSON (..))
 import Data.Text (Text)
 import StrongPath (File', Path, Posix, Rel, toFilePath)

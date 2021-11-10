@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Analyzer.TypeDefinitions
+module Wasp.Analyzer.TypeDefinitions
   ( TypeDefinitions,
     empty,
     getDeclTypes,
@@ -18,8 +18,8 @@ module Analyzer.TypeDefinitions
   )
 where
 
-import Analyzer.TypeDefinitions.Class
-import Analyzer.TypeDefinitions.Internal
+import Wasp.Analyzer.TypeDefinitions.Class
+import Wasp.Analyzer.TypeDefinitions.Internal
 import qualified Data.HashMap.Strict as M
 
 empty :: TypeDefinitions

@@ -1,4 +1,4 @@
-module AppSpec.ExternalCode
+module Wasp.AppSpec.ExternalCode
   ( -- | Wasp project consists of Wasp code (.wasp files) and external code (e.g. .js files) that is
     -- used/referenced by the Wasp code.
     -- Therefore, the whole specification of the web app is not just Wasp code, but a combination of

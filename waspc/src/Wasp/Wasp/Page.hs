@@ -1,10 +1,10 @@
-module Wasp.Page
+module Wasp.Wasp.Page
   ( Page (..),
   )
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import Wasp.JsImport (JsImport)
+import Wasp.Wasp.JsImport (JsImport)
 
 data Page = Page
   { _name :: !String,

@@ -1,4 +1,4 @@
-module Parser.Operation
+module Wasp.Parser.Operation
   ( jsFunctionPropParser,
     entitiesPropParser,
     getJsFunctionFromProps,
@@ -11,12 +11,12 @@ module Parser.Operation
 where
 
 import Data.Maybe (listToMaybe)
-import qualified Lexer as L
-import qualified Parser.Common as C
-import qualified Parser.JsImport
 import Text.Parsec ((<|>))
 import Text.Parsec.String (Parser)
-import qualified Wasp.JsImport
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as C
+import qualified Wasp.Parser.JsImport
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
 
 data Property
   = JsFunction !Wasp.JsImport.JsImport
@@ -32,7 +32,7 @@ properties =
       <|> authEnabledPropParser
 
 jsFunctionPropParser :: Parser Property
-jsFunctionPropParser = JsFunction <$> C.waspProperty "fn" Parser.JsImport.jsImport
+jsFunctionPropParser = JsFunction <$> C.waspProperty "fn" Wasp.Parser.JsImport.jsImport
 
 getJsFunctionFromProps :: [Property] -> Maybe Wasp.JsImport.JsImport
 getJsFunctionFromProps ps = listToMaybe [f | JsFunction f <- ps]

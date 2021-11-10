@@ -1,4 +1,4 @@
-module Generator.ServerGenerator.Common
+module Wasp.Generator.ServerGenerator.Common
   ( serverRootDirInProjectRootDir,
     serverSrcDirInServerRootDir,
     serverSrcDirInProjectRootDir,
@@ -19,12 +19,12 @@ module Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft (FileDraft, createTemplateFileDraft)
-import Generator.Templates (TemplatesDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Templates (TemplatesDir)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp)
+import Wasp.Wasp (Wasp)
 
 data ServerRootDir
 

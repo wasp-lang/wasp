@@ -1,10 +1,10 @@
-module Wasp.Query
+module Wasp.Wasp.Query
   ( Query (..),
   )
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import Wasp.JsImport (JsImport)
+import Wasp.Wasp.JsImport (JsImport)
 
 -- TODO: Very similar to Wasp.Action, consider extracting duplication.
 

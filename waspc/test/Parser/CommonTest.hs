@@ -1,9 +1,9 @@
 module Parser.CommonTest where
 
 import Data.Either
-import Lexer
-import qualified Lexer as L
-import Parser.Common
+import Wasp.Lexer
+import qualified Wasp.Lexer as L
+import Wasp.Parser.Common
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Text.Parsec

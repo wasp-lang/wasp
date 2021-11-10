@@ -1,4 +1,4 @@
-module Analyzer.TypeChecker.AST
+module Wasp.Analyzer.TypeChecker.AST
   ( TypedAST (..),
     TypedStmt (..),
     TypedExpr (..),
@@ -8,8 +8,8 @@ module Analyzer.TypeChecker.AST
   )
 where
 
-import Analyzer.Parser (ExtImportName (..), Identifier)
-import Analyzer.Type
+import Wasp.Analyzer.Parser (ExtImportName (..), Identifier)
+import Wasp.Analyzer.Type
 
 newtype TypedAST = TypedAST {typedStmts :: [TypedStmt]} deriving (Eq, Show)
 

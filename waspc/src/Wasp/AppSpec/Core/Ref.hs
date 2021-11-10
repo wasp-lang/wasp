@@ -2,12 +2,12 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module AppSpec.Core.Ref
+module Wasp.AppSpec.Core.Ref
   ( Ref (..),
   )
 where
 
-import AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.Decl (IsDecl)
 import Data.Data (Data)
 
 -- | Reference to a part (declaration) of the app spec, by its name.

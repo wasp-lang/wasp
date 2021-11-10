@@ -1,15 +1,15 @@
-module Parser.App
+module Wasp.Parser.App
   ( app,
   )
 where
 
 import Data.Maybe (listToMaybe)
-import Lexer
-import qualified Lexer as L
-import Parser.Common
+import Wasp.Lexer
+import qualified Wasp.Lexer as L
+import Wasp.Parser.Common
 import Text.Parsec
 import Text.Parsec.String (Parser)
-import qualified Wasp.App as App
+import qualified Wasp.Wasp.App as App
 
 -- | A type that describes supported app properties.
 data AppProperty

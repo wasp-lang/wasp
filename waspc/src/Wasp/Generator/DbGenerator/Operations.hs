@@ -1,15 +1,15 @@
-module Generator.DbGenerator.Operations
+module Wasp.Generator.DbGenerator.Operations
   ( migrateDev,
   )
 where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
-import Generator.Common (ProjectRootDir)
-import qualified Generator.DbGenerator.Jobs as DbJobs
-import Generator.Job (JobMessage)
-import qualified Generator.Job as J
-import Generator.Job.IO (printJobMessage)
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
+import Wasp.Generator.Job (JobMessage)
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (printJobMessage)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 

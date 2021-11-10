@@ -22,7 +22,7 @@
 -- In this second phase, the types of the argument to each declaration are checked
 -- to ensure they are valid for the declaration type. The implementation of the
 -- type inference rules is in "inferExprType", "unifyTypes", and "weaken".
-module Analyzer.TypeChecker.Internal
+module Wasp.Analyzer.TypeChecker.Internal
   ( check,
     hoistDeclarations,
     checkAST,
@@ -34,18 +34,18 @@ module Analyzer.TypeChecker.Internal
   )
 where
 
-import Analyzer.Parser (AST)
-import qualified Analyzer.Parser as P
-import Analyzer.Type
-import Analyzer.TypeChecker.AST
-import Analyzer.TypeChecker.Monad
-import Analyzer.TypeChecker.TypeError
-import qualified Analyzer.TypeDefinitions as TD
+import Wasp.Analyzer.Parser (AST)
+import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.Type
+import Wasp.Analyzer.TypeChecker.AST
+import Wasp.Analyzer.TypeChecker.Monad
+import Wasp.Analyzer.TypeChecker.TypeError
+import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
 import qualified Data.HashMap.Strict as M
 import Data.List.NonEmpty (NonEmpty, nonEmpty, toList)
-import Util.Control.Monad (foldM1, foldMapM')
+import Wasp.Util.Control.Monad (foldM1, foldMapM')
 
 check :: AST -> TypeChecker TypedAST
 check ast = hoistDeclarations ast >> checkAST ast

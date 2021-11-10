@@ -1,10 +1,10 @@
-module Wasp.Server
+module Wasp.Wasp.Server
   ( Server (..),
   )
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import Wasp.JsImport (JsImport)
+import Wasp.Wasp.JsImport (JsImport)
 
 data Server = Server
   { _setupJsFunction :: !JsImport

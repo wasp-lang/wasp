@@ -1,12 +1,12 @@
-module Generator.WebAppGenerator.Start
+module Wasp.Generator.WebAppGenerator.Start
   ( startWebApp,
   )
 where
 
-import Generator.Common (ProjectRootDir)
-import qualified Generator.Job as J
-import Generator.Job.Process (runNodeCommandAsJob)
-import qualified Generator.WebAppGenerator.Common as Common
+import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import qualified Wasp.Generator.WebAppGenerator.Common as Common
 import StrongPath (Abs, Dir, Path', (</>))
 
 startWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job

@@ -1,4 +1,4 @@
-module Generator.WebAppGenerator.RouterGenerator
+module Wasp.Generator.WebAppGenerator.RouterGenerator
   ( generateRouter,
   )
 where
@@ -6,16 +6,16 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
 import Data.Maybe (fromJust, fromMaybe, isJust)
-import Generator.FileDraft (FileDraft)
-import Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
-import qualified Generator.WebAppGenerator.Common as C
 import StrongPath (reldir, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp (Wasp)
-import qualified Wasp
-import qualified Wasp.JsImport
-import qualified Wasp.Page
-import qualified Wasp.Route
+import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
+import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Wasp (Wasp)
+import qualified Wasp.Wasp as Wasp
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
+import qualified Wasp.Wasp.Page as Wasp.Page
+import qualified Wasp.Wasp.Route as Wasp.Route
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],

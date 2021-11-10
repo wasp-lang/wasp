@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Analyzer.Parser.Monad
+module Wasp.Analyzer.Parser.Monad
   ( ParserState (..),
     initialState,
     Parser,
@@ -12,8 +12,8 @@ module Analyzer.Parser.Monad
   )
 where
 
-import Analyzer.Parser.ParseError (ParseError)
-import Analyzer.Parser.Token (SourcePosition (..))
+import Wasp.Analyzer.Parser.ParseError (ParseError)
+import Wasp.Analyzer.Parser.Token (SourcePosition (..))
 import Control.Monad.Except (Except)
 import Control.Monad.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)

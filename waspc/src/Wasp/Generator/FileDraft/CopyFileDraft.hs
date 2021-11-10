@@ -1,12 +1,12 @@
-module Generator.FileDraft.CopyFileDraft
+module Wasp.Generator.FileDraft.CopyFileDraft
   ( CopyFileDraft (..),
   )
 where
 
 import Control.Monad (when)
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft.Writeable
-import Generator.FileDraft.WriteableMonad
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft.Writeable
+import Wasp.Generator.FileDraft.WriteableMonad
 import StrongPath
   ( Abs,
     File',

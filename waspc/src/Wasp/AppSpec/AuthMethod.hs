@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module AppSpec.AuthMethod
+module Wasp.AppSpec.AuthMethod
   ( AuthMethod (..),
   )
 where

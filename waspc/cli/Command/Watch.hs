@@ -9,11 +9,11 @@ import Command.Compile (compileIO)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
-import qualified Lib
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
+import qualified Wasp.Lib
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
 --   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
@@ -29,7 +29,7 @@ import qualified System.FilePath as FP
 
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
-watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Lib.ProjectRootDir) -> IO ()
+watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> IO ()
 watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan

@@ -11,14 +11,14 @@ import Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
-import Common (WaspProjectDir)
+import Wasp.Common (WaspProjectDir)
 import Control.Monad.Catch (catch)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 -- Wasp generator interface.
-import Generator.Common (ProjectRootDir)
-import Generator.DbGenerator (dbRootDirInProjectRootDir)
-import qualified Generator.DbGenerator.Operations as DbOps
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.DbGenerator (dbRootDirInProjectRootDir)
+import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Path as P
 import qualified Path.IO as PathIO
 import StrongPath (Abs, Dir, Path', reldir, (</>))

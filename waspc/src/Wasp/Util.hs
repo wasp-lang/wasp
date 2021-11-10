@@ -1,4 +1,4 @@
-module Util
+module Wasp.Util
   ( camelToKebabCase,
     onFirst,
     toLowerFirst,

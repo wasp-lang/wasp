@@ -1,4 +1,4 @@
-module Common
+module Wasp.Common
   ( WaspProjectDir,
   )
 where

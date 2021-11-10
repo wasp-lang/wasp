@@ -1,13 +1,13 @@
-module Generator.WebAppGenerator.OperationsGenerator.ResourcesG
+module Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
   ( genResources,
   )
 where
 
 import Data.Aeson (object)
-import Generator.FileDraft (FileDraft)
-import qualified Generator.WebAppGenerator.Common as C
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.WebAppGenerator.Common as C
 import StrongPath (relfile)
-import Wasp (Wasp)
+import Wasp.Wasp (Wasp)
 
 genResources :: Wasp -> [FileDraft]
 genResources _ = [C.makeTemplateFD tmplFile dstFile (Just tmplData)]

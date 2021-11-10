@@ -1,16 +1,16 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Analyzer.StdTypeDefinitions
+module Wasp.Analyzer.StdTypeDefinitions
   ( stdTypes,
   )
 where
 
-import Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
-import qualified Analyzer.TypeDefinitions as TD
-import AppSpec.App (App)
-import AppSpec.AuthMethod (AuthMethod)
-import AppSpec.Page (Page)
+import Wasp.Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
+import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.AppSpec.App (App)
+import Wasp.AppSpec.AuthMethod (AuthMethod)
+import Wasp.AppSpec.Page (Page)
 
 makeEnumType ''AuthMethod
 makeDeclType ''Page

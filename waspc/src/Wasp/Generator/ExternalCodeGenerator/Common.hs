@@ -1,4 +1,4 @@
-module Generator.ExternalCodeGenerator.Common
+module Wasp.Generator.ExternalCodeGenerator.Common
   ( ExternalCodeGeneratorStrategy (..),
     GeneratedExternalCodeDir,
     castRelPathFromSrcToGenExtCodeDir,
@@ -6,9 +6,9 @@ module Generator.ExternalCodeGenerator.Common
   )
 where
 
-import AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Text (Text)
-import Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir)
 import StrongPath (Dir, File', Path', Rel)
 import qualified StrongPath as SP
 

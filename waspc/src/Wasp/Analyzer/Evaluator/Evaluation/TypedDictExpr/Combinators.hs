@@ -1,17 +1,17 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Analyzer.Evaluator.Evaluation.TypedDictExpr.Combinators
+module Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr.Combinators
   ( dict,
     field,
     maybeField,
   )
 where
 
-import Analyzer.Evaluator.Evaluation.Internal (evaluation, runEvaluation)
-import Analyzer.Evaluator.Evaluation.TypedDictExpr (TypedDictEntries (..), TypedDictExprEvaluation)
-import Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
-import qualified Analyzer.Evaluator.EvaluationError as EvaluationError
-import qualified Analyzer.TypeChecker.AST as TypedAST
+import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, runEvaluation)
+import Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr (TypedDictEntries (..), TypedDictExprEvaluation)
+import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
+import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
+import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import Control.Arrow (left)
 
 -- | An evaluation that runs a "TypedDictExprEvaluation". Expects a "Dict" expression and

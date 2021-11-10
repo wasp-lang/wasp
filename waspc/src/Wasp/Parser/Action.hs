@@ -1,15 +1,15 @@
-module Parser.Action
+module Wasp.Parser.Action
   ( action,
   )
 where
 
 import Data.Maybe (fromMaybe)
-import qualified Lexer as L
-import qualified Parser.Common as C
-import qualified Parser.Operation as Operation
+import qualified Wasp.Lexer as L
+import qualified Wasp.Parser.Common as C
+import qualified Wasp.Parser.Operation as Operation
 import Text.Parsec.String (Parser)
-import Wasp.Action (Action)
-import qualified Wasp.Action as Action
+import Wasp.Wasp.Action (Action)
+import qualified Wasp.Wasp.Action as Action
 
 action :: Parser Action
 action = do

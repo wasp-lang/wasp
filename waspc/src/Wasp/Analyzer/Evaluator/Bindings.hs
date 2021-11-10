@@ -1,10 +1,10 @@
-module Analyzer.Evaluator.Bindings
+module Wasp.Analyzer.Evaluator.Bindings
   ( Bindings,
     DeclName,
   )
 where
 
-import AppSpec.Core.Decl (Decl)
+import Wasp.AppSpec.Core.Decl (Decl)
 import qualified Data.HashMap.Strict as H
 
 -- | Declarations that have been evaluated so far + names to which they are bound.

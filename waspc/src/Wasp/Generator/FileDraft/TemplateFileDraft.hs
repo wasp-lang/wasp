@@ -1,13 +1,13 @@
-module Generator.FileDraft.TemplateFileDraft
+module Wasp.Generator.FileDraft.TemplateFileDraft
   ( TemplateFileDraft (..),
   )
 where
 
 import qualified Data.Aeson as Aeson
-import Generator.Common (ProjectRootDir)
-import Generator.FileDraft.Writeable
-import Generator.FileDraft.WriteableMonad
-import Generator.Templates (TemplatesDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft.Writeable
+import Wasp.Generator.FileDraft.WriteableMonad
+import Wasp.Generator.Templates (TemplatesDir)
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 
