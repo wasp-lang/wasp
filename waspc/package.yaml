@@ -74,7 +74,7 @@ library:
     - template-haskell
 
 executables:
-  wasp:
+  wasp-cli:
     main:                Main.hs
     source-dirs:         cli 
     ghc-options:
