@@ -1,15 +1,9 @@
-module Command.Telemetry
+module Wasp.Cli.Command.Telemetry
   ( considerSendingData,
     telemetry,
   )
 where
 
-import Command (Command, CommandError (..))
-import qualified Command.Call
-import Command.Common (waspSaysC)
-import Command.Telemetry.Common (ensureTelemetryCacheDirExists)
-import qualified Command.Telemetry.Project as TlmProject
-import qualified Command.Telemetry.User as TlmUser
 import Control.Monad (unless, when)
 import Control.Monad.Except (catchError, throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -17,6 +11,12 @@ import Data.Foldable (for_)
 import Data.Maybe (isJust)
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
+import Wasp.Cli.Command (Command, CommandError (..))
+import qualified Wasp.Cli.Command.Call as Command.Call
+import Wasp.Cli.Command.Common (waspSaysC)
+import Wasp.Cli.Command.Telemetry.Common (ensureTelemetryCacheDirExists)
+import qualified Wasp.Cli.Command.Telemetry.Project as TlmProject
+import qualified Wasp.Cli.Command.Telemetry.User as TlmUser
 
 isTelemetryDisabled :: IO Bool
 isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"

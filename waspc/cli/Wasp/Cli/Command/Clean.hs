@@ -1,11 +1,11 @@
-module Command.Clean
+module Wasp.Cli.Command.Clean
   ( clean,
   )
 where
 
-import qualified Cli.Common as Common
-import Command (Command)
-import Command.Common (findWaspProjectRootDirFromCwd)
+import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import System.Directory

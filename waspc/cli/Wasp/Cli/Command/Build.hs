@@ -1,15 +1,15 @@
-module Command.Build
+module Wasp.Cli.Command.Build
   ( build,
   )
 where
 
-import qualified Cli.Common as Common
-import Command (Command, CommandError (..))
-import Command.Common
+import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common
   ( alphaWarningMessage,
     findWaspProjectRootDirFromCwd,
   )
-import Command.Compile (compileIOWithOptions)
+import Wasp.Cli.Command.Compile (compileIOWithOptions)
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)

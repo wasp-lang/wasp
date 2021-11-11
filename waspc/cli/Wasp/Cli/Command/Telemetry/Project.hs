@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Command.Telemetry.Project
+module Wasp.Cli.Command.Telemetry.Project
   ( getWaspProjectPathHash,
     considerSendingData,
     readProjectTelemetryFile,
@@ -8,11 +8,6 @@ module Command.Telemetry.Project
   )
 where
 
-import Command (Command)
-import qualified Command.Call
-import Command.Common (findWaspProjectRootDirFromCwd)
-import Command.Telemetry.Common (TelemetryCacheDir)
-import Command.Telemetry.User (UserSignature (..))
 import Control.Monad (void, when)
 import Crypto.Hash (SHA256 (..), hashWith)
 import Data.Aeson ((.=))
@@ -29,6 +24,11 @@ import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.Info
+import Wasp.Cli.Command (Command)
+import qualified Wasp.Cli.Command.Call as Command.Call
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
+import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
 
 considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
 considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do

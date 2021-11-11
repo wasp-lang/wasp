@@ -1,19 +1,5 @@
 module Main where
 
-import Cli.Terminal (title)
-import Command (runCommand)
-import Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
-import Command.Build (build)
-import qualified Command.Call
-import Command.Clean (clean)
-import Command.Compile (compile)
-import Command.CreateNewProject (createNewProject)
-import Command.Db (runDbCommand, studio)
-import qualified Command.Db.Migrate
-import Command.Deps (deps)
-import Command.Info (info)
-import Command.Start (start)
-import qualified Command.Telemetry as Telemetry
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import Control.Monad (void)
@@ -21,6 +7,20 @@ import Data.Char (isSpace)
 import Data.Version (showVersion)
 import Paths_waspc (version)
 import System.Environment
+import Wasp.Cli.Command (runCommand)
+import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
+import Wasp.Cli.Command.Build (build)
+import qualified Wasp.Cli.Command.Call as Command.Call
+import Wasp.Cli.Command.Clean (clean)
+import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.CreateNewProject (createNewProject)
+import Wasp.Cli.Command.Db (runDbCommand, studio)
+import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import Wasp.Cli.Command.Deps (deps)
+import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.Start (start)
+import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Terminal (title)
 import qualified Wasp.Util.Terminal as Term
 
 main :: IO ()

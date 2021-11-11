@@ -1,16 +1,16 @@
-module Command.Start
+module Wasp.Cli.Command.Start
   ( start,
   )
 where
 
-import qualified Cli.Common as Common
-import Command (Command, CommandError (..))
-import Command.Common
+import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
-import Command.Compile (compileIO)
-import Command.Watch (watch)
+import Wasp.Cli.Command.Compile (compileIO)
+import Wasp.Cli.Command.Watch (watch)
 import Control.Concurrent.Async (race)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)

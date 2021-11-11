@@ -1,10 +1,10 @@
-module Command.Deps
+module Wasp.Cli.Command.Deps
   ( deps,
   )
 where
 
-import Cli.Terminal (title)
-import Command (Command)
+import Wasp.Cli.Terminal (title)
+import Wasp.Cli.Command (Command)
 import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator

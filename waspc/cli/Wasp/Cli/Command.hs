@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Command
+module Wasp.Cli.Command
   ( Command,
     runCommand,
     CommandError (..),

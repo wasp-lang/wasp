@@ -1,4 +1,4 @@
-module Cli.Terminal
+module Wasp.Cli.Terminal
   ( title,
   )
 where

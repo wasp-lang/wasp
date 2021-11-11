@@ -1,11 +1,8 @@
-module Command.CreateNewProject
+module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
   )
 where
 
-import qualified Cli.Common as Common
-import Command (Command, CommandError (..))
-import qualified Command.Common
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Char (isLetter)
@@ -16,6 +13,9 @@ import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.Cli.Command (Command, CommandError (..))
+import qualified Wasp.Cli.Command.Common as Command.Common
+import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import qualified Wasp.Util.Terminal as Term
 

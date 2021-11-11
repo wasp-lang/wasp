@@ -1,4 +1,4 @@
-module Cli.Common
+module Wasp.Cli.Common
   ( WaspProjectDir,
     DotWaspDir,
     CliTemplatesDir,

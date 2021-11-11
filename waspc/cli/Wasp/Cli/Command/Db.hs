@@ -1,13 +1,13 @@
-module Command.Db
+module Wasp.Cli.Command.Db
   ( runDbCommand,
     studio,
   )
 where
 
-import qualified Cli.Common as Common
-import Command (Command, CommandError (..), runCommand)
-import Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
-import Command.Compile (compile)
+import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import Wasp.Cli.Command.Compile (compile)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (throwError)

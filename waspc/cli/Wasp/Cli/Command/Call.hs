@@ -1,4 +1,4 @@
-module Command.Call where
+module Wasp.Cli.Command.Call where
 
 data Call
   = New String -- project name

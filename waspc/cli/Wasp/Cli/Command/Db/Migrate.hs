@@ -1,28 +1,29 @@
-module Command.Db.Migrate
+module Wasp.Cli.Command.Db.Migrate
   ( migrateDev,
     copyDbMigrationsDir,
     MigrationDirCopyDirection (..),
   )
 where
 
-import qualified Cli.Common
-import Command (Command, CommandError (..))
-import Command.Common
-  ( findWaspProjectRootDirFromCwd,
-    waspSaysC,
-  )
-import Wasp.Common (WaspProjectDir)
 import Control.Monad.Catch (catch)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 -- Wasp generator interface.
-import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator (dbRootDirInProjectRootDir)
-import qualified Wasp.Generator.DbGenerator.Operations as DbOps
+
 import qualified Path as P
 import qualified Path.IO as PathIO
 import StrongPath (Abs, Dir, Path', reldir, (</>))
 import qualified StrongPath.Path as SP.Path
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common
+  ( findWaspProjectRootDirFromCwd,
+    waspSaysC,
+  )
+import qualified Wasp.Cli.Common as Cli.Common
+import Wasp.Common (WaspProjectDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.DbGenerator (dbRootDirInProjectRootDir)
+import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 
 migrateDev :: Command ()
 migrateDev = do

@@ -1,11 +1,11 @@
-module Command.Watch
+module Wasp.Cli.Command.Watch
   ( watch,
   )
 where
 
-import Cli.Common (waspSays)
-import qualified Cli.Common as Common
-import Command.Compile (compileIO)
+import Wasp.Cli.Common (waspSays)
+import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Command.Compile (compileIO)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)

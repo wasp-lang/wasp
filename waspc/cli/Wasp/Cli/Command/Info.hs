@@ -1,20 +1,20 @@
-module Command.Info
+module Wasp.Cli.Command.Info
   ( info,
   )
 where
 
-import qualified Cli.Common
-import Cli.Terminal (title)
-import Command (Command)
-import Command.Common
-  ( findWaspProjectRootDirFromCwd,
-    waspSaysC,
-  )
 import Control.Arrow (ArrowChoice (left))
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', fromAbsFile, fromRelFile, toFilePath)
 import StrongPath.Operations
 import System.Directory (doesFileExist, getFileSize)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Common
+  ( findWaspProjectRootDirFromCwd,
+    waspSaysC,
+  )
+import qualified Wasp.Cli.Common as Cli.Common
+import Wasp.Cli.Terminal (title)
 import Wasp.Common (WaspProjectDir)
 import Wasp.Lib (findWaspFile)
 import qualified Wasp.Parser

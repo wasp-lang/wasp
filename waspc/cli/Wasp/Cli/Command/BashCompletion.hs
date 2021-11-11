@@ -1,11 +1,11 @@
-module Command.BashCompletion
+module Wasp.Cli.Command.BashCompletion
   ( bashCompletion,
     generateBashCompletionScript,
     printBashCompletionInstruction,
   )
 where
 
-import Command (Command)
+import Wasp.Cli.Command (Command)
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)

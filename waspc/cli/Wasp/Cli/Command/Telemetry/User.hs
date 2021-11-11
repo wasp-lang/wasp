@@ -1,12 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Command.Telemetry.User
+module Wasp.Cli.Command.Telemetry.User
   ( UserSignature (..),
     readOrCreateUserSignatureFile,
   )
 where
 
-import Command.Telemetry.Common (TelemetryCacheDir)
+import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import qualified Data.UUID.V4 as UUID
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP

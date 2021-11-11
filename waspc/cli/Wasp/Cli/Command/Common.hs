@@ -1,4 +1,4 @@
-module Command.Common
+module Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     findWaspProjectRoot,
     waspSaysC,
@@ -6,11 +6,11 @@ module Command.Common
   )
 where
 
-import Cli.Common
+import Wasp.Cli.Common
   ( dotWaspRootFileInWaspProjectDir,
     waspSays,
   )
-import Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Common (WaspProjectDir)
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)

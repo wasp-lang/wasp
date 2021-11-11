@@ -1,4 +1,4 @@
-module Command.Telemetry.Common
+module Wasp.Cli.Command.Telemetry.Common
   ( TelemetryCacheDir,
     ensureTelemetryCacheDirExists,
     getTelemetryCacheDirPath,

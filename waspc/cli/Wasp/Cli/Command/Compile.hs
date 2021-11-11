@@ -1,23 +1,23 @@
-module Command.Compile
+module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
     compileIOWithOptions,
   )
 where
 
-import qualified Cli.Common
-import Command (Command, CommandError (..))
-import Command.Common
-  ( findWaspProjectRootDirFromCwd,
-    waspSaysC,
-  )
-import Command.Db.Migrate
-  ( MigrationDirCopyDirection (..),
-    copyDbMigrationsDir,
-  )
 import Control.Monad.Except (runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common
+  ( findWaspProjectRootDirFromCwd,
+    waspSaysC,
+  )
+import Wasp.Cli.Command.Db.Migrate
+  ( MigrationDirCopyDirection (..),
+    copyDbMigrationsDir,
+  )
+import qualified Wasp.Cli.Common as Common
 import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
@@ -26,8 +26,8 @@ compile :: Command ()
 compile = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   let outDir =
-        waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir
-          </> Cli.Common.generatedCodeDirInDotWaspDir
+        waspProjectDir </> Common.dotWaspDirInWaspProjectDir
+          </> Common.generatedCodeDirInDotWaspDir
 
   waspSaysC "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspProjectDir outDir
@@ -45,13 +45,13 @@ compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir ou
   where
     options =
       CompileOptions
-        { externalCodeDirPath = waspProjectDir </> Cli.Common.extCodeDirInWaspProjectDir,
+        { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
           isBuild = False
         }
 
 compileIOWithOptions ::
   CompileOptions ->
-  Path' Abs (Dir Cli.Common.WaspProjectDir) ->
+  Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
 compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
