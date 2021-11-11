@@ -65,9 +65,9 @@ jobs:
           #   making it even slower to test and fix (uffff).
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key
           #   and also remove restore-keys.
-          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
+          key: wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
+            wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
 
       - name: Cache (Windows)
         uses: actions/cache@v2
@@ -80,9 +80,9 @@ jobs:
           path: |
             C:\sr
           # TODO: Check TODO in caching for Unix above.
-          key: haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
+          key: wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            haskell-${{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
+            wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
 
       # TODO: Remove this step once https://github.com/actions/cache/issues/445 is resolved.
       - name: Fix MacOS problem with corrupt cached executable
