@@ -1,6 +1,6 @@
 module Psl.Common.ModelTest where
 
-import qualified Psl.Ast.Model as AST
+import qualified Wasp.Psl.Ast.Model as AST
 
 -- | Corresponds to sampleBodyAst below.
 sampleBodySchema :: String

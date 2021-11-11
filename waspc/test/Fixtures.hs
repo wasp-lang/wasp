@@ -4,8 +4,8 @@ import Data.Maybe (fromJust)
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
-import Wasp
-import qualified Wasp.Route as RouteAST
+import Wasp.Wasp
+import qualified Wasp.Wasp.Route as RouteAST
 
 app :: App
 app =

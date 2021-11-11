@@ -1,12 +1,12 @@
 module Parser.ServerTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.Server (server)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.JsImport
-import qualified Wasp.Server
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Server (server)
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
+import qualified Wasp.Wasp.Server as Wasp.Server
 
 spec_parseServer :: Spec
 spec_parseServer =

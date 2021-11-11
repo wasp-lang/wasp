@@ -1,17 +1,17 @@
 module Generator.WebAppGeneratorTest where
 
-import qualified CompileOptions
 import Fixtures (systemSPRoot)
-import Generator.FileDraft
-import qualified Generator.FileDraft.CopyFileDraft as CopyFD
-import qualified Generator.FileDraft.TemplateFileDraft as TmplFD
-import qualified Generator.FileDraft.TextFileDraft as TextFD
-import Generator.WebAppGenerator
-import qualified Generator.WebAppGenerator.Common as Common
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
-import Wasp
+import qualified Wasp.CompileOptions as CompileOptions
+import Wasp.Generator.FileDraft
+import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
+import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
+import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
+import Wasp.Generator.WebAppGenerator
+import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import Wasp.Wasp
 
 -- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
 --   generator functions and then do property testing on them, that would be cool.

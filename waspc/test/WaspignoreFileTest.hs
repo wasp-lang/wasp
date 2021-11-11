@@ -2,7 +2,7 @@ module WaspignoreFileTest where
 
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck (property)
-import WaspignoreFile (ignores, parseWaspignoreFile)
+import Wasp.WaspignoreFile (ignores, parseWaspignoreFile)
 
 spec_IgnoreFile :: Spec
 spec_IgnoreFile = do

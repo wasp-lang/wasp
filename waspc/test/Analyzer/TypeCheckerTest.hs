@@ -1,13 +1,13 @@
 module Analyzer.TypeCheckerTest where
 
-import qualified Analyzer.Parser as P
-import Analyzer.Type
-import Analyzer.TypeChecker
-import qualified Analyzer.TypeDefinitions as TD
-import qualified Analyzer.TypeDefinitions.Internal as TD
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec
+import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.Type
+import Wasp.Analyzer.TypeChecker
+import qualified Wasp.Analyzer.TypeDefinitions as TD
+import qualified Wasp.Analyzer.TypeDefinitions.Internal as TD
 
 spec_TypeChecker :: Spec
 spec_TypeChecker = do

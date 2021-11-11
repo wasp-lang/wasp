@@ -1,11 +1,11 @@
 module Parser.JsImportTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.JsImport (jsImport)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.JsImport (jsImport)
+import qualified Wasp.Wasp as Wasp
 
 spec_parseJsImport :: Spec
 spec_parseJsImport = do

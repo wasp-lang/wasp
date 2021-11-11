@@ -1,11 +1,11 @@
 module Psl.Parser.ModelTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import qualified Psl.Ast.Model as AST
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
-import Psl.Parser.Model (attrArgument, body, model)
 import Test.Tasty.Hspec
+import Wasp.Parser.Common (runWaspParser)
+import qualified Wasp.Psl.Ast.Model as AST
+import Wasp.Psl.Parser.Model (attrArgument, body, model)
 
 spec_parsePslModel :: Spec
 spec_parsePslModel = do

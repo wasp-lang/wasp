@@ -1,11 +1,11 @@
 module Parser.NpmDependenciesTest where
 
 import Data.Either (isLeft)
-import qualified NpmDependency as ND
-import Parser.Common (runWaspParser)
-import Parser.NpmDependencies (npmDependencies)
 import Test.Tasty.Hspec
-import Wasp.NpmDependencies
+import qualified Wasp.NpmDependency as ND
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.NpmDependencies (npmDependencies)
+import Wasp.Wasp.NpmDependencies
 
 spec_parseNpmDependencies :: Spec
 spec_parseNpmDependencies = do

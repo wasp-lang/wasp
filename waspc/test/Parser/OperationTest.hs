@@ -1,11 +1,11 @@
 module Parser.OperationTest where
 
 import Data.List (intercalate)
-import Parser.Common (runWaspParser)
-import Parser.Operation
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
-import qualified Wasp.JsImport
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.Operation
+import qualified Wasp.Wasp.JsImport as Wasp.JsImport
 
 spec_parseOperation :: Spec
 spec_parseOperation =

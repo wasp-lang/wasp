@@ -1,10 +1,10 @@
 module Parser.ExternalCodeTest where
 
 import Data.Either (isLeft)
-import Parser.Common (runWaspParser)
-import Parser.ExternalCode (extCodeFilePathString)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import Wasp.Parser.Common (runWaspParser)
+import Wasp.Parser.ExternalCode (extCodeFilePathString)
 
 spec_ParserExternalCode :: Spec
 spec_ParserExternalCode = do

@@ -2,16 +2,16 @@
 
 module AnalyzerTest where
 
-import Analyzer
-import qualified Analyzer.TypeChecker as TC
-import AppSpec.App (App)
-import qualified AppSpec.App as App
-import qualified AppSpec.AuthMethod as AuthMethod
-import AppSpec.Core.Ref (Ref (..))
-import AppSpec.Page (Page)
-import qualified AppSpec.Page as Page
 import Data.Either (isRight)
 import Test.Tasty.Hspec
+import Wasp.Analyzer
+import qualified Wasp.Analyzer.TypeChecker as TC
+import Wasp.AppSpec.App (App)
+import qualified Wasp.AppSpec.App as App
+import qualified Wasp.AppSpec.AuthMethod as AuthMethod
+import Wasp.AppSpec.Core.Ref (Ref (..))
+import Wasp.AppSpec.Page (Page)
+import qualified Wasp.AppSpec.Page as Page
 
 spec_Analyzer :: Spec
 spec_Analyzer = do

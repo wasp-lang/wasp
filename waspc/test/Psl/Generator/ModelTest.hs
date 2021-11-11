@@ -3,13 +3,13 @@
 
 module Psl.Generator.ModelTest where
 
-import Parser.Common (runWaspParser)
-import qualified Psl.Ast.Model as AST
 import Psl.Common.ModelTest (sampleBodyAst)
-import Psl.Generator.Model (generateModel)
-import qualified Psl.Parser.Model
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
+import Wasp.Parser.Common (runWaspParser)
+import qualified Wasp.Psl.Ast.Model as AST
+import Wasp.Psl.Generator.Model (generateModel)
+import qualified Wasp.Psl.Parser.Model
 
 spec_generatePslModel :: Spec
 spec_generatePslModel = do
@@ -17,12 +17,12 @@ spec_generatePslModel = do
     let pslModelAst = AST.Model "User" sampleBodyAst
 
     it "parse(generate(sampleBodyAst)) == sampleBodyAst" $ do
-      runWaspParser Psl.Parser.Model.model (generateModel pslModelAst) `shouldBe` Right pslModelAst
+      runWaspParser Wasp.Psl.Parser.Model.model (generateModel pslModelAst) `shouldBe` Right pslModelAst
 
 prop_generatePslModel :: Property
 prop_generatePslModel = mapSize (const 100) $ \modelAst ->
   within 1000000 $
-    runWaspParser Psl.Parser.Model.model (generateModel modelAst) `shouldBe` Right modelAst
+    runWaspParser Wasp.Psl.Parser.Model.model (generateModel modelAst) `shouldBe` Right modelAst
 
 instance Arbitrary AST.Model where
   arbitrary = AST.Model <$> arbitraryIdentifier <*> arbitrary

@@ -1,8 +1,8 @@
 module Analyzer.ParserTest where
 
-import Analyzer.Parser
 import Data.Either (isLeft)
 import Test.Tasty.Hspec
+import Wasp.Analyzer.Parser
 
 spec_Parser :: Spec
 spec_Parser = do
