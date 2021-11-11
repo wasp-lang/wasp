@@ -6,12 +6,6 @@ module Wasp.Cli.Command.Common
   )
 where
 
-import Wasp.Cli.Common
-  ( dotWaspRootFileInWaspProjectDir,
-    waspSays,
-  )
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Common (WaspProjectDir)
 import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -24,6 +18,12 @@ import System.Directory
     getCurrentDirectory,
   )
 import qualified System.FilePath as FP
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Common
+  ( dotWaspRootFileInWaspProjectDir,
+    waspSays,
+  )
+import Wasp.Common (WaspProjectDir)
 
 findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRoot currentDir = do

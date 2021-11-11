@@ -3,9 +3,9 @@ module Wasp.Generator.FileDraft.Writeable
   )
 where
 
+import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.WriteableMonad
-import StrongPath (Abs, Dir, Path')
 
 class Writeable w where
   -- | Write file somewhere in the provided project root directory.

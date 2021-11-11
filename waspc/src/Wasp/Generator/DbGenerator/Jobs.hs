@@ -4,14 +4,14 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
+import StrongPath (Abs, Dir, Path', (</>))
+import qualified StrongPath as SP
+import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (dbSchemaFileInProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
-import StrongPath (Abs, Dir, Path', (</>))
-import qualified StrongPath as SP
-import qualified System.Info
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateDev projectDir = do

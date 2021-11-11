@@ -5,13 +5,13 @@ where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
+import StrongPath (Abs, Dir, Path')
+import System.Exit (ExitCode (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printPrefixedJobMessage)
 import Wasp.Generator.ServerGenerator.Setup (setupServer)
 import Wasp.Generator.WebAppGenerator.Setup (setupWebApp)
-import StrongPath (Abs, Dir, Path')
-import System.Exit (ExitCode (..))
 
 setup :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 setup projectDir = do

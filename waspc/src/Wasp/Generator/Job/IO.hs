@@ -8,9 +8,9 @@ where
 import Control.Concurrent (Chan, readChan)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
-import qualified Wasp.Generator.Job as J
 import System.Exit (ExitCode (..))
 import System.IO (Handle, hFlush, stderr, stdout)
+import qualified Wasp.Generator.Job as J
 import qualified Wasp.Util.Terminal as Term
 
 readJobMessagesAndPrintThemPrefixed :: Chan J.JobMessage -> IO ()

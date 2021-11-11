@@ -5,10 +5,10 @@ module Wasp.Analyzer.Evaluator.TH.Enum
   )
 where
 
+import Language.Haskell.TH
 import Wasp.Analyzer.Evaluator.EvaluationError
 import Wasp.Analyzer.Evaluator.TH.Common
 import Wasp.Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
-import Language.Haskell.TH
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.

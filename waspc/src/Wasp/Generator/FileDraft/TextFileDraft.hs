@@ -4,11 +4,11 @@ module Wasp.Generator.FileDraft.TextFileDraft
 where
 
 import Data.Text (Text)
+import StrongPath (File', Path', Rel, (</>))
+import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
-import StrongPath (File', Path', Rel, (</>))
-import qualified StrongPath as SP
 
 -- | File draft based on text, that is to be written to file when time comes.
 data TextFileDraft = TextFileDraft

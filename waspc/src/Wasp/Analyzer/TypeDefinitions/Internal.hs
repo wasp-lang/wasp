@@ -5,12 +5,12 @@ module Wasp.Analyzer.TypeDefinitions.Internal
   )
 where
 
+import qualified Data.HashMap.Strict as M
 import Wasp.Analyzer.Evaluator.Bindings (Bindings, DeclName)
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Wasp.Analyzer.Type (Type)
 import Wasp.Analyzer.TypeChecker.AST (TypedExpr)
 import Wasp.AppSpec.Core.Decl (Decl)
-import qualified Data.HashMap.Strict as M
 
 -- | Describes a specific declaration type in Wasp.
 -- For example, such declaration type could be @page@, or @route@.

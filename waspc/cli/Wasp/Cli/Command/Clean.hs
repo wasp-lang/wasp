@@ -3,9 +3,6 @@ module Wasp.Cli.Command.Clean
   )
 where
 
-import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import System.Directory
@@ -13,6 +10,9 @@ import System.Directory
     removeDirectoryRecursive,
   )
 import System.IO (hFlush, stdout)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import qualified Wasp.Cli.Common as Common
 
 clean :: Command ()
 clean = do

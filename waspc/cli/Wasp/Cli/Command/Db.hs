@@ -4,19 +4,19 @@ module Wasp.Cli.Command.Db
   )
 where
 
-import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
-import Wasp.Cli.Command.Compile (compile)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import StrongPath ((</>))
+import System.Exit (ExitCode (..))
+import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import Wasp.Cli.Command.Compile (compile)
+import qualified Wasp.Cli.Common as Common
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.ServerGenerator.Setup (setupServer)
-import StrongPath ((</>))
-import System.Exit (ExitCode (..))
 
 runDbCommand :: Command a -> IO ()
 runDbCommand = runCommand . makeDbCommand

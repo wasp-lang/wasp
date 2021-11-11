@@ -12,11 +12,11 @@ module Wasp.Analyzer.Parser.Monad
   )
 where
 
-import Wasp.Analyzer.Parser.ParseError (ParseError)
-import Wasp.Analyzer.Parser.Token (SourcePosition (..))
 import Control.Monad.Except (Except)
 import Control.Monad.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
+import Wasp.Analyzer.Parser.ParseError (ParseError)
+import Wasp.Analyzer.Parser.Token (SourcePosition (..))
 
 type Parser a = StateT ParserState (Except ParseError) a
 

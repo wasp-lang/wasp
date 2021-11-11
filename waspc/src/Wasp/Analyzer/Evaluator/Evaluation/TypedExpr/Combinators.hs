@@ -16,6 +16,7 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
+import Control.Arrow (left)
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
@@ -25,7 +26,6 @@ import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.AppSpec.Core.Ref (Ref)
 import qualified Wasp.AppSpec.Core.Ref as Ref
-import Control.Arrow (left)
 
 -- | An evaluation that expects a "StringLiteral".
 string :: TypedExprEvaluation String

@@ -13,8 +13,6 @@ import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
-import qualified Wasp.Generator.Common as C
-import qualified Wasp.Generator.Job as J
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -23,6 +21,8 @@ import qualified System.Process as P
 import Text.Read (readMaybe)
 import qualified Text.Regex.TDFA as R
 import UnliftIO.Exception (bracket)
+import qualified Wasp.Generator.Common as C
+import qualified Wasp.Generator.Job as J
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.

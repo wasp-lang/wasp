@@ -2,11 +2,11 @@
 
 module Wasp.AppSpec.App (App (..)) where
 
+import Data.Data (Data)
 import Wasp.AppSpec.AuthMethod (AuthMethod)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Page (Page)
-import Data.Data (Data)
 
 data App = App
   { title :: String,

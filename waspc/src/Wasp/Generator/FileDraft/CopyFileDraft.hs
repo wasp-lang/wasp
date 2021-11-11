@@ -4,9 +4,6 @@ module Wasp.Generator.FileDraft.CopyFileDraft
 where
 
 import Control.Monad (when)
-import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.FileDraft.Writeable
-import Wasp.Generator.FileDraft.WriteableMonad
 import StrongPath
   ( Abs,
     File',
@@ -16,6 +13,9 @@ import StrongPath
   )
 import qualified StrongPath as SP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft.Writeable
+import Wasp.Generator.FileDraft.WriteableMonad
 
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft

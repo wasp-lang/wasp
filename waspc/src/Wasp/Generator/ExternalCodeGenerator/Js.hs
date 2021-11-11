@@ -4,17 +4,17 @@ module Wasp.Generator.ExternalCodeGenerator.Js
   )
 where
 
-import qualified Wasp.AppSpec.ExternalCode as EC
 import Data.Maybe (fromJust)
 import Data.Text (Text, unpack)
 import qualified Data.Text as T
 import FilePath.Extra (reversePosixPath)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import qualified Wasp.Generator.ExternalCodeGenerator.Common as C
-import qualified Wasp.Generator.FileDraft as FD
 import StrongPath (Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified Text.Regex.TDFA as TR
+import qualified Wasp.AppSpec.ExternalCode as EC
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import qualified Wasp.Generator.ExternalCodeGenerator.Common as C
+import qualified Wasp.Generator.FileDraft as FD
 
 generateJsFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> FD.FileDraft
 generateJsFile strategy file = FD.createTextFileDraft dstPath text'

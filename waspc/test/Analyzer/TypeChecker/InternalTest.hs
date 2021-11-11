@@ -1,5 +1,9 @@
 module Analyzer.TypeChecker.InternalTest where
 
+import qualified Data.HashMap.Strict as H
+import Data.List.NonEmpty (NonEmpty ((:|)))
+import Test.Tasty.Hspec
+import Test.Tasty.QuickCheck
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
@@ -8,10 +12,6 @@ import Wasp.Analyzer.TypeChecker.Monad (Bindings, run, runWithBound)
 import Wasp.Analyzer.TypeChecker.TypeError
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import qualified Wasp.Analyzer.TypeDefinitions.Internal as TD
-import qualified Data.HashMap.Strict as H
-import Data.List.NonEmpty (NonEmpty ((:|)))
-import Test.Tasty.Hspec
-import Test.Tasty.QuickCheck
 
 -- TODO:
 -- Having Arbitrary instances for Types and TypedAST would allow much more thorough testing

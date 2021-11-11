@@ -1,9 +1,9 @@
 module Parser.RouteTest where
 
 import Data.Either (isLeft)
+import Test.Tasty.Hspec
 import Wasp.Parser.Common (runWaspParser)
 import Wasp.Parser.Route (route)
-import Test.Tasty.Hspec
 import qualified Wasp.Wasp.Route as RouteAST
 
 spec_parseRoute :: Spec

@@ -4,8 +4,8 @@ module Wasp.Parser.JsCode
 where
 
 import qualified Data.Text as Text
-import qualified Wasp.Parser.Common as P
 import Text.Parsec.String (Parser)
+import qualified Wasp.Parser.Common as P
 import qualified Wasp.Wasp.JsCode as WJS
 
 jsCode :: Parser WJS.JsCode

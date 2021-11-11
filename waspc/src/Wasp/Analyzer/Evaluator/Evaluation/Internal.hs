@@ -8,10 +8,10 @@ module Wasp.Analyzer.Evaluator.Evaluation.Internal
   )
 where
 
+import Data.Functor.Compose (Compose (Compose, getCompose))
 import Wasp.Analyzer.Evaluator.Bindings
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
 import qualified Wasp.Analyzer.TypeDefinitions as TD
-import Data.Functor.Compose (Compose (Compose, getCompose))
 
 -- | An evaluation of "a" into "b". It has evaluation context and it can return an evaluation error.
 -- We are using `Compose` because it results in an Applicative when it composes two Applicatives,

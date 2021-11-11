@@ -18,9 +18,9 @@ module Wasp.Analyzer.TypeDefinitions
   )
 where
 
+import qualified Data.HashMap.Strict as M
 import Wasp.Analyzer.TypeDefinitions.Class
 import Wasp.Analyzer.TypeDefinitions.Internal
-import qualified Data.HashMap.Strict as M
 
 empty :: TypeDefinitions
 empty = TypeDefinitions {declTypes = M.empty, enumTypes = M.empty}

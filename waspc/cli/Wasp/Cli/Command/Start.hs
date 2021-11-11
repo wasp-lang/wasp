@@ -3,7 +3,10 @@ module Wasp.Cli.Command.Start
   )
 where
 
-import qualified Wasp.Cli.Common as Common
+import Control.Concurrent.Async (race)
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
+import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -11,10 +14,7 @@ import Wasp.Cli.Command.Common
   )
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Command.Watch (watch)
-import Control.Concurrent.Async (race)
-import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
-import StrongPath ((</>))
+import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Lib
 
 -- | Does initial compile of wasp code and then runs the generated project.

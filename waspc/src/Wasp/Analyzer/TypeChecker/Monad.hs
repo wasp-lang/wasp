@@ -13,14 +13,14 @@ module Wasp.Analyzer.TypeChecker.Monad
   )
 where
 
-import Wasp.Analyzer.Parser.AST
-import Wasp.Analyzer.Type
-import Wasp.Analyzer.TypeChecker.TypeError
-import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.Reader (ReaderT, asks, runReaderT)
 import Control.Monad.State (StateT, evalStateT, gets, modify)
 import qualified Data.HashMap.Strict as H
+import Wasp.Analyzer.Parser.AST
+import Wasp.Analyzer.Type
+import Wasp.Analyzer.TypeChecker.TypeError
+import qualified Wasp.Analyzer.TypeDefinitions as TD
 
 type Bindings = H.HashMap Identifier Type
 

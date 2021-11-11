@@ -7,12 +7,12 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text.IO
-import qualified Wasp.Generator.Templates as Templates
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified System.Directory
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (Exception, catch)
 import qualified UnliftIO.Exception as E
+import qualified Wasp.Generator.Templates as Templates
 
 -- TODO: Should we use DI via data instead of typeclasses?
 --   https://news.ycombinator.com/item?id=10392044

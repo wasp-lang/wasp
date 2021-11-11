@@ -19,11 +19,11 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
+import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
-import qualified StrongPath as SP
 import Wasp.Wasp (Wasp)
 
 data ServerRootDir

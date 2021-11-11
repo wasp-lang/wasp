@@ -4,10 +4,10 @@ module Wasp.Parser.Action
 where
 
 import Data.Maybe (fromMaybe)
+import Text.Parsec.String (Parser)
 import qualified Wasp.Lexer as L
 import qualified Wasp.Parser.Common as C
 import qualified Wasp.Parser.Operation as Operation
-import Text.Parsec.String (Parser)
 import Wasp.Wasp.Action (Action)
 import qualified Wasp.Wasp.Action as Action
 

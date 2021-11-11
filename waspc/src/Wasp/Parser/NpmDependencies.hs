@@ -6,11 +6,11 @@ where
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import qualified Data.HashMap.Strict as M
+import Text.Parsec (try)
+import Text.Parsec.String (Parser)
 import qualified Wasp.Lexer as L
 import qualified Wasp.NpmDependency as ND
 import qualified Wasp.Parser.Common as P
-import Text.Parsec (try)
-import Text.Parsec.String (Parser)
 import Wasp.Wasp.NpmDependencies (NpmDependencies)
 import qualified Wasp.Wasp.NpmDependencies as NpmDependencies
 

@@ -4,11 +4,11 @@ module Wasp.Parser.App
 where
 
 import Data.Maybe (listToMaybe)
+import Text.Parsec
+import Text.Parsec.String (Parser)
 import Wasp.Lexer
 import qualified Wasp.Lexer as L
 import Wasp.Parser.Common
-import Text.Parsec
-import Text.Parsec.String (Parser)
 import qualified Wasp.Wasp.App as App
 
 -- | A type that describes supported app properties.

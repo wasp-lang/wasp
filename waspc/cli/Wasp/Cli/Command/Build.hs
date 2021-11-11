@@ -3,13 +3,6 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common
-  ( alphaWarningMessage,
-    findWaspProjectRootDirFromCwd,
-  )
-import Wasp.Cli.Command.Compile (compileIOWithOptions)
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
@@ -19,6 +12,13 @@ import System.Directory
   ( doesDirectoryExist,
     removeDirectoryRecursive,
   )
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common
+  ( alphaWarningMessage,
+    findWaspProjectRootDirFromCwd,
+  )
+import Wasp.Cli.Command.Compile (compileIOWithOptions)
+import qualified Wasp.Cli.Common as Common
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
 

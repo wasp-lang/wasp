@@ -3,8 +3,8 @@ module Wasp.Parser.Route
   )
 where
 
-import qualified Wasp.Lexer as L
 import Text.Parsec.String (Parser)
+import qualified Wasp.Lexer as L
 import qualified Wasp.Wasp.Route as Route
 
 -- | Top level parser, parses route Wasp element.

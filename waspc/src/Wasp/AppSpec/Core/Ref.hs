@@ -7,8 +7,8 @@ module Wasp.AppSpec.Core.Ref
   )
 where
 
-import Wasp.AppSpec.Core.Decl (IsDecl)
 import Data.Data (Data)
+import Wasp.AppSpec.Core.Decl (IsDecl)
 
 -- | Reference to a part (declaration) of the app spec, by its name.
 -- e.g. `Ref "HomePage" :: Ref Page` is a reference to a page that is declared under the name "HomePage".

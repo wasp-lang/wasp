@@ -3,9 +3,9 @@ module Wasp.Cli.Command.Deps
   )
 where
 
-import Wasp.Cli.Terminal (title)
-import Wasp.Cli.Command (Command)
 import Control.Monad.IO.Class (liftIO)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import Wasp.NpmDependency (printDep)

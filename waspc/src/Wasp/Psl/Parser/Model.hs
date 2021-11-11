@@ -7,7 +7,6 @@ module Wasp.Psl.Parser.Model
 where
 
 import Data.Maybe (fromMaybe, maybeToList)
-import qualified Wasp.Psl.Ast.Model as Model
 import Text.Parsec
   ( alphaNum,
     char,
@@ -25,6 +24,7 @@ import Text.Parsec
 import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as T
+import qualified Wasp.Psl.Ast.Model as Model
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:

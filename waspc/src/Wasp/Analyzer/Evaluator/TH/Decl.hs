@@ -7,6 +7,8 @@ module Wasp.Analyzer.Evaluator.TH.Decl
   )
 where
 
+import qualified Data.HashMap.Strict as H
+import Language.Haskell.TH
 import Wasp.Analyzer.Evaluator.Evaluation
 import Wasp.Analyzer.Evaluator.TH.Common
 import qualified Wasp.Analyzer.Evaluator.Types as E
@@ -14,8 +16,6 @@ import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
 import Wasp.AppSpec.Core.Decl (makeDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
-import qualified Data.HashMap.Strict as H
-import Language.Haskell.TH
 
 -- | @makeDeclType ''Type@ writes an @IsDeclType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.

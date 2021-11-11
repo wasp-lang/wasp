@@ -4,9 +4,9 @@ module Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
 where
 
 import Data.Aeson (object)
+import StrongPath (relfile)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import StrongPath (relfile)
 import Wasp.Wasp (Wasp)
 
 genResources :: Wasp -> [FileDraft]

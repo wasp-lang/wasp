@@ -3,8 +3,8 @@ module Wasp.CompileOptions
   )
 where
 
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import StrongPath (Abs, Dir, Path')
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 
 -- TODO(martin): Should these be merged with Wasp data? Is it really a separate thing or not?
 --   It would be easier to pass around if it is part of Wasp data. But is it semantically correct?

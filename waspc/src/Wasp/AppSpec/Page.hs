@@ -5,8 +5,8 @@ module Wasp.AppSpec.Page
   )
 where
 
-import Wasp.AppSpec.Core.Decl (IsDecl)
 import Data.Data (Data)
+import Wasp.AppSpec.Core.Decl (IsDecl)
 
 data Page = Page
   { content :: String

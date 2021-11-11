@@ -3,9 +3,6 @@ module Wasp.Cli.Command.Watch
   )
 where
 
-import Wasp.Cli.Common (waspSays)
-import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Command.Compile (compileIO)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
@@ -13,6 +10,9 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
+import Wasp.Cli.Command.Compile (compileIO)
+import Wasp.Cli.Common (waspSays)
+import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Lib
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not

@@ -115,13 +115,13 @@ module Wasp.Analyzer
   )
 where
 
+import Control.Arrow (left)
+import Control.Monad ((>=>))
 import Wasp.Analyzer.Evaluator (Decl)
 import qualified Wasp.Analyzer.Evaluator as E
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import qualified Wasp.Analyzer.TypeChecker as T
-import Control.Arrow (left)
-import Control.Monad ((>=>))
 
 data AnalyzeError
   = ParseError P.ParseError

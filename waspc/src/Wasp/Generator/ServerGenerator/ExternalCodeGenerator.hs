@@ -4,11 +4,11 @@ module Wasp.Generator.ServerGenerator.ExternalCodeGenerator
   )
 where
 
+import StrongPath (Dir, Path', Rel, reldir, (</>))
+import qualified StrongPath as SP
 import Wasp.Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy (..), GeneratedExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import StrongPath (Dir, Path', Rel, reldir, (</>))
-import qualified StrongPath as SP
 
 -- | Relative path to directory where external code will be generated.
 extCodeDirInServerSrcDir :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)

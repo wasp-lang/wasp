@@ -3,10 +3,10 @@ module Wasp.Wasp.Style
   )
 where
 
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Aeson (ToJSON (..))
 import Data.Text (Text)
 import StrongPath (File', Path, Posix, Rel, toFilePath)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 
 data Style
   = ExtCodeCssFile !(Path Posix (Rel SourceExternalCodeDir) File')

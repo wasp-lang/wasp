@@ -5,7 +5,6 @@
 module Wasp.Parser.Common where
 
 import qualified Data.Text as T
-import qualified Wasp.Lexer as L
 import StrongPath (File, Path, Posix, Rel, System)
 import qualified StrongPath as SP
 import Text.Parsec
@@ -17,6 +16,7 @@ import Text.Parsec
     unexpected,
   )
 import Text.Parsec.String (Parser)
+import qualified Wasp.Lexer as L
 
 -- | Runs given wasp parser on a specified input.
 runWaspParser :: Parser a -> String -> Either ParseError a

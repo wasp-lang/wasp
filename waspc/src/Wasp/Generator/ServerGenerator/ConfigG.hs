@@ -6,10 +6,10 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.ServerGenerator.Common as C
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Wasp (Wasp, getAuth)
 
 genConfigFile :: Wasp -> FileDraft

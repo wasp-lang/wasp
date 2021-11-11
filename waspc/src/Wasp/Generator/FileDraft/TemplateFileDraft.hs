@@ -4,12 +4,12 @@ module Wasp.Generator.FileDraft.TemplateFileDraft
 where
 
 import qualified Data.Aeson as Aeson
+import StrongPath (Abs, File', Path', Rel, (</>))
+import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
-import StrongPath (Abs, File', Path', Rel, (</>))
-import qualified StrongPath as SP
 
 -- | File draft based on template file that gets combined with data.
 data TemplateFileDraft = TemplateFileDraft

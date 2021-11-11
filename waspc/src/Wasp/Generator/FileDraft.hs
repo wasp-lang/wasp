@@ -10,13 +10,13 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
+import StrongPath (Abs, File', Path', Rel)
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.Templates (TemplatesDir)
-import StrongPath (Abs, File', Path', Rel)
 
 -- | FileDraft unites different file draft types into a single type,
 --   so that in the rest of the system they can be passed around as heterogeneous

@@ -5,12 +5,12 @@ module Wasp.Cli.Command.BashCompletion
   )
 where
 
-import Wasp.Cli.Command (Command)
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
 import Paths_waspc (getDataFileName)
 import qualified System.Environment as ENV
+import Wasp.Cli.Command (Command)
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()

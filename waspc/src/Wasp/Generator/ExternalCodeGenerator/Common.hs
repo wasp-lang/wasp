@@ -6,11 +6,11 @@ module Wasp.Generator.ExternalCodeGenerator.Common
   )
 where
 
-import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Data.Text (Text)
-import Wasp.Generator.Common (ProjectRootDir)
 import StrongPath (Dir, File', Path', Rel)
 import qualified StrongPath as SP
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
+import Wasp.Generator.Common (ProjectRootDir)
 
 -- | Path to the directory where ext code will be generated.
 data GeneratedExternalCodeDir

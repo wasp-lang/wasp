@@ -5,11 +5,11 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently, race)
+import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.ServerGenerator.Start (startServer)
 import Wasp.Generator.WebAppGenerator.Start (startWebApp)
-import StrongPath (Abs, Dir, Path')
 
 -- | This is a blocking action, that will start the processes that run web app and server.
 --   It will run as long as one of those processes does not fail.

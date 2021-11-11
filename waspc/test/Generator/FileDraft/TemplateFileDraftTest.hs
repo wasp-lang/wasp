@@ -3,10 +3,10 @@ module Generator.FileDraft.TemplateFileDraftTest where
 import Data.Aeson (object, (.=))
 import Data.Text (Text)
 import Fixtures (systemSPRoot)
-import Wasp.Generator.FileDraft
 import qualified Generator.MockWriteableMonad as Mock
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
+import Wasp.Generator.FileDraft
 
 spec_TemplateFileDraft :: Spec
 spec_TemplateFileDraft = do
