@@ -2,16 +2,12 @@
 # Cabal file when you run `stack build`. See the hpack website for help with
 # this file: <https://github.com/sol/hpack>.
 name:                waspc
-version:             0.2.2.2 # %WASP_VERSION% - annotation for new-release script.
+version:             0.0.0.1
 github:              "Martinsos/waspc"
 license:             MIT
 author:              "wasp-lang"
 maintainer:          "sosic.martin@gmail.com, matija.sosic@gmail.com"
 copyright:           "2020 wasp-lang"
-
-extra-source-files:
-  - README.md
-  - ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -31,8 +27,6 @@ ghc-options:
 
 library:
   source-dirs: src
-  dependencies:
-    - filepath
 
 executables:
   wasp:
