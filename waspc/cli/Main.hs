@@ -1,6 +1,6 @@
 module Main where
 
-import Wasp.Cli.HelloWorld (helloWorldTwice)
+import Wasp.Wasp.Hi (hi)
 
 main :: IO ()
-main = print helloWorldTwice
+main = print hi
