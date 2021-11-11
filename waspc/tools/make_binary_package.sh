@@ -10,7 +10,7 @@ DST=$PWD/${1:-wasp.tar.gz}
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t wasp-bin-package)"
 
-cp "$(stack path --local-install-root)"/bin/wasp "$TMP_DIR/wasp-bin"
+cp "$(stack path --local-install-root)"/bin/wasp-cli "$TMP_DIR/wasp-bin"
 cp -R "$(stack path --project-root)/data" "$TMP_DIR/data"
 
 cd "$TMP_DIR"

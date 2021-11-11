@@ -77,23 +77,23 @@ to ensure all the unit tests are passing (this will also build the project if ne
 
 ### Executable
 ```
-stack exec wasp
+stack exec wasp-cli
 ```
-to run the `wasp` executable that you just built!
+to run the `wasp-cli` executable that you just built!
 It should print "Usage" information.
 
-You can pass more arguments by just adding them to the command, e.g.: `stack exec wasp new MyProject`.
+You can pass more arguments by just adding them to the command, e.g.: `stack exec wasp-cli new MyProject`.
 
 ### Run example app
 Position yourself in `waspc/examples/todoApp/` and run
 ```
-stack exec wasp db migrate-dev
+stack exec wasp-cli db migrate-dev
 ```
 to update database schema (this is done only on schema changes).
 
 Then,
 ```
-stack exec wasp start
+stack exec wasp-cli start
 ```
 to run web app in development mode.
 
@@ -111,7 +111,7 @@ NOTE: Reload page if blank.
    Fix any errors shown by `ghcid`.
    Rinse and repeat.
 4. Once close to done, run `stack test` to confirm that project is passing tests (new and old).
-5. If needed, confirm that `examples/todoApp/` is working correctly by running `stack build` first, to build the wasp executable, and then by running that executable with `stack exec wasp start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
+5. If needed, confirm that `examples/todoApp/` is working correctly by running `stack build` first, to build the wasp executable, and then by running that executable with `stack exec wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
 6. When all is ready, squash commits into one commit (or a few if that makes sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
@@ -174,7 +174,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 ## Building / development (detailed)
 Some useful stack commands:
 - `stack build` to build the project, including `wasp` binary which is both CLI and compiler in one.
-- `stack exec wasp <arguments>` to run the `wasp` binary that you have built.
+- `stack exec wasp-cli <arguments>` to run the `wasp` binary that you have built.
 - `stack test` to build the whole project + tests and then also run tests.
 - `stack build --file-watch` -> live watch, reruns every time a file changes. But we prefer using `ghcid`, it is faster.
 - `stack build --pedantic` -> sets -Wall and -Werror ghc options.

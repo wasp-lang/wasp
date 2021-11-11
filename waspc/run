@@ -16,7 +16,7 @@ DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="stack build"
 TEST_CMD="$BUILD_CMD --test"
-EXEC_CMD="stack exec wasp $ARGS"
+EXEC_CMD="stack exec wasp-cli $ARGS"
 GHCID_CMD="ghcid --command=stack ghci"
 
 echo_and_eval () {
@@ -38,7 +38,7 @@ print_usage () {
                     "Builds the project."
     print_usage_cmd "test" \
                     "Builds the project and executes tests."
-    print_usage_cmd "wasp <args>" \
+    print_usage_cmd "wasp-cli <args>" \
                     "Builds the project once and runs the wasp executable while forwarding arguments."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
