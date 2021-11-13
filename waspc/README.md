@@ -244,6 +244,31 @@ If using Hlint as a linter, be aware that Hlint doesn't know which default exten
 
 Hlint already adds a lot of extensions on its own so this is not a very often problem, but if that happens, add default extensions to .hlint.yaml so that Hlint knows to use them.
 
+## Static Analysis
+
+Run [stan](https://github.com/kowainik/stan) to produce a static analysis report.
+
+A build of the `waspc` package writes the [HIE
+files](https://gitlab.haskell.org/ghc/ghc/-/wikis/hie-files) that stan reads so
+waspc and stan need to be built with the same version of GHC.
+
+```
+# package.yaml
+ghc-options:
+  - -fwrite-ide-info
+  - -hiedir=.hie
+```
+
+We use `--stack-yaml=stack-stan.yaml` to avoid burdening the waspc build with
+dependencies only the stan tool needs (being careful to match resolvers) and we
+set `--local-bin-path=.bin` to install stan in a project relative directory.
+
+```
+> stack build
+> stack build stan --stack-yaml=stack-stan.yaml
+> .bin/stan
+```
+
 ## Formatting
 For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
 

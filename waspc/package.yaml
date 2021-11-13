@@ -40,6 +40,8 @@ dependencies:
 ghc-options:
   - -Wall
   - -optP-Wno-nonportable-include-path # To avoid warning caused by .../autogen/cabal_macros.h. on OSX.
+  - -fwrite-ide-info
+  - -hiedir=.hie
 
 build-tools:
   - alex
