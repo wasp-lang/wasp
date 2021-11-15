@@ -9,6 +9,8 @@ author:              "wasp-lang"
 maintainer:          "sosic.martin@gmail.com, matija.sosic@gmail.com"
 copyright:           "2020 wasp-lang"
 
+# NOTE: If you modify list of default extensions, make sure to also update .hlint.yaml file,
+#   specifically `arguments` field, so that it contains these same extensions.
 default-extensions:
   - OverloadedStrings
   - TemplateHaskell

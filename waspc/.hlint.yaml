@@ -9,7 +9,13 @@
 # Specify additional command line arguments
 #
 # - arguments: [--color, --cpp-simple, -XQuasiQuotes]
-- arguments: [-XQuasiQuotes]
+- arguments:
+  # NOTE: List of extensions below should reflect the list
+  #   of default extensions from package.yaml.
+  - -XOverloadedStrings
+  - -XTemplateHaskell
+  - -XQuasiQuotes
+  - -XScopedTypeVariables
 
 # Control which extensions/flags/modules/functions can be used
 #
