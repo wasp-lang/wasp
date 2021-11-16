@@ -8,3 +8,7 @@ waspc.cabal
 *~
 .dir-locals.el
 .projectile
+
+.hie/
+.bin/
+stan.html
