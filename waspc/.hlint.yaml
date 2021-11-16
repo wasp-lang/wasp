@@ -8,7 +8,6 @@
 - ignore: {name: Use camelCase}
 - ignore: {name: Eta reduce}
 - ignore: {name: Redundant return} 
-- ignore: {name: Move brackets to avoid $}
 - ignore: {name: Use first} 
 - ignore: {name: Use second} 
 - ignore: {name: Use unless} 

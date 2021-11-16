@@ -36,7 +36,7 @@ spec_parseWaspCommon = do
           `shouldBe` Right ("someApp", 'a')
 
     it "When given wasp element declaration with invalid name, returns Left" $ do
-      (isLeft $ parseWaspElementNameAndClosureContent "app" whiteSpace "app 1someApp { }")
+      isLeft (parseWaspElementNameAndClosureContent "app" whiteSpace "app 1someApp { }")
         `shouldBe` True
 
   describe "Parsing wasp closure" $ do
@@ -45,7 +45,7 @@ spec_parseWaspCommon = do
         `shouldBe` Right "content"
 
     it "Does not parse a closure with brackets []" $ do
-      (isLeft $ runWaspParser (waspClosure (symbol "content")) "[ content ]")
+      isLeft (runWaspParser (waspClosure (symbol "content")) "[ content ]")
         `shouldBe` True
 
   describe "Parsing wasp property with a closure as a value" $ do
