@@ -9,7 +9,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -84,7 +84,7 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= map buildEntityData (fromMaybe [] $ Wasp.Operation.getEntities operation)
+      "entities" .= maybe [] (map buildEntityData) (Wasp.Operation.getEntities operation)
     ]
   where
     (importIdentifier, importStmt) =

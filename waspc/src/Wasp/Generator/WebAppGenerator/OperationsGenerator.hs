@@ -8,10 +8,7 @@ import Data.Aeson
     (.=),
   )
 import Data.List (intercalate)
-import Data.Maybe
-  ( fromJust,
-    fromMaybe,
-  )
+import Data.Maybe (fromJust)
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -85,7 +82,7 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 makeJsArrayOfEntityNames :: Wasp.Operation.Operation -> String
 makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]"
   where
-    entityStrings = map (\x -> "'" ++ x ++ "'") $ fromMaybe [] $ Wasp.Operation.getEntities operation
+    entityStrings = maybe [] (map (\x -> "'" ++ x ++ "'")) (Wasp.Operation.getEntities operation)
 
 getOperationDstFileName :: Wasp.Operation.Operation -> Maybe (Path' Rel' File')
 getOperationDstFileName operation = parseRelFile (Wasp.Operation.getName operation ++ ".js")
