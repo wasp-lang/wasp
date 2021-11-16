@@ -15,7 +15,6 @@
 - ignore: {name: Evaluate}
 - ignore: {name: Use maybe} 
 - ignore: {name: Use ++} 
-- ignore: {name: Unused LANGUAGE pragma} 
 - ignore: {name: Use zipWith} 
 - ignore: {name: Use TH quotation brackets} 
 - ignore: {name: Use list comprehension} 
