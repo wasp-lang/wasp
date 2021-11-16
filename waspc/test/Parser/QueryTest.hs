@@ -25,12 +25,12 @@ spec_parseQuery =
     genQueryCode :: Maybe Bool -> String
     genQueryCode qApplyAuth =
       "query " ++ testQueryName ++ " {\n"
-          ++ "  fn: import { "
-          ++ testQueryJsFunctionName
-          ++ " } from \"@ext/some/path\",\n"
-          ++ "  entities: [Task, Project]"
-          ++ authStr qApplyAuth
-          ++ "}"
+        ++ "  fn: import { "
+        ++ testQueryJsFunctionName
+        ++ " } from \"@ext/some/path\",\n"
+        ++ "  entities: [Task, Project]"
+        ++ authStr qApplyAuth
+        ++ "}"
     genQueryAST :: Maybe Bool -> Wasp.Query.Query
     genQueryAST qApplyAuth =
       Wasp.Query.Query

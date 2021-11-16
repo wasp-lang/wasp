@@ -32,8 +32,8 @@ genOperations wasp =
 
 genQueries :: Wasp -> [FileDraft]
 genQueries wasp =
-  map (genQuery wasp) (Wasp.getQueries wasp) ++
-      [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/queries/index.js|]) wasp]
+  map (genQuery wasp) (Wasp.getQueries wasp)
+    ++ [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/queries/index.js|]) wasp]
 
 genActions :: Wasp -> [FileDraft]
 genActions wasp =

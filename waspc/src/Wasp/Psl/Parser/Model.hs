@@ -71,19 +71,25 @@ field = do
     fieldType =
       foldl1
         (<|>)
-        (map
-          (\ (s, t) -> try (T.symbol lexer s) >> return t)
-          [("String", Model.String), ("Boolean", Model.Boolean),
-            ("Int", Model.Int), ("BigInt", Model.BigInt),
-            ("Float", Model.Float), ("Decimal", Model.Decimal),
-            ("DateTime", Model.DateTime), ("Json", Model.Json),
-            ("Bytes", Model.Bytes)])
-        <|>
-          try
-            (Model.Unsupported
-              <$>
-                (T.symbol lexer "Unsupported"
-                    >> T.parens lexer (T.stringLiteral lexer)))
+        ( map
+            (\(s, t) -> try (T.symbol lexer s) >> return t)
+            [ ("String", Model.String),
+              ("Boolean", Model.Boolean),
+              ("Int", Model.Int),
+              ("BigInt", Model.BigInt),
+              ("Float", Model.Float),
+              ("Decimal", Model.Decimal),
+              ("DateTime", Model.DateTime),
+              ("Json", Model.Json),
+              ("Bytes", Model.Bytes)
+            ]
+        )
+        <|> try
+          ( Model.Unsupported
+              <$> ( T.symbol lexer "Unsupported"
+                      >> T.parens lexer (T.stringLiteral lexer)
+                  )
+          )
         <|> Model.UserType <$> T.identifier lexer
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.

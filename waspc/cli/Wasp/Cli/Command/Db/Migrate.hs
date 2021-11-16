@@ -98,6 +98,6 @@ copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir = do
   if doesSrcDirExist
     then
       PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir target) >> return Nothing
-      `catch` (\e -> return $ Just $ show (e :: P.PathException))
-      `catch` (\e -> return $ Just $ show (e :: IOError))
+        `catch` (\e -> return $ Just $ show (e :: P.PathException))
+        `catch` (\e -> return $ Just $ show (e :: IOError))
     else return Nothing

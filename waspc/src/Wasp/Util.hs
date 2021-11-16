@@ -20,8 +20,8 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
     kebabHead = toLower camelHead
     kebabTail =
       concatMap
-          (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
-          (zip camel camelTail)
+        (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
+        (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
 
 -- | Applies given function to the first element of the list.

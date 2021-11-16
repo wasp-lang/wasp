@@ -43,11 +43,11 @@ spec_parseAction =
     genActionCode :: Maybe Bool -> String
     genActionCode aApplyAuth =
       "action " ++ testActionName ++ " {\n"
-          ++ "  fn: import { "
-          ++ testActionJsFunctionName
-          ++ " } from \"@ext/some/path\""
-          ++ authStr aApplyAuth
-          ++ "}"
+        ++ "  fn: import { "
+        ++ testActionJsFunctionName
+        ++ " } from \"@ext/some/path\""
+        ++ authStr aApplyAuth
+        ++ "}"
 
     authStr :: Maybe Bool -> String
     authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"

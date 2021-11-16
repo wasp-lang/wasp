@@ -16,8 +16,10 @@ db = do
   dbProperties <- P.waspClosure (L.commaSep1 dbProperty)
 
   system <-
-    maybe (fail "'system' property is required!")
-      return (listToMaybe [p | DbPropertySystem p <- dbProperties])
+    maybe
+      (fail "'system' property is required!")
+      return
+      (listToMaybe [p | DbPropertySystem p <- dbProperties])
 
   return
     Wasp.Db.Db
