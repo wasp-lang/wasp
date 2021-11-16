@@ -34,7 +34,7 @@ spec_WebAppGenerator = do
       let fileDrafts = generateWebApp testWasp testCompileOptions
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
-              concat $
+              concat
                 [ [ "README.md",
                     "package.json",
                     ".gitignore"
