@@ -10,5 +10,4 @@
 - ignore: {name: Use first} 
 - ignore: {name: Use second} 
 - ignore: {name: Use $>} 
-- ignore: {name: Evaluate}
 - ignore: {name: Use list comprehension} 

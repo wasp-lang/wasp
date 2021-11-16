@@ -37,9 +37,7 @@ genQueries wasp =
 
 genActions :: Wasp -> [FileDraft]
 genActions wasp =
-  concat
-    [ map (genAction wasp) (Wasp.getActions wasp)
-    ]
+  map (genAction wasp) (Wasp.getActions wasp)
 
 genQuery :: Wasp -> Wasp.Query.Query -> FileDraft
 genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)

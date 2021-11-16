@@ -29,15 +29,11 @@ genOperations wasp =
 
 genQueries :: Wasp -> [FileDraft]
 genQueries wasp =
-  concat
-    [ map (genQuery wasp) (Wasp.getQueries wasp)
-    ]
+  map (genQuery wasp) (Wasp.getQueries wasp)
 
 genActions :: Wasp -> [FileDraft]
 genActions wasp =
-  concat
-    [ map (genAction wasp) (Wasp.getActions wasp)
-    ]
+  map (genAction wasp) (Wasp.getActions wasp)
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
