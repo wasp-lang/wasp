@@ -1,0 +1,2 @@
+resolver: ./stack-snapshot.yaml
+local-bin-path: .bin

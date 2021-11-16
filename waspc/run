@@ -12,11 +12,18 @@ BOLD="\033[1m"
 UNDERLINED="\033[4m"
 RESET="\033[0m"
 LIGHT_CYAN="\033[96m"
+GREEN="\033[32m"
+RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="stack build"
 BUILD_ALL_CMD="stack build --bench --no-run-benchmarks --test --no-run-tests"
 STAN_CMD="$BUILD_ALL_CMD && stack install stan --stack-yaml=stack-stan.yaml && .bin/stan report $ARGS"
+HLINT_CMD="stack install hlint --stack-yaml=stack-hlint.yaml && .bin/hlint . $ARGS"
+ORMOLU_INSTALL_CMD="stack install ormolu --stack-yaml=stack-ormolu.yaml"
+ORMOLU_BASE_CMD="$ORMOLU_INSTALL_CMD && .bin/ormolu --color always --check-idempotence"
+ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
+ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 TEST_CMD="$BUILD_CMD --test"
 EXEC_CMD="stack exec wasp-cli $ARGS"
 GHCID_CMD="ghcid --command=stack ghci"
@@ -42,12 +49,24 @@ print_usage () {
                     "Builds the project and executes tests."
     print_usage_cmd "wasp-cli <args>" \
                     "Builds the project once and runs the wasp executable while forwarding arguments."
-    print_usage_cmd "stan <args>" \
-                    "Builds the project and runs static code analysis on it, generating stan.html."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
                     "Runs ghcid on both source and tests."
+    print_usage_cmd "code-check" \
+                    "Checks code by running it through formatter, linter and static analysis."
+    print_usage_cmd "stan <args>" \
+                    "Builds the project and runs static code analysis on it, generating stan.html."
+    print_usage_cmd "hlint <args>" \
+                    "Runs linter on the codebase."
+    print_usage_cmd "ormolu:check" \
+                    "Runs the code formatter and reports if code is correctly formatted or not."
+    print_usage_cmd "ormolu:format" \
+                    "Runs the code formatter and formats the code in place."
+}
+
+exitStatusToString () {
+    if (( $1 == 0 )); then echo "${GREEN}OK${RESET}"; else echo "${RED}FAIL${RESET}"; fi
 }
 
 case $COMMAND in
@@ -73,6 +92,41 @@ case $COMMAND in
         ;;
     stan)
         echo_and_eval "$STAN_CMD"
+        ;;
+    hlint)
+        echo_and_eval "$HLINT_CMD"
+        ;;
+    ormolu:check)
+        echo_and_eval "$ORMOLU_CHECK_CMD"
+        ;;
+    ormolu:format)
+        echo_and_eval "$ORMOLU_FORMAT_CMD"
+        ;;
+    code-check)
+        echo_and_eval "$ORMOLU_CHECK_CMD"
+        ORMOLU_RESULT=$?
+
+        echo_and_eval "$HLINT_CMD"
+        HLINT_RESULT=$?
+
+        echo_and_eval "$STAN_CMD"
+        STAN_RESULT=$?
+
+        TOTAL_RESULT=$(($ORMOLU_RESULT || $HLINT_RESULT || $STAN_RESULT))
+
+        echo
+        echo
+        echo "======================================"
+        echo "               SUMMARY"
+        echo "======================================"
+        echo
+        echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
+        echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
+        echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
+        echo "-----------------------"
+        echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
+
+        exit $TOTAL_RESULT
         ;;
     *)
         print_usage
