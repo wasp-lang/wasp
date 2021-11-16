@@ -7,7 +7,7 @@ module Wasp.Generator.ServerGenerator
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (unless)
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
 import Data.Maybe
@@ -72,7 +72,7 @@ preCleanup _ outDir _ = do
   -- If .env gets removed but there is old .env file in generated project from previous attempts,
   -- we need to make sure we remove it.
   removeFile dotEnvAbsFilePath
-    `catch` \e -> when (not $ isDoesNotExistError e) $ throwIO e
+    `catch` \e -> unless (isDoesNotExistError e) $ throwIO e
   where
     dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
@@ -104,7 +104,7 @@ genPackageJson wasp waspDeps waspDevDeps =
             "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
-              .= 
+              .=
                 if not (null $ Wasp.getPSLEntities wasp) then "npm run db-migrate-prod && " else ""
                 ++ "NODE_ENV=production node ./src/server.js"
           ]

@@ -9,7 +9,6 @@
 - ignore: {name: Eta reduce}
 - ignore: {name: Use first} 
 - ignore: {name: Use second} 
-- ignore: {name: Use unless} 
 - ignore: {name: Use $>} 
 - ignore: {name: Evaluate}
 - ignore: {name: Use list comprehension} 
