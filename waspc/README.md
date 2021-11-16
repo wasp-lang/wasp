@@ -105,7 +105,7 @@ NOTE: Reload page if blank.
 
 ## Typical development workflow
 1. Create a new feature branch from `master`.
-2. Run `run ghcid`: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
+2. Run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first, you can do it with `stack install ghcid`.
 3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by `ghcid`.
