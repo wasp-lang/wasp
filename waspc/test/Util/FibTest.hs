@@ -5,7 +5,7 @@ import Test.Tasty.QuickCheck
 import Wasp.Util.Fib
 
 spec_fibonacci :: Spec
-spec_fibonacci = do
+spec_fibonacci =
   describe "Fibonacci" $ do
     it "fibonacci element #0 is 0" $ do
       fibonacci 0 `shouldBe` 0
@@ -19,7 +19,7 @@ spec_fibonacci = do
 -- NOTE: Most likely not the best way to write QuickCheck test, I just did this in order
 --   to get something working as an example.
 prop_fibonacci :: Property
-prop_fibonacci = forAll (choose (0, 10)) $ testFibSequence
+prop_fibonacci = forAll (choose (0, 10)) testFibSequence
   where
     testFibSequence :: Int -> Bool
-    testFibSequence x = (fibonacci x) + (fibonacci (x + 1)) == fibonacci (x + 2)
+    testFibSequence x = fibonacci x + fibonacci (x + 1) == fibonacci (x + 2)

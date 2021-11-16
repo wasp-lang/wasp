@@ -69,8 +69,9 @@ field = do
   where
     fieldType :: Parser Model.FieldType
     fieldType =
-      ( foldl1 (<|>) $
-          map
+      foldl1
+        (<|>)
+        ( map
             (\(s, t) -> try (T.symbol lexer s) >> return t)
             [ ("String", Model.String),
               ("Boolean", Model.Boolean),
@@ -82,8 +83,13 @@ field = do
               ("Json", Model.Json),
               ("Bytes", Model.Bytes)
             ]
-      )
-        <|> (try $ Model.Unsupported <$> (T.symbol lexer "Unsupported" >> T.parens lexer (T.stringLiteral lexer)))
+        )
+        <|> try
+          ( Model.Unsupported
+              <$> ( T.symbol lexer "Unsupported"
+                      >> T.parens lexer (T.stringLiteral lexer)
+                  )
+          )
         <|> Model.UserType <$> T.identifier lexer
 
     -- NOTE: As is Prisma currently implemented, there can be only one type modifier at one time: [] or ?.
@@ -122,8 +128,7 @@ attribute = do
 -- Doesn't parse the delimiter.
 attrArgument :: Parser Model.AttributeArg
 attrArgument = do
-  arg <- try namedArg <|> try unnamedArg
-  return arg
+  try namedArg <|> try unnamedArg
   where
     namedArg :: Parser Model.AttributeArg
     namedArg = do
@@ -161,7 +166,7 @@ attrArgument = do
     argValueFieldReferenceList :: Parser Model.AttrArgValue
     argValueFieldReferenceList =
       Model.AttrArgFieldRefList
-        <$> (T.brackets lexer $ T.commaSep1 lexer $ T.identifier lexer)
+        <$> T.brackets lexer (T.commaSep1 lexer $ T.identifier lexer)
 
     -- NOTE: For now we are not supporting negative numbers.
     --   I couldn't figure out from Prisma docs if there could be the case
@@ -180,8 +185,7 @@ attrArgument = do
 
     argValueUnknown :: Parser Model.AttrArgValue
     argValueUnknown =
-      Model.AttrArgUnknown
-        <$> (many1 $ try $ noneOf argDelimiters)
+      Model.AttrArgUnknown <$> many1 (try $ noneOf argDelimiters)
 
     delimitedArgValue :: Parser Model.AttrArgValue -> Parser Model.AttrArgValue
     delimitedArgValue argValueP = do

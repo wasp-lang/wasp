@@ -21,7 +21,7 @@ spec_camelToKebabCase = do
 spec_onFirst :: Spec
 spec_onFirst = do
   it "Returns empty list for empty list" $ do
-    (onFirst id ([] :: [Char])) `shouldBe` []
+    onFirst id ([] :: [Char]) `shouldBe` []
   it "Applies given method on first element of list" $ do
     onFirst (+ 1) ([1, 2, 3] :: [Int]) `shouldBe` [2, 2, 3]
 
@@ -52,7 +52,7 @@ spec_jsonSet = do
             [ "prop1" .= ("first" :: String),
               "newProp" .= (23 :: Int)
             ]
-    (jsonSet "newProp" (Aeson.Number 23) inputObj) `shouldBe` expectedObj
+    jsonSet "newProp" (Aeson.Number 23) inputObj `shouldBe` expectedObj
 
   it "When an existing property is set, it is overwritten in the result object." $ do
     let newStrValue = "newVal" :: String
@@ -60,4 +60,4 @@ spec_jsonSet = do
           object
             [ "prop1" .= newStrValue
             ]
-    (jsonSet "prop1" (toJSON newStrValue) inputObj) `shouldBe` expectedObj
+    jsonSet "prop1" (toJSON newStrValue) inputObj `shouldBe` expectedObj

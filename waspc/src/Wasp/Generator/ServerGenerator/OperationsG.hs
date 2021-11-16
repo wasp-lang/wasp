@@ -9,7 +9,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromJust)
 import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -24,22 +24,16 @@ import qualified Wasp.Wasp.Query as Wasp.Query
 
 genOperations :: Wasp -> [FileDraft]
 genOperations wasp =
-  concat
-    [ genQueries wasp,
-      genActions wasp
-    ]
+  genQueries wasp
+    ++ genActions wasp
 
 genQueries :: Wasp -> [FileDraft]
 genQueries wasp =
-  concat
-    [ map (genQuery wasp) (Wasp.getQueries wasp)
-    ]
+  map (genQuery wasp) (Wasp.getQueries wasp)
 
 genActions :: Wasp -> [FileDraft]
 genActions wasp =
-  concat
-    [ map (genAction wasp) (Wasp.getActions wasp)
-    ]
+  map (genAction wasp) (Wasp.getActions wasp)
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
@@ -86,7 +80,7 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= map buildEntityData (fromMaybe [] $ Wasp.Operation.getEntities operation)
+      "entities" .= maybe [] (map buildEntityData) (Wasp.Operation.getEntities operation)
     ]
   where
     (importIdentifier, importStmt) =

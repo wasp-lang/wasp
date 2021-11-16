@@ -33,4 +33,4 @@ spec_resolveNpmDeps = do
             ("foo", "bar")
           ]
     let Left conflicts = resolveNpmDeps (ND.fromList waspDeps) (ND.fromList userDeps)
-    (map fst conflicts) `shouldBe` ND.fromList [("axios", "^1.20.0")]
+    map fst conflicts `shouldBe` ND.fromList [("axios", "^1.20.0")]

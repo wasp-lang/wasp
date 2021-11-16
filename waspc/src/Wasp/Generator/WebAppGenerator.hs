@@ -116,8 +116,8 @@ generatePublicIndexHtml wasp =
     targetPath = [relfile|public/index.html|]
     templateData =
       object
-        [ "title" .= (Wasp.App.appTitle $ getApp wasp),
-          "head" .= (maybe "" (intercalate "\n") (Wasp.App.appHead $ getApp wasp))
+        [ "title" .= Wasp.App.appTitle (getApp wasp),
+          "head" .= maybe "" (intercalate "\n") (Wasp.App.appHead $ getApp wasp)
         ]
 
 -- * Src dir

@@ -66,8 +66,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     eventFilter event =
       let filename = FP.takeFileName $ FSN.eventPath event
        in not (null filename)
-            && not (take 2 filename == ".#") -- Ignore emacs lock files.
+            && take 2 filename /= ".#" -- Ignore emacs lock files.
             && not (head filename == '#' && last filename == '#') -- Ignore emacs auto-save files.
-            && not (last filename == '~') -- Ignore emacs and vim backup files.
+            && last filename /= '~' -- Ignore emacs and vim backup files.
             && not (head filename == '.' && ".swp" `isSuffixOf` filename) -- Ignore vim swp files.
             && not (head filename == '.' && ".un~" `isSuffixOf` filename) -- Ignore vim undo files.

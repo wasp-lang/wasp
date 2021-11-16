@@ -13,11 +13,7 @@ import Wasp.Wasp (Wasp)
 import qualified Wasp.Wasp as Wasp
 
 genDockerFiles :: Wasp -> CompileOptions -> [FileDraft]
-genDockerFiles wasp _ =
-  concat
-    [ [genDockerfile wasp],
-      [genDockerignore wasp]
-    ]
+genDockerFiles wasp _ = genDockerfile wasp : [genDockerignore wasp]
 
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: Wasp -> FileDraft

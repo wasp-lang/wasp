@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Wasp.Analyzer.TypeChecker.Monad
   ( TypeChecker,
     lookupType,

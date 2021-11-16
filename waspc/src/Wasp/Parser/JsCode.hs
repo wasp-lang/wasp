@@ -9,4 +9,4 @@ import qualified Wasp.Parser.Common as P
 import qualified Wasp.Wasp.JsCode as WJS
 
 jsCode :: Parser WJS.JsCode
-jsCode = (WJS.JsCode . Text.pack) <$> P.waspNamedClosure "js"
+jsCode = WJS.JsCode . Text.pack <$> P.waspNamedClosure "js"

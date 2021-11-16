@@ -6,7 +6,6 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe)
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.CompileOptions (CompileOptions)
@@ -64,7 +63,7 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
           "datasourceUrl" .= (datasourceUrl :: String)
         ]
 
-    dbSystem = fromMaybe Wasp.Db.SQLite $ Wasp.Db._system <$> Wasp.getDb wasp
+    dbSystem = maybe Wasp.Db.SQLite Wasp.Db._system (Wasp.getDb wasp)
     (datasourceProvider, datasourceUrl) = case dbSystem of
       Wasp.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
       -- TODO: Report this error with some better mechanism, not `error`.

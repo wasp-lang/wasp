@@ -45,8 +45,8 @@ genCreateAuthRequiredPage auth =
     (Just templateData)
   where
     authReqPagePath = [relfile|auth/pages/createAuthRequiredPage.js|]
-    targetPath = C.webAppSrcDirInWebAppRootDir </> (asWebAppSrcFile authReqPagePath)
-    templateData = object ["onAuthFailedRedirectTo" .= (Wasp.Auth._onAuthFailedRedirectTo auth)]
+    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile authReqPagePath
+    templateData = object ["onAuthFailedRedirectTo" .= Wasp.Auth._onAuthFailedRedirectTo auth]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in

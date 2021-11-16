@@ -62,13 +62,13 @@ authProperty =
 
 authPropertyOnAuthFailedRedirectTo :: Parser AuthProperty
 authPropertyOnAuthFailedRedirectTo =
-  AuthPropertyOnAuthFailedRedirectTo <$> (P.waspPropertyStringLiteral "onAuthFailedRedirectTo")
+  AuthPropertyOnAuthFailedRedirectTo <$> P.waspPropertyStringLiteral "onAuthFailedRedirectTo"
 
 authPropertyUserEntity :: Parser AuthProperty
-authPropertyUserEntity = AuthPropertyUserEntity <$> (P.waspProperty "userEntity" L.identifier)
+authPropertyUserEntity = AuthPropertyUserEntity <$> P.waspProperty "userEntity" L.identifier
 
 authPropertyMethods :: Parser AuthProperty
 authPropertyMethods = AuthPropertyMethods <$> P.waspProperty "methods" (L.brackets $ L.commaSep1 authMethod)
 
 authMethod :: Parser Wasp.Auth.AuthMethod
-authMethod = L.symbol "EmailAndPassword" *> (pure Wasp.Auth.EmailAndPassword)
+authMethod = L.symbol "EmailAndPassword" *> pure Wasp.Auth.EmailAndPassword

@@ -3,7 +3,7 @@ module Wasp.Parser.Db
   )
 where
 
-import Data.Maybe (fromMaybe, listToMaybe)
+import Data.Maybe (listToMaybe)
 import Text.Parsec (try, (<|>))
 import Text.Parsec.String (Parser)
 import qualified Wasp.Lexer as L
@@ -16,9 +16,10 @@ db = do
   dbProperties <- P.waspClosure (L.commaSep1 dbProperty)
 
   system <-
-    fromMaybe (fail "'system' property is required!") $
+    maybe
+      (fail "'system' property is required!")
       return
-        <$> listToMaybe [p | DbPropertySystem p <- dbProperties]
+      (listToMaybe [p | DbPropertySystem p <- dbProperties])
 
   return
     Wasp.Db.Db
@@ -33,7 +34,7 @@ dbProperty =
   dbPropertySystem
 
 dbPropertySystem :: Parser DbProperty
-dbPropertySystem = DbPropertySystem <$> (P.waspProperty "system" dbPropertySystemValue)
+dbPropertySystem = DbPropertySystem <$> P.waspProperty "system" dbPropertySystemValue
   where
     dbPropertySystemValue =
       try (L.symbol "PostgreSQL" >> return Wasp.Db.PostgreSQL)

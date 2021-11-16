@@ -55,9 +55,9 @@ main = do
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Info -> runCommand info
-    Command.Call.PrintBashCompletionInstruction -> runCommand $ printBashCompletionInstruction
-    Command.Call.GenerateBashCompletionScript -> runCommand $ generateBashCompletionScript
-    Command.Call.BashCompletionListCommands -> runCommand $ bashCompletion
+    Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
+    Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
+    Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Unknown _ -> printUsage
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.

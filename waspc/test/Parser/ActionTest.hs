@@ -23,7 +23,7 @@ spec_parseAction =
             parseAction (genActionCode auth) `shouldBe` Right (genActionAST auth)
     testWhenAuth (Just True)
     testWhenAuth (Just False)
-    testWhenAuth (Nothing)
+    testWhenAuth Nothing
     it "When given action wasp declaration without 'fn' property, should return Left" $ do
       isLeft (parseAction "action myAction { }") `shouldBe` True
   where
@@ -42,13 +42,12 @@ spec_parseAction =
         }
     genActionCode :: Maybe Bool -> String
     genActionCode aApplyAuth =
-      ( "action " ++ testActionName ++ " {\n"
-          ++ "  fn: import { "
-          ++ testActionJsFunctionName
-          ++ " } from \"@ext/some/path\""
-          ++ authStr aApplyAuth
-          ++ "}"
-      )
+      "action " ++ testActionName ++ " {\n"
+        ++ "  fn: import { "
+        ++ testActionJsFunctionName
+        ++ " } from \"@ext/some/path\""
+        ++ authStr aApplyAuth
+        ++ "}"
 
     authStr :: Maybe Bool -> String
     authStr (Just useAuth) = ",\n  auth: " ++ map toLower (show useAuth) ++ "\n"
