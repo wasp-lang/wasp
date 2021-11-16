@@ -144,7 +144,7 @@ genDictEntryTypesAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, Ex
 genDictEntryTypesAndEvaluationForRecord dataConstructorName fields =
   go $ reverse fields -- Reversing enables us to apply evaluations in right order.
   where
-    go [] = pure (listE [], varE 'pure `appE` conE dataConstructorName)
+    go [] = pure (listE [], [| pure |] `appE` conE dataConstructorName)
     go ((fieldName, fieldType) : restOfFields) = do
       (restDictType, restEvaluation) <- go restOfFields
       let thisDictTypeE =
