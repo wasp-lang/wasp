@@ -105,7 +105,7 @@ NOTE: Reload page if blank.
 
 ## Typical development workflow
 1. Create a new feature branch from `master`.
-2. Run `run ghcid`: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
+2. Run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first, you can do it with `stack install ghcid`.
 3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by `ghcid`.
@@ -198,6 +198,7 @@ You can run `./run help` to learn how to use it.
 
 Examples:
  - `./run ghcid-test` will run ghcid that watches tests, while passing correct arguments to ghcid.
+ - `./run stan` will run static analysis of the codebase.
 
 
 ## Tests
@@ -246,28 +247,14 @@ Hlint already adds a lot of extensions on its own so this is not a very often pr
 
 ## Static Analysis
 
-Run [stan](https://github.com/kowainik/stan) to produce a static analysis report.
+We use [stan](https://github.com/kowainik/stan) to statically analyze our codebase.
 
-A build of the `waspc` package writes the [HIE
-files](https://gitlab.haskell.org/ghc/ghc/-/wikis/hie-files) that stan reads so
-waspc and stan need to be built with the same version of GHC.
+The easiest way to run it is to use
+```
+./run stan
+```
+This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
 
-```
-# package.yaml
-ghc-options:
-  - -fwrite-ide-info
-  - -hiedir=.hie
-```
-
-We use `--stack-yaml=stack-stan.yaml` to avoid burdening the waspc build with
-dependencies only the stan tool needs (being careful to match resolvers) and we
-set `--local-bin-path=.bin` to install stan in a project relative directory.
-
-```
-> stack build
-> stack build stan --stack-yaml=stack-stan.yaml
-> .bin/stan
-```
 
 ## Formatting
 For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).

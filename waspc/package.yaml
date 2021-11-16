@@ -42,6 +42,8 @@ dependencies:
 ghc-options:
   - -Wall
   - -optP-Wno-nonportable-include-path # To avoid warning caused by .../autogen/cabal_macros.h. on OSX.
+  # -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
+  # to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
   - -fwrite-ide-info
   - -hiedir=.hie
 
