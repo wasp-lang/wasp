@@ -122,8 +122,7 @@ attribute = do
 -- Doesn't parse the delimiter.
 attrArgument :: Parser Model.AttributeArg
 attrArgument = do
-  arg <- try namedArg <|> try unnamedArg
-  return arg
+  try namedArg <|> try unnamedArg
   where
     namedArg :: Parser Model.AttributeArg
     namedArg = do
