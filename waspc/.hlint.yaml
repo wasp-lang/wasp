@@ -5,6 +5,8 @@
   - -XTemplateHaskell
   - -XQuasiQuotes
   - -XScopedTypeVariables
+
+# TODO: Review the remaining ignored hlint rules.
 - ignore: {name: Use camelCase}
 - ignore: {name: Eta reduce}
 - ignore: {name: Use first} 
