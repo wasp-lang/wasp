@@ -21,7 +21,7 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
     kebabTail =
       concat $
         map
-          (\(a, b) -> (if (isCamelHump (a, b)) then ['-'] else []) ++ [toLower b])
+          (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
           (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
 
@@ -29,7 +29,7 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
 --   If list is empty, returns empty list.
 onFirst :: (a -> a) -> [a] -> [a]
 onFirst _ [] = []
-onFirst f (x : xs) = (f x) : xs
+onFirst f (x : xs) = f x : xs
 
 toLowerFirst :: String -> String
 toLowerFirst = onFirst toLower

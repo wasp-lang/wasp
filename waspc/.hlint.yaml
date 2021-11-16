@@ -7,7 +7,6 @@
   - -XScopedTypeVariables
 - ignore: {name: Use camelCase}
 - ignore: {name: Eta reduce}
-- ignore: {name: Redundant bracket}
 - ignore: {name: Redundant $}
 - ignore: {name: Redundant return} 
 - ignore: {name: Move brackets to avoid $}

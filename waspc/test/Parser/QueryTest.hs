@@ -18,20 +18,19 @@ spec_parseQuery =
             parseQuery (genQueryCode auth) `shouldBe` Right (genQueryAST auth)
     testWhenAuth (Just True)
     testWhenAuth (Just False)
-    testWhenAuth (Nothing)
+    testWhenAuth Nothing
     it "When given query wasp declaration without 'fn' property, should return Left" $ do
       isLeft (parseQuery "query myQuery { }") `shouldBe` True
   where
     genQueryCode :: Maybe Bool -> String
     genQueryCode qApplyAuth =
-      ( "query " ++ testQueryName ++ " {\n"
+      "query " ++ testQueryName ++ " {\n"
           ++ "  fn: import { "
           ++ testQueryJsFunctionName
           ++ " } from \"@ext/some/path\",\n"
           ++ "  entities: [Task, Project]"
           ++ authStr qApplyAuth
           ++ "}"
-      )
     genQueryAST :: Maybe Bool -> Wasp.Query.Query
     genQueryAST qApplyAuth =
       Wasp.Query.Query

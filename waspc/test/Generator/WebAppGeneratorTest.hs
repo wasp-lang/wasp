@@ -18,8 +18,8 @@ import Wasp.Wasp
 
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
-  let testApp = (App "TestApp" "Test App" Nothing)
-  let testWasp = (fromApp testApp)
+  let testApp = App "TestApp" "Test App" Nothing
+  let testWasp = fromApp testApp
   let testCompileOptions =
         CompileOptions.CompileOptions
           { CompileOptions.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
@@ -33,7 +33,7 @@ spec_WebAppGenerator = do
     it "Given a simple Wasp, creates file drafts at expected destinations" $ do
       let fileDrafts = generateWebApp testWasp testCompileOptions
       let expectedFileDraftDstPaths =
-            map ((SP.toFilePath Common.webAppRootDirInProjectRootDir) </>) $
+            map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat $
                 [ [ "README.md",
                     "package.json",
@@ -46,7 +46,7 @@ spec_WebAppGenerator = do
                       "manifest.json"
                     ],
                   map
-                    ((SP.toFilePath Common.webAppSrcDirInWebAppRootDir) </>)
+                    (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
                       "index.css",
                       "index.js",

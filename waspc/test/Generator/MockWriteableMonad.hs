@@ -83,7 +83,7 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     getTemplatesDirAbsPath_calls :: [()],
     createDirectoryIfMissing_calls :: [(Bool, FilePath)],
     copyFile_calls :: [(FilePath, FilePath)],
-    getTemplateFileAbsPath_calls :: [(Path' (Rel TemplatesDir) File')],
+    getTemplateFileAbsPath_calls :: [Path' (Rel TemplatesDir) File'],
     compileAndRenderTemplate_calls :: [(Path' (Rel TemplatesDir) File', Aeson.Value)]
   }
 
@@ -96,25 +96,25 @@ data MockWriteableMonadConfig = MockWriteableMonadConfig
 
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 writeFileFromText_addCall path text logs =
-  logs {writeFileFromText_calls = (path, text) : (writeFileFromText_calls logs)}
+  logs {writeFileFromText_calls = (path, text) : writeFileFromText_calls logs}
 
 getTemplatesDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplatesDirAbsPath_addCall logs =
-  logs {getTemplatesDirAbsPath_calls = () : (getTemplatesDirAbsPath_calls logs)}
+  logs {getTemplatesDirAbsPath_calls = () : getTemplatesDirAbsPath_calls logs}
 
 getTemplateFileAbsPath_addCall :: Path' (Rel TemplatesDir) File' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplateFileAbsPath_addCall path logs =
-  logs {getTemplateFileAbsPath_calls = (path) : (getTemplateFileAbsPath_calls logs)}
+  logs {getTemplateFileAbsPath_calls = path : getTemplateFileAbsPath_calls logs}
 
 copyFile_addCall :: FilePath -> FilePath -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 copyFile_addCall srcPath dstPath logs =
-  logs {copyFile_calls = (srcPath, dstPath) : (copyFile_calls logs)}
+  logs {copyFile_calls = (srcPath, dstPath) : copyFile_calls logs}
 
 createDirectoryIfMissing_addCall :: Bool -> FilePath -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 createDirectoryIfMissing_addCall createParents path logs =
   logs
     { createDirectoryIfMissing_calls =
-        (createParents, path) : (createDirectoryIfMissing_calls logs)
+        (createParents, path) : createDirectoryIfMissing_calls logs
     }
 
 compileAndRenderTemplate_addCall ::
@@ -125,5 +125,5 @@ compileAndRenderTemplate_addCall ::
 compileAndRenderTemplate_addCall path json logs =
   logs
     { compileAndRenderTemplate_calls =
-        (path, json) : (compileAndRenderTemplate_calls logs)
+        (path, json) : compileAndRenderTemplate_calls logs
     }

@@ -33,7 +33,7 @@ dbProperty =
   dbPropertySystem
 
 dbPropertySystem :: Parser DbProperty
-dbPropertySystem = DbPropertySystem <$> (P.waspProperty "system" dbPropertySystemValue)
+dbPropertySystem = DbPropertySystem <$> P.waspProperty "system" dbPropertySystemValue
   where
     dbPropertySystemValue =
       try (L.symbol "PostgreSQL" >> return Wasp.Db.PostgreSQL)
