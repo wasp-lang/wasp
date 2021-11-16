@@ -25,7 +25,7 @@ db = do
       { Wasp.Db._system = system
       }
 
-data DbProperty
+newtype DbProperty
   = DbPropertySystem Wasp.Db.DbSystem
 
 dbProperty :: Parser DbProperty

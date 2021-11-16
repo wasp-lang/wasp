@@ -6,8 +6,8 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Wasp.Wasp.JsImport (JsImport)
 
-data Server = Server
-  { _setupJsFunction :: !JsImport
+newtype Server = Server
+  { _setupJsFunction :: JsImport
   }
   deriving (Show, Eq)
 
