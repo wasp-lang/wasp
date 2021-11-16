@@ -11,5 +11,6 @@
 - ignore: {name: Eta reduce}
 - ignore: {name: Use first} 
 - ignore: {name: Use second} 
+- ignore: {name: Use newtype instead of data} 
 - ignore: {name: Use $>} 
 - ignore: {name: Use list comprehension} 

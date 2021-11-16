@@ -7,8 +7,8 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Wasp.NpmDependency
 
-newtype NpmDependencies = NpmDependencies
-  { _dependencies :: [NpmDependency]
+data NpmDependencies = NpmDependencies
+  { _dependencies :: ![NpmDependency]
   }
   deriving (Show, Eq)
 

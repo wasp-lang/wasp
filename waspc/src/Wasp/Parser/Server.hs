@@ -23,8 +23,8 @@ server = do
           fromMaybe (error "Server js function is missing.") (getSetupJsFunctionFromProps props)
       }
 
-newtype Property
-  = SetupJsFunction Wasp.JsImport.JsImport
+data Property
+  = SetupJsFunction !Wasp.JsImport.JsImport
   deriving (Show, Eq)
 
 properties :: Parser [Property]

@@ -8,7 +8,7 @@ where
 import Data.Data (Data)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 
-newtype Page = Page
+data Page = Page
   { content :: String
   }
   deriving (Show, Eq, Data)

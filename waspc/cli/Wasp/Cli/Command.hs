@@ -22,4 +22,4 @@ runCommand cmd = do
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
-newtype CommandError = CommandError {_errorMsg :: String}
+data CommandError = CommandError {_errorMsg :: !String}

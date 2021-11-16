@@ -4,8 +4,8 @@ module Wasp.Wasp.Db
   )
 where
 
-newtype Db = Db
-  { _system :: DbSystem
+data Db = Db
+  { _system :: !DbSystem
   }
   deriving (Show, Eq)
 
