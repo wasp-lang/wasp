@@ -17,4 +17,3 @@
 - ignore: {name: Use TH quotation brackets} 
 - ignore: {name: Use list comprehension} 
 - ignore: {name: Use /=} 
-- ignore: {name: Use concatMap} 
