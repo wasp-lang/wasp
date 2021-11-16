@@ -104,10 +104,9 @@ genPackageJson wasp waspDeps waspDevDeps =
             "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
-              .= concat
-                [ if not (null $ Wasp.getPSLEntities wasp) then "npm run db-migrate-prod && " else "",
-                  "NODE_ENV=production node ./src/server.js"
-                ]
+              .= 
+                if not (null $ Wasp.getPSLEntities wasp) then "npm run db-migrate-prod && " else ""
+                ++ "NODE_ENV=production node ./src/server.js"
           ]
     )
   where

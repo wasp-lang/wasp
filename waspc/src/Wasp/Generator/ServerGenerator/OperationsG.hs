@@ -24,10 +24,8 @@ import qualified Wasp.Wasp.Query as Wasp.Query
 
 genOperations :: Wasp -> [FileDraft]
 genOperations wasp =
-  concat
-    [ genQueries wasp,
+  genQueries wasp ++
       genActions wasp
-    ]
 
 genQueries :: Wasp -> [FileDraft]
 genQueries wasp =
