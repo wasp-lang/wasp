@@ -14,4 +14,3 @@
 - ignore: {name: Evaluate}
 - ignore: {name: Use maybe} 
 - ignore: {name: Use list comprehension} 
-- ignore: {name: Use /=} 
