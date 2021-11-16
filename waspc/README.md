@@ -237,16 +237,42 @@ You can do `stack test --coverage` to see the coverage.
 We don't yet have any integration (e2e) tests, but we plan to add them at some point.
 For now, best way is to manually run a Wasp app with `wasp start` and try stuff out.
 
+## Code analysis
 
-## Linting
-While no linter is currently enforced, we recommend using Hlint as a linter.
+To run the code analysis, run:
+```
+./run code-check
+```
 
-If using Hlint as a linter, be aware that Hlint doesn't know which default extensions are we using via Stack/cabal, so it might be missing some extension and therefore report false errors.
+This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
 
-Hlint already adds a lot of extensions on its own so this is not a very often problem, but if that happens, add default extensions to .hlint.yaml so that Hlint knows to use them.
+These same checks are required to pass the CI, so make sure this is passing before making a PR.
 
-## Static Analysis
+### Formatting
+For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
 
+Normally we set it up in our editors to run on file save.
+
+You can also run it manually with
+```
+./run ormolu:check
+```
+to see if there is any formatting that needs to be fixed, or with
+```
+./run ormolu:format
+```
+to have Ormolu actually format (in-place) all files that need formatting.
+
+### Linting
+We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code.
+
+You can use
+```
+./run hlint`
+```
+to run the hlint on Wasp codebase.
+
+### Static Analysis
 We use [stan](https://github.com/kowainik/stan) to statically analyze our codebase.
 
 The easiest way to run it is to use
@@ -255,13 +281,6 @@ The easiest way to run it is to use
 ```
 This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
 
-
-## Formatting
-For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
-
-Normally we set it up in our editors to run on file save.
-
-There is also a check in CI that will ensure your PR has been formatted using ormolu.
 
 ## Commit message conventions
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
