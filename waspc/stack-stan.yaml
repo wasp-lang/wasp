@@ -1,4 +1,4 @@
-resolver: lts-18.15
+resolver: ./stack-snapshot.yaml
 local-bin-path: .bin
 extra-deps:
 - colourista-0.1.0.1@sha256:98353ee0e2f5d97d2148513f084c1cd37dfda03e48aa9dd7a017c9d9c0ba710e,3307
