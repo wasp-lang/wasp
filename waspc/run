@@ -15,13 +15,15 @@ LIGHT_CYAN="\033[96m"
 DEFAULT_COLOR="\033[39m"
 
 BUILD_CMD="stack build"
+BUILD_ALL_CMD="stack build --bench --no-run-benchmarks --test --no-run-tests"
+STAN_CMD="$BUILD_ALL_CMD && stack install stan --stack-yaml=stack-stan.yaml && .bin/stan report $ARGS"
 TEST_CMD="$BUILD_CMD --test"
 EXEC_CMD="stack exec wasp-cli $ARGS"
 GHCID_CMD="ghcid --command=stack ghci"
 
 echo_and_eval () {
     echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
-    $1
+    eval $1
 }
 
 echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
@@ -40,6 +42,8 @@ print_usage () {
                     "Builds the project and executes tests."
     print_usage_cmd "wasp-cli <args>" \
                     "Builds the project once and runs the wasp executable while forwarding arguments."
+    print_usage_cmd "stan <args>" \
+                    "Builds the project and runs static code analysis on it, generating stan.html."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
@@ -62,10 +66,13 @@ case $COMMAND in
     test)
         echo_and_eval "$TEST_CMD"
         ;;
-    wasp)
+    wasp-cli)
         echo_and_eval "$BUILD_CMD"
         echo
         echo_and_eval "$EXEC_CMD"
+        ;;
+    stan)
+        echo_and_eval "$STAN_CMD"
         ;;
     *)
         print_usage
