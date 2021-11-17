@@ -3,15 +3,13 @@
 module Wasp.AppSpec.App (App (..)) where
 
 import Data.Data (Data)
-import Wasp.AppSpec.AuthMethod (AuthMethod)
+import Wasp.AppSpec.App.Auth (Auth)
 import Wasp.AppSpec.Core.Decl (IsDecl)
-import Wasp.AppSpec.Core.Ref (Ref)
-import Wasp.AppSpec.Page (Page)
 
 data App = App
   { title :: String,
-    authMethod :: AuthMethod,
-    defaultPage :: Ref Page
+    head :: Maybe [String],
+    auth :: Maybe Auth -- NOTE: This is new. Before, `auth` was a standalone declaration.
   }
   deriving (Show, Eq, Data)
 

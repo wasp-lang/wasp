@@ -189,6 +189,11 @@ genWaspTypeFromHaskellType typ =
     KDeclRef t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
+    KRecord dataConName fields -> do
+      -- TODO: Some code duplication here, from genIsDeclTypeInstanceDefinitionFromRecordDataConstructor
+      --   Also very similar to the relevant piece in Evaluation function below.
+      (dictEntryTypesE, _) <- genDictEntryTypesAndEvaluationForRecord dataConName fields
+      [|T.DictType $ H.fromList $dictEntryTypesE|]
 
 -- | Generates an expression that is @Evaluation@ that evaluates to a given Haskell type.
 genEvaluationExprForHaskellType :: Type -> ExpQ
@@ -205,28 +210,36 @@ genEvaluationExprForHaskellType typ =
     KDeclRef t -> [|declRef @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
+    KRecord dataConName fields -> do
+      -- TODO: Some code duplication here, from genIsDeclTypeInstanceDefinitionFromRecordDataConstructor
+      (_, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConName fields
+      [|dict $dictEvaluationE|]
 
 -- | Find the "WaspKind" of a Haskell type.
 waspKindOfType :: Type -> Q WaspKind
 waspKindOfType typ = do
   maybeDeclRefKind <- tryCastingToDeclRefKind typ
   maybeEnumKind <- tryCastingToEnumKind typ
+  maybeRecordKind <- tryCastingToRecordKind typ
+  -- TODO: Too much repetitive nesting below, how can I avoid this?
   case maybeDeclRefKind of
     Just declRefKind -> pure declRefKind
     Nothing -> case maybeEnumKind of
       Just enumKind -> pure enumKind
-      Nothing -> case typ of
-        ConT name
-          | name == ''String -> pure KString
-          | name == ''Integer -> pure KInteger
-          | name == ''Double -> pure KDouble
-          | name == ''Bool -> pure KBool
-          | name == ''E.ExtImport -> pure KImport
-          | name == ''E.JSON -> pure KJSON
-          | name == ''E.PSL -> pure KPSL
-        ListT `AppT` elemType -> pure (KList elemType)
-        ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
-        _ -> fail $ "No translation to wasp type for type " ++ show typ
+      Nothing -> case maybeRecordKind of
+        Just recordKind -> pure recordKind
+        Nothing -> case typ of
+          ConT name
+            | name == ''String -> pure KString
+            | name == ''Integer -> pure KInteger
+            | name == ''Double -> pure KDouble
+            | name == ''Bool -> pure KBool
+            | name == ''E.ExtImport -> pure KImport
+            | name == ''E.JSON -> pure KJSON
+            | name == ''E.PSL -> pure KPSL
+          ListT `AppT` elemType -> pure (KList elemType)
+          ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
+          _ -> fail $ "No translation to wasp type for type " ++ show typ
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
     tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do
@@ -238,6 +251,23 @@ waspKindOfType typ = do
     tryCastingToEnumKind t = do
       isEnumType <- isInstance ''IsEnumType [t]
       return $ if isEnumType then Just KEnum else Nothing
+
+    tryCastingToRecordKind :: Type -> Q (Maybe WaspKind)
+    tryCastingToRecordKind (ConT typeName) = do
+      (TyConI typeDeclaration) <- reify typeName
+      -- TODO: Can I avoid this nesting below by doing some Maybe monad stuff? This is all pure code below.
+      case typeDeclaration of
+        (DataD _ _ [] _ [dataConstructor] _) ->
+          case dataConstructor of
+            (RecC dataConName fields) ->
+              return $
+                Just $
+                  KRecord dataConName $
+                    -- TODO: Same code as in makeIsDeclTypeInstanceDefinition
+                    map (\(fieldName, _, fieldType) -> (fieldName, fieldType)) fields
+            _ -> return Nothing
+        _ -> return Nothing
+    tryCastingToRecordKind _ = return Nothing
 
 -- | An intermediate mapping between Haskell types and Wasp types, we use it internally
 -- in this module when generating @Types@, @Evaluation@, @DictEntryTypes@, and @DictEvaluation@
@@ -256,5 +286,10 @@ data WaspKind
   | KEnum
   | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
     KOptional Type
+  | -- | Type that has a single data constructor that is a record.
+    -- KRecord <record constructor name> <fields:(identifier, type)>
+    KRecord Name [(Name, Type)]
+
+-- TODO: Add KWrapper that stands for data constructor with single field, or for newtype.
 
 ---------------------------------------

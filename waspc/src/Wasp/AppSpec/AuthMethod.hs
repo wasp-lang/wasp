@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
+-- TODO: Move under App.Auth ?
 module Wasp.AppSpec.AuthMethod
   ( AuthMethod (..),
   )

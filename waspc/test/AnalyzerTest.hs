@@ -8,8 +8,11 @@ import Wasp.Analyzer
 import qualified Wasp.Analyzer.TypeChecker as TC
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
+import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.AuthMethod as AuthMethod
 import Wasp.AppSpec.Core.Ref (Ref (..))
+import Wasp.AppSpec.Entity (Entity)
+import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 
@@ -21,9 +24,15 @@ spec_Analyzer = do
             unlines
               [ "app Todo {",
                 "  title: \"Todo App\",",
-                "  authMethod: EmailAndPassword,",
-                "  defaultPage: HomePage",
+                "  head: [\"foo\", \"bar\"],",
+                "  auth: {",
+                "    userEntity: User,",
+                "    methods: [EmailAndPassword],",
+                "  }",
                 "}",
+                "",
+                "entity User {=psl test psl=}",
+                "",
                 "page HomePage { content: \"Hello world\" }"
               ]
       let decls = analyze source
@@ -31,8 +40,14 @@ spec_Analyzer = do
             [ ( "Todo",
                 App.App
                   { App.title = "Todo App",
-                    App.authMethod = AuthMethod.EmailAndPassword,
-                    App.defaultPage = Ref "HomePage"
+                    App.head = Just ["foo", "bar"],
+                    App.auth =
+                      Just
+                        Auth.Auth
+                          { Auth.userEntity = Ref "User" :: Ref Entity,
+                            Auth.methods = [AuthMethod.EmailAndPassword],
+                            Auth.onAuthFailedRedirectTo = Nothing
+                          }
                   }
               )
             ]
@@ -45,39 +60,44 @@ spec_Analyzer = do
               )
             ]
       takeDecls @Page <$> decls `shouldBe` Right expectedPages
+      let expectedEntities =
+            [ ( "User",
+                Entity.Entity (Entity.PSL " test ")
+              )
+            ]
+      takeDecls @Entity <$> decls `shouldBe` Right expectedEntities
 
+    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
             unlines
-              [ "page HomePage { content: \"Hello world\" }",
-                "app Todo {",
+              [ "app Todo {",
                 "  title: \"Todo App\",",
-                "  authMethod: EmailAndPassword,",
-                "  defaultPage: NonExistentPage",
+                "  auth: { userEntity: NonExistentEntity, methods: [EmailAndPassword] }",
                 "}"
               ]
-      takeDecls @App <$> analyze source `shouldBe` Left (TypeError $ TC.UndefinedIdentifier "NonExistentPage")
+      takeDecls @App <$> analyze source `shouldBe` Left (TypeError $ TC.UndefinedIdentifier "NonExistentEntity")
 
+    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
             unlines
               [ "app Todo {",
                 "  title: \"Todo App\",",
-                "  authMethod: EmailAndPassword,",
-                "  defaultPage: Todo",
+                "  auth: { userEntity: Todo, methods: [EmailAndPassword] }",
                 "}"
               ]
       takeDecls @App <$> analyze source `shouldSatisfy` isAnalyzerOutputTypeError
 
+    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
     it "Works when referenced declaration is declared after the reference." $ do
       let source =
             unlines
               [ "app Todo {",
                 "  title: \"Todo App\",",
-                "  authMethod: EmailAndPassword,",
-                "  defaultPage: HomePage",
+                "  auth: { userEntity: User, methods: [EmailAndPassword] }",
                 "}",
-                "page HomePage { content: \"Hello world\" }"
+                "entity User {=psl test psl=}"
               ]
       isRight (analyze source) `shouldBe` True
 

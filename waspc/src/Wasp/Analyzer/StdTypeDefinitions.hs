@@ -10,10 +10,12 @@ import Wasp.Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.AuthMethod (AuthMethod)
+import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Page (Page)
 
 makeEnumType ''AuthMethod
 makeDeclType ''Page
+makeDeclType ''Entity
 makeDeclType ''App
 
 {- ORMOLU_DISABLE -}
@@ -25,5 +27,6 @@ stdTypes =
   TD.addEnumType @AuthMethod $
   TD.addDeclType @Page $
   TD.addDeclType @App $
+  TD.addDeclType @Entity $
   TD.empty
 {- ORMOLU_ENABLE -}

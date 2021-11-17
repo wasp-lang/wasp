@@ -17,7 +17,8 @@ spec_Parser = do
                 "  real: 3.14,",
                 "  yes: true,",
                 "  no: false,",
-                "  ident: Wasp",
+                "  ident: Wasp,",
+                "  innerDict: { innerDictReal: 2.17 }",
                 "}"
               ]
       let ast =
@@ -30,7 +31,12 @@ spec_Parser = do
                       ("real", DoubleLiteral 3.14),
                       ("yes", BoolLiteral True),
                       ("no", BoolLiteral False),
-                      ("ident", Var "Wasp")
+                      ("ident", Var "Wasp"),
+                      ( "innerDict",
+                        Dict
+                          [ ("innerDictReal", DoubleLiteral 2.17)
+                          ]
+                      )
                     ]
               ]
       parse source `shouldBe` Right ast
