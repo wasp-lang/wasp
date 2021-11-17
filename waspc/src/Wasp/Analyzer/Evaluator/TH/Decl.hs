@@ -7,6 +7,11 @@ module Wasp.Analyzer.Evaluator.TH.Decl
   )
 where
 
+-- TODO: I wonder now if this file should really be here in Evaluator, since it also teaches
+--   declarations how to figure out their type, and not just how to evaluate themselves.
+--   Maybe it should be one level above instead, next to Type and Evaluator? Or am I confused right now?
+--   Check where is it used, understand what this means.
+
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Wasp.Analyzer.Evaluator.Evaluation
