@@ -12,6 +12,7 @@ where
 
 import Control.Monad.State
 import qualified Data.Aeson as Aeson
+import Data.Bifunctor (first)
 import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
@@ -71,7 +72,7 @@ instance MonadIO MockWriteableMonad where
   liftIO = undefined
 
 modifyLogs :: MonadState (a, b) m => (a -> a) -> m ()
-modifyLogs f = modify (\(logs, config) -> (f logs, config))
+modifyLogs f = modify (first f)
 
 newtype MockWriteableMonad a = MockWriteableMonad
   { unMockWriteableMonad :: State (MockWriteableMonadLogs, MockWriteableMonadConfig) a

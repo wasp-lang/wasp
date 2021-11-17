@@ -5,6 +5,7 @@ module Wasp.Generator.PackageJsonGenerator
   )
 where
 
+import Data.Bifunctor (second)
 import Data.List (find, intercalate)
 import Data.Maybe (fromJust, isJust)
 import qualified Wasp.NpmDependency as ND
@@ -31,7 +32,7 @@ resolveNpmDeps waspDeps userDeps =
   where
     conflictingUserDeps :: [(ND.NpmDependency, NpmDependenciesConflictError)]
     conflictingUserDeps =
-      map (\(dep, err) -> (dep, fromJust err)) $
+      map (second fromJust) $
         filter (isJust . snd) $
           map (\dep -> (dep, checkIfConflictingUserDep dep)) userDeps
 
