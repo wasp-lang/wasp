@@ -47,6 +47,18 @@
   --custom-background-color-diff: #2A2A2A;
 }
 
+/* NOTE(matija): this is used within a blog post (e.g. seed round 
+ * announcement). */
+.blog-header-cta--link {
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.blog-header-cta--divider {
+  color: black;
+}
+
 .button--huge {
   display: flex;
   align-items: center;
