@@ -1,3 +1,4 @@
+{{={= =}=}}
 import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -13,8 +14,8 @@ const LoginForm = () => {
     event.preventDefault()
     try {
       await login(emailFieldVal, passwordFieldVal)
-
-      history.push('/')
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)

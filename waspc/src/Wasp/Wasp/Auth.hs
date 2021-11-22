@@ -7,7 +7,8 @@ where
 data Auth = Auth
   { _userEntity :: !String,
     _methods :: [AuthMethod],
-    _onAuthFailedRedirectTo :: !String
+    _onAuthFailedRedirectTo :: !String,
+    _onAuthSucceededRedirectTo :: !String
   }
   deriving (Show, Eq)
 

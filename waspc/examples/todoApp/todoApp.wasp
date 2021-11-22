@@ -12,7 +12,8 @@ json=}
 auth {
     userEntity: User,
     methods: [ EmailAndPassword ],
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: "/login",
+    onAuthSucceededRedirectTo: "/profile"
 }
 
 entity User {=psl
