@@ -236,18 +236,21 @@ waspKindOfType typ = do
   maybeEnumKind <- tryCastingToEnumKind typ
   maybeRecordKind <- tryCastingToRecordKind typ
   maybe (fail $ "No translation to wasp type for type " ++ show typ) return $
-    maybeDeclRefKind <|> maybeEnumKind <|> maybeRecordKind <|> case typ of
-      ConT name
-        | name == ''String -> pure KString
-        | name == ''Integer -> pure KInteger
-        | name == ''Double -> pure KDouble
-        | name == ''Bool -> pure KBool
-        | name == ''E.ExtImport -> pure KImport
-        | name == ''E.JSON -> pure KJSON
-        | name == ''E.PSL -> pure KPSL
-      ListT `AppT` elemType -> pure (KList elemType)
-      ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
-      _ -> Nothing
+    maybeDeclRefKind
+      <|> maybeEnumKind
+      <|> maybeRecordKind
+      <|> case typ of
+        ConT name
+          | name == ''String -> pure KString
+          | name == ''Integer -> pure KInteger
+          | name == ''Double -> pure KDouble
+          | name == ''Bool -> pure KBool
+          | name == ''E.ExtImport -> pure KImport
+          | name == ''E.JSON -> pure KJSON
+          | name == ''E.PSL -> pure KPSL
+        ListT `AppT` elemType -> pure (KList elemType)
+        ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
+        _ -> Nothing
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
     tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do
