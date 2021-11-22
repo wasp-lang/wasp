@@ -79,3 +79,5 @@ This is one of the best pieces of advice we got from YC partners about fundraisi
 
 ## Good luck - you can do it!
 I hope you found this helpful and that our story will motivate you to keep going once things get hard! We wish you the best of luck and also feel free to reach out if you'll have any questions.
+
+<InBlogCta />
