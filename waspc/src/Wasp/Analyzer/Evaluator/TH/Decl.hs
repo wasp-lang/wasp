@@ -12,6 +12,7 @@ where
 --   Maybe it should be one level above instead, next to Type and Evaluator? Or am I confused right now?
 --   Check where is it used, understand what this means.
 
+import Control.Monad (join)
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Wasp.Analyzer.Evaluator.Evaluation
@@ -120,9 +121,9 @@ genIsDeclTypeInstanceDefinitionFromNormalDataConstructor typeName dataConstructo
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> Name -> [(Name, Type)] -> Q [DecQ]
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName dataConstructorName fields = do
-  (dictEntryTypesE, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConstructorName fields
-  let evaluateE = [|runEvaluation $ dict $dictEvaluationE|]
-  let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
+  (dictTypeE, dictEvaluationE) <- genDictTypeAndEvaluationForRecord dataConstructorName fields
+  let evaluateE = [|runEvaluation $dictEvaluationE|]
+  let bodyTypeE = dictTypeE
   pure $ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 -- | Generates 'declType' function for a definition of IsDeclType instance.
@@ -144,9 +145,19 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 --------------- Dict ------------------
 
--- | Write the @DictEntryType@s and @DictEvaluation@ for the Haskell record with given data constructor name and fields.
-genDictEntryTypesAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genDictEntryTypesAndEvaluationForRecord dataConstructorName fields =
+-- | Given a record data constructor name and fields, return the evaluation that evaluates
+-- Wasp dictionary into the given record, and also return the type of such Wasp dictionary.
+-- First member of returned couple is type, second is evaluation.
+genDictTypeAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictTypeAndEvaluationForRecord dataConName fields = do
+  (dictEntryTypesE, dictEvaluationE) <- genDictEntriesTypeAndEvaluationForRecord dataConName fields
+  return
+    ( [|T.DictType $ H.fromList $dictEntryTypesE|],
+      [|dict $dictEvaluationE|]
+    )
+
+genDictEntriesTypeAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictEntriesTypeAndEvaluationForRecord dataConstructorName fields =
   go $ reverse fields -- Reversing enables us to apply evaluations in right order.
   where
     go [] = pure (listE [], [|pure|] `appE` conE dataConstructorName)
@@ -194,11 +205,8 @@ genWaspTypeFromHaskellType typ =
     KDeclRef t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
-    KRecord dataConName fields -> do
-      -- TODO: Some code duplication here, from genIsDeclTypeInstanceDefinitionFromRecordDataConstructor
-      --   Also very similar to the relevant piece in Evaluation function below.
-      (dictEntryTypesE, _) <- genDictEntryTypesAndEvaluationForRecord dataConName fields
-      [|T.DictType $ H.fromList $dictEntryTypesE|]
+    KRecord dataConName fields ->
+      fst =<< genDictTypeAndEvaluationForRecord dataConName fields
 
 -- | Generates an expression that is @Evaluation@ that evaluates to a given Haskell type.
 genEvaluationExprForHaskellType :: Type -> ExpQ
@@ -215,10 +223,8 @@ genEvaluationExprForHaskellType typ =
     KDeclRef t -> [|declRef @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
-    KRecord dataConName fields -> do
-      -- TODO: Some code duplication here, from genIsDeclTypeInstanceDefinitionFromRecordDataConstructor
-      (_, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConName fields
-      [|dict $dictEvaluationE|]
+    KRecord dataConName fields ->
+      snd =<< genDictTypeAndEvaluationForRecord dataConName fields
 
 -- | Find the "WaspKind" of a Haskell type.
 waspKindOfType :: Type -> Q WaspKind
