@@ -21,6 +21,8 @@ import Wasp.Analyzer.TypeChecker.AST (ExtImportName)
 --   Only way I see to get rid of "hardcoding" is to somehow abstract over them -> e.g. by introducing quoters as a thing.
 --   Or maybe introducing something like "abstract type" where we provide parser, type info and evaluator all as a single
 --   bundle that explains this type and can be dependency injected.
+-- NOTE: Thoughts: We could call these "SpecialTypes" and have them here as re-export of stuff from AppSpec,
+--   just so it is easier to figure out what is used from AppSpec.
 import Wasp.AppSpec.Entity (PSL (..))
 
 data ExtImport = ExtImport ExtImportName String deriving (Eq, Show)

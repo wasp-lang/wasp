@@ -2,25 +2,20 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Analyzer.Evaluator.TH.Decl
+module Wasp.Analyzer.TypeDefinitions.TH.Decl
   ( makeDeclType,
   )
 where
-
--- TODO: I wonder now if this file should really be here in Evaluator, since it also teaches
---   declarations how to figure out their type, and not just how to evaluate themselves.
---   Maybe it should be one level above instead, next to Type and Evaluator? Or am I confused right now?
---   Check where is it used, understand what this means.
 
 import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax (VarBangType)
 import Wasp.Analyzer.Evaluator.Evaluation
-import Wasp.Analyzer.Evaluator.TH.Common
 import qualified Wasp.Analyzer.Evaluator.Types as E
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
+import Wasp.Analyzer.TypeDefinitions.TH.Common
 import Wasp.AppSpec.Core.Decl (makeDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 

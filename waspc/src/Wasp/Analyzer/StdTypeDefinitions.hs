@@ -6,8 +6,8 @@ module Wasp.Analyzer.StdTypeDefinitions
   )
 where
 
-import Wasp.Analyzer.Evaluator.TH (makeDeclType, makeEnumType)
 import qualified Wasp.Analyzer.TypeDefinitions as TD
+import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.AuthMethod (AuthMethod)
 import Wasp.AppSpec.Entity (Entity)

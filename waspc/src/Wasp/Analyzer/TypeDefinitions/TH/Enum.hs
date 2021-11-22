@@ -1,14 +1,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Wasp.Analyzer.Evaluator.TH.Enum
+module Wasp.Analyzer.TypeDefinitions.TH.Enum
   ( makeEnumType,
   )
 where
 
 import Language.Haskell.TH
 import Wasp.Analyzer.Evaluator.EvaluationError
-import Wasp.Analyzer.Evaluator.TH.Common
 import Wasp.Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
+import Wasp.Analyzer.TypeDefinitions.TH.Common
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.
