@@ -12,9 +12,10 @@ where
 --   Maybe it should be one level above instead, next to Type and Evaluator? Or am I confused right now?
 --   Check where is it used, understand what this means.
 
-import Control.Monad (join)
+import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
+import Language.Haskell.TH.Syntax (VarBangType)
 import Wasp.Analyzer.Evaluator.Evaluation
 import Wasp.Analyzer.Evaluator.TH.Common
 import qualified Wasp.Analyzer.Evaluator.Types as E
@@ -105,11 +106,13 @@ makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC _ values) =
       ++ show (length values)
       ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(RecC conName records) =
-  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName conName $
-    map (\(fieldName, _, fieldType) -> (fieldName, fieldType)) records
+makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(RecC conName fields) =
+  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName conName (recordFieldsToNameTypePairs fields)
 -- The constructor is in an unsupported form
 makeIsDeclTypeInstanceDefinition _ _ = fail "makeDeclType expects given type to have a normal or record constructor"
+
+recordFieldsToNameTypePairs :: [VarBangType] -> [(Name, Type)]
+recordFieldsToNameTypePairs = map $ \(fieldName, _, fieldType) -> (fieldName, fieldType)
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Name -> Type -> Q [DecQ]
@@ -232,25 +235,19 @@ waspKindOfType typ = do
   maybeDeclRefKind <- tryCastingToDeclRefKind typ
   maybeEnumKind <- tryCastingToEnumKind typ
   maybeRecordKind <- tryCastingToRecordKind typ
-  -- TODO: Too much repetitive nesting below, how can I avoid this?
-  case maybeDeclRefKind of
-    Just declRefKind -> pure declRefKind
-    Nothing -> case maybeEnumKind of
-      Just enumKind -> pure enumKind
-      Nothing -> case maybeRecordKind of
-        Just recordKind -> pure recordKind
-        Nothing -> case typ of
-          ConT name
-            | name == ''String -> pure KString
-            | name == ''Integer -> pure KInteger
-            | name == ''Double -> pure KDouble
-            | name == ''Bool -> pure KBool
-            | name == ''E.ExtImport -> pure KImport
-            | name == ''E.JSON -> pure KJSON
-            | name == ''E.PSL -> pure KPSL
-          ListT `AppT` elemType -> pure (KList elemType)
-          ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
-          _ -> fail $ "No translation to wasp type for type " ++ show typ
+  maybe (fail $ "No translation to wasp type for type " ++ show typ) return $
+    maybeDeclRefKind <|> maybeEnumKind <|> maybeRecordKind <|> case typ of
+      ConT name
+        | name == ''String -> pure KString
+        | name == ''Integer -> pure KInteger
+        | name == ''Double -> pure KDouble
+        | name == ''Bool -> pure KBool
+        | name == ''E.ExtImport -> pure KImport
+        | name == ''E.JSON -> pure KJSON
+        | name == ''E.PSL -> pure KPSL
+      ListT `AppT` elemType -> pure (KList elemType)
+      ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
+      _ -> Nothing
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
     tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do
@@ -266,18 +263,10 @@ waspKindOfType typ = do
     tryCastingToRecordKind :: Type -> Q (Maybe WaspKind)
     tryCastingToRecordKind (ConT typeName) = do
       (TyConI typeDeclaration) <- reify typeName
-      -- TODO: Can I avoid this nesting below by doing some Maybe monad stuff? This is all pure code below.
-      case typeDeclaration of
-        (DataD _ _ [] _ [dataConstructor] _) ->
-          case dataConstructor of
-            (RecC dataConName fields) ->
-              return $
-                Just $
-                  KRecord dataConName $
-                    -- TODO: Same code as in makeIsDeclTypeInstanceDefinition
-                    map (\(fieldName, _, fieldType) -> (fieldName, fieldType)) fields
-            _ -> return Nothing
-        _ -> return Nothing
+      return $ case typeDeclaration of
+        (DataD _ _ [] _ [RecC dataConName fields] _) ->
+          Just $ KRecord dataConName (recordFieldsToNameTypePairs fields)
+        _ -> Nothing
     tryCastingToRecordKind _ = return Nothing
 
 -- | An intermediate mapping between Haskell types and Wasp types, we use it internally
