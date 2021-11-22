@@ -23,6 +23,12 @@ import Wasp.Analyzer.TypeChecker.AST (ExtImportName)
 --   bundle that explains this type and can be dependency injected.
 -- NOTE: Thoughts: We could call these "SpecialTypes" and have them here as re-export of stuff from AppSpec,
 --   just so it is easier to figure out what is used from AppSpec.
+-- NOTE: One important thing is that currently these types are used only in Evaluator really.
+--   They are used by Evaluator to evaluate AST into them. They are in some way on same level
+--   as IsDeclType and IsEnumType.
+--   So if those are out there, outside of Evaluator, why are not these also?
+--   I think these should be used by Evaluator directly from AppSpec, or we should move them somewhere
+--   next to IsDeclType and IsEnumType.
 import Wasp.AppSpec.Entity (PSL (..))
 
 data ExtImport = ExtImport ExtImportName String deriving (Eq, Show)
