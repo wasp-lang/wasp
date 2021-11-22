@@ -8,31 +8,11 @@ tags: [startup, wasp]
 
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
-
-export const Divider = () => (
-    <span className='blog-header-cta--divider'> → </span>
-)
-
-export const Cta = () => (
-    <p>
-        <Link className='blog-header-cta--link' to={useBaseUrl('/docs')}>
-            We are in Alpha (try it out)!
-        </Link>
-        <Divider />
-        <Link className='blog-header-cta--link' to='https://discord.gg/rzdnErX'>
-            Join our community
-        </Link>
-        <Divider />
-        <Link className='blog-header-cta--link'
-            to='https://wasp-lang.notion.site/Founding-Engineer-at-Wasp-402274568afa4d7eb7f428f8fa2c0816'>
-            Work with us
-        </Link>
-    </p>
-)
+import InBlogCta from './components/InBlogCta';
 
 *Wasp is a configuration language (DSL) for building full-stack web apps with less code and best practices that works alongside React and Node.js. We are on a mission to streamline web app development while empowering developers to continue using the power of code and their favourite tools.* 
 
-<Cta />
+<InBlogCta />
 
 After graduating from Y Combinator's Winter 2021 Batch, we are super excited to announce that Wasp raised $1.5m in our first funding round! The round is led by Lunar Ventures and joined by HV Capital.
 
@@ -98,4 +78,4 @@ Our immediate focus is to bring Wasp to Beta and then 1.0 (see our high-level ro
 
 Thank you for reading - we can't wait to see what you will build!
 
-<Cta />
+<InBlogCta />

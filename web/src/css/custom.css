@@ -49,13 +49,13 @@
 
 /* NOTE(matija): this is used within a blog post (e.g. seed round 
  * announcement). */
-.blog-header-cta--link {
+.in-blog-cta--link {
   color: var(--ifm-color-primary);
   font-weight: bold;
   text-decoration: underline;
 }
 
-.blog-header-cta--divider {
+.in-blog-cta--divider {
   color: black;
 }
 
