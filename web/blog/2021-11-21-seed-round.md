@@ -1,5 +1,5 @@
 ---
-title: Wasp raised $1.5M Seed Round led by Lunar Ventures and HV Capital
+title: Following YC, Wasp raised $1.5M Seed Round led by Lunar Ventures and HV Capital
 author: Matija Sosic
 author_title: CEO & Co-founder @ Wasp
 author_url: https://github.com/matijasos
@@ -9,12 +9,12 @@ tags: [startup, wasp]
 import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import InBlogCta from './components/InBlogCta';
+import WaspIntro from './_wasp-intro.md';
 
-*Wasp is a configuration language (DSL) for building full-stack web apps with less code and best practices that works alongside React and Node.js. We are on a mission to streamline web app development while empowering developers to continue using the power of code and their favourite tools.* 
-
+<WaspIntro />
 <InBlogCta />
 
-After graduating from Y Combinator's Winter 2021 Batch, we are super excited to announce that Wasp raised $1.5m in our first funding round! The round is led by Lunar Ventures and joined by HV Capital.
+After graduating from Y Combinator's Winter 2021 Batch, we are super excited to announce that Wasp raised $1.5m in our first funding round! The round is led by Lunar Ventures and joined by HV Capital. Also [see it in TechCrunch](https://techcrunch.com/2021/10/04/yc-grads-wasp-land-1-5m-seed-to-help-developers-build-web-apps-faster/).
 
 The best thing about it is that the majority of our investors are either experienced engineers themselves (e.g. ex-Facebook, Twitter and Airbnb) or have a strong focus on investing in deep technology and developer companies. They share the vision we have with Wasp, understand and care about the problem we are solving.
 
