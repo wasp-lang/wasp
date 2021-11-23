@@ -288,6 +288,4 @@ data WaspKind
     -- KRecord <record constructor name> <fields:(identifier, type)>
     KRecord Name [(Name, Type)]
 
--- TODO: Add KWrapper that stands for data constructor with single field, or for newtype.
-
 ---------------------------------------
