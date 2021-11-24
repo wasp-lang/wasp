@@ -1,9 +1,12 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Wasp.AppSpec.App.Auth (Auth (..)) where
+module Wasp.AppSpec.App.Auth
+  ( Auth (..),
+    AuthMethod (..),
+  )
+where
 
 import Data.Data (Data)
-import Wasp.AppSpec.AuthMethod (AuthMethod)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 
@@ -13,3 +16,5 @@ data Auth = Auth
     onAuthFailedRedirectTo :: Maybe String
   }
   deriving (Show, Eq, Data)
+
+data AuthMethod = EmailAndPassword deriving (Show, Eq, Data)

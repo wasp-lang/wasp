@@ -9,7 +9,6 @@ import qualified Wasp.Analyzer.TypeChecker as TC
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
-import qualified Wasp.AppSpec.AuthMethod as AuthMethod
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
@@ -45,7 +44,7 @@ spec_Analyzer = do
                       Just
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
-                            Auth.methods = [AuthMethod.EmailAndPassword],
+                            Auth.methods = [Auth.EmailAndPassword],
                             Auth.onAuthFailedRedirectTo = Nothing
                           }
                   }

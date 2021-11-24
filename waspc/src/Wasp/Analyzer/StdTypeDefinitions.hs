@@ -9,7 +9,7 @@ where
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.App (App)
-import Wasp.AppSpec.AuthMethod (AuthMethod)
+import Wasp.AppSpec.App.Auth (AuthMethod)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Page (Page)
 

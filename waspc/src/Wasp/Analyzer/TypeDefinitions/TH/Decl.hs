@@ -11,8 +11,8 @@ import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax (VarBangType)
+import qualified Wasp.Analyzer.Evaluator.AppSpec.Types as ET
 import Wasp.Analyzer.Evaluator.Evaluation
-import qualified Wasp.Analyzer.Evaluator.Types as E
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
 import Wasp.Analyzer.TypeDefinitions.TH.Common
@@ -240,9 +240,9 @@ waspKindOfType typ = do
           | name == ''Integer -> pure KInteger
           | name == ''Double -> pure KDouble
           | name == ''Bool -> pure KBool
-          | name == ''E.ExtImport -> pure KImport
-          | name == ''E.JSON -> pure KJSON
-          | name == ''E.PSL -> pure KPSL
+          | name == ''ET.ExtImport -> pure KImport
+          | name == ''ET.JSON -> pure KJSON
+          | name == ''ET.PSL -> pure KPSL
         ListT `AppT` elemType -> pure (KList elemType)
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
         _ -> Nothing

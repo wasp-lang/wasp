@@ -3,7 +3,7 @@ module Wasp.Analyzer.Evaluator
     evaluate,
     Decl,
     takeDecls,
-    module Wasp.Analyzer.Evaluator.Types,
+    module Wasp.Analyzer.Evaluator.AppSpec.Types,
   )
 where
 
@@ -12,9 +12,9 @@ import Control.Monad.Reader
 import Control.Monad.State
 import qualified Data.HashMap.Strict as H
 import Data.Maybe (fromMaybe)
+import Wasp.Analyzer.Evaluator.AppSpec.Types
 import Wasp.Analyzer.Evaluator.Bindings (Bindings)
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError (..))
-import Wasp.Analyzer.Evaluator.Types
 import qualified Wasp.Analyzer.Type as Type
 import qualified Wasp.Analyzer.TypeChecker.AST as AST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
