@@ -17,10 +17,10 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
 where
 
 import Control.Arrow (left)
+import qualified Wasp.Analyzer.Evaluator.AppSpec.Types as ET
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
-import qualified Wasp.Analyzer.Evaluator.Types as E
 import qualified Wasp.Analyzer.Type as T
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
@@ -86,19 +86,19 @@ list elemEvaluation = evaluation $ \(typeDefs, bindings) -> \case
   expr -> Left $ EvaluationError.ExpectedListType $ TypedAST.exprType expr
 
 -- | An evaluation that expects an "ExtImport".
-extImport :: TypedExprEvaluation E.ExtImport
+extImport :: TypedExprEvaluation ET.ExtImport
 extImport = evaluation' $ \case
-  TypedAST.ExtImport name file -> pure $ E.ExtImport name file
+  TypedAST.ExtImport name file -> pure $ ET.ExtImport name file
   expr -> Left $ EvaluationError.ExpectedType T.ExtImportType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "JSON".
-json :: TypedExprEvaluation E.JSON
+json :: TypedExprEvaluation ET.JSON
 json = evaluation' $ \case
-  TypedAST.JSON str -> pure $ E.JSON str
+  TypedAST.JSON str -> pure $ ET.JSON str
   expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "PSL".
-psl :: TypedExprEvaluation E.PSL
+psl :: TypedExprEvaluation ET.PSL
 psl = evaluation' $ \case
-  TypedAST.PSL str -> pure $ E.PSL str
+  TypedAST.PSL str -> pure $ ET.PSL str
   expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "psl") (TypedAST.exprType expr)

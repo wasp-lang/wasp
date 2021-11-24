@@ -1,4 +1,4 @@
-module Wasp.Analyzer.Evaluator.TH.Common where
+module Wasp.Analyzer.TypeDefinitions.TH.Common where
 
 import Language.Haskell.TH
 import Wasp.Util (toLowerFirst)

@@ -2,18 +2,20 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Analyzer.Evaluator.TH.Decl
+module Wasp.Analyzer.TypeDefinitions.TH.Decl
   ( makeDeclType,
   )
 where
 
+import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
+import Language.Haskell.TH.Syntax (VarBangType)
+import qualified Wasp.Analyzer.Evaluator.AppSpec.Types as ET
 import Wasp.Analyzer.Evaluator.Evaluation
-import Wasp.Analyzer.Evaluator.TH.Common
-import qualified Wasp.Analyzer.Evaluator.Types as E
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
+import Wasp.Analyzer.TypeDefinitions.TH.Common
 import Wasp.AppSpec.Core.Decl (makeDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
 
@@ -99,11 +101,13 @@ makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(NormalC _ values) =
       ++ show (length values)
       ++ "values."
 -- The constructor is in the form @data Type = Type { k1 :: f1, ..., kn :: fn }
-makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(RecC conName records) =
-  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName conName $
-    map (\(fieldName, _, fieldType) -> (fieldName, fieldType)) records
+makeIsDeclTypeInstanceDefinition typeName _dataConstructor@(RecC conName fields) =
+  genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName conName (recordFieldsToNameTypePairs fields)
 -- The constructor is in an unsupported form
 makeIsDeclTypeInstanceDefinition _ _ = fail "makeDeclType expects given type to have a normal or record constructor"
+
+recordFieldsToNameTypePairs :: [VarBangType] -> [(Name, Type)]
+recordFieldsToNameTypePairs = map $ \(fieldName, _, fieldType) -> (fieldName, fieldType)
 
 -- | Create an "IsDeclType" instance for types that have a single data constructor which has a single value, e.g. @data Type = Type x@.
 genIsDeclTypeInstanceDefinitionFromNormalDataConstructor :: Name -> Name -> Type -> Q [DecQ]
@@ -115,9 +119,9 @@ genIsDeclTypeInstanceDefinitionFromNormalDataConstructor typeName dataConstructo
 -- | For decls with record constructors, i.e. @data Fields = Fields { a :: String, b :: String }
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor :: Name -> Name -> [(Name, Type)] -> Q [DecQ]
 genIsDeclTypeInstanceDefinitionFromRecordDataConstructor typeName dataConstructorName fields = do
-  (dictEntryTypesE, dictEvaluationE) <- genDictEntryTypesAndEvaluationForRecord dataConstructorName fields
-  let evaluateE = [|runEvaluation $ dict $dictEvaluationE|]
-  let bodyTypeE = [|T.DictType $ H.fromList $dictEntryTypesE|]
+  (dictTypeE, dictEvaluationE) <- genDictTypeAndEvaluationForRecord dataConstructorName fields
+  let evaluateE = [|runEvaluation $dictEvaluationE|]
+  let bodyTypeE = dictTypeE
   pure $ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 -- | Generates 'declType' function for a definition of IsDeclType instance.
@@ -139,9 +143,19 @@ genIsDeclTypeInstanceDefinition typeName dataConstructorName bodyTypeE evaluateE
 
 --------------- Dict ------------------
 
--- | Write the @DictEntryType@s and @DictEvaluation@ for the Haskell record with given data constructor name and fields.
-genDictEntryTypesAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
-genDictEntryTypesAndEvaluationForRecord dataConstructorName fields =
+-- | Given a record data constructor name and fields, return the evaluation that evaluates
+-- Wasp dictionary into the given record, and also return the type of such Wasp dictionary.
+-- First member of returned couple is type, second is evaluation.
+genDictTypeAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictTypeAndEvaluationForRecord dataConName fields = do
+  (dictEntryTypesE, dictEvaluationE) <- genDictEntriesTypeAndEvaluationForRecord dataConName fields
+  return
+    ( [|T.DictType $ H.fromList $dictEntryTypesE|],
+      [|dict $dictEvaluationE|]
+    )
+
+genDictEntriesTypeAndEvaluationForRecord :: Name -> [(Name, Type)] -> Q (ExpQ, ExpQ)
+genDictEntriesTypeAndEvaluationForRecord dataConstructorName fields =
   go $ reverse fields -- Reversing enables us to apply evaluations in right order.
   where
     go [] = pure (listE [], [|pure|] `appE` conE dataConstructorName)
@@ -189,6 +203,8 @@ genWaspTypeFromHaskellType typ =
     KDeclRef t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
+    KRecord dataConName fields ->
+      fst =<< genDictTypeAndEvaluationForRecord dataConName fields
 
 -- | Generates an expression that is @Evaluation@ that evaluates to a given Haskell type.
 genEvaluationExprForHaskellType :: Type -> ExpQ
@@ -205,28 +221,31 @@ genEvaluationExprForHaskellType typ =
     KDeclRef t -> [|declRef @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
+    KRecord dataConName fields ->
+      snd =<< genDictTypeAndEvaluationForRecord dataConName fields
 
 -- | Find the "WaspKind" of a Haskell type.
 waspKindOfType :: Type -> Q WaspKind
 waspKindOfType typ = do
   maybeDeclRefKind <- tryCastingToDeclRefKind typ
   maybeEnumKind <- tryCastingToEnumKind typ
-  case maybeDeclRefKind of
-    Just declRefKind -> pure declRefKind
-    Nothing -> case maybeEnumKind of
-      Just enumKind -> pure enumKind
-      Nothing -> case typ of
+  maybeRecordKind <- tryCastingToRecordKind typ
+  maybe (fail $ "No translation to wasp type for type " ++ show typ) return $
+    maybeDeclRefKind
+      <|> maybeEnumKind
+      <|> maybeRecordKind
+      <|> case typ of
         ConT name
           | name == ''String -> pure KString
           | name == ''Integer -> pure KInteger
           | name == ''Double -> pure KDouble
           | name == ''Bool -> pure KBool
-          | name == ''E.ExtImport -> pure KImport
-          | name == ''E.JSON -> pure KJSON
-          | name == ''E.PSL -> pure KPSL
+          | name == ''ET.ExtImport -> pure KImport
+          | name == ''ET.JSON -> pure KJSON
+          | name == ''ET.PSL -> pure KPSL
         ListT `AppT` elemType -> pure (KList elemType)
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
-        _ -> fail $ "No translation to wasp type for type " ++ show typ
+        _ -> Nothing
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
     tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do
@@ -238,6 +257,15 @@ waspKindOfType typ = do
     tryCastingToEnumKind t = do
       isEnumType <- isInstance ''IsEnumType [t]
       return $ if isEnumType then Just KEnum else Nothing
+
+    tryCastingToRecordKind :: Type -> Q (Maybe WaspKind)
+    tryCastingToRecordKind (ConT typeName) = do
+      (TyConI typeDeclaration) <- reify typeName
+      return $ case typeDeclaration of
+        (DataD _ _ [] _ [RecC dataConName fields] _) ->
+          Just $ KRecord dataConName (recordFieldsToNameTypePairs fields)
+        _ -> Nothing
+    tryCastingToRecordKind _ = return Nothing
 
 -- | An intermediate mapping between Haskell types and Wasp types, we use it internally
 -- in this module when generating @Types@, @Evaluation@, @DictEntryTypes@, and @DictEvaluation@
@@ -256,5 +284,8 @@ data WaspKind
   | KEnum
   | -- | Valid only in a record field, represents @DictOptional@/@Maybe@
     KOptional Type
+  | -- | Type that has a single data constructor that is a record.
+    -- KRecord <record constructor name> <fields:(identifier, type)>
+    KRecord Name [(Name, Type)]
 
 ---------------------------------------
