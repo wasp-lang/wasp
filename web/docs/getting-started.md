@@ -23,7 +23,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
     Quick guide on installing/using nvm
   </summary>
-  <div style={{background: '#eeeeee', padding: '10px'}}>
+  <div>
 
   Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
 
