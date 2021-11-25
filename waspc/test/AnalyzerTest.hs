@@ -15,6 +15,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import Wasp.AppSpec.JSON (JSON (..))
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Query (Query)
@@ -34,7 +35,10 @@ spec_Analyzer = do
                 "  auth: {",
                 "    userEntity: User,",
                 "    methods: [EmailAndPassword],",
-                "  }",
+                "  },",
+                "  dependencies: {=json",
+                "    \"redux\": \"^4.0.5\"",
+                "  json=}",
                 "}",
                 "",
                 "entity User {=psl test psl=}",
@@ -75,7 +79,8 @@ spec_Analyzer = do
                           { Auth.userEntity = Ref "User" :: Ref Entity,
                             Auth.methods = [Auth.EmailAndPassword],
                             Auth.onAuthFailedRedirectTo = Nothing
-                          }
+                          },
+                    App.dependencies = Just $ JSON "\n    \"redux\": \"^4.0.5\"\n  "
                   }
               )
             ]
