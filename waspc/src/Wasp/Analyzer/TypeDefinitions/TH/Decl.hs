@@ -11,13 +11,15 @@ import Control.Applicative ((<|>))
 import qualified Data.HashMap.Strict as H
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax (VarBangType)
-import qualified Wasp.Analyzer.Evaluator.AppSpec.Types as ET
 import Wasp.Analyzer.Evaluator.Evaluation
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (..), IsEnumType (..))
 import Wasp.Analyzer.TypeDefinitions.TH.Common
 import Wasp.AppSpec.Core.Decl (makeDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
+import qualified Wasp.AppSpec.Entity as AppSpec.Entity
+import qualified Wasp.AppSpec.ExtImport as AppSpec.ExtImport
+import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 
 -- | @makeDeclType ''Type@ writes an @IsDeclType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.
@@ -240,9 +242,9 @@ waspKindOfType typ = do
           | name == ''Integer -> pure KInteger
           | name == ''Double -> pure KDouble
           | name == ''Bool -> pure KBool
-          | name == ''ET.ExtImport -> pure KImport
-          | name == ''ET.JSON -> pure KJSON
-          | name == ''ET.PSL -> pure KPSL
+          | name == ''AppSpec.ExtImport.ExtImport -> pure KImport
+          | name == ''AppSpec.JSON.JSON -> pure KJSON
+          | name == ''AppSpec.Entity.PSL -> pure KPSL
         ListT `AppT` elemType -> pure (KList elemType)
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
         _ -> Nothing

@@ -14,6 +14,9 @@ import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref (..))
+import Wasp.AppSpec.Entity (PSL (..))
+import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import Wasp.AppSpec.JSON (JSON (..))
 
 fromRight :: Show a => Either a b -> b
 fromRight (Right x) = x
