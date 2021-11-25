@@ -11,12 +11,14 @@ import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Auth (AuthMethod)
+import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''AuthMethod
+makeEnumType ''DbSystem
 makeDeclType ''Entity
 makeDeclType ''App
 makeDeclType ''Page
@@ -32,6 +34,7 @@ stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $
   TD.addEnumType @AuthMethod $
+  TD.addEnumType @DbSystem $
   TD.addDeclType @Entity $
   TD.addDeclType @Page $
   TD.addDeclType @Route $
