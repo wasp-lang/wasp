@@ -12,9 +12,11 @@ import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Auth (AuthMethod)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Page (Page)
+import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''AuthMethod
 makeDeclType ''Page
+makeDeclType ''Route
 makeDeclType ''Entity
 makeDeclType ''App
 
@@ -26,6 +28,7 @@ stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addEnumType @AuthMethod $
   TD.addDeclType @Page $
+  TD.addDeclType @Route $
   TD.addDeclType @App $
   TD.addDeclType @Entity $
   TD.empty

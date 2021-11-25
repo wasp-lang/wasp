@@ -15,6 +15,8 @@ import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
+import Wasp.AppSpec.Route (Route)
+import qualified Wasp.AppSpec.Route as Route
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -40,7 +42,10 @@ spec_Analyzer = do
                 "page ProfilePage {",
                 "  component: import { profilePage } from \"@ext/pages/Profile\",",
                 "  authRequired: true",
-                "}"
+                "}",
+                "",
+                -- TODO: What if route has same name as page? E.g. both are "Home"? I guess that should throw error?
+                "route HomeRoute { path: \"/\", page: HomePage }"
               ]
       let decls = analyze source
       let expectedApps =
@@ -81,37 +86,32 @@ spec_Analyzer = do
             ]
       takeDecls @Entity <$> decls `shouldBe` Right expectedEntities
 
-    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
+      let expectedRoutes =
+            [ ( "HomeRoute",
+                Route.Route {Route.path = "/", Route.page = Ref "HomePage"}
+              )
+            ]
+      takeDecls @Route <$> decls `shouldBe` Right expectedRoutes
+
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
             unlines
-              [ "app Todo {",
-                "  title: \"Todo App\",",
-                "  auth: { userEntity: NonExistentEntity, methods: [EmailAndPassword] }",
-                "}"
+              [ "route HomeRoute { path: \"/\",  page: NonExistentPage }"
               ]
-      takeDecls @App <$> analyze source `shouldBe` Left (TypeError $ TC.UndefinedIdentifier "NonExistentEntity")
+      takeDecls @Route <$> analyze source `shouldBe` Left (TypeError $ TC.UndefinedIdentifier "NonExistentPage")
 
-    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
             unlines
-              [ "app Todo {",
-                "  title: \"Todo App\",",
-                "  auth: { userEntity: Todo, methods: [EmailAndPassword] }",
-                "}"
+              [ "route HomeRoute { path: \"/\",  page: HomeRoute }"
               ]
-      takeDecls @App <$> analyze source `shouldSatisfy` isAnalyzerOutputTypeError
+      takeDecls @Route <$> analyze source `shouldSatisfy` isAnalyzerOutputTypeError
 
-    -- TODO: Rewrite this to use Route once we add it since that will result in simpler test case.
     it "Works when referenced declaration is declared after the reference." $ do
       let source =
             unlines
-              [ "app Todo {",
-                "  title: \"Todo App\",",
-                "  auth: { userEntity: User, methods: [EmailAndPassword] }",
-                "}",
-                "entity User {=psl test psl=}"
+              [ "route HomeRoute { path: \"/\",  page: HomePage }",
+                "page HomePage { component: import Home from \"@ext/HomePage.js\" }"
               ]
       isRight (analyze source) `shouldBe` True
 
