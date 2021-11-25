@@ -6,6 +6,8 @@ import Data.Either (isRight)
 import Test.Tasty.Hspec
 import Wasp.Analyzer
 import qualified Wasp.Analyzer.TypeChecker as TC
+import Wasp.AppSpec.Action (Action)
+import qualified Wasp.AppSpec.Action as Action
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
@@ -51,6 +53,12 @@ spec_Analyzer = do
                 "query getUsers {",
                 "  fn: import { getAllUsers } from \"@ext/foo.js\",",
                 "  entities: [User]",
+                "}",
+                "",
+                "action updateUser {",
+                "  fn: import { updateUser } from \"@ext/foo.js\",",
+                "  entities: [User],",
+                "  auth: true",
                 "}"
               ]
 
@@ -107,11 +115,23 @@ spec_Analyzer = do
             [ ( "getUsers",
                 Query.Query
                   { Query.fn = ExtImport (ExtImportField "getAllUsers") "@ext/foo.js",
-                    Query.entities = [Ref "User"]
+                    Query.entities = Just [Ref "User"],
+                    Query.auth = Nothing
                   }
               )
             ]
       takeDecls @Query <$> decls `shouldBe` Right expectedQueries
+
+      let expectedAction =
+            [ ( "updateUser",
+                Action.Action
+                  { Action.fn = ExtImport (ExtImportField "updateUser") "@ext/foo.js",
+                    Action.entities = Just [Ref "User"],
+                    Action.auth = Just True
+                  }
+              )
+            ]
+      takeDecls @Action <$> decls `shouldBe` Right expectedAction
 
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
