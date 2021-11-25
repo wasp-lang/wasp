@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
+import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 
@@ -32,7 +33,14 @@ spec_Analyzer = do
                 "",
                 "entity User {=psl test psl=}",
                 "",
-                "page HomePage { content: \"Hello world\" }"
+                "page HomePage {",
+                "  component: import Home from \"@ext/pages/Main\"",
+                "}",
+                "",
+                "page ProfilePage {",
+                "  component: import { profilePage } from \"@ext/pages/Profile\",",
+                "  authRequired: true",
+                "}"
               ]
       let decls = analyze source
       let expectedApps =
@@ -54,7 +62,14 @@ spec_Analyzer = do
       let expectedPages =
             [ ( "HomePage",
                 Page.Page
-                  { Page.content = "Hello world"
+                  { Page.component = ExtImport (ExtImportModule "Home") "@ext/pages/Main",
+                    Page.authRequired = Nothing
+                  }
+              ),
+              ( "ProfilePage",
+                Page.Page
+                  { Page.component = ExtImport (ExtImportField "profilePage") "@ext/pages/Profile",
+                    Page.authRequired = Just True
                   }
               )
             ]

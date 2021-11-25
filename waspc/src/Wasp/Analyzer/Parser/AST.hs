@@ -1,6 +1,17 @@
-module Wasp.Analyzer.Parser.AST where
+module Wasp.Analyzer.Parser.AST
+  ( AST (..),
+    Stmt (..),
+    Expr (..),
+    Identifier,
+    ExtImportName (..),
+  )
+where
 
-type Identifier = String
+-- TODO: Am I ok with this? Would I rather import from `Evaluator.AppSpec.Types`?
+-- But it doesn't make any sense any more to keep those in `Evaluator`, since they are also
+-- used here now. I think we should just remove `Evaluator.AppSpec.Types` and import
+-- stuff from AppSpec directly where we need it.
+import Wasp.AppSpec.ExtImport (ExtImportName (..))
 
 newtype AST = AST {astStmts :: [Stmt]} deriving (Eq, Show)
 
@@ -19,9 +30,4 @@ data Expr
   | Quoter Identifier String
   deriving (Eq, Show)
 
-data ExtImportName
-  = -- | Represents external imports like @import Identifier from "file.js"@
-    ExtImportModule Identifier
-  | -- | Represents external imports like @import { Identifier } from "file.js"@
-    ExtImportField Identifier
-  deriving (Eq, Show)
+type Identifier = String

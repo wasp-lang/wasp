@@ -8,7 +8,7 @@ module Analyzer.EvaluatorTest where
 import Data.Data (Data)
 import Test.Tasty.Hspec
 import Wasp.Analyzer.Evaluator
-import Wasp.Analyzer.Parser (ExtImportName (ExtImportField, ExtImportModule), parse)
+import Wasp.Analyzer.Parser (parse)
 import Wasp.Analyzer.TypeChecker (typeCheck)
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH
