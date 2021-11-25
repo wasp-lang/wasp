@@ -7,12 +7,7 @@ module.exports = {
   tagline: 'A simple language for developing full-stack web apps with less code.',
   // url, baseUrl, organizationName, projectName and trailingSlash are set according to the
   // instructions in https://docusaurus.io/docs/deployment#deploying-to-github-pages .
-  // NOTE: Although docusaurus warns that `url` should have no sub-path in it, we added `/wasp`
-  //   as a sub-path because canonical/alternate/og and other urls in <head>` are otherwise
-  //   incorrect (they are missing `/wasp`) part. Therefore, ignore the Docusaurus warning
-  //   about how we should remove the `/wasp` sub-path from `url`.
-  //   I opened an issue about this here: https://github.com/facebook/docusaurus/issues/6004 .
-  url: 'https://wasp-lang.github.io/wasp',
+  url: 'https://wasp-lang.dev',
   baseUrl: '/', // Should be name of repo if hosted on Github Pages, but can be just '/' if custom domain is used.
   organizationName: 'wasp-lang', // Should be GitHub org/user name if hosted on Github Pages.
   projectName: 'wasp', // Should be repo name if hosted on Github Pages.
