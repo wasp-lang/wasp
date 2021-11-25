@@ -4,6 +4,7 @@ module Wasp.Analyzer.Evaluator.EvaluationError
   )
 where
 
+import Text.Parsec (ParseError)
 import Wasp.Analyzer.Type (Type)
 
 data EvaluationError
@@ -19,6 +20,8 @@ data EvaluationError
     InvalidEnumVariant String String
   | -- | "MissingField fieldName"
     MissingField String
+  | -- | In case when evaluation includes parsing with Parsec and it fails.
+    ParseError ParseError
   | WithContext EvaluationErrorContext EvaluationError
   deriving (Show, Eq)
 
