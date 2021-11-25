@@ -1,6 +1,13 @@
-module Wasp.Analyzer.Parser.AST where
+module Wasp.Analyzer.Parser.AST
+  ( AST (..),
+    Stmt (..),
+    Expr (..),
+    Identifier,
+    ExtImportName (..),
+  )
+where
 
-type Identifier = String
+import Wasp.AppSpec.ExtImport (ExtImportName (..))
 
 newtype AST = AST {astStmts :: [Stmt]} deriving (Eq, Show)
 
@@ -19,9 +26,4 @@ data Expr
   | Quoter Identifier String
   deriving (Eq, Show)
 
-data ExtImportName
-  = -- | Represents external imports like @import Identifier from "file.js"@
-    ExtImportModule Identifier
-  | -- | Represents external imports like @import { Identifier } from "file.js"@
-    ExtImportField Identifier
-  deriving (Eq, Show)
+type Identifier = String

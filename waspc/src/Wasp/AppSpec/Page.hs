@@ -7,9 +7,11 @@ where
 
 import Data.Data (Data)
 import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Page = Page
-  { content :: String
+  { component :: ExtImport,
+    authRequired :: Maybe Bool
   }
   deriving (Show, Eq, Data)
 
