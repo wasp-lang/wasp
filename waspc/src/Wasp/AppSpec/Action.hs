@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Wasp.AppSpec.Query
-  ( Query (..),
+module Wasp.AppSpec.Action
+  ( Action (..),
   )
 where
 
@@ -11,11 +11,11 @@ import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity
 import Wasp.AppSpec.ExtImport
 
-data Query = Query
+data Action = Action
   { fn :: ExtImport,
     entities :: Maybe [Ref Entity],
     auth :: Maybe Bool
   }
   deriving (Show, Eq, Data)
 
-instance IsDecl Query
+instance IsDecl Action

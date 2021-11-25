@@ -8,6 +8,7 @@ where
 
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
+import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Auth (AuthMethod)
 import Wasp.AppSpec.Entity (Entity)
@@ -21,6 +22,7 @@ makeDeclType ''App
 makeDeclType ''Page
 makeDeclType ''Route
 makeDeclType ''Query
+makeDeclType ''Action
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -34,5 +36,6 @@ stdTypes =
   TD.addDeclType @Page $
   TD.addDeclType @Route $
   TD.addDeclType @Query $
+  TD.addDeclType @Action $
   TD.empty
 {- ORMOLU_ENABLE -}
