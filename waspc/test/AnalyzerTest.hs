@@ -44,7 +44,6 @@ spec_Analyzer = do
                 "  authRequired: true",
                 "}",
                 "",
-                -- TODO: What if route has same name as page? E.g. both are "Home"? I guess that should throw error?
                 "route HomeRoute { path: \"/\", page: HomePage }"
               ]
       let decls = analyze source
