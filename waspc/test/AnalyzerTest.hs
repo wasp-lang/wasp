@@ -11,6 +11,8 @@ import qualified Wasp.AppSpec.Action as Action
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import qualified Wasp.AppSpec.App.Db as Db
+import qualified Wasp.AppSpec.App.Server as Server
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
@@ -38,7 +40,13 @@ spec_Analyzer = do
                 "  },",
                 "  dependencies: {=json",
                 "    \"redux\": \"^4.0.5\"",
-                "  json=}",
+                "  json=},",
+                "  server: {",
+                "    setupFn: import { setupServer } from \"@ext/bar.js\"",
+                "  },",
+                "  db: {",
+                "    system: PostgreSQL",
+                "  }",
                 "}",
                 "",
                 "entity User {=psl test psl=}",
@@ -80,7 +88,13 @@ spec_Analyzer = do
                             Auth.methods = [Auth.EmailAndPassword],
                             Auth.onAuthFailedRedirectTo = Nothing
                           },
-                    App.dependencies = Just $ JSON "\n    \"redux\": \"^4.0.5\"\n  "
+                    App.dependencies = Just $ JSON "\n    \"redux\": \"^4.0.5\"\n  ",
+                    App.server =
+                      Just
+                        Server.Server
+                          { Server.setupFn = Just $ ExtImport (ExtImportField "setupServer") "@ext/bar.js"
+                          },
+                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
                   }
               )
             ]
