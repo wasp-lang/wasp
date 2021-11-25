@@ -15,6 +15,8 @@ import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
+import Wasp.AppSpec.Query (Query)
+import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
 
@@ -44,9 +46,16 @@ spec_Analyzer = do
                 "  authRequired: true",
                 "}",
                 "",
-                "route HomeRoute { path: \"/\", page: HomePage }"
+                "route HomeRoute { path: \"/\", page: HomePage }",
+                "",
+                "query getUsers {",
+                "  fn: import { getAllUsers } from \"@ext/foo.js\",",
+                "  entities: [User]",
+                "}"
               ]
+
       let decls = analyze source
+
       let expectedApps =
             [ ( "Todo",
                 App.App
@@ -63,6 +72,7 @@ spec_Analyzer = do
               )
             ]
       takeDecls @App <$> decls `shouldBe` Right expectedApps
+
       let expectedPages =
             [ ( "HomePage",
                 Page.Page
@@ -78,6 +88,7 @@ spec_Analyzer = do
               )
             ]
       takeDecls @Page <$> decls `shouldBe` Right expectedPages
+
       let expectedEntities =
             [ ( "User",
                 Entity.Entity (Entity.PSL " test ")
@@ -91,6 +102,16 @@ spec_Analyzer = do
               )
             ]
       takeDecls @Route <$> decls `shouldBe` Right expectedRoutes
+
+      let expectedQueries =
+            [ ( "getUsers",
+                Query.Query
+                  { Query.fn = ExtImport (ExtImportField "getAllUsers") "@ext/foo.js",
+                    Query.entities = [Ref "User"]
+                  }
+              )
+            ]
+      takeDecls @Query <$> decls `shouldBe` Right expectedQueries
 
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
