@@ -17,7 +17,6 @@ import Wasp.Analyzer.TypeDefinitions (DeclType (..), EnumType (..), IsDeclType (
 import Wasp.Analyzer.TypeDefinitions.TH.Common
 import Wasp.AppSpec.Core.Decl (makeDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
-import qualified Wasp.AppSpec.Entity as AppSpec.Entity
 import qualified Wasp.AppSpec.ExtImport as AppSpec.ExtImport
 import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 
