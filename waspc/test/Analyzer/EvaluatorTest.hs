@@ -14,7 +14,6 @@ import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref (..))
-import Wasp.AppSpec.Entity (PSL (..))
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.JSON (JSON (..))
 
@@ -44,7 +43,7 @@ data BusinessType = Manufacturer | Seller | Store deriving (Eq, Show, Data)
 
 makeEnumType ''BusinessType
 
-data Special = Special {imps :: [ExtImport], json :: JSON, psl :: PSL} deriving (Eq, Show)
+data Special = Special {imps :: [ExtImport], json :: JSON} deriving (Eq, Show)
 
 instance IsDecl Special
 
@@ -105,13 +104,12 @@ spec_Evaluator = do
                   }
               )
             ]
-      it "Evaluates ExtImports, JSON, and PSL" $ do
+      it "Evaluates ExtImports and JSON" $ do
         let typeDefs = TD.addDeclType @Special $ TD.empty
         let source =
               [ "special Test {",
                 "  imps: [import { field } from \"main.js\", import main from \"main.js\"],",
-                "  json: {=json \"key\": 1 json=},",
-                "  psl: {=psl ID Int psl=}",
+                "  json: {=json \"key\": 1 json=}",
                 "}"
               ]
         fmap takeDecls (eval typeDefs source)
@@ -120,6 +118,5 @@ spec_Evaluator = do
                 Special
                   [ExtImport (ExtImportField "field") "main.js", ExtImport (ExtImportModule "main") "main.js"]
                   (JSON " \"key\": 1 ")
-                  (PSL " ID Int ")
               )
             ]

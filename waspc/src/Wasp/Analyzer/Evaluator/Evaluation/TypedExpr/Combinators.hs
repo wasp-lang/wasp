@@ -12,7 +12,6 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
     list,
     extImport,
     json,
-    psl,
   )
 where
 
@@ -25,7 +24,6 @@ import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.AppSpec.Core.Ref (Ref)
 import qualified Wasp.AppSpec.Core.Ref as Ref
-import qualified Wasp.AppSpec.Entity as AppSpec.Entity
 import qualified Wasp.AppSpec.ExtImport as AppSpec.ExtImport
 import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 
@@ -98,9 +96,3 @@ json :: TypedExprEvaluation AppSpec.JSON.JSON
 json = evaluation' $ \case
   TypedAST.JSON str -> pure $ AppSpec.JSON.JSON str
   expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)
-
--- | An evaluation that expects a "PSL".
-psl :: TypedExprEvaluation AppSpec.Entity.PSL
-psl = evaluation' $ \case
-  TypedAST.PSL str -> pure $ AppSpec.Entity.PSL str
-  expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "psl") (TypedAST.exprType expr)

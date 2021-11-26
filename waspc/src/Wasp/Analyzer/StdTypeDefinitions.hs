@@ -6,6 +6,7 @@ module Wasp.Analyzer.StdTypeDefinitions
   )
 where
 
+import Wasp.Analyzer.StdTypeDefinitions.Entity ()
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
@@ -19,7 +20,6 @@ import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''AuthMethod
 makeEnumType ''DbSystem
-makeDeclType ''Entity
 makeDeclType ''App
 makeDeclType ''Page
 makeDeclType ''Route

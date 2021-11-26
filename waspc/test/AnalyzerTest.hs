@@ -12,18 +12,19 @@ import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as Db
+import qualified Wasp.AppSpec.App.Dependency as Dependency
 import qualified Wasp.AppSpec.App.Server as Server
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
-import Wasp.AppSpec.JSON (JSON (..))
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
+import qualified Wasp.Psl.Ast.Model as PslModel
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -38,9 +39,9 @@ spec_Analyzer = do
                 "    userEntity: User,",
                 "    methods: [EmailAndPassword],",
                 "  },",
-                "  dependencies: {=json",
-                "    \"redux\": \"^4.0.5\"",
-                "  json=},",
+                "  dependencies: [",
+                "    { name: \"redux\", version: \"^4.0.5\" }",
+                "  ],",
                 "  server: {",
                 "    setupFn: import { setupServer } from \"@ext/bar.js\"",
                 "  },",
@@ -49,7 +50,9 @@ spec_Analyzer = do
                 "  }",
                 "}",
                 "",
-                "entity User {=psl test psl=}",
+                "entity User {=psl",
+                "  description String",
+                "psl=}",
                 "",
                 "page HomePage {",
                 "  component: import Home from \"@ext/pages/Main\"",
@@ -88,7 +91,10 @@ spec_Analyzer = do
                             Auth.methods = [Auth.EmailAndPassword],
                             Auth.onAuthFailedRedirectTo = Nothing
                           },
-                    App.dependencies = Just $ JSON "\n    \"redux\": \"^4.0.5\"\n  ",
+                    App.dependencies =
+                      Just
+                        [ Dependency.Dependency {Dependency.name = "redux", Dependency.version = "^4.0.5"}
+                        ],
                     App.server =
                       Just
                         Server.Server
@@ -118,7 +124,16 @@ spec_Analyzer = do
 
       let expectedEntities =
             [ ( "User",
-                Entity.Entity (Entity.PSL " test ")
+                Entity.makeEntity $
+                  PslModel.Body
+                    [ PslModel.ElementField $
+                        PslModel.Field
+                          { PslModel._name = "description",
+                            PslModel._type = PslModel.String,
+                            PslModel._typeModifiers = [],
+                            PslModel._attrs = []
+                          }
+                    ]
               )
             ]
       takeDecls @Entity <$> decls `shouldBe` Right expectedEntities
