@@ -24,6 +24,7 @@ import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
+import qualified Wasp.Psl.Ast.Model as PslModel
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -49,7 +50,9 @@ spec_Analyzer = do
                 "  }",
                 "}",
                 "",
-                "entity User {=psl test psl=}",
+                "entity User {=psl",
+                "  description String",
+                "psl=}",
                 "",
                 "page HomePage {",
                 "  component: import Home from \"@ext/pages/Main\"",
@@ -121,7 +124,16 @@ spec_Analyzer = do
 
       let expectedEntities =
             [ ( "User",
-                Entity.Entity (Entity.PSL " test ")
+                Entity.makeEntity $
+                  PslModel.Body
+                    [ PslModel.ElementField $
+                        PslModel.Field
+                          { PslModel._name = "description",
+                            PslModel._type = PslModel.String,
+                            PslModel._typeModifiers = [],
+                            PslModel._attrs = []
+                          }
+                    ]
               )
             ]
       takeDecls @Entity <$> decls `shouldBe` Right expectedEntities

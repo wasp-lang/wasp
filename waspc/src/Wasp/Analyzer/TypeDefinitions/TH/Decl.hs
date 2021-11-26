@@ -201,7 +201,6 @@ genWaspTypeFromHaskellType typ =
     KList elemType -> [|T.ListType $(genWaspTypeFromHaskellType elemType)|]
     KImport -> [|T.ExtImportType|]
     KJSON -> [|T.QuoterType "json"|]
-    KPSL -> [|T.QuoterType "psl"|]
     KDeclRef t -> [|T.DeclType $ dtName $ declType @ $(pure t)|]
     KEnum -> [|T.EnumType $ etName $ enumType @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
@@ -219,7 +218,6 @@ genEvaluationExprForHaskellType typ =
     KList elemType -> [|list $(genEvaluationExprForHaskellType elemType)|]
     KImport -> [|extImport|]
     KJSON -> [|json|]
-    KPSL -> [|psl|]
     KDeclRef t -> [|declRef @ $(pure t)|]
     KEnum -> [|enum @ $(pure typ)|]
     KOptional _ -> fail "Maybe is only allowed in record fields"
@@ -244,7 +242,6 @@ waspKindOfType typ = do
           | name == ''Bool -> pure KBool
           | name == ''AppSpec.ExtImport.ExtImport -> pure KImport
           | name == ''AppSpec.JSON.JSON -> pure KJSON
-          | name == ''AppSpec.Entity.PSL -> pure KPSL
         ListT `AppT` elemType -> pure (KList elemType)
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
         _ -> Nothing
@@ -280,7 +277,6 @@ data WaspKind
   | KList Type
   | KImport
   | KJSON
-  | KPSL
   | -- | Reference to a declaration type @Type@.
     KDeclRef Type
   | KEnum

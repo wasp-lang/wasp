@@ -1,4 +1,8 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Wasp.Psl.Ast.Model where
+
+import Data.Data (Data)
 
 data Model
   = Model
@@ -8,10 +12,10 @@ data Model
   deriving (Show, Eq)
 
 newtype Body = Body [Element]
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data Element = ElementField Field | ElementBlockAttribute Attribute
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 -- TODO: To support attributes before the field,
 --   we could just have `attrsBefore :: [[Attr]]`,
@@ -22,7 +26,7 @@ data Field = Field
     _typeModifiers :: [FieldTypeModifier],
     _attrs :: [Attribute]
   }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data FieldType
   = String
@@ -36,10 +40,10 @@ data FieldType
   | Bytes
   | Unsupported String
   | UserType String
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data FieldTypeModifier = List | Optional
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 -- NOTE: We don't differentiate "native database type" attributes from normal attributes right now,
 --   they are all represented with `data Attribute`.
@@ -50,10 +54,10 @@ data Attribute = Attribute
   { _attrName :: String,
     _attrArgs :: [AttributeArg]
   }
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data AttributeArg = AttrArgNamed String AttrArgValue | AttrArgUnnamed AttrArgValue
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
 
 data AttrArgValue
   = AttrArgString String
@@ -62,4 +66,4 @@ data AttrArgValue
   | AttrArgFieldRefList [String]
   | AttrArgNumber String
   | AttrArgUnknown String
-  deriving (Show, Eq)
+  deriving (Show, Eq, Data)
