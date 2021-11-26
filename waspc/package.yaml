@@ -141,3 +141,4 @@ tests:
       - path
       - unordered-containers
       - strong-path
+      - split
