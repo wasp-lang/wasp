@@ -8,10 +8,7 @@ import qualified Text.Parsec as Parsec
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
 import qualified Wasp.Analyzer.Type as Type
 import qualified Wasp.Analyzer.TypeChecker.AST as TC.AST
-import Wasp.Analyzer.TypeDefinitions.Class (IsDeclType (..))
--- TODO: Hm why is this import Internal? Should we make it non-Internal then?
---   Or should we move this module into TypeDefinitions?
-import Wasp.Analyzer.TypeDefinitions.Internal (DeclType (..))
+import Wasp.Analyzer.TypeDefinitions (DeclType (..), IsDeclType (..))
 import qualified Wasp.AppSpec.Core.Decl as Decl
 import Wasp.AppSpec.Entity (Entity, makeEntity)
 import qualified Wasp.Psl.Parser.Model
