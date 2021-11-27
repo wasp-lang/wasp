@@ -12,6 +12,7 @@ import System.Directory
   ( doesDirectoryExist,
     removeDirectoryRecursive,
   )
+import Wasp (Wasp)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( alphaWarningMessage,
@@ -21,7 +22,6 @@ import Wasp.Cli.Command.Compile (compileIOWithOptions)
 import qualified Wasp.Cli.Common as Common
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
-import Wasp (Wasp)
 
 build :: Command ()
 build = do

@@ -24,11 +24,11 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode (ExitSuccess))
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
+import Wasp (Wasp, getNpmDependencies)
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Common (waspSays)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Lib
-import Wasp (Wasp, getNpmDependencies)
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
 --   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
