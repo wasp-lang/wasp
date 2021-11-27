@@ -3,32 +3,19 @@ module Wasp.Cli.Command.Watch
   )
 where
 
-import Cli.Common (buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, waspSays)
-import qualified Cli.Common as Common
-import Command (Command, CommandError (..))
-import Command.Compile (compileIO)
-import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
 import Control.Monad (when)
-import Control.Monad.Except (throwError)
-import Control.Monad.State (MonadIO (liftIO))
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
-import qualified Generator.Job as J
-import Generator.Job.Process (runNodeCommandAsJob)
-import qualified Generator.WebAppGenerator.Common as Common
-import Generator.WebAppGenerator.Setup (setupWebApp)
-import qualified Lib
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import System.Exit (ExitCode (ExitSuccess))
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp (Wasp, getNpmDependencies)
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Common (waspSays)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Lib
+import Wasp.Wasp (Wasp, getNpmDependencies)
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
 --   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
@@ -75,13 +62,6 @@ watch waspProjectDir outDir initialWasp = FSN.withManager $ \mgr -> do
           when dependenciesChanged $ do
             waspSays "Dependencies changed, please restart the server"
             recompile currentWasp
-            -- WIP: Restart server or re-run setup and compile phase
-            -- chan <- newChan
-            -- let path = waspProjectDir </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.buildDirInDotWaspDir
-            -- let _ = concurrently (setupWebApp path chan)
-            -- waspSays "NPM Installed again"
-            -- recompile currentWasp
-            -- WIP
             return ()
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors

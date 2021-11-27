@@ -8,7 +8,6 @@ where
 import Control.Monad.Except (runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -22,6 +21,7 @@ import qualified Wasp.Cli.Common as Common
 import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
+import Wasp.Wasp
 
 compile :: Command ()
 compile = do
