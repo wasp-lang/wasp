@@ -145,7 +145,8 @@ generateSrcDir wasp =
       [relfile|index.css|],
       [relfile|serviceWorker.js|],
       [relfile|config.js|],
-      [relfile|queryCache.js|]
+      [relfile|queryCache.js|],
+      [relfile|utils.js|]
     ]
     ++ genOperations wasp
     ++ AuthG.genAuth wasp

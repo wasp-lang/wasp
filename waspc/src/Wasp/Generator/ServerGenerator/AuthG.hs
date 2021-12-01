@@ -15,6 +15,7 @@ genAuth :: Wasp -> [FileDraft]
 genAuth wasp = case maybeAuth of
   Just auth ->
     [ genCoreAuth auth,
+      genAuthMiddleware auth,
       -- Auth routes
       genAuthRoutesIndex,
       genLoginRoute auth,
@@ -38,6 +39,19 @@ genCoreAuth auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
        in object
             [ "userEntityUpper" .= userEntity,
               "userEntityLower" .= Util.toLowerFirst userEntity
+            ]
+
+genAuthMiddleware :: Wasp.Auth.Auth -> FileDraft
+genAuthMiddleware auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+  where
+    authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
+    tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
+    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
+
+    tmplData =
+      let userEntity = Wasp.Auth._userEntity auth
+       in object
+            [ "userEntityUpper" .= userEntity
             ]
 
 genAuthRoutesIndex :: FileDraft
