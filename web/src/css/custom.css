@@ -47,6 +47,8 @@
   --custom-background-color-diff: #2A2A2A;
 }
 
+/* In-blog stuff */
+
 /* NOTE(matija): this is used within a blog post (e.g. seed round 
  * announcement). */
 .in-blog-cta--link {
@@ -58,6 +60,12 @@
 .in-blog-cta--divider {
   color: black;
 }
+
+.image-caption {
+  color: grey;
+}
+
+/* EOF In-blog stuff */
 
 .button--huge {
   display: flex;
