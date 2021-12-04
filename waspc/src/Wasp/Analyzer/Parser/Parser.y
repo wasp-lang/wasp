@@ -36,23 +36,25 @@ import Control.Monad.Except (throwError)
 
 
 %token
-  import { Token { tokenType = TImport } }
-  from   { Token { tokenType = TFrom } }
-  string { Token { tokenType = TString $$ } }
-  int    { Token { tokenType = TInt $$ } }
-  double { Token { tokenType = TDouble $$ } }
-  true   { Token { tokenType = TTrue } }
-  false  { Token { tokenType = TFalse } }
-  '{='   { Token { tokenType = TLQuote $$ } }
-  quoted { Token { tokenType = TQuoted $$ } }
-  '=}'   { Token { tokenType =  TRQuote $$ } }
-  ident  { Token { tokenType = TIdentifier $$ } }
+  '('    { Token { tokenType = TLParen } }
+  ')'    { Token { tokenType = TRParen } }
+  '['    { Token { tokenType = TLSquare } }
+  ']'    { Token { tokenType = TRSquare } }
   '{'    { Token { tokenType = TLCurly } }
   '}'    { Token { tokenType = TRCurly } }
   ','    { Token { tokenType = TComma } }
   ':'    { Token { tokenType = TColon } }
-  '['    { Token { tokenType = TLSquare } }
-  ']'    { Token { tokenType = TRSquare } }
+  import { Token { tokenType = TImport } }
+  from   { Token { tokenType = TFrom } }
+  true   { Token { tokenType = TTrue } }
+  false  { Token { tokenType = TFalse } }
+  string { Token { tokenType = TString $$ } }
+  int    { Token { tokenType = TInt $$ } }
+  double { Token { tokenType = TDouble $$ } }
+  '{='   { Token { tokenType = TLQuote $$ } }
+  quoted { Token { tokenType = TQuoted $$ } }
+  '=}'   { Token { tokenType =  TRQuote $$ } }
+  ident  { Token { tokenType = TIdentifier $$ } }
 
 %%
 -- Grammar rules
@@ -69,6 +71,7 @@ Decl :: { Stmt }
 Expr :: { Expr }
   : Dict { $1 }
   | List { $1 }
+  | Tuple { $1 }
   | Extimport { $1 }
   | Quoter { $1 }
   | string { StringLiteral $1 }
@@ -95,6 +98,17 @@ List :: { Expr }
 ListVals :: { [Expr] }
   : Expr { [$1] }
   | ListVals ',' Expr { $1 ++ [$3] }
+
+-- We don't allow tuples shorter than 2 elements,
+-- since they are not useful + this way we avoid
+-- ambiguity between tuple with single element and expression
+-- wrapped in parenthesis for purpose of grouping.
+Tuple :: { Expr }
+  : '(' TupleVals ')' { Tuple $2 }
+  | '(' TupleVals ',' ')' { Tuple $2 }
+TupleVals :: { (Expr, Expr, [Expr]) }
+  : Expr ',' Expr { ($1, $3, []) }
+  | TupleVals ',' Expr { (\(a, b, c) -> (a, b, c ++ [$3])) $1 }
 
 Extimport :: { Expr }
   : import Name from string { ExtImport $2 $4 }

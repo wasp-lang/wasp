@@ -12,6 +12,9 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
     list,
     extImport,
     json,
+    tuple2,
+    tuple3,
+    tuple4,
   )
 where
 
@@ -84,6 +87,54 @@ list elemEvaluation = evaluation $ \(typeDefs, bindings) -> \case
     left (EvaluationError.WithContext EvaluationError.InList) $
       mapM (runEvaluation elemEvaluation typeDefs bindings) values
   expr -> Left $ EvaluationError.ExpectedListType $ TypedAST.exprType expr
+
+-- | An evaluation that expects a "Tuple" with 2 elements (pair) and runs the
+-- corresponding evaluation on each element.
+tuple2 ::
+  TypedExprEvaluation t1 ->
+  TypedExprEvaluation t2 ->
+  TypedExprEvaluation (t1, t2)
+tuple2 eval1 eval2 = evaluation $ \(typeDefs, bindings) -> \case
+  TypedAST.Tuple (v1, v2, []) _ ->
+    left (EvaluationError.WithContext EvaluationError.InTuple) $ do
+      v1' <- runEvaluation eval1 typeDefs bindings v1
+      v2' <- runEvaluation eval2 typeDefs bindings v2
+      return (v1', v2')
+  expr -> Left $ EvaluationError.ExpectedTupleType 2 $ TypedAST.exprType expr
+
+-- | An evaluation that expects a "Tuple" with 3 elements (triple) and runs the
+-- corresponding evaluation on each element.
+tuple3 ::
+  TypedExprEvaluation t1 ->
+  TypedExprEvaluation t2 ->
+  TypedExprEvaluation t3 ->
+  TypedExprEvaluation (t1, t2, t3)
+tuple3 eval1 eval2 eval3 = evaluation $ \(typeDefs, bindings) -> \case
+  TypedAST.Tuple (v1, v2, [v3]) _ ->
+    left (EvaluationError.WithContext EvaluationError.InTuple) $ do
+      v1' <- runEvaluation eval1 typeDefs bindings v1
+      v2' <- runEvaluation eval2 typeDefs bindings v2
+      v3' <- runEvaluation eval3 typeDefs bindings v3
+      return (v1', v2', v3')
+  expr -> Left $ EvaluationError.ExpectedTupleType 3 $ TypedAST.exprType expr
+
+-- | An evaluation that expects a "Tuple" with 4 elements and runs the
+-- corresponding evaluation on each element.
+tuple4 ::
+  TypedExprEvaluation t1 ->
+  TypedExprEvaluation t2 ->
+  TypedExprEvaluation t3 ->
+  TypedExprEvaluation t4 ->
+  TypedExprEvaluation (t1, t2, t3, t4)
+tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> \case
+  TypedAST.Tuple (v1, v2, [v3, v4]) _ ->
+    left (EvaluationError.WithContext EvaluationError.InTuple) $ do
+      v1' <- runEvaluation eval1 typeDefs bindings v1
+      v2' <- runEvaluation eval2 typeDefs bindings v2
+      v3' <- runEvaluation eval3 typeDefs bindings v3
+      v4' <- runEvaluation eval4 typeDefs bindings v4
+      return (v1', v2', v3', v4')
+  expr -> Left $ EvaluationError.ExpectedTupleType 4 $ TypedAST.exprType expr
 
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport

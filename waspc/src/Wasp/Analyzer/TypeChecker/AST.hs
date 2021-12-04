@@ -18,6 +18,7 @@ data TypedStmt = Decl Identifier TypedExpr Type deriving (Eq, Show)
 data TypedExpr
   = Dict [(Identifier, TypedExpr)] Type
   | List [TypedExpr] Type
+  | Tuple (TypedExpr, TypedExpr, [TypedExpr]) Type
   | StringLiteral String
   | IntegerLiteral Integer
   | DoubleLiteral Double
@@ -33,6 +34,7 @@ data TypedExpr
 exprType :: TypedExpr -> Type
 exprType (Dict _ t) = t
 exprType (List _ t) = t
+exprType (Tuple _ t) = t
 exprType (StringLiteral _) = StringType
 exprType (IntegerLiteral _) = NumberType
 exprType (DoubleLiteral _) = NumberType

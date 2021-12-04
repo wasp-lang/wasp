@@ -103,7 +103,7 @@ inferExprType (P.List values) = do
       return $ List (toList unifiedValues) (ListType unifiedType)
 -- Apply [Dict], and also check that there are no duplicate keys in the dictionary
 inferExprType (P.Dict entries) = do
-  typedEntries <- zip (map fst entries) <$> mapM (inferExprType . snd) entries
+  typedEntries <- mapM (\(k, v) -> (k,) <$> inferExprType v) entries
   dictType <-
     foldM insertIfUniqueElseThrow M.empty $
       second (DictRequired . exprType) <$> typedEntries
@@ -113,6 +113,18 @@ inferExprType (P.Dict entries) = do
     insertIfUniqueElseThrow m (key, value)
       | key `M.member` m = throw $ DictDuplicateField key
       | otherwise = return $ M.insert key value m
+inferExprType (P.Tuple (value1, value2, restOfValues)) = do
+  typedValue1 <- inferExprType value1
+  typedValue2 <- inferExprType value2
+  typedRestOfValues <- mapM inferExprType restOfValues
+  let typedValues = (typedValue1, typedValue2, typedRestOfValues)
+  let tupleType =
+        TupleType
+          ( exprType typedValue1,
+            exprType typedValue2,
+            exprType <$> typedRestOfValues
+          )
+  return $ Tuple typedValues tupleType
 
 -- | Finds the strongest common type for all of the given expressions, "common" meaning
 -- all the expressions can be typed with it and "strongest" meaning it is as specific
