@@ -48,12 +48,14 @@ tokens :-
 <quoter>  $any { createValueToken TQuoted }
 
 -- Simple tokens
+<0>       "(" { createConstToken TLParen }
+<0>       ")" { createConstToken TRParen }
+<0>       "[" { createConstToken TLSquare }
+<0>       "]" { createConstToken TRSquare }
 <0>       "{" { createConstToken TLCurly }
 <0>       "}" { createConstToken TRCurly }
 <0>       "," { createConstToken TComma }
 <0>       ":" { createConstToken TColon }
-<0>       "[" { createConstToken TLSquare }
-<0>       "]" { createConstToken TRSquare }
 <0>       "import" { createConstToken TImport }
 <0>       "from" { createConstToken TFrom }
 <0>       "true" { createConstToken TTrue }

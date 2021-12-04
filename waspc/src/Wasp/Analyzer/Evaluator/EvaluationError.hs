@@ -15,6 +15,8 @@ data EvaluationError
     ExpectedDictType Type
   | -- | "ExpectedListType actual"
     ExpectedListType Type
+  | -- | "ExpectedTupleType expectedTupleSize actualType"
+    ExpectedTupleType Int Type
   | -- | "UndefinedVariable varName"
     UndefinedVariable String
   | -- | "InvalidEnumVariant enumType enumValue"
@@ -31,6 +33,7 @@ data EvaluationErrorContext
   = -- | InField fieldName
     InField String
   | InList
+  | InTuple
   | -- | ForVariable varName
     ForVariable String
   deriving (Show, Eq)

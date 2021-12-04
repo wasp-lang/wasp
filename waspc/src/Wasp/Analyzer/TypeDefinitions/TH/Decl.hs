@@ -214,6 +214,7 @@ genWaspTypeAndEvaluationForHaskellType typ =
     KList elemHaskellType -> do
       (elemWaspType, elemEvaluation) <- genWaspTypeAndEvaluationForHaskellType elemHaskellType
       return ([|T.ListType $(elemWaspType)|], [|E.list $(elemEvaluation)|])
+    kt@(KTuple _) -> waspTypeAndEvaluationForTuple kt
     KImport -> return ([|T.ExtImportType|], [|E.extImport|])
     KJSON -> return ([|T.QuoterType "json"|], [|E.json|])
     KDeclRef t ->
@@ -233,6 +234,35 @@ genWaspTypeAndEvaluationForHaskellType typ =
           [|HasCustomEvaluation.evaluation @ $(pure typ)|]
         )
     KOptional _ -> fail "Maybe is only allowed in record fields"
+
+waspTypeAndEvaluationForTuple :: WaspKind -> Q (WaspTypeExpQ, EvaluationExpQ)
+waspTypeAndEvaluationForTuple = \case
+  KTuple (t1, t2, []) -> do
+    (wt1, e1) <- genWaspTypeAndEvaluationForHaskellType t1
+    (wt2, e2) <- genWaspTypeAndEvaluationForHaskellType t2
+    return
+      ( [|T.TupleType ($(wt1), $(wt2), [])|],
+        [|E.tuple2 $(e1) $(e2)|]
+      )
+  KTuple (t1, t2, [t3]) -> do
+    (wt1, e1) <- genWaspTypeAndEvaluationForHaskellType t1
+    (wt2, e2) <- genWaspTypeAndEvaluationForHaskellType t2
+    (wt3, e3) <- genWaspTypeAndEvaluationForHaskellType t3
+    return
+      ( [|T.TupleType ($(wt1), $(wt2), [$(wt3)])|],
+        [|E.tuple3 $(e1) $(e2) $(e3)|]
+      )
+  KTuple (t1, t2, [t3, t4]) -> do
+    (wt1, e1) <- genWaspTypeAndEvaluationForHaskellType t1
+    (wt2, e2) <- genWaspTypeAndEvaluationForHaskellType t2
+    (wt3, e3) <- genWaspTypeAndEvaluationForHaskellType t3
+    (wt4, e4) <- genWaspTypeAndEvaluationForHaskellType t4
+    return
+      ( [|T.TupleType ($(wt1), $(wt2), [$(wt3), $(wt4)])|],
+        [|E.tuple4 $(e1) $(e2) $(e3) $(e4)|]
+      )
+  KTuple (_, _, _) -> fail "Only tuples of length 2, 3 or 4 are supported."
+  _ -> error "This should never happen: function was called on kind that is not KTuple."
 
 -- | Find the "WaspKind" of a Haskell type.
 -- Wasp Kind is really just an intermediate representation that captures
@@ -261,6 +291,9 @@ waspKindOfHaskellType typ = do
           | name == ''AppSpec.JSON.JSON -> pure KJSON
         ListT `AppT` elemType -> pure (KList elemType)
         ConT name `AppT` elemType | name == ''Maybe -> pure (KOptional elemType)
+        TupleT 2 `AppT` t1 `AppT` t2 -> pure (KTuple (t1, t2, []))
+        TupleT 3 `AppT` t1 `AppT` t2 `AppT` t3 -> pure (KTuple (t1, t2, [t3]))
+        TupleT 4 `AppT` t1 `AppT` t2 `AppT` t3 `AppT` t4 -> pure (KTuple (t1, t2, [t3, t4]))
         _ -> Nothing
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
@@ -297,6 +330,7 @@ data WaspKind
   | KDouble
   | KBool
   | KList Type
+  | KTuple (Type, Type, [Type])
   | KImport
   | KJSON
   | -- | Reference to a declaration type @Type@.

@@ -18,6 +18,7 @@ data Type
     -- finished. See section 2.2 of the wasplang document for more information
     -- on this.
     EmptyListType
+  | TupleType (Type, Type, [Type])
   | StringType
   | NumberType
   | BoolType

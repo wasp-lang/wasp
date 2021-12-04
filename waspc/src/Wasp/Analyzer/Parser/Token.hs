@@ -4,22 +4,24 @@ module Wasp.Analyzer.Parser.Token where
 data SourcePosition = SourcePosition Int Int deriving (Eq, Show)
 
 data TokenType
-  = TLCurly
+  = TLParen
+  | TRParen
+  | TLSquare
+  | TRSquare
+  | TLCurly
   | TRCurly
   | TComma
   | TColon
-  | TLSquare
-  | TRSquare
   | TImport
   | TFrom
+  | TTrue
+  | TFalse
   | TString String
   | TInt Integer
   | TDouble Double
-  | TTrue
-  | TFalse
   | TLQuote String
-  | TRQuote String
   | TQuoted String
+  | TRQuote String
   | TIdentifier String
   | TEOF
   deriving (Eq, Show)
