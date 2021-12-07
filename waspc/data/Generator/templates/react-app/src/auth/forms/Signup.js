@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 
 import signup from '../signup.js'
 import login from '../login.js'
+import { errorMessage } from '../../utils.js'
 
 const SignupForm = () => {
   const history = useHistory()
@@ -24,7 +25,7 @@ const SignupForm = () => {
       history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
+      window.alert(errorMessage(err))
     }
   }
   

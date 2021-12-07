@@ -170,6 +170,7 @@ genSrcDir wasp =
     [ [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|app.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|server.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|utils.js|]],
+      [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|core/AuthError.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|core/HttpError.js|]],
       [genDbClient wasp],
       [genConfigFile wasp],
