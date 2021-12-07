@@ -1,10 +1,11 @@
 module Wasp.Analyzer.Evaluator.EvaluationError
   ( EvaluationError (..),
     EvaluationErrorContext (..),
+    EvaluationParseError (..),
   )
 where
 
-import Text.Parsec (ParseError)
+import qualified Text.Parsec
 import Wasp.Analyzer.Type (Type)
 
 data EvaluationError
@@ -20,9 +21,10 @@ data EvaluationError
     InvalidEnumVariant String String
   | -- | "MissingField fieldName"
     MissingField String
-  | -- | In case when evaluation includes parsing with Parsec and it fails.
-    ParseError ParseError
-  | WithContext EvaluationErrorContext EvaluationError
+  | -- | In case when evaluation includes parsing and it fails.
+    ParseError EvaluationParseError
+  | -- | Not an actual error, but a wrapper that provides additional context.
+    WithContext EvaluationErrorContext EvaluationError
   deriving (Show, Eq)
 
 data EvaluationErrorContext
@@ -31,4 +33,11 @@ data EvaluationErrorContext
   | InList
   | -- | ForVariable varName
     ForVariable String
+  deriving (Show, Eq)
+
+data EvaluationParseError
+  = -- | In case when evaluation includes parsing with Parsec and it fails.
+    EvaluationParseErrorParsec Text.Parsec.ParseError
+  | -- | In case when evaluation does some general parsing and it fails.
+    EvaluationParseError String
   deriving (Show, Eq)

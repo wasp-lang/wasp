@@ -5,7 +5,7 @@ module Wasp.Analyzer.StdTypeDefinitions.Entity () where
 
 import Control.Arrow (left)
 import qualified Text.Parsec as Parsec
-import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
+import qualified Wasp.Analyzer.Evaluator.EvaluationError as ER
 import qualified Wasp.Analyzer.Type as Type
 import qualified Wasp.Analyzer.TypeChecker.AST as TC.AST
 import Wasp.Analyzer.TypeDefinitions (DeclType (..), IsDeclType (..))
@@ -24,6 +24,6 @@ instance IsDeclType Entity where
 
   declEvaluate _ _ expr = case expr of
     TC.AST.PSL pslString ->
-      left EvaluationError.ParseError $
+      left (ER.ParseError . ER.EvaluationParseErrorParsec) $
         makeEntity <$> Parsec.parse Wasp.Psl.Parser.Model.body "" pslString
-    _ -> Left $ EvaluationError.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)
+    _ -> Left $ ER.ExpectedType (Type.QuoterType "psl") (TC.AST.exprType expr)

@@ -30,9 +30,11 @@
 -- @Page { title = "Home", author = Nothing, content = "Hello world" }@
 module Wasp.Analyzer.Evaluator.Evaluation
   ( runEvaluation,
+    evaluation,
+    evaluation',
     module Wasp.Analyzer.Evaluator.Evaluation.Combinators,
   )
 where
 
 import Wasp.Analyzer.Evaluator.Evaluation.Combinators
-import Wasp.Analyzer.Evaluator.Evaluation.Internal (runEvaluation)
+import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)

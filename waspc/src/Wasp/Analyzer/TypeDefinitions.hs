@@ -19,7 +19,8 @@ module Wasp.Analyzer.TypeDefinitions
 where
 
 import qualified Data.HashMap.Strict as M
-import Wasp.Analyzer.TypeDefinitions.Class
+import Wasp.Analyzer.TypeDefinitions.Class.IsDeclType
+import Wasp.Analyzer.TypeDefinitions.Class.IsEnumType
 import Wasp.Analyzer.TypeDefinitions.Internal
 
 empty :: TypeDefinitions
