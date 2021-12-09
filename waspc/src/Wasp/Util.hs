@@ -22,6 +22,7 @@ module Wasp.Util
     hexFromString,
     hexToString,
     checksumFromFilePath,
+    checksumFromChecksums,
     ifM,
   )
 where
@@ -165,6 +166,9 @@ checksumFromByteString = bytestringToHex . SHA256.hash
 
 checksumFromFilePath :: FilePath -> IO Checksum
 checksumFromFilePath file = checksumFromByteString <$> B.readFile file
+
+checksumFromChecksums :: [Checksum] -> Checksum
+checksumFromChecksums = checksumFromString . concatMap (\(Hex s) -> s)
 
 newtype Hex = Hex String
   deriving (Show, Eq, Ord, Aeson.ToJSON, Aeson.FromJSON)

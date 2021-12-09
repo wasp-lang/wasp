@@ -40,6 +40,16 @@ instance Writeable FileDraft where
   write dstDir (FileDraftCopyDirFd draft) = write dstDir draft
   write dstDir (FileDraftTextFd draft) = write dstDir draft
 
+  getChecksum (FileDraftTemplateFd draft) = getChecksum draft
+  getChecksum (FileDraftCopyFd draft) = getChecksum draft
+  getChecksum (FileDraftCopyDirFd draft) = getChecksum draft
+  getChecksum (FileDraftTextFd draft) = getChecksum draft
+
+  getDstPath (FileDraftTemplateFd draft) = getDstPath draft
+  getDstPath (FileDraftCopyFd draft) = getDstPath draft
+  getDstPath (FileDraftCopyDirFd draft) = getDstPath draft
+  getDstPath (FileDraftTextFd draft) = getDstPath draft
+
 createTemplateFileDraft ::
   Path' (Rel ProjectRootDir) File' ->
   Path' (Rel TemplatesDir) File' ->

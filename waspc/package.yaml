@@ -59,6 +59,7 @@ library:
     - mustache
     - text
     - aeson
+    - aeson-pretty
     - directory
     - split
     - unordered-containers

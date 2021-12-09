@@ -2,19 +2,17 @@
 
 module Wasp.Generator.DbGenerator
   ( genDb,
-    preCleanup,
     warnIfDbSchemaChangedSinceLastMigration,
     genPrismaClient,
     postWriteDbGeneratorActions,
   )
 where
 
-import Control.Monad (when)
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe, isNothing, maybeToList)
+import Data.Maybe (fromMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import System.Directory (doesDirectoryExist, doesFileExist, removeDirectoryRecursive)
+import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -75,21 +73,6 @@ genMigrationsDir spec =
       Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
-
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
-preCleanup = deleteGeneratedMigrationsDirIfRedundant
-
-deleteGeneratedMigrationsDirIfRedundant :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
-deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
-  let waspMigrationsDirMissing = isNothing $ AS.migrationsDir spec
-  projectMigrationsDirExists <- doesDirectoryExist projectMigrationsDirAbsFilePath
-  when (waspMigrationsDirMissing && projectMigrationsDirExists) $ do
-    putStrLn "A migrations directory does not exist in this Wasp root directory, but does in the generated project output directory."
-    putStrLn $ "Deleting directory: " ++ projectMigrationsDirAbsFilePath ++ " ..."
-    removeDirectoryRecursive projectMigrationsDirAbsFilePath
-    putStrLn "Successfully deleted."
-  where
-    projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])

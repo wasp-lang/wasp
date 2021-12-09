@@ -5,25 +5,18 @@ module Wasp.Generator
 where
 
 import Data.List.NonEmpty (toList)
-import qualified Data.Text
-import qualified Data.Text.IO
-import Data.Time.Clock
-import qualified Data.Version
-import qualified Paths_waspc
-import StrongPath (Abs, Dir, Path', relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
-import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.DockerGenerator (genDockerFiles)
-import Wasp.Generator.FileDraft (FileDraft, write)
+import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
 import Wasp.Generator.ServerGenerator (genServer)
-import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
+import Wasp.Generator.WriteFileDrafts (writeFileDrafts)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
@@ -42,9 +35,7 @@ writeWebAppCode spec dstDir sendMessage = do
   case generatorResult of
     Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
     Right fileDrafts -> do
-      preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
-      writeDotWaspInfo dstDir
       (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
       return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
@@ -54,23 +45,3 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
-
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
-preCleanup spec dstDir = do
-  ServerGenerator.preCleanup spec dstDir
-  DbGenerator.preCleanup spec dstDir
-
--- | Writes file drafts while using given destination dir as root dir.
---   TODO(martin): We could/should parallelize this.
---     We could also skip writing files that are already on the disk with same checksum.
-writeFileDrafts :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
-writeFileDrafts dstDir = mapM_ (write dstDir)
-
--- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
-writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
-writeDotWaspInfo dstDir = do
-  currentTime <- getCurrentTime
-  let version = Data.Version.showVersion Paths_waspc.version
-  let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
-  let dstPath = dstDir </> [relfile|.waspinfo|]
-  Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)

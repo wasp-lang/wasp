@@ -4,18 +4,14 @@ module Wasp.Generator.FileDraft.CopyFileDraft
 where
 
 import Control.Monad (when)
-import StrongPath
-  ( Abs,
-    File',
-    Path',
-    Rel,
-    (</>),
-  )
+import qualified Data.ByteString as BS
+import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
+import Wasp.Util (checksumFromByteString)
 
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft
@@ -47,3 +43,9 @@ instance Writeable CopyFileDraft where
     where
       srcFilePath = SP.fromAbsFile $ _srcPath draft
       absDraftDstPath = absDstDirPath </> _dstPath draft
+
+  -- TODO: We are reading file here, but then also again later in the "write", so
+  --   we are reading file at least twice! Any way to avoid it?
+  getChecksum = (checksumFromByteString <$>) . BS.readFile . SP.fromAbsFile . _srcPath
+
+  getDstPath draft = Left $ _dstPath draft
