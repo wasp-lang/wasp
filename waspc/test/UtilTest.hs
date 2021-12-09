@@ -61,3 +61,13 @@ spec_jsonSet = do
             [ "prop1" .= newStrValue
             ]
     jsonSet "prop1" (toJSON newStrValue) inputObj `shouldBe` expectedObj
+
+spec_indent :: Spec
+spec_indent = do
+  describe "indent should indent given text correctly" $ do
+    it "when just one line of text" $ do
+      indent 2 "foo" `shouldBe` "  foo"
+    it "when multiple lines of text" $ do
+      indent 3 "foo\nbar" `shouldBe` "   foo\n   bar"
+    it "when text is already somewhat indented" $ do
+      indent 4 "  foo\n  bar" `shouldBe` "      foo\n      bar"

@@ -56,14 +56,17 @@ initialState :: String -> ParserState
 initialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
-      parserRemainingInput = ('\n', [], source),
+      -- NOTE: We use '\n' here as dummy value to start with.
+      parserRemainingInput = ('\n', ('\n', []), source),
       parserLexerStartCode = DefaultStartCode
     }
 
 -- | The type of the input given to the parser/lexer
 --
---   An input @(c, bs, str)@ represents
---   - @c@ The previous character consumed by the lexer
---   - @bs@ The UTF8 bytes of the current character being lexed
---   - @str@ The remaining input to be lexed and parsed
-type ParserInput = (Char, [Word8], String)
+--   An input @(prevChar, (currChar, bs), remainingSource)@ represents
+--   - @prevChar@ The previous character, successfully consumed by the lexer
+--   - @currChar@ The current character being lexed
+--   - @bs@ The yet unconsumed UTF8 bytes of the current character being lexed
+--   - @remainingSource@ The remaining source to be lexed and parsed
+--           (excluding the character currently being lexed)
+type ParserInput = (Char, (Char, [Word8]), String)

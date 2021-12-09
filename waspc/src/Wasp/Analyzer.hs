@@ -110,29 +110,31 @@ module Wasp.Analyzer
 
     -- * API
     analyze,
-    E.takeDecls,
+    takeDecls,
     AnalyzeError (..),
+    getErrorMessage,
+    getErrorSourcePosition,
+    SourcePosition (..),
   )
 where
 
 import Control.Arrow (left)
 import Control.Monad ((>=>))
-import Wasp.Analyzer.Evaluator (Decl)
-import qualified Wasp.Analyzer.Evaluator as E
-import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.AnalyzeError
+  ( AnalyzeError (..),
+    SourcePosition (..),
+    getErrorMessage,
+    getErrorSourcePosition,
+  )
+import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
+import Wasp.Analyzer.Parser (parse)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
-import qualified Wasp.Analyzer.TypeChecker as T
-
-data AnalyzeError
-  = ParseError P.ParseError
-  | TypeError T.TypeError
-  | EvaluationError E.EvaluationError
-  deriving (Show, Eq)
+import Wasp.Analyzer.TypeChecker (typeCheck)
 
 -- | Takes a Wasp source file and produces a list of declarations or a
 --   description of an error in the source file.
 analyze :: String -> Either AnalyzeError [Decl]
 analyze =
-  (left ParseError . P.parse)
-    >=> (left TypeError . T.typeCheck stdTypes)
-    >=> (left EvaluationError . E.evaluate stdTypes)
+  (left ParseError . parse)
+    >=> (left TypeError . typeCheck stdTypes)
+    >=> (left EvaluationError . evaluate stdTypes)
