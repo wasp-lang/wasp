@@ -5,12 +5,15 @@ module Wasp.Util
     toUpperFirst,
     headSafe,
     jsonSet,
+    indent,
   )
 where
 
 import qualified Data.Aeson as Aeson
 import Data.Char (isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
+import Data.List (intercalate)
+import Data.List.Split (splitOn)
 import qualified Data.Text as Text
 
 camelToKebabCase :: String -> String
@@ -43,3 +46,6 @@ headSafe xs = Just (head xs)
 jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
 jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
 jsonSet _ _ _ = error "Input JSON must be an object"
+
+indent :: Int -> String -> String
+indent numSpaces = intercalate "\n" . map (replicate numSpaces ' ' ++) . splitOn "\n"

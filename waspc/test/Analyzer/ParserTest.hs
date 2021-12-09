@@ -192,12 +192,14 @@ spec_Parser = do
       let source = "test Decl {"
       let expected =
             Left $
-              ParseError $
-                Token
-                  { tokenType = TEOF,
-                    tokenPosition = SourcePosition 1 12,
-                    tokenLexeme = ""
-                  }
+              UnexpectedToken
+                ( Token
+                    { tokenType = TEOF,
+                      tokenPosition = SourcePosition 1 12,
+                      tokenLexeme = ""
+                    }
+                )
+                ["}", "<identifier>"]
       parse source `shouldBe` expected
 
     it "Parses multiple statements" $ do
@@ -212,3 +214,49 @@ spec_Parser = do
                 Decl "constant" "E" $ DoubleLiteral 2.71828
               ]
       parse source `shouldBe` Right ast
+
+    describe "Fails with UnexpectedChar error if unrecognized character is encountered" $ do
+      it "e.g. when it encounters '^' after declaration name" $ do
+        let source = "test Decl ^ {}"
+        let expected = Left $ UnexpectedChar '^' $ SourcePosition 1 11
+        parse source `shouldBe` expected
+
+      it "e.g. when the identifier contains '!'" $ do
+        let source = "test De!cl {}"
+        let expected = Left $ UnexpectedChar '!' $ SourcePosition 1 8
+        parse source `shouldBe` expected
+
+    describe "Fails with ParseError error if unexpected token is encountered" $ do
+      it "When string follows identifier" $ do
+        let source = "test \"Declaration\" {}"
+        let expected =
+              Left $
+                UnexpectedToken
+                  ( Token
+                      { tokenType = TString "Declaration",
+                        tokenPosition = SourcePosition 1 6,
+                        tokenLexeme = "\"Declaration\""
+                      }
+                  )
+                  ["<identifier>"]
+        parse source `shouldBe` expected
+
+      it "When dictionary is missing a comma between the two fields" $ do
+        let source =
+              unlines
+                [ "test Declaration {",
+                  "  a: 1",
+                  "  b: 2 ",
+                  "}"
+                ]
+        let expected =
+              Left $
+                UnexpectedToken
+                  ( Token
+                      { tokenType = TIdentifier "b",
+                        tokenPosition = SourcePosition 3 3,
+                        tokenLexeme = "b"
+                      }
+                  )
+                  ["}", ","]
+        parse source `shouldBe` expected
