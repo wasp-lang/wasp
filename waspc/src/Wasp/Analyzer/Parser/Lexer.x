@@ -125,10 +125,13 @@ lexer parseToken = do
       putInput input'
       lexer parseToken
     AlexToken input' tokenLength action -> do
-      -- Token is made before `updatePosition` so that its `tokenPosition` points to
-      -- the start of the token's lexeme.
-      token <- action $ take tokenLength remainingSource
-      updatePosition $ take tokenLength remainingSource
+      -- Creating token and remembering its position via setPositionOfLastScannedTokenToCurrent
+      -- are done before `updatePosition`, while current parser position still points to
+      -- the start of the token's lexeme, to ensure that position gets used.
+      let lexeme = take tokenLength remainingSource
+      token <- action lexeme
+      setPositionOfLastScannedTokenToCurrent
+      updatePosition lexeme
       putInput input'
       parseToken token
 

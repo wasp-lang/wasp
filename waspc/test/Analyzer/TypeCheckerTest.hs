@@ -1,5 +1,6 @@
 module Analyzer.TypeCheckerTest where
 
+import Analyzer.TestUtil (ctx, wctx)
 import Data.Either (isRight)
 import qualified Data.HashMap.Strict as H
 import Test.Tasty.Hspec
@@ -16,8 +17,8 @@ spec_TypeChecker = do
       it "Type checks a simple, well-typed example" $ do
         let ast =
               P.AST
-                [ P.Decl "app" "Todo" (P.Dict [("title", P.StringLiteral "Todo App")]),
-                  P.Decl "app" "Trello" (P.Dict [("title", P.StringLiteral "Trello Clone")])
+                [ wctx 1 1 $ P.Decl "app" "Todo" (wctx 2 1 $ P.Dict [("title", wctx 3 2 $ P.StringLiteral "Todo App")]),
+                  wctx 4 1 $ P.Decl "app" "Trello" (wctx 5 2 $ P.Dict [("title", wctx 6 3 $ P.StringLiteral "Trello Clone")])
                 ]
         let typeDefs =
               TD.TypeDefinitions
@@ -39,14 +40,16 @@ spec_TypeChecker = do
         let actual = typeCheck typeDefs ast
         actual `shouldSatisfy` isRight
       it "Fails to type check a simple, ill-typed example" $ do
-        let ast = P.AST [P.Decl "string" "App" (P.IntegerLiteral 5)]
+        let ast = P.AST [wctx 1 1 $ P.Decl "string" "App" $ wctx 2 2 $ P.IntegerLiteral 5]
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck typeDefs ast
-        let expectedError = WeakenError ReasonUncoercable (IntegerLiteral 5) StringType
+        let expectedError =
+              WeakenError (ctx 1 1) $
+                TypeCoercionError (wctx 2 2 $ IntegerLiteral 5) StringType ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
         let mAst = P.parse "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
@@ -64,22 +67,30 @@ spec_TypeChecker = do
         let actual = typeCheck typeDefs ast
         actual `shouldSatisfy` isRight
       it "Type checks an existing enum value" $ do
-        let ast = P.AST [P.Decl "food" "Cucumber" (P.Var "Dill")]
+        let ast = P.AST [wctx 1 1 $ P.Decl "food" "Cucumber" $ wctx 1 30 $ P.Var "Dill"]
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "food" (TD.DeclType "food" (EnumType "flavor") undefined),
                   TD.enumTypes = H.singleton "flavor" (TD.EnumType "flavor" ["Fresh", "Dill"])
                 }
         let actual = typeCheck typeDefs ast
-        let expected = Right $ TypedAST [Decl "Cucumber" (Var "Dill" (EnumType "flavor")) (DeclType "food")]
+        let expected =
+              Right $
+                TypedAST
+                  [ wctx 1 1 $ Decl "Cucumber" (wctx 1 30 $ Var "Dill" (EnumType "flavor")) (DeclType "food")
+                  ]
         actual `shouldBe` expected
       it "Type checks an empty list in a declaration" $ do
-        let ast = P.AST [P.Decl "rooms" "Bedrooms" (P.List [])]
+        let ast = P.AST [wctx 1 1 $ P.Decl "rooms" "Bedrooms" $ wctx 1 30 $ P.List []]
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "rooms" (TD.DeclType "rooms" (ListType StringType) undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = typeCheck typeDefs ast
-        let expected = Right $ TypedAST [Decl "Bedrooms" (List [] (ListType StringType)) (DeclType "rooms")]
+        let expected =
+              Right $
+                TypedAST
+                  [ wctx 1 1 $ Decl "Bedrooms" (wctx 1 30 $ List [] (ListType StringType)) (DeclType "rooms")
+                  ]
         actual `shouldBe` expected

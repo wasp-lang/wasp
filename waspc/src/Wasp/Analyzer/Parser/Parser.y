@@ -10,7 +10,9 @@ module Wasp.Analyzer.Parser.Parser
 
 import Wasp.Analyzer.Parser.Lexer
 import Wasp.Analyzer.Parser.AST
+import Wasp.Analyzer.Parser.Ctx (WithCtx (..), Ctx (..), ctxFromPos)
 import Wasp.Analyzer.Parser.Token
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
 import Control.Monad.State.Lazy (get)
@@ -56,80 +58,102 @@ import Control.Monad.Except (throwError)
   double     { Token { tokenType = TDouble $$ } }
   '{='       { Token { tokenType = TLQuote $$ } }
   quoted     { Token { tokenType = TQuoted $$ } }
-  '=}'       { Token { tokenType =  TRQuote $$ } }
-  identifier { Token { tokenType = TIdentifier $$ } }
+  '=}'       { Token { tokenType = TRQuote $$ } }
+  id         { Token { tokenType = TIdentifier $$ } }
 
 %%
 -- Grammar rules
 
-Wasp :: { AST }
-  : Stmt { AST [$1] }
-  | Wasp Stmt { AST $ astStmts $1 ++ [$2] }
+Stmts :: { AST }
+  : StmtWithCtx       { AST [$1] }
+  | Stmts StmtWithCtx { AST $ astStmts $1 ++ [$2] }
+
+StmtWithCtx :: { WithCtx Stmt }
+  : ctx Stmt { WithCtx $1 $2 }
 
 Stmt :: { Stmt }
   : Decl { $1 }
+
 Decl :: { Stmt }
-  : identifier identifier Expr { Decl $1 $2 $3 }
+  : id id ExprWithCtx { Decl $1 $2 $3 }
+
+ExprWithCtx :: { WithCtx Expr }
+  : ctx Expr { WithCtx $1 $2 }
 
 Expr :: { Expr }
-  : Dict { $1 }
-  | List { $1 }
-  | Tuple { $1 }
+  : Dict      { $1 }
+  | List      { $1 }
+  | Tuple     { $1 }
   | Extimport { $1 }
-  | Quoter { $1 }
-  | string { StringLiteral $1 }
-  | int { IntegerLiteral $1 }
-  | double { DoubleLiteral $1 }
-  | true { BoolLiteral True }
-  | false { BoolLiteral False }
-  | identifier { Var $1 }
+  | Quoter    { $1 }
+  | string    { StringLiteral $1 }
+  | int       { IntegerLiteral $1 }
+  | double    { DoubleLiteral $1 }
+  | true      { BoolLiteral True }
+  | false     { BoolLiteral False }
+  | id        { Var $1 }
 
 Dict :: { Expr }
-  : '{' DictEntries '}' { Dict $2 }
+  : '{' DictEntries '}'     { Dict $2 }
   | '{' DictEntries ',' '}' { Dict $2 }
-  | '{' '}' { Dict [] }
-DictEntries :: { [(Identifier, Expr)] }
-  : DictEntry { [$1] }
+  | '{' '}'                 { Dict [] }
+
+DictEntries :: { [(Identifier, WithCtx Expr)] }
+  : DictEntry                 { [$1] }
   | DictEntries ',' DictEntry { $1 ++ [$3] }
-DictEntry :: { (Identifier, Expr) }
-  : identifier ':' Expr { ($1, $3) }
+
+DictEntry :: { (Identifier, WithCtx Expr) }
+  : id ':' ExprWithCtx { ($1, $3) }
 
 List :: { Expr }
-  : '[' ListVals ']' { List $2 }
+  : '[' ListVals ']'     { List $2 }
   | '[' ListVals ',' ']' { List $2 }
-  |  '[' ']' { List [] }
-ListVals :: { [Expr] }
-  : Expr { [$1] }
-  | ListVals ',' Expr { $1 ++ [$3] }
+  | '[' ']'              { List [] }
+
+ListVals :: { [WithCtx Expr] }
+  : ExprWithCtx              { [$1] }
+  | ListVals ',' ExprWithCtx { $1 ++ [$3] }
 
 -- We don't allow tuples shorter than 2 elements,
 -- since they are not useful + this way we avoid
 -- ambiguity between tuple with single element and expression
 -- wrapped in parenthesis for purpose of grouping.
 Tuple :: { Expr }
-  : '(' TupleVals ')' { Tuple $2 }
+  : '(' TupleVals ')'     { Tuple $2 }
   | '(' TupleVals ',' ')' { Tuple $2 }
-TupleVals :: { (Expr, Expr, [Expr]) }
-  : Expr ',' Expr { ($1, $3, []) }
-  | TupleVals ',' Expr { (\(a, b, c) -> (a, b, c ++ [$3])) $1 }
+TupleVals :: { (WithCtx Expr, WithCtx Expr, [WithCtx Expr]) }
+  : ExprWithCtx ',' ExprWithCtx { ($1, $3, []) }
+  | TupleVals ',' ExprWithCtx   { (\(a, b, c) -> (a, b, c ++ [$3])) $1 }
 
 Extimport :: { Expr }
   : import Name from string { ExtImport $2 $4 }
+
 Name :: { ExtImportName }
-  : identifier { ExtImportModule $1 }
-  | '{' identifier '}' { ExtImportField $2 }
+  : id         { ExtImportModule $1 }
+  | '{' id '}' { ExtImportField $2 }
 
 Quoter :: { Expr }
-  : SourcePosition '{=' Quoted SourcePosition '=}' {% if $2 /= $5
-                                                       then throwError $ QuoterDifferentTags ($2, $1) ($5, $4)
-                                                       else return $ Quoter $2 $3
-                                                   }
+  : pos '{=' Quoted pos '=}' {% if $2 /= $5
+                                then throwError $ QuoterDifferentTags ($2, $1) ($5, $4)
+                                else return $ Quoter $2 $3
+                             }
 Quoted :: { String }
-  : quoted { $1 }
+  : quoted        { $1 }
   | Quoted quoted { $1 ++ $2 }
 
-SourcePosition :: { SourcePosition }
-  : {- empty -} {% fmap parserSourcePosition get }
+-- Special production that returns the position of the token that will get scanned after it.
+-- NOTE(martin): You might wonder why does it use position of the last scanned (therefore *previous*)
+-- token to get the position of the token that should be scanned *after* this production?
+-- That sounds like it is getting position of one token too early, right? The trick is that Happy
+-- always keeps one lookahead token in reserve, so it is actually always one token ahead of what we
+-- would expect. Therefore getting the position of the last scanned token actually gives us the position
+-- of the token that follows.
+pos :: { SourcePosition }
+  : {- empty -} {% fmap lastScannedTokenSourcePosition get }
+
+-- Special production that returns the current parsing context.
+ctx :: { Ctx }
+  : pos { ctxFromPos $1 }
 
 {
 parseError :: (Token, [String]) -> Parser a
@@ -155,6 +179,6 @@ prettyShowGrammarToken = \case
   "'{='" -> "{=<identifier>"
   "quoted" -> "<quoted>"
   "'=}'" -> "<identifier>=}"
-  "identifier" -> "<identifier>"
+  "id" -> "<identifier>"
   s -> s
 }

@@ -1,13 +1,14 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Wasp.Analyzer.Parser.ParseError
   ( ParseError (..),
-    getErrorMessage,
-    getSourcePosition,
+    getErrorMessageAndCtx,
   )
 where
 
-import Wasp.Analyzer.Parser.Token
+import Wasp.Analyzer.Parser.Ctx (Ctx, ctxFromPos)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
+import Wasp.Analyzer.Parser.Token (Token (..))
 
 data ParseError
   = -- | A lexical error representing an invalid character. It means that lexer
@@ -26,21 +27,21 @@ data ParseError
     QuoterDifferentTags (String, SourcePosition) (String, SourcePosition)
   deriving (Eq, Show)
 
-getErrorMessage :: ParseError -> String
-getErrorMessage (UnexpectedChar unexpectedChar _) =
-  "Unexpected character: " ++ [unexpectedChar]
-getErrorMessage (UnexpectedToken unexpectedToken expectedTokens) =
-  unexpectedTokenMessage
-    ++ if not (null expectedTokens) then "\n" ++ expectedTokensMessage else ""
-  where
-    unexpectedTokenMessage = "Unexpected token: " ++ tokenLexeme unexpectedToken
-    expectedTokensMessage =
-      "Expected one of the following tokens instead: "
-        ++ unwords expectedTokens
-getErrorMessage (QuoterDifferentTags (ltag, _) (rtag, _)) =
-  "Quoter tags don't match: {=" ++ ltag ++ " ... " ++ rtag ++ "=}"
-
-getSourcePosition :: ParseError -> SourcePosition
-getSourcePosition (UnexpectedChar _ pos) = pos
-getSourcePosition (UnexpectedToken Token {tokenPosition} _) = tokenPosition
-getSourcePosition (QuoterDifferentTags _ (_, rpos)) = rpos
+getErrorMessageAndCtx :: ParseError -> (String, Ctx)
+getErrorMessageAndCtx = \case
+  UnexpectedChar unexpectedChar pos ->
+    ( "Unexpected character: " ++ [unexpectedChar],
+      ctxFromPos pos
+    )
+  UnexpectedToken unexpectedToken expectedTokens ->
+    ( let unexpectedTokenMessage = "Unexpected token: " ++ tokenLexeme unexpectedToken
+          expectedTokensMessage =
+            "Expected one of the following tokens instead: "
+              ++ unwords expectedTokens
+       in unexpectedTokenMessage ++ if not (null expectedTokens) then "\n" ++ expectedTokensMessage else "",
+      ctxFromPos $ tokenPosition unexpectedToken
+    )
+  QuoterDifferentTags (ltag, _) (rtag, rpos) ->
+    ( "Quoter tags don't match: {=" ++ ltag ++ " ... " ++ rtag ++ "=}",
+      ctxFromPos rpos
+    )

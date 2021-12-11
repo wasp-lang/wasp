@@ -84,7 +84,7 @@ data SemanticVersion = SemanticVersion Int Int Int
 
 instance HasCustomEvaluation SemanticVersion where
   waspType = T.StringType
-  evaluation = E.evaluation' $ \case
+  evaluation = E.evaluation' . TypedAST.withCtx $ \_ctx -> \case
     TypedAST.StringLiteral str -> case splitOn "." str of
       [major, minor, patch] ->
         maybe

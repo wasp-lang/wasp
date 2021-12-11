@@ -22,7 +22,7 @@ instance IsDeclType Entity where
           Decl.makeDecl @Entity declName <$> declEvaluate typeDefinitions bindings expr
       }
 
-  declEvaluate _ _ expr = case expr of
+  declEvaluate _ _ (TC.AST.WithCtx _ctx expr) = case expr of
     TC.AST.PSL pslString ->
       left (ER.ParseError . ER.EvaluationParseErrorParsec) $
         makeEntity <$> Parsec.parse Wasp.Psl.Parser.Model.body "" pslString

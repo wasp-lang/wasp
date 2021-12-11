@@ -9,10 +9,13 @@ module Wasp.Analyzer.TypeChecker
     TypedAST (..),
     TypedStmt (..),
     TypedExpr (..),
+    WithCtx (..),
 
     -- ** Errors
     TypeError (..),
-    TypeCoerceReason (..),
+    TypeCoercionError (..),
+    TypeCoercionErrorReason (..),
+    getErrorMessageAndCtx,
 
     -- * Type Checking Functions
     typeCheck,

@@ -5,6 +5,7 @@ module Wasp.Analyzer.Parser.Monad
     initialState,
     Parser,
     updatePosition,
+    setPositionOfLastScannedTokenToCurrent,
     putInput,
     setStartCode,
     ParserInput,
@@ -16,7 +17,7 @@ import Control.Monad.Except (Except)
 import Control.Monad.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
 import Wasp.Analyzer.Parser.ParseError (ParseError)
-import Wasp.Analyzer.Parser.Token (SourcePosition (..))
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 
 type Parser a = StateT ParserState (Except ParseError) a
 
@@ -31,6 +32,11 @@ updatePosition parsedSourcePiece = do
     calcNewPosition ('\n' : cs) (SourcePosition line _) = calcNewPosition cs $ SourcePosition (line + 1) 1
     calcNewPosition (_ : cs) (SourcePosition line col) = calcNewPosition cs $ SourcePosition line (col + 1)
 
+setPositionOfLastScannedTokenToCurrent :: Parser ()
+setPositionOfLastScannedTokenToCurrent = do
+  position <- parserSourcePosition <$> get
+  modify $ \s -> s {lastScannedTokenSourcePosition = position}
+
 putInput :: ParserInput -> Parser ()
 putInput input = modify $ \s -> s {parserRemainingInput = input}
 
@@ -39,6 +45,9 @@ setStartCode startCode = modify $ \s -> s {parserLexerStartCode = startCode}
 
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
+    -- | Source position of the start of the last token that was scanned by Alex.
+    -- Note that token first gets scanned by Alex, and then it gets parsed by Happy.
+    lastScannedTokenSourcePosition :: SourcePosition,
     parserRemainingInput :: ParserInput,
     parserLexerStartCode :: LexerStartCode
   }
@@ -56,6 +65,7 @@ initialState :: String -> ParserState
 initialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
+      lastScannedTokenSourcePosition = SourcePosition 1 1,
       -- NOTE: We use '\n' here as dummy value to start with.
       parserRemainingInput = ('\n', ('\n', []), source),
       parserLexerStartCode = DefaultStartCode

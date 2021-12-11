@@ -1,13 +1,15 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Wasp.Analyzer.AnalyzeError
   ( AnalyzeError (..),
-    getErrorMessage,
-    getErrorSourcePosition,
+    getErrorMessageAndCtx,
     SourcePosition (..),
   )
 where
 
+import Control.Arrow (first)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EE
-import Wasp.Analyzer.Parser (SourcePosition (..))
+import Wasp.Analyzer.Parser (Ctx, SourcePosition (..))
 import qualified Wasp.Analyzer.Parser.ParseError as PE
 import qualified Wasp.Analyzer.TypeChecker.TypeError as TE
 import Wasp.Util (indent)
@@ -18,12 +20,8 @@ data AnalyzeError
   | EvaluationError EE.EvaluationError
   deriving (Show, Eq)
 
-getErrorMessage :: AnalyzeError -> String
-getErrorMessage (ParseError e) = "Parse error:\n" ++ indent 2 (PE.getErrorMessage e)
-getErrorMessage (TypeError e) = "Type error:\n" ++ error "TODO"
-getErrorMessage (EvaluationError e) = "Evaluation error:\n" ++ error "TODO"
-
-getErrorSourcePosition :: AnalyzeError -> SourcePosition
-getErrorSourcePosition (ParseError e) = PE.getSourcePosition e
-getErrorSourcePosition (TypeError e) = error "TODO"
-getErrorSourcePosition (EvaluationError e) = error "TODO"
+getErrorMessageAndCtx :: AnalyzeError -> (String, Ctx)
+getErrorMessageAndCtx = \case
+  ParseError e -> first (("Parse error:\n" ++) . indent 2) $ PE.getErrorMessageAndCtx e
+  TypeError e -> first (("Type error:\n" ++) . indent 2) $ TE.getErrorMessageAndCtx e
+  EvaluationError _e -> error "TODO"

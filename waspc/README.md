@@ -234,6 +234,8 @@ Not only that, but Haskell build tools don't have a good support for mixing them
 Tests are run with `stack test`.
 You can do `stack test --coverage` to see the coverage.
 
+To run individual test, you can do `stack test --test-arguments "-p \"Some test description to match\""`.
+
 We don't yet have any integration (e2e) tests, but we plan to add them at some point.
 For now, best way is to manually run a Wasp app with `wasp start` and try stuff out.
 

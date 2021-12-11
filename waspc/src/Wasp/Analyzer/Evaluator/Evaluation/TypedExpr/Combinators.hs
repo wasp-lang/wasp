@@ -23,6 +23,7 @@ import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', run
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
 import qualified Wasp.Analyzer.Type as T
+import Wasp.Analyzer.TypeChecker.AST (withCtx)
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.AppSpec.Core.Ref (Ref)
@@ -32,34 +33,34 @@ import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 
 -- | An evaluation that expects a "StringLiteral".
 string :: TypedExprEvaluation String
-string = evaluation' $ \case
+string = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.StringLiteral str -> pure str
   expr -> Left $ EvaluationError.ExpectedType T.StringType (TypedAST.exprType expr)
 
 -- | An evaluation that expects an "IntegerLiteral" or "DoubleLiteral". A
 -- "DoubleLiteral" is rounded to the nearest whole number.
 integer :: TypedExprEvaluation Integer
-integer = evaluation' $ \case
+integer = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.IntegerLiteral i -> pure i
   TypedAST.DoubleLiteral x -> pure $ round x
   expr -> Left $ EvaluationError.ExpectedType T.NumberType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "IntegerLiteral" or "DoubleLiteral".
 double :: TypedExprEvaluation Double
-double = evaluation' $ \case
+double = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.IntegerLiteral i -> pure $ fromIntegral i
   TypedAST.DoubleLiteral x -> pure x
   expr -> Left $ EvaluationError.ExpectedType T.NumberType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "BoolLiteral".
 bool :: TypedExprEvaluation Bool
-bool = evaluation' $ \case
+bool = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.BoolLiteral b -> pure b
   expr -> Left $ EvaluationError.ExpectedType T.BoolType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "Var" bound to a "Decl" of type "a".
 declRef :: forall a. TD.IsDeclType a => TypedExprEvaluation (Ref a)
-declRef = evaluation' $ \case
+declRef = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.Var varName varType ->
     case varType of
       T.DeclType declTypeName | declTypeName == expectedDeclTypeName -> pure $ Ref.Ref varName
@@ -75,14 +76,14 @@ declRef = evaluation' $ \case
 
 -- | An evaluation that expects a "Var" bound to an "EnumType" for "a".
 enum :: forall a. TD.IsEnumType a => TypedExprEvaluation a
-enum = evaluation' $ \case
+enum = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.Var var _ -> TD.enumEvaluate @a var
   expr -> Left $ EvaluationError.ExpectedType (T.EnumType $ TD.etName $ TD.enumType @a) (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "List" and runs the inner evaluation on each
 -- item in the list.
 list :: TypedExprEvaluation a -> TypedExprEvaluation [a]
-list elemEvaluation = evaluation $ \(typeDefs, bindings) -> \case
+list elemEvaluation = evaluation $ \(typeDefs, bindings) -> withCtx $ \_ctx -> \case
   TypedAST.List values _ ->
     left (EvaluationError.WithContext EvaluationError.InList) $
       mapM (runEvaluation elemEvaluation typeDefs bindings) values
@@ -94,7 +95,7 @@ tuple2 ::
   TypedExprEvaluation t1 ->
   TypedExprEvaluation t2 ->
   TypedExprEvaluation (t1, t2)
-tuple2 eval1 eval2 = evaluation $ \(typeDefs, bindings) -> \case
+tuple2 eval1 eval2 = evaluation $ \(typeDefs, bindings) -> withCtx $ \_ctx -> \case
   TypedAST.Tuple (v1, v2, []) _ ->
     left (EvaluationError.WithContext EvaluationError.InTuple) $ do
       v1' <- runEvaluation eval1 typeDefs bindings v1
@@ -109,7 +110,7 @@ tuple3 ::
   TypedExprEvaluation t2 ->
   TypedExprEvaluation t3 ->
   TypedExprEvaluation (t1, t2, t3)
-tuple3 eval1 eval2 eval3 = evaluation $ \(typeDefs, bindings) -> \case
+tuple3 eval1 eval2 eval3 = evaluation $ \(typeDefs, bindings) -> withCtx $ \_ctx -> \case
   TypedAST.Tuple (v1, v2, [v3]) _ ->
     left (EvaluationError.WithContext EvaluationError.InTuple) $ do
       v1' <- runEvaluation eval1 typeDefs bindings v1
@@ -126,7 +127,7 @@ tuple4 ::
   TypedExprEvaluation t3 ->
   TypedExprEvaluation t4 ->
   TypedExprEvaluation (t1, t2, t3, t4)
-tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> \case
+tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $ \_ctx -> \case
   TypedAST.Tuple (v1, v2, [v3, v4]) _ ->
     left (EvaluationError.WithContext EvaluationError.InTuple) $ do
       v1' <- runEvaluation eval1 typeDefs bindings v1
@@ -138,12 +139,12 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> \case
 
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
-extImport = evaluation' $ \case
+extImport = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.ExtImport name file -> pure $ AppSpec.ExtImport.ExtImport name file
   expr -> Left $ EvaluationError.ExpectedType T.ExtImportType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON
-json = evaluation' $ \case
+json = evaluation' . withCtx $ \_ctx -> \case
   TypedAST.JSON str -> pure $ AppSpec.JSON.JSON str
   expr -> Left $ EvaluationError.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)

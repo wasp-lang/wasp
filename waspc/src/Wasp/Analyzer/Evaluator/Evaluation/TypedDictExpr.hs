@@ -11,4 +11,4 @@ import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 -- be created from a "TypedDictExprEvaluation" with the "dict" combinator.
 type TypedDictExprEvaluation a = Evaluation TypedDictEntries a
 
-newtype TypedDictEntries = TypedDictEntries [(String, TypedAST.TypedExpr)]
+newtype TypedDictEntries = TypedDictEntries [(String, TypedAST.WithCtx TypedAST.TypedExpr)]
