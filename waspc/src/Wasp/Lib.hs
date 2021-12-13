@@ -10,8 +10,8 @@ where
 import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
-import Wasp.Common (WaspProjectDir)
+import System.Directory (doesDirectoryExist, doesFileExist)
+import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ExternalCode as ExternalCode
@@ -40,8 +40,10 @@ compile waspDir outDir options = do
         Left err -> return $ Left (show err)
         Right wasp -> do
           maybeDotEnvFile <- findDotEnvFile waspDir
+          maybeMigrationsDir <- findMigrationsDir waspDir
           ( wasp
               `Wasp.setDotEnvFile` maybeDotEnvFile
+              `Wasp.setMigrationsDir` maybeMigrationsDir
               `enrichWaspASTBasedOnCompileOptions` options
             )
             >>= generateCode
@@ -71,3 +73,9 @@ findDotEnvFile waspDir = do
   let dotEnvAbsPath = waspDir SP.</> [relfile|.env|]
   dotEnvExists <- doesFileExist (SP.toFilePath dotEnvAbsPath)
   return $ if dotEnvExists then Just dotEnvAbsPath else Nothing
+
+findMigrationsDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir DbMigrationsDir)))
+findMigrationsDir waspDir = do
+  let migrationsAbsPath = waspDir SP.</> dbMigrationsDirInWaspProjectDir
+  migrationsExists <- doesDirectoryExist $ SP.fromAbsDir migrationsAbsPath
+  return $ if migrationsExists then Just migrationsAbsPath else Nothing

@@ -27,6 +27,8 @@ module Wasp.Wasp
     getExternalCodeFiles,
     setDotEnvFile,
     getDotEnvFile,
+    setMigrationsDir,
+    getMigrationsDir,
     setIsBuild,
     getIsBuild,
     setNpmDependencies,
@@ -35,8 +37,9 @@ module Wasp.Wasp
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
-import StrongPath (Abs, File', Path')
+import StrongPath (Abs, Dir, File', Path')
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
+import Wasp.Common (DbMigrationsDir)
 import qualified Wasp.Util as U
 import qualified Wasp.Wasp.Action as Wasp.Action
 import Wasp.Wasp.App
@@ -58,6 +61,7 @@ data Wasp = Wasp
     waspJsImports :: [JsImport],
     externalCodeFiles :: [ExternalCode.File],
     dotEnvFile :: Maybe (Path' Abs File'),
+    migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     isBuild :: Bool
   }
   deriving (Show, Eq)
@@ -82,6 +86,7 @@ fromWaspElems elems =
       waspJsImports = [],
       externalCodeFiles = [],
       dotEnvFile = Nothing,
+      migrationsDir = Nothing,
       isBuild = False
     }
 
@@ -108,6 +113,14 @@ getDotEnvFile = dotEnvFile
 
 setDotEnvFile :: Wasp -> Maybe (Path' Abs File') -> Wasp
 setDotEnvFile wasp file = wasp {dotEnvFile = file}
+
+-- * Migrations dir
+
+getMigrationsDir :: Wasp -> Maybe (Path' Abs (Dir DbMigrationsDir))
+getMigrationsDir = migrationsDir
+
+setMigrationsDir :: Wasp -> Maybe (Path' Abs (Dir DbMigrationsDir)) -> Wasp
+setMigrationsDir wasp dir = wasp {migrationsDir = dir}
 
 -- * Js imports
 

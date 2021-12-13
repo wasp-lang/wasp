@@ -15,6 +15,7 @@ import qualified StrongPath as SP
 import Wasp.CompileOptions (CompileOptions)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
+import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.ServerGenerator (genServer)
@@ -34,6 +35,7 @@ writeWebAppCode wasp dstDir compileOptions = do
   writeFileDrafts dstDir (generateWebApp wasp compileOptions)
   ServerGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genServer wasp compileOptions)
+  DbGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genDb wasp compileOptions)
   writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
   writeDotWaspInfo dstDir
