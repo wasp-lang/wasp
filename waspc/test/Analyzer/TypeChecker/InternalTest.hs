@@ -111,7 +111,7 @@ spec_Internal = do
       testFail
         "Fails to type check quoters with tag besides json or psl"
         (wctx 1 1 $ P.Quoter "toml" "key = \"value\"")
-        (QuoterUnknownTag (ctx 1 1) "toml")
+        (mkTypeError (ctx 1 1) $ QuoterUnknownTag "toml")
 
       it "Types identifier as the type in the bindings" $ do
         forAll chooseType $ \typ ->
@@ -121,7 +121,7 @@ spec_Internal = do
       it "Fails to type check identifiers not given a type in the bindings" $ do
         let bindings = H.empty
         let actual = exprType . fromWithCtx <$> inferExprType' bindings (wctx 1 1 $ P.Var "pi")
-        let expected = Left $ UndefinedIdentifier (ctx 1 1) "pi"
+        let expected = Left $ mkTypeError (ctx 1 1) $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 
       testSuccess
@@ -131,7 +131,7 @@ spec_Internal = do
       testFail
         "Fails to type check a dictionary with duplicated keys"
         (wctx 1 1 $ P.Dict [("a", wctx 2 5 $ P.IntegerLiteral 5), ("a", wctx 3 5 $ P.IntegerLiteral 6)])
-        (DictDuplicateField (ctx 1 1) "a")
+        (mkTypeError (ctx 1 1) $ DictDuplicateField "a")
 
       testSuccess
         "Type checks an empty list as EmptyListType"
@@ -144,7 +144,10 @@ spec_Internal = do
       testFail
         "Fails to type check a list containing strings and numbers"
         (wctx 1 1 $ P.List [wctx 1 10 $ P.IntegerLiteral 5, wctx 1 20 $ P.StringLiteral "4"])
-        (UnificationError (ctx 1 1) $ TypeCoercionError (wctx 1 20 $ StringLiteral "4") NumberType ReasonUncoercable)
+        ( mkTypeError (ctx 1 1) $
+            UnificationError $
+              TypeCoercionError (wctx 1 20 $ StringLiteral "4") NumberType ReasonUncoercable
+        )
 
       testSuccess
         "Type checks a list of dictionaries that unify but have different types"
@@ -170,22 +173,23 @@ spec_Internal = do
                 wctx 3 2 $ P.Dict [("a", wctx 3 10 $ P.StringLiteral "string")]
               ]
         )
-        ( UnificationError (ctx 1 1) $
-            TypeCoercionError
-              ( wctx 3 2 $
-                  Dict
-                    [("a", wctx 3 10 $ StringLiteral "string")]
-                    (DictType $ H.singleton "a" (DictRequired StringType))
-              )
-              (DictType $ H.singleton "a" (DictRequired NumberType))
-              ( ReasonDictWrongKeyType
-                  "a"
-                  ( TypeCoercionError
-                      (wctx 3 10 $ StringLiteral "string")
-                      NumberType
-                      ReasonUncoercable
-                  )
-              )
+        ( mkTypeError (ctx 1 1) $
+            UnificationError $
+              TypeCoercionError
+                ( wctx 3 2 $
+                    Dict
+                      [("a", wctx 3 10 $ StringLiteral "string")]
+                      (DictType $ H.singleton "a" (DictRequired StringType))
+                )
+                (DictType $ H.singleton "a" (DictRequired NumberType))
+                ( ReasonDictWrongKeyType
+                    "a"
+                    ( TypeCoercionError
+                        (wctx 3 10 $ StringLiteral "string")
+                        NumberType
+                        ReasonUncoercable
+                    )
+                )
         )
 
       describe "Type checks a tuple" $ do
@@ -224,7 +228,7 @@ spec_Internal = do
       it "Fails to type check non-existant declaration type" $ do
         let ast = wctx 1 1 $ P.Decl "string" "App" $ wctx 2 3 $ P.StringLiteral "Wasp"
         let actual = run TD.empty $ checkStmt ast
-        actual `shouldBe` Left (NoDeclarationType (ctx 1 1) "string")
+        actual `shouldBe` Left (mkTypeError (ctx 1 1) $ NoDeclarationType "string")
       it "Fails to type check existing declaration type with incorrect argument" $ do
         let ast = wctx 1 1 $ P.Decl "string" "App" $ wctx 2 3 $ P.IntegerLiteral 5
         let typeDefs =
@@ -234,11 +238,12 @@ spec_Internal = do
                 }
         let actual = run typeDefs $ checkStmt ast
         let expectedError =
-              WeakenError (ctx 1 1) $
-                TypeCoercionError
-                  (wctx 2 3 $ IntegerLiteral 5)
-                  StringType
-                  ReasonUncoercable
+              mkTypeError (ctx 1 1) $
+                WeakenError $
+                  TypeCoercionError
+                    (wctx 2 3 $ IntegerLiteral 5)
+                    StringType
+                    ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
         let ast = wctx 1 1 $ P.Decl "maybeString" "App" $ wctx 2 3 $ P.Dict [("val", wctx 2 10 $ P.StringLiteral "Wasp")]
