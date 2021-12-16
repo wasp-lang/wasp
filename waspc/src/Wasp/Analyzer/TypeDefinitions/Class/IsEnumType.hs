@@ -6,7 +6,6 @@ module Wasp.Analyzer.TypeDefinitions.Class.IsEnumType
 where
 
 import Data.Typeable (Typeable)
-import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Wasp.Analyzer.TypeDefinitions.Internal (EnumType)
 
 -- | Marks Haskell type as a representation of a specific Wasp enum type.
@@ -19,7 +18,7 @@ class Typeable a => IsEnumType a where
 
   -- | Converts a string to a Haskell value of this type.
   --
-  -- @mapM_ enumEvaluate (etVariants enumType) == Right ()@ should be true
+  -- @mapM_ enumEvaluate (etVariants enumType) == Just ()@ should be true
   -- for all instances of "IsEnumType".
   --
   -- __Examples__
@@ -27,5 +26,5 @@ class Typeable a => IsEnumType a where
   -- >>> data Example = Foo | Bar
   -- >>> instance IsEnumType Example where {- omitted -}
   -- >>> enumEvaluate "Foo"
-  -- Foo
-  enumEvaluate :: String -> Either EvaluationError a
+  -- Just Foo
+  enumEvaluate :: String -> Maybe a

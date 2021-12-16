@@ -24,4 +24,4 @@ getErrorMessageAndCtx :: AnalyzeError -> (String, Ctx)
 getErrorMessageAndCtx = \case
   ParseError e -> first (("Parse error:\n" ++) . indent 2) $ PE.getErrorMessageAndCtx e
   TypeError e -> first (("Type error:\n" ++) . indent 2) $ TE.getErrorMessageAndCtx e
-  EvaluationError _e -> error "TODO"
+  EvaluationError e -> first (("Evaluation error:\n" ++) . indent 2) $ EE.getErrorMessageAndCtx e
