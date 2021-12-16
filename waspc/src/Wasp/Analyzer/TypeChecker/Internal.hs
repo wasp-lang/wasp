@@ -64,12 +64,12 @@ checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
 checkStmt :: P.WithCtx P.Stmt -> TypeChecker (WithCtx TypedStmt)
 checkStmt (P.WithCtx ctx (P.Decl typeName name expr)) =
   lookupDeclType typeName >>= \case
-    Nothing -> throw $ NoDeclarationType ctx typeName
+    Nothing -> throw $ mkTypeError ctx $ NoDeclarationType typeName
     Just (TD.DeclType _ expectedType _) -> do
       -- Decides whether the argument to the declaration has the correct type
       mTypedExpr <- weaken expectedType <$> inferExprType expr
       case mTypedExpr of
-        Left e -> throw $ WeakenError ctx e
+        Left e -> throw $ mkTypeError ctx $ WeakenError e
         Right typedExpr -> return $ WithCtx ctx $ Decl name typedExpr (DeclType typeName)
 
 -- | Determine the type of an expression, following the inference rules described in
@@ -84,13 +84,13 @@ inferExprType = P.withCtx $ \ctx -> \case
   P.ExtImport n s -> return $ WithCtx ctx $ ExtImport n s
   P.Var ident ->
     lookupType ident >>= \case
-      Nothing -> throw $ UndefinedIdentifier ctx ident
+      Nothing -> throw $ mkTypeError ctx $ UndefinedIdentifier ident
       Just typ -> return $ WithCtx ctx $ Var ident typ
   -- For now, the two quoter types are hardcoded here, it is an error to use a different one
   -- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions".
   P.Quoter "json" s -> return $ WithCtx ctx $ JSON s
   P.Quoter "psl" s -> return $ WithCtx ctx $ PSL s
-  P.Quoter tag _ -> throw $ QuoterUnknownTag ctx tag
+  P.Quoter tag _ -> throw $ mkTypeError ctx $ QuoterUnknownTag tag
   -- The type of a list is the unified type of its values.
   -- This poses a problem for empty lists, there is not enough information to choose a type.
   -- TODO: Fix this in the future, probably by adding an additional phase to resolve type variables
@@ -128,7 +128,7 @@ inferExprType = P.withCtx $ \ctx -> \case
 
     insertIfUniqueElseThrow :: P.Ctx -> M.HashMap Identifier v -> (Identifier, v) -> TypeChecker (M.HashMap Identifier v)
     insertIfUniqueElseThrow ctx m (key, value)
-      | key `M.member` m = throw $ DictDuplicateField ctx key
+      | key `M.member` m = throw $ mkTypeError ctx $ DictDuplicateField key
       | otherwise = return $ M.insert key value m
 
 -- | Finds the strongest common type for all of the given expressions, "common" meaning
@@ -145,9 +145,9 @@ inferExprType = P.withCtx $ \ctx -> \case
 unify :: P.Ctx -> NonEmpty (WithCtx TypedExpr) -> Either TypeError (NonEmpty (WithCtx TypedExpr), Type)
 unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
   superType <-
-    left (UnificationError ctx) $
+    left (mkTypeError ctx . UnificationError) $
       foldM unifyTypes (exprType texprFirst) texprsRest
-  left (WeakenError ctx) $
+  left (mkTypeError ctx . WeakenError) $
     (,superType) <$> mapM (weaken superType) texprs
 
 -- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
