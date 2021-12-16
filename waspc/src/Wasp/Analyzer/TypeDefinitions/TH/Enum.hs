@@ -6,7 +6,6 @@ module Wasp.Analyzer.TypeDefinitions.TH.Enum
 where
 
 import Language.Haskell.TH
-import Wasp.Analyzer.Evaluator.EvaluationError
 import Wasp.Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
 import Wasp.Analyzer.TypeDefinitions.TH.Common
 
@@ -59,19 +58,17 @@ makeIsEnumTypeDefinition typeName dataConstructorNames =
               etVariants = $(listE $ map nameToStringLiteralExpr dataConstructorNames)
             }
           |],
-      genEnumFromVariants
-        typeName
-        dataConstructorNames
+      genEnumFromVariants dataConstructorNames
     ]
 
-genEnumFromVariants :: Name -> [Name] -> DecQ
-genEnumFromVariants typeName dataConstructorNames = do
+genEnumFromVariants :: [Name] -> DecQ
+genEnumFromVariants dataConstructorNames = do
   let clauses = map genClause dataConstructorNames
-  let leftClause = clause [[p|x|]] (normalB [|Left $ InvalidEnumVariant $(nameToStringLiteralExpr typeName) (show x)|]) []
-  funD 'enumEvaluate (clauses ++ [leftClause])
+  let invalidVariantClause = clause [[p|_|]] (normalB [|Nothing|]) []
+  funD 'enumEvaluate (clauses ++ [invalidVariantClause])
   where
     genClause :: Name -> ClauseQ
-    genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Right $(conE name)|]) []
+    genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Just $(conE name)|]) []
 
 namesOfEnumDataConstructors :: [Con] -> Q [Name]
 namesOfEnumDataConstructors = mapM conName

@@ -7,6 +7,7 @@ import Data.Either (isRight)
 import Data.List (intercalate)
 import Test.Tasty.Hspec
 import Wasp.Analyzer
+import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
 import Wasp.AppSpec.Action (Action)
 import qualified Wasp.AppSpec.Action as Action
@@ -182,7 +183,16 @@ spec_Analyzer = do
             unlines
               [ "route HomeRoute { path: \"/\",  page: HomeRoute }"
               ]
-      takeDecls @Route <$> analyze source `shouldSatisfy` isAnalyzerOutputTypeError
+      analyze source
+        `errorMessageShouldBe` ( ctx 1 37,
+                                 intercalate
+                                   "\n"
+                                   [ "Type error:",
+                                     "  For dictionary field 'page':",
+                                     "    Expected type: page (declaration type)",
+                                     "    Actual type:   route (declaration type)"
+                                   ]
+                               )
 
     it "Works when referenced declaration is declared after the reference." $ do
       let source =
@@ -193,10 +203,6 @@ spec_Analyzer = do
       isRight (analyze source) `shouldBe` True
 
     describe "Returns correct error message" $ do
-      let errorMessageShouldBe analyzeResult (c, msg) = case analyzeResult of
-            Right _ -> error "Test failed: expected AnalyzerError."
-            Left e -> getErrorMessageAndCtx e `shouldBe` (msg, c)
-
       it "For nested unexpected type error" $ do
         let source =
               unlines
@@ -263,3 +269,8 @@ spec_Analyzer = do
 isAnalyzerOutputTypeError :: Either AnalyzeError a -> Bool
 isAnalyzerOutputTypeError (Left (TypeError _)) = True
 isAnalyzerOutputTypeError _ = False
+
+errorMessageShouldBe :: Either AnalyzeError a -> (Ctx, String) -> Expectation
+errorMessageShouldBe analyzeResult (c, msg) = case analyzeResult of
+  Right _ -> error "Test failed: expected AnalyzerError."
+  Left e -> getErrorMessageAndCtx e `shouldBe` (msg, c)
