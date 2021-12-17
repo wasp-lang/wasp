@@ -1,6 +1,6 @@
 module Analyzer.Parser.ParseErrorTest where
 
-import Analyzer.TestUtil (ctx, pos)
+import Analyzer.TestUtil (ctx, pos, wctx)
 import Test.Tasty.Hspec
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.Token
@@ -18,21 +18,21 @@ spec_ParseErrorTest = do
               ["<identifier>", ","]
           quoterDifferentTagsError =
             QuoterDifferentTags
-              ("foo", pos 1 5)
-              ("bar", pos 1 20)
+              (wctx (1, 5) (1, 7) "foo")
+              (wctx (1, 20) (1, 22) "bar")
 
       it "for UnexpectedChar error" $ do
-        getErrorMessageAndCtx unexpectedCharError `shouldBe` ("Unexpected character: !", ctx 2 42)
+        getErrorMessageAndCtx unexpectedCharError `shouldBe` ("Unexpected character: !", ctx (2, 42) (2, 42))
 
       it "for UnexpectedToken error" $ do
         getErrorMessageAndCtx unexpectedTokenErrorNoSuggestions
-          `shouldBe` ("Unexpected token: {", ctx 2 3)
+          `shouldBe` ("Unexpected token: {", ctx (2, 3) (2, 3))
         getErrorMessageAndCtx unexpectedTokenErrorWithSuggestions
           `shouldBe` ( "Unexpected token: }\n"
                          ++ "Expected one of the following tokens instead: <identifier> ,",
-                       ctx 100 18
+                       ctx (100, 18) (100, 18)
                      )
 
       it "for QuoterDifferentTags error" $ do
         getErrorMessageAndCtx quoterDifferentTagsError
-          `shouldBe` ("Quoter tags don't match: {=foo ... bar=}", ctx 1 20)
+          `shouldBe` ("Quoter tags don't match: {=foo ... bar=}", ctx (1, 5) (1, 22))

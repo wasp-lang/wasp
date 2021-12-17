@@ -19,7 +19,8 @@ module Wasp.Analyzer.Parser
     WithCtx (..),
     withCtx,
     ctxFromPos,
-    getCtxPos,
+    ctxFromRgn,
+    getCtxRgn,
     fromWithCtx,
     Ctx (..),
     Identifier,
@@ -34,7 +35,7 @@ where
 import Control.Monad.Except (runExcept)
 import Control.Monad.State (evalStateT)
 import Wasp.Analyzer.Parser.AST
-import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, fromWithCtx, getCtxPos, withCtx)
+import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
 import Wasp.Analyzer.Parser.Monad (initialState)
 import Wasp.Analyzer.Parser.ParseError
 import qualified Wasp.Analyzer.Parser.Parser as P

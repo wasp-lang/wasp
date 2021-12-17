@@ -176,7 +176,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\", page: NonExistentPage }"
               ]
       takeDecls @Route <$> analyze source
-        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx 1 36) $ TC.UndefinedIdentifier "NonExistentPage")
+        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx (1, 36) (1, 50)) $ TC.UndefinedIdentifier "NonExistentPage")
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
@@ -184,7 +184,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\",  page: HomeRoute }"
               ]
       analyze source
-        `errorMessageShouldBe` ( ctx 1 37,
+        `errorMessageShouldBe` ( ctx (1, 37) (1, 45),
                                  intercalate
                                    "\n"
                                    [ "Type error:",
@@ -215,7 +215,7 @@ spec_Analyzer = do
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx 4 29,
+          `errorMessageShouldBe` ( ctx (4, 29) (4, 30),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
@@ -239,7 +239,7 @@ spec_Analyzer = do
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx 5 29,
+          `errorMessageShouldBe` ( ctx (5, 29) (5, 35),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
@@ -258,7 +258,7 @@ spec_Analyzer = do
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx 1 11,
+          `errorMessageShouldBe` ( ctx (1, 11) (3, 1),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
