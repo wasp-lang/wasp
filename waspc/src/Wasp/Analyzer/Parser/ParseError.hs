@@ -6,8 +6,9 @@ module Wasp.Analyzer.Parser.ParseError
   )
 where
 
-import Wasp.Analyzer.Parser.Ctx (Ctx, ctxFromPos)
+import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
+import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
 import Wasp.Analyzer.Parser.Token (Token (..))
 
 data ParseError
@@ -24,7 +25,7 @@ data ParseError
   | -- | Thrown if parser encounters a quoter that has different tags, e.g.
     -- {=json psl=}. Then the first String in QuoterDifferentTags will be "json"
     -- while the second one will be "psl".
-    QuoterDifferentTags (String, SourcePosition) (String, SourcePosition)
+    QuoterDifferentTags (WithCtx String) (WithCtx String)
   deriving (Eq, Show)
 
 getErrorMessageAndCtx :: ParseError -> (String, Ctx)
@@ -39,9 +40,8 @@ getErrorMessageAndCtx = \case
             "Expected one of the following tokens instead: "
               ++ unwords expectedTokens
        in unexpectedTokenMessage ++ if not (null expectedTokens) then "\n" ++ expectedTokensMessage else "",
-      ctxFromPos $ tokenPosition unexpectedToken
+      ctxFromPos $ tokenStartPosition unexpectedToken
     )
-  QuoterDifferentTags (ltag, _) (rtag, rpos) ->
-    ( "Quoter tags don't match: {=" ++ ltag ++ " ... " ++ rtag ++ "=}",
-      ctxFromPos rpos
-    )
+  QuoterDifferentTags (WithCtx lctx ltag) (WithCtx rctx rtag) ->
+    let ctx = ctxFromRgn (getRgnStart $ getCtxRgn lctx) (getRgnEnd $ getCtxRgn rctx)
+     in ("Quoter tags don't match: {=" ++ ltag ++ " ... " ++ rtag ++ "=}", ctx)

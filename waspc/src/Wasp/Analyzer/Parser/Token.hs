@@ -1,6 +1,6 @@
 module Wasp.Analyzer.Parser.Token where
 
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition, calcNextPosition)
 
 data TokenType
   = TLParen
@@ -27,7 +27,12 @@ data TokenType
 
 data Token = Token
   { tokenType :: TokenType,
-    tokenPosition :: SourcePosition,
+    tokenStartPosition :: SourcePosition,
     tokenLexeme :: String
   }
   deriving (Eq, Show)
+
+-- | Calculates source position of the last character in the token lexeme.
+calcTokenEndPos :: Token -> SourcePosition
+calcTokenEndPos (Token _ startPos "") = startPos
+calcTokenEndPos t = calcNextPosition (init $ tokenLexeme t) (tokenStartPosition t)
