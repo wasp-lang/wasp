@@ -3,7 +3,10 @@ module Wasp.Cli.Command.Watch
   )
 where
 
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
+import Control.Monad (unless)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import StrongPath (Abs, Dir, Path', (</>))
@@ -29,6 +32,7 @@ import qualified Wasp.Lib
 
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
+--   It will defer recompilation until no new change was detected in the last second.
 watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> IO ()
 watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
@@ -40,14 +44,37 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
     listenForEvents chan lastCompileTime = do
       event <- readChan chan
-      let eventTime = FSN.eventTime event
-      if eventTime < lastCompileTime
-        then -- If event happened before last compilation started, skip it.
+      if isStaleEvent event lastCompileTime
+        then -- Ignore delayed/stale events older than our last compile time.
           listenForEvents chan lastCompileTime
         else do
+          -- Recompile, but only after a 1s period of no new events.
+          waitUntilNoNewEvents chan lastCompileTime 1
           currentTime <- getCurrentTime
           recompile
           listenForEvents chan currentTime
+
+    -- Blocks until no new events are recieved for a duration of `secondsToDelay`.
+    -- Consumes any new events during an active timer window and then restarts wait.
+    -- If a stale event comes in during an active timer window, we immediately
+    -- return control to the caller.
+    waitUntilNoNewEvents :: Chan FSN.Event -> UTCTime -> Int -> IO ()
+    waitUntilNoNewEvents chan lastCompileTime secondsToDelay = do
+      eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
+      case eventOrDelay of
+        Left event -> do
+          unless (isStaleEvent event lastCompileTime) $
+            -- We have a new event, restart waiting process.
+            waitUntilNoNewEvents chan lastCompileTime secondsToDelay
+        Right () -> return ()
+
+    isStaleEvent :: FSN.Event -> UTCTime -> Bool
+    isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
+
+    threadDelaySeconds :: Int -> IO ()
+    threadDelaySeconds =
+      let microsecondsInASecond = 1000000
+       in threadDelay . (* microsecondsInASecond)
 
     recompile :: IO ()
     recompile = do
