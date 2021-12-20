@@ -14,6 +14,7 @@ import Wasp.Cli.Command (Command, CommandError (..), runCommand)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
 import Wasp.Cli.Command.Compile (compile)
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.ServerGenerator.Setup (setupServer)
@@ -35,18 +36,18 @@ makeDbCommand cmd = do
   -- NOTE(matija): First we need make sure the code is generated.
   compile
 
-  waspSaysC "\nSetting up database..."
+  waspSaysC $ asWaspStartMessage "Setting up database..."
   chan <- liftIO newChan
   -- NOTE(matija): What we do here is make sure that Prisma CLI is installed because db commands
   -- (e.g. migrate) depend on it. We run setupServer which does even more than that, so we could make
   -- this function more lightweight if needed.
   (_, dbSetupResult) <- liftIO (concurrently (readJobMessagesAndPrintThemPrefixed chan) (setupServer genProjectDir chan))
   case dbSetupResult of
-    ExitSuccess -> waspSaysC "\nDatabase successfully set up!" >> cmd
-    exitCode -> throwError $ CommandError $ dbSetupFailedMessage exitCode
+    ExitSuccess -> waspSaysC (asWaspSuccessMessage "Database successfully set up!") >> cmd
+    exitCode -> throwError $ CommandError $ asWaspFailureMessage $ dbSetupFailedMessage exitCode
   where
     dbSetupFailedMessage exitCode =
-      "\nDatabase setup failed"
+      "Database setup failed"
         ++ case exitCode of
           ExitFailure code -> ": " ++ show code
           _ -> ""
@@ -59,7 +60,7 @@ studio = do
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
 
-  waspSaysC "Running studio..."
+  waspSaysC $ asWaspStartMessage "Running studio..."
   chan <- liftIO newChan
 
   _ <- liftIO $ concurrently (readJobMessagesAndPrintThemPrefixed chan) (runStudio genProjectDir chan)

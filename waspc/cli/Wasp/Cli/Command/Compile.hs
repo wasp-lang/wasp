@@ -18,6 +18,7 @@ import Wasp.Cli.Command.Db.Migrate
     copyDbMigrationsDir,
   )
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
@@ -29,11 +30,11 @@ compile = do
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
 
-  waspSaysC "Compiling wasp code..."
+  waspSaysC $ asWaspStartMessage "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspProjectDir outDir
   case compilationResult of
-    Left compileError -> throwError $ CommandError $ "Compilation failed: " ++ compileError
-    Right () -> waspSaysC "Code has been successfully compiled, project has been generated.\n"
+    Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Compilation failed:" ++ compileError
+    Right () -> waspSaysC $ asWaspSuccessMessage "Code has been successfully compiled, project has been generated."
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.

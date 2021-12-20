@@ -17,6 +17,7 @@ import Wasp.Cli.Command.Common (waspSaysC)
 import Wasp.Cli.Command.Telemetry.Common (ensureTelemetryCacheDirExists)
 import qualified Wasp.Cli.Command.Telemetry.Project as TlmProject
 import qualified Wasp.Cli.Command.Telemetry.User as TlmUser
+import Wasp.Cli.Terminal (asWaspFailureMessage)
 
 isTelemetryDisabled :: IO Bool
 isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
@@ -53,7 +54,7 @@ telemetry = do
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  when telemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
+  when telemetryDisabled $ throwError $ CommandError $ asWaspFailureMessage "Telemetry disabled by user."
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 

@@ -20,6 +20,7 @@ import Wasp.Cli.Command.Common
     waspSaysC,
   )
 import qualified Wasp.Cli.Common as Cli.Common
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.Common (WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir)
@@ -42,27 +43,27 @@ migrateDev = do
   -- all the latest migrations are in the generated project (e.g. Wasp dev checked out something
   -- new) - otherwise "dev" would create a new migration for that and we would end up with two
   -- migrations doing the same thing (which might result in conflict, e.g. during db creation).
-  waspSaysC "Copying migrations folder from Wasp to Prisma project..."
+  waspSaysC $ asWaspStartMessage "Copying migrations folder from Wasp to Prisma project..."
   copyDbMigrationDir waspProjectDir genProjectRootDir CopyMigDirDown
 
-  waspSaysC "Performing migration..."
+  waspSaysC $ asWaspStartMessage "Performing migration..."
   migrateResult <- liftIO $ DbOps.migrateDev genProjectRootDir
   case migrateResult of
     Left migrateError ->
-      throwError $ CommandError $ "Migrate dev failed: " <> migrateError
-    Right () -> waspSaysC "Migration done."
+      throwError $ CommandError $ asWaspFailureMessage "Migrate dev failed:" ++ migrateError
+    Right () -> waspSaysC $ asWaspSuccessMessage "Migration done."
 
-  waspSaysC "Copying migrations folder from Prisma to Wasp project..."
+  waspSaysC $ asWaspStartMessage "Copying migrations folder from Prisma to Wasp project..."
   copyDbMigrationDir waspProjectDir genProjectRootDir CopyMigDirUp
 
-  waspSaysC "All done!"
+  waspSaysC $ asWaspSuccessMessage "All done!"
   where
     copyDbMigrationDir waspProjectDir genProjectRootDir copyDirection = do
       copyDbMigDirResult <-
         liftIO $ copyDbMigrationsDir copyDirection waspProjectDir genProjectRootDir
       case copyDbMigDirResult of
-        Nothing -> waspSaysC "Done copying migrations folder."
-        Just err -> throwError $ CommandError $ "Copying migration folder failed: " ++ err
+        Nothing -> waspSaysC $ asWaspSuccessMessage "Done copying migrations folder."
+        Just err -> throwError $ CommandError $ asWaspFailureMessage "Copying migration folder failed:" ++ err
 
 data MigrationDirCopyDirection = CopyMigDirUp | CopyMigDirDown deriving (Eq)
 
