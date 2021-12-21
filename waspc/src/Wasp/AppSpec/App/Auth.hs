@@ -13,7 +13,8 @@ import Wasp.AppSpec.Entity (Entity)
 data Auth = Auth
   { userEntity :: Ref Entity,
     methods :: [AuthMethod],
-    onAuthFailedRedirectTo :: Maybe String
+    onAuthFailedRedirectTo :: String,
+    onAuthSucceededRedirectTo :: Maybe String
   }
   deriving (Show, Eq, Data)
 

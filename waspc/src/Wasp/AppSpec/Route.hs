@@ -13,7 +13,9 @@ import Wasp.AppSpec.Page
 -- | NOTE: We have new syntax for route, before it was `route "/task" -> page Task`, now it is a dictionary.
 data Route = Route
   { path :: String,
-    page :: Ref Page
+    -- TODO: In the future we might want to add other types of targets, for example another Route.
+    --   For that the best solution is probably to implement sum types (https://github.com/wasp-lang/wasp/issues/381).
+    to :: Ref Page
   }
   deriving (Show, Eq, Data)
 
