@@ -3,6 +3,7 @@ module Wasp.AppSpec
   )
 where
 
+import StrongPath (Abs, Dir, File', Path')
 import Wasp.AppSpec.Core.Decl (Decl)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 
@@ -14,5 +15,9 @@ data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
     -- | List of external code files (they are referenced/used by the declarations).
-    externalCodeFiles :: ExternalCode.File
+    externalCodeFiles :: [ExternalCode.File],
+    -- | Absolute path to the directory in wasp project source that contains external code files.
+    externalCodeDirPath :: !(Path' Abs (Dir ExternalCode.SourceExternalCodeDir)),
+    dotEnvFile :: Maybe (Path' Abs File'),
+    isBuild :: Bool
   }
