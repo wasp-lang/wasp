@@ -4,6 +4,7 @@ author: Matija Sosic
 author_title: CEO & Co-founder @ Wasp
 author_url: https://github.com/matijasos
 author_image_url: https://github.com/matijasos.png
+image: /img/shayne-intro-banner.png
 tags: [wasp, new-hire]
 ---
 
@@ -12,7 +13,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 
-![Shayne intro banner](../static/img/shayne-intro-banner.png)
+![Welcome Shayne!](../static/img/shayne-intro-banner.png)
 
 Find Shayne on [LinkedIn](https://www.linkedin.com/in/shayneski/) and [GitHub](https://github.com/shayneczyzewski).
 
