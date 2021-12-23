@@ -1,6 +1,6 @@
 {{={{> <}}=}}
 {
-  "name": "{{> app.name <}}",
+  "name": "{{> appName <}}",
   "icons": [
     {
       "src": "favicon.ico",

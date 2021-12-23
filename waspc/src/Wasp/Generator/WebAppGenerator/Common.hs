@@ -2,7 +2,9 @@ module Wasp.Generator.WebAppGenerator.Common
   ( webAppRootDirInProjectRootDir,
     webAppSrcDirInWebAppRootDir,
     copyTmplAsIs,
+    copyTmplTo,
     makeSimpleTemplateFD,
+    makeSimpleTemplateFDWithData,
     makeTemplateFD,
     webAppSrcDirInProjectRootDir,
     webAppTemplatesDirInTemplatesDir,
@@ -57,11 +59,19 @@ webAppSrcDirInProjectRootDir = webAppRootDirInProjectRootDir </> webAppSrcDirInW
 webAppTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir WebAppTemplatesDir)
 webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
 
+-- TODO: Make names of the functions below more uniform.
+
 copyTmplAsIs :: Path' (Rel WebAppTemplatesDir) File' -> FileDraft
-copyTmplAsIs path = makeTemplateFD path (SP.castRel path) Nothing
+copyTmplAsIs path = copyTmplTo path (SP.castRel path)
+
+copyTmplTo :: Path' (Rel WebAppTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
+copyTmplTo src dst = makeTemplateFD src dst Nothing
 
 makeSimpleTemplateFD :: Path' (Rel WebAppTemplatesDir) File' -> Wasp -> FileDraft
-makeSimpleTemplateFD path wasp = makeTemplateFD path (SP.castRel path) (Just $ Aeson.toJSON wasp)
+makeSimpleTemplateFD src wasp = makeTemplateFD src (SP.castRel src) (Just $ Aeson.toJSON wasp)
+
+makeSimpleTemplateFDWithData :: Path' (Rel WebAppTemplatesDir) File' -> Aeson.Value -> FileDraft
+makeSimpleTemplateFDWithData src tmplData = makeTemplateFD src (SP.castRel src) (Just tmplData)
 
 makeTemplateFD ::
   Path' (Rel WebAppTemplatesDir) File' ->

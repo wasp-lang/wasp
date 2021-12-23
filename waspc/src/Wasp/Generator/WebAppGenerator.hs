@@ -47,7 +47,7 @@ generateWebApp spec =
   concat
     [ [generateReadme spec],
       [genPackageJson spec waspNpmDeps],
-      [generateGitignore wasp],
+      [generateGitignore spec],
       generatePublicDir wasp,
       generateSrcDir wasp,
       generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy wasp,
@@ -94,24 +94,28 @@ waspNpmDeps =
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
 
-generateGitignore :: Wasp -> FileDraft
-generateGitignore wasp =
-  C.makeTemplateFD
+generateGitignore :: AppSpec -> FileDraft
+generateGitignore _ =
+  C.copyTmplTo
     (asTmplFile [relfile|gitignore|])
     (asWebAppFile [relfile|.gitignore|])
-    (Just $ toJSON wasp)
 
-generatePublicDir :: Wasp -> [FileDraft]
-generatePublicDir wasp =
+generatePublicDir :: AppSpec -> [FileDraft]
+generatePublicDir spec =
   C.copyTmplAsIs (asTmplFile [relfile|public/favicon.ico|]) :
-  generatePublicIndexHtml wasp :
-  map
-    (\path -> C.makeSimpleTemplateFD (asTmplFile $ [reldir|public|] </> path) wasp)
-    [ [relfile|manifest.json|]
-    ]
+  generatePublicIndexHtml spec :
+  ( let tmplData =
+          object
+            [ "appName" .= fst (getApp spec)
+            ]
+        processPublicTmpl path = C.makeSimpleTemplateFDWithData (asTmplFile $ [reldir|public|] </> path) tmplData
+     in processPublicTmpl
+          <$> [ [relfile|manifest.json|]
+              ]
+  )
 
-generatePublicIndexHtml :: Wasp -> FileDraft
-generatePublicIndexHtml wasp =
+generatePublicIndexHtml :: AppSpec -> FileDraft
+generatePublicIndexHtml spec =
   C.makeTemplateFD
     (asTmplFile [relfile|public/index.html|])
     targetPath
@@ -120,8 +124,8 @@ generatePublicIndexHtml wasp =
     targetPath = [relfile|public/index.html|]
     templateData =
       object
-        [ "title" .= Wasp.App.appTitle (getApp wasp),
-          "head" .= maybe "" (intercalate "\n") (Wasp.App.appHead $ getApp wasp)
+        [ "title" .= AS.App.title (snd $ getApp spec),
+          "head" .= maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec)
         ]
 
 -- * Src dir
@@ -138,8 +142,8 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 genApi :: FileDraft
 genApi = C.copyTmplAsIs (C.asTmplFile [relfile|src/api.js|])
 
-generateSrcDir :: Wasp -> [FileDraft]
-generateSrcDir wasp =
+generateSrcDir :: AppSpec -> [FileDraft]
+generateSrcDir spec =
   generateLogo :
   RouterGenerator.generateRouter wasp :
   genApi :
@@ -165,3 +169,4 @@ generateSrcDir wasp =
         (asTmplFile $ [reldir|src|] </> path)
         (srcDir </> asWebAppSrcFile path)
         (Just $ toJSON wasp)
+    wasp = error "TODO: remove"
