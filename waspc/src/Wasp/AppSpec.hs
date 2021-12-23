@@ -1,10 +1,15 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.AppSpec
   ( AppSpec (..),
+    getApp,
+    getDecls,
   )
 where
 
 import StrongPath (Abs, Dir, File', Path')
-import Wasp.AppSpec.Core.Decl (Decl)
+import Wasp.AppSpec.App (App)
+import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
@@ -21,3 +26,10 @@ data AppSpec = AppSpec
     dotEnvFile :: Maybe (Path' Abs File'),
     isBuild :: Bool
   }
+
+-- TODO: Should this be here or in AppSpec.App?
+getApp :: AppSpec -> (String, App)
+getApp spec = head $ takeDecls @App (decls spec)
+
+getDecls :: IsDecl a => AppSpec -> [(String, a)]
+getDecls = takeDecls . decls
