@@ -19,14 +19,15 @@ spec_Parser = do
                 "  yes: true,",
                 "  no: false,",
                 "  ident: Wasp,",
+                "  // This is a comment",
                 "  innerDict: { innerDictReal: 2.17 }",
                 "}"
               ]
       let ast =
             AST
-              [ wctx (1, 1) (10, 1) $
+              [ wctx (1, 1) (11, 1) $
                   Decl "test" "Decl" $
-                    wctx (1, 11) (10, 1) $
+                    wctx (1, 11) (11, 1) $
                       Dict
                         [ ("string", wctx (2, 11) (2, 25) $ StringLiteral "Hello Wasp =}"),
                           ("escapedString", wctx (3, 18) (3, 29) $ StringLiteral "Look, a \""),
@@ -36,12 +37,29 @@ spec_Parser = do
                           ("no", wctx (7, 7) (7, 11) $ BoolLiteral False),
                           ("ident", wctx (8, 10) (8, 13) $ Var "Wasp"),
                           ( "innerDict",
-                            wctx (9, 14) (9, 36) $
+                            wctx (10, 14) (10, 36) $
                               Dict
-                                [ ("innerDictReal", wctx (9, 31) (9, 34) $ DoubleLiteral 2.17)
+                                [ ("innerDictReal", wctx (10, 31) (10, 34) $ DoubleLiteral 2.17)
                                 ]
                           )
                         ]
+              ]
+      parse source `shouldBe` Right ast
+
+    it "Parses comments" $ do
+      let source =
+            unlines
+              [ "  // This is some // comment",
+                "/* comment",
+                "  span//ning",
+                "multi/*ple lines */",
+                "test /* *hi* */ Decl 42  // One more comment",
+                "// And here is final comment"
+              ]
+      let ast =
+            AST
+              [ wctx (5, 1) (5, 23) $
+                  Decl "test" "Decl" $ wctx (5, 22) (5, 23) $ IntegerLiteral 42
               ]
       parse source `shouldBe` Right ast
 

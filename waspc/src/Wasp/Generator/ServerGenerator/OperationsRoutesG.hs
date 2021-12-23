@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.ServerGenerator.OperationsRoutesG
   ( genOperationsRoutes,
     operationRouteInOperationsRouter,
@@ -9,54 +11,55 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.AppSpec (AppSpec, getApp)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.Operation as AS.Operation
+import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import qualified Wasp.Util as U
-import Wasp.Wasp (Wasp, getAuth)
-import qualified Wasp.Wasp as Wasp
-import qualified Wasp.Wasp.Action as Wasp.Action
-import qualified Wasp.Wasp.Auth as Wasp.Auth
-import qualified Wasp.Wasp.Operation as Wasp.Operation
-import qualified Wasp.Wasp.Query as Wasp.Query
 
-genOperationsRoutes :: Wasp -> [FileDraft]
-genOperationsRoutes wasp =
+genOperationsRoutes :: AppSpec -> [FileDraft]
+genOperationsRoutes spec =
   concat
-    [ map (genActionRoute wasp) (Wasp.getActions wasp),
-      map (genQueryRoute wasp) (Wasp.getQueries wasp),
-      [genOperationsRouter wasp]
+    [ map (genActionRoute spec) (AS.getActions spec),
+      map (genQueryRoute spec) (AS.getQueries spec),
+      [genOperationsRouter spec]
     ]
 
-genActionRoute :: Wasp -> Wasp.Action.Action -> FileDraft
-genActionRoute wasp action = genOperationRoute wasp op tmplFile
+genActionRoute :: AppSpec -> (String, AS.Action.Action) -> FileDraft
+genActionRoute spec (actionName, action) = genOperationRoute spec op tmplFile
   where
-    op = Wasp.Operation.ActionOp action
+    op = AS.Operation.ActionOp actionName action
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_action.js|]
 
-genQueryRoute :: Wasp -> Wasp.Query.Query -> FileDraft
-genQueryRoute wasp query = genOperationRoute wasp op tmplFile
+genQueryRoute :: AppSpec -> (String, AS.Query.Query) -> FileDraft
+genQueryRoute spec (queryName, query) = genOperationRoute spec op tmplFile
   where
-    op = Wasp.Operation.QueryOp query
+    op = AS.Operation.QueryOp queryName query
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.js|]
 
-genOperationRoute :: Wasp -> Wasp.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> FileDraft
-genOperationRoute wasp operation tmplFile = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genOperationRoute :: AppSpec -> AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> FileDraft
+genOperationRoute spec operation tmplFile = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     dstFile = operationsRoutesDirInServerRootDir </> operationRouteFileInOperationsRoutesDir operation
 
     baseTmplData =
       object
-        [ "operationImportPath" .= operationImportPath,
-          "operationName" .= Wasp.Operation.getName operation
+        [ "operationImportPath" .= (operationImportPath :: FilePath),
+          "operationName" .= (AS.Operation.getName operation :: String)
         ]
 
-    tmplData = case Wasp.getAuth wasp of
+    tmplData = case AS.App.auth (snd $ getApp spec) of
       Nothing -> baseTmplData
       Just auth ->
         U.jsonSet
           "userEntityLower"
-          (Aeson.toJSON (U.toLowerFirst $ Wasp.Auth._userEntity auth))
+          (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
           baseTmplData
 
     operationImportPath =
@@ -72,40 +75,45 @@ operationsRoutesDirInServerSrcDir = [reldir|routes/operations/|]
 operationsRoutesDirInServerRootDir :: Path' (Rel C.ServerRootDir) (Dir OperationsRoutesDir)
 operationsRoutesDirInServerRootDir = C.serverSrcDirInServerRootDir </> operationsRoutesDirInServerSrcDir
 
-operationRouteFileInOperationsRoutesDir :: Wasp.Operation.Operation -> Path' (Rel OperationsRoutesDir) File'
-operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $ Wasp.Operation.getName operation ++ ".js"
+operationRouteFileInOperationsRoutesDir :: AS.Operation.Operation -> Path' (Rel OperationsRoutesDir) File'
+operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $ AS.Operation.getName operation ++ ".js"
 
 relPosixPathFromOperationsRoutesDirToSrcDir :: Path Posix (Rel OperationsRoutesDir) (Dir C.ServerSrcDir)
 relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 
-genOperationsRouter :: Wasp -> FileDraft
-genOperationsRouter wasp
+genOperationsRouter :: AppSpec -> FileDraft
+genOperationsRouter spec
   -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
   | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = error "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
-  | otherwise = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+  | otherwise = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
     operations =
-      map Wasp.Operation.ActionOp (Wasp.getActions wasp)
-        ++ map Wasp.Operation.QueryOp (Wasp.getQueries wasp)
+      map (uncurry AS.Operation.ActionOp) (AS.getActions spec)
+        ++ map (uncurry AS.Operation.QueryOp) (AS.getQueries spec)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,
           "isAuthEnabled" .= isAuthEnabledGlobally
         ]
     makeOperationRoute operation =
-      let operationName = Wasp.Operation.getName operation
+      let operationName = AS.Operation.getName operation
        in object
             [ "importIdentifier" .= operationName,
-              "importPath" .= ("./" ++ SP.fromRelFileP (fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation)),
+              "importPath"
+                .= ( "./"
+                       ++ SP.fromRelFileP
+                         ( fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation
+                         )
+                   ),
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
               "isUsingAuth" .= isAuthEnabledForOperation operation
             ]
 
-    isAuthEnabledGlobally = isJust $ getAuth wasp
-    isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (Wasp.Operation.getAuth operation)
-    isAuthSpecifiedForOperation operation = isJust $ Wasp.Operation.getAuth operation
+    isAuthEnabledGlobally = AS.isAuthEnabled spec
+    isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
+    isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
 
-operationRouteInOperationsRouter :: Wasp.Operation.Operation -> String
-operationRouteInOperationsRouter = U.camelToKebabCase . Wasp.Operation.getName
+operationRouteInOperationsRouter :: AS.Operation.Operation -> String
+operationRouteInOperationsRouter = U.camelToKebabCase . AS.Operation.getName

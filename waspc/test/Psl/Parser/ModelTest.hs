@@ -3,7 +3,7 @@ module Psl.Parser.ModelTest where
 import Data.Either (isLeft)
 import Psl.Common.ModelTest (sampleBodyAst, sampleBodySchema)
 import Test.Tasty.Hspec
-import Wasp.Parser.Common (runWaspParser)
+import qualified Text.Parsec as Parsec
 import qualified Wasp.Psl.Ast.Model as AST
 import Wasp.Psl.Parser.Model (attrArgument, body, model)
 
@@ -14,14 +14,14 @@ spec_parsePslModel = do
         expectedModelAst = AST.Model "User" sampleBodyAst
 
     it "Body parser correctly parses" $ do
-      runWaspParser body sampleBodySchema `shouldBe` Right sampleBodyAst
+      Parsec.parse body "" sampleBodySchema `shouldBe` Right sampleBodyAst
 
     it "Model parser correctly parses" $ do
-      runWaspParser model pslModel `shouldBe` Right expectedModelAst
+      Parsec.parse model "" pslModel `shouldBe` Right expectedModelAst
 
   describe "Body parser" $ do
     describe "Fails if input is not valid PSL" $ do
-      let runTest psl = it psl $ isLeft (runWaspParser body psl) `shouldBe` True
+      let runTest psl = it psl $ isLeft (Parsec.parse body "" psl) `shouldBe` True
       mapM_
         runTest
         [ "  noType",
@@ -51,5 +51,5 @@ spec_parsePslModel = do
             )
           ]
     let runTest (psl, expected) =
-          it ("correctly parses " ++ psl) $ runWaspParser attrArgument psl `shouldBe` Right expected
+          it ("correctly parses " ++ psl) $ Parsec.parse attrArgument "" psl `shouldBe` Right expected
     mapM_ runTest tests

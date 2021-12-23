@@ -4,11 +4,12 @@ module Wasp.Cli.Command.Deps
 where
 
 import Control.Monad.IO.Class (liftIO)
+import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
-import Wasp.NpmDependency (printDep)
+import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
 deps =
@@ -25,3 +26,9 @@ deps =
                title "Webapp dependencies:"
              ]
           ++ map printDep WebAppGenerator.waspNpmDeps
+
+printDep :: AS.Dependency.Dependency -> String
+printDep dep =
+  Term.applyStyles [Term.Cyan] (AS.Dependency.name dep)
+    ++ "@"
+    ++ Term.applyStyles [Term.Yellow] (AS.Dependency.version dep)

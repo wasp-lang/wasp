@@ -1,52 +1,68 @@
 ---
-title: Basic Elements
+title: Features
 ---
 
 ## App
 
-There can be only one `App` element per Wasp project. It serves as a starting point and defines global
-properties of your app. Currently, it is very simple:
+There can be only one declaration of `app` type per Wasp project.
+It serves as a starting point and defines global properties of your app.
 
 ```css
 app todoApp {
-    title: "ToDo App",
-    head: [
-        "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
-    ]
+  title: "ToDo App",
+  head: [  // optional
+    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+  ]
 }
 ```
 
-#### `app: identifier`
-Name of your app.
+### Fields
 
-#### `title: string`
+#### `title: string` (required)
 Title of your app. It will be displayed in the browser tab, next to the favicon.
 
-#### `head: array of strings`
+#### `head: [string]` (optional)
 Head of your HTML Document. Your app's metadata (styles, links, etc) can be added here.
 
+#### `auth: dict` (optional)
+Authentication and authorization configuration.
+Check [`app.auth`](/docs/language/features#authentication--authorization) for more details.
+
+#### `db: dict` (optional)
+Database configuration.
+Check [`app.db`](/docs/language/features#database) for more details.
+
+#### `server: dict` (optional)
+Server configuration.
+Check [`app.server`](/docs/language/features#server) for more details.
+
+#### `dependencies: [(string, string)]` (optional)
+List of dependencies (external libraries).
+Check [`app.dependencies`](/docs/language/features#dependencies) for more details.
 
 ## Page
 
-`Page` is the top-level layout abstraction. Your app can have multiple pages, and they are defined in Wasp
-as follows:
+`page` declaration is the top-level layout abstraction. Your app can have multiple pages.
+
 ```css
-page Main {
-    component: import Main from "@ext/pages/Main",
-    authRequired: false // optional property
+page MainPage {
+  component: import Main from "@ext/pages/Main",
+  authRequired: false  // optional
 }
 ```
 
-#### `page: identifier`
-Name of the page.
+Normally you will also want to associate `page` with a `route`, otherwise it won't be accessible in the app.
 
-#### `component: js import statement`
-Import statement of the page React element. See importing external code for details.
+### Fields 
 
-`Page` also has to be associated with a `Route`, otherwise it won't be accessible in the app.
+#### `component: ExtImport` (required)
+Import statement of the React element that implements the page component.
+See importing external code for details.
 
-#### `authRequired: bool`
-Optional property - can be specified only if [`auth`](/docs/language/basic-elements#authentication--authorization) is declared. If set to `true`, only authenticated users will be able to access this page. Unauthenticated users will be redirected to a route declared by `onAuthFailedRedirectTo` property within `auth`.
+#### `authRequired: bool` (optional)
+Can be specified only if [`app.auth`](/docs/language/features#authentication--authorization) is defined.
+
+If set to `true`, only authenticated users will be able to access this page. Unauthenticated users will be redirected to a route defined by `onAuthFailedRedirectTo` property within `app.auth`.
 
 If `authRequired` is set to `true`, the React component of a page (specified by `component` property) will be provided `user` object as a prop.
 
@@ -54,21 +70,25 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#
 
 ## Route
 
-Using `Route` element is a way to implement routing functionality in Wasp:
+`route` declaration provides top-level routing functionality in Wasp.
+
 ```css
-route "/about" -> page About
+route AboutRoute { path: "/about", to: AboutPage }
 ```
 
-#### `route: string`
-URL path of the route. Route string can be parametrised and follows the same conventions as
+### Fields
+
+#### `path: string` (required)
+URL path of the route. Route path can be parametrised and follows the same conventions as
 [React Router](https://reactrouter.com/web/).
 
-#### `page: page identifier`
-Page identifier of the route's target. Referenced page must be defined somewhere in `.wasp` file.
+#### `to: page` (required)
+Name of the `page` to which the path will lead.
+Referenced page must be defined somewhere in `.wasp` file.
 
 ### Example - parametrised URL path
 ```css
-route "/task/:id" -> page Task
+route TaskRoute { path: "/task/:id", to: TaskPage }
 ```
 For details on URL path format check [React Router](https://reactrouter.com/web/)
 documentation.
@@ -81,9 +101,9 @@ started:
 
 ```c title="todoApp.wasp"
 // ...
-route "/task/:id" -> page Task
-page Task {
-    component: import Task from "@ext/pages/Task"
+route TaskRoute { path: "/task/:id", to: TaskPage }
+page TaskPage {
+  component: import Task from "@ext/pages/Task"
 }
 ```
 
@@ -107,9 +127,9 @@ Navigation can be performed from the React code via `<Link/>` component, also us
 
 ```c title="todoApp.wasp"
 // ...
-route "/home" -> page Home
-page Home {
-    component: import Home from "@ext/pages/Home"
+route HomeRoute { path: "/home", to: HomePage }
+page HomePage {
+  component: import Home from "@ext/pages/Home"
 }
 ```
 
@@ -126,10 +146,10 @@ const OtherPage = (props) => {
 
 ## Entity
 
-`Entity` element represents a database model. Wasp uses [Prisma](https://www.prisma.io/) to implement
-database functionality and currently provides only a thin layer above it.
+`entity` declaration represents a database model.
+Wasp uses [Prisma](https://www.prisma.io/) to implement database functionality and currently provides only a thin layer above it.
 
-Each `Entity` element corresponds 1-to-1 to Prisma data model and is defined in a following way:
+Each `Entity` declaration corresponds 1-to-1 to Prisma data model and is defined in a following way:
 
 ```css
 entity Task {=psl
@@ -138,10 +158,8 @@ entity Task {=psl
     isDone      Boolean @default(false)
 psl=}
 ```
-#### `entity: identifier`
-Name of the entity.
 
-#### `{=psl ... psl=}: PSL`
+### `{=psl ... psl=}: PSL`
 Definition of entity fields in *Prisma Schema Language* (PSL). See
 [here for intro and examples](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema)
 and [here for a more exhaustive language specification](https://github.com/prisma/specs/tree/master/schema).
@@ -168,13 +186,18 @@ Queries are NodeJS functions that don't modify any state. Normally they fetch ce
 
 To create a Wasp Query, we need two things: declaration in Wasp and implementation in NodeJS:
 
+1. `query` declaration in Wasp:
 ```c title="main.wasp"
 // ...
 query getTasks {
   fn: import { getAllTasks } from "@ext/foo.js"
 }
 ```
+`query` declaration type has two fields:
+- `fn: ExtImport` (required)
+- `entities: [Entity]` (optional)
 
+2. Implemenation in NodeJS:
 ```js title="ext/foo.js"
 // ...
 export getAllTasks = async (args, context) => {
@@ -291,13 +314,17 @@ More differences and action/query specific features will come in the future vers
 
 ## Dependencies
 
-You can specify additional npm dependencies in following way, in your `*.wasp` file:
+You can specify additional npm dependencies via `dependencies` field in `app` declaration, in following way:
 
 ```c
-dependencies {=json
-  "redux": "^4.0.5",
-  "react-redux": "^7.1.3"
-json=}
+app MyApp {
+  title: "My app",
+  // ...
+  dependencies: [
+    ("redux", "^4.0.5"),
+    ("react-redux", "^7.1.3")
+  ]
+)
 ```
 
 You will need to re-run `wasp start` after adding a dependency for Wasp to pick it up.
@@ -310,29 +337,41 @@ In the future, we will add support for picking any version you like, but we have
 
 ## Authentication & Authorization
 
-Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by adding `auth` element to your `.wasp` file:
+Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring `auth` field of the `app` declaration:
 
 ```css
-auth {
+app MyApp {
+  title: "My app",
+  // ...
+  auth: {
     userEntity: User,
     methods: [ EmailAndPassword ],
     onAuthFailedRedirectTo: "/someRoute"
+  }
 }
 ```
-`userEntity: entity`
+
+`app.auth` is a dictionary with following fields:
+
+#### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
-`methods: [AuthMethod]`
+#### `methods: [AuthMethod]` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `EmailAndPassword`: Provides support for authentication with email address and a password.
 
-`onAuthFailedRedirectTo: String` Name of the route where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
+#### `onAuthFailedRedirectTo: String` (required)
+Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
 Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#updating-main-page-to-check-if-user-is-authenticated) to see an example of usage.
+
+#### `onAuthSucceededRedirectTo: String` (optional)
+Path where a successfully authenticated user will be sent upon successful login/signup.
+Default value is "/".
 
 ### Email and Password
 
 `EmailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
-This method requires that `userEntity` specified in `auth` element contains `email: string` and `password: string` fields.
+This method requires that `userEntity` specified in `auth` contains `email: string` and `password: string` fields.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
 - `email`: non-empty
@@ -550,23 +589,21 @@ should be denied access to it.
 
 ## Server configuration
 
-```css
-server {
-  ...
+Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
+
+```c
+app MyApp {
+  title: "My app",
+  // ...
+  server: {
+    setupFn: import mySetupFunction from "@ext/myServerSetupCode.js"
+  }
 }
 ```
 
-With `server` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
+`app.server` is a dictionary with following fields:
 
-Currently `server` supports only one option, `setupFn`, but there will likely be more options added in the future.
-
-### setupFn
-
-```css
-server {
-  setupFn: import mySetupFunction from "@ext/myServerSetupCode.js"
-}
-```
+#### `setupFn: ExtImport` (optional)
 
 `setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before server continues with its setup and starts serving any requests.
 
@@ -630,26 +667,31 @@ console.log(process.env.DATABASE_URL)
 
 ## Database
 
-You can specify database to be used by Wasp via `db` element (there can be only one such element per Wasp project):
+Via `db` field of `app` declaration, you can configure the database used by Wasp.
 
-```css
-db {
-  system: PostgreSQL
+```c
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    system: PostgreSQL
+  }
 }
 ```
-If you don't have `db` block, default database is used (which is `SQLite`).
 
-If you create or modify `db` declaration, run `wasp db migrate-dev` to apply the changes.
+`app.db` is a dictionary with following fields:
 
-#### `system: identifier`
-Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.
+#### `system: DbSystem`
+Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.  
+If not defined, or even if whole `db` field is not present, default value is `SQLite`.  
+If you add/remove/modify `db` field, run `wasp db migrate-dev` to apply the changes.
 
 ### SQLite
 Default database is `SQLite`, since it is great for getting started with a new project (needs no configuring), but it can be used only in development - once you want to deploy Wasp to production you will need to switch to `PostgreSQL` and stick with it.
 Check below for more details on how to migrate from SQLite to PostgreSQL.
 
 ### PostgreSQL
-When using `PostgreSQL` (`db { system: PostgreSQL }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+When using `PostgreSQL` (`db: { system: PostgreSQL }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
 
 One of the easiest ways to do this is by spinning up postgres docker container when you need it with the shell command
 ```
@@ -668,6 +710,6 @@ to the `.env` file in the root directory of your Wasp project.
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.
-1. Set `db.system` to `PostgreSQL` and set `DATABASE_URL` env var accordingly (as described [above](/docs/language/basic-elements#postgresql)).
+1. Set `app.db.system` to `PostgreSQL` and set `DATABASE_URL` env var accordingly (as described [above](/docs/language/features#postgresql)).
 2. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
-3. Run `wasp db migrate-dev` to apply new changes and create new, initial migration. You will need to have your postgres database running while doing this (check [above](/docs/language/basic-elements#postgresql) for easy way to get it running).
+3. Run `wasp db migrate-dev` to apply new changes and create new, initial migration. You will need to have your postgres database running while doing this (check [above](/docs/language/features#postgresql) for easy way to get it running).

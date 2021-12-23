@@ -8,6 +8,8 @@ module Wasp.Util
     indent,
     concatShortPrefixAndText,
     concatPrefixAndText,
+    insertAt,
+    leftPad,
   )
 where
 
@@ -102,3 +104,17 @@ concatShortPrefixAndText prefix text =
 concatPrefixAndText :: String -> String -> String
 concatPrefixAndText prefix text =
   if length (lines text) <= 1 then prefix ++ text else prefix ++ "\n" ++ indent 2 text
+
+-- | Adds given element to the start of the given list until the list is of specified length.
+-- leftPad ' ' 4 "hi" == "  hi"
+-- leftPad ' ' 4 "hihihi" == "hihihi"
+leftPad :: a -> Int -> [a] -> [a]
+leftPad padElem n list = replicate (max 0 (n - length list)) padElem ++ list
+
+-- | Inserts a given @theInsert@ list into the given @host@ list so that @theInsert@
+-- starts at index @idx@ in the @host@.
+-- Example: @insertAt "hi" 2 "hoho" == "hohiho"@
+insertAt :: [a] -> Int -> [a] -> [a]
+insertAt theInsert idx host =
+  let (before, after) = splitAt idx host
+   in before ++ theInsert ++ after

@@ -1,6 +1,6 @@
 {{={= =}=}}
 {
-  "name": "{= wasp.app.name =}",
+  "name": "{= appName =}",
   "version": "0.0.0",
   "private": true,
   {=& depsChunk =},

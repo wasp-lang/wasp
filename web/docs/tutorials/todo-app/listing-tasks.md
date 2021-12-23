@@ -8,7 +8,7 @@ We want to admire our tasks, so let's list them!
 
 ## Introducing operations (queries and actions)
 
-The primary way of interacting with entities in Wasp is via [operations (queries and actions)](language/basic-elements.md#queries-and-actions-aka-operations).
+The primary way of interacting with entities in Wasp is via [operations (queries and actions)](language/features.md#queries-and-actions-aka-operations).
 
 Queries are here when we need to fetch/read something, while actions are here when we need to change/update something.
 We will start with writing a query, since we are just listing tasks and not modifying anything for now.
@@ -19,7 +19,7 @@ To list tasks, we will need two things:
 
 ## Wasp query
 
-Let's implement `getTasks` [query](language/basic-elements.md#query).
+Let's implement `getTasks` [query](language/features.md#query).
 It consists of a declaration in Wasp and implementation in JS (in `ext/` directory).
 
 ### Wasp declaration
@@ -100,7 +100,7 @@ export default MainPage
 
 All of this is just regular React, except for the two special `@wasp` imports:
  - `import getTasks from '@wasp/queries/getTasks'`: provides us with our freshly defined Wasp query.
- - `import { useQuery } from '@wasp/queries'`: provides us with Wasp's [useQuery](language/basic-elements.md#usequery) React hook which is actually just a thin wrapper over [react-query](https://github.com/tannerlinsley/react-query) [useQuery](https://react-query.tanstack.com/docs/guides/queries) hook, behaving very similarly while offering some extra integration with Wasp.
+ - `import { useQuery } from '@wasp/queries'`: provides us with Wasp's [useQuery](language/features.md#usequery) React hook which is actually just a thin wrapper over [react-query](https://github.com/tannerlinsley/react-query) [useQuery](https://react-query.tanstack.com/docs/guides/queries) hook, behaving very similarly while offering some extra integration with Wasp.
 
 While we could call query directly as `getTasks()`, calling it as `useQuery(getTasks)` gives us the reactivity (React component gets re-rendered if result of the query changes).
 

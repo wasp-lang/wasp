@@ -12,7 +12,7 @@ import qualified Data.Version
 import qualified Paths_waspc
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.CompileOptions (CompileOptions)
+import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
@@ -23,21 +23,20 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.Setup
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
-import Wasp.Wasp (Wasp)
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: Wasp -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
-writeWebAppCode wasp dstDir compileOptions = do
-  writeFileDrafts dstDir (generateWebApp wasp compileOptions)
-  ServerGenerator.preCleanup wasp dstDir compileOptions
-  writeFileDrafts dstDir (genServer wasp compileOptions)
-  DbGenerator.preCleanup wasp dstDir compileOptions
-  writeFileDrafts dstDir (genDb wasp compileOptions)
-  writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
+writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+writeWebAppCode spec dstDir = do
+  writeFileDrafts dstDir (generateWebApp spec)
+  ServerGenerator.preCleanup spec dstDir
+  writeFileDrafts dstDir (genServer spec)
+  DbGenerator.preCleanup spec dstDir
+  writeFileDrafts dstDir (genDb spec)
+  writeFileDrafts dstDir (genDockerFiles spec)
   writeDotWaspInfo dstDir
 
 -- | Writes file drafts while using given destination dir as root dir.

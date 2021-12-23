@@ -5,21 +5,21 @@ module Wasp.Generator.ServerGenerator.ConfigG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (isJust)
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Wasp (Wasp, getAuth)
 
-genConfigFile :: Wasp -> FileDraft
-genConfigFile wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genConfigFile :: AppSpec -> FileDraft
+genConfigFile spec = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
     tmplData =
       object
-        [ "isAuthEnabled" .= isJust (getAuth wasp)
+        [ "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
         ]
 
 configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

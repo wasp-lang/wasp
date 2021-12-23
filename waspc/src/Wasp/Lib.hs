@@ -11,16 +11,17 @@ import Data.List (find, isSuffixOf)
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
+import qualified Wasp.Analyzer as Analyzer
+import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
+import qualified Wasp.AppSpec as AS
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
+import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
-import qualified Wasp.Parser as Parser
 import qualified Wasp.Util.IO as Util.IO
-import Wasp.Wasp (Wasp)
-import qualified Wasp.Wasp as Wasp
 
 type CompileError = String
 
@@ -30,34 +31,33 @@ compile ::
   CompileOptions ->
   IO (Either CompileError ())
 compile waspDir outDir options = do
-  maybeWaspFile <- findWaspFile waspDir
-  case maybeWaspFile of
+  maybeWaspFilePath <- findWaspFile waspDir
+  case maybeWaspFilePath of
     Nothing -> return $ Left "Couldn't find a single *.wasp file."
-    Just waspFile -> do
-      waspStr <- readFile (SP.toFilePath waspFile)
-
-      case Parser.parseWasp waspStr of
-        Left err -> return $ Left (show err)
-        Right wasp -> do
+    Just waspFilePath -> do
+      waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
+      case Analyzer.analyze waspFileContent of
+        Left analyzeError ->
+          return $
+            Left $
+              showCompilerErrorForTerminal
+                (waspFilePath, waspFileContent)
+                (getErrorMessageAndCtx analyzeError)
+        Right decls -> do
+          externalCodeFiles <-
+            ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvFile <- findDotEnvFile waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
-          ( wasp
-              `Wasp.setDotEnvFile` maybeDotEnvFile
-              `Wasp.setMigrationsDir` maybeMigrationsDir
-              `enrichWaspASTBasedOnCompileOptions` options
-            )
-            >>= generateCode
-  where
-    generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
-
-enrichWaspASTBasedOnCompileOptions :: Wasp -> CompileOptions -> IO Wasp
-enrichWaspASTBasedOnCompileOptions wasp options = do
-  externalCodeFiles <- ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
-  return
-    ( wasp
-        `Wasp.setExternalCodeFiles` externalCodeFiles
-        `Wasp.setIsBuild` CompileOptions.isBuild options
-    )
+          let appSpec =
+                AS.AppSpec
+                  { AS.decls = decls,
+                    AS.externalCodeFiles = externalCodeFiles,
+                    AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
+                    AS.migrationsDir = maybeMigrationsDir,
+                    AS.dotEnvFile = maybeDotEnvFile,
+                    AS.isBuild = CompileOptions.isBuild options
+                  }
+          Right <$> Generator.writeWebAppCode appSpec outDir
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
@@ -74,7 +74,9 @@ findDotEnvFile waspDir = do
   dotEnvExists <- doesFileExist (SP.toFilePath dotEnvAbsPath)
   return $ if dotEnvExists then Just dotEnvAbsPath else Nothing
 
-findMigrationsDir :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (Dir DbMigrationsDir)))
+findMigrationsDir ::
+  Path' Abs (Dir WaspProjectDir) ->
+  IO (Maybe (Path' Abs (Dir DbMigrationsDir)))
 findMigrationsDir waspDir = do
   let migrationsAbsPath = waspDir SP.</> dbMigrationsDirInWaspProjectDir
   migrationsExists <- doesDirectoryExist $ SP.fromAbsDir migrationsAbsPath

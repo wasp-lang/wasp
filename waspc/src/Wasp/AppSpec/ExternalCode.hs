@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Wasp.AppSpec.ExternalCode
   ( -- | Wasp project consists of Wasp code (.wasp files) and external code (e.g. .js files) that is
     -- used/referenced by the Wasp code.
@@ -14,13 +16,14 @@ module Wasp.AppSpec.ExternalCode
   )
 where
 
+import Data.Data (Data)
 import Data.Text (Text)
 import qualified Data.Text.Lazy as TextL
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 
 -- | Directory in Wasp source that contains external code.
 --   External code files are obtained from it.
-data SourceExternalCodeDir
+data SourceExternalCodeDir deriving (Data)
 
 data File = File
   { _pathInExtCodeDir :: !(Path' (Rel SourceExternalCodeDir) File'),

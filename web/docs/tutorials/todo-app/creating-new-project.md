@@ -45,18 +45,18 @@ TodoApp/
 ```
 
 Let's start with `main.wasp` file which introduces 3 new concepts:
-[app](language/basic-elements.md#app),
-[page](language/basic-elements.md#page) and
-[route](language/basic-elements.md#route).
+[app](language/features.md#app),
+[page](language/features.md#page) and
+[route](language/features.md#route).
 
 ```c title="main.wasp"
 app TodoApp { // Main declaration, defines a new web app.
-  title: "TodoApp" // Used as a browser tab title.
+  title: "Todo app" // Used as a browser tab title.
 }
 
-route "/" -> page Main // Render page Main on url `/` (default url).
+route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (default url).
 
-page Main {
+page MainPage {
   // We specify that ReactJS implementation of our page can be
   // found in `ext/MainPage.js` as a default export (uses standard
   // js import syntax).
@@ -64,7 +64,7 @@ page Main {
 }
 ```
 
-And now to that React component we referenced in the `page Main { ... }` declaration in `main.wasp`:
+And now to that React component we referenced in the `page MainPage { ... }` declaration in `main.wasp`:
 ```jsx title="ext/MainPage.js"
 import React from 'react'
 import waspLogo from './waspLogo.png'

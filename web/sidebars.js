@@ -46,7 +46,8 @@ module.exports = {
       collapsed: false,
       items: [
         'language/overview',
-        'language/basic-elements'
+        'language/syntax',
+        'language/features'
       ]
     },
     'cli',

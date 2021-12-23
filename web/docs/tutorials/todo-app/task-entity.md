@@ -4,7 +4,7 @@ title: "Task entity"
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-[Entities](language/basic-elements.md#entity) are one of the very central concepts in Wasp, and they mainly play the role of data models.
+[Entities](language/features.md#entity) are one of the very central concepts in Wasp, and they mainly play the role of data models.
 
 Since our TodoApp is all about tasks, we will define Task entity in Wasp:
 ```c title="main.wasp"

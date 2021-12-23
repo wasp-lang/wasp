@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.DockerGenerator
   ( genDockerFiles,
   )
@@ -5,29 +7,29 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath (File', Path', Rel, relfile)
-import Wasp.CompileOptions (CompileOptions)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Wasp (Wasp)
-import qualified Wasp.Wasp as Wasp
 
-genDockerFiles :: Wasp -> CompileOptions -> [FileDraft]
-genDockerFiles wasp _ = genDockerfile wasp : [genDockerignore wasp]
+genDockerFiles :: AppSpec -> [FileDraft]
+genDockerFiles spec = genDockerfile spec : [genDockerignore spec]
 
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
-genDockerfile :: Wasp -> FileDraft
-genDockerfile wasp =
+genDockerfile :: AppSpec -> FileDraft
+genDockerfile spec =
   createTemplateFileDraft
     ([relfile|Dockerfile|] :: Path' (Rel ProjectRootDir) File')
     ([relfile|Dockerfile|] :: Path' (Rel TemplatesDir) File')
     ( Just $
         object
-          [ "usingPrisma" .= not (null $ Wasp.getPSLEntities wasp)
+          [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec)
           ]
     )
 
-genDockerignore :: Wasp -> FileDraft
+genDockerignore :: AppSpec -> FileDraft
 genDockerignore _ =
   createTemplateFileDraft
     ([relfile|.dockerignore|] :: Path' (Rel ProjectRootDir) File')

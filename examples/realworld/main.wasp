@@ -3,55 +3,64 @@ app Conduit {
   
   head: [
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+  ],
+
+  auth: {
+    userEntity: User,
+    methods: [ EmailAndPassword ],
+    onAuthFailedRedirectTo: "/login"
+  },
+
+  db: { system: PostgreSQL },
+
+  dependencies: [
+    ("prop-types", "15.7.2"),
+    ("react-markdown", "5.0.3"),
+    ("moment", "2.29.1"),
+    ("@material-ui/core", "4.11.3"),
+    ("@material-ui/icons", "4.11.2"),
+    ("slug", "4.0.2")
   ]
 }
 
-auth {
-  userEntity: User,
-  methods: [ EmailAndPassword ],
-  onAuthFailedRedirectTo: "/login"
-}
 
-db {
-  system: PostgreSQL
-}
 
 // ----------------- Pages ------------------ //
 
-route "/" -> page Main
-page Main {
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
   component: import Main from "@ext/MainPage.js"
 }
 
-route "/login" -> page LogIn
-page LogIn {
+route LogInRoute { path: "/login", to: LogInPage }
+page LogInPage {
   component: import LogIn from "@ext/auth/LoginPage.js"
 }
 
-route "/register" -> page SignUp
-page SignUp {
+route RegisterRoute { path: "/register", to: SignUpPage }
+page SignUpPage {
   component: import SignUp from "@ext/auth/SignupPage.js"
 }
 
-route "/settings" -> page UserSettings
-page UserSettings {
+route UserSettingsRoute { path: "/settings", to: UserSettingsPage }
+page UserSettingsPage {
   authRequired: true,
   component: import UserSettings from "@ext/user/components/UserSettingsPage.js"
 }
 
-route "/@:username" -> page UserProfile
-page UserProfile {
+route UserProfileRoute { path: "/@:username", to: UserProfilePage }
+page UserProfilePage {
   component: import UserProfile from "@ext/user/components/UserProfilePage.js"
 }
 
-route "/editor/:articleSlug?" -> page ArticleEditor
-page ArticleEditor {
+route ArticleEditorRoute { path: "/editor/:articleSlug?", to: ArticleEditorPage }
+page ArticleEditorPage {
   authRequired: true,
   component: import ArticleEditor from "@ext/article/components/ArticleEditorPage.js"
 }
 
-route "/article/:articleSlug" -> page ArticleView
-page ArticleView {
+route ArticleViewRoute { path: "/article/:articleSlug", to: ArticleViewPage }
+page ArticleViewPage {
   component: import ArticleView from "@ext/article/components/ArticleViewPage.js"
 }
 
@@ -190,12 +199,3 @@ query getTags {
 }
 
 // -------------------------------------------- //
-
-dependencies {=json
-  "prop-types": "15.7.2",
-  "react-markdown": "5.0.3",
-  "moment": "2.29.1",
-  "@material-ui/core": "4.11.3",
-  "@material-ui/icons": "4.11.2",
-  "slug": "4.0.2"
-json=}

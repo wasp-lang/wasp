@@ -18,7 +18,7 @@ wasp build
 ```
 generates deployable code for the whole app in the `.wasp/build/` directory. Next, we will deploy this code.
 
-NOTE: You will not be able to build the app if you are using SQLite as a database (which is a default database) -> you will have to [switch to PostgreSQL](/docs/language/basic-elements#migrating-from-sqlite-to-postgresql).
+NOTE: You will not be able to build the app if you are using SQLite as a database (which is a default database) -> you will have to [switch to PostgreSQL](/docs/language/features#migrating-from-sqlite-to-postgresql).
 
 # Deploying API server (backend)
 In `.wasp/build/`, there is a `Dockerfile` describing an image for building the server.
