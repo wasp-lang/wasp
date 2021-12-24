@@ -20,6 +20,7 @@ import StrongPath
     (</>),
   )
 import Wasp.AppSpec (AppSpec, getApp)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
@@ -38,9 +39,6 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
-import qualified Wasp.NpmDependency as ND
-import Wasp.Wasp hiding (getApp)
-import qualified Wasp.Wasp.App as Wasp.App
 
 generateWebApp :: AppSpec -> [FileDraft]
 generateWebApp spec =
@@ -48,13 +46,11 @@ generateWebApp spec =
     [ [generateReadme spec],
       [genPackageJson spec waspNpmDeps],
       [generateGitignore spec],
-      generatePublicDir wasp,
-      generateSrcDir wasp,
-      generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy wasp,
-      [C.makeSimpleTemplateFD (asTmplFile [relfile|netlify.toml|]) wasp]
+      generatePublicDir spec,
+      generateSrcDir spec,
+      generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec),
+      [C.copyTmplAsIs $ asTmplFile [relfile|netlify.toml|]]
     ]
-  where
-    wasp = error "TODO: remove"
 
 generateReadme :: AppSpec -> FileDraft
 generateReadme _ = C.copyTmplAsIs $ asTmplFile [relfile|README.md|]
@@ -66,7 +62,7 @@ genPackageJson spec waspDeps =
     (C.asWebAppFile [relfile|package.json|])
     ( Just $
         object
-          [ "appName" .= fst $ getApp spec,
+          [ "appName" .= fst (getApp spec),
             "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
           ]
     )
@@ -145,10 +141,10 @@ genApi = C.copyTmplAsIs (C.asTmplFile [relfile|src/api.js|])
 generateSrcDir :: AppSpec -> [FileDraft]
 generateSrcDir spec =
   generateLogo :
-  RouterGenerator.generateRouter wasp :
+  RouterGenerator.generateRouter spec :
   genApi :
   map
-    makeSimpleSrcTemplateFD
+    processSrcTmpl
     [ [relfile|index.js|],
       [relfile|index.css|],
       [relfile|serviceWorker.js|],
@@ -156,17 +152,16 @@ generateSrcDir spec =
       [relfile|queryCache.js|],
       [relfile|utils.js|]
     ]
+    -- TODO: I need to refactor genOperations so that it takes AppSpec instead of Wasp.
     ++ genOperations wasp
-    ++ AuthG.genAuth wasp
+    ++ AuthG.genAuth spec
   where
     generateLogo =
       C.makeTemplateFD
         (asTmplFile [relfile|src/logo.png|])
         (srcDir </> asWebAppSrcFile [relfile|logo.png|])
         Nothing
-    makeSimpleSrcTemplateFD path =
-      C.makeTemplateFD
+    processSrcTmpl path =
+      C.copyTmplTo
         (asTmplFile $ [reldir|src|] </> path)
         (srcDir </> asWebAppSrcFile path)
-        (Just $ toJSON wasp)
-    wasp = error "TODO: remove"

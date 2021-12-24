@@ -28,6 +28,16 @@ data AppSpec = AppSpec
   }
 
 -- TODO: Should this be here or in AppSpec.App?
+-- TODO: What if this fails? Returning a Maybe here would be PITA later in the code.
+--   But would be cool if we had an extra step that somehow ensures that app exists and
+--   throws nice error if it doesn't. Some step that validated AppSpec. Maybe we could
+--   have a function that returns `Validated AppSpec` -> so basically smart constructor,
+--   validates AppSpec and returns it wrapped with `Validated`,
+--   and then functions like `getApp` would be executed on `Validated AppSpec`, so we can be sure
+--   they will not return an error (sure in the sense that we know `Validated` checked some stuff already).
+--   For this we should create `newtype ValidAppSpec = ValidAppSpec AppSpec` (or some better name?) and then
+--   function `validateAppSpec :: AppSpec -> ValidAppSpec` and hide constructor `ValidAppSpec`.
+--   But then we will be passing `ValidAppSpec` all around the Generator hm, is that ok?
 getApp :: AppSpec -> (String, App)
 getApp spec = head $ takeDecls @App (decls spec)
 

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.WebAppGenerator.RouterGenerator
   ( generateRouter,
   )
@@ -5,17 +7,18 @@ where
 
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath (reldir, relfile, (</>))
-import qualified StrongPath as SP
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
+import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
+import qualified Wasp.AppSpec.Page as AS.Page
+import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Wasp (Wasp)
-import qualified Wasp.Wasp as Wasp
-import qualified Wasp.Wasp.JsImport as Wasp.JsImport
-import qualified Wasp.Wasp.Page as Wasp.Page
-import qualified Wasp.Wasp.Route as Wasp.Route
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -56,47 +59,54 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
-generateRouter :: Wasp -> FileDraft
-generateRouter wasp =
+generateRouter :: AppSpec -> FileDraft
+generateRouter spec =
   C.makeTemplateFD
     (asTmplFile $ [reldir|src|] </> routerPath)
     targetPath
     (Just $ toJSON templateData)
   where
     routerPath = [relfile|router.js|]
-    templateData = createRouterTemplateData wasp
+    templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
-createRouterTemplateData :: Wasp -> RouterTemplateData
-createRouterTemplateData wasp =
+createRouterTemplateData :: AppSpec -> RouterTemplateData
+createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = isJust $ Wasp.getAuth wasp
+      _isAuthEnabled = isJust $ AS.App.auth $ snd $ AS.getApp spec
     }
   where
-    routes = map (createRouteTemplateData wasp) $ Wasp.getRoutes wasp
-    pages = map createPageTemplateData $ Wasp.getPages wasp
+    routes = map (createRouteTemplateData spec) $ AS.getDecls @AS.Route.Route spec
+    pages = map createPageTemplateData $ AS.getDecls @AS.Page.Page spec
 
-createRouteTemplateData :: Wasp -> Wasp.Route.Route -> RouteTemplateData
-createRouteTemplateData wasp route =
+-- TODO: Should I have something similar to WithCtx to describe that declarations are coming with a name?
+-- So instead of (String, <some_decl>) it would be NamedDecl <some_decl> or WithName <some_decl> or smth like that?
+createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
+createRouteTemplateData spec route =
   RouteTemplateData
-    { _urlPath = Wasp.Route._urlPath route,
-      _targetComponent = determineRouteTargetComponent wasp route
+    { _urlPath = AS.Route.path $ snd route,
+      _targetComponent = determineRouteTargetComponent spec route
     }
 
-determineRouteTargetComponent :: Wasp -> Wasp.Route.Route -> String
-determineRouteTargetComponent wasp route =
+determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
+determineRouteTargetComponent spec route =
   maybe
     targetPageName
     determineRouteTargetComponent'
-    (Wasp.Page._authRequired targetPage)
+    (AS.Page.authRequired $ snd targetPage)
   where
-    targetPageName = Wasp.Route._targetPage route
+    targetPageName = AS.Core.Ref.refName $ AS.Route.to $ snd route
     targetPage =
       fromMaybe
-        (error $ "Can't find page with name '" ++ targetPageName ++ "', pointed to by route '" ++ Wasp.Route._urlPath route ++ "'")
-        (find ((==) targetPageName . Wasp.Page._name) (Wasp.getPages wasp))
+        ( error $
+            "Can't find page with name '" ++ targetPageName
+              ++ "', pointed to by route '"
+              ++ AS.Route.path (snd route)
+              ++ "'"
+        )
+        (find ((==) targetPageName . fst) (AS.getDecls @AS.Page.Page spec))
 
     determineRouteTargetComponent' :: Bool -> String
     determineRouteTargetComponent' authRequired =
@@ -105,21 +115,22 @@ determineRouteTargetComponent wasp route =
           "createAuthRequiredPage(" ++ targetPageName ++ ")"
         else targetPageName
 
-createPageTemplateData :: Wasp.Page.Page -> PageTemplateData
+createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
     { _importFrom =
-        relPathToExtSrcDir
-          ++ SP.fromRelFileP (fromJust $ SP.relFileToPosix $ Wasp.JsImport._from pageComponent),
-      _importWhat = case Wasp.JsImport._namedImports pageComponent of
-        -- If no named imports, we go with the default import.
-        [] -> pageName
-        [namedImport] -> "{ " ++ namedImport ++ " as " ++ pageName ++ " }"
-        _ -> error "Only one named import can be provided for a page."
+        -- TODO: Once we make ExtImport.path be StrongPath, we will need to refactor here to use StrongPath.
+        relPathToExtSrcDir ++ AS.ExtImport.path pageComponent,
+      _importWhat = case AS.ExtImport.name pageComponent of
+        AS.ExtImport.ExtImportModule _ -> pageName
+        AS.ExtImport.ExtImportField identifier -> "{ " ++ identifier ++ " as " ++ pageName ++ " }"
     }
   where
     relPathToExtSrcDir :: FilePath
     relPathToExtSrcDir = "./ext-src/"
 
-    pageName = Wasp.Page._name page
-    pageComponent = Wasp.Page._component page
+    pageName :: String
+    pageName = fst page
+
+    pageComponent :: AS.ExtImport.ExtImport
+    pageComponent = AS.Page.component $ snd page
