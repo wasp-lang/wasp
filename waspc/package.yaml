@@ -78,6 +78,7 @@ library:
     - mtl
     - strong-path
     - template-haskell
+    - path-io
 
 executables:
   wasp-cli:
