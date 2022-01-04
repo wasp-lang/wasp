@@ -25,9 +25,6 @@ data ExtImport = ExtImport
     --   probably we should try for StrongPath and then if that doesn't work, specifically for ExtImport.
     path :: ExtImportPath
   }
-  -- TODO: Problem here is that StrongPath doesn't make its data types derive Data!
-  --   In Path, they do it, their data types are instances of Typeable and Data, so we should
-  --   also do it in StrongPath.
   deriving (Show, Eq, Data)
 
 type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
