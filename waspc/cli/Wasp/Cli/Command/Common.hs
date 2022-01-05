@@ -23,6 +23,7 @@ import Wasp.Cli.Common
   ( dotWaspRootFileInWaspProjectDir,
     waspSays,
   )
+import Wasp.Cli.Terminal (asWaspFailureMessage)
 import Wasp.Common (WaspProjectDir)
 
 findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
@@ -40,10 +41,11 @@ findWaspProjectRoot currentDir = do
       findWaspProjectRoot parentDir
   where
     notFoundError =
-      CommandError
-        ( "Couldn't find wasp project root - make sure"
-            ++ " you are running this command from Wasp project."
-        )
+      CommandError $
+        asWaspFailureMessage "Wasp command failed:"
+          ++ ( "Couldn't find wasp project root - make sure"
+                 ++ " you are running this command from a Wasp project."
+             )
 
 findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRootDirFromCwd = do

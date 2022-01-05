@@ -9,19 +9,19 @@ import System.Directory
   ( doesDirectoryExist,
     removeDirectoryRecursive,
   )
-import System.IO (hFlush, stdout)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Terminal (asWaspStartMessage, asWaspSuccessMessage)
 
 clean :: Command ()
 clean = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   let dotWaspDirFp = SP.toFilePath $ waspProjectDir SP.</> Common.dotWaspDirInWaspProjectDir
-  liftIO $ putStrLn "Deleting .wasp/ directory..." >> hFlush stdout
+  waspSaysC $ asWaspStartMessage "Deleting .wasp/ directory..."
   doesDotWaspDirExist <- liftIO $ doesDirectoryExist dotWaspDirFp
   if doesDotWaspDirExist
-    then liftIO $ do
-      removeDirectoryRecursive dotWaspDirFp
-      putStrLn "Deleted .wasp/ directory."
-    else liftIO $ putStrLn "Nothing to delete: .wasp directory does not exist."
+    then do
+      liftIO $ removeDirectoryRecursive dotWaspDirFp
+      waspSaysC $ asWaspSuccessMessage "Deleted .wasp/ directory."
+    else waspSaysC "Nothing to delete: .wasp directory does not exist."

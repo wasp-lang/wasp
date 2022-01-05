@@ -16,6 +16,7 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Common (waspSays)
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import qualified Wasp.Lib
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
@@ -78,11 +79,11 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
 
     recompile :: IO ()
     recompile = do
-      waspSays "Recompiling on file change..."
+      waspSays $ asWaspStartMessage "Recompiling on file change..."
       compilationResult <- compileIO waspProjectDir outDir
       case compilationResult of
-        Left err -> waspSays $ "Recompilation on file change failed: " ++ err
-        Right () -> waspSays "Recompilation on file change succeeded."
+        Left err -> waspSays $ asWaspFailureMessage "Recompilation on file change failed:" ++ err
+        Right () -> waspSays $ asWaspSuccessMessage "Recompilation on file change succeeded."
       return ()
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
