@@ -19,6 +19,7 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
 where
 
 import Control.Arrow (left)
+import qualified StrongPath as SP
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as ER
@@ -152,7 +153,9 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.ExtImport name file -> pure $ AppSpec.ExtImport.ExtImport name file
+  TypedAST.ExtImport name fileStr -> case SP.parseRelFileP fileStr of
+    Left err -> Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError $ show err
+    Right fileSP -> pure $ AppSpec.ExtImport.ExtImport name fileSP
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "JSON".

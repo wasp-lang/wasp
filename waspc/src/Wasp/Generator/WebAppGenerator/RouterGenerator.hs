@@ -9,6 +9,8 @@ import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath (reldir, relfile, (</>))
+import qualified StrongPath as SP
+import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -118,9 +120,7 @@ determineRouteTargetComponent spec route =
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
-    { _importFrom =
-        -- TODO: Once we make ExtImport.path be StrongPath, we will need to refactor here to use StrongPath.
-        relPathToExtSrcDir ++ AS.ExtImport.path pageComponent,
+    { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
       _importWhat = case AS.ExtImport.name pageComponent of
         AS.ExtImport.ExtImportModule _ -> pageName
         AS.ExtImport.ExtImportField identifier -> "{ " ++ identifier ++ " as " ++ pageName ++ " }"

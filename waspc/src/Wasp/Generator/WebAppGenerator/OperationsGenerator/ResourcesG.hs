@@ -5,11 +5,11 @@ where
 
 import Data.Aeson (object)
 import StrongPath (relfile)
+import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Wasp (Wasp)
 
-genResources :: Wasp -> [FileDraft]
+genResources :: AppSpec -> [FileDraft]
 genResources _ = [C.makeTemplateFD tmplFile dstFile (Just tmplData)]
   where
     tmplFile = C.asTmplFile [relfile|src/operations/resources.js|]

@@ -4,11 +4,7 @@ module Wasp.Generator.WebAppGenerator
   )
 where
 
-import Data.Aeson
-  ( ToJSON (..),
-    object,
-    (.=),
-  )
+import Data.Aeson (object, (.=))
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe)
 import StrongPath
@@ -152,8 +148,7 @@ generateSrcDir spec =
       [relfile|queryCache.js|],
       [relfile|utils.js|]
     ]
-    -- TODO: I need to refactor genOperations so that it takes AppSpec instead of Wasp.
-    ++ genOperations wasp
+    ++ genOperations spec
     ++ AuthG.genAuth spec
   where
     generateLogo =

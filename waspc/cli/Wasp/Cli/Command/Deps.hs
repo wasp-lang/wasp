@@ -24,4 +24,4 @@ deps =
           ++ [ "",
                title "Webapp dependencies:"
              ]
-          ++ map printDep WebAppGenerator.waspNpmDeps
+          ++ map printDep (error "TODO: WebAppGenerator.waspNpmDeps")

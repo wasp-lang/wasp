@@ -41,5 +41,8 @@ data AppSpec = AppSpec
 getApp :: AppSpec -> (String, App)
 getApp spec = head $ takeDecls @App (decls spec)
 
+-- TODO: Make this return "Named" declarations? I already have a comment for this somewhere else I think.
+-- We would have something like NamedDecl or smth like that. Or at least have a @type Named@ or smth like that.
+-- Or @WithName@ or just @Named@.
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls

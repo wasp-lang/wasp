@@ -48,7 +48,7 @@ compile waspDir outDir options = do
             )
             >>= generateCode
   where
-    generateCode wasp = Generator.writeWebAppCode wasp outDir options >> return (Right ())
+    generateCode wasp = Generator.writeWebAppCode (error "TODO: appSpec") outDir >> return (Right ())
 
 enrichWaspASTBasedOnCompileOptions :: Wasp -> CompileOptions -> IO Wasp
 enrichWaspASTBasedOnCompileOptions wasp options = do

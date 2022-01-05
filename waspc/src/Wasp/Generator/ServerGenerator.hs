@@ -58,7 +58,7 @@ genServer wasp _ =
       [genNvmrc wasp],
       [genGitignore wasp],
       genSrcDir wasp,
-      generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy wasp,
+      generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (error "TODO - previous wasp"),
       genDotEnv wasp
     ]
 
@@ -101,7 +101,7 @@ genPackageJson wasp waspDeps waspDevDeps =
         object
           [ "wasp" .= wasp,
             "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
-            "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
+            "devDepsChunk" .= npmDevDepsToPackageJsonEntry (error "TODO - previous waspDevDeps"),
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
               .= if not (null $ Wasp.getPSLEntities wasp)
@@ -113,7 +113,7 @@ genPackageJson wasp waspDeps waspDevDeps =
     )
   where
     (resolvedWaspDeps, resolvedUserDeps) =
-      case resolveNpmDeps waspDeps userDeps of
+      case resolveNpmDeps (error "TODO - previous waspDeps") (error "TODO - previous userDeps") of
         Right deps -> deps
         Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
 

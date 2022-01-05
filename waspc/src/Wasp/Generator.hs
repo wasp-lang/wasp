@@ -31,7 +31,7 @@ import Wasp.Generator.WebAppGenerator (generateWebApp)
 --     from user's machine. Maybe we just overwrite and we are good?
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 writeWebAppCode spec dstDir = do
-  writeFileDrafts dstDir (generateWebApp wasp compileOptions)
+  writeFileDrafts dstDir (generateWebApp spec)
   ServerGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genServer wasp compileOptions)
   DbGenerator.preCleanup wasp dstDir compileOptions
