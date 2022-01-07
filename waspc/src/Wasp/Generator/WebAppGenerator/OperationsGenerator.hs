@@ -30,7 +30,7 @@ genOperations spec =
     [ genQueries spec,
       genActions spec,
       [C.copyTmplAsIs $ C.asTmplFile [relfile|src/operations/index.js|]],
-      Resources.genResources (error "TODO: should be spec")
+      Resources.genResources spec
     ]
 
 genQueries :: AppSpec -> [FileDraft]
@@ -54,7 +54,7 @@ genQuery _ (queryName, query) = C.makeTemplateFD tmplFile dstFile (Just tmplData
           "queryRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
-                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter (error "TODO: operation")
+                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
                ),
           "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
@@ -72,7 +72,7 @@ genAction _ (actionName, action) = C.makeTemplateFD tmplFile dstFile (Just tmplD
           "actionRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
-                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter (error "TODO: operation")
+                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
                ),
           "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
