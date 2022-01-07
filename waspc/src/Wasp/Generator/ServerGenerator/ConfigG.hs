@@ -8,18 +8,19 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.AppSpec (AppSpec, getApp)
+import qualified Wasp.AppSpec.App as AS.App
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Wasp (Wasp, getAuth)
 
-genConfigFile :: Wasp -> FileDraft
-genConfigFile wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genConfigFile :: AppSpec -> FileDraft
+genConfigFile spec = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
     tmplData =
       object
-        [ "isAuthEnabled" .= isJust (getAuth wasp)
+        [ "isAuthEnabled" .= isJust (AS.App.auth $ snd $ getApp spec)
         ]
 
 configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

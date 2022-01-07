@@ -46,3 +46,5 @@ getApp spec = head $ takeDecls @App (decls spec)
 -- Or @WithName@ or just @Named@.
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
+
+-- TODO: re-export refName from here, for ease of access?

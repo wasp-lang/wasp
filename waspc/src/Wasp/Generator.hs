@@ -33,7 +33,7 @@ writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 writeWebAppCode spec dstDir = do
   writeFileDrafts dstDir (generateWebApp spec)
   ServerGenerator.preCleanup wasp dstDir compileOptions
-  writeFileDrafts dstDir (genServer wasp compileOptions)
+  writeFileDrafts dstDir (genServer spec)
   DbGenerator.preCleanup wasp dstDir compileOptions
   writeFileDrafts dstDir (genDb wasp compileOptions)
   writeFileDrafts dstDir (genDockerFiles wasp compileOptions)

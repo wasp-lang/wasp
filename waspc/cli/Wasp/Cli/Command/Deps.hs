@@ -20,7 +20,7 @@ deps =
           "",
           title "Server dependencies:"
         ]
-          ++ map printDep ServerGenerator.waspNpmDeps
+          ++ map printDep (error "TODO: ServerGenerator.waspNpmDeps")
           ++ [ "",
                title "Webapp dependencies:"
              ]

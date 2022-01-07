@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.ServerGenerator
   ( genServer,
     preCleanup,
@@ -20,12 +22,20 @@ import qualified StrongPath as SP
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.CompileOptions (CompileOptions)
 import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText)
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.JsImport (getImportDetailsForJsFnImport)
+import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.PackageJsonGenerator
   ( npmDepsToPackageJsonEntry,
     npmDevDepsToPackageJsonEntry,
@@ -42,24 +52,18 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified Wasp.NpmDependency as ND
-import Wasp.Wasp (Wasp, getAuth)
-import qualified Wasp.Wasp as Wasp
-import qualified Wasp.Wasp.Auth as Wasp.Auth
-import qualified Wasp.Wasp.NpmDependencies as WND
-import qualified Wasp.Wasp.Server as Wasp.Server
 
-genServer :: Wasp -> CompileOptions -> [FileDraft]
-genServer wasp _ =
+genServer :: AppSpec -> [FileDraft]
+genServer spec =
   concat
-    [ [genReadme wasp],
-      [genPackageJson wasp waspNpmDeps waspNpmDevDeps],
-      [genNpmrc wasp],
-      [genNvmrc wasp],
-      [genGitignore wasp],
-      genSrcDir wasp,
-      generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (error "TODO - previous wasp"),
-      genDotEnv wasp
+    [ [genReadme],
+      [genPackageJson spec waspNpmDeps waspNpmDevDeps],
+      [genNpmrc],
+      [genNvmrc],
+      [genGitignore],
+      genSrcDir spec,
+      generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec),
+      genDotEnv spec
     ]
 
 -- Cleanup to be performed before generating new server code.
@@ -67,7 +71,7 @@ genServer wasp _ =
 -- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
 --   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
 --   for progress of this.
-preCleanup :: Wasp -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
+preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup _ outDir _ = do
   -- If .env gets removed but there is old .env file in generated project from previous attempts,
   -- we need to make sure we remove it.
@@ -76,9 +80,9 @@ preCleanup _ outDir _ = do
   where
     dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
-genDotEnv :: Wasp -> [FileDraft]
-genDotEnv wasp =
-  case Wasp.getDotEnvFile wasp of
+genDotEnv :: AppSpec -> [FileDraft]
+genDotEnv spec =
+  case AS.dotEnvFile spec of
     Just srcFilePath ->
       [ createCopyFileDraft
           (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
@@ -89,22 +93,21 @@ genDotEnv wasp =
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
-genReadme :: Wasp -> FileDraft
-genReadme _ = C.copyTmplAsIs (asTmplFile [relfile|README.md|])
+genReadme :: FileDraft
+genReadme = C.copyTmplAsIs (asTmplFile [relfile|README.md|])
 
-genPackageJson :: Wasp -> [ND.NpmDependency] -> [ND.NpmDependency] -> FileDraft
-genPackageJson wasp waspDeps waspDevDeps =
+genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> FileDraft
+genPackageJson spec waspDeps waspDevDeps =
   C.makeTemplateFD
     (asTmplFile [relfile|package.json|])
     (asServerFile [relfile|package.json|])
     ( Just $
         object
-          [ "wasp" .= wasp,
-            "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
-            "devDepsChunk" .= npmDevDepsToPackageJsonEntry (error "TODO - previous waspDevDeps"),
+          [ "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
+            "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
             "nodeVersion" .= nodeVersionAsText,
             "startProductionScript"
-              .= if not (null $ Wasp.getPSLEntities wasp)
+              .= if not (null $ AS.getDecls @AS.Entity.Entity spec)
                 then "npm run db-migrate-prod && "
                 else
                   ""
@@ -113,16 +116,16 @@ genPackageJson wasp waspDeps waspDevDeps =
     )
   where
     (resolvedWaspDeps, resolvedUserDeps) =
-      case resolveNpmDeps (error "TODO - previous waspDeps") (error "TODO - previous userDeps") of
+      case resolveNpmDeps waspDeps userDeps of
         Right deps -> deps
         Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
 
-    userDeps :: [ND.NpmDependency]
-    userDeps = WND._dependencies $ Wasp.getNpmDependencies wasp
+    userDeps :: [AS.Dependency.Dependency]
+    userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec
 
-waspNpmDeps :: [ND.NpmDependency]
+waspNpmDeps :: [AS.Dependency.Dependency]
 waspNpmDeps =
-  ND.fromList
+  AS.Dependency.fromList
     [ ("cookie-parser", "~1.4.4"),
       ("cors", "^2.8.5"),
       ("debug", "~2.6.9"),
@@ -135,56 +138,56 @@ waspNpmDeps =
       ("helmet", "^4.6.0")
     ]
 
-waspNpmDevDeps :: [ND.NpmDependency]
+waspNpmDevDeps :: [AS.Dependency.Dependency]
 waspNpmDevDeps =
-  ND.fromList
+  AS.Dependency.fromList
     [ ("nodemon", "^2.0.4"),
       ("standard", "^14.3.4"),
       ("prisma", "2.22.1")
     ]
 
-genNpmrc :: Wasp -> FileDraft
-genNpmrc _ =
+genNpmrc :: FileDraft
+genNpmrc =
   C.makeTemplateFD
     (asTmplFile [relfile|npmrc|])
     (asServerFile [relfile|.npmrc|])
     Nothing
 
-genNvmrc :: Wasp -> FileDraft
-genNvmrc _ =
+genNvmrc :: FileDraft
+genNvmrc =
   C.makeTemplateFD
     (asTmplFile [relfile|nvmrc|])
     (asServerFile [relfile|.nvmrc|])
     (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
 
-genGitignore :: Wasp -> FileDraft
-genGitignore _ =
+genGitignore :: FileDraft
+genGitignore =
   C.makeTemplateFD
     (asTmplFile [relfile|gitignore|])
     (asServerFile [relfile|.gitignore|])
     Nothing
 
-genSrcDir :: Wasp -> [FileDraft]
-genSrcDir wasp =
+genSrcDir :: AppSpec -> [FileDraft]
+genSrcDir spec =
   concat
     [ [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|app.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|server.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|utils.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|core/AuthError.js|]],
       [C.copySrcTmplAsIs $ C.asTmplSrcFile [relfile|core/HttpError.js|]],
-      [genDbClient wasp],
-      [genConfigFile wasp],
-      genRoutesDir wasp,
-      genOperationsRoutes wasp,
-      genOperations wasp,
-      genAuth wasp,
-      [genServerJs wasp]
+      [genDbClient spec],
+      [genConfigFile spec],
+      genRoutesDir spec,
+      genOperationsRoutes spec,
+      genOperations spec,
+      genAuth spec,
+      [genServerJs spec]
     ]
 
-genDbClient :: Wasp -> FileDraft
-genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genDbClient :: AppSpec -> FileDraft
+genDbClient spec = C.makeTemplateFD tmplFile dstFile (Just tmplData)
   where
-    maybeAuth = getAuth wasp
+    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
 
     dbClientRelToSrcP = [relfile|dbClient.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
@@ -195,12 +198,12 @@ genDbClient wasp = C.makeTemplateFD tmplFile dstFile (Just tmplData)
         then
           object
             [ "isAuthEnabled" .= True,
-              "userEntityUpper" .= Wasp.Auth._userEntity (fromJust maybeAuth)
+              "userEntityUpper" .= AS.Core.Ref.refName (AS.App.Auth.userEntity $ fromJust maybeAuth)
             ]
         else object []
 
-genServerJs :: Wasp -> FileDraft
-genServerJs wasp =
+genServerJs :: AppSpec -> FileDraft
+genServerJs spec =
   C.makeTemplateFD
     (asTmplFile [relfile|src/server.js|])
     (asServerFile [relfile|src/server.js|])
@@ -212,8 +215,8 @@ genServerJs wasp =
           ]
     )
   where
-    maybeSetupJsFunction = Wasp.Server._setupJsFunction <$> Wasp.getServer wasp
-    maybeSetupJsFnImportDetails = getImportDetailsForJsFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ AS.getApp spec)
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
@@ -221,8 +224,8 @@ genServerJs wasp =
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
-genRoutesDir :: Wasp -> [FileDraft]
-genRoutesDir wasp =
+genRoutesDir :: AppSpec -> [FileDraft]
+genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
   [ C.makeTemplateFD
@@ -231,7 +234,10 @@ genRoutesDir wasp =
       ( Just $
           object
             [ "operationsRouteInRootRouter" .= operationsRouteInRootRouter,
-              "isAuthEnabled" .= isJust (getAuth wasp)
+              -- TODO: This is commonly used (isAuthEnabled), maybe I should extract this logic
+              -- so it can be reused? Put it somewhere in AppSpec? Or in Generator? Probably AppSpec.
+              -- I could also extract some other stuff like getAuth, getQueries, getActions, ... .
+              "isAuthEnabled" .= isJust (AS.App.auth $ snd $ AS.getApp spec)
             ]
       )
   ]
