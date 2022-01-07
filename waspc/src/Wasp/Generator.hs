@@ -32,15 +32,12 @@ import Wasp.Generator.WebAppGenerator (generateWebApp)
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 writeWebAppCode spec dstDir = do
   writeFileDrafts dstDir (generateWebApp spec)
-  ServerGenerator.preCleanup wasp dstDir compileOptions
+  ServerGenerator.preCleanup spec dstDir
   writeFileDrafts dstDir (genServer spec)
-  DbGenerator.preCleanup wasp dstDir compileOptions
-  writeFileDrafts dstDir (genDb wasp compileOptions)
-  writeFileDrafts dstDir (genDockerFiles wasp compileOptions)
+  DbGenerator.preCleanup spec dstDir
+  writeFileDrafts dstDir (genDb spec)
+  writeFileDrafts dstDir (genDockerFiles spec)
   writeDotWaspInfo dstDir
-  where
-    wasp = error "TODO: remove"
-    compileOptions = error "TODO: remove"
 
 -- | Writes file drafts while using given destination dir as root dir.
 --   TODO(martin): We could/should parallelize this.

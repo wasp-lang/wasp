@@ -30,7 +30,6 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.CompileOptions (CompileOptions)
 import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText)
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -71,8 +70,8 @@ genServer spec =
 -- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
 --   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
 --   for progress of this.
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
-preCleanup _ outDir _ = do
+preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup _ outDir = do
   -- If .env gets removed but there is old .env file in generated project from previous attempts,
   -- we need to make sure we remove it.
   removeFile dotEnvAbsFilePath

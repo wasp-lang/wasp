@@ -11,6 +11,7 @@ import StrongPath (Abs, Dir, File', Path')
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
+import Wasp.Common (DbMigrationsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -23,6 +24,7 @@ data AppSpec = AppSpec
     externalCodeFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
     externalCodeDirPath :: !(Path' Abs (Dir ExternalCode.SourceExternalCodeDir)),
+    migrationDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     dotEnvFile :: Maybe (Path' Abs File'),
     isBuild :: Bool
   }
