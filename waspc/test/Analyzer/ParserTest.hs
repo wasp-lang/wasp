@@ -1,5 +1,6 @@
 module Analyzer.ParserTest where
 
+import Analyzer.TestUtil
 import Data.Either (isLeft)
 import Test.Tasty.Hspec
 import Wasp.Analyzer.Parser
@@ -23,21 +24,24 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "test" "Decl" $
-                  Dict
-                    [ ("string", StringLiteral "Hello Wasp =}"),
-                      ("escapedString", StringLiteral "Look, a \""),
-                      ("integer", IntegerLiteral 42),
-                      ("real", DoubleLiteral 3.14),
-                      ("yes", BoolLiteral True),
-                      ("no", BoolLiteral False),
-                      ("ident", Var "Wasp"),
-                      ( "innerDict",
-                        Dict
-                          [ ("innerDictReal", DoubleLiteral 2.17)
-                          ]
-                      )
-                    ]
+              [ wctx 1 1 $
+                  Decl "test" "Decl" $
+                    wctx 1 11 $
+                      Dict
+                        [ ("string", wctx 2 11 $ StringLiteral "Hello Wasp =}"),
+                          ("escapedString", wctx 3 18 $ StringLiteral "Look, a \""),
+                          ("integer", wctx 4 12 $ IntegerLiteral 42),
+                          ("real", wctx 5 9 $ DoubleLiteral 3.14),
+                          ("yes", wctx 6 8 $ BoolLiteral True),
+                          ("no", wctx 7 7 $ BoolLiteral False),
+                          ("ident", wctx 8 10 $ Var "Wasp"),
+                          ( "innerDict",
+                            wctx 9 14 $
+                              Dict
+                                [ ("innerDictReal", wctx 9 31 $ DoubleLiteral 2.17)
+                                ]
+                          )
+                        ]
               ]
       parse source `shouldBe` Right ast
 
@@ -51,33 +55,47 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "test" "Imports" $
-                  Dict
-                    [ ("module", ExtImport (ExtImportModule "Page") "page.jsx"),
-                      ("field", ExtImport (ExtImportField "Page") "page.jsx")
-                    ]
+              [ wctx 1 1 $
+                  Decl "test" "Imports" $
+                    wctx 1 14 $
+                      Dict
+                        [ ("module", wctx 2 11 $ ExtImport (ExtImportModule "Page") "page.jsx"),
+                          ("field", wctx 3 10 $ ExtImport (ExtImportField "Page") "page.jsx")
+                        ]
               ]
       parse source `shouldBe` Right ast
 
     it "Parses unary lists" $ do
       let source = "test Decl [ 1 ]"
-      let ast = AST [Decl "test" "Decl" $ List [IntegerLiteral 1]]
+      let ast = AST [wctx 1 1 $ Decl "test" "Decl" $ wctx 1 11 $ List [wctx 1 13 $ IntegerLiteral 1]]
       parse source `shouldBe` Right ast
 
     it "Parses lists of multiple elements" $ do
       let source = "test Decl [ 1, 2, 3 ]"
-      let ast = AST [Decl "test" "Decl" $ List [IntegerLiteral 1, IntegerLiteral 2, IntegerLiteral 3]]
+      let ast =
+            AST
+              [ wctx 1 1 $
+                  Decl "test" "Decl" $
+                    wctx 1 11 $
+                      List
+                        [ wctx 1 13 $ IntegerLiteral 1,
+                          wctx 1 16 $ IntegerLiteral 2,
+                          wctx 1 19 $ IntegerLiteral 3
+                        ]
+              ]
       parse source `shouldBe` Right ast
 
     it "Parses empty dictionaries and lists" $ do
       let source = "test Decl { dict: {}, list: [] }"
       let ast =
             AST
-              [ Decl "test" "Decl" $
-                  Dict
-                    [ ("dict", Dict []),
-                      ("list", List [])
-                    ]
+              [ wctx 1 1 $
+                  Decl "test" "Decl" $
+                    wctx 1 11 $
+                      Dict
+                        [ ("dict", wctx 1 19 $ Dict []),
+                          ("list", wctx 1 29 $ List [])
+                        ]
               ]
       parse source `shouldBe` Right ast
 
@@ -90,9 +108,11 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "test" "Decl" $
-                  Dict
-                    [("list", List [IntegerLiteral 1])]
+              [ wctx 1 1 $
+                  Decl "test" "Decl" $
+                    wctx 1 11 $
+                      Dict
+                        [("list", wctx 2 9 $ List [wctx 2 11 $ IntegerLiteral 1])]
               ]
       parse source `shouldBe` Right ast
 
@@ -106,32 +126,40 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "test" "Pair" $
-                  Tuple
-                    ( IntegerLiteral 1,
-                      StringLiteral "foo",
-                      []
-                    ),
-                Decl "test" "Triple" $
-                  Tuple
-                    ( IntegerLiteral 1,
-                      StringLiteral "foo",
-                      [IntegerLiteral 2]
-                    ),
-                Decl "test" "Quadruple" $
-                  Tuple
-                    ( IntegerLiteral 1,
-                      StringLiteral "foo",
-                      [ IntegerLiteral 2,
-                        BoolLiteral True
-                      ]
-                    ),
-                Decl "test" "TrailingComma" $
-                  Tuple
-                    ( IntegerLiteral 42,
-                      IntegerLiteral 314,
-                      []
-                    )
+              [ wctx 1 1 $
+                  Decl "test" "Pair" $
+                    wctx 1 11 $
+                      Tuple
+                        ( wctx 1 12 $ IntegerLiteral 1,
+                          wctx 1 15 $ StringLiteral "foo",
+                          []
+                        ),
+                wctx 2 1 $
+                  Decl "test" "Triple" $
+                    wctx 2 13 $
+                      Tuple
+                        ( wctx 2 14 $ IntegerLiteral 1,
+                          wctx 2 17 $ StringLiteral "foo",
+                          [wctx 2 24 $ IntegerLiteral 2]
+                        ),
+                wctx 3 1 $
+                  Decl "test" "Quadruple" $
+                    wctx 3 16 $
+                      Tuple
+                        ( wctx 3 17 $ IntegerLiteral 1,
+                          wctx 3 20 $ StringLiteral "foo",
+                          [ wctx 3 27 $ IntegerLiteral 2,
+                            wctx 3 30 $ BoolLiteral True
+                          ]
+                        ),
+                wctx 4 1 $
+                  Decl "test" "TrailingComma" $
+                    wctx 4 20 $
+                      Tuple
+                        ( wctx 4 21 $ IntegerLiteral 42,
+                          wctx 4 25 $ IntegerLiteral 314,
+                          []
+                        )
               ]
       parse source `shouldBe` Right ast
 
@@ -142,7 +170,13 @@ spec_Parser = do
                 "  id Int @id",
                 "psl=}"
               ]
-      let ast = AST [Decl "test" "PSL" $ Quoter "psl" "\n  id Int @id\n"]
+      let ast =
+            AST
+              [ wctx 1 1 $
+                  Decl "test" "PSL" $
+                    wctx 1 10 $
+                      Quoter "psl" "\n  id Int @id\n"
+              ]
       parse source `shouldBe` Right ast
 
     it "Parses quoted JSON" $ do
@@ -152,7 +186,12 @@ spec_Parser = do
                 "  \"key\": \"value\"",
                 "json=}"
               ]
-      let ast = AST [Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n"]
+      let ast =
+            AST
+              [ wctx 1 1 $
+                  Decl "test" "JSON" $
+                    wctx 1 11 $ Quoter "json" "\n  \"key\": \"value\"\n"
+              ]
       parse source `shouldBe` Right ast
 
     it "Parses multiple quoters" $ do
@@ -167,8 +206,8 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "test" "JSON" $ Quoter "json" "\n  \"key\": \"value\"\n",
-                Decl "test" "JSON2" $ Quoter "json" "\n  \"key\": \"value\"\n"
+              [ wctx 1 1 $ Decl "test" "JSON" $ wctx 1 11 $ Quoter "json" "\n  \"key\": \"value\"\n",
+                wctx 4 1 $ Decl "test" "JSON2" $ wctx 4 12 $ Quoter "json" "\n  \"key\": \"value\"\n"
               ]
       parse source `shouldBe` Right ast
 
@@ -180,13 +219,13 @@ spec_Parser = do
       parse "test Case1 {=foo {=foo foo=} foo=}" `shouldSatisfy` isLeft
       parse "test Case2 {=foo foo=} foo=}" `shouldSatisfy` isLeft
       parse "test Case3 {=foo {=foo foo=}"
-        `shouldBe` Right (AST [Decl "test" "Case3" $ Quoter "foo" " {=foo "])
+        `shouldBe` Right (AST [wctx 1 1 $ Decl "test" "Case3" $ wctx 1 12 $ Quoter "foo" " {=foo "])
       parse "test Case4 {=foo {=bar foo=}"
-        `shouldBe` Right (AST [Decl "test" "Case4" $ Quoter "foo" " {=bar "])
+        `shouldBe` Right (AST [wctx 1 1 $ Decl "test" "Case4" $ wctx 1 12 $ Quoter "foo" " {=bar "])
       parse "test Case5 {=foo bar=} foo=}"
-        `shouldBe` Right (AST [Decl "test" "Case5" $ Quoter "foo" " bar=} "])
+        `shouldBe` Right (AST [wctx 1 1 $ Decl "test" "Case5" $ wctx 1 12 $ Quoter "foo" " bar=} "])
       parse "test Case6 {=foo {=bar bar=} foo=}"
-        `shouldBe` Right (AST [Decl "test" "Case6" $ Quoter "foo" " {=bar bar=} "])
+        `shouldBe` Right (AST [wctx 1 1 $ Decl "test" "Case6" $ wctx 1 12 $ Quoter "foo" " {=bar bar=} "])
 
     it "Requires dictionaries to have an ending bracket" $ do
       let source = "test Decl {"
@@ -210,8 +249,8 @@ spec_Parser = do
               ]
       let ast =
             AST
-              [ Decl "constant" "Pi" $ DoubleLiteral 3.14159,
-                Decl "constant" "E" $ DoubleLiteral 2.71828
+              [ wctx 1 1 $ Decl "constant" "Pi" $ wctx 1 13 $ DoubleLiteral 3.14159,
+                wctx 2 1 $ Decl "constant" "E" $ wctx 2 13 $ DoubleLiteral 2.71828
               ]
       parse source `shouldBe` Right ast
 

@@ -4,31 +4,39 @@ module Wasp.Analyzer.TypeChecker.AST
     TypedExpr (..),
     Identifier,
     ExtImportName (..),
+    WithCtx (..),
+    withCtx,
     exprType,
   )
 where
 
 import Wasp.Analyzer.Parser (ExtImportName (..), Identifier)
+import Wasp.Analyzer.Parser.Ctx (WithCtx (..), withCtx)
 import Wasp.Analyzer.Type
 
-newtype TypedAST = TypedAST {typedStmts :: [TypedStmt]} deriving (Eq, Show)
+newtype TypedAST = TypedAST {typedStmts :: [WithCtx TypedStmt]} deriving (Eq, Show)
 
-data TypedStmt = Decl Identifier TypedExpr Type deriving (Eq, Show)
-
-data TypedExpr
-  = Dict [(Identifier, TypedExpr)] Type
-  | List [TypedExpr] Type
-  | Tuple (TypedExpr, TypedExpr, [TypedExpr]) Type
-  | StringLiteral String
-  | IntegerLiteral Integer
-  | DoubleLiteral Double
-  | BoolLiteral Bool
-  | ExtImport ExtImportName String
-  | Var Identifier Type
-  | -- TODO: When adding quoters to TypeDefinitions, these JSON/PSL variants will have to be changed
-    JSON String
-  | PSL String
+data TypedStmt
+  = -- | Decl <declName> <declBody> <declType>
+    Decl Identifier (WithCtx TypedExpr) Type
   deriving (Eq, Show)
+
+{- ORMOLU_DISABLE -}
+data TypedExpr
+  = Dict           [(Identifier, WithCtx TypedExpr)] Type
+  | List           [WithCtx TypedExpr] Type
+  | Tuple          (WithCtx TypedExpr, WithCtx TypedExpr, [WithCtx TypedExpr]) Type
+  | StringLiteral  String
+  | IntegerLiteral Integer
+  | DoubleLiteral  Double
+  | BoolLiteral    Bool
+  | ExtImport      ExtImportName String
+  | Var            Identifier Type
+  | -- TODO: When adding quoters to TypeDefinitions, these JSON/PSL variants will have to be changed
+    JSON           String
+  | PSL            String
+  deriving (Eq, Show)
+{- ORMOLU_ENABLE -}
 
 -- | Given a @TypedExpr@, determines its @Type@.
 exprType :: TypedExpr -> Type

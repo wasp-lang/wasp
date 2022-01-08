@@ -37,7 +37,8 @@ where
 import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
 import qualified Data.HashMap.Strict as M
-import Data.List.NonEmpty (NonEmpty, nonEmpty, toList)
+import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
+import Data.Maybe (fromJust)
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
@@ -45,7 +46,7 @@ import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Monad
 import Wasp.Analyzer.TypeChecker.TypeError
 import qualified Wasp.Analyzer.TypeDefinitions as TD
-import Wasp.Util.Control.Monad (foldM1, foldMapM')
+import Wasp.Util.Control.Monad (foldMapM')
 
 check :: AST -> TypeChecker TypedAST
 check ast = hoistDeclarations ast >> checkAST ast
@@ -53,78 +54,82 @@ check ast = hoistDeclarations ast >> checkAST ast
 hoistDeclarations :: AST -> TypeChecker ()
 hoistDeclarations (P.AST stmts) = mapM_ hoistDeclaration stmts
   where
-    hoistDeclaration :: P.Stmt -> TypeChecker ()
-    hoistDeclaration (P.Decl typeName ident _) = setType ident $ DeclType typeName
+    hoistDeclaration :: P.WithCtx P.Stmt -> TypeChecker ()
+    hoistDeclaration (P.WithCtx _ (P.Decl typeName ident _)) =
+      setType ident $ DeclType typeName
 
 checkAST :: AST -> TypeChecker TypedAST
 checkAST (P.AST stmts) = TypedAST <$> mapM checkStmt stmts
 
-checkStmt :: P.Stmt -> TypeChecker TypedStmt
-checkStmt (P.Decl typeName name expr) =
+checkStmt :: P.WithCtx P.Stmt -> TypeChecker (WithCtx TypedStmt)
+checkStmt (P.WithCtx ctx (P.Decl typeName name expr)) =
   lookupDeclType typeName >>= \case
-    Nothing -> throw $ NoDeclarationType typeName
+    Nothing -> throw $ NoDeclarationType ctx typeName
     Just (TD.DeclType _ expectedType _) -> do
       -- Decides whether the argument to the declaration has the correct type
       mTypedExpr <- weaken expectedType <$> inferExprType expr
       case mTypedExpr of
-        Left e -> throw e
-        Right typedExpr -> return $ Decl name typedExpr (DeclType typeName)
+        Left e -> throw $ WeakenError ctx e
+        Right typedExpr -> return $ WithCtx ctx $ Decl name typedExpr (DeclType typeName)
 
 -- | Determine the type of an expression, following the inference rules described in
--- the wasplang document. Some these rules are referenced by name in the comments
+-- the wasplang document. Some of these rules are referenced by name in the comments
 -- of the following functions using [Brackets].
-inferExprType :: P.Expr -> TypeChecker TypedExpr
-inferExprType (P.StringLiteral s) = return $ StringLiteral s
-inferExprType (P.IntegerLiteral i) = return $ IntegerLiteral i
-inferExprType (P.DoubleLiteral d) = return $ DoubleLiteral d
-inferExprType (P.BoolLiteral b) = return $ BoolLiteral b
-inferExprType (P.ExtImport n s) = return $ ExtImport n s
-inferExprType (P.Var ident) =
-  lookupType ident >>= \case
-    Nothing -> throw $ UndefinedIdentifier ident
-    Just typ -> return $ Var ident typ
--- For now, the two quoter types are hardcoded here, it is an error to use a different one
--- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions"
-inferExprType (P.Quoter "json" s) = return $ JSON s
-inferExprType (P.Quoter "psl" s) = return $ PSL s
-inferExprType (P.Quoter tag _) = throw $ QuoterUnknownTag tag
--- The type of a list is the unified type of its values.
--- This poses a problem for empty lists, there is not enough information to choose a type.
--- TODO: fix this in the future, probably by adding an additional phase to resolve type variables
---       that would be assigned here
-inferExprType (P.List values) = do
-  typedValues <- mapM inferExprType values
-  case unify <$> nonEmpty typedValues of
-    -- Apply [EmptyList]
-    Nothing -> return $ List [] EmptyListType
-    Just (Left e) ->
-      throw e
-    Just (Right (unifiedValues, unifiedType)) ->
-      return $ List (toList unifiedValues) (ListType unifiedType)
--- Apply [Dict], and also check that there are no duplicate keys in the dictionary
-inferExprType (P.Dict entries) = do
-  typedEntries <- mapM (\(k, v) -> (k,) <$> inferExprType v) entries
-  dictType <-
-    foldM insertIfUniqueElseThrow M.empty $
-      second (DictRequired . exprType) <$> typedEntries
-  return $ Dict typedEntries (DictType dictType)
+inferExprType :: P.WithCtx P.Expr -> TypeChecker (WithCtx TypedExpr)
+inferExprType = P.withCtx $ \ctx -> \case
+  P.StringLiteral s -> return $ WithCtx ctx $ StringLiteral s
+  P.IntegerLiteral s -> return $ WithCtx ctx $ IntegerLiteral s
+  P.DoubleLiteral s -> return $ WithCtx ctx $ DoubleLiteral s
+  P.BoolLiteral s -> return $ WithCtx ctx $ BoolLiteral s
+  P.ExtImport n s -> return $ WithCtx ctx $ ExtImport n s
+  P.Var ident ->
+    lookupType ident >>= \case
+      Nothing -> throw $ UndefinedIdentifier ctx ident
+      Just typ -> return $ WithCtx ctx $ Var ident typ
+  -- For now, the two quoter types are hardcoded here, it is an error to use a different one
+  -- TODO: this will change when quoters are added to "Analyzer.TypeDefinitions".
+  P.Quoter "json" s -> return $ WithCtx ctx $ JSON s
+  P.Quoter "psl" s -> return $ WithCtx ctx $ PSL s
+  P.Quoter tag _ -> throw $ QuoterUnknownTag ctx tag
+  -- The type of a list is the unified type of its values.
+  -- This poses a problem for empty lists, there is not enough information to choose a type.
+  -- TODO: Fix this in the future, probably by adding an additional phase to resolve type variables
+  --       that would be assigned here.
+  P.List values -> do
+    typedValues <- mapM inferExprType values
+    case unify ctx <$> nonEmpty typedValues of
+      -- Apply [EmptyList].
+      Nothing -> return $ WithCtx ctx $ List [] EmptyListType
+      Just (Left e) -> throw e
+      Just (Right (unifiedValues, unifiedType)) ->
+        return $ WithCtx ctx $ List (toList unifiedValues) (ListType unifiedType)
+  -- Apply [Dict], and also check that there are no duplicate keys in the dictionary.
+  P.Dict entries -> do
+    typedEntries <- mapM (\(key, expr) -> (key,) <$> inferExprType expr) entries
+    dictType <-
+      foldM (insertIfUniqueElseThrow ctx) M.empty $
+        second (withCtx . const $ DictRequired . exprType) <$> typedEntries
+    return $ WithCtx ctx $ Dict typedEntries (DictType dictType)
+  P.Tuple (value1, value2, restOfValues) -> do
+    typedValue1 <- inferExprType value1
+    typedValue2 <- inferExprType value2
+    typedRestOfValues <- mapM inferExprType restOfValues
+    let typedValues = (typedValue1, typedValue2, typedRestOfValues)
+    let tupleType =
+          TupleType
+            ( exprType' typedValue1,
+              exprType' typedValue2,
+              exprType' <$> typedRestOfValues
+            )
+    return $ WithCtx ctx $ Tuple typedValues tupleType
   where
-    insertIfUniqueElseThrow :: M.HashMap Identifier v -> (Identifier, v) -> TypeChecker (M.HashMap Identifier v)
-    insertIfUniqueElseThrow m (key, value)
-      | key `M.member` m = throw $ DictDuplicateField key
+    exprType' :: WithCtx TypedExpr -> Type
+    exprType' = exprType . P.fromWithCtx
+
+    insertIfUniqueElseThrow :: P.Ctx -> M.HashMap Identifier v -> (Identifier, v) -> TypeChecker (M.HashMap Identifier v)
+    insertIfUniqueElseThrow ctx m (key, value)
+      | key `M.member` m = throw $ DictDuplicateField ctx key
       | otherwise = return $ M.insert key value m
-inferExprType (P.Tuple (value1, value2, restOfValues)) = do
-  typedValue1 <- inferExprType value1
-  typedValue2 <- inferExprType value2
-  typedRestOfValues <- mapM inferExprType restOfValues
-  let typedValues = (typedValue1, typedValue2, typedRestOfValues)
-  let tupleType =
-        TupleType
-          ( exprType typedValue1,
-            exprType typedValue2,
-            exprType <$> typedRestOfValues
-          )
-  return $ Tuple typedValues tupleType
 
 -- | Finds the strongest common type for all of the given expressions, "common" meaning
 -- all the expressions can be typed with it and "strongest" meaning it is as specific
@@ -133,74 +138,69 @@ inferExprType (P.Tuple (value1, value2, restOfValues)) = do
 --
 -- The following property is gauranteed:
 --
--- * If @unify exprs == Right (exprs', commonType)@ then @all ((==commonType) . exprType) exprs'@
+-- * IF   @unify ctx exprs == Right (exprs', commonType)@
+--   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
 --
--- __Examples__
---
--- >>> unify (StringLiteral "a" :| DoubleLiteral 6.28)
--- Left $ UnifyError ReasonUncoercable StringType NumberType
---
--- >>> unify (Dict [("a", IntegerLiteral 2) _ :| Dict [] _)
--- Right (Dict [("a", IntegerLiteral 2)] _ :| Dict [] _, DictType (M.singleton "a" (DictOptional NumberType)))
-unify :: NonEmpty TypedExpr -> Either TypeError (NonEmpty TypedExpr, Type)
-unify exprs = do
-  superType <- foldM1 unifyTypes (exprType <$> exprs)
-  (,superType) <$> mapM (weaken superType) exprs
+-- First argument, `Ctx`, is the context of the top level structure or smth that contains all these expressions.
+unify :: P.Ctx -> NonEmpty (WithCtx TypedExpr) -> Either TypeError (NonEmpty (WithCtx TypedExpr), Type)
+unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
+  superType <-
+    left (UnificationError ctx) $
+      foldM unifyTypes (exprType texprFirst) texprsRest
+  left (WeakenError ctx) $
+    (,superType) <$> mapM (weaken superType) texprs
 
--- unify (expr :| []) = Right (expr :| [], exprType expr)
--- unify (expr :| exprs) = do
---   superType <- foldM unifyTypes (exprType expr) $ fmap exprType exprs
---   fmap (,superType) $ mapM (weaken superType) $ expr :| exprs
-
--- | @unifyTypes s t@ finds the strongest type that both @s@ and @t@ are a sub-type of.
---
---   __Examples__
---
---   >>> unifyTypes StringType StringType
---   Right StringType
---
---   >>> unifyTypes (DictType $ M.empty) (DictType $ M.singleton "a" (DictRequired NumberType))
---   Right (DictType (M.singleton "a" (DictOptional NumberType)))
-unifyTypes :: Type -> Type -> Either TypeError Type
-unifyTypes type1 type2
-  | type1 == type2 = Right type1
+-- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
+-- type of typed expression @texpr@ are a sub-type of.
+-- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
+--   having a TypedExpr allows us to report the source position when we encounter a type error.
+--   Anyway unification always happens for some typed expressions, so this makes sense.
+unifyTypes :: Type -> WithCtx TypedExpr -> Either TypeCoercionError Type
+unifyTypes typ (WithCtx _ texpr) | typ == exprType texpr = Right typ
 -- Apply [AnyList]: an empty list can unify with any other list
-unifyTypes EmptyListType typ@(ListType _) = Right typ
-unifyTypes typ@(ListType _) EmptyListType = Right typ
+unifyTypes EmptyListType (WithCtx _ (List _ typ)) = Right typ
+unifyTypes typ@(ListType _) (WithCtx _ (List _ EmptyListType)) = Right typ
 -- Two non-empty lists unify only if their inner types unify
-unifyTypes type1@(ListType elemType1) type2@(ListType elemType2) =
-  annotateError $ ListType <$> unifyTypes elemType1 elemType2
+unifyTypes typ@(ListType list1ElemType) texpr@(WithCtx _ (List (list2ElemTexpr1 : _) (ListType _))) =
+  -- NOTE: We use first element from the typed list (list2ElemTexpr1) as a "sample" to run unification against.
+  --   This is ok because this list is already typed, so we know all other elements have the same type.
+  --   We could have alternatively picked any other element from that list.
+  annotateError $ ListType <$> unifyTypes list1ElemType list2ElemTexpr1
   where
-    annotateError = left (\e -> UnificationError (ReasonList e) type1 type2)
+    annotateError = left (TypeCoercionError texpr typ . ReasonList)
 -- Declarations and enums can not unify with anything
-unifyTypes type1@(DeclType _) type2 = Left $ UnificationError ReasonDecl type1 type2
-unifyTypes type1@(EnumType _) type2 = Left $ UnificationError ReasonEnum type1 type2
+unifyTypes t@(DeclType _) texpr = Left $ TypeCoercionError texpr t ReasonDecl
+unifyTypes t@(EnumType _) texpr = Left $ TypeCoercionError texpr t ReasonEnum
 -- The unification of two dictionaries is defined by the [DictNone] and [DictSome] rules
-unifyTypes type1@(DictType entryTypes1) type2@(DictType entryTypes2) = do
-  let keys = M.keysSet entryTypes1 <> M.keysSet entryTypes2
+unifyTypes t@(DictType dict1EntryTypes) texpr@(WithCtx _ (Dict dict2Entries (DictType dict2EntryTypes))) = do
+  let keys = M.keysSet dict1EntryTypes <> M.keysSet dict2EntryTypes
   unifiedType <- foldMapM' (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
   return $ DictType unifiedType
   where
-    unifyEntryTypesForKey :: String -> Either TypeError DictEntryType
-    unifyEntryTypesForKey key = annotateError key $ case (M.lookup key entryTypes1, M.lookup key entryTypes2) of
-      (Nothing, Nothing) ->
-        error "impossible: unifyTypes.unifyEntryTypesForKey should be called with only the keys of entryTypes1 and entryTypes2"
-      -- [DictSome] on s, [DictNone] on t
-      (Just sType, Nothing) ->
-        Right $ DictOptional $ dictEntryType sType
-      -- [DictNone] on s, [DictSome] on t
-      (Nothing, Just tType) ->
-        Right $ DictOptional $ dictEntryType tType
-      -- Both require @key@, so it must be a required entry of the unified entry types
-      (Just (DictRequired sType), Just (DictRequired tType)) ->
-        DictRequired <$> unifyTypes sType tType
-      -- One of s or t has @key@ optionally, so it must be an optional entry of the unified entry types
-      (Just sType, Just tType) ->
-        DictOptional <$> unifyTypes (dictEntryType sType) (dictEntryType tType)
+    unifyEntryTypesForKey :: String -> Either TypeCoercionError DictEntryType
+    unifyEntryTypesForKey key =
+      annotateError key $
+        case (M.lookup key dict1EntryTypes, M.lookup key dict2EntryTypes) of
+          (Nothing, Nothing) ->
+            error $
+              "impossible: unifyTypes.unifyEntryTypesForKey should be called"
+                ++ "with only the keys of entryTypes1 and entryTypes2"
+          -- [DictSome] on s, [DictNone] on t
+          (Just sType, Nothing) ->
+            Right $ DictOptional $ dictEntryType sType
+          -- [DictNone] on s, [DictSome] on t
+          (Nothing, Just tType) ->
+            Right $ DictOptional $ dictEntryType tType
+          -- Both require @key@, so it must be a required entry of the unified entry types
+          (Just (DictRequired sType), Just (DictRequired _)) ->
+            DictRequired <$> unifyTypes sType (fromJust $ lookup key dict2Entries)
+          -- One of s or t has @key@ optionally, so it must be an optional entry of the unified entry types
+          (Just sType, Just _) ->
+            DictOptional <$> unifyTypes (dictEntryType sType) (fromJust $ lookup key dict2Entries)
 
-    annotateError :: String -> Either TypeError a -> Either TypeError a
-    annotateError k = left (\e -> UnificationError (ReasonDictWrongKeyType k e) type1 type2)
-unifyTypes type1 type2 = Left $ UnificationError ReasonUncoercable type1 type2
+    annotateError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
+    annotateError key = left (TypeCoercionError texpr t . ReasonDictWrongKeyType key)
+unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
 
 -- | Converts a typed expression from its current type to the given weaker type, "weaker"
 -- meaning it is a super-type of the original type. If that is possible, it returns the
@@ -208,52 +208,52 @@ unifyTypes type1 type2 = Left $ UnificationError ReasonUncoercable type1 type2
 --
 -- The following property is guaranteed:
 --
--- * If @weaken typ expr == Right expr'@ then @exprType expr' == typ@
+-- * If @weaken typ expr == Right expr'@ then @(exprType . fromWithCtx) expr' == typ@
 --
 -- When a @Left@ value is returned, then @expr@ can not be typed as @typ@.
-weaken :: Type -> TypedExpr -> Either TypeError TypedExpr
-weaken type' expr
-  | exprType expr == type' = Right expr
+weaken :: Type -> WithCtx TypedExpr -> Either TypeCoercionError (WithCtx TypedExpr)
+weaken t texprwc@(WithCtx _ texpr)
+  | exprType texpr == t = Right texprwc
 -- Apply [AnyList]: An empty list can be weakened to any list type
-weaken type'@(ListType _) (List [] EmptyListType) = return $ List [] type'
--- A non-empty list can be weakened to @typ@ if
--- - @typ@ is of the form @ListType type'@
--- - Every value in the list can be weakened to @type'@
-weaken type'@(ListType elemType') expr@(List elems _) = do
-  elems' <- annotateError $ mapM (weaken elemType') elems
-  return $ List elems' type'
+weaken t@(ListType _) (WithCtx ctx (List [] EmptyListType)) = return $ WithCtx ctx $ List [] t
+-- A non-empty list can be weakened to type @t@ if
+-- - @t@ is of the form @ListType elemType@
+-- - Every value in the list can be weakened to type @elemType@
+weaken t@(ListType elemType) texprwc@(WithCtx ctx ((List elems _))) = do
+  elems' <- annotateError $ mapM (weaken elemType) elems
+  return $ WithCtx ctx $ List elems' t
   where
-    annotateError = left (\e -> WeakenError (ReasonList e) expr elemType')
-weaken (DictType entryTypes') expr@(Dict entries _) = do
+    annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
+weaken t@(DictType entryTypes) texprwc@(WithCtx ctx (Dict entries _)) = do
   entries' <- mapM weakenEntry entries
-  mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes'
-  return $ Dict entries' $ DictType entryTypes'
+  mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes
+  return $ WithCtx ctx $ Dict entries' t
   where
     -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
-    weakenEntry :: (String, TypedExpr) -> Either TypeError (Identifier, TypedExpr)
-    weakenEntry (key, value) = case M.lookup key entryTypes' of
+    weakenEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError (Identifier, WithCtx TypedExpr)
+    weakenEntry (key, value) = case M.lookup key entryTypes of
       -- @key@ is missing from @typ'@ => extra keys are not allowed
-      Nothing -> Left $ WeakenError (ReasonDictExtraKey key) expr (DictType entryTypes')
+      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
       -- @key@ is required and present => only need to weaken the value's type
-      Just (DictRequired valueTyp) -> (key,) <$> annotateError key (weaken valueTyp value)
+      Just (DictRequired valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
       -- @key@ is optional and present => weaken value's type + use [DictSome]
-      Just (DictOptional valueTyp) -> (key,) <$> annotateError key (weaken valueTyp value)
+      Just (DictOptional valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
 
     -- Checks that all DictRequired entries in typ' exist in entries
-    ensureExprSatisifiesEntryType :: (String, DictEntryType) -> Either TypeError ()
+    ensureExprSatisifiesEntryType :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
     ensureExprSatisifiesEntryType (key, DictOptional typ) = case lookup key entries of
       -- @key@ is optional and missing => use [DictNone]
       Nothing -> Right ()
       -- @key@ is optional and present => weaken the value's type + use [DictSome]
-      Just entryVal -> void $ annotateError key $ weaken typ entryVal
+      Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
     ensureExprSatisifiesEntryType (key, DictRequired typ) = case lookup key entries of
       -- @key@ is required and missing => not allowed
-      Nothing -> Left $ WeakenError (ReasonDictNoKey key) expr (DictType entryTypes')
+      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictNoKey key)
       -- @key@ is required and present => only need to weaken value's type
-      Just entryVal -> void $ annotateError key $ weaken typ entryVal
+      Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
 
     -- Wraps a ReasonDictWrongKeyType error around a type error
-    annotateError :: String -> Either TypeError a -> Either TypeError a
-    annotateError k = left (\e -> WeakenError (ReasonDictWrongKeyType k e) expr (DictType entryTypes'))
+    annotateKeyTypeError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
+    annotateKeyTypeError key = left (TypeCoercionError texprwc t . ReasonDictWrongKeyType key)
 -- All other cases can not be weakened
-weaken typ' expr = Left $ WeakenError ReasonUncoercable expr typ'
+weaken typ' expr = Left $ TypeCoercionError expr typ' ReasonUncoercable

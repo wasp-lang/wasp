@@ -22,11 +22,11 @@ import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
 evaluate :: TD.TypeDefinitions -> AST.TypedAST -> Either EvaluationError [Decl]
 evaluate typeDefs (AST.TypedAST stmts) = runExcept $ flip runReaderT typeDefs $ evalStateT (evalStmts stmts) H.empty
 
-evalStmts :: [AST.TypedStmt] -> Eval [Decl]
+evalStmts :: [AST.WithCtx AST.TypedStmt] -> Eval [Decl]
 evalStmts = traverse evalStmt
 
-evalStmt :: AST.TypedStmt -> Eval Decl
-evalStmt (AST.Decl name param (Type.DeclType declTypeName)) = do
+evalStmt :: AST.WithCtx AST.TypedStmt -> Eval Decl
+evalStmt (AST.WithCtx _ctx (AST.Decl name param (Type.DeclType declTypeName))) = do
   declType <-
     asks
       ( fromMaybe
@@ -38,6 +38,6 @@ evalStmt (AST.Decl name param (Type.DeclType declTypeName)) = do
   case TD.dtEvaluate declType typeDefs bindings name param of
     Left err -> throwError err
     Right decl -> modify (H.insert name decl) >> return decl
-evalStmt AST.Decl {} = error "impossible: Decl statement has non-Decl type after type checking"
+evalStmt (AST.WithCtx _ AST.Decl {}) = error "impossible: Decl statement has non-Decl type after type checking"
 
 type Eval a = StateT Bindings (ReaderT TD.TypeDefinitions (Except EvaluationError)) a

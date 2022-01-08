@@ -2,7 +2,9 @@
 
 module AnalyzerTest where
 
+import Analyzer.TestUtil (ctx)
 import Data.Either (isRight)
+import Data.List (intercalate)
 import Test.Tasty.Hspec
 import Wasp.Analyzer
 import qualified Wasp.Analyzer.TypeChecker as TC
@@ -170,9 +172,10 @@ spec_Analyzer = do
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\",  page: NonExistentPage }"
+              [ "route HomeRoute { path: \"/\", page: NonExistentPage }"
               ]
-      takeDecls @Route <$> analyze source `shouldBe` Left (TypeError $ TC.UndefinedIdentifier "NonExistentPage")
+      takeDecls @Route <$> analyze source
+        `shouldBe` Left (TypeError $ TC.UndefinedIdentifier (ctx 1 36) "NonExistentPage")
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
@@ -188,6 +191,74 @@ spec_Analyzer = do
                 "page HomePage { component: import Home from \"@ext/HomePage.js\" }"
               ]
       isRight (analyze source) `shouldBe` True
+
+    describe "Returns correct error message" $ do
+      let errorMessageShouldBe analyzeResult (c, msg) = case analyzeResult of
+            Right _ -> error "Test failed: expected AnalyzerError."
+            Left e -> getErrorMessageAndCtx e `shouldBe` (msg, c)
+
+      it "For nested unexpected type error" $ do
+        let source =
+              unlines
+                [ "app MyApp {",
+                  "  title: \"My app\",",
+                  "  dependencies: [",
+                  "    { name: \"bar\", version: 13 },",
+                  "    { name: \"foo\", version: 14 }",
+                  "  ]",
+                  "}"
+                ]
+        analyze source
+          `errorMessageShouldBe` ( ctx 4 29,
+                                   intercalate
+                                     "\n"
+                                     [ "Type error:",
+                                       "  For dictionary field 'dependencies':",
+                                       "    For list element:",
+                                       "      For dictionary field 'version':",
+                                       "        Expected type: string",
+                                       "        Actual type:   number"
+                                     ]
+                                 )
+
+      it "For nested unification type error" $ do
+        let source =
+              unlines
+                [ "app MyApp {",
+                  "  title: \"My app\",",
+                  "  dependencies: [",
+                  "    { name: \"bar\", version: 13 },",
+                  "    { name: \"foo\", version: \"1.2.3\" }",
+                  "  ]",
+                  "}"
+                ]
+        analyze source
+          `errorMessageShouldBe` ( ctx 5 29,
+                                   intercalate
+                                     "\n"
+                                     [ "Type error:",
+                                       "  For dictionary field 'version':",
+                                       "    Can't mix the following types:",
+                                       "     - number",
+                                       "     - string"
+                                     ]
+                                 )
+
+      it "For redundant dictionary field" $ do
+        let source =
+              unlines
+                [ "app MyApp {",
+                  "  ttle: \"My app\",",
+                  "}"
+                ]
+        analyze source
+          `errorMessageShouldBe` ( ctx 1 11,
+                                   intercalate
+                                     "\n"
+                                     [ "Type error:",
+                                       "  Unexpected dictionary field 'ttle'"
+                                     ]
+                                 )
 
 isAnalyzerOutputTypeError :: Either AnalyzeError a -> Bool
 isAnalyzerOutputTypeError (Left (TypeError _)) = True

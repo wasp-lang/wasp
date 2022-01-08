@@ -9,7 +9,7 @@ import qualified Data.HashMap.Strict as M
 import Wasp.Analyzer.Evaluator.Bindings (Bindings, DeclName)
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
 import Wasp.Analyzer.Type (Type)
-import Wasp.Analyzer.TypeChecker.AST (TypedExpr)
+import Wasp.Analyzer.TypeChecker.AST (TypedExpr, WithCtx)
 import Wasp.AppSpec.Core.Decl (Decl)
 
 -- | Describes a specific declaration type in Wasp.
@@ -25,7 +25,7 @@ data DeclType = DeclType
     --
     -- Check @declEvaluate@ of @IsDeclType@ typeclass for more information,
     -- since @dtEvaluate@ is really a value-level version of @declEvaluate@.
-    dtEvaluate :: TypeDefinitions -> Bindings -> DeclName -> TypedExpr -> Either EvaluationError Decl
+    dtEvaluate :: TypeDefinitions -> Bindings -> DeclName -> WithCtx TypedExpr -> Either EvaluationError Decl
   }
 
 -- | Describes a specific enum type in Wasp.

@@ -71,3 +71,23 @@ spec_indent = do
       indent 3 "foo\nbar" `shouldBe` "   foo\n   bar"
     it "when text is already somewhat indented" $ do
       indent 4 "  foo\n  bar" `shouldBe` "      foo\n      bar"
+
+spec_concatShortPrefixAndText :: Spec
+spec_concatShortPrefixAndText = do
+  describe "concatShortPrefixAndText should" $ do
+    it "return prefix if text is empty" $ do
+      concatShortPrefixAndText "--" "" `shouldBe` "--"
+    it "directly concat if text has single line" $ do
+      concatShortPrefixAndText " - " "foo" `shouldBe` " - foo"
+    it "align the rest of the lines in text with the first line" $ do
+      concatShortPrefixAndText " - " "foo\nbar" `shouldBe` " - foo\n   bar"
+
+spec_concatPrefixAndText :: Spec
+spec_concatPrefixAndText = do
+  describe "concatPrefixAndText should" $ do
+    it "return prefix if text is empty" $ do
+      concatPrefixAndText "some prefix: " "" `shouldBe` "some prefix: "
+    it "directly concat if text has single line" $ do
+      concatPrefixAndText "prefix: " "foo" `shouldBe` "prefix: foo"
+    it "put all the text below the prefix, indented for 2 spaces, if text has multiple lines" $ do
+      concatPrefixAndText "prefix: " "foo\nbar" `shouldBe` "prefix: \n  foo\n  bar"

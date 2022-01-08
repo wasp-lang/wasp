@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Wasp.Analyzer.Type
   ( Type (..),
     DictEntryType (..),
@@ -6,6 +8,7 @@ module Wasp.Analyzer.Type
 where
 
 import qualified Data.HashMap.Strict as H
+import Data.List (intercalate)
 
 -- | All possible types in Wasp.
 data Type
@@ -24,7 +27,25 @@ data Type
   | BoolType
   | ExtImportType
   | QuoterType String
-  deriving (Eq, Show)
+  deriving (Eq)
+
+instance Show Type where
+  show = \case
+    DeclType typeName -> typeName ++ " (declaration type)"
+    EnumType typeName -> typeName ++ " (enum type)"
+    DictType keyValueMap ->
+      let showEntry (k, v) = "  " ++ k ++ ": " ++ show v
+       in case H.toList keyValueMap of
+            [entry] -> "{" ++ showEntry entry ++ "}"
+            entries -> "{\n" ++ intercalate ",\n" (map (("  " ++) . showEntry) entries) ++ "\n}"
+    ListType typ -> "[" ++ show typ ++ "]"
+    EmptyListType -> "[]"
+    TupleType (t1, t2, ts) -> "(" ++ (intercalate ", " $ show <$> (t1 : t2 : ts)) ++ ")"
+    StringType -> "string"
+    NumberType -> "number"
+    BoolType -> "bool"
+    ExtImportType -> "external import"
+    QuoterType tag -> "{=" ++ tag ++ " " ++ tag ++ "=}"
 
 -- | The type of an entry in a `Dict`.
 data DictEntryType

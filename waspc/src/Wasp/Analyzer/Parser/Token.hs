@@ -1,7 +1,6 @@
 module Wasp.Analyzer.Parser.Token where
 
--- | The first character on the first line is at position @Position 1 1@
-data SourcePosition = SourcePosition Int Int deriving (Eq, Show)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
 
 data TokenType
   = TLParen

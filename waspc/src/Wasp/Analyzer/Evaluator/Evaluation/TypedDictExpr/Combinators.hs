@@ -12,13 +12,15 @@ import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr (TypedDictEntries (..), TypedDictExprEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
+import Wasp.Analyzer.TypeChecker.AST (withCtx)
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
 
 -- | An evaluation that runs a "TypedDictExprEvaluation". Expects a "Dict" expression and
 -- uses its entries to run the "TypedDictExprEvaluation".
 dict :: TypedDictExprEvaluation a -> TypedExprEvaluation a
-dict dictEvalutor = evaluation $ \(typeDefs, bindings) -> \case
-  TypedAST.Dict entries _ -> runEvaluation dictEvalutor typeDefs bindings $ TypedDictEntries entries
+dict dictEvaluator = evaluation $ \(typeDefs, bindings) -> withCtx $ \_ctx -> \case
+  TypedAST.Dict entries _ ->
+    runEvaluation dictEvaluator typeDefs bindings $ TypedDictEntries entries
   expr -> Left $ EvaluationError.ExpectedDictType $ TypedAST.exprType expr
 
 -- | A dictionary evaluation that requires the field to exist.

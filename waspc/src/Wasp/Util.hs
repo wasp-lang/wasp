@@ -6,6 +6,8 @@ module Wasp.Util
     headSafe,
     jsonSet,
     indent,
+    concatShortPrefixAndText,
+    concatPrefixAndText,
   )
 where
 
@@ -49,3 +51,54 @@ jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
 indent numSpaces = intercalate "\n" . map (replicate numSpaces ' ' ++) . splitOn "\n"
+
+-- | Given a prefix and text, concatenates them in the following manner:
+-- <prefix> <text_line_1>
+--          <text_line_2>
+--              ...
+--          <text_line_N>
+--
+-- __Examples__
+--
+-- @
+-- >>> putStrLn $ concatShortPrefixAndText "Log: " "Written to file foo.txt"
+-- Log: Written to file foo.txt
+-- @
+--
+-- @
+-- >>> putStrLn $ concatShortPrefixAndText "Log: " "Written to file foo.txt\nWritten to file bar.txt"
+-- Log: Written to file foo.txt
+--      Written to file bar.txt
+-- @
+concatShortPrefixAndText :: String -> String -> String
+concatShortPrefixAndText prefix "" = prefix
+concatShortPrefixAndText prefix text =
+  let (l : ls) = lines text
+   in prefix ++ l ++ if null ls then "" else "\n" ++ indent (length prefix) (intercalate "\n" ls)
+
+-- | Given a prefix and text, concatenates them in the following manner:
+-- - If just one line of text:
+-- <prefix> <one_and_only_line_of_text>
+-- - If multiple lines of text:
+-- <prefix>
+--   <text_line_1>
+--   <text_line_2>
+--       ...
+--   <text_line_N>
+--
+-- __Examples__
+--
+-- @
+-- >>> putStrLn $ concatPrefixAndText "Log messages from the somelog.txt file: " "Written to file foo.txt"
+-- Log messages from the somelog.txt file: Written to file foo.txt
+-- @
+--
+-- @
+-- >>> putStrLn $ concatPrefixAndText "Log messages from the somelog.txt file:" "Written to file foo.txt\nWritten to file bar.txt"
+-- Log messages from the somelog.txt file:
+--   Written to file foo.txt
+--   Written to file bar.txt
+-- @
+concatPrefixAndText :: String -> String -> String
+concatPrefixAndText prefix text =
+  if length (lines text) <= 1 then prefix ++ text else prefix ++ "\n" ++ indent 2 text

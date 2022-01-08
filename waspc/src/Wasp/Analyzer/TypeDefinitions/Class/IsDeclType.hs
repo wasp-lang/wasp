@@ -8,7 +8,7 @@ where
 import Data.Typeable (Typeable)
 import Wasp.Analyzer.Evaluator.Bindings (Bindings)
 import Wasp.Analyzer.Evaluator.EvaluationError (EvaluationError)
-import Wasp.Analyzer.TypeChecker.AST (TypedExpr)
+import Wasp.Analyzer.TypeChecker.AST (TypedExpr, WithCtx)
 import Wasp.Analyzer.TypeDefinitions.Internal (DeclType, TypeDefinitions)
 import qualified Wasp.AppSpec.Core.Decl as AppSpecDecl
 
@@ -47,4 +47,4 @@ class (Typeable a, AppSpecDecl.IsDecl a) => IsDeclType a where
   -- and @4@ is declaration body.
   -- @declEvaluate@ function would then be called somewhat like:
   -- @declEvaluate @Test typeDefs bindings (NumberLiteral 4)@
-  declEvaluate :: TypeDefinitions -> Bindings -> TypedExpr -> Either EvaluationError a
+  declEvaluate :: TypeDefinitions -> Bindings -> WithCtx TypedExpr -> Either EvaluationError a

@@ -112,8 +112,7 @@ module Wasp.Analyzer
     analyze,
     takeDecls,
     AnalyzeError (..),
-    getErrorMessage,
-    getErrorSourcePosition,
+    getErrorMessageAndCtx,
     SourcePosition (..),
   )
 where
@@ -123,8 +122,7 @@ import Control.Monad ((>=>))
 import Wasp.Analyzer.AnalyzeError
   ( AnalyzeError (..),
     SourcePosition (..),
-    getErrorMessage,
-    getErrorSourcePosition,
+    getErrorMessageAndCtx,
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
 import Wasp.Analyzer.Parser (parse)

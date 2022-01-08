@@ -7,24 +7,29 @@ module Wasp.Analyzer.Parser.AST
   )
 where
 
+import Wasp.Analyzer.Parser.Ctx
 import Wasp.AppSpec.ExtImport (ExtImportName (..))
 
-newtype AST = AST {astStmts :: [Stmt]} deriving (Eq, Show)
+newtype AST = AST {astStmts :: [WithCtx Stmt]} deriving (Eq, Show)
 
--- Decl <declType> <name> <body>
-data Stmt = Decl Identifier Identifier Expr deriving (Eq, Show)
-
-data Expr
-  = Dict [(Identifier, Expr)]
-  | List [Expr]
-  | Tuple (Expr, Expr, [Expr])
-  | StringLiteral String
-  | IntegerLiteral Integer
-  | DoubleLiteral Double
-  | BoolLiteral Bool
-  | ExtImport ExtImportName String
-  | Var Identifier
-  | Quoter Identifier String
+data Stmt
+  = -- | Decl <declType> <declName> <declBody>
+    Decl Identifier Identifier (WithCtx Expr)
   deriving (Eq, Show)
+
+{- ORMOLU_DISABLE -}
+data Expr
+  = Dict           [(Identifier, WithCtx Expr)]
+  | List           [WithCtx Expr]
+  | Tuple          (WithCtx Expr, WithCtx Expr, [WithCtx Expr])
+  | StringLiteral  String
+  | IntegerLiteral Integer
+  | DoubleLiteral  Double
+  | BoolLiteral    Bool
+  | ExtImport      ExtImportName String
+  | Var            Identifier
+  | Quoter         Identifier String
+  deriving (Eq, Show)
+{- ORMOLU_ENABLE -}
 
 type Identifier = String
