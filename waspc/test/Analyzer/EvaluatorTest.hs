@@ -84,14 +84,15 @@ data SemanticVersion = SemanticVersion Int Int Int
 
 instance HasCustomEvaluation SemanticVersion where
   waspType = T.StringType
-  evaluation = E.evaluation' . TypedAST.withCtx $ \_ctx -> \case
+  evaluation = E.evaluation' . TypedAST.withCtx $ \ctx -> \case
     TypedAST.StringLiteral str -> case splitOn "." str of
       [major, minor, patch] ->
         maybe
           ( Left $
-              EvaluationError.ParseError $
-                EvaluationError.EvaluationParseError
-                  "Failed parsing semantic version -> some part is not int"
+              EvaluationError.mkEvaluationError ctx $
+                EvaluationError.ParseError $
+                  EvaluationError.EvaluationParseError
+                    "Failed parsing semantic version -> some part is not int"
           )
           pure
           $ do
@@ -101,10 +102,14 @@ instance HasCustomEvaluation SemanticVersion where
             return $ SemanticVersion majorInt minorInt patchInt
       _ ->
         Left $
-          EvaluationError.ParseError $
-            EvaluationError.EvaluationParseError
-              "Failed parsing semantic version -> it doesn't have 3 comma separated parts."
-    expr -> Left $ EvaluationError.ExpectedType T.StringType (TypedAST.exprType expr)
+          EvaluationError.mkEvaluationError ctx $
+            EvaluationError.ParseError $
+              EvaluationError.EvaluationParseError
+                "Failed parsing semantic version -> it doesn't have 3 comma separated parts."
+    expr ->
+      Left $
+        EvaluationError.mkEvaluationError ctx $
+          EvaluationError.ExpectedType T.StringType (TypedAST.exprType expr)
 
 data Custom = Custom
   {version :: SemanticVersion}
