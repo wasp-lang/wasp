@@ -4,9 +4,8 @@ module Wasp.Analyzer.Parser.Monad
   ( ParserState (..),
     initialState,
     Parser,
-    updatePosition,
-    setPositionOfLastScannedTokenToCurrent,
-    putInput,
+    updateParserStateWithScannedToken,
+    updateParserStateWithSkippedChars,
     setStartCode,
     ParserInput,
     LexerStartCode (..),
@@ -17,37 +16,50 @@ import Control.Monad.Except (Except)
 import Control.Monad.State.Lazy (StateT, get, modify)
 import Data.Word (Word8)
 import Wasp.Analyzer.Parser.ParseError (ParseError)
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), calcNextPosition)
+import Wasp.Analyzer.Parser.Token
 
 type Parser a = StateT ParserState (Except ParseError) a
 
-updatePosition :: String -> Parser ()
-updatePosition parsedSourcePiece = do
-  position <- parserSourcePosition <$> get
-  let position' = calcNewPosition parsedSourcePiece position
-  modify $ \s -> s {parserSourcePosition = position'}
-  where
-    -- Scan the string character by character to look for newlines
-    calcNewPosition [] position = position
-    calcNewPosition ('\n' : cs) (SourcePosition line _) = calcNewPosition cs $ SourcePosition (line + 1) 1
-    calcNewPosition (_ : cs) (SourcePosition line col) = calcNewPosition cs $ SourcePosition line (col + 1)
+updateParserStateWithScannedToken :: Token -> Parser ()
+updateParserStateWithScannedToken token = do
+  updatePositionAndInput (tokenLexeme token)
+  modify $ \s ->
+    s
+      { lastToLastScannedToken = lastScannedToken s,
+        lastScannedToken = token
+      }
 
-setPositionOfLastScannedTokenToCurrent :: Parser ()
-setPositionOfLastScannedTokenToCurrent = do
-  position <- parserSourcePosition <$> get
-  modify $ \s -> s {lastScannedTokenSourcePosition = position}
+updateParserStateWithSkippedChars :: Int -> Parser ()
+updateParserStateWithSkippedChars numChars = do
+  (_, _, remainingSource) <- parserRemainingInput <$> get
+  let charsSkipped = take numChars remainingSource
+  updatePositionAndInput charsSkipped
 
-putInput :: ParserInput -> Parser ()
-putInput input = modify $ \s -> s {parserRemainingInput = input}
+updatePositionAndInput :: String -> Parser ()
+updatePositionAndInput parsedSourcePiece = do
+  position <- parserSourcePosition <$> get
+  (_, _, remainingSource) <- parserRemainingInput <$> get
+  let position' = calcNextPosition parsedSourcePiece position
+  let input' =
+        let (prevChar : remainingSource') = drop (length parsedSourcePiece - 1) remainingSource
+         in (prevChar, [], remainingSource')
+  modify $ \s ->
+    s
+      { parserSourcePosition = position',
+        parserRemainingInput = input'
+      }
 
 setStartCode :: LexerStartCode -> Parser ()
 setStartCode startCode = modify $ \s -> s {parserLexerStartCode = startCode}
 
 data ParserState = ParserState
   { parserSourcePosition :: SourcePosition,
-    -- | Source position of the start of the last token that was scanned by Alex.
-    -- Note that token first gets scanned by Alex, and then it gets parsed by Happy.
-    lastScannedTokenSourcePosition :: SourcePosition,
+    -- | Last token that was scanned by Alex.
+    -- NOTE: Token first gets scanned by Alex, and then it gets parsed by Happy.
+    lastScannedToken :: Token,
+    -- | Second last token that was scanned by Alex.
+    lastToLastScannedToken :: Token,
     parserRemainingInput :: ParserInput,
     parserLexerStartCode :: LexerStartCode
   }
@@ -65,18 +77,17 @@ initialState :: String -> ParserState
 initialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
-      lastScannedTokenSourcePosition = SourcePosition 1 1,
-      -- NOTE: We use '\n' here as dummy value to start with.
-      parserRemainingInput = ('\n', ('\n', []), source),
+      lastScannedToken = Token TEOF (SourcePosition 1 1) "\n", -- NOTE: Dummy initial value.
+      lastToLastScannedToken = Token TEOF (SourcePosition 1 1) "\n", -- NOTE: Dummy initial value.
+      parserRemainingInput = ('\n', [], source), -- NOTE: '\n' here is dummy initial value.
       parserLexerStartCode = DefaultStartCode
     }
 
--- | The type of the input given to the parser/lexer
+-- | The type of the input given to the parser/lexer.
 --
---   An input @(prevChar, (currChar, bs), remainingSource)@ represents
---   - @prevChar@ The previous character, successfully consumed by the lexer
---   - @currChar@ The current character being lexed
---   - @bs@ The yet unconsumed UTF8 bytes of the current character being lexed
+--   An input @(prevChar, bs, remainingSource)@ represents:
+--   - @prevChar@ The previous character, successfully consumed by the lexer.
+--   - @bs@ The yet unconsumed UTF8 bytes of the current character being lexed.
 --   - @remainingSource@ The remaining source to be lexed and parsed
---           (excluding the character currently being lexed)
-type ParserInput = (Char, (Char, [Word8]), String)
+--           (including the character currently being lexed as the first char in it).
+type ParserInput = (Char, [Word8], String)

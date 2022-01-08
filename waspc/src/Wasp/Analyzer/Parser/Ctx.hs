@@ -5,12 +5,14 @@ module Wasp.Analyzer.Parser.Ctx
     withCtx,
     Ctx (..),
     ctxFromPos,
-    getCtxPos,
+    ctxFromRgn,
+    getCtxRgn,
     fromWithCtx,
   )
 where
 
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
 
 data WithCtx a = WithCtx Ctx a
   deriving (Eq, Show, Functor)
@@ -18,20 +20,20 @@ data WithCtx a = WithCtx Ctx a
 withCtx :: (Ctx -> a -> b) -> WithCtx a -> b
 withCtx f (WithCtx ctx x) = f ctx x
 
--- | Gives parsing context to AST nodes -> e.g. source position from which they originated.
--- TODO: Instead of having just SourcePosition, it would be better to have SourceRegion, since errors
--- usually refer to a region and not just one position/char in the code.
--- This is captured in an issue https://github.com/wasp-lang/wasp/issues/404 .
+-- | Gives parsing context to AST nodes -> e.g. source region from which they originated.
 data Ctx = Ctx
-  { ctxSourcePosition :: SourcePosition
+  { ctxSourceRegion :: SourceRegion
   }
   deriving (Show, Eq)
 
 ctxFromPos :: SourcePosition -> Ctx
-ctxFromPos pos = Ctx {ctxSourcePosition = pos}
+ctxFromPos pos = Ctx {ctxSourceRegion = SourceRegion pos pos}
 
-getCtxPos :: Ctx -> SourcePosition
-getCtxPos = ctxSourcePosition
+ctxFromRgn :: SourcePosition -> SourcePosition -> Ctx
+ctxFromRgn posStart posEnd = Ctx {ctxSourceRegion = SourceRegion posStart posEnd}
+
+getCtxRgn :: Ctx -> SourceRegion
+getCtxRgn = ctxSourceRegion
 
 fromWithCtx :: WithCtx a -> a
 fromWithCtx (WithCtx _ a) = a

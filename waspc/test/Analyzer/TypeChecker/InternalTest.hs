@@ -1,6 +1,6 @@
 module Analyzer.TypeChecker.InternalTest where
 
-import Analyzer.TestUtil (ctx, fromWithCtx, wctx)
+import Analyzer.TestUtil (ctx, fromWithCtx)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -52,21 +52,22 @@ testFail name expr = test name expr . Left
 spec_Internal :: Spec
 spec_Internal = do
   describe "Analyzer.TypeChecker.Internal" $ do
-    describe "unify" $ do
-      let ctx1 = ctx 1 1
-          ctx2 = ctx 1 10
-          ctx3 = ctx 2 5
-          ctx4 = ctx 2 12
-          ctx5 = ctx 2 20
-          ctx6 = ctx 3 3
-          ctx7 = ctx 3 11
-          wctx2 = WithCtx ctx2
-          wctx3 = WithCtx ctx3
-          wctx4 = WithCtx ctx4
-          wctx5 = WithCtx ctx5
-          wctx6 = WithCtx ctx6
-          wctx7 = WithCtx ctx7
+    let ctx1 = ctx (1, 1) (1, 10)
+        ctx2 = ctx (1, 10) (1, 15)
+        ctx3 = ctx (2, 5) (3, 10)
+        ctx4 = ctx (2, 12) (2, 20)
+        ctx5 = ctx (2, 20) (2, 25)
+        ctx6 = ctx (3, 3) (3, 18)
+        ctx7 = ctx (3, 11) (3, 30)
+        wctx1 = WithCtx ctx1
+        wctx2 = WithCtx ctx2
+        wctx3 = WithCtx ctx3
+        wctx4 = WithCtx ctx4
+        wctx5 = WithCtx ctx5
+        wctx6 = WithCtx ctx6
+        wctx7 = WithCtx ctx7
 
+    describe "unify" $ do
       it "Doesn't affect 2 expressions of the same type" $ do
         property $ \(a, b) ->
           let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
@@ -97,65 +98,65 @@ spec_Internal = do
           `shouldBe` Right (expected :| [expected])
 
     describe "inferExprType" $ do
-      testSuccess "Types string literals as StringType" (wctx 1 1 $ P.StringLiteral "string") StringType
-      testSuccess "Types integer literals as NumberType" (wctx 1 1 $ P.IntegerLiteral 42) NumberType
-      testSuccess "Types double literals as NumberType" (wctx 1 1 $ P.DoubleLiteral 3.14) NumberType
-      testSuccess "Types bool literals as BoolType" (wctx 1 1 $ P.BoolLiteral True) BoolType
+      testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
+      testSuccess "Types integer literals as NumberType" (wctx1 $ P.IntegerLiteral 42) NumberType
+      testSuccess "Types double literals as NumberType" (wctx1 $ P.DoubleLiteral 3.14) NumberType
+      testSuccess "Types bool literals as BoolType" (wctx1 $ P.BoolLiteral True) BoolType
       testSuccess
         "Types external imports as ExtImportType"
-        (wctx 1 1 $ P.ExtImport (P.ExtImportModule "Main") "main.js")
+        (wctx1 $ P.ExtImport (P.ExtImportModule "Main") "main.js")
         ExtImportType
 
-      testSuccess "Types quoted json as JSONType" (wctx 1 1 $ P.Quoter "json" "\"key\": \"value\"") (QuoterType "json")
-      testSuccess "Types quoted psl as PSLType" (wctx 1 1 $ P.Quoter "psl" "id Int @id") (QuoterType "psl")
+      testSuccess "Types quoted json as JSONType" (wctx1 $ P.Quoter "json" "\"key\": \"value\"") (QuoterType "json")
+      testSuccess "Types quoted psl as PSLType" (wctx1 $ P.Quoter "psl" "id Int @id") (QuoterType "psl")
       testFail
         "Fails to type check quoters with tag besides json or psl"
-        (wctx 1 1 $ P.Quoter "toml" "key = \"value\"")
-        (mkTypeError (ctx 1 1) $ QuoterUnknownTag "toml")
+        (wctx1 $ P.Quoter "toml" "key = \"value\"")
+        (mkTypeError ctx1 $ QuoterUnknownTag "toml")
 
       it "Types identifier as the type in the bindings" $ do
         forAll chooseType $ \typ ->
           let bindings = H.singleton "var" typ
-              actual = exprType . fromWithCtx <$> inferExprType' bindings (wctx 1 1 $ P.Var "var")
+              actual = exprType . fromWithCtx <$> inferExprType' bindings (wctx1 $ P.Var "var")
            in actual == Right typ
       it "Fails to type check identifiers not given a type in the bindings" $ do
         let bindings = H.empty
-        let actual = exprType . fromWithCtx <$> inferExprType' bindings (wctx 1 1 $ P.Var "pi")
-        let expected = Left $ mkTypeError (ctx 1 1) $ UndefinedIdentifier "pi"
+        let actual = exprType . fromWithCtx <$> inferExprType' bindings (wctx1 $ P.Var "pi")
+        let expected = Left $ mkTypeError ctx1 $ UndefinedIdentifier "pi"
         actual `shouldBe` expected
 
       testSuccess
         "Type checks a dictionary"
-        (wctx 1 1 $ P.Dict [("a", wctx 2 5 $ P.IntegerLiteral 5), ("b", wctx 3 5 $ P.StringLiteral "string")])
+        (wctx1 $ P.Dict [("a", wctx2 $ P.IntegerLiteral 5), ("b", wctx3 $ P.StringLiteral "string")])
         (DictType $ H.fromList [("a", DictRequired NumberType), ("b", DictRequired StringType)])
       testFail
         "Fails to type check a dictionary with duplicated keys"
-        (wctx 1 1 $ P.Dict [("a", wctx 2 5 $ P.IntegerLiteral 5), ("a", wctx 3 5 $ P.IntegerLiteral 6)])
-        (mkTypeError (ctx 1 1) $ DictDuplicateField "a")
+        (wctx1 $ P.Dict [("a", wctx2 $ P.IntegerLiteral 5), ("a", wctx3 $ P.IntegerLiteral 6)])
+        (mkTypeError ctx1 $ DictDuplicateField "a")
 
       testSuccess
         "Type checks an empty list as EmptyListType"
-        (wctx 1 1 $ P.List [])
+        (wctx1 $ P.List [])
         EmptyListType
       testSuccess
         "Type checks a list where all elements have the same type"
-        (wctx 1 1 $ P.List [wctx 1 10 $ P.IntegerLiteral 5, wctx 1 20 $ P.DoubleLiteral 1.6])
+        (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.DoubleLiteral 1.6])
         (ListType NumberType)
       testFail
         "Fails to type check a list containing strings and numbers"
-        (wctx 1 1 $ P.List [wctx 1 10 $ P.IntegerLiteral 5, wctx 1 20 $ P.StringLiteral "4"])
-        ( mkTypeError (ctx 1 1) $
+        (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.StringLiteral "4"])
+        ( mkTypeError ctx1 $
             UnificationError $
-              TypeCoercionError (wctx 1 20 $ StringLiteral "4") NumberType ReasonUncoercable
+              TypeCoercionError (wctx3 $ StringLiteral "4") NumberType ReasonUncoercable
         )
 
       testSuccess
         "Type checks a list of dictionaries that unify but have different types"
-        ( wctx 1 1 $
+        ( wctx1 $
             P.List
-              [ wctx 2 2 $ P.Dict [("a", wctx 2 10 $ P.IntegerLiteral 5)],
-                wctx 3 2 $ P.Dict [],
-                wctx 4 2 $ P.Dict [("b", wctx 4 10 $ P.StringLiteral "string")]
+              [ wctx2 $ P.Dict [("a", wctx3 $ P.IntegerLiteral 5)],
+                wctx4 $ P.Dict [],
+                wctx5 $ P.Dict [("b", wctx6 $ P.StringLiteral "string")]
               ]
         )
         ( ListType $
@@ -167,25 +168,25 @@ spec_Internal = do
         )
       testFail
         "Fails to type check a list of dictionaries that do not unify"
-        ( wctx 1 1 $
+        ( wctx1 $
             P.List
-              [ wctx 2 2 $ P.Dict [("a", wctx 2 10 $ P.IntegerLiteral 5)],
-                wctx 3 2 $ P.Dict [("a", wctx 3 10 $ P.StringLiteral "string")]
+              [ wctx2 $ P.Dict [("a", wctx3 $ P.IntegerLiteral 5)],
+                wctx4 $ P.Dict [("a", wctx5 $ P.StringLiteral "string")]
               ]
         )
-        ( mkTypeError (ctx 1 1) $
+        ( mkTypeError ctx1 $
             UnificationError $
               TypeCoercionError
-                ( wctx 3 2 $
+                ( wctx4 $
                     Dict
-                      [("a", wctx 3 10 $ StringLiteral "string")]
+                      [("a", wctx5 $ StringLiteral "string")]
                       (DictType $ H.singleton "a" (DictRequired StringType))
                 )
                 (DictType $ H.singleton "a" (DictRequired NumberType))
                 ( ReasonDictWrongKeyType
                     "a"
                     ( TypeCoercionError
-                        (wctx 3 10 $ StringLiteral "string")
+                        (wctx5 $ StringLiteral "string")
                         NumberType
                         ReasonUncoercable
                     )
@@ -195,42 +196,42 @@ spec_Internal = do
       describe "Type checks a tuple" $ do
         testSuccess
           "When tuple is a pair"
-          ( wctx 1 1 $
+          ( wctx1 $
               P.Tuple
-                ( wctx 2 2 $ P.IntegerLiteral 5,
-                  wctx 2 10 $ P.StringLiteral "string",
+                ( wctx2 $ P.IntegerLiteral 5,
+                  wctx3 $ P.StringLiteral "string",
                   []
                 )
           )
           (TupleType (NumberType, StringType, []))
         testSuccess
           "When tuple is a triple"
-          ( wctx 1 1 $
+          ( wctx1 $
               P.Tuple
-                ( wctx 2 2 $ P.IntegerLiteral 5,
-                  wctx 2 10 $ P.StringLiteral "string",
-                  [wctx 2 20 $ P.IntegerLiteral 2]
+                ( wctx2 $ P.IntegerLiteral 5,
+                  wctx3 $ P.StringLiteral "string",
+                  [wctx4 $ P.IntegerLiteral 2]
                 )
           )
           (TupleType (NumberType, StringType, [NumberType]))
 
     describe "checkStmt" $ do
       it "Type checks existing declaration type with correct argument" $ do
-        let ast = wctx 1 1 $ P.Decl "string" "App" $ wctx 2 3 $ P.StringLiteral "Wasp"
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
                   TD.enumTypes = H.empty
                 }
         let actual = run typeDefs $ checkStmt ast
-        let expected = Right $ wctx 1 1 $ Decl "App" (wctx 2 3 $ StringLiteral "Wasp") (DeclType "string")
+        let expected = Right $ wctx1 $ Decl "App" (wctx2 $ StringLiteral "Wasp") (DeclType "string")
         actual `shouldBe` expected
       it "Fails to type check non-existant declaration type" $ do
-        let ast = wctx 1 1 $ P.Decl "string" "App" $ wctx 2 3 $ P.StringLiteral "Wasp"
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
         let actual = run TD.empty $ checkStmt ast
-        actual `shouldBe` Left (mkTypeError (ctx 1 1) $ NoDeclarationType "string")
+        actual `shouldBe` Left (mkTypeError ctx1 $ NoDeclarationType "string")
       it "Fails to type check existing declaration type with incorrect argument" $ do
-        let ast = wctx 1 1 $ P.Decl "string" "App" $ wctx 2 3 $ P.IntegerLiteral 5
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.IntegerLiteral 5
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
@@ -238,15 +239,15 @@ spec_Internal = do
                 }
         let actual = run typeDefs $ checkStmt ast
         let expectedError =
-              mkTypeError (ctx 1 1) $
+              mkTypeError ctx1 $
                 WeakenError $
                   TypeCoercionError
-                    (wctx 2 3 $ IntegerLiteral 5)
+                    (wctx2 $ IntegerLiteral 5)
                     StringType
                     ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
-        let ast = wctx 1 1 $ P.Decl "maybeString" "App" $ wctx 2 3 $ P.Dict [("val", wctx 2 10 $ P.StringLiteral "Wasp")]
+        let ast = wctx1 $ P.Decl "maybeString" "App" $ wctx2 $ P.Dict [("val", wctx3 $ P.StringLiteral "Wasp")]
         let typeDefs =
               TD.TypeDefinitions
                 { TD.declTypes =
@@ -260,12 +261,12 @@ spec_Internal = do
         let actual = run typeDefs $ checkStmt ast
         let expected =
               Right $
-                wctx 1 1 $
+                wctx1 $
                   Decl
                     "App"
-                    ( wctx 2 3 $
+                    ( wctx2 $
                         Dict
-                          [("val", wctx 2 10 $ StringLiteral "Wasp")]
+                          [("val", wctx3 $ StringLiteral "Wasp")]
                           (DictType $ H.singleton "val" (DictOptional StringType))
                     )
                     (DeclType "maybeString")

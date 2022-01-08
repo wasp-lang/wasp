@@ -81,13 +81,11 @@ startCodeToInt (QuoterStartCode _) = quoter
 --
 --   This function is taken from the Alex basic wrapper.
 alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
-alexGetByte (prevChar, (currChar, (b:bs)), remainingSource) =
-  Just (b, (prevChar, (currChar, bs), remainingSource))
-alexGetByte (_, (_, []), []) = Nothing
-alexGetByte (_, (currChar, []), (newChar:remainingSource)) =
-  case encodeChar newChar of
-    (b:bs) -> Just (b, (currChar, (newChar, bs), remainingSource))
-    [] -> Nothing
+alexGetByte (prevChar, (b:bs), remainingSource) = Just (b, (prevChar, bs, remainingSource))
+alexGetByte (_, [], []) = Nothing
+alexGetByte (_, [], (currChar:remainingSource)) = case encodeChar currChar of
+                                                    (b:bs) -> Just (b, (currChar, bs, remainingSource))
+                                                    [] -> Nothing
 
 -- | Required by Alex.
 --
@@ -110,8 +108,6 @@ lexer parseToken = do
   input@(_, _, remainingSource) <- gets parserRemainingInput
   startCodeInt <- gets $ startCodeToInt . parserLexerStartCode
   case alexScan input startCodeInt of
-    AlexEOF -> do
-      createConstToken TEOF "" >>= parseToken
     AlexError _input'@(_, _, c:_) -> do
       -- NOTE(martin): @_input'@ is actually the same as @input@ before the scan,
       --   that is how AlexError works -> it returns last AlexInput before Alex
@@ -120,19 +116,17 @@ lexer parseToken = do
       pos <- gets parserSourcePosition
       throwError $ UnexpectedChar c pos
     AlexError (_, _, []) -> error "impossible"
-    AlexSkip input' numCharsSkipped -> do
-      updatePosition $ take numCharsSkipped remainingSource
-      putInput input'
+    AlexSkip _input' numCharsSkipped -> do
+      updateParserStateWithSkippedChars numCharsSkipped
       lexer parseToken
-    AlexToken input' tokenLength action -> do
-      -- Creating token and remembering its position via setPositionOfLastScannedTokenToCurrent
-      -- are done before `updatePosition`, while current parser position still points to
-      -- the start of the token's lexeme, to ensure that position gets used.
+    AlexToken _input' tokenLength mkToken -> do
       let lexeme = take tokenLength remainingSource
-      token <- action lexeme
-      setPositionOfLastScannedTokenToCurrent
-      updatePosition lexeme
-      putInput input'
+      token <- mkToken lexeme
+      updateParserStateWithScannedToken token
+      parseToken token
+    AlexEOF -> do
+      token <- createConstToken TEOF ""
+      updateParserStateWithScannedToken token
       parseToken token
 
 -- | Takes a lexeme like "{=json" and sets the quoter start code
@@ -159,7 +153,7 @@ createConstToken :: TokenType -> (String -> Parser Token)
 createConstToken tokType lexeme = do
   position <- gets parserSourcePosition
   return $ Token { tokenType = tokType
-                 , tokenPosition = position
+                 , tokenStartPosition = position
                  , tokenLexeme = lexeme
                  }
 

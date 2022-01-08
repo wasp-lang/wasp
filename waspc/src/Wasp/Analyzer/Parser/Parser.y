@@ -10,7 +10,7 @@ module Wasp.Analyzer.Parser.Parser
 
 import Wasp.Analyzer.Parser.Lexer
 import Wasp.Analyzer.Parser.AST
-import Wasp.Analyzer.Parser.Ctx (WithCtx (..), Ctx (..), ctxFromPos)
+import Wasp.Analyzer.Parser.Ctx (WithCtx (..), Ctx (..), ctxFromPos, ctxFromRgn)
 import Wasp.Analyzer.Parser.Token
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.ParseError
@@ -69,7 +69,7 @@ Stmts :: { AST }
   | Stmts StmtWithCtx { AST $ astStmts $1 ++ [$2] }
 
 StmtWithCtx :: { WithCtx Stmt }
-  : ctx Stmt { WithCtx $1 $2 }
+  : posStart Stmt posEnd { WithCtx (ctxFromRgn $1 $3) $2 }
 
 Stmt :: { Stmt }
   : Decl { $1 }
@@ -78,7 +78,7 @@ Decl :: { Stmt }
   : id id ExprWithCtx { Decl $1 $2 $3 }
 
 ExprWithCtx :: { WithCtx Expr }
-  : ctx Expr { WithCtx $1 $2 }
+  : posStart Expr posEnd { WithCtx (ctxFromRgn $1 $3) $2 }
 
 Expr :: { Expr }
   : Dict      { $1 }
@@ -133,27 +133,28 @@ Name :: { ExtImportName }
   | '{' id '}' { ExtImportField $2 }
 
 Quoter :: { Expr }
-  : pos '{=' Quoted pos '=}' {% if $2 /= $5
-                                then throwError $ QuoterDifferentTags ($2, $1) ($5, $4)
-                                else return $ Quoter $2 $3
-                             }
+  : posStart '{=' posEnd Quoted posStart '=}' posEnd
+      {% if $2 /= $6
+         then throwError $ QuoterDifferentTags (WithCtx (ctxFromRgn $1 $3) $2) (WithCtx (ctxFromRgn $5 $7) $6)
+         else return $ Quoter $2 $4
+      }
 Quoted :: { String }
   : quoted        { $1 }
   | Quoted quoted { $1 ++ $2 }
 
--- Special production that returns the position of the token that will get scanned after it.
+-- | Special production that returns the start of the next/following token.
 -- NOTE(martin): You might wonder why does it use position of the last scanned (therefore *previous*)
 -- token to get the position of the token that should be scanned *after* this production?
 -- That sounds like it is getting position of one token too early, right? The trick is that Happy
 -- always keeps one lookahead token in reserve, so it is actually always one token ahead of what we
 -- would expect. Therefore getting the position of the last scanned token actually gives us the position
 -- of the token that follows.
-pos :: { SourcePosition }
-  : {- empty -} {% fmap lastScannedTokenSourcePosition get }
+posStart :: { SourcePosition }
+  : {- empty -} {% (tokenStartPosition . lastScannedToken) `fmap` get }
 
--- Special production that returns the current parsing context.
-ctx :: { Ctx }
-  : pos { ctxFromPos $1 }
+-- | Special production that returns the end of the previous token.
+posEnd :: { SourcePosition }
+  : {- empty -} {% (calcTokenEndPos . lastToLastScannedToken) `fmap` get }
 
 {
 parseError :: (Token, [String]) -> Parser a
