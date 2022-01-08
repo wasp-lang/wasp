@@ -176,7 +176,7 @@ spec_Analyzer = do
               [ "route HomeRoute { path: \"/\", page: NonExistentPage }"
               ]
       takeDecls @Route <$> analyze source
-        `shouldBe` Left (TypeError $ TC.UndefinedIdentifier (ctx 1 36) "NonExistentPage")
+        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx 1 36) $ TC.UndefinedIdentifier "NonExistentPage")
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =

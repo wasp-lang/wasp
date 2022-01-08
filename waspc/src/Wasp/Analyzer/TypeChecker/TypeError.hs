@@ -2,9 +2,11 @@
 
 module Wasp.Analyzer.TypeChecker.TypeError
   ( TypeError (..),
+    TypeError' (..),
     TypeCoercionErrorReason (..),
     TypeCoercionError (..),
     getErrorMessageAndCtx,
+    mkTypeError,
   )
 where
 
@@ -15,22 +17,25 @@ import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent)
 
+newtype TypeError = TypeError (WithCtx TypeError')
+  deriving (Show, Eq)
+
 {- ORMOLU_DISABLE -}
-data TypeError
+data TypeError'
   -- | Type coercion error that occurs when trying to "unify" the type T1 of typed expression with some other type T2.
   -- If there is a super type that both T2 and T1 can be safely coerced to, "unify" will succeed, but if not,
   -- we get this error.
   -- We use "unify" in the TypeChecker when trying to infer the common type for typed expressions that we know
   -- should be of the same type (e.g. for elements in the list).
-  = UnificationError     Ctx TypeCoercionError
+  = UnificationError    TypeCoercionError
   -- | Type coercion error that occurs when trying to "weaken" the typed expression from its type T1 to some type T2.
   -- If T2 is super type of T1 and T1 can be safely coerced to T2, "weaken" will succeed, but if not, we get this error.
   -- We use "weaken" in the TypeChecker when trying to match inferred type of typed expression with some expected type.
-  | WeakenError          Ctx TypeCoercionError
-  | NoDeclarationType    Ctx TypeName
-  | UndefinedIdentifier  Ctx Identifier
-  | QuoterUnknownTag     Ctx QuoterTag
-  | DictDuplicateField   Ctx DictFieldName
+  | WeakenError         TypeCoercionError
+  | NoDeclarationType   TypeName
+  | UndefinedIdentifier Identifier
+  | QuoterUnknownTag    QuoterTag
+  | DictDuplicateField  DictFieldName
   deriving (Eq, Show)
 {- ORMOLU_ENABLE -}
 
@@ -40,14 +45,17 @@ type QuoterTag = String
 
 type DictFieldName = String
 
+mkTypeError :: Ctx -> TypeError' -> TypeError
+mkTypeError ctx e = TypeError $ WithCtx ctx e
+
 getErrorMessageAndCtx :: TypeError -> (String, Ctx)
-getErrorMessageAndCtx = \case
-  (NoDeclarationType pos typeName) -> ("Unknown declaration type: " ++ typeName, pos)
-  (UndefinedIdentifier pos identifier) -> ("Undefined identifier: " ++ identifier, pos)
-  (QuoterUnknownTag pos quoterTag) -> ("Unknown quoter tag: " ++ quoterTag, pos)
-  (DictDuplicateField pos dictFieldName) -> ("Duplicate dictionary field: " ++ dictFieldName, pos)
-  (UnificationError _ e) -> getUnificationErrorMessageAndCtx e
-  (WeakenError _ e) -> getWeakenErrorMessageAndCtx e
+getErrorMessageAndCtx (TypeError (WithCtx ctx typeError)) = case typeError of
+  (NoDeclarationType typeName) -> ("Unknown declaration type: " ++ typeName, ctx)
+  (UndefinedIdentifier identifier) -> ("Undefined identifier: " ++ identifier, ctx)
+  (QuoterUnknownTag quoterTag) -> ("Unknown quoter tag: " ++ quoterTag, ctx)
+  (DictDuplicateField dictFieldName) -> ("Duplicate dictionary field: " ++ dictFieldName, ctx)
+  (UnificationError e) -> getUnificationErrorMessageAndCtx e
+  (WeakenError e) -> getWeakenErrorMessageAndCtx e
 
 -- TypeCoercionError <typed expression> <type which we tried to coerce the typed expression to/with> <reason>
 data TypeCoercionError = TypeCoercionError (WithCtx TypedExpr) Type (TypeCoercionErrorReason TypeCoercionError)

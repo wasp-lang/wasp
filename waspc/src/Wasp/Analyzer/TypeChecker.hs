@@ -13,6 +13,8 @@ module Wasp.Analyzer.TypeChecker
 
     -- ** Errors
     TypeError (..),
+    TypeError' (..),
+    mkTypeError,
     TypeCoercionError (..),
     TypeCoercionErrorReason (..),
     getErrorMessageAndCtx,

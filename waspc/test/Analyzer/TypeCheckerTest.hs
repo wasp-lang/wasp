@@ -48,8 +48,9 @@ spec_TypeChecker = do
                 }
         let actual = typeCheck typeDefs ast
         let expectedError =
-              WeakenError (ctx 1 1) $
-                TypeCoercionError (wctx 2 2 $ IntegerLiteral 5) StringType ReasonUncoercable
+              mkTypeError (ctx 1 1) $
+                WeakenError $
+                  TypeCoercionError (wctx 2 2 $ IntegerLiteral 5) StringType ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
         let mAst = P.parse "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
