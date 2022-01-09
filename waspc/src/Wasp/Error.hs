@@ -49,7 +49,7 @@ showError (waspFilePath, waspFileContent) (errMsg, errCtx) =
             singleLineRgnStartAndEndIndicator =
               replicate 9 ' '
                 ++ replicate startColIdx ' '
-                ++ replicate (endColIdx - startColIdx) 'v'
+                ++ replicate (endColIdx - startColIdx + 1) 'v'
          in if length enumedSrcLines == 1
               then singleLineRgnStartAndEndIndicator : enumedSrcLines
               else
