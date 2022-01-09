@@ -8,6 +8,8 @@ module Analyzer.EvaluatorTest where
 
 import Data.Data (Data)
 import Data.List.Split (splitOn)
+import Data.Maybe (fromJust)
+import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Text.Read (readMaybe)
 import Wasp.Analyzer.Evaluator
@@ -191,8 +193,8 @@ spec_Evaluator = do
           `shouldBe` Right
             [ ( "Test",
                 Special
-                  [ ExtImport (ExtImportField "field") "main.js",
-                    ExtImport (ExtImportModule "main") "main.js"
+                  [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
+                    ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
                   ]
                   (JSON " \"key\": 1 ")
               )

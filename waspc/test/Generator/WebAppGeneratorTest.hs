@@ -4,34 +4,48 @@ import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
-import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
-import Wasp.Wasp
 
--- TODO(martin): We could define Arbitrary instance for Wasp, define properties over
---   generator functions and then do property testing on them, that would be cool.
+-- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
+-- over generator functions and then do property testing on them, that would be cool.
 
 spec_WebAppGenerator :: Spec
 spec_WebAppGenerator = do
-  let testApp = App "TestApp" "Test App" Nothing
-  let testWasp = fromApp testApp
-  let testCompileOptions =
-        CompileOptions.CompileOptions
-          { CompileOptions.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-            CompileOptions.isBuild = False
+  let testAppSpec =
+        AS.AppSpec
+          { AS.decls =
+              [ AS.Decl.makeDecl
+                  "TestApp"
+                  AS.App.App
+                    { AS.App.title = "Test App",
+                      AS.App.db = Nothing,
+                      AS.App.server = Nothing,
+                      AS.App.auth = Nothing,
+                      AS.App.dependencies = Nothing,
+                      AS.App.head = Nothing
+                    }
+              ],
+            AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
+            AS.externalCodeFiles = [],
+            AS.isBuild = False,
+            AS.migrationDir = Nothing,
+            AS.dotEnvFile = Nothing
           }
 
   describe "generateWebApp" $ do
     -- NOTE: This test does not (for now) check that content of files is correct or
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
-    it "Given a simple Wasp, creates file drafts at expected destinations" $ do
-      let fileDrafts = generateWebApp testWasp testCompileOptions
+    it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
+      let fileDrafts = generateWebApp testAppSpec
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat

@@ -25,8 +25,11 @@ data AppSpec = AppSpec
     -- | Absolute path to the directory in wasp project source that contains external code files.
     externalCodeDirPath :: !(Path' Abs (Dir ExternalCode.SourceExternalCodeDir)),
     -- TODO: Rename to migrationsDir ('s' at the end).
+    -- TODO: Write comment.
     migrationDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
+    -- TODO: Write comment.
     dotEnvFile :: Maybe (Path' Abs File'),
+    -- TODO: Write comment.
     isBuild :: Bool
   }
 

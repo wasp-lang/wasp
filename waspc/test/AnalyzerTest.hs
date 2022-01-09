@@ -5,6 +5,8 @@ module AnalyzerTest where
 import Analyzer.TestUtil (ctx)
 import Data.Either (isRight)
 import Data.List (intercalate)
+import Data.Maybe (fromJust)
+import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
@@ -103,7 +105,11 @@ spec_Analyzer = do
                     App.server =
                       Just
                         Server.Server
-                          { Server.setupFn = Just $ ExtImport (ExtImportField "setupServer") "@ext/bar.js"
+                          { Server.setupFn =
+                              Just $
+                                ExtImport
+                                  (ExtImportField "setupServer")
+                                  (fromJust $ SP.parseRelFileP "@ext/bar.js")
                           },
                     App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
                   }
@@ -114,13 +120,19 @@ spec_Analyzer = do
       let expectedPages =
             [ ( "HomePage",
                 Page.Page
-                  { Page.component = ExtImport (ExtImportModule "Home") "@ext/pages/Main",
+                  { Page.component =
+                      ExtImport
+                        (ExtImportModule "Home")
+                        (fromJust $ SP.parseRelFileP "@ext/pages/Main"),
                     Page.authRequired = Nothing
                   }
               ),
               ( "ProfilePage",
                 Page.Page
-                  { Page.component = ExtImport (ExtImportField "profilePage") "@ext/pages/Profile",
+                  { Page.component =
+                      ExtImport
+                        (ExtImportField "profilePage")
+                        (fromJust $ SP.parseRelFileP "@ext/pages/Profile"),
                     Page.authRequired = Just True
                   }
               )
@@ -153,7 +165,10 @@ spec_Analyzer = do
       let expectedQueries =
             [ ( "getUsers",
                 Query.Query
-                  { Query.fn = ExtImport (ExtImportField "getAllUsers") "@ext/foo.js",
+                  { Query.fn =
+                      ExtImport
+                        (ExtImportField "getAllUsers")
+                        (fromJust $ SP.parseRelFileP "@ext/foo.js"),
                     Query.entities = Just [Ref "User"],
                     Query.auth = Nothing
                   }
@@ -164,7 +179,10 @@ spec_Analyzer = do
       let expectedAction =
             [ ( "updateUser",
                 Action.Action
-                  { Action.fn = ExtImport (ExtImportField "updateUser") "@ext/foo.js",
+                  { Action.fn =
+                      ExtImport
+                        (ExtImportField "updateUser")
+                        (fromJust $ SP.parseRelFileP "@ext/foo.js"),
                     Action.entities = Just [Ref "User"],
                     Action.auth = Just True
                   }
