@@ -38,14 +38,15 @@ import Wasp.Util ((<++>))
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir = do
   let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+
   case generatorResult of
     Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
     Right fileDrafts -> do
-      ServerGenerator.preCleanup spec dstDir
-      DbGenerator.preCleanup spec dstDir
+      preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      return (generatorWarnings, [])
+      afterWriteWarnings <- afterWriteChecks spec dstDir
+      return (generatorWarnings ++ afterWriteWarnings, [])
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
@@ -53,6 +54,14 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
+
+afterWriteChecks :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
+afterWriteChecks spec dstDir = DbGenerator.afterWriteChecks spec dstDir
+
+preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup spec dstDir = do
+  ServerGenerator.preCleanup spec dstDir
+  DbGenerator.preCleanup spec dstDir
 
 -- | Writes file drafts while using given destination dir as root dir.
 --   TODO(martin): We could/should parallelize this.

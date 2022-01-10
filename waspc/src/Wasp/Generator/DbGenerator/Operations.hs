@@ -12,7 +12,11 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir)
+import Wasp.Generator.DbGenerator
+  ( dbMigrationsDirInDbRootDir,
+    dbRootDirInProjectRootDir,
+    writeDbSchemaChecksumToFile,
+  )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
   ( WriteableMonad (copyDirectoryRecursive),
@@ -28,7 +32,7 @@ printJobMsgsUntilExitReceived chan = do
     J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
     J.JobExit {} -> return ()
 
--- | Migrates in the generated project context and then copies the migrations dir back
+-- | Migrates in the generated project context, stores checksum, and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs = do
@@ -38,8 +42,13 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAb
       (printJobMsgsUntilExitReceived chan)
       (DbJobs.migrateDev genProjectRootDirAbs chan)
   case dbExitCode of
-    ExitSuccess -> copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
+
+finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+  writeDbSchemaChecksumToFile genProjectRootDirAbs
+  copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
