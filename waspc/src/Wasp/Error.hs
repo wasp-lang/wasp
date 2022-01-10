@@ -1,4 +1,4 @@
-module Wasp.Error (showError) where
+module Wasp.Error (showErrorForTerminal) where
 
 import Data.List (intercalate)
 import StrongPath (Abs, File', Path')
@@ -6,58 +6,61 @@ import qualified StrongPath as SP
 import Wasp.Analyzer.Parser.Ctx (Ctx, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
-import Wasp.Util (indent)
+import Wasp.Util (indent, insertAt, leftPad)
+import qualified Wasp.Util.Terminal as T
 
--- TODO: Consider polishing this a bit.
-showError :: (Path' Abs File', String) -> (String, Ctx) -> String
-showError (waspFilePath, waspFileContent) (errMsg, errCtx) =
+showErrorForTerminal :: (Path' Abs File', String) -> (String, Ctx) -> String
+showErrorForTerminal (waspFilePath, waspFileContent) (errMsg, errCtx) =
   let srcRegion = getCtxRgn errCtx
    in intercalate
         "\n"
         [ SP.fromAbsFile waspFilePath ++ " @ " ++ showRgn srcRegion,
           indent 2 errMsg,
           "",
-          indent 2 $ intercalate "\n" $ getEnumedSrcLinesOfRgn srcRegion
+          indent 2 $ prettyShowSrcLinesOfErrorRgn waspFileContent srcRegion
         ]
+
+showRgn :: SourceRegion -> String
+showRgn (SourceRegion (SourcePosition l1 c1) (SourcePosition l2 c2))
+  | l1 == l2 && c1 == c2 = showPos l1 c1
+  | l1 == l2 && c1 /= c2 = show l1 ++ ":" ++ show c1 ++ "-" ++ show c2
+  | otherwise = showPos l1 c1 ++ " - " ++ showPos l2 c2
   where
-    showPos :: SourcePosition -> String
-    showPos (SourcePosition l c) = show l ++ ":" ++ show c
+    showPos l c = show l ++ ":" ++ show c
 
-    showRgn :: SourceRegion -> String
-    showRgn (SourceRegion startPos endPos) =
-      if startPos == endPos
-        then showPos startPos
-        else showPos startPos ++ " - " ++ showPos endPos
-
-    getEnumedSrcLinesOfRgn :: SourceRegion -> [String]
-    getEnumedSrcLinesOfRgn
-      ( SourceRegion
-          (SourcePosition startLineIdx startColIdx)
-          (SourcePosition endLineIdx endColIdx)
-        ) =
-        let srcLines =
-              take (endLineIdx - startLineIdx + 1) $
-                drop startLineIdx (lines waspFileContent)
-            enumedSrcLines =
-              zipWith
-                (\lineIdx line -> pad 6 (show lineIdx) ++ " | " ++ line)
-                [startLineIdx ..]
-                srcLines
-            -- TODO: make this 9 not hardcoded but calculated from 6 and " | " above.
-            multiLineRgnStartIndicator = replicate 9 ' ' ++ replicate startColIdx ' ' ++ "v"
-            multiLineRgnEndIndicator = replicate 9 ' ' ++ replicate endColIdx ' ' ++ "^"
-            singleLineRgnStartAndEndIndicator =
-              replicate 9 ' '
-                ++ replicate startColIdx ' '
-                ++ replicate (endColIdx - startColIdx + 1) 'v'
-         in if length enumedSrcLines == 1
-              then singleLineRgnStartAndEndIndicator : enumedSrcLines
-              else
-                multiLineRgnStartIndicator :
-                enumedSrcLines
-                  ++ [multiLineRgnEndIndicator]
-
-    pad :: Int -> String -> String
-    pad n str =
-      let padded = replicate n ' ' ++ str
-       in drop (length padded - n) padded
+-- | Given wasp source and error region in it, extracts source lines
+-- that are in the given error region and then nicely displays them,
+-- by coloring in red the exact error region part of the code and also
+-- by prefixing all the lines with their line number (colored yellow).
+prettyShowSrcLinesOfErrorRgn :: String -> SourceRegion -> String
+prettyShowSrcLinesOfErrorRgn
+  waspFileContent
+  ( SourceRegion
+      (SourcePosition startLineIdx startColIdx)
+      (SourcePosition endLineIdx endColIdx)
+    ) =
+    let srcLines =
+          zip [startLineIdx ..] $
+            take (endLineIdx - startLineIdx + 1) $
+              drop startLineIdx (lines waspFileContent)
+        srcLinesWithMarkedErrorRgn =
+          map
+            ( \(lineIdx, line) ->
+                let stylingEnd = T.escapeCode ++ T.resetCode
+                    stylingStart = T.escapeCode ++ T.styleCode T.Red
+                    lineWithStylingEnd =
+                      if lineIdx == endLineIdx
+                        then insertAt stylingEnd (endColIdx + 1) line
+                        else line ++ stylingEnd
+                    lineWithStylingStartAndEnd =
+                      if lineIdx == startLineIdx
+                        then insertAt stylingStart startColIdx lineWithStylingEnd
+                        else stylingStart ++ lineWithStylingEnd
+                 in (lineIdx, lineWithStylingStartAndEnd)
+            )
+            srcLines
+        srcLinesWithMarkedErrorRgnAndLineNumber =
+          map
+            (\(lineIdx, line) -> T.applyStyles [T.Yellow] (leftPad ' ' 6 (show lineIdx) ++ " | ") ++ line)
+            srcLinesWithMarkedErrorRgn
+     in intercalate "\n" srcLinesWithMarkedErrorRgnAndLineNumber

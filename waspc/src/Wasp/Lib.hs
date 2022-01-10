@@ -17,7 +17,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import Wasp.Error (showError)
+import Wasp.Error (showErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
@@ -40,7 +40,7 @@ compile waspDir outDir options = do
         Left analyzeError ->
           return $
             Left $
-              showError
+              showErrorForTerminal
                 (waspFilePath, waspFileContent)
                 (getErrorMessageAndCtx analyzeError)
         Right decls -> do

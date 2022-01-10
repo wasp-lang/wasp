@@ -91,3 +91,25 @@ spec_concatPrefixAndText = do
       concatPrefixAndText "prefix: " "foo" `shouldBe` "prefix: foo"
     it "put all the text below the prefix, indented for 2 spaces, if text has multiple lines" $ do
       concatPrefixAndText "prefix: " "foo\nbar" `shouldBe` "prefix: \n  foo\n  bar"
+
+spec_leftPad :: Spec
+spec_leftPad = do
+  describe "leftPad should" $ do
+    it "pad the list if it is shorter than desired length" $ do
+      leftPad ' ' 5 "hi" `shouldBe` "   hi"
+    it "not modify the list if it is already long enough" $ do
+      leftPad ' ' 5 "hihih" `shouldBe` "hihih"
+      leftPad ' ' 5 "hihihi" `shouldBe` "hihihi"
+
+spec_insertAt :: Spec
+spec_insertAt = do
+  describe "insertAt should" $ do
+    it "insert given list at the start of host list if index is 0 or negative" $ do
+      insertAt [0] 0 [1, 2, 3] `shouldBe` ([0, 1, 2, 3] :: [Int])
+      insertAt [0] (-1) [1, 2, 3] `shouldBe` ([0, 1, 2, 3] :: [Int])
+    it "insert given list in the host list at given index when index is in [1, host list length - 1]" $ do
+      insertAt [0] 1 [1, 2, 3] `shouldBe` ([1, 0, 2, 3] :: [Int])
+      insertAt [0] 2 [1, 2, 3] `shouldBe` ([1, 2, 0, 3] :: [Int])
+    it "insert given list at the end of host list if index is equal or bigger than host list length" $ do
+      insertAt [0] 3 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
+      insertAt [0] 4 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
