@@ -41,9 +41,10 @@ spec_Analyzer = do
                 "  auth: {",
                 "    userEntity: User,",
                 "    methods: [EmailAndPassword],",
+                "    onAuthFailedRedirectTo: \"/\",",
                 "  },",
                 "  dependencies: [",
-                "    { name: \"redux\", version: \"^4.0.5\" }",
+                "    (\"redux\", \"^4.0.5\")",
                 "  ],",
                 "  server: {",
                 "    setupFn: import { setupServer } from \"@ext/bar.js\"",
@@ -66,7 +67,7 @@ spec_Analyzer = do
                 "  authRequired: true",
                 "}",
                 "",
-                "route HomeRoute { path: \"/\", page: HomePage }",
+                "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
                 "query getUsers {",
                 "  fn: import { getAllUsers } from \"@ext/foo.js\",",
@@ -92,7 +93,8 @@ spec_Analyzer = do
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
                             Auth.methods = [Auth.EmailAndPassword],
-                            Auth.onAuthFailedRedirectTo = Nothing
+                            Auth.onAuthFailedRedirectTo = "/",
+                            Auth.onAuthSucceededRedirectTo = Nothing
                           },
                     App.dependencies =
                       Just
@@ -143,7 +145,7 @@ spec_Analyzer = do
 
       let expectedRoutes =
             [ ( "HomeRoute",
-                Route.Route {Route.path = "/", Route.page = Ref "HomePage"}
+                Route.Route {Route.path = "/", Route.to = Ref "HomePage"}
               )
             ]
       takeDecls @Route <$> decls `shouldBe` Right expectedRoutes
@@ -173,22 +175,22 @@ spec_Analyzer = do
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\", page: NonExistentPage }"
+              [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
               ]
       takeDecls @Route <$> analyze source
-        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx (1, 36) (1, 50)) $ TC.UndefinedIdentifier "NonExistentPage")
+        `shouldBe` Left (TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage")
 
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\",  page: HomeRoute }"
+              [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
               ]
       analyze source
-        `errorMessageShouldBe` ( ctx (1, 37) (1, 45),
+        `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
                                  intercalate
                                    "\n"
                                    [ "Type error:",
-                                     "  For dictionary field 'page':",
+                                     "  For dictionary field 'to':",
                                      "    Expected type: page (declaration type)",
                                      "    Actual type:   route (declaration type)"
                                    ]
@@ -197,7 +199,7 @@ spec_Analyzer = do
     it "Works when referenced declaration is declared after the reference." $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\",  page: HomePage }",
+              [ "route HomeRoute { path: \"/\",  to: HomePage }",
                 "page HomePage { component: import Home from \"@ext/HomePage.js\" }"
               ]
       isRight (analyze source) `shouldBe` True
@@ -209,21 +211,20 @@ spec_Analyzer = do
                 [ "app MyApp {",
                   "  title: \"My app\",",
                   "  dependencies: [",
-                  "    { name: \"bar\", version: 13 },",
-                  "    { name: \"foo\", version: 14 }",
+                  "    (\"bar\", 13),",
+                  "    (\"foo\", 14)",
                   "  ]",
                   "}"
                 ]
         analyze source
-          `errorMessageShouldBe` ( ctx (4, 29) (4, 30),
+          `errorMessageShouldBe` ( ctx (4, 5) (4, 15),
                                    intercalate
                                      "\n"
                                      [ "Type error:",
                                        "  For dictionary field 'dependencies':",
                                        "    For list element:",
-                                       "      For dictionary field 'version':",
-                                       "        Expected type: string",
-                                       "        Actual type:   number"
+                                       "      Expected type: (string, string)",
+                                       "      Actual type:   (string, number)"
                                      ]
                                  )
 
