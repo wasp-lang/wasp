@@ -6,6 +6,7 @@ import System.FilePath ((</>))
 import Test.Tasty.Hspec
 import qualified Wasp.CompileOptions as CompileOptions
 import Wasp.Generator.FileDraft
+import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
@@ -73,4 +74,5 @@ existsFdWithDst fds dstPath = any ((== dstPath) . getFileDraftDstPath) fds
 getFileDraftDstPath :: FileDraft -> FilePath
 getFileDraftDstPath (FileDraftTemplateFd fd) = SP.toFilePath $ TmplFD._dstPath fd
 getFileDraftDstPath (FileDraftCopyFd fd) = SP.toFilePath $ CopyFD._dstPath fd
+getFileDraftDstPath (FileDraftCopyDirFd fd) = SP.toFilePath $ CopyDirFD._dstPath fd
 getFileDraftDstPath (FileDraftTextFd fd) = SP.toFilePath $ TextFD._dstPath fd

@@ -9,13 +9,14 @@ where
 
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
-import Data.Maybe (isNothing)
+import Data.Maybe (isNothing, maybeToList)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, removeDirectoryRecursive)
+import Wasp.Common (DbMigrationsDir)
 import Wasp.CompileOptions (CompileOptions)
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
@@ -25,13 +26,9 @@ import qualified Wasp.Wasp.Db as Wasp.Db
 import Wasp.Wasp.Entity (Entity)
 import qualified Wasp.Wasp.Entity as Wasp.Entity
 
--- * Path definitions
-
 data DbRootDir
 
 data DbTemplatesDir
-
-data DbMigrationsDir
 
 dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
 dbRootDirInProjectRootDir = [reldir|db|]
@@ -53,13 +50,6 @@ dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRoo
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]
 
--- * Db generator
-
-genDb :: Wasp -> CompileOptions -> [FileDraft]
-genDb wasp _ =
-  [ genPrismaSchema wasp
-  ]
-
 preCleanup :: Wasp -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
 preCleanup wasp projectRootDir _ = do
   deleteGeneratedMigrationsDirIfRedundant wasp projectRootDir
@@ -75,6 +65,10 @@ deleteGeneratedMigrationsDirIfRedundant wasp projectRootDir = do
     putStrLn "Successfully deleted."
   where
     projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
+
+genDb :: Wasp -> CompileOptions -> [FileDraft]
+genDb wasp _ =
+  genPrismaSchema wasp : maybeToList (genMigrationsDir wasp)
 
 genPrismaSchema :: Wasp -> FileDraft
 genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
@@ -102,3 +96,10 @@ genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templat
     entityToPslModelSchema entity =
       Psl.Generator.Model.generateModel $
         Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)
+
+genMigrationsDir :: Wasp -> Maybe FileDraft
+genMigrationsDir wasp =
+  (getMigrationsDir wasp) >>= \waspMigrationsDir ->
+    Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
+  where
+    genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir

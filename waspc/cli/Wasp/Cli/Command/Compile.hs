@@ -13,10 +13,6 @@ import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
-import Wasp.Cli.Command.Db.Migrate
-  ( MigrationDirCopyDirection (..),
-    copyDbMigrationsDir,
-  )
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.Common (WaspProjectDir)
@@ -59,5 +55,3 @@ compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
   -- TODO: Use throwIO instead of Either to return exceptions?
   liftIO (Wasp.Lib.compile waspProjectDir outDir options)
     >>= either throwError return
-  liftIO (copyDbMigrationsDir CopyMigDirDown waspProjectDir outDir)
-    >>= maybe (return ()) (throwError . ("Copying migration folder failed: " ++))

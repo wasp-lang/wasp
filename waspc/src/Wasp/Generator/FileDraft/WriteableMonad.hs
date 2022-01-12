@@ -7,7 +7,9 @@ import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text.IO
-import StrongPath (Abs, Dir, File', Path', Rel)
+import qualified Path.IO as PathIO
+import StrongPath (Abs, Dir, Dir', File', Path', Rel)
+import qualified StrongPath.Path as SP.Path
 import qualified System.Directory
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (Exception, catch)
@@ -33,7 +35,18 @@ class (MonadIO m) => WriteableMonad m where
     FilePath ->
     m ()
 
+  -- | Copies a directory recursively.
+  -- It does not follow symbolic links and preserves permissions when possible.
+  copyDirectoryRecursive ::
+    -- | Src path.
+    Path' Abs Dir' ->
+    -- | Dst path.
+    Path' Abs Dir' ->
+    m ()
+
   doesFileExist :: FilePath -> m Bool
+
+  doesDirectoryExist :: FilePath -> m Bool
 
   writeFileFromText :: FilePath -> Text -> m ()
 
@@ -69,7 +82,11 @@ instance WriteableMonad IO where
                     else throwIO e
               )
 
+  copyDirectoryRecursive src dst = do
+    PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir dst)
+
   doesFileExist = System.Directory.doesFileExist
+  doesDirectoryExist = System.Directory.doesDirectoryExist
   writeFileFromText = Data.Text.IO.writeFile
   getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
   getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
