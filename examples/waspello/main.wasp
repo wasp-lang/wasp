@@ -90,11 +90,6 @@ action deleteList {
 
 // Cards
 
-query getCards {
-    fn: import { getCards } from "@ext/queries.js",
-    entities: [Card]
-}
-
 action createCard {
     fn: import { createCard } from "@ext/actions.js",
     entities: [Card]

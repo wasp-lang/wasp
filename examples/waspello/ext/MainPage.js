@@ -10,7 +10,6 @@ import createList from '@wasp/actions/createList'
 import updateList from '@wasp/actions/updateList'
 import deleteList from '@wasp/actions/deleteList'
 
-import getCards from '@wasp/queries/getCards'
 import createCard from '@wasp/actions/createCard'
 import updateCard from '@wasp/actions/updateCard'
 
