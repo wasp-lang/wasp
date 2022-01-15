@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
@@ -57,17 +57,8 @@ const createListIdToSortedCardsMap = (listsAndCards) => {
   return listIdToSortedCardsMap
 }
 
-const MainPage = ({ user }) => {
-  const { data: listsAndCards, isFetchingListsAndCards, errorListsAndCards }
-    = useQuery(getListsAndCards)
-
-  // NOTE(matija): this is only a shallow copy.
-  const listsSortedByPos = listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos)
-
-  // Create a map with listId -> cards sorted by pos.
-  const listIdToSortedCardsMap = listsAndCards && createListIdToSortedCardsMap(listsAndCards)
-
-  const onDragEnd = async (result) => {
+const createOnDragEndFn = (listsSortedByPos, listIdToSortedCardsMap, setListsAndCards) => {
+  return async (result) => {
     // Item was dropped outside of the droppable area.
     if (!result.destination) {
       return
@@ -113,6 +104,39 @@ const MainPage = ({ user }) => {
       }
 
       try {
+
+        // Perform an optimistic UI update here.
+        setListsAndCards(prevListsAndCards => {
+          const unChangedListsAndCards =
+            prevListsAndCards.filter(l => l.id != sourceListId && l.id != destListId)
+
+          const prevSourceList = prevListsAndCards.filter(l => l.id == sourceListId)[0]
+          const prevMovedCard = prevSourceList.cards.filter(c => c.id == movedCardId)[0]
+
+          // Add card to the target list.
+          const prevDestList = prevListsAndCards.filter(l => l.id == destListId)[0]
+          const newDestList = {
+            ...prevDestList,
+            cards: [
+              // In case this is also a source list, remove the card.
+              ...prevDestList.cards.filter(c => c.id != movedCardId),
+              {...prevMovedCard, pos: newPos, listId: destListId}
+            ]
+          }
+
+          // Remove card from the source list.
+          const newSourceList = {
+            ...prevSourceList,
+            cards: prevSourceList.cards.filter(c => c.id != movedCardId)
+          }
+
+          if (sourceListId === destListId) {
+            return [...unChangedListsAndCards, newDestList]
+          } else {
+            return [...unChangedListsAndCards, newSourceList, newDestList]
+          }
+        })
+
         await updateCard({ cardId: movedCardId, data: { pos: newPos, listId: destListId } })
       } catch (err) {
         window.alert('Error while updating card position: ' + err.message)
@@ -122,6 +146,38 @@ const MainPage = ({ user }) => {
     }
   }
 
+}
+
+const MainPage = ({ user }) => {
+
+  const [listsAndCards, setListsAndCards] = useState([])
+
+  useEffect(() => {
+    console.log('I am called from useEffect!')
+
+  const fetchListsAndCards = async () => {
+    const result = await getListsAndCards()
+    console.log(result)
+
+    setListsAndCards(result)
+  }
+
+  fetchListsAndCards()
+    .catch(console.error)
+
+  }, []) 
+
+  /*
+  const { data: listsAndCards, isFetchingListsAndCards, errorListsAndCards }
+    = useQuery(getListsAndCards)
+  */
+
+  // NOTE(matija): this is only a shallow copy.
+  const listsSortedByPos = listsAndCards && [...listsAndCards].sort((a, b) => a.pos - b.pos)
+
+  // Create a map with listId -> cards sorted by pos.
+  const listIdToSortedCardsMap = listsAndCards && createListIdToSortedCardsMap(listsAndCards)
+
   return (
     <UserPageLayout user={user}>
       <div className='board-header'>
@@ -130,7 +186,7 @@ const MainPage = ({ user }) => {
         </div>
       </div>
 
-      <DragDropContext onDragEnd={onDragEnd}>
+      <DragDropContext onDragEnd={createOnDragEndFn(listsSortedByPos, listIdToSortedCardsMap, setListsAndCards)}>
         <Droppable droppableId="board" direction="horizontal" type="BOARD" >
           {(provided, snapshot) => (
             <div id='board' className='u-fancy-scrollbar'
