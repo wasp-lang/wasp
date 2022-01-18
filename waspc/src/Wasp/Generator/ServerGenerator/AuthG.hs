@@ -10,27 +10,29 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Util as Util
 
-genAuth :: AppSpec -> [FileDraft]
+genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Just auth ->
-    [ genCoreAuth auth,
-      genAuthMiddleware auth,
-      -- Auth routes
-      genAuthRoutesIndex,
-      genLoginRoute auth,
-      genSignupRoute auth,
-      genMeRoute auth
-    ]
-  Nothing -> []
+    sequence
+      [ genCoreAuth auth,
+        genAuthMiddleware auth,
+        -- Auth routes
+        genAuthRoutesIndex,
+        genLoginRoute auth,
+        genSignupRoute auth,
+        genMeRoute auth
+      ]
+  Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ AS.getApp spec
 
 -- | Generates core/auth file which contains auth middleware and createUser() function.
-genCoreAuth :: AS.Auth.Auth -> FileDraft
-genCoreAuth auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genCoreAuth :: AS.Auth.Auth -> Generator FileDraft
+genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     coreAuthRelToSrc = [relfile|core/auth.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> coreAuthRelToSrc
@@ -43,8 +45,8 @@ genCoreAuth auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genAuthMiddleware :: AS.Auth.Auth -> FileDraft
-genAuthMiddleware auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAuthMiddleware :: AS.Auth.Auth -> Generator FileDraft
+genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
@@ -56,11 +58,11 @@ genAuthMiddleware auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
             [ "userEntityUpper" .= (userEntityName :: String)
             ]
 
-genAuthRoutesIndex :: FileDraft
-genAuthRoutesIndex = C.mkSrcTmplFd (C.asTmplSrcFile [relfile|routes/auth/index.js|])
+genAuthRoutesIndex :: Generator FileDraft
+genAuthRoutesIndex = return $ C.mkSrcTmplFd (C.asTmplSrcFile [relfile|routes/auth/index.js|])
 
-genLoginRoute :: AS.Auth.Auth -> FileDraft
-genLoginRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
+genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     loginRouteRelToSrc = [relfile|routes/auth/login.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> loginRouteRelToSrc
@@ -73,8 +75,8 @@ genLoginRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genSignupRoute :: AS.Auth.Auth -> FileDraft
-genSignupRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
+genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     signupRouteRelToSrc = [relfile|routes/auth/signup.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> signupRouteRelToSrc
@@ -85,8 +87,8 @@ genSignupRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
         [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]
 
-genMeRoute :: AS.Auth.Auth -> FileDraft
-genMeRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genMeRoute :: AS.Auth.Auth -> Generator FileDraft
+genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     meRouteRelToSrc = [relfile|routes/auth/me.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> meRouteRelToSrc

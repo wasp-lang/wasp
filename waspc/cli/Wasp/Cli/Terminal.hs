@@ -4,6 +4,7 @@ module Wasp.Cli.Terminal
     asWaspStartMessage,
     asWaspSuccessMessage,
     asWaspFailureMessage,
+    asWaspWarningMessage,
   )
 where
 
@@ -20,6 +21,11 @@ asWaspStartMessage = waspMessageWithEmoji "🐝"
 
 asWaspSuccessMessage :: String -> String
 asWaspSuccessMessage = waspMessageWithEmoji "✅"
+
+asWaspWarningMessage :: String -> String
+asWaspWarningMessage str = concat ["\n", waspMessageWithEmoji "👀" errorStr, "\n"]
+  where
+    errorStr = "[Warning] " ++ str
 
 asWaspFailureMessage :: String -> String
 -- Add a bit more padding on errors for more pronounced

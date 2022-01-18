@@ -5,16 +5,18 @@ module Wasp.Cli.Command.Compile
   )
 where
 
-import Control.Monad.Except (runExceptT, throwError)
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
+import Wasp.Cli.Common (waspWarns)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage, asWaspWarningMessage)
 import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
@@ -51,7 +53,15 @@ compileIOWithOptions ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
-compileIOWithOptions options waspProjectDir outDir = runExceptT $ do
-  -- TODO: Use throwIO instead of Either to return exceptions?
-  liftIO (Wasp.Lib.compile waspProjectDir outDir options)
-    >>= either throwError return
+compileIOWithOptions options waspProjectDir outDir = do
+  (generatorWarnings, generatorErrors) <- Wasp.Lib.compile waspProjectDir outDir options
+  case generatorErrors of
+    [] -> do
+      displayWarnings generatorWarnings
+      return $ Right ()
+    errors -> return $ Left $ formatMessages errors
+  where
+    formatMessages messages = intercalate "\n" $ map ("- " ++) messages
+    displayWarnings [] = return ()
+    displayWarnings warnings =
+      waspWarns $ asWaspWarningMessage "Your project compiled with warnings:" ++ formatMessages warnings ++ "\n\n"

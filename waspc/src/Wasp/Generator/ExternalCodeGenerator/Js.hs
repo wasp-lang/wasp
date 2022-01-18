@@ -15,9 +15,10 @@ import qualified Wasp.AppSpec.ExternalCode as EC
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import qualified Wasp.Generator.ExternalCodeGenerator.Common as C
 import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.Monad (Generator)
 
-generateJsFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> FD.FileDraft
-generateJsFile strategy file = FD.createTextFileDraft dstPath text'
+generateJsFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
+generateJsFile strategy file = return $ FD.createTextFileDraft dstPath text'
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
 

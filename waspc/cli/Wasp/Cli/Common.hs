@@ -9,6 +9,8 @@ module Wasp.Cli.Common
     generatedCodeDirInDotWaspDir,
     buildDirInDotWaspDir,
     waspSays,
+    waspWarns,
+    waspScreams,
   )
 where
 
@@ -44,3 +46,9 @@ extCodeDirInWaspProjectDir = [reldir|ext|]
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
+
+waspWarns :: String -> IO ()
+waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
+
+waspScreams :: String -> IO ()
+waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what

@@ -10,10 +10,11 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
-genConfigFile :: AppSpec -> FileDraft
-genConfigFile spec = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genConfigFile :: AppSpec -> Generator FileDraft
+genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
