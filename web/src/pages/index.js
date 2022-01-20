@@ -121,18 +121,18 @@ function HeroCodeExample() {
 
   const createAppWaspCode =
 `app todoApp {
-  title: "ToDo App" /* visible in tab */
+  title: "ToDo App", /* visible in tab */
+
+  auth: { /* full-stack auth out-of-the-box */
+    userEntity: User,
+    methods: [ EmailAndPassword ],
+  }
 }
 
-route "/" -> page Main
-page Main {
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
   /* import your React code */
   component: import Main from "@ext/Main.js"
-}
-
-auth { /* full-stack auth out-of-the-box */
-  userEntity: User,
-  methods: [ EmailAndPassword ],
 }
 `
   return (
@@ -162,8 +162,8 @@ app todoApp {
 }
 
 /* routing */
-route "/" -> page Main
-page Main {
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
   component: import Main from "@ext/Main" /* import your React code */
 }
 `
@@ -193,14 +193,18 @@ export default () => <span> Hello World! </span>
       )
     } else if (currentCodeExample === CodeExample.ADD_AUTH) {
     const exampleCode =
-`/* ... */
+`app todoApp {
+  /* ... */
 
-/* full-stack auth out-of-the-box */
-auth {
-  userEntity: User,
-  methods: [ EmailAndPassword ], /* more methods coming soon */
-  onAuthFailedRedirectTo: "/login"
+  /* full-stack auth out-of-the-box */
+  auth: {
+    userEntity: User,
+    methods: [ EmailAndPassword ], /* more methods coming soon */
+    onAuthFailedRedirectTo: "/login"
+  }
 }
+
+/* ... */
 
 /* email & password required because of the auth method above */
 entity User {=psl
@@ -209,7 +213,7 @@ entity User {=psl
     password    String
 psl=}
 
-page Main {
+page MainPage {
   authRequired: true, /* available only to logged in users */
   component: import Main from "@ext/Main"
 }
@@ -236,7 +240,7 @@ export default ({ user }) => {
 
           <div>
             To learn more about authentication & authorization in Wasp, check
-            the <Link to={useBaseUrl('/docs/language/basic-elements#authentication--authorization')}>docs</Link>.
+            the <Link to={useBaseUrl('/docs/language/features#authentication--authorization')}>docs</Link>.
           </div>
         </div>
       )
@@ -292,7 +296,7 @@ export default () => {
 
           <div>
             To learn more about working with data in Wasp, check
-            the <Link to={useBaseUrl('/docs/language/language/basic-elements#entity')}>docs</Link>.
+            the <Link to={useBaseUrl('/docs/language/language/features#entity')}>docs</Link>.
           </div>
         </div>
       )

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.DbGenerator
   ( genDb,
     preCleanup,
@@ -9,22 +11,21 @@ where
 
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
-import Data.Maybe (isNothing, maybeToList)
+import Data.Maybe (fromMaybe, isNothing, maybeToList)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, removeDirectoryRecursive)
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Common (DbMigrationsDir)
-import Wasp.CompileOptions (CompileOptions)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
-import Wasp.Wasp (Wasp, getMigrationsDir)
-import qualified Wasp.Wasp as Wasp
-import qualified Wasp.Wasp.Db as Wasp.Db
-import Wasp.Wasp.Entity (Entity)
-import qualified Wasp.Wasp.Entity as Wasp.Entity
 
 data DbRootDir
 
@@ -50,13 +51,18 @@ dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRoo
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]
 
-preCleanup :: Wasp -> Path' Abs (Dir ProjectRootDir) -> CompileOptions -> IO ()
-preCleanup wasp projectRootDir _ = do
-  deleteGeneratedMigrationsDirIfRedundant wasp projectRootDir
+preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup spec projectRootDir = do
+  deleteGeneratedMigrationsDirIfRedundant spec projectRootDir
 
-deleteGeneratedMigrationsDirIfRedundant :: Wasp -> Path' Abs (Dir ProjectRootDir) -> IO ()
-deleteGeneratedMigrationsDirIfRedundant wasp projectRootDir = do
-  let waspMigrationsDirMissing = isNothing $ getMigrationsDir wasp
+-- * Db generator
+
+genDb :: AppSpec -> [FileDraft]
+genDb spec = genPrismaSchema spec : maybeToList (genMigrationsDir spec)
+
+deleteGeneratedMigrationsDirIfRedundant :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
+  let waspMigrationsDirMissing = isNothing $ AS.migrationsDir spec
   projectMigrationsDirExists <- doesDirectoryExist projectMigrationsDirAbsFilePath
   when (waspMigrationsDirMissing && projectMigrationsDirExists) $ do
     putStrLn "A migrations directory does not exist in this Wasp root directory, but does in the generated project output directory."
@@ -66,40 +72,36 @@ deleteGeneratedMigrationsDirIfRedundant wasp projectRootDir = do
   where
     projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
-genDb :: Wasp -> CompileOptions -> [FileDraft]
-genDb wasp _ =
-  genPrismaSchema wasp : maybeToList (genMigrationsDir wasp)
-
-genPrismaSchema :: Wasp -> FileDraft
-genPrismaSchema wasp = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
+genPrismaSchema :: AppSpec -> FileDraft
+genPrismaSchema spec = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
   where
     dstPath = dbSchemaFileInProjectRootDir
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
 
     templateData =
       object
-        [ "modelSchemas" .= map entityToPslModelSchema (Wasp.getPSLEntities wasp),
+        [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
           "datasourceProvider" .= (datasourceProvider :: String),
           "datasourceUrl" .= (datasourceUrl :: String)
         ]
 
-    dbSystem = maybe Wasp.Db.SQLite Wasp.Db._system (Wasp.getDb wasp)
+    dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ AS.getApp spec))
     (datasourceProvider, datasourceUrl) = case dbSystem of
-      Wasp.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
+      AS.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
       -- TODO: Report this error with some better mechanism, not `error`.
-      Wasp.Db.SQLite ->
-        if Wasp.getIsBuild wasp
-          then error "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/basic-elements/#migrating-from-sqlite-to-postgresql ."
+      AS.Db.SQLite ->
+        if AS.isBuild spec
+          then error "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features/#migrating-from-sqlite-to-postgresql ."
           else ("sqlite", "\"file:./dev.db\"")
 
-    entityToPslModelSchema :: Entity -> String
-    entityToPslModelSchema entity =
+    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
+    entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Model.generateModel $
-        Psl.Ast.Model.Model (Wasp.Entity._name entity) (Wasp.Entity._pslModelBody entity)
+        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
-genMigrationsDir :: Wasp -> Maybe FileDraft
-genMigrationsDir wasp =
-  (getMigrationsDir wasp) >>= \waspMigrationsDir ->
+genMigrationsDir :: AppSpec -> Maybe FileDraft
+genMigrationsDir spec =
+  AS.migrationsDir spec >>= \waspMigrationsDir ->
     Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir

@@ -7,11 +7,18 @@ module Wasp.AppSpec.ExtImport
 where
 
 import Data.Data (Data)
+import StrongPath (File', Path, Posix, Rel)
+import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 
-data ExtImport = ExtImport ExtImportName ExtImportPath
+data ExtImport = ExtImport
+  { -- | What is being imported.
+    name :: ExtImportName,
+    -- | Path from which we are importing.
+    path :: ExtImportPath
+  }
   deriving (Show, Eq, Data)
 
-type ExtImportPath = String
+type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
 
 type Identifier = String
 

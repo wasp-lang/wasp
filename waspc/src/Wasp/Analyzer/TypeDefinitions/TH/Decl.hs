@@ -275,12 +275,11 @@ waspKindOfHaskellType typ = do
   maybeCustomEvaluationKind <- tryCastingToCustomEvaluationKind typ
   maybeRecordKind <- tryCastingToRecordKind typ
   maybe (fail $ "No translation to wasp type for type " ++ show typ) return $
-    maybeDeclRefKind
+    -- NOTE: It is important to have @maybeCustomEvaluationKind@ first, since we want it to override
+    -- any of the hardcoded kind assignments below.
+    maybeCustomEvaluationKind
+      <|> maybeDeclRefKind
       <|> maybeEnumKind
-      -- NOTE: It is important that @maybeCustomEvaluationKind@ is before @maybeRecordKind@,
-      -- since having a custom evaluation should override typical record evalution, if type is a record.
-      <|> maybeCustomEvaluationKind
-      <|> maybeRecordKind
       <|> case typ of
         ConT name
           | name == ''String -> pure KString
@@ -295,6 +294,10 @@ waspKindOfHaskellType typ = do
         TupleT 3 `AppT` t1 `AppT` t2 `AppT` t3 -> pure (KTuple (t1, t2, [t3]))
         TupleT 4 `AppT` t1 `AppT` t2 `AppT` t3 `AppT` t4 -> pure (KTuple (t1, t2, [t3, t4]))
         _ -> Nothing
+      -- NOTE: It is important that @maybeRecordKind@ is last, in case there are some other custom/specialized
+      -- kind assignments for a specific record type -> in that case we want those to be used,
+      -- instead of a generic record kind assignment.
+      <|> maybeRecordKind
   where
     tryCastingToDeclRefKind :: Type -> Q (Maybe WaspKind)
     tryCastingToDeclRefKind (ConT name `AppT` subType) | name == ''Ref = do

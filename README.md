@@ -38,9 +38,9 @@ app TodoApp {
   title: "Todo App"
 }
 
-route "/" -> page Main
-page Main {
-    component: import Main from "@ext/pages/Main.js" // Importing React component.
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@ext/pages/Main.js" // Importing React component.
 }
 
 query getTasks {

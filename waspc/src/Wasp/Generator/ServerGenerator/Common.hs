@@ -2,10 +2,9 @@ module Wasp.Generator.ServerGenerator.Common
   ( serverRootDirInProjectRootDir,
     serverSrcDirInServerRootDir,
     serverSrcDirInProjectRootDir,
-    copyTmplAsIs,
-    makeSimpleTemplateFD,
-    makeTemplateFD,
-    copySrcTmplAsIs,
+    mkTmplFd,
+    mkTmplFdWithDstAndData,
+    mkSrcTmplFd,
     srcDirInServerTemplatesDir,
     asTmplFile,
     asTmplSrcFile,
@@ -24,7 +23,6 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Wasp (Wasp)
 
 data ServerRootDir
 
@@ -61,29 +59,24 @@ serverSrcDirInProjectRootDir = serverRootDirInProjectRootDir </> serverSrcDirInS
 
 -- * Templates
 
-copyTmplAsIs :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
-copyTmplAsIs srcPath = makeTemplateFD srcPath dstPath Nothing
+mkTmplFd :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
+mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     dstPath = SP.castRel srcPath :: Path' (Rel ServerRootDir) File'
 
-makeSimpleTemplateFD :: Path' (Rel ServerTemplatesDir) File' -> Wasp -> FileDraft
-makeSimpleTemplateFD srcPath wasp = makeTemplateFD srcPath dstPath (Just $ Aeson.toJSON wasp)
-  where
-    dstPath = SP.castRel srcPath :: Path' (Rel ServerRootDir) File'
-
-makeTemplateFD ::
+mkTmplFdWithDstAndData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-makeTemplateFD relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
     (serverRootDirInProjectRootDir </> relDstPath)
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-copySrcTmplAsIs :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
-copySrcTmplAsIs pathInTemplatesSrcDir = makeTemplateFD srcPath dstPath Nothing
+mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
+mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
     dstPath =

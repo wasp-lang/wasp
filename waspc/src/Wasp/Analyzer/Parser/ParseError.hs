@@ -7,7 +7,7 @@ module Wasp.Analyzer.Parser.ParseError
 where
 
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
 import Wasp.Analyzer.Parser.Token (Token (..))
 
@@ -40,7 +40,9 @@ getErrorMessageAndCtx = \case
             "Expected one of the following tokens instead: "
               ++ unwords expectedTokens
        in unexpectedTokenMessage ++ if not (null expectedTokens) then "\n" ++ expectedTokensMessage else "",
-      ctxFromPos $ tokenStartPosition unexpectedToken
+      let tokenStartPos@(SourcePosition sl sc) = tokenStartPosition unexpectedToken
+          tokenEndPos = SourcePosition sl (sc + length (tokenLexeme unexpectedToken) - 1)
+       in ctxFromRgn tokenStartPos tokenEndPos
     )
   QuoterDifferentTags (WithCtx lctx ltag) (WithCtx rctx rtag) ->
     let ctx = ctxFromRgn (getRgnStart $ getCtxRgn lctx) (getRgnEnd $ getCtxRgn rctx)

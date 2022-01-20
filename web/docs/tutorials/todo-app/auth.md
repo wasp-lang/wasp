@@ -33,18 +33,19 @@ wasp db migrate-dev
 ```
 to propagate the schema change (we added User).
 
-## Defining `auth` declaration
-Next, we want to tell Wasp that we want full-stack [authentication](language/basic-elements.md#authentication--authorization) in our app, and that it should use entity `User` for it:
+## Defining `app.auth`
+Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use entity `User` for it:
 
-```c title="main.wasp"
-// ...
+```c {4-9} title="main.wasp"
+app TodoApp {
+  title: "Todo app",
 
-auth {
-  // Expects entity User to have (email:String) and (password:String) fields.
-  userEntity: User,
-  methods: [ EmailAndPassword ], // More methods coming soon!
-
-  onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
+  auth: {
+    // Expects entity User to have (email:String) and (password:String) fields.
+    userEntity: User,
+    methods: [ EmailAndPassword ], // More methods coming soon!
+    onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
+  }
 }
 ```
 What this means for us is that Wasp now offers us:
@@ -55,29 +56,29 @@ What this means for us is that Wasp now offers us:
 
 This is a very high-level API for auth which makes it very easy to get started quickly, but is
 not very flexible. If you require more control (e.g. want to execute some custom code on the server
-during signup, check out [lower-level auth API](/docs/language/basic-elements#lower-level-api).
+during signup, check out [lower-level auth API](/docs/language/features#lower-level-api).
 
 Ok, that was easy!
 
-To recap, so far we have created:
+To recap, so far we have defined:
 - `User` entity.
-- `auth` declaration thanks to which Wasp gives us plenty of auth functionality.
+- `app.auth` field, thanks to which Wasp gives us plenty of auth functionality.
 
 ## Adding Login and Signup pages
 
-When we declared `auth` we got login and signup forms generated for us, but now we have to use them in their pages. In our `main.wasp` we'll add the following:
+When we defined `app.auth` we got login and signup forms generated for us, but now we have to use them in their pages. In our `main.wasp` file we'll add the following:
 
 ```c title="main.wasp"
 // ...
 
-route "/signup" -> page Signup
-page Signup {
-    component: import Signup from "@ext/SignupPage"
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import Signup from "@ext/SignupPage"
 }
 
-route "/login" -> page Login
-page Login {
-    component: import Login from "@ext/LoginPage"
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import Login from "@ext/LoginPage"
 }
 ```
 
@@ -128,22 +129,22 @@ export default SignupPage
 ```
 
 
-## Updating Main page to check if user is authenticated
+## Updating `MainPage` page to check if user is authenticated
 
-Now, let's see how are we going to handle the situation when user is not logged in. `Main` page is a private
-page and we want users to be able to see it only if they are authenticated.
+Now, let's see how are we going to handle the situation when user is not logged in.
+`MainPage` page is a private page and we want users to be able to see it only if they are authenticated.
 There is a specific Wasp feature that allows us to achieve this in a simple way:
 
 ```c {3} title="main.wasp"
 // ...
-page Main {
+page MainPage {
   authRequired: true,
   component: import Main from "@ext/MainPage.js"
 }
 ```
 
-With `authRequired: true` we declared that page `Main` is accessible only to the authenticated users.
-If an unauthenticated user tries to access route `/` where our page `Main` is, they will be redirected to `/login` as specified with `onAuthFailedRedirectTo` property in `auth`.
+With `authRequired: true` we declared that page `MainPage` is accessible only to the authenticated users.
+If an unauthenticated user tries to access route `/` where our page `MainPage` is, they will be redirected to `/login` as specified with `onAuthFailedRedirectTo` property in `app.auth`.
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 

@@ -29,12 +29,16 @@ $any = [.$white]
 @double = "-"? $digit+ "." $digit+
 @integer = "-"? $digit+
 @ident = $identstart $ident* "'"*
+@linecomment = "//" [^\n\r]*
+@blockcomment = "/*" (("*"[^\/]) | [^\*] | $white)* "*/" -- Based on https://stackoverflow.com/a/16165598/1509394 .
 
 -- Tokenization rules (regex -> token)
 tokens :-
 
--- Skips whitespace
+-- Skips whitespace and comments
 <0>       $white+ ;
+<0>       @linecomment ;
+<0>       @blockcomment ;
 
 -- Quoter rules:
 -- Uses Alex start codes to lex quoted characters with different rules:

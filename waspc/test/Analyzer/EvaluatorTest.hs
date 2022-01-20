@@ -8,6 +8,8 @@ module Analyzer.EvaluatorTest where
 
 import Data.Data (Data)
 import Data.List.Split (splitOn)
+import Data.Maybe (fromJust)
+import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Text.Read (readMaybe)
 import Wasp.Analyzer.Evaluator
@@ -182,7 +184,7 @@ spec_Evaluator = do
         let typeDefs = TD.addDeclType @Special $ TD.empty
         let source =
               [ "special Test {",
-                "  imps: [import { field } from \"main.js\", import main from \"main.js\"],",
+                "  imps: [import { field } from \"@ext/main.js\", import main from \"@ext/main.js\"],",
                 "  json: {=json \"key\": 1 json=}",
                 "}"
               ]
@@ -191,8 +193,8 @@ spec_Evaluator = do
           `shouldBe` Right
             [ ( "Test",
                 Special
-                  [ ExtImport (ExtImportField "field") "main.js",
-                    ExtImport (ExtImportModule "main") "main.js"
+                  [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
+                    ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
                   ]
                   (JSON " \"key\": 1 ")
               )

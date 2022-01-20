@@ -1,4 +1,3 @@
-{{={= =}=}}
 import api, { handleApiError } from '../api.js'
 import config from '../config.js'
 

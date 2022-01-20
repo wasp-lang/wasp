@@ -8,7 +8,7 @@ where
 import Data.Bifunctor (second)
 import Data.List (find, intercalate)
 import Data.Maybe (fromJust, isJust)
-import qualified Wasp.NpmDependency as ND
+import qualified Wasp.AppSpec.App.Dependency as D
 
 type NpmDependenciesConflictError = String
 
@@ -20,56 +20,56 @@ type NpmDependenciesConflictError = String
 --   On error (Left), returns list of conflicting user deps together with the error message
 --   explaining what the error is.
 resolveNpmDeps ::
-  [ND.NpmDependency] ->
-  [ND.NpmDependency] ->
+  [D.Dependency] ->
+  [D.Dependency] ->
   Either
-    [(ND.NpmDependency, NpmDependenciesConflictError)]
-    ([ND.NpmDependency], [ND.NpmDependency])
+    [(D.Dependency, NpmDependenciesConflictError)]
+    ([D.Dependency], [D.Dependency])
 resolveNpmDeps waspDeps userDeps =
   if null conflictingUserDeps
     then Right (waspDeps, userDepsNotInWaspDeps)
     else Left conflictingUserDeps
   where
-    conflictingUserDeps :: [(ND.NpmDependency, NpmDependenciesConflictError)]
+    conflictingUserDeps :: [(D.Dependency, NpmDependenciesConflictError)]
     conflictingUserDeps =
       map (second fromJust) $
         filter (isJust . snd) $
           map (\dep -> (dep, checkIfConflictingUserDep dep)) userDeps
 
-    checkIfConflictingUserDep :: ND.NpmDependency -> Maybe NpmDependenciesConflictError
+    checkIfConflictingUserDep :: D.Dependency -> Maybe NpmDependenciesConflictError
     checkIfConflictingUserDep userDep =
       let attachErrorMessage dep =
-            "Error: Dependency conflict for user npm dependency ("
-              ++ ND._name dep
+            "Error: Dependency conflict for user dependency ("
+              ++ D.name dep
               ++ ", "
-              ++ ND._version dep
+              ++ D.version dep
               ++ "): "
               ++ "Version must be set to the exactly the same version as"
               ++ " the one wasp is using: "
-              ++ ND._version dep
+              ++ D.version dep
        in attachErrorMessage <$> find (areTwoDepsInConflict userDep) waspDeps
 
-    areTwoDepsInConflict :: ND.NpmDependency -> ND.NpmDependency -> Bool
+    areTwoDepsInConflict :: D.Dependency -> D.Dependency -> Bool
     areTwoDepsInConflict d1 d2 =
-      ND._name d1 == ND._name d2
-        && ND._version d1 /= ND._version d2
+      D.name d1 == D.name d2
+        && D.version d1 /= D.version d2
 
-    userDepsNotInWaspDeps :: [ND.NpmDependency]
-    userDepsNotInWaspDeps = filter (not . isDepWithNameInWaspDeps . ND._name) userDeps
+    userDepsNotInWaspDeps :: [D.Dependency]
+    userDepsNotInWaspDeps = filter (not . isDepWithNameInWaspDeps . D.name) userDeps
 
     isDepWithNameInWaspDeps :: String -> Bool
-    isDepWithNameInWaspDeps name = any ((name ==) . ND._name) waspDeps
+    isDepWithNameInWaspDeps name = any ((name ==) . D.name) waspDeps
 
-npmDepsToPackageJsonEntryWithKey :: [ND.NpmDependency] -> String -> String
+npmDepsToPackageJsonEntryWithKey :: [D.Dependency] -> String -> String
 npmDepsToPackageJsonEntryWithKey deps key =
   "\""
     ++ key
     ++ "\": {"
-    ++ intercalate ",\n  " (map (\dep -> "\"" ++ ND._name dep ++ "\": \"" ++ ND._version dep ++ "\"") deps)
+    ++ intercalate ",\n  " (map (\dep -> "\"" ++ D.name dep ++ "\": \"" ++ D.version dep ++ "\"") deps)
     ++ "\n}"
 
-npmDepsToPackageJsonEntry :: [ND.NpmDependency] -> String
+npmDepsToPackageJsonEntry :: [D.Dependency] -> String
 npmDepsToPackageJsonEntry deps = npmDepsToPackageJsonEntryWithKey deps "dependencies"
 
-npmDevDepsToPackageJsonEntry :: [ND.NpmDependency] -> String
+npmDevDepsToPackageJsonEntry :: [D.Dependency] -> String
 npmDevDepsToPackageJsonEntry deps = npmDepsToPackageJsonEntryWithKey deps "devDependencies"

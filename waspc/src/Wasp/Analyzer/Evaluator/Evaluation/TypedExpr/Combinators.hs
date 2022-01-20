@@ -19,6 +19,8 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
 where
 
 import Control.Arrow (left)
+import Data.List (stripPrefix)
+import qualified StrongPath as SP
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
 import Wasp.Analyzer.Evaluator.Evaluation.TypedExpr (TypedExprEvaluation)
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as ER
@@ -152,8 +154,24 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.ExtImport name file -> pure $ AppSpec.ExtImport.ExtImport name file
+  TypedAST.ExtImport name extFileFP ->
+    -- NOTE(martin): This parsing here could instead be done in Parser.
+    --   I don't have a very good reason for doing it here instead of Parser, except
+    --   for being somewhat simpler to implement.
+    --   So we might want to move it to Parser at some point in the future, if we
+    --   figure out that is better (it sounds/feels like it could be).
+    case stripPrefix extPrefix extFileFP of
+      Just relFileFP -> case SP.parseRelFileP relFileFP of
+        Left err -> Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError $ show err
+        Right relFileSP -> pure $ AppSpec.ExtImport.ExtImport name relFileSP
+      Nothing ->
+        Left $
+          ER.mkEvaluationError ctx $
+            ER.ParseError $
+              ER.EvaluationParseError $ "Path in external import must start with \"" ++ extPrefix ++ "\"!"
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
+  where
+    extPrefix = "@ext/"
 
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON

@@ -4,6 +4,7 @@
 
 module Wasp.AppSpec.Core.Ref
   ( Ref (..),
+    refName,
   )
 where
 
@@ -21,3 +22,6 @@ deriving instance Eq a => Eq (Ref a)
 deriving instance Show a => Show (Ref a)
 
 deriving instance (IsDecl a, Data a) => Data (Ref a)
+
+refName :: Ref a -> String
+refName (Ref name) = name

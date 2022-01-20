@@ -71,7 +71,7 @@ module.exports = {
             },
             {
               label: 'Reference',
-              to: 'docs/language/basic-elements'
+              to: 'docs/language/features'
             }
           ]
         },

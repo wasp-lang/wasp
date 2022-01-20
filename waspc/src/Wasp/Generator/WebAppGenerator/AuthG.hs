@@ -5,14 +5,17 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
+import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Wasp (Wasp, getAuth)
-import qualified Wasp.Wasp.Auth as Wasp.Auth
 
-genAuth :: Wasp -> [FileDraft]
-genAuth wasp = case maybeAuth of
+genAuth :: AppSpec -> [FileDraft]
+genAuth spec = case maybeAuth of
   Just auth ->
     [ genSignup,
       genLogin,
@@ -23,54 +26,56 @@ genAuth wasp = case maybeAuth of
       ++ genAuthForms auth
   Nothing -> []
   where
-    maybeAuth = getAuth wasp
+    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
 
 -- | Generates file with signup function to be used by Wasp developer.
 genSignup :: FileDraft
-genSignup = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/signup.js|])
+genSignup = C.mkTmplFd (C.asTmplFile [relfile|src/auth/signup.js|])
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: FileDraft
-genLogin = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/login.js|])
+genLogin = C.mkTmplFd (C.asTmplFile [relfile|src/auth/login.js|])
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: FileDraft
-genLogout = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/logout.js|])
+genLogout = C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
 
 -- | Generates HOC that handles auth for the given page.
-genCreateAuthRequiredPage :: Wasp.Auth.Auth -> FileDraft
+genCreateAuthRequiredPage :: AS.Auth.Auth -> FileDraft
 genCreateAuthRequiredPage auth =
   compileTmplToSamePath
     [relfile|auth/pages/createAuthRequiredPage.js|]
-    ["onAuthFailedRedirectTo" .= Wasp.Auth._onAuthFailedRedirectTo auth]
+    ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: FileDraft
-genUseAuth = C.copyTmplAsIs (C.asTmplFile [relfile|src/auth/useAuth.js|])
+genUseAuth = C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
 
-genAuthForms :: Wasp.Auth.Auth -> [FileDraft]
+genAuthForms :: AS.Auth.Auth -> [FileDraft]
 genAuthForms auth =
   [ genLoginForm auth,
     genSignupForm auth
   ]
 
-genLoginForm :: Wasp.Auth.Auth -> FileDraft
+genLoginForm :: AS.Auth.Auth -> FileDraft
 genLoginForm auth =
+  -- TODO: Logic that says "/" is a default redirect on success is duplicated here and in the function below.
+  --   We should remove that duplication.
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= Wasp.Auth._onAuthSucceededRedirectTo auth]
+    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
 
-genSignupForm :: Wasp.Auth.Auth -> FileDraft
+genSignupForm :: AS.Auth.Auth -> FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= Wasp.Auth._onAuthSucceededRedirectTo auth]
+    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
-  C.makeTemplateFD
+  C.mkTmplFdWithDstAndData
     (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
     targetPath
     (Just templateData)

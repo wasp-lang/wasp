@@ -5,14 +5,16 @@ where
 
 import Data.Aeson (object, (.=))
 import StrongPath (reldir, relfile, (</>))
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Util as Util
-import Wasp.Wasp (Wasp, getAuth)
-import qualified Wasp.Wasp.Auth as Wasp.Auth
 
-genAuth :: Wasp -> [FileDraft]
-genAuth wasp = case maybeAuth of
+genAuth :: AppSpec -> [FileDraft]
+genAuth spec = case maybeAuth of
   Just auth ->
     [ genCoreAuth auth,
       genAuthMiddleware auth,
@@ -24,55 +26,55 @@ genAuth wasp = case maybeAuth of
     ]
   Nothing -> []
   where
-    maybeAuth = getAuth wasp
+    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
 
 -- | Generates core/auth file which contains auth middleware and createUser() function.
-genCoreAuth :: Wasp.Auth.Auth -> FileDraft
-genCoreAuth auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genCoreAuth :: AS.Auth.Auth -> FileDraft
+genCoreAuth auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     coreAuthRelToSrc = [relfile|core/auth.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> coreAuthRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile coreAuthRelToSrc
 
     tmplData =
-      let userEntity = Wasp.Auth._userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
-            [ "userEntityUpper" .= userEntity,
-              "userEntityLower" .= Util.toLowerFirst userEntity
+            [ "userEntityUpper" .= (userEntityName :: String),
+              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genAuthMiddleware :: Wasp.Auth.Auth -> FileDraft
-genAuthMiddleware auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genAuthMiddleware :: AS.Auth.Auth -> FileDraft
+genAuthMiddleware auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
 
     tmplData =
-      let userEntity = Wasp.Auth._userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
-            [ "userEntityUpper" .= userEntity
+            [ "userEntityUpper" .= (userEntityName :: String)
             ]
 
 genAuthRoutesIndex :: FileDraft
-genAuthRoutesIndex = C.copySrcTmplAsIs (C.asTmplSrcFile [relfile|routes/auth/index.js|])
+genAuthRoutesIndex = C.mkSrcTmplFd (C.asTmplSrcFile [relfile|routes/auth/index.js|])
 
-genLoginRoute :: Wasp.Auth.Auth -> FileDraft
-genLoginRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genLoginRoute :: AS.Auth.Auth -> FileDraft
+genLoginRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     loginRouteRelToSrc = [relfile|routes/auth/login.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> loginRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile loginRouteRelToSrc
 
     tmplData =
-      let userEntity = Wasp.Auth._userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
-            [ "userEntityUpper" .= userEntity,
-              "userEntityLower" .= Util.toLowerFirst userEntity
+            [ "userEntityUpper" .= (userEntityName :: String),
+              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genSignupRoute :: Wasp.Auth.Auth -> FileDraft
-genSignupRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genSignupRoute :: AS.Auth.Auth -> FileDraft
+genSignupRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     signupRouteRelToSrc = [relfile|routes/auth/signup.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> signupRouteRelToSrc
@@ -80,11 +82,11 @@ genSignupRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 
     tmplData =
       object
-        [ "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
+        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]
 
-genMeRoute :: Wasp.Auth.Auth -> FileDraft
-genMeRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genMeRoute :: AS.Auth.Auth -> FileDraft
+genMeRoute auth = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     meRouteRelToSrc = [relfile|routes/auth/me.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> meRouteRelToSrc
@@ -92,5 +94,5 @@ genMeRoute auth = C.makeTemplateFD tmplFile dstFile (Just tmplData)
 
     tmplData =
       object
-        [ "userEntityLower" .= Util.toLowerFirst (Wasp.Auth._userEntity auth)
+        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]

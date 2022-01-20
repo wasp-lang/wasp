@@ -1,9 +1,10 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( webAppRootDirInProjectRootDir,
     webAppSrcDirInWebAppRootDir,
-    copyTmplAsIs,
-    makeSimpleTemplateFD,
-    makeTemplateFD,
+    mkTmplFd,
+    mkTmplFdWithDst,
+    mkTmplFdWithData,
+    mkTmplFdWithDstAndData,
     webAppSrcDirInProjectRootDir,
     webAppTemplatesDirInTemplatesDir,
     asTmplFile,
@@ -21,7 +22,6 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Wasp (Wasp)
 
 data WebAppRootDir
 
@@ -57,18 +57,21 @@ webAppSrcDirInProjectRootDir = webAppRootDirInProjectRootDir </> webAppSrcDirInW
 webAppTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir WebAppTemplatesDir)
 webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
 
-copyTmplAsIs :: Path' (Rel WebAppTemplatesDir) File' -> FileDraft
-copyTmplAsIs path = makeTemplateFD path (SP.castRel path) Nothing
+mkTmplFd :: Path' (Rel WebAppTemplatesDir) File' -> FileDraft
+mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
 
-makeSimpleTemplateFD :: Path' (Rel WebAppTemplatesDir) File' -> Wasp -> FileDraft
-makeSimpleTemplateFD path wasp = makeTemplateFD path (SP.castRel path) (Just $ Aeson.toJSON wasp)
+mkTmplFdWithDst :: Path' (Rel WebAppTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
+mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
 
-makeTemplateFD ::
+mkTmplFdWithData :: Path' (Rel WebAppTemplatesDir) File' -> Aeson.Value -> FileDraft
+mkTmplFdWithData src tmplData = mkTmplFdWithDstAndData src (SP.castRel src) (Just tmplData)
+
+mkTmplFdWithDstAndData ::
   Path' (Rel WebAppTemplatesDir) File' ->
   Path' (Rel WebAppRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-makeTemplateFD srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplData =
+mkTmplFdWithDstAndData srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplData =
   createTemplateFileDraft
     (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)
     (webAppTemplatesDirInTemplatesDir </> srcPathInWebAppTemplatesDir)

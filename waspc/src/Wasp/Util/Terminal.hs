@@ -1,6 +1,9 @@
 module Wasp.Util.Terminal
   ( Style (..),
     applyStyles,
+    styleCode,
+    escapeCode,
+    resetCode,
   )
 where
 

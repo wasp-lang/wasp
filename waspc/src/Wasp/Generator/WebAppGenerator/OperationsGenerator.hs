@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.WebAppGenerator.OperationsGenerator
   ( genOperations,
   )
@@ -10,44 +12,44 @@ import Data.Aeson
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
+import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.Operation as AS.Operation
+import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
-import Wasp.Wasp (Wasp)
-import qualified Wasp.Wasp as Wasp
-import qualified Wasp.Wasp.Action as Wasp.Action
-import qualified Wasp.Wasp.Operation as Wasp.Operation
-import qualified Wasp.Wasp.Query as Wasp.Query
 
-genOperations :: Wasp -> [FileDraft]
-genOperations wasp =
+genOperations :: AppSpec -> [FileDraft]
+genOperations spec =
   concat
-    [ genQueries wasp,
-      genActions wasp,
-      [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/operations/index.js|]) wasp],
-      Resources.genResources wasp
+    [ genQueries spec,
+      genActions spec,
+      [C.mkTmplFd $ C.asTmplFile [relfile|src/operations/index.js|]],
+      Resources.genResources spec
     ]
 
-genQueries :: Wasp -> [FileDraft]
-genQueries wasp =
-  map (genQuery wasp) (Wasp.getQueries wasp)
-    ++ [C.makeSimpleTemplateFD (C.asTmplFile [relfile|src/queries/index.js|]) wasp]
+genQueries :: AppSpec -> [FileDraft]
+genQueries spec =
+  map (genQuery spec) (AS.getQueries spec)
+    ++ [C.mkTmplFd $ C.asTmplFile [relfile|src/queries/index.js|]]
 
-genActions :: Wasp -> [FileDraft]
-genActions wasp =
-  map (genAction wasp) (Wasp.getActions wasp)
+genActions :: AppSpec -> [FileDraft]
+genActions spec =
+  map (genAction spec) (AS.getActions spec)
 
-genQuery :: Wasp -> Wasp.Query.Query -> FileDraft
-genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genQuery :: AppSpec -> (String, AS.Query.Query) -> FileDraft
+genQuery _ (queryName, query) = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
 
     dstFile = C.asWebAppFile $ [reldir|src/queries/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
-        [ "queryFnName" .= Wasp.Query._name query,
+        [ "queryFnName" .= (queryName :: String),
           "queryRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
@@ -55,17 +57,17 @@ genQuery _ query = C.makeTemplateFD tmplFile dstFile (Just tmplData)
                ),
           "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
-    operation = Wasp.Operation.QueryOp query
+    operation = AS.Operation.QueryOp queryName query
 
-genAction :: Wasp -> Wasp.Action.Action -> FileDraft
-genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
+genAction :: AppSpec -> (String, AS.Action.Action) -> FileDraft
+genAction _ (actionName, action) = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.asTmplFile [relfile|src/actions/_action.js|]
 
     dstFile = C.asWebAppFile $ [reldir|src/actions/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
-        [ "actionFnName" .= Wasp.Action._name action,
+        [ "actionFnName" .= (actionName :: String),
           "actionRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
@@ -73,14 +75,14 @@ genAction _ action = C.makeTemplateFD tmplFile dstFile (Just tmplData)
                ),
           "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
-    operation = Wasp.Operation.ActionOp action
+    operation = AS.Operation.ActionOp actionName action
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
 --   E.g. "['Task', 'Project']"
-makeJsArrayOfEntityNames :: Wasp.Operation.Operation -> String
+makeJsArrayOfEntityNames :: AS.Operation.Operation -> String
 makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]"
   where
-    entityStrings = maybe [] (map (\x -> "'" ++ x ++ "'")) (Wasp.Operation.getEntities operation)
+    entityStrings = maybe [] (map $ \x -> "'" ++ AS.refName x ++ "'") (AS.Operation.getEntities operation)
 
-getOperationDstFileName :: Wasp.Operation.Operation -> Maybe (Path' Rel' File')
-getOperationDstFileName operation = parseRelFile (Wasp.Operation.getName operation ++ ".js")
+getOperationDstFileName :: AS.Operation.Operation -> Maybe (Path' Rel' File')
+getOperationDstFileName operation = parseRelFile (AS.Operation.getName operation ++ ".js")

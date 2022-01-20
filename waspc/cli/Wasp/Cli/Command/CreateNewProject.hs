@@ -106,8 +106,8 @@ createNewProject' (ProjectName projectName) = do
           "  title: \"%s\"" `printf` projectName,
           "}",
           "",
-          "route \"/\" -> page Main",
-          "page Main {",
+          "route RootRoute { path: \"/\", to: MainPage }",
+          "page MainPage {",
           "  component: import Main from \"@ext/MainPage.js\"",
           "}"
         ]

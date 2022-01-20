@@ -3,7 +3,7 @@ title: Overview
 ---
 
 Wasp is a declarative language that recognizes web application-specific terms (e.g. *page* or *route*) as
-words of the language.
+words (types) of the language.
 
 The basic idea is that the higher-level overview of an app (e.g. pages, routes, database model, ...) is defined in `*.wasp` files (for now just one), while the specific parts (web components, back-end queries, ...) are implemented in specific non-wasp technologies (React, NodeJS, Prisma) and then referenced in the `*.wasp` files.
 
@@ -29,8 +29,8 @@ app todoApp {
   title: "ToDo App"
 }
 
-route "/" -> page Main
-page Main {
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
   component: import Main from "@ext/pages/Main"
 }
 
@@ -53,4 +53,4 @@ psl=}
 
 You can check out a full working example [here](https://github.com/wasp-lang/wasp/tree/master/waspc/examples/todoApp).
 
-In the following sections each of these basic language elements is explained. 
+In the following sections each of the basic language features is explained. 
