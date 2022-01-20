@@ -1,17 +1,20 @@
 app waspleau {
-  title: "Waspleau"
+  title: "Waspleau",
+
+  server: {
+    setupFn: import serverSetup from "@ext/serverSetup.js"
+  },
+
+  db: { system: PostgreSQL },
+
+  dependencies: [
+    ("bull", "4.1.1"),
+    ("axios", "^0.21.1")
+  ]
 }
 
-server {
-  setupFn: import serverSetup from "@ext/serverSetup.js"
-}
-
-db {
-  system: PostgreSQL
-}
-
-route "/" -> page Main
-page Main {
+route RootsRoute { path: "/", to: MainPage }
+page MainPage {
   component: import Main from "@ext/MainPage.js"
 }
 
@@ -22,8 +25,3 @@ query dashboard {
 entity Dummy {=psl
     id          Int     @id @default(autoincrement())
 psl=}
-
-dependencies {=json
-  "bull": "4.1.1",
-  "axios": "^0.21.1"
-json=}
