@@ -784,10 +784,10 @@ function Home() {
                 <ul className={clsx(styles.featuresList, styles.featuresListComing)}>
                   <li> ACL on backend </li>
                   <li> one-click deployment </li>
-                  <li> more auth methods (Google, Linkedin, ...) </li>
+                  <li> more auth methods (Google, LinkedIn, ...) </li>
                   <li> tighter integration of entities with other features </li>
                   <li> themes and layouts </li>
-                  <li> support for explicitely defined server API </li>
+                  <li> support for explicitly defined server API </li>
                   <li> inline JS - ability to mix JS code with Wasp code! </li>
                   <li> Typescript support </li>
                   <li> server-side rendering </li>
