@@ -183,5 +183,5 @@ Oh still need frontend deployed. Maybe instead of "Hello world" we note the fron
 
 I have created a new issue to track all PR comments and these notes to make sure we do not lose track of them.
 
-| Captured here: https://github.com/wasp-lang/wasp/issues/514 |
+| Captured here: https://github.com/wasp-lang/wasp/issues/415 |
 | ----------------------------------------------------------- |
