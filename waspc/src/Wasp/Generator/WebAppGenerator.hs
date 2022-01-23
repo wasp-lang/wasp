@@ -21,6 +21,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.FileDraft
+import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 import Wasp.Generator.PackageJsonGenerator
   ( npmDepsToPackageJsonEntry,
     resolveNpmDeps,
@@ -35,39 +36,41 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
+import Wasp.Util ((<++>))
 
-generateWebApp :: AppSpec -> [FileDraft]
-generateWebApp spec =
-  concat
-    [ [generateReadme],
-      [genPackageJson spec waspNpmDeps],
-      [generateGitignore],
-      generatePublicDir spec,
-      generateSrcDir spec,
-      generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec),
-      [C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]]
+generateWebApp :: AppSpec -> Generator [FileDraft]
+generateWebApp spec = do
+  sequence
+    [ generateReadme,
+      genPackageJson spec waspNpmDeps,
+      generateGitignore,
+      return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
+    <++> generatePublicDir spec
+    <++> generateSrcDir spec
+    <++> generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
 
-generateReadme :: FileDraft
-generateReadme = C.mkTmplFd $ asTmplFile [relfile|README.md|]
+generateReadme :: Generator FileDraft
+generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> FileDraft
-genPackageJson spec waspDeps =
-  C.mkTmplFdWithDstAndData
-    (C.asTmplFile [relfile|package.json|])
-    (C.asWebAppFile [relfile|package.json|])
-    ( Just $
-        object
-          [ "appName" .= (fst (getApp spec) :: String),
-            "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
-          ]
-    )
+genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> Generator FileDraft
+genPackageJson spec waspDeps = do
+  (resolvedWaspDeps, resolvedUserDeps) <-
+    case resolveNpmDeps waspDeps userDeps of
+      Right deps -> return deps
+      Left depsAndErrors -> logAndThrowGeneratorError $ GenericGeneratorError $ intercalate " ; " $ map snd depsAndErrors
+
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|package.json|])
+      (C.asWebAppFile [relfile|package.json|])
+      ( Just $
+          object
+            [ "appName" .= (fst (getApp spec) :: String),
+              "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
+            ]
+      )
   where
-    (resolvedWaspDeps, resolvedUserDeps) =
-      case resolveNpmDeps waspDeps userDeps of
-        Right deps -> deps
-        Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
-
     userDeps :: [AS.Dependency.Dependency]
     userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ getApp spec
 
@@ -86,29 +89,33 @@ waspNpmDeps =
 
 -- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
 
-generateGitignore :: FileDraft
+generateGitignore :: Generator FileDraft
 generateGitignore =
-  C.mkTmplFdWithDst
-    (asTmplFile [relfile|gitignore|])
-    (asWebAppFile [relfile|.gitignore|])
+  return $
+    C.mkTmplFdWithDst
+      (asTmplFile [relfile|gitignore|])
+      (asWebAppFile [relfile|.gitignore|])
 
-generatePublicDir :: AppSpec -> [FileDraft]
-generatePublicDir spec =
-  C.mkTmplFd (asTmplFile [relfile|public/favicon.ico|]) :
-  generatePublicIndexHtml spec :
-  ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-        processPublicTmpl path = C.mkTmplFdWithData (asTmplFile $ [reldir|public|] </> path) tmplData
-     in processPublicTmpl
-          <$> [ [relfile|manifest.json|]
-              ]
-  )
+generatePublicDir :: AppSpec -> Generator [FileDraft]
+generatePublicDir spec = do
+  publicIndexHtmlFd <- generatePublicIndexHtml spec
+  return $
+    C.mkTmplFd (asTmplFile [relfile|public/favicon.ico|]) :
+    publicIndexHtmlFd :
+    ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+          processPublicTmpl path = C.mkTmplFdWithData (asTmplFile $ [reldir|public|] </> path) tmplData
+       in processPublicTmpl
+            <$> [ [relfile|manifest.json|]
+                ]
+    )
 
-generatePublicIndexHtml :: AppSpec -> FileDraft
+generatePublicIndexHtml :: AppSpec -> Generator FileDraft
 generatePublicIndexHtml spec =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|public/index.html|])
-    targetPath
-    (Just templateData)
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|public/index.html|])
+      targetPath
+      (Just templateData)
   where
     targetPath = [relfile|public/index.html|]
     templateData =
@@ -131,22 +138,27 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 genApi :: FileDraft
 genApi = C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
-generateSrcDir :: AppSpec -> [FileDraft]
-generateSrcDir spec =
-  generateLogo :
-  RouterGenerator.generateRouter spec :
-  genApi :
-  map
-    processSrcTmpl
-    [ [relfile|index.js|],
-      [relfile|index.css|],
-      [relfile|serviceWorker.js|],
-      [relfile|config.js|],
-      [relfile|queryCache.js|],
-      [relfile|utils.js|]
-    ]
-    ++ genOperations spec
-    ++ AuthG.genAuth spec
+generateSrcDir :: AppSpec -> Generator [FileDraft]
+generateSrcDir spec = do
+  routerFd <- RouterGenerator.generateRouter spec
+  operationsFds <- genOperations spec
+  authFds <- AuthG.genAuth spec
+
+  return $
+    generateLogo :
+    routerFd :
+    genApi :
+    map
+      processSrcTmpl
+      [ [relfile|index.js|],
+        [relfile|index.css|],
+        [relfile|serviceWorker.js|],
+        [relfile|config.js|],
+        [relfile|queryCache.js|],
+        [relfile|utils.js|]
+      ]
+      ++ operationsFds
+      ++ authFds
   where
     generateLogo =
       C.mkTmplFdWithDstAndData

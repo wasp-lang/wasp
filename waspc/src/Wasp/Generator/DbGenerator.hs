@@ -23,9 +23,11 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
+import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
+import Wasp.Util ((<:>))
 
 data DbRootDir
 
@@ -55,10 +57,9 @@ preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup spec projectRootDir = do
   deleteGeneratedMigrationsDirIfRedundant spec projectRootDir
 
--- * Db generator
-
-genDb :: AppSpec -> [FileDraft]
-genDb spec = genPrismaSchema spec : maybeToList (genMigrationsDir spec)
+genDb :: AppSpec -> Generator [FileDraft]
+genDb spec =
+  genPrismaSchema spec <:> (maybeToList <$> genMigrationsDir spec)
 
 deleteGeneratedMigrationsDirIfRedundant :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
@@ -72,36 +73,37 @@ deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
   where
     projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
-genPrismaSchema :: AppSpec -> FileDraft
-genPrismaSchema spec = createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
+genPrismaSchema :: AppSpec -> Generator FileDraft
+genPrismaSchema spec = do
+  (datasourceProvider, datasourceUrl) <- case dbSystem of
+    AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
+    AS.Db.SQLite ->
+      if AS.isBuild spec
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features/#migrating-from-sqlite-to-postgresql ."
+        else return ("sqlite", "\"file:./dev.db\"")
+
+  let templateData =
+        object
+          [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
+            "datasourceProvider" .= (datasourceProvider :: String),
+            "datasourceUrl" .= (datasourceUrl :: String)
+          ]
+
+  return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
   where
     dstPath = dbSchemaFileInProjectRootDir
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
-
-    templateData =
-      object
-        [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
-          "datasourceProvider" .= (datasourceProvider :: String),
-          "datasourceUrl" .= (datasourceUrl :: String)
-        ]
-
     dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ AS.getApp spec))
-    (datasourceProvider, datasourceUrl) = case dbSystem of
-      AS.Db.PostgreSQL -> ("postgresql", "env(\"DATABASE_URL\")")
-      -- TODO: Report this error with some better mechanism, not `error`.
-      AS.Db.SQLite ->
-        if AS.isBuild spec
-          then error "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features/#migrating-from-sqlite-to-postgresql ."
-          else ("sqlite", "\"file:./dev.db\"")
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Model.generateModel $
         Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
-genMigrationsDir :: AppSpec -> Maybe FileDraft
+genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec =
-  AS.migrationsDir spec >>= \waspMigrationsDir ->
-    Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
+  return $
+    AS.migrationsDir spec >>= \waspMigrationsDir ->
+      Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir

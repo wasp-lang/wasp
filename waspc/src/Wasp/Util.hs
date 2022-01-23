@@ -10,9 +10,12 @@ module Wasp.Util
     concatPrefixAndText,
     insertAt,
     leftPad,
+    (<++>),
+    (<:>),
   )
 where
 
+import Control.Monad (liftM2)
 import qualified Data.Aeson as Aeson
 import Data.Char (isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
@@ -118,3 +121,13 @@ insertAt :: [a] -> Int -> [a] -> [a]
 insertAt theInsert idx host =
   let (before, after) = splitAt idx host
    in before ++ theInsert ++ after
+
+infixr 5 <++>
+
+(<++>) :: Monad m => m [a] -> m [a] -> m [a]
+(<++>) = liftM2 (++)
+
+infixr 5 <:>
+
+(<:>) :: Monad m => m a -> m [a] -> m [a]
+(<:>) = liftM2 (:)

@@ -17,6 +17,7 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 
@@ -59,12 +60,13 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
-generateRouter :: AppSpec -> FileDraft
-generateRouter spec =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile $ [reldir|src|] </> routerPath)
-    targetPath
-    (Just $ toJSON templateData)
+generateRouter :: AppSpec -> Generator FileDraft
+generateRouter spec = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile $ [reldir|src|] </> routerPath)
+      targetPath
+      (Just $ toJSON templateData)
   where
     routerPath = [relfile|router.js|]
     templateData = createRouterTemplateData spec
@@ -88,6 +90,7 @@ createRouteTemplateData spec namedRoute@(_, route) =
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
 
+-- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
 determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
 determineRouteTargetComponent spec (_, route) =
   maybe

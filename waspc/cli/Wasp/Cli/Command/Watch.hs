@@ -14,7 +14,7 @@ import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO)
-import Wasp.Cli.Common (waspSays)
+import Wasp.Cli.Common (waspSays, waspScreams)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import qualified Wasp.Lib
@@ -82,7 +82,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
       waspSays $ asWaspStartMessage "Recompiling on file change..."
       compilationResult <- compileIO waspProjectDir outDir
       case compilationResult of
-        Left err -> waspSays $ asWaspFailureMessage "Recompilation on file change failed:" ++ err
+        Left err -> waspScreams $ asWaspFailureMessage "Recompilation on file change failed:" ++ err
         Right () -> waspSays $ asWaspSuccessMessage "Recompilation on file change succeeded."
       return ()
 

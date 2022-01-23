@@ -34,6 +34,7 @@ import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 import Wasp.Generator.PackageJsonGenerator
   ( npmDepsToPackageJsonEntry,
     npmDevDepsToPackageJsonEntry,
@@ -50,19 +51,20 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> [FileDraft]
+genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
-  concat
-    [ [genReadme],
-      [genPackageJson spec waspNpmDeps waspNpmDevDeps],
-      [genNpmrc],
-      [genNvmrc],
-      [genGitignore],
-      genSrcDir spec,
-      generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec),
-      genDotEnv spec
+  sequence
+    [ genReadme,
+      genPackageJson spec waspNpmDeps waspNpmDevDeps,
+      genNpmrc,
+      genNvmrc,
+      genGitignore
     ]
+    <++> genSrcDir spec
+    <++> generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genDotEnv spec
 
 -- Cleanup to be performed before generating new server code.
 -- This might be needed in case if outDir is not empty (e.g. we already generated server code there before).
@@ -78,8 +80,8 @@ preCleanup _ outDir = do
   where
     dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
-genDotEnv :: AppSpec -> [FileDraft]
-genDotEnv spec =
+genDotEnv :: AppSpec -> Generator [FileDraft]
+genDotEnv spec = return $
   case AS.dotEnvFile spec of
     Just srcFilePath ->
       [ createCopyFileDraft
@@ -91,33 +93,32 @@ genDotEnv spec =
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
-genReadme :: FileDraft
-genReadme = C.mkTmplFd (asTmplFile [relfile|README.md|])
+genReadme :: Generator FileDraft
+genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> FileDraft
-genPackageJson spec waspDeps waspDevDeps =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|package.json|])
-    (asServerFile [relfile|package.json|])
-    ( Just $
-        object
-          [ "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
-            "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
-            "nodeVersion" .= nodeVersionAsText,
-            "startProductionScript"
-              .= if not (null $ AS.getDecls @AS.Entity.Entity spec)
-                then "npm run db-migrate-prod && "
-                else
-                  ""
-                    ++ "NODE_ENV=production node ./src/server.js"
-          ]
-    )
+genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> Generator FileDraft
+genPackageJson spec waspDeps waspDevDeps = do
+  (resolvedWaspDeps, resolvedUserDeps) <-
+    case resolveNpmDeps waspDeps userDeps of
+      Right deps -> return deps
+      Left depsAndErrors -> logAndThrowGeneratorError $ GenericGeneratorError $ intercalate " ; " $ map snd depsAndErrors
+
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|package.json|])
+      (asServerFile [relfile|package.json|])
+      ( Just $
+          object
+            [ "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
+              "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
+              "nodeVersion" .= nodeVersionAsText,
+              "startProductionScript"
+                .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
+                       ++ "NODE_ENV=production node ./src/server.js"
+                   )
+            ]
+      )
   where
-    (resolvedWaspDeps, resolvedUserDeps) =
-      case resolveNpmDeps waspDeps userDeps of
-        Right deps -> deps
-        Left depsAndErrors -> error $ intercalate " ; " $ map snd depsAndErrors
-
     userDeps :: [AS.Dependency.Dependency]
     userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec
 
@@ -144,46 +145,49 @@ waspNpmDevDeps =
       ("prisma", "2.22.1")
     ]
 
-genNpmrc :: FileDraft
+genNpmrc :: Generator FileDraft
 genNpmrc =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|npmrc|])
-    (asServerFile [relfile|.npmrc|])
-    Nothing
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|npmrc|])
+      (asServerFile [relfile|.npmrc|])
+      Nothing
 
-genNvmrc :: FileDraft
+genNvmrc :: Generator FileDraft
 genNvmrc =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|nvmrc|])
-    (asServerFile [relfile|.nvmrc|])
-    (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|nvmrc|])
+      (asServerFile [relfile|.nvmrc|])
+      (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
 
-genGitignore :: FileDraft
+genGitignore :: Generator FileDraft
 genGitignore =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|gitignore|])
-    (asServerFile [relfile|.gitignore|])
-    Nothing
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|gitignore|])
+      (asServerFile [relfile|.gitignore|])
+      Nothing
 
-genSrcDir :: AppSpec -> [FileDraft]
+genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
-  concat
-    [ [C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|app.js|]],
-      [C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|server.js|]],
-      [C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|utils.js|]],
-      [C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/AuthError.js|]],
-      [C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/HttpError.js|]],
-      [genDbClient spec],
-      [genConfigFile spec],
-      genRoutesDir spec,
-      genOperationsRoutes spec,
-      genOperations spec,
-      genAuth spec,
-      [genServerJs spec]
+  sequence
+    [ return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|app.js|],
+      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|server.js|],
+      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|utils.js|],
+      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/AuthError.js|],
+      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/HttpError.js|],
+      genDbClient spec,
+      genConfigFile spec,
+      genServerJs spec
     ]
+    <++> genRoutesDir spec
+    <++> genOperationsRoutes spec
+    <++> genOperations spec
+    <++> genAuth spec
 
-genDbClient :: AppSpec -> FileDraft
-genDbClient spec = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genDbClient :: AppSpec -> Generator FileDraft
+genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     maybeAuth = AS.App.auth $ snd $ AS.getApp spec
 
@@ -200,18 +204,19 @@ genDbClient spec = C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
             ]
         else object []
 
-genServerJs :: AppSpec -> FileDraft
+genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
-  C.mkTmplFdWithDstAndData
-    (asTmplFile [relfile|src/server.js|])
-    (asServerFile [relfile|src/server.js|])
-    ( Just $
-        object
-          [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
-            "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-            "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
-          ]
-    )
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|src/server.js|])
+      (asServerFile [relfile|src/server.js|])
+      ( Just $
+          object
+            [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
+              "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
+              "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            ]
+      )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ AS.getApp spec)
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
@@ -222,20 +227,21 @@ genServerJs spec =
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
-genRoutesDir :: AppSpec -> [FileDraft]
+genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  [ C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|src/routes/index.js|])
-      (asServerFile [relfile|src/routes/index.js|])
-      ( Just $
-          object
-            [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-              "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
-            ]
-      )
-  ]
+  return
+    [ C.mkTmplFdWithDstAndData
+        (asTmplFile [relfile|src/routes/index.js|])
+        (asServerFile [relfile|src/routes/index.js|])
+        ( Just $
+            object
+              [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+                "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
+              ]
+        )
+    ]
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

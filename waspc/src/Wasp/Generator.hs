@@ -5,6 +5,7 @@ module Wasp.Generator
   )
 where
 
+import Data.List.NonEmpty (toList)
 import qualified Data.Text
 import qualified Data.Text.IO
 import Data.Time.Clock
@@ -18,26 +19,40 @@ import Wasp.Generator.DbGenerator (genDb)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft, write)
+import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
 import Wasp.Generator.ServerGenerator (genServer)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.Setup
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
+import Wasp.Util ((<++>))
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.
+--   If there are any errors returned, that means that generator failed and no new code was written.
+--   If no errors were returned, this means generator was successful and generated a new version of the project
+--     (regardless of the warnings returned).
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir = do
-  writeFileDrafts dstDir (generateWebApp spec)
-  ServerGenerator.preCleanup spec dstDir
-  writeFileDrafts dstDir (genServer spec)
-  DbGenerator.preCleanup spec dstDir
-  writeFileDrafts dstDir (genDb spec)
-  writeFileDrafts dstDir (genDockerFiles spec)
-  writeDotWaspInfo dstDir
+  let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
+  case generatorResult of
+    Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
+    Right fileDrafts -> do
+      ServerGenerator.preCleanup spec dstDir
+      DbGenerator.preCleanup spec dstDir
+      writeFileDrafts dstDir fileDrafts
+      writeDotWaspInfo dstDir
+      return (generatorWarnings, [])
+
+genApp :: AppSpec -> Generator [FileDraft]
+genApp spec =
+  generateWebApp spec
+    <++> genServer spec
+    <++> genDb spec
+    <++> genDockerFiles spec
 
 -- | Writes file drafts while using given destination dir as root dir.
 --   TODO(martin): We could/should parallelize this.

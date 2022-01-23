@@ -25,24 +25,28 @@ import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
 
+type CompileWarning = String
+
 compile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir ProjectRootDir) ->
   CompileOptions ->
-  IO (Either CompileError ())
+  IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
   maybeWaspFilePath <- findWaspFile waspDir
   case maybeWaspFilePath of
-    Nothing -> return $ Left "Couldn't find a single *.wasp file."
+    Nothing -> return ([], ["Couldn't find a single *.wasp file."])
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
-          return $
-            Left $
-              showCompilerErrorForTerminal
-                (waspFilePath, waspFileContent)
-                (getErrorMessageAndCtx analyzeError)
+          return
+            ( [],
+              [ showCompilerErrorForTerminal
+                  (waspFilePath, waspFileContent)
+                  (getErrorMessageAndCtx analyzeError)
+              ]
+            )
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
@@ -57,7 +61,8 @@ compile waspDir outDir options = do
                     AS.dotEnvFile = maybeDotEnvFile,
                     AS.isBuild = CompileOptions.isBuild options
                   }
-          Right <$> Generator.writeWebAppCode appSpec outDir
+          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir
+          return (map show generatorWarnings, map show generatorErrors)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
