@@ -6,6 +6,7 @@ module Wasp.Generator
 where
 
 import Data.List.NonEmpty (toList)
+import Data.Maybe (maybeToList)
 import qualified Data.Text
 import qualified Data.Text.IO
 import Data.Time.Clock
@@ -29,7 +30,7 @@ import Wasp.Util ((<++>))
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.
---   If there are any errors returned, that means that generator failed and no new code was written.
+--   If there are any errors returned, that means that generator failed but new code was possibly still written.
 --   If no errors were returned, this means generator was successful and generated a new version of the project
 --     (regardless of the warnings returned).
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
@@ -45,8 +46,8 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      generatedCodeCheckWarnings <- checkGeneratedCode spec dstDir
-      return (generatorWarnings ++ generatedCodeCheckWarnings, [])
+      (dbGeneratorWarnings, dbGeneratorErrors) <- postGenDbGeneratorActions spec dstDir
+      return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
@@ -54,9 +55,6 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
-
-checkGeneratedCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-checkGeneratedCode spec dstDir = DbGenerator.checkGeneratedCode spec dstDir
 
 preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup spec dstDir = do
@@ -77,3 +75,9 @@ writeDotWaspInfo dstDir = do
   let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
   let dstPath = dstDir </> [relfile|.waspinfo|]
   Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
+
+postGenDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+postGenDbGeneratorActions spec dstDir = do
+  dbGeneratorWarnings <- maybeToList <$> DbGenerator.warnIfDbSchemaChangedSinceLastMigration spec dstDir
+  dbGeneratorErrors <- maybeToList <$> DbGenerator.genPrismaClient dstDir
+  return (dbGeneratorWarnings, dbGeneratorErrors)

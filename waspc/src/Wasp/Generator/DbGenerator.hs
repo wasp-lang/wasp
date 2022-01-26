@@ -3,18 +3,15 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
     preCleanup,
-    dbRootDirInProjectRootDir,
-    dbMigrationsDirInDbRootDir,
-    dbSchemaFileInProjectRootDir,
-    writeDbSchemaChecksumToFile,
-    checkGeneratedCode,
+    warnIfDbSchemaChangedSinceLastMigration,
+    genPrismaClient,
   )
 where
 
 import Control.Monad (when)
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isNothing, maybeToList)
-import StrongPath (Abs, Dir, File, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist, removeDirectoryRecursive)
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -22,55 +19,17 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir, dbSchemaChecksumFileInProjectRootDir, dbSchemaFileInDbTemplatesDir, dbSchemaFileInProjectRootDir, dbTemplatesDirInTemplatesDir)
+import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (..), GeneratorWarning (GenericGeneratorWarning), logAndThrowGeneratorError)
-import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, (<:>))
 
-data DbRootDir
-
-data DbTemplatesDir
-
--- | This file represents the checksum of schema.prisma
--- at the point at which db migrate-dev was last run. It is used
--- to help warn the user of instances they may need to migrate.
-data DbSchemaChecksumFile
-
-dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
-dbRootDirInProjectRootDir = [reldir|db|]
-
-dbTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir DbTemplatesDir)
-dbTemplatesDirInTemplatesDir = [reldir|db|]
-
-dbSchemaFileInDbTemplatesDir :: Path' (Rel DbTemplatesDir) File'
-dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
-
-dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
--- Generated schema file will be in the same relative location as the
--- template file within templates dir.
-dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
-
-dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
-
-dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
-dbMigrationsDirInDbRootDir = [reldir|migrations|]
-
-dbSchemaChecksumFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumFile)
-dbSchemaChecksumFileInDbRootDir = [relfile|schema.prisma.wasp-checksum|]
-
-dbSchemaChecksumFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumFile)
-dbSchemaChecksumFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumFileInDbRootDir
-
 preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup = deleteGeneratedMigrationsDirIfRedundant
-
-checkGeneratedCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-checkGeneratedCode spec projectRootDir = maybeToList <$> warnIfDbSchemaChangedSinceLastMigration spec projectRootDir
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -156,12 +115,8 @@ genMigrationsDir spec =
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
-writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> IO ()
-writeDbSchemaChecksumToFile genProjectRootDir = do
-  dbSchemaExists <- doesFileExist dbSchemaFp
-  when dbSchemaExists $ do
-    checksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-    writeFile dbSchemaChecksumFp checksum
-  where
-    dbSchemaFp = SP.fromAbsFile $ genProjectRootDir </> dbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDir </> dbSchemaChecksumFileInProjectRootDir
+-- | NOTE(shayne): We cannot check for the difference between the prisma schema and checksum file here, as we may need
+-- to regnerate the client after it was "dirtied" by a change that made the checksums differ and then was undone.
+-- TODO(shayne): Any other heuristics we can use to do this less often?
+genPrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
+genPrismaClient projectRootDir = either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
