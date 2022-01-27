@@ -7,7 +7,7 @@ module Wasp.Generator.DbGenerator
     dbMigrationsDirInDbRootDir,
     dbSchemaFileInProjectRootDir,
     writeDbSchemaChecksumToFile,
-    afterWriteChecks,
+    checkGeneratedCode,
   )
 where
 
@@ -29,14 +29,14 @@ import Wasp.Generator.Monad (Generator, GeneratorError (..), GeneratorWarning (G
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
-import Wasp.Util (Hex (Hex), checksumFromFilePath, (<:>))
+import Wasp.Util (checksumFromFilePath, hexToString, (<:>))
 
 data DbRootDir
 
 data DbTemplatesDir
 
 -- | This file represents the checksum of schema.prisma
--- at the point at which db migrate-dev is run. It is used
+-- at the point at which db migrate-dev was last run. It is used
 -- to help warn the user of instances they may need to migrate.
 data DbSchemaChecksumFile
 
@@ -69,8 +69,8 @@ dbSchemaChecksumFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChe
 preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup = deleteGeneratedMigrationsDirIfRedundant
 
-afterWriteChecks :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-afterWriteChecks = checkIfDbSchemaWasUsedForLastMigration
+checkGeneratedCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
+checkGeneratedCode spec projectRootDir = maybeToList <$> warnIfDbSchemaChangedSinceLastMigration spec projectRootDir
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -88,11 +88,13 @@ deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
   where
     projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
--- | This function warns the user to run `wasp db migrate-dev` under certain conditions. But first, a few preliminaries:
---   - This function relies on the latest schema.prisma, and thus should run after the writing of FileDrafts has occurred.
---   - A non-empty schema.prisma should always exist in the generated project dir, even if the user has no entities defined.
---     `wasp new` will create one with a `datasource db {}` and `generator client {}`, for example.
---   - A schema.prisma.wasp-checksum file is created/updated each time `wasp db migrate-dev` is run locally and contains checksum(schema.prisma).
+-- | Checks if user needs to run `wasp db migrate-dev` due to changes they did in schema.prisma, and if so, returns a warning.
+-- When doing this, it looks at schema.prisma in the generated project.
+--
+-- This function makes following assumptions:
+--  - schema.prisma will exist in the generated project even if no Entities were defined.
+--    Due to how Prisma itself works, this assumption is currently fulfilled.
+--  - schema.prisma.wasp-checksum contains the checksum of the schema.prisma as it was during the last `wasp db migrate-dev`.
 --
 -- Given that, there are two cases in which we wish to warn the user to run `wasp db migrate-dev`:
 -- (1) If schema.prisma.wasp-checksum exists, but is not equal to checksum(schema.prisma), we know they made changes to schema.prisma and should migrate.
@@ -101,13 +103,13 @@ deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
 --     Common scenarios for the second warning include:
 --       - After a fresh checkout, or after `wasp clean`; possible false positives in these cases, but for safety, it's still preferable to warn.
 --       - When they previously had no entities and just added their first.
-checkIfDbSchemaWasUsedForLastMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-checkIfDbSchemaWasUsedForLastMigration spec projectRootDir = do
+warnIfDbSchemaChangedSinceLastMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
+warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
   dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
 
   if dbSchemaChecksumFileExists
     then do
-      Hex dbSchemaFileChecksum <- checksumFromFilePath dbSchemaFp
+      dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
       dbChecksumFileContents <- readFile dbSchemaChecksumFp
       return $ warnIf (dbSchemaFileChecksum /= dbChecksumFileContents) "Your Prisma schema has changed, you should run `wasp db migrate-dev`."
     else return $ warnIf entitiesExist "Please run `wasp db migrate-dev` to ensure the local project is fully initialized."
@@ -116,8 +118,8 @@ checkIfDbSchemaWasUsedForLastMigration spec projectRootDir = do
     dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumFileInProjectRootDir
     entitiesExist = not . null $ getEntities spec
 
-    warnIf :: Bool -> String -> [GeneratorWarning]
-    warnIf b msg = if b then [GenericGeneratorWarning msg] else []
+    warnIf :: Bool -> String -> Maybe GeneratorWarning
+    warnIf b msg = if b then Just $ GenericGeneratorWarning msg else Nothing
 
 genPrismaSchema :: AppSpec -> Generator FileDraft
 genPrismaSchema spec = do
@@ -158,7 +160,7 @@ writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> IO ()
 writeDbSchemaChecksumToFile genProjectRootDir = do
   dbSchemaExists <- doesFileExist dbSchemaFp
   when dbSchemaExists $ do
-    Hex checksum <- checksumFromFilePath dbSchemaFp
+    checksum <- hexToString <$> checksumFromFilePath dbSchemaFp
     writeFile dbSchemaChecksumFp checksum
   where
     dbSchemaFp = SP.fromAbsFile $ genProjectRootDir </> dbSchemaFileInProjectRootDir

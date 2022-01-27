@@ -45,8 +45,8 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      afterWriteWarnings <- afterWriteChecks spec dstDir
-      return (generatorWarnings ++ afterWriteWarnings, [])
+      generatedCodeCheckWarnings <- checkGeneratedCode spec dstDir
+      return (generatorWarnings ++ generatedCodeCheckWarnings, [])
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
@@ -55,8 +55,8 @@ genApp spec =
     <++> genDb spec
     <++> genDockerFiles spec
 
-afterWriteChecks :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-afterWriteChecks spec dstDir = DbGenerator.afterWriteChecks spec dstDir
+checkGeneratedCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
+checkGeneratedCode spec dstDir = DbGenerator.checkGeneratedCode spec dstDir
 
 preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup spec dstDir = do

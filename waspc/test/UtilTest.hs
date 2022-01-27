@@ -117,9 +117,9 @@ spec_insertAt = do
 spec_hex :: Spec
 spec_hex = do
   it "Correctly transforms bytestring to hex" $ do
-    bytestringToHex "test" `shouldBe` Hex "74657374"
+    bytestringToHex "test" `shouldBe` hexFromString "74657374"
 
 spec_checksum :: Spec
 spec_checksum = do
   it "Correctly calculates checksum of string" $ do
-    checksumFromString "test" `shouldBe` Hex "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+    checksumFromString "test" `shouldBe` hexFromString "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"

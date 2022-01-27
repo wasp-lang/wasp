@@ -19,7 +19,8 @@ module Wasp.Util
     (<++>),
     (<:>),
     bytestringToHex,
-    Hex (..), -- TODO(shayne): Should we put this into Internal? Or make hexFromString smart constructor?
+    hexFromString,
+    hexToString,
     checksumFromFilePath,
   )
 where
@@ -159,12 +160,16 @@ checksumFromByteString :: BSU.ByteString -> Checksum
 checksumFromByteString = bytestringToHex . SHA256.hash
 
 checksumFromFilePath :: FilePath -> IO Checksum
-checksumFromFilePath file = do
-  contents <- B.readFile file
-  return $ checksumFromByteString contents
+checksumFromFilePath file = checksumFromByteString <$> B.readFile file
 
 newtype Hex = Hex String
   deriving (Show, Eq, Ord, Aeson.ToJSON, Aeson.FromJSON)
 
 bytestringToHex :: B.ByteString -> Hex
 bytestringToHex = Hex . concatMap (printf "%02x") . B.unpack
+
+hexFromString :: String -> Hex
+hexFromString = Hex
+
+hexToString :: Hex -> String
+hexToString (Hex s) = s

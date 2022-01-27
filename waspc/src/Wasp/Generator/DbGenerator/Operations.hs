@@ -32,7 +32,7 @@ printJobMsgsUntilExitReceived chan = do
     J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
     J.JobExit {} -> return ()
 
--- | Migrates in the generated project context, stores checksum, and then copies the migrations dir back
+-- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
 migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs = do
@@ -46,9 +46,9 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAb
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
 
 finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
-  writeDbSchemaChecksumToFile genProjectRootDirAbs
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs =
   copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+    <* writeDbSchemaChecksumToFile genProjectRootDirAbs
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
