@@ -1,5 +1,11 @@
+{-# LANGUAGE GeneralisedNewtypeDeriving #-}
+
 module Wasp.Util
-  ( camelToKebabCase,
+  ( Checksum,
+    camelToKebabCase,
+    checksumFromString,
+    checksumFromText,
+    checksumFromByteString,
     onFirst,
     toLowerFirst,
     toUpperFirst,
@@ -12,16 +18,26 @@ module Wasp.Util
     leftPad,
     (<++>),
     (<:>),
+    bytestringToHex,
+    hexFromString,
+    hexToString,
+    checksumFromFilePath,
   )
 where
 
 import Control.Monad (liftM2)
+import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString as B
+import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
+import Data.Text (Text)
 import qualified Data.Text as Text
+import qualified Data.Text.Encoding as TextEncoding
+import Text.Printf (printf)
 
 camelToKebabCase :: String -> String
 camelToKebabCase "" = ""
@@ -131,3 +147,29 @@ infixr 5 <:>
 
 (<:>) :: Monad m => m a -> m [a] -> m [a]
 (<:>) = liftM2 (:)
+
+type Checksum = Hex
+
+checksumFromString :: String -> Checksum
+checksumFromString = bytestringToHex . SHA256.hash . BSU.fromString
+
+checksumFromText :: Text -> Checksum
+checksumFromText = bytestringToHex . SHA256.hash . TextEncoding.encodeUtf8
+
+checksumFromByteString :: BSU.ByteString -> Checksum
+checksumFromByteString = bytestringToHex . SHA256.hash
+
+checksumFromFilePath :: FilePath -> IO Checksum
+checksumFromFilePath file = checksumFromByteString <$> B.readFile file
+
+newtype Hex = Hex String
+  deriving (Show, Eq, Ord, Aeson.ToJSON, Aeson.FromJSON)
+
+bytestringToHex :: B.ByteString -> Hex
+bytestringToHex = Hex . concatMap (printf "%02x") . B.unpack
+
+hexFromString :: String -> Hex
+hexFromString = Hex
+
+hexToString :: Hex -> String
+hexToString (Hex s) = s

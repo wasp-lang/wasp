@@ -2,6 +2,8 @@ module Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     findWaspProjectRoot,
     waspSaysC,
+    waspScreamsC,
+    waspWarnsC,
     alphaWarningMessage,
   )
 where
@@ -22,6 +24,8 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Common
   ( dotWaspRootFileInWaspProjectDir,
     waspSays,
+    waspScreams,
+    waspWarns,
   )
 import Wasp.Cli.Terminal (asWaspFailureMessage)
 import Wasp.Common (WaspProjectDir)
@@ -54,6 +58,12 @@ findWaspProjectRootDirFromCwd = do
 
 waspSaysC :: String -> Command ()
 waspSaysC = liftIO . waspSays
+
+waspWarnsC :: String -> Command ()
+waspWarnsC = liftIO . waspWarns
+
+waspScreamsC :: String -> Command ()
+waspScreamsC = liftIO . waspScreams
 
 alphaWarningMessage :: String
 alphaWarningMessage =

@@ -113,3 +113,13 @@ spec_insertAt = do
     it "insert given list at the end of host list if index is equal or bigger than host list length" $ do
       insertAt [0] 3 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
       insertAt [0] 4 [1, 2, 3] `shouldBe` ([1, 2, 3, 0] :: [Int])
+
+spec_hex :: Spec
+spec_hex = do
+  it "Correctly transforms bytestring to hex" $ do
+    bytestringToHex "test" `shouldBe` hexFromString "74657374"
+
+spec_checksum :: Spec
+spec_checksum = do
+  it "Correctly calculates checksum of string" $ do
+    checksumFromString "test" `shouldBe` hexFromString "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"

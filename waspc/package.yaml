@@ -79,6 +79,7 @@ library:
     - strong-path >= 1.1.2.0
     - template-haskell
     - path-io
+    - cryptohash-sha256
 
 executables:
   wasp-cli:
