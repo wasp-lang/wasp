@@ -26,6 +26,10 @@
     "react-modal": "^3.14.3",
     "url-loader": "^4.1.1"
   },
+  "engines": {
+    "node": "16",
+    "npm": "8"
+  },
   "browserslist": {
     "production": [
       ">0.5%",
