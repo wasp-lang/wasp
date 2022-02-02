@@ -27,9 +27,11 @@ import Wasp.Generator.FileDraft.WriteableMonad
   )
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMessage)
+import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
 import Wasp.Util (checksumFromFilePath, hexToString)
 
+-- | NOTE(shayne): This appears to be used instead of readJobMessagesAndPrintThemPrefixed during migration
+-- as there is lots of Prisma cursor manipulation that causes the "DB:"" prefix to not come out right.
 printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
 printJobMsgsUntilExitReceived chan = do
   jobMsg <- readChan chan
@@ -81,7 +83,7 @@ generatePrismaClient genProjectRootDirAbs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
-      (printJobMsgsUntilExitReceived chan)
+      (readJobMessagesAndPrintThemPrefixed chan)
       (DbJobs.runGenerate genProjectRootDirAbs chan)
   case dbExitCode of
     ExitSuccess -> return $ Right ()

@@ -5,7 +5,7 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import Control.Concurrent (Chan, newChan, readChan, writeChan)
+import Control.Concurrent (Chan, newChan, readChan, writeChan, writeList2Chan)
 import Control.Concurrent.Async (concurrently)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
@@ -45,7 +45,7 @@ migrateDev projectDir = do
 
   let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir)
+  retryJobOnErrorWith job (npmInstall projectDir) jobOutputChannelForwarder
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -65,7 +65,7 @@ runStudio projectDir = do
           ]
           J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir)
+  retryJobOnErrorWith job (npmInstall projectDir) jobOutputChannelForwarder
 
 -- | Runs `prisma generate` to generate the Prisma client.
 runGenerate :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -85,7 +85,7 @@ runGenerate projectDir = do
           ]
           J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir)
+  retryJobOnErrorWith job (npmInstall projectDir) errorOnlyJobOutputChannelForwarder
 
 -- | Runs `npm install` to install dependencies.
 -- May be needed before npx commands if dependencies (e.g. Prisma) are not installed.
@@ -101,17 +101,17 @@ npmInstall projectDir = do
 
 -- | Runs the original job, and if there is an error, it attempts recovery by running the second job
 -- before retrying the original one more time.
--- It also takes care of forwarding all job output, but skips the job exit messages until this function is complete.
-retryJobOnErrorWith :: J.Job -> J.Job -> J.Job
-retryJobOnErrorWith originalJob afterErrorJob externalChannel = do
+-- It also takes a function that handles forwarding channel output.
+retryJobOnErrorWith :: J.Job -> J.Job -> ChannelForwarder -> J.Job
+retryJobOnErrorWith originalJob afterErrorJob channelForwarder externalChannel = do
   internalChannel <- newChan
-  (initialExitCode, _) <- concurrently (originalJob internalChannel) (forwardJobOutput internalChannel externalChannel)
+  (initialExitCode, _) <- concurrently (originalJob internalChannel) (channelForwarder internalChannel externalChannel)
   exitCode <-
     case initialExitCode of
       ExitSuccess -> return ExitSuccess
       ExitFailure _ -> do
-        _ <- concurrently (afterErrorJob internalChannel) (forwardJobOutput internalChannel externalChannel)
-        (retryExitCode, _) <- concurrently (originalJob internalChannel) (forwardJobOutput internalChannel externalChannel)
+        _ <- concurrently (afterErrorJob internalChannel) (channelForwarder internalChannel externalChannel)
+        (retryExitCode, _) <- concurrently (originalJob internalChannel) (channelForwarder internalChannel externalChannel)
         return retryExitCode
   writeJobExitChanMessage exitCode
   return exitCode
@@ -123,9 +123,23 @@ retryJobOnErrorWith originalJob afterErrorJob externalChannel = do
           { J._data = J.JobExit exitCode,
             J._jobType = J.Db
           }
-    forwardJobOutput :: Chan JobMessage -> Chan JobMessage -> IO ()
-    forwardJobOutput fromChan toChan = do
+
+type ChannelForwarder = Chan JobMessage -> Chan JobMessage -> IO ()
+
+jobOutputChannelForwarder :: ChannelForwarder
+jobOutputChannelForwarder fromChan toChan = do
+  message <- readChan fromChan
+  case J._data message of
+    JobOutput _ _ -> writeChan toChan message >> jobOutputChannelForwarder fromChan toChan
+    JobExit _ -> return ()
+
+errorOnlyJobOutputChannelForwarder :: ChannelForwarder
+errorOnlyJobOutputChannelForwarder fromChan toChan = errorOnlyJobOutputChannelForwarder' []
+  where
+    errorOnlyJobOutputChannelForwarder' messages = do
       message <- readChan fromChan
       case J._data message of
-        JobOutput _ _ -> writeChan toChan message >> forwardJobOutput fromChan toChan
-        JobExit _ -> return ()
+        JobOutput _ _ -> errorOnlyJobOutputChannelForwarder' (message : messages)
+        JobExit exitCode -> case exitCode of
+          ExitSuccess -> return ()
+          ExitFailure _ -> writeList2Chan toChan messages
