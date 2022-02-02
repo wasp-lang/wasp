@@ -77,7 +77,7 @@ query getTasks {
 
 query getNumTasks {
   fn: import { getNumTasks } from "@ext/queries.js",
-
+  entities: [Task],
   auth: false
 }
 
