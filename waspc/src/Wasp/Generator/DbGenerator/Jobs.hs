@@ -50,7 +50,7 @@ migrateDev projectDir = do
 
   let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) allJobOutput
+  retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -61,7 +61,7 @@ runStudio projectDir = do
   let npxPrismaStudioCmd = npxPrismaCmd ++ ["studio", "--schema", SP.toFilePath schemaFile]
   let job = runNodeCommandAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) allJobOutput
+  retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectDir = do
@@ -71,7 +71,7 @@ generatePrismaClient projectDir = do
   let npxPrismaGenerateCmd = npxPrismaCmd ++ ["generate", "--schema", SP.toFilePath schemaFile]
   let job = runNodeCommandAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) silentUntilError
+  retryJobOnErrorWith job (npmInstall projectDir) ForwardOnlyRetryErrors
 
 -- | Runs `npm install` to install dependencies.
 -- May be needed before npx commands if dependencies (e.g. Prisma) are not installed.
@@ -80,22 +80,33 @@ npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   runNodeCommandAsJob serverDir "npm" ["install"] J.Db
 
+data JobMessageForwardingStrategy = ForwardEverything | ForwardOnlyRetryErrors
+
+data Attempt = InitialAttempt | Retry
+
 -- | Runs the original job, and if there is an error, it attempts recovery by running the second job
--- before retrying the original one more time.
--- It also takes a function that handles forwarding channel output.
--- NOTE(shayne): We only want to forward one JobExit message in this function, as callers would stop
+-- before retrying the original one last time.
+-- NOTE(shayne): We only want to forward one JobExit message to the external channel from this function, as callers will stop
 -- listening once they get it. This is why our job message forwarders do not send them and we do ourselves at the end.
-retryJobOnErrorWith :: J.Job -> J.Job -> JobMessageForwarder -> J.Job
-retryJobOnErrorWith originalJob afterErrorJob channelForwarder externalChannel = do
-  internalChannel <- newChan
-  (initialExitCode, _) <- concurrently (originalJob internalChannel) (channelForwarder internalChannel externalChannel)
+retryJobOnErrorWith :: J.Job -> J.Job -> JobMessageForwardingStrategy -> J.Job
+retryJobOnErrorWith originalJob afterErrorJob forwardingStrategy externalChannel = do
+  let channelForwarder = case forwardingStrategy of
+        ForwardEverything -> allJobOutput
+        ForwardOnlyRetryErrors -> silentUntilRetryFails
+  intermediateChannel <- newChan
+
+  (initialExitCode, _) <- concurrently (originalJob intermediateChannel) (channelForwarder InitialAttempt intermediateChannel externalChannel)
   exitCode <-
     case initialExitCode of
       ExitSuccess -> return ExitSuccess
       ExitFailure _ -> do
-        _ <- concurrently (afterErrorJob internalChannel) (channelForwarder internalChannel externalChannel)
-        (retryExitCode, _) <- concurrently (originalJob internalChannel) (channelForwarder internalChannel externalChannel)
+        -- NOTE(shayne): We don't care what the exit code of the recovery job is. If it succeeds, great, and hopefully retry works.
+        -- If it fails, retry will likely fail again in the same manner. There may be other quirks but this is
+        -- sufficient for the npx and npm install use case we are targeting now.
+        _ <- concurrently (afterErrorJob intermediateChannel) (channelForwarder InitialAttempt intermediateChannel externalChannel)
+        (retryExitCode, _) <- concurrently (originalJob intermediateChannel) (channelForwarder Retry intermediateChannel externalChannel)
         return retryExitCode
+
   writeJobExitChanMessage exitCode
   return exitCode
   where
@@ -107,28 +118,27 @@ retryJobOnErrorWith originalJob afterErrorJob channelForwarder externalChannel =
             J._jobType = J.Db
           }
 
-type JobMessageForwarder = Chan JobMessage -> Chan JobMessage -> IO ()
+    -- Forwards all JobOutput messages to the output channel, but does not send JobExit
+    -- as multiple jobs may be forwarded to the same output channel. The caller is responsible
+    -- for sending a final JobExit.
+    allJobOutput :: Attempt -> Chan JobMessage -> Chan JobMessage -> IO ()
+    allJobOutput attempt fromChan toChan = do
+      message <- readChan fromChan
+      case J._data message of
+        JobOutput _ _ -> writeChan toChan message >> allJobOutput attempt fromChan toChan
+        JobExit _ -> return ()
 
--- | Forwards all JobOutput message to the output channel, but does not send JobExit
--- as multiple jobs may be forwarded to the same output channel. The caller is responsible
--- for sending a final JobExit.
-allJobOutput :: JobMessageForwarder
-allJobOutput fromChan toChan = do
-  message <- readChan fromChan
-  case J._data message of
-    JobOutput _ _ -> writeChan toChan message >> allJobOutput fromChan toChan
-    JobExit _ -> return ()
-
--- | Forwards all JobOutput message to the output channel on error, but does not send JobExit
--- as multiple jobs may be forwarded to the same output channel. The caller is responsible
--- for sending a final JobExit.
-silentUntilError :: JobMessageForwarder
-silentUntilError fromChan toChan = silentUntilError' []
-  where
-    silentUntilError' messagesSoFar = do
-      newMessage <- readChan fromChan
-      case J._data newMessage of
-        JobOutput _ _ -> silentUntilError' (newMessage : messagesSoFar)
-        JobExit exitCode -> case exitCode of
-          ExitSuccess -> return ()
-          ExitFailure _ -> writeList2Chan toChan messagesSoFar
+    -- Only forwards JobOutput messages for the retry attempt if it fails.
+    -- All first attempt output is ignored, and so is success on retry.
+    silentUntilRetryFails :: Attempt -> Chan JobMessage -> Chan JobMessage -> IO ()
+    silentUntilRetryFails attempt fromChan toChan = silentUntilRetryFails' []
+      where
+        silentUntilRetryFails' messagesSoFar = do
+          newMessage <- readChan fromChan
+          case J._data newMessage of
+            JobOutput _ _ -> case attempt of
+              InitialAttempt -> silentUntilRetryFails' []
+              Retry -> silentUntilRetryFails' (newMessage : messagesSoFar)
+            JobExit exitCode -> case exitCode of
+              ExitSuccess -> return ()
+              ExitFailure _ -> writeList2Chan toChan messagesSoFar
