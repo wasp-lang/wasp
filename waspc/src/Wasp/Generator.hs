@@ -46,7 +46,7 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      (dbGeneratorWarnings, dbGeneratorErrors) <- postGenDbGeneratorActions spec dstDir
+      (dbGeneratorWarnings, dbGeneratorErrors) <- postWriteDbGeneratorActions spec dstDir
       return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
@@ -76,8 +76,9 @@ writeDotWaspInfo dstDir = do
   let dstPath = dstDir </> [relfile|.waspinfo|]
   Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
 
-postGenDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-postGenDbGeneratorActions spec dstDir = do
+-- | This function operates on generated code, and thus assumes the file drafts were written to disk
+postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorWarnings <- maybeToList <$> DbGenerator.warnIfDbSchemaChangedSinceLastMigration spec dstDir
   dbGeneratorErrors <- maybeToList <$> DbGenerator.genPrismaClient dstDir
   return (dbGeneratorWarnings, dbGeneratorErrors)

@@ -1,6 +1,6 @@
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
-    runGenerate,
+    generatePrismaClient,
     runStudio,
   )
 where
@@ -18,8 +18,13 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 
-prismaNpxCommand :: String
-prismaNpxCommand = "prisma@" ++ prismaVersion
+-- `--no-install` is the magic that causes this command to fail if npx cannot find it locally
+--    (either in node_modules, or globally in npx). We do not want to allow npx to ask
+--    a user without prisma to install the latest version.
+-- We also version pin to what we need so it won't accidentally find a different version globally
+--   somewhere on the PATH.
+npxPrismaCmd :: [String]
+npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaVersion]
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateDev projectDir = do
@@ -35,17 +40,17 @@ migrateDev projectDir = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let npxPrismaCmd = ["npx", "--no-install", prismaNpxCommand, "migrate", "dev", "--schema", SP.toFilePath schemaFile]
+  let npxPrismaMigrateCmd = npxPrismaCmd ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile]
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-            ["-Fq", "/dev/null"] ++ npxPrismaCmd
+            ["-Fq", "/dev/null"] ++ npxPrismaMigrateCmd
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-            ["-feqc", unwords npxPrismaCmd, "/dev/null"]
+            ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
 
   let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) jobOutputChannelForwarder
+  retryJobOnErrorWith job (npmInstall projectDir) allJobOutput
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
@@ -53,56 +58,34 @@ runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
-  let job =
-        runNodeCommandAsJob
-          serverDir
-          "npx"
-          [ "--no-install",
-            prismaNpxCommand,
-            "studio",
-            "--schema",
-            SP.toFilePath schemaFile
-          ]
-          J.Db
+  let npxPrismaStudioCmd = npxPrismaCmd ++ ["studio", "--schema", SP.toFilePath schemaFile]
+  let job = runNodeCommandAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) jobOutputChannelForwarder
+  retryJobOnErrorWith job (npmInstall projectDir) allJobOutput
 
--- | Runs `prisma generate` to generate the Prisma client.
-runGenerate :: Path' Abs (Dir ProjectRootDir) -> J.Job
-runGenerate projectDir = do
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
+generatePrismaClient projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
-  let job =
-        runNodeCommandAsJob
-          serverDir
-          "npx"
-          [ "--no-install",
-            prismaNpxCommand,
-            "generate",
-            "--schema",
-            SP.toFilePath schemaFile
-          ]
-          J.Db
+  let npxPrismaGenerateCmd = npxPrismaCmd ++ ["generate", "--schema", SP.toFilePath schemaFile]
+  let job = runNodeCommandAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
 
-  retryJobOnErrorWith job (npmInstall projectDir) errorOnlyJobOutputChannelForwarder
+  retryJobOnErrorWith job (npmInstall projectDir) silentUntilError
 
 -- | Runs `npm install` to install dependencies.
 -- May be needed before npx commands if dependencies (e.g. Prisma) are not installed.
 npmInstall :: Path' Abs (Dir ProjectRootDir) -> J.Job
 npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-
-  runNodeCommandAsJob
-    serverDir
-    "npm"
-    ["install"]
-    J.Db
+  runNodeCommandAsJob serverDir "npm" ["install"] J.Db
 
 -- | Runs the original job, and if there is an error, it attempts recovery by running the second job
 -- before retrying the original one more time.
 -- It also takes a function that handles forwarding channel output.
-retryJobOnErrorWith :: J.Job -> J.Job -> ChannelForwarder -> J.Job
+-- NOTE(shayne): We only want to forward one JobExit message in this function, as callers would stop
+-- listening once they get it. This is why our job message forwarders do not send them and we do ourselves at the end.
+retryJobOnErrorWith :: J.Job -> J.Job -> JobMessageForwarder -> J.Job
 retryJobOnErrorWith originalJob afterErrorJob channelForwarder externalChannel = do
   internalChannel <- newChan
   (initialExitCode, _) <- concurrently (originalJob internalChannel) (channelForwarder internalChannel externalChannel)
@@ -124,22 +107,28 @@ retryJobOnErrorWith originalJob afterErrorJob channelForwarder externalChannel =
             J._jobType = J.Db
           }
 
-type ChannelForwarder = Chan JobMessage -> Chan JobMessage -> IO ()
+type JobMessageForwarder = Chan JobMessage -> Chan JobMessage -> IO ()
 
-jobOutputChannelForwarder :: ChannelForwarder
-jobOutputChannelForwarder fromChan toChan = do
+-- | Forwards all JobOutput message to the output channel, but does not send JobExit
+-- as multiple jobs may be forwarded to the same output channel. The caller is responsible
+-- for sending a final JobExit.
+allJobOutput :: JobMessageForwarder
+allJobOutput fromChan toChan = do
   message <- readChan fromChan
   case J._data message of
-    JobOutput _ _ -> writeChan toChan message >> jobOutputChannelForwarder fromChan toChan
+    JobOutput _ _ -> writeChan toChan message >> allJobOutput fromChan toChan
     JobExit _ -> return ()
 
-errorOnlyJobOutputChannelForwarder :: ChannelForwarder
-errorOnlyJobOutputChannelForwarder fromChan toChan = errorOnlyJobOutputChannelForwarder' []
+-- | Forwards all JobOutput message to the output channel on error, but does not send JobExit
+-- as multiple jobs may be forwarded to the same output channel. The caller is responsible
+-- for sending a final JobExit.
+silentUntilError :: JobMessageForwarder
+silentUntilError fromChan toChan = silentUntilError' []
   where
-    errorOnlyJobOutputChannelForwarder' messages = do
-      message <- readChan fromChan
-      case J._data message of
-        JobOutput _ _ -> errorOnlyJobOutputChannelForwarder' (message : messages)
+    silentUntilError' messagesSoFar = do
+      newMessage <- readChan fromChan
+      case J._data newMessage of
+        JobOutput _ _ -> silentUntilError' (newMessage : messagesSoFar)
         JobExit exitCode -> case exitCode of
           ExitSuccess -> return ()
-          ExitFailure _ -> writeList2Chan toChan messages
+          ExitFailure _ -> writeList2Chan toChan messagesSoFar

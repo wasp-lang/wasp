@@ -20,7 +20,14 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir, dbSchemaChecksumFileInProjectRootDir, dbSchemaFileInDbTemplatesDir, dbSchemaFileInProjectRootDir, dbTemplatesDirInTemplatesDir)
+import Wasp.Generator.DbGenerator.Common
+  ( dbMigrationsDirInDbRootDir,
+    dbRootDirInProjectRootDir,
+    dbSchemaChecksumOnLastMigrateFileProjectRootDir,
+    dbSchemaFileInDbTemplatesDir,
+    dbSchemaFileInProjectRootDir,
+    dbTemplatesDirInTemplatesDir,
+  )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (..), GeneratorWarning (GenericGeneratorWarning), logAndThrowGeneratorError)
@@ -74,7 +81,7 @@ warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
     else return $ warnIf entitiesExist "Please run `wasp db migrate-dev` to ensure the local project is fully initialized."
   where
     dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumFileInProjectRootDir
+    dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumOnLastMigrateFileProjectRootDir
     entitiesExist = not . null $ getEntities spec
 
     warnIf :: Bool -> String -> Maybe GeneratorWarning
@@ -115,8 +122,5 @@ genMigrationsDir spec =
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
--- | NOTE(shayne): We cannot check for the difference between the prisma schema and checksum file here, as we may need
--- to regnerate the client after it was "dirtied" by a change that made the checksums differ and then was undone.
--- TODO(shayne): Any other heuristics we can use to do this less often?
 genPrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient projectRootDir = either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
