@@ -31,7 +31,7 @@ start = do
     Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Compilation failed:" ++ compileError
     Right () -> waspSaysC $ asWaspSuccessMessage "Code has been successfully compiled, project has been generated."
 
-  -- TODO: Do smart install -> if we need to install stuff, install it, otherwise don't.
+  -- TODO: Do smart npm install -> if we need to install stuff, install it, otherwise don't.
   --   This should be responsibility of Generator, it should tell us how to install stuff.
   --   But who checks out if stuff needs to be installed at all? That should probably be
   --   Generator again. After installation, it should return some kind of data that describes that installation.
