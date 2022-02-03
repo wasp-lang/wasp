@@ -10,13 +10,13 @@ import System.Exit (ExitCode (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printPrefixedJobMessage)
-import Wasp.Generator.ServerGenerator.Setup (setupServer)
-import Wasp.Generator.WebAppGenerator.Setup (setupWebApp)
+import Wasp.Generator.ServerGenerator.NpmInstall (npmInstallServer)
+import Wasp.Generator.WebAppGenerator.NpmInstall (npmInstallClient)
 
 setup :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 setup projectDir = do
   chan <- newChan
-  let runSetupJobs = concurrently (setupServer projectDir chan) (setupWebApp projectDir chan)
+  let runSetupJobs = concurrently (npmInstallServer projectDir chan) (npmInstallClient projectDir chan)
   (_, result) <- concurrently (handleJobMessages chan) runSetupJobs
   case result of
     (ExitSuccess, ExitSuccess) -> return $ Right ()

@@ -17,7 +17,7 @@ import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.ServerGenerator.Setup (setupServer)
+import Wasp.Generator.ServerGenerator.NpmInstall (npmInstallServer)
 
 runDbCommand :: Command a -> IO ()
 runDbCommand = runCommand . makeDbCommand
@@ -39,9 +39,9 @@ makeDbCommand cmd = do
   waspSaysC $ asWaspStartMessage "Setting up database..."
   chan <- liftIO newChan
   -- NOTE(matija): What we do here is make sure that Prisma CLI is installed because db commands
-  -- (e.g. migrate) depend on it. We run setupServer which does even more than that, so we could make
+  -- (e.g. migrate) depend on it. We run npmInstallServer which does even more than that, so we could make
   -- this function more lightweight if needed.
-  (_, dbSetupResult) <- liftIO (concurrently (readJobMessagesAndPrintThemPrefixed chan) (setupServer genProjectDir chan))
+  (_, dbSetupResult) <- liftIO (concurrently (readJobMessagesAndPrintThemPrefixed chan) (npmInstallServer genProjectDir chan))
   case dbSetupResult of
     ExitSuccess -> waspSaysC (asWaspSuccessMessage "Database successfully set up!") >> cmd
     exitCode -> throwError $ CommandError $ asWaspFailureMessage $ dbSetupFailedMessage exitCode

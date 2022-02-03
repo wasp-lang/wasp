@@ -1,5 +1,5 @@
-module Wasp.Generator.WebAppGenerator.Setup
-  ( setupWebApp,
+module Wasp.Generator.WebAppGenerator.NpmInstall
+  ( npmInstallClient,
   )
 where
 
@@ -9,7 +9,7 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
-setupWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
-setupWebApp projectDir = do
+npmInstallClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
+npmInstallClient projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
   runNodeCommandAsJob webAppDir "npm" ["install"] J.WebApp
