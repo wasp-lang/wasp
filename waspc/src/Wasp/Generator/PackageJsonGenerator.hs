@@ -56,18 +56,15 @@ resolveDependencies waspDeps userDeps =
     conflicting = Maybe.mapMaybe createConflict (Map.assocs overlappingDeps)
       where
         createConflict :: (String, D.Dependency) -> Maybe DependencyConflictError
-        createConflict (waspName, waspDep) =
-          Map.lookup waspName userDepsMap >>= c
-          where
-            c :: D.Dependency -> Maybe DependencyConflictError
-            c userDep =
-              if D.version waspDep /= D.version userDep
-                then
-                  Just $
-                    DependencyConflictError
-                      waspDep
-                      userDep
-                else Nothing
+        createConflict (waspName, waspDep) = do
+          userDep <- Map.lookup waspName userDepsMap
+          if D.version waspDep /= D.version userDep
+            then
+              Just $
+                DependencyConflictError
+                  waspDep
+                  userDep
+            else Nothing
 
 -- | Takes wasp npm dependencies and user npm dependencies and figures out how to
 --   combine them together, returning (Right) a list of npm dependencies to be used on
