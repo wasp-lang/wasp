@@ -42,31 +42,31 @@ resolveDependencies waspDeps userDeps =
     userDepsMap = createMap userDeps
     overlappingDeps = waspDepsMap `Map.intersection` userDepsMap
     userDepsNotInWaspDeps = userDepsMap `Map.difference` waspDepsMap
-    createMap :: [D.Dependency] -> Map.Map String String
+    createMap :: [D.Dependency] -> Map.Map String D.Dependency
     createMap deps = Map.fromList $ fmap toTuple deps
       where
-        toTuple :: D.Dependency -> (String, String)
-        toTuple dep = (D.name dep, D.version dep)
-    createDeps :: Map.Map String String -> [D.Dependency]
-    createDeps depsMap = D.create <$> Map.toList depsMap
+        toTuple :: D.Dependency -> (String, D.Dependency)
+        toTuple dep = (D.name dep, dep)
+    createDeps :: Map.Map String D.Dependency -> [D.Dependency]
+    createDeps depsMap = Map.elems depsMap
 
     -- get all items in overlappingDeps, for each check whether there's
     -- a conflicting version in userDepsMap, and if so report a conflict
     conflicting :: [DependencyConflictError]
     conflicting = Maybe.mapMaybe createConflict (Map.assocs overlappingDeps)
       where
-        createConflict :: (String, String) -> Maybe DependencyConflictError
-        createConflict (waspName, waspVersion) =
+        createConflict :: (String, D.Dependency) -> Maybe DependencyConflictError
+        createConflict (waspName, waspDep) =
           Map.lookup waspName userDepsMap >>= c
           where
-            c :: String -> Maybe DependencyConflictError
-            c userVersion =
-              if waspVersion /= userVersion
+            c :: D.Dependency -> Maybe DependencyConflictError
+            c userDep =
+              if D.version waspDep /= D.version userDep
                 then
                   Just $
                     DependencyConflictError
-                      (D.create (waspName, waspVersion))
-                      (D.create (waspName, userVersion))
+                      waspDep
+                      userDep
                 else Nothing
 
 -- | Takes wasp npm dependencies and user npm dependencies and figures out how to
