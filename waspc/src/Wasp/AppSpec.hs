@@ -68,7 +68,13 @@ getDecls = takeDecls . decls
 --   validates AppSpec and returns it wrapped with `Validated`,
 --   I created a github issue for it: https://github.com/wasp-lang/wasp/issues/425 .
 getApp :: AppSpec -> (String, App)
-getApp spec = head $ takeDecls @App (decls spec)
+getApp spec = case takeDecls @App (decls spec) of
+  [app] -> app
+  apps ->
+    error $
+      "Compiler error: expected exactly 1 'app' declaration in your wasp code, but you have "
+        ++ show (length apps)
+        ++ "!"
 
 getQueries :: AppSpec -> [(String, Query)]
 getQueries spec = takeDecls @Query (decls spec)

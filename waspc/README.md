@@ -298,6 +298,8 @@ If commit is tagged with tag starting with `v`, github draft release is created 
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
+We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will update the version in package.yaml, commit it, push it, and will also create appropriate tag and push it, therefore triggering CI to create new release on Github.
+
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
