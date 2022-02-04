@@ -2,6 +2,7 @@
 stack*.yaml.lock
 dist-newstyle
 waspc.cabal
+.vscode
 
 /out
 
