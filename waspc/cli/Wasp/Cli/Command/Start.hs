@@ -26,7 +26,7 @@ start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  compileAndNpmInstall waspRoot outDir
+  compileAndSetup waspRoot outDir
 
   waspSaysC $ asWaspStartMessage "Listening for file changes..."
   waspSaysC $ asWaspStartMessage "Starting up generated project..."
@@ -37,11 +37,11 @@ start = do
       Left startError -> throwError $ CommandError $ asWaspFailureMessage "Start failed:" ++ startError
       Right () -> error "This should never happen, start should never end but it did."
 
-compileAndNpmInstall ::
+compileAndSetup ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Generator.Common.ProjectRootDir) ->
   Command ()
-compileAndNpmInstall waspRoot outDir = do
+compileAndSetup waspRoot outDir = do
   waspSaysC $ asWaspStartMessage "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspRoot outDir
   case compilationResult of
