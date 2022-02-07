@@ -21,12 +21,12 @@ data DbTemplatesDir
 
 -- | This file represents the checksum of schema.prisma
 -- at the point at which `prisma db migrate-dev` was last run. It is used
--- to help warn the user of instances they may need to migrate.
+-- to help warn the user of instances when they may need to migrate.
 data DbSchemaChecksumOnLastMigrateFile
 
 -- | This file represents the checksum of schema.prisma
 -- at the point at which `prisma generate` was last run. It is used
--- to know if we need to regenerate during generation or not.
+-- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile
 
 dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)

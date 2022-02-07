@@ -5,6 +5,7 @@ module Wasp.Generator.DbGenerator
     preCleanup,
     warnIfDbSchemaChangedSinceLastMigration,
     genPrismaClient,
+    postWriteDbGeneratorActions,
   )
 where
 
@@ -41,6 +42,13 @@ preCleanup = deleteGeneratedMigrationsDirIfRedundant
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
   genPrismaSchema spec <:> (maybeToList <$> genMigrationsDir spec)
+
+-- | This function operates on generated code, and thus assumes the file drafts were written to disk
+postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+postWriteDbGeneratorActions spec dstDir = do
+  dbGeneratorWarnings <- maybeToList <$> warnIfDbSchemaChangedSinceLastMigration spec dstDir
+  dbGeneratorErrors <- maybeToList <$> genPrismaClient dstDir
+  return (dbGeneratorWarnings, dbGeneratorErrors)
 
 deleteGeneratedMigrationsDirIfRedundant :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do

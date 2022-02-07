@@ -67,6 +67,7 @@ copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirA
     waspMigrationsDir = SP.castDir dbMigrationsDirInWaspProjectDirAbs
     genProjectMigrationsDir = SP.castDir $ genProjectRootDirAbs SP.</> dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
 
+-- | This function assumes the DB schema has been generated, as it will attempt to read it from the generated code.
 writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
 writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = do
   dbSchemaExists <- doesFileExist dbSchemaFp

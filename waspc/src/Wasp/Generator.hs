@@ -6,7 +6,6 @@ module Wasp.Generator
 where
 
 import Data.List.NonEmpty (toList)
-import Data.Maybe (maybeToList)
 import qualified Data.Text
 import qualified Data.Text.IO
 import Data.Time.Clock
@@ -46,7 +45,7 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      (dbGeneratorWarnings, dbGeneratorErrors) <- postWriteDbGeneratorActions spec dstDir
+      (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
       return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
@@ -75,10 +74,3 @@ writeDotWaspInfo dstDir = do
   let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
   let dstPath = dstDir </> [relfile|.waspinfo|]
   Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
-
--- | This function operates on generated code, and thus assumes the file drafts were written to disk
-postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-postWriteDbGeneratorActions spec dstDir = do
-  dbGeneratorWarnings <- maybeToList <$> DbGenerator.warnIfDbSchemaChangedSinceLastMigration spec dstDir
-  dbGeneratorErrors <- maybeToList <$> DbGenerator.genPrismaClient dstDir
-  return (dbGeneratorWarnings, dbGeneratorErrors)
