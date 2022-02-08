@@ -13,11 +13,14 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (runCommand)
-import Wasp.Cli.Command.CompileAndSetup (compileAndSetup)
-import Wasp.Cli.Common (waspSays)
+-- TODO: once we use `compileAndSetup` in `watch` we want to enable these
+-- imports:
+-- import Wasp.Cli.Command (runCommand)
+-- import Wasp.Cli.Command.CompileAndSetup (compileAndSetup)
+import Wasp.Cli.Command.Compile (compileIO)
+import Wasp.Cli.Common (waspSays, waspScreams)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspStartMessage)
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import qualified Wasp.Lib
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
@@ -81,7 +84,16 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     recompile :: IO ()
     recompile = do
       waspSays $ asWaspStartMessage "Recompiling on file change..."
-      runCommand $ compileAndSetup waspProjectDir outDir
+      -- TODO: The plan is to replace the rest of the function with this line:
+      -- `runCommand $ compileAndSetup waspProjectDir outDir`
+      -- The following section can then be removed. It's left in place
+      -- because at present `compileAndSetup` always runs `npm install`
+      -- and until we avoid we don't apply this change yet.
+      compilationResult <- compileIO waspProjectDir outDir
+      case compilationResult of
+        Left err -> waspScreams $ asWaspFailureMessage "Recompilation on file change failed:" ++ err
+        Right () -> waspSays $ asWaspSuccessMessage "Recompilation on file change succeeded."
+      return ()
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,
