@@ -29,6 +29,7 @@ import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
+import Wasp.AppSpec.Valid (Valid, fromValid, (<$^>))
 import Wasp.Common (DbMigrationsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
@@ -60,36 +61,32 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
--- TODO: This will fail with an error if there is no `app` declaration (because of `head`)!
---   However, returning a Maybe here would be PITA later in the code.
---   It would be cool instead if we had an extra step that somehow ensures that app exists and
---   throws nice error if it doesn't. Some step that validated AppSpec. Maybe we could
---   have a function that returns `Validated AppSpec` -> so basically smart constructor,
---   validates AppSpec and returns it wrapped with `Validated`,
---   I created a github issue for it: https://github.com/wasp-lang/wasp/issues/425 .
-getApp :: AppSpec -> (String, App)
-getApp spec = case takeDecls @App (decls spec) of
-  [app] -> app
-  apps ->
-    error $
-      "Compiler error: expected exactly 1 'app' declaration in your wasp code, but you have "
-        ++ show (length apps)
-        ++ "!"
-
 getQueries :: AppSpec -> [(String, Query)]
-getQueries spec = takeDecls @Query (decls spec)
+getQueries = getDecls @Query
 
 getActions :: AppSpec -> [(String, Action)]
-getActions spec = takeDecls @Action (decls spec)
+getActions = getDecls @Action
 
 getEntities :: AppSpec -> [(String, Entity)]
-getEntities spec = takeDecls @Entity (decls spec)
+getEntities = getDecls @Entity
 
 getPages :: AppSpec -> [(String, Page)]
-getPages spec = takeDecls @Page (decls spec)
+getPages = getDecls @Page
 
 getRoutes :: AppSpec -> [(String, Route)]
-getRoutes spec = takeDecls @Route (decls spec)
+getRoutes = getDecls @Route
 
-isAuthEnabled :: AppSpec -> Bool
-isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+-- TODO: Move into Valid.AppSpec?
+getApp :: Valid AppSpec -> Valid (String, App)
+getApp spec =
+  let apps = getDecls @App <$> spec
+   in case fromValid apps of
+        [_] -> head <$> apps
+        apps' ->
+          error $
+            "Expected exactly 1 'app' declaration in Valid AppSpec, but found " ++ show (length apps')
+              ++ ". This should never happen."
+
+-- TODO: Make it work on App instead of AppSpec? Move it somewhere, maybe to Valid.AppSpec?
+isAuthEnabled :: Valid AppSpec -> Bool
+isAuthEnabled spec = isJust (App.auth $ snd <$^> getApp spec)
