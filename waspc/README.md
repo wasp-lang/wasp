@@ -37,7 +37,7 @@ We use [Stack](https://docs.haskellstack.org/en/stable/README/) for building the
 ### Repo
 Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
 
-Position yourself in this directory (`waspc/`) and make sure that you are on the `master` branch.
+Position yourself in this directory (`waspc/`) and make sure that you are on the `main` branch.
 
 ### Build
 ```
@@ -104,7 +104,7 @@ NOTE: Reload page if blank.
 
 
 ## Typical development workflow
-1. Create a new feature branch from `master`.
+1. Create a new feature branch from `main`.
 2. Run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first, you can do it with `stack install ghcid`.
 3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
@@ -118,7 +118,7 @@ NOTE: Reload page if blank.
 7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
 8. Work with reviewer(s) to get the PR approved.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
-9. Reviewer will merge the branch into `master`. Yay!
+9. Reviewer will merge the branch into `main`. Yay!
 
 ## Design docs (aka RFCs)
 If the feature you are implementing is complex, be it regarding its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
@@ -290,7 +290,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta
 ## Deployment / CI
 We use Github Actions for CI.
 
-CI runs for any commits on `master` branch, for pull requests, and for any commits tagged with tag that starts with `v`.
+CI runs for any commits on `main` branch, for pull requests, and for any commits tagged with tag that starts with `v`.
 
 During CI, we build and test Wasp code on Linux, MacOS and Windows.
 

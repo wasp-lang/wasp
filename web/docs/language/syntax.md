@@ -43,7 +43,7 @@ Wasp's type system can be divided into two main categories of types: **fundament
 
 While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular lanuages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
 
-- Fundamental types ([source of truth](https://github.com/wasp-lang/wasp/blob/master/waspc/src/Wasp/Analyzer/Type.hs))
+- Fundamental types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/Type.hs))
   - Primitive types
     - **string** (`"foo"`, `"they said: \"hi\""`)
     - **bool** (`true`, `false`)
@@ -60,7 +60,7 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **list** (`[1, 2, 3]`)
     - **tuple** (`(1, "bar")`, `(2, 4, true)`)
       - Tuples can be of size 2, 3 and 4.
-- Domain types ([source of truth](https://github.com/wasp-lang/wasp/blob/master/waspc/src/Wasp/Analyzer/StdTypeDefinitions.hs))
+- Domain types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/StdTypeDefinitions.hs))
   - Declaration types
     - **app**
     - **page**

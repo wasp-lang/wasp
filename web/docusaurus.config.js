@@ -118,13 +118,13 @@ module.exports = {
           sidebarCollapsible: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/wasp-lang/wasp/edit/master/web',
+            'https://github.com/wasp-lang/wasp/edit/main/web',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
-            'https://github.com/wasp-lang/wasp/edit/master/web/blog',
+            'https://github.com/wasp-lang/wasp/edit/main/web/blog',
         },
         theme: {
           customCss: [
