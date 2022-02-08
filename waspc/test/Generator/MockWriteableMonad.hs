@@ -13,6 +13,7 @@ where
 import Control.Monad.State
 import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
+import Data.ByteString.Lazy (ByteString)
 import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
 import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, (</>))
@@ -36,11 +37,14 @@ defaultMockConfig =
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
 getMockLogs mock config = fst $ execState (unMockWriteableMonad mock) (emptyLogs, config)
   where
-    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] []
+    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] []
 
 instance WriteableMonad MockWriteableMonad where
   writeFileFromText dstPath text = MockWriteableMonad $ do
     modifyLogs (writeFileFromText_addCall dstPath text)
+
+  writeFileFromByteString dstPath b = MockWriteableMonad $ do
+    modifyLogs (writeFileFromByteString_addCall dstPath b)
 
   getTemplatesDirAbsPath = MockWriteableMonad $ do
     modifyLogs getTemplatesDirAbsPath_addCall
@@ -89,6 +93,7 @@ newtype MockWriteableMonad a = MockWriteableMonad
 
 data MockWriteableMonadLogs = MockWriteableMonadLogs
   { writeFileFromText_calls :: [(FilePath, Text)],
+    writeFileFromByteString_calls :: [(FilePath, ByteString)],
     getTemplatesDirAbsPath_calls :: [()],
     createDirectoryIfMissing_calls :: [(Bool, FilePath)],
     copyFile_calls :: [(FilePath, FilePath)],
@@ -108,6 +113,10 @@ data MockWriteableMonadConfig = MockWriteableMonadConfig
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 writeFileFromText_addCall path text logs =
   logs {writeFileFromText_calls = (path, text) : writeFileFromText_calls logs}
+
+writeFileFromByteString_addCall :: FilePath -> ByteString -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+writeFileFromByteString_addCall path bs logs =
+  logs {writeFileFromByteString_calls = (path, bs) : writeFileFromByteString_calls logs}
 
 getTemplatesDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplatesDirAbsPath_addCall logs =

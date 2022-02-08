@@ -145,3 +145,4 @@ tests:
       - unordered-containers
       - strong-path
       - split
+      - bytestring

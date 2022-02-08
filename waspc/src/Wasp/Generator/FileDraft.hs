@@ -6,6 +6,7 @@ module Wasp.Generator.FileDraft
     createCopyFileDraftIfExists,
     createTextFileDraft,
     createCopyDirFileDraft,
+    createBytesFileDraftFromJson,
   )
 where
 
@@ -13,6 +14,7 @@ import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 import StrongPath (Abs, Dir', File', Path', Rel)
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.FileDraft.BytesFileDraft as BytesFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -32,6 +34,7 @@ data FileDraft
   | FileDraftCopyFd CopyFD.CopyFileDraft
   | FileDraftCopyDirFd CopyDirFD.CopyDirFileDraft
   | FileDraftTextFd TextFD.TextFileDraft
+  | FileDraftBytesFd BytesFD.BytesFileDraft
   deriving (Show, Eq)
 
 instance Writeable FileDraft where
@@ -39,6 +42,7 @@ instance Writeable FileDraft where
   write dstDir (FileDraftCopyFd draft) = write dstDir draft
   write dstDir (FileDraftCopyDirFd draft) = write dstDir draft
   write dstDir (FileDraftTextFd draft) = write dstDir draft
+  write dstDir (FileDraftBytesFd draft) = write dstDir draft
 
 createTemplateFileDraft ::
   Path' (Rel ProjectRootDir) File' ->
@@ -82,3 +86,7 @@ createCopyDirFileDraft dstPath srcPath =
 createTextFileDraft :: Path' (Rel ProjectRootDir) File' -> Text -> FileDraft
 createTextFileDraft dstPath content =
   FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = dstPath, TextFD._content = content}
+
+createBytesFileDraftFromJson :: Path' (Rel ProjectRootDir) File' -> Aeson.Value -> FileDraft
+createBytesFileDraftFromJson dstPath content =
+  FileDraftBytesFd $ BytesFD.BytesFileDraft {BytesFD._dstPath = dstPath, BytesFD._content = Aeson.encode content}

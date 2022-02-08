@@ -8,6 +8,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import Wasp.Generator.FileDraft
+import qualified Wasp.Generator.FileDraft.BytesFileDraft as BytesFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -91,3 +92,4 @@ getFileDraftDstPath (FileDraftTemplateFd fd) = SP.toFilePath $ TmplFD._dstPath f
 getFileDraftDstPath (FileDraftCopyFd fd) = SP.toFilePath $ CopyFD._dstPath fd
 getFileDraftDstPath (FileDraftCopyDirFd fd) = SP.toFilePath $ CopyDirFD._dstPath fd
 getFileDraftDstPath (FileDraftTextFd fd) = SP.toFilePath $ TextFD._dstPath fd
+getFileDraftDstPath (FileDraftBytesFd fd) = SP.toFilePath $ BytesFD._dstPath fd

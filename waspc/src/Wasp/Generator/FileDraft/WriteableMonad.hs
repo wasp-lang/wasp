@@ -5,6 +5,8 @@ where
 
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson as Aeson
+import Data.ByteString.Lazy (ByteString)
+import qualified Data.ByteString.Lazy
 import Data.Text (Text)
 import qualified Data.Text.IO
 import qualified Path.IO as PathIO
@@ -50,6 +52,8 @@ class (MonadIO m) => WriteableMonad m where
 
   writeFileFromText :: FilePath -> Text -> m ()
 
+  writeFileFromByteString :: FilePath -> ByteString -> m ()
+
   getTemplateFileAbsPath ::
     -- | Template file path.
     Path' (Rel Templates.TemplatesDir) File' ->
@@ -88,6 +92,7 @@ instance WriteableMonad IO where
   doesFileExist = System.Directory.doesFileExist
   doesDirectoryExist = System.Directory.doesDirectoryExist
   writeFileFromText = Data.Text.IO.writeFile
+  writeFileFromByteString = Data.ByteString.Lazy.writeFile
   getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
   getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
   compileAndRenderTemplate = Templates.compileAndRenderTemplate
