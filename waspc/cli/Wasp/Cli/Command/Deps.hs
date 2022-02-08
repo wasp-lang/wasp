@@ -7,6 +7,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Terminal (title)
+import qualified Wasp.Generator.PackageJsonGenerator as PJG
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import qualified Wasp.Util.Terminal as Term
@@ -18,14 +19,31 @@ deps =
       unlines $
         [ "",
           title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
-          "",
-          title "Server dependencies:"
+          ""
         ]
-          ++ map printDep ServerGenerator.waspNpmDeps
-          ++ [ "",
-               title "Webapp dependencies:"
-             ]
-          ++ map printDep WebAppGenerator.waspNpmDeps
+          ++ printDeps
+            "Server dependencies:"
+            ( PJG.dependencies ServerGenerator.waspPackageJsonDependencies
+            )
+          ++ [""]
+          ++ printDeps
+            "Server devDependencies:"
+            ( PJG.devDependencies ServerGenerator.waspPackageJsonDependencies
+            )
+          ++ [""]
+          ++ printDeps
+            "Webapp dependencies:"
+            ( PJG.dependencies WebAppGenerator.waspPackageJsonDependencies
+            )
+          ++ [""]
+          ++ printDeps
+            "Webapp devDependencies:"
+            ( PJG.devDependencies WebAppGenerator.waspPackageJsonDependencies
+            )
+
+printDeps :: String -> [AS.Dependency.Dependency] -> [String]
+printDeps dependenciesTitle dependencies =
+  title dependenciesTitle : map printDep dependencies
 
 printDep :: AS.Dependency.Dependency -> String
 printDep dep =

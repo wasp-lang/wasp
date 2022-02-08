@@ -1,12 +1,11 @@
 module Wasp.Generator.WebAppGenerator
   ( generateWebApp,
-    waspNpmDeps,
+    waspPackageJsonDependencies,
   )
 where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe)
 import StrongPath
   ( Dir,
     Path',
@@ -21,11 +20,8 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
-import Wasp.Generator.PackageJsonGenerator
-  ( npmDepsToPackageJsonEntry,
-    resolveNpmDeps,
-  )
+import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.PackageJsonGenerator as PJG
 import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
 import Wasp.Generator.WebAppGenerator.Common
   ( asTmplFile,
@@ -42,7 +38,7 @@ generateWebApp :: AppSpec -> Generator [FileDraft]
 generateWebApp spec = do
   sequence
     [ generateReadme,
-      genPackageJson spec waspNpmDeps,
+      genPackageJson spec waspPackageJsonDependencies,
       generateGitignore,
       return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
@@ -53,13 +49,9 @@ generateWebApp spec = do
 generateReadme :: Generator FileDraft
 generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> Generator FileDraft
-genPackageJson spec waspDeps = do
-  (resolvedWaspDeps, resolvedUserDeps) <-
-    case resolveNpmDeps waspDeps userDeps of
-      Right deps -> return deps
-      Left depsAndErrors -> logAndThrowGeneratorError $ GenericGeneratorError $ intercalate " ; " $ map snd depsAndErrors
-
+genPackageJson :: AppSpec -> PJG.PackageJsonDependencies -> Generator FileDraft
+genPackageJson spec waspDependencies = do
+  combinedDependencies <- PJG.genPackageJsonDependencies spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -67,27 +59,29 @@ genPackageJson spec waspDeps = do
       ( Just $
           object
             [ "appName" .= (fst (getApp spec) :: String),
-              "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
+              "depsChunk" .= PJG.getDependenciesPackageJsonEntry combinedDependencies,
+              "devDepsChunk" .= PJG.getDevDependenciesPackageJsonEntry combinedDependencies
             ]
       )
-  where
-    userDeps :: [AS.Dependency.Dependency]
-    userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ getApp spec
 
-waspNpmDeps :: [AS.Dependency.Dependency]
-waspNpmDeps =
-  AS.Dependency.fromList
-    [ ("axios", "^0.21.1"),
-      ("lodash", "^4.17.15"),
-      ("react", "^16.12.0"),
-      ("react-dom", "^16.12.0"),
-      ("react-query", "^2.14.1"),
-      ("react-router-dom", "^5.1.2"),
-      ("react-scripts", "4.0.3"),
-      ("uuid", "^3.4.0")
-    ]
-
--- TODO: Also extract devDependencies like we did dependencies (waspNpmDeps).
+waspPackageJsonDependencies :: PJG.PackageJsonDependencies
+waspPackageJsonDependencies =
+  PJG.PackageJsonDependencies
+    { PJG.dependencies =
+        AS.Dependency.fromList
+          [ ("axios", "^0.21.1"),
+            ("lodash", "^4.17.15"),
+            ("react", "^16.12.0"),
+            ("react-dom", "^16.12.0"),
+            ("react-query", "^2.14.1"),
+            ("react-router-dom", "^5.1.2"),
+            ("react-scripts", "4.0.3"),
+            ("uuid", "^3.4.0")
+          ],
+      PJG.devDependencies =
+        AS.Dependency.fromList
+          []
+    }
 
 generateGitignore :: Generator FileDraft
 generateGitignore =

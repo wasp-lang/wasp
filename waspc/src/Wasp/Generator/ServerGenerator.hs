@@ -4,14 +4,12 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     preCleanup,
     operationsRouteInRootRouter,
-    waspNpmDeps,
-    waspNpmDevDeps,
+    waspPackageJsonDependencies,
   )
 where
 
 import Control.Monad (unless)
 import Data.Aeson (object, (.=))
-import Data.List (intercalate)
 import Data.Maybe
   ( fromJust,
     fromMaybe,
@@ -34,12 +32,8 @@ import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
-import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
-import Wasp.Generator.PackageJsonGenerator
-  ( npmDepsToPackageJsonEntry,
-    npmDevDepsToPackageJsonEntry,
-    resolveNpmDeps,
-  )
+import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.PackageJsonGenerator as PJG
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerSrcDir,
@@ -57,7 +51,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec waspNpmDeps waspNpmDevDeps,
+      genPackageJson spec waspPackageJsonDependencies,
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -97,21 +91,17 @@ dotEnvInServerRootDir = [relfile|.env|]
 genReadme :: Generator FileDraft
 genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> Generator FileDraft
-genPackageJson spec waspDeps waspDevDeps = do
-  (resolvedWaspDeps, resolvedUserDeps) <-
-    case resolveNpmDeps waspDeps userDeps of
-      Right deps -> return deps
-      Left depsAndErrors -> logAndThrowGeneratorError $ GenericGeneratorError $ intercalate " ; " $ map snd depsAndErrors
-
+genPackageJson :: AppSpec -> PJG.PackageJsonDependencies -> Generator FileDraft
+genPackageJson spec waspDependencies = do
+  combinedDependencies <- PJG.genPackageJsonDependencies spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|package.json|])
       (asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps),
-              "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
+            [ "depsChunk" .= PJG.getDependenciesPackageJsonEntry combinedDependencies,
+              "devDepsChunk" .= PJG.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersion" .= nodeVersionAsText,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
@@ -119,32 +109,30 @@ genPackageJson spec waspDeps waspDevDeps = do
                    )
             ]
       )
-  where
-    userDeps :: [AS.Dependency.Dependency]
-    userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec
 
-waspNpmDeps :: [AS.Dependency.Dependency]
-waspNpmDeps =
-  AS.Dependency.fromList
-    [ ("cookie-parser", "~1.4.4"),
-      ("cors", "^2.8.5"),
-      ("debug", "~2.6.9"),
-      ("express", "~4.16.1"),
-      ("morgan", "~1.9.1"),
-      ("@prisma/client", prismaVersion),
-      ("jsonwebtoken", "^8.5.1"),
-      ("secure-password", "^4.0.0"),
-      ("dotenv", "8.2.0"),
-      ("helmet", "^4.6.0")
-    ]
-
-waspNpmDevDeps :: [AS.Dependency.Dependency]
-waspNpmDevDeps =
-  AS.Dependency.fromList
-    [ ("nodemon", "^2.0.4"),
-      ("standard", "^14.3.4"),
-      ("prisma", prismaVersion)
-    ]
+waspPackageJsonDependencies :: PJG.PackageJsonDependencies
+waspPackageJsonDependencies =
+  PJG.PackageJsonDependencies
+    { PJG.dependencies =
+        AS.Dependency.fromList
+          [ ("cookie-parser", "~1.4.4"),
+            ("cors", "^2.8.5"),
+            ("debug", "~2.6.9"),
+            ("express", "~4.16.1"),
+            ("morgan", "~1.9.1"),
+            ("@prisma/client", prismaVersion),
+            ("jsonwebtoken", "^8.5.1"),
+            ("secure-password", "^4.0.0"),
+            ("dotenv", "8.2.0"),
+            ("helmet", "^4.6.0")
+          ],
+      PJG.devDependencies =
+        AS.Dependency.fromList
+          [ ("nodemon", "^2.0.4"),
+            ("standard", "^14.3.4"),
+            ("prisma", prismaVersion)
+          ]
+    }
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

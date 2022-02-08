@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "private": true,
   {=& depsChunk =},
+  {=& devDepsChunk =},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
