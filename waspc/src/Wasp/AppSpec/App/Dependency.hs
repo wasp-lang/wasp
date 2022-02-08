@@ -3,7 +3,7 @@
 module Wasp.AppSpec.App.Dependency
   ( Dependency (..),
     fromList,
-    create,
+    make,
   )
 where
 
@@ -16,7 +16,7 @@ data Dependency = Dependency
   deriving (Show, Eq, Data)
 
 fromList :: [(String, String)] -> [Dependency]
-fromList = map create
+fromList = map make
 
-create :: (String, String) -> Dependency
-create (n, v) = Dependency {name = n, version = v}
+make :: (String, String) -> Dependency
+make (n, v) = Dependency {name = n, version = v}
