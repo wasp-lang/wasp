@@ -2,6 +2,7 @@ module Wasp.Generator.Common
   ( ProjectRootDir,
     nodeVersion,
     nodeVersionAsText,
+    prismaVersion,
   )
 where
 
@@ -19,3 +20,6 @@ nodeVersionAsText :: String
 nodeVersionAsText = printf "%d.%d.%d" major minor patch
   where
     (major, minor, patch) = nodeVersion
+
+prismaVersion :: String
+prismaVersion = "2.22.1"

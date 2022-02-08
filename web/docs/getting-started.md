@@ -91,7 +91,7 @@ To install from source, you need to clone the [wasp repo](https://github.com/was
 
 If you have never built Wasp before, this might take some time due to `stack` downloading dependencies for the first time.  
 
-Check [waspc/](https://github.com/wasp-lang/wasp/tree/master/waspc) for more details on building.
+Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building.
 
 </div>
   </TabItem>

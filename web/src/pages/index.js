@@ -747,7 +747,7 @@ function Home() {
 
             <div className={clsx('row', styles.responsiveCentered)}>
               <div className="col col--10 col--offset-1">
-                <h3>You can try out the deployed app <a href={waspRwaDemoUrl}>here</a> or check out the source code <a href="https://github.com/wasp-lang/wasp/tree/master/examples/realworld">here</a>.</h3>
+                <h3>You can try out the deployed app <a href={waspRwaDemoUrl}>here</a> or check out the source code <a href="https://github.com/wasp-lang/wasp/tree/main/examples/realworld">here</a>.</h3>
               </div>
             </div>
 

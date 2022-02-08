@@ -29,7 +29,7 @@ import Wasp.Util ((<++>))
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
 --   If dstDir does not exist yet, it will be created.
---   If there are any errors returned, that means that generator failed and no new code was written.
+--   If there are any errors returned, that means that generator failed but new code was possibly still written.
 --   If no errors were returned, this means generator was successful and generated a new version of the project
 --     (regardless of the warnings returned).
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
@@ -45,8 +45,8 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      generatedCodeCheckWarnings <- checkGeneratedCode spec dstDir
-      return (generatorWarnings ++ generatedCodeCheckWarnings, [])
+      (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
+      return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
@@ -54,9 +54,6 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
-
-checkGeneratedCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO [GeneratorWarning]
-checkGeneratedCode spec dstDir = DbGenerator.checkGeneratedCode spec dstDir
 
 preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup spec dstDir = do
