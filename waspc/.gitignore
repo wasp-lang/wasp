@@ -2,16 +2,19 @@
 stack*.yaml.lock
 dist-newstyle
 waspc.cabal
-.vscode
+
 
 /out
 
-*~
-.dir-locals.el
-.projectile
 
 .hie/
 .bin/
 stan.html
 
+
+# editor related
 *.orig
+*~
+.dir-locals.el
+.projectile
+.vscode

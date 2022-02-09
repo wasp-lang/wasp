@@ -2,35 +2,70 @@ module Generator.PackageJsonGeneratorTest where
 
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.App.Dependency as D
-import Wasp.Generator.PackageJsonGenerator (resolveNpmDeps)
+import Wasp.Generator.PackageJsonGenerator
+  ( DependencyConflictError (DependencyConflictError),
+    resolveDependencies,
+    resolveNpmDeps,
+  )
 
 spec_resolveNpmDeps :: Spec
 spec_resolveNpmDeps = do
   let waspDeps =
-        [ ("axios", "^0.20.0"),
-          ("lodash", "^4.17.15")
+        D.fromList
+          [ ("a", "1"),
+            ("b", "2")
+          ]
+
+  it "a conflicting version number is detected" $ do
+    let userDeps =
+          D.fromList
+            [ ("a", "1"),
+              ("b", "3")
+            ]
+    resolveDependencies waspDeps userDeps
+      `shouldBe` Left
+        [ DependencyConflictError
+            (D.make ("b", "2"))
+            (D.make ("b", "3"))
         ]
-
-  it "Concatenates two distincts lists of deps." $ do
+  it "wasp deps completely overlap with user deps, so no user deps required" $ do
     let userDeps =
-          [ ("foo", "bar"),
-            ("foo2", "bar2")
-          ]
-    resolveNpmDeps (D.fromList waspDeps) (D.fromList userDeps)
-      `shouldBe` Right (D.fromList waspDeps, D.fromList userDeps)
+          D.fromList
+            [ ("a", "1"),
+              ("b", "2")
+            ]
+    resolveDependencies waspDeps userDeps
+      `shouldBe` Right (waspDeps, [])
 
-  it "Does not repeat dep if it is both user and wasp dep." $ do
+  it "no dependency name overlap so no conflict" $ do
     let userDeps =
-          [ ("axios", "^0.20.0"),
-            ("foo", "bar")
-          ]
-    resolveNpmDeps (D.fromList waspDeps) (D.fromList userDeps)
-      `shouldBe` Right (D.fromList waspDeps, D.fromList [("foo", "bar")])
+          D.fromList
+            [ ("c", "1"),
+              ("d", "2")
+            ]
+    resolveDependencies waspDeps userDeps
+      `shouldBe` Right (waspDeps, userDeps)
 
-  it "Reports error if user dep version does not match wasp dep version." $ do
+  it "some dependencies names overlap, with the same version so dependency is not in user dep" $ do
     let userDeps =
-          [ ("axios", "^1.20.0"),
-            ("foo", "bar")
-          ]
-    let Left conflicts = resolveNpmDeps (D.fromList waspDeps) (D.fromList userDeps)
-    map fst conflicts `shouldBe` D.fromList [("axios", "^1.20.0")]
+          D.fromList
+            [ ("a", "1"),
+              ("d", "2")
+            ]
+    resolveDependencies waspDeps userDeps
+      `shouldBe` Right (waspDeps, [D.make ("d", "2")])
+
+  it "Reports error if user dep version does not match wasp dep version" $ do
+    let userDeps =
+          D.fromList
+            [ ("a", "2"),
+              ("foo", "bar")
+            ]
+    let Left conflicts = resolveNpmDeps waspDeps userDeps
+    conflicts
+      `shouldBe` [ ( D.make ("a", "2"),
+                     "Error: Dependency conflict for user dependency (a, 2): "
+                       ++ "Version must be set to the exactly "
+                       ++ "the same version as the one wasp is using: 1"
+                   )
+                 ]

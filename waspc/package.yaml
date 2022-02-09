@@ -80,6 +80,7 @@ library:
     - template-haskell
     - path-io
     - cryptohash-sha256
+    - containers
 
 executables:
   wasp-cli:
