@@ -14,6 +14,7 @@ import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.Valid.AppSpec (validateAppSpec)
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
@@ -61,8 +62,12 @@ compile waspDir outDir options = do
                     AS.dotEnvFile = maybeDotEnvFile,
                     AS.isBuild = CompileOptions.isBuild options
                   }
-          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir
-          return (map show generatorWarnings, map show generatorErrors)
+          case validateAppSpec appSpec of
+            Left validationErrors -> do
+              return ([], map show validationErrors) -- TODO: What does this output look like? Make it nicer?
+            Right validAppSpec -> do
+              (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode validAppSpec outDir
+              return (map show generatorWarnings, map show generatorErrors)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do

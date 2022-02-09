@@ -15,10 +15,12 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getApp)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import Wasp.AppSpec.Valid (Valid, ($^))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
@@ -38,7 +40,7 @@ import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
 import Wasp.Util ((<++>))
 
-generateWebApp :: AppSpec -> Generator [FileDraft]
+generateWebApp :: Valid AppSpec -> Generator [FileDraft]
 generateWebApp spec = do
   sequence
     [ generateReadme,
@@ -48,12 +50,12 @@ generateWebApp spec = do
     ]
     <++> generatePublicDir spec
     <++> generateSrcDir spec
-    <++> generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles $^ spec)
 
 generateReadme :: Generator FileDraft
 generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> Generator FileDraft
+genPackageJson :: Valid AppSpec -> [AS.Dependency.Dependency] -> Generator FileDraft
 genPackageJson spec waspDeps = do
   (resolvedWaspDeps, resolvedUserDeps) <-
     case resolveNpmDeps waspDeps userDeps of
@@ -66,13 +68,13 @@ genPackageJson spec waspDeps = do
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "appName" .= (fst (getApp spec) :: String),
+            [ "appName" .= ((fst $^ VAS.getApp spec) :: String),
               "depsChunk" .= npmDepsToPackageJsonEntry (resolvedWaspDeps ++ resolvedUserDeps)
             ]
       )
   where
     userDeps :: [AS.Dependency.Dependency]
-    userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ getApp spec
+    userDeps = fromMaybe [] $ AS.App.dependencies $^ (snd <$> VAS.getApp spec)
 
 waspNpmDeps :: [AS.Dependency.Dependency]
 waspNpmDeps =
@@ -96,20 +98,20 @@ generateGitignore =
       (asTmplFile [relfile|gitignore|])
       (asWebAppFile [relfile|.gitignore|])
 
-generatePublicDir :: AppSpec -> Generator [FileDraft]
+generatePublicDir :: Valid AppSpec -> Generator [FileDraft]
 generatePublicDir spec = do
   publicIndexHtmlFd <- generatePublicIndexHtml spec
   return $
     C.mkTmplFd (asTmplFile [relfile|public/favicon.ico|]) :
     publicIndexHtmlFd :
-    ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+    ( let tmplData = object ["appName" .= (fst $^ VAS.getApp spec :: String)]
           processPublicTmpl path = C.mkTmplFdWithData (asTmplFile $ [reldir|public|] </> path) tmplData
        in processPublicTmpl
             <$> [ [relfile|manifest.json|]
                 ]
     )
 
-generatePublicIndexHtml :: AppSpec -> Generator FileDraft
+generatePublicIndexHtml :: Valid AppSpec -> Generator FileDraft
 generatePublicIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
@@ -120,8 +122,8 @@ generatePublicIndexHtml spec =
     targetPath = [relfile|public/index.html|]
     templateData =
       object
-        [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+        [ "title" .= (AS.App.title $^ (snd <$> VAS.getApp spec) :: String),
+          "head" .= (maybe "" (intercalate "\n") (AS.App.head $^ (snd <$> VAS.getApp spec)) :: String)
         ]
 
 -- * Src dir
@@ -138,7 +140,7 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 genApi :: FileDraft
 genApi = C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
-generateSrcDir :: AppSpec -> Generator [FileDraft]
+generateSrcDir :: Valid AppSpec -> Generator [FileDraft]
 generateSrcDir spec = do
   routerFd <- RouterGenerator.generateRouter spec
   operationsFds <- genOperations spec

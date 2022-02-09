@@ -6,11 +6,12 @@ where
 import Data.Aeson (object)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec.Valid
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 
-genResources :: AppSpec -> Generator [FileDraft]
+genResources :: Valid AppSpec -> Generator [FileDraft]
 genResources _ = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
   where
     tmplFile = C.asTmplFile [relfile|src/operations/resources.js|]

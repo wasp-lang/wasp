@@ -2,5 +2,5 @@
 
 module Wasp.AppSpec.Valid.Internal where
 
-newtype Valid a = Valid a
+newtype Valid a = MakeValid a
   deriving (Functor, Show, Eq)

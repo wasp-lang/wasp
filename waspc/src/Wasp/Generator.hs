@@ -14,6 +14,7 @@ import qualified Paths_waspc
 import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec.Valid (Valid)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import qualified Wasp.Generator.DbGenerator as DbGenerator
@@ -35,7 +36,7 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir = do
   let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
 
@@ -48,14 +49,14 @@ writeWebAppCode spec dstDir = do
       (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
       return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
 
-genApp :: AppSpec -> Generator [FileDraft]
+genApp :: Valid AppSpec -> Generator [FileDraft]
 genApp spec =
   generateWebApp spec
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
 
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup spec dstDir = do
   ServerGenerator.preCleanup spec dstDir
   DbGenerator.preCleanup spec dstDir

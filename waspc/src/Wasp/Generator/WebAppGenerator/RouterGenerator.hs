@@ -16,6 +16,8 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
@@ -60,7 +62,7 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
-generateRouter :: AppSpec -> Generator FileDraft
+generateRouter :: Valid AppSpec -> Generator FileDraft
 generateRouter spec = do
   return $
     C.mkTmplFdWithDstAndData
@@ -72,42 +74,42 @@ generateRouter spec = do
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
-createRouterTemplateData :: AppSpec -> RouterTemplateData
+createRouterTemplateData :: Valid AppSpec -> RouterTemplateData
 createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = AS.isAuthEnabled spec
+      _isAuthEnabled = VAS.isAuthEnabled spec
     }
   where
-    routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
-    pages = map createPageTemplateData $ AS.getPages spec
+    routes = map (createRouteTemplateData spec) $ AS.getRoutes <$^^> spec
+    pages = map createPageTemplateData $ AS.getPages <$^^> spec
 
-createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
+createRouteTemplateData :: Valid AppSpec -> (String, Valid AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =
   RouteTemplateData
-    { _urlPath = AS.Route.path route,
+    { _urlPath = AS.Route.path $^ route,
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
 
 -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
+determineRouteTargetComponent :: Valid AppSpec -> (String, Valid AS.Route.Route) -> String
 determineRouteTargetComponent spec (_, route) =
   maybe
     targetPageName
     determineRouteTargetComponent'
-    (AS.Page.authRequired $ snd targetPage)
+    (AS.Page.authRequired $^ snd targetPage)
   where
-    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+    targetPageName = AS.refName (AS.Route.to $^ route :: AS.Ref AS.Page.Page)
     targetPage =
       fromMaybe
         ( error $
             "Can't find page with name '" ++ targetPageName
               ++ "', pointed to by route '"
-              ++ AS.Route.path route
+              ++ (AS.Route.path $^ route)
               ++ "'"
         )
-        (find ((==) targetPageName . fst) (AS.getPages spec))
+        (find ((==) targetPageName . fst) (AS.getPages <$^^> spec))
 
     determineRouteTargetComponent' :: Bool -> String
     determineRouteTargetComponent' authRequired =
@@ -116,7 +118,7 @@ determineRouteTargetComponent spec (_, route) =
           "createAuthRequiredPage(" ++ targetPageName ++ ")"
         else targetPageName
 
-createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
+createPageTemplateData :: (String, Valid AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
     { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
@@ -132,4 +134,4 @@ createPageTemplateData page =
     pageName = fst page
 
     pageComponent :: AS.ExtImport.ExtImport
-    pageComponent = AS.Page.component $ snd page
+    pageComponent = AS.Page.component $^ snd page

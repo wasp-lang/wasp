@@ -19,6 +19,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
+import Wasp.AppSpec.Valid (Valid (Valid), (<$^^>))
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -26,20 +27,20 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Util ((<++>))
 
-genOperations :: AppSpec -> Generator [FileDraft]
+genOperations :: Valid AppSpec -> Generator [FileDraft]
 genOperations spec = genQueries spec <++> genActions spec
 
-genQueries :: AppSpec -> Generator [FileDraft]
-genQueries spec = mapM (genQuery spec) (AS.getQueries spec)
+genQueries :: Valid AppSpec -> Generator [FileDraft]
+genQueries spec = mapM (genQuery spec) (AS.getQueries <$^^> spec)
 
-genActions :: AppSpec -> Generator [FileDraft]
-genActions spec = mapM (genAction spec) (AS.getActions spec)
+genActions :: Valid AppSpec -> Generator [FileDraft]
+genActions spec = mapM (genAction spec) (AS.getActions <$^^> spec)
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
-genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genQuery :: Valid AppSpec -> (String, Valid AS.Query.Query) -> Generator FileDraft
+genQuery _ (queryName, Valid query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
     tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
@@ -47,8 +48,8 @@ genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFi
     tmplData = operationTmplData operation
 
 -- | Analogous to genQuery.
-genAction :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
-genAction _ (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAction :: Valid AppSpec -> (String, Valid AS.Action.Action) -> Generator FileDraft
+genAction _ (actionName, Valid action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.ActionOp actionName action
     tmplFile = [relfile|src/actions/_action.js|]

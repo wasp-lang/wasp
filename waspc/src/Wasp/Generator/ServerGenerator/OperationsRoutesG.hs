@@ -11,40 +11,43 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.AppSpec (AppSpec, getApp)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
+import Wasp.AppSpec.Valid (Valid (Valid), ($^), (<$^>), (<$^^>))
+import Wasp.AppSpec.Valid.AppSpec (getApp)
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import qualified Wasp.Util as U
 
-genOperationsRoutes :: AppSpec -> Generator [FileDraft]
+genOperationsRoutes :: Valid AppSpec -> Generator [FileDraft]
 genOperationsRoutes spec =
   sequence . concat $
-    [ map (genActionRoute spec) (AS.getActions spec),
-      map (genQueryRoute spec) (AS.getQueries spec),
+    [ map (genActionRoute spec) (AS.getActions <$^^> spec),
+      map (genQueryRoute spec) (AS.getQueries <$^^> spec),
       [genOperationsRouter spec]
     ]
 
-genActionRoute :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
-genActionRoute spec (actionName, action) = genOperationRoute spec op tmplFile
+genActionRoute :: Valid AppSpec -> (String, Valid AS.Action.Action) -> Generator FileDraft
+genActionRoute spec (actionName, Valid action) = genOperationRoute spec op tmplFile
   where
     op = AS.Operation.ActionOp actionName action
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_action.js|]
 
-genQueryRoute :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
-genQueryRoute spec (queryName, query) = genOperationRoute spec op tmplFile
+genQueryRoute :: Valid AppSpec -> (String, Valid AS.Query.Query) -> Generator FileDraft
+genQueryRoute spec (queryName, Valid query) = genOperationRoute spec op tmplFile
   where
     op = AS.Operation.QueryOp queryName query
     tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.js|]
 
-genOperationRoute :: AppSpec -> AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
+genOperationRoute :: Valid AppSpec -> AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
 genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     dstFile = operationsRoutesDirInServerRootDir </> operationRouteFileInOperationsRoutesDir operation
@@ -55,12 +58,12 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           "operationName" .= (AS.Operation.getName operation :: String)
         ]
 
-    tmplData = case AS.App.auth (snd $ getApp spec) of
+    tmplData = case AS.App.auth <$^> (snd <$> getApp spec) of
       Nothing -> baseTmplData
       Just auth ->
         U.jsonSet
           "userEntityLower"
-          (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
+          (Aeson.toJSON (U.toLowerFirst $ AS.refName $^ (AS.Auth.userEntity <$> auth)))
           baseTmplData
 
     operationImportPath =
@@ -82,7 +85,7 @@ operationRouteFileInOperationsRoutesDir operation = fromJust $ SP.parseRelFile $
 relPosixPathFromOperationsRoutesDirToSrcDir :: Path Posix (Rel OperationsRoutesDir) (Dir C.ServerSrcDir)
 relPosixPathFromOperationsRoutesDirToSrcDir = [reldirP|../..|]
 
-genOperationsRouter :: AppSpec -> Generator FileDraft
+genOperationsRouter :: Valid AppSpec -> Generator FileDraft
 genOperationsRouter spec
   -- TODO: Right now we are throwing error here, but we should instead perform this check in parsing/analyzer phase, as a semantic check, since we have all the info we need then already.
   | any isAuthSpecifiedForOperation operations && not isAuthEnabledGlobally = logAndThrowGeneratorError $ GenericGeneratorError "`auth` cannot be specified for specific operations if it is not enabled for the whole app!"
@@ -91,8 +94,8 @@ genOperationsRouter spec
     tmplFile = C.asTmplFile [relfile|src/routes/operations/index.js|]
     dstFile = operationsRoutesDirInServerRootDir </> [relfile|index.js|]
     operations =
-      map (uncurry AS.Operation.ActionOp) (AS.getActions spec)
-        ++ map (uncurry AS.Operation.QueryOp) (AS.getQueries spec)
+      map (uncurry AS.Operation.ActionOp) (AS.getActions $^ spec)
+        ++ map (uncurry AS.Operation.QueryOp) (AS.getQueries $^ spec)
     tmplData =
       object
         [ "operationRoutes" .= map makeOperationRoute operations,
@@ -112,7 +115,7 @@ genOperationsRouter spec
               "isUsingAuth" .= isAuthEnabledForOperation operation
             ]
 
-    isAuthEnabledGlobally = AS.isAuthEnabled spec
+    isAuthEnabledGlobally = VAS.isAuthEnabled spec
     isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
 

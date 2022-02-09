@@ -20,6 +20,8 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
@@ -36,22 +38,28 @@ import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, (<:>))
 
-genDb :: AppSpec -> Generator [FileDraft]
+genDb :: Valid AppSpec -> Generator [FileDraft]
 genDb spec =
   genPrismaSchema spec <:> (maybeToList <$> genMigrationsDir spec)
 
-genPrismaSchema :: AppSpec -> Generator FileDraft
+genPrismaSchema :: Valid AppSpec -> Generator FileDraft
 genPrismaSchema spec = do
   (datasourceProvider, datasourceUrl) <- case dbSystem of
     AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
     AS.Db.SQLite ->
-      if AS.isBuild spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features/#migrating-from-sqlite-to-postgresql ."
+      if AS.isBuild $^ spec
+        then
+          logAndThrowGeneratorError $
+            GenericGeneratorError $
+              "SQLite (a default database) is not supported in production."
+                ++ " To build your Wasp app for production, switch to a different database. "
+                ++ "Switching to PostgreSQL: "
+                ++ "https://wasp-lang.dev/docs/language/features/#migrating-from-sqlite-to-postgresql ."
         else return ("sqlite", "\"file:./dev.db\"")
 
   let templateData =
         object
-          [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
+          [ "modelSchemas" .= map entityToPslModelSchema (AS.getEntities <$^^> spec),
             "datasourceProvider" .= (datasourceProvider :: String),
             "datasourceUrl" .= (datasourceUrl :: String)
           ]
@@ -60,27 +68,27 @@ genPrismaSchema spec = do
   where
     dstPath = dbSchemaFileInProjectRootDir
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
-    dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ AS.getApp spec))
+    dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db $^ (snd <$> VAS.getApp spec))
 
-    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
+    entityToPslModelSchema :: (String, Valid AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
       Psl.Generator.Model.generateModel $
-        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody $^ entity)
 
-genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
+genMigrationsDir :: Valid AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec =
   return $
-    AS.migrationsDir spec >>= \waspMigrationsDir ->
+    AS.migrationsDir $^ spec >>= \waspMigrationsDir ->
       Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
   where
     genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup = deleteGeneratedMigrationsDirIfRedundant
 
-deleteGeneratedMigrationsDirIfRedundant :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+deleteGeneratedMigrationsDirIfRedundant :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
-  let waspMigrationsDirMissing = isNothing $ AS.migrationsDir spec
+  let waspMigrationsDirMissing = isNothing $ AS.migrationsDir $^ spec
   projectMigrationsDirExists <- doesDirectoryExist projectMigrationsDirAbsFilePath
   when (waspMigrationsDirMissing && projectMigrationsDirExists) $ do
     putStrLn "A migrations directory does not exist in this Wasp root directory, but does in the generated project output directory."
@@ -91,7 +99,7 @@ deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
     projectMigrationsDirAbsFilePath = SP.fromAbsDir $ projectRootDir </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
-postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+postWriteDbGeneratorActions :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorWarnings <- maybeToList <$> warnIfDbSchemaChangedSinceLastMigration spec dstDir
   dbGeneratorErrors <- maybeToList <$> genPrismaClient dstDir
@@ -112,7 +120,7 @@ postWriteDbGeneratorActions spec dstDir = do
 --     Common scenarios for the second warning include:
 --       - After a fresh checkout, or after `wasp clean`; possible false positives in these cases, but for safety, it's still preferable to warn.
 --       - When they previously had no entities and just added their first.
-warnIfDbSchemaChangedSinceLastMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
+warnIfDbSchemaChangedSinceLastMigration :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
   dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
 
@@ -125,7 +133,7 @@ warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
   where
     dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumOnLastMigrateFileProjectRootDir
-    entitiesExist = not . null $ getEntities spec
+    entitiesExist = not . null $ getEntities <$^^> spec
 
     warnIf :: Bool -> String -> Maybe GeneratorWarning
     warnIf b msg = if b then Just $ GenericGeneratorWarning msg else Nothing

@@ -11,12 +11,14 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^>))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Util ((<++>))
 
-genAuth :: AppSpec -> Generator [FileDraft]
+genAuth :: Valid AppSpec -> Generator [FileDraft]
 genAuth spec =
   case maybeAuth of
     Just auth ->
@@ -30,7 +32,7 @@ genAuth spec =
         <++> genAuthForms auth
     Nothing -> return []
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth <$^> (snd <$> VAS.getApp spec)
 
 -- | Generates file with signup function to be used by Wasp developer.
 genSignup :: Generator FileDraft
@@ -45,11 +47,11 @@ genLogout :: Generator FileDraft
 genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
 
 -- | Generates HOC that handles auth for the given page.
-genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
+genCreateAuthRequiredPage :: Valid AS.Auth.Auth -> Generator FileDraft
 genCreateAuthRequiredPage auth =
   compileTmplToSamePath
     [relfile|auth/pages/createAuthRequiredPage.js|]
-    ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth]
+    ["onAuthFailedRedirectTo" .= (AS.Auth.onAuthFailedRedirectTo $^ auth)]
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
@@ -57,26 +59,26 @@ genCreateAuthRequiredPage auth =
 genUseAuth :: Generator FileDraft
 genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
 
-genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthForms :: Valid AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genLoginForm auth,
       genSignupForm auth
     ]
 
-genLoginForm :: AS.Auth.Auth -> Generator FileDraft
+genLoginForm :: Valid AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
   -- TODO: Logic that says "/" is a default redirect on success is duplicated here and in the function below.
   --   We should remove that duplication.
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo $^ auth)]
 
-genSignupForm :: AS.Auth.Auth -> Generator FileDraft
+genSignupForm :: Valid AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo $^ auth)]
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =

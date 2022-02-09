@@ -7,13 +7,11 @@ module Wasp.AppSpec
     takeDecls,
     Ref,
     refName,
-    getApp,
     getActions,
     getQueries,
     getEntities,
     getPages,
     getRoutes,
-    isAuthEnabled,
   )
 where
 
@@ -29,7 +27,7 @@ import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
-import Wasp.AppSpec.Valid (Valid, fromValid, (<$^>))
+import Wasp.AppSpec.Valid (Valid, fromValid, ($^))
 import Wasp.Common (DbMigrationsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
@@ -75,18 +73,3 @@ getPages = getDecls @Page
 
 getRoutes :: AppSpec -> [(String, Route)]
 getRoutes = getDecls @Route
-
--- TODO: Move into Valid.AppSpec?
-getApp :: Valid AppSpec -> Valid (String, App)
-getApp spec =
-  let apps = getDecls @App <$> spec
-   in case fromValid apps of
-        [_] -> head <$> apps
-        apps' ->
-          error $
-            "Expected exactly 1 'app' declaration in Valid AppSpec, but found " ++ show (length apps')
-              ++ ". This should never happen."
-
--- TODO: Make it work on App instead of AppSpec? Move it somewhere, maybe to Valid.AppSpec?
-isAuthEnabled :: Valid AppSpec -> Bool
-isAuthEnabled spec = isJust (App.auth $ snd <$^> getApp spec)

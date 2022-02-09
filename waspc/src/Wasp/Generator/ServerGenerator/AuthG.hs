@@ -9,12 +9,14 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Util as Util
 
-genAuth :: AppSpec -> Generator [FileDraft]
+genAuth :: Valid AppSpec -> Generator [FileDraft]
 genAuth spec = case maybeAuth of
   Just auth ->
     sequence
@@ -28,10 +30,10 @@ genAuth spec = case maybeAuth of
       ]
   Nothing -> return []
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth . snd <$^> VAS.getApp spec
 
 -- | Generates core/auth file which contains auth middleware and createUser() function.
-genCoreAuth :: AS.Auth.Auth -> Generator FileDraft
+genCoreAuth :: Valid AS.Auth.Auth -> Generator FileDraft
 genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     coreAuthRelToSrc = [relfile|core/auth.js|]
@@ -39,13 +41,13 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile coreAuthRelToSrc
 
     tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity $^ auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genAuthMiddleware :: AS.Auth.Auth -> Generator FileDraft
+genAuthMiddleware :: Valid AS.Auth.Auth -> Generator FileDraft
 genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
@@ -53,7 +55,7 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile authMiddlewareRelToSrc
 
     tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity $^ auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String)
             ]
@@ -61,7 +63,7 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 genAuthRoutesIndex :: Generator FileDraft
 genAuthRoutesIndex = return $ C.mkSrcTmplFd (C.asTmplSrcFile [relfile|routes/auth/index.js|])
 
-genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
+genLoginRoute :: Valid AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     loginRouteRelToSrc = [relfile|routes/auth/login.js|]
@@ -69,13 +71,13 @@ genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile loginRouteRelToSrc
 
     tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
+      let userEntityName = AS.refName $ AS.Auth.userEntity $^ auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
+genSignupRoute :: Valid AS.Auth.Auth -> Generator FileDraft
 genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     signupRouteRelToSrc = [relfile|routes/auth/signup.js|]
@@ -84,10 +86,10 @@ genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just t
 
     tmplData =
       object
-        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
+        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity $^ auth) :: String)
         ]
 
-genMeRoute :: AS.Auth.Auth -> Generator FileDraft
+genMeRoute :: Valid AS.Auth.Auth -> Generator FileDraft
 genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     meRouteRelToSrc = [relfile|routes/auth/me.js|]
@@ -96,5 +98,5 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
     tmplData =
       object
-        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
+        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity $^ auth) :: String)
         ]

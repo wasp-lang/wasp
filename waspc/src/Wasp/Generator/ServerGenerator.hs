@@ -28,7 +28,8 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (Valid, fromValid, ($^), (<$^>), (<$^^>))
+import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -53,7 +54,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Util ((<++>))
 
-genServer :: AppSpec -> Generator [FileDraft]
+genServer :: Valid AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
@@ -63,7 +64,7 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles $^ spec)
     <++> genDotEnv spec
 
 -- Cleanup to be performed before generating new server code.
@@ -71,7 +72,7 @@ genServer spec =
 -- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
 --   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
 --   for progress of this.
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
+preCleanup :: Valid AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
 preCleanup _ outDir = do
   -- If .env gets removed but there is old .env file in generated project from previous attempts,
   -- we need to make sure we remove it.
@@ -80,11 +81,11 @@ preCleanup _ outDir = do
   where
     dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
-genDotEnv :: AppSpec -> Generator [FileDraft]
+genDotEnv :: Valid AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
-  case AS.dotEnvFile spec of
+  case AS.dotEnvFile $^ spec of
     Just srcFilePath
-      | not $ AS.isBuild spec ->
+      | not $ AS.isBuild $^ spec ->
         [ createCopyFileDraft
             (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
             srcFilePath
@@ -97,7 +98,7 @@ dotEnvInServerRootDir = [relfile|.env|]
 genReadme :: Generator FileDraft
 genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
 
-genPackageJson :: AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> Generator FileDraft
+genPackageJson :: Valid AppSpec -> [AS.Dependency.Dependency] -> [AS.Dependency.Dependency] -> Generator FileDraft
 genPackageJson spec waspDeps waspDevDeps = do
   (resolvedWaspDeps, resolvedUserDeps) <-
     case resolveNpmDeps waspDeps userDeps of
@@ -114,14 +115,14 @@ genPackageJson spec waspDeps waspDevDeps = do
               "devDepsChunk" .= npmDevDepsToPackageJsonEntry waspDevDeps,
               "nodeVersion" .= nodeVersionAsText,
               "startProductionScript"
-                .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
+                .= ( (if not (null $ AS.getEntities <$^^> spec) then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
                    )
             ]
       )
   where
     userDeps :: [AS.Dependency.Dependency]
-    userDeps = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec
+    userDeps = fromMaybe [] $ AS.App.dependencies $^ (snd <$> VAS.getApp spec)
 
 waspNpmDeps :: [AS.Dependency.Dependency]
 waspNpmDeps =
@@ -170,7 +171,7 @@ genGitignore =
       (asServerFile [relfile|.gitignore|])
       Nothing
 
-genSrcDir :: AppSpec -> Generator [FileDraft]
+genSrcDir :: Valid AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|app.js|],
@@ -187,10 +188,10 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
 
-genDbClient :: AppSpec -> Generator FileDraft
+genDbClient :: Valid AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth <$^> (snd <$> VAS.getApp spec)
 
     dbClientRelToSrcP = [relfile|dbClient.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
@@ -201,11 +202,11 @@ genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
         then
           object
             [ "isAuthEnabled" .= True,
-              "userEntityUpper" .= (AS.refName (AS.App.Auth.userEntity $ fromJust maybeAuth) :: String)
+              "userEntityUpper" .= (AS.refName (AS.App.Auth.userEntity $^ fromJust maybeAuth) :: String)
             ]
         else object []
 
-genServerJs :: AppSpec -> Generator FileDraft
+genServerJs :: Valid AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
@@ -219,8 +220,10 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ AS.getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFunction = (AS.App.Server.setupFn <$^>) =<< (AS.App.server <$^> (snd <$> VAS.getApp spec))
+    maybeSetupJsFnImportDetails =
+      getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir
+        <$> (fromValid <$> maybeSetupJsFunction)
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
@@ -228,7 +231,7 @@ genServerJs spec =
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
-genRoutesDir :: AppSpec -> Generator [FileDraft]
+genRoutesDir :: Valid AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
@@ -239,7 +242,7 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
+                "isAuthEnabled" .= (VAS.isAuthEnabled spec :: Bool)
               ]
         )
     ]
