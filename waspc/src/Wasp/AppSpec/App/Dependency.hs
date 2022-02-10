@@ -15,6 +15,9 @@ data Dependency = Dependency
   }
   deriving (Show, Eq, Data)
 
+instance Ord Dependency where
+  a <= b = name a <= name b
+
 fromList :: [(String, String)] -> [Dependency]
 fromList = map make
 
