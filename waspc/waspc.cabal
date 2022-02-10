@@ -171,6 +171,7 @@ library
       Wasp.AppSpec.Page
       Wasp.AppSpec.Query
       Wasp.AppSpec.Route
+      Wasp.AppSpec.Valid
       Wasp.Common
       Wasp.CompileOptions
       Wasp.Data
@@ -320,6 +321,7 @@ test-suite waspc-test
       Analyzer.TypeChecker.InternalTest
       Analyzer.TypeCheckerTest
       AnalyzerTest
+      AppSpec.ValidTest
       ErrorTest
       FilePath.ExtraTest
       Fixtures

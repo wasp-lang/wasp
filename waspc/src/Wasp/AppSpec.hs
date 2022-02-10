@@ -7,21 +7,19 @@ module Wasp.AppSpec
     takeDecls,
     Ref,
     refName,
-    getApp,
     getActions,
     getQueries,
     getEntities,
     getPages,
     getRoutes,
-    isAuthEnabled,
+    resolveRef,
   )
 where
 
-import Data.Maybe (isJust)
+import Data.List (find)
+import Data.Maybe (fromMaybe)
 import StrongPath (Abs, Dir, File', Path')
 import Wasp.AppSpec.Action (Action)
-import Wasp.AppSpec.App (App)
-import qualified Wasp.AppSpec.App as App
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -60,36 +58,26 @@ data AppSpec = AppSpec
 getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
--- TODO: This will fail with an error if there is no `app` declaration (because of `head`)!
---   However, returning a Maybe here would be PITA later in the code.
---   It would be cool instead if we had an extra step that somehow ensures that app exists and
---   throws nice error if it doesn't. Some step that validated AppSpec. Maybe we could
---   have a function that returns `Validated AppSpec` -> so basically smart constructor,
---   validates AppSpec and returns it wrapped with `Validated`,
---   I created a github issue for it: https://github.com/wasp-lang/wasp/issues/425 .
-getApp :: AppSpec -> (String, App)
-getApp spec = case takeDecls @App (decls spec) of
-  [app] -> app
-  apps ->
-    error $
-      "Compiler error: expected exactly 1 'app' declaration in your wasp code, but you have "
-        ++ show (length apps)
-        ++ "!"
-
 getQueries :: AppSpec -> [(String, Query)]
-getQueries spec = takeDecls @Query (decls spec)
+getQueries = getDecls @Query
 
 getActions :: AppSpec -> [(String, Action)]
-getActions spec = takeDecls @Action (decls spec)
+getActions = getDecls @Action
 
 getEntities :: AppSpec -> [(String, Entity)]
-getEntities spec = takeDecls @Entity (decls spec)
+getEntities = getDecls @Entity
 
 getPages :: AppSpec -> [(String, Page)]
-getPages spec = takeDecls @Page (decls spec)
+getPages = getDecls @Page
 
 getRoutes :: AppSpec -> [(String, Route)]
-getRoutes spec = takeDecls @Route (decls spec)
+getRoutes = getDecls @Route
 
-isAuthEnabled :: AppSpec -> Bool
-isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
+resolveRef spec ref =
+  fromMaybe
+    ( error $
+        "Failed to resolve declaration reference: " ++ refName ref ++ "."
+          ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
+    )
+    $ find ((== refName ref) . fst) $ getDecls spec

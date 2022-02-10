@@ -11,13 +11,14 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.AppSpec (AppSpec, getApp)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -112,7 +113,7 @@ genOperationsRouter spec
               "isUsingAuth" .= isAuthEnabledForOperation operation
             ]
 
-    isAuthEnabledGlobally = AS.isAuthEnabled spec
+    isAuthEnabledGlobally = isAuthEnabled spec
     isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
 
