@@ -24,6 +24,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
+    dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaChecksumOnLastMigrateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
@@ -34,7 +35,7 @@ import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTempla
 import Wasp.Generator.Monad (Generator, GeneratorError (..), GeneratorWarning (GenericGeneratorWarning), logAndThrowGeneratorError)
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
-import Wasp.Util (checksumFromFilePath, hexToString, (<:>))
+import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -94,7 +95,7 @@ deleteGeneratedMigrationsDirIfRedundant spec projectRootDir = do
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorWarnings <- maybeToList <$> warnIfDbSchemaChangedSinceLastMigration spec dstDir
-  dbGeneratorErrors <- maybeToList <$> genPrismaClient dstDir
+  dbGeneratorErrors <- maybeToList <$> genPrismaClient spec dstDir
   return (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes they did in schema.prisma, and if so, returns a warning.
@@ -130,5 +131,26 @@ warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
     warnIf :: Bool -> String -> Maybe GeneratorWarning
     warnIf b msg = if b then Just $ GenericGeneratorWarning msg else Nothing
 
-genPrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
-genPrismaClient projectRootDir = either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
+genPrismaClient spec projectRootDir = do
+  ifM wasCurrentSchemaAlreadyGenerated (return Nothing) generatePrismaClientIfEntitiesExist
+  where
+    wasCurrentSchemaAlreadyGenerated :: IO Bool
+    wasCurrentSchemaAlreadyGenerated = do
+      let dbSchemaFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaFileInProjectRootDir
+      let dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
+
+      dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
+      if dbSchemaChecksumFileExists
+        then do
+          dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
+          dbChecksumFileContents <- readFile dbSchemaChecksumFp
+          return $ dbSchemaFileChecksum == dbChecksumFileContents
+        else return False
+
+    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientIfEntitiesExist = do
+      let entitiesExist = not . null $ getEntities spec
+      if entitiesExist
+        then either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+        else return Nothing
