@@ -1,7 +1,14 @@
 {-# LANGUAGE PatternSynonyms #-}
 
 module Wasp.AppSpec.Valid
-  ( Valid (Valid),
+  ( -- |
+    -- Idea behind @Valid@ is that you use it to mark any data structure as valid,
+    -- by using @MakeValid@ constructor from "Valid.Internal", normally at the end of
+    -- your validation logic.
+    -- So, if you have some @data Foo = ...@, your validation logic would look smth like
+    -- @validateFoo :: Foo -> Valid Foo@.
+    -- Then, what @Valid@ does, is allow you to manipulate its contents, or to take them out of @Valid@.
+    Valid (Valid),
     fromValid,
     ($^),
     propagateValid,
@@ -27,7 +34,6 @@ fromValid (MakeValid a) = a
 ($^) :: (a -> b) -> Valid a -> b
 ($^) f = f . fromValid
 
--- TODO: For this and for those below, make fixity infixr?
 infixl 4 $^ -- Same fixity as `<$>`.
 
 (<$^>) :: (Functor f) => (a -> f b) -> Valid a -> f (Valid b)

@@ -20,7 +20,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^^>))
 import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common

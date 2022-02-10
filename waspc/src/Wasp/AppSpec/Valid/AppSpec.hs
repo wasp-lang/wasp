@@ -26,7 +26,6 @@ validateAppSpec spec = do
     apps -> Left [GenericValidationError $ "Expected exactly 1 'app' declaration, but found " ++ show (length apps)]
   return $ MakeValid spec
 
--- TODO: Modify this to return (String, Valid App)?
 getApp :: Valid AppSpec -> Valid (String, App)
 getApp spec =
   let apps = getDecls @App <$> spec
@@ -37,6 +36,5 @@ getApp spec =
             "Expected exactly 1 'app' declaration in Valid AppSpec, but found " ++ show (length apps')
               ++ ". This should never happen, as this should have been already caught during AppSpec validation."
 
--- TODO: Make it work on App instead of AppSpec? If so, move to Valid.AppSpec.App.
 isAuthEnabled :: Valid AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $^ getApp spec)

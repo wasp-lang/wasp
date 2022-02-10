@@ -8,7 +8,6 @@ import Data.Aeson.Types (Pair)
 import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (Valid, ($^), (<$^>))

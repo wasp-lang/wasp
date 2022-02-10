@@ -15,11 +15,8 @@ module Wasp.AppSpec
   )
 where
 
-import Data.Maybe (isJust)
 import StrongPath (Abs, Dir, File', Path')
 import Wasp.AppSpec.Action (Action)
-import Wasp.AppSpec.App (App)
-import qualified Wasp.AppSpec.App as App
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -27,7 +24,6 @@ import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
-import Wasp.AppSpec.Valid (Valid, fromValid, ($^))
 import Wasp.Common (DbMigrationsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,

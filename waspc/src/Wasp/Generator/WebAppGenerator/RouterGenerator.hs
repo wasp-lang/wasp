@@ -16,7 +16,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^^>))
 import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)

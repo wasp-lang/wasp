@@ -8,7 +8,6 @@ import Data.Aeson (object, (.=))
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Valid (Valid)
 import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)

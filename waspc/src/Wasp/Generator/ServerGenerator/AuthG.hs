@@ -9,7 +9,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (Valid, ($^), (<$^>), (<$^^>))
+import Wasp.AppSpec.Valid (Valid, ($^), (<$^>))
 import qualified Wasp.AppSpec.Valid.AppSpec as VAS
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
