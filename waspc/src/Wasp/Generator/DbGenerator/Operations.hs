@@ -80,27 +80,13 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient genProjectRootDirAbs = do
-  dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
-
-  if dbSchemaChecksumFileExists
-    then do
-      dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-      dbChecksumFileContents <- readFile dbSchemaChecksumFp
-      if dbSchemaFileChecksum == dbChecksumFileContents then return $ Right () else generatePrismaClient'
-    else generatePrismaClient'
-  where
-    dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
-
-    generatePrismaClient' :: IO (Either String ())
-    generatePrismaClient' = do
-      chan <- newChan
-      (_, dbExitCode) <-
-        concurrently
-          (readJobMessagesAndPrintThemPrefixed chan)
-          (DbJobs.generatePrismaClient genProjectRootDirAbs chan)
-      case dbExitCode of
-        ExitSuccess -> do
-          writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
-          return $ Right ()
-        ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.generatePrismaClient genProjectRootDirAbs chan)
+  case dbExitCode of
+    ExitSuccess -> do
+      writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
+      return $ Right ()
+    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
