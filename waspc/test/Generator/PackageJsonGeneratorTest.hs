@@ -260,3 +260,39 @@ spec_combinePackageJsonDependencies = do
       `shouldBe` "Error: Dependency conflict for user dependency (a, 2): "
         ++ "Version must be set to the exactly "
         ++ "the same version as the one wasp is using: 1"
+
+  it
+    "PackageJsonDependencies are equal even if dependencies have different order"
+    $ do
+      PackageJsonDependencies
+        { dependencies = waspDeps,
+          devDependencies = []
+        }
+      `shouldBe` PackageJsonDependencies
+        { dependencies = reverse waspDeps,
+          devDependencies = []
+        }
+
+  it
+    "PackageJsonDependencies are equal even if dependencies have different order, with dev dependencies"
+    $ do
+      PackageJsonDependencies
+        { dependencies = waspDeps,
+          devDependencies = reverse waspDeps
+        }
+      `shouldBe` PackageJsonDependencies
+        { dependencies = reverse waspDeps,
+          devDependencies = waspDeps
+        }
+
+  it
+    "PackageJsonDependencies can be unequal"
+    $ do
+      PackageJsonDependencies
+        { dependencies = waspDeps,
+          devDependencies = []
+        }
+      `shouldNotBe` PackageJsonDependencies
+        { dependencies = [],
+          devDependencies = []
+        }

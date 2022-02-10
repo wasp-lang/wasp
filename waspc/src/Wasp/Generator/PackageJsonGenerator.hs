@@ -10,7 +10,7 @@ module Wasp.Generator.PackageJsonGenerator
   )
 where
 
-import Data.List (intercalate)
+import Data.List (intercalate, sort)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
@@ -24,7 +24,7 @@ data PackageJsonDependencies = PackageJsonDependencies
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency]
   }
-  deriving (Show, Eq)
+  deriving (Show)
 
 data PackageJsonDependenciesError = PackageJsonDependenciesError
   { dependenciesConflictErrors :: [DependencyConflictError],
@@ -71,6 +71,14 @@ conflictErrorToMessage DependencyConflictError {waspDependency = waspDep, userDe
     ++ "Version must be set to the exactly the same version as"
     ++ " the one wasp is using: "
     ++ D.version waspDep
+
+-- PackageJsonDependencies are equal if their sorted dependencies
+-- are equal.
+instance Eq PackageJsonDependencies where
+  (==) a b = sortedDependencies a == sortedDependencies b
+
+sortedDependencies :: PackageJsonDependencies -> ([D.Dependency], [D.Dependency])
+sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 
 -- | Takes wasp npm dependencies and user npm dependencies and figures out how
 --   to combine them together, returning (Right) a new PackageJsonDependencies
