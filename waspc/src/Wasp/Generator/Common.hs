@@ -22,4 +22,4 @@ nodeVersionAsText = printf "%d.%d.%d" major minor patch
     (major, minor, patch) = nodeVersion
 
 prismaVersion :: String
-prismaVersion = "2.22.1"
+prismaVersion = "3.9.1"
