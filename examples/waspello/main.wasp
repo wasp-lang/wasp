@@ -1,29 +1,36 @@
 app trello {
-  title: "trello"
-}
+  title: "trello",
 
-db {
-  system: PostgreSQL
-}
+  db: {
+    system: PostgreSQL
+  },
 
-auth {
+  auth: {
     userEntity: User,
     methods: [ EmailAndPassword ],
     onAuthFailedRedirectTo: "/login"
+  },
+
+  dependencies: [
+    ("react-feather", "2.0.9"),
+    ("classnames", "2.3.1"),
+    ("react-tiny-popover", "6.0.5"),
+    ("react-beautiful-dnd", "13.1.0")
+  ]
 }
 
-route "/" -> page Main
+route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
     component: import Main from "@ext/MainPage.js"
 }
 
-route "/signup" -> page Signup
+route SignupRoute { path: "/signup", to: Signup }
 page Signup {
     component: import Signup from "@ext/SignupPage"
 }
 
-route "/login" -> page Login
+route LoginRoute { path: "/login", to: Login }
 page Login {
     component: import Login from "@ext/LoginPage"
 }
@@ -100,9 +107,3 @@ action updateCard {
     entities: [Card]
 }
 
-dependencies {=json
-    "react-feather": "2.0.9",
-    "classnames": "2.3.1",
-    "react-tiny-popover": "6.0.5",
-    "react-beautiful-dnd": "13.1.0"
-json=}
