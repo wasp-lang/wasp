@@ -1,6 +1,5 @@
 module Wasp.Lib
   ( compile,
-    Generator.setup,
     Generator.start,
     ProjectRootDir,
     findWaspFile,

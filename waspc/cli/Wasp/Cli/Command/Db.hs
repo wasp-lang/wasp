@@ -6,18 +6,15 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
-import System.Exit (ExitCode (..))
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
 import Wasp.Cli.Command.Compile (compile)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
+import Wasp.Cli.Terminal (asWaspStartMessage)
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.ServerGenerator.Setup (setupServer)
 
 runDbCommand :: Command a -> IO ()
 runDbCommand = runCommand . makeDbCommand
@@ -28,29 +25,9 @@ runDbCommand = runCommand . makeDbCommand
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
-  waspRoot <- findWaspProjectRootDirFromCwd
-  let genProjectDir =
-        waspRoot </> Common.dotWaspDirInWaspProjectDir
-          </> Common.generatedCodeDirInDotWaspDir
-
-  -- NOTE(matija): First we need make sure the code is generated.
+  -- ensure code is generated and npm dependencies are installed
   compile
-
-  waspSaysC $ asWaspStartMessage "Setting up database..."
-  chan <- liftIO newChan
-  -- NOTE(matija): What we do here is make sure that Prisma CLI is installed because db commands
-  -- (e.g. migrate) depend on it. We run setupServer which does even more than that, so we could make
-  -- this function more lightweight if needed.
-  (_, dbSetupResult) <- liftIO (concurrently (readJobMessagesAndPrintThemPrefixed chan) (setupServer genProjectDir chan))
-  case dbSetupResult of
-    ExitSuccess -> waspSaysC (asWaspSuccessMessage "Database successfully set up!") >> cmd
-    exitCode -> throwError $ CommandError $ asWaspFailureMessage $ dbSetupFailedMessage exitCode
-  where
-    dbSetupFailedMessage exitCode =
-      "Database setup failed"
-        ++ case exitCode of
-          ExitFailure code -> ": " ++ show code
-          _ -> ""
+  cmd
 
 -- TODO(matija): should we extract this into a separate file, like we did for migrate?
 studio :: Command ()

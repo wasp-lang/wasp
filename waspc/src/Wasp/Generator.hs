@@ -1,6 +1,5 @@
 module Wasp.Generator
   ( writeWebAppCode,
-    Wasp.Generator.Setup.setup,
     Wasp.Generator.Start.start,
   )
 where
@@ -22,7 +21,7 @@ import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
 import Wasp.Generator.ServerGenerator (genServer)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.Setup
+import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
 import Wasp.Util ((<++>))
@@ -45,8 +44,8 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
-      return (generatorWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
+      (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir
+      return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =

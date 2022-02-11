@@ -7,7 +7,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Terminal (title)
-import qualified Wasp.Generator.PackageJsonGenerator as PJG
+import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import qualified Wasp.Util.Terminal as Term
@@ -23,22 +23,22 @@ deps =
         ]
           ++ printDeps
             "Server dependencies:"
-            ( PJG.dependencies ServerGenerator.waspPackageJsonDependencies
+            ( N.dependencies ServerGenerator.waspNpmDependencies
             )
           ++ [""]
           ++ printDeps
             "Server devDependencies:"
-            ( PJG.devDependencies ServerGenerator.waspPackageJsonDependencies
+            ( N.devDependencies ServerGenerator.waspNpmDependencies
             )
           ++ [""]
           ++ printDeps
             "Webapp dependencies:"
-            ( PJG.dependencies WebAppGenerator.waspPackageJsonDependencies
+            ( N.dependencies WebAppGenerator.waspNpmDependencies
             )
           ++ [""]
           ++ printDeps
             "Webapp devDependencies:"
-            ( PJG.devDependencies WebAppGenerator.waspPackageJsonDependencies
+            ( N.devDependencies WebAppGenerator.waspNpmDependencies
             )
 
 printDeps :: String -> [AS.Dependency.Dependency] -> [String]

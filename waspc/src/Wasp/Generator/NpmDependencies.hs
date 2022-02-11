@@ -1,32 +1,54 @@
-module Wasp.Generator.PackageJsonGenerator
+{-# LANGUAGE DeriveGeneric #-}
+
+module Wasp.Generator.NpmDependencies
   ( DependencyConflictError (..),
     getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
-    combinePackageJsonDependencies,
-    PackageJsonDependencies (..),
-    PackageJsonDependenciesError (..),
+    combineNpmDependencies,
+    NpmDependencies (..),
+    NpmDependenciesError (..),
     conflictErrorToMessage,
-    genPackageJsonDependencies,
+    genNpmDependencies,
+    FullStackNpmDependencies,
+    buildFullStackNpmDependencies,
   )
 where
 
+import Data.Aeson
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
+import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as D
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
-data PackageJsonDependencies = PackageJsonDependencies
+data FullStackNpmDependencies = FullStackNpmDependencies
+  { serverDependencies :: NpmDependencies,
+    webAppDependencies :: NpmDependencies
+  }
+  deriving (Show, Eq, Generic)
+
+instance ToJSON FullStackNpmDependencies where
+  toEncoding = genericToEncoding defaultOptions
+
+instance FromJSON FullStackNpmDependencies
+
+data NpmDependencies = NpmDependencies
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency]
   }
-  deriving (Show)
+  deriving (Show, Generic)
 
-data PackageJsonDependenciesError = PackageJsonDependenciesError
+instance ToJSON NpmDependencies where
+  toEncoding = genericToEncoding defaultOptions
+
+instance FromJSON NpmDependencies
+
+data NpmDependenciesError = NpmDependenciesError
   { dependenciesConflictErrors :: [DependencyConflictError],
     devDependenciesConflictErrors :: [DependencyConflictError]
   }
@@ -38,28 +60,44 @@ data DependencyConflictError = DependencyConflictError
   }
   deriving (Show, Eq)
 
--- | Generate a PackageJsonDependencies by combining wask dependencies with user dependencies
+-- | Generate a NpmDependencies by combining wasp dependencies with user dependencies
 --   derived from AppSpec, or if there are conflicts, fail with error messages.
-genPackageJsonDependencies :: AppSpec -> PackageJsonDependencies -> Generator PackageJsonDependencies
-genPackageJsonDependencies spec waspDependencies =
-  case combinePackageJsonDependencies waspDependencies userDependencies of
+genNpmDependencies :: AppSpec -> NpmDependencies -> Generator NpmDependencies
+genNpmDependencies spec waspDependencies =
+  case combineNpmDependencies waspDependencies (getUserNpmDependencies spec) of
     Right deps -> return deps
     Left conflictErrorDeps ->
       logAndThrowGeneratorError $
         GenericGeneratorError $
-          intercalate " ; " $
+          intercalate "\n " $
             map
               conflictErrorToMessage
               ( dependenciesConflictErrors conflictErrorDeps
                   ++ devDependenciesConflictErrors conflictErrorDeps
               )
+
+buildFullStackNpmDependencies :: AppSpec -> NpmDependencies -> NpmDependencies -> Either String FullStackNpmDependencies
+buildFullStackNpmDependencies spec serverWaspDependencies webAppWaspDependencies =
+  case (combinedServerDependencies, combinedWebAppDependencies) of
+    (Right a, Right b) ->
+      Right
+        FullStackNpmDependencies
+          { serverDependencies = a,
+            webAppDependencies = b
+          }
+    _ -> Left "Could not construct npm dependencies due to a previously reported conflict."
   where
-    userDependencies =
-      PackageJsonDependencies
-        { dependencies = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec,
-          -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-          devDependencies = []
-        }
+    userDependencies = getUserNpmDependencies spec
+    combinedServerDependencies = combineNpmDependencies serverWaspDependencies userDependencies
+    combinedWebAppDependencies = combineNpmDependencies webAppWaspDependencies userDependencies
+
+getUserNpmDependencies :: AppSpec -> NpmDependencies
+getUserNpmDependencies spec =
+  NpmDependencies
+    { dependencies = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec,
+      -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
+      devDependencies = []
+    }
 
 conflictErrorToMessage :: DependencyConflictError -> String
 conflictErrorToMessage DependencyConflictError {waspDependency = waspDep, userDependency = userDep} =
@@ -72,30 +110,30 @@ conflictErrorToMessage DependencyConflictError {waspDependency = waspDep, userDe
     ++ " the one wasp is using: "
     ++ D.version waspDep
 
--- PackageJsonDependencies are equal if their sorted dependencies
+-- NpmDependencies are equal if their sorted dependencies
 -- are equal.
-instance Eq PackageJsonDependencies where
+instance Eq NpmDependencies where
   (==) a b = sortedDependencies a == sortedDependencies b
 
-sortedDependencies :: PackageJsonDependencies -> ([D.Dependency], [D.Dependency])
+sortedDependencies :: NpmDependencies -> ([D.Dependency], [D.Dependency])
 sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 
 -- | Takes wasp npm dependencies and user npm dependencies and figures out how
---   to combine them together, returning (Right) a new PackageJsonDependencies
---   that combines them, and on error (Left), returns a PackageJsonDependenciesError
+--   to combine them together, returning (Right) a new NpmDependencies
+--   that combines them, and on error (Left), returns a NpmDependenciesError
 --   which describes which dependencies are in conflict.
-combinePackageJsonDependencies :: PackageJsonDependencies -> PackageJsonDependencies -> Either PackageJsonDependenciesError PackageJsonDependencies
-combinePackageJsonDependencies waspDependencies userDependencies =
+combineNpmDependencies :: NpmDependencies -> NpmDependencies -> Either NpmDependenciesError NpmDependencies
+combineNpmDependencies waspDependencies userDependencies =
   if null conflictErrors && null devConflictErrors
     then
       Right $
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies = dependencies waspDependencies ++ remainingUserDeps,
             devDependencies = devDependencies waspDependencies ++ remainingUserDevDeps
           }
     else
       Left $
-        PackageJsonDependenciesError
+        NpmDependenciesError
           { dependenciesConflictErrors = conflictErrors,
             devDependenciesConflictErrors = devConflictErrors
           }
@@ -138,11 +176,11 @@ makeDepsByName :: [D.Dependency] -> DepsByName
 makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
 -- | Construct dependencies entry in package.json
-getDependenciesPackageJsonEntry :: PackageJsonDependencies -> String
+getDependenciesPackageJsonEntry :: NpmDependencies -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies
 
 -- | Construct devDependencies entry in package.json
-getDevDependenciesPackageJsonEntry :: PackageJsonDependencies -> String
+getDevDependenciesPackageJsonEntry :: NpmDependencies -> String
 getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devDependencies" . devDependencies
 
 dependenciesToPackageJsonEntryWithKey :: String -> [D.Dependency] -> String

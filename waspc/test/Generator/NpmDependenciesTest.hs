@@ -1,11 +1,11 @@
-module Generator.PackageJsonGeneratorTest where
+module Generator.NpmDependenciesTest where
 
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.App.Dependency as D
-import Wasp.Generator.PackageJsonGenerator
+import Wasp.Generator.NpmDependencies
 
-spec_combinePackageJsonDependencies :: Spec
-spec_combinePackageJsonDependencies = do
+spec_combineNpmDependencies :: Spec
+spec_combineNpmDependencies = do
   let waspDeps =
         D.fromList
           [ ("a", "1"),
@@ -19,13 +19,13 @@ spec_combinePackageJsonDependencies = do
           ]
 
   it "a conflicting version number is detected" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = []
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "1"),
@@ -34,9 +34,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Left
-        PackageJsonDependenciesError
+        NpmDependenciesError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("b", "2"))
@@ -46,13 +46,13 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "wasp deps completely overlap with user deps, no duplication" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = []
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "1"),
@@ -61,9 +61,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Right
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -73,13 +73,13 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "user dependencies supplement wasp dependencies" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = []
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("c", "3"),
@@ -88,9 +88,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Right
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -102,13 +102,13 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "user dependencies partially overlap wasp dependencies, so only non-overlapping supplement" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = []
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "1"),
@@ -117,9 +117,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Right
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -130,13 +130,13 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = []
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "2"),
@@ -145,9 +145,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Left
-        PackageJsonDependenciesError
+        NpmDependenciesError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("a", "1"))
@@ -157,13 +157,13 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "a conflicting version number is detected with wasp devDependencies" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = waspDevDeps
             }
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "1"),
@@ -172,9 +172,9 @@ spec_combinePackageJsonDependencies = do
               devDependencies = []
             }
 
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Left
-        PackageJsonDependenciesError
+        NpmDependenciesError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("alpha", "10"))
@@ -184,14 +184,14 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "dev dependencies are also combined" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = waspDevDeps
             }
 
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("a", "1"),
@@ -203,9 +203,9 @@ spec_combinePackageJsonDependencies = do
                     ("gamma", "30")
                   ]
             }
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Right
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -221,23 +221,23 @@ spec_combinePackageJsonDependencies = do
           }
 
   it "wasp dev dependency overlaps with user dependency, should remain devDependency" $ do
-    let waspPackageJsonDependencies =
-          PackageJsonDependencies
+    let waspNpmDependencies =
+          NpmDependencies
             { dependencies = waspDeps,
               devDependencies = waspDevDeps
             }
 
-    let userPackageJsonDependencies =
-          PackageJsonDependencies
+    let userNpmDependencies =
+          NpmDependencies
             { dependencies =
                 D.fromList
                   [ ("alpha", "10")
                   ],
               devDependencies = []
             }
-    combinePackageJsonDependencies waspPackageJsonDependencies userPackageJsonDependencies
+    combineNpmDependencies waspNpmDependencies userNpmDependencies
       `shouldBe` Right
-        PackageJsonDependencies
+        NpmDependencies
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -262,37 +262,37 @@ spec_combinePackageJsonDependencies = do
         ++ "the same version as the one wasp is using: 1"
 
   it
-    "PackageJsonDependencies are equal even if dependencies have different order"
+    "NpmDependencies are equal even if dependencies have different order"
     $ do
-      PackageJsonDependencies
+      NpmDependencies
         { dependencies = waspDeps,
           devDependencies = []
         }
-      `shouldBe` PackageJsonDependencies
+      `shouldBe` NpmDependencies
         { dependencies = reverse waspDeps,
           devDependencies = []
         }
 
   it
-    "PackageJsonDependencies are equal even if dependencies have different order, with dev dependencies"
+    "NpmDependencies are equal even if dependencies have different order, with dev dependencies"
     $ do
-      PackageJsonDependencies
+      NpmDependencies
         { dependencies = waspDeps,
           devDependencies = reverse waspDeps
         }
-      `shouldBe` PackageJsonDependencies
+      `shouldBe` NpmDependencies
         { dependencies = reverse waspDeps,
           devDependencies = waspDeps
         }
 
   it
-    "PackageJsonDependencies can be unequal"
+    "NpmDependencies can be unequal"
     $ do
-      PackageJsonDependencies
+      NpmDependencies
         { dependencies = waspDeps,
           devDependencies = []
         }
-      `shouldNotBe` PackageJsonDependencies
+      `shouldNotBe` NpmDependencies
         { dependencies = [],
           devDependencies = []
         }

@@ -4,7 +4,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     preCleanup,
     operationsRouteInRootRouter,
-    waspPackageJsonDependencies,
+    waspNpmDependencies,
   )
 where
 
@@ -33,7 +33,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.PackageJsonGenerator as PJG
+import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerSrcDir,
@@ -51,7 +51,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec waspPackageJsonDependencies,
+      genPackageJson spec waspNpmDependencies,
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -91,17 +91,17 @@ dotEnvInServerRootDir = [relfile|.env|]
 genReadme :: Generator FileDraft
 genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
 
-genPackageJson :: AppSpec -> PJG.PackageJsonDependencies -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDependencies -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- PJG.genPackageJsonDependencies spec waspDependencies
+  combinedDependencies <- N.genNpmDependencies spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|package.json|])
       (asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "depsChunk" .= PJG.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= PJG.getDevDependenciesPackageJsonEntry combinedDependencies,
+            [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersion" .= nodeVersionAsText,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
@@ -110,10 +110,10 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
-waspPackageJsonDependencies :: PJG.PackageJsonDependencies
-waspPackageJsonDependencies =
-  PJG.PackageJsonDependencies
-    { PJG.dependencies =
+waspNpmDependencies :: N.NpmDependencies
+waspNpmDependencies =
+  N.NpmDependencies
+    { N.dependencies =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.4"),
             ("cors", "^2.8.5"),
@@ -126,7 +126,7 @@ waspPackageJsonDependencies =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ],
-      PJG.devDependencies =
+      N.devDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),

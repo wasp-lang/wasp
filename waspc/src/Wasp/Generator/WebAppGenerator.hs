@@ -1,6 +1,6 @@
 module Wasp.Generator.WebAppGenerator
   ( generateWebApp,
-    waspPackageJsonDependencies,
+    waspNpmDependencies,
   )
 where
 
@@ -21,7 +21,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.PackageJsonGenerator as PJG
+import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
 import Wasp.Generator.WebAppGenerator.Common
   ( asTmplFile,
@@ -38,7 +38,7 @@ generateWebApp :: AppSpec -> Generator [FileDraft]
 generateWebApp spec = do
   sequence
     [ generateReadme,
-      genPackageJson spec waspPackageJsonDependencies,
+      genPackageJson spec waspNpmDependencies,
       generateGitignore,
       return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
@@ -49,9 +49,9 @@ generateWebApp spec = do
 generateReadme :: Generator FileDraft
 generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
-genPackageJson :: AppSpec -> PJG.PackageJsonDependencies -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDependencies -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- PJG.genPackageJsonDependencies spec waspDependencies
+  combinedDependencies <- N.genNpmDependencies spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -59,15 +59,15 @@ genPackageJson spec waspDependencies = do
       ( Just $
           object
             [ "appName" .= (fst (getApp spec) :: String),
-              "depsChunk" .= PJG.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= PJG.getDevDependenciesPackageJsonEntry combinedDependencies
+              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies
             ]
       )
 
-waspPackageJsonDependencies :: PJG.PackageJsonDependencies
-waspPackageJsonDependencies =
-  PJG.PackageJsonDependencies
-    { PJG.dependencies =
+waspNpmDependencies :: N.NpmDependencies
+waspNpmDependencies =
+  N.NpmDependencies
+    { N.dependencies =
         AS.Dependency.fromList
           [ ("axios", "^0.21.1"),
             ("lodash", "^4.17.15"),
@@ -78,7 +78,7 @@ waspPackageJsonDependencies =
             ("react-scripts", "4.0.3"),
             ("uuid", "^3.4.0")
           ],
-      PJG.devDependencies =
+      N.devDependencies =
         AS.Dependency.fromList
           []
     }

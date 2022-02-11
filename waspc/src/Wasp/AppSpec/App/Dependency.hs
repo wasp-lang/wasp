@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.App.Dependency
   ( Dependency (..),
@@ -7,13 +8,20 @@ module Wasp.AppSpec.App.Dependency
   )
 where
 
+import Data.Aeson
 import Data.Data (Data)
+import GHC.Generics
 
 data Dependency = Dependency
   { name :: String,
     version :: String
   }
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Generic)
+
+instance ToJSON Dependency where
+  toEncoding = genericToEncoding defaultOptions
+
+instance FromJSON Dependency
 
 instance Ord Dependency where
   a <= b = name a <= name b
