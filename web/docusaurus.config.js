@@ -101,7 +101,8 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Wasp.`,
     },
     algolia: {
-      apiKey: '51575685bf62ecdfd2e3a1974de921e6',
+      appId: 'RG0JSZOWH4',
+      apiKey: 'feaa2a25dc596d40418c82cd040e2cbe',
       indexName: 'wasp-lang',
       // TODO: contextualSearch is useful when you are doing versioning,
       //   it searches only in v1 docs if you are searching from v1 docs.
