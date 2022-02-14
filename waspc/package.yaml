@@ -145,3 +145,24 @@ tests:
       - unordered-containers
       - strong-path
       - split
+
+  e2e-test:
+    main:               Main.hs
+    source-dirs:        e2e-test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - dir-traverse
+      - tasty
+      - tasty-golden
+      - filepath
+      - yaml
+      - aeson
+      - bytestring
+      - process
+      - directory
+      - dir-traverse
+      - strong-path
+      - text

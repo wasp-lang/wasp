@@ -103,7 +103,8 @@ printVersion = putStrLn $ showVersion version
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  ["migrate-dev"] -> runDbCommand Command.Db.Migrate.migrateDev
+  ["migrate-dev", migrationName] -> runDbCommand $ Command.Db.Migrate.migrateDev (Just migrationName)
+  ["migrate-dev"] -> runDbCommand $ Command.Db.Migrate.migrateDev Nothing
   ["studio"] -> runDbCommand studio
   _ -> printDbUsage
 
@@ -116,14 +117,15 @@ printDbUsage =
         "",
         title "COMMANDS",
         cmd
-          ( "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):\n"
-              <> "                  - Generates a new migration if there are changes in the schema.\n"
-              <> "                  - Applies any pending migrations to the database."
+          ( "  migrate-dev [migration-name]   Ensures dev database corresponds to the current state of schema(entities):\n"
+              <> "                                 - Generates a new migration if there are changes in the schema.\n"
+              <> "                                 - Applies any pending migrations to the database either using the supplied migration name or asking for one.\n"
           ),
-        cmd "  studio        GUI for inspecting your database.",
+        cmd "  studio                         GUI for inspecting your database.",
         "",
         title "EXAMPLES",
         "  wasp db migrate-dev",
+        "  wasp db migrate-dev \"Added User entity\"",
         "  wasp db studio"
       ]
 

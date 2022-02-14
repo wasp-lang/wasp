@@ -40,13 +40,13 @@ printJobMsgsUntilExitReceived chan = do
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
-migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs = do
+migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> Maybe String -> IO (Either String ())
+migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs maybeMigrationName = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
       (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev genProjectRootDirAbs chan)
+      (DbJobs.migrateDev genProjectRootDirAbs maybeMigrationName chan)
   case dbExitCode of
     ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code

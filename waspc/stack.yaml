@@ -5,6 +5,7 @@ extra-deps:
   - strong-path-1.1.2.0
   - path-0.9.2
   - path-io-1.6.3
+  - dir-traverse-0.2.3.0
 # (Martin): I added this per instructions from haskell-language-server, in order to
 #   enable type information and documentation on hover for dependencies.
 #   This will cause compilation errors if a dependency contains invalid Haddock markup for older versions of GHC.

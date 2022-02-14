@@ -5,6 +5,9 @@ on:
   pull_request: { }
   create: { tags: [v*] }
 
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
 defaults:
   run:
     shell: bash
