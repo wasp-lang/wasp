@@ -23,7 +23,7 @@ data GoldensDir
 
 getProjectRootPath :: IO (Path' Abs (Dir ProjectRoot))
 getProjectRootPath = do
-  -- NOTE: Stack/Cabal launches `stack test` from root of the project, so this should always be some absolute path to waspc.
+  -- NOTE: Cabal launches `cabal test` from root of the project, so this should always be some absolute path to waspc.
   absCwd <- getCurrentDirectory
   -- Just a little extra safeguard here since we are doing destructive file ops.
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")

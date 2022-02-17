@@ -24,9 +24,9 @@ generateFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileD
 generateFile strategy file
   | extension `elem` [".js", ".jsx"] = generateJsFile strategy file
   | otherwise =
-    let relDstPath = C._extCodeDirInProjectRootDir strategy </> dstPathInGenExtCodeDir
-        absSrcPath = EC.fileAbsPath file
-     in return $ FD.createCopyFileDraft relDstPath absSrcPath
+      let relDstPath = C._extCodeDirInProjectRootDir strategy </> dstPathInGenExtCodeDir
+          absSrcPath = EC.fileAbsPath file
+       in return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
     dstPathInGenExtCodeDir :: Path' (Rel C.GeneratedExternalCodeDir) File'
     dstPathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir $ EC.filePathInExtCodeDir file

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# Takes last binary built by stack and packages it together with data
+# Takes last wasp binary built by cabal and packages it together with data
 # into .tar.gz package.
 
 # First and only argument is the filename of the package to be generated.
@@ -10,8 +10,11 @@ DST=$PWD/${1:-wasp.tar.gz}
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t wasp-bin-package)"
 
-cp "$(stack path --local-install-root)"/bin/wasp-cli "$TMP_DIR/wasp-bin"
-cp -R "$(stack path --project-root)/data" "$TMP_DIR/data"
+WASP_BINARY_PATH="$(cabal list-bin wasp-cli)"
+cp "$WASP_BINARY_PATH" "$TMP_DIR/wasp-bin"
+
+CABAL_PROJECT_ROOT_PATH="$(cabal list-bin wasp-cli | sed s/\\/dist-newstyle.*//)"
+cp -R "$CABAL_PROJECT_ROOT_PATH/data" "$TMP_DIR/data"
 
 cd "$TMP_DIR"
 tar -czf "$DST" *
