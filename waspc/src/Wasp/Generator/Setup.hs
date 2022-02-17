@@ -12,7 +12,7 @@ import Wasp.Generator.NpmInstall (ensureNpmInstall)
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec dstDir = do
-  -- TODO: Use a monad transformer here in the future for better shortcutting behavior
+  -- TODO: Use a monad transformer here in the future for better shortcircuiting behavior.
   (npmInstallWarnings, npmInstallErrors) <- ensureNpmInstall spec dstDir
   if null npmInstallErrors
     then do
