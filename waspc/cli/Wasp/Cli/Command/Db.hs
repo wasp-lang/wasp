@@ -25,7 +25,7 @@ runDbCommand = runCommand . makeDbCommand
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
-  -- ensure code is generated and npm dependencies are installed
+  -- Ensure code is generated and npm dependencies are installed.
   compile
   cmd
 
