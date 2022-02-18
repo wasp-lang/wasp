@@ -30,8 +30,8 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 
 -- It only does this if the dependencies described in the user wasp file are
 -- different from the dependencies that we just installed. To this end, this
--- code keeps track of the dependencies installed with a file, which it updates
--- after each install.
+-- code keeps track of the dependencies installed with a metadata file, which
+-- it updates after each install.
 
 -- NOTE: we assume that the dependencies in package.json are the same as the
 -- ones in AppSpec. We derive them the same way, but it does involve two
