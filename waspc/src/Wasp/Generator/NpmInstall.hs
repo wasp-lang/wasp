@@ -24,7 +24,6 @@ import Wasp.Generator.WebAppGenerator as WG
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 
 -- | Run npm install if needed
-
 -- Redundant npm installs can be avoided if the dependencies specified
 -- by the user and wasp have not changed since the last time this ran.
 
@@ -34,11 +33,14 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- it updates after each install.
 
 -- NOTE: we assume that the dependencies in package.json are the same as the
--- ones in AppSpec. We derive them the same way, but it does involve two
--- slightly different code paths. A way to avoid this is to use a single code
--- path to derive this information, or by loading the information back again
--- from disk for each comparison.
-
+-- ones we derive from the AppSpec. We derive them the same way but it does
+-- involve different code paths.
+-- This module could work in an completely different way, independently
+-- from AppSpec at all. It could work by ensuring a `npm install` is
+-- consistent with a metadata file derived from `package.json` during its
+-- previous run. This would be more decoupled from the rest of the system.
+-- Npm conflict handling could be ignored in that case, because it would work
+-- from the record of what's in package.json.
 ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 ensureNpmInstall spec dstDir = do
   let errorOrFullStackNpmDependencies = N.buildFullStackNpmDependencies spec SG.waspNpmDependencies WG.waspNpmDependencies
@@ -54,11 +56,11 @@ ensureNpmInstall spec dstDir = do
 -- Installation may fail, in which the installation record is removed.
 installNpmDependenciesWithInstallRecord :: N.FullStackNpmDependencies -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 installNpmDependenciesWithInstallRecord appSpecFullStackNpmDependencies dstDir = do
-  npmInstallResult <- installNpmDependencies dstDir
   -- in case anything fails during installation that would leave node modules in
   -- a broken state, we remove the file before we start npm install
   fileExists <- doesFileExist dependenciesInstalledFp
   when fileExists $ removeFile dependenciesInstalledFp
+  npmInstallResult <- installNpmDependencies dstDir
   case npmInstallResult of
     Left npmInstallError -> do
       return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
