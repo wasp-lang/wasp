@@ -43,30 +43,31 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- from the record of what's in package.json.
 ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 ensureNpmInstall spec dstDir = do
-  let errorOrFullStackNpmDependencies = N.buildFullStackNpmDependencies spec SG.waspNpmDependencies WG.waspNpmDependencies
-  case errorOrFullStackNpmDependencies of
+  let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec SG.npmDepsForWasp WG.npmDepsForWasp
+  case errorOrNpmDepsForFullStack of
     Left message -> return ([], [GenericGeneratorError ("npm install failed: " ++ message)])
-    Right fullStackNpmDependencies -> do
-      needed <- isNpmInstallDifferent fullStackNpmDependencies dstDir
+    Right npmDepsForFullStack -> do
+      needed <- isNpmInstallDifferent npmDepsForFullStack dstDir
       if needed
-        then installNpmDependenciesWithInstallRecord fullStackNpmDependencies dstDir
+        then installNpmDependenciesWithInstallRecord npmDepsForFullStack dstDir
         else return ([], [])
 
 -- Run npm install for desired AppSpec dependencies, recording what we installed
 -- Installation may fail, in which the installation record is removed.
-installNpmDependenciesWithInstallRecord :: N.FullStackNpmDependencies -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-installNpmDependenciesWithInstallRecord appSpecFullStackNpmDependencies dstDir = do
+installNpmDependenciesWithInstallRecord :: N.NpmDepsForFullStack -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
+installNpmDependenciesWithInstallRecord npmDepsForFullStack dstDir = do
   -- in case anything fails during installation that would leave node modules in
   -- a broken state, we remove the file before we start npm install
   fileExists <- doesFileExist dependenciesInstalledFp
   when fileExists $ removeFile dependenciesInstalledFp
+  -- now actually do the installation
   npmInstallResult <- installNpmDependencies dstDir
   case npmInstallResult of
     Left npmInstallError -> do
       return ([], [GenericGeneratorError $ "npm install failed: " ++ npmInstallError])
     Right () -> do
       -- on successful npm install, record what we installed
-      B.writeFile dependenciesInstalledFp (Aeson.encode appSpecFullStackNpmDependencies)
+      B.writeFile dependenciesInstalledFp (Aeson.encode npmDepsForFullStack)
       return ([], [])
   where
     dependenciesInstalledFp = SP.fromAbsFile $ dstDir </> installedFullStackNpmDependenciesFileInProjectRootDir
@@ -74,7 +75,7 @@ installNpmDependenciesWithInstallRecord appSpecFullStackNpmDependencies dstDir =
 -- Returns True only if the stored full stack dependencies are different from the
 -- the full stack dependencies in the argument. If an installation record is missing
 -- then it's always different.
-isNpmInstallDifferent :: N.FullStackNpmDependencies -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+isNpmInstallDifferent :: N.NpmDepsForFullStack -> Path' Abs (Dir ProjectRootDir) -> IO Bool
 isNpmInstallDifferent appSpecFullStackNpmDependencies dstDir = do
   installedFullStackNpmDependencies <- loadInstalledFullStackNpmDependencies dstDir
   return $ Just appSpecFullStackNpmDependencies /= installedFullStackNpmDependencies
@@ -84,14 +85,14 @@ installedFullStackNpmDependenciesFileInProjectRootDir :: Path' (Rel ProjectRootD
 installedFullStackNpmDependenciesFileInProjectRootDir = [relfile|installedFullStackNpmDependencies.json|]
 
 -- Load the record of the dependencies we installed from disk.
-loadInstalledFullStackNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe N.FullStackNpmDependencies)
+loadInstalledFullStackNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe N.NpmDepsForFullStack)
 loadInstalledFullStackNpmDependencies dstDir = do
   let dependenciesInstalledFp = SP.fromAbsFile $ dstDir </> installedFullStackNpmDependenciesFileInProjectRootDir
   fileExists <- doesFileExist dependenciesInstalledFp
   if fileExists
     then do
       fileContents <- B.readFile dependenciesInstalledFp
-      return (Aeson.decode fileContents :: Maybe N.FullStackNpmDependencies)
+      return (Aeson.decode fileContents :: Maybe N.NpmDepsForFullStack)
     else return Nothing
 
 -- Run the individual `npm install` commands for both server and webapp projects

@@ -23,22 +23,22 @@ deps =
         ]
           ++ printDeps
             "Server dependencies:"
-            ( N.dependencies ServerGenerator.waspNpmDependencies
+            ( N.waspDependencies ServerGenerator.npmDepsForWasp
             )
           ++ [""]
           ++ printDeps
             "Server devDependencies:"
-            ( N.devDependencies ServerGenerator.waspNpmDependencies
+            ( N.waspDevDependencies ServerGenerator.npmDepsForWasp
             )
           ++ [""]
           ++ printDeps
             "Webapp dependencies:"
-            ( N.dependencies WebAppGenerator.waspNpmDependencies
+            ( N.waspDependencies WebAppGenerator.npmDepsForWasp
             )
           ++ [""]
           ++ printDeps
             "Webapp devDependencies:"
-            ( N.devDependencies WebAppGenerator.waspNpmDependencies
+            ( N.waspDevDependencies WebAppGenerator.npmDepsForWasp
             )
 
 printDeps :: String -> [AS.Dependency.Dependency] -> [String]

@@ -4,8 +4,8 @@ import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.App.Dependency as D
 import Wasp.Generator.NpmDependencies
 
-spec_combineNpmDependencies :: Spec
-spec_combineNpmDependencies = do
+spec_combineNpmDepsForPackage :: Spec
+spec_combineNpmDepsForPackage = do
   let waspDeps =
         D.fromList
           [ ("a", "1"),
@@ -19,24 +19,24 @@ spec_combineNpmDependencies = do
           ]
 
   it "a conflicting version number is detected" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = []
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = []
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "1"),
                     ("b", "3")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Left
-        NpmDependenciesError
+        NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("b", "2"))
@@ -46,24 +46,24 @@ spec_combineNpmDependencies = do
           }
 
   it "wasp deps completely overlap with user deps, no duplication" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = []
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = []
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "1"),
                     ("b", "2")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
-        NpmDependencies
+        NpmDepsForPackage
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -73,24 +73,24 @@ spec_combineNpmDependencies = do
           }
 
   it "user dependencies supplement wasp dependencies" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = []
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = []
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("c", "3"),
                     ("d", "4")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
-        NpmDependencies
+        NpmDepsForPackage
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -102,24 +102,24 @@ spec_combineNpmDependencies = do
           }
 
   it "user dependencies partially overlap wasp dependencies, so only non-overlapping supplement" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = []
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = []
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "1"),
                     ("d", "4")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
-        NpmDependencies
+        NpmDepsForPackage
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -130,24 +130,24 @@ spec_combineNpmDependencies = do
           }
 
   it "report error if user dependency overlaps wasp dependency, different version" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = []
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = []
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "2"),
                     ("foo", "bar")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Left
-        NpmDependenciesError
+        NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("a", "1"))
@@ -157,24 +157,24 @@ spec_combineNpmDependencies = do
           }
 
   it "a conflicting version number is detected with wasp devDependencies" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = waspDevDeps
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = waspDevDeps
             }
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "1"),
                     ("alpha", "70")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
 
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Left
-        NpmDependenciesError
+        NpmDepsForPackageError
           { dependenciesConflictErrors =
               [ DependencyConflictError
                   (D.make ("alpha", "10"))
@@ -184,28 +184,28 @@ spec_combineNpmDependencies = do
           }
 
   it "dev dependencies are also combined" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = waspDevDeps
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = waspDevDeps
             }
 
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("a", "1"),
                     ("d", "4")
                   ],
-              devDependencies =
+              userDevDependencies =
                 D.fromList
                   [ ("alpha", "10"),
                     ("gamma", "30")
                   ]
             }
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
-        NpmDependencies
+        NpmDepsForPackage
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -221,23 +221,24 @@ spec_combineNpmDependencies = do
           }
 
   it "wasp dev dependency overlaps with user dependency, should remain devDependency" $ do
-    let waspNpmDependencies =
-          NpmDependencies
-            { dependencies = waspDeps,
-              devDependencies = waspDevDeps
+    let npmDepsForWasp =
+          NpmDepsForWasp
+            { waspDependencies = waspDeps,
+              waspDevDependencies = waspDevDeps
             }
 
-    let userNpmDependencies =
-          NpmDependencies
-            { dependencies =
+    let npmDepsForUser =
+          NpmDepsForUser
+            { userDependencies =
                 D.fromList
                   [ ("alpha", "10")
                   ],
-              devDependencies = []
+              userDevDependencies = []
             }
-    combineNpmDependencies waspNpmDependencies userNpmDependencies
+
+    combineNpmDepsForPackage npmDepsForWasp npmDepsForUser
       `shouldBe` Right
-        NpmDependencies
+        NpmDepsForPackage
           { dependencies =
               D.fromList
                 [ ("a", "1"),
@@ -264,11 +265,11 @@ spec_combineNpmDependencies = do
   it
     "NpmDependencies are equal even if dependencies have different order"
     $ do
-      NpmDependencies
+      NpmDepsForPackage
         { dependencies = waspDeps,
           devDependencies = []
         }
-      `shouldBe` NpmDependencies
+      `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
           devDependencies = []
         }
@@ -276,11 +277,11 @@ spec_combineNpmDependencies = do
   it
     "NpmDependencies are equal even if dependencies have different order, with dev dependencies"
     $ do
-      NpmDependencies
+      NpmDepsForPackage
         { dependencies = waspDeps,
           devDependencies = reverse waspDeps
         }
-      `shouldBe` NpmDependencies
+      `shouldBe` NpmDepsForPackage
         { dependencies = reverse waspDeps,
           devDependencies = waspDeps
         }
@@ -288,11 +289,11 @@ spec_combineNpmDependencies = do
   it
     "NpmDependencies can be unequal"
     $ do
-      NpmDependencies
+      NpmDepsForPackage
         { dependencies = waspDeps,
           devDependencies = []
         }
-      `shouldNotBe` NpmDependencies
+      `shouldNotBe` NpmDepsForPackage
         { dependencies = [],
           devDependencies = []
         }

@@ -4,7 +4,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     preCleanup,
     operationsRouteInRootRouter,
-    waspNpmDependencies,
+    npmDepsForWasp,
   )
 where
 
@@ -51,7 +51,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec waspNpmDependencies,
+      genPackageJson spec npmDepsForWasp,
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -91,9 +91,9 @@ dotEnvInServerRootDir = [relfile|.env|]
 genReadme :: Generator FileDraft
 genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
 
-genPackageJson :: AppSpec -> N.NpmDependencies -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDependencies spec waspDependencies
+  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|package.json|])
@@ -110,10 +110,10 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
-waspNpmDependencies :: N.NpmDependencies
-waspNpmDependencies =
-  N.NpmDependencies
-    { N.dependencies =
+npmDepsForWasp :: N.NpmDepsForWasp
+npmDepsForWasp =
+  N.NpmDepsForWasp
+    { N.waspDependencies =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.4"),
             ("cors", "^2.8.5"),
@@ -126,7 +126,7 @@ waspNpmDependencies =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ],
-      N.devDependencies =
+      N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),

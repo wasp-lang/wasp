@@ -1,6 +1,6 @@
 module Wasp.Generator.WebAppGenerator
   ( generateWebApp,
-    waspNpmDependencies,
+    npmDepsForWasp,
   )
 where
 
@@ -38,7 +38,7 @@ generateWebApp :: AppSpec -> Generator [FileDraft]
 generateWebApp spec = do
   sequence
     [ generateReadme,
-      genPackageJson spec waspNpmDependencies,
+      genPackageJson spec npmDepsForWasp,
       generateGitignore,
       return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
@@ -49,9 +49,9 @@ generateWebApp spec = do
 generateReadme :: Generator FileDraft
 generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
-genPackageJson :: AppSpec -> N.NpmDependencies -> Generator FileDraft
+genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDependencies spec waspDependencies
+  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -64,10 +64,10 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
-waspNpmDependencies :: N.NpmDependencies
-waspNpmDependencies =
-  N.NpmDependencies
-    { N.dependencies =
+npmDepsForWasp :: N.NpmDepsForWasp
+npmDepsForWasp =
+  N.NpmDepsForWasp
+    { N.waspDependencies =
         AS.Dependency.fromList
           [ ("axios", "^0.21.1"),
             ("lodash", "^4.17.15"),
@@ -78,7 +78,7 @@ waspNpmDependencies =
             ("react-scripts", "4.0.3"),
             ("uuid", "^3.4.0")
           ],
-      N.devDependencies =
+      N.waspDevDependencies =
         AS.Dependency.fromList
           []
     }
