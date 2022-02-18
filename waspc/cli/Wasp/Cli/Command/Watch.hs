@@ -13,10 +13,6 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
--- TODO: once we use `compileAndSetup` in `watch` we want to enable these
--- imports:
--- import Wasp.Cli.Command (runCommand)
--- import Wasp.Cli.Command.CompileAndSetup (compileAndSetup)
 import Wasp.Cli.Command.Compile (compileIO)
 import Wasp.Cli.Common (waspSays, waspScreams)
 import qualified Wasp.Cli.Common as Common
@@ -84,11 +80,6 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     recompile :: IO ()
     recompile = do
       waspSays $ asWaspStartMessage "Recompiling on file change..."
-      -- TODO: The plan is to replace the rest of the function with this line:
-      -- `runCommand $ compileAndSetup waspProjectDir outDir`
-      -- The following section can then be removed. It's left in place
-      -- because at present `compileAndSetup` always runs `npm install`
-      -- and until we avoid we don't apply this change yet.
       compilationResult <- compileIO waspProjectDir outDir
       case compilationResult of
         Left err -> waspScreams $ asWaspFailureMessage "Recompilation on file change failed:" ++ err

@@ -12,10 +12,12 @@ import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     waspSaysC,
   )
-import Wasp.Cli.Command.CompileAndSetup (compileAndSetup)
+import Wasp.Cli.Command.Compile
+  ( compileIO,
+  )
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage)
+import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import qualified Wasp.Lib
 
 -- | Does initial compile of wasp code and then runs the generated project.
@@ -25,7 +27,10 @@ start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
-  compileAndSetup waspRoot outDir
+  compilationResult <- liftIO $ compileIO waspRoot outDir
+  case compilationResult of
+    Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Compilation failed:" ++ compileError
+    Right () -> waspSaysC $ asWaspSuccessMessage "Code has been successfully compiled, project has been generated."
 
   waspSaysC $ asWaspStartMessage "Listening for file changes..."
   waspSaysC $ asWaspStartMessage "Starting up generated project..."

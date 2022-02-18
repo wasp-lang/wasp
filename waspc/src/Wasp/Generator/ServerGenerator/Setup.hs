@@ -1,5 +1,5 @@
 module Wasp.Generator.ServerGenerator.Setup
-  ( setupServer,
+  ( installNpmDependencies,
   )
 where
 
@@ -9,7 +9,7 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 
-setupServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
-setupServer projectDir = do
+installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> J.Job
+installNpmDependencies projectDir = do
   let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
   runNodeCommandAsJob serverDir "npm" ["install"] J.Server
