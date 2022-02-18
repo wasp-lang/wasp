@@ -32,6 +32,13 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- different from the dependencies that we just installed. To this end, this
 -- code keeps track of the dependencies installed with a file, which it updates
 -- after each install.
+
+-- NOTE: we assume that the dependencies in package.json are the same as the
+-- ones in AppSpec. We derive them the same way, but it does involve two
+-- slightly different code paths. A way to avoid this is to use a single code
+-- path to derive this information, or by loading the information back again
+-- from disk for each comparison.
+
 ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 ensureNpmInstall spec dstDir = do
   let errorOrFullStackNpmDependencies = N.buildFullStackNpmDependencies spec SG.waspNpmDependencies WG.waspNpmDependencies
