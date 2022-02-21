@@ -27,6 +27,7 @@ start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
+  waspSaysC $ asWaspStartMessage "Starting compilation and setup phase. Hold tight..."
   compilationResult <- liftIO $ compileIO waspRoot outDir
   case compilationResult of
     Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Compilation failed:" ++ compileError
