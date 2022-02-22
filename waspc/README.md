@@ -310,3 +310,15 @@ Make sure to update it when changes modify how Wasp works.
 
 ## Haskell
 We are documenting best practices related to Haskell in our [Haskell Handbook](https://github.com/wasp-lang/haskell-handbook).
+
+## Code style guide
+
+### General
+
+#### Comments
+
+When writing a comment, we prefer starting it with a capital letter.
+
+If it starts with a capital letter, it must end with a punctuation.
+
+If it doesn't start with a capital letter, it shouldn't end with a punctuation.
