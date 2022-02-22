@@ -317,8 +317,26 @@ We are documenting best practices related to Haskell in our [Haskell Handbook](h
 
 #### Comments
 
+#### Grammar
 When writing a comment, we prefer starting it with a capital letter.
 
 If it starts with a capital letter, it must end with a punctuation.
 
 If it doesn't start with a capital letter, it shouldn't end with a punctuation.
+
+#### TODO / NOTE
+
+When writing a TODO or NOTE, use all capital letters, like this:
+
+```hs
+-- TODO: Wash the car.
+
+-- NOTE: This piece of code is slow.
+```
+
+If you wish, you can add your name to TODO / NOTE. This is useful if you think there is a fair chance that reader of that TODO / NOTE might want to consult with its author.
+You can do it like this:
+
+```hs
+-- TODO(martin): Doesn't work on my machine in some unusual use cases.
+```
