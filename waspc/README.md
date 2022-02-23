@@ -307,7 +307,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Update ChangeLog.md with release notes and open an PR for feedback
 - After approval, squash and merge PR for ChangeLog.md into `main`
 - Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`
-  - This will automatically create a new commit for updating the version in package.yaml and tag it
+  - This will automatically create a new commit for updating the version in package.yaml, tag it, and push it all
 - Wait for CI to finish & succeed for the new tag
   - This will automatically create a new draft release
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes
