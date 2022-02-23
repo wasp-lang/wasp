@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.3.1.0 (2022/02/22)
+## v0.4.0.0 (2022/02/23)
 
 ### [BREAKING CHANGE] Upgrading Prisma to version 3.9.1
 
