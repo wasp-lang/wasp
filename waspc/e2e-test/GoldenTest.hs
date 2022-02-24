@@ -30,34 +30,33 @@ runGoldenTest :: GoldenTest -> IO TestTree
 runGoldenTest goldenTest = do
   testOutputsDirAbsSp <- getTestOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
+  let currentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current")
+  let goldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
+
+  -- Remove existing current output files from a prior test run.
+  callCommand $ "rm -rf " ++ currentOutputDirAbsFp
+
+  -- Create current output dir as well as the golden output dir, if missing.
+  callCommand $ "mkdir " ++ currentOutputDirAbsFp
+  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp
 
   let context =
         ShellCommandContext
-          { _ctxtCurrentProjectName = _goldenTestName goldenTest,
-            _ctxtCurrentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current"),
-            _ctxtGoldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
+          { _ctxtCurrentProjectName = _goldenTestName goldenTest
           }
-
-  -- Remove existing current output files from a prior test run.
-  callCommand $ "rm -rf " ++ _ctxtCurrentOutputDirAbsFp context
-
-  -- Create current output dir as well as the golden output dir, if missing.
-  callCommand $ "mkdir " ++ _ctxtCurrentOutputDirAbsFp context
-  callCommand $ "mkdir -p " ++ _ctxtGoldenOutputDirAbsFp context
-
   let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
   putStrLn $ "Running the following command: " ++ shellCommand
 
   -- Run the series of commands within the context of a current output dir.
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ "cd " ++ _ctxtCurrentOutputDirAbsFp context ++ " && " ++ shellCommand
+  callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
-  currentOutputAbsFps <- listRelevantTestOutputFiles $ _ctxtCurrentOutputDirAbsFp context
-  let manifestAbsFp = _ctxtCurrentOutputDirAbsFp context FP.</> "files.manifest"
+  currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
+  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
 
-  writeFileManifest (_ctxtCurrentOutputDirAbsFp context) currentOutputAbsFps manifestAbsFp
+  writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
 
-  let remapCurrentPathToGolden fp = unpack $ replace (pack $ _ctxtCurrentOutputDirAbsFp context) (pack $ _ctxtGoldenOutputDirAbsFp context) (pack fp)
+  let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
 
   return $
     testGroup
@@ -82,7 +81,7 @@ runGoldenTest goldenTest = do
       --       Come back and check on this again after rebasing main, and if still causing failures, create an Issue.
       takeFileName fp `notElem` [".waspinfo", ".gitignore", "node_modules", "dev.db", "dev.db-journal", "package.json", "package-lock.json", "golden.manifest"]
 
-    writeFileManifest :: [Char] -> [FilePath] -> FilePath -> IO ()
+    writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
       writeFile manifestAbsFp sortedRelativeFilePaths

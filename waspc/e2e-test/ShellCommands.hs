@@ -30,11 +30,9 @@ import System.FilePath (joinPath, (</>))
 
 type ShellCommand = String
 
--- Each shell command gets access to the current project name and current/golden output directories.
+-- Each shell command gets access to the current project name, and maybe other things in future.
 data ShellCommandContext = ShellCommandContext
-  { _ctxtCurrentProjectName :: String,
-    _ctxtCurrentOutputDirAbsFp :: FilePath,
-    _ctxtGoldenOutputDirAbsFp :: FilePath
+  { _ctxtCurrentProjectName :: String
   }
   deriving (Show)
 
