@@ -77,9 +77,7 @@ runGoldenTest goldenTest = do
 
     isTestOutputFileTestable :: FilePath -> Bool
     isTestOutputFileTestable fp =
-      -- TODO: Ideally we would not ignore `package.json`, but in CI the order of dependencies differs. :/
-      --       Come back and check on this again after rebasing main, and if still causing failures, create an Issue.
-      takeFileName fp `notElem` [".waspinfo", ".gitignore", "node_modules", "dev.db", "dev.db-journal", "package.json", "package-lock.json", "golden.manifest"]
+      takeFileName fp `notElem` [".waspinfo", "node_modules", "dev.db", "dev.db-journal", "package-lock.json"]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
