@@ -14,7 +14,7 @@ import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import qualified Wasp.AppSpec as AS
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
-import Wasp.CompileOptions (CompileOptions)
+import Wasp.CompileOptions (CompileOptions, sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
@@ -60,7 +60,7 @@ compile waspDir outDir options = do
                     AS.dotEnvFile = maybeDotEnvFile,
                     AS.isBuild = CompileOptions.isBuild options
                   }
-          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir
+          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
           return (map show generatorWarnings, map show generatorErrors)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))

@@ -20,6 +20,7 @@ import Wasp.Cli.Command.Common
   )
 import Wasp.Cli.Command.Compile (compileIOWithOptions)
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
@@ -54,5 +55,6 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
     options =
       CompileOptions
         { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
-          isBuild = True
+          isBuild = True,
+          sendMessage = cliSendMessage
         }

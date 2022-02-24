@@ -24,6 +24,7 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
+import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
 -- | Generates web app code from given Wasp and writes it to given destination directory.
@@ -34,8 +35,8 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-writeWebAppCode spec dstDir = do
+writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode spec dstDir sendMessage = do
   let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
 
   case generatorResult of
@@ -44,7 +45,7 @@ writeWebAppCode spec dstDir = do
       preCleanup spec dstDir
       writeFileDrafts dstDir fileDrafts
       writeDotWaspInfo dstDir
-      (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir
+      (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
       return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
