@@ -1,14 +1,14 @@
 module Tests.WaspCompileTest (waspCompile) where
 
-import GoldenTest (GoldenTest, runGoldenTest)
 import ShellCommands
-  ( cdIntoCurrentProject,
+  ( MakeShellCommand,
+    cdIntoCurrentProject,
     combineMakeShellCommands,
     waspCliCompile,
     waspCliNew,
   )
 
-waspCompile :: GoldenTest
+waspCompile :: (String, MakeShellCommand)
 waspCompile = do
   let makeShellCommand =
         combineMakeShellCommands
@@ -17,4 +17,4 @@ waspCompile = do
             waspCliCompile
           ]
 
-  runGoldenTest "waspCompile" makeShellCommand
+  ("waspCompile", makeShellCommand)

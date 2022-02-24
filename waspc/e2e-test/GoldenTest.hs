@@ -1,10 +1,9 @@
 module GoldenTest
-  ( GoldenTest,
-    runGoldenTest,
+  ( runGoldenTest,
   )
 where
 
-import Common (getGoldensDir)
+import Common (getTestOutputsDir)
 import Control.Monad (filterM)
 import Data.List (sort)
 import Data.Text (pack, replace, unpack)
@@ -18,28 +17,26 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
-type GoldenTest = IO TestTree
-
--- | This runs a golden test by creating a Wasp project, running commands,
+-- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
 -- and then comparing all file outputs to the corresponding golden test output directory.
-runGoldenTest :: String -> MakeShellCommand -> GoldenTest
+runGoldenTest :: String -> MakeShellCommand -> IO TestTree
 runGoldenTest goldenTestName makeShellCommand = do
-  goldensDirAbsSp <- getGoldensDir
-  let goldensDirAbsFp = SP.fromAbsDir goldensDirAbsSp
+  testOutputsDirAbsSp <- getTestOutputsDir
+  let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
 
   let context =
         ShellCommandContext
-          { currentProjectName = goldenTestName,
-            currentOutputDirAbsFp = goldensDirAbsFp FP.</> (goldenTestName ++ "-current"),
-            goldenOutputDirAbsFp = goldensDirAbsFp FP.</> (goldenTestName ++ "-golden")
+          { _ctxtCurrentProjectName = goldenTestName,
+            _ctxtCurrentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (goldenTestName ++ "-current"),
+            _ctxtGoldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (goldenTestName ++ "-golden")
           }
 
   -- Remove existing current output files from a prior test run.
-  callCommand $ "rm -rf " ++ currentOutputDirAbsFp context
+  callCommand $ "rm -rf " ++ _ctxtCurrentOutputDirAbsFp context
 
   -- Create current output dir as well as the golden output dir, if missing.
-  callCommand $ "mkdir " ++ currentOutputDirAbsFp context
-  callCommand $ "mkdir -p " ++ goldenOutputDirAbsFp context
+  callCommand $ "mkdir " ++ _ctxtCurrentOutputDirAbsFp context
+  callCommand $ "mkdir -p " ++ _ctxtGoldenOutputDirAbsFp context
 
   -- Provide the context to the command so it can generate the correct Wasp CLI commands and paths.
   let shellCommand = makeShellCommand context
@@ -47,12 +44,14 @@ runGoldenTest goldenTestName makeShellCommand = do
 
   -- Run the series of commands within the context of a current output dir.
   -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ "cd " ++ currentOutputDirAbsFp context ++ " && " ++ shellCommand
+  callCommand $ "cd " ++ _ctxtCurrentOutputDirAbsFp context ++ " && " ++ shellCommand
 
-  currentOutputAbsFps <- getAllDirFilesRecursivelyFiltered $ currentOutputDirAbsFp context
-  let manifestAbsFp = currentOutputDirAbsFp context FP.</> "files.manifest"
+  currentOutputAbsFps <- listRelevantTestOutputFiles $ _ctxtCurrentOutputDirAbsFp context
+  let manifestAbsFp = _ctxtCurrentOutputDirAbsFp context FP.</> "files.manifest"
 
-  writeFileManifest (currentOutputDirAbsFp context) currentOutputAbsFps manifestAbsFp
+  writeFileManifest (_ctxtCurrentOutputDirAbsFp context) currentOutputAbsFps manifestAbsFp
+
+  let remapCurrentPathToGolden fp = unpack $ replace (pack $ _ctxtCurrentOutputDirAbsFp context) (pack $ _ctxtGoldenOutputDirAbsFp context) (pack fp)
 
   return $
     testGroup
@@ -64,14 +63,20 @@ runGoldenTest goldenTestName makeShellCommand = do
           currentOutputAbsFp
           (return ()) -- A no-op command that normally generates the file under test, but we did that in bulk above.
         | currentOutputAbsFp <- manifestAbsFp : currentOutputAbsFps,
-          let goldenOutputAbsFp = unpack $ replace (pack $ currentOutputDirAbsFp context) (pack $ goldenOutputDirAbsFp context) (pack currentOutputAbsFp)
+          let goldenOutputAbsFp = remapCurrentPathToGolden currentOutputAbsFp
       ]
   where
-    -- TODO: Ideally we would not ignore `package.json`, but in CI the order of dependencies differs. :/
-    dirFilter fp =
-      return $ notElem (takeFileName fp) [".waspinfo", ".gitignore", "node_modules", "dev.db", "dev.db-journal", "package.json", "package-lock.json", "golden.manifest"]
-    getAllDirFilesRecursivelyFiltered dirToFilterAbsFp =
-      getDirFiltered dirFilter dirToFilterAbsFp >>= filterM doesFileExist
+    listRelevantTestOutputFiles :: FilePath -> IO [FilePath]
+    listRelevantTestOutputFiles dirToFilterAbsFp =
+      getDirFiltered (return <$> isTestOutputFileTestable) dirToFilterAbsFp >>= filterM doesFileExist
+
+    isTestOutputFileTestable :: FilePath -> Bool
+    isTestOutputFileTestable fp =
+      -- TODO: Ideally we would not ignore `package.json`, but in CI the order of dependencies differs. :/
+      --       Come back and check on this again after rebasing main, and if still causing failures, create an Issue.
+      takeFileName fp `notElem` [".waspinfo", ".gitignore", "node_modules", "dev.db", "dev.db-journal", "package.json", "package-lock.json", "golden.manifest"]
+
+    writeFileManifest :: [Char] -> [FilePath] -> FilePath -> IO ()
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
       writeFile manifestAbsFp sortedRelativeFilePaths

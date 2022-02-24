@@ -3,7 +3,7 @@ module Common
     E2eTestDir,
     GoldensDir,
     getE2eTestDir,
-    getGoldensDir,
+    getTestOutputsDir,
     getProjectRootPath,
   )
 where
@@ -35,8 +35,8 @@ e2eTestDirInProjectRoot = [reldir|e2e-test|]
 getE2eTestDir :: IO (Path' Abs (Dir E2eTestDir))
 getE2eTestDir = (</> e2eTestDirInProjectRoot) <$> getProjectRootPath
 
-goldensDirInE2eTest :: Path' (Rel E2eTestDir) (Dir GoldensDir)
-goldensDirInE2eTest = [reldir|goldens|]
+testOutputsDirInE2eTest :: Path' (Rel E2eTestDir) (Dir GoldensDir)
+testOutputsDirInE2eTest = [reldir|test-outputs|]
 
-getGoldensDir :: IO (Path' Abs (Dir GoldensDir))
-getGoldensDir = (</> goldensDirInE2eTest) <$> getE2eTestDir
+getTestOutputsDir :: IO (Path' Abs (Dir GoldensDir))
+getTestOutputsDir = (</> testOutputsDirInE2eTest) <$> getE2eTestDir
