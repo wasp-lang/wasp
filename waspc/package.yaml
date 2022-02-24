@@ -166,3 +166,4 @@ tests:
       - dir-traverse
       - strong-path
       - text
+      - mtl

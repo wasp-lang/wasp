@@ -1,6 +1,7 @@
 module GoldenTest
   ( runGoldenTest,
-    GoldenTest (..),
+    makeGoldenTest,
+    GoldenTest,
   )
 where
 
@@ -8,7 +9,7 @@ import Common (getTestOutputsDir)
 import Control.Monad (filterM)
 import Data.List (sort)
 import Data.Text (pack, replace, unpack)
-import ShellCommands (MakeShellCommand, ShellCommandContext (..))
+import ShellCommands (ShellCommand, ShellCommandBuilder, ShellCommandContext (..), combineShellCommands, runShellCommandBuilder)
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -18,7 +19,10 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
-data GoldenTest = GoldenTest {_goldenTestName :: String, _makeShellCommand :: MakeShellCommand}
+data GoldenTest = GoldenTest {_goldenTestName :: String, _goldenTestCommands :: ShellCommandBuilder [ShellCommand]}
+
+makeGoldenTest :: String -> ShellCommandBuilder [ShellCommand] -> GoldenTest
+makeGoldenTest name commands = GoldenTest {_goldenTestName = name, _goldenTestCommands = commands}
 
 -- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
 -- and then comparing all file outputs to the corresponding golden test output directory.
@@ -41,8 +45,7 @@ runGoldenTest goldenTest = do
   callCommand $ "mkdir " ++ _ctxtCurrentOutputDirAbsFp context
   callCommand $ "mkdir -p " ++ _ctxtGoldenOutputDirAbsFp context
 
-  -- Provide the context to the command so it can generate the correct Wasp CLI commands and paths.
-  let shellCommand = _makeShellCommand goldenTest context
+  let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
   putStrLn $ "Running the following command: " ++ shellCommand
 
   -- Run the series of commands within the context of a current output dir.

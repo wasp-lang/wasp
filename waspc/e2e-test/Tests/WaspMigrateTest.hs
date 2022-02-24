@@ -1,10 +1,9 @@
 module Tests.WaspMigrateTest (waspMigrate) where
 
-import GoldenTest (GoldenTest (GoldenTest, _goldenTestName, _makeShellCommand))
+import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( appendToWaspFile,
     cdIntoCurrentProject,
-    combineMakeShellCommands,
     waspCliCompile,
     waspCliMigrate,
     waspCliNew,
@@ -19,8 +18,8 @@ waspMigrate = do
         \  isDone      Boolean @default(false) \n\
         \ psl=} \n"
 
-  let makeShellCommand =
-        combineMakeShellCommands
+  let commands =
+        sequence
           [ waspCliNew,
             cdIntoCurrentProject,
             waspCliCompile,
@@ -28,4 +27,4 @@ waspMigrate = do
             waspCliMigrate "foo"
           ]
 
-  GoldenTest {_goldenTestName = "waspMigrate", _makeShellCommand = makeShellCommand}
+  makeGoldenTest "waspMigrate" commands

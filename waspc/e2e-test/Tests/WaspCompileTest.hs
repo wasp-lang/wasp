@@ -1,20 +1,19 @@
 module Tests.WaspCompileTest (waspCompile) where
 
-import GoldenTest (GoldenTest (GoldenTest, _goldenTestName, _makeShellCommand))
+import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( cdIntoCurrentProject,
-    combineMakeShellCommands,
     waspCliCompile,
     waspCliNew,
   )
 
 waspCompile :: GoldenTest
 waspCompile = do
-  let makeShellCommand =
-        combineMakeShellCommands
+  let commands =
+        sequence
           [ waspCliNew,
             cdIntoCurrentProject,
             waspCliCompile
           ]
 
-  GoldenTest {_goldenTestName = "waspCompile", _makeShellCommand = makeShellCommand}
+  makeGoldenTest "waspCompile" commands
