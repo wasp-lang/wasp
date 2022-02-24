@@ -1,5 +1,6 @@
 module GoldenTest
   ( runGoldenTest,
+    GoldenTest (..),
   )
 where
 
@@ -17,18 +18,20 @@ import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
+data GoldenTest = GoldenTest {_goldenTestName :: String, _makeShellCommand :: MakeShellCommand}
+
 -- | This runs a golden test by creating a Wasp project (via `wasp-cli new`), running commands,
 -- and then comparing all file outputs to the corresponding golden test output directory.
-runGoldenTest :: String -> MakeShellCommand -> IO TestTree
-runGoldenTest goldenTestName makeShellCommand = do
+runGoldenTest :: GoldenTest -> IO TestTree
+runGoldenTest goldenTest = do
   testOutputsDirAbsSp <- getTestOutputsDir
   let testOutputsDirAbsFp = SP.fromAbsDir testOutputsDirAbsSp
 
   let context =
         ShellCommandContext
-          { _ctxtCurrentProjectName = goldenTestName,
-            _ctxtCurrentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (goldenTestName ++ "-current"),
-            _ctxtGoldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (goldenTestName ++ "-golden")
+          { _ctxtCurrentProjectName = _goldenTestName goldenTest,
+            _ctxtCurrentOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-current"),
+            _ctxtGoldenOutputDirAbsFp = testOutputsDirAbsFp FP.</> (_goldenTestName goldenTest ++ "-golden")
           }
 
   -- Remove existing current output files from a prior test run.
@@ -39,7 +42,7 @@ runGoldenTest goldenTestName makeShellCommand = do
   callCommand $ "mkdir -p " ++ _ctxtGoldenOutputDirAbsFp context
 
   -- Provide the context to the command so it can generate the correct Wasp CLI commands and paths.
-  let shellCommand = makeShellCommand context
+  let shellCommand = _makeShellCommand goldenTest context
   putStrLn $ "Running the following command: " ++ shellCommand
 
   -- Run the series of commands within the context of a current output dir.
@@ -55,7 +58,7 @@ runGoldenTest goldenTestName makeShellCommand = do
 
   return $
     testGroup
-      goldenTestName
+      (_goldenTestName goldenTest)
       [ goldenVsFileDiff
           currentOutputAbsFp -- The test name that shows in the output.
           (\ref new -> ["diff", "-u", ref, new])

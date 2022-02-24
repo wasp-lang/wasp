@@ -1,6 +1,9 @@
 module Tests.WaspNewTest (waspNew) where
 
-import ShellCommands (MakeShellCommand, waspCliNew)
+import GoldenTest (GoldenTest (GoldenTest, _goldenTestName, _makeShellCommand))
+import ShellCommands
+  ( waspCliNew,
+  )
 
-waspNew :: (String, MakeShellCommand)
-waspNew = ("waspNew", waspCliNew)
+waspNew :: GoldenTest
+waspNew = GoldenTest {_goldenTestName = "waspNew", _makeShellCommand = waspCliNew}

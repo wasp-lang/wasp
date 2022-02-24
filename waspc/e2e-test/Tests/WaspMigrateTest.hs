@@ -1,8 +1,8 @@
 module Tests.WaspMigrateTest (waspMigrate) where
 
+import GoldenTest (GoldenTest (GoldenTest, _goldenTestName, _makeShellCommand))
 import ShellCommands
-  ( MakeShellCommand,
-    appendToWaspFile,
+  ( appendToWaspFile,
     cdIntoCurrentProject,
     combineMakeShellCommands,
     waspCliCompile,
@@ -10,7 +10,7 @@ import ShellCommands
     waspCliNew,
   )
 
-waspMigrate :: (String, MakeShellCommand)
+waspMigrate :: GoldenTest
 waspMigrate = do
   let entityDecl =
         "entity Task {=psl \n\
@@ -28,4 +28,4 @@ waspMigrate = do
             waspCliMigrate "foo"
           ]
 
-  ("waspMigrate", makeShellCommand)
+  GoldenTest {_goldenTestName = "waspMigrate", _makeShellCommand = makeShellCommand}

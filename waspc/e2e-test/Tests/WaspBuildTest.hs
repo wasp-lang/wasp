@@ -1,8 +1,15 @@
 module Tests.WaspBuildTest (waspBuild) where
 
-import ShellCommands (MakeShellCommand, cdIntoCurrentProject, combineMakeShellCommands, setDbToPSQL, waspCliBuild, waspCliNew)
+import GoldenTest (GoldenTest (GoldenTest, _goldenTestName, _makeShellCommand))
+import ShellCommands
+  ( cdIntoCurrentProject,
+    combineMakeShellCommands,
+    setDbToPSQL,
+    waspCliBuild,
+    waspCliNew,
+  )
 
-waspBuild :: (String, MakeShellCommand)
+waspBuild :: GoldenTest
 waspBuild = do
   let makeShellCommand =
         combineMakeShellCommands
@@ -12,4 +19,4 @@ waspBuild = do
             waspCliBuild
           ]
 
-  ("waspBuild", makeShellCommand)
+  GoldenTest {_goldenTestName = "waspBuild", _makeShellCommand = makeShellCommand}
