@@ -15,7 +15,7 @@ import qualified Data.Text.IO       as T.IO
 import           System.Environment (getArgs)
 import           System.Exit        (ExitCode (..))
 import qualified Text.Regex.TDFA    as TR
-import           Turtle             (empty, shell)
+import           Turtle             (empty, shell, shellStrict)
 
 main = do
     args <- getArgs
@@ -25,6 +25,9 @@ main = do
 
 makeNewRelease :: String -> IO ()
 makeNewRelease newVersion = do
+    (ExitSuccess, branchName) <- shellStrict "git rev-parse --abbrev-ref HEAD" empty
+    when (T.strip branchName /= "main") $ error "You must run this script from the main branch!"
+
     oldPackageYamlContents <- T.unpack <$> T.IO.readFile "package.yaml"
 
     (newPackageYamlContents, oldVersion) <- updatePackageYaml oldPackageYamlContents newVersion
