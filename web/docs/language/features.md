@@ -208,9 +208,9 @@ Here's an example of two simple Queries:
 ```js title="ext/queries.js"
 // our "database"
 const tasks = [
-    { id: 1, description: "Buy some eggs", isDone: true },
-    { id: 2, description: "Make an omelette", isDone: false },
-    { id: 3, description: "Eat breakfast", isDone: false }
+  { id: 1, description: "Buy some eggs", isDone: true },
+  { id: 2, description: "Make an omelette", isDone: false },
+  { id: 3, description: "Eat breakfast", isDone: false }
 ]
 
 
@@ -230,7 +230,7 @@ export const getFilteredTasks = async (args) => {
 After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `query` declaration, which supports the following fields:
 - `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation 
-- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
 
 Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
@@ -286,7 +286,9 @@ Here's an example of calling the Queries using the `useQuery` hook:
 ```jsx
 import React from 'react'
 import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks'
+
+import fetchAllTasks from '@wasp/queries/fetchAllTasks'
+import fetchFilteredTasks from '@wasp/queries/fetchFilteredTasks'
 
 
 
@@ -377,7 +379,7 @@ Here's an implementation of a simple Action:
 
 ```js title=actions.js
 export const sayHi = async () => {
-    console.log('The client said Hi!')
+  console.log('The client said Hi!')
 }
 ```
 Its corresponding declaration in Wasp:
@@ -386,7 +388,7 @@ Its corresponding declaration in Wasp:
 // ...
 
 action sayHi {
-    fn: import { sayHi } from "@ext/actions.js"
+  fn: import { sayHi } from "@ext/actions.js"
 }
 ```
 And an example of how to import and call the declared Action:
