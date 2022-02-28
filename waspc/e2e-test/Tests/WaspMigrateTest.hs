@@ -4,6 +4,7 @@ import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( appendToWaspFile,
     cdIntoCurrentProject,
+    reformatPackageJson,
     waspCliCompile,
     waspCliMigrate,
     waspCliNew,
@@ -24,7 +25,8 @@ waspMigrate = do
             cdIntoCurrentProject,
             waspCliCompile,
             appendToWaspFile entityDecl,
-            waspCliMigrate "foo"
+            waspCliMigrate "foo",
+            reformatPackageJson "out"
           ]
 
   makeGoldenTest "waspMigrate" commands

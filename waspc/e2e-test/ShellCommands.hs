@@ -8,6 +8,7 @@ module ShellCommands
     combineShellCommands,
     cdIntoCurrentProject,
     appendToWaspFile,
+    reformatPackageJson,
     setDbToPSQL,
     waspCliNew,
     waspCliCompile,
@@ -56,6 +57,27 @@ appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
 appendToWaspFile content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "echo " ++ show content ++ " >> main.wasp"
+
+-- Uses python2's json.tool to sort keys as `npm install` overwrites
+-- package.json when writing package-lock.json and different versions produce different ouput.
+-- NOTE: python3 won't sort them, which but we want to, so force python2.
+-- Ref: https://github.com/wasp-lang/wasp/issues/482
+reformatPackageJson :: String -> ShellCommandBuilder ShellCommand
+reformatPackageJson outputDirName =
+  let reformatServerPackageJsonCommands = reformatJsonCommands $ packageJsonFp "server"
+      reformatWebAppPackageJsonCommands = reformatJsonCommands $ packageJsonFp "web-app"
+   in return $
+        combineShellCommands $ reformatServerPackageJsonCommands ++ reformatWebAppPackageJsonCommands
+  where
+    packageJsonFp :: String -> FilePath
+    packageJsonFp component = ".wasp/" ++ outputDirName ++ "/" ++ component ++ "/package.json"
+
+    reformatJsonCommands :: FilePath -> [ShellCommand]
+    reformatJsonCommands fp =
+      let tmpFp = fp ++ ".tmp"
+       in [ "python2 -m json.tool " ++ fp ++ " > " ++ tmpFp,
+            "mv " ++ tmpFp ++ " " ++ fp
+          ]
 
 -- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
 --       we do not have a `db` field. Consider better alternatives.
