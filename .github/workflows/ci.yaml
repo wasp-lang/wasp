@@ -2,7 +2,7 @@ name: CI
 
 on:
   push: { branches: [main] }
-  pull_request: { branches: [main] }
+  pull_request: { }
   create: { tags: [v*] }
 
 defaults:
