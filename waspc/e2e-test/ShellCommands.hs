@@ -4,6 +4,7 @@ module ShellCommands
   ( ShellCommand,
     ShellCommandContext (..),
     ShellCommandBuilder (..),
+    OutputDir (..),
     runShellCommandBuilder,
     combineShellCommands,
     cdIntoCurrentProject,
@@ -58,19 +59,20 @@ appendToWaspFile content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "echo " ++ show content ++ " >> main.wasp"
 
+data OutputDir = DevOutputDir | BuildOutputDir
+
 -- Uses python2's json.tool to sort keys as `npm install` overwrites
 -- package.json when writing package-lock.json and different versions produce different ouput.
--- NOTE: python3 won't sort them, which but we want to, so force python2.
+-- NOTE: python3 won't sort them, but we want to, so force python2.
 -- Ref: https://github.com/wasp-lang/wasp/issues/482
-reformatPackageJson :: String -> ShellCommandBuilder ShellCommand
-reformatPackageJson outputDirName =
-  let reformatServerPackageJsonCommands = reformatJsonCommands $ packageJsonFp "server"
-      reformatWebAppPackageJsonCommands = reformatJsonCommands $ packageJsonFp "web-app"
-   in return $
-        combineShellCommands $ reformatServerPackageJsonCommands ++ reformatWebAppPackageJsonCommands
+reformatPackageJson :: OutputDir -> ShellCommandBuilder ShellCommand
+reformatPackageJson outputDir =
+  return $ combineShellCommands $ concatMap (reformatJsonCommands . componentPackageJsonFp) ["server", "web-app"]
   where
-    packageJsonFp :: String -> FilePath
-    packageJsonFp component = ".wasp/" ++ outputDirName ++ "/" ++ component ++ "/package.json"
+    componentPackageJsonFp :: String -> FilePath
+    componentPackageJsonFp component = case outputDir of
+      DevOutputDir -> ".wasp/out/" ++ component ++ "/package.json"
+      BuildOutputDir -> ".wasp/build/" ++ component ++ "/package.json"
 
     reformatJsonCommands :: FilePath -> [ShellCommand]
     reformatJsonCommands fp =

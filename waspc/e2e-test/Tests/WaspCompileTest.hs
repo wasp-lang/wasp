@@ -2,7 +2,8 @@ module Tests.WaspCompileTest (waspCompile) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( cdIntoCurrentProject,
+  ( OutputDir (DevOutputDir),
+    cdIntoCurrentProject,
     reformatPackageJson,
     waspCliCompile,
     waspCliNew,
@@ -15,7 +16,7 @@ waspCompile = do
           [ waspCliNew,
             cdIntoCurrentProject,
             waspCliCompile,
-            reformatPackageJson "out"
+            reformatPackageJson DevOutputDir
           ]
 
   makeGoldenTest "waspCompile" commands

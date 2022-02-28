@@ -2,7 +2,8 @@ module Tests.WaspBuildTest (waspBuild) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( cdIntoCurrentProject,
+  ( OutputDir (BuildOutputDir),
+    cdIntoCurrentProject,
     reformatPackageJson,
     setDbToPSQL,
     waspCliBuild,
@@ -17,7 +18,7 @@ waspBuild = do
             cdIntoCurrentProject,
             setDbToPSQL,
             waspCliBuild,
-            reformatPackageJson "build"
+            reformatPackageJson BuildOutputDir
           ]
 
   makeGoldenTest "waspBuild" commands

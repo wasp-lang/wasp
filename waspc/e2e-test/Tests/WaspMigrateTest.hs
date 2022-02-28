@@ -2,7 +2,8 @@ module Tests.WaspMigrateTest (waspMigrate) where
 
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
-  ( appendToWaspFile,
+  ( OutputDir (DevOutputDir),
+    appendToWaspFile,
     cdIntoCurrentProject,
     reformatPackageJson,
     waspCliCompile,
@@ -26,7 +27,7 @@ waspMigrate = do
             waspCliCompile,
             appendToWaspFile entityDecl,
             waspCliMigrate "foo",
-            reformatPackageJson "out"
+            reformatPackageJson DevOutputDir
           ]
 
   makeGoldenTest "waspMigrate" commands
