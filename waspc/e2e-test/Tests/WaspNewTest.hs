@@ -6,4 +6,4 @@ import ShellCommands
   )
 
 waspNew :: GoldenTest
-waspNew = makeGoldenTest "waspNew" ((: []) <$> waspCliNew)
+waspNew = makeGoldenTest "waspNew" (pure <$> waspCliNew)

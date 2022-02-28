@@ -11,14 +11,12 @@ import ShellCommands
   )
 
 waspBuild :: GoldenTest
-waspBuild = do
-  let commands =
-        sequence
-          [ waspCliNew,
-            cdIntoCurrentProject,
-            setDbToPSQL,
-            waspCliBuild,
-            reformatPackageJson BuildOutputDir
-          ]
-
-  makeGoldenTest "waspBuild" commands
+waspBuild =
+  makeGoldenTest "waspBuild" $
+    sequence
+      [ waspCliNew,
+        cdIntoCurrentProject,
+        setDbToPSQL,
+        waspCliBuild,
+        reformatPackageJson BuildOutputDir
+      ]

@@ -10,13 +10,11 @@ import ShellCommands
   )
 
 waspCompile :: GoldenTest
-waspCompile = do
-  let commands =
-        sequence
-          [ waspCliNew,
-            cdIntoCurrentProject,
-            waspCliCompile,
-            reformatPackageJson DevOutputDir
-          ]
-
-  makeGoldenTest "waspCompile" commands
+waspCompile =
+  makeGoldenTest "waspCompile" $
+    sequence
+      [ waspCliNew,
+        cdIntoCurrentProject,
+        waspCliCompile,
+        reformatPackageJson DevOutputDir
+      ]

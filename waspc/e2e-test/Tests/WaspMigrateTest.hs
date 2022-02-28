@@ -20,14 +20,12 @@ waspMigrate = do
         \  isDone      Boolean @default(false) \n\
         \ psl=} \n"
 
-  let commands =
-        sequence
-          [ waspCliNew,
-            cdIntoCurrentProject,
-            waspCliCompile,
-            appendToWaspFile entityDecl,
-            waspCliMigrate "foo",
-            reformatPackageJson DevOutputDir
-          ]
-
-  makeGoldenTest "waspMigrate" commands
+  makeGoldenTest "waspMigrate" $
+    sequence
+      [ waspCliNew,
+        cdIntoCurrentProject,
+        waspCliCompile,
+        appendToWaspFile entityDecl,
+        waspCliMigrate "foo",
+        reformatPackageJson DevOutputDir
+      ]
