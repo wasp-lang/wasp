@@ -53,7 +53,7 @@ page MainPage {
 
 Normally you will also want to associate `page` with a `route`, otherwise it won't be accessible in the app.
 
-### Fields 
+### Fields
 
 #### `component: ExtImport` (required)
 Import statement of the React element that implements the page component.
@@ -179,7 +179,7 @@ Currently entities can be accessed only in Operations (Queries & Actions), so ch
 ## Queries and Actions (aka Operations)
 
 In Wasp, the client and the server interact with each other through Operations.
-Wasp currently supports two kinds of operations: **Queries** and **Actions**.
+Wasp currently supports two kinds of Operations: **Queries** and **Actions**.
 
 ### Query
 
@@ -194,15 +194,15 @@ To create a Wasp Query, you must:
 1. Define the Query's NodeJS implementation
 2. Declare the Query in Wasp using the `query` declaration
 
-After completing these two steps, you'll be able to use the Query from any point in your code. 
+After completing these two steps, you'll be able to use the Query from any point in your code.
 
 
 #### Defining the Query's NodeJS implementation
 A Query must be implemented as an `async` NodeJS function that takes two arguments.
 Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
-1. `args`:  An object containing all the arguments (i.e., payload) sent to the Query (e.g., filtering conditions).
+1. `args`:  An object containing all the arguments (i.e., payload) **passed to the Query by the caller** (e.g., filtering conditions).
 Take a look at [the examples of usage](#using-the-query) to see how to pass this object to the Query.
-3. `context`: An additional context object. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
+3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
 
 Here's an example of two simple Queries:
 ```js title="ext/queries.js"
@@ -219,18 +219,18 @@ export const getAllTasks = async () => {
   return tasks;
 }
 
-// The 'args' object is something sent by the caller (most often from the client) 
+// The 'args' object is something sent by the caller (most often from the client)
 export const getFilteredTasks = async (args) => {
   const { isDone } = args;
   return tasks.filter(task => task.isDone === isDone)
 }
 ```
 
-#### Declaring a Query in Wasp 
+#### Declaring a Query in Wasp
 After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `query` declaration, which supports the following fields:
-- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation 
-- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query
+- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation.
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
 
 Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
@@ -280,7 +280,7 @@ Wasp's `useQuery` hook takes three arguments:
 - `queryFnArgs` (optional): The arguments object (payload) you wish to pass into the query. The query's NodeJS implementation will receive this object as its first positional argument.
 - `config` (optional): A _react-query_ `config` object.
 
-Wasp's `useQuery` hook behaves mostly the same as [_react-query_'s `useQuery` hook](https://react-query.tanstack.com/docs/api#usequery), the only difference being in not having to supply the key. Wasp handles the caching automatically under the hood.
+Wasp's `useQuery` hook behaves mostly the same as [_react-query_'s `useQuery` hook](https://react-query.tanstack.com/docs/api#usequery), the only difference being in not having to supply the key (Wasp does this automatically under the hood).
 
 Here's an example of calling the Queries using the `useQuery` hook:
 ```jsx
@@ -304,7 +304,7 @@ const MainPage = () => {
   } = useQuery(fetchFilteredTasks, { isDone: true})
 
   return (
-    <div> 
+    <div>
         <p>All tasks: { JSON.stringify(allTasks || error1) }</p>
         <p>Finished tasks: { JSON.stringify(doneTasks || error2) }</p>
     </div>
@@ -322,7 +322,7 @@ If you do want to pass additional error information to the client, you can const
 ```js title=ext/queries.js
 import HttpError from '@wasp/core/HttpError.js'
 
-export const getTasksError = async (args, context) => {
+export const getTasks = async (args, context) => {
   const statusCode = 403
   const message = 'You can\'t do this!'
   const data = { foo: 'bar' }
@@ -359,7 +359,7 @@ export const getAllTasks = async (args, context) => {
 }
 
 export const getFilteredTasks = async (args, context) => {
-  return context.entities.Task.findMany({ 
+  return context.entities.Task.findMany({
     where: { isDone: args.isDone }
   })
 }
@@ -373,7 +373,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 Actions are very similar to Queries. So similar, in fact, we will only list the differences:
 1. They can (and most often should) modify state, while Queries are only allowed to read it.
 2. Since Actions don't need to be reactive, Wasp doesn't provide a React hook for them (like `useQuery` for Queries) - you just call them directly.
-3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name. 
+3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
 
 Here's an implementation of a simple Action:
 
@@ -417,10 +417,7 @@ Wasp will therefore invalidate it, making `Q1` up to date again.
 
 In practice, this means that Wasp keeps the queries "fresh" without requiring you to think about cache invalidation.
 
-On the other hand, such excessive cache invalidation can quickly become wasteful and will not work for any resource other than Entities.
-Wasp does not yet provide native support for such use cases, so please use _react-query_'s built-in mechanisms for the time being.
-You can expect Wasp to support a more elegant solution in the future.
-
+On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will not only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
 
 ## Dependencies
@@ -486,7 +483,7 @@ This method requires that `userEntity` specified in `auth` contains `email: stri
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
 - `email`: non-empty
-- `password`: non-empty, at least 8 characters, and contains a number 
+- `password`: non-empty, at least 8 characters, and contains a number
 
 #### High-level API
 
@@ -509,7 +506,7 @@ export const signUp = async (args, context) => {
     // Your custom code before sign-up.
     // ...
     const newUser = context.entities.User.create({
-        data: { email: 'some@email.com', password: 'this will be hashed!' } 
+        data: { email: 'some@email.com', password: 'this will be hashed!' }
     })
 
     // Your custom code after sign-up.
@@ -793,8 +790,8 @@ app MyApp {
 `app.db` is a dictionary with following fields:
 
 #### `system: DbSystem`
-Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.  
-If not defined, or even if whole `db` field is not present, default value is `SQLite`.  
+Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.
+If not defined, or even if whole `db` field is not present, default value is `SQLite`.
 If you add/remove/modify `db` field, run `wasp db migrate-dev` to apply the changes.
 
 ### SQLite
