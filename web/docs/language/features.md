@@ -179,7 +179,7 @@ Currently entities can be accessed only in Operations (Queries & Actions), so ch
 ## Queries and Actions (aka Operations)
 
 In Wasp, the client and the server interact with each other through Operations.
-Wasp currently supports two kinds of operations: **Queries** and **Actions**.
+There are two kinds of Operations in Wasp: **Queries** and **Actions**.
 
 ### Query
 
@@ -229,8 +229,8 @@ export const getFilteredTasks = async (args) => {
 #### Declaring a Query in Wasp 
 After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `query` declaration, which supports the following fields:
-- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation 
-- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query
+- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation. 
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
 
 Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
@@ -301,7 +301,7 @@ const MainPage = () => {
   const {
     data: doneTasks,
     error: error2
-  } = useQuery(fetchFilteredTasks, { isDone: true})
+  } = useQuery(fetchFilteredTasks, { isDone: true })
 
   return (
     <div> 
@@ -316,7 +316,7 @@ export default MainPage
 
 #### Error Handling
 For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
-Removing error information helps against accidentally leaking possibly sensitive information over the network.
+Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your NodeJS Query function:
 ```js title=ext/queries.js
@@ -335,7 +335,7 @@ To prevent information leakage, the server won't forward these fields for any ot
 
 #### Using Entities in Queries
 In most cases, resources used in Queries will be [Entities](#entity).
-To use an Entity in your Query, add it to the declaration in Wasp:
+To use an Entity in your Query, add it to the query declaration in Wasp:
 
 ```c {4,9} title="main.wasp"
 // ...
@@ -350,7 +350,7 @@ query fetchFilteredTasks {
 }
 ```
 
-Wasp will inject the specified Entity into the Query's context argument, giving you access to the Entity's Prisma API:
+Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
 ```js title="ext/queries.js"
 // ...
 
@@ -405,7 +405,7 @@ sayHi()
 More differences and Action/Query specific features will come in future versions of Wasp.
 
 ### Cache Invalidation
-One of the trickiest parts of managing a web app's state is making sure the data shown by the queries are up to date.
+One of the trickiest parts of managing a web app's state is making sure the data shown by the queries is up to date.
 Since Wasp uses _react-query_ for Query management, we must make sure to invalidate its caches whenever they become stale.
 
 It's possible to invalidate the caches manually through several mechanisms _react-query_ provides (e.g., refetch, direct invalidation).
