@@ -57,7 +57,7 @@ cdIntoCurrentProject = do
 appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
 appendToWaspFile content =
   -- NOTE: Using `show` to preserve newlines in string.
-  return $ "echo " ++ show content ++ " >> main.wasp"
+  return $ "printf " ++ show (content ++ "\n") ++ " >> main.wasp"
 
 data OutputDir = DevOutputDir | BuildOutputDir
 
