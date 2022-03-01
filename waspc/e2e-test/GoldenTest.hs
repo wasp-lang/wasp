@@ -77,7 +77,7 @@ runGoldenTest goldenTest = do
 
     isTestOutputFileTestable :: FilePath -> Bool
     isTestOutputFileTestable fp =
-      takeFileName fp `notElem` [".waspinfo", "node_modules", "dev.db", "dev.db-journal", "package-lock.json"]
+      takeFileName fp `notElem` [".waspinfo", "node_modules", "dev.db", "dev.db-journal", "package-lock.json", ".gitignore"]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
