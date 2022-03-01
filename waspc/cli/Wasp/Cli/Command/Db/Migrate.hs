@@ -21,8 +21,8 @@ import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
-migrateDev :: Command ()
-migrateDev = do
+migrateDev :: Maybe String -> Command ()
+migrateDev maybeMigrationName = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   let genProjectRootDir =
         waspProjectDir
@@ -34,7 +34,7 @@ migrateDev = do
           </> Wasp.Common.dbMigrationsDirInWaspProjectDir
 
   waspSaysC $ asWaspStartMessage "Performing migration..."
-  migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir
+  migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir maybeMigrationName
   case migrateResult of
     Left migrateError ->
       throwError $ CommandError $ asWaspFailureMessage "Migrate dev failed:" ++ migrateError
