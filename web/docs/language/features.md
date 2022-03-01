@@ -183,10 +183,10 @@ Wasp currently supports two kinds of Operations: **Queries** and **Actions**.
 
 ### Query
 
-Queries are resource-fetching functions that don't modify the state. Each Query should fetch, process, and return a particular resource.
+Queries are used to fetch data from the server. They do not modify the server's state.
 
 Queries are implemented in NodeJS and executed within the server's context.
-However, Wasp will generate the code that lets you call the Query from any point in your code (i.e., client, server) using the same interface.
+Wasp generates the code that lets you call the Query from anywhere in your code (client or server) using the same interface.
 In other words, you won't have to worry about building an HTTP API for the Query, handling the request on the server, or even handling and caching the responses on the client.
 Instead, simply focus on the business logic inside your Query and let Wasp take care of the rest!
 
@@ -371,7 +371,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 ### Action
 
 Actions are very similar to Queries. So similar, in fact, we will only list the differences:
-1. They can (and most often should) modify state, while Queries are only allowed to read it.
+1. They can (and most often should) modify the server's state, while Queries are only allowed to read it.
 2. Since Actions don't need to be reactive, Wasp doesn't provide a React hook for them (like `useQuery` for Queries) - you just call them directly.
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
 
