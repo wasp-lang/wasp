@@ -1,0 +1,7 @@
+waspNew/.gitignore
+waspNew/.wasproot
+waspNew/ext/.waspignore
+waspNew/ext/Main.css
+waspNew/ext/MainPage.js
+waspNew/ext/waspLogo.png
+waspNew/main.wasp
