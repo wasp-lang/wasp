@@ -303,19 +303,20 @@ We also wrote a `new-release` script which you can use to help you with creating
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
-### Typicall Release Process
-- Update ChangeLog.md with release notes and open an PR for feedback
-- After approval, squash and merge PR for ChangeLog.md into `main`
-- Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`
-  - This will automatically create a new commit for updating the version in package.yaml, tag it, and push it all
-- Wait for CI to finish & succeed for the new tag
-  - This will automatically create a new draft release
-- Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes
-- Publish the draft release when ready
-- Announce new release in Discord
+### Typical Release Process
+- Update ChangeLog.md with release notes and open an PR for feedback.
+- After approval, squash and merge PR for ChangeLog.md into `main`.
+- Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`.
+  - This will automatically create a new commit for updating the version in package.yaml, tag it, and push it all.
+- Wait for CI to finish & succeed for the new tag.
+  - This will automatically create a new draft release.
+- Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+- Publish the draft release when ready.
+- Publish new [docs](/web#deployment).
+- Announce new release in Discord.
 
 ## Documentation
-External documentation, for users of Wasp, is hosted in [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
+External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 
 
 Make sure to update it when changes modify how Wasp works.
 
