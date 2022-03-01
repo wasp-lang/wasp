@@ -65,6 +65,7 @@ data OutputDir = DevOutputDir | BuildOutputDir
 -- package.json when writing package-lock.json and different versions produce different ouput.
 -- NOTE: python3 won't sort them, but we want to, so force python2.
 -- Ref: https://github.com/wasp-lang/wasp/issues/482
+-- TOOD: This is flaky and not future-proof, let's switch over to Aeson Pretty instead at some point.
 reformatPackageJson :: OutputDir -> ShellCommandBuilder ShellCommand
 reformatPackageJson outputDir =
   return $ combineShellCommands $ concatMap (reformatJsonCommands . componentPackageJsonFp) ["server", "web-app"]
