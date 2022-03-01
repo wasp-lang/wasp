@@ -1,9 +1,7 @@
-waspCompile/.gitignore
 waspCompile/.wasp/out/.dockerignore
 waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedFullStackNpmDependencies.json
-waspCompile/.wasp/out/server/.gitignore
 waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/.nvmrc
 waspCompile/.wasp/out/server/README.md
@@ -20,7 +18,6 @@ waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js
 waspCompile/.wasp/out/server/src/utils.js
-waspCompile/.wasp/out/web-app/.gitignore
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/netlify.toml
 waspCompile/.wasp/out/web-app/package.json

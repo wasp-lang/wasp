@@ -1,4 +1,3 @@
-waspMigrate/.gitignore
 waspMigrate/.wasp/out/.dockerignore
 waspMigrate/.wasp/out/Dockerfile
 waspMigrate/.wasp/out/db/migrations/migration_lock.toml
@@ -8,7 +7,6 @@ waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-migrate-checksum
 waspMigrate/.wasp/out/installedFullStackNpmDependencies.json
-waspMigrate/.wasp/out/server/.gitignore
 waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/.nvmrc
 waspMigrate/.wasp/out/server/README.md
@@ -25,7 +23,6 @@ waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.js
 waspMigrate/.wasp/out/server/src/utils.js
-waspMigrate/.wasp/out/web-app/.gitignore
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/netlify.toml
 waspMigrate/.wasp/out/web-app/package.json
