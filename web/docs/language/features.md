@@ -330,7 +330,7 @@ export const getTasks = async (args, context) => {
 }
 ```
 
-If the status code is `4xx`, the client will receive a response object with the corresponding `.message` and `.data` fields.
+If the status code is `4xx`, the client will receive a response object with the corresponding `.message` and `.data` fields and rethrow the error (with these fields included).
 To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
 
 #### Using Entities in Queries
