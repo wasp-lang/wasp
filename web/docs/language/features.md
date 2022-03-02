@@ -238,6 +238,9 @@ With that in mind, this is how you might declare the Queries that use the implem
 ```c title="main.wasp"
 // ...
 
+// Again, it most likely makes sense to name the Wasp Query after
+// its implementation. We're changing the name to emphasize the difference.
+
 query fetchAllTasks {
   fn: import { getAllTasks } from "@ext/queries.js"
 }
@@ -338,7 +341,7 @@ In most cases, resources used in Queries will be [Entities](#entity).
 To use an Entity in your Query, add it to the query declaration in Wasp:
 
 ```c {4,9} title="main.wasp"
-// ...
+
 query fetchAllTasks {
   fn: import { getAllTasks } from "@ext/queries.js",
   entities: [Task]
