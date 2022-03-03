@@ -3,6 +3,7 @@
 module Wasp.Generator.WriteFileDrafts
   ( writeFileDrafts,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
+    removeFromChecksumFile,
   )
 where
 
@@ -53,11 +54,13 @@ writeFileDrafts dstDir fileDrafts = do
   fileDraftsWithChecksums <- mapM (\fd -> (fd,) <$> getChecksum fd) fileDrafts
 
   let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete maybePathsToChecksums fileDraftsWithChecksums
-
   mapM_ (write dstDir) fileDraftsToWrite
   deleteFilesAndDirs dstDir filesToDelete
+
   writeDotWaspInfo dstDir
-  writeChecksumFile dstDir fileDraftsWithChecksums
+
+  let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
+  writeChecksumFile dstDir relativePathsToChecksums
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 
@@ -133,9 +136,8 @@ readChecksumFile dstDir = do
             ++ dirFsEntityLabel
             ++ "]. This should never happen!"
 
-writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> [(FileDraft, Checksum)] -> IO ()
-writeChecksumFile dstDir fileDraftsWithChecksums = do
-  let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
+writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> RelPathsToChecksums -> IO ()
+writeChecksumFile dstDir relativePathsToChecksums = do
   let res2 = first fromSpToTypeAndPath <$> relativePathsToChecksums
   let json = AesonPretty.encodePretty res2
   BSL.writeFile (SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot) json
@@ -143,6 +145,14 @@ writeChecksumFile dstDir fileDraftsWithChecksums = do
     fromSpToTypeAndPath :: FileOrDirPathRelativeTo ProjectRootDir -> (String, FilePath)
     fromSpToTypeAndPath (Left fileSP) = (fileFsEntityLabel, SP.fromRelFile fileSP)
     fromSpToTypeAndPath (Right dirSP) = (dirFsEntityLabel, SP.fromRelDir dirSP)
+
+removeFromChecksumFile :: Path' Abs (Dir ProjectRootDir) -> [FileOrDirPathRelativeTo ProjectRootDir] -> IO ()
+removeFromChecksumFile dstDir pathsToRemove = do
+  maybePathsToChecksums <- readChecksumFile dstDir
+  case maybePathsToChecksums of
+    Nothing -> return ()
+    Just pathsToChecksums -> do
+      writeChecksumFile dstDir $ filter ((`notElem` pathsToRemove) . fst) pathsToChecksums
 
 fileFsEntityLabel :: String
 fileFsEntityLabel = "file"

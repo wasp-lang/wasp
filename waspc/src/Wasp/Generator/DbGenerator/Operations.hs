@@ -29,6 +29,7 @@ import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.WriteFileDrafts (removeFromChecksumFile)
 import Wasp.Util (checksumFromFilePath, hexToString)
 
 printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
@@ -52,9 +53,12 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAb
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
 
 finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs =
-  copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-    <* writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+  -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
+  removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir $ dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir]
+  res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+  return res
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
