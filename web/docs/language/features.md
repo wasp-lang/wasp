@@ -252,7 +252,7 @@ query fetchFilteredTasks {
 
 After declaring a NodeJS function as a Wasp Query, two crucial things happen:
 - Wasp **generates a client-side JavaScript function** that shares its name with the Query (e.g., `fetchFilteredTasks`).
-This function can take a single argument - an object containing any serializable data you wish to use inside the Query.
+This function takes a single optional argument - an object containing any serializable data you wish to use inside the Query.
 Wasp will pass this object to the Query's implementation as its first positional argument (i.e., `args` from the previous step).
 Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Query's NodeJS implementation under the hood.
 - Wasp **generates a server-side NodeJS function** that shares its name with the Query. This function's interface is identical to the client-side function from the previous point.
@@ -409,14 +409,14 @@ More differences and Action/Query specific features will come in future versions
 
 ### Cache Invalidation
 One of the trickiest parts of managing a web app's state is making sure the data returned by the queries is up to date.
-Since Wasp uses _react-query_ for Query management, we must make sure to invalidate queries (more specifically, their cached results managed by react-query) whenever they become stale.
+Since Wasp uses _react-query_ for Query management, we must make sure to invalidate Queries (more specifically, their cached results managed by _react-query_) whenever they become stale.
 
 It's possible to invalidate the caches manually through several mechanisms _react-query_ provides (e.g., refetch, direct invalidation).
 However, since manual cache invalidation quickly becomes complex and error-prone, Wasp offers a quicker and a more effective solution to get you started: **automatic Entity-based Query cache invalidation**.
 Because Actions can (and most often do) modify the state while Queries read it, Wasp invalidates a Query's cache whenever an Action that uses the same Entity is executed.
 
 For example, let's assume that Action `createTask` and Query `getTasks` both use Entity `Task`. If `createTask` is executed, `getTasks`'s cached result may no longer be up-to-date.
-Wasp will therefore invalidate it, making `getTasks` refetch data from the server, making it up to date again.
+Wasp will therefore invalidate it, making `getTasks` refetch data from the server, bringing it up to date again.
 
 In practice, this means that Wasp keeps the queries "fresh" without requiring you to think about cache invalidation.
 
