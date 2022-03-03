@@ -44,8 +44,9 @@ instance Writeable CopyFileDraft where
       srcFilePath = SP.fromAbsFile $ _srcPath draft
       absDraftDstPath = absDstDirPath </> _dstPath draft
 
-  -- TODO: We are reading file here, but then also again later in the "write", so
+  -- NOTE: We are reading file here, but then also again later in the "write", so
   --   we are reading file at least twice! Any way to avoid it?
+  --   Idea: We could cache it in an mvar in the CopyFileDraft.
   getChecksum = (checksumFromByteString <$>) . BS.readFile . SP.fromAbsFile . _srcPath
 
   getDstPath draft = Left $ _dstPath draft

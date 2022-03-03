@@ -59,7 +59,9 @@ spec_WriteFileDrafts =
     fromEither f _ (Left a) = f a
     fromEither _ g (Right a) = g a
 
-    -- TOOD: make math work better, including for lists < 3 elements
+    -- NOTE: We could make math work better, including for lists < 3 elements,
+    -- and possibly not divisible by 3. But this is internal helper so
+    -- we can punt for now.
     splitInto3Groups :: [a] -> ([a], [a], [a])
     splitInto3Groups xs =
       case splitIntoChunks (length xs `div` 3) xs of

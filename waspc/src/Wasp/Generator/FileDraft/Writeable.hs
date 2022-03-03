@@ -10,7 +10,6 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Util (Checksum)
 
--- TODO: move this somewhere else? Maybe Util?
 type FileOrDirPathRelativeTo a = Either (Path' (Rel a) File') (Path' (Rel a) Dir')
 
 class Writeable w where

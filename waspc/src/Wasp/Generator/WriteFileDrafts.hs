@@ -2,7 +2,7 @@
 
 module Wasp.Generator.WriteFileDrafts
   ( writeFileDrafts,
-    fileDraftsToWriteAndFilesToDelete,
+    fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
   )
 where
 
@@ -29,11 +29,6 @@ import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo, Writeable (getChecksum, getDstPath))
 import Wasp.Util (Checksum)
 
-type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
-
-checksumFileInProjectRoot :: Path' (Rel ProjectRootDir) File'
-checksumFileInProjectRoot = [relfile|.waspchecksums|]
-
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
@@ -55,7 +50,6 @@ writeFileDrafts dstDir fileDrafts = do
     -- while state on the disk might not be as it says anymore.
     Just _ -> removeFile $ SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 
-  -- TODO: Use these below in writeChecksumFile, so it doesn't have to calculate the checksums again on its own?
   fileDraftsWithChecksums <- mapM (\fd -> (fd,) <$> getChecksum fd) fileDrafts
 
   let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete maybePathsToChecksums fileDraftsWithChecksums
@@ -63,30 +57,37 @@ writeFileDrafts dstDir fileDrafts = do
   mapM_ (write dstDir) fileDraftsToWrite
   deleteFilesAndDirs dstDir filesToDelete
   writeDotWaspInfo dstDir
-  writeChecksumFile dstDir fileDrafts
+  writeChecksumFile dstDir fileDraftsWithChecksums
 
+type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
+
+-- | This file stores all checksums for files and directories that were written to disk
+-- on the last project generation.
+checksumFileInProjectRoot :: Path' (Rel ProjectRootDir) File'
+checksumFileInProjectRoot = [relfile|.waspchecksums|]
+
+-- | Takes (possibly) existing written file paths and their checksums, and the current
+-- FileDraft and Checksums to be written, and decides which of the new FileDrafts to
+-- write and what redundant files on disk to delete.
 fileDraftsToWriteAndFilesToDelete ::
   Maybe RelPathsToChecksums ->
   [(FileDraft, Checksum)] ->
   ([FileDraft], [FileOrDirPathRelativeTo ProjectRootDir])
-fileDraftsToWriteAndFilesToDelete maybePathsToChecksums fileDraftsWithChecksums =
+fileDraftsToWriteAndFilesToDelete Nothing fileDraftsWithChecksums =
+  (map fst fileDraftsWithChecksums, [])
+fileDraftsToWriteAndFilesToDelete (Just existingFilePathsToChecksums) fileDraftsWithChecksums =
   let fileDrafts = map fst fileDraftsWithChecksums
-   in case maybePathsToChecksums of
-        Nothing -> (fileDrafts, [])
-        Just pathsToChecksums ->
-          ( getNewFileDrafts fileDrafts pathsToChecksums
-              ++ getChangedFileDrafts pathsToChecksums fileDraftsWithChecksums,
-            getRedundantGeneratedFiles fileDrafts pathsToChecksums
-          )
+   in ( getNewFileDrafts existingFilePathsToChecksums fileDrafts
+          ++ getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums,
+        getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts
+      )
 
--- TODO: test
-getNewFileDrafts :: [FileDraft] -> RelPathsToChecksums -> [FileDraft]
-getNewFileDrafts fileDrafts pathsToChecksums =
-  filter (\draft -> isNothing $ lookup (getDstPath draft) pathsToChecksums) fileDrafts
+getNewFileDrafts :: RelPathsToChecksums -> [FileDraft] -> [FileDraft]
+getNewFileDrafts existingFilePathsToChecksums fileDrafts =
+  filter (\draft -> isNothing $ lookup (getDstPath draft) existingFilePathsToChecksums) fileDrafts
 
--- TODO: test
 getChangedFileDrafts :: RelPathsToChecksums -> [(FileDraft, Checksum)] -> [FileDraft]
-getChangedFileDrafts oldPathsToChecksums fileDraftsWithChecksums =
+getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums =
   fst <$> filter alreadyExistsWithDifferentChecksum fileDraftsWithChecksums
   where
     alreadyExistsWithDifferentChecksum :: (FileDraft, Checksum) -> Bool
@@ -97,16 +98,17 @@ getChangedFileDrafts oldPathsToChecksums fileDraftsWithChecksums =
               ( \(oldPath, oldChecksum) ->
                   oldPath == newPath && oldChecksum /= newChecksum
               )
-              oldPathsToChecksums
+              existingFilePathsToChecksums
 
--- TODO: test
-getRedundantGeneratedFiles :: [FileDraft] -> RelPathsToChecksums -> [FileOrDirPathRelativeTo ProjectRootDir]
-getRedundantGeneratedFiles fileDrafts pathsToChecksums =
+getRedundantGeneratedFiles :: RelPathsToChecksums -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
+getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts =
   let fileDraftPaths = map getDstPath fileDrafts
-   in fst <$> filter (\(path, _) -> path `notElem` fileDraftPaths) pathsToChecksums
+   in filter (`notElem` fileDraftPaths) (fst <$> existingFilePathsToChecksums)
 
--- TODO: Comment on when this function returns Nothing.
--- TODO: Capture the return type (paths, checksums) into a type or newtype?
+-- | This function will return Nothing in two cases:
+--  1) The checksum file does not exist, or
+--  2) The checksum file was not parsable by Aeson.
+-- TODO: Extract the readFile and leave mostly pure function to add tests for.
 readChecksumFile :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe RelPathsToChecksums)
 readChecksumFile dstDir = do
   maybeContents <-
@@ -119,22 +121,34 @@ readChecksumFile dstDir = do
   where
     checksumFP = SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 
-    -- TODO: repeating strings file/dir; extract higher up in this file?
     fromTypeAndPathToSp :: (String, FilePath) -> Maybe (FileOrDirPathRelativeTo ProjectRootDir)
-    fromTypeAndPathToSp ("file", fp) = Left <$> SP.parseRelFile fp
-    fromTypeAndPathToSp ("dir", fp) = Right <$> SP.parseRelDir fp
-    fromTypeAndPathToSp _ = error "Found different file path type! Expected `file` or `dir`. This should never happen!"
+    fromTypeAndPathToSp (label, fp)
+      | label == fileFsEntityLabel = Left <$> SP.parseRelFile fp
+      | label == dirFsEntityLabel = Right <$> SP.parseRelDir fp
+      | otherwise =
+        error $
+          "Found different file path type! Expected one of: ["
+            ++ fileFsEntityLabel
+            ++ ","
+            ++ dirFsEntityLabel
+            ++ "]. This should never happen!"
 
-writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
-writeChecksumFile dstDir drafts = do
-  relativePathsToChecksums <- mapM (\fd -> (getDstPath fd,) <$> getChecksum fd) drafts
+writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> [(FileDraft, Checksum)] -> IO ()
+writeChecksumFile dstDir fileDraftsWithChecksums = do
+  let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   let res2 = first fromSpToTypeAndPath <$> relativePathsToChecksums
   let json = AesonPretty.encodePretty res2
   BSL.writeFile (SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot) json
   where
     fromSpToTypeAndPath :: FileOrDirPathRelativeTo ProjectRootDir -> (String, FilePath)
-    fromSpToTypeAndPath (Left fileSP) = ("file", SP.fromRelFile fileSP)
-    fromSpToTypeAndPath (Right dirSP) = ("dir", SP.fromRelDir dirSP)
+    fromSpToTypeAndPath (Left fileSP) = (fileFsEntityLabel, SP.fromRelFile fileSP)
+    fromSpToTypeAndPath (Right dirSP) = (dirFsEntityLabel, SP.fromRelDir dirSP)
+
+fileFsEntityLabel :: String
+fileFsEntityLabel = "file"
+
+dirFsEntityLabel :: String
+dirFsEntityLabel = "dir"
 
 deleteFilesAndDirs :: Path' Abs (Dir ProjectRootDir) -> [FileOrDirPathRelativeTo ProjectRootDir] -> IO ()
 deleteFilesAndDirs dstDir filesAndDirs = do

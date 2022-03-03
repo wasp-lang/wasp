@@ -1,5 +1,3 @@
-{-# LANGUAGE TupleSections #-}
-
 module Wasp.Generator.FileDraft.TemplateFileDraft
   ( TemplateFileDraft (..),
   )
@@ -30,7 +28,7 @@ data TemplateFileDraft = TemplateFileDraft
 instance Writeable TemplateFileDraft where
   write absDstDirPath draft = do
     createDirectoryIfMissing True (SP.fromAbsDir $ SP.parent absDraftDstPath)
-    processTmpl
+    processBasedOnTmplDataExistence
       draft
       (\absDraftSrcPath -> copyFile (SP.fromAbsFile absDraftSrcPath) (SP.fromAbsFile absDraftDstPath))
       (writeFileFromText $ SP.toFilePath absDraftDstPath)
@@ -38,17 +36,18 @@ instance Writeable TemplateFileDraft where
       absDraftDstPath :: Path' Abs File'
       absDraftDstPath = absDstDirPath </> _dstPath draft
 
-  -- TODO: we are doing reading of the file twice. Once here, once above in write.
+  -- NOTE: we are doing reading of the file twice. Once here, once above in write.
+  --  Idea: We could cache it in an mvar in the TemplateFileDraft.
   getChecksum draft = do
-    processTmpl
+    processBasedOnTmplDataExistence
       draft
       ((checksumFromByteString <$>) . BS.readFile . SP.fromAbsFile)
       (return . checksumFromText)
 
   getDstPath draft = Left $ _dstPath draft
 
-processTmpl :: WriteableMonad m => TemplateFileDraft -> (Path' Abs File' -> m b) -> (Text -> m b) -> m b
-processTmpl draft onNoTmplData onTmplData = case _tmplData draft of
+processBasedOnTmplDataExistence :: WriteableMonad m => TemplateFileDraft -> (Path' Abs File' -> m b) -> (Text -> m b) -> m b
+processBasedOnTmplDataExistence draft onNoTmplData onTmplData = case _tmplData draft of
   Nothing -> do
     absDraftSrcPath <- getTemplateFileAbsPath (_srcPathInTmplDir draft)
     onNoTmplData absDraftSrcPath
