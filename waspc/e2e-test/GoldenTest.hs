@@ -7,11 +7,25 @@ where
 
 import Common (getTestOutputsDir)
 import Control.Monad (filterM)
-import Data.List (sort)
+import Data.Aeson (Value, decode)
+import Data.Aeson.Encode.Pretty
+  ( Config (Config, confCompare, confIndent, confNumFormat, confTrailingNewline),
+    Indent (Spaces),
+    NumberFormat (Generic),
+    encodePretty',
+  )
+import qualified Data.ByteString.Lazy as BSL
+import Data.List (isSuffixOf, sort)
 import Data.Text (pack, replace, unpack)
-import ShellCommands (ShellCommand, ShellCommandBuilder, ShellCommandContext (..), combineShellCommands, runShellCommandBuilder)
+import ShellCommands
+  ( ShellCommand,
+    ShellCommandBuilder,
+    ShellCommandContext (..),
+    combineShellCommands,
+    runShellCommandBuilder,
+  )
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory (doesFileExist, renameFile)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (makeRelative, takeFileName)
 import qualified System.FilePath as FP
@@ -52,8 +66,9 @@ runGoldenTest goldenTest = do
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
   currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
+  reformatPackageJsonFiles currentOutputAbsFps
 
+  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
   writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
@@ -83,3 +98,23 @@ runGoldenTest goldenTest = do
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
       writeFile manifestAbsFp sortedRelativeFilePaths
+
+    -- This function normalizes all package.json files for comparison as `npm install` can overwrite
+    -- them when creating/updating package-lock.json. Different versions of Node may produce different
+    -- package.json files, thus triggering false positives when diffing locally vs CI, for example.
+    -- Ref: https://github.com/wasp-lang/wasp/issues/482
+    reformatPackageJsonFiles :: [FilePath] -> IO ()
+    reformatPackageJsonFiles allOutputFilePaths = do
+      let packageJsonSuffix = FP.pathSeparator : "package.json"
+      let packageJsonFilePaths = filter (packageJsonSuffix `isSuffixOf`) allOutputFilePaths
+      let aesonPrettyConfig = Config {confIndent = Spaces 4, confCompare = compare, confNumFormat = Generic, confTrailingNewline = True}
+      mapM_
+        ( \fp -> do
+            let tmpFp = fp ++ ".tmp"
+            str <- BSL.readFile fp
+            let json = decode str :: Maybe Value
+            let prettyJson = encodePretty' aesonPrettyConfig json
+            BSL.writeFile tmpFp prettyJson
+            renameFile tmpFp fp
+        )
+        packageJsonFilePaths

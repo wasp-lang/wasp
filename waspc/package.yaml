@@ -160,6 +160,7 @@ tests:
       - filepath
       - yaml
       - aeson
+      - aeson-pretty
       - bytestring
       - process
       - directory
