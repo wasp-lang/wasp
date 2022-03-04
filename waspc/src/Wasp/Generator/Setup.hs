@@ -18,7 +18,7 @@ runSetup spec dstDir sendMessage = do
   if null npmInstallErrors
     then do
       sendMessage $ Msg.Success "Successfully completed npm install."
-      sendMessage $ Msg.Success "Setting up database..."
+      sendMessage $ Msg.Start "Setting up database..."
       (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
       if null dbGeneratorErrors
         then sendMessage $ Msg.Success "Database successfully set up."
