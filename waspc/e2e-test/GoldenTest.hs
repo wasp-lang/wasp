@@ -16,6 +16,7 @@ import Data.Aeson.Encode.Pretty
   )
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf, sort)
+import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
 import ShellCommands
   ( ShellCommand,
@@ -107,14 +108,15 @@ runGoldenTest goldenTest = do
     reformatPackageJsonFiles allOutputFilePaths = do
       let packageJsonSuffix = FP.pathSeparator : "package.json"
       let packageJsonFilePaths = filter (packageJsonSuffix `isSuffixOf`) allOutputFilePaths
-      let aesonPrettyConfig = Config {confIndent = Spaces 4, confCompare = compare, confNumFormat = Generic, confTrailingNewline = True}
-      mapM_
-        ( \fp -> do
-            let tmpFp = fp ++ ".tmp"
-            str <- BSL.readFile fp
-            let json = decode str :: Maybe Value
-            let prettyJson = encodePretty' aesonPrettyConfig json
-            BSL.writeFile tmpFp prettyJson
-            renameFile tmpFp fp
-        )
-        packageJsonFilePaths
+      mapM_ reformatJson packageJsonFilePaths
+      where
+        aesonPrettyConfig = Config {confIndent = Spaces 4, confCompare = compare, confNumFormat = Generic, confTrailingNewline = True}
+        reformatJson fp = do
+          let tmpFp = fp ++ ".tmp"
+          str <- BSL.readFile fp
+          -- NOTE: Aeson.decode into (:: Maybe Value) allows us to decode any
+          -- valid JSON string, without specifying a schema.
+          let json = fromJust (decode str :: Maybe Value)
+          let prettyJson = encodePretty' aesonPrettyConfig json
+          BSL.writeFile tmpFp prettyJson
+          renameFile tmpFp fp
