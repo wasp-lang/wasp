@@ -106,17 +106,17 @@ runGoldenTest goldenTest = do
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
     reformatPackageJsonFiles allOutputFilePaths = do
-      let packageJsonSuffix = FP.pathSeparator : "package.json"
-      let packageJsonFilePaths = filter (packageJsonSuffix `isSuffixOf`) allOutputFilePaths
+      let packageJsonFilePathSuffix = FP.pathSeparator : "package.json"
+      let packageJsonFilePaths = filter (packageJsonFilePathSuffix `isSuffixOf`) allOutputFilePaths
       mapM_ reformatJson packageJsonFilePaths
       where
         aesonPrettyConfig = Config {confIndent = Spaces 4, confCompare = compare, confNumFormat = Generic, confTrailingNewline = True}
-        reformatJson fp = do
-          let tmpFp = fp ++ ".tmp"
-          str <- BSL.readFile fp
+        reformatJson jsonFilePath = do
+          let tmpFilePath = jsonFilePath ++ ".tmp"
+          str <- BSL.readFile jsonFilePath
           -- NOTE: Aeson.decode into (:: Maybe Value) allows us to decode any
           -- valid JSON string, without specifying a schema.
           let json = fromJust (decode str :: Maybe Value)
-          let prettyJson = encodePretty' aesonPrettyConfig json
-          BSL.writeFile tmpFp prettyJson
-          renameFile tmpFp fp
+          let formattedJson = encodePretty' aesonPrettyConfig json
+          BSL.writeFile tmpFilePath formattedJson
+          renameFile tmpFilePath jsonFilePath
