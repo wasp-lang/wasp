@@ -102,7 +102,7 @@ runGoldenTest goldenTest = do
 
     -- This function normalizes all package.json files for comparison as `npm install` can overwrite
     -- them when creating/updating package-lock.json. Different versions of Node may produce different
-    -- package.json files, thus triggering false positives when diffing locally vs CI, for example.
+    -- (but semantically equivalent) package.json files, thus triggering false positives.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
     reformatPackageJsonFiles allOutputFilePaths = do
