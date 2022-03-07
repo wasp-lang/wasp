@@ -73,7 +73,7 @@ This might take a longer time (10 mins) if you are doing it for the very first t
 ```
 stack test
 ```
-to ensure all the unit tests are passing (this will also build the project if needed).
+to ensure all the unit and end-to-end tests are passing (this will also build the project if needed).
 
 ### Executable
 ```
@@ -231,13 +231,14 @@ All tests go into `test/` directory.
 This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
 Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
-Tests are run with `stack test`.
+Tests are run with `stack test`. They include both unit tests, and end-to-end tests of basic CLI commands.
 You can do `stack test --coverage` to see the coverage.
 
-To run individual test, you can do `stack test --test-arguments "-p \"Some test description to match\""`.
+To run unit tests only, you can do `stack test :waspc-test`.
 
-We don't yet have any integration (e2e) tests, but we plan to add them at some point.
-For now, best way is to manually run a Wasp app with `wasp start` and try stuff out.
+To run end-to-end tests only, you can do `stack test :e2e-test`.
+
+To run individual test, you can do `stack test --test-arguments "-p \"Some test description to match\""`.
 
 ## Code analysis
 
