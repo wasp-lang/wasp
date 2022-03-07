@@ -77,9 +77,9 @@ fileDraftsToWriteAndFilesToDelete ::
   [(FileDraft, Checksum)] ->
   ([FileDraft], [FileOrDirPathRelativeTo ProjectRootDir])
 fileDraftsToWriteAndFilesToDelete Nothing fileDraftsWithChecksums =
-  (map fst fileDraftsWithChecksums, [])
+  (fst <$> fileDraftsWithChecksums, [])
 fileDraftsToWriteAndFilesToDelete (Just existingFilePathsToChecksums) fileDraftsWithChecksums =
-  let fileDrafts = map fst fileDraftsWithChecksums
+  let fileDrafts = fst <$> fileDraftsWithChecksums
    in ( getNewFileDrafts existingFilePathsToChecksums fileDrafts
           ++ getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums,
         getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts
@@ -120,7 +120,7 @@ readChecksumFile dstDir = do
   return $ do
     contents <- maybeContents
     typeAndPathAndChecksums <- Aeson.decode contents :: Maybe [((String, FilePath), Checksum)]
-    sequence $ (\(typeAndPath, cs) -> (,cs) <$> fromTypeAndPathToSp typeAndPath) <$> typeAndPathAndChecksums
+    sequence $ (\(typeAndPath, checksum) -> (,checksum) <$> fromTypeAndPathToSp typeAndPath) <$> typeAndPathAndChecksums
   where
     checksumFP = SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 
