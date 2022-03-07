@@ -16,14 +16,14 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( alphaWarningMessage,
     findWaspProjectRootDirFromCwd,
-    waspSaysC,
   )
 import Wasp.Cli.Command.Compile (compileIOWithOptions)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
+import qualified Wasp.Message as Msg
 
 build :: Command ()
 build = do
@@ -35,16 +35,16 @@ build = do
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDirFilePath
   when doesBuildDirExist $ do
-    waspSaysC $ asWaspStartMessage "Clearing the content of the .wasp/build directory..."
+    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/build directory..."
     liftIO $ removeDirectoryRecursive buildDirFilePath
-    waspSaysC $ asWaspSuccessMessage "Successfully cleared the contents of the .wasp/build directory."
+    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
 
-  waspSaysC $ asWaspStartMessage "Building wasp project..."
+  cliSendMessageC $ Msg.Start "Building wasp project..."
   buildResult <- liftIO $ buildIO waspProjectDir buildDir
   case buildResult of
-    Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Build failed:" ++ compileError
-    Right () -> waspSaysC $ asWaspSuccessMessage "Code has been successfully built! Check it out in .wasp/build directory."
-  waspSaysC alphaWarningMessage
+    Left compileError -> throwError $ CommandError $ "Build failed:" ++ compileError
+    Right () -> cliSendMessageC $ Msg.Success "Code has been successfully built! Check it out in .wasp/build directory."
+  cliSendMessageC $ Msg.Warning alphaWarningMessage
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->

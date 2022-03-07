@@ -11,6 +11,8 @@ import qualified Wasp.Message as Msg
 
 -- | Send a message using the CLI
 cliSendMessage :: Msg.SendMessage
+cliSendMessage (Msg.Notification msg) =
+  waspSays $ msg
 cliSendMessage (Msg.Start msg) =
   waspSays $ asWaspStartMessage msg
 cliSendMessage (Msg.Success msg) =
