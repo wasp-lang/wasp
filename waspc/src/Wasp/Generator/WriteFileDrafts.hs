@@ -138,8 +138,8 @@ readChecksumFile dstDir = do
 
 writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> RelPathsToChecksums -> IO ()
 writeChecksumFile dstDir relativePathsToChecksums = do
-  let res2 = first fromSpToTypeAndPath <$> relativePathsToChecksums
-  let json = AesonPretty.encodePretty res2
+  let typeAndPathAndChecksums = first fromSpToTypeAndPath <$> relativePathsToChecksums
+  let json = AesonPretty.encodePretty typeAndPathAndChecksums
   BSL.writeFile (SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot) json
   where
     fromSpToTypeAndPath :: FileOrDirPathRelativeTo ProjectRootDir -> (String, FilePath)
