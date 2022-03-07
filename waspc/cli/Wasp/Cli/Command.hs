@@ -19,9 +19,9 @@ runCommand :: Command a -> IO ()
 runCommand cmd = do
   errorOrResult <- runExceptT $ _runCommand cmd
   case errorOrResult of
-    Left cmdError -> cliSendMessage $ Msg.Failure (_errorMsg cmdError)
+    Left cmdError -> cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
     Right _ -> return ()
 
 -- TODO: What if we want to recognize errors in order to handle them?
 --   Should we add _commandErrorType? Should CommandError be parametrized by it, is that even possible?
-data CommandError = CommandError {_errorMsg :: !String}
+data CommandError = CommandError {_errorTitle :: !String, _errorMsg :: !String}

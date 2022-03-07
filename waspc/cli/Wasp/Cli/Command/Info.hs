@@ -33,10 +33,10 @@ info =
     projectSize <- liftIO $ readDirectorySizeMB waspDir
     declsOrError <- liftIO $ parseWaspFile waspDir
     case declsOrError of
-      Left err -> cliSendMessageC $ Msg.Failure err
+      Left err -> cliSendMessageC $ Msg.Failure "Info failed" err
       Right decls -> do
         cliSendMessageC $
-          Msg.Notification $
+          Msg.Info $
             unlines
               [ "",
                 title "Project information",

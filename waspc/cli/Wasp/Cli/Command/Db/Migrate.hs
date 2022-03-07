@@ -37,5 +37,5 @@ migrateDev maybeMigrationName = do
   migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir maybeMigrationName
   case migrateResult of
     Left migrateError ->
-      throwError $ CommandError $ "Migrate dev failed:" ++ migrateError
+      throwError $ CommandError "Migrate dev failed" migrateError
     Right () -> cliSendMessageC $ Msg.Success "Migration done."

@@ -36,11 +36,11 @@ findWaspProjectRoot currentDir = do
       findWaspProjectRoot parentDir
   where
     notFoundError =
-      CommandError $
-        "Wasp command failed: "
-          ++ ( "Couldn't find wasp project root - make sure"
-                 ++ " you are running this command from a Wasp project."
-             )
+      CommandError
+        "Wasp command failed"
+        ( "Couldn't find wasp project root - make sure"
+            ++ " you are running this command from a Wasp project."
+        )
 
 findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRootDirFromCwd = do

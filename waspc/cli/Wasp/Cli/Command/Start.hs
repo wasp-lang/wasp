@@ -30,7 +30,7 @@ start = do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
   compilationResult <- liftIO $ compileIO waspRoot outDir
   case compilationResult of
-    Left compileError -> throwError $ CommandError $ "Compilation failed:" ++ compileError
+    Left compileError -> throwError $ CommandError "Compilation failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
@@ -39,5 +39,5 @@ start = do
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
     Right startResult -> case startResult of
-      Left startError -> throwError $ CommandError $ "Start failed:" ++ startError
+      Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."

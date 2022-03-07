@@ -42,7 +42,7 @@ build = do
   cliSendMessageC $ Msg.Start "Building wasp project..."
   buildResult <- liftIO $ buildIO waspProjectDir buildDir
   case buildResult of
-    Left compileError -> throwError $ CommandError $ "Build failed:" ++ compileError
+    Left compileError -> throwError $ CommandError "Build failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully built! Check it out in .wasp/build directory."
   cliSendMessageC $ Msg.Warning alphaWarningMessage
 

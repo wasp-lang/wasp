@@ -27,9 +27,13 @@ newtype ProjectName = ProjectName {_projectName :: String}
 
 createNewProject :: String -> Command ()
 createNewProject (all isLetter -> False) =
-  throwError $ CommandError $ "Project creation failed: " ++ "Please use only letters for a new project's name."
+  throwError $ CommandError "Project creation failed" "Please use only letters for a new project's name."
 createNewProject ((`elem` reservedNames) -> True) =
-  throwError . CommandError $ "Project creation failed: " ++ "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
+  throwError $
+    CommandError
+      "Project creation failed"
+      ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
+      )
 createNewProject name = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
@@ -38,11 +42,11 @@ createNewProject' (ProjectName projectName) = do
   waspProjectDir <- case SP.parseAbsDir $ absCwd FP.</> projectName of
     Left err ->
       throwError $
-        CommandError $
-          "Project creation failed: "
-            ++ ( "Failed to parse absolute path to wasp project dir: "
-                   ++ show err
-               )
+        CommandError
+          "Project creation failed"
+          ( "Failed to parse absolute path to wasp project dir: "
+              ++ show err
+          )
     Right sp -> return sp
   liftIO $ do
     createDirectorySP waspProjectDir

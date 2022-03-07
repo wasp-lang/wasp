@@ -27,7 +27,7 @@ telemetry :: Command ()
 telemetry = do
   telemetryDisabled <- liftIO isTelemetryDisabled
   cliSendMessageC $
-    Msg.Notification $
+    Msg.Info $
       "Telemetry is currently: "
         <> ( if telemetryDisabled
                then "DISABLED"
@@ -36,7 +36,7 @@ telemetry = do
 
   unless telemetryDisabled $ do
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
-    cliSendMessageC $ Msg.Notification $ "Telemetry cache directory: " ++ SP.toFilePath telemetryCacheDirPath
+    cliSendMessageC $ Msg.Info $ "Telemetry cache directory: " ++ SP.toFilePath telemetryCacheDirPath
 
     maybeProjectHash <- (Just <$> TlmProject.getWaspProjectPathHash) `catchError` const (return Nothing)
     for_ maybeProjectHash $ \projectHash -> do
@@ -44,9 +44,9 @@ telemetry = do
       for_ maybeProjectCache $ \projectCache -> do
         let maybeTimeOfLastSending = TlmProject.getTimeOfLastTelemetryDataSent projectCache
         for_ maybeTimeOfLastSending $ \timeOfLastSending -> do
-          cliSendMessageC $ Msg.Notification $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
+          cliSendMessageC $ Msg.Info $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
 
-  cliSendMessageC $ Msg.Notification "Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details."
+  cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details."
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.
@@ -55,7 +55,7 @@ telemetry = do
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  when telemetryDisabled $ throwError $ CommandError "Telemetry disabled by user."
+  when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user." 
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 

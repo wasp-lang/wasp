@@ -31,7 +31,7 @@ compile = do
   cliSendMessageC $ Msg.Start "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspProjectDir outDir
   case compilationResult of
-    Left compileError -> throwError $ CommandError $ "Compilation failed:" ++ compileError
+    Left compileError -> throwError $ CommandError "Compilation failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
