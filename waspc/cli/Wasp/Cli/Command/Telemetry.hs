@@ -55,7 +55,7 @@ telemetry = do
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user." 
+  when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user."
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 
