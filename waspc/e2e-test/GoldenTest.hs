@@ -101,7 +101,7 @@ runGoldenTest goldenTest = do
       writeFile manifestAbsFp sortedRelativeFilePaths
 
     -- This function normalizes all package.json files for comparison as `npm install` can overwrite
-    -- them when creating/updating package-lock.json. Different versions of Node may produce different
+    -- them when creating/updating package-lock.json. Different versions of npm may produce different
     -- (but semantically equivalent) package.json files, thus triggering false positives.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
