@@ -7,13 +7,9 @@ where
 
 import Common (getTestOutputsDir)
 import Control.Monad (filterM)
-import Data.Aeson (Value, decode)
-import Data.Aeson.Encode.Pretty
-  ( Config (Config, confCompare, confIndent, confNumFormat, confTrailingNewline),
-    Indent (Spaces),
-    NumberFormat (Generic),
-    encodePretty',
-  )
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as AesonPretty
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf, sort)
 import Data.Maybe (fromJust)
@@ -26,7 +22,7 @@ import ShellCommands
     runShellCommandBuilder,
   )
 import qualified StrongPath as SP
-import System.Directory (doesFileExist, renameFile)
+import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.FilePath (makeRelative, takeFileName)
 import qualified System.FilePath as FP
@@ -100,23 +96,31 @@ runGoldenTest goldenTest = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
       writeFile manifestAbsFp sortedRelativeFilePaths
 
-    -- This function normalizes all package.json files for comparison as `npm install` can overwrite
-    -- them when creating/updating package-lock.json. Different versions of npm may produce different
-    -- (but semantically equivalent) package.json files, thus triggering false positives.
+    -- While Wasp deterministically produces package.json files in the generated code,
+    -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
+    -- Also, different versions of npm may produce different (but semantically equivalent) package.json files.
+    -- All of this can result in e2e flagging these files as being different when it should not.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
     reformatPackageJsonFiles :: [FilePath] -> IO ()
     reformatPackageJsonFiles allOutputFilePaths = do
-      let packageJsonFilePathSuffix = FP.pathSeparator : "package.json"
-      let packageJsonFilePaths = filter (packageJsonFilePathSuffix `isSuffixOf`) allOutputFilePaths
+      let packageJsonFilePaths = filter isPathToPackageJson allOutputFilePaths
       mapM_ reformatJson packageJsonFilePaths
       where
-        aesonPrettyConfig = Config {confIndent = Spaces 4, confCompare = compare, confNumFormat = Generic, confTrailingNewline = True}
-        reformatJson jsonFilePath = do
-          let tmpFilePath = jsonFilePath ++ ".tmp"
-          str <- BSL.readFile jsonFilePath
-          -- NOTE: Aeson.decode into (:: Maybe Value) allows us to decode any
-          -- valid JSON string, without specifying a schema.
-          let json = fromJust (decode str :: Maybe Value)
-          let formattedJson = encodePretty' aesonPrettyConfig json
-          BSL.writeFile tmpFilePath formattedJson
-          renameFile tmpFilePath jsonFilePath
+        isPathToPackageJson :: FilePath -> Bool
+        isPathToPackageJson = ((FP.pathSeparator : "package.json") `isSuffixOf`)
+
+        aesonPrettyConfig :: AesonPretty.Config
+        aesonPrettyConfig =
+          AesonPretty.Config
+            { AesonPretty.confIndent = AesonPretty.Spaces 2,
+              AesonPretty.confCompare = compare,
+              AesonPretty.confNumFormat = AesonPretty.Generic,
+              AesonPretty.confTrailingNewline = True
+            }
+
+        reformatJson :: FilePath -> IO ()
+        reformatJson jsonFilePath =
+          BSL.writeFile jsonFilePath . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson =<< B.readFile jsonFilePath
+          where
+            unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
+            unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
