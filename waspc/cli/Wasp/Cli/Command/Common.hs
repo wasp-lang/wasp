@@ -49,5 +49,5 @@ findWaspProjectRootDirFromCwd = do
 
 alphaWarningMessage :: String
 alphaWarningMessage =
-  "NOTE: Wasp is still in Alpha, therefore not yet production ready "
+  "Wasp is still in Alpha, therefore not yet production ready "
     ++ "and might change significantly in the future versions."

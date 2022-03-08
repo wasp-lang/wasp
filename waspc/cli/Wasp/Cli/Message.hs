@@ -19,5 +19,5 @@ cliSendMessage (Msg.Success msg) =
   waspSays $ asWaspSuccessMessage msg
 cliSendMessage (Msg.Failure title msg) =
   waspScreams $ asWaspFailureMessage (title ++ ":") ++ msg
-cliSendMessage (Msg.Warning msg) =
-  waspWarns $ asWaspWarningMessage msg
+cliSendMessage (Msg.Warning title msg) =
+  waspWarns $ asWaspWarningMessage (title ++ ":") ++ msg

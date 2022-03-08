@@ -44,7 +44,7 @@ build = do
   case buildResult of
     Left compileError -> throwError $ CommandError "Build failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully built! Check it out in .wasp/build directory."
-  cliSendMessageC $ Msg.Warning alphaWarningMessage
+  cliSendMessageC $ Msg.Warning "Build warning" alphaWarningMessage
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->

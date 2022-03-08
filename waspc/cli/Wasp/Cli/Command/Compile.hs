@@ -65,4 +65,4 @@ compileIOWithOptions options waspProjectDir outDir = do
     formatMessages messages = intercalate "\n" $ map ("- " ++) messages
     displayWarnings [] = return ()
     displayWarnings warnings =
-      cliSendMessage $ Msg.Warning ("Your project compiled with warnings:" ++ formatMessages warnings ++ "\n\n")
+      cliSendMessage $ Msg.Warning "Your project compiled with warnings" (formatMessages warnings ++ "\n\n")
