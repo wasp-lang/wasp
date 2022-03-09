@@ -13,8 +13,9 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
-import Data.List (find, sortBy)
-import Data.Maybe (isJust, isNothing)
+import qualified Data.HashMap.Strict as Map
+import qualified Data.HashSet as Set
+import Data.List (sortBy)
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
@@ -57,6 +58,8 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 
+type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
+
 -- | This file stores all checksums for files and directories that were written to disk
 -- on the last project generation.
 checksumFileInProjectRoot :: Path' (Rel ProjectRootDir) File'
@@ -73,33 +76,34 @@ fileDraftsToWriteAndFilesToDelete Nothing fileDraftsWithChecksums =
   (fst <$> fileDraftsWithChecksums, [])
 fileDraftsToWriteAndFilesToDelete (Just existingFilePathsToChecksums) fileDraftsWithChecksums =
   let fileDrafts = fst <$> fileDraftsWithChecksums
-   in ( getNewFileDrafts existingFilePathsToChecksums fileDrafts
-          ++ getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums,
-        getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts
+      existingFilePathsToChecksumsLookup = Map.fromList existingFilePathsToChecksums
+   in ( getNewFileDrafts existingFilePathsToChecksumsLookup fileDrafts
+          ++ getChangedFileDrafts existingFilePathsToChecksumsLookup fileDraftsWithChecksums,
+        getRedundantGeneratedFiles existingFilePathsToChecksumsLookup fileDrafts
       )
 
-getNewFileDrafts :: RelPathsToChecksums -> [FileDraft] -> [FileDraft]
-getNewFileDrafts existingFilePathsToChecksums fileDrafts =
-  filter (\draft -> isNothing $ lookup (getDstPath draft) existingFilePathsToChecksums) fileDrafts
+getNewFileDrafts :: RelPathsToChecksumsMap -> [FileDraft] -> [FileDraft]
+getNewFileDrafts existingFilePathsToChecksumsLookup fileDrafts =
+  filter (\draft -> not $ Map.member (getDstPath draft) existingFilePathsToChecksumsLookup) fileDrafts
 
-getChangedFileDrafts :: RelPathsToChecksums -> [(FileDraft, Checksum)] -> [FileDraft]
+-- TODO: Could use Set intersection somehow
+getChangedFileDrafts :: RelPathsToChecksumsMap -> [(FileDraft, Checksum)] -> [FileDraft]
 getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums =
   fst <$> filter alreadyExistsWithDifferentChecksum fileDraftsWithChecksums
   where
     alreadyExistsWithDifferentChecksum :: (FileDraft, Checksum) -> Bool
     alreadyExistsWithDifferentChecksum (fd, newChecksum) =
       let newPath = getDstPath fd
-       in isJust $
-            find
-              ( \(oldPath, oldChecksum) ->
-                  oldPath == newPath && oldChecksum /= newChecksum
-              )
-              existingFilePathsToChecksums
+          maybeOldChecksum = Map.lookup newPath existingFilePathsToChecksums
+       in case maybeOldChecksum of
+            Nothing -> False
+            Just oldChecksum -> oldChecksum /= newChecksum
 
-getRedundantGeneratedFiles :: RelPathsToChecksums -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
+getRedundantGeneratedFiles :: RelPathsToChecksumsMap -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
 getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts =
-  let fileDraftPaths = map getDstPath fileDrafts
-   in filter (`notElem` fileDraftPaths) (fst <$> existingFilePathsToChecksums)
+  let fileDraftPathsSet = Set.fromList $ map getDstPath fileDrafts
+      existingFilePathsToChecksumsSet = Map.keysSet existingFilePathsToChecksums
+   in Set.toList $ Set.difference existingFilePathsToChecksumsSet fileDraftPathsSet
 
 -- | This function will return Nothing in two cases:
 --  1) The checksum file does not exist, or

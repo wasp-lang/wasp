@@ -150,7 +150,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|app.js|],
-      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|server.js|],
       return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|utils.js|],
       return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/AuthError.js|],
       return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/HttpError.js|],

@@ -4,7 +4,7 @@ import Data.Bifunctor (Bifunctor (first))
 import Data.Maybe (fromJust)
 import Data.Text (pack)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Tasty.Hspec (Spec, describe, it, shouldBe, shouldMatchList)
 import Wasp.Generator.FileDraft (FileDraft (FileDraftTextFd), Writeable (getDstPath))
 import Wasp.Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
@@ -53,7 +53,9 @@ spec_WriteFileDrafts =
                   updatedFdsWithChecksums,
                 deletedRelPathsToChecksums
               ]
-      fileDraftsToWriteAndFilesToDelete (Just relPathsToChecksums) fdsWithChecksums `shouldBe` (map fst $ newFdsWithChecksums ++ updatedFdsWithChecksums, map fst deletedRelPathsToChecksums)
+      let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete (Just relPathsToChecksums) fdsWithChecksums
+      fileDraftsToWrite `shouldMatchList` map fst (newFdsWithChecksums ++ updatedFdsWithChecksums)
+      filesToDelete `shouldMatchList` map fst deletedRelPathsToChecksums
   where
     fromEither :: (a -> c) -> (b -> c) -> Either a b -> c
     fromEither f _ (Left a) = f a
