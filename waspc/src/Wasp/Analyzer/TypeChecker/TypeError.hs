@@ -10,7 +10,6 @@ module Wasp.Analyzer.TypeChecker.TypeError
   )
 where
 
-import Control.Arrow (first)
 import Data.List (intercalate)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
