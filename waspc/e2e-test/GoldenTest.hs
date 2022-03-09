@@ -7,9 +7,20 @@ where
 
 import Common (getTestOutputsDir)
 import Control.Monad (filterM)
-import Data.List (sort)
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as AesonPretty
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BSL
+import Data.List (isSuffixOf, sort)
+import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
-import ShellCommands (ShellCommand, ShellCommandBuilder, ShellCommandContext (..), combineShellCommands, runShellCommandBuilder)
+import ShellCommands
+  ( ShellCommand,
+    ShellCommandBuilder,
+    ShellCommandContext (..),
+    combineShellCommands,
+    runShellCommandBuilder,
+  )
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -52,8 +63,9 @@ runGoldenTest goldenTest = do
   callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
 
   currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
-  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
+  reformatPackageJsonFiles currentOutputAbsFps
 
+  let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
   writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
 
   let remapCurrentPathToGolden fp = unpack $ replace (pack currentOutputDirAbsFp) (pack goldenOutputDirAbsFp) (pack fp)
@@ -83,3 +95,33 @@ runGoldenTest goldenTest = do
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
       let sortedRelativeFilePaths = unlines . sort . map (makeRelative baseAbsFp) $ filePaths
       writeFile manifestAbsFp sortedRelativeFilePaths
+
+    -- While Wasp deterministically produces package.json files in the generated code,
+    -- later calls to `npm install` can reformat them (e.g. it sorts dependencies).
+    -- Also, different versions of npm may produce different (but semantically equivalent) package.json files.
+    -- All of this can result in e2e flagging these files as being different when it should not.
+    -- Ref: https://github.com/wasp-lang/wasp/issues/482
+    reformatPackageJsonFiles :: [FilePath] -> IO ()
+    reformatPackageJsonFiles allOutputFilePaths = do
+      let packageJsonFilePaths = filter isPathToPackageJson allOutputFilePaths
+      mapM_ reformatJson packageJsonFilePaths
+      where
+        isPathToPackageJson :: FilePath -> Bool
+        isPathToPackageJson = ((FP.pathSeparator : "package.json") `isSuffixOf`)
+
+        aesonPrettyConfig :: AesonPretty.Config
+        aesonPrettyConfig =
+          AesonPretty.Config
+            { AesonPretty.confIndent = AesonPretty.Spaces 2,
+              AesonPretty.confCompare = compare,
+              AesonPretty.confNumFormat = AesonPretty.Generic,
+              AesonPretty.confTrailingNewline = True
+            }
+
+        reformatJson :: FilePath -> IO ()
+        reformatJson jsonFilePath =
+          BSL.writeFile jsonFilePath . AesonPretty.encodePretty' aesonPrettyConfig . unsafeDecodeAnyJson
+            =<< B.readFile jsonFilePath
+          where
+            unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
+            unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
