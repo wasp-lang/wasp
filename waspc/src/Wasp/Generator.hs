@@ -5,7 +5,13 @@ module Wasp.Generator
 where
 
 import Data.List.NonEmpty (toList)
-import StrongPath (Abs, Dir, Path')
+import qualified Data.Text
+import qualified Data.Text.IO
+import Data.Time.Clock (getCurrentTime)
+import qualified Data.Version
+import qualified Paths_waspc
+import StrongPath (Abs, Dir, Path', relfile, (</>))
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
@@ -36,6 +42,7 @@ writeWebAppCode spec dstDir sendMessage = do
     Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
     Right fileDrafts -> do
       writeFileDrafts dstDir fileDrafts
+      writeDotWaspInfo dstDir
       (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
       return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
@@ -45,3 +52,12 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
+
+-- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
+writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
+writeDotWaspInfo dstDir = do
+  currentTime <- getCurrentTime
+  let version = Data.Version.showVersion Paths_waspc.version
+  let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
+  let dstPath = dstDir </> [relfile|.waspinfo|]
+  Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)

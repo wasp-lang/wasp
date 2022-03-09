@@ -15,11 +15,6 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
 import Data.List (find)
 import Data.Maybe (isJust, isNothing)
-import qualified Data.Text
-import qualified Data.Text.IO
-import Data.Time.Clock
-import qualified Data.Version
-import qualified Paths_waspc
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
@@ -56,8 +51,6 @@ writeFileDrafts dstDir fileDrafts = do
   let (fileDraftsToWrite, filesToDelete) = fileDraftsToWriteAndFilesToDelete maybePathsToChecksums fileDraftsWithChecksums
   mapM_ (write dstDir) fileDraftsToWrite
   deleteFilesAndDirs dstDir filesToDelete
-
-  writeDotWaspInfo dstDir
 
   let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   writeChecksumFile dstDir relativePathsToChecksums
@@ -166,12 +159,3 @@ deleteFilesAndDirs dstDir filesAndDirs = do
   mapM_ removeFile absFileFPs
   let absDirFPs = map (\relSP -> SP.fromAbsDir $ dstDir </> relSP) (rights filesAndDirs)
   mapM_ removeDirectoryRecursive absDirFPs
-
--- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
-writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()
-writeDotWaspInfo dstDir = do
-  currentTime <- getCurrentTime
-  let version = Data.Version.showVersion Paths_waspc.version
-  let content = "Generated on " ++ show currentTime ++ " by waspc version " ++ show version ++ " ."
-  let dstPath = dstDir </> [relfile|.waspinfo|]
-  Data.Text.IO.writeFile (SP.toFilePath dstPath) (Data.Text.pack content)
