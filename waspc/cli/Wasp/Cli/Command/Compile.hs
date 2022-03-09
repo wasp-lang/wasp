@@ -12,15 +12,14 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
-    waspSaysC,
   )
-import Wasp.Cli.Common (waspWarns)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage, asWaspWarningMessage)
 import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Lib
+import qualified Wasp.Message as Msg
 
 compile :: Command ()
 compile = do
@@ -29,11 +28,11 @@ compile = do
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
 
-  waspSaysC $ asWaspStartMessage "Compiling wasp code..."
+  cliSendMessageC $ Msg.Start "Compiling wasp code..."
   compilationResult <- liftIO $ compileIO waspProjectDir outDir
   case compilationResult of
-    Left compileError -> throwError $ CommandError $ asWaspFailureMessage "Compilation failed:" ++ compileError
-    Right () -> waspSaysC $ asWaspSuccessMessage "Code has been successfully compiled, project has been generated."
+    Left compileError -> throwError $ CommandError "Compilation failed" compileError
+    Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
 
 -- | Compiles Wasp source code in waspProjectDir directory and generates a project
 --   in given outDir directory.
@@ -66,4 +65,4 @@ compileIOWithOptions options waspProjectDir outDir = do
     formatMessages messages = intercalate "\n" $ map ("- " ++) messages
     displayWarnings [] = return ()
     displayWarnings warnings =
-      waspWarns $ asWaspWarningMessage "Your project compiled with warnings:" ++ formatMessages warnings ++ "\n\n"
+      cliSendMessage $ Msg.Warning "Your project compiled with warnings" (formatMessages warnings ++ "\n\n")

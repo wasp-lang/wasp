@@ -13,11 +13,11 @@ import qualified StrongPath as SP
 import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Call as Command.Call
-import Wasp.Cli.Command.Common (waspSaysC)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Telemetry.Common (ensureTelemetryCacheDirExists)
 import qualified Wasp.Cli.Command.Telemetry.Project as TlmProject
 import qualified Wasp.Cli.Command.Telemetry.User as TlmUser
-import Wasp.Cli.Terminal (asWaspFailureMessage)
+import qualified Wasp.Message as Msg
 
 isTelemetryDisabled :: IO Bool
 isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
@@ -26,16 +26,17 @@ isTelemetryDisabled = isJust <$> ENV.lookupEnv "WASP_TELEMETRY_DISABLE"
 telemetry :: Command ()
 telemetry = do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  waspSaysC $
-    "Telemetry is currently: "
-      <> ( if telemetryDisabled
-             then "DISABLED"
-             else "ENABLED"
-         )
+  cliSendMessageC $
+    Msg.Info $
+      "Telemetry is currently: "
+        <> ( if telemetryDisabled
+               then "DISABLED"
+               else "ENABLED"
+           )
 
   unless telemetryDisabled $ do
     telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
-    waspSaysC $ "Telemetry cache directory: " ++ SP.toFilePath telemetryCacheDirPath
+    cliSendMessageC $ Msg.Info $ "Telemetry cache directory: " ++ SP.toFilePath telemetryCacheDirPath
 
     maybeProjectHash <- (Just <$> TlmProject.getWaspProjectPathHash) `catchError` const (return Nothing)
     for_ maybeProjectHash $ \projectHash -> do
@@ -43,9 +44,9 @@ telemetry = do
       for_ maybeProjectCache $ \projectCache -> do
         let maybeTimeOfLastSending = TlmProject.getTimeOfLastTelemetryDataSent projectCache
         for_ maybeTimeOfLastSending $ \timeOfLastSending -> do
-          waspSaysC $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
+          cliSendMessageC $ Msg.Info $ "Last time telemetry data was sent for this project: " ++ show timeOfLastSending
 
-  waspSaysC "Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details."
+  cliSendMessageC $ Msg.Info "Our telemetry is anonymized and very limited in its scope: check https://wasp-lang.dev/docs/telemetry for more details."
 
 -- | Sends telemetry data about the current Wasp project, if conditions are met.
 -- If we are not in the Wasp project at the moment, nothing happens.
@@ -54,7 +55,7 @@ telemetry = do
 considerSendingData :: Command.Call.Call -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
-  when telemetryDisabled $ throwError $ CommandError $ asWaspFailureMessage "Telemetry disabled by user."
+  when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user."
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 

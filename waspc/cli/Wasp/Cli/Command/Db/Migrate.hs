@@ -11,12 +11,12 @@ import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
-    waspSaysC,
   )
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
 import qualified Wasp.Common
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
+import qualified Wasp.Message as Msg
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
@@ -33,9 +33,9 @@ migrateDev maybeMigrationName = do
         waspProjectDir
           </> Wasp.Common.dbMigrationsDirInWaspProjectDir
 
-  waspSaysC $ asWaspStartMessage "Performing migration..."
+  cliSendMessageC $ Msg.Start "Performing migration..."
   migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir maybeMigrationName
   case migrateResult of
     Left migrateError ->
-      throwError $ CommandError $ asWaspFailureMessage "Migrate dev failed:" ++ migrateError
-    Right () -> waspSaysC $ asWaspSuccessMessage "Migration done."
+      throwError $ CommandError "Migrate dev failed" migrateError
+    Right () -> cliSendMessageC $ Msg.Success "Migration done."

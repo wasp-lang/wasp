@@ -3,6 +3,7 @@ module Wasp.Generator.Setup
   )
 where
 
+import Control.Monad (when)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -20,10 +21,7 @@ runSetup spec dstDir sendMessage = do
       sendMessage $ Msg.Success "Successfully completed npm install."
       sendMessage $ Msg.Start "Setting up database..."
       (dbGeneratorWarnings, dbGeneratorErrors) <- DbGenerator.postWriteDbGeneratorActions spec dstDir
-      if null dbGeneratorErrors
-        then sendMessage $ Msg.Success "Database successfully set up."
-        else sendMessage $ Msg.Failure "Could not set up database."
+      when (null dbGeneratorErrors) (sendMessage $ Msg.Success "Database successfully set up.")
       return (npmInstallWarnings ++ dbGeneratorWarnings, dbGeneratorErrors)
     else do
-      sendMessage $ Msg.Failure "npm install failed!"
       return (npmInstallWarnings, npmInstallErrors)

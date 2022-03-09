@@ -9,12 +9,13 @@ import Control.Concurrent.Async (concurrently)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, runCommand)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspStartMessage)
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import qualified Wasp.Message as Msg
 
 runDbCommand :: Command a -> IO ()
 runDbCommand = runCommand . makeDbCommand
@@ -37,7 +38,7 @@ studio = do
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
 
-  waspSaysC $ asWaspStartMessage "Running studio..."
+  cliSendMessageC $ Msg.Start "Running studio..."
   chan <- liftIO newChan
 
   _ <- liftIO $ concurrently (readJobMessagesAndPrintThemPrefixed chan) (runStudio genProjectDir chan)

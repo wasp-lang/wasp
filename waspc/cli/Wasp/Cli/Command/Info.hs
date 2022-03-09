@@ -14,12 +14,14 @@ import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, waspSaysC)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Cli.Terminal (title)
 import Wasp.Common (WaspProjectDir)
 import Wasp.Error (showCompilerErrorForTerminal)
 import Wasp.Lib (findWaspFile)
+import qualified Wasp.Message as Msg
 import Wasp.Util.IO (listDirectoryDeep)
 import qualified Wasp.Util.Terminal as Term
 
@@ -31,22 +33,23 @@ info =
     projectSize <- liftIO $ readDirectorySizeMB waspDir
     declsOrError <- liftIO $ parseWaspFile waspDir
     case declsOrError of
-      Left err -> waspSaysC err
+      Left err -> cliSendMessageC $ Msg.Failure "Info failed" err
       Right decls -> do
-        waspSaysC $
-          unlines
-            [ "",
-              title "Project information",
-              printInfo
-                "Name"
-                (fst $ head $ AS.takeDecls @AS.App.App decls),
-              printInfo
-                "Last compile"
-                compileInfo,
-              printInfo
-                "Project size"
-                projectSize
-            ]
+        cliSendMessageC $
+          Msg.Info $
+            unlines
+              [ "",
+                title "Project information",
+                printInfo
+                  "Name"
+                  (fst $ head $ AS.takeDecls @AS.App.App decls),
+                printInfo
+                  "Last compile"
+                  compileInfo,
+                printInfo
+                  "Project size"
+                  projectSize
+              ]
 
 printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
