@@ -1,8 +1,6 @@
 ---
 title: Following YC, Wasp raised $1.5M Seed Round led by Lunar Ventures and HV Capital
-author: Matija Sosic
-author_title: CEO & Co-founder @ Wasp
-author_url: https://github.com/matijasos
+authors: [matijasos]
 tags: [startup, wasp]
 ---
 

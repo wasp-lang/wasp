@@ -1,8 +1,6 @@
 ---
 title: Journey to YCombinator
-author: Martin Sosic
-author_title: Co-founder @ Wasp
-author_url: https://github.com/martinsos
+authors: [martinsos]
 tags: [startup, wasp]
 ---
 

@@ -1,8 +1,6 @@
 ---
 title: Our fundraising learnings - 250+ meetings in 98 days to the oversubscribed round
-author: Matija Sosic
-author_title: CEO & Co-founder @ Wasp
-author_url: https://github.com/matijasos
+authors: [matijasos]
 tags: [startup, wasp]
 ---
 

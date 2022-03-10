@@ -1,8 +1,6 @@
 ---
 title: Wasp - language for developing full-stack Javascript web apps with no boilerplate
-author: Martin Sosic
-author_title: Co-founder @ Wasp
-author_url: https://github.com/martinsos
+authors: [martinsos]
 tags: [wasp]
 ---
 
