@@ -9,12 +9,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 
-<WaspIntro />
-<InBlogCta />
-
 After graduating from Y Combinator's Winter 2021 Batch, we are super excited to announce that Wasp raised $1.5m in our first funding round! The round is led by Lunar Ventures and joined by HV Capital. Also [see it in TechCrunch](https://techcrunch.com/2021/10/04/yc-grads-wasp-land-1-5m-seed-to-help-developers-build-web-apps-faster/).
 
 The best thing about it is that the majority of our investors are either experienced engineers themselves (e.g. ex-Facebook, Twitter and Airbnb) or have a strong focus on investing in deep technology and developer companies. They share the vision we have with Wasp, understand and care about the problem we are solving.
+
+<!--truncate-->
+
+<WaspIntro />
+<InBlogCta />
 
 Besides Lunar and HV Capital, we are thrilled to welcome on board:
 - 468 Capital (led by Florian Leibert, founder of Mesosphere and ex-Twitter and Airbnb eng.)

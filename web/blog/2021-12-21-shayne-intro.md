@@ -12,6 +12,10 @@ import WaspIntro from './_wasp-intro.md';
 
 ![Welcome Shayne!](../static/img/shayne-intro-banner.png)
 
+Find Shayne on [Twitter](https://twitter.com/shayneczyzewski) and [GitHub](https://github.com/shayneczyzewski).
+
+<!--truncate-->
+
 Find Shayne on [LinkedIn](https://www.linkedin.com/in/shayneski/) and [GitHub](https://github.com/shayneczyzewski).
 
 <WaspIntro />

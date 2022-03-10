@@ -14,6 +14,8 @@ import WaspIntro from './_wasp-intro.md';
 
 Find Martijn on [Twitter](https://twitter.com/faassen) and [GitHub](https://github.com/faassen).
 
+<!--truncate-->
+
 <WaspIntro />
 <InBlogCta />
 
