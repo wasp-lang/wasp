@@ -155,52 +155,67 @@ unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
 -- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
 --   having a TypedExpr allows us to report the source position when we encounter a type error.
 --   Anyway unification always happens for some typed expressions, so this makes sense.
+
+-- 1. T1 == T2 -> T1
+-- 2. T1 != T2 -> reducedSumType(T1, T2)
+-- 3. T1 != T2, but both are lists ->
+--       1. If one is empty and another is not -> return non-empty one (its type). (same as we had so far)
+--       2. If it is two lists, none of them empty -> just construct union type from them (so this is same step (2) above, not a special case at all actually).
+
+-- TODO: Remove Either from here, we don't return error any more!
+-- TODO: I think we can even skip WithCtx -> no need for it anymore, we don't return errors!
+--   So this can now just be :: Type -> Type -> Type
 unifyTypes :: Type -> WithCtx TypedExpr -> Either TypeCoercionError Type
 unifyTypes typ (WithCtx _ texpr) | typ == exprType texpr = Right typ
 -- Apply [AnyList]: an empty list can unify with any other list
 unifyTypes EmptyListType (WithCtx _ (List _ typ)) = Right typ
 unifyTypes typ@(ListType _) (WithCtx _ (List _ EmptyListType)) = Right typ
--- Two non-empty lists unify only if their inner types unify
-unifyTypes typ@(ListType list1ElemType) texpr@(WithCtx _ (List (list2ElemTexpr1 : _) (ListType _))) =
-  -- NOTE: We use first element from the typed list (list2ElemTexpr1) as a "sample" to run unification against.
-  --   This is ok because this list is already typed, so we know all other elements have the same type.
-  --   We could have alternatively picked any other element from that list.
-  annotateError $ ListType <$> unifyTypes list1ElemType list2ElemTexpr1
-  where
-    annotateError = left (TypeCoercionError texpr typ . ReasonList)
--- Declarations and enums can not unify with anything
-unifyTypes t@(DeclType _) texpr = Left $ TypeCoercionError texpr t ReasonDecl
-unifyTypes t@(EnumType _) texpr = Left $ TypeCoercionError texpr t ReasonEnum
--- The unification of two dictionaries is defined by the [DictNone] and [DictSome] rules
-unifyTypes t@(DictType dict1EntryTypes) texpr@(WithCtx _ (Dict dict2Entries (DictType dict2EntryTypes))) = do
-  let keys = M.keysSet dict1EntryTypes <> M.keysSet dict2EntryTypes
-  unifiedType <- foldMapM' (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
-  return $ DictType unifiedType
-  where
-    unifyEntryTypesForKey :: String -> Either TypeCoercionError DictEntryType
-    unifyEntryTypesForKey key =
-      annotateError key $
-        case (M.lookup key dict1EntryTypes, M.lookup key dict2EntryTypes) of
-          (Nothing, Nothing) ->
-            error $
-              "impossible: unifyTypes.unifyEntryTypesForKey should be called"
-                ++ "with only the keys of entryTypes1 and entryTypes2"
-          -- [DictSome] on s, [DictNone] on t
-          (Just sType, Nothing) ->
-            Right $ DictOptional $ dictEntryType sType
-          -- [DictNone] on s, [DictSome] on t
-          (Nothing, Just tType) ->
-            Right $ DictOptional $ dictEntryType tType
-          -- Both require @key@, so it must be a required entry of the unified entry types
-          (Just (DictRequired sType), Just (DictRequired _)) ->
-            DictRequired <$> unifyTypes sType (fromJust $ lookup key dict2Entries)
-          -- One of s or t has @key@ optionally, so it must be an optional entry of the unified entry types
-          (Just sType, Just _) ->
-            DictOptional <$> unifyTypes (dictEntryType sType) (fromJust $ lookup key dict2Entries)
+unifyTypes t (WithCtx _ texpr) = Right $ makeReducedUnionType t (exprType texpr)
 
-    annotateError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
-    annotateError key = left (TypeCoercionError texpr t . ReasonDictWrongKeyType key)
-unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
+makeReducedUnionType :: Type -> Type -> Type
+makeReducedUnionType = undefined
+
+-- -- Two non-empty lists unify only if their inner types unify
+-- unifyTypes typ@(ListType list1ElemType) texpr@(WithCtx _ (List (list2ElemTexpr1 : _) (ListType _))) =
+--   -- NOTE: We use first element from the typed list (list2ElemTexpr1) as a "sample" to run unification against.
+--   --   This is ok because this list is already typed, so we know all other elements have the same type.
+--   --   We could have alternatively picked any other element from that list.
+--   annotateError $ ListType <$> unifyTypes list1ElemType list2ElemTexpr1
+--   where
+--     annotateError = left (TypeCoercionError texpr typ . ReasonList)
+-- -- Declarations and enums can not unify with anything
+-- unifyTypes t@(DeclType _) texpr = Left $ TypeCoercionError texpr t ReasonDecl
+-- unifyTypes t@(EnumType _) texpr = Left $ TypeCoercionError texpr t ReasonEnum
+-- -- The unification of two dictionaries is defined by the [DictNone] and [DictSome] rules
+-- unifyTypes t@(DictType dict1EntryTypes) texpr@(WithCtx _ (Dict dict2Entries (DictType dict2EntryTypes))) = do
+--   let keys = M.keysSet dict1EntryTypes <> M.keysSet dict2EntryTypes
+--   unifiedType <- foldMapM' (\key -> M.singleton key <$> unifyEntryTypesForKey key) keys
+--   return $ DictType unifiedType
+--   where
+--     unifyEntryTypesForKey :: String -> Either TypeCoercionError DictEntryType
+--     unifyEntryTypesForKey key =
+--       annotateError key $
+--         case (M.lookup key dict1EntryTypes, M.lookup key dict2EntryTypes) of
+--           (Nothing, Nothing) ->
+--             error $
+--               "impossible: unifyTypes.unifyEntryTypesForKey should be called"
+--                 ++ "with only the keys of entryTypes1 and entryTypes2"
+--           -- [DictSome] on s, [DictNone] on t
+--           (Just sType, Nothing) ->
+--             Right $ DictOptional $ dictEntryType sType
+--           -- [DictNone] on s, [DictSome] on t
+--           (Nothing, Just tType) ->
+--             Right $ DictOptional $ dictEntryType tType
+--           -- Both require @key@, so it must be a required entry of the unified entry types
+--           (Just (DictRequired sType), Just (DictRequired _)) ->
+--             DictRequired <$> unifyTypes sType (fromJust $ lookup key dict2Entries)
+--           -- One of s or t has @key@ optionally, so it must be an optional entry of the unified entry types
+--           (Just sType, Just _) ->
+--             DictOptional <$> unifyTypes (dictEntryType sType) (fromJust $ lookup key dict2Entries)
+
+--     annotateError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
+--     annotateError key = left (TypeCoercionError texpr t . ReasonDictWrongKeyType key)
+-- unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
 
 -- | Converts a typed expression from its current type to the given weaker type, "weaker"
 -- meaning it is a super-type of the original type. If that is possible, it returns the
