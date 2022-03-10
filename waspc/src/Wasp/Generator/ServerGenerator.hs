@@ -27,8 +27,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText, prismaVersion)
-import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText, npmVersionAsText, prismaVersionAsText)
+import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -57,7 +57,7 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
 
 -- Cleanup to be performed before generating new server code.
@@ -103,6 +103,7 @@ genPackageJson spec waspDependencies = do
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersion" .= nodeVersionAsText,
+              "npmVersion" .= npmVersionAsText,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
@@ -120,7 +121,7 @@ npmDepsForWasp =
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
             ("morgan", "~1.9.1"),
-            ("@prisma/client", prismaVersion),
+            ("@prisma/client", prismaVersionAsText),
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
@@ -130,7 +131,7 @@ npmDepsForWasp =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", prismaVersion)
+            ("prisma", prismaVersionAsText)
           ]
     }
 

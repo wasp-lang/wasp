@@ -16,7 +16,8 @@
     "delay": "1000"
   },
   "engines": {
-    "node": ">={= nodeVersion =}"
+    "node": "^{= nodeVersion =}",
+    "npm": "^{= npmVersion =}"
   },
   {=& depsChunk =},
   {=& devDepsChunk =}

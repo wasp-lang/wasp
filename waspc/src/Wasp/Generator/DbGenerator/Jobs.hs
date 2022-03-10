@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.Info
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
+import Wasp.Generator.Common (ProjectRootDir, prismaVersionAsText)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
@@ -24,7 +24,7 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 -- We also pin the version to what we need so it won't accidentally find a different version globally
 --   somewhere on the PATH.
 npxPrismaCmd :: [String]
-npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaVersion]
+npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaVersionAsText]
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
 migrateDev projectDir maybeMigrationName = do
