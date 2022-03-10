@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DeriveAnyClass #-}
 
 module Wasp.Analyzer.Type
   ( Type (..),
@@ -9,6 +10,7 @@ where
 
 import qualified Data.HashMap.Strict as H
 import Data.List (intercalate)
+import Data.Hashable (Hashable)
 
 -- | All possible types in Wasp.
 data Type
@@ -27,7 +29,9 @@ data Type
   | BoolType
   | ExtImportType
   | QuoterType String
-  deriving (Eq)
+  | UnionType Type Type 
+  deriving (Eq, Hashable)
+
 
 instance Show Type where
   show = \case

@@ -38,6 +38,7 @@ import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
 import qualified Data.HashMap.Strict as M
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
+import qualified Data.HashSet as Set
 import Data.Maybe (fromJust)
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
@@ -173,7 +174,14 @@ unifyTypes typ@(ListType _) (WithCtx _ (List _ EmptyListType)) = Right typ
 unifyTypes t (WithCtx _ texpr) = Right $ makeReducedUnionType t (exprType texpr)
 
 makeReducedUnionType :: Type -> Type -> Type
-makeReducedUnionType = undefined
+makeReducedUnionType t1 t2 = reduceUnionType (UnionType t1 t2)
+
+reduceUnionType :: Type -> Type
+reduceUnionType unionType@(UnionType _ _) = foldl1 (flip UnionType) . Set.toList $ flatten unionType
+  where flatten :: Type -> Set.HashSet Type
+        flatten (UnionType t1 t2) = Set.union (flatten t1) (flatten t2)
+        flatten t = Set.singleton t
+reduceUnionType _ = error "Cannot reduce non union type"
 
 -- -- Two non-empty lists unify only if their inner types unify
 -- unifyTypes typ@(ListType list1ElemType) texpr@(WithCtx _ (List (list2ElemTexpr1 : _) (ListType _))) =

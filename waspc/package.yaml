@@ -81,6 +81,7 @@ library:
     - path-io
     - cryptohash-sha256
     - containers
+    - hashable
 
 executables:
   wasp-cli:
