@@ -35,8 +35,7 @@ spec_toUpperFirst = do
   it "Capitalizes first letter of string" $ do
     toUpperFirst "fooBar" `shouldBe` "FooBar"
 
-
-spec_second :: Spec 
+spec_second :: Spec
 spec_second = do
   it "Applies the function to the second element of a tuple of size 3." $ do
     second negate ("1", 2, True) `shouldBe` ("1", -2, True)
