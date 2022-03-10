@@ -330,14 +330,14 @@ We are documenting best practices related to Haskell in our [Haskell Handbook](h
 
 #### Comments
 
-#### Grammar
+##### Grammar
 When writing a comment, we prefer starting it with a capital letter.
 
 If it starts with a capital letter, it must end with a punctuation.
 
 If it doesn't start with a capital letter, it shouldn't end with a punctuation.
 
-#### TODO / NOTE
+##### TODO / NOTE
 
 When writing a TODO or NOTE, use all capital letters, like this:
 
@@ -352,4 +352,37 @@ You can do it like this:
 
 ```hs
 -- TODO(martin): Doesn't work on my machine in some unusual use cases.
+```
+
+### JavaScript
+
+#### Functions
+For detailed reasoning/discussion on all listed rules, check [Issue #487](https://github.com/wasp-lang/wasp/issues/487).
+
+##### Top-level named functions
+When defining top-level named functions, we prefer to use statements:
+```javascript
+// good
+function foo(param) {
+  // ...
+}
+
+// bad
+const foo = (param) => {
+  // ...
+}
+
+// bad
+const foo = function (param) {
+  // ...
+}
+```
+##### Inline function expression
+When defining inline function expressions, we prefer the arrow syntax:
+```javascript
+// good
+const squares = arr.map(x => x * x)
+
+// bad
+const squares = arr.map(function (x) { return x * x })
 ```
