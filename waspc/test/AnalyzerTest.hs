@@ -208,9 +208,10 @@ spec_Analyzer = do
                                  intercalate
                                    "\n"
                                    [ "Type error:",
-                                     "  For dictionary field 'to':",
-                                     "    Expected type: page (declaration type)",
-                                     "    Actual type:   route (declaration type)"
+                                     "  Expected type: page (declaration type)",
+                                     "  Actual type:   route (declaration type)",
+                                     "",
+                                     "  -> For dictionary field 'to'"
                                    ]
                                )
 
@@ -239,10 +240,11 @@ spec_Analyzer = do
                                    intercalate
                                      "\n"
                                      [ "Type error:",
-                                       "  For dictionary field 'dependencies':",
-                                       "    For list element:",
-                                       "      Expected type: (string, string)",
-                                       "      Actual type:   (string, number)"
+                                       "  Expected type: (string, string)",
+                                       "  Actual type:   (string, number)",
+                                       "",
+                                       "  -> For dictionary field 'dependencies':",
+                                       "    -> In list element"
                                      ]
                                  )
 
@@ -262,10 +264,11 @@ spec_Analyzer = do
                                    intercalate
                                      "\n"
                                      [ "Type error:",
-                                       "  For dictionary field 'version':",
-                                       "    Can't mix the following types:",
-                                       "     - number",
-                                       "     - string"
+                                       "  Can't mix the following types:",
+                                       "   - number",
+                                       "   - string",
+                                       "",
+                                       "  -> For dictionary field 'version'"
                                      ]
                                  )
 

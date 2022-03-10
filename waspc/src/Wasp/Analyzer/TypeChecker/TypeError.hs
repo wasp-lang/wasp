@@ -12,7 +12,7 @@ import Data.List (intercalate)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
-import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent)
+import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent, second)
 
 newtype TypeError = TypeError (WithCtx TypeError')
   deriving (Show, Eq)
@@ -79,18 +79,15 @@ data TypeCoercionErrorReason e
     ReasonDictWrongKeyType String e
   deriving (Eq, Show)
 
-second :: (b -> d) -> (a, b, c) -> (a, d, c)
-second f (x, y, z) = (x, f y, z)
-
 extractTypeErrorMessagesAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
 extractTypeErrorMessagesAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
   case reason of
     ReasonList e ->
       second ("-> In list element" :) $ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg e
     ReasonDictWrongKeyType key e ->
-      second (("-> In dictionary field '" ++ key ++ "'") :) $ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg e
-    ReasonDictNoKey key -> ("-> Missing required dictionary field '" ++ key ++ "'", [], ctx)
-    ReasonDictExtraKey key -> ("-> Unexpected dictionary field '" ++ key ++ "'", [], ctx)
+      second (("-> For dictionary field '" ++ key ++ "'") :) $ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg e
+    ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", [], ctx)
+    ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", [], ctx)
     ReasonDecl -> uncoercableTypesMsgAndCtx
     ReasonEnum -> uncoercableTypesMsgAndCtx
     ReasonUncoercable -> uncoercableTypesMsgAndCtx
@@ -107,7 +104,9 @@ getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoerci
 getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullMsg, ctx)
   where
     (mainMsg, additionalMsgs, ctx) = extractTypeErrorMessagesAndCtx getUncoercableTypesMsg typeCoercionError
-    fullMsg = intercalate "\n\n" [mainMsg, joinAdditionalMessages additionalMsgs]
+    fullMsg
+      | null additionalMsgs = mainMsg
+      | otherwise = intercalate "\n\n" [mainMsg, joinAdditionalMessages additionalMsgs]
 
 getUnificationErrorMessageAndCtx :: TypeCoercionError -> (String, Ctx)
 getUnificationErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $

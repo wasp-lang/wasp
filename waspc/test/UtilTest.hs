@@ -35,6 +35,12 @@ spec_toUpperFirst = do
   it "Capitalizes first letter of string" $ do
     toUpperFirst "fooBar" `shouldBe` "FooBar"
 
+
+spec_second :: Spec 
+spec_second = do
+  it "Applies the function to the second element of a tuple of size 3." $ do
+    second negate ("1", 2, True) `shouldBe` ("1", -2, True)
+
 spec_jsonSet :: Spec
 spec_jsonSet = do
   let inputObj =
@@ -64,13 +70,17 @@ spec_jsonSet = do
 
 spec_indent :: Spec
 spec_indent = do
-  describe "indent should indent given text correctly" $ do
-    it "when just one line of text" $ do
+  describe "Should indent the given text correctly" $ do
+    it "When given only a single line of text" $ do
       indent 2 "foo" `shouldBe` "  foo"
-    it "when multiple lines of text" $ do
+    it "When given multiple lines of text" $ do
       indent 3 "foo\nbar" `shouldBe` "   foo\n   bar"
-    it "when text is already somewhat indented" $ do
-      indent 4 "  foo\n  bar" `shouldBe` "      foo\n      bar"
+    it "When given a single line of text with existing indentation" $ do
+      indent 4 "  foo" `shouldBe` "      foo"
+    it "When given multiple lines of text with existing indentation" $ do
+      indent 4 "foo\n  bar" `shouldBe` "    foo\n      bar"
+    it "When given text containing empty lines" $ do
+      indent 4 "foo\n\nbar\n  baz\n\n  ban" `shouldBe` "    foo\n\n    bar\n      baz\n\n      ban"
 
 spec_concatShortPrefixAndText :: Spec
 spec_concatShortPrefixAndText = do
