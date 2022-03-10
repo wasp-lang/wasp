@@ -99,7 +99,7 @@ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCt
 
 joinAdditionalMessages :: [String] -> String
 joinAdditionalMessages [] = ""
-joinAdditionalMessages msgChain = foldr1 appendMsg $ reverse msgChain
+joinAdditionalMessages msgChain = foldr1 appendMsg msgChain
   where
     appendMsg curr acc = intercalate ":\n" [curr, indent 2 acc]
 
