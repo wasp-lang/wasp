@@ -23,6 +23,8 @@ waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.js
 waspMigrate/.wasp/out/server/src/utils.js
+waspMigrate/.wasp/out/web-app/.npmrc
+waspMigrate/.wasp/out/web-app/.nvmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/netlify.toml
 waspMigrate/.wasp/out/web-app/package.json

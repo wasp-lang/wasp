@@ -18,6 +18,8 @@ waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js
 waspCompile/.wasp/out/server/src/utils.js
+waspCompile/.wasp/out/web-app/.npmrc
+waspCompile/.wasp/out/web-app/.nvmrc
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/netlify.toml
 waspCompile/.wasp/out/web-app/package.json

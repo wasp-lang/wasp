@@ -17,7 +17,8 @@
     "standard": "^14.3.4"
   },
   "engines": {
-    "node": ">=12.18.0"
+    "node": "^16.0.0",
+    "npm": "^8.0.0"
   },
   "name": "server",
   "nodemonConfig": {

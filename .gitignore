@@ -1,3 +1,6 @@
 .dir-locals.el
 # Local Netlify folder
 .netlify
+
+# editor realted
+.idea/
