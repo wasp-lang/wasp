@@ -12,7 +12,7 @@ import Data.List (intercalate)
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
-import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent, second)
+import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent, second3)
 
 newtype TypeError = TypeError (WithCtx TypeError')
   deriving (Show, Eq)
@@ -79,35 +79,6 @@ data TypeCoercionErrorReason e
     ReasonDictWrongKeyType String e
   deriving (Eq, Show)
 
-extractTypeErrorMessagesAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
-extractTypeErrorMessagesAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
-  case reason of
-    ReasonList e ->
-      second ("-> In list element" :) $ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg e
-    ReasonDictWrongKeyType key e ->
-      second (("-> For dictionary field '" ++ key ++ "'") :) $ extractTypeErrorMessagesAndCtx getUncoercableTypesMsg e
-    ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", [], ctx)
-    ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", [], ctx)
-    ReasonDecl -> uncoercableTypesMsgAndCtx
-    ReasonEnum -> uncoercableTypesMsgAndCtx
-    ReasonUncoercable -> uncoercableTypesMsgAndCtx
-  where
-    uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
-
-joinAdditionalMessages :: [String] -> String
-joinAdditionalMessages [] = ""
-joinAdditionalMessages msgChain = foldr1 appendMsg msgChain
-  where
-    appendMsg curr acc = intercalate ":\n" [curr, indent 2 acc]
-
-getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
-getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullMsg, ctx)
-  where
-    (mainMsg, additionalMsgs, ctx) = extractTypeErrorMessagesAndCtx getUncoercableTypesMsg typeCoercionError
-    fullMsg
-      | null additionalMsgs = mainMsg
-      | otherwise = intercalate "\n\n" [mainMsg, joinAdditionalMessages additionalMsgs]
-
 getUnificationErrorMessageAndCtx :: TypeCoercionError -> (String, Ctx)
 getUnificationErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
   \t texpr ->
@@ -126,3 +97,38 @@ getWeakenErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
       [ concatPrefixAndText "Expected type: " (show t),
         concatPrefixAndText "Actual type:   " (show $ exprType texpr)
       ]
+
+getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
+getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullErrorMsg, ctx)
+  where
+    (typesErrorMsg, ctxMsgs, ctx) = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg typeCoercionError
+    fullErrorMsg
+      | null ctxMsgs = typesErrorMsg
+      | otherwise = intercalate "\n\n" [typesErrorMsg, concatContextualMsgs ctxMsgs]
+
+-- | Takes a function for constructing a type coercion error message, and a `TypeCoercionError`.
+--
+-- It recursively traverses the error stack and returns a tuple containing:
+-- - The original type coercion error message
+-- - An array of contextual messages further explaining the original error
+-- - The error's context
+getUncoercableTypesMsgAndCtxMsgsAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
+getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
+  case reason of
+    ReasonList e -> second3 ("In list element" :) $ getFurtherMsgsAndCtx e
+    ReasonDictWrongKeyType key e -> second3 (("For dictionary field '" ++ key ++ "'") :) $ getFurtherMsgsAndCtx e
+    ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", [], ctx)
+    ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", [], ctx)
+    ReasonDecl -> uncoercableTypesMsgAndCtx
+    ReasonEnum -> uncoercableTypesMsgAndCtx
+    ReasonUncoercable -> uncoercableTypesMsgAndCtx
+  where
+    getFurtherMsgsAndCtx = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg
+    uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
+
+concatContextualMsgs :: [String] -> String
+concatContextualMsgs [] = ""
+concatContextualMsgs msgChain = prefix ++ foldr1 appendMsg msgChain
+  where
+    prefix = "-> "
+    appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)

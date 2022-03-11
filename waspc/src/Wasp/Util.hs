@@ -10,7 +10,7 @@ module Wasp.Util
     toLowerFirst,
     toUpperFirst,
     headSafe,
-    second,
+    second3,
     jsonSet,
     indent,
     concatShortPrefixAndText,
@@ -32,7 +32,7 @@ import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as B
 import qualified Data.ByteString.UTF8 as BSU
-import Data.Char (isUpper, toLower, toUpper)
+import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
@@ -68,22 +68,20 @@ headSafe :: [a] -> Maybe a
 headSafe [] = Nothing
 headSafe xs = Just (head xs)
 
-second :: (b -> d) -> (a, b, c) -> (a, d, c)
-second f (x, y, z) = (x, f y, z)
+second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
+second3 f (x, y, z) = (x, f y, z)
 
 jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
 jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
 jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
-indent numSpaces = intercalate "\n" . map (stripIfEmpty . (indentation ++)) . splitOn "\n"
+indent numSpaces = intercalate "\n" . map (toEmptyStringIfAllWhiteSpace . (indentation ++)) . splitOn "\n"
   where
     indentation = replicate numSpaces ' '
-
-stripIfEmpty :: String -> String
-stripIfEmpty str
-  | null $ Text.unpack $ Text.strip $ Text.pack str = ""
-  | otherwise = str
+    toEmptyStringIfAllWhiteSpace str
+      | all isSpace str = ""
+      | otherwise = str
 
 -- | Given a prefix and text, concatenates them in the following manner:
 -- <prefix> <text_line_1>
