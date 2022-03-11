@@ -34,3 +34,4 @@ prismaVersionAsText = versionAsText prismaVersion
 
 versionAsText :: (Int, Int, Int) -> String
 versionAsText (major, minor, patch) = printf "%d.%d.%d" major minor patch
+
