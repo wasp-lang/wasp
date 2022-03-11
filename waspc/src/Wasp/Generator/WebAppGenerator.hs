@@ -41,6 +41,7 @@ genWebApp spec = do
     [ genReadme,
       genPackageJson spec npmDepsForWasp,
       genNpmrc,
+      genNvmrc,
       genGitignore,
       return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
@@ -75,6 +76,14 @@ genNpmrc =
       (asTmplFile [relfile|npmrc|])
       (asWebAppFile [relfile|.npmrc|])
       Nothing
+
+genNvmrc :: Generator FileDraft
+genNvmrc =
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|nvmrc|])
+      (asWebAppFile [relfile|.nvmrc|])
+      (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
 
 npmDepsForWasp :: N.NpmDepsForWasp
 npmDepsForWasp =
