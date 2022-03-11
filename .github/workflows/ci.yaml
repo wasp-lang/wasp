@@ -107,6 +107,11 @@ jobs:
           
       - name: Build dependencies 
         run: stack --install-ghc test --only-dependencies
+
+      - name: Set up Node
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
       
       - name: Build Wasp & Run tests
         run: stack test
