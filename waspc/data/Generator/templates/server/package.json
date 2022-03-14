@@ -16,8 +16,8 @@
     "delay": "1000"
   },
   "engines": {
-    "node": "^{= nodeVersion =}",
-    "npm": "^{= npmVersion =}"
+    "node": "{= nodeSemverString =}",
+    "npm": "{= npmSemverString =}"
   },
   {=& depsChunk =},
   {=& devDepsChunk =}

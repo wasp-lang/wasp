@@ -18,7 +18,7 @@ import Wasp.AppSpec (AppSpec, getApp)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.Generator.Common (nodeVersionAsText, npmVersionAsText)
+import Wasp.Generator.Common (nodeVersion, getMajor, nodeSemverString, npmSemverString)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)
@@ -64,8 +64,8 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersion" .= nodeVersionAsText,
-              "npmVersion" .= npmVersionAsText
+              "nodeSemverString" .= nodeSemverString,
+              "npmSemverString" .= npmSemverString
             ]
       )
 
@@ -83,7 +83,7 @@ genNvmrc =
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|nvmrc|])
       (asWebAppFile [relfile|.nvmrc|])
-      (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
+      (Just (object ["nodeVersion" .= show (getMajor nodeVersion)]))
 
 npmDepsForWasp :: N.NpmDepsForWasp
 npmDepsForWasp =

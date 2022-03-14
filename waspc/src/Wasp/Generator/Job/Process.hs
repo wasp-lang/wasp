@@ -145,5 +145,5 @@ runNodeCommandAsJob fromDir command args jobType chan = do
         _ -> Nothing
 
     waspNodeRequirementMessage =
-      "Wasp requires node >= " ++ C.nodeVersionAsText ++ " ."
+      "Wasp requires node " ++ C.nodeSemverString ++ " ."
         ++ " Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements ."
