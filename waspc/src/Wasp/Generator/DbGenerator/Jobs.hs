@@ -24,7 +24,7 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 -- We also pin the version to what we need so it won't accidentally find a different version globally
 --   somewhere on the PATH.
 npxPrismaCmd :: [String]
-npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaSemverString ]
+npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaSemverString]
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
 migrateDev projectDir maybeMigrationName = do

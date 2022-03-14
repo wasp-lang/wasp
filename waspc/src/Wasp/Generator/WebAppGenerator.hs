@@ -18,7 +18,7 @@ import Wasp.AppSpec (AppSpec, getApp)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.Generator.Common (nodeVersion, getMajor, nodeSemverString, npmSemverString)
+import Wasp.Generator.Common (getMajor, nodeSemverString, nodeVersion, npmSemverString)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)

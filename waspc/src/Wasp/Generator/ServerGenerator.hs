@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, getMajor, nodeVersion, nodeSemverString, npmSemverString, prismaSemverString)
+import Wasp.Generator.Common (ProjectRootDir, getMajor, nodeSemverString, nodeVersion, npmSemverString, prismaSemverString)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
