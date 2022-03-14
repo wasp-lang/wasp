@@ -36,7 +36,7 @@ npmSemverString :: String
 npmSemverString = makeSemverString compatibleWith npmVersion
 
 prismaVersion :: SemanticVersion
-prismaVersion = (3, 9, 1) -- Latest LTS version.
+prismaVersion = (3, 9, 1)
 
 prismaSemverString :: String
 prismaSemverString = makeSemverString "" prismaVersion
