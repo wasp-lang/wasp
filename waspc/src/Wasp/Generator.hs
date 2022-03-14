@@ -22,7 +22,7 @@ import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import Wasp.Generator.WebAppGenerator (generateWebApp)
-import Wasp.Generator.WriteFileDrafts (writeFileDrafts)
+import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
 
@@ -41,7 +41,7 @@ writeWebAppCode spec dstDir sendMessage = do
   case generatorResult of
     Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
     Right fileDrafts -> do
-      writeFileDrafts dstDir fileDrafts
+      synchronizeFileDraftsWithDisk dstDir fileDrafts
       writeDotWaspInfo dstDir
       (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
       return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)

@@ -1,7 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
 module Wasp.Generator.WriteFileDrafts
-  ( writeFileDrafts,
+  ( synchronizeFileDraftsWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
     removeFromChecksumFile,
   )
@@ -28,8 +28,8 @@ import Wasp.Util (Checksum)
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
-writeFileDrafts :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
-writeFileDrafts dstDir fileDrafts = do
+synchronizeFileDraftsWithDisk :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
+synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   maybePathsToChecksums <- readChecksumFile dstDir
   case maybePathsToChecksums of
     -- If checksums file is missing/corrupted, we delete all of the generated code
