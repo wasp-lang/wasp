@@ -16,8 +16,6 @@ Find Shayne on [Twitter](https://twitter.com/shayneczyzewski) and [GitHub](https
 
 <!--truncate-->
 
-Find Shayne on [LinkedIn](https://www.linkedin.com/in/shayneski/) and [GitHub](https://github.com/shayneczyzewski).
-
 <WaspIntro />
 <InBlogCta />
 
