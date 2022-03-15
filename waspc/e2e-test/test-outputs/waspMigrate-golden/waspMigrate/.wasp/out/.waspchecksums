@@ -11,7 +11,21 @@
             "file",
             "web-app/package.json"
         ],
-        "a4b7691624dfa2ff54013709c07dfc6f4cc8d43d249a676d0d93b8ee3ceb56b2"
+        "655f72fec123ff1b4c17b516bd38771eca4b8236390718d448b69693c26ce8a3"
+    ],
+    [
+        [
+            "file",
+            "web-app/.npmrc"
+        ],
+        "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
+    ],
+    [
+        [
+            "file",
+            "web-app/.nvmrc"
+        ],
+        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
     ],
     [
         [
@@ -142,16 +156,16 @@
     [
         [
             "file",
-            "web-app/src/ext-src/MainPage.js"
+            "web-app/src/ext-src/waspLogo.png"
         ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
+        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
     ],
     [
         [
             "file",
-            "web-app/src/ext-src/waspLogo.png"
+            "web-app/src/ext-src/MainPage.js"
         ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
     ],
     [
         [
@@ -165,7 +179,7 @@
             "file",
             "server/package.json"
         ],
-        "9e642e24ff7ca6311775622b5a28b5ef47b858915ef0e476d46914d791837a6f"
+        "8d4dae59b2eeae186ef18098d546e6850a3702b9c7c0c059fb20b3f6e1d8a113"
     ],
     [
         [
@@ -179,7 +193,7 @@
             "file",
             "server/.nvmrc"
         ],
-        "5587858d971b25e1973b67bab5b2ee0f1031c2237c1444322ea986874f0117ac"
+        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
     ],
     [
         [
@@ -268,16 +282,16 @@
     [
         [
             "file",
-            "server/src/ext-src/MainPage.js"
+            "server/src/ext-src/waspLogo.png"
         ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
+        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
     ],
     [
         [
             "file",
-            "server/src/ext-src/waspLogo.png"
+            "server/src/ext-src/MainPage.js"
         ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
     ],
     [
         [
