@@ -84,6 +84,7 @@ library
     , time                  ^>= 1.9.3
     , bytestring            ^>= 0.10.12
     , aeson                 ^>= 1.5.6
+    , aeson-pretty          ^>= 0.8
     , text                  ^>= 1.2.4
     , template-haskell      ^>= 2.16.0
     , unordered-containers  ^>= 0.2.16
@@ -218,6 +219,7 @@ library
       Wasp.Generator.WebAppGenerator.RouterGenerator
       Wasp.Generator.WebAppGenerator.Setup
       Wasp.Generator.WebAppGenerator.Start
+      Wasp.Generator.WriteFileDrafts
       Wasp.Lexer
       Wasp.Lib
       Wasp.NpmDependency
