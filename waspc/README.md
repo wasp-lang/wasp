@@ -52,6 +52,8 @@ to build the library and `wasp` executable.
 
 This might take a longer time (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
 
+NOTE: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
+
 ### Test
 ```
 cabal test

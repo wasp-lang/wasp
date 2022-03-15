@@ -328,6 +328,7 @@ test-suite waspc-test
       Generator.FileDraft.TemplateFileDraftTest
       Generator.MockWriteableMonad
       Generator.WebAppGeneratorTest
+      Generator.WriteFileDraftsTest
       Psl.Common.ModelTest
       Psl.Generator.ModelTest
       Psl.Parser.ModelTest
