@@ -49,7 +49,6 @@ import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Monad
 import Wasp.Analyzer.TypeChecker.TypeError
 import qualified Wasp.Analyzer.TypeDefinitions as TD
-import Wasp.Util.Control.Monad (foldMapM')
 
 check :: AST -> TypeChecker TypedAST
 check ast = hoistDeclarations ast >> checkAST ast
@@ -100,11 +99,10 @@ inferExprType = P.withCtx $ \ctx -> \case
   --       that would be assigned here.
   P.List values -> do
     typedValues <- mapM inferExprType values
-    case unify ctx <$> nonEmpty typedValues of
+    case unify <$> nonEmpty typedValues of
       -- Apply [EmptyList].
       Nothing -> return $ WithCtx ctx $ List [] EmptyListType
-      Just (Left e) -> throw e
-      Just (Right (unifiedValues, unifiedType)) ->
+      Just (unifiedValues, unifiedType) ->
         return $ WithCtx ctx $ List (toList unifiedValues) (ListType unifiedType)
   -- Apply [Dict], and also check that there are no duplicate keys in the dictionary.
   P.Dict entries -> do
@@ -159,16 +157,6 @@ unify texprs =
 -- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
 --   having a TypedExpr allows us to report the source position when we encounter a type error.
 --   Anyway unification always happens for some typed expressions, so this makes sense.
-
--- 1. T1 == T2 -> T1
--- 2. T1 != T2 -> reducedSumType(T1, T2)
--- 3. T1 != T2, but both are lists ->
---       1. If one is empty and another is not -> return non-empty one (its type). (same as we had so far)
---       2. If it is two lists, none of them empty -> just construct union type from them (so this is same step (2) above, not a special case at all actually).
-
--- TODO: Remove Either from here, we don't return error any more!
--- TODO: I think we can even skip WithCtx -> no need for it anymore, we don't return errors!
---   So this can now just be :: Type -> Type -> Type
 unifyTypes :: Type -> Type -> Type
 unifyTypes t1 t2 | t1 == t2 = t1
 -- Apply [AnyList]: an empty list can unify with any other list
@@ -178,6 +166,7 @@ unifyTypes t1 t2 = makeUnionType t1 t2
 
 -- TODO: Perhaps it makes sense to move this to Analyzer/Types.hs and make
 -- it a smart constructor.
+-- TODO: Consider interesting case when two same types are given! Write tests for that.
 makeUnionType :: Type -> Type -> Type
 makeUnionType t1 t2 = reduceUnionType (UnionType t1 t2)
 
@@ -287,3 +276,6 @@ weaken t@(DictType entryTypes) texprwc@(WithCtx ctx (Dict entries _)) = do
     annotateKeyTypeError key = left (TypeCoercionError texprwc t . ReasonDictWrongKeyType key)
 -- All other cases can not be weakened
 weaken typ' expr = Left $ TypeCoercionError expr typ' ReasonUncoercable
+
+-- TODO: We need to add special case when left type is union type (while right type can be union type or not be an union type).
+-- TODO: Think about Dict! That is a bit tricky. We don't want to replace mechanism of optional fields completely with unions because that would be very inpractical when we want to define some Wasp dict to have optional fields. So we think we almost certainly want to do stuff with Dicts directly here in `weaken`. But maybe we also want to do it in `unifyTypes`, like we were doing before? Not sure, think about it.
