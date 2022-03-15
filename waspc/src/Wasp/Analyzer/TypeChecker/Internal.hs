@@ -136,15 +136,14 @@ inferExprType = P.withCtx $ \ctx -> \case
 
 -- | Finds the strongest common type for all of the given expressions, "common" meaning
 -- all the expressions can be typed with it and "strongest" meaning it is as specific
--- as possible. If such a type exists, it returns that type and all of the given expressions
--- typed with the new type. If no such type exists, it returns an error.
+-- as possible. We know such a type exists because we can always unify non-overlapping types
+-- into a union type.
 --
 -- The following property is gauranteed:
 --
--- * IF   @unify ctx exprs == Right (exprs', commonType)@
+-- * IF   @unify exprs == (exprs', commonType)@
 --   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
 --
--- First argument, `Ctx`, is the context of the top level structure or smth that contains all these expressions.
 -- TODO: write tests.
 unify :: NonEmpty (WithCtx TypedExpr) -> (NonEmpty (WithCtx TypedExpr), Type)
 unify texprs =
