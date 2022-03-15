@@ -29,7 +29,7 @@ GHCID_TEST_CMD="ghcid --command=cabal repl"
 
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool () {
-    echo "cabal --project-file=dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
+    echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
 }
 function dev_tool_path () {
     echo "$DEV_TOOLS_BIN/$1"
