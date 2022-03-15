@@ -3,8 +3,8 @@
 # This script defines common commands used during building / developing
 # and makes it easy to run them.
 
-SCRIPT_PATH=$(dirname $(realpath -s $0))
-PROJECT_ROOT=$SCRIPT_PATH
+SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+PROJECT_ROOT=$SCRIPT_DIR
 THIS=$0
 COMMAND=${1:-watch}
 shift
@@ -53,7 +53,7 @@ print_usage () {
         echo -e  "        $2";
     }
 
-    echo_bold       "Usage: ${THIS} <command>"
+    echo_bold       "Usage: run <command>"
     echo            "Commands:"
     print_usage_cmd "build" \
                     "Builds the project."
