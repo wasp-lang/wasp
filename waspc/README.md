@@ -269,7 +269,7 @@ We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code
 
 You can use
 ```
-./run hlint`
+./run hlint
 ```
 to run the hlint on Wasp codebase.
 
