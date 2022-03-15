@@ -1,4 +1,5 @@
 waspMigrate/.wasp/out/.dockerignore
+waspMigrate/.wasp/out/.waspchecksums
 waspMigrate/.wasp/out/Dockerfile
 waspMigrate/.wasp/out/db/migrations/migration_lock.toml
 waspMigrate/.wasp/out/db/migrations/no-date-foo/migration.sql

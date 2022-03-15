@@ -1,4 +1,5 @@
 waspCompile/.wasp/out/.dockerignore
+waspCompile/.wasp/out/.waspchecksums
 waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedFullStackNpmDependencies.json

@@ -1,4 +1,5 @@
 waspBuild/.wasp/build/.dockerignore
+waspBuild/.wasp/build/.waspchecksums
 waspBuild/.wasp/build/Dockerfile
 waspBuild/.wasp/build/db/schema.prisma
 waspBuild/.wasp/build/installedFullStackNpmDependencies.json
