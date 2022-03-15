@@ -37,8 +37,8 @@ where
 import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
 import qualified Data.HashMap.Strict as M
-import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
 import qualified Data.HashSet as Set
+import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
 import Data.Maybe (fromJust)
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
@@ -166,21 +166,25 @@ unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
 -- TODO: Remove Either from here, we don't return error any more!
 -- TODO: I think we can even skip WithCtx -> no need for it anymore, we don't return errors!
 --   So this can now just be :: Type -> Type -> Type
-unifyTypes :: Type -> WithCtx TypedExpr -> Either TypeCoercionError Type
-unifyTypes typ (WithCtx _ texpr) | typ == exprType texpr = Right typ
+unifyTypes :: Type -> Type -> Type
+unifyTypes t1 t2 | t1 == t2 = t1
 -- Apply [AnyList]: an empty list can unify with any other list
-unifyTypes EmptyListType (WithCtx _ (List _ typ)) = Right typ
-unifyTypes typ@(ListType _) (WithCtx _ (List _ EmptyListType)) = Right typ
-unifyTypes t (WithCtx _ texpr) = Right $ makeReducedUnionType t (exprType texpr)
+unifyTypes EmptyListType t2@(ListType _) = t2
+unifyTypes t1@(ListType _) EmptyListType = t1
+unifyTypes t1 t2 = makeUnionType t1 t2
 
-makeReducedUnionType :: Type -> Type -> Type
-makeReducedUnionType t1 t2 = reduceUnionType (UnionType t1 t2)
+-- TODO: Perhaps it makes sense to move this to Analyzer/Types.hs and make
+-- it a smart constructor.
+makeUnionType :: Type -> Type -> Type
+makeUnionType t1 t2 = reduceUnionType (UnionType t1 t2)
 
+-- TODO: Write tests
 reduceUnionType :: Type -> Type
 reduceUnionType unionType@(UnionType _ _) = foldl1 (flip UnionType) . Set.toList $ flatten unionType
-  where flatten :: Type -> Set.HashSet Type
-        flatten (UnionType t1 t2) = Set.union (flatten t1) (flatten t2)
-        flatten t = Set.singleton t
+  where
+    flatten :: Type -> Set.HashSet Type
+    flatten (UnionType t1 t2) = Set.union (flatten t1) (flatten t2)
+    flatten t = Set.singleton t
 reduceUnionType _ = error "Cannot reduce non union type"
 
 -- -- Two non-empty lists unify only if their inner types unify

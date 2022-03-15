@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Analyzer.Type
   ( Type (..),
@@ -11,6 +11,7 @@ where
 import qualified Data.HashMap.Strict as H
 import Data.List (intercalate)
 import Data.Hashable (Hashable)
+import GHC.Generics (Generic)
 
 -- | All possible types in Wasp.
 data Type
@@ -29,9 +30,10 @@ data Type
   | BoolType
   | ExtImportType
   | QuoterType String
-  | UnionType Type Type 
-  deriving (Eq, Hashable)
+  | UnionType Type Type
+  deriving (Eq, Generic)
 
+instance Hashable Type
 
 instance Show Type where
   show = \case
@@ -44,18 +46,21 @@ instance Show Type where
             entries -> "{\n" ++ intercalate ",\n" (map (("  " ++) . showEntry) entries) ++ "\n}"
     ListType typ -> "[" ++ show typ ++ "]"
     EmptyListType -> "[]"
-    TupleType (t1, t2, ts) -> "(" ++ (intercalate ", " $ show <$> (t1 : t2 : ts)) ++ ")"
+    TupleType (t1, t2, ts) -> "(" ++ intercalate ", " (show <$> (t1 : t2 : ts)) ++ ")"
     StringType -> "string"
     NumberType -> "number"
     BoolType -> "bool"
     ExtImportType -> "external import"
     QuoterType tag -> "{=" ++ tag ++ " " ++ tag ++ "=}"
+    UnionType t1 t2 -> show t1 ++ " | " ++ show t2
 
 -- | The type of an entry in a `Dict`.
 data DictEntryType
   = DictRequired {dictEntryType :: Type}
   | DictOptional {dictEntryType :: Type}
-  deriving (Eq, Show)
+  deriving (Eq, Show, Generic)
+
+instance Hashable DictEntryType
 
 -- | Determines whether the entry must be present in an instance of its parent
 --   `Dict` type.
