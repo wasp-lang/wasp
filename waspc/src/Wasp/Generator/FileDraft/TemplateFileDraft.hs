@@ -4,12 +4,15 @@ module Wasp.Generator.FileDraft.TemplateFileDraft
 where
 
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString as BS
+import Data.Text
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Util (checksumFromByteString, checksumFromText)
 
 -- | File draft based on template file that gets combined with data.
 data TemplateFileDraft = TemplateFileDraft
@@ -25,13 +28,29 @@ data TemplateFileDraft = TemplateFileDraft
 instance Writeable TemplateFileDraft where
   write absDstDirPath draft = do
     createDirectoryIfMissing True (SP.fromAbsDir $ SP.parent absDraftDstPath)
-    case _tmplData draft of
-      Nothing -> do
-        absDraftSrcPath <- getTemplateFileAbsPath (_srcPathInTmplDir draft)
-        copyFile (SP.fromAbsFile absDraftSrcPath) (SP.fromAbsFile absDraftDstPath)
-      Just tmplData -> do
-        content <- compileAndRenderTemplate (_srcPathInTmplDir draft) tmplData
-        writeFileFromText (SP.toFilePath absDraftDstPath) content
+    processBasedOnTmplDataExistence
+      draft
+      (\absDraftSrcPath -> copyFile (SP.fromAbsFile absDraftSrcPath) (SP.fromAbsFile absDraftDstPath))
+      (writeFileFromText $ SP.toFilePath absDraftDstPath)
     where
       absDraftDstPath :: Path' Abs File'
       absDraftDstPath = absDstDirPath </> _dstPath draft
+
+  -- NOTE: we are doing reading of the file twice. Once here, once above in write.
+  --  Idea: We could cache it in an mvar in the TemplateFileDraft.
+  getChecksum draft = do
+    processBasedOnTmplDataExistence
+      draft
+      ((checksumFromByteString <$>) . BS.readFile . SP.fromAbsFile)
+      (return . checksumFromText)
+
+  getDstPath draft = Left $ _dstPath draft
+
+processBasedOnTmplDataExistence :: WriteableMonad m => TemplateFileDraft -> (Path' Abs File' -> m b) -> (Text -> m b) -> m b
+processBasedOnTmplDataExistence draft onNoTmplData onTmplData = case _tmplData draft of
+  Nothing -> do
+    absDraftSrcPath <- getTemplateFileAbsPath (_srcPathInTmplDir draft)
+    onNoTmplData absDraftSrcPath
+  Just tmplData -> do
+    content <- compileAndRenderTemplate (_srcPathInTmplDir draft) tmplData
+    onTmplData content
