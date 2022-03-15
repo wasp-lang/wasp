@@ -123,12 +123,12 @@ readChecksumFile dstDir = do
       | label == fileFsEntityLabel = Left <$> SP.parseRelFile fp
       | label == dirFsEntityLabel = Right <$> SP.parseRelDir fp
       | otherwise =
-        error $
-          "Found different file path type! Expected one of: ["
-            ++ fileFsEntityLabel
-            ++ ","
-            ++ dirFsEntityLabel
-            ++ "]. This should never happen!"
+          error $
+            "Found different file path type! Expected one of: ["
+              ++ fileFsEntityLabel
+              ++ ","
+              ++ dirFsEntityLabel
+              ++ "]. This should never happen!"
 
 writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> RelPathsToChecksums -> IO ()
 writeChecksumFile dstDir relativePathsToChecksums = do
