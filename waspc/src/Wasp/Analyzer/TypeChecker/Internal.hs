@@ -36,12 +36,14 @@ where
 
 import Control.Arrow (left, second)
 import Control.Monad (foldM, void)
+import Data.Either (fromRight)
 import qualified Data.HashMap.Strict as M
 import qualified Data.HashSet as Set
 import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
 import Data.Maybe (fromJust)
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
+import Wasp.Analyzer.Parser.Ctx (fromWithCtx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Monad
@@ -143,13 +145,15 @@ inferExprType = P.withCtx $ \ctx -> \case
 --   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
 --
 -- First argument, `Ctx`, is the context of the top level structure or smth that contains all these expressions.
-unify :: P.Ctx -> NonEmpty (WithCtx TypedExpr) -> Either TypeError (NonEmpty (WithCtx TypedExpr), Type)
-unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
-  superType <-
-    left (mkTypeError ctx . UnificationError) $
-      foldM unifyTypes (exprType texprFirst) texprsRest
-  left (mkTypeError ctx . WeakenError) $
-    (,superType) <$> mapM (weaken superType) texprs
+-- TODO: write tests.
+unify :: NonEmpty (WithCtx TypedExpr) -> (NonEmpty (WithCtx TypedExpr), Type)
+unify texprs =
+  let superType = foldl1 unifyTypes $ exprType . fromWithCtx <$> texprs
+      weakenedTexprs =
+        fromRight
+          (error "This should never happen: there should be no weaken errors during unification.")
+          (mapM (weaken superType) texprs)
+   in (weakenedTexprs, superType)
 
 -- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
 -- type of typed expression @texpr@ are a sub-type of.
