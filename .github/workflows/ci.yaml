@@ -82,6 +82,7 @@ jobs:
         run: ./run ormolu:check
 
       - name: Check if cabal freeze file is up to date
+        if: matrix.os == 'ubuntu-latest'
         run: |
           # We do the check by running `cabal freeze` and checking if cabal.project.freeze
           # changed. If it didn't, it is up to date, otherwise it is not.
