@@ -106,15 +106,14 @@ getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fu
       | null ctxMsgs = typesErrorMsg
       | otherwise = intercalate "\n\n" [typesErrorMsg, concatCtxMessages ctxMsgs]
 
-{- | Recursively traverses the error stack and returns a tuple containing:
- - The original type coercion error message
- - An array of contextual messages further explaining the original error
- - The error's context
-
- It takes two arguments:
-  - A function for constructing a type coercion error message
-  - A `TypeCoercionError` to process
--}
+-- | Recursively traverses the error stack and returns a tuple containing:
+-- - The original type coercion error message
+-- - An array of contextual messages further explaining the original error
+-- - The error's context
+--
+-- It takes two arguments:
+--  - A function for constructing a type coercion error message
+--  - A `TypeCoercionError` to process
 getUncoercableTypesMsgAndCtxMsgsAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
 getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
   case reason of
