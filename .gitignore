@@ -4,3 +4,6 @@
 
 # editor related
 .idea/
+
+# macOS related
+.DS_Store

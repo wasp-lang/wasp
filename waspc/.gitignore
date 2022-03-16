@@ -13,3 +13,6 @@ module-graph.png
 .dir-locals.el
 .projectile
 .vscode
+
+# macOS related
+.DS_Store
