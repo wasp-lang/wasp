@@ -2,7 +2,7 @@ with-compiler: ghc-8.10.7
 
 packages: .
 
--- Speeds up builds by parallelizing over number of CPUs.
+-- Speeds up builds by parallelizing them over the number of available CPUs.
 jobs: $ncpus
 
 -- Ensures that tests print their output to stdout as they execute.

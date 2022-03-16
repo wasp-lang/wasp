@@ -32,11 +32,11 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 
 ## Basics
 ### Setup
-We use [Cabal](https://cabal.readthedocs.io/) for building the project.
+We use [Cabal](https://cabal.readthedocs.io/) to build the project.
 
-The best way to install it is by using [ghcup](https://www.haskell.org/ghcup/).
+The best way to install it is via [ghcup](https://www.haskell.org/ghcup/).
 
-Check [cabal.project](cabal.project) for exact version of GHC that we are using for building Wasp.
+Check [cabal.project](cabal.project) for exact version of GHC that we use to build Wasp.
 Then, ensure via `ghcup` that you use that version of GHC and that you are using corresponding versions of `cabal` and `hls`.
 
 ### Repo
@@ -50,7 +50,8 @@ cabal build
 ```
 to build the library and `wasp` executable.
 
-This might take a longer time (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
+This might take a while (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
+If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
 
 NOTE: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
@@ -90,17 +91,17 @@ NOTE: Reload page if blank.
 
 ## Typical development workflow
 1. Create a new feature branch from `main`.
-2. If you don't have good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
-   NOTE: You will need to install `ghcid` globally first, you can do it with `cabal install ghcid`.
+2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
+   NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Once close to done, run `cabal test` to confirm that project is passing tests (new and old).
+4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
 5. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
 6. When all is ready, and if you modified any Haskell dependencies, regenerate the cabal freeze file.
    You can do this by running `rm cabal.project.freeze && cabal freeze` (or `./run refreeze`).
-7. Squash commits into one commit (or a few if that makes sense) and create a PR. 
+7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
 8. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
 9. Work with reviewer(s) to get the PR approved.
@@ -110,12 +111,12 @@ NOTE: Reload page if blank.
 NOTE: What is cabal freeze file, what is its purpose?
    Freeze file (`cabal.project.freeze`) plays the same role as `package.lock.json` in `npm` -> it enables reproducible builds.
    What `cabal freeze` does is, it captures exact versions of all the cabal dependencies (recursively) used at the moment and writes them down into `cabal.project.freeze` file. Then, in future, `cabal` uses those versions for any commands it runs, regardless of what is written in `.cabal` file.
-   This ensures consistent builds accross CI and different development machines -> a dependency won't suddenly update because patch was released (potentially causing a bug).
+   This ensures consistent builds accross CI and different development machines -> a dependency won't suddenly get updated because the patch was released (potentially causing a bug).
    The way to think about .cabal vs cabal.project.freeze is that dependency version bounds in .cabal specify what range of dependencies are we ok with, while freeze file specifies what (in that range) we know worked last and we tested with.
 
 
 ## Design docs (aka RFCs)
-If the feature you are implementing is complex, be it regarding its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
+If the feature you are implementing is complex, be it due to its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
 It is a great way to share the idea you have with others while also getting help and feedback.
 
 To create one, make a PR that adds a markdown document under `wasp/docs/design-docs`, and in that markdown document explain the thinking behind and choice made when deciding how to implement a feature.
@@ -169,9 +170,9 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 Some useful cabal commands:
 - `cabal update` to update your package information.
 - `cabal build` to build the project, including `wasp` binary which is both CLI and compiler in one.
-- `cabal run wasp-cli <arguments>` to run the `wasp` binary that you have built.
+- `cabal run wasp-cli <arguments>` to run the `wasp` binary that was previously built.
 - `cabal test` to build the whole project + tests and then also run tests.
-- `cabal install` -> builds the project and places the binary so it is in PATH (and you can call it directly with `wasp`).
+- `cabal install` -> builds the project and places the binary so it is in PATH (so you can call it directly, from anywhere, with just `wasp`).
 
 For live compilation and error checking of your code we recommend using Haskell Language Server (hls) via your IDE, but if that is not working as it should, then safe fallback is always `ghcid`. You can install `ghcid` globally with `cabal install ghcid` and then just type `ghcid` when in the project -> it will watch for any file changes and report errors.
 
@@ -190,7 +191,7 @@ Examples:
  - `./run test:unit` will run only unit tests (skipping e2e tests, which is useful since they are relatively slow).
  - `./run ormolu:format` will format the Haskell code for you.
  
-Tip: to make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias:
+Tip: to make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias that points to it:
 ```
 alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ```
@@ -243,8 +244,8 @@ To run the code analysis, run:
 This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
 
 These same checks are required to pass the CI, so make sure this is passing before making a PR.
-TODO: For now we check only code formatting on the CI. In the future, once we make sure all warnings are passing,
-  we will also check linter and static analysis on the CI, but that is not happening yet.
+TODO: For now we check only the code formatting during the CI. In the future, once we make sure all the warnings are passing,
+  we will also check linter and static analysis during the CI, but that is not happening yet.
 
 ### Formatting
 For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
@@ -261,8 +262,8 @@ to see if there is any formatting that needs to be fixed, or with
 ```
 to have Ormolu actually format (in-place) all files that need formatting.
 
-NOTE: First time you run it it might take long time (~10 minutes) for all the dependencies to get installed.
-  After that it will run fast.
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
 
 ### Linting
 We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code.
@@ -273,8 +274,8 @@ You can use
 ```
 to run the hlint on Wasp codebase.
 
-NOTE: First time you run it it might take long time (~10 minutes) for all the dependencies to get installed.
-  After that it will run fast.
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
 
 ### Static Analysis
 We use [stan](https://github.com/kowainik/stan) to statically analyze our codebase.
@@ -285,8 +286,8 @@ The easiest way to run it is to use
 ```
 This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
 
-NOTE: First time you run it it might take long time (~10 minutes) for all the dependencies to get installed.
-  After that it will run fast.
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
 
 
 ## Commit message conventions
