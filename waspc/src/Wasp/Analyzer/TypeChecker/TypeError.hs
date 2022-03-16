@@ -104,18 +104,21 @@ getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fu
     (typesErrorMsg, ctxMsgs, ctx) = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg typeCoercionError
     fullErrorMsg
       | null ctxMsgs = typesErrorMsg
-      | otherwise = intercalate "\n\n" [typesErrorMsg, concatContextualMsgs ctxMsgs]
+      | otherwise = intercalate "\n\n" [typesErrorMsg, concatCtxMessages ctxMsgs]
 
--- | Takes a function for constructing a type coercion error message, and a `TypeCoercionError`.
---
--- It recursively traverses the error stack and returns a tuple containing:
--- - The original type coercion error message
--- - An array of contextual messages further explaining the original error
--- - The error's context
+{- | Recursively traverses the error stack and returns a tuple containing:
+ - The original type coercion error message
+ - An array of contextual messages further explaining the original error
+ - The error's context
+
+ It takes two arguments:
+  - A function for constructing a type coercion error message
+  - A `TypeCoercionError` to process
+-}
 getUncoercableTypesMsgAndCtxMsgsAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
 getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
   case reason of
-    ReasonList e -> second3 ("In list element" :) $ getFurtherMsgsAndCtx e
+    ReasonList e -> second3 ("In list" :) $ getFurtherMsgsAndCtx e
     ReasonDictWrongKeyType key e -> second3 (("For dictionary field '" ++ key ++ "'") :) $ getFurtherMsgsAndCtx e
     ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", [], ctx)
     ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", [], ctx)
@@ -126,9 +129,9 @@ getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError
     getFurtherMsgsAndCtx = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg
     uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
 
-concatContextualMsgs :: [String] -> String
-concatContextualMsgs [] = ""
-concatContextualMsgs msgChain = prefix ++ foldr1 appendMsg msgChain
+concatCtxMessages :: [String] -> String
+concatCtxMessages [] = ""
+concatCtxMessages msgChain = prefix ++ foldr1 appendMsg msgChain
   where
     prefix = "-> "
     appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)

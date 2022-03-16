@@ -244,7 +244,7 @@ spec_Analyzer = do
                                        "  Actual type:   (string, number)",
                                        "",
                                        "  -> For dictionary field 'dependencies':",
-                                       "    -> In list element"
+                                       "    -> In list"
                                      ]
                                  )
 
