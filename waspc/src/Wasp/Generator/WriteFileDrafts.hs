@@ -13,7 +13,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
-import Data.List (find)
+import Data.List (find, sortBy)
 import Data.Maybe (isJust, isNothing)
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
@@ -132,7 +132,8 @@ readChecksumFile dstDir = do
 writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> RelPathsToChecksums -> IO ()
 writeChecksumFile dstDir relativePathsToChecksums = do
   let typeAndPathAndChecksums = first fromSpToTypeAndPath <$> relativePathsToChecksums
-  let json = AesonPretty.encodePretty typeAndPathAndChecksums
+  let sortedTypeAndPathAndChecksums = sortBy (\((_, p1), _) ((_, p2), _) -> compare p1 p2) typeAndPathAndChecksums
+  let json = AesonPretty.encodePretty sortedTypeAndPathAndChecksums
   BSL.writeFile (SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot) json
   where
     fromSpToTypeAndPath :: FileOrDirPathRelativeTo ProjectRootDir -> (String, FilePath)
