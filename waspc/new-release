@@ -1,10 +1,10 @@
-#!/usr/bin/env stack
-{-
-  stack script
-    --resolver lts-16.14
-    --package turtle
-    --package regex-tdfa
-    --package text
+#!/usr/bin/env cabal
+{- cabal:
+  build-depends:
+    base == 4.*
+    , turtle == 1.5.*
+    , regex-tdfa == 1.3.*
+    , text == 1.2.*
 -}
 
 {-# LANGUAGE OverloadedStrings #-}
@@ -28,16 +28,17 @@ makeNewRelease newVersion = do
     (ExitSuccess, branchName) <- shellStrict "git rev-parse --abbrev-ref HEAD" empty
     when (T.strip branchName /= "main") $ error "You must run this script from the main branch!"
 
-    oldPackageYamlContents <- T.unpack <$> T.IO.readFile "package.yaml"
+    let cabalFileName = "waspc.cabal"
+    oldCabalFileContents <- T.unpack <$> T.IO.readFile cabalFileName
 
-    (newPackageYamlContents, oldVersion) <- updatePackageYaml oldPackageYamlContents newVersion
+    (newCabalFileContents, oldVersion) <- updateCabalFile oldCabalFileContents newVersion
     let tag = "v" ++ newVersion
 
     when (newVersion == oldVersion) $ error "Version you provided is the current version!"
 
     putStrLn $ unlines
         [ "This will update wasp version from " ++ oldVersion ++ " to " ++ newVersion
-        , "package.yaml will be updated, and this change will be commited and pushed."
+        , cabalFileName ++ " will be updated, and this change will be commited and pushed."
         , "Also, tag " ++ tag ++ " will be created and pushed, triggering CI to"
           ++ " create new release on Github."
         , "Are you sure you want to proceed (y/n)?"
@@ -45,12 +46,12 @@ makeNewRelease newVersion = do
     confirmation <- getLine
     when (confirmation /= "y") $ error "Aborting"
 
-    T.IO.writeFile "package.yaml" $ T.pack newPackageYamlContents
+    T.IO.writeFile cabalFileName $ T.pack newCabalFileContents
 
     -- TODO: Print what I am doing for each step.
 
-    putStrLn "\nCreating new commit with updated package.yaml and pushing it.\n"
-    ExitSuccess <- shell "git add package.yaml" empty
+    putStrLn $ "\nCreating new commit with updated " ++ cabalFileName ++ " and pushing it.\n"
+    ExitSuccess <- shell (T.pack $ "git add " ++ cabalFileName) empty
     ExitSuccess <- shell (T.pack $ "git commit -m \"Updated wasp version to " ++ newVersion ++ ".\"") empty
     gitPushExitCode <- shell "git push" empty
     case gitPushExitCode of
@@ -65,13 +66,11 @@ makeNewRelease newVersion = do
 
     return ()
 
-updatePackageYaml :: String -> String -> IO (String, String) -- Returns (update package yaml contents, old version)
-updatePackageYaml packageYamlContents newVersion = do
+updateCabalFile :: String -> String -> IO (String, String) -- Returns (updated cabal file contents, old version)
+updateCabalFile cabalFileContents newVersion = do
     let (beforeMatch, match, afterMatch, submatches) =
-            packageYamlContents TR.=~ ("(version: *)([^ #]+)( *# *%WASP_VERSION%)" :: String) :: (String, String, String, [String])
-    when (null match) $
-        error ("Couldn't locate version in package.yaml, make sure it is annotated"
-               ++ " with line comment starting with %WASP_VERSION% (in the same line).")
-    let [matchBeforeVersion, oldVersion, matchAfterVersion] = submatches
-    let newContents = beforeMatch ++ matchBeforeVersion ++ newVersion ++ matchAfterVersion ++ afterMatch
+            cabalFileContents TR.=~ ("^(version: *)([0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)" :: String) :: (String, String, String, [String])
+    when (null match) $ error "Couldn't locate version in cabal file!?"
+    let [matchBeforeVersion, oldVersion] = submatches
+    let newContents = beforeMatch ++ matchBeforeVersion ++ newVersion ++ afterMatch
     return (newContents, oldVersion)

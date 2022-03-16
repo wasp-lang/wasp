@@ -1,0 +1,6 @@
+with-compiler: ghc-8.10.7
+
+packages: .
+
+-- Speeds up builds by parallelizing them over the number of available CPUs.
+jobs: $ncpus
