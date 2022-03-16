@@ -5,6 +5,10 @@ packages: .
 package waspc
   -- This causes cabal to build modules on all cores, instead of just one,
   -- therefore reducing our build times.
+  -- NOTE: If this is enabled at the same time as cabal's parallelization on package-level,
+  --   it can have counter-effect of increasing compilation time due to cabal and ghc fighting
+  --   for common resource: cpu threads.
+  --   This is not a problem for us for now since we have only one package in our project.
   ghc-options: -j
 
 -- This causes cabal to build packages on all cores, instead of just one.
