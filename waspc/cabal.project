@@ -2,7 +2,14 @@ with-compiler: ghc-8.10.7
 
 packages: .
 
--- Speeds up builds by parallelizing them over the number of available CPUs.
+package waspc
+  -- This causes cabal to build modules on all cores, instead of just one,
+  -- therefore reducing our build times.
+  ghc-options: -j
+
+-- This causes cabal to build packages on all cores, instead of just one.
+-- This doesn't help when developing a single local package, but instead helps when
+-- building multiple packages at once, for example external dependencies.
 jobs: $ncpus
 
 -- Ensures that tests print their output to stdout as they execute.
