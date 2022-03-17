@@ -1,8 +1,6 @@
 ---
 title: How to implement a Discord bot (in NodeJS) that requires new members to introduce themselves
-author: Martin Sosic
-author_title: Co-founder & CTO @ Wasp
-author_url: https://github.com/martinsos
+authors: [martinsos]
 tags: [discord, nodejs]
 ---
 

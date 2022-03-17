@@ -1,9 +1,6 @@
 ---
 title: Meet the team - Martijn Faassen, Founding Engineer
-author: Matija Sosic
-author_title: CEO & Co-founder @ Wasp
-author_url: https://github.com/matijasos
-author_image_url: https://github.com/matijasos.png
+authors: [matijasos]
 image: /img/martijn-intro-banner.png
 tags: [wasp, new-hire]
 ---
@@ -16,6 +13,8 @@ import WaspIntro from './_wasp-intro.md';
 ![Welcome Martijn!](../static/img/martijn-intro-banner.png)
 
 Find Martijn on [Twitter](https://twitter.com/faassen) and [GitHub](https://github.com/faassen).
+
+<!--truncate-->
 
 <WaspIntro />
 <InBlogCta />
