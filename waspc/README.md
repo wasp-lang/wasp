@@ -128,7 +128,7 @@ Others will comment on your design doc, and once it has gone through needed iter
 ## Codebase overview
 Wasp is implemented in Haskell.
 
-Codebase is split into library (`src/`) and CLI (`cli/`).
+Codebase is split into library (`src/`) and CLI (which itself has a library `cli-lib/` and thin executable wrapper `cli-exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
 Wasp compiler takes .wasp files + everything in the `ext/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
@@ -162,8 +162,9 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ## Important directories (in waspc/)
 - src/ -> main source code, library
-- cli/ -> rest of the source code, cli, uses library
-- test/ -> tests
+- cli-lib/ -> rest of the source code, cli, uses library
+- cli-exe/ -> thin executable wrapper around cli library code
+- test/, e2e-test/, cli-test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
 - examples/ -> example apps
 
