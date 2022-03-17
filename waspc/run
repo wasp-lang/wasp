@@ -163,7 +163,7 @@ case $COMMAND in
         echo_and_eval "rm $PROJECT_ROOT/cabal.project.freeze && cabal freeze"
         ;;
     module-graph)
-        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=20,20! -Tpng"
+        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=20,20! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
     *)
         print_usage

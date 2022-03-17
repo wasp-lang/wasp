@@ -4,3 +4,8 @@ packages: .
 
 -- Speeds up builds by parallelizing them over the number of available CPUs.
 jobs: $ncpus
+
+constraints:
+  ormolu ==0.4.0.0,
+  stan ==0.0.1.0,
+  hlint ==3.3.6
