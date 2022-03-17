@@ -394,13 +394,14 @@ test-suite cli-test
   build-depends:
     , base
     , waspc
+    , cli-lib
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
-      HelloWorldTest
+      TerminalTest
       Paths_waspc
 
 benchmark waspc-benchmarks
