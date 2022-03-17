@@ -100,7 +100,9 @@ NOTE: Reload page if blank.
 5. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
 6. When all is ready, and if you modified any Haskell dependencies, regenerate the cabal freeze file.
-   You can do this by running `rm cabal.project.freeze && cabal freeze` (or `./run refreeze`).
+   You can do this by running `cabal freeze` to use the existing frozen dependencies while also capturing new changes you did -> you will likely want to do this if you added a new dependency and don't want to touch frozen versions of other dependencies.
+   Or, you can completely recreate freeze file by running `rm cabal.project.freeze && cabal freeze` (or `./run refreeze`) -> you will likely want to do this if you want to get updates for packages, or if just running `cabal freeze` is too restricted by versions currently captured in freeze file.
+   If not sure what to do, it is easiest and always ok to just do `./run refreeze`.
 7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
 8. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).

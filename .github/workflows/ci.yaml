@@ -81,10 +81,25 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: ./run ormolu:check
 
+      - name: Check if cabal freeze file is up to date
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # We do the check by running `cabal freeze` and checking if cabal.project.freeze
+          # changed. If it didn't, it is up to date, otherwise it is not.
+          # If there is no cabal.project.freeze, or `cabal freeze` command failed, that is also red flag.
+          [[ -f cabal.project.freeze ]] || exit 1
+          OLD_FREEZE_SUM=$(md5sum cabal.project.freeze)
+          cabal freeze || exit 1
+          NEW_FREEZE_SUM=$(md5sum cabal.project.freeze)
+          [[ "$NEW_FREEZE_SUM" == "$OLD_FREEZE_SUM" ]]
+
       - name: Build external dependencies 
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
-      
-      - name: Build Wasp code & run tests
+
+      - name: Build wasp code
+        run: cabal build all
+
+      - name: Run tests
         run: cabal test
 
       - name: Create binary package (Unix)
