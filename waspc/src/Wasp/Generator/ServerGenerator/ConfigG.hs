@@ -8,7 +8,7 @@ import Data.Aeson (object, (.=))
 import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -20,7 +20,7 @@ genConfigFile spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
     tmplData =
       object
-        [ "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
+        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
         ]
 
 configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

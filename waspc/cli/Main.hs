@@ -2,6 +2,7 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
+import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
@@ -21,10 +22,11 @@ import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Terminal (title)
+import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 
 main :: IO ()
-main = do
+main = (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
@@ -67,6 +69,9 @@ main = do
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
+
+    handleInternalErrors :: E.ErrorCall -> IO ()
+    handleInternalErrors e = putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
 
 printUsage :: IO ()
 printUsage =
