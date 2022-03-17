@@ -93,7 +93,7 @@ NOTE: Reload page if blank.
 1. Create a new feature branch from `main`.
 2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
-3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
+3. Do a change in the codebase (most often in `src/` or `cli-lib/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
 4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
