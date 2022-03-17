@@ -91,9 +91,9 @@ In the meantime, the best way to start using Wasp on Windows is by using [WSL](h
 
 If installer is not working for you or your OS is not supported, you can try building Wasp from source.
 
-To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [stack](https://docs.haskellstack.org) on your machine and then run `stack install` from the `waspc/` dir.
+To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [cabal](https://cabal.readthedocs.io/en/stable/getting-started.html) on your machine and then run `cabal install` from the `waspc/` dir.
 
-If you have never built Wasp before, this might take some time due to `stack` downloading dependencies for the first time.
+If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.  
 
 Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building.
 

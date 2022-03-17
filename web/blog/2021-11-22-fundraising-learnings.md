@@ -1,8 +1,6 @@
 ---
 title: Our fundraising learnings - 250+ meetings in 98 days to the oversubscribed round
-author: Matija Sosic
-author_title: CEO & Co-founder @ Wasp
-author_url: https://github.com/matijasos
+authors: [matijasos]
 tags: [startup, wasp]
 ---
 
@@ -13,10 +11,15 @@ import WaspIntro from './_wasp-intro.md';
 
 ![Wasp fundraise chart](../static/img/wasp-fundraise-chart.png)
 
+Wasp was part of [Y Combinator](https://www.ycombinator.com/)’s W21 batch, which took place from January of 2021 until the end of March.
+
+We want to share what we learned during the process!
+
+<!--truncate-->
+
 <WaspIntro />
 <InBlogCta />
 
-Wasp was part of [Y Combinator](https://www.ycombinator.com/)’s W21 batch, which took place from January of 2021 until the end of March.
 
 At Demo Day, our product had a solid traction (200+ projects created, 1k Github stars, good [ProductHunt](https://www.producthunt.com/posts/wasp-lang-alpha) and [HackerNews](https://news.ycombinator.com/item?id=26091956) feedback) but no monetisation yet, which is typical for open-source projects at this stage. Being based in the EU, we also didn't have a huge network in the Bay Area prior to the fundraise.
 

@@ -21,6 +21,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (getMajor, nodeSemverString, nodeVersion, npmSemverString, prismaSemverString)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -59,10 +60,10 @@ genDotEnv spec = return $
   case AS.dotEnvFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-        [ createCopyFileDraft
-            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-            srcFilePath
-        ]
+          [ createCopyFileDraft
+              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+              srcFilePath
+          ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -159,7 +160,7 @@ genSrcDir spec =
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
     dbClientRelToSrcP = [relfile|dbClient.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
@@ -188,7 +189,7 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ AS.getApp spec)
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
@@ -208,7 +209,7 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
+                "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
               ]
         )
     ]

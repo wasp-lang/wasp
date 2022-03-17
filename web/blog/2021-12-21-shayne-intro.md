@@ -1,9 +1,6 @@
 ---
 title: Meet the team - Shayne Czyzewski, Founding Engineer
-author: Matija Sosic
-author_title: CEO & Co-founder @ Wasp
-author_url: https://github.com/matijasos
-author_image_url: https://github.com/matijasos.png
+authors: [matijasos]
 image: /img/shayne-intro-banner.png
 tags: [wasp, new-hire]
 ---
@@ -15,7 +12,9 @@ import WaspIntro from './_wasp-intro.md';
 
 ![Welcome Shayne!](../static/img/shayne-intro-banner.png)
 
-Find Shayne on [LinkedIn](https://www.linkedin.com/in/shayneski/) and [GitHub](https://github.com/shayneczyzewski).
+Find Shayne on [Twitter](https://twitter.com/shayneczyzewski) and [GitHub](https://github.com/shayneczyzewski).
+
+<!--truncate-->
 
 <WaspIntro />
 <InBlogCta />
