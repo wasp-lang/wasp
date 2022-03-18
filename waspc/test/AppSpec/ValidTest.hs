@@ -59,7 +59,7 @@ spec_AppSpecValid = do
               }
 
       describe "should validate that when a page has authRequired, app.auth is also set." $ do
-        let makeSpec = \appAuth pageAuthRequired ->
+        let makeSpec appAuth pageAuthRequired =
               basicAppSpec
                 { AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
@@ -82,7 +82,7 @@ spec_AppSpecValid = do
                        ]
 
       describe "should validate that when app.auth is using EmailAndPassword, user entity is of valid shape." $ do
-        let makeSpec = \appAuth userEntity ->
+        let makeSpec appAuth userEntity =
               basicAppSpec
                 { AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
