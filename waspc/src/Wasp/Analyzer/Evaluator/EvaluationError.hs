@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.Evaluator.EvaluationError
   ( EvaluationError (..),
     EvalErrorCtx (..),

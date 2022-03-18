@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.TypeChecker.TypeError
   ( TypeError (..),
     TypeError' (..),

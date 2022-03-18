@@ -40,7 +40,7 @@ instance Show Type where
             entries -> "{\n" ++ intercalate ",\n" (map (("  " ++) . showEntry) entries) ++ "\n}"
     ListType typ -> "[" ++ show typ ++ "]"
     EmptyListType -> "[]"
-    TupleType (t1, t2, ts) -> "(" ++ (intercalate ", " $ show <$> (t1 : t2 : ts)) ++ ")"
+    TupleType (t1, t2, ts) -> "(" ++ intercalate ", " (show <$> (t1 : t2 : ts)) ++ ")"
     StringType -> "string"
     NumberType -> "number"
     BoolType -> "bool"
