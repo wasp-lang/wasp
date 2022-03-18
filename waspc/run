@@ -81,6 +81,8 @@ print_usage () {
                     "Runs the code formatter and formats the code in place."
     print_usage_cmd "refreeze" \
                     "Regenerates the cabal.project.freeze file. Run this if you changed any cabal dependencies."
+    print_usage_cmd "module-graph" \
+                    "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
 }
 
 exitStatusToString () {
@@ -159,6 +161,9 @@ case $COMMAND in
         ;;
     refreeze)
         echo_and_eval "rm $PROJECT_ROOT/cabal.project.freeze && cabal freeze"
+        ;;
+    module-graph)
+        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=20,20! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
     *)
         print_usage
