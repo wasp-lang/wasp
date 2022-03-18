@@ -227,6 +227,7 @@ library
       Wasp.Psl.Ast.Model
       Wasp.Psl.Generator.Model
       Wasp.Psl.Parser.Model
+      Wasp.SemanticVersion
       Wasp.Util
       Wasp.Util.Control.Monad
       Wasp.Util.Fib

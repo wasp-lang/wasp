@@ -22,7 +22,8 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (getMajor, nodeSemverString, nodeVersion, npmSemverString, prismaSemverString)
+import Wasp.SemanticVersion (major)
+import Wasp.Generator.Common (nodeVersionBounds, nodeVersion, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -83,8 +84,8 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeSemverString" .= nodeSemverString,
-              "npmSemverString" .= npmSemverString,
+              "nodeVersionBounds" .= show nodeVersionBounds,
+              "npmVersionBounds" .= show npmVersionBounds,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
@@ -102,7 +103,7 @@ npmDepsForWasp =
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
             ("morgan", "~1.9.1"),
-            ("@prisma/client", prismaSemverString),
+            ("@prisma/client", show prismaVersionBounds),
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
@@ -112,7 +113,7 @@ npmDepsForWasp =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", prismaSemverString)
+            ("prisma", show prismaVersionBounds)
           ]
     }
 
@@ -130,7 +131,7 @@ genNvmrc =
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|nvmrc|])
       (asServerFile [relfile|.nvmrc|])
-      (Just (object ["nodeVersion" .= show (getMajor nodeVersion)]))
+      (Just (object ["nodeVersion" .= show (major nodeVersion)]))
 
 genGitignore :: Generator FileDraft
 genGitignore =

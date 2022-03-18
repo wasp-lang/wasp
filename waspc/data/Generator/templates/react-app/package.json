@@ -15,8 +15,8 @@
     "extends": "react-app"
   },
   "engines": {
-      "node": "{= nodeSemverString =}",
-      "npm": "{= npmSemverString =}"
+      "node": "{= nodeVersionBounds =}",
+      "npm": "{= npmVersionBounds =}"
   },
   "browserslist": {
     "production": [

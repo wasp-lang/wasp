@@ -3,6 +3,7 @@
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
+    parseNodeVersion,
   )
 where
 
@@ -23,6 +24,7 @@ import qualified Text.Regex.TDFA as R
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
+import Wasp.SemanticVersion (SemanticVersion (..), isVersionInBounds)
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -88,14 +90,14 @@ runNodeCommandAsJob fromDir command args jobType chan = do
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
-      if nodeVersion < C.nodeVersion
-        then
-          exitWithError
-            (ExitFailure 1)
-            (T.pack $ "Your node version is too low. " ++ waspNodeRequirementMessage)
-        else do
+      if isVersionInBounds nodeVersion C.nodeVersionBounds
+        then do
           let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
+        else
+          exitWithError
+            (ExitFailure 1)
+            (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
   where
     exitWithError exitCode errorMsg = do
       writeChan chan $
@@ -110,40 +112,51 @@ runNodeCommandAsJob fromDir command args jobType chan = do
           }
       return exitCode
 
-    getNodeVersion :: IO (Either String (Int, Int, Int))
-    getNodeVersion = do
-      (exitCode, stdout, stderr) <-
-        P.readProcessWithExitCode "node" ["--version"] ""
-          `catchIOError` ( \e ->
-                             if isDoesNotExistError e
-                               then return (ExitFailure 1, "", "Command 'node' not found.")
-                               else ioError e
-                         )
-      return $ case exitCode of
-        ExitFailure _ ->
-          Left
-            ( "Running 'node --version' failed: " ++ stderr
-                ++ " "
-                ++ waspNodeRequirementMessage
-            )
-        ExitSuccess -> case parseNodeVersion stdout of
-          Nothing ->
-            Left
-              ( "Wasp failed to parse node version."
-                  ++ " This is most likely a bug in Wasp, please file an issue."
-              )
-          Just version -> Right version
+getNodeVersion :: IO (Either String SemanticVersion)
+getNodeVersion = do
+  (exitCode, stdout, stderr) <-
+    P.readProcessWithExitCode "node" ["--version"] ""
+      `catchIOError` ( \e ->
+                         if isDoesNotExistError e
+                           then return (ExitFailure 1, "", "Command 'node' not found.")
+                           else ioError e
+                     )
+  return $ case exitCode of
+    ExitFailure _ ->
+      Left
+        ( "Running 'node --version' failed: " ++ stderr
+            ++ " "
+            ++ waspNodeRequirementMessage
+        )
+    ExitSuccess -> case parseNodeVersion stdout of
+      Nothing ->
+        Left
+          ( "Wasp failed to parse node version."
+              ++ " This is most likely a bug in Wasp, please file an issue."
+          )
+      Just version -> Right version
 
-    parseNodeVersion :: String -> Maybe (Int, Int, Int)
-    parseNodeVersion nodeVersionStr =
-      case nodeVersionStr R.=~ ("v([^\\.]+).([^\\.]+).(.+)" :: String) of
-        ((_, _, _, [majorStr, minorStr, patchStr]) :: (String, String, String, [String])) -> do
-          major <- readMaybe majorStr
-          minor <- readMaybe minorStr
-          patch <- readMaybe patchStr
-          return (major, minor, patch)
-        _ -> Nothing
+parseNodeVersion :: String -> Maybe SemanticVersion
+parseNodeVersion nodeVersionStr =
+  case nodeVersionStr R.=~ ("v([^\\.]+).([^\\.]+).(.+)" :: String) of
+    ((_, _, _, [majorStr, minorStr, patchStr]) :: (String, String, String, [String])) -> do
+      mjr <- readMaybe majorStr
+      mnr <- readMaybe minorStr
+      ptc <- readMaybe patchStr
+      return $ SemanticVersion mjr mnr ptc
+    _ -> Nothing
 
-    waspNodeRequirementMessage =
-      "Wasp requires node " ++ C.nodeSemverString ++ " ."
-        ++ " Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements ."
+makeNodeVersionMismatchMessage :: SemanticVersion -> String
+makeNodeVersionMismatchMessage nodeVersion =
+  unwords
+    [ "Your node version does not match Wasp's requirements.",
+      "You are running node" ++ show nodeVersion ++ ".",
+      waspNodeRequirementMessage
+    ]
+
+waspNodeRequirementMessage :: String
+waspNodeRequirementMessage =
+  unwords
+    [ "Wasp requires node " ++ show C.nodeVersionBounds ++ ".",
+      "Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements."
+    ]
