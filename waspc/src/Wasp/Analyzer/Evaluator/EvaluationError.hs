@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.Evaluator.EvaluationError
   ( EvaluationError (..),
     EvalErrorCtx (..),
@@ -10,12 +8,11 @@ module Wasp.Analyzer.Evaluator.EvaluationError
   )
 where
 
-import Control.Arrow (first)
 import Data.List (intercalate)
 import qualified Text.Parsec
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.Type (Type)
-import Wasp.Util (concatPrefixAndText, indent)
+import Wasp.Util (concatPrefixAndText, indent, second3)
 
 newtype EvaluationError = EvaluationError (WithCtx EvaluationError')
   deriving (Show, Eq)
@@ -62,57 +59,70 @@ data EvaluationParseError
 mkEvaluationError :: Ctx -> EvaluationError' -> EvaluationError
 mkEvaluationError ctx e = EvaluationError $ WithCtx ctx e
 
+concatCtxMessages :: [String] -> String
+concatCtxMessages [] = ""
+concatCtxMessages msgChain = prefix ++ foldr1 appendMsg msgChain
+  where
+    prefix = "-> "
+    appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)
+
 getErrorMessageAndCtx :: EvaluationError -> (String, Ctx)
-getErrorMessageAndCtx (EvaluationError (WithCtx ctx evalError)) = case evalError of
+getErrorMessageAndCtx evalError = (fullErrorMsg, ctx)
+  where
+    (errorMsg, errorCtxMsgs, ctx) = getErrorMsgAndErrorCtxMsgsAndParsingCtx evalError
+    fullErrorMsg
+      | null errorCtxMsgs = errorMsg
+      | otherwise = intercalate "\n\n" [errorMsg, concatCtxMessages errorCtxMsgs]
+
+getErrorMsgAndErrorCtxMsgsAndParsingCtx :: EvaluationError -> (String, [String], Ctx)
+getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)) = case evalError of
   ExpectedType expectedType actualType ->
-    ( intercalate
+    makeMainMsg $
+      intercalate
         "\n"
         [ concatPrefixAndText "Expected type: " (show expectedType),
           concatPrefixAndText "Actual type:   " (show actualType)
-        ],
-      ctx
-    )
+        ]
   ExpectedDictType actualType ->
-    ( intercalate
+    makeMainMsg $
+      intercalate
         "\n"
         [ "Expected a dictionary.",
           concatPrefixAndText "Actual type: " (show actualType)
-        ],
-      ctx
-    )
+        ]
   ExpectedListType actualType ->
-    ( intercalate
+    makeMainMsg $
+      intercalate
         "\n"
         [ "Expected a list.",
           concatPrefixAndText "Actual type: " (show actualType)
-        ],
-      ctx
-    )
+        ]
   ExpectedTupleType expectedTupleSize actualType ->
-    ( intercalate
+    makeMainMsg $
+      intercalate
         "\n"
         [ "Expected a tuple of size " ++ show expectedTupleSize ++ ".",
           concatPrefixAndText "Actual type: " (show actualType)
-        ],
-      ctx
-    )
-  UndefinedVariable varName -> ("Undefined variable " ++ varName, ctx)
+        ]
+  UndefinedVariable varName -> makeMainMsg $ "Undefined variable " ++ varName
   InvalidEnumVariant enumType validEnumVariants actualEnumVariant ->
-    ( "Expected value of enum type '" ++ enumType
+    makeMainMsg $
+      "Expected value of enum type '" ++ enumType
         ++ "' but got value '"
         ++ actualEnumVariant
         ++ "'\n"
         ++ "Valid values: "
-        ++ intercalate " | " validEnumVariants,
-      ctx
-    )
-  MissingDictField fieldName -> ("Missing dictionary field '" ++ fieldName ++ "'", ctx)
-  ParseError (EvaluationParseErrorParsec e) -> ("Parse error:\n" ++ indent 2 (show e), ctx)
-  ParseError (EvaluationParseError msg) -> ("Parse error:\n" ++ indent 2 msg, ctx)
-  WithEvalErrorCtx evalCtx subError ->
-    let evalCtxMsg = case evalCtx of
-          InField fieldName -> "In dictionary field '" ++ fieldName ++ "':"
-          InList -> "In list:"
-          InTuple -> "In tuple:"
-          ForVariable varName -> "For variable '" ++ varName ++ "':"
-     in first (((evalCtxMsg ++ "\n") ++) . indent 2) $ getErrorMessageAndCtx subError
+        ++ intercalate " | " validEnumVariants
+  MissingDictField fieldName -> makeMainMsg $ "Missing dictionary field '" ++ fieldName ++ "'"
+  ParseError (EvaluationParseErrorParsec e) -> makeMainMsg ("Parse error:\n" ++ indent 2 (show e))
+  ParseError (EvaluationParseError msg) -> makeMainMsg ("Parse error:\n" ++ indent 2 msg)
+  WithEvalErrorCtx evalCtx subError -> second3 (evalCtxMsg evalCtx :) $ getErrorMsgAndErrorCtxMsgsAndParsingCtx subError
+  where
+    makeMainMsg msg = (msg, [], ctx)
+
+evalCtxMsg :: EvalErrorCtx -> String
+evalCtxMsg evalCtx = case evalCtx of
+  (InField fieldName) -> "For dictionary field '" ++ fieldName ++ "'"
+  InList -> "In list"
+  InTuple -> "In tuple"
+  (ForVariable varName) -> "For variable '" ++ varName

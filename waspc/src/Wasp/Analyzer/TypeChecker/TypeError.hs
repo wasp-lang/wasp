@@ -101,7 +101,7 @@ getWeakenErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
 getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
 getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullErrorMsg, ctx)
   where
-    (typesErrorMsg, ctxMsgs, ctx) = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg typeCoercionError
+    (typesErrorMsg, ctxMsgs, ctx) = getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg typeCoercionError
     fullErrorMsg
       | null ctxMsgs = typesErrorMsg
       | otherwise = intercalate "\n\n" [typesErrorMsg, concatCtxMessages ctxMsgs]
@@ -114,8 +114,11 @@ getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fu
 -- It takes two arguments:
 --  - A function for constructing a type coercion error message
 --  - A `TypeCoercionError` to process
-getUncoercableTypesMsgAndCtxMsgsAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, [String], Ctx)
-getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
+getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx ::
+  (Type -> TypedExpr -> String)
+  -> TypeCoercionError
+  -> (String, [String], Ctx)
+getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
   case reason of
     ReasonList e -> second3 ("In list" :) $ getFurtherMsgsAndCtx e
     ReasonDictWrongKeyType key e -> second3 (("For dictionary field '" ++ key ++ "'") :) $ getFurtherMsgsAndCtx e
@@ -125,7 +128,7 @@ getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg (TypeCoercionError
     ReasonEnum -> uncoercableTypesMsgAndCtx
     ReasonUncoercable -> uncoercableTypesMsgAndCtx
   where
-    getFurtherMsgsAndCtx = getUncoercableTypesMsgAndCtxMsgsAndCtx getUncoercableTypesMsg
+    getFurtherMsgsAndCtx = getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg
     uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
 
 concatCtxMessages :: [String] -> String
