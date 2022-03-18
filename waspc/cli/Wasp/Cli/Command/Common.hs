@@ -1,9 +1,6 @@
 module Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     findWaspProjectRoot,
-    waspSaysC,
-    waspScreamsC,
-    waspWarnsC,
     alphaWarningMessage,
   )
 where
@@ -21,13 +18,7 @@ import System.Directory
   )
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Common
-  ( dotWaspRootFileInWaspProjectDir,
-    waspSays,
-    waspScreams,
-    waspWarns,
-  )
-import Wasp.Cli.Terminal (asWaspFailureMessage)
+import Wasp.Cli.Common (dotWaspRootFileInWaspProjectDir)
 import Wasp.Common (WaspProjectDir)
 
 findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
@@ -45,27 +36,18 @@ findWaspProjectRoot currentDir = do
       findWaspProjectRoot parentDir
   where
     notFoundError =
-      CommandError $
-        asWaspFailureMessage "Wasp command failed:"
-          ++ ( "Couldn't find wasp project root - make sure"
-                 ++ " you are running this command from a Wasp project."
-             )
+      CommandError
+        "Wasp command failed"
+        ( "Couldn't find wasp project root - make sure"
+            ++ " you are running this command from a Wasp project."
+        )
 
 findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRootDirFromCwd = do
   absCurrentDir <- liftIO getCurrentDirectory
   findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
 
-waspSaysC :: String -> Command ()
-waspSaysC = liftIO . waspSays
-
-waspWarnsC :: String -> Command ()
-waspWarnsC = liftIO . waspWarns
-
-waspScreamsC :: String -> Command ()
-waspScreamsC = liftIO . waspScreams
-
 alphaWarningMessage :: String
 alphaWarningMessage =
-  "NOTE: Wasp is still in Alpha, therefore not yet production ready "
+  "Wasp is still in Alpha, therefore not yet production ready "
     ++ "and might change significantly in the future versions."

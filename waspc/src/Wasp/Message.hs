@@ -9,6 +9,6 @@ module Wasp.Message (Message (..), SendMessage) where
 -- This protocol is for sending messages for display in a UI.
 -- If you need success or failure another purpose use return values.
 
-data Message = Start String | Success String | Failure String | Warning String
+data Message = Info String | Start String | Success String | Failure String String | Warning String String
 
 type SendMessage = Message -> IO ()

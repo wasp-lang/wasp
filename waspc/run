@@ -3,10 +3,12 @@
 # This script defines common commands used during building / developing
 # and makes it easy to run them.
 
+SCRIPT_DIR=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+PROJECT_ROOT=$SCRIPT_DIR
 THIS=$0
 COMMAND=${1:-watch}
 shift
-ARGS="$@"
+ARGS=("$@") # NOTE: This is a bash array!
 
 BOLD="\033[1m"
 UNDERLINED="\033[4m"
@@ -16,17 +18,27 @@ GREEN="\033[32m"
 RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
-BUILD_CMD="stack build"
-BUILD_ALL_CMD="stack build --bench --no-run-benchmarks --test --no-run-tests"
-STAN_CMD="$BUILD_ALL_CMD && stack install stan --stack-yaml=stack-stan.yaml && .bin/stan report $ARGS"
-HLINT_CMD="stack install hlint --stack-yaml=stack-hlint.yaml && .bin/hlint . $ARGS"
-ORMOLU_INSTALL_CMD="stack install ormolu --stack-yaml=stack-ormolu.yaml"
-ORMOLU_BASE_CMD="$ORMOLU_INSTALL_CMD && .bin/ormolu --color always --check-idempotence"
+BUILD_CMD="cabal build all"
+BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
+TEST_CMD="cabal test"
+TEST_UNIT_CMD="cabal test waspc-test"
+TEST_E2E_CMD="cabal test e2e-test"
+RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
+GHCID_CMD="ghcid --command=cabal repl"
+GHCID_TEST_CMD="ghcid --command=cabal repl"
+
+DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
+function install_dev_tool () {
+    echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
+}
+function dev_tool_path () {
+    echo "$DEV_TOOLS_BIN/$1"
+}
+STAN_CMD="$BUILD_ALL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
+HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
+ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-TEST_CMD="$BUILD_CMD --test"
-EXEC_CMD="stack exec wasp-cli $ARGS"
-GHCID_CMD="ghcid --command=stack ghci"
 
 echo_and_eval () {
     echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" $1 "\n"
@@ -38,17 +50,21 @@ echo_bold () { echo -e $"${BOLD}${1}${RESET}"; }
 print_usage () {
     print_usage_cmd () {
         echo -e $"    ${UNDERLINED}${1}${RESET}"
-        echo     "        $2";
+        echo -e  "        $2";
     }
 
-    echo_bold       "Usage: ${THIS} <command>"
+    echo_bold       "Usage: run <command>"
     echo            "Commands:"
     print_usage_cmd "build" \
                     "Builds the project."
     print_usage_cmd "test" \
-                    "Builds the project and executes tests."
+                    "Executes all tests (unit + e2e). Builds the project first if needed."
+    print_usage_cmd "test:unit [pattern]" \
+                    "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+    print_usage_cmd "test:e2e" \
+                    "Executes only e2e tests. Builds the project first if needed."
     print_usage_cmd "wasp-cli <args>" \
-                    "Builds the project once and runs the wasp executable while forwarding arguments."
+                    "Runs the wasp executable while forwarding arguments. Builds the project first if needed."
     print_usage_cmd "ghcid" \
                     "Runs ghcid, which watches source file changes and reports errors. Does not watch tests."
     print_usage_cmd "ghcid-test" \
@@ -56,13 +72,17 @@ print_usage () {
     print_usage_cmd "code-check" \
                     "Checks code by running it through formatter, linter and static analysis."
     print_usage_cmd "stan <args>" \
-                    "Builds the project and runs static code analysis on it, generating stan.html."
+                    "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
     print_usage_cmd "hlint <args>" \
                     "Runs linter on the codebase."
     print_usage_cmd "ormolu:check" \
                     "Runs the code formatter and reports if code is correctly formatted or not."
     print_usage_cmd "ormolu:format" \
                     "Runs the code formatter and formats the code in place."
+    print_usage_cmd "refreeze" \
+                    "Regenerates the cabal.project.freeze file. Run this if you changed any cabal dependencies."
+    print_usage_cmd "module-graph" \
+                    "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
 }
 
 exitStatusToString () {
@@ -80,15 +100,26 @@ case $COMMAND in
         # --color always is needed for Tasty to turn on the coloring.
         # NOTE: I did not put this into variable because I was not able to put single quotes
         #   around :main --color always that way and it was not working.
-        ghcid -T=':main --color always' --command=stack ghci test/TastyDiscoverDriver.hs
+        ghcid -T=':main --color always' --command=cabal repl test/TastyDiscoverDriver.hs
         ;;
     test)
         echo_and_eval "$TEST_CMD"
         ;;
+    test:unit)
+        TEST_PATTERN="${ARGS[0]}"
+        if [[ -z "$TEST_PATTERN" ]]
+        then
+            echo_and_eval "$TEST_UNIT_CMD"
+        else
+            echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
+        fi
+
+        ;;
+    test:e2e)
+        echo_and_eval "$TEST_E2E_CMD"
+        ;;
     wasp-cli)
-        echo_and_eval "$BUILD_CMD"
-        echo
-        echo_and_eval "$EXEC_CMD"
+        echo_and_eval "$RUN_CMD"
         ;;
     stan)
         echo_and_eval "$STAN_CMD"
@@ -127,6 +158,12 @@ case $COMMAND in
         echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
 
         exit $TOTAL_RESULT
+        ;;
+    refreeze)
+        echo_and_eval "rm $PROJECT_ROOT/cabal.project.freeze && cabal freeze"
+        ;;
+    module-graph)
+        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=20,20! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
     *)
         print_usage

@@ -18,4 +18,10 @@ main = do
 tests :: IO TestTree
 tests = do
   testGroup "All Golden Dir Tests"
-    <$> mapM runGoldenTest [waspNew, waspCompile, waspMigrate, waspBuild]
+    <$> mapM
+      runGoldenTest
+      [ waspNew,
+        waspCompile,
+        waspMigrate,
+        waspBuild
+      ]

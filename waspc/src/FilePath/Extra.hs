@@ -15,8 +15,8 @@ reversePosixPath :: FilePath -> FilePath
 reversePosixPath path
   | null parts = "."
   | otherwise =
-    assert (".." `notElem` parts) $
-      FPP.joinPath $ map (const "..") parts
+      assert (".." `notElem` parts) $
+        FPP.joinPath $ map (const "..") parts
   where
     parts :: [String]
     parts = filter (/= ".") $ FPP.splitDirectories path

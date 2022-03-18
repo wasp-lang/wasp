@@ -14,10 +14,11 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getApp)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)

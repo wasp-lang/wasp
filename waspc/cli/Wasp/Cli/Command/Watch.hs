@@ -14,10 +14,10 @@ import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.Compile (compileIO)
-import Wasp.Cli.Common (waspSays, waspScreams)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Terminal (asWaspFailureMessage, asWaspStartMessage, asWaspSuccessMessage)
+import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Lib
+import qualified Wasp.Message as Msg
 
 -- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
 --   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
@@ -79,11 +79,11 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
 
     recompile :: IO ()
     recompile = do
-      waspSays $ asWaspStartMessage "Recompiling on file change..."
+      cliSendMessage $ Msg.Start "Recompiling on file change..."
       compilationResult <- compileIO waspProjectDir outDir
       case compilationResult of
-        Left err -> waspScreams $ asWaspFailureMessage "Recompilation on file change failed:" ++ err
-        Right () -> waspSays $ asWaspSuccessMessage "Recompilation on file change succeeded."
+        Left err -> cliSendMessage $ Msg.Failure "Recompilation on file change failed" err
+        Right () -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
       return ()
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors

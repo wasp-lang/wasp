@@ -4,6 +4,10 @@ on:
   push: { branches: [main] }
   pull_request: { }
   create: { tags: [v*] }
+  schedule:
+    # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
+    # (GH deletes it after 7 days of not using it).
+    - cron: '0 0 * * 0'
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -23,19 +27,15 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  # Check that Haskell code is formatted.
-  code-formatter:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: mrkkrp/ormolu-action@v2
-
   build:
     name: Build Wasp
     runs-on: ${{ matrix.os }}
-    needs: code-formatter
     strategy:
       matrix:
+        ghc:
+          - "8.10.7"
+        cabal:
+          - "3.6.2.0"
         os:
           - ubuntu-latest
           - macos-latest
@@ -45,15 +45,22 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Cache (Unix)
-        uses: actions/cache@v2
-        if: runner.os == 'Linux' || runner.os == 'macOS'
+      - name: Set up Haskell
+        id: setup-haskell-cabal
+        uses: haskell/actions/setup@v1
         with:
-          path: |
-            # TODO: To reduce the cache size significantly, we might want to look into ensuring that
-            #  GHC is not cached, since it is big and can be installed in couple of minutes.
-            #  To do that, we will probably want to cache only ~/.stack/snapshots.
-            ~/.stack
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
+
+      - name: Verify Haskell setup
+        run: |
+          ghc --version
+          cabal --version
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           # TODO: Right now, actions/cache updates cache only if cache was not fetched.
           #   This is not ideal for us, because we would ideally update cache even if it
           #   was fetched, because we want to cache any newly installed packages.
@@ -66,50 +73,34 @@ jobs:
           #   ideal because caches keep getting evicted, so for example if Win job
           #   fails multiple times while others don't, its cache will likely get evicted,
           #   making it even slower to test and fix (uffff).
-          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key
-          #   and also remove restore-keys.
-          key: wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
-          restore-keys: |
-            wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
+          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
+          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/cabal.project.freeze') }}-${{ github.run_id }}
+          restore-keys: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-
 
-      - name: Cache (Windows)
-        uses: actions/cache@v2
-        if: runner.os == 'Windows'
-        with:
-          # C\:sr is where stack installs compiled dependencies.
-          # Caching this path reduces build time by 20 minutes while occupying only ~50mbs of cache space.
-          # To shave off 3 more minutes, we could add C:\Users\runneradmin\AppData\Local\Programs\stack
-          # to the cache -> this is where stack installs GHC. However, this adds ~900mb to the cache size!
-          path: |
-            C:\sr
-          # TODO: Check TODO in caching for Unix above.
-          key: wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-${{ github.run_id }}
-          restore-keys: |
-            wasp-build-{{ runner.os }}-${{ hashFiles('waspc/stack.yaml') }}-
+      - name: Check Haskell code formatting
+        if: matrix.os == 'ubuntu-latest'
+        run: ./run ormolu:check
 
-      # TODO: Remove this step once https://github.com/actions/cache/issues/445 is resolved.
-      - name: Fix MacOS problem with corrupt cached executable
-        if: runner.os == 'macOS'
-        run: rm -rf ~/.stack/setup-exe-cache
-
-      - name: Set up Haskell (Stack)
-        uses: haskell/actions/setup@v1
-        with:
-          ghc-version: latest
-          enable-stack: true
-          stack-version: latest
-
-      - name: Verify Haskell setup
+      - name: Check if cabal freeze file is up to date
+        if: matrix.os == 'ubuntu-latest'
         run: |
-          stack --numeric-version
-          stack path --stack-root
-          ghc --version
-          
-      - name: Build dependencies 
-        run: stack --install-ghc test --only-dependencies
-      
-      - name: Build Wasp & Run tests
-        run: stack test
+          # We do the check by running `cabal freeze` and checking if cabal.project.freeze
+          # changed. If it didn't, it is up to date, otherwise it is not.
+          # If there is no cabal.project.freeze, or `cabal freeze` command failed, that is also red flag.
+          [[ -f cabal.project.freeze ]] || exit 1
+          OLD_FREEZE_SUM=$(md5sum cabal.project.freeze)
+          cabal freeze || exit 1
+          NEW_FREEZE_SUM=$(md5sum cabal.project.freeze)
+          [[ "$NEW_FREEZE_SUM" == "$OLD_FREEZE_SUM" ]]
+
+      - name: Build external dependencies 
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
+
+      - name: Build wasp code
+        run: cabal build all
+
+      - name: Run tests
+        run: cabal test
 
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')

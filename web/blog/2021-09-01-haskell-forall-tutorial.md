@@ -1,14 +1,16 @@
 ---
 title: "Tutorial: `forall` in Haskell"
-author: Martin Sosic
-author_title: Co-founder & CTO @ Wasp
-author_url: https://github.com/martinsos
+authors: [martinsos]
 tags: [haskell, tutorial]
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 --------
+
+Find out what Haskell's `forall` is all about.
+
+<!--truncate-->
 
 You might have seen `forall` being used in Haskell like this:
 ```haskell

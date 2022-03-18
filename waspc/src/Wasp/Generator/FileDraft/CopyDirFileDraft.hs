@@ -4,6 +4,7 @@ module Wasp.Generator.FileDraft.CopyDirFileDraft
 where
 
 import Control.Monad (when)
+import qualified Data.ByteString as BS
 import StrongPath
   ( Abs,
     Dir',
@@ -15,6 +16,8 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, createDirectoryIfMissing), doesDirectoryExist)
+import Wasp.Util (checksumFromByteString, checksumFromChecksums)
+import Wasp.Util.IO (listDirectoryDeep)
 
 -- | File draft based on another dir that is to be recursively copied.
 --
@@ -38,3 +41,12 @@ instance Writeable CopyDirFileDraft where
     where
       srcPathAbsDir = _srcPath draft
       dstPathAbsDir = projectRootAbsPath </> _dstPath draft
+
+  getDstPath draft = Right $ _dstPath draft
+
+  -- NOTE: This is relatively expensive operation here, since we are reading all the files in the directory.
+  getChecksum draft = do
+    descendentFiles <- listDirectoryDeep $ _srcPath draft
+    descendentFilesChecksums <-
+      mapM ((checksumFromByteString <$>) . BS.readFile . SP.fromAbsFile . (_srcPath draft SP.</>)) descendentFiles
+    return $ checksumFromChecksums descendentFilesChecksums

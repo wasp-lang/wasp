@@ -59,6 +59,7 @@ library:
     - mustache
     - text
     - aeson
+    - aeson-pretty
     - directory
     - split
     - unordered-containers
@@ -160,6 +161,7 @@ tests:
       - filepath
       - yaml
       - aeson
+      - aeson-pretty
       - bytestring
       - process
       - directory
