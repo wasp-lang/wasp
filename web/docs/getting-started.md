@@ -11,10 +11,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 1. Requirements
 
-### Node.js >= 12.18.0
-
+### Node.js compatible with 16.0.0
 ```shell-session
-node -v  # >= v12.18.0
+node -v  # must be something like 16.x.x
+```
+
+### NPM compatible with 8.0.0
+```shell-session
+npm -v  # must be something like 8.x.x
 ```
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
@@ -27,14 +31,14 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
 
-  Then, install a version of node that you need (any >= 12.18.0), e.g.:
+  Then, install a version of node that you need (any version compatible with 16.0.0), e.g.:
   ```shell-session
-  nvm install 12
+  nvm install 16
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  nvm use 12
+  nvm use 16
   ```
   to set the node version for current shell session.
 
@@ -71,7 +75,7 @@ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 
 </div>
   </TabItem>
-  
+
   <TabItem value='win'>
 <div style={{borderLeft: 'solid 6px #bf9900', paddingLeft: '10px'}} >
 
@@ -81,7 +85,7 @@ In the meantime, the best way to start using Wasp on Windows is by using [WSL](h
 
 </div>
   </TabItem>
-  
+
   <TabItem value='source'>
 <div style={{borderLeft: 'solid 6px #bf9900', paddingLeft: '10px'}} >
 
@@ -110,6 +114,6 @@ That's it :tada:! You have successfully created and served a new web app at <htt
 
 **Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
 
-You can also: 
+You can also:
 - Join the community on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
 - If you are using Visual Studio Code, install our <a href="https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp">Wasp language extension</a>!

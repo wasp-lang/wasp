@@ -227,6 +227,7 @@ library
       Wasp.Psl.Ast.Model
       Wasp.Psl.Generator.Model
       Wasp.Psl.Parser.Model
+      Wasp.SemanticVersion
       Wasp.Util
       Wasp.Util.Control.Monad
       Wasp.Util.Fib
@@ -337,6 +338,7 @@ test-suite waspc-test
       Test.Util
       Util.FibTest
       UtilTest
+      SemanticVersionTest
       WaspignoreFileTest
       Paths_waspc
       Generator.NpmDependenciesTest

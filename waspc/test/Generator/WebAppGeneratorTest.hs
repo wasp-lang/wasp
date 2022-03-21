@@ -42,12 +42,12 @@ spec_WebAppGenerator = do
             AS.dotEnvFile = Nothing
           }
 
-  describe "generateWebApp" $ do
+  describe "genWebApp" $ do
     -- NOTE: This test does not (for now) check that content of files is correct or
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let (_, Right fileDrafts) = runGenerator $ generateWebApp testAppSpec
+      let (_, Right fileDrafts) = runGenerator $ genWebApp testAppSpec
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat
