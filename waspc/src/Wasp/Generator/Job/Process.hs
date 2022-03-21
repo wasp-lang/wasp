@@ -150,7 +150,7 @@ makeNodeVersionMismatchMessage :: SV.Version -> String
 makeNodeVersionMismatchMessage nodeVersion =
   unwords
     [ "Your node version does not match Wasp's requirements.",
-      "You are running node" ++ show nodeVersion ++ ".",
+      "You are running node " ++ show nodeVersion ++ ".",
       waspNodeRequirementMessage
     ]
 
