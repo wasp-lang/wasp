@@ -24,7 +24,7 @@ import qualified Text.Regex.TDFA as R
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
-import Wasp.SemanticVersion (SemanticVersion (..), isVersionInBounds)
+import qualified Wasp.SemanticVersion as SV
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -90,7 +90,7 @@ runNodeCommandAsJob fromDir command args jobType chan = do
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
-      if isVersionInBounds nodeVersion C.nodeVersionBounds
+      if SV.isVersionInBounds nodeVersion C.nodeVersionBounds
         then do
           let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
@@ -112,7 +112,7 @@ runNodeCommandAsJob fromDir command args jobType chan = do
           }
       return exitCode
 
-getNodeVersion :: IO (Either String SemanticVersion)
+getNodeVersion :: IO (Either String SV.Version)
 getNodeVersion = do
   (exitCode, stdout, stderr) <-
     P.readProcessWithExitCode "node" ["--version"] ""
@@ -136,17 +136,17 @@ getNodeVersion = do
           )
       Just version -> Right version
 
-parseNodeVersion :: String -> Maybe SemanticVersion
+parseNodeVersion :: String -> Maybe SV.Version
 parseNodeVersion nodeVersionStr =
   case nodeVersionStr R.=~ ("v([^\\.]+).([^\\.]+).(.+)" :: String) of
     ((_, _, _, [majorStr, minorStr, patchStr]) :: (String, String, String, [String])) -> do
       mjr <- readMaybe majorStr
       mnr <- readMaybe minorStr
       ptc <- readMaybe patchStr
-      return $ SemanticVersion mjr mnr ptc
+      return $ SV.Version mjr mnr ptc
     _ -> Nothing
 
-makeNodeVersionMismatchMessage :: SemanticVersion -> String
+makeNodeVersionMismatchMessage :: SV.Version -> String
 makeNodeVersionMismatchMessage nodeVersion =
   unwords
     [ "Your node version does not match Wasp's requirements.",

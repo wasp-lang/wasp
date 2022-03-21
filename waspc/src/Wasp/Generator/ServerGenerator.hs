@@ -40,7 +40,7 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.SemanticVersion (major)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -61,10 +61,10 @@ genDotEnv spec = return $
   case AS.dotEnvFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -132,11 +132,11 @@ genNvmrc =
       (asTmplFile [relfile|nvmrc|])
       (asServerFile [relfile|.nvmrc|])
       -- We want to specify only the major version here. If we specified the
-      -- entire version string (i.e., 16.0.0), our project would work only for
+      -- entire version string (i.e., 16.0.0), our project would work only with
       -- that exact version, which we don't want. Unfortunately, the nvmrc file
       -- format doesn't allow semver compatibility strings (e.g., ^16.0.0) so
       -- listing the major version was the next best thing.
-      (Just (object ["nodeVersion" .= show (major nodeVersion)]))
+      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 genGitignore :: Generator FileDraft
 genGitignore =

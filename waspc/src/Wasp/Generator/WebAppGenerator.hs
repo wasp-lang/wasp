@@ -34,7 +34,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
-import Wasp.SemanticVersion (major)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -86,7 +86,7 @@ genNvmrc =
       (asTmplFile [relfile|nvmrc|])
       (asWebAppFile [relfile|.nvmrc|])
       -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
-      (Just (object ["nodeVersion" .= show (major nodeVersion)]))
+      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 npmDepsForWasp :: N.NpmDepsForWasp
 npmDepsForWasp =
