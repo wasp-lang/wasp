@@ -131,6 +131,11 @@ genNvmrc =
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|nvmrc|])
       (asServerFile [relfile|.nvmrc|])
+      -- We want to specify only the major version here. If we specified the
+      -- entire version string (i.e., 16.0.0), our project would work only for
+      -- that exact version, which we don't want. Unfortunately, the nvmrc file
+      -- format doesn't allow semver compatibility strings (e.g., ^16.0.0) so
+      -- listing the major version was the next best thing.
       (Just (object ["nodeVersion" .= show (major nodeVersion)]))
 
 genGitignore :: Generator FileDraft

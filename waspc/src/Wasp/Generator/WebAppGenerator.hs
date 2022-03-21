@@ -85,6 +85,7 @@ genNvmrc =
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|nvmrc|])
       (asWebAppFile [relfile|.nvmrc|])
+      -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
       (Just (object ["nodeVersion" .= show (major nodeVersion)]))
 
 npmDepsForWasp :: N.NpmDepsForWasp
