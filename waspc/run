@@ -22,6 +22,7 @@ BUILD_CMD="cabal build all"
 BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
 TEST_CMD="cabal test"
 TEST_UNIT_CMD="cabal test waspc-test"
+TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
 RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
@@ -114,6 +115,9 @@ case $COMMAND in
             echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
         fi
 
+        ;;
+    test:cli)
+        echo_and_eval "$TEST_CLI_CMD"
         ;;
     test:e2e)
         echo_and_eval "$TEST_E2E_CMD"

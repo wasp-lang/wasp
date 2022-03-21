@@ -235,6 +235,8 @@ Tests are run with `cabal test`. They include both unit tests, and end-to-end te
 To run unit tests only, you can do `cabal test waspc-test` (or `./run test:unit`).
 To run individual unit test, you can do `cabal test waspc-test --test-options "-p \"Some test description to match\""` (or just `./run test:unit "Some test description to match"`).
 
+To run cli tests only, you can do `cabal test cli-test` (or `./run test:cli`).
+
 To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
 
 ## Code analysis
