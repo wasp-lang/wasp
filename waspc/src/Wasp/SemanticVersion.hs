@@ -5,12 +5,13 @@ module Wasp.SemanticVersion
   )
 where
 
+import Numeric.Natural
 import Text.Printf (printf)
 
 data Version = Version
-  { major :: Int,
-    minor :: Int,
-    patch :: Int
+  { major :: Natural,
+    minor :: Natural,
+    patch :: Natural
   }
   deriving (Eq, Ord)
 
