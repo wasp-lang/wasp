@@ -9,6 +9,7 @@ module Wasp.Analyzer.TypeChecker.TypeError
 where
 
 import Data.List (intercalate)
+import Wasp.Analyzer.ErrorMessage
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
@@ -101,10 +102,9 @@ getWeakenErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
 getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
 getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullErrorMsg, ctx)
   where
-    (typesErrorMsg, ctxMsgs, ctx) = getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg typeCoercionError
-    fullErrorMsg
-      | null ctxMsgs = typesErrorMsg
-      | otherwise = intercalate "\n\n" [typesErrorMsg, concatCtxMessages ctxMsgs]
+    (errorMsg, ctxMsgs, ctx) =
+      getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg typeCoercionError
+    fullErrorMsg = makeFullErrorMsg errorMsg ctxMsgs
 
 -- | Recursively traverses the error stack and returns a tuple containing:
 -- - The original type coercion error message
@@ -115,9 +115,9 @@ getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fu
 --  - A function for constructing a type coercion error message
 --  - A `TypeCoercionError` to process
 getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx ::
-  (Type -> TypedExpr -> String)
-  -> TypeCoercionError
-  -> (String, [String], Ctx)
+  (Type -> TypedExpr -> String) ->
+  TypeCoercionError ->
+  (String, [String], Ctx)
 getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
   case reason of
     ReasonList e -> second3 ("In list" :) $ getFurtherMsgsAndCtx e
@@ -130,10 +130,3 @@ getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg (TypeC
   where
     getFurtherMsgsAndCtx = getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg
     uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
-
-concatCtxMessages :: [String] -> String
-concatCtxMessages [] = ""
-concatCtxMessages msgChain = prefix ++ foldr1 appendMsg msgChain
-  where
-    prefix = "-> "
-    appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)

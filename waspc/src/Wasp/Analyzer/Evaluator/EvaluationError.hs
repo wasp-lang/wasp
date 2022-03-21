@@ -4,7 +4,7 @@ module Wasp.Analyzer.Evaluator.EvaluationError
     EvaluationParseError (..),
     EvaluationError' (..),
     mkEvaluationError,
-    getErrorMessageAndCtx,
+    getErrorMessageAndCtx
   )
 where
 
@@ -13,6 +13,7 @@ import qualified Text.Parsec
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.Type (Type)
 import Wasp.Util (concatPrefixAndText, indent, second3)
+import Wasp.Analyzer.ErrorMessage (makeFullErrorMsg)
 
 newtype EvaluationError = EvaluationError (WithCtx EvaluationError')
   deriving (Show, Eq)
@@ -59,20 +60,9 @@ data EvaluationParseError
 mkEvaluationError :: Ctx -> EvaluationError' -> EvaluationError
 mkEvaluationError ctx e = EvaluationError $ WithCtx ctx e
 
-concatCtxMessages :: [String] -> String
-concatCtxMessages [] = ""
-concatCtxMessages msgChain = prefix ++ foldr1 appendMsg msgChain
-  where
-    prefix = "-> "
-    appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)
-
 getErrorMessageAndCtx :: EvaluationError -> (String, Ctx)
-getErrorMessageAndCtx evalError = (fullErrorMsg, ctx)
-  where
-    (errorMsg, errorCtxMsgs, ctx) = getErrorMsgAndErrorCtxMsgsAndParsingCtx evalError
-    fullErrorMsg
-      | null errorCtxMsgs = errorMsg
-      | otherwise = intercalate "\n\n" [errorMsg, concatCtxMessages errorCtxMsgs]
+getErrorMessageAndCtx err = (makeFullErrorMsg errorMsg errorCtxMsgs, ctx)
+  where (errorMsg, errorCtxMsgs, ctx) = getErrorMsgAndErrorCtxMsgsAndParsingCtx err
 
 getErrorMsgAndErrorCtxMsgsAndParsingCtx :: EvaluationError -> (String, [String], Ctx)
 getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)) = case evalError of

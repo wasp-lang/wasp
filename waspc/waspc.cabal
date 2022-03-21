@@ -115,6 +115,7 @@ library
       FilePath.Extra
       Wasp.Analyzer
       Wasp.Analyzer.AnalyzeError
+      Wasp.Analyzer.ErrorMessage
       Wasp.Analyzer.Evaluator
       Wasp.Analyzer.Evaluator.Bindings
       Wasp.Analyzer.Evaluator.Evaluation
