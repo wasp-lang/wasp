@@ -4,16 +4,16 @@ module Wasp.Analyzer.Evaluator.EvaluationError
     EvaluationParseError (..),
     EvaluationError' (..),
     mkEvaluationError,
-    getErrorMessageAndCtx
+    getErrorMessageAndCtx,
   )
 where
 
 import Data.List (intercalate)
 import qualified Text.Parsec
+import Wasp.Analyzer.ErrorMessage (makeFullErrorMsg)
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..))
 import Wasp.Analyzer.Type (Type)
 import Wasp.Util (concatPrefixAndText, indent, second3)
-import Wasp.Analyzer.ErrorMessage (makeFullErrorMsg)
 
 newtype EvaluationError = EvaluationError (WithCtx EvaluationError')
   deriving (Show, Eq)
@@ -62,7 +62,8 @@ mkEvaluationError ctx e = EvaluationError $ WithCtx ctx e
 
 getErrorMessageAndCtx :: EvaluationError -> (String, Ctx)
 getErrorMessageAndCtx err = (makeFullErrorMsg errorMsg errorCtxMsgs, ctx)
-  where (errorMsg, errorCtxMsgs, ctx) = getErrorMsgAndErrorCtxMsgsAndParsingCtx err
+  where
+    (errorMsg, errorCtxMsgs, ctx) = getErrorMsgAndErrorCtxMsgsAndParsingCtx err
 
 getErrorMsgAndErrorCtxMsgsAndParsingCtx :: EvaluationError -> (String, [String], Ctx)
 getErrorMsgAndErrorCtxMsgsAndParsingCtx (EvaluationError (WithCtx ctx evalError)) = case evalError of
