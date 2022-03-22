@@ -115,4 +115,4 @@ evalCtxMsg evalCtx = case evalCtx of
   (InField fieldName) -> "For dictionary field '" ++ fieldName ++ "'"
   InList -> "In list"
   InTuple -> "In tuple"
-  (ForVariable varName) -> "For variable '" ++ varName
+  (ForVariable varName) -> "For variable '" ++ varName ++ "'"
