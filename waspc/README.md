@@ -32,12 +32,22 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 
 ## Basics
 ### Setup
-We use [Cabal](https://cabal.readthedocs.io/) to build the project.
+We use the [`cabal`](https://cabal.readthedocs.io/) command line tool to build
+the project. The best way to install it is via
+[ghcup](https://www.haskell.org/ghcup/). The `ghcup tui` terminal user interface
+is a convenient way of installing and selecting versions of `cabal`, `hls` and
+`ghc`.
 
-The best way to install it is via [ghcup](https://www.haskell.org/ghcup/).
+In [cabal.project](cabal.project) we're explicitly saying what compiler version
+to build Wasp with.
 
-Check [cabal.project](cabal.project) for exact version of GHC that we use to build Wasp.
-Then, ensure via `ghcup` that you use that version of GHC and that you are using corresponding versions of `cabal` and `hls`.
+```cabal
+with-compiler: ghc-x.y.z
+```
+
+Ensure that you have this [ghc
+version](https://downloads.haskell.org/ghc/latest/docs/html/users_guide/intro.html#ghc-version-numbering-policy)
+installed.
 
 ### Repo
 Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
