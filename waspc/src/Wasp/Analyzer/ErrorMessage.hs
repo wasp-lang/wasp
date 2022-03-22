@@ -3,13 +3,11 @@ module Wasp.Analyzer.ErrorMessage
   )
 where
 
-import Data.List (intercalate)
 import Wasp.Util (indent)
 
 makeFullErrorMsg :: String -> [String] -> String
-makeFullErrorMsg errorMsg errorCtxMsgs
-  | null errorCtxMsgs = errorMsg
-  | otherwise = intercalate "\n\n" [errorMsg, concatErrorCtxMsgs errorCtxMsgs]
+makeFullErrorMsg errorMsg errorCtxMsgs =
+  errorMsg ++ (if null errorCtxMsgs then "" else concatErrorCtxMsgs errorCtxMsgs)
 
 concatErrorCtxMsgs :: [String] -> String
 concatErrorCtxMsgs [] = ""

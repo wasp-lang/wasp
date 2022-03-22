@@ -13,7 +13,7 @@ import Wasp.Analyzer.ErrorMessage
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
-import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent, second3)
+import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, second3)
 
 newtype TypeError = TypeError (WithCtx TypeError')
   deriving (Show, Eq)

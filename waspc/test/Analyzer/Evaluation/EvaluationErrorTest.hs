@@ -10,8 +10,8 @@ import Wasp.Analyzer.Type (Type (..))
 ctx1 :: Ctx
 ctx1 = ctx (1, 4) (2, 5)
 
-nestEvalErrors :: EvaluationError -> [EvalErrorCtx] -> EvaluationError
-nestEvalErrors bottomErr wrapperErrs = foldr wrap bottomErr wrapperErrs
+wrapEvalErrors :: EvaluationError -> [EvalErrorCtx] -> EvaluationError
+wrapEvalErrors boottomError wrapperErrors = foldr wrap boottomError wrapperErrors
   where
     wrap evalErrorCtx = mkEvaluationError ctx1 . WithEvalErrorCtx evalErrorCtx
 
@@ -39,7 +39,7 @@ spec_EvaluationError = do
         getErrorMessageAndCtx expectedTupleTypeError `shouldBe` (expectedTupleTypeErrorMsg, ctx1)
 
       it "ExpectedType error nested in WithEvalContextError" $ do
-        let err = nestEvalErrors expectedTypeError [InField "key"]
+        let err = wrapEvalErrors expectedTypeError [InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
@@ -52,7 +52,7 @@ spec_EvaluationError = do
             ]
 
       it "ExpectedType error nested in two levels of WithEvalContextError" $ do
-        let err = nestEvalErrors expectedTypeError [InTuple, InField "key"]
+        let err = wrapEvalErrors expectedTypeError [InTuple, InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
@@ -65,7 +65,7 @@ spec_EvaluationError = do
             ]
 
       it "ExpectedType error nested in many levels of WithEvalContextError" $ do
-        let err = nestEvalErrors expectedTypeError [InList, ForVariable "var", InTuple, InField "key"]
+        let err = wrapEvalErrors expectedTypeError [InList, ForVariable "var", InTuple, InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
