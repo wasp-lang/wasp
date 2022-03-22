@@ -1,16 +1,11 @@
-.stack-work/
-stack*.yaml.lock
 dist-newstyle
-waspc.cabal
-
 
 /out
-
 
 .hie/
 .bin/
 stan.html
-
+module-graph.png
 
 # editor related
 *.orig

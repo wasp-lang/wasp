@@ -2,6 +2,7 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
+import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
@@ -21,10 +22,11 @@ import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Terminal (title)
+import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 
 main :: IO ()
-main = do
+main = (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
@@ -68,6 +70,9 @@ main = do
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
+    handleInternalErrors :: E.ErrorCall -> IO ()
+    handleInternalErrors e = putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
+
 printUsage :: IO ()
 printUsage =
   putStrLn $
@@ -103,7 +108,8 @@ printVersion = putStrLn $ showVersion version
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  ["migrate-dev"] -> runDbCommand Command.Db.Migrate.migrateDev
+  ["migrate-dev", migrationName] -> runDbCommand $ Command.Db.Migrate.migrateDev (Just migrationName)
+  ["migrate-dev"] -> runDbCommand $ Command.Db.Migrate.migrateDev Nothing
   ["studio"] -> runDbCommand studio
   _ -> printDbUsage
 
@@ -116,14 +122,15 @@ printDbUsage =
         "",
         title "COMMANDS",
         cmd
-          ( "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):\n"
-              <> "                  - Generates a new migration if there are changes in the schema.\n"
-              <> "                  - Applies any pending migrations to the database."
+          ( "  migrate-dev [migration-name]   Ensures dev database corresponds to the current state of schema(entities):\n"
+              <> "                                 - Generates a new migration if there are changes in the schema.\n"
+              <> "                                 - Applies any pending migrations to the database either using the supplied migration name or asking for one.\n"
           ),
-        cmd "  studio        GUI for inspecting your database.",
+        cmd "  studio                         GUI for inspecting your database.",
         "",
         title "EXAMPLES",
         "  wasp db migrate-dev",
+        "  wasp db migrate-dev \"Added User entity\"",
         "  wasp db studio"
       ]
 

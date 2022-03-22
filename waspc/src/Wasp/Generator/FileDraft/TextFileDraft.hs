@@ -9,6 +9,7 @@ import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
+import Wasp.Util (checksumFromText)
 
 -- | File draft based on text, that is to be written to file when time comes.
 data TextFileDraft = TextFileDraft
@@ -24,3 +25,7 @@ instance Writeable TextFileDraft where
     writeFileFromText (SP.fromAbsFile absDraftDstPath) (_content draft)
     where
       absDraftDstPath = dstDir </> _dstPath draft
+
+  getChecksum = return . checksumFromText . _content
+
+  getDstPath draft = Left $ _dstPath draft

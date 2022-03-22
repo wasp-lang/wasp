@@ -16,6 +16,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
@@ -77,7 +78,7 @@ createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = AS.isAuthEnabled spec
+      _isAuthEnabled = isAuthEnabled spec
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec

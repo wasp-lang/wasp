@@ -1,5 +1,5 @@
 module Wasp.Generator.WebAppGenerator
-  ( generateWebApp,
+  ( genWebApp,
     npmDepsForWasp,
   )
 where
@@ -14,11 +14,13 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getApp)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds)
+import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -32,22 +34,25 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-generateWebApp :: AppSpec -> Generator [FileDraft]
-generateWebApp spec = do
+genWebApp :: AppSpec -> Generator [FileDraft]
+genWebApp spec = do
   sequence
-    [ generateReadme,
+    [ genReadme,
       genPackageJson spec npmDepsForWasp,
-      generateGitignore,
+      genNpmrc,
+      genNvmrc,
+      genGitignore,
       return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
     ]
-    <++> generatePublicDir spec
-    <++> generateSrcDir spec
-    <++> generateExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genPublicDir spec
+    <++> genSrcDir spec
+    <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
 
-generateReadme :: Generator FileDraft
-generateReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
+genReadme :: Generator FileDraft
+genReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -60,9 +65,28 @@ genPackageJson spec waspDependencies = do
           object
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+              "nodeVersionBounds" .= show nodeVersionBounds,
+              "npmVersionBounds" .= show npmVersionBounds
             ]
       )
+
+genNpmrc :: Generator FileDraft
+genNpmrc =
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|npmrc|])
+      (asWebAppFile [relfile|.npmrc|])
+      Nothing
+
+genNvmrc :: Generator FileDraft
+genNvmrc =
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|nvmrc|])
+      (asWebAppFile [relfile|.nvmrc|])
+      -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
+      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 npmDepsForWasp :: N.NpmDepsForWasp
 npmDepsForWasp =
@@ -83,16 +107,16 @@ npmDepsForWasp =
           []
     }
 
-generateGitignore :: Generator FileDraft
-generateGitignore =
+genGitignore :: Generator FileDraft
+genGitignore =
   return $
     C.mkTmplFdWithDst
       (asTmplFile [relfile|gitignore|])
       (asWebAppFile [relfile|.gitignore|])
 
-generatePublicDir :: AppSpec -> Generator [FileDraft]
-generatePublicDir spec = do
-  publicIndexHtmlFd <- generatePublicIndexHtml spec
+genPublicDir :: AppSpec -> Generator [FileDraft]
+genPublicDir spec = do
+  publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
     C.mkTmplFd (asTmplFile [relfile|public/favicon.ico|]) :
     publicIndexHtmlFd :
@@ -103,8 +127,8 @@ generatePublicDir spec = do
                 ]
     )
 
-generatePublicIndexHtml :: AppSpec -> Generator FileDraft
-generatePublicIndexHtml spec =
+genPublicIndexHtml :: AppSpec -> Generator FileDraft
+genPublicIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|public/index.html|])
@@ -132,8 +156,8 @@ srcDir = C.webAppSrcDirInWebAppRootDir
 genApi :: FileDraft
 genApi = C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
-generateSrcDir :: AppSpec -> Generator [FileDraft]
-generateSrcDir spec = do
+genSrcDir :: AppSpec -> Generator [FileDraft]
+genSrcDir spec = do
   routerFd <- RouterGenerator.generateRouter spec
   operationsFds <- genOperations spec
   authFds <- AuthG.genAuth spec

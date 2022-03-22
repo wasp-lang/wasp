@@ -23,9 +23,9 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as D
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
 
 data NpmDepsForFullStack = NpmDepsForFullStack
@@ -108,7 +108,7 @@ buildNpmDepsForFullStack spec forServer forWebApp =
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsForUser
 getUserNpmDepsForPackage spec =
   NpmDepsForUser
-    { userDependencies = fromMaybe [] $ AS.App.dependencies $ snd $ AS.getApp spec,
+    { userDependencies = fromMaybe [] $ AS.App.dependencies $ snd $ ASV.getApp spec,
       -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
       userDevDependencies = []
     }

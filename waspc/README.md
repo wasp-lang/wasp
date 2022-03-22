@@ -32,7 +32,12 @@ It can then also run that web app for you, deploy it (not yet but that is coming
 
 ## Basics
 ### Setup
-We use [Stack](https://docs.haskellstack.org/en/stable/README/) for building the project, so you will need to install `stack` on your machine.
+We use [Cabal](https://cabal.readthedocs.io/) to build the project.
+
+The best way to install it is via [ghcup](https://www.haskell.org/ghcup/).
+
+Check [cabal.project](cabal.project) for exact version of GHC that we use to build Wasp.
+Then, ensure via `ghcup` that you use that version of GHC and that you are using corresponding versions of `cabal` and `hls`.
 
 ### Repo
 Fork this repo and clone the fork to your machine (or clone this repo directly if you don't plan to contribute but just want to try it out).
@@ -41,59 +46,40 @@ Position yourself in this directory (`waspc/`) and make sure that you are on the
 
 ### Build
 ```
-stack build
+cabal build
 ```
 to build the library and `wasp` executable.
 
-This might take a longer time (10 mins) if you are doing it for the very first time, since `stack` will need to download the external dependencies.
+This might take a while (10 mins) if you are doing it for the very first time, since `cabal` will need to download the external dependencies.
+If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" :D.
 
-`NOTE:` For macOS Big Sur users there is a bug in older GHC versions (<= 8.10.3) causing system frameworks to load improperly and will fail when building the project. This can be fixed with the following steps:
-
-<details>
-   <summary>Show details</summary>
-
-   1. Clean up stack cache which could have been carried over from previous OS versions using below command.
-
-      ```
-      rm -Rf ~/.stack/setup-exe-cache/x86_64-osx
-      ```
-
-   2. Run `stack build` until it fails with error `can't load framework: Cocoa (not found)`.
-   3. Checkout and build this [workaround](https://github.com/yairchu/macos11-haskell-workaround).
-   4. Re-run stack build with workaround using below command and it should build without errors.
-
-      ```
-      DYLD_INSERT_LIBRARIES=~/macos11-haskell-workaround/macos11ghcwa.dylib stack build
-      ```
-</details>
-
-<br/>
+NOTE: You may need to run `cabal update` before attempting to build if it has been some time since your last update.
 
 ### Test
 ```
-stack test
+cabal test
 ```
-to ensure all the unit tests are passing (this will also build the project if needed).
+to ensure all the unit and end-to-end tests are passing (this will also build the project if needed).
 
 ### Executable
 ```
-stack exec wasp-cli
+cabal run wasp-cli
 ```
 to run the `wasp-cli` executable that you just built!
 It should print "Usage" information.
 
-You can pass more arguments by just adding them to the command, e.g.: `stack exec wasp-cli new MyProject`.
+You can pass more arguments by just adding them to the command, e.g.: `cabal run wasp-cli new MyProject`.
 
 ### Run example app
 Position yourself in `waspc/examples/todoApp/` and run
 ```
-stack exec wasp-cli db migrate-dev
+cabal run wasp-cli db migrate-dev
 ```
 to update database schema (this is done only on schema changes).
 
 Then,
 ```
-stack exec wasp-cli start
+cabal run wasp-cli start
 ```
 to run web app in development mode.
 
@@ -105,23 +91,34 @@ NOTE: Reload page if blank.
 
 ## Typical development workflow
 1. Create a new feature branch from `main`.
-2. Run `./run ghcid` from the root of the project: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
-   NOTE: You will need to install `ghcid` globally first, you can do it with `stack install ghcid`.
+2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
+   NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
 3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
-   Fix any errors shown by `ghcid`.
+   Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Once close to done, run `stack test` to confirm that project is passing tests (new and old).
-5. If needed, confirm that `examples/todoApp/` is working correctly by running `stack build` first, to build the wasp executable, and then by running that executable with `stack exec wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
+4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
+5. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
-6. When all is ready, squash commits into one commit (or a few if that makes sense) and create a PR. 
+6. When all is ready, and if you modified any Haskell dependencies, regenerate the cabal freeze file.
+   You can do this by running `cabal freeze` to use the existing frozen dependencies while also capturing new changes you did -> you will likely want to do this if you added a new dependency and don't want to touch frozen versions of other dependencies.
+   Or, you can completely recreate freeze file by running `rm cabal.project.freeze && cabal freeze` (or `./run refreeze`) -> you will likely want to do this if you want to get updates for packages, or if just running `cabal freeze` is too restricted by versions currently captured in freeze file.
+   If not sure what to do, it is easiest and always ok to just do `./run refreeze`.
+7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
-7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
-8. Work with reviewer(s) to get the PR approved.
+8. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
+9. Work with reviewer(s) to get the PR approved.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
-9. Reviewer will merge the branch into `main`. Yay!
+10. Reviewer will merge the branch into `main`. Yay!
+
+NOTE: What is cabal freeze file, what is its purpose?
+   Freeze file (`cabal.project.freeze`) plays the same role as `package.lock.json` in `npm` -> it enables reproducible builds.
+   What `cabal freeze` does is, it captures exact versions of all the cabal dependencies (recursively) used at the moment and writes them down into `cabal.project.freeze` file. Then, in future, `cabal` uses those versions for any commands it runs, regardless of what is written in `.cabal` file.
+   This ensures consistent builds accross CI and different development machines -> a dependency won't suddenly get updated because the patch was released (potentially causing a bug).
+   The way to think about .cabal vs cabal.project.freeze is that dependency version bounds in .cabal specify what range of dependencies are we ok with, while freeze file specifies what (in that range) we know worked last and we tested with.
+
 
 ## Design docs (aka RFCs)
-If the feature you are implementing is complex, be it regarding its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
+If the feature you are implementing is complex, be it due to its design or technical implementation, we recommend creating a [design doc](https://www.industrialempathy.com/posts/design-docs-at-google/) (aka RFC).
 It is a great way to share the idea you have with others while also getting help and feedback.
 
 To create one, make a PR that adds a markdown document under `wasp/docs/design-docs`, and in that markdown document explain the thinking behind and choice made when deciding how to implement a feature.
@@ -172,33 +169,34 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 
 ## Building / development (detailed)
-Some useful stack commands:
-- `stack build` to build the project, including `wasp` binary which is both CLI and compiler in one.
-- `stack exec wasp-cli <arguments>` to run the `wasp` binary that you have built.
-- `stack test` to build the whole project + tests and then also run tests.
-- `stack build --file-watch` -> live watch, reruns every time a file changes. But we prefer using `ghcid`, it is faster.
-- `stack build --pedantic` -> sets -Wall and -Werror ghc options.
-- `stack build --profile`
-- `stack build --trace`
-- `stack install` -> builds the project and places the binary so it is in PATH (and you can call it directly with `wasp`).
-- `stack ghci` -> opens ghci in the context of the project, allowing you to load and run local modules.
-- `stack clear` -> clear all generated files/artifacts.
+Some useful cabal commands:
+- `cabal update` to update your package information.
+- `cabal build` to build the project, including `wasp` binary which is both CLI and compiler in one.
+- `cabal run wasp-cli <arguments>` to run the `wasp` binary that was previously built.
+- `cabal test` to build the whole project + tests and then also run tests.
+- `cabal install` -> builds the project and places the binary so it is in PATH (so you can call it directly, from anywhere, with just `wasp`).
 
-For live compilation and error checking of your code we recommend using `ghcid`.
-You can install it globally with `stack install ghcid` and then just type `ghcid --command=stack ghci` when in the project -> it will watch for any file changes and report errors.
+For live compilation and error checking of your code we recommend using Haskell Language Server (hls) via your IDE, but if that is not working as it should, then safe fallback is always `ghcid`. You can install `ghcid` globally with `cabal install ghcid` and then just type `ghcid` when in the project -> it will watch for any file changes and report errors.
 
 ### Run script
 For more convenient running of common build/dev commands, we created `run` script.
-It mostly runs stack commands described above, reducing the number of characters you have to type to run certain commands.
+It mostly runs cabal commands described above, reducing the number of characters you have to type to run certain commands.
+It also allows you to easily run some of the helper tools, for example tools for static analysis of our code.
 
-The idea is that you normally use this for development, and you use `stack` directly when you need more control.
-It is up to you, using `stack` directly is also perfectly fine and sometimes easier.
+The idea is that you normally use this for development, and you use `cabal` directly when you need more control.
+It is up to you, using `cabal` directly is also perfectly fine and sometimes easier.
 
 You can run `./run help` to learn how to use it.
 
 Examples:
  - `./run ghcid-test` will run ghcid that watches tests, while passing correct arguments to ghcid.
- - `./run stan` will run static analysis of the codebase.
+ - `./run test:unit` will run only unit tests (skipping e2e tests, which is useful since they are relatively slow).
+ - `./run ormolu:format` will format the Haskell code for you.
+ 
+Tip: to make it easy to run the `run` script from any place in your wasp codebase, you can create a bash alias that points to it:
+```
+alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
+```
 
 
 ## Tests
@@ -231,13 +229,12 @@ All tests go into `test/` directory.
 This is convention for Haskell, opposite to mixing them with source code as in Javascript for example.
 Not only that, but Haskell build tools don't have a good support for mixing them with source files, so even if we wanted to do that it is just not worth the hassle.
 
-Tests are run with `stack test`.
-You can do `stack test --coverage` to see the coverage.
+Tests are run with `cabal test`. They include both unit tests, and end-to-end tests of basic CLI commands.
 
-To run individual test, you can do `stack test --test-arguments "-p \"Some test description to match\""`.
+To run unit tests only, you can do `cabal test waspc-test` (or `./run test:unit`).
+To run individual unit test, you can do `cabal test waspc-test --test-options "-p \"Some test description to match\""` (or just `./run test:unit "Some test description to match"`).
 
-We don't yet have any integration (e2e) tests, but we plan to add them at some point.
-For now, best way is to manually run a Wasp app with `wasp start` and try stuff out.
+To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
 
 ## Code analysis
 
@@ -249,6 +246,8 @@ To run the code analysis, run:
 This will check if code is correctly formatted, if it satisfies linter, and if it passes static analysis.
 
 These same checks are required to pass the CI, so make sure this is passing before making a PR.
+TODO: For now we check only the code formatting during the CI. In the future, once we make sure all the warnings are passing,
+  we will also check linter and static analysis during the CI, but that is not happening yet.
 
 ### Formatting
 For formatting Haskell code we use [Ormolu](https://github.com/tweag/ormolu).
@@ -265,14 +264,20 @@ to see if there is any formatting that needs to be fixed, or with
 ```
 to have Ormolu actually format (in-place) all files that need formatting.
 
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
+
 ### Linting
 We use [hlint](https://github.com/ndmitchell/hlint) for linting our Haskell code.
 
 You can use
 ```
-./run hlint`
+./run hlint
 ```
 to run the hlint on Wasp codebase.
+
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
 
 ### Static Analysis
 We use [stan](https://github.com/kowainik/stan) to statically analyze our codebase.
@@ -282,6 +287,9 @@ The easiest way to run it is to use
 ./run stan
 ```
 This will build the codebase, run stan on it (while installing it first, if needed, with the correct version of GHC) and then write results to the CLI and also generate report in the `stan.html`.
+
+NOTE: When you run it for the first time it might take a while (~10 minutes) for all the dependencies to get installed.
+  The subsequent runs will be much faster.
 
 
 ## Commit message conventions
@@ -298,7 +306,7 @@ If commit is tagged with tag starting with `v`, github draft release is created 
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
-We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will update the version in package.yaml, commit it, push it, and will also create appropriate tag and push it, therefore triggering CI to create new release on Github.
+We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will update the version in waspc.cabal, commit it, push it, and will also create appropriate tag and push it, therefore triggering CI to create new release on Github.
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
@@ -307,7 +315,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Update ChangeLog.md with release notes and open an PR for feedback.
 - After approval, squash and merge PR for ChangeLog.md into `main`.
 - Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`.
-  - This will automatically create a new commit for updating the version in package.yaml, tag it, and push it all.
+  - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
 - Wait for CI to finish & succeed for the new tag.
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
@@ -329,14 +337,14 @@ We are documenting best practices related to Haskell in our [Haskell Handbook](h
 
 #### Comments
 
-#### Grammar
+##### Grammar
 When writing a comment, we prefer starting it with a capital letter.
 
 If it starts with a capital letter, it must end with a punctuation.
 
 If it doesn't start with a capital letter, it shouldn't end with a punctuation.
 
-#### TODO / NOTE
+##### TODO / NOTE
 
 When writing a TODO or NOTE, use all capital letters, like this:
 
@@ -351,4 +359,37 @@ You can do it like this:
 
 ```hs
 -- TODO(martin): Doesn't work on my machine in some unusual use cases.
+```
+
+### JavaScript
+
+#### Functions
+For detailed reasoning/discussion on all listed rules, check [Issue #487](https://github.com/wasp-lang/wasp/issues/487).
+
+##### Top-level named functions
+When defining top-level named functions, we prefer to use statements:
+```javascript
+// good
+function foo(param) {
+  // ...
+}
+
+// bad
+const foo = (param) => {
+  // ...
+}
+
+// bad
+const foo = function (param) {
+  // ...
+}
+```
+##### Inline function expression
+When defining inline function expressions, we prefer the arrow syntax:
+```javascript
+// good
+const squares = arr.map(x => x * x)
+
+// bad
+const squares = arr.map(function (x) { return x * x })
 ```

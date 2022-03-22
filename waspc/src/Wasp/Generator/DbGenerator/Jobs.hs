@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.Info
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
+import Wasp.Generator.Common (ProjectRootDir, prismaVersionBounds)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
@@ -24,12 +24,14 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 -- We also pin the version to what we need so it won't accidentally find a different version globally
 --   somewhere on the PATH.
 npxPrismaCmd :: [String]
-npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ prismaVersion]
+npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ show prismaVersionBounds]
 
-migrateDev :: Path' Abs (Dir ProjectRootDir) -> J.Job
-migrateDev projectDir = do
+migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
+migrateDev projectDir maybeMigrationName = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+
+  let optionalMigrationArgs = maybe [] (\name -> ["--name", name]) maybeMigrationName
 
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
@@ -40,7 +42,7 @@ migrateDev projectDir = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let npxPrismaMigrateCmd = npxPrismaCmd ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile]
+  let npxPrismaMigrateCmd = npxPrismaCmd ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.

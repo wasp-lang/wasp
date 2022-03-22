@@ -1,5 +1,5 @@
 module Wasp.Generator.ExternalCodeGenerator
-  ( generateExternalCodeDir,
+  ( genExternalCodeDir,
   )
 where
 
@@ -14,19 +14,19 @@ import Wasp.Generator.Monad (Generator)
 
 -- | Takes external code files from Wasp and generates them in new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.
-generateExternalCodeDir ::
+genExternalCodeDir ::
   C.ExternalCodeGeneratorStrategy ->
   [EC.File] ->
   Generator [FD.FileDraft]
-generateExternalCodeDir strategy = mapM (generateFile strategy)
+genExternalCodeDir strategy = mapM (genFile strategy)
 
-generateFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
-generateFile strategy file
+genFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
+genFile strategy file
   | extension `elem` [".js", ".jsx"] = generateJsFile strategy file
   | otherwise =
-    let relDstPath = C._extCodeDirInProjectRootDir strategy </> dstPathInGenExtCodeDir
-        absSrcPath = EC.fileAbsPath file
-     in return $ FD.createCopyFileDraft relDstPath absSrcPath
+      let relDstPath = C._extCodeDirInProjectRootDir strategy </> dstPathInGenExtCodeDir
+          absSrcPath = EC.fileAbsPath file
+       in return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
     dstPathInGenExtCodeDir :: Path' (Rel C.GeneratedExternalCodeDir) File'
     dstPathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir $ EC.filePathInExtCodeDir file

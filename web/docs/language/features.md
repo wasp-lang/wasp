@@ -53,7 +53,7 @@ page MainPage {
 
 Normally you will also want to associate `page` with a `route`, otherwise it won't be accessible in the app.
 
-### Fields 
+### Fields
 
 #### `component: ExtImport` (required)
 Import statement of the React element that implements the page component.
@@ -164,7 +164,7 @@ Definition of entity fields in *Prisma Schema Language* (PSL). See
 [here for intro and examples](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema)
 and [here for a more exhaustive language specification](https://github.com/prisma/specs/tree/master/schema).
 
-### Using entities
+### Using Entities
 
 Entity-system in Wasp is based on [Prisma](http://www.prisma.io), and currently Wasp provides only a thin layer
 on top of it. The workflow is as follows:
@@ -178,138 +178,249 @@ Currently entities can be accessed only in Operations (Queries & Actions), so ch
 
 ## Queries and Actions (aka Operations)
 
-In Wasp, main interaction between client and server happens via Operations, of which two types exist: Queries and Actions.
+In Wasp, the client and the server interact with each other through Operations.
+Wasp currently supports two kinds of Operations: **Queries** and **Actions**.
 
 ### Query
 
-Queries are NodeJS functions that don't modify any state. Normally they fetch certain resources, process them and return result. They are executed on server. 
+Queries are used to fetch data from the server. They do not modify the server's state.
 
-To create a Wasp Query, we need two things: declaration in Wasp and implementation in NodeJS:
+Queries are implemented in NodeJS and executed within the server's context.
+Wasp generates the code that lets you call the Query from anywhere in your code (client or server) using the same interface.
+In other words, you won't have to worry about building an HTTP API for the Query, handling the request on the server, or even handling and caching the responses on the client.
+Instead, simply focus on the business logic inside your Query and let Wasp take care of the rest!
 
-1. `query` declaration in Wasp:
+To create a Wasp Query, you must:
+1. Define the Query's NodeJS implementation
+2. Declare the Query in Wasp using the `query` declaration
+
+After completing these two steps, you'll be able to use the Query from any point in your code.
+
+
+#### Defining the Query's NodeJS implementation
+A Query must be implemented as an `async` NodeJS function that takes two arguments.
+Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
+1. `args`:  An object containing all the arguments (i.e., payload) **passed to the Query by the caller** (e.g., filtering conditions).
+Take a look at [the examples of usage](#using-the-query) to see how to pass this object to the Query.
+3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
+
+Here's an example of two simple Queries:
+```js title="ext/queries.js"
+// our "database"
+const tasks = [
+  { id: 1, description: "Buy some eggs", isDone: true },
+  { id: 2, description: "Make an omelette", isDone: false },
+  { id: 3, description: "Eat breakfast", isDone: false }
+]
+
+
+// You don't need to use the arguments if you don't need them
+export const getAllTasks = async () => {
+  return tasks;
+}
+
+// The 'args' object is something sent by the caller (most often from the client)
+export const getFilteredTasks = async (args) => {
+  const { isDone } = args;
+  return tasks.filter(task => task.isDone === isDone)
+}
+```
+
+#### Declaring a Query in Wasp
+After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
+You can easily do this with the `query` declaration, which supports the following fields:
+- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation.
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
+We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
+
+Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
+With that in mind, this is how you might declare the Queries that use the implementations from the previous step:
 ```c title="main.wasp"
 // ...
-query getTasks {
-  fn: import { getAllTasks } from "@ext/foo.js"
+
+// Again, it most likely makes sense to name the Wasp Query after
+// its implementation. We're changing the name to emphasize the difference.
+
+query fetchAllTasks {
+  fn: import { getAllTasks } from "@ext/queries.js"
+}
+
+query fetchFilteredTasks {
+  fn: import { getFilteredTasks } from "@ext/queries.js"
 }
 ```
-`query` declaration type has two fields:
-- `fn: ExtImport` (required)
-- `entities: [Entity]` (optional)
 
-2. Implemenation in NodeJS:
-```js title="ext/foo.js"
+After declaring a NodeJS function as a Wasp Query, two crucial things happen:
+- Wasp **generates a client-side JavaScript function** that shares its name with the Query (e.g., `fetchFilteredTasks`).
+This function takes a single optional argument - an object containing any serializable data you wish to use inside the Query.
+Wasp will pass this object to the Query's implementation as its first positional argument (i.e., `args` from the previous step).
+Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Query's NodeJS implementation under the hood.
+- Wasp **generates a server-side NodeJS function** that shares its name with the Query. This function's interface is identical to the client-side function from the previous point.
+
+Generating two such functions ensures a uniform calling interface across the entire app (both client and server).
+
+
+#### Using the Query
+To use the Query, you can import it from `@wasp` and call it directly. As mentioned, the usage is the same regardless of whether you're on the server or the client:
+```javascript
+import fetchAllTasks from '@wasp/queries/fetchAllTasks.js'
+import fetchFilteredTasks from '@wasp/queries/fetchFilteredTasks.js'
+
 // ...
-export getAllTasks = async (args, context) => {
-  return [
-    { description: "Buy some eggs", isDone: true },
-    { description: "Make an omelette", isDone: false }
-  ]
-}
+
+const allTasks = await fetchAllTasks();
+const doneTasks = await fetchFilteredTasks({isDone: true})
 ```
 
-NodeJS function above has to be async and will be passed query arguments as first argument and additional context as second argument.
+**NOTE**: Wasp will not stop you from importing a Query's NodeJS implementation from `./queries.js` and calling it directly. However, we advise against this, as you'll lose all the useful features a Wasp Query provides (e.g., entity injection).
 
-By declaring a NodeJS function as a Wasp query, following happens:
-- Wasp generates HTTP API route on the NodeJS server that calls the NodeJS query function.
-- Wasp generates JS function on the client that has the name under which query was declared and takes same arguments as the NodeJS query function. Internally it uses above mentioned HTTP API route to call the NodeJS query function.
+#### The `useQuery` hook
+When using Queries on the client, you can make them reactive with the help of the `useQuery` hook.
+This hook comes bundled with Wasp and is a thin wrapper around the `useQuery` hook from [_react-query_](https://github.com/tannerlinsley/react-query).
 
-On client, you can import generated query JS function as `import getTasks from '@wasp/queries/getTasks.js'`.
-Then, you can either use it directly, or you can use it via special `useQuery` React hook (provided by Wasp**) to make it reactive.
+Wasp's `useQuery` hook accepts three arguments:
+- `queryFn` (required): A Wasp query declared in the previous step or, in other words, the client-side query function generated by Wasp based on a `query` declaration.
+- `queryFnArgs` (optional): The arguments object (payload) you wish to pass into the query. The query's NodeJS implementation will receive this object as its first positional argument.
+- `config` (optional): A _react-query_ `config` object.
 
-On server, you can import it the same way as on client, and then you can call it directly.
+Wasp's `useQuery` hook behaves mostly the same as [_react-query_'s `useQuery` hook](https://react-query.tanstack.com/docs/api#usequery), the only difference being in not having to supply the key (Wasp does this automatically under the hood).
 
-**NOTE**: Wasp will not stop you from importing NodeJS function directly on server, e.g. `import { getAllTasks } from "./foo.js"`, but you shouldn't do it, because it will import pure NodeJS function and not a query recognized by Wasp, so it will not get all the features of a Wasp query.
-
-#### useQuery
-`useQuery` hook provided by Wasp is actually just a thin wrapper for `useQuery` hook from [react-query](https://github.com/tannerlinsley/react-query).
-
-You can import it as `import { useQuery } from '@wasp/queries'`.
-
-Wasp `useQuery` takes three args:
-- `queryFn`: client query function generated by Wasp based on query declaration, e.g. one you get by importing in JS like this: `import getTasks from '@wasp/queries/getTasks.js'`.
-- `queryFnArgs`
-- `config`: react-query `config`.
-
-It behaves exactly the same as [useQuery from react-query](https://react-query.tanstack.com/docs/api#usequery), only it doesn't take the key, that is handled automatically instead.
-
-Example of usage:
-```js
+Here's an example of calling the Queries using the `useQuery` hook:
+```jsx
 import React from 'react'
 import { useQuery } from '@wasp/queries'
-import getTasks from '@wasp/queries/getTasks'
 
-const MyComponent = (props) => {
-  const { data: tasks, error } = useQuery(getTasks)
-  return <div> { JSON.stringify(tasks || error) } </div>
+import fetchAllTasks from '@wasp/queries/fetchAllTasks'
+import fetchFilteredTasks from '@wasp/queries/fetchFilteredTasks'
+
+
+
+const MainPage = () => {
+  const {
+    data: allTasks,
+    error: error1
+  } = useQuery(fetchAllTasks)
+
+  const {
+    data: doneTasks,
+    error: error2
+  } = useQuery(fetchFilteredTasks, { isDone: true })
+
+  return (
+    <div>
+        <p>All tasks: { JSON.stringify(allTasks || error1) }</p>
+        <p>Finished tasks: { JSON.stringify(doneTasks || error2) }</p>
+    </div>
+  )
 }
+
+export default MainPage
 ```
 
-#### Error handling
-For security reasons, all errors thrown in the query NodeJS function are sent to the client via HTTP API as 500 errors, with any further details removed, so that any unpredicted errors don't make it out with possibly sensitive data.
+#### Error Handling
+For security reasons, all exceptions thrown in the Query's NodeJS implementation are sent to the client as responses with the HTTP status code `500`, with all other details removed.
+Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
-If you do want to throw an error that will pass some information to the client, you can use `HttpError` in your NodeJS query function:
-```js
+If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your NodeJS Query function:
+```js title=ext/queries.js
 import HttpError from '@wasp/core/HttpError.js'
 
-export getTasks = async (args, context) => {
+export const getTasks = async (args, context) => {
   const statusCode = 403
-  const message = 'You can\'t do this!'.
+  const message = 'You can\'t do this!'
   const data = { foo: 'bar' }
   throw new HttpError(statusCode, message, data)
 }
 ```
 
-and then in client it will be thrown as an Error with corresponding `.message` and `.data` fields (if status code is 4xx - otherwise `message` and `data` will not be forwarded to the client, for security reasons).
+If the status code is `4xx`, the client will receive a response object with the corresponding `.message` and `.data` fields and rethrow the error (with these fields included).
+To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
 
-This ensures that no error will accidentally leak out from the server, potentionally exposing sensitive data or implementation details.
+#### Using Entities in Queries
+In most cases, resources used in Queries will be [Entities](#entity).
+To use an Entity in your Query, add it to the query declaration in Wasp:
 
-#### Using entities
-Most often, resources used by Operations will be Entities.
+```c {4,9} title="main.wasp"
 
-To use an Entity in your Operation, declare in Wasp that Operation uses it:
-```c {4} title="todoApp.wasp"
-// ...
-query getTasks {
-  fn: import { getAllTasks } from "@ext/foo.js",
+query fetchAllTasks {
+  fn: import { getAllTasks } from "@ext/queries.js",
+  entities: [Task]
+}
+
+query fetchFilteredTasks {
+  fn: import { getFilteredTasks } from "@ext/queries.js",
   entities: [Task]
 }
 ```
 
-This will inject specified entity into the context of your Operation.
-Now, you can access Prisma API for that entity like this:
-```js title="ext/foo.js"
+Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
+```js title="ext/queries.js"
 // ...
-export getAllTasks = async (args, context) => {
+
+export const getAllTasks = async (args, context) => {
   return context.entities.Task.findMany({})
+}
+
+export const getFilteredTasks = async (args, context) => {
+  return context.entities.Task.findMany({
+    where: { isDone: args.isDone }
+  })
 }
 ```
 
-where `context.entities.Task` actually exposes `prisma.task` from [Prisma API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
-
-#### Cache invalidation
-One of the trickiest part of managing web app state is making sure that data which queries are showing is up to date.
-
-Since Wasp is using react-query for managing queries, that means we want to make sure that parts of react-query cache are invalidated when we know they are not up to date any more.
-
-This can be done manually, by using mechanisms provided by react-query (refetch, direct invalidation).
-However, that can often be tricky and error-prone, so Wasp offers quick and effective solution to get you started: automatic invalidation of query cache based on entities that queries / actions are using.
-
-Specifically, if Action A1 uses Entity E1 and Query Q1 also uses Entity E1 and Action A1 is executed, Wasp will recognize that Q1 might not be up-to-date any more and will therefore invalidate its cache, making sure it gets updated.
-
-In practice, this means that without really even thinking about it, Wasp will make sure to keep the queries up to date for you in regard with the changes done by actions.
-
-On the other hand, this kind of automatic invalidation of cache can be wasteful (updating when not needed) and will not work if other resources than entities are used. In that case, make sure to use mechanisms provided by react-query for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
+The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
 
 ### Action
 
-Actions are very similar to Queries, so similar that we will only list the differences:
-1. They can modify state (queries can't).
-2. There is no special React hook for them (like `useQuery` for Queries), you just call them directly.
-3. They are declared in Wasp in same way as Queries, but keyword is `action`, not `query`.
+Actions are very similar to Queries. So similar, in fact, we will only list the differences:
+1. They can (and most often should) modify the server's state, while Queries are only allowed to read it.
+2. Since Actions don't need to be reactive, Wasp doesn't provide a React hook for them (like `useQuery` for Queries) - you just call them directly.
+3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
 
-More differences and action/query specific features will come in the future versions of Wasp.
+Here's an implementation of a simple Action:
+
+```js title=actions.js
+export const sayHi = async () => {
+  console.log('The client said Hi!')
+}
+```
+Its corresponding declaration in Wasp:
+
+```c title="main.wasp"
+// ...
+
+action sayHi {
+  fn: import { sayHi } from "@ext/actions.js"
+}
+```
+And an example of how to import and call the declared Action:
+
+```js
+import sayHi from '@wasp/actions/sayHi'
+
+// ...
+
+sayHi()
+```
+
+
+More differences and Action/Query specific features will come in future versions of Wasp.
+
+### Cache Invalidation
+One of the trickiest parts of managing a web app's state is making sure the data returned by the queries is up to date.
+Since Wasp uses _react-query_ for Query management, we must make sure to invalidate Queries (more specifically, their cached results managed by _react-query_) whenever they become stale.
+
+It's possible to invalidate the caches manually through several mechanisms _react-query_ provides (e.g., refetch, direct invalidation).
+However, since manual cache invalidation quickly becomes complex and error-prone, Wasp offers a quicker and a more effective solution to get you started: **automatic Entity-based Query cache invalidation**.
+Because Actions can (and most often do) modify the state while Queries read it, Wasp invalidates a Query's cache whenever an Action that uses the same Entity is executed.
+
+For example, let's assume that Action `createTask` and Query `getTasks` both use Entity `Task`. If `createTask` is executed, `getTasks`'s cached result may no longer be up-to-date.
+Wasp will therefore invalidate it, making `getTasks` refetch data from the server, bringing it up to date again.
+
+In practice, this means that Wasp keeps the queries "fresh" without requiring you to think about cache invalidation.
+
+On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
 
 ## Dependencies
@@ -375,7 +486,7 @@ This method requires that `userEntity` specified in `auth` contains `email: stri
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
 - `email`: non-empty
-- `password`: non-empty, at least 8 characters, and contains a number 
+- `password`: non-empty, at least 8 characters, and contains a number
 
 #### High-level API
 
@@ -398,7 +509,7 @@ export const signUp = async (args, context) => {
     // Your custom code before sign-up.
     // ...
     const newUser = context.entities.User.create({
-        data: { email: 'some@email.com', password: 'this will be hashed!' } 
+        data: { email: 'some@email.com', password: 'this will be hashed!' }
     })
 
     // Your custom code after sign-up.
@@ -682,8 +793,8 @@ app MyApp {
 `app.db` is a dictionary with following fields:
 
 #### `system: DbSystem`
-Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.  
-If not defined, or even if whole `db` field is not present, default value is `SQLite`.  
+Database system that Wasp will use. It can be either `PostgreSQL` or `SQLite`.
+If not defined, or even if whole `db` field is not present, default value is `SQLite`.
 If you add/remove/modify `db` field, run `wasp db migrate-dev` to apply the changes.
 
 ### SQLite

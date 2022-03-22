@@ -2,24 +2,18 @@
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
-    preCleanup,
     operationsRouteInRootRouter,
     npmDepsForWasp,
   )
 where
 
-import Control.Monad (unless)
 import Data.Aeson (object, (.=))
 import Data.Maybe
   ( fromJust,
     fromMaybe,
     isJust,
   )
-import StrongPath (Abs, Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
-import qualified StrongPath as SP
-import System.Directory (removeFile)
-import System.IO.Error (isDoesNotExistError)
-import UnliftIO.Exception (catch, throwIO)
+import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -27,8 +21,9 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, nodeVersionAsText, prismaVersion)
-import Wasp.Generator.ExternalCodeGenerator (generateExternalCodeDir)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
+import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -45,6 +40,7 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -57,32 +53,18 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> generateExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
-
--- Cleanup to be performed before generating new server code.
--- This might be needed in case if outDir is not empty (e.g. we already generated server code there before).
--- TODO: Once we implement a fancier method of removing old/redundant files in outDir,
---   we will not need this method any more. Check https://github.com/wasp-lang/wasp/issues/209
---   for progress of this.
-preCleanup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ()
-preCleanup _ outDir = do
-  -- If .env gets removed but there is old .env file in generated project from previous attempts,
-  -- we need to make sure we remove it.
-  removeFile dotEnvAbsFilePath
-    `catch` \e -> unless (isDoesNotExistError e) $ throwIO e
-  where
-    dotEnvAbsFilePath = SP.toFilePath $ outDir </> C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
   case AS.dotEnvFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-        [ createCopyFileDraft
-            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-            srcFilePath
-        ]
+          [ createCopyFileDraft
+              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+              srcFilePath
+          ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -102,7 +84,8 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersion" .= nodeVersionAsText,
+              "nodeVersionBounds" .= show nodeVersionBounds,
+              "npmVersionBounds" .= show npmVersionBounds,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
@@ -120,7 +103,7 @@ npmDepsForWasp =
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
             ("morgan", "~1.9.1"),
-            ("@prisma/client", prismaVersion),
+            ("@prisma/client", show prismaVersionBounds),
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
@@ -130,7 +113,7 @@ npmDepsForWasp =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", prismaVersion)
+            ("prisma", show prismaVersionBounds)
           ]
     }
 
@@ -148,7 +131,12 @@ genNvmrc =
     C.mkTmplFdWithDstAndData
       (asTmplFile [relfile|nvmrc|])
       (asServerFile [relfile|.nvmrc|])
-      (Just (object ["nodeVersion" .= ('v' : nodeVersionAsText)]))
+      -- We want to specify only the major version here. If we specified the
+      -- entire version string (i.e., 16.0.0), our project would work only with
+      -- that exact version, which we don't want. Unfortunately, the nvmrc file
+      -- format doesn't allow semver compatibility strings (e.g., ^16.0.0) so
+      -- listing the major version was the next best thing.
+      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -178,7 +166,7 @@ genSrcDir spec =
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
     dbClientRelToSrcP = [relfile|dbClient.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
@@ -207,7 +195,7 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ AS.getApp spec)
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
@@ -227,7 +215,7 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (AS.isAuthEnabled spec :: Bool)
+                "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
               ]
         )
     ]

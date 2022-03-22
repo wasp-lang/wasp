@@ -124,6 +124,8 @@ module.exports = {
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
+          blogSidebarCount: 'ALL',
+          blogSidebarTitle: 'All our posts',
           editUrl:
             'https://github.com/wasp-lang/wasp/edit/main/web/blog',
         },

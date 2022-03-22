@@ -8,9 +8,9 @@ import Data.Aeson.Types (Pair)
 import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
@@ -30,7 +30,7 @@ genAuth spec =
         <++> genAuthForms auth
     Nothing -> return []
   where
-    maybeAuth = AS.App.auth $ snd $ AS.getApp spec
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 -- | Generates file with signup function to be used by Wasp developer.
 genSignup :: Generator FileDraft
