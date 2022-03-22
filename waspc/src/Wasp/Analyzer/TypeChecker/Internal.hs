@@ -149,6 +149,13 @@ unify texprs =
       weakenedTexprs =
         fromRight
           (error "This should never happen: there should be no weaken errors during unification.")
+          -- TODO: How come we need to weaken the entire tree, is it important to keep correct 
+          -- type information for child nodes. Do we even need the function "weaken" here if we know
+          -- the correct type from above (superType)
+          -- We thought about it: weaken assigns the calculated supertype to all child nodes
+          -- which causes information loss. We decided it makes sense to keep node type information as
+          -- precise as possible. In other words, each node should have the most narrow possible correct type.
+          -- Instead of calling weaken, we should most likely return the same tree with a different type at the top
           (mapM (weaken superType) texprs)
    in (weakenedTexprs, superType)
 
