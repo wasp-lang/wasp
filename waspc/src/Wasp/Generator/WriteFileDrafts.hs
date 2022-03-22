@@ -76,34 +76,32 @@ fileDraftsToWriteAndFilesToDelete Nothing fileDraftsWithChecksums =
   (fst <$> fileDraftsWithChecksums, [])
 fileDraftsToWriteAndFilesToDelete (Just existingFilePathsToChecksums) fileDraftsWithChecksums =
   let fileDrafts = fst <$> fileDraftsWithChecksums
-      existingFilePathsToChecksumsLookup = Map.fromList existingFilePathsToChecksums
-   in ( getNewFileDrafts existingFilePathsToChecksumsLookup fileDrafts
-          ++ getChangedFileDrafts existingFilePathsToChecksumsLookup fileDraftsWithChecksums,
-        getRedundantGeneratedFiles existingFilePathsToChecksumsLookup fileDrafts
+      existingFilePathsToChecksumsMap = Map.fromList existingFilePathsToChecksums
+   in ( getNewFileDrafts existingFilePathsToChecksumsMap fileDrafts
+          ++ getChangedFileDrafts existingFilePathsToChecksumsMap fileDraftsWithChecksums,
+        getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts
       )
 
 getNewFileDrafts :: RelPathsToChecksumsMap -> [FileDraft] -> [FileDraft]
-getNewFileDrafts existingFilePathsToChecksumsLookup fileDrafts =
-  filter (\draft -> not $ Map.member (getDstPath draft) existingFilePathsToChecksumsLookup) fileDrafts
+getNewFileDrafts existingFilePathsToChecksumsMap fileDrafts =
+  filter (\draft -> not $ Map.member (getDstPath draft) existingFilePathsToChecksumsMap) fileDrafts
 
--- TODO: Could use Set intersection somehow
 getChangedFileDrafts :: RelPathsToChecksumsMap -> [(FileDraft, Checksum)] -> [FileDraft]
-getChangedFileDrafts existingFilePathsToChecksums fileDraftsWithChecksums =
+getChangedFileDrafts existingFilePathsToChecksumsMap fileDraftsWithChecksums =
   fst <$> filter alreadyExistsWithDifferentChecksum fileDraftsWithChecksums
   where
     alreadyExistsWithDifferentChecksum :: (FileDraft, Checksum) -> Bool
     alreadyExistsWithDifferentChecksum (fd, newChecksum) =
       let newPath = getDstPath fd
-          maybeOldChecksum = Map.lookup newPath existingFilePathsToChecksums
+          maybeOldChecksum = Map.lookup newPath existingFilePathsToChecksumsMap
        in case maybeOldChecksum of
             Nothing -> False
             Just oldChecksum -> oldChecksum /= newChecksum
 
-getRedundantGeneratedFiles :: RelPathsToChecksumsMap -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
+getRedundantGeneratedFiles :: RelPathsToChecksums -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
 getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts =
-  let fileDraftPathsSet = Set.fromList $ map getDstPath fileDrafts
-      existingFilePathsToChecksumsSet = Map.keysSet existingFilePathsToChecksums
-   in Set.toList $ Set.difference existingFilePathsToChecksumsSet fileDraftPathsSet
+  let fileDraftPathsSet = Set.fromList $ getDstPath <$> fileDrafts
+   in filter (not . (`Set.member` fileDraftPathsSet)) (fst <$> existingFilePathsToChecksums)
 
 -- | This function will return Nothing in two cases:
 --  1) The checksum file does not exist, or
