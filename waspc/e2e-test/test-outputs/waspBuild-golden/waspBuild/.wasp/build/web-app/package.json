@@ -22,6 +22,10 @@
     "uuid": "^3.4.0"
   },
   "devDependencies": {},
+  "engines": {
+    "node": "^16.0.0",
+    "npm": "^8.0.0"
+  },
   "eslintConfig": {
     "extends": "react-app"
   },

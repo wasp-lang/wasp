@@ -95,9 +95,14 @@ jobs:
 
       - name: Build external dependencies 
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
-
+      
       - name: Build wasp code
         run: cabal build all
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
       - name: Run tests
         run: cabal test

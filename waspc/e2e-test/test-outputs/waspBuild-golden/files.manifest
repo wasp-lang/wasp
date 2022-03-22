@@ -19,6 +19,8 @@ waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.js
 waspBuild/.wasp/build/server/src/utils.js
+waspBuild/.wasp/build/web-app/.npmrc
+waspBuild/.wasp/build/web-app/.nvmrc
 waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/netlify.toml
 waspBuild/.wasp/build/web-app/package.json

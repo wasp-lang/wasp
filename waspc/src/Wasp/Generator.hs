@@ -21,7 +21,7 @@ import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGen
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
-import Wasp.Generator.WebAppGenerator (generateWebApp)
+import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -48,7 +48,7 @@ writeWebAppCode spec dstDir sendMessage = do
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
-  generateWebApp spec
+  genWebApp spec
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
