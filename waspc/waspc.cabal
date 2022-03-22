@@ -240,7 +240,7 @@ library
 
 library cli-lib
   import: common-all
-  hs-source-dirs: cli-lib
+  hs-source-dirs: cli/src
   build-depends:
       directory
     , base
@@ -286,7 +286,7 @@ library cli-lib
 
 executable wasp-cli
   import: common-all, common-exe
-  hs-source-dirs: cli-exe
+  hs-source-dirs: cli/exe
   main-is: Main.hs
   build-depends:
       base
@@ -387,7 +387,7 @@ test-suite e2e-test
 test-suite cli-test
   import: common-all, common-exe
   type: exitcode-stdio-1.0
-  hs-source-dirs: cli-test
+  hs-source-dirs: cli/test
   main-is: TastyDiscoverDriver.hs
   build-tool-depends:
     tasty-discover:tasty-discover

@@ -93,7 +93,7 @@ NOTE: Reload page if blank.
 1. Create a new feature branch from `main`.
 2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
-3. Do a change in the codebase (most often in `src/` or `cli-lib/` or `data/`) (together with tests if that makes sense: see "Tests").
+3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
 4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
@@ -128,7 +128,7 @@ Others will comment on your design doc, and once it has gone through needed iter
 ## Codebase overview
 Wasp is implemented in Haskell.
 
-Codebase is split into library (`src/`) and CLI (which itself has a library `cli-lib/` and thin executable wrapper `cli-exe/`).
+Codebase is split into library (`src/`) and CLI (which itself has a library `cli/src/` and thin executable wrapper `cli/exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
 Wasp compiler takes .wasp files + everything in the `ext/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
@@ -162,9 +162,9 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ## Important directories (in waspc/)
 - src/ -> main source code, library
-- cli-lib/ -> rest of the source code, cli, uses library
-- cli-exe/ -> thin executable wrapper around cli library code
-- test/, e2e-test/, cli-test/ -> tests
+- cli/src/ -> rest of the source code, cli, uses library
+- cli/exe/ -> thin executable wrapper around cli library code
+- test/, e2e-test/, cli/test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
 - examples/ -> example apps
 

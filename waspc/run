@@ -62,6 +62,8 @@ print_usage () {
                     "Executes all tests (unit + e2e). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
                     "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+    print_usage_cmd "test:cli" \
+                    "Executes only cli unit tests. Builds the project first if needed."
     print_usage_cmd "test:e2e" \
                     "Executes only e2e tests. Builds the project first if needed."
     print_usage_cmd "wasp-cli <args>" \
