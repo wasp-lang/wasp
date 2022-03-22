@@ -9,11 +9,11 @@ import Wasp.Util (indent)
 makeFullErrorMsg :: String -> [String] -> String
 makeFullErrorMsg errorMsg errorCtxMsgs
   | null errorCtxMsgs = errorMsg
-  | otherwise = intercalate "\n\n" [errorMsg, concatCtxMessages errorCtxMsgs]
+  | otherwise = intercalate "\n\n" [errorMsg, concatErrorCtxMsgs errorCtxMsgs]
 
-concatCtxMessages :: [String] -> String
-concatCtxMessages [] = ""
-concatCtxMessages msgChain = prefix ++ foldr1 appendMsg msgChain
+concatErrorCtxMsgs :: [String] -> String
+concatErrorCtxMsgs [] = ""
+concatErrorCtxMsgs msgChain = prefix ++ foldr1 appendMsg msgChain
   where
     prefix = "-> "
     appendMsg currMsg = (++) (currMsg ++ ":\n") . indent 2 . (prefix ++)
