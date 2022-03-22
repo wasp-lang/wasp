@@ -40,6 +40,8 @@ inferExprType' bindings expr = runWithBound bindings TD.empty $ inferExprType ex
 
 test :: String -> P.WithCtx P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
 test name expr expected = it name $ do
+  -- TODO: The test does not test whether inferExprType returns the correct expression,
+  -- it only looks at its type
   let actual = exprType . fromWithCtx <$> inferExprType' H.empty expr
   actual `shouldBe` expected
 
@@ -67,35 +69,35 @@ spec_Internal = do
         wctx6 = WithCtx ctx6
         wctx7 = WithCtx ctx7
 
-    describe "unify" $ do
-      it "Doesn't affect 2 expressions of the same type" $ do
-        property $ \(a, b) ->
-          let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
-              actual = unify ctx1 initial
-           in actual == Right (initial, NumberType)
-      it "Unifies two same-typed dictionaries to their original type" $ do
-        let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
-        let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
-        let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ
-        let texprs = a :| [b]
-        unify ctx1 texprs
-          `shouldBe` Right (texprs, typ)
-      it "Unifies an empty dict and a dict with one property" $ do
-        let a = wctx2 $ Dict [] (DictType H.empty)
-        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] (DictType $ H.singleton "a" $ DictRequired BoolType)
-        let expectedType = DictType $ H.singleton "a" $ DictOptional BoolType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expectedType :| [expectedType])
-      it "Is idempotent when unifying an empty dict and a singleton dict" $ do
-        let a = wctx2 $ Dict [] (DictType H.empty)
-        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
-        unify ctx1 (a :| [b]) `shouldBe` (unify ctx1 (a :| [b]) >>= unify ctx1 . fst)
-      it "Unifies an empty list with any other list" $ do
-        let a = wctx2 $ List [] EmptyListType
-        let b = wctx3 $ List [wctx4 $ StringLiteral "a"] (ListType StringType)
-        let expected = ListType StringType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expected :| [expected])
+    -- describe "unify" $ do
+    --   it "Doesn't affect 2 expressions of the same type" $ do
+    --     property $ \(a, b) ->
+    --       let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
+    --           actual = unify ctx1 initial
+    --        in actual == Right (initial, NumberType)
+    --   it "Unifies two same-typed dictionaries to their original type" $ do
+    --     let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
+    --     let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
+    --     let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ
+    --     let texprs = a :| [b]
+    --     unify ctx1 texprs
+    --       `shouldBe` Right (texprs, typ)
+    --   it "Unifies an empty dict and a dict with one property" $ do
+    --     let a = wctx2 $ Dict [] (DictType H.empty)
+    --     let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] (DictType $ H.singleton "a" $ DictRequired BoolType)
+    --     let expectedType = DictType $ H.singleton "a" $ DictOptional BoolType
+    --     fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
+    --       `shouldBe` Right (expectedType :| [expectedType])
+    --   it "Is idempotent when unifying an empty dict and a singleton dict" $ do
+    --     let a = wctx2 $ Dict [] (DictType H.empty)
+    --     let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
+    --     unify ctx1 (a :| [b]) `shouldBe` (unify ctx1 (a :| [b]) >>= unify ctx1 . fst)
+    --   it "Unifies an empty list with any other list" $ do
+    --     let a = wctx2 $ List [] EmptyListType
+    --     let b = wctx3 $ List [wctx4 $ StringLiteral "a"] (ListType StringType)
+    --     let expected = ListType StringType
+    --     fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
+    --       `shouldBe` Right (expected :| [expected])
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
@@ -142,13 +144,12 @@ spec_Internal = do
         "Type checks a list where all elements have the same type"
         (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.DoubleLiteral 1.6])
         (ListType NumberType)
-      testFail
-        "Fails to type check a list containing strings and numbers"
+      testSuccess
+        "Type checks a list containing strings and numbers"
         (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.StringLiteral "4"])
-        ( mkTypeError ctx1 $
-            UnificationError $
-              TypeCoercionError (wctx3 $ StringLiteral "4") NumberType ReasonUncoercable
-        )
+        -- TODO: decide on a representation for union types (e.g., set, list, tree, all types are unions)
+        -- and correctly implement the equality instance.
+        (ListType (UnionType StringType NumberType))
 
       testSuccess
         "Type checks a list of dictionaries that unify but have different types"

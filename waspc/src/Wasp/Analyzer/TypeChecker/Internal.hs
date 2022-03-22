@@ -164,6 +164,12 @@ unify texprs =
 -- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
 --   having a TypedExpr allows us to report the source position when we encounter a type error.
 --   Anyway unification always happens for some typed expressions, so this makes sense.
+--
+-- NOTE: We decided NOT TO generalise types of lists of dictionaries for now.
+-- In other words, this should resolve to something like:
+-- "{} | {  b: string } | {  a:number }]" and not "[{ a?: string, b?: number }]"
+-- This might make error messages uglier, but it simplifies the unification algorithm
+-- simpler (e.g., { a: string } | number | { b: number })
 unifyTypes :: Type -> Type -> Type
 unifyTypes t1 t2 | t1 == t2 = t1
 -- Apply [AnyList]: an empty list can unify with any other list
