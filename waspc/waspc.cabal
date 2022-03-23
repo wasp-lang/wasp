@@ -136,6 +136,7 @@ library
       Wasp.Analyzer.Parser.SourcePosition
       Wasp.Analyzer.Parser.SourceRegion
       Wasp.Analyzer.Parser.Token
+      Wasp.Analyzer.Parser.Tokenizer
       Wasp.Analyzer.StdTypeDefinitions
       Wasp.Analyzer.StdTypeDefinitions.App.Dependency
       Wasp.Analyzer.StdTypeDefinitions.Entity

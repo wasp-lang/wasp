@@ -73,6 +73,7 @@ data LexerStartCode
     QuoterStartCode String
   deriving (Show)
 
+-- TODO: rename to makeInitialState or something less confusing
 initialState :: String -> ParserState
 initialState source =
   ParserState

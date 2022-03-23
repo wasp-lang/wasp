@@ -55,10 +55,10 @@ compileIOWithOptions ::
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
 compileIOWithOptions options waspProjectDir outDir = do
-  (generatorWarnings, generatorErrors) <- Wasp.Lib.compile waspProjectDir outDir options
-  case generatorErrors of
+  (compilerWarnings, compilerErrors) <- Wasp.Lib.compile waspProjectDir outDir options
+  case compilerErrors of
     [] -> do
-      displayWarnings generatorWarnings
+      displayWarnings compilerWarnings
       return $ Right ()
     errors -> return $ Left $ formatMessages errors
   where

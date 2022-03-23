@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
   )
@@ -7,7 +5,6 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Char (isLetter)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
@@ -22,19 +19,21 @@ import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import Wasp.Lexer (reservedNames)
 import qualified Wasp.Util.Terminal as Term
+import Wasp.Analyzer.Parser.Tokenizer (isValidWaspIdentifier)
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
+
 createNewProject :: String -> Command ()
-createNewProject (all isLetter -> False) =
-  throwError $ CommandError "Project creation failed" "Please use only letters for a new project's name."
-createNewProject ((`elem` reservedNames) -> True) =
-  throwError $
-    CommandError
-      "Project creation failed"
-      ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
-      )
-createNewProject name = createNewProject' (ProjectName name)
+createNewProject name
+  | not (isValidWaspIdentifier name) = throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
+  | name `elem` reservedNames =
+    throwError $
+      CommandError
+        "Project creation failed"
+        ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
+        )
+  | otherwise = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
 createNewProject' (ProjectName projectName) = do
