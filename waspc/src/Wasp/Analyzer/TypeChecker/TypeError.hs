@@ -8,12 +8,12 @@ module Wasp.Analyzer.TypeChecker.TypeError
   )
 where
 
-import Control.Arrow (first)
 import Data.List (intercalate)
+import Wasp.Analyzer.ErrorMessage
 import Wasp.Analyzer.Parser.Ctx (Ctx)
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
-import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, indent)
+import Wasp.Util (concatPrefixAndText, concatShortPrefixAndText, second3)
 
 newtype TypeError = TypeError (WithCtx TypeError')
   deriving (Show, Eq)
@@ -80,23 +80,6 @@ data TypeCoercionErrorReason e
     ReasonDictWrongKeyType String e
   deriving (Eq, Show)
 
-getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
-getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
-  case reason of
-    ReasonList e ->
-      first (("For list element:\n" ++) . indent 2) $
-        getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg e
-    ReasonDictWrongKeyType key e ->
-      first ((("For dictionary field '" ++ key ++ "':\n") ++) . indent 2) $
-        getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg e
-    ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", ctx)
-    ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", ctx)
-    ReasonDecl -> uncoercableTypesMsgAndCtx
-    ReasonEnum -> uncoercableTypesMsgAndCtx
-    ReasonUncoercable -> uncoercableTypesMsgAndCtx
-  where
-    uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, ctx)
-
 getUnificationErrorMessageAndCtx :: TypeCoercionError -> (String, Ctx)
 getUnificationErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
   \t texpr ->
@@ -115,3 +98,35 @@ getWeakenErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
       [ concatPrefixAndText "Expected type: " (show t),
         concatPrefixAndText "Actual type:   " (show $ exprType texpr)
       ]
+
+getTypeCoercionErrorMessageAndCtx :: (Type -> TypedExpr -> String) -> TypeCoercionError -> (String, Ctx)
+getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fullErrorMsg, ctx)
+  where
+    (errorMsg, ctxMsgs, ctx) =
+      getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg typeCoercionError
+    fullErrorMsg = makeFullErrorMsg errorMsg ctxMsgs
+
+-- | Recursively traverses the error hierarchy and returns a tuple containing:
+-- - The original type coercion error message.
+-- - An array of contextual messages further explaining the original error.
+-- - The error's context.
+--
+-- It takes two arguments:
+--  - A function for constructing a type coercion error message,
+--  - A `TypeCoercionError` to process.
+getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx ::
+  (Type -> TypedExpr -> String) ->
+  TypeCoercionError ->
+  (String, [String], Ctx)
+getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg (TypeCoercionError (WithCtx ctx texpr) t reason) =
+  case reason of
+    ReasonList e -> second3 ("In list" :) $ getFurtherMsgsAndCtx e
+    ReasonDictWrongKeyType key e -> second3 (("For dictionary field '" ++ key ++ "'") :) $ getFurtherMsgsAndCtx e
+    ReasonDictNoKey key -> ("Missing required dictionary field '" ++ key ++ "'", [], ctx)
+    ReasonDictExtraKey key -> ("Unexpected dictionary field '" ++ key ++ "'", [], ctx)
+    ReasonDecl -> uncoercableTypesMsgAndCtx
+    ReasonEnum -> uncoercableTypesMsgAndCtx
+    ReasonUncoercable -> uncoercableTypesMsgAndCtx
+  where
+    getFurtherMsgsAndCtx = getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg
+    uncoercableTypesMsgAndCtx = (getUncoercableTypesMsg t texpr, [], ctx)
