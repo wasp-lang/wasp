@@ -117,8 +117,8 @@ NOTE: Reload page if blank.
 9. Reviewer will merge the branch into `main`. Yay!
 
 NOTE: Why don't you use a cabal freeze file?
-   In order to support multiple architectures (or ghc versions), we have decided against using a cabal freeze file and instead
-   use the `index-state` feature to get package version pinning. See this question for more: https://github.com/haskell/cabal/issues/8059
+   In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead
+   use cabal's `index-state` feature to get package version pinning from hackage. See this question for more: https://github.com/haskell/cabal/issues/8059
 
 
 ## Design docs (aka RFCs)
