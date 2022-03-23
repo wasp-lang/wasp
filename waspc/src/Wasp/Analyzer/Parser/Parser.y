@@ -14,7 +14,7 @@ import Wasp.Analyzer.Parser.Ctx (WithCtx (..), Ctx (..), ctxFromPos, ctxFromRgn)
 import Wasp.Analyzer.Parser.Token
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.ParseError
-import Wasp.Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
+import Wasp.Analyzer.Parser.Monad (Parser, ParserState (..))
 import Control.Monad.State.Lazy (get)
 import Control.Monad.Except (throwError)
 }

@@ -12,6 +12,7 @@ import System.Directory (createDirectory, getCurrentDirectory)
 import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
+import Wasp.Analyzer.Parser.Tokenizer (isValidWaspIdentifier)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
@@ -19,14 +20,13 @@ import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import Wasp.Lexer (reservedNames)
 import qualified Wasp.Util.Terminal as Term
-import Wasp.Analyzer.Parser.Tokenizer (isValidWaspIdentifier)
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
-
 createNewProject :: String -> Command ()
 createNewProject name
-  | not (isValidWaspIdentifier name) = throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
+  | not (isValidWaspIdentifier name) =
+    throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
   | name `elem` reservedNames =
     throwError $
       CommandError

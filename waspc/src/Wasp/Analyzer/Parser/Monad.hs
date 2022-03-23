@@ -2,7 +2,7 @@
 
 module Wasp.Analyzer.Parser.Monad
   ( ParserState (..),
-    initialState,
+    makeInitialState,
     Parser,
     updateParserStateWithScannedToken,
     updateParserStateWithSkippedChars,
@@ -73,9 +73,8 @@ data LexerStartCode
     QuoterStartCode String
   deriving (Show)
 
--- TODO: rename to makeInitialState or something less confusing
-initialState :: String -> ParserState
-initialState source =
+makeInitialState :: String -> ParserState
+makeInitialState source =
   ParserState
     { parserSourcePosition = SourcePosition 1 1,
       lastScannedToken = Token TEOF (SourcePosition 1 1) "\n", -- NOTE: Dummy initial value.

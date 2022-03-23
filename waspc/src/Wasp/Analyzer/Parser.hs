@@ -36,11 +36,11 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.State (evalStateT)
 import Wasp.Analyzer.Parser.AST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
-import Wasp.Analyzer.Parser.Monad (initialState)
+import Wasp.Analyzer.Parser.Monad (makeInitialState)
 import Wasp.Analyzer.Parser.ParseError
 import qualified Wasp.Analyzer.Parser.Parser as P
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.Token
 
 parse :: String -> Either ParseError AST
-parse = runExcept . evalStateT P.parse . initialState
+parse = runExcept . evalStateT P.parse . makeInitialState
