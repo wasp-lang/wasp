@@ -7,7 +7,7 @@ import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
 import Paths_waspc (version)
-import System.Environment
+import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)

@@ -238,11 +238,9 @@ library
       Wasp.Generator.NpmInstall
       Wasp.Message
 
-
-executable wasp-cli
-  import: common-all, common-exe
-  hs-source-dirs: cli
-  main-is: Main.hs
+library cli-lib
+  import: common-all
+  hs-source-dirs: cli/src
   build-depends:
       directory
     , base
@@ -261,7 +259,8 @@ executable wasp-cli
     , utf8-string
     , uuid
     , waspc
-  other-modules:
+  other-modules: Paths_waspc
+  exposed-modules:
       Wasp.Cli.Command
       Wasp.Cli.Command.BashCompletion
       Wasp.Cli.Command.Build
@@ -284,6 +283,17 @@ executable wasp-cli
       Wasp.Cli.Terminal
       Wasp.Cli.Command.Message
       Wasp.Cli.Message
+
+executable wasp-cli
+  import: common-all, common-exe
+  hs-source-dirs: cli/exe
+  main-is: Main.hs
+  build-depends:
+      base
+    , async
+    , waspc
+    , cli-lib
+  other-modules:
       Paths_waspc
 
 test-suite waspc-test
@@ -373,6 +383,26 @@ test-suite e2e-test
     Tests.WaspCompileTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
+
+test-suite cli-test
+  import: common-all, common-exe
+  type: exitcode-stdio-1.0
+  hs-source-dirs: cli/test
+  main-is: TastyDiscoverDriver.hs
+  build-tool-depends:
+    tasty-discover:tasty-discover
+  build-depends:
+    , base
+    , waspc
+    , cli-lib
+    , QuickCheck            ^>= 2.14
+    , tasty                 ^>= 1.4.2
+    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
+    , tasty-hspec           >= 1.1 && < 1.1.7
+    , tasty-quickcheck      ^>= 0.10
+  other-modules:
+      TerminalTest
+      Paths_waspc
 
 benchmark waspc-benchmarks
   import: common-all, common-exe

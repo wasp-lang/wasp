@@ -103,7 +103,7 @@ NOTE: Reload page if blank.
 1. Create a new feature branch from `main`.
 2. If you don't have a good/reliable working HLS (Haskell Language Server) in your IDE, you will want to instead run `./run ghcid` from the root of the project instead: this will run a process that watches the Haskell project and reports any Haskell compiler errors. Leave it running.  
    NOTE: You will need to install `ghcid` globally first. You can do it with `cabal install ghcid`.
-3. Do a change in the codebase (most often in `lib/` or `cli/` or `data/`) (together with tests if that makes sense: see "Tests").
+3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
 4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
@@ -138,7 +138,7 @@ Others will comment on your design doc, and once it has gone through needed iter
 ## Codebase overview
 Wasp is implemented in Haskell.
 
-Codebase is split into library (`src/`) and CLI (`cli/`).
+Codebase is split into library (`src/`) and CLI (which itself has a library `cli/src/` and thin executable wrapper `cli/exe/`).
 CLI is actually `wasp` executable, and it uses the library, where most of the logic is.
 
 Wasp compiler takes .wasp files + everything in the `ext/` dir (JS, HTML, ...) and generates a web app that consists of client, server and database.
@@ -172,8 +172,9 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ## Important directories (in waspc/)
 - src/ -> main source code, library
-- cli/ -> rest of the source code, cli, uses library
-- test/ -> tests
+- cli/src/ -> rest of the source code, cli, uses library
+- cli/exe/ -> thin executable wrapper around cli library code
+- test/, e2e-test/, cli/test/ -> tests
 - data/Generator/templates/ -> mustache templates for the generated client/server.
 - examples/ -> example apps
 
@@ -243,6 +244,8 @@ Tests are run with `cabal test`. They include both unit tests, and end-to-end te
 
 To run unit tests only, you can do `cabal test waspc-test` (or `./run test:unit`).
 To run individual unit test, you can do `cabal test waspc-test --test-options "-p \"Some test description to match\""` (or just `./run test:unit "Some test description to match"`).
+
+To run cli tests only, you can do `cabal test cli-test` (or `./run test:cli`).
 
 To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
 

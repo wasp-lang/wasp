@@ -22,6 +22,7 @@ BUILD_CMD="cabal build all"
 BUILD_ALL_CMD="cabal build all --enable-tests --enable-benchmarks"
 TEST_CMD="cabal test"
 TEST_UNIT_CMD="cabal test waspc-test"
+TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
 RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
@@ -61,6 +62,8 @@ print_usage () {
                     "Executes all tests (unit + e2e). Builds the project first if needed."
     print_usage_cmd "test:unit [pattern]" \
                     "Executes only unit tests. Builds the project first if needed. If pattern is provided, it will run only tests whose description/name matches the pattern. Check https://github.com/UnkindPartition/tasty#patterns to learn more about valid patterns."
+    print_usage_cmd "test:cli" \
+                    "Executes only cli unit tests. Builds the project first if needed."
     print_usage_cmd "test:e2e" \
                     "Executes only e2e tests. Builds the project first if needed."
     print_usage_cmd "wasp-cli <args>" \
@@ -114,6 +117,9 @@ case $COMMAND in
             echo_and_eval "$TEST_UNIT_CMD --test-options \"-p \\\"$TEST_PATTERN\\\"\""
         fi
 
+        ;;
+    test:cli)
+        echo_and_eval "$TEST_CLI_CMD"
         ;;
     test:e2e)
         echo_and_eval "$TEST_E2E_CMD"
