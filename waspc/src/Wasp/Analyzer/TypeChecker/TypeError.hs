@@ -106,7 +106,7 @@ getTypeCoercionErrorMessageAndCtx getUncoercableTypesMsg typeCoercionError = (fu
       getUncoercableTypesErrorMsgAndCtxInfoAndParsingCtx getUncoercableTypesMsg typeCoercionError
     fullErrorMsg = makeFullErrorMsg errorMsg ctxMsgs
 
--- | Recursively traverses the error stack and returns a tuple containing:
+-- | Recursively traverses the error hierarchy and returns a tuple containing:
 -- - The original type coercion error message
 -- - An array of contextual messages further explaining the original error
 -- - The error's context

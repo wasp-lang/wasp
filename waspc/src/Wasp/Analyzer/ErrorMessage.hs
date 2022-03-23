@@ -7,7 +7,7 @@ import Wasp.Util (indent)
 
 makeFullErrorMsg :: String -> [String] -> String
 makeFullErrorMsg errorMsg errorCtxMsgs =
-  errorMsg ++ (if null errorCtxMsgs then "" else concatErrorCtxMsgs errorCtxMsgs)
+  errorMsg ++ (if null errorCtxMsgs then "" else "\n\n" ++ concatErrorCtxMsgs errorCtxMsgs)
 
 concatErrorCtxMsgs :: [String] -> String
 concatErrorCtxMsgs [] = ""

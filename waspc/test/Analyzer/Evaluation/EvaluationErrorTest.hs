@@ -19,8 +19,8 @@ spec_EvaluationError :: Spec
 spec_EvaluationError = do
   describe "Analyzer.Evaluator.EvaluationError" $ do
     describe "getErrorMessageAndCtx works correctly for" $ do
-      let expectedTypeError = mkEvaluationError ctx1 $ ExpectedType NumberType StringType
-      let expectedTypeErrorMsg = "Expected type: number\nActual type:   string"
+      let expectedTypeErrorNumberAndStringForCtx1 = mkEvaluationError ctx1 $ ExpectedType NumberType StringType
+      let expectedTypeErrorNumberAndStringMsgForCtx1 = "Expected type: number\nActual type:   string"
 
       it "InvalidEnumVariant error" $ do
         let err = mkEvaluationError ctx1 $ InvalidEnumVariant "Animal" ["Cow", "Dog"] "Car"
@@ -31,7 +31,7 @@ spec_EvaluationError = do
                      )
 
       it "ExpectedType error" $ do
-        getErrorMessageAndCtx expectedTypeError `shouldBe` (expectedTypeErrorMsg, ctx1)
+        getErrorMessageAndCtx expectedTypeErrorNumberAndStringForCtx1 `shouldBe` (expectedTypeErrorNumberAndStringMsgForCtx1, ctx1)
 
       it "ExpectedTupleType error" $ do
         let expectedTupleTypeError = mkEvaluationError ctx1 $ ExpectedTupleType 3 StringType
@@ -39,7 +39,7 @@ spec_EvaluationError = do
         getErrorMessageAndCtx expectedTupleTypeError `shouldBe` (expectedTupleTypeErrorMsg, ctx1)
 
       it "ExpectedType error nested in WithEvalContextError" $ do
-        let err = wrapEvalErrors expectedTypeError [InField "key"]
+        let err = wrapEvalErrors expectedTypeErrorNumberAndStringForCtx1 [InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
@@ -52,27 +52,27 @@ spec_EvaluationError = do
             ]
 
       it "ExpectedType error nested in two levels of WithEvalContextError" $ do
-        let err = wrapEvalErrors expectedTypeError [InTuple, InField "key"]
+        let err = wrapEvalErrors expectedTypeErrorNumberAndStringForCtx1 [InTuple, InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
           `shouldBe` intercalate
             "\n"
-            [ expectedTypeErrorMsg,
-              "",
+            [ expectedTypeErrorNumberAndStringMsgForCtx1,
+               "",
               "-> In tuple:",
               "  -> For dictionary field 'key'"
             ]
 
       it "ExpectedType error nested in many levels of WithEvalContextError" $ do
-        let err = wrapEvalErrors expectedTypeError [InList, ForVariable "var", InTuple, InField "key"]
+        let err = wrapEvalErrors expectedTypeErrorNumberAndStringForCtx1 [InList, ForVariable "var", InTuple, InField "key"]
         let (actualMessage, actualCtx) = getErrorMessageAndCtx err
         actualCtx `shouldBe` ctx1
         actualMessage
           `shouldBe` intercalate
             "\n"
-            [ expectedTypeErrorMsg,
-              "",
+            [ expectedTypeErrorNumberAndStringMsgForCtx1,
+               "",
               "-> In list:",
               "  -> For variable 'var':",
               "    -> In tuple:",
