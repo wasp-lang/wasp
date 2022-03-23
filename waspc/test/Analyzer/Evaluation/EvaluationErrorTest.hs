@@ -59,7 +59,7 @@ spec_EvaluationError = do
           `shouldBe` intercalate
             "\n"
             [ expectedTypeErrorNumberAndStringMsgForCtx1,
-               "",
+              "",
               "-> In tuple:",
               "  -> For dictionary field 'key'"
             ]
@@ -72,7 +72,7 @@ spec_EvaluationError = do
           `shouldBe` intercalate
             "\n"
             [ expectedTypeErrorNumberAndStringMsgForCtx1,
-               "",
+              "",
               "-> In list:",
               "  -> For variable 'var':",
               "    -> In tuple:",
