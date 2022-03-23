@@ -74,7 +74,7 @@ jobs:
           #   fails multiple times while others don't, its cache will likely get evicted,
           #   making it even slower to test and fix (uffff).
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ github.run_id }}
+          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
           restore-keys: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-
 
       - name: Check Haskell code formatting
