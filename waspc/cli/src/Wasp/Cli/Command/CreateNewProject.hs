@@ -26,13 +26,13 @@ newtype ProjectName = ProjectName {_projectName :: String}
 createNewProject :: String -> Command ()
 createNewProject name
   | not (isValidWaspIdentifier name) =
-    throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
+      throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
   | name `elem` reservedNames =
-    throwError $
-      CommandError
-        "Project creation failed"
-        ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
-        )
+      throwError $
+        CommandError
+          "Project creation failed"
+          ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
+          )
   | otherwise = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
