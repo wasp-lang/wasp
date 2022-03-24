@@ -22,6 +22,7 @@ module Wasp.Analyzer.Parser
     ctxFromRgn,
     getCtxRgn,
     fromWithCtx,
+    isValidWaspIdentifier,
     Ctx (..),
     Identifier,
     ExtImportName (..),
@@ -44,3 +45,11 @@ import Wasp.Analyzer.Parser.Token
 
 parse :: String -> Either ParseError AST
 parse = runExcept . evalStateT P.parse . makeInitialState
+
+parseExpression :: String -> Either ParseError Expr
+parseExpression = runExcept . evalStateT  P.parseExpression . makeInitialState 
+
+isValidWaspIdentifier :: String -> Bool
+isValidWaspIdentifier str = case parseExpression str of
+  Right (Var name) -> let noCharsSkipped = length name == length str in noCharsSkipped
+  _ -> False

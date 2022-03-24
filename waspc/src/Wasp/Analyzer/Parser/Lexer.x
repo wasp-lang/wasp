@@ -5,8 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Analyzer.Parser.Lexer
-  ( lexer,
-    alexScanTokens,
+  ( lexer
   ) where
 
 import Wasp.Analyzer.Parser.Monad
@@ -97,17 +96,6 @@ alexGetByte (_, [], (currChar:remainingSource)) = case encodeChar currChar of
 --   This function is taken from the Alex basic wrapper.
 alexInputPrevChar :: AlexInput -> Char
 alexInputPrevChar (prevChar, _, _) = prevChar
-
--- | Tokenizes the given string. 
-alexScanTokens :: String -> Maybe [Parser Token]
-alexScanTokens str = go ('\n', [], str)
-  where
-    go input@(_, _, lexeme) = case alexScan input 0 of
-      AlexEOF -> Just []
-      AlexError _ -> Nothing
-      AlexSkip rest _ -> go rest
-      AlexToken rest len act -> (currToken:) <$> go rest
-        where currToken = act (take len lexeme)
 
 -- | Lexes a single token from the input.
 --
