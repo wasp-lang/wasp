@@ -81,7 +81,7 @@ runProcessAsJob process jobType chan =
 
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      P.terminateProcess processHandle
+      P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
