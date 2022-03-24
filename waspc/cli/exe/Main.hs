@@ -48,7 +48,7 @@ main = (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New projectName -> runCommand $ createNewProject projectName
-    Command.Call.Start -> runCommand start
+    Command.Call.Start -> start
     Command.Call.Clean -> runCommand clean
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs

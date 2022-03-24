@@ -260,7 +260,9 @@ library cli-lib
     , utf8-string
     , uuid
     , waspc
+    , vty
     , brick
+    , text
   other-modules: Paths_waspc
   exposed-modules:
       Wasp.Cli.Command
