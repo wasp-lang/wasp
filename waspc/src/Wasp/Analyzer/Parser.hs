@@ -53,4 +53,3 @@ isValidWaspIdentifier :: String -> Bool
 isValidWaspIdentifier str = case parseExpression str of
   Right (Var name) -> let noCharsSkipped = length name == length str in noCharsSkipped
   _ -> False
-
