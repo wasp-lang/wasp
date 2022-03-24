@@ -260,6 +260,7 @@ library cli-lib
     , utf8-string
     , uuid
     , waspc
+    , brick
   other-modules: Paths_waspc
   exposed-modules:
       Wasp.Cli.Command
@@ -294,6 +295,7 @@ executable wasp-cli
     , async
     , waspc
     , cli-lib
+    , brick
   other-modules:
       Paths_waspc
 
