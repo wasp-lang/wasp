@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
@@ -17,9 +18,8 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
-import qualified Wasp.Util.Terminal as Term
-import Data.List (intercalate)
 import Wasp.Util (indent)
+import qualified Wasp.Util.Terminal as Term
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
