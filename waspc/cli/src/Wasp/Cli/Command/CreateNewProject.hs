@@ -28,15 +28,15 @@ createNewProject :: String -> Command ()
 createNewProject name
   | not (isValidWaspIdentifier name) =
       let keywordList = intercalate ", " $ map (quoteSingle . prettyShowKeyword) (allValues :: [Keyword])
-      in throwError $
-            CommandError "Project creation failed" $
-              intercalate
-                "\n"
-                [ "The project's name must be a valid Wasp identifier:",
-                  indent 2 "- It can start with a letter or an underscore.",
-                  indent 2 "- It can contain only letters, numbers, or underscores.",
-                  indent 2 "- It can't be a Wasp keyword: " ++ keywordList ++ "."
-                ]
+        in throwError $
+              CommandError "Project creation failed" $
+                intercalate
+                  "\n"
+                  [ "The project's name must be a valid Wasp identifier:",
+                    indent 2 "- It can start with a letter or an underscore.",
+                    indent 2 "- It can contain only letters, numbers, or underscores.",
+                    indent 2 "- It can't be a Wasp keyword: " ++ keywordList ++ "."
+                  ]
   | otherwise = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
