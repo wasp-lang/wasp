@@ -44,7 +44,7 @@ spec_Parser = do
                           )
                         ]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses comments" $ do
       let source =
@@ -61,7 +61,7 @@ spec_Parser = do
               [ wctx (5, 1) (5, 23) $
                   Decl "test" "Decl" $ wctx (5, 22) (5, 23) $ IntegerLiteral 42
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses external imports" $ do
       let source =
@@ -81,7 +81,7 @@ spec_Parser = do
                           ("field", wctx (3, 10) (3, 40) $ ExtImport (ExtImportField "Page") "page.jsx")
                         ]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses unary lists" $ do
       let source = "test Decl [ 1 ]"
@@ -90,7 +90,7 @@ spec_Parser = do
               [ wctx (1, 1) (1, 15) $
                   Decl "test" "Decl" $ wctx (1, 11) (1, 15) $ List [wctx (1, 13) (1, 13) $ IntegerLiteral 1]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses lists of multiple elements" $ do
       let source = "test Decl [ 1, 2, 3 ]"
@@ -105,7 +105,7 @@ spec_Parser = do
                           wctx (1, 19) (1, 19) $ IntegerLiteral 3
                         ]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses empty dictionaries and lists" $ do
       let source = "test Decl { dict: {}, list: [] }"
@@ -119,7 +119,7 @@ spec_Parser = do
                           ("list", wctx (1, 29) (1, 30) $ List [])
                         ]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Allows trailing commas in lists and dictionaries" $ do
       let source =
@@ -136,7 +136,7 @@ spec_Parser = do
                       Dict
                         [("list", wctx (2, 9) (2, 14) $ List [wctx (2, 11) (2, 11) $ IntegerLiteral 1])]
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses tuples" $ do
       let source =
@@ -183,7 +183,7 @@ spec_Parser = do
                           []
                         )
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses quoted PSL" $ do
       let source =
@@ -199,7 +199,7 @@ spec_Parser = do
                     wctx (1, 10) (3, 5) $
                       Quoter "psl" "\n  id Int @id\n"
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses quoted JSON" $ do
       let source =
@@ -214,7 +214,7 @@ spec_Parser = do
                   Decl "test" "JSON" $
                     wctx (1, 11) (3, 6) $ Quoter "json" "\n  \"key\": \"value\"\n"
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     it "Parses multiple quoters" $ do
       let source =
@@ -231,22 +231,22 @@ spec_Parser = do
               [ wctx (1, 1) (3, 6) $ Decl "test" "JSON" $ wctx (1, 11) (3, 6) $ Quoter "json" "\n  \"key\": \"value\"\n",
                 wctx (4, 1) (6, 6) $ Decl "test" "JSON2" $ wctx (4, 12) (6, 6) $ Quoter "json" "\n  \"key\": \"value\"\n"
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
-    it "Fails to parse a quoter with unmatched tags" $ do
+    it "Fails to parseStatements a quoter with unmatched tags" $ do
       let source = "test Failure {=a b=}"
-      parse source `shouldSatisfy` isLeft
+      parseStatements source `shouldSatisfy` isLeft
 
     it "Parses nested quoters correctly" $ do
-      parse "test Case1 {=foo {=foo foo=} foo=}" `shouldSatisfy` isLeft
-      parse "test Case2 {=foo foo=} foo=}" `shouldSatisfy` isLeft
-      parse "test Case3 {=foo {=foo foo=}"
+      parseStatements "test Case1 {=foo {=foo foo=} foo=}" `shouldSatisfy` isLeft
+      parseStatements "test Case2 {=foo foo=} foo=}" `shouldSatisfy` isLeft
+      parseStatements "test Case3 {=foo {=foo foo=}"
         `shouldBe` Right (AST [wctx (1, 1) (1, 28) $ Decl "test" "Case3" $ wctx (1, 12) (1, 28) $ Quoter "foo" " {=foo "])
-      parse "test Case4 {=foo {=bar foo=}"
+      parseStatements "test Case4 {=foo {=bar foo=}"
         `shouldBe` Right (AST [wctx (1, 1) (1, 28) $ Decl "test" "Case4" $ wctx (1, 12) (1, 28) $ Quoter "foo" " {=bar "])
-      parse "test Case5 {=foo bar=} foo=}"
+      parseStatements "test Case5 {=foo bar=} foo=}"
         `shouldBe` Right (AST [wctx (1, 1) (1, 28) $ Decl "test" "Case5" $ wctx (1, 12) (1, 28) $ Quoter "foo" " bar=} "])
-      parse "test Case6 {=foo {=bar bar=} foo=}"
+      parseStatements "test Case6 {=foo {=bar bar=} foo=}"
         `shouldBe` Right (AST [wctx (1, 1) (1, 34) $ Decl "test" "Case6" $ wctx (1, 12) (1, 34) $ Quoter "foo" " {=bar bar=} "])
 
     it "Requires dictionaries to have an ending bracket" $ do
@@ -261,7 +261,7 @@ spec_Parser = do
                     }
                 )
                 ["}", "<identifier>"]
-      parse source `shouldBe` expected
+      parseStatements source `shouldBe` expected
 
     it "Parses multiple statements" $ do
       let source =
@@ -274,18 +274,18 @@ spec_Parser = do
               [ wctx (1, 1) (1, 19) $ Decl "constant" "Pi" $ wctx (1, 13) (1, 19) $ DoubleLiteral 3.14159,
                 wctx (2, 1) (2, 19) $ Decl "constant" "E" $ wctx (2, 13) (2, 19) $ DoubleLiteral 2.71828
               ]
-      parse source `shouldBe` Right ast
+      parseStatements source `shouldBe` Right ast
 
     describe "Fails with UnexpectedChar error if unrecognized character is encountered" $ do
       it "e.g. when it encounters '^' after declaration name" $ do
         let source = "test Decl ^ {}"
         let expected = Left $ UnexpectedChar '^' $ SourcePosition 1 11
-        parse source `shouldBe` expected
+        parseStatements source `shouldBe` expected
 
       it "e.g. when the identifier contains '!'" $ do
         let source = "test De!cl {}"
         let expected = Left $ UnexpectedChar '!' $ SourcePosition 1 8
-        parse source `shouldBe` expected
+        parseStatements source `shouldBe` expected
 
     describe "Fails with ParseError error if unexpected token is encountered" $ do
       it "When string follows identifier" $ do
@@ -300,7 +300,7 @@ spec_Parser = do
                       }
                   )
                   ["<identifier>"]
-        parse source `shouldBe` expected
+        parseStatements source `shouldBe` expected
 
       it "When dictionary is missing a comma between the two fields" $ do
         let source =
@@ -320,4 +320,4 @@ spec_Parser = do
                       }
                   )
                   ["}", ","]
-        parse source `shouldBe` expected
+        parseStatements source `shouldBe` expected

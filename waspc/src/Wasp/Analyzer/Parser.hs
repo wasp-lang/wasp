@@ -12,7 +12,7 @@ module Wasp.Analyzer.Parser
     --
     -- Both lexer and parser are operating in a "Parser" monad, which manages state and exceptions for the parser,
     -- and therefore also for the lexer, which functions as a part of and is controlled by the parser.
-    parse,
+    parseStatements,
     AST (..),
     Stmt (..),
     Expr (..),
@@ -37,19 +37,24 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.State (evalStateT)
 import Wasp.Analyzer.Parser.AST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
-import Wasp.Analyzer.Parser.Monad (makeInitialState)
+import Wasp.Analyzer.Parser.Monad (Parser, makeInitialState)
 import Wasp.Analyzer.Parser.ParseError
 import qualified Wasp.Analyzer.Parser.Parser as P
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.Token
 
-parse :: String -> Either ParseError AST
-parse = runExcept . evalStateT P.parse . makeInitialState
-
-parseExpression :: String -> Either ParseError Expr
-parseExpression = runExcept . evalStateT  P.parseExpression . makeInitialState 
-
 isValidWaspIdentifier :: String -> Bool
 isValidWaspIdentifier str = case parseExpression str of
-  Right (Var name) -> let noCharsSkipped = length name == length str in noCharsSkipped
+  Right (Var name) -> noCharsSkipped
+    where
+      noCharsSkipped = length name == length str
   _ -> False
+
+parseStatements :: String -> Either ParseError AST
+parseStatements = parse P.parseStatements
+
+parseExpression :: String -> Either ParseError Expr
+parseExpression = parse P.parseExpression
+
+parse :: Parser a -> String -> Either ParseError a
+parse parser = runExcept . evalStateT parser . makeInitialState

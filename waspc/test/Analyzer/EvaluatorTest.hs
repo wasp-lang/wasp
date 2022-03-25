@@ -15,7 +15,7 @@ import Text.Read (readMaybe)
 import Wasp.Analyzer.Evaluator
 import qualified Wasp.Analyzer.Evaluator.Evaluation as E
 import qualified Wasp.Analyzer.Evaluator.EvaluationError as EvaluationError
-import Wasp.Analyzer.Parser (parse)
+import Wasp.Analyzer.Parser (parseStatements)
 import qualified Wasp.Analyzer.Type as T
 import Wasp.Analyzer.TypeChecker (typeCheck)
 import qualified Wasp.Analyzer.TypeChecker.AST as TypedAST
@@ -138,7 +138,7 @@ makeDeclType ''Tuples
 --------------------
 
 eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
-eval typeDefs source = evaluate typeDefs $ fromRight $ typeCheck typeDefs $ fromRight $ parse $ unlines source
+eval typeDefs = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements . unlines
 
 spec_Evaluator :: Spec
 spec_Evaluator = do

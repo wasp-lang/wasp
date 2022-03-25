@@ -5,7 +5,7 @@
 -- the module `Wasp.Analyzer.Parser.Parser`
 
 module Wasp.Analyzer.Parser.Parser
-  ( parse,
+  ( parseStatements,
     parseExpression
   ) where
 
@@ -25,7 +25,7 @@ import Control.Monad.Except (throwError)
 --  - that input to parser is `Token` type
 --  - to call `parseError` when the parser encounters an error
 --  - to provide `parseError` with list of expected tokens that would avoid the error
-%name parse
+%name parseStatements Stmts
 %name parseExpression Expr
 
 %tokentype { Token }

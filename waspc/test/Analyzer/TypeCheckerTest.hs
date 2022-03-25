@@ -66,7 +66,7 @@ spec_TypeChecker = do
                   TypeCoercionError (wctx2 $ IntegerLiteral 5) StringType ReasonUncoercable
         actual `shouldBe` Left expectedError
       it "Properly hoists declarations" $ do
-        let mAst = P.parse "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
+        let mAst = P.parseStatements "llnode Head { value: 2, next: Tail } llnode Tail { value: 3 }"
         mAst `shouldSatisfy` isRight
         let (Right ast) = mAst
         let llnodeArgType =
