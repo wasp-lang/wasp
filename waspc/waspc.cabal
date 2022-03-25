@@ -1,9 +1,8 @@
-cabal-version: 2.4
+cabal-version: 2.0
 
--- TODO:
---  - Rename wasp-cli back to just wasp.
---  - Manually updating exposed-modules, other-modules and data-files is tedious.
---    Consider using hpack, or maybe even hpack-dhall.
+-- This file has been generated from package.dhall by hpack version 0.34.6.
+--
+-- see: https://github.com/sol/hpack
 
 name:           waspc
 version:        0.4.0.0
@@ -17,59 +16,77 @@ license:        MIT
 license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
-  README.md
-  ChangeLog.md
+    README.md
+    ChangeLog.md
 data-files:
-  -- NOTE: cabal has this weird rule that * doesn't capture file extension, nor can you provide just *,
-  --   it has to be followed by extension, which is why we have to manually list all of the extensions,
-  --   and also files with no extension.
-  --   Check https://github.com/haskell/cabal/issues/5883 for more details.
-  Generator/templates/Dockerfile
-  Generator/templates/dockerignore
-  Generator/templates/react-app/gitignore
-  Generator/templates/server/gitignore
-  Generator/templates/server/npmrc
-  Generator/templates/server/nvmrc
-  Generator/templates/**/*.prisma
-  Generator/templates/**/*.toml
-  Generator/templates/**/*.json
-  Generator/templates/**/*.ico
-  Generator/templates/**/*.html
-  Generator/templates/**/*.md
-  Generator/templates/**/*.js
-  Generator/templates/**/*.css
-  Generator/templates/**/*.png
-  Cli/bash-completion
-  Cli/templates/**/*.css
-  Cli/templates/**/*.js
-  Cli/templates/**/*.png
-data-dir: data/
-
-common common-all
-  default-language: Haskell2010
-  ghc-options:
-    -Wall
-    -- -optP-Wno-nonportable-include-path avoids warning caused by .../autogen/cabal_macros.h. on OSX.
-    -optP-Wno-nonportable-include-path
-    -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
-    -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
-    -fwrite-ide-info -hiedir=.hie
-  default-extensions:
-      OverloadedStrings
-      TemplateHaskell
-      QuasiQuotes
-      ScopedTypeVariables
-
-common common-exe
-  ghc-options:
-    -threaded -rtsopts -with-rtsopts=-N
+    Generator/templates/Dockerfile
+    Generator/templates/dockerignore
+    Generator/templates/db/schema.prisma
+    Generator/templates/react-app/gitignore
+    Generator/templates/react-app/netlify.toml
+    Generator/templates/react-app/npmrc
+    Generator/templates/react-app/nvmrc
+    Generator/templates/react-app/package.json
+    Generator/templates/react-app/public/favicon.ico
+    Generator/templates/react-app/public/index.html
+    Generator/templates/react-app/public/manifest.json
+    Generator/templates/react-app/README.md
+    Generator/templates/react-app/src/actions/_action.js
+    Generator/templates/react-app/src/api.js
+    Generator/templates/react-app/src/auth/forms/Login.js
+    Generator/templates/react-app/src/auth/forms/Signup.js
+    Generator/templates/react-app/src/auth/login.js
+    Generator/templates/react-app/src/auth/logout.js
+    Generator/templates/react-app/src/auth/pages/createAuthRequiredPage.js
+    Generator/templates/react-app/src/auth/signup.js
+    Generator/templates/react-app/src/auth/useAuth.js
+    Generator/templates/react-app/src/config.js
+    Generator/templates/react-app/src/index.css
+    Generator/templates/react-app/src/index.js
+    Generator/templates/react-app/src/logo.png
+    Generator/templates/react-app/src/operations/index.js
+    Generator/templates/react-app/src/operations/resources.js
+    Generator/templates/react-app/src/queries/_query.js
+    Generator/templates/react-app/src/queries/index.js
+    Generator/templates/react-app/src/queryCache.js
+    Generator/templates/react-app/src/router.js
+    Generator/templates/react-app/src/serviceWorker.js
+    Generator/templates/react-app/src/utils.js
+    Generator/templates/server/gitignore
+    Generator/templates/server/npmrc
+    Generator/templates/server/nvmrc
+    Generator/templates/server/package.json
+    Generator/templates/server/README.md
+    Generator/templates/server/src/actions/_action.js
+    Generator/templates/server/src/app.js
+    Generator/templates/server/src/config.js
+    Generator/templates/server/src/core/auth.js
+    Generator/templates/server/src/core/auth/prismaMiddleware.js
+    Generator/templates/server/src/core/AuthError.js
+    Generator/templates/server/src/core/HttpError.js
+    Generator/templates/server/src/dbClient.js
+    Generator/templates/server/src/queries/_query.js
+    Generator/templates/server/src/routes/auth/index.js
+    Generator/templates/server/src/routes/auth/login.js
+    Generator/templates/server/src/routes/auth/me.js
+    Generator/templates/server/src/routes/auth/signup.js
+    Generator/templates/server/src/routes/index.js
+    Generator/templates/server/src/routes/operations/_action.js
+    Generator/templates/server/src/routes/operations/_query.js
+    Generator/templates/server/src/routes/operations/index.js
+    Generator/templates/server/src/server.js
+    Generator/templates/server/src/utils.js
+    Cli/bash-completion
+    Cli/templates/new/ext/Main.css
+    Cli/templates/new/ext/MainPage.js
+    Cli/templates/new/ext/waspLogo.png
+data-dir:       data/
 
 source-repository head
   type: git
   location: https://github.com/wasp-lang/wasp
 
 library
-  import: common-all
   exposed-modules:
       FilePath.Extra
       Wasp.Analyzer
@@ -198,51 +215,53 @@ library
       Wasp.Util.Terminal
       Wasp.WaspignoreFile
   other-modules:
-    Paths_waspc
+      Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    src
+      src
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie
   build-depends:
-      Glob                  ^>= 0.10.2
-    , aeson                 ^>= 1.5.6
-    , aeson-pretty          ^>= 0.8
-    -- 'array' is used by code generated by Alex for src/Analyzer/Parser/Lexer.x
-    , array                 ^>= 0.5.4
-    , async                 ^>= 2.2.4
-    , base                  >= 4.7 && < 5
-    , bytestring            ^>= 0.10.12
-    , conduit               ^>= 1.3.4
-    , conduit-extra         ^>= 1.3.5
-    , containers            ^>= 0.6.5
-    , cryptohash-sha256     ^>= 0.11.102
-    , cryptonite            ^>= 0.29
-    , dir-traverse          ^>= 0.2.3
-    , directory             ^>= 1.3.6 && < 1.4
-    , exceptions            ^>= 0.10.4
-    , filepath              ^>= 1.4.2
-    , fsnotify              ^>= 0.3.0
-    , http-conduit          ^>= 2.3.8
-    , mtl                   ^>= 2.2.2
-    , mustache              ^>= 2.3.2
-    , parsec                ^>= 3.1.14
-    , path                  ^>= 0.9.2
-    , path-io               ^>= 1.6.3
-    , process               ^>= 1.6.13
-    , regex-tdfa            ^>= 1.3.1
-    , split                 ^>= 0.2.3
-    , strong-path           ^>= 1.1.2
-    , template-haskell      ^>= 2.16.0
-    , text                  ^>= 1.2.4
-    , time                  ^>= 1.9.3
-    , unliftio              ^>= 0.2.20
-    , unordered-containers  ^>= 0.2.16
-    , utf8-string           ^>= 1.0.2
-    , uuid                  ^>= 1.3.15
+      Glob >=0.10.2 && <0.11
+    , aeson >=1.5.6 && <1.6
+    , aeson-pretty ==0.8.*
+    , array >=0.5.4 && <0.6
+    , async >=2.2.4 && <2.3
+    , base >=4.7 && <5
+    , bytestring >=0.10.12 && <0.11
+    , conduit >=1.3.4 && <1.4
+    , conduit-extra >=1.3.5 && <1.4
+    , containers >=0.6.5 && <0.7
+    , cryptohash-sha256 >=0.11.102 && <0.12
+    , cryptonite ==0.29.*
+    , dir-traverse >=0.2.3 && <0.3
+    , directory (>=1.3.6 && <1.4) && <1.4
+    , exceptions >=0.10.4 && <0.11
+    , filepath >=1.4.2 && <1.5
+    , fsnotify >=0.3.0 && <0.4
+    , http-conduit >=2.3.8 && <2.4
+    , mtl >=2.2.2 && <2.3
+    , mustache >=2.3.2 && <2.4
+    , parsec >=3.1.14 && <3.2
+    , path >=0.9.2 && <0.10
+    , path-io >=1.6.3 && <1.7
+    , process >=1.6.13 && <1.7
+    , regex-tdfa >=1.3.1 && <1.4
+    , split >=0.2.3 && <0.3
+    , strong-path >=1.1.2 && <1.2
+    , template-haskell >=2.16.0 && <2.17
+    , text >=1.2.4 && <1.3
+    , time >=1.9.3 && <1.10
+    , unliftio >=0.2.20 && <0.3
+    , unordered-containers >=0.2.16 && <0.3
+    , utf8-string >=1.0.2 && <1.1
+    , uuid >=1.3.15 && <1.4
+  default-language: Haskell2010
   build-tool-depends:
-      alex:alex
-    , happy:happy
+        alex:alex
+      , happy:happy
 
 library cli-lib
-  import: common-all
   exposed-modules:
       Wasp.Cli.Command
       Wasp.Cli.Command.BashCompletion
@@ -267,9 +286,12 @@ library cli-lib
       Wasp.Cli.Message
       Wasp.Cli.Terminal
   other-modules:
-    Paths_waspc
+      Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    cli/src
+      cli/src
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie
   build-depends:
       aeson
     , async
@@ -288,56 +310,65 @@ library cli-lib
     , utf8-string
     , uuid
     , waspc
+  default-language: Haskell2010
 
 executable wasp-cli
-  import: common-all, common-exe
   main-is: Main.hs
+  other-modules:
+      Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    cli/exe
+      cli/exe
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       async
     , base
     , cli-lib
     , waspc
-  other-modules:
-      Paths_waspc
+  default-language: Haskell2010
 
 test-suite cli-test
-  import: common-all, common-exe
   type: exitcode-stdio-1.0
   main-is: TastyDiscoverDriver.hs
   other-modules:
       TerminalTest
       Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    cli/test
+      cli/test
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      QuickCheck            ^>= 2.14
+      QuickCheck ==2.14.*
     , base
     , cli-lib
-    , tasty                 ^>= 1.4.2
-    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1 && < 1.1.7
-    , tasty-quickcheck      ^>= 0.10
+    , tasty >=1.4.2 && <1.5
+    , tasty-hspec >=1.1 && <1.1.7
+    , tasty-quickcheck ==0.10.*
     , waspc
+  default-language: Haskell2010
   build-tool-depends: tasty-discover:tasty-discover
 
 test-suite e2e-test
-  import: common-all, common-exe
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
-    Common
-    GoldenTest
-    ShellCommands
-    Tests.WaspBuildTest
-    Tests.WaspCompileTest
-    Tests.WaspMigrateTest
-    Tests.WaspNewTest
+      Common
+      GoldenTest
+      ShellCommands
+      Tests.WaspBuildTest
+      Tests.WaspCompileTest
+      Tests.WaspMigrateTest
+      Tests.WaspNewTest
+      Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    e2e-test
+      e2e-test
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-    , aeson
+      aeson
     , aeson-pretty
     , base
     , bytestring
@@ -347,15 +378,14 @@ test-suite e2e-test
     , mtl
     , process
     , strong-path
-    , tasty                 ^>= 1.4.2
-    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-golden          ^>= 2.3.5
-    , tasty-hspec           >= 1.1 && < 1.1.7
+    , tasty >=1.4.2 && <1.5
+    , tasty-golden >=2.3.5 && <2.4
+    , tasty-hspec >=1.1 && <1.1.7
     , text
+  default-language: Haskell2010
   build-tool-depends: waspc:wasp-cli
 
 test-suite waspc-test
-  import: common-all, common-exe
   type: exitcode-stdio-1.0
   main-is: TastyDiscoverDriver.hs
   other-modules:
@@ -389,10 +419,13 @@ test-suite waspc-test
       UtilTest
       WaspignoreFileTest
       Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    test
+      test
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-    , QuickCheck            ^>= 2.14
+      QuickCheck ==2.14.*
     , aeson
     , base
     , deepseq
@@ -402,23 +435,27 @@ test-suite waspc-test
     , path
     , split
     , strong-path
-    , tasty                 ^>= 1.4.2
-    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
-    , tasty-hspec           >= 1.1 && < 1.1.7
-    , tasty-quickcheck      ^>= 0.10
+    , tasty >=1.4.2 && <1.5
+    , tasty-hspec >=1.1 && <1.1.7
+    , tasty-quickcheck ==0.10.*
     , text
     , unordered-containers
     , waspc
+  default-language: Haskell2010
   build-tool-depends: tasty-discover:tasty-discover
 
 benchmark waspc-benchmarks
-  import: common-all, common-exe
   type: exitcode-stdio-1.0
-  other-modules: Paths_waspc
   main-is: Main.hs
+  other-modules:
+      Paths_waspc
+  autogen-modules:
+      Paths_waspc
   hs-source-dirs:
-    benchmark
+      benchmark
+  ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
-    , criterion ^>= 1.5
+    , criterion ==1.5.*
     , waspc
+  default-language: Haskell2010
