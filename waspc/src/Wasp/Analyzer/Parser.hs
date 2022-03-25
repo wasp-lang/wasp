@@ -13,6 +13,7 @@ module Wasp.Analyzer.Parser
     -- Both lexer and parser are operating in a "Parser" monad, which manages state and exceptions for the parser,
     -- and therefore also for the lexer, which functions as a part of and is controlled by the parser.
     parseStatements,
+    parseExpression,
     AST (..),
     Stmt (..),
     Expr (..),

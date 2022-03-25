@@ -11,10 +11,10 @@ spec_ParseErrorTest = do
     describe "getErrorMessageAndCtx returns a human readable error message and the correct position" $ do
       let unexpectedCharError = UnexpectedChar '!' (pos 2 42)
           unexpectedTokenErrorNoSuggestions =
-            UnexpectedToken (Token TLCurly (pos 2 3) "{") []
+            UnexpectedToken (Token (TSpecialChar LCurly) (pos 2 3) "{") []
           unexpectedTokenErrorWithSuggestions =
             UnexpectedToken
-              (Token TRCurly (pos 100 18) "}")
+              (Token (TSpecialChar RCurly) (pos 100 18) "}")
               ["<identifier>", ","]
           quoterDifferentTagsError =
             QuoterDifferentTags

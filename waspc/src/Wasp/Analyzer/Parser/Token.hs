@@ -3,18 +3,8 @@ module Wasp.Analyzer.Parser.Token where
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition, calcNextPosition)
 
 data TokenType
-  = TLParen
-  | TRParen
-  | TLSquare
-  | TRSquare
-  | TLCurly
-  | TRCurly
-  | TComma
-  | TColon
-  | TImport
-  | TFrom
-  | TTrue
-  | TFalse
+  = TSpecialChar SpecialChar
+  | TKeyword Keyword
   | TString String
   | TInt Integer
   | TDouble Double
@@ -24,6 +14,31 @@ data TokenType
   | TIdentifier String
   | TEOF
   deriving (Eq, Show)
+
+data SpecialChar
+  = LParen
+  | RParen
+  | LSquare
+  | RSquare
+  | LCurly
+  | RCurly
+  | Comma
+  | Colon
+  deriving (Eq, Show)
+
+data Keyword
+  = Import
+  | From
+  | WaspTrue -- avoids conflicts with Prelude.True and Prelude.False
+  | WaspFalse
+  deriving (Eq, Show, Enum, Bounded)
+
+prettyShowKeyword :: Keyword -> String
+prettyShowKeyword keyword = case keyword of
+  Import -> "import"
+  From -> "from"
+  WaspFalse -> "false"
+  WaspTrue -> "true"
 
 data Token = Token
   { tokenType :: TokenType,

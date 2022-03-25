@@ -25,6 +25,8 @@ module Wasp.Util
     checksumFromFilePath,
     checksumFromChecksums,
     ifM,
+    allValues,
+    quoteSingle,
   )
 where
 
@@ -190,3 +192,9 @@ hexFromString = Hex
 
 hexToString :: Hex -> String
 hexToString (Hex s) = s
+
+allValues :: (Bounded a, Enum a) => [a]
+allValues = [minBound ..]
+
+quoteSingle :: String -> String
+quoteSingle s = "'" ++ s ++ "'"

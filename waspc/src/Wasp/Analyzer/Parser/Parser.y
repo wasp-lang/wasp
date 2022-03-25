@@ -44,18 +44,18 @@ import Control.Monad.Except (throwError)
 -- refer to each type of token.
 -- NOTE: If you update it, also update the @prettyShowGrammarToken@ function below.
 %token
-  '('        { Token { tokenType = TLParen } }
-  ')'        { Token { tokenType = TRParen } }
-  '['        { Token { tokenType = TLSquare } }
-  ']'        { Token { tokenType = TRSquare } }
-  '{'        { Token { tokenType = TLCurly } }
-  '}'        { Token { tokenType = TRCurly } }
-  ','        { Token { tokenType = TComma } }
-  ':'        { Token { tokenType = TColon } }
-  import     { Token { tokenType = TImport } }
-  from       { Token { tokenType = TFrom } }
-  true       { Token { tokenType = TTrue } }
-  false      { Token { tokenType = TFalse } }
+  '('        { Token { tokenType = (TSpecialChar LParen) } }
+  ')'        { Token { tokenType = (TSpecialChar RParen) } }
+  '['        { Token { tokenType = (TSpecialChar LSquare) } }
+  ']'        { Token { tokenType = (TSpecialChar RSquare) } }
+  '{'        { Token { tokenType = (TSpecialChar LCurly) } }
+  '}'        { Token { tokenType = (TSpecialChar RCurly) } }
+  ','        { Token { tokenType = (TSpecialChar Comma) } }
+  ':'        { Token { tokenType = (TSpecialChar Colon) } }
+  import     { Token { tokenType = (TKeyword Import) } }
+  from       { Token { tokenType = (TKeyword From) } }
+  true       { Token { tokenType = (TKeyword WaspTrue) } }
+  false      { Token { tokenType = (TKeyword WaspFalse) } }
   string     { Token { tokenType = TString $$ } }
   int        { Token { tokenType = TInt $$ } }
   double     { Token { tokenType = TDouble $$ } }

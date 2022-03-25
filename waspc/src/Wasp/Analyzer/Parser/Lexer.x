@@ -9,7 +9,7 @@ module Wasp.Analyzer.Parser.Lexer
   ) where
 
 import Wasp.Analyzer.Parser.Monad
-import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
+import Wasp.Analyzer.Parser.Token
 import Wasp.Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.State.Lazy (gets)
 import Control.Monad.Except (throwError)
@@ -52,18 +52,18 @@ tokens :-
 <quoter>  $any { createValueToken TQuoted }
 
 -- Simple tokens
-<0>       "(" { createConstToken TLParen }
-<0>       ")" { createConstToken TRParen }
-<0>       "[" { createConstToken TLSquare }
-<0>       "]" { createConstToken TRSquare }
-<0>       "{" { createConstToken TLCurly }
-<0>       "}" { createConstToken TRCurly }
-<0>       "," { createConstToken TComma }
-<0>       ":" { createConstToken TColon }
-<0>       "import" { createConstToken TImport }
-<0>       "from" { createConstToken TFrom }
-<0>       "true" { createConstToken TTrue }
-<0>       "false" { createConstToken TFalse }
+<0>       "(" { createConstToken (TSpecialChar LParen) }
+<0>       ")" { createConstToken (TSpecialChar RParen) }
+<0>       "[" { createConstToken (TSpecialChar LSquare) }
+<0>       "]" { createConstToken (TSpecialChar RSquare) }
+<0>       "{" { createConstToken (TSpecialChar LCurly) }
+<0>       "}" { createConstToken (TSpecialChar RCurly) }
+<0>       "," { createConstToken (TSpecialChar Comma) }
+<0>       ":" { createConstToken (TSpecialChar Colon) }
+<0>       "import" { createConstToken (TKeyword Import) }
+<0>       "from" { createConstToken (TKeyword From) }
+<0>       "true" { createConstToken (TKeyword WaspTrue) }
+<0>       "false" { createConstToken (TKeyword WaspFalse) }
 
 -- Strings, numbers, identifiers
 <0>       @string { createValueToken $ \s -> TString $ read s }

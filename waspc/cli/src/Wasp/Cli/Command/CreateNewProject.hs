@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
@@ -12,20 +13,34 @@ import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.Parser.Token (prettyShowKeyword)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
+import Wasp.Util (allValues, indent, quoteSingle)
 import qualified Wasp.Util.Terminal as Term
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
+keywordList :: String
+keywordList = intercalate ", " $ map quoteSingle allKeywords
+  where
+    allKeywords = map prettyShowKeyword allValues
+
 createNewProject :: String -> Command ()
 createNewProject name
   | not (isValidWaspIdentifier name) =
-      -- TODO: explain list naming rules and reserved words
-      throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
+    throwError $
+      CommandError "Project creation failed" $
+        intercalate
+          "\n"
+          [ "The project's name must be a valid Wasp identifier:",
+            indent 2 "- It can start with a letter or an underscore.",
+            indent 2 "- It can contain only letters, numbers, or underscores.",
+            indent 2 "- It can't be a Wasp keyword: " ++ keywordList ++ "."
+          ]
   | otherwise = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
