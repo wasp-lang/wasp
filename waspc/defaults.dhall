@@ -12,8 +12,14 @@
 , license = "MIT"
 , license-file = "LICENSE"
 , ghc-options =
-    [ "-Wall"
-    , "-optP-Wno-nonportable-include-path"
-    , "-fwrite-ide-info -hiedir=.hie"
-    ]
+  [ "-Wall"
+  , "-optP-Wno-nonportable-include-path"
+  , "-fwrite-ide-info -hiedir=.hie"
+  ]
+, default-extensions =
+  [ "OverloadedStrings"
+  , "ScopedTypeVariables"
+  , "QuasiQuotes"
+  , "TemplateHaskell"
+  ]
 }

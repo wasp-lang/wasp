@@ -220,6 +220,11 @@ library
       Paths_waspc
   hs-source-dirs:
       src
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie
   build-depends:
       Glob >=0.10.2 && <0.11
@@ -291,6 +296,11 @@ library cli-lib
       Paths_waspc
   hs-source-dirs:
       cli/src
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie
   build-depends:
       aeson
@@ -320,6 +330,11 @@ executable wasp-cli
       Paths_waspc
   hs-source-dirs:
       cli/exe
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       async
@@ -338,6 +353,11 @@ test-suite cli-test
       Paths_waspc
   hs-source-dirs:
       cli/test
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck ==2.14.*
@@ -366,6 +386,11 @@ test-suite e2e-test
       Paths_waspc
   hs-source-dirs:
       e2e-test
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
@@ -423,6 +448,11 @@ test-suite waspc-test
       Paths_waspc
   hs-source-dirs:
       test
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck ==2.14.*
@@ -453,6 +483,11 @@ benchmark waspc-benchmarks
       Paths_waspc
   hs-source-dirs:
       benchmark
+  default-extensions:
+      OverloadedStrings
+      ScopedTypeVariables
+      QuasiQuotes
+      TemplateHaskell
   ghc-options: -Wall -optP-Wno-nonportable-include-path -fwrite-ide-info -hiedir=.hie -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base
