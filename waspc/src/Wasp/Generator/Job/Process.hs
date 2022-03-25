@@ -35,10 +35,12 @@ import qualified Wasp.SemanticVersion as SV
 --   Makes sure to terminate the process if exception occurs.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan =
-  bracket
-    (CP.streamingProcess process)
-    (\(_, _, _, sph) -> terminateStreamingProcess sph)
-    runStreamingProcessAsJob
+  -- NOTE(shayne): Ensure we set create_group to True so interruptProcessGroupOf will work on Windows.
+  let processWithGroup = process {P.create_group = True}
+   in bracket
+        (CP.streamingProcess processWithGroup)
+        (\(_, _, _, sph) -> terminateStreamingProcess sph)
+        runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
