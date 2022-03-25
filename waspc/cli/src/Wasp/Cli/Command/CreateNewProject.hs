@@ -18,14 +18,23 @@ import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import qualified Wasp.Util.Terminal as Term
+import Data.List (intercalate)
+import Wasp.Util (indent)
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
 createNewProject :: String -> Command ()
 createNewProject name
   | not (isValidWaspIdentifier name) =
-      -- TODO: explain list naming rules and reserved words
-      throwError $ CommandError "Project creation failed" "The project's name must be a valid Wasp identifier."
+    throwError $
+      CommandError "Project creation failed" $
+        intercalate
+          "\n"
+          [ "The project's name must be a valid Wasp identifier:",
+            indent 2 "- It can start with a letter or an underscore.",
+            indent 2 "- It can contain only letters, numbers, or underscores.",
+            indent 2 "- It can't be a Wasp keyword: 'import', 'from', 'true', 'false'."
+          ]
   | otherwise = createNewProject' (ProjectName name)
 
 createNewProject' :: ProjectName -> Command ()
