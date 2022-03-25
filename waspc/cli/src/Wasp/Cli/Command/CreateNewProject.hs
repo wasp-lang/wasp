@@ -5,7 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List
+import Data.List (intercalate)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
