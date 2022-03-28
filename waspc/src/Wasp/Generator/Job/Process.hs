@@ -30,9 +30,9 @@ import qualified Wasp.SemanticVersion as SV
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
+-- | Runs a given process in a new process group while streaming its stderr and stdout to provided channel. Stdin is inherited.
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to terminate the process if exception occurs.
+--   Makes sure to terminate the process group if exception occurs.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan =
   -- NOTE(shayne): Ensure we set create_group to True so interruptProcessGroupOf will work on Windows.
@@ -81,6 +81,9 @@ runProcessAsJob process jobType chan =
 
       return exitCode
 
+    -- NOTE(shayne): We use interruptProcessGroupOf instead of terminateProcess because many
+    -- processes we run will spawn child processes, which themselves may spawn child processes.
+    -- We want to ensure the entire process chain is stopped.
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
       P.interruptProcessGroupOf processHandle
