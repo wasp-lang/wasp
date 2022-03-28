@@ -27,6 +27,8 @@ data-files:
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
   Generator/templates/react-app/gitignore
+  Generator/templates/react-app/npmrc
+  Generator/templates/react-app/nvmrc
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/server/nvmrc
