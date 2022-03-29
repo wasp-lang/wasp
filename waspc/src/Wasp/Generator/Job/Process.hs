@@ -18,6 +18,7 @@ import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
+import qualified System.Info
 import qualified System.Process as P
 import Text.Read (readMaybe)
 import qualified Text.Regex.TDFA as R
@@ -30,17 +31,15 @@ import qualified Wasp.SemanticVersion as SV
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
 --   It is a new module meant to replace Data.Conduit.Process which is about to become deprecated.
 
--- | Runs a given process in a new process group while streaming its stderr and stdout to provided channel. Stdin is inherited.
+-- | Runs a given process while streaming its stderr and stdout to provided channel. Stdin is inherited.
 --   Returns exit code of the process once it finishes, and also sends it to the channel.
---   Makes sure to terminate the process group if exception occurs.
+--   Makes sure to terminate the process (or process group on *nix) if exception occurs.
 runProcessAsJob :: P.CreateProcess -> J.JobType -> J.Job
 runProcessAsJob process jobType chan =
-  -- NOTE(shayne): Ensure we set create_group to True so interruptProcessGroupOf will work on Windows.
-  let processWithGroup = process {P.create_group = True}
-   in bracket
-        (CP.streamingProcess processWithGroup)
-        (\(_, _, _, sph) -> terminateStreamingProcess sph)
-        runStreamingProcessAsJob
+  bracket
+    (CP.streamingProcess process)
+    (\(_, _, _, sph) -> terminateStreamingProcess sph)
+    runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
       let forwardStdoutToChan =
@@ -81,12 +80,18 @@ runProcessAsJob process jobType chan =
 
       return exitCode
 
-    -- NOTE(shayne): We use interruptProcessGroupOf instead of terminateProcess because many
+    -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
     -- We want to ensure the entire process chain is stopped.
+    -- We are limiting support of this to *nix only now, as Windows requires create_group=True
+    -- but that surfaces an issue where a new process group that needs stdin but is started as a
+    -- background process gets terminated, appearing to hang.
+    -- Ref: https://stackoverflow.com/questions/61856063/spawning-a-process-with-create-group-true-set-pgid-hangs-when-starting-docke
     terminateStreamingProcess streamingProcessHandle = do
       let processHandle = CP.streamingProcessHandleRaw streamingProcessHandle
-      P.interruptProcessGroupOf processHandle
+      if System.Info.os == "mingw32"
+        then P.terminateProcess processHandle
+        else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
