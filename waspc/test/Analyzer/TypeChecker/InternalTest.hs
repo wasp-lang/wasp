@@ -1,6 +1,7 @@
 module Analyzer.TypeChecker.InternalTest where
 
 import Analyzer.TestUtil (ctx, fromWithCtx)
+import Data.HashMap.Strict (fromList)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -152,7 +153,7 @@ spec_Internal = do
         (ListType (UnionType StringType NumberType))
 
       testSuccess
-        "Type checks a list of dictionaries that unify but have different types"
+        "Creates a union when unifying a list of dictionaries with different fields"
         ( wctx1 $
             P.List
               [ wctx2 $ P.Dict [("a", wctx3 $ P.IntegerLiteral 5)],
@@ -161,37 +162,24 @@ spec_Internal = do
               ]
         )
         ( ListType $
-            DictType $
-              H.fromList
-                [ ("a", DictOptional NumberType),
-                  ("b", DictOptional StringType)
-                ]
+            UnionType
+              (DictType (H.fromList []))
+              ( UnionType
+                  (DictType $ H.fromList [("b", DictRequired StringType)])
+                  (DictType $ H.fromList [("a", DictRequired NumberType)])
+              )
         )
-      testFail
-        "Fails to type check a list of dictionaries that do not unify"
+      testSuccess
+        "Creates a union when unifying two dictionaries with the same field with a different type"
         ( wctx1 $
             P.List
               [ wctx2 $ P.Dict [("a", wctx3 $ P.IntegerLiteral 5)],
                 wctx4 $ P.Dict [("a", wctx5 $ P.StringLiteral "string")]
               ]
         )
-        ( mkTypeError ctx1 $
-            UnificationError $
-              TypeCoercionError
-                ( wctx4 $
-                    Dict
-                      [("a", wctx5 $ StringLiteral "string")]
-                      (DictType $ H.singleton "a" (DictRequired StringType))
-                )
-                (DictType $ H.singleton "a" (DictRequired NumberType))
-                ( ReasonDictWrongKeyType
-                    "a"
-                    ( TypeCoercionError
-                        (wctx5 $ StringLiteral "string")
-                        NumberType
-                        ReasonUncoercable
-                    )
-                )
+        (ListType $ UnionType
+          (DictType $ H.fromList [("a", DictRequired StringType)])
+          (DictType $ H.fromList [("a", DictRequired NumberType)])
         )
 
       describe "Type checks a tuple" $ do
