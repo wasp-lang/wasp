@@ -2,7 +2,6 @@ module Wasp.Analyzer.Parser.Token where
 
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition, calcNextPosition)
 
--- NOTE: If you add a new keyword, make sure to update the error message in CreateNewProject.hs.
 data TokenType
   = TLParen
   | TRParen
