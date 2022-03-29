@@ -138,7 +138,7 @@ makeDeclType ''Tuples
 --------------------
 
 eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
-eval typeDefs = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements . unlines
+eval typeDefs source = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements $ unlines source
 
 spec_Evaluator :: Spec
 spec_Evaluator = do

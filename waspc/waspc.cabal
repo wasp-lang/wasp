@@ -222,7 +222,6 @@ library
       Wasp.Generator.WebAppGenerator.Setup
       Wasp.Generator.WebAppGenerator.Start
       Wasp.Generator.WriteFileDrafts
-      Wasp.Lexer
       Wasp.Lib
       Wasp.NpmDependency
       Wasp.Psl.Ast.Model

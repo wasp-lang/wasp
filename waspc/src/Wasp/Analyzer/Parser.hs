@@ -50,10 +50,10 @@ isValidWaspIdentifier str = case parseExpression str of
   _ -> False
 
 parseStatements :: String -> Either ParseError AST
-parseStatements = parse P.parseStatements
+parseStatements = runParser P.parseStatements
 
 parseExpression :: String -> Either ParseError Expr
-parseExpression = parse P.parseExpression
+parseExpression = runParser P.parseExpression
 
-parse :: Parser a -> String -> Either ParseError a
-parse parser = runExcept . evalStateT parser . makeInitialState
+runParser :: Parser a -> String -> Either ParseError a
+runParser parser = runExcept . evalStateT parser . makeInitialState
