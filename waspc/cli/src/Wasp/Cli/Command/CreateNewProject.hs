@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
   )
@@ -7,7 +5,6 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Char (isLetter)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
@@ -15,26 +12,30 @@ import System.Directory (createDirectory, getCurrentDirectory)
 import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
+import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
-import Wasp.Lexer (reservedNames)
+import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
 createNewProject :: String -> Command ()
-createNewProject (all isLetter -> False) =
-  throwError $ CommandError "Project creation failed" "Please use only letters for a new project's name."
-createNewProject ((`elem` reservedNames) -> True) =
-  throwError $
-    CommandError
-      "Project creation failed"
-      ( "Please pick a project name not one of these reserved words:\n\t" ++ intercalate "\n\t" reservedNames
-      )
-createNewProject name = createNewProject' (ProjectName name)
+createNewProject name
+  | isValidWaspIdentifier name = createNewProject' (ProjectName name)
+  | otherwise =
+      throwError $
+        CommandError "Project creation failed" $
+          intercalate
+            "\n"
+            [ "The project's name must be a valid Wasp identifier:",
+              indent 2 "- It can start with a letter or an underscore.",
+              indent 2 "- It can contain only letters, numbers, or underscores.",
+              indent 2 "- It can't be a Wasp keyword."
+            ]
 
 createNewProject' :: ProjectName -> Command ()
 createNewProject' (ProjectName projectName) = do

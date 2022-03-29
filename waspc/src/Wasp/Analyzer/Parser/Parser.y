@@ -5,7 +5,8 @@
 -- the module `Wasp.Analyzer.Parser.Parser`
 
 module Wasp.Analyzer.Parser.Parser
-  ( parse
+  ( parseStatements,
+    parseExpression
   ) where
 
 import Wasp.Analyzer.Parser.Lexer
@@ -14,7 +15,7 @@ import Wasp.Analyzer.Parser.Ctx (WithCtx (..), Ctx (..), ctxFromPos, ctxFromRgn)
 import Wasp.Analyzer.Parser.Token
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.ParseError
-import Wasp.Analyzer.Parser.Monad (Parser, initialState, ParserState (..))
+import Wasp.Analyzer.Parser.Monad (Parser, ParserState (..))
 import Control.Monad.State.Lazy (get)
 import Control.Monad.Except (throwError)
 }
@@ -24,7 +25,9 @@ import Control.Monad.Except (throwError)
 --  - that input to parser is `Token` type
 --  - to call `parseError` when the parser encounters an error
 --  - to provide `parseError` with list of expected tokens that would avoid the error
-%name parse
+%name parseStatements Stmts
+%name parseExpression Expr
+
 %tokentype { Token }
 %error { parseError }
 %errorhandlertype explist

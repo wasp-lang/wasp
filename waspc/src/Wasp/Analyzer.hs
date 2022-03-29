@@ -125,7 +125,7 @@ import Wasp.Analyzer.AnalyzeError
     getErrorMessageAndCtx,
   )
 import Wasp.Analyzer.Evaluator (Decl, evaluate, takeDecls)
-import Wasp.Analyzer.Parser (parse)
+import Wasp.Analyzer.Parser (parseStatements)
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.TypeChecker (typeCheck)
 
@@ -133,6 +133,6 @@ import Wasp.Analyzer.TypeChecker (typeCheck)
 --   description of an error in the source file.
 analyze :: String -> Either AnalyzeError [Decl]
 analyze =
-  (left ParseError . parse)
+  (left ParseError . parseStatements)
     >=> (left TypeError . typeCheck stdTypes)
     >=> (left EvaluationError . evaluate stdTypes)
