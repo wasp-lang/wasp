@@ -23,6 +23,8 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import Wasp.AppSpec.Job (Job)
+import qualified Wasp.AppSpec.Job as Job
 import Wasp.AppSpec.Page (Page)
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Query (Query)
@@ -80,6 +82,10 @@ spec_Analyzer = do
                 "  fn: import { updateUser } from \"@ext/foo.js\",",
                 "  entities: [User],",
                 "  auth: true",
+                "}",
+                "",
+                "job BackgroundJob {",
+                "  perform: import { backgroundJob } from \"@ext/jobs/baz.js\",",
                 "}"
               ]
 
@@ -189,6 +195,18 @@ spec_Analyzer = do
               )
             ]
       takeDecls @Action <$> decls `shouldBe` Right expectedAction
+
+      let expectedJob =
+            [ ( "BackgroundJob",
+                Job.Job
+                  { Job.perform =
+                      ExtImport
+                        (ExtImportField "backgroundJob")
+                        (fromJust $ SP.parseRelFileP "jobs/baz.js")
+                  }
+              )
+            ]
+      takeDecls @Job <$> decls `shouldBe` Right expectedJob
 
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
