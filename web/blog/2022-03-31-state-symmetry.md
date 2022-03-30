@@ -38,6 +38,17 @@ resource using `PUT` (`PUT /user/3`), and get it again with `GET` (`GET /user/3`
 We see symmetry here: the JSON returned by `GET` is identical, or at least very
 similar, to the JSON supplied by `POST` and `PUT`.
 
+So, for example, this is what is retrieved with `GET`, sent with `PUT` to save,
+and sent with `POST` to create:
+
+```json
+{
+  "fullName": "Martijn Faassen",
+  "screenName": "faassen",
+  "spamMe": false
+}
+```
+
 This state symmetry is something a user of a web application expects. Let's say
 I go to my user page, which has a form in it to edit my user information. If I
 edit it, save it, and then reload the web page (or go back to it again later),
