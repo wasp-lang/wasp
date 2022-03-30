@@ -107,3 +107,7 @@ action toggleAllTasks {
   fn: import { toggleAllTasks } from "@ext/actions.js",
   entities: [Task]
 }
+
+job MySpecialJob {
+  perform: import { foo } from "@ext/jobs/bar.js"
+}

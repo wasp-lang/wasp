@@ -43,3 +43,9 @@ export const prismaErrorToHttpError = (e) => {
     return new HttpError(500)
   }
 }
+
+export const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
