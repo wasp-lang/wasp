@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.AppSpec
   ( AppSpec (..),
     Decl,
@@ -61,22 +59,22 @@ getDecls :: IsDecl a => AppSpec -> [(String, a)]
 getDecls = takeDecls . decls
 
 getQueries :: AppSpec -> [(String, Query)]
-getQueries = getDecls @Query
+getQueries = getDecls
 
 getActions :: AppSpec -> [(String, Action)]
-getActions = getDecls @Action
+getActions = getDecls
 
 getEntities :: AppSpec -> [(String, Entity)]
-getEntities = getDecls @Entity
+getEntities = getDecls
 
 getPages :: AppSpec -> [(String, Page)]
-getPages = getDecls @Page
+getPages = getDecls
 
 getRoutes :: AppSpec -> [(String, Route)]
-getRoutes = getDecls @Route
+getRoutes = getDecls
 
 getJobs :: AppSpec -> [(String, Job)]
-getJobs = getDecls @Job
+getJobs = getDecls
 
 resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =
