@@ -11,9 +11,7 @@ import Test.Tasty.Hspec
 import Wasp.Analyzer
 import Wasp.Analyzer.Parser (Ctx)
 import qualified Wasp.Analyzer.TypeChecker as TC
-import Wasp.AppSpec.Action (Action)
 import qualified Wasp.AppSpec.Action as Action
-import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as Db
@@ -23,9 +21,8 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
-import Wasp.AppSpec.Page (Page)
+import qualified Wasp.AppSpec.Job as Job
 import qualified Wasp.AppSpec.Page as Page
-import Wasp.AppSpec.Query (Query)
 import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
@@ -80,6 +77,10 @@ spec_Analyzer = do
                 "  fn: import { updateUser } from \"@ext/foo.js\",",
                 "  entities: [User],",
                 "  auth: true",
+                "}",
+                "",
+                "job BackgroundJob {",
+                "  perform: import { backgroundJob } from \"@ext/jobs/baz.js\",",
                 "}"
               ]
 
@@ -115,7 +116,7 @@ spec_Analyzer = do
                   }
               )
             ]
-      takeDecls @App <$> decls `shouldBe` Right expectedApps
+      takeDecls <$> decls `shouldBe` Right expectedApps
 
       let expectedPages =
             [ ( "HomePage",
@@ -137,7 +138,7 @@ spec_Analyzer = do
                   }
               )
             ]
-      takeDecls @Page <$> decls `shouldBe` Right expectedPages
+      takeDecls <$> decls `shouldBe` Right expectedPages
 
       let expectedEntities =
             [ ( "User",
@@ -153,14 +154,14 @@ spec_Analyzer = do
                     ]
               )
             ]
-      takeDecls @Entity <$> decls `shouldBe` Right expectedEntities
+      takeDecls <$> decls `shouldBe` Right expectedEntities
 
       let expectedRoutes =
             [ ( "HomeRoute",
                 Route.Route {Route.path = "/", Route.to = Ref "HomePage"}
               )
             ]
-      takeDecls @Route <$> decls `shouldBe` Right expectedRoutes
+      takeDecls <$> decls `shouldBe` Right expectedRoutes
 
       let expectedQueries =
             [ ( "getUsers",
@@ -174,7 +175,7 @@ spec_Analyzer = do
                   }
               )
             ]
-      takeDecls @Query <$> decls `shouldBe` Right expectedQueries
+      takeDecls <$> decls `shouldBe` Right expectedQueries
 
       let expectedAction =
             [ ( "updateUser",
@@ -188,7 +189,19 @@ spec_Analyzer = do
                   }
               )
             ]
-      takeDecls @Action <$> decls `shouldBe` Right expectedAction
+      takeDecls <$> decls `shouldBe` Right expectedAction
+
+      let expectedJob =
+            [ ( "BackgroundJob",
+                Job.Job
+                  { Job.perform =
+                      ExtImport
+                        (ExtImportField "backgroundJob")
+                        (fromJust $ SP.parseRelFileP "jobs/baz.js")
+                  }
+              )
+            ]
+      takeDecls <$> decls `shouldBe` Right expectedJob
 
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =

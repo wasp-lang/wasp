@@ -169,6 +169,7 @@ library
       Wasp.AppSpec.Entity.Field
       Wasp.AppSpec.ExternalCode
       Wasp.AppSpec.ExtImport
+      Wasp.AppSpec.Job
       Wasp.AppSpec.JSON
       Wasp.AppSpec.Operation
       Wasp.AppSpec.Page

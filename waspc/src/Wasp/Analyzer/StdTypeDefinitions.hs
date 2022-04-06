@@ -15,6 +15,7 @@ import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Auth (AuthMethod)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -26,6 +27,7 @@ makeDeclType ''Page
 makeDeclType ''Route
 makeDeclType ''Query
 makeDeclType ''Action
+makeDeclType ''Job
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -41,5 +43,6 @@ stdTypes =
   TD.addDeclType @Route $
   TD.addDeclType @Query $
   TD.addDeclType @Action $
+  TD.addDeclType @Job $
   TD.empty
 {- ORMOLU_ENABLE -}
