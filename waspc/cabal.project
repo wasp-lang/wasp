@@ -19,4 +19,5 @@ jobs: $ncpus
 -- Ensures that tests print their output to stdout as they execute.
 test-show-details: direct
 
+-- WARNING: Run cabal update if your local package index is older than this date.
 index-state: 2022-03-22T14:16:26Z
