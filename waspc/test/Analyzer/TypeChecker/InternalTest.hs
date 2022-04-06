@@ -2,17 +2,29 @@ module Analyzer.TypeChecker.InternalTest where
 
 import Analyzer.TestUtil (ctx, fromWithCtx)
 import Data.Either (fromRight)
-import Data.HashMap.Strict (fromList)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
 import Test.Tasty.QuickCheck
+import Text.Printf (printf)
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Type
 import Wasp.Analyzer.TypeChecker.AST
 import Wasp.Analyzer.TypeChecker.Internal
 import Wasp.Analyzer.TypeChecker.Monad (Bindings, run, runWithBound)
 import Wasp.Analyzer.TypeChecker.TypeError
+  ( TypeCoercionError (TypeCoercionError),
+    TypeCoercionErrorReason (ReasonUncoercable),
+    TypeError,
+    TypeError'
+      ( DictDuplicateField,
+        NoDeclarationType,
+        QuoterUnknownTag,
+        UndefinedIdentifier,
+        WeakenError
+      ),
+    mkTypeError,
+  )
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import qualified Wasp.Analyzer.TypeDefinitions.Internal as TD
 
@@ -70,6 +82,35 @@ spec_Internal = do
         wctx5 = WithCtx ctx5
         wctx6 = WithCtx ctx6
         wctx7 = WithCtx ctx7
+
+    describe "unifyTypes" $ do
+      describe "Unifies two same types to themselves: a | a = a" $ do
+        let performTest = \t ->
+              it (show t) $
+                unifyTypes t t `shouldBe` t
+        mapM_
+          performTest
+          [ NumberType,
+            DictType $ H.fromList [("a", DictRequired BoolType)],
+            StringType,
+            ListType StringType,
+            UnionType NumberType StringType
+          ]
+
+      it "Unifies a list of type [a] and an empty list into a list of type [a]" $ do
+        let listType = ListType StringType
+        unifyTypes listType EmptyListType `shouldBe` listType
+        unifyTypes EmptyListType listType `shouldBe` listType
+
+      describe "Unifies two different types by just constructing their union type" $ do
+        let performTest = \(t1, t2) -> it (printf "For `%s` and `%s`" (show t1) (show t2)) $ unifyTypes t1 t2 `shouldBe` makeUnionType t1 t2
+        mapM_
+          performTest
+          [ (NumberType, StringType),
+            (DictType $ H.fromList [("a", DictRequired BoolType)], DictType $ H.fromList [("a", DictRequired NumberType)]),
+            (NumberType, DictType $ H.fromList [("a", DictRequired BoolType)]),
+            (UnionType NumberType StringType, UnionType StringType BoolType)
+          ]
 
     -- TODO: These tests now actually test what unifyTypes does. If we add tests for unifyTypes, we can
     --   then simplify these tests for unify to only test if they correctly call unifyTypes and weaken,

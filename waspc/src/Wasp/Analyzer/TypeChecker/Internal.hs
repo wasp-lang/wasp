@@ -31,6 +31,7 @@ module Wasp.Analyzer.TypeChecker.Internal
     unify,
     unifyTypes,
     weaken,
+    makeUnionType
   )
 where
 
@@ -159,6 +160,7 @@ unify texprs =
           (mapM (weaken superType) texprs)
    in (weakenedTexprs, superType)
 
+-- TODO: change documentation
 -- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
 -- type of typed expression @texpr@ are a sub-type of.
 -- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
@@ -166,10 +168,14 @@ unify texprs =
 --   Anyway unification always happens for some typed expressions, so this makes sense.
 --
 -- NOTE: We decided NOT TO generalise types of lists of dictionaries for now.
--- In other words, this should resolve to something like:
--- "{} | {  b: string } | {  a:number }]" and not "[{ a?: string, b?: number }]"
--- This might make error messages uglier, but it simplifies the unification algorithm
--- simpler (e.g., { a: string } | number | { b: number })
+-- In other words, the expression `[{}, { b: "foo" }, { a: 4 }]` should resolve
+-- to: `[{} | {  b: string } | {  a:number }]` and not `[{ a?: -- string, b?: number }]`.
+-- This might make error messages uglier, but it simplifies the unification
+-- algorithm, especially in cases when the union type doesn't contain
+-- exclusively dictionaries. For example, unifying the union
+-- `{ a: string } | number | { b: number }` with the second approach is tricky
+-- because we'd have to somehow merge the union of dictionaries without
+-- affecting the number.
 unifyTypes :: Type -> Type -> Type
 unifyTypes t1 t2 | t1 == t2 = t1
 -- Apply [AnyList]: an empty list can unify with any other list
