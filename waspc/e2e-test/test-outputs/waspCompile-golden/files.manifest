@@ -15,6 +15,7 @@ waspCompile/.wasp/out/server/src/dbClient.js
 waspCompile/.wasp/out/server/src/ext-src/Main.css
 waspCompile/.wasp/out/server/src/ext-src/MainPage.js
 waspCompile/.wasp/out/server/src/ext-src/waspLogo.png
+waspCompile/.wasp/out/server/src/jobs/PassthroughJobFactory.js
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js
