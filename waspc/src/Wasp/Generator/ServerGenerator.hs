@@ -13,7 +13,6 @@ import Data.Maybe
     fromMaybe,
     isJust,
   )
-import qualified GHC.Enum as Enum
 import StrongPath
   ( Dir,
     File',
@@ -21,20 +20,18 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    parseRelFile,
     reldir,
     reldirP,
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getJobs)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Job (Job (perform))
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -52,6 +49,7 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.JobGenerator (genJobFactories, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
@@ -69,8 +67,8 @@ genServer spec =
     <++> genSrcDir spec
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
-    <++> genJobFactories
     <++> genJobs spec
+    <++> genJobFactories
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -237,47 +235,3 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
--- | TODO: Make this not hardcoded as well!
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
-
-data JobFactory = PassthroughJobFactory
-  deriving (Show, Eq, Ord, Enum, Enum.Bounded)
-
--- TODO: In future we will detect what type of JobFactory
--- to use based on what the Job is using. E.g., pg-boss next.
-jobFactoryForJob :: Job -> JobFactory
-jobFactoryForJob _ = PassthroughJobFactory
-
-genJobs :: AppSpec -> Generator [FileDraft]
-genJobs spec = return $ genJob <$> getJobs spec
-  where
-    tmplFile = C.asTmplFile [relfile|src/jobs/_jobs.js|]
-    dstFile jobName = C.asServerFile $ [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobName ++ ".js")
-    genJob :: (String, Job) -> FileDraft
-    genJob (jobName, job) =
-      let (jobFnName, jobFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ perform job
-       in C.mkTmplFdWithDstAndData
-            tmplFile
-            (dstFile jobName)
-            ( Just $
-                object
-                  [ "jobName" .= jobName,
-                    "jobFnName" .= jobFnName,
-                    "jobFnImportStatement" .= jobFnImportStatement,
-                    "jobFactoryName" .= show (jobFactoryForJob job)
-                  ]
-            )
-
-genJobFactories :: Generator [FileDraft]
-genJobFactories = return $ genJobFactory <$> jobFactoryNames
-  where
-    genJobFactory :: String -> FileDraft
-    genJobFactory jobFactoryName =
-      let jobFactoryFile = [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobFactoryName ++ ".js")
-       in C.mkTmplFdWithDstAndData (C.asTmplFile jobFactoryFile) (C.asServerFile jobFactoryFile) Nothing
-    jobFactoryNames :: [String]
-    jobFactoryNames =
-      let jobFactories = enumFrom minBound :: [JobFactory]
-       in map show jobFactories
