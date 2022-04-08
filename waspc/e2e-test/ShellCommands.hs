@@ -8,6 +8,7 @@ module ShellCommands
     combineShellCommands,
     cdIntoCurrentProject,
     appendToWaspFile,
+    createFile,
     setDbToPSQL,
     waspCliNew,
     waspCliCompile,
@@ -56,6 +57,10 @@ appendToWaspFile :: String -> ShellCommandBuilder ShellCommand
 appendToWaspFile content =
   -- NOTE: Using `show` to preserve newlines in string.
   return $ "printf " ++ show (content ++ "\n") ++ " >> main.wasp"
+
+createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
+createFile content relDirFp filename =
+  return $ "mkdir -p ./" ++ relDirFp ++ " && printf " ++ show (content ++ "\n") ++ " >> ./" ++ relDirFp ++ "/" ++ filename
 
 -- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
 --       we do not have a `db` field. Consider better alternatives.
