@@ -385,6 +385,7 @@ test-suite e2e-test
     ShellCommands
     Tests.WaspBuildTest
     Tests.WaspCompileTest
+    Tests.WaspJobTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
 
