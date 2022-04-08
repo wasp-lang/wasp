@@ -1,6 +1,6 @@
 import { useQuery } from '../queries'
 import config from '../config.js'
-import api, { setAuthToken, handleApiError } from '../api.js'
+import api, { handleApiError } from '../api.js'
 
 const getMe = async () => {
   try {

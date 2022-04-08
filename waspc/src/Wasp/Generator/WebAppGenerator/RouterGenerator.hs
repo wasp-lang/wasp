@@ -117,13 +117,18 @@ determineRouteTargetComponent spec (_, route) =
           "createAuthRequiredPage(" ++ targetPageName ++ ")"
         else targetPageName
 
+mkQualifiedImport :: String -> String -> String
+mkQualifiedImport identifier alias
+  | identifier == alias = identifier
+  | otherwise = identifier ++ " as " ++ alias
+
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
     { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
       _importWhat = case AS.ExtImport.name pageComponent of
         AS.ExtImport.ExtImportModule _ -> pageName
-        AS.ExtImport.ExtImportField identifier -> "{ " ++ identifier ++ " as " ++ pageName ++ " }"
+        AS.ExtImport.ExtImportField identifier -> "{ " ++ mkQualifiedImport identifier pageName ++ " }"
     }
   where
     relPathToExtSrcDir :: FilePath
