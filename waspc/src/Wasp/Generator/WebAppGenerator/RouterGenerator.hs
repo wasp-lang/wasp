@@ -117,11 +117,6 @@ determineRouteTargetComponent spec (_, route) =
           "createAuthRequiredPage(" ++ targetPageName ++ ")"
         else targetPageName
 
-mkQualifiedImport :: String -> String -> String
-mkQualifiedImport identifier alias
-  | identifier == alias = identifier
-  | otherwise = identifier ++ " as " ++ alias
-
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
@@ -139,3 +134,8 @@ createPageTemplateData page =
 
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
+
+mkQualifiedImport :: String -> String -> String
+mkQualifiedImport identifier alias
+  | identifier == alias = identifier
+  | otherwise = identifier ++ " as " ++ alias
