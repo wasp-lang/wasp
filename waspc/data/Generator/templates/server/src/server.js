@@ -9,8 +9,13 @@ import config from './config.js'
 {=& serverSetupJsFnImportStatement =}
 {=/ doesServerSetupFnExist =}
 
+// TODO: wrap in conditional checks
+import { startPgBoss } from './jobs/PgBossJobFactory.js'
 
 const startServer = async () => {
+  // TODO: wrap in conditional checks
+  await startPgBoss()
+
   const debugLog = debug('server:server')
 
   const port = normalizePort(config.port)

@@ -37,7 +37,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
 
-data JobFactory = PassthroughJobFactory
+data JobFactory = PassthroughJobFactory | PgBossJobFactory
   deriving (Show, Eq, Ord, Enum, Enum.Bounded)
 
 jobFactories :: [JobFactory]
@@ -46,10 +46,11 @@ jobFactories = enumFrom minBound :: [JobFactory]
 -- TODO: In future we will detect what type of JobFactory
 -- to use based on what the Job is using.
 jobFactoryForJob :: Job -> JobFactory
-jobFactoryForJob _ = PassthroughJobFactory
+jobFactoryForJob _ = PgBossJobFactory
 
 jobFactoryFilePath :: JobFactory -> Path' (Rel d) File'
 jobFactoryFilePath PassthroughJobFactory = [relfile|src/jobs/PassthroughJobFactory.js|]
+jobFactoryFilePath PgBossJobFactory = [relfile|src/jobs/PgBossJobFactory.js|]
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec

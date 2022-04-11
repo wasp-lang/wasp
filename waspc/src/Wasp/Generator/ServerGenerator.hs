@@ -121,7 +121,8 @@ npmDepsForWasp =
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("helmet", "^4.6.0"),
+            ("pg-boss", "7.2.1")
           ],
       N.waspDevDependencies =
         AS.Dependency.fromList
