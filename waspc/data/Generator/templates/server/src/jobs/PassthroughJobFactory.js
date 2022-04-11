@@ -5,19 +5,17 @@ import { sleep } from '../utils.js'
  */
 class PassthroughJob {
   constructor(values) {
-    this.perform = () => {}
+    this.perform = () => { }
     this.delayMs = 0
     Object.assign(this, values)
   }
 
   delay(ms) {
-    const clonedJob = new PassthroughJob({...this})
-    clonedJob.delayMs = ms
-    return clonedJob
+    return new PassthroughJob({ ...this, delayMs: ms })
   }
 
   performAsync(args) {
-    const clonedJob = new PassthroughJob({...this})
+    const clonedJob = new PassthroughJob({ ...this })
     return clonedJob._performAsync(args)
   }
 
