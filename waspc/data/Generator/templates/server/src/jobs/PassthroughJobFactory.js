@@ -1,30 +1,24 @@
 import { sleep } from '../utils.js'
 
 /**
- * Immutable passthrough job wrapper, mainly to be used for
- * testing.
+ * "Immutable-ish" passthrough job wrapper, mainly to be used for testing.
  */
 class PassthroughJob {
-  constructor(perform) {
-    this.perform = perform
+  constructor(values) {
+    this.perform = () => {}
     this.delayMs = 0
+    Object.assign(this, values)
   }
 
   delay(ms) {
-    const clonedJob = this._clone()
+    const clonedJob = new PassthroughJob({...this})
     clonedJob.delayMs = ms
     return clonedJob
   }
 
   performAsync(args) {
-    const clonedJob = this._clone()
+    const clonedJob = new PassthroughJob({...this})
     return clonedJob._performAsync(args)
-  }
-
-  _clone() {
-    const job = new PassthroughJob(this.perform)
-    job.delayMs = this.delayMs
-    return job
   }
 
   _performAsync(args) {
@@ -43,6 +37,6 @@ class PassthroughJob {
   }
 }
 
-export default function(fn) {
-  return new PassthroughJob(fn)
+export default function (fn) {
+  return new PassthroughJob({ perform: fn })
 }
