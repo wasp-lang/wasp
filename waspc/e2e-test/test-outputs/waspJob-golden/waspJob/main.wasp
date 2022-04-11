@@ -1,0 +1,12 @@
+app waspJob {
+  title: "waspJob"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@ext/MainPage.js"
+}
+ job MySpecialJob { 
+   perform: import { foo } from "@ext/jobs/bar.js"  
+ } 
+
