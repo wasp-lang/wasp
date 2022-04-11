@@ -1,18 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { ReactQueryCacheProvider } from 'react-query'
+import { QueryClientProvider } from 'react-query'
 
 import router from './router'
-import queryCache from './queryCache'
+import { queryClient } from './queryClient'
 import * as serviceWorker from './serviceWorker'
 
 import './index.css'
 
 
 ReactDOM.render(
-  <ReactQueryCacheProvider queryCache={queryCache}>
+  <QueryClientProvider client={queryClient}>
     { router }
-  </ReactQueryCacheProvider>,
+  </QueryClientProvider>,
   document.getElementById('root')
 )
 

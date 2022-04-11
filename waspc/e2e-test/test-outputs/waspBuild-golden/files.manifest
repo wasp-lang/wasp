@@ -38,7 +38,7 @@ waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/operations/index.js
 waspBuild/.wasp/build/web-app/src/operations/resources.js
 waspBuild/.wasp/build/web-app/src/queries/index.js
-waspBuild/.wasp/build/web-app/src/queryCache.js
+waspBuild/.wasp/build/web-app/src/queryClient.js
 waspBuild/.wasp/build/web-app/src/router.js
 waspBuild/.wasp/build/web-app/src/serviceWorker.js
 waspBuild/.wasp/build/web-app/src/utils.js

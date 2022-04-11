@@ -43,7 +43,7 @@ waspMigrate/.wasp/out/web-app/src/logo.png
 waspMigrate/.wasp/out/web-app/src/operations/index.js
 waspMigrate/.wasp/out/web-app/src/operations/resources.js
 waspMigrate/.wasp/out/web-app/src/queries/index.js
-waspMigrate/.wasp/out/web-app/src/queryCache.js
+waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.js
 waspMigrate/.wasp/out/web-app/src/serviceWorker.js
 waspMigrate/.wasp/out/web-app/src/utils.js

@@ -38,7 +38,7 @@ waspCompile/.wasp/out/web-app/src/logo.png
 waspCompile/.wasp/out/web-app/src/operations/index.js
 waspCompile/.wasp/out/web-app/src/operations/resources.js
 waspCompile/.wasp/out/web-app/src/queries/index.js
-waspCompile/.wasp/out/web-app/src/queryCache.js
+waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.js
 waspCompile/.wasp/out/web-app/src/serviceWorker.js
 waspCompile/.wasp/out/web-app/src/utils.js
