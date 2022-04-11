@@ -97,7 +97,7 @@ npmDepsForWasp =
             ("lodash", "^4.17.15"),
             ("react", "^16.12.0"),
             ("react-dom", "^16.12.0"),
-            ("react-query", "^2.14.1"),
+            ("react-query", "^3.34.19"),
             ("react-router-dom", "^5.1.2"),
             ("react-scripts", "4.0.3"),
             ("uuid", "^3.4.0")
@@ -172,7 +172,7 @@ genSrcDir spec = do
         [relfile|index.css|],
         [relfile|serviceWorker.js|],
         [relfile|config.js|],
-        [relfile|queryCache.js|],
+        [relfile|queryClient.js|],
         [relfile|utils.js|]
       ]
       ++ operationsFds

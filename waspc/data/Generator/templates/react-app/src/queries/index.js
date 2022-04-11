@@ -10,7 +10,7 @@ export function useQuery(queryFn, queryFnArgs, config) {
 
   return rqUseQuery({
     queryKey: [queryFn.queryCacheKey, queryFnArgs],
-    queryFn: (_key, args) => queryFn(args),
+    queryFn: () => queryFn(queryFnArgs),
     config
   })
 }
