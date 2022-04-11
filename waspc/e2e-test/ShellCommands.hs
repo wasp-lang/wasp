@@ -60,7 +60,7 @@ appendToWaspFile content =
 
 createFile :: String -> FilePath -> String -> ShellCommandBuilder ShellCommand
 createFile content relDirFp filename =
-  return $ "mkdir -p ./" ++ relDirFp ++ " && printf " ++ show (content ++ "\n") ++ " >> ./" ++ relDirFp ++ "/" ++ filename
+  return $ "mkdir -p ./" ++ relDirFp ++ " && printf " ++ show (content ++ "\n") ++ " > ./" ++ relDirFp ++ "/" ++ filename
 
 -- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
 --       we do not have a `db` field. Consider better alternatives.
