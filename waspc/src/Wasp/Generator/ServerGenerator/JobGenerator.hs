@@ -39,7 +39,7 @@ data JobFactory = PassthroughJobFactory
   deriving (Show, Eq, Ord, Enum, Enum.Bounded)
 
 -- TODO: In future we will detect what type of JobFactory
--- to use based on what the Job is using. E.g., pg-boss next.
+-- to use based on what the Job is using.
 jobFactoryForJob :: Job -> JobFactory
 jobFactoryForJob _ = PassthroughJobFactory
 

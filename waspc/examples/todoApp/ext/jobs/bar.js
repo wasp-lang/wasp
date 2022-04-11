@@ -5,8 +5,7 @@ function sleep(ms) {
 }
 
 export const foo = async (args) => {
-  console.log("inside bar's foo")
-  console.log(args)
+  console.log("Inside Job bar's callback foo: ", args)
   await sleep(4000)
-  return 1
+  return "I am the Job's result!"
 }
