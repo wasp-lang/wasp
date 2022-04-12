@@ -1,8 +1,4 @@
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
+import { sleep } from '@wasp/utils.js'
 
 export const foo = async (args) => {
   console.log("Inside Job bar's callback foo: ", args)
