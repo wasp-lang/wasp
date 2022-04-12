@@ -15,20 +15,8 @@ class PassthroughJob {
   }
 
   performAsync(args) {
-    const clonedJob = new PassthroughJob({ ...this })
-    return clonedJob._performAsync(args)
-  }
-
-  _performAsync(args) {
-    async function fn(delayMs, perform) {
-      if (delayMs > 0) {
-        await sleep(delayMs)
-      }
-      return perform(args)
-    }
-
     return {
-      result: fn(this.delayMs, this.perform)
+      result: sleep(this.delayMs).then(() => this.perform(args))
     }
   }
 }
