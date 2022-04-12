@@ -27,10 +27,8 @@ class PassthroughJob {
       return perform(args)
     }
 
-    const res = fn(this.delayMs, this.perform)
-
     return {
-      result: async () => await res
+      result: fn(this.delayMs, this.perform)
     }
   }
 }
