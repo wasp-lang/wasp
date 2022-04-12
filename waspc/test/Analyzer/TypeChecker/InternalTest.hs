@@ -97,13 +97,15 @@ spec_Internal = do
             UnionType NumberType StringType
           ]
 
-      it "Unifies a list of type [a] and an empty list into a list of type [a]" $ do
+      it "Unifies a list of type [a] and an empty list into a list of type [a]: [a] | [] = [a]" $ do
         let listType = ListType StringType
         unifyTypes listType EmptyListType `shouldBe` listType
         unifyTypes EmptyListType listType `shouldBe` listType
 
       describe "Unifies two different types by just constructing their union type" $ do
-        let performTest = \(t1, t2) -> it (printf "For `%s` and `%s`" (show t1) (show t2)) $ unifyTypes t1 t2 `shouldBe` makeUnionType t1 t2
+        let performTest = \(t1, t2) ->
+              it (printf "For `%s` and `%s`" (show t1) (show t2)) $
+                unifyTypes t1 t2 `shouldBe` makeUnionType t1 t2
         mapM_
           performTest
           [ (NumberType, StringType),
@@ -112,15 +114,14 @@ spec_Internal = do
             (UnionType NumberType StringType, UnionType StringType BoolType)
           ]
 
-    -- TODO: These tests now actually test what unifyTypes does. If we add tests for unifyTypes, we can
-    --   then simplify these tests for unify to only test if they correctly call unifyTypes and weaken,
-    --   not how the stuff is actually unified.
+    -- TODO: test makeUnionType.
+
     describe "unify" $ do
       it "Doesn't affect 2 expressions of the same type" $ do
         property $ \(a, b) ->
-          let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
-              actual = unify initial
-           in actual == (initial, NumberType)
+          let texprs = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
+              superType = NumberType
+           in unify texprs == (texprs, superType)
       it "Unifies two same-typed dictionaries to their original type" $ do
         let superType = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
         let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] superType
@@ -128,16 +129,11 @@ spec_Internal = do
         let texprs = a :| [b]
         unify texprs `shouldBe` (texprs, superType)
       it "Unifies an empty dict and a dict with one property into union type" $ do
-        let emptyDictTypedExpr = wctx2 $ Dict [] (DictType H.empty)
-        let onePropDictTypedExpr =
-              wctx3 $
-                Dict
-                  [("a", wctx4 $ BoolLiteral True)]
-                  (DictType $ H.singleton "a" $ DictRequired BoolType)
-        let expectedSuperType =
-              UnionType
-                (DictType H.empty)
-                (DictType $ H.singleton "a" $ DictRequired BoolType)
+        let emptyDictTypedExpr = wctx2 $ Dict [] emptyDictTypedExprType
+            emptyDictTypedExprType = DictType H.empty
+        let onePropDictTypedExpr = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] onePropDictTypedExprType
+            onePropDictTypedExprType = DictType $ H.singleton "a" $ DictRequired BoolType
+        let expectedSuperType = unifyTypes emptyDictTypedExprType onePropDictTypedExprType
         let texprs = emptyDictTypedExpr :| [onePropDictTypedExpr]
         unify texprs
           `shouldBe` ( fromRight (error "Should not happen") . weaken expectedSuperType <$> texprs,
@@ -153,14 +149,12 @@ spec_Internal = do
         let emptyList = wctx2 $ List [] EmptyListType
         let nonEmptyListType = ListType StringType
         let nonEmptyList = wctx3 $ List [wctx4 $ StringLiteral "a"] nonEmptyListType
-        let expectedSuperType = nonEmptyListType
+        let expectedSuperType = unifyTypes EmptyListType nonEmptyListType
         let texprs = emptyList :| [nonEmptyList]
         unify texprs
           `shouldBe` ( fromRight (error "Should not happen") . weaken expectedSuperType <$> texprs,
                        expectedSuperType
                      )
-
-    -- TODO: Write tests for unifyTypes.
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
