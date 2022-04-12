@@ -98,6 +98,8 @@ inferExprType = P.withCtx $ \ctx -> \case
   -- This poses a problem for empty lists, there is not enough information to choose a type.
   -- TODO: Fix this in the future, probably by adding an additional phase to resolve type variables
   --       that would be assigned here.
+  -- TODO: inferExprType calls unify, unify calls weaken. Are we traversing the tree all the way down
+  -- without doing anything every time weaken encounters a list?
   P.List values -> do
     typedValues <- mapM inferExprType values
     case unify <$> nonEmpty typedValues of

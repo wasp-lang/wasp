@@ -1,7 +1,7 @@
 module Analyzer.TypeChecker.InternalTest where
 
 import Analyzer.TestUtil (ctx, fromWithCtx)
-import Data.Either (fromRight)
+import Data.Either (fromRight, isLeft)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -155,6 +155,23 @@ spec_Internal = do
           `shouldBe` ( fromRight (error "Should not happen") . weaken expectedSuperType <$> texprs,
                        expectedSuperType
                      )
+    describe "weaken" $ do
+      it "Should correctly weaken a simple expression to its supertype" $ do
+        weaken NumberType (wctx1 $ DoubleLiteral 1.16) `shouldBe` Right (wctx1 $ DoubleLiteral 1.16)
+      it "Should return an type coercion error when the provided type is not the expression's supertype" $ do
+        -- TODO: test the returned error more thoroughly
+        isLeft (weaken StringType (wctx1 $ DoubleLiteral 1.16)) `shouldBe` True
+        isLeft
+          ( weaken
+              (TupleType (StringType, NumberType, []))
+              (wctx1 $ Tuple (wctx2 $ StringLiteral "foo", wctx3 $ BoolLiteral True, []) (TupleType (StringType, BoolType, [])))
+          )
+          `shouldBe` True
+    -- TODO: test weaken with complex types (e.g., dicts, lists)
+    -- TODO: it seems that weaken currently doesn't support tuples
+    -- (e.g., we cannot weaken (bool, string) to (bool, string | number))
+    -- This is probably not the behavior we want, since all type constructors (i.e., lists, tuples, dicts)
+    -- should behave consistently.
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
