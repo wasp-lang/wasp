@@ -43,7 +43,7 @@ const ArticleEditorPage = (props) => {
   //   When is article null, when not, should I look into combination of article and articleSlug, then
   //   there is this 'enabled' which I need on the other hand -> uff. And what if I get error? humpf!
   const articleSlug = props.match.params.articleSlug
-  const { data: article, error: articleError } = useQuery(getArticle, { slug: articleSlug }, { enabled: articleSlug })
+  const { data: article, error: articleError } = useQuery(getArticle, { slug: articleSlug }, { enabled: !!articleSlug })
 
   return articleError
     ? articleError.message || articleError
