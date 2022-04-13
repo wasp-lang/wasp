@@ -28,7 +28,7 @@ class PgBossJobFactory {
   }
 }
 
-export default function (fn) {
+export function jobFactory(fn) {
   const queue = 'TODO' // TODO: make param
   boss.work(queue, fn)
   return new PgBossJobFactory({ perform: fn, queue })
