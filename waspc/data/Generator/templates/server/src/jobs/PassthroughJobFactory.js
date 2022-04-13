@@ -21,6 +21,6 @@ class PassthroughJob {
   }
 }
 
-export function jobFactory(fn) {
+export function jobFactory(_jobName, fn) {
   return new PassthroughJob({ perform: fn })
 }
