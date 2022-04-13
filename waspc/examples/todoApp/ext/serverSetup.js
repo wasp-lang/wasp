@@ -10,10 +10,10 @@ const setup = async () => {
   console.log('Custom server setup done!')
 
   console.log('Kicking off Job...')
-  // Or: const runningJob = mySpecialJob.delay(1000).performAsync({ something: "here" })
-  const runningJob = mySpecialJob.performAsync({ something: "here" })
+  // Or: const runningJob = await mySpecialJob.delay(1000).performAsync({ something: "here" })
+  const runningJob = await mySpecialJob.performAsync({ something: "here" })
   console.log('Waiting for Job result...')
-  runningJob.result.then(res => { console.log(res) }).finally(() => { console.log("Job done!") })
+  runningJob.result.then(res => { console.log(res) }).catch(e => console.error(e)).finally(() => { console.log("Job done!") })
 }
 
 export default setup

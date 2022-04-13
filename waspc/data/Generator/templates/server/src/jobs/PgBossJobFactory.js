@@ -1,19 +1,22 @@
-import PgBoss from 'pg-boss';
+import { EventEmitter } from 'events'
+import PgBoss from 'pg-boss'
 
-export const boss = new PgBoss(process.env.DATABASE_URL);
+export const boss = new PgBoss(process.env.DATABASE_URL)
 
 export async function startPgBoss() {
-  console.log('Starting Pg Boss...')
+  console.log('Starting PgBoss...')
   boss.on('error', error => console.error(error))
   await boss.start()
-  console.log('Pg Boss started!')
+  console.log('PgBoss started!')
 }
+
+const pgBossCompletionEventEmitter = new EventEmitter()
 
 class PgBossJobFactory {
   constructor(values) {
     this.perform = () => { }
     this.delayMs = 0
-    this.queue = 'default'
+    this.jobName = 'unknown'
     Object.assign(this, values)
   }
 
@@ -21,15 +24,24 @@ class PgBossJobFactory {
     return new PgBossJobFactory({ ...this, delayMs: ms })
   }
 
-  performAsync(args) {
-    return {
-      result: boss.send(this.queue, args)
-    }
+  async performAsync(payload) {
+    const delaySeconds = (this.delayMs > 0) ? Math.trunc(this.delayMs / 1000) : 0
+    const jobId = await boss.send(this.jobName, payload, { startAfter: delaySeconds, onComplete: true })
+    const result = new Promise((resolve, _reject) => {
+      pgBossCompletionEventEmitter.on(this.jobName, job => {
+        if (job.data.request.id === jobId) {
+          resolve(job.data.response)
+        }
+      })
+    })
+    return { result, jobId }
   }
 }
 
-export function jobFactory(jobName, fn) {
-  const queue = jobName
-  boss.work(queue, fn)
-  return new PgBossJobFactory({ perform: fn, queue })
+export async function jobFactory(jobName, fn) {
+  boss.onComplete(jobName, job => {
+    pgBossCompletionEventEmitter.emit(jobName, job)
+  })
+  await boss.work(jobName, fn)
+  return new PgBossJobFactory({ perform: fn, jobName })
 }

@@ -3,5 +3,5 @@ import { sleep } from '@wasp/utils.js'
 export const foo = async (args) => {
   console.log("Inside Job bar's callback foo: ", args)
   await sleep(4000)
-  return "I am the Job's result!"
+  return { hello: "world" }
 }

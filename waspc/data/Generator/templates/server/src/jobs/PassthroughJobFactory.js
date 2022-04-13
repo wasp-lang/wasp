@@ -14,13 +14,13 @@ class PassthroughJob {
     return new PassthroughJob({ ...this, delayMs: ms })
   }
 
-  performAsync(args) {
+  async performAsync(payload) {
     return {
-      result: sleep(this.delayMs).then(() => this.perform(args))
+      result: sleep(this.delayMs).then(() => this.perform(payload))
     }
   }
 }
 
-export function jobFactory(_jobName, fn) {
+export async function jobFactory(_jobName, fn) {
   return new PassthroughJob({ perform: fn })
 }
