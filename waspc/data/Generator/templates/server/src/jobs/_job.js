@@ -1,5 +1,5 @@
 {{={= =}=}}
-import jobFactory from './{= jobFactoryName =}.js'
+import { jobFactory } from './{= jobFactoryName =}.js'
 {=& jobPerformFnImportStatement =}
 
-export default jobFactory({= jobPerformFnName =})
+export const {= jobName =} = jobFactory({= jobPerformFnName =})

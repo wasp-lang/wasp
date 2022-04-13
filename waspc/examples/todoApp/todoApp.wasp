@@ -108,6 +108,6 @@ action toggleAllTasks {
   entities: [Task]
 }
 
-job MySpecialJob {
+job mySpecialJob {
   perform: import { foo } from "@ext/jobs/bar.js"
 }

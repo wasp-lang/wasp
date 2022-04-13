@@ -1,4 +1,4 @@
-import mySpecialJob from '@wasp/jobs/MySpecialJob.js'
+import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 
 let someResource = undefined
 

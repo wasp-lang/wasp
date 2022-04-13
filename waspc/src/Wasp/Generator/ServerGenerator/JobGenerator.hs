@@ -40,6 +40,9 @@ relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
 data JobFactory = PassthroughJobFactory
   deriving (Show, Eq, Ord, Enum, Enum.Bounded)
 
+jobFactories :: [JobFactory]
+jobFactories = enumFrom minBound :: [JobFactory]
+
 -- TODO: In future we will detect what type of JobFactory
 -- to use based on what the Job is using.
 jobFactoryForJob :: Job -> JobFactory
@@ -73,7 +76,7 @@ genJobFactories = return $ genJobFactory <$> jobFactories
   where
     genJobFactory :: JobFactory -> FileDraft
     genJobFactory jobFactory =
-      let jobFactoryFile = jobFactoryFilePath jobFactory
-       in C.mkTmplFdWithDstAndData (C.asTmplFile jobFactoryFile) (C.asServerFile jobFactoryFile) Nothing
-    jobFactories :: [JobFactory]
-    jobFactories = enumFrom minBound :: [JobFactory]
+      let jobFactoryFp = jobFactoryFilePath jobFactory
+          sourceTemplateFp = C.asTmplFile jobFactoryFp
+          destinationServerFp = C.asServerFile jobFactoryFp
+       in C.mkTmplFdWithDstAndData sourceTemplateFp destinationServerFp Nothing
