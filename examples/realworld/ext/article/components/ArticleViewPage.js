@@ -22,7 +22,6 @@ import { useQuery } from '@wasp/queries'
 
 import getArticle from '@wasp/queries/getArticle'
 import getArticleComments from '@wasp/queries/getArticleComments'
-import getUser from '@wasp/queries/getUser'
 import deleteArticle from '@wasp/actions/deleteArticle'
 import createComment from '@wasp/actions/createComment'
 import deleteComment from '@wasp/actions/deleteComment'
@@ -84,6 +83,7 @@ const ArticleViewPage = (props) => {
     if (!window.confirm('Are you sure you want to delete the article?')) return
     try {
       await deleteArticle({ id: article.id })
+      history.push('/')
     } catch (err) {
       console.log(err)
       window.alert('Failed to delete article: ' + err)
@@ -105,11 +105,7 @@ const ArticleViewPage = (props) => {
         </Grid>
 
         <Grid item xs={8}>
-          <p>
-            <Typography variant="h5">
-              <ReactMarkdown children={article.markdownContent} />
-            </Typography>
-          </p>
+            <ReactMarkdown children={article.markdownContent} />
         </Grid>
 
         <Grid item xs={8}>

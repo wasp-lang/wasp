@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import PropTypes from 'prop-types'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import Container from '@material-ui/core/Container'
 import TextField from '@material-ui/core/TextField'
@@ -9,7 +9,6 @@ import Chip from '@material-ui/core/Chip'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 
-import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
 
 import createArticle from '@wasp/actions/createArticle'
@@ -67,7 +66,6 @@ ArticleEditorPage.propTypes = {
 const ArticleEditor = (props) => {
   const classes = useStyles()
 
-  const user = props.user
   const article = props.article
 
   const history = useHistory()
