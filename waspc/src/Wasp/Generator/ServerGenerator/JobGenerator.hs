@@ -22,7 +22,8 @@ import StrongPath
     (</>),
   )
 import Wasp.AppSpec (AppSpec, getJobs)
-import Wasp.AppSpec.Job (Job (perform))
+import Wasp.AppSpec.JSON (JSON (JSON))
+import Wasp.AppSpec.Job (Job (options, perform))
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -51,7 +52,11 @@ genJobs spec = return $ genJob <$> getJobs spec
                   [ "jobName" .= jobName,
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    "jobFactoryName" .= show (jobFactoryForJob job)
+                    "jobFactoryName" .= show (jobFactoryForJob job),
+                    -- TODO: clean this up
+                    "jobPerformOptions" .= case options job of
+                      Nothing -> "{}"
+                      Just (JSON str) -> "{" ++ str ++ "}"
                   ]
             )
 

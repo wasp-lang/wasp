@@ -112,5 +112,6 @@ action toggleAllTasks {
 }
 
 job mySpecialJob {
-  perform: import { foo } from "@ext/jobs/bar.js"
+  perform: import { foo } from "@ext/jobs/bar.js",
+  options: {=json retryLimit: 1 json=}
 }

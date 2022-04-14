@@ -20,6 +20,6 @@ class PassthroughJob {
   }
 }
 
-export async function jobFactory(_jobName, fn) {
+export async function jobFactory(_jobName, fn, _options) {
   return new PassthroughJob({ perform: fn })
 }
