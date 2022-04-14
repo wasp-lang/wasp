@@ -7,6 +7,7 @@ class PassthroughJob {
   constructor(values) {
     this.perform = () => { }
     this.delaySeconds = 0
+    this.jobName = 'unknown'
     Object.assign(this, values)
   }
 
@@ -16,10 +17,14 @@ class PassthroughJob {
 
   async performAsync(payload) {
     sleep(this.delaySeconds * 1000).then(() => this.perform(payload))
-    return { jobType: 'passthrough' }
+    return {
+      jobName: this.jobName,
+      jobType: 'passthrough',
+      passthrough: {}
+    }
   }
 }
 
-export async function jobFactory(_jobName, fn, _options) {
-  return new PassthroughJob({ perform: fn })
+export async function jobFactory(jobName, fn, _options) {
+  return new PassthroughJob({ perform: fn, jobName })
 }

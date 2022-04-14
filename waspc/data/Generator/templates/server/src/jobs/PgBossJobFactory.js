@@ -28,12 +28,14 @@ class PgBossJobFactory {
   async performAsync(payload) {
     const jobId = await boss.send(this.jobName, payload, { ...this.options, startAfter: this.startAfter })
     return {
-      jobType: 'pg-boss',
       jobName: this.jobName,
-      jobId,
-      async cancel() { return boss.cancel(jobId) },
-      async resume() { return boss.resume(jobId) },
-      async details() { return boss.getJobById(jobId) }
+      jobType: 'pgboss',
+      pgboss: {
+        jobId,
+        async cancel() { return boss.cancel(jobId) },
+        async resume() { return boss.resume(jobId) },
+        async details() { return boss.getJobById(jobId) }
+      }
     }
   }
 }
