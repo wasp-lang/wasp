@@ -59,7 +59,7 @@ considerSendingData cmdCall = (`catchError` const (return ())) $ do
 
   telemetryCacheDirPath <- liftIO ensureTelemetryCacheDirExists
 
-  userSignature <- liftIO $ TlmUser.readOrCreateUserSignatureFile telemetryCacheDirPath
+  userSignature <- liftIO $ TlmUser.obtainUserSignature telemetryCacheDirPath
 
   maybeProjectHash <- (Just <$> TlmProject.getWaspProjectPathHash) `catchError` const (return Nothing)
   for_ maybeProjectHash $ \projectHash -> do
