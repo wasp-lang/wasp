@@ -12,7 +12,8 @@ const setup = async () => {
   console.log('Kicking off Job...')
   // Or: const jobInfo = await mySpecialJob.delay(10).performAsync({ something: "here" })
   const jobInfo = await mySpecialJob.performAsync({ something: "here" })
-  console.log("Job info:", jobInfo)
+  console.log("Job:", jobInfo)
+  console.log("jobInfo.details()", await jobInfo.details())
 }
 
 export default setup
