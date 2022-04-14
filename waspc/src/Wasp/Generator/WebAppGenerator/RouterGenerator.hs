@@ -123,7 +123,7 @@ createPageTemplateData page =
     { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
       _importWhat = case AS.ExtImport.name pageComponent of
         AS.ExtImport.ExtImportModule _ -> pageName
-        AS.ExtImport.ExtImportField identifier -> "{ " ++ mkQualifiedImport identifier pageName ++ " }"
+        AS.ExtImport.ExtImportField identifier -> "{ " ++ mkNamedImportExpr identifier pageName ++ " }"
     }
   where
     relPathToExtSrcDir :: FilePath
@@ -135,7 +135,7 @@ createPageTemplateData page =
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
 
-mkQualifiedImport :: String -> String -> String
-mkQualifiedImport identifier alias
+mkNamedImportExpr :: String -> String -> String
+mkNamedImportExpr identifier alias
   | identifier == alias = identifier
   | otherwise = identifier ++ " as " ++ alias
