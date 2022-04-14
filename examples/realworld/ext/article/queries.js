@@ -85,7 +85,7 @@ export const getArticle = async ({ slug }, context) => {
     include: articleInclude
   })
   if (!article) { 
-      throw new HttpError(404)
+    throw new HttpError(404)
   }
   articleSetFavoritedFields(article, context.user)
   return article

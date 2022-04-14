@@ -105,7 +105,7 @@ const ArticleViewPage = (props) => {
         </Grid>
 
         <Grid item xs={8}>
-            <ReactMarkdown children={article.markdownContent} />
+          <ReactMarkdown children={article.markdownContent} />
         </Grid>
 
         <Grid item xs={8}>
