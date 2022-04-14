@@ -12,16 +12,14 @@ import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.Environment as ENV
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
-import Wasp.Util (checksumFromString, hexToString)
+import Wasp.Util (checksumFromString, hexToString, orIfNothingM)
 
 -- Random, non-identifyable UUID used to represent user in analytics.
 newtype UserSignature = UserSignature {_userSignatureValue :: String} deriving (Show)
 
 obtainUserSignature :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 obtainUserSignature telemetryCacheDirPath =
-  getUserSignatureFromEnv `butIfNothingDo` readOrCreateUserSignatureFile telemetryCacheDirPath
-  where
-    a `butIfNothingDo` b = a >>= maybe b return
+  getUserSignatureFromEnv `orIfNothingM` readOrCreateUserSignatureFile telemetryCacheDirPath
 
 readOrCreateUserSignatureFile :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 readOrCreateUserSignatureFile telemetryCacheDirPath = do
