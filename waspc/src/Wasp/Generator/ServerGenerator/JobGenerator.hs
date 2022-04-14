@@ -8,7 +8,6 @@ import Data.Aeson (object, (.=))
 import Data.Maybe
   ( fromJust,
   )
-import qualified GHC.Enum as Enum
 import StrongPath
   ( Dir,
     File',
@@ -33,24 +32,8 @@ import Wasp.Generator.ServerGenerator.Common
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
-
 data JobFactory = PassthroughJobFactory | PgBossJobFactory
-  deriving (Show, Eq, Ord, Enum, Enum.Bounded)
-
-jobFactories :: [JobFactory]
-jobFactories = enumFrom minBound :: [JobFactory]
-
--- TODO: In future we will detect what type of JobFactory
--- to use based on what the Job is using.
-jobFactoryForJob :: Job -> JobFactory
-jobFactoryForJob _ = PgBossJobFactory
-
-jobFactoryFilePath :: JobFactory -> Path' (Rel d) File'
-jobFactoryFilePath PassthroughJobFactory = [relfile|src/jobs/PassthroughJobFactory.js|]
-jobFactoryFilePath PgBossJobFactory = [relfile|src/jobs/PgBossJobFactory.js|]
+  deriving (Show, Eq, Ord, Enum, Bounded)
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
@@ -72,6 +55,15 @@ genJobs spec = return $ genJob <$> getJobs spec
                   ]
             )
 
+-- | TODO: Make this not hardcoded!
+relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
+
+-- TODO: In future we will detect what type of JobFactory
+-- to use based on what the Job is using.
+jobFactoryForJob :: Job -> JobFactory
+jobFactoryForJob _ = PgBossJobFactory
+
 genJobFactories :: Generator [FileDraft]
 genJobFactories = return $ genJobFactory <$> jobFactories
   where
@@ -79,5 +71,11 @@ genJobFactories = return $ genJobFactory <$> jobFactories
     genJobFactory jobFactory =
       let jobFactoryFp = jobFactoryFilePath jobFactory
           sourceTemplateFp = C.asTmplFile jobFactoryFp
-          destinationServerFp = C.asServerFile jobFactoryFp
-       in C.mkTmplFdWithDstAndData sourceTemplateFp destinationServerFp Nothing
+       in C.mkTmplFd sourceTemplateFp
+
+jobFactories :: [JobFactory]
+jobFactories = enumFrom minBound :: [JobFactory]
+
+jobFactoryFilePath :: JobFactory -> Path' (Rel d) File'
+jobFactoryFilePath PassthroughJobFactory = [relfile|src/jobs/PassthroughJobFactory.js|]
+jobFactoryFilePath PgBossJobFactory = [relfile|src/jobs/PgBossJobFactory.js|]
