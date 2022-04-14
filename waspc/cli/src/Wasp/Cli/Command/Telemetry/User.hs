@@ -18,11 +18,10 @@ import Wasp.Util (checksumFromString, hexToString)
 newtype UserSignature = UserSignature {_userSignatureValue :: String} deriving (Show)
 
 obtainUserSignature :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
-obtainUserSignature telemetryCacheDirPath = do
-  envSign <- getUserSignatureFromEnv
-  case envSign of
-    Just sign -> return sign
-    Nothing -> readOrCreateUserSignatureFile telemetryCacheDirPath
+obtainUserSignature telemetryCacheDirPath =
+  getUserSignatureFromEnv `butIfNothingDo` readOrCreateUserSignatureFile telemetryCacheDirPath
+  where
+    a `butIfNothingDo` b = a >>= maybe b return
 
 readOrCreateUserSignatureFile :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 readOrCreateUserSignatureFile telemetryCacheDirPath = do
