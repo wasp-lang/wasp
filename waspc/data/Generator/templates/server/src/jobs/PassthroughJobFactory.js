@@ -19,7 +19,7 @@ class PassthroughJob {
     sleep(this.delaySeconds * 1000).then(() => this.perform(payload))
     return {
       jobName: this.jobName,
-      jobType: 'passthrough',
+      executor: 'passthrough',
       passthrough: {}
     }
   }

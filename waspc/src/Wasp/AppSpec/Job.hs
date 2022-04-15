@@ -2,6 +2,7 @@
 
 module Wasp.AppSpec.Job
   ( Job (..),
+    JobExecutor (..),
     Perform (..),
   )
 where
@@ -12,11 +13,15 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.JSON (JSON)
 
 data Job = Job
-  { perform :: Perform
+  { executor :: JobExecutor,
+    perform :: Perform
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Job
+
+data JobExecutor = PgBoss
+  deriving (Show, Eq, Data)
 
 data Perform = Perform
   { fn :: ExtImport,

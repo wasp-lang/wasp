@@ -13,7 +13,7 @@ const setup = async () => {
   // Or: const runningJob = await mySpecialJob.delay(10).performAsync({ something: "here" })
   const runningJob = await mySpecialJob.performAsync({ something: "here" })
   console.log("Job:", runningJob)
-  console.log("runningJob.pgboss.details()", await runningJob.pgboss.details())
+  console.log("runningJob.PgBoss.details()", await runningJob.PgBoss.details())
 }
 
 export default setup
