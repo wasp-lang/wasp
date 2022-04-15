@@ -7,6 +7,7 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe
   ( fromJust,
+    fromMaybe,
   )
 import StrongPath
   ( Dir,
@@ -23,7 +24,7 @@ import StrongPath
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import Wasp.AppSpec.JSON (JSON (JSON))
-import Wasp.AppSpec.Job (Job (options, perform))
+import Wasp.AppSpec.Job (Job (concurrency, perform), Perform (fn, options))
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -43,7 +44,7 @@ genJobs spec = return $ genJob <$> getJobs spec
     dstFileFromJobName jobName = C.asServerFile $ [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobName ++ ".js")
     genJob :: (String, Job) -> FileDraft
     genJob (jobName, job) =
-      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ perform job
+      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (fn . perform) job
        in C.mkTmplFdWithDstAndData
             tmplFile
             (dstFileFromJobName jobName)
@@ -53,10 +54,9 @@ genJobs spec = return $ genJob <$> getJobs spec
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
                     "jobFactoryName" .= show (jobFactoryForJob job),
-                    -- TODO: clean this up
-                    "jobPerformOptions" .= case options job of
-                      Nothing -> "{}"
-                      Just (JSON str) -> "{" ++ str ++ "}"
+                    -- TODO: Handle defaults in a helper in Job.hs?
+                    "jobPerformOptions" .= maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job),
+                    "concurrency" .= fromMaybe 1 (concurrency job)
                   ]
             )
 
