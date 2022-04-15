@@ -114,7 +114,7 @@ const Task = (props) => {
     <TableRow>
       <TableCell>
         <Checkbox
-          id={props.task.id}
+          id={String(props.task.id)}
           checked={props.task.isDone}
           onChange={handleTaskIsDoneChange}
           color="default"

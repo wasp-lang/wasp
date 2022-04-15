@@ -1,13 +1,13 @@
 {{={= =}=}}
 import React from 'react'
 
-import { Redirect, Link } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import useAuth from '../../auth/useAuth.js'
 
 
 const createAuthRequiredPage = (Page) => {
   return (props) => {
-    const { data: user, isError, isSuccess, isLoading, isFetching, status } = useAuth()
+    const { data: user, isError, isSuccess, isLoading } = useAuth()
 
     if (isSuccess) {
       if (user) {

@@ -186,7 +186,7 @@
             "file",
             "web-app/package.json"
         ],
-        "655f72fec123ff1b4c17b516bd38771eca4b8236390718d448b69693c26ce8a3"
+        "3f44e953a4466acc8fcd92391ff4130017cec98b4559fd8112eb427b43c0f1e8"
     ],
     [
         [
@@ -256,7 +256,7 @@
             "file",
             "web-app/src/index.js"
         ],
-        "4f5af477f3045d3f834e84962ca08a0f8f949e6979145224ef3f61f4a84cd540"
+        "030bfc5cd200d732eaca398b298057c148c3f9d9b8a3e7a24918db438b5d1861"
     ],
     [
         [
@@ -270,28 +270,28 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "ca58bfb900f5379ee84b42337c11a59cd45b6c62a5018328e5245af5943b32bb"
+        "4eea48fce8a16a41ee86925955c197752d91e8e067d47bcc795c32b450d1c81a"
     ],
     [
         [
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "2057b9c585be6873cf51f4e5229b6f1e9c2ef4f84020edd7580deae1b04536b3"
+        "35f14c763398a5acdd12deea700cc124bca6393553696f2764c2ebfab0609ee1"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.js"
         ],
-        "8cd5049ed1d3e4d00243c480f112a600ac830533c95772512101d4d50866ee25"
+        "39a659c6ed82cbbc38b834b607e049646e0d70e104d01317830f225629a5f14c"
     ],
     [
         [
             "file",
-            "web-app/src/queryCache.js"
+            "web-app/src/queryClient.js"
         ],
-        "c813d33478963f3cde701024ee45c4a14ae6b3a4e87cd0705a19ed72d0a2b187"
+        "f53c6e82b0e1b13dd2c2fff423460c88cd1c331e154867edeb7cd5f98c3586e4"
     ],
     [
         [

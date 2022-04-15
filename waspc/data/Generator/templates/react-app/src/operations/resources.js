@@ -1,5 +1,5 @@
 {{= {= =} =}}
-import queryCache from '../queryCache'
+import { queryClient } from '../queryClient'
 
 
 // Map where key is resource name and value is Set
@@ -42,6 +42,6 @@ export const invalidateQueriesUsing = (resources) => {
     getQueriesUsingResource(resource).forEach(key => queryCacheKeysToInvalidate.add(key))
   }
   for (const queryCacheKey of queryCacheKeysToInvalidate) {
-    queryCache.invalidateQueries(queryCacheKey)
+    queryClient.invalidateQueries(queryCacheKey)
   }
 }
