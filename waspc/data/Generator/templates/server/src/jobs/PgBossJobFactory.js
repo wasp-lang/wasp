@@ -1,7 +1,6 @@
-import { EventEmitter } from 'events'
 import PgBoss from 'pg-boss'
 
-export const boss = new PgBoss(process.env.DATABASE_URL)
+export const boss = new PgBoss({ connectionString: process.env.DATABASE_URL })
 
 export async function startPgBoss() {
   console.log('Starting PgBoss...')
@@ -9,8 +8,6 @@ export async function startPgBoss() {
   await boss.start()
   console.log('PgBoss started!')
 }
-
-const pgBossCompletionEventEmitter = new EventEmitter()
 
 class PgBossJobFactory {
   constructor(values) {
