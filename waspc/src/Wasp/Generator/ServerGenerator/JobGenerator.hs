@@ -7,7 +7,6 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe
   ( fromJust,
-    fromMaybe,
   )
 import StrongPath
   ( Dir,
@@ -24,7 +23,7 @@ import StrongPath
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import Wasp.AppSpec.JSON (JSON (JSON))
-import Wasp.AppSpec.Job (Job (concurrency, perform), Perform (fn, options))
+import Wasp.AppSpec.Job (Job (perform), Perform (fn, options))
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -55,8 +54,7 @@ genJobs spec = return $ genJob <$> getJobs spec
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
                     "jobFactoryName" .= show (jobFactoryForJob job),
                     -- TODO: Handle defaults in a helper in Job.hs?
-                    "jobPerformOptions" .= maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job),
-                    "concurrency" .= fromMaybe 1 (concurrency job)
+                    "jobPerformOptions" .= maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job)
                   ]
             )
 

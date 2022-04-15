@@ -12,8 +12,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.JSON (JSON)
 
 data Job = Job
-  { perform :: Perform,
-    concurrency :: Maybe Integer
+  { perform :: Perform
   }
   deriving (Show, Eq, Data)
 
