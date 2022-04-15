@@ -42,7 +42,7 @@ waspJob/.wasp/out/web-app/src/logo.png
 waspJob/.wasp/out/web-app/src/operations/index.js
 waspJob/.wasp/out/web-app/src/operations/resources.js
 waspJob/.wasp/out/web-app/src/queries/index.js
-waspJob/.wasp/out/web-app/src/queryCache.js
+waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.js
 waspJob/.wasp/out/web-app/src/serviceWorker.js
 waspJob/.wasp/out/web-app/src/utils.js
