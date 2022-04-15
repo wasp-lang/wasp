@@ -9,12 +9,14 @@ import config from './config.js'
 {=& serverSetupJsFnImportStatement =}
 {=/ doesServerSetupFnExist =}
 
-// TODO: wrap in conditional checks
+{=# isPgBossUsed =}
 import { startPgBoss } from './jobs/PgBossJobFactory.js'
+{=/ isPgBossUsed =}
 
 const startServer = async () => {
-  // TODO: wrap in conditional checks
+  {=# isPgBossUsed =}
   await startPgBoss()
+  {=/ isPgBossUsed =}
 
   const debugLog = debug('server:server')
 
