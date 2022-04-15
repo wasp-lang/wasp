@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 import Container from '@material-ui/core/Container'
-import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
@@ -29,8 +28,6 @@ const useStyles = makeStyles((theme) => ({
 
 
 const UserProfilePage = (props) => {
-  const classes = useStyles()
-
   const history = useHistory()
 
   const { data: me } = useAuth()
@@ -53,7 +50,7 @@ const UserProfilePage = (props) => {
 
       <Grid container direction="row" justify="center">
         <Grid item xs={8}>
-          <img src={user.profilePictureUrl || smileyImageUrl} />
+          <img src={user.profilePictureUrl || smileyImageUrl} alt="Profile" />
           <p> { user.username } </p>
           <p> { user.bio } </p>
           { me && me.username === username && (
@@ -157,8 +154,6 @@ function TabPanel(props) {
 
 const Articles = (props) => {
   const classes = useStyles()
-
-  const user = props.user
 
   return (
     <div className={classes.articles}>

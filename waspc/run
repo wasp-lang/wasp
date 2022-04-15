@@ -164,7 +164,7 @@ case $COMMAND in
         exit $TOTAL_RESULT
         ;;
     module-graph)
-        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=20,20! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
+        echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
         ;;
     *)
         print_usage

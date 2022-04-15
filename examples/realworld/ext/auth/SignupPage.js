@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
 
-export default () => {
+const SignupPage = () => {
   const history = useHistory()
   const [username, setUsername] = useState()
   const [email, setEmail] = useState()
@@ -48,3 +48,5 @@ export default () => {
     </div>
   )
 }
+
+export default SignupPage

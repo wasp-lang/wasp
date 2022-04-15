@@ -104,7 +104,7 @@ entity Comment {=psl
 
     user            User     @relation(fields: [userId], references: [id])
     userId          Int
-    article         Article  @relation(fields: [articleId], references: [id])
+    article         Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
     articleId       Int
 psl=}
 

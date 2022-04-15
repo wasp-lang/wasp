@@ -13,7 +13,18 @@ import Data.Maybe
     fromMaybe,
     isJust,
   )
-import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath
+  ( Dir,
+    File',
+    Path,
+    Path',
+    Posix,
+    Rel,
+    reldir,
+    reldirP,
+    relfile,
+    (</>),
+  )
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -38,6 +49,7 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.JobGenerator (genJobFactories, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
@@ -55,6 +67,8 @@ genServer spec =
     <++> genSrcDir spec
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
+    <++> genJobs spec
+    <++> genJobFactories
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $

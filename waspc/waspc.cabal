@@ -208,6 +208,7 @@ library
       Wasp.Generator.ServerGenerator.Common
       Wasp.Generator.ServerGenerator.ConfigG
       Wasp.Generator.ServerGenerator.ExternalCodeGenerator
+      Wasp.Generator.ServerGenerator.JobGenerator
       Wasp.Generator.ServerGenerator.OperationsG
       Wasp.Generator.ServerGenerator.OperationsRoutesG
       Wasp.Generator.ServerGenerator.Setup
@@ -384,6 +385,7 @@ test-suite e2e-test
     ShellCommands
     Tests.WaspBuildTest
     Tests.WaspCompileTest
+    Tests.WaspJobTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
 

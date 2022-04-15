@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'

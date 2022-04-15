@@ -3,6 +3,7 @@ import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.WaspBuildTest (waspBuild)
 import Tests.WaspCompileTest (waspCompile)
+import Tests.WaspJobTest (waspJob)
 import Tests.WaspMigrateTest (waspMigrate)
 import Tests.WaspNewTest (waspNew)
 
@@ -23,5 +24,6 @@ tests = do
       [ waspNew,
         waspCompile,
         waspMigrate,
-        waspBuild
+        waspBuild,
+        waspJob
       ]
