@@ -14,7 +14,7 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8 as ByteStringUTF8
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Time as T
 import Data.Version (showVersion)
 import GHC.Generics
@@ -23,6 +23,7 @@ import Paths_waspc (version)
 import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import qualified System.Directory as SD
+import qualified System.Environment as ENV
 import qualified System.Info
 import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.Call as Command.Call
@@ -43,7 +44,8 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
     Just lastCheckIn -> isOlderThan12Hours lastCheckIn
 
   when shouldSendData $ do
-    sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall
+    telemetryContext <- getTelemetryContext
+    sendTelemetryData $ getProjectTelemetryData userSignature projectHash cmdCall telemetryContext
     projectCache' <- newProjectCache projectCache
     writeProjectTelemetryFile telemetryCacheDirPath projectHash projectCache'
   where
@@ -65,6 +67,9 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
               Command.Call.Build -> Just now
               _ -> _lastCheckInBuild currentProjectCache
           }
+
+getTelemetryContext :: IO String
+getTelemetryContext = fromMaybe "" <$> ENV.lookupEnv "WASP_TELEMETRY_CONTEXT"
 
 -- * Project hash.
 
@@ -128,12 +133,13 @@ data ProjectTelemetryData = ProjectTelemetryData
     _projectHash :: ProjectHash,
     _waspVersion :: String,
     _os :: String,
-    _isBuild :: Bool
+    _isBuild :: Bool,
+    _context :: String
   }
   deriving (Show)
 
-getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.Call -> ProjectTelemetryData
-getProjectTelemetryData userSignature projectHash cmdCall =
+getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.Call -> String -> ProjectTelemetryData
+getProjectTelemetryData userSignature projectHash cmdCall context =
   ProjectTelemetryData
     { _userSignature = userSignature,
       _projectHash = projectHash,
@@ -141,7 +147,8 @@ getProjectTelemetryData userSignature projectHash cmdCall =
       _os = System.Info.os,
       _isBuild = case cmdCall of
         Command.Call.Build -> True
-        _ -> False
+        _ -> False,
+      _context = context
     }
 
 sendTelemetryData :: ProjectTelemetryData -> IO ()
@@ -159,7 +166,8 @@ sendTelemetryData telemetryData = do
                   "project_hash" .= _projectHashValue (_projectHash telemetryData),
                   "wasp_version" .= _waspVersion telemetryData,
                   "os" .= _os telemetryData,
-                  "is_build" .= _isBuild telemetryData
+                  "is_build" .= _isBuild telemetryData,
+                  "context" .= _context telemetryData
                 ]
           ]
       request =

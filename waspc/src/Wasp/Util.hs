@@ -25,6 +25,9 @@ module Wasp.Util
     checksumFromFilePath,
     checksumFromChecksums,
     ifM,
+    fromMaybeM,
+    orIfNothing,
+    orIfNothingM,
   )
 where
 
@@ -37,6 +40,7 @@ import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
@@ -190,3 +194,12 @@ hexFromString = Hex
 
 hexToString :: Hex -> String
 hexToString (Hex s) = s
+
+fromMaybeM :: (Monad m) => m a -> m (Maybe a) -> m a
+fromMaybeM ma = (>>= maybe ma return)
+
+orIfNothing :: Maybe a -> a -> a
+orIfNothing = flip fromMaybe
+
+orIfNothingM :: (Monad m) => m (Maybe a) -> m a -> m a
+orIfNothingM = flip fromMaybeM
