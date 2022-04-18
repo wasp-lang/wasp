@@ -59,7 +59,6 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
 
--- TODO
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   if isPgBossUsed spec && not (isPostgresUsed spec)
