@@ -25,14 +25,13 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec, getJobs)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Job (Job (executor), JobExecutor (PgBoss))
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -50,7 +49,12 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator (genJobFactories, genJobs)
+import Wasp.Generator.ServerGenerator.JobGenerator
+  ( genJobFactories,
+    genJobs,
+    isPgBossUsed,
+    pgBossVersion,
+  )
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
@@ -60,7 +64,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec npmDepsForWasp,
+      genPackageJson spec (npmDepsForWasp $ Just spec),
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -108,11 +112,14 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
-npmDepsForWasp :: N.NpmDepsForWasp
-npmDepsForWasp =
+-- This takes a `Maybe AppSpec` so it can work in contexts where
+-- we want to display base dependencies that do not rely on optional
+-- features.
+npmDepsForWasp :: Maybe AppSpec -> N.NpmDepsForWasp
+npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList
+        AS.Dependency.fromList $
           [ ("cookie-parser", "~1.4.4"),
             ("cors", "^2.8.5"),
             ("debug", "~2.6.9"),
@@ -122,9 +129,9 @@ npmDepsForWasp =
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0"),
-            ("pg-boss", "7.2.1")
-          ],
+            ("helmet", "^4.6.0")
+          ]
+            ++ pgBossVersion spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
@@ -207,7 +214,7 @@ genServerJs spec =
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
               "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
               "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier,
-              "isPgBossUsed" .= any (\(_, job) -> executor job == PgBoss) (getJobs spec)
+              "isPgBossUsed" .= isPgBossUsed spec
             ]
       )
   where

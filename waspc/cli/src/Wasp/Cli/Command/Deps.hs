@@ -23,12 +23,12 @@ deps =
         ]
           ++ printDeps
             "Server dependencies:"
-            ( N.waspDependencies ServerGenerator.npmDepsForWasp
+            ( N.waspDependencies $ ServerGenerator.npmDepsForWasp Nothing
             )
           ++ [""]
           ++ printDeps
             "Server devDependencies:"
-            ( N.waspDevDependencies ServerGenerator.npmDepsForWasp
+            ( N.waspDevDependencies $ ServerGenerator.npmDepsForWasp Nothing
             )
           ++ [""]
           ++ printDeps
