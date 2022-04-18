@@ -4,6 +4,8 @@ import { useHistory } from 'react-router-dom'
 import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
 
+import { errorMessage } from '@wasp/utils.js'
+
 const SignupPage = () => {
   const history = useHistory()
   const [username, setUsername] = useState()
@@ -29,7 +31,7 @@ const SignupPage = () => {
   return (
     <div>
       { submitError && (
-          <p> { submitError.message || submitError } </p>
+          <p> { submitError.message ? errorMessage(submitError) : submitError } </p>
       ) }
 
       <form onSubmit={handleSubmit}>

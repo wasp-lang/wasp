@@ -11,6 +11,8 @@ import logout from '@wasp/auth/logout.js'
 
 import updateUser from '@wasp/actions/updateUser'
 
+import { errorMessage } from '@wasp/utils.js'
+
 import Navbar from '../../Navbar'
 
 const UserSettingsPage = ({ user }) => {
@@ -79,7 +81,7 @@ const UserSettings = (props) => {
     <div>
       { submitError && (
         <p>
-          { submitError.message || submitError }
+          { submitError.message ? errorMessage(submitError) : submitError }
         </p>
       ) }
 
