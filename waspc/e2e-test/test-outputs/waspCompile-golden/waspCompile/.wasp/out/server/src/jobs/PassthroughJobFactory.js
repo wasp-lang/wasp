@@ -6,21 +6,25 @@ import { sleep } from '../utils.js'
 class PassthroughJob {
   constructor(values) {
     this.perform = () => { }
-    this.delayMs = 0
+    this.delaySeconds = 0
+    this.jobName = 'unknown'
     Object.assign(this, values)
   }
 
-  delay(ms) {
-    return new PassthroughJob({ ...this, delayMs: ms })
+  delay(delaySeconds) {
+    return new PassthroughJob({ ...this, delaySeconds })
   }
 
-  performAsync(args) {
+  async performAsync(payload) {
+    sleep(this.delaySeconds * 1000).then(() => this.perform(payload))
     return {
-      result: sleep(this.delayMs).then(() => this.perform(args))
+      jobName: this.jobName,
+      executor: 'passthrough',
+      passthrough: {}
     }
   }
 }
 
-export function jobFactory(fn) {
-  return new PassthroughJob({ perform: fn })
+export async function jobFactory(jobName, fn, _options) {
+  return new PassthroughJob({ perform: fn, jobName })
 }

@@ -18,7 +18,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "2cd8e420a90505150d496273ceca091869b33ca4e8bf82c59a3ea678c852d63b"
+        "16c90bcaec8038a1b8bff30b2db2f7876b40c0e2e1b088076491f86f14d172c5"
     ],
     [
         [
@@ -53,7 +53,7 @@
             "file",
             "server/package.json"
         ],
-        "54d8353286dae688a59458973227cfc1fae57549f49f318ddd46a1abdd716da2"
+        "29f5ac9203f42d94f4ebe9b0bc029f4c44dfc1cced7a293c97983139981496e0"
     ],
     [
         [
@@ -123,14 +123,21 @@
             "file",
             "server/src/jobs/MySpecialJob.js"
         ],
-        "d4a43343328095083bc9109455c592cb1aaf4295fb37790416002d41fee592a4"
+        "3f5a70638219880a36ff97ed3d28962e60835485e545aec71cec632c7f42511d"
     ],
     [
         [
             "file",
             "server/src/jobs/PassthroughJobFactory.js"
         ],
-        "404443274a33f1104e41d47174edfe5290bf5219fdf7e730bbdce1ad24a93fda"
+        "d1c21b50951b245b1c1f81a17ca02b3c2d65dce7b0402e5a7635c86a2daf7737"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/PgBossJobFactory.js"
+        ],
+        "6d80393ee44df631c7e57fa4e203acf42c2da72dced2f738d7c4b18314abc43f"
     ],
     [
         [
@@ -151,7 +158,7 @@
             "file",
             "server/src/server.js"
         ],
-        "48b40cb20ce5d1171c9a01e28bfb2a1b0efefbee8cc210a52bf7f67aa8ec585b"
+        "a1f5f56f1f0c43b13fbf713c18c3cb402027133102a56d5053dad41fae14290b"
     ],
     [
         [

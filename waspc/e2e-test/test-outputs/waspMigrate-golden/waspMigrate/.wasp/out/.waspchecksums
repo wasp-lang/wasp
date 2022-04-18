@@ -116,7 +116,14 @@
             "file",
             "server/src/jobs/PassthroughJobFactory.js"
         ],
-        "404443274a33f1104e41d47174edfe5290bf5219fdf7e730bbdce1ad24a93fda"
+        "d1c21b50951b245b1c1f81a17ca02b3c2d65dce7b0402e5a7635c86a2daf7737"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/PgBossJobFactory.js"
+        ],
+        "6d80393ee44df631c7e57fa4e203acf42c2da72dced2f738d7c4b18314abc43f"
     ],
     [
         [
@@ -137,7 +144,7 @@
             "file",
             "server/src/server.js"
         ],
-        "48b40cb20ce5d1171c9a01e28bfb2a1b0efefbee8cc210a52bf7f67aa8ec585b"
+        "3ee2212932180883fabe36bc22e18e2167a63cdbca8bde2dd595419ae2a34e95"
     ],
     [
         [

@@ -18,6 +18,7 @@ waspJob/.wasp/out/server/src/ext-src/jobs/bar.js
 waspJob/.wasp/out/server/src/ext-src/waspLogo.png
 waspJob/.wasp/out/server/src/jobs/MySpecialJob.js
 waspJob/.wasp/out/server/src/jobs/PassthroughJobFactory.js
+waspJob/.wasp/out/server/src/jobs/PgBossJobFactory.js
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.js

@@ -16,6 +16,7 @@ waspBuild/.wasp/build/server/src/ext-src/Main.css
 waspBuild/.wasp/build/server/src/ext-src/MainPage.js
 waspBuild/.wasp/build/server/src/ext-src/waspLogo.png
 waspBuild/.wasp/build/server/src/jobs/PassthroughJobFactory.js
+waspBuild/.wasp/build/server/src/jobs/PgBossJobFactory.js
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.js
