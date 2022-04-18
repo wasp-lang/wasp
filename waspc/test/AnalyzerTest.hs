@@ -80,7 +80,10 @@ spec_Analyzer = do
                 "}",
                 "",
                 "job BackgroundJob {",
-                "  perform: import { backgroundJob } from \"@ext/jobs/baz.js\",",
+                "  executor: PgBoss,",
+                "  perform: {",
+                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\"",
+                "  }",
                 "}"
               ]
 
@@ -194,10 +197,13 @@ spec_Analyzer = do
       let expectedJob =
             [ ( "BackgroundJob",
                 Job.Job
-                  { Job.perform =
-                      ExtImport
+                  { Job.executor = Job.PgBoss,
+                    Job.perform = Job.Perform {
+                      Job.fn = ExtImport
                         (ExtImportField "backgroundJob")
-                        (fromJust $ SP.parseRelFileP "jobs/baz.js")
+                        (fromJust $ SP.parseRelFileP "jobs/baz.js"),
+                      Job.options = Nothing
+                    }
                   }
               )
             ]
