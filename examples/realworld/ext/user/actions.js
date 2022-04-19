@@ -24,7 +24,7 @@ export const updateUser = async ({ email, username, bio, profilePictureUrl, newP
     } else if (isPrismaError(e)) {
       throw prismaErrorToHttpError(e)
     } else {
-      throw new HttpError(500)
+      throw e
     }
   }
 }
