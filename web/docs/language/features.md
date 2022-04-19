@@ -667,6 +667,35 @@ const Main = () => {
 export default Main
 ```
 
+### Prisma and Validation Error Helpers
+In your Actions, you may wish to handle User entity validation errors or general Prisma errors with HTTP friendly responses. We have exposed one class and two helpers functions for this purpose.
+
+#### `import statements`:
+```js
+import AuthError from '@wasp/core/AuthError.js'
+import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
+```
+
+##### Example of usage:
+```js
+  try {
+    await context.entities.User.update({
+      where: { id: context.user.id },
+      data: {
+        // some fields to update here
+      }
+    })
+  } catch (e) {
+    if (e instanceof AuthError) {
+      throw new HttpError(422, 'Validation failed', { message: e.message })
+    } else if (isPrismaError(e)) {
+      throw prismaErrorToHttpError(e)
+    } else {
+      throw e
+    }
+  }
+```
+
 #### On server
 
 When authentication is enabled, all the operations (actions and queries) will have `user` object
