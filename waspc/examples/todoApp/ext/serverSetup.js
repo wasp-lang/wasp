@@ -10,10 +10,10 @@ const setup = async () => {
   console.log('Custom server setup done!')
 
   console.log('Kicking off Job...')
-  // Or: const runningJob = await mySpecialJob.delay(10).performAsync({ something: "here" })
-  const runningJob = await mySpecialJob.performAsync({ something: "here" })
-  console.log("Job:", runningJob)
-  console.log("runningJob.PgBoss.details()", await runningJob.PgBoss.details())
+  // Or: const scheduledJob = await mySpecialJob.delay(10).submit({ something: "here" })
+  const scheduledJob = await mySpecialJob.submit({ something: "here" })
+  console.log("Job:", scheduledJob)
+  console.log("scheduledJob.PgBoss.details()", await scheduledJob.PgBoss.details())
 }
 
 export default setup
