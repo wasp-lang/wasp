@@ -11,7 +11,7 @@ import logout from '@wasp/auth/logout.js'
 
 import updateUser from '@wasp/actions/updateUser'
 
-import { errorMessage } from '@wasp/utils.js'
+import { errorMessage } from '../../utils'
 
 import Navbar from '../../Navbar'
 

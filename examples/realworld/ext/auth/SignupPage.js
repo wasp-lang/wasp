@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom'
 import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
 
-import { errorMessage } from '@wasp/utils.js'
+import { errorMessage } from '../utils.js'
 
 const SignupPage = () => {
   const history = useHistory()
