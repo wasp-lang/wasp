@@ -22,13 +22,13 @@ class PgBossJobFactory {
     return new PgBossJobFactory({ ...this, startAfter })
   }
 
-  async performAsync(payload) {
-    const jobId = await boss.send(this.jobName, payload, { ...this.options, startAfter: this.startAfter })
+  async submit(payload, options) {
+    const jobId = await boss.send(this.jobName, payload, { ...this.options, startAfter: this.startAfter, ...options })
     return {
       jobName: this.jobName,
       executor: 'PgBoss',
+      jobId,
       PgBoss: {
-        jobId,
         async cancel() { return boss.cancel(jobId) },
         async resume() { return boss.resume(jobId) },
         async details() { return boss.getJobById(jobId) }

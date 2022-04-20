@@ -15,11 +15,12 @@ class PassthroughJob {
     return new PassthroughJob({ ...this, delaySeconds })
   }
 
-  async performAsync(payload) {
+  async submit(payload) {
     sleep(this.delaySeconds * 1000).then(() => this.perform(payload))
     return {
       jobName: this.jobName,
       executor: 'passthrough',
+      jobId: 'unknown',
       passthrough: {}
     }
   }
