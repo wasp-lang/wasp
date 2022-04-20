@@ -115,7 +115,7 @@ genPackageJson spec waspDependencies = do
 
 -- This takes a `Maybe AppSpec` so it can work in contexts where
 -- we want to display base dependencies that do not rely on optional
--- features.
+-- features, as in the `deps` CLI command.
 npmDepsForWasp :: Maybe AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
