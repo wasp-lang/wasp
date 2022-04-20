@@ -718,7 +718,7 @@ acting accordingly - e.g. if `context.user` is `undefined` and the operation is 
 should be denied access to it.
 
 ### Validation Error Handling
-When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed one class, `AuthError`, for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
 
 #### `import statement`:
 ```js
