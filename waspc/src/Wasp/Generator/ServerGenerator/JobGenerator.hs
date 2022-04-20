@@ -25,8 +25,12 @@ import StrongPath
     (</>),
   )
 import Wasp.AppSpec (AppSpec, getJobs)
-import Wasp.AppSpec.JSON (JSON (JSON))
-import Wasp.AppSpec.Job (Job (executor, perform), JobExecutor (PgBoss), Perform (fn, options))
+import Wasp.AppSpec.Job
+  ( Job (executor, perform),
+    JobExecutor (Passthrough, PgBoss),
+    fn,
+    jobPerformOptionsJsonString,
+  )
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -56,8 +60,7 @@ genJobs spec = return $ genJob <$> getJobs spec
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
                     "jobFactoryName" .= show (jobFactoryForJob $ executor job),
-                    -- TODO: Handle defaults in a helper in Job.hs?
-                    "jobPerformOptions" .= maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job)
+                    "jobPerformOptions" .= jobPerformOptionsJsonString job
                   ]
             )
 
@@ -66,6 +69,7 @@ relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir G
 relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
 
 jobFactoryForJob :: JobExecutor -> JobFactory
+jobFactoryForJob Passthrough = PassthroughJobFactory
 jobFactoryForJob PgBoss = PgBossJobFactory
 
 genJobFactories :: Generator [FileDraft]

@@ -4,13 +4,14 @@ module Wasp.AppSpec.Job
   ( Job (..),
     JobExecutor (..),
     Perform (..),
+    jobPerformOptionsJsonString,
   )
 where
 
 import Data.Data (Data)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.ExtImport (ExtImport)
-import Wasp.AppSpec.JSON (JSON)
+import Wasp.AppSpec.JSON (JSON (..))
 
 data Job = Job
   { executor :: JobExecutor,
@@ -20,7 +21,7 @@ data Job = Job
 
 instance IsDecl Job
 
-data JobExecutor = PgBoss
+data JobExecutor = Passthrough | PgBoss
   deriving (Show, Eq, Data)
 
 data Perform = Perform
@@ -30,3 +31,6 @@ data Perform = Perform
   deriving (Show, Eq, Data)
 
 instance IsDecl Perform
+
+jobPerformOptionsJsonString :: Job -> String
+jobPerformOptionsJsonString job = maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job)
