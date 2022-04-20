@@ -2,7 +2,8 @@ module Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobs,
     genJobFactories,
     isPgBossUsed,
-    pgBossVersion,
+    pgBossVersionBounds,
+    maybePgBossDependency,
   )
 where
 
@@ -86,8 +87,11 @@ jobFactoryFilePath PgBossJobFactory = [relfile|src/jobs/PgBossJobFactory.js|]
 isPgBossUsed :: AppSpec -> Bool
 isPgBossUsed spec = any (\(_, job) -> executor job == PgBoss) (getJobs spec)
 
-pgBossVersion :: Maybe AppSpec -> [(String, String)]
-pgBossVersion Nothing = []
-pgBossVersion (Just spec)
-  | isPgBossUsed spec = [("pg-boss", "7.2.1")]
-  | otherwise = []
+pgBossVersionBounds :: String
+pgBossVersionBounds = "^7.2.1"
+
+maybePgBossDependency :: Maybe AppSpec -> Maybe (String, String)
+maybePgBossDependency Nothing = Nothing
+maybePgBossDependency (Just spec)
+  | isPgBossUsed spec = Just ("pg-boss", pgBossVersionBounds)
+  | otherwise = Nothing

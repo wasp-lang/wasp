@@ -12,6 +12,7 @@ import Data.Maybe
   ( fromJust,
     fromMaybe,
     isJust,
+    maybeToList,
   )
 import StrongPath
   ( Dir,
@@ -53,7 +54,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobFactories,
     genJobs,
     isPgBossUsed,
-    pgBossVersion,
+    maybePgBossDependency,
   )
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
@@ -131,7 +132,7 @@ npmDepsForWasp spec =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-            ++ pgBossVersion spec,
+            ++ maybeToList (maybePgBossDependency spec),
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
