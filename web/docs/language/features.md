@@ -422,6 +422,26 @@ In practice, this means that Wasp keeps the queries "fresh" without requiring yo
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
 
+### Prisma Error Helpers
+In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses. We have exposed two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
+
+#### `import statement`:
+```js
+import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
+```
+
+##### Example of usage:
+```js
+  try {
+    await context.entities.Task.create({...})
+  } catch (e) {
+    if (isPrismaError(e)) {
+      throw prismaErrorToHttpError(e)
+    } else {
+      throw e
+    }
+  }
+```
 
 ## Dependencies
 
@@ -667,35 +687,6 @@ const Main = () => {
 export default Main
 ```
 
-### Prisma and Validation Error Helpers
-In your Actions, you may wish to handle User entity validation errors or general Prisma errors with HTTP friendly responses. We have exposed one class and two helpers functions for this purpose.
-
-#### `import statements`:
-```js
-import AuthError from '@wasp/core/AuthError.js'
-import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
-```
-
-##### Example of usage:
-```js
-  try {
-    await context.entities.User.update({
-      where: { id: context.user.id },
-      data: {
-        // some fields to update here
-      }
-    })
-  } catch (e) {
-    if (e instanceof AuthError) {
-      throw new HttpError(422, 'Validation failed', { message: e.message })
-    } else if (isPrismaError(e)) {
-      throw prismaErrorToHttpError(e)
-    } else {
-      throw e
-    }
-  }
-```
-
 #### On server
 
 When authentication is enabled, all the operations (actions and queries) will have `user` object
@@ -726,6 +717,26 @@ In order to implement access control, each operation is responsible for checking
 acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user
 should be denied access to it.
 
+### Validation Error Handling
+When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed one class, `AuthError`, for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+
+#### `import statement`:
+```js
+import AuthError from '@wasp/core/AuthError.js'
+```
+
+##### Example of usage:
+```js
+  try {
+    await context.entities.User.update(...)
+  } catch (e) {
+    if (e instanceof AuthError) {
+      throw new HttpError(422, 'Validation failed', { message: e.message })
+    } else {
+      throw e
+    }
+  }
+```
 
 ## Server configuration
 
