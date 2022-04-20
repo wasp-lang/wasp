@@ -8,7 +8,7 @@ RUN apk --no-cache -U upgrade # To ensure any potential security patches are app
 
 FROM base AS server-builder
 # Install packages needed to build native npm packages.
-RUN apk add --no-cache build-base libtool autoconf automake python
+RUN apk add --no-cache build-base libtool autoconf automake python3
 WORKDIR /app
 # Install npm packages, resulting in node_modules/.
 COPY server/package*.json ./server/
