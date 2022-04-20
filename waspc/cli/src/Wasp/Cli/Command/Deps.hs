@@ -12,6 +12,8 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import qualified Wasp.Util.Terminal as Term
 
+-- TODO: How to handle conditional includes that depend AppSpec?
+-- Example: pg-boss but only when `jobs` are used.
 deps :: Command ()
 deps =
   liftIO $
