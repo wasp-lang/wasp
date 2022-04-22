@@ -49,7 +49,7 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator(genJobs, depsRequiredByJobs, genJobExecutors)
+import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV

@@ -18,21 +18,25 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    basename,
     parseRelFile,
     reldir,
     reldirP,
     relfile,
-    (</>), basename, toFilePath
+    toFilePath,
+    (</>),
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import Wasp.AppSpec.JSON (waspJSONtoString)
 import Wasp.AppSpec.Job
   ( Job (executor, perform),
     JobExecutor (Passthrough, PgBoss),
+    Perform (options),
     fn,
     jobExecutors,
-    Perform (options)
   )
+import Wasp.AppSpec.Valid (isPgBossJobExecutorUsed)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -41,8 +45,6 @@ import Wasp.Generator.ServerGenerator.Common
   ( ServerSrcDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.AppSpec.Valid (isPgBossJobExecutorUsed)
-import Wasp.AppSpec.JSON (waspJSONtoString)
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
@@ -82,11 +84,11 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
        in C.mkTmplFd sourceTemplateFp
 
     jobExecutorHelperFds :: [FileDraft]
-    jobExecutorHelperFds = [
-        C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/pgBoss.js|]
+    jobExecutorHelperFds =
+      [ C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/pgBoss.js|]
       ]
 
-jobCreatorFilePath :: JobExecutor  -> Path' (Rel d) File'
+jobCreatorFilePath :: JobExecutor -> Path' (Rel d) File'
 jobCreatorFilePath Passthrough = [relfile|src/jobs/passthroughJob.js|]
 jobCreatorFilePath PgBoss = [relfile|src/jobs/pgBossJob.js|]
 

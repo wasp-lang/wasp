@@ -2,7 +2,7 @@
 
 module Wasp.AppSpec.JSON
   ( JSON (..),
-    waspJSONtoString
+    waspJSONtoString,
   )
 where
 

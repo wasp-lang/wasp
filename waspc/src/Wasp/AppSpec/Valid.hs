@@ -21,8 +21,8 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
-import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Job as Job
+import qualified Wasp.AppSpec.Page as Page
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
