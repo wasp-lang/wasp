@@ -13,15 +13,13 @@ import Wasp.Generator.ServerGenerator.JobGenerator (pgBossDependency)
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import qualified Wasp.Util.Terminal as Term
 
--- TODO: How to handle conditional includes that depend AppSpec?
--- Example: pg-boss but only when `jobs` are used.
 deps :: Command ()
 deps =
   liftIO $
     putStrLn $
       unlines $
         [ "",
-          title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
+          title "Below are the dependencies that this version of Wasp uses in projects. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
           ""
         ]
           ++ printDeps
