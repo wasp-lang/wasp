@@ -198,12 +198,14 @@ spec_Analyzer = do
             [ ( "BackgroundJob",
                 Job.Job
                   { Job.executor = Job.PgBoss,
-                    Job.perform = Job.Perform {
-                      Job.fn = ExtImport
-                        (ExtImportField "backgroundJob")
-                        (fromJust $ SP.parseRelFileP "jobs/baz.js"),
-                      Job.options = Nothing
-                    }
+                    Job.perform =
+                      Job.Perform
+                        { Job.fn =
+                            ExtImport
+                              (ExtImportField "backgroundJob")
+                              (fromJust $ SP.parseRelFileP "jobs/baz.js"),
+                          Job.options = Nothing
+                        }
                   }
               )
             ]
