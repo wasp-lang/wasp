@@ -1,5 +1,4 @@
 import { sleep } from '../utils.js'
-import { v4 as uuidv4 } from 'uuid'
 
 /**
  * "Immutable-ish" passthrough job wrapper, mainly to be used for testing.
@@ -21,7 +20,9 @@ class PassthroughJob {
     return {
       jobName: this.jobName,
       executor: 'passthrough',
-      jobId: uuidv4(),
+      // NOTE: Dumb random ID generator, mainly so we don't have to pull uuid
+      // as a dependency into the server generator for something nobody will likely use.
+      jobId: (Math.random() + 1).toString(36).substring(7),
       passthrough: {}
     }
   }
