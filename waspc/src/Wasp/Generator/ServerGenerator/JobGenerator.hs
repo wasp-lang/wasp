@@ -25,6 +25,7 @@ import StrongPath
     (</>),
   )
 import Wasp.AppSpec (AppSpec, getJobs)
+import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Job
   ( Job (executor, perform),
     JobExecutor (Passthrough, PgBoss),
@@ -94,8 +95,8 @@ isPgBossUsed spec = any (\(_, job) -> executor job == PgBoss) (getJobs spec)
 pgBossVersionBounds :: String
 pgBossVersionBounds = "^7.2.1"
 
-maybePgBossDependency :: Maybe AppSpec -> Maybe (String, String)
+maybePgBossDependency :: Maybe AppSpec -> Maybe AS.Dependency.Dependency
 maybePgBossDependency Nothing = Nothing
 maybePgBossDependency (Just spec)
-  | isPgBossUsed spec = Just ("pg-boss", pgBossVersionBounds)
+  | isPgBossUsed spec = Just $ AS.Dependency.make ("pg-boss", pgBossVersionBounds)
   | otherwise = Nothing

@@ -120,7 +120,7 @@ npmDepsForWasp :: Maybe AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
-        AS.Dependency.fromList $
+        AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.4"),
             ("cors", "^2.8.5"),
             ("debug", "~2.6.9"),
@@ -132,7 +132,7 @@ npmDepsForWasp spec =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-            ++ maybeToList (maybePgBossDependency spec),
+          ++ maybeToList (maybePgBossDependency spec),
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
