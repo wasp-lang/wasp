@@ -3,6 +3,7 @@ module Wasp.Generator.ServerGenerator.JobGenerator
     genJobFactories,
     isPgBossUsed,
     pgBossVersionBounds,
+    pgBossDependency,
     maybePgBossDependency,
   )
 where
@@ -95,8 +96,11 @@ isPgBossUsed spec = any (\(_, job) -> executor job == PgBoss) (getJobs spec)
 pgBossVersionBounds :: String
 pgBossVersionBounds = "^7.2.1"
 
+pgBossDependency :: AS.Dependency.Dependency
+pgBossDependency = AS.Dependency.make ("pg-boss", pgBossVersionBounds)
+
 maybePgBossDependency :: Maybe AppSpec -> Maybe AS.Dependency.Dependency
 maybePgBossDependency Nothing = Nothing
 maybePgBossDependency (Just spec)
-  | isPgBossUsed spec = Just $ AS.Dependency.make ("pg-boss", pgBossVersionBounds)
+  | isPgBossUsed spec = Just pgBossDependency
   | otherwise = Nothing

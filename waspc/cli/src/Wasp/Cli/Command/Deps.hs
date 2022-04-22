@@ -9,13 +9,12 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator (pgBossVersionBounds)
+import Wasp.Generator.ServerGenerator.JobGenerator (pgBossDependency)
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import qualified Wasp.Util.Terminal as Term
 
 -- TODO: How to handle conditional includes that depend AppSpec?
 -- Example: pg-boss but only when `jobs` are used.
--- Is the pattern below ok?
 deps :: Command ()
 deps =
   liftIO $
@@ -29,7 +28,7 @@ deps =
             "Server dependencies:"
             ( N.waspDependencies $ ServerGenerator.npmDepsForWasp Nothing
             )
-          ++ [printDep (AS.Dependency.Dependency "pg-boss@" pgBossVersionBounds) ++ " <-- Only if PgBoss is used in your jobs"]
+          ++ [printDep pgBossDependency ++ " <-- Only if PgBoss is used in your jobs"]
           ++ [""]
           ++ printDeps
             "Server devDependencies:"
