@@ -5,6 +5,7 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
+    isPgBossJobExecutorUsed,
   )
 where
 
@@ -21,7 +22,7 @@ import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
-import Wasp.Generator.ServerGenerator.JobGenerator (isPgBossUsed)
+import qualified Wasp.AppSpec.Job as Job
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -61,7 +62,7 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
-  if isPgBossUsed spec && not (isPostgresUsed spec)
+  if isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
     then
       [ GenericValidationError
           "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
@@ -113,3 +114,6 @@ isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 isPostgresUsed :: AppSpec -> Bool
 isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+
+isPgBossJobExecutorUsed :: AppSpec -> Bool
+isPgBossJobExecutorUsed spec = any (\(_, job) -> Job.executor job == Job.PgBoss) (AS.getJobs spec)

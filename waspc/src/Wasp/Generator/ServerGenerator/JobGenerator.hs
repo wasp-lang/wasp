@@ -1,10 +1,9 @@
 module Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobs,
-    genJobFactories,
-    isPgBossUsed,
+    genJobExecutors,
     pgBossVersionBounds,
     pgBossDependency,
-    maybePgBossDependency,
+    depsRequiredByJobs,
   )
 where
 
@@ -23,7 +22,7 @@ import StrongPath
     reldir,
     reldirP,
     relfile,
-    (</>),
+    (</>), basename, toFilePath
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
@@ -31,7 +30,8 @@ import Wasp.AppSpec.Job
   ( Job (executor, perform),
     JobExecutor (Passthrough, PgBoss),
     fn,
-    jobPerformOptionsJsonString,
+    jobExecutors,
+    Perform (options)
   )
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -41,9 +41,8 @@ import Wasp.Generator.ServerGenerator.Common
   ( ServerSrcDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-
-data JobFactory = PassthroughJobFactory | PgBossJobFactory
-  deriving (Show, Eq, Ord, Enum, Bounded)
+import Wasp.AppSpec.Valid (isPgBossJobExecutorUsed)
+import Wasp.AppSpec.JSON (waspJSONtoString)
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
@@ -61,8 +60,8 @@ genJobs spec = return $ genJob <$> getJobs spec
                   [ "jobName" .= jobName,
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    "jobFactoryName" .= show (jobFactoryForJob $ executor job),
-                    "jobPerformOptions" .= jobPerformOptionsJsonString job
+                    "jobExecutorFilename" .= toFilePath (basename $ jobCreatorFilePath $ executor job),
+                    "jobPerformOptions" .= maybe "{}" waspJSONtoString (options . perform $ job)
                   ]
             )
 
@@ -70,28 +69,26 @@ genJobs spec = return $ genJob <$> getJobs spec
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
 
-jobFactoryForJob :: JobExecutor -> JobFactory
-jobFactoryForJob Passthrough = PassthroughJobFactory
-jobFactoryForJob PgBoss = PgBossJobFactory
-
-genJobFactories :: Generator [FileDraft]
-genJobFactories = return $ genJobFactory <$> jobFactories
+genJobExecutors :: Generator [FileDraft]
+genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
   where
-    genJobFactory :: JobFactory -> FileDraft
-    genJobFactory jobFactory =
-      let jobFactoryFp = jobFactoryFilePath jobFactory
-          sourceTemplateFp = C.asTmplFile jobFactoryFp
+    jobExecutorFds :: [FileDraft]
+    jobExecutorFds = genJobExecutor <$> jobExecutors
+
+    genJobExecutor :: JobExecutor -> FileDraft
+    genJobExecutor jobExecutor =
+      let jobExecutorFp = jobCreatorFilePath jobExecutor
+          sourceTemplateFp = C.asTmplFile jobExecutorFp
        in C.mkTmplFd sourceTemplateFp
 
-jobFactories :: [JobFactory]
-jobFactories = enumFrom minBound :: [JobFactory]
+    jobExecutorHelperFds :: [FileDraft]
+    jobExecutorHelperFds = [
+        C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/pgBoss.js|]
+      ]
 
-jobFactoryFilePath :: JobFactory -> Path' (Rel d) File'
-jobFactoryFilePath PassthroughJobFactory = [relfile|src/jobs/PassthroughJobFactory.js|]
-jobFactoryFilePath PgBossJobFactory = [relfile|src/jobs/PgBossJobFactory.js|]
-
-isPgBossUsed :: AppSpec -> Bool
-isPgBossUsed spec = any (\(_, job) -> executor job == PgBoss) (getJobs spec)
+jobCreatorFilePath :: JobExecutor  -> Path' (Rel d) File'
+jobCreatorFilePath Passthrough = [relfile|src/jobs/passthroughJob.js|]
+jobCreatorFilePath PgBoss = [relfile|src/jobs/pgBossJob.js|]
 
 pgBossVersionBounds :: String
 pgBossVersionBounds = "^7.2.1"
@@ -99,8 +96,5 @@ pgBossVersionBounds = "^7.2.1"
 pgBossDependency :: AS.Dependency.Dependency
 pgBossDependency = AS.Dependency.make ("pg-boss", pgBossVersionBounds)
 
-maybePgBossDependency :: Maybe AppSpec -> Maybe AS.Dependency.Dependency
-maybePgBossDependency Nothing = Nothing
-maybePgBossDependency (Just spec)
-  | isPgBossUsed spec = Just pgBossDependency
-  | otherwise = Nothing
+depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]

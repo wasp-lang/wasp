@@ -4,7 +4,7 @@ module Wasp.AppSpec.Job
   ( Job (..),
     JobExecutor (..),
     Perform (..),
-    jobPerformOptionsJsonString,
+    jobExecutors,
   )
 where
 
@@ -22,7 +22,7 @@ data Job = Job
 instance IsDecl Job
 
 data JobExecutor = Passthrough | PgBoss
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Data, Ord, Enum, Bounded)
 
 data Perform = Perform
   { fn :: ExtImport,
@@ -32,5 +32,5 @@ data Perform = Perform
 
 instance IsDecl Perform
 
-jobPerformOptionsJsonString :: Job -> String
-jobPerformOptionsJsonString job = maybe "{}" (\(JSON str) -> "{" ++ str ++ "}") (options . perform $ job)
+jobExecutors :: [JobExecutor]
+jobExecutors = enumFrom minBound :: [JobExecutor]

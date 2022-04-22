@@ -9,14 +9,14 @@ import config from './config.js'
 {=& serverSetupJsFnImportStatement =}
 {=/ doesServerSetupFnExist =}
 
-{=# isPgBossUsed =}
-import { startPgBoss } from './jobs/PgBossJobFactory.js'
-{=/ isPgBossUsed =}
+{=# isPgBossJobExecutorUsed =}
+import { startPgBoss } from './jobs/pgBoss.js'
+{=/ isPgBossJobExecutorUsed =}
 
 const startServer = async () => {
-  {=# isPgBossUsed =}
+  {=# isPgBossJobExecutorUsed =}
   await startPgBoss()
-  {=/ isPgBossUsed =}
+  {=/ isPgBossJobExecutorUsed =}
 
   const debugLog = debug('server:server')
 

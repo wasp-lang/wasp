@@ -1,4 +1,5 @@
 import { sleep } from '../utils.js'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * "Immutable-ish" passthrough job wrapper, mainly to be used for testing.
@@ -20,12 +21,12 @@ class PassthroughJob {
     return {
       jobName: this.jobName,
       executor: 'passthrough',
-      jobId: 'unknown',
+      jobId: uuidv4(),
       passthrough: {}
     }
   }
 }
 
-export async function jobFactory(jobName, fn, _options) {
+export async function createJob(jobName, fn, _options) {
   return new PassthroughJob({ perform: fn, jobName })
 }

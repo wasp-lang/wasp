@@ -1,15 +1,6 @@
-import PgBoss from 'pg-boss'
+import { boss } from './pgBoss.js'
 
-export const boss = new PgBoss({ connectionString: process.env.DATABASE_URL })
-
-export async function startPgBoss() {
-  console.log('Starting PgBoss...')
-  boss.on('error', error => console.error(error))
-  await boss.start()
-  console.log('PgBoss started!')
-}
-
-class PgBossJobFactory {
+class PgBossJob {
   constructor(values) {
     this.perform = () => { }
     this.options = {}
@@ -19,7 +10,7 @@ class PgBossJobFactory {
   }
 
   delay(startAfter) {
-    return new PgBossJobFactory({ ...this, startAfter })
+    return new PgBossJob({ ...this, startAfter })
   }
 
   async submit(payload, options) {
@@ -37,7 +28,7 @@ class PgBossJobFactory {
   }
 }
 
-export async function jobFactory(jobName, fn, options) {
+export async function createJob(jobName, fn, options) {
   await boss.work(jobName, fn)
-  return new PgBossJobFactory({ perform: fn, jobName, options })
+  return new PgBossJob({ perform: fn, jobName, options })
 }

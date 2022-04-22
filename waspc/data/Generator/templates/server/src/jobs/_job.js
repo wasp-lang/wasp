@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { jobFactory } from './{= jobFactoryName =}.js'
+import { createJob } from './{= jobExecutorFilename =}'
 {=& jobPerformFnImportStatement =}
 
-export const {= jobName =} = await jobFactory("{= jobName =}", {= jobPerformFnName =}, {= jobPerformOptions =})
+export const {= jobName =} = await createJob("{= jobName =}", {= jobPerformFnName =}, {= jobPerformOptions =})

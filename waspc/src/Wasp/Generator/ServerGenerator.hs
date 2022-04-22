@@ -12,7 +12,6 @@ import Data.Maybe
   ( fromJust,
     fromMaybe,
     isJust,
-    maybeToList,
   )
 import StrongPath
   ( Dir,
@@ -33,7 +32,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled, isPgBossJobExecutorUsed)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -50,12 +49,7 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator
-  ( genJobFactories,
-    genJobs,
-    isPgBossUsed,
-    maybePgBossDependency,
-  )
+import Wasp.Generator.ServerGenerator.JobGenerator(genJobs, depsRequiredByJobs, genJobExecutors)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
@@ -74,7 +68,7 @@ genServer spec =
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genJobFactories
+    <++> genJobExecutors
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -116,6 +110,7 @@ genPackageJson spec waspDependencies = do
 -- This takes a `Maybe AppSpec` so it can work in contexts where
 -- we want to display base dependencies that do not rely on optional
 -- features, as in the `deps` CLI command.
+-- TODO: Clean this up so we can handle optional and required deps cleaner.
 npmDepsForWasp :: Maybe AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
@@ -132,7 +127,7 @@ npmDepsForWasp spec =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-          ++ maybeToList (maybePgBossDependency spec),
+          ++ maybe [] depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
@@ -215,7 +210,7 @@ genServerJs spec =
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
               "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
               "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier,
-              "isPgBossUsed" .= isPgBossUsed spec
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
             ]
       )
   where
