@@ -20,12 +20,14 @@ class PassthroughJob {
     return {
       jobName: this.jobName,
       executor: 'passthrough',
-      jobId: 'unknown',
+      // NOTE: Dumb random ID generator, mainly so we don't have to pull uuid
+      // as a dependency into the server generator for something nobody will likely use.
+      jobId: (Math.random() + 1).toString(36).substring(7),
       passthrough: {}
     }
   }
 }
 
-export async function jobFactory(jobName, fn, _options) {
+export async function createJob(jobName, fn, _options) {
   return new PassthroughJob({ perform: fn, jobName })
 }

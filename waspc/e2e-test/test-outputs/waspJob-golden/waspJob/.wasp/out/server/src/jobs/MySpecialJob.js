@@ -1,4 +1,4 @@
-import { jobFactory } from './PgBossJobFactory.js'
+import { createJob } from './pgBossJob.js'
 import { foo } from './../ext-src/jobs/bar.js'
 
-export const MySpecialJob = await jobFactory("MySpecialJob", foo, {})
+export const MySpecialJob = await createJob("MySpecialJob", foo, {})

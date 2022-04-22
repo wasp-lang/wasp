@@ -5,7 +5,7 @@ import app from './app.js'
 import config from './config.js'
 
 
-import { startPgBoss } from './jobs/PgBossJobFactory.js'
+import { startPgBoss } from './jobs/pgBoss.js'
 
 const startServer = async () => {
   await startPgBoss()
