@@ -59,7 +59,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec (npmDepsForWasp $ Just spec),
+      genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -107,11 +107,7 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
--- This takes a `Maybe AppSpec` so it can work in contexts where
--- we want to display base dependencies that do not rely on optional
--- features, as in the `deps` CLI command.
--- TODO: Clean this up so we can handle optional and required deps cleaner.
-npmDepsForWasp :: Maybe AppSpec -> N.NpmDepsForWasp
+npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
@@ -127,7 +123,7 @@ npmDepsForWasp spec =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-          ++ maybe [] depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),

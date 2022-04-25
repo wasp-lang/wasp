@@ -3,45 +3,52 @@ module Wasp.Cli.Command.Deps
   )
 where
 
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Compile (compileOptions)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator (pgBossDependency)
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
+import Wasp.Lib (makeAppSpec)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
-deps =
-  liftIO $
-    putStrLn $
-      unlines $
-        [ "",
-          title "Below are the dependencies that this version of Wasp uses in projects. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
-          ""
-        ]
-          ++ printDeps
-            "Server dependencies:"
-            ( N.waspDependencies $ ServerGenerator.npmDepsForWasp Nothing
-            )
-          ++ [printDep pgBossDependency ++ " <-- Only if PgBoss is used in your jobs"]
-          ++ [""]
-          ++ printDeps
-            "Server devDependencies:"
-            ( N.waspDevDependencies $ ServerGenerator.npmDepsForWasp Nothing
-            )
-          ++ [""]
-          ++ printDeps
-            "Webapp dependencies:"
-            ( N.waspDependencies WebAppGenerator.npmDepsForWasp
-            )
-          ++ [""]
-          ++ printDeps
-            "Webapp devDependencies:"
-            ( N.waspDevDependencies WebAppGenerator.npmDepsForWasp
-            )
+deps = do
+  waspProjectDir <- findWaspProjectRootDirFromCwd
+  maybeAppSpec <- liftIO $ makeAppSpec waspProjectDir (compileOptions waspProjectDir)
+  case maybeAppSpec of
+    Left compileErrors -> throwError $ CommandError "Determing dependencies failed" (unwords compileErrors)
+    Right appSpec ->
+      liftIO $
+        putStrLn $
+          unlines $
+            [ "",
+              title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
+              ""
+            ]
+              ++ printDeps
+                "Server dependencies:"
+                ( N.waspDependencies $ ServerGenerator.npmDepsForWasp appSpec
+                )
+              ++ [""]
+              ++ printDeps
+                "Server devDependencies:"
+                ( N.waspDevDependencies $ ServerGenerator.npmDepsForWasp appSpec
+                )
+              ++ [""]
+              ++ printDeps
+                "Webapp dependencies:"
+                ( N.waspDependencies WebAppGenerator.npmDepsForWasp
+                )
+              ++ [""]
+              ++ printDeps
+                "Webapp devDependencies:"
+                ( N.waspDevDependencies WebAppGenerator.npmDepsForWasp
+                )
 
 printDeps :: String -> [AS.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =
