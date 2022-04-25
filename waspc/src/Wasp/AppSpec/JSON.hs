@@ -5,12 +5,13 @@ module Wasp.AppSpec.JSON
   )
 where
 
+import qualified Data.Aeson as Aeson
 import Data.Data (Data)
+import Data.Text.Lazy (unpack)
+import Data.Text.Lazy.Encoding (decodeUtf8)
 
--- TOOD: In future we should convert this to Aeson.
-newtype JSON = JSON String
+newtype JSON = JSON Aeson.Value
   deriving (Eq, Data)
 
--- TODO: We should fix implicit braces syntax.
 instance Show JSON where
-  show (JSON str) = "{" ++ str ++ "}"
+  show (JSON val) = unpack $ decodeUtf8 $ Aeson.encode val

@@ -115,6 +115,6 @@ job mySpecialJob {
   executor: PgBoss,
   perform: {
     fn: import { foo } from "@ext/jobs/bar.js",
-    options: {=json retryLimit: 1 json=}
+    options: {=json { "retryLimit": 1 } json=}
   }
 }
