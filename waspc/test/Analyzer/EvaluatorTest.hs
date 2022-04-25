@@ -138,6 +138,21 @@ makeDeclType ''Tuples
 
 --------------------
 
+-------- Special --------
+
+data AllJson = AllJson
+  { objectValue :: JSON,
+    arrayValue :: JSON,
+    stringValue :: JSON,
+    nullValue :: JSON,
+    booleanValue :: JSON
+  }
+  deriving (Eq, Show)
+
+instance IsDecl AllJson
+
+makeDeclType ''AllJson
+
 eval :: TD.TypeDefinitions -> [String] -> Either EvaluationError [Decl]
 eval typeDefs source = evaluate typeDefs . fromRight . typeCheck typeDefs . fromRight . parseStatements $ unlines source
 
@@ -200,6 +215,24 @@ spec_Evaluator = do
                   (JSON $ Aeson.object ["key" Aeson..= (1 :: Integer)])
               )
             ]
+
+      it "Evaluates JSON and they show correctly" $ do
+        let typeDefs = TD.addDeclType @AllJson $ TD.empty
+        let source =
+              [ "allJson Test {",
+                "  objectValue: {=json { \"key\": 1 } json=},",
+                "  arrayValue: {=json [1, 2, 3] json=},",
+                "  stringValue: {=json \"hello\" json=},",
+                "  nullValue: {=json null json=},",
+                "  booleanValue: {=json false json=},",
+                "}"
+              ]
+        let Right [("Test", allJson)] = fmap takeDecls (eval typeDefs source)
+        show (objectValue allJson) `shouldBe` "{\"key\":1}"
+        show (arrayValue allJson) `shouldBe` "[1,2,3]"
+        show (stringValue allJson) `shouldBe` "\"hello\""
+        show (nullValue allJson) `shouldBe` "null"
+        show (booleanValue allJson) `shouldBe` "false"
 
       it "Evaluates a declaration with a field that has custom evaluation" $ do
         let typeDefs = TD.addDeclType @Custom $ TD.empty
