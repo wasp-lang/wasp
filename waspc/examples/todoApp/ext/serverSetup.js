@@ -13,7 +13,7 @@ const setup = async () => {
   // Or: const scheduledJob = await mySpecialJob.delay(10).submit({ something: "here" })
   const scheduledJob = await mySpecialJob.submit({ something: "here" })
   console.log("Job:", scheduledJob)
-  console.log("scheduledJob.PgBoss.details()", await scheduledJob.PgBoss.details())
+  console.log("scheduledJob.pgBoss.details()", await scheduledJob.pgBoss.details())
 }
 
 export default setup

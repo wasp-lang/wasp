@@ -86,7 +86,8 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
 
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
-      [ C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/pgBoss.js|]
+      [ C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/pgBoss.js|],
+        C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/SubmittedJob.js|]
       ]
 
 jobCreatorFilePath :: JobExecutor -> Path' (Rel d) File'
