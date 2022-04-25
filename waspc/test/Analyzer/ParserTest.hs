@@ -238,16 +238,14 @@ spec_ParseStatements = do
     let source =
           unlines
             [ "test JSON {=json",
-              "  \"key\": \"value\"",
+              "  { \"key\": \"value\" }",
               "json=}",
-              "test JSON2 {=json",
-              "  \"key\": \"value\"",
-              "json=}"
+              "test JSON2 {=json [1, 2, 3] json=}"
             ]
     let ast =
           AST
-            [ wctx (1, 1) (3, 6) $ Decl "test" "JSON" $ wctx (1, 11) (3, 6) $ Quoter "json" "\n  \"key\": \"value\"\n",
-              wctx (4, 1) (6, 6) $ Decl "test" "JSON2" $ wctx (4, 12) (6, 6) $ Quoter "json" "\n  \"key\": \"value\"\n"
+            [ wctx (1, 1) (3, 6) $ Decl "test" "JSON" $ wctx (1, 11) (3, 6) $ Quoter "json" "\n  { \"key\": \"value\" }\n",
+              wctx (4, 1) (4, 34) $ Decl "test" "JSON2" $ wctx (4, 12) (4, 34) $ Quoter "json" " [1, 2, 3] "
             ]
     parseStatements source `shouldBe` Right ast
 

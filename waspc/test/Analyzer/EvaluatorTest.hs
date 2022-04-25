@@ -6,6 +6,7 @@
 
 module Analyzer.EvaluatorTest where
 
+import qualified Data.Aeson as Aeson
 import Data.Data (Data)
 import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
@@ -185,7 +186,7 @@ spec_Evaluator = do
         let source =
               [ "special Test {",
                 "  imps: [import { field } from \"@ext/main.js\", import main from \"@ext/main.js\"],",
-                "  json: {=json \"key\": 1 json=}",
+                "  json: {=json { \"key\": 1 } json=}",
                 "}"
               ]
 
@@ -196,7 +197,7 @@ spec_Evaluator = do
                   [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
                     ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
                   ]
-                  (JSON " \"key\": 1 ")
+                  (JSON $ fromJust (Aeson.decode "{ \"key\": 1 }" :: Maybe Aeson.Value))
               )
             ]
 
