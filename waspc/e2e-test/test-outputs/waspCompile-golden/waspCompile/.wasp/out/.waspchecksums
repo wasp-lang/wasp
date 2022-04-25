@@ -114,9 +114,16 @@
     [
         [
             "file",
+            "server/src/jobs/SubmittedJob.js"
+        ],
+        "9e81440c934691f3cdc9d53b3c8138ab3e38ee07757e884e98c8d9012fa965c5"
+    ],
+    [
+        [
+            "file",
             "server/src/jobs/passthroughJob.js"
         ],
-        "1ff512a5249048d4ac1d727c940b4bcfbd224040fc905160ea31eacc55ac8c77"
+        "5e745250c3b5cf1f4e636f9d55e325e45ec8aef374358572f6d49e72a093d7b6"
     ],
     [
         [
@@ -130,7 +137,7 @@
             "file",
             "server/src/jobs/pgBossJob.js"
         ],
-        "8c3f71e774936b844e167b3236aef21909c25a2af1b8f82b129e2c07b5d90140"
+        "7bf617db87bfeb4704375a7bed31d6665181ae055cc74c93390383a6dd6a188f"
     ],
     [
         [

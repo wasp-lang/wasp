@@ -1,4 +1,12 @@
 import { boss } from './pgBoss.js'
+import { SubmittedJob } from './SubmittedJob.js'
+
+class PgBossSubmittedJob extends SubmittedJob {
+  constructor(jobName, jobId, executor, pgBoss) {
+    super(jobName, jobId, executor)
+    this.pgBoss = pgBoss
+  }
+}
 
 class PgBossJob {
   constructor(values) {
@@ -15,16 +23,11 @@ class PgBossJob {
 
   async submit(payload, options) {
     const jobId = await boss.send(this.jobName, payload, { ...this.options, startAfter: this.startAfter, ...options })
-    return {
-      jobName: this.jobName,
-      executor: 'PgBoss',
-      jobId,
-      PgBoss: {
-        async cancel() { return boss.cancel(jobId) },
-        async resume() { return boss.resume(jobId) },
-        async details() { return boss.getJobById(jobId) }
-      }
-    }
+    return new PgBossSubmittedJob(this.jobName, jobId, 'PgBoss', {
+      async cancel() { return boss.cancel(jobId) },
+      async resume() { return boss.resume(jobId) },
+      async details() { return boss.getJobById(jobId) }
+    })
   }
 }
 

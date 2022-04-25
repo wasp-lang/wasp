@@ -20,6 +20,7 @@ waspMigrate/.wasp/out/server/src/dbClient.js
 waspMigrate/.wasp/out/server/src/ext-src/Main.css
 waspMigrate/.wasp/out/server/src/ext-src/MainPage.js
 waspMigrate/.wasp/out/server/src/ext-src/waspLogo.png
+waspMigrate/.wasp/out/server/src/jobs/SubmittedJob.js
 waspMigrate/.wasp/out/server/src/jobs/passthroughJob.js
 waspMigrate/.wasp/out/server/src/jobs/pgBoss.js
 waspMigrate/.wasp/out/server/src/jobs/pgBossJob.js
