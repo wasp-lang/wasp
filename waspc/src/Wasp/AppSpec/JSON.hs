@@ -2,6 +2,7 @@
 
 module Wasp.AppSpec.JSON
   ( JSON (..),
+    emptyObject,
   )
 where
 
@@ -15,3 +16,6 @@ newtype JSON = JSON Aeson.Value
 
 instance Show JSON where
   show (JSON val) = unpack $ decodeUtf8 $ Aeson.encode val
+
+emptyObject :: JSON
+emptyObject = JSON $ Aeson.object []

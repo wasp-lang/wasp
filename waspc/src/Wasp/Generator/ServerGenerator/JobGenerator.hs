@@ -10,6 +10,7 @@ where
 import Data.Aeson (object, (.=))
 import Data.Maybe
   ( fromJust,
+    fromMaybe,
   )
 import StrongPath
   ( Dir,
@@ -28,6 +29,7 @@ import StrongPath
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job
   ( Job (executor, perform),
     JobExecutor (Passthrough, PgBoss),
@@ -62,7 +64,7 @@ genJobs spec = return $ genJob <$> getJobs spec
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
                     "jobExecutorFilename" .= toFilePath (basename $ jobCreatorFilePath $ executor job),
-                    "jobPerformOptions" .= maybe "{}" show (options . perform $ job)
+                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (options . perform $ job))
                   ]
             )
 

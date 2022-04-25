@@ -197,7 +197,7 @@ spec_Evaluator = do
                   [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
                     ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
                   ]
-                  (JSON $ fromJust (Aeson.decode "{ \"key\": 1 }" :: Maybe Aeson.Value))
+                  (JSON $ Aeson.object ["key" Aeson..= (1 :: Integer)])
               )
             ]
 
