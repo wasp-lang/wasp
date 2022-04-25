@@ -28,7 +28,6 @@ import StrongPath
   )
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.JSON (waspJSONtoString)
 import Wasp.AppSpec.Job
   ( Job (executor, perform),
     JobExecutor (Passthrough, PgBoss),
@@ -63,7 +62,7 @@ genJobs spec = return $ genJob <$> getJobs spec
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
                     "jobExecutorFilename" .= toFilePath (basename $ jobCreatorFilePath $ executor job),
-                    "jobPerformOptions" .= maybe "{}" waspJSONtoString (options . perform $ job)
+                    "jobPerformOptions" .= maybe "{}" show (options . perform $ job)
                   ]
             )
 
