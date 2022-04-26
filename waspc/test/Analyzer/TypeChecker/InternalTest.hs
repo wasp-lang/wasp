@@ -167,6 +167,32 @@ spec_Internal = do
               (wctx1 $ Tuple (wctx2 $ StringLiteral "foo", wctx3 $ BoolLiteral True, []) (TupleType (StringType, BoolType, [])))
           )
           `shouldBe` True
+
+      -- TODO: property testing.
+      describe "Correctly weakens complex types (list, dictionary, tuple)" $ do
+        it "Should weaken empty list to any list type" $ do
+          weaken (ListType StringType) (wctx1 $ List [] EmptyListType) `shouldBe` Right (wctx1 $ List [] StringType)
+
+        it "Should weaken [T] to [T'] if T' is supertype of T" $ do
+          let superType = makeUnionType StringType subType
+              subType = BoolType
+          weaken (ListType superType) (wctx1 $ List [] subType) `shouldBe` Right (wctx1 $ List [] superType)
+
+        it "Should weaken (T, _) to (T', _) if T' is supertype of T" $ do
+          let texpr = wctx2 $ BoolLiteral True
+              texpr' = wctx3 $ List [] EmptyListType
+              superType = makeUnionType StringType (exprType $ fromWithCtx texpr)
+              texpr'Type = exprType $ fromWithCtx texpr'
+              texprType = exprType $ fromWithCtx texpr
+          weaken
+            (TupleType (superType, texpr'Type, []))
+            ( wctx1 $
+                Tuple
+                  (texpr, texpr', [])
+                  (TupleType (texprType, texpr'Type, []))
+            )
+            `shouldBe` Right (wctx1 $ Tuple (texpr, texpr', []) (TupleType (superType, texpr'Type, [])))
+
     -- TODO: test weaken with complex types (e.g., dicts, lists)
     -- TODO: it seems that weaken currently doesn't support tuples
     -- (e.g., we cannot weaken (bool, string) to (bool, string | number))

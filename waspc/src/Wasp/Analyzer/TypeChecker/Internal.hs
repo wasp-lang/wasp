@@ -31,7 +31,7 @@ module Wasp.Analyzer.TypeChecker.Internal
     unify,
     unifyTypes,
     weaken,
-    makeUnionType
+    makeUnionType,
   )
 where
 
@@ -152,7 +152,7 @@ unify texprs =
       weakenedTexprs =
         fromRight
           (error "This should never happen: there should be no weaken errors during unification.")
-          -- TODO: How come we need to weaken the entire tree, is it important to keep correct 
+          -- TODO: How come we need to weaken the entire tree, is it important to keep correct
           -- type information for child nodes. Do we even need the function "weaken" here if we know
           -- the correct type from above (superType)
           -- We thought about it: weaken assigns the calculated supertype to all child nodes
@@ -163,6 +163,7 @@ unify texprs =
    in (weakenedTexprs, superType)
 
 -- TODO: change documentation
+
 -- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
 -- type of typed expression @texpr@ are a sub-type of.
 -- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
@@ -188,6 +189,7 @@ unifyTypes t1 t2 = makeUnionType t1 t2
 -- TODO: Perhaps it makes sense to move this to Analyzer/Types.hs and make
 -- it a smart constructor.
 -- TODO: Consider interesting case when two same types are given! Write tests for that.
+-- TODO: document.
 makeUnionType :: Type -> Type -> Type
 makeUnionType t1 t2 = reduceUnionType (UnionType t1 t2)
 
