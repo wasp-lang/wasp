@@ -176,6 +176,7 @@ library
       Wasp.AppSpec.Query
       Wasp.AppSpec.Route
       Wasp.AppSpec.Valid
+      Wasp.AppSpec.Util
       Wasp.Common
       Wasp.CompileOptions
       Wasp.Data

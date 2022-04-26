@@ -43,7 +43,7 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- from the record of what's in package.json.
 ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 ensureNpmInstall spec dstDir = do
-  let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec (SG.npmDepsForWasp spec) WG.npmDepsForWasp
+  let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
   case errorOrNpmDepsForFullStack of
     Left message -> return ([], [GenericGeneratorError ("npm install failed: " ++ message)])
     Right npmDepsForFullStack -> do

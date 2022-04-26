@@ -2,7 +2,7 @@ module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
     compileIOWithOptions,
-    compileOptions,
+    defaultCompileOptions,
   )
 where
 
@@ -41,7 +41,7 @@ compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
-compileIO waspProjectDir outDir = compileIOWithOptions (compileOptions waspProjectDir) waspProjectDir outDir
+compileIO waspProjectDir outDir = compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
@@ -61,8 +61,8 @@ compileIOWithOptions options waspProjectDir outDir = do
     displayWarnings warnings =
       cliSendMessage $ Msg.Warning "Your project compiled with warnings" (formatMessages warnings ++ "\n\n")
 
-compileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
-compileOptions waspProjectDir =
+defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
+defaultCompileOptions waspProjectDir =
   CompileOptions
     { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
       isBuild = False,

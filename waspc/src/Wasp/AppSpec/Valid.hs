@@ -5,7 +5,6 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
-    isPgBossJobExecutorUsed,
   )
 where
 
@@ -21,8 +20,8 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
-import qualified Wasp.AppSpec.Job as Job
 import qualified Wasp.AppSpec.Page as Page
+import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -112,8 +111,6 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
 isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
-
-isPgBossJobExecutorUsed :: AppSpec -> Bool
-isPgBossJobExecutorUsed spec = any (\(_, job) -> Job.executor job == Job.PgBoss) (AS.getJobs spec)

@@ -1,5 +1,7 @@
 {{={= =}=}}
-import { createJob } from './{= jobExecutorFilename =}'
+import { createJob, executorSetup } from './{= jobFilename =}'
 {=& jobPerformFnImportStatement =}
 
-export const {= jobName =} = await createJob("{= jobName =}", {= jobPerformFnName =}, {=& jobPerformOptions =})
+await executorSetup({ jobName: "{= jobName =}", jobFn: {= jobPerformFnName =} })
+
+export const {= jobName =} = createJob({ jobName: "{= jobName =}", jobFn: {= jobPerformFnName =}, defaultJobOptions: {=& jobPerformOptions =} })

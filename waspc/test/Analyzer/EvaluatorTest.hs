@@ -216,7 +216,7 @@ spec_Evaluator = do
               )
             ]
 
-      it "Evaluates JSON and they show correctly" $ do
+      it "Evaluates JSON quoters and they show correctly" $ do
         let typeDefs = TD.addDeclType @AllJson $ TD.empty
         let source =
               [ "allJson Test {",
@@ -227,7 +227,7 @@ spec_Evaluator = do
                 "  booleanValue: {=json false json=},",
                 "}"
               ]
-        let Right [("Test", allJson)] = fmap takeDecls (eval typeDefs source)
+        let Right [("Test", allJson)] = takeDecls <$> eval typeDefs source
         show (objectValue allJson) `shouldBe` "{\"key\":1}"
         show (arrayValue allJson) `shouldBe` "[1,2,3]"
         show (stringValue allJson) `shouldBe` "\"hello\""

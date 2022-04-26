@@ -8,10 +8,7 @@ module Wasp.Generator.ServerGenerator.JobGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe
-  ( fromJust,
-    fromMaybe,
-  )
+import Data.Maybe (fromJust, fromMaybe)
 import StrongPath
   ( Dir,
     File',
@@ -27,24 +24,18 @@ import StrongPath
     toFilePath,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job
-  ( Job (executor, perform),
-    JobExecutor (Passthrough, PgBoss),
-    Perform (options),
-    fn,
-    jobExecutors,
-  )
-import Wasp.AppSpec.Valid (isPgBossJobExecutorUsed)
+import Wasp.AppSpec.Job (Job, JobExecutor (Passthrough, PgBoss), jobExecutors)
+import qualified Wasp.AppSpec.Job as J
+import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.ServerGenerator.Common
-  ( ServerSrcDir,
-  )
+import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, ServerTemplatesDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
 genJobs :: AppSpec -> Generator [FileDraft]
@@ -54,7 +45,7 @@ genJobs spec = return $ genJob <$> getJobs spec
     dstFileFromJobName jobName = C.asServerFile $ [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobName ++ ".js")
     genJob :: (String, Job) -> FileDraft
     genJob (jobName, job) =
-      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (fn . perform) job
+      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
        in C.mkTmplFdWithDstAndData
             tmplFile
             (dstFileFromJobName jobName)
@@ -63,8 +54,8 @@ genJobs spec = return $ genJob <$> getJobs spec
                   [ "jobName" .= jobName,
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    "jobExecutorFilename" .= toFilePath (basename $ jobCreatorFilePath $ executor job),
-                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (options . perform $ job))
+                    "jobFilename" .= jobDestinationFilename (J.executor job),
+                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (J.options . J.perform $ job))
                   ]
             )
 
@@ -79,10 +70,7 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
     jobExecutorFds = genJobExecutor <$> jobExecutors
 
     genJobExecutor :: JobExecutor -> FileDraft
-    genJobExecutor jobExecutor =
-      let jobExecutorFp = jobCreatorFilePath jobExecutor
-          sourceTemplateFp = C.asTmplFile jobExecutorFp
-       in C.mkTmplFd sourceTemplateFp
+    genJobExecutor jobExecutor = C.mkTmplFd $ C.asTmplFile $ jobTemplateFilePath jobExecutor
 
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
@@ -90,9 +78,16 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
         C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/SubmittedJob.js|]
       ]
 
-jobCreatorFilePath :: JobExecutor -> Path' (Rel d) File'
-jobCreatorFilePath Passthrough = [relfile|src/jobs/passthroughJob.js|]
-jobCreatorFilePath PgBoss = [relfile|src/jobs/pgBossJob.js|]
+jobTemplateFilePath :: JobExecutor -> Path' (Rel ServerTemplatesDir) File'
+jobTemplateFilePath Passthrough = [relfile|src/jobs/passthroughJob.js|]
+jobTemplateFilePath PgBoss = [relfile|src/jobs/pgBossJob.js|]
+
+-- Same path in project output destination server/src dir as template server/src dir.
+jobDestinationFilePath :: JobExecutor -> Path' (Rel ServerSrcDir) File'
+jobDestinationFilePath = SP.castRel . jobTemplateFilePath
+
+jobDestinationFilename :: JobExecutor -> FilePath
+jobDestinationFilename = toFilePath . basename . jobDestinationFilePath
 
 pgBossVersionBounds :: String
 pgBossVersionBounds = "^7.2.1"

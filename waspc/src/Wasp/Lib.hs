@@ -3,7 +3,7 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
-    makeAppSpec,
+    analyzeWaspProject,
   )
 where
 
@@ -34,8 +34,8 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  maybeAppSpec <- makeAppSpec waspDir options
-  case maybeAppSpec of
+  appSpecOrCompileErrors <- analyzeWaspProject waspDir options
+  case appSpecOrCompileErrors of
     Left compileErrors -> return ([], compileErrors)
     Right appSpec ->
       case ASV.validateAppSpec appSpec of
@@ -45,11 +45,11 @@ compile waspDir outDir options = do
         validationErrors -> do
           return ([], map show validationErrors)
 
-makeAppSpec ::
+analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec)
-makeAppSpec waspDir options = do
+analyzeWaspProject waspDir options = do
   maybeWaspFilePath <- findWaspFile waspDir
   case maybeWaspFilePath of
     Nothing -> return $ Left ["Couldn't find a single *.wasp file."]

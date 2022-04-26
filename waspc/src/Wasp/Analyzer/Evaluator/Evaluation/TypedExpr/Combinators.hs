@@ -178,6 +178,7 @@ extImport = evaluation' . withCtx $ \ctx -> \case
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON
 json = evaluation' . withCtx $ \ctx -> \case
+  -- TODO: Consider moving String to Aeson conversion into the Parser, so we have better typed info earlier.
   TypedAST.JSON str -> either (Left . jsonParseError ctx) (Right . AppSpec.JSON.JSON) (Aeson.eitherDecode $ ByteStringLazyUTF8.fromString str)
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)
   where
