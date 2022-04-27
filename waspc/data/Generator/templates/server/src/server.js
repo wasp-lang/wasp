@@ -10,7 +10,7 @@ import config from './config.js'
 {=/ doesServerSetupFnExist =}
 
 {=# isPgBossJobExecutorUsed =}
-import { startPgBoss } from './jobs/pgBoss.js'
+import { startPgBoss } from './jobs/core/pgBoss.js'
 {=/ isPgBossJobExecutorUsed =}
 
 const startServer = async () => {

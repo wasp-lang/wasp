@@ -1,7 +1,7 @@
 {{={= =}=}}
-import { createJob, executorSetup } from './{= jobFilename =}'
+import { createJob } from './core/{= executorJobFilename =}'
 {=& jobPerformFnImportStatement =}
 
-await executorSetup({ jobName: "{= jobName =}", jobFn: {= jobPerformFnName =} })
+export const {= jobName =} = await createJob({ jobName: "{= jobName =}", jobFn: {= jobPerformFnName =}, defaultJobOptions: {=& jobPerformOptions =} })
 
-export const {= jobName =} = createJob({ jobName: "{= jobName =}", jobFn: {= jobPerformFnName =}, defaultJobOptions: {=& jobPerformOptions =} })
+// TODO: should we try to put pg boss under its own (with an index.js perhaps?)
