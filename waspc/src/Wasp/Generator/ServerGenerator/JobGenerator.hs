@@ -16,13 +16,11 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    basename,
     parseRelFile,
     reldir,
     reldirP,
     relfile,
     toFilePath,
-    (</>),
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
@@ -35,14 +33,19 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, ServerTemplatesDir)
+import Wasp.Generator.ServerGenerator.Common
+  ( ServerRootDir,
+    ServerSrcDir,
+    ServerTemplatesDir,
+    srcDirInServerTemplatesDir,
+  )
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
   where
-    tmplFile = C.asTmplFile [relfile|src/jobs/_job.js|]
-    dstFileFromJobName jobName = C.asServerFile $ [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobName ++ ".js")
+    tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
+    dstFileFromJobName jobName = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
     genJob :: (String, Job) -> FileDraft
     genJob (jobName, job) =
       let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
@@ -54,9 +57,8 @@ genJobs spec = return $ genJob <$> getJobs spec
                   [ "jobName" .= jobName,
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    -- TODO: make this a relative path backed by SP
-                    "executorJobFilename" .= executorJobDestinationFilename (J.executor job),
-                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (J.options . J.perform $ job))
+                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (J.options . J.perform $ job)),
+                    "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
                   ]
             )
 
@@ -71,26 +73,30 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
     jobExecutorFds = genJobExecutor <$> jobExecutors
 
     genJobExecutor :: JobExecutor -> FileDraft
-    genJobExecutor jobExecutor = C.mkTmplFd $ C.asTmplFile $ executorJobTemplateFilePath jobExecutor
+    genJobExecutor jobExecutor = C.mkTmplFd $ executorJobTemplateInServerTemplatesDir jobExecutor
 
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
-      [ C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/core/pgBoss.js|],
-        C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/core/Job.js|],
-        C.mkTmplFd $ C.asTmplFile [relfile|src/jobs/core/SubmittedJob.js|]
+      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss.js|],
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/Job.js|],
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/SubmittedJob.js|]
       ]
 
-executorJobTemplateFilePath :: JobExecutor -> Path' (Rel ServerTemplatesDir) File'
-executorJobTemplateFilePath Passthrough = [relfile|src/jobs/core/passthroughJob.js|]
-executorJobTemplateFilePath PgBoss = [relfile|src/jobs/core/pgBossJob.js|]
+data JobsDir
 
--- Same path in project output destination server/src dir as template server/src dir.
-executorJobDestinationFilePath :: JobExecutor -> Path' (Rel ServerSrcDir) File'
-executorJobDestinationFilePath = SP.castRel . executorJobTemplateFilePath
+jobsDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir JobsDir)
+jobsDirInServerTemplatesDir = srcDirInServerTemplatesDir SP.</> [reldir|jobs|]
 
--- TODO: make relative file path that can be used in _jobs.js
-executorJobDestinationFilename :: JobExecutor -> FilePath
-executorJobDestinationFilename = toFilePath . basename . executorJobDestinationFilePath
+executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel ServerTemplatesDir) File'
+executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) . executorJobTemplateInJobsDir
+
+executorJobTemplateInJobsDir :: JobExecutor -> Path' (Rel JobsDir) File'
+executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBossJob.js|]
+executorJobTemplateInJobsDir Passthrough = [relfile|core/passthroughJob.js|]
+
+-- Path to destination files are the same as in templates dir.
+jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)
+jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
 pgBossVersionBounds :: String
 pgBossVersionBounds = "^7.2.1"
