@@ -77,7 +77,7 @@ genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
 
     jobExecutorHelperFds :: [FileDraft]
     jobExecutorHelperFds =
-      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss.js|],
+      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss/pgBoss.js|],
         C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/Job.js|],
         C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/SubmittedJob.js|]
       ]
@@ -91,7 +91,7 @@ executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel Se
 executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) . executorJobTemplateInJobsDir
 
 executorJobTemplateInJobsDir :: JobExecutor -> Path' (Rel JobsDir) File'
-executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBossJob.js|]
+executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBoss/pgBossJob.js|]
 executorJobTemplateInJobsDir Passthrough = [relfile|core/passthroughJob.js|]
 
 -- Path to destination files are the same as in templates dir.

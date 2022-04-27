@@ -1,6 +1,6 @@
 import { boss } from './pgBoss.js'
-import { Job } from './Job.js'
-import { SubmittedJob } from './SubmittedJob.js'
+import { Job } from '../Job.js'
+import { SubmittedJob } from '../SubmittedJob.js'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 

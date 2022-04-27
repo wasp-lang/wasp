@@ -1,5 +1,5 @@
 import PgBoss from 'pg-boss'
-import config from '../../config.js'
+import config from '../../../config.js'
 
 export const boss = new PgBoss({ connectionString: config.databaseUrl })
 
