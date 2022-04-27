@@ -4,6 +4,9 @@ import { SubmittedJob } from '../SubmittedJob.js'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
+/**
+ * A PgBoss specific SubmittedJob that adds additional PgBoss functionality.
+ */
 class PgBossSubmittedJob extends SubmittedJob {
   constructor(jobName, jobId) {
     super(jobName, jobId, PG_BOSS_EXECUTOR_NAME)
@@ -28,22 +31,18 @@ class PgBossJob extends Job {
     this.#defaultJobOptions = defaultJobOptions
   }
 
-  defaultJobOptions() {
-    return this.#defaultJobOptions
-  }
-
   delay(delaySeconds) {
-    return new PgBossJob(this.jobName(), this.defaultJobOptions(), delaySeconds)
+    return new PgBossJob(this.jobName(), this.#defaultJobOptions, delaySeconds)
   }
 
   /**
    * Submits the job to PgBoss.
-   * @param {object} jobArgs - The job arguments supplied by the user for their callback.
-   * @param {string} jobOptions - PgBoss specific options for boss.send(), which can override their defaultJobOptions
+   * @param {object} jobArgs - The job arguments supplied by the user for their perform callback.
+   * @param {string} jobOptions - PgBoss specific options for `boss.send()`, which can override their defaultJobOptions
    *                              specified by their Wasp file.
    */
   async submit(jobArgs, jobOptions) {
-    const jobId = await boss.send(this.jobName(), jobArgs, { ...this.defaultJobOptions(), startAfter: this.delaySeconds(), ...jobOptions })
+    const jobId = await boss.send(this.jobName(), jobArgs, { ...this.#defaultJobOptions, startAfter: this.delaySeconds(), ...jobOptions })
     return new PgBossSubmittedJob(this.jobName(), jobId)
   }
 }

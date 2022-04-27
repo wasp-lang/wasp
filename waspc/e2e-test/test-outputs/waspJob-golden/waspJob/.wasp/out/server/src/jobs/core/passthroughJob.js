@@ -15,10 +15,6 @@ class PassthroughJob extends Job {
     this.#jobFn = jobFn
   }
 
-  jobFn(jobArgs) {
-    return this.#jobFn(jobArgs)
-  }
-
   delay(delaySeconds) {
     return new PassthroughJob(this.jobName(), this.#jobFn, delaySeconds)
   }
