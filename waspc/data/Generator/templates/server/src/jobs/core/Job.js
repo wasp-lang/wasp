@@ -1,5 +1,5 @@
 /**
- * This is a definition of a job or computation, not the running instance itself.
+ * This is a definition of a job (think draft or future computation), not the running instance itself.
  * This can be submitted once or more to be executed by some job executor.
  * Once submitted, you get a SubmittedJob to track it later.
  */
@@ -8,8 +8,8 @@ export class Job {
   #delaySeconds = 0
 
   /**
-   * @param {string} jobName - The user-defined name used when creating a job in the template.
-   * @param {int} delaySeconds - Used to delay `submit()` calls when creating a new object in `delay()`.
+   * @param {string} jobName - The user-defined name used when creating a job in the generated template.
+   * @param {int} delaySeconds - Used to delay perform function calls.
    */
   constructor(jobName, delaySeconds) {
     this.#jobName = jobName
