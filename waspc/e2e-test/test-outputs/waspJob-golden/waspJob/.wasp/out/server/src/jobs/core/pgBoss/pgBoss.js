@@ -1,7 +1,10 @@
 import PgBoss from 'pg-boss'
-import config from '../config.js'
+import config from '../../../config.js'
 
 export const boss = new PgBoss({ connectionString: config.databaseUrl })
+
+// Ensure PgBoss can only be started once during a server's lifetime.
+let hasPgBossBeenStarted = false
 
 /**
  * Prepares the target PostgreSQL database and begins job monitoring.
@@ -11,8 +14,13 @@ export const boss = new PgBoss({ connectionString: config.databaseUrl })
  * Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#start
  */
 export async function startPgBoss() {
-  console.log('Starting PgBoss...')
-  boss.on('error', error => console.error(error))
-  await boss.start()
-  console.log('PgBoss started!')
+  if (!hasPgBossBeenStarted) {
+    console.log('Starting PgBoss...')
+
+    boss.on('error', error => console.error(error))
+    await boss.start()
+
+    console.log('PgBoss started!')
+    hasPgBossBeenStarted = true
+  }
 }
