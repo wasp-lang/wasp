@@ -1,5 +1,5 @@
 /**
- * This is a definition of a job (think draft or future computation), not the running instance itself.
+ * This is a definition of a job (think draft or invocable computation), not the running instance itself.
  * This can be submitted one or more times to be executed by some job executor via the same instance.
  * Once submitted, you get a SubmittedJob to track it later.
  */
