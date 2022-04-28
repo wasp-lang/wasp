@@ -25,24 +25,31 @@ class PgBossSubmittedJob extends SubmittedJob {
  */
 class PgBossJob extends Job {
   #defaultJobOptions = {}
+  #startAfter = 0
 
-  constructor(jobName, defaultJobOptions, delaySeconds = 0) {
-    super(jobName, delaySeconds)
+  constructor(jobName, defaultJobOptions, startAfter = 0) {
+    super(jobName)
     this.#defaultJobOptions = defaultJobOptions
+    this.#startAfter = startAfter
   }
 
-  delay(delaySeconds) {
-    return new PgBossJob(this.jobName(), this.#defaultJobOptions, delaySeconds)
+  /**
+   * @param {int | string | date} startAfter - Defers job execution by either:
+   * - int: Seconds to delay starting the job [Default: 0]
+   * - string: Start after a UTC Date time string in 8601 format
+   * - Date: Start after a Date object
+   */
+  delay(startAfter) {
+    return new PgBossJob(this.jobName(), this.#defaultJobOptions, startAfter)
   }
 
   /**
    * Submits the job to PgBoss.
    * @param {object} jobArgs - The job arguments supplied by the user for their perform callback.
-   * @param {string} jobOptions - PgBoss specific options for `boss.send()`, which can override their defaultJobOptions
-   *                              specified by their Wasp file.
+   * @param {string} jobOptions - PgBoss specific options for `boss.send()`, which can override their defaultJobOptions.
    */
   async submit(jobArgs, jobOptions) {
-    const jobId = await boss.send(this.jobName(), jobArgs, { ...this.#defaultJobOptions, startAfter: this.delaySeconds(), ...jobOptions })
+    const jobId = await boss.send(this.jobName(), jobArgs, { ...this.#defaultJobOptions, startAfter: this.#startAfter, ...jobOptions })
     return new PgBossSubmittedJob(this.jobName(), jobId)
   }
 }
@@ -50,7 +57,7 @@ class PgBossJob extends Job {
 /**
  * Creates an instance of PgBossJob and initializes the PgBoss executor by registering this job function.
  * We expect this to be called once per job name. If called multiple times with the same name and different
- * functions, we will override the first call.
+ * functions, we will override the previous calls.
  * @param {object} jobName - The user-defined job name in their .wasp file.
  * @param {string} jobFn - The user-defined async job callback function.
  * @param {string} defaultJobOptions - PgBoss specific options for boss.send() applied to every submit() invocation,
