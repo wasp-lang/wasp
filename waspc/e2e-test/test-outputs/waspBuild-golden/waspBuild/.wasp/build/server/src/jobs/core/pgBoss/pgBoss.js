@@ -1,7 +1,15 @@
 import PgBoss from 'pg-boss'
 import config from '../../../config.js'
 
-export const boss = new PgBoss({ connectionString: config.databaseUrl })
+// Add an escape hatch for advanced configuration of PgBoss.
+const pgBossNewOptions = process.env.PG_BOSS_NEW_OPTIONS || {}
+export const boss = new PgBoss({ connectionString: config.databaseUrl, ...pgBossNewOptions })
+
+// Allows setup code that runs before PgBoss starts to register their PgBoss functions.
+let afterStartCallbacks = []
+export function registerAfterStartCallback(callback) {
+  afterStartCallbacks.push(callback)
+}
 
 // Ensure PgBoss can only be started once during a server's lifetime.
 let hasPgBossBeenStarted = false
@@ -21,6 +29,8 @@ export async function startPgBoss() {
 
     boss.on('error', error => console.error(error))
     await boss.start()
+
+    afterStartCallbacks.forEach(fn => fn())
 
     console.log('PgBoss started!')
     hasPgBossBeenStarted = true

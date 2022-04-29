@@ -1,4 +1,4 @@
-import { boss } from './pgBoss.js'
+import { boss, registerAfterStartCallback } from './pgBoss.js'
 import { Job } from '../Job.js'
 import { SubmittedJob } from '../SubmittedJob.js'
 
@@ -70,15 +70,27 @@ class PgBossJob extends Job {
  * @param {fn} jobFn - The user-defined async job callback function.
  * @param {object} defaultJobOptions - PgBoss specific options for boss.send() applied to every submit() invocation,
  *                                     which can overriden in that call.
+ * @param {object} jobSchedule [Optional] - The cron string and arguments/options when invoking the job.
  */
-export async function createJob({ jobName, jobFn, defaultJobOptions } = {}) {
-  // As a safety precaution against undefined behavior of registering different
-  // functions for the same job name, remove all registered functions first.
-  await boss.offWork(jobName)
+export async function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
+  // Note: createJob runs before PgBoss starts. Therefore, anything that expects PgBoss to be running
+  // should be registered as a callback passed to registerAfterStartCallback.
+  registerAfterStartCallback(async () => {
+    // As a safety precaution against undefined behavior of registering different
+    // functions for the same job name, remove all registered functions first.
+    await boss.offWork(jobName)
 
-  // This tells pgBoss to run given worker function when job/payload with given job name is submitted.
-  // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
-  await boss.work(jobName, jobFn)
+    // This tells pgBoss to run given worker function when job/payload with given job name is submitted.
+    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
+    await boss.work(jobName, jobFn)
+
+    // If a job schedule is provided, we should schedule the recurring job.
+    // If the schedule name already exists, it's updated to the new cron expression.
+    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
+    if (jobSchedule !== null) {
+      await boss.schedule(jobName, jobSchedule.cron, jobSchedule.performFnArg || null, jobSchedule.options || {})
+    }
+  })
 
   return new PgBossJob(jobName, defaultJobOptions)
 }

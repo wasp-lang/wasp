@@ -443,6 +443,74 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
   }
 ```
 
+## Job Queues
+
+If you have long running tasks that require reliable, retriable, and/or schedulable (possibly recurring) work to be performed that should not be part of the normal request-response cycle, you may need a `job`! Wasp allows you to register `job` handler functions to be executed by a job executor, whereby you can manually enqueue work from JavaScript on the server, or have it automatically invoked for you via a cron schedule.
+
+### Job Executors
+
+Job executors hande the scheduling and execution of our job functions. They are the primary abstraction we provide that allows you to write one async JavaScript `job` handler function, but have it executed in different job queue contexts by changing a single line in your `.wasp` file.
+
+#### pg-boss
+
+We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have (think sending emails, connecting to external web services, etc.). By using PostgreSQL as it's storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
+
+_Note: All work is performed alongside the web server's Node event loop, making it unsuitable for CPU-intensive tasks. Additionally, we do not support independent, horizontal scaling of workers. We plan to handle both of these concerns with future job executors. Please let us know on Discord what you'd like to see. :D_
+
+### Basics
+
+To register a `job` in Wasp, you simply add a declaration like the following:
+
+```css title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js",
+    options: {=json { "retryLimit": 1 } json=} // optional
+  }
+}
+```
+
+Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-extimport-optional), you can enqueue work to be done:
+```js
+import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+
+const submittedJob = await mySpecialJob.submit({ job: "args" })
+console.log(await submittedJob.pgBoss.details())
+
+// Or, if you'd prefer it to execute in the future, just add a .delay().
+// It takes a number of seconds, Date, or ISO date string.
+await mySpecialJob.delay(10).submit({ job: "args" })
+```
+
+And that is it! Your job will be executed by the job executor as if you called `foo({ job: "args" })`.
+
+### Scheduled Jobs
+
+If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
+
+```css  {6-10} title="main.wasp"
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js"
+  },
+  schedule: {
+    cron: "0 * * * *",
+    performFnArg: {=json { "foo": "bar" } json=}, // optional
+    options: {=json { "retryLimit": 2 } json=} // optional
+  }
+}
+```
+
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "foo": "bar" })` getting automatically scheduled and invoked for you every hour.
+
+### Syntax
+
+#### Wasp files
+
+#### JavaScript API
+
 ## Dependencies
 
 You can specify additional npm dependencies via `dependencies` field in `app` declaration, in following way:

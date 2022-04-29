@@ -8,6 +8,8 @@ module Wasp.Generator.ServerGenerator.JobGenerator
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
 import StrongPath
   ( Dir,
@@ -46,9 +48,14 @@ genJobs spec = return $ genJob <$> getJobs spec
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFileFromJobName jobName = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
+
     genJob :: (String, Job) -> FileDraft
     genJob (jobName, job) =
       let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+          maybeJobPerformOptions = J.performOptions . J.perform $ job
+          maybeJobSchedule =
+            J.schedule job
+              >>= (\s -> return $ object ["cron" .= J.cron s, "performFnArg" .= J.performFnArg s, "options" .= J.sheduleOptions s])
        in C.mkTmplFdWithDstAndData
             tmplFile
             (dstFileFromJobName jobName)
@@ -57,7 +64,11 @@ genJobs spec = return $ genJob <$> getJobs spec
                   [ "jobName" .= jobName,
                     "jobPerformFnName" .= jobPerformFnName,
                     "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject (J.options . J.perform $ job)),
+                    -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
+                    -- This is why we must get a text representation of the object, either by
+                    -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
+                    "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
+                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
                     "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
                   ]
             )
