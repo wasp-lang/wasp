@@ -15,7 +15,11 @@ waspCompile/.wasp/out/server/src/dbClient.js
 waspCompile/.wasp/out/server/src/ext-src/Main.css
 waspCompile/.wasp/out/server/src/ext-src/MainPage.js
 waspCompile/.wasp/out/server/src/ext-src/waspLogo.png
-waspCompile/.wasp/out/server/src/jobs/PassthroughJobFactory.js
+waspCompile/.wasp/out/server/src/jobs/core/Job.js
+waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js
+waspCompile/.wasp/out/server/src/jobs/core/passthroughJob.js
+waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
+waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js

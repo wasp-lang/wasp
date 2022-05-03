@@ -14,6 +14,9 @@ app todoApp {
   },
   server: {
     setupFn: import setup from "@ext/serverSetup.js"
+  },
+  db: {
+    system: PostgreSQL
   }
 }
 
@@ -109,5 +112,9 @@ action toggleAllTasks {
 }
 
 job mySpecialJob {
-  perform: import { foo } from "@ext/jobs/bar.js"
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js",
+    options: {=json { "retryLimit": 1 } json=}
+  }
 }

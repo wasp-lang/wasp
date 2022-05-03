@@ -15,7 +15,7 @@ import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Auth (AuthMethod)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.Entity (Entity)
-import Wasp.AppSpec.Job (Job)
+import Wasp.AppSpec.Job (Job, JobExecutor)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -27,6 +27,7 @@ makeDeclType ''Page
 makeDeclType ''Route
 makeDeclType ''Query
 makeDeclType ''Action
+makeEnumType ''JobExecutor
 makeDeclType ''Job
 
 {- ORMOLU_DISABLE -}
@@ -43,6 +44,7 @@ stdTypes =
   TD.addDeclType @Route $
   TD.addDeclType @Query $
   TD.addDeclType @Action $
+  TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
   TD.empty
 {- ORMOLU_ENABLE -}

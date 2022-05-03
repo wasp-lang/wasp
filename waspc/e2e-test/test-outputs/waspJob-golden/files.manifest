@@ -17,7 +17,11 @@ waspJob/.wasp/out/server/src/ext-src/MainPage.js
 waspJob/.wasp/out/server/src/ext-src/jobs/bar.js
 waspJob/.wasp/out/server/src/ext-src/waspLogo.png
 waspJob/.wasp/out/server/src/jobs/MySpecialJob.js
-waspJob/.wasp/out/server/src/jobs/PassthroughJobFactory.js
+waspJob/.wasp/out/server/src/jobs/core/Job.js
+waspJob/.wasp/out/server/src/jobs/core/SubmittedJob.js
+waspJob/.wasp/out/server/src/jobs/core/passthroughJob.js
+waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
+waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.js

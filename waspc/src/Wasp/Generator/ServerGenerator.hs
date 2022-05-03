@@ -32,6 +32,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -49,7 +50,7 @@ import Wasp.Generator.ServerGenerator.Common
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
-import Wasp.Generator.ServerGenerator.JobGenerator (genJobFactories, genJobs)
+import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
@@ -59,7 +60,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genReadme,
-      genPackageJson spec npmDepsForWasp,
+      genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genNvmrc,
       genGitignore
@@ -68,7 +69,7 @@ genServer spec =
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
-    <++> genJobFactories
+    <++> genJobExecutors
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -107,8 +108,8 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
-npmDepsForWasp :: N.NpmDepsForWasp
-npmDepsForWasp =
+npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
+npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
@@ -122,7 +123,8 @@ npmDepsForWasp =
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
-          ],
+          ]
+          ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
@@ -204,7 +206,8 @@ genServerJs spec =
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
               "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+              "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier,
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
             ]
       )
   where

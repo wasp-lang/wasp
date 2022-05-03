@@ -9,8 +9,15 @@ import config from './config.js'
 {=& serverSetupJsFnImportStatement =}
 {=/ doesServerSetupFnExist =}
 
+{=# isPgBossJobExecutorUsed =}
+import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
+{=/ isPgBossJobExecutorUsed =}
 
 const startServer = async () => {
+  {=# isPgBossJobExecutorUsed =}
+  await startPgBoss()
+  {=/ isPgBossJobExecutorUsed =}
+
   const debugLog = debug('server:server')
 
   const port = normalizePort(config.port)

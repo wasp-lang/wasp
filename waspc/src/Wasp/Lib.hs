@@ -3,6 +3,7 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
+    analyzeWaspProject,
   )
 where
 
@@ -33,40 +34,50 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
+  appSpecOrCompileErrors <- analyzeWaspProject waspDir options
+  case appSpecOrCompileErrors of
+    Left compileErrors -> return ([], compileErrors)
+    Right appSpec ->
+      case ASV.validateAppSpec appSpec of
+        [] -> do
+          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
+          return (map show generatorWarnings, map show generatorErrors)
+        validationErrors -> do
+          return ([], map show validationErrors)
+
+analyzeWaspProject ::
+  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
+  IO (Either [CompileError] AS.AppSpec)
+analyzeWaspProject waspDir options = do
   maybeWaspFilePath <- findWaspFile waspDir
   case maybeWaspFilePath of
-    Nothing -> return ([], ["Couldn't find a single *.wasp file."])
+    Nothing -> return $ Left ["Couldn't find a single *.wasp file."]
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
-          return
-            ( [],
+          return $
+            Left
               [ showCompilerErrorForTerminal
                   (waspFilePath, waspFileContent)
                   (getErrorMessageAndCtx analyzeError)
               ]
-            )
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvFile <- findDotEnvFile waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
-          let appSpec =
-                AS.AppSpec
-                  { AS.decls = decls,
-                    AS.externalCodeFiles = externalCodeFiles,
-                    AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
-                    AS.migrationsDir = maybeMigrationsDir,
-                    AS.dotEnvFile = maybeDotEnvFile,
-                    AS.isBuild = CompileOptions.isBuild options
-                  }
-          case ASV.validateAppSpec appSpec of
-            [] -> do
-              (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-              return (map show generatorWarnings, map show generatorErrors)
-            validationErrors -> do
-              return ([], map show validationErrors)
+          return $
+            Right
+              AS.AppSpec
+                { AS.decls = decls,
+                  AS.externalCodeFiles = externalCodeFiles,
+                  AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
+                  AS.migrationsDir = maybeMigrationsDir,
+                  AS.dotEnvFile = maybeDotEnvFile,
+                  AS.isBuild = CompileOptions.isBuild options
+                }
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do

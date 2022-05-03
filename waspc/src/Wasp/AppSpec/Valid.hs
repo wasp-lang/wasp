@@ -13,12 +13,15 @@ import Data.Maybe (isJust)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App)
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
+import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -31,7 +34,8 @@ validateAppSpec spec =
       -- NOTE: We check these only if App exists because they all rely on it existing.
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
-          validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec
+          validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec,
+          validateDbIsPostgresIfPgBossUsed spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -54,6 +58,15 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
     else []
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
+
+validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
+validateDbIsPostgresIfPgBossUsed spec =
+  if isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
+    then
+      [ GenericValidationError
+          "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
+      ]
+    else []
 
 validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -97,3 +110,7 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+isPostgresUsed :: AppSpec -> Bool
+isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
