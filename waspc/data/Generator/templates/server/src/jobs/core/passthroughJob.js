@@ -16,8 +16,8 @@ class PassthroughJob extends Job {
   /**
    * 
    * @param {string} jobName - Name of the Job.
-   * @param {*} jobFn - The Job function to execute.
-   * @param {*} delaySeconds - The number of seconds to delay invoking the Job function.
+   * @param {fn} jobFn - The Job function to execute.
+   * @param {int} delaySeconds - The number of seconds to delay invoking the Job function.
    */
   constructor(jobName, jobFn, delaySeconds = 0) {
     super(jobName, PASSTHROUGH_EXECUTOR_NAME)
