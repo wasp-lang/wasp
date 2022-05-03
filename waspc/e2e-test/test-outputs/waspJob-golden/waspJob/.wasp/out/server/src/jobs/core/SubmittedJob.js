@@ -2,7 +2,7 @@
  * This is the result of submitting a Job to some executor.
  * It can be used by callers to track things, or call executor-specific subclass functionality.
  */
- export class SubmittedJob {
+export class SubmittedJob {
   #job
   #jobId
 
