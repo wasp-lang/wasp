@@ -5,16 +5,23 @@
  */
 export class Job {
   #jobName
+  #executorName
 
   /**
-   * @param {string} jobName - The user-defined name used when creating a job in the generated template.
+   * @param {string} jobName - Job name, which should be unique per executor.
+   * @param {string} executorName - The name of the executor that will run submitted jobs.
    */
-  constructor(jobName) {
+  constructor(jobName, executorName) {
     this.#jobName = jobName
+    this.#executorName = executorName
   }
 
-  jobName() {
+  get jobName() {
     return this.#jobName
+  }
+
+  get executorName() {
+    return this.#executorName
   }
 
   // NOTE: Subclasses must implement this method.

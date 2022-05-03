@@ -1,16 +1,29 @@
 /**
- * This is the result of submitting a job to some executor.
+ * This is the result of submitting a Job to some executor.
  * It can be used by callers to track things, or call executor-specific subclass functionality.
  */
  export class SubmittedJob {
+  #job
+  #jobId
+
   /**
-   * @param {string} jobName - The name given when constructing the original job.
-   * @param {string} jobId - A UUID for a given job in that executor's ecosystem.
-   * @param {symbol} executorName - The name of the executor that is running the job.
+   * @param {Job} job - The Job that submitted work to an executor.
+   * @param {string} jobId - A UUID for a submitted job in that executor's ecosystem.
    */
-  constructor(jobName, jobId, executorName) {
-    this.jobName = jobName
-    this.jobId = jobId
-    this.executorName = executorName
+  constructor(job, jobId) {
+    this.#job = job
+    this.#jobId = jobId
+  }
+
+  get jobId() {
+    return this.#jobId
+  }
+
+  get jobName() {
+    return this.#job.jobName
+  }
+
+  get executorName() {
+    return this.#job.executorName
   }
 }
