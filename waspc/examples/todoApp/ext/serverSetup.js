@@ -12,7 +12,7 @@ const setup = async () => {
   console.log('Kicking off Job...')
   // Or: const submittedJob = await mySpecialJob.delay(10).submit({ something: "here" })
   const submittedJob = await mySpecialJob.submit({ something: "here" })
-  console.log("Job:", submittedJob)
+  console.log(submittedJob.jobId, submittedJob.jobName, submittedJob.executorName)
   console.log("submittedJob.pgBoss.details()", await submittedJob.pgBoss.details())
 }
 
