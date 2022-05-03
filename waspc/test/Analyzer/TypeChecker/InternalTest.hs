@@ -217,7 +217,7 @@ spec_Internal = do
             supertype = DictType $ H.fromList []
             mkTexprWithType t = wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 2)] t
         isLeft (weaken supertype (mkTexprWithType subtype)) `shouldBe` True
-      it "Should weaken { } to { a?: T }" $ do
+      it "Should successfully weaken { } to { a?: T }" $ do
         let subtype = DictType $ H.fromList []
             supertype = DictType $ H.fromList [("a", DictOptional NumberType)]
             mkTexprWithType t = wctx1 $ Dict [] t
@@ -229,29 +229,65 @@ spec_Internal = do
         isLeft (weaken supertype (mkTexprWithType subtype)) `shouldBe` True
       describe "Dictionary D' is supertype of dictionary D if fields of D' are supertypes of fields of D." $ do
         -- testing supertypes in dictionary fields (transparency of dictionary).
-        it "Should weaken { a: T } to { a: T' } if T' is supertype of T" $ do
+        it "Should successfully weaken { a: T } to { a: T' } if T' is supertype of T" $ do
           let subtype = DictType $ H.fromList [("a", DictRequired NumberType)]
               supertype = DictType $ H.fromList [("a", DictRequired $ makeUnionType StringType NumberType)]
               mkTexprWithType t = wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 2)] t
           weaken supertype (mkTexprWithType subtype) `shouldBe` Right (mkTexprWithType supertype)
-        it "Should weaken { a?: T } to { a?: T' } if T' is supertype of T" $ do
+        it "Should successfully weaken { a?: T } to { a?: T' } if T' is supertype of T" $ do
           let subtype = DictType $ H.fromList [("a", DictOptional NumberType)]
               supertype = DictType $ H.fromList [("a", DictOptional $ makeUnionType StringType NumberType)]
               mkTexprWithType t = wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 2)] t
           weaken supertype (mkTexprWithType subtype) `shouldBe` Right (mkTexprWithType supertype)
-        it "Should weaken { a: T } to { a?: T' } if T' is supertype of T" $ do
+        it "Should successfully weaken { a: T } to { a?: T' } if T' is supertype of T" $ do
           let subtype = DictType $ H.fromList [("a", DictRequired NumberType)]
               supertype = DictType $ H.fromList [("a", DictOptional $ makeUnionType StringType NumberType)]
               mkTexprWithType t = wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 2)] t
           weaken supertype (mkTexprWithType subtype) `shouldBe` Right (mkTexprWithType supertype)
-        it "Should weaken { a?: T } to { a: T' } if T' is supertype of T" $ do
+        it "Should successfully weaken { a?: T } to { a: T' } if T' is supertype of T" $ do
           let subtype = DictType $ H.fromList [("a", DictOptional NumberType)]
               supertype = DictType $ H.fromList [("a", DictRequired $ makeUnionType StringType NumberType)]
               mkTexprWithType t = wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 2)] t
           isLeft (weaken supertype (mkTexprWithType subtype)) `shouldBe` True
 
-      it "TODO: test all properties in one big dictionary" $ do
-        error "TODO"
+      it "Should successfully weaken a complex dictionary" $ do
+        let subtype =
+              DictType $
+                H.fromList
+                  [ ("a", DictRequired $ makeUnionType NumberType StringType),
+                    ("b", DictRequired BoolType),
+                    ("c", DictRequired subtypeInnerDictType)
+                  ]
+            subtypeInnerDictType =
+              DictType $
+                H.fromList
+                  [ ("1", DictRequired BoolType),
+                    ("2", DictOptional $ ListType StringType)
+                  ]
+            supertype =
+              DictType $
+                H.fromList
+                  [ ("a", DictRequired $ makeUnionType BoolType (makeUnionType NumberType StringType)),
+                    ("b", DictOptional $ makeUnionType BoolType StringType),
+                    ( "c",
+                      DictRequired $
+                        DictType $
+                          H.fromList
+                            [ ("1", DictRequired BoolType),
+                              ("2", DictOptional $ ListType StringType),
+                              ("3", DictOptional NumberType)
+                            ]
+                    )
+                  ]
+            mkTexprWithType t =
+              wctx1 $
+                Dict
+                  [ ("a", wctx1 $ IntegerLiteral 2),
+                    ("b", wctx2 $ BoolLiteral True),
+                    ("c", wctx3 $ Dict [("1", wctx4 $ BoolLiteral False)] subtypeInnerDictType)
+                  ]
+                  t
+        weaken supertype (mkTexprWithType subtype) `shouldBe` Right (mkTexprWithType supertype)
 
     -- TODO: test weaken with complex types (e.g., dicts, lists)
     -- TODO: it seems that weaken currently doesn't support tuples
