@@ -173,7 +173,7 @@ spec_Internal = do
         it "Should weaken empty list to any list type" $ do
           weaken (ListType StringType) (wctx1 $ List [] EmptyListType) `shouldBe` Right (wctx1 $ List [] StringType)
 
-        it "Should weaken [T] to [T'] if T' is supertype of T" $ do
+        it "Should weaken [T] to [T'] if T' is supertype of T without affecting types of list element expressions" $ do
           let superType = makeUnionType StringType subType
               subType = BoolType
           weaken (ListType superType) (wctx1 $ List [] subType) `shouldBe` Right (wctx1 $ List [] superType)

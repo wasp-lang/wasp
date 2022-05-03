@@ -98,15 +98,12 @@ inferExprType = P.withCtx $ \ctx -> \case
   -- This poses a problem for empty lists, there is not enough information to choose a type.
   -- TODO: Fix this in the future, probably by adding an additional phase to resolve type variables
   --       that would be assigned here.
-  -- TODO: inferExprType calls unify, unify calls weaken. Are we traversing the tree all the way down
-  -- without doing anything every time weaken encounters a list?
   P.List values -> do
     typedValues <- mapM inferExprType values
-    case unify <$> nonEmpty typedValues of
-      -- Apply [EmptyList].
-      Nothing -> return $ WithCtx ctx $ List [] EmptyListType
-      Just (unifiedValues, unifiedType) ->
-        return $ WithCtx ctx $ List (toList unifiedValues) (ListType unifiedType)
+    let superType
+          | null typedValues = EmptyListType
+          | otherwise = ListType $ foldl1 unifyTypes $ exprType . fromWithCtx <$> typedValues
+    return $ WithCtx ctx $ List typedValues superType
   -- Apply [Dict], and also check that there are no duplicate keys in the dictionary.
   P.Dict entries -> do
     typedEntries <- mapM (\(key, expr) -> (key,) <$> inferExprType expr) entries
@@ -146,21 +143,16 @@ inferExprType = P.withCtx $ \ctx -> \case
 --   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
 --
 -- TODO: write tests.
-unify :: NonEmpty (WithCtx TypedExpr) -> (NonEmpty (WithCtx TypedExpr), Type)
-unify texprs =
-  let superType = foldl1 unifyTypes $ exprType . fromWithCtx <$> texprs
-      weakenedTexprs =
-        fromRight
-          (error "This should never happen: there should be no weaken errors during unification.")
-          -- TODO: How come we need to weaken the entire tree, is it important to keep correct
-          -- type information for child nodes. Do we even need the function "weaken" here if we know
-          -- the correct type from above (superType)
-          -- We thought about it: weaken assigns the calculated supertype to all child nodes
-          -- which causes information loss. We decided it makes sense to keep node type information as
-          -- precise as possible. In other words, each node should have the most narrow possible correct type.
-          -- Instead of calling weaken, we should most likely return the same tree with a different type at the top
-          (mapM (weaken superType) texprs)
-   in (weakenedTexprs, superType)
+unify :: NonEmpty (WithCtx TypedExpr) -> Type
+unify texprs = foldl1 unifyTypes $ exprType . fromWithCtx <$> texprs
+
+-- TODO: How come we need to weaken the entire tree, is it important to keep correct
+-- type information for child nodes. Do we even need the function "weaken" here if we know
+-- the correct type from above (superType)
+-- We thought about it: weaken assigns the calculated supertype to all child nodes
+-- which causes information loss. We decided it makes sense to keep node type information as
+-- precise as possible. In other words, each node should have the most narrow possible correct type.
+-- Instead of calling weaken, we should most likely return the same tree with a different type at the top
 
 -- TODO: change documentation
 
