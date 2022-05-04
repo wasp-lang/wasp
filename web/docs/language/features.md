@@ -453,9 +453,9 @@ Job executors hande the scheduling, monitoring, and execution of our job functio
 
 #### pg-boss
 
-We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have (think sending emails, connecting to external HTTP APIs to perform work, etc.). By using PostgreSQL as it's storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
+We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have (think sending emails, connecting to external HTTP APIs to perform work, etc.). By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as it's storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
-### Basics
+### Basic job definition and usage
 
 To register a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
@@ -483,7 +483,7 @@ await mySpecialJob.delay(10).submit({ job: "args" })
 
 And that is it! Your job will be executed by the job executor as if you called `foo({ job: "args" })`.
 
-### Scheduled Jobs
+### Recurring jobs
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
@@ -495,68 +495,82 @@ job mySpecialJob {
   },
   schedule: {
     cron: "0 * * * *",
-    performFnArg: {=json { "foo": "bar" } json=}, // optional
+    performFnArg: {=json { "job": "args" } json=}, // optional
     options: {=json { "retryLimit": 2 } json=} // optional
   }
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "foo": "bar" })` getting automatically scheduled and invoked for you every hour.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "job": "args" })` getting automatically scheduled and invoked for you every hour.
 
-### Syntax
+### Fields
 
-#### Wasp files
-- `executor`:
-  - `Passthrough`: a zero-dependency executor used mainly for testing purposes.
-  - `PgBoss`: the recommended executor for low-volume, production use cases.
-- `perform`:
-  - `fn`: an `async` JavaScript function of work to be performed. It can take any number of arguments.
-  - `options` [Optional]: executor specific options.
-    - See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#sendname-data-options).
-- `schedule` [Optional]:
-  - `cron`: a 5-placeholder format cron expression string.
-  - `performFnArg` [Optional]: the arguments to pass the perform function when invoked.
-  - `options` [Optional]: executor specific options.
-    - See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#sendname-data-options).
+#### `executor: JobExecutor` (required)
+The executor can be either `Passthrough` or `PgBoss`. `Passthrough`is a zero-dependency executor used mainly for testing purposes. `PgBoss` is the recommended executor for low-volume, production use cases.
 
-#### JavaScript API
+####  `perform: dict` (required)
+
+  - ##### `fn: fn` (required)
+  An `async` JavaScript function of work to be performed. It can take any number of arguments.
+  
+  - ##### `options: JSON` (optional)
+  Executor specific options to use when enquing jobs.
+
+  > See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#sendname-data-options).
+
+#### `schedule: dict` (optional)
+  
+  - ##### `cron: string`
+  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling).
+  
+  - ##### `performFnArg: JSON` (optional)
+  The arguments to pass the perform function when invoked.
+  
+  - ##### `options: JSON` (optional)
+  Executor specific options to use when enquing jobs.
+
+### JavaScript API
 - Invocation
-  - `import`:
+  - ##### `import`
     ```js
     import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
     ```
-  - `submit(args, opts)`:
-    - Enquing a `job` to be executed by an executor, passing in optional job arguments and options.
+  
+  - ##### `submit(args, opts)`
+    Enques a `job` to be executed by an executor, passing in optional job arguments and options.
+
     ```js
     const submittedJob = await mySpecialJob.submit({ job: "args" })
     ```
-  - `delay(delay)` [Optional]:
-    - Delaying the invocation of the job handler. The delay can be one of:
-      - Integer: number of seconds to delay. [Default 0]
-      - String: ISO date string to run at.
-      - Date: Date to run at.
+  
+  - ##### `delay(delay)` (optional)
+    Delaying the invocation of the job handler. The delay can be one of:
+    - Integer: number of seconds to delay. [Default 0]
+    - String: ISO date string to run at.
+    - Date: Date to run at.
+
     ```js
     const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" })
     ```
 - Tracking
   - The return value of `submit()` is an instance of `SubmittedJob`, that minimally contains:
-    - `jobId`: The UUID String ID for the job in that executor.
-    - `jobName`: The name of the job you used in your `.wasp` file.
-    - `executorName`: The name of the job executor.
+    - `jobId`: A getter returning the UUID String ID for the job in that executor.
+    - `jobName`: A getter returning the name of the job you used in your `.wasp` file.
+    - `executorName`: A getter returning the name of the job executor.
   - There will also be namespaced, job executor-specific objects.
     - For pg-boss, you may access: `pgBoss`
       - **NOTE**: no arguments are necessary, as we already applied the jobId in the returned lambda function.
       - `details()`: pg-boss specific job detail information.
-      - `cancel()`: attempts to cancel a job. Returns either `true` on success, or `false` on failure. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#cancelid)
-      - `resume()`: attempts to resume a canceled job. Returns either `true` on success, or `false` on failure. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#resumeid)
+      - `cancel()`: attempts to cancel a job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#cancelid)
+      - `resume()`: attempts to resume a canceled job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#resumeid)
 
 ### ⚠️ Considerations
 
 There are job executor specific considerations to keep in mind when making your selections. We will continue to offer additional job executor options that balance the pros and cons.
 
 #### pg-boss
-- All work is performed alongside the web server's NodeJS event loop, making it unsuitable for CPU-intensive tasks.
-- Wasp does not support independent, horizontal scaling of pg-boss workers.
+- pg-boss is deployed alongside your web server's application, where both are simultaneously operational. Accoridingly, pg-boss and your web server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
+  - Wasp does not support independent, horizontal scaling of pg-boss-only workers or separate processes/threads.
 - The job identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will leave an orphaned cron-jobs behind. You can remove the applicable row from `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
   ```js
   let { boss } = await import(`./src/jobs/core/pgBoss/pgBoss.js`)
