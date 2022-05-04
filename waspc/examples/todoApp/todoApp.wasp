@@ -118,7 +118,7 @@ job mySpecialJob {
     options: {=json { "retryLimit": 1 } json=}
   },
   schedule: {
-    cron: "*/1 * * * *",
+    cron: "*/5 * * * *",
     performFnArg: {=json { "foo": "bar" } json=},
     options: {=json { "retryLimit": 0 } json=}
   }
