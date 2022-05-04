@@ -506,7 +506,7 @@ In this example, you do _not_ need to invoke anything in JavaScript. You can ima
 ### Fields
 
 #### `executor: JobExecutor` (required)
-The executor can be either `Passthrough` or `PgBoss`. `Passthrough`is a zero-dependency executor used mainly for testing purposes. `PgBoss` is the recommended executor for low-volume, production use cases.
+The executor can be either `Passthrough` or `PgBoss`. `Passthrough` is a zero-dependency executor used mainly for testing purposes. `PgBoss` is the recommended executor for low-volume, production use cases, and requires your `app.db.system` to be `PostgreSQL`.
 
 ####  `perform: dict` (required)
 
@@ -514,13 +514,13 @@ The executor can be either `Passthrough` or `PgBoss`. `Passthrough`is a zero-dep
   An `async` JavaScript function of work to be performed. It can take any number of arguments.
   
   - ##### `options: JSON` (optional)
-  Executor specific options to use when enquing jobs.
+  Executor specific default options to use when enquing jobs. It can be overriden during invocation with `submit()`.
 
   > See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#sendname-data-options).
 
 #### `schedule: dict` (optional)
   
-  - ##### `cron: string`
+  - ##### `cron: string` (required)
   A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling).
   
   - ##### `performFnArg: JSON` (optional)
@@ -530,39 +530,48 @@ The executor can be either `Passthrough` or `PgBoss`. `Passthrough`is a zero-dep
   Executor specific options to use when enquing jobs.
 
 ### JavaScript API
-- Invocation
-  - ##### `import`
-    ```js
-    import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
-    ```
-  
-  - ##### `submit(args, opts)`
-    Enques a `job` to be executed by an executor, passing in optional job arguments and options.
 
-    ```js
-    const submittedJob = await mySpecialJob.submit({ job: "args" })
-    ```
-  
-  - ##### `delay(delay)` (optional)
-    Delaying the invocation of the job handler. The delay can be one of:
-    - Integer: number of seconds to delay. [Default 0]
-    - String: ISO date string to run at.
-    - Date: Date to run at.
+#### Invocation
+##### `import`
 
-    ```js
-    const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" })
-    ```
-- Tracking
-  - The return value of `submit()` is an instance of `SubmittedJob`, that minimally contains:
-    - `jobId`: A getter returning the UUID String ID for the job in that executor.
-    - `jobName`: A getter returning the name of the job you used in your `.wasp` file.
-    - `executorName`: A getter returning the name of the job executor.
-  - There will also be namespaced, job executor-specific objects.
-    - For pg-boss, you may access: `pgBoss`
-      - **NOTE**: no arguments are necessary, as we already applied the jobId in the returned lambda function.
-      - `details()`: pg-boss specific job detail information.
-      - `cancel()`: attempts to cancel a job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#cancelid)
-      - `resume()`: attempts to resume a canceled job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#resumeid)
+```js
+import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+```
+
+##### `submit(jobArgs, options)`
+- ###### `jobArgs: object` (optional)
+- ###### `options: object` (optional)
+
+Enques a `job` to be executed by an executor, optionally passing in job arguments and options.
+
+```js
+const submittedJob = await mySpecialJob.submit({ job: "args" })
+```
+
+##### `delay(startAfter)` (optional)
+- ###### `startAfter: int | string | Date` (required)
+
+Delaying the invocation of the job handler. The delay can be one of:
+- Integer: number of seconds to delay. [Default 0]
+- String: ISO date string to run at.
+- Date: Date to run at.
+
+```js
+const submittedJob = await mySpecialJob.delay(10).submit({ job: "args" })
+```
+
+#### Tracking
+The return value of `submit()` is an instance of `SubmittedJob`, that minimally contains:
+- `jobId`: A getter returning the UUID String ID for the job in that executor.
+- `jobName`: A getter returning the name of the job you used in your `.wasp` file. **NOTE**: See considerations below.
+- `executorName`: A getter returning the name of the job executor.
+
+There will also be namespaced, job executor-specific objects.
+- For pg-boss, you may access: `pgBoss`
+  - **NOTE**: no arguments are necessary, as we already applied the jobId in the returned lambda function.
+  - `details()`: pg-boss specific job detail information.
+  - `cancel()`: attempts to cancel a job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#cancelid)
+  - `resume()`: attempts to resume a canceled job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#resumeid)
 
 ### ⚠️ Considerations
 
@@ -571,7 +580,7 @@ There are job executor specific considerations to keep in mind when making your 
 #### pg-boss
 - pg-boss is deployed alongside your web server's application, where both are simultaneously operational. Accoridingly, pg-boss and your web server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
   - Wasp does not support independent, horizontal scaling of pg-boss-only workers or separate processes/threads.
-- The job identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will leave an orphaned cron-jobs behind. You can remove the applicable row from `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
+- The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will continue scheduling jobs that will have no handlers associated, and will thus become stale and expire. You can remove the applicable row from `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
   ```js
   let { boss } = await import(`./src/jobs/core/pgBoss/pgBoss.js`)
   boss.unschedule("mySpecialJob")
