@@ -5,7 +5,7 @@ import { SubmittedJob } from '../SubmittedJob.js'
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
 /**
- * A PgBoss specific SubmittedJob that adds additional PgBoss functionality.
+ * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob extends SubmittedJob {
   constructor(job, jobId) {
@@ -19,7 +19,7 @@ class PgBossSubmittedJob extends SubmittedJob {
 }
 
 /**
- * This is a class repesenting a job that can be submitted to PgBoss.
+ * This is a class repesenting a job that can be submitted to pg-boss.
  * It is not yet submitted until the caller invokes `submit()` on an instance.
  * The caller can make as many calls to `submit()` as they wish.
  */
@@ -51,9 +51,9 @@ class PgBossJob extends Job {
   }
 
   /**
-   * Submits the job to PgBoss.
+   * Submits the job to pg-boss.
    * @param {object} jobArgs - The job arguments supplied by the user for their perform callback.
-   * @param {object} jobOptions - PgBoss specific options for `boss.send()`, which can override their defaultJobOptions.
+   * @param {object} jobOptions - pg-boss specific options for `boss.send()`, which can override their defaultJobOptions.
    */
   async submit(jobArgs, jobOptions) {
     const jobId = await boss.send(this.jobName, jobArgs,
@@ -68,12 +68,12 @@ class PgBossJob extends Job {
  * functions, we will override the previous calls.
  * @param {string} jobName - The user-defined job name in their .wasp file.
  * @param {fn} jobFn - The user-defined async job callback function.
- * @param {object} defaultJobOptions - PgBoss specific options for boss.send() applied to every submit() invocation,
+ * @param {object} defaultJobOptions - pg-boss specific options for boss.send() applied to every submit() invocation,
  *                                     which can overriden in that call.
  * @param {object} jobSchedule [Optional] - The cron string and arguments/options when invoking the job.
  */
 export async function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
-  // Note: createJob runs before PgBoss starts. Therefore, anything that expects PgBoss to be running
+  // Note: createJob runs before pg-boss starts. Therefore, anything that expects pg-boss to be running
   // should be registered as a callback passed to registerAfterStartCallback.
   registerAfterStartCallback(async () => {
     // As a safety precaution against undefined behavior of registering different
