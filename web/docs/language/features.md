@@ -542,7 +542,7 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `jobArgs: object` (optional)
 - ###### `options: object` (optional)
 
-Enques a `job` to be executed by an executor, optionally passing in job arguments and options.
+Enqueues a `job` to be executed by an executor, optionally passing in job arguments and options.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })
@@ -575,12 +575,12 @@ There will also be namespaced, job executor-specific objects.
 
 ### ⚠️ Considerations
 
-There are job executor specific considerations to keep in mind when making your selections. We will continue to offer additional job executor options that balance the pros and cons.
+There are job executor-specific considerations to keep in mind when making your selections. We will continue to offer additional job executor options that balance the pros and cons.
 
 #### pg-boss
-- pg-boss is deployed alongside your web server's application, where both are simultaneously operational. Accoridingly, pg-boss and your web server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
+- pg-boss is deployed alongside your web server's application, where both are simultaneously operational. Accordingly, pg-boss and your web-server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
   - Wasp does not support independent, horizontal scaling of pg-boss-only workers or separate processes/threads.
-- The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will continue scheduling jobs that will have no handlers associated, and will thus become stale and expire. You can remove the applicable row from `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
+- The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will continue scheduling jobs that will have no handlers associated, and will thus become stale and expire. You can remove the applicable row from the `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
   ```js
   let { boss } = await import(`./src/jobs/core/pgBoss/pgBoss.js`)
   boss.unschedule("mySpecialJob")
