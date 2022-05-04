@@ -194,18 +194,19 @@ spec_Analyzer = do
             ]
       takeDecls <$> decls `shouldBe` Right expectedAction
 
+      let jobPerform =
+            Job.Perform
+              ( ExtImport
+                  (ExtImportField "backgroundJob")
+                  (fromJust $ SP.parseRelFileP "jobs/baz.js")
+              )
+              Nothing
       let expectedJob =
             [ ( "BackgroundJob",
                 Job.Job
                   { Job.executor = Job.PgBoss,
-                    Job.perform =
-                      Job.Perform
-                        { Job.fn =
-                            ExtImport
-                              (ExtImportField "backgroundJob")
-                              (fromJust $ SP.parseRelFileP "jobs/baz.js"),
-                          Job.options = Nothing
-                        }
+                    Job.perform = jobPerform,
+                    Job.schedule = Nothing
                   }
               )
             ]
