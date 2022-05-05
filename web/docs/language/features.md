@@ -449,11 +449,11 @@ If you have long running tasks that require reliable, retriable, and/or schedula
 
 ### Job Executors
 
-Job executors hande the scheduling, monitoring, and execution of our job functions. They are the primary abstraction we provide that allows you to write one `async` JavaScript `job` handler function, but have it executed in different job queue contexts by changing a single line in your `.wasp` file.
+Job executors handle the scheduling, monitoring, and execution of our job functions. They are the primary abstraction we provide that allows you to write one `async` JavaScript `job` handler function, but have it executed in many different job queue contexts by changing a single line in your `.wasp` file.
 
 #### pg-boss
 
-We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have (think sending emails, connecting to external HTTP APIs to perform work, etc.). By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as it's storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
+We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have (think sending emails, connecting to external HTTP APIs, etc.). By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as it's storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
 ### Basic job definition and usage
 
@@ -542,7 +542,7 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `jobArgs: object` (optional)
 - ###### `options: object` (optional)
 
-Enqueues a `job` to be executed by an executor, optionally passing in job arguments and options.
+Enqueues a `job` to be executed by an executor, optionally passing in job arguments and executor enqueue options.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })
@@ -568,19 +568,19 @@ The return value of `submit()` is an instance of `SubmittedJob`, that minimally 
 
 There will also be namespaced, job executor-specific objects.
 - For pg-boss, you may access: `pgBoss`
-  - **NOTE**: no arguments are necessary, as we already applied the jobId in the returned lambda function.
+  - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
   - `details()`: pg-boss specific job detail information.
   - `cancel()`: attempts to cancel a job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#cancelid)
   - `resume()`: attempts to resume a canceled job. [Ref](https://github.com/timgit/pg-boss/blob/master/docs/readme.md#resumeid)
 
-### ⚠️ Considerations
+### Considerations
 
-There are job executor-specific considerations to keep in mind when making your selections. We will continue to offer additional job executor options that balance the pros and cons.
+There are job executor-specific considerations to keep in mind when making your selections. We will continue to offer additional job executor options that attempt to balance their respective pros and cons.
 
 #### pg-boss
-- pg-boss is deployed alongside your web server's application, where both are simultaneously operational. Accordingly, pg-boss and your web-server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
-  - Wasp does not support independent, horizontal scaling of pg-boss-only workers or separate processes/threads.
-- The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change this name and it has a `schedule`, it will continue scheduling jobs that will have no handlers associated, and will thus become stale and expire. You can remove the applicable row from the `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
+- Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. Accordingly, pg-boss and your web-server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
+  - Wasp does not support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
+- The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. You can remove the applicable row from the `schedule` table in the `pgboss` schema of your database, or start a NodeJS REPL in your server context and run:
   ```js
   let { boss } = await import(`./src/jobs/core/pgBoss/pgBoss.js`)
   boss.unschedule("mySpecialJob")
