@@ -6,7 +6,7 @@ const pgBossNewOptions = process.env.PG_BOSS_NEW_OPTIONS || {}
 export const boss = new PgBoss({ connectionString: config.databaseUrl, ...pgBossNewOptions })
 
 // Allows setup code that runs before pg-boss starts to register their pg-boss functions.
-let afterStartCallbacks = []
+const afterStartCallbacks = []
 export function registerAfterStartCallback(callback) {
   afterStartCallbacks.push(callback)
 }

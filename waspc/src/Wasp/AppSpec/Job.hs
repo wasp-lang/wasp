@@ -49,7 +49,7 @@ instance IsDecl Schedule
 jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]
 
--- Helpers to disambiguate duplicate field `option`.
+-- Helpers to disambiguate duplicate field `options`.
 performOptions :: Perform -> Maybe JSON
 performOptions p = options (p :: Perform)
 
