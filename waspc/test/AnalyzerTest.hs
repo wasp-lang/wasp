@@ -3,6 +3,7 @@
 module AnalyzerTest where
 
 import Analyzer.TestUtil (ctx)
+import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
@@ -21,6 +22,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import qualified Wasp.AppSpec.JSON as JSON
 import qualified Wasp.AppSpec.Job as Job
 import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as Query
@@ -82,7 +84,13 @@ spec_Analyzer = do
                 "job BackgroundJob {",
                 "  executor: PgBoss,",
                 "  perform: {",
-                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\"",
+                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\",",
+                "    options: {=json { \"retryLimit\": 1 } json=}",
+                "  },",
+                "  schedule: {",
+                "    cron: \"*/5 * * * *\",",
+                "    performFnArg: {=json { \"job\": \"args\" } json=},",
+                "    options: {=json { \"retryLimit\": 0 } json=}",
                 "  }",
                 "}"
               ]
@@ -200,13 +208,18 @@ spec_Analyzer = do
                   (ExtImportField "backgroundJob")
                   (fromJust $ SP.parseRelFileP "jobs/baz.js")
               )
-              Nothing
+              (JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}")
+      let jobSchedule =
+            Job.Schedule
+              "*/5 * * * *"
+              (JSON.JSON <$> Aeson.decode "{\"job\":\"args\"}")
+              (JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}")
       let expectedJob =
             [ ( "BackgroundJob",
                 Job.Job
                   { Job.executor = Job.PgBoss,
                     Job.perform = jobPerform,
-                    Job.schedule = Nothing
+                    Job.schedule = Just jobSchedule
                   }
               )
             ]
