@@ -6,12 +6,12 @@ const boss = createPgBoss()
 function createPgBoss() {
   let pgBossNewOptions = { connectionString: config.databaseUrl }
   try {
-    // Add an escape hatch for advanced configuration of pg-boss.
+    // Add an escape hatch for advanced configuration of pg-boss to overwrite our defaults.
     if (process.env.PG_BOSS_NEW_OPTIONS) {
       pgBossNewOptions = JSON.parse(process.env.PG_BOSS_NEW_OPTIONS)
     }
-  } catch (error) {
-    console.error("Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse().")
+  } catch {
+    console.error("Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!")
   }
 
   return new PgBoss(pgBossNewOptions)
