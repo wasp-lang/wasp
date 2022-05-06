@@ -1,4 +1,4 @@
-import { boss, registerAfterStartCallback } from './pgBoss.js'
+import { pgBossStarted } from './pgBoss.js'
 import { Job } from '../Job.js'
 import { SubmittedJob } from '../SubmittedJob.js'
 
@@ -8,7 +8,7 @@ export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
  * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob extends SubmittedJob {
-  constructor(job, jobId) {
+  constructor(boss, job, jobId) {
     super(job, jobId)
     this.pgBoss = {
       async cancel() { return boss.cancel(jobId) },
@@ -56,9 +56,10 @@ class PgBossJob extends Job {
    * @param {object} jobOptions - pg-boss specific options for `boss.send()`, which can override their defaultJobOptions.
    */
   async submit(jobArgs, jobOptions) {
+    const boss = await pgBossStarted
     const jobId = await boss.send(this.jobName, jobArgs,
       { ...this.#defaultJobOptions, ...(this.#startAfter && { startAfter: this.#startAfter }), ...jobOptions })
-    return new PgBossSubmittedJob(this, jobId)
+    return new PgBossSubmittedJob(boss, this, jobId)
   }
 }
 
@@ -73,9 +74,7 @@ class PgBossJob extends Job {
  * @param {object} jobSchedule [Optional] - The cron string and arguments/options when invoking the job.
  */
 export async function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
-  // Note: createJob runs before pg-boss starts. Therefore, anything that expects pg-boss to be running
-  // should be registered as a callback passed to registerAfterStartCallback.
-  registerAfterStartCallback(async () => {
+  pgBossStarted.then(async (boss) => {
     // As a safety precaution against undefined behavior of registering different
     // functions for the same job name, remove all registered functions first.
     await boss.offWork(jobName)
@@ -85,9 +84,9 @@ export async function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule
     await boss.work(jobName, jobFn)
 
     // If a job schedule is provided, we should schedule the recurring job.
-    // If the schedule name already exists, it's updated to the newly provided cron expression, arguments, and options.
+    // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
-    if (jobSchedule !== null) {
+    if (jobSchedule && jobSchedule.cron) {
       await boss.schedule(jobName, jobSchedule.cron, jobSchedule.performFnArg || null, jobSchedule.options || {})
     }
   })
