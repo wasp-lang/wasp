@@ -71,7 +71,7 @@ class PgBossJob extends Job {
  * @param {fn} jobFn - The user-defined async job callback function.
  * @param {object} defaultJobOptions - pg-boss specific options for boss.send() applied to every submit() invocation,
  *                                     which can overriden in that call.
- * @param {object} jobSchedule [Optional] - The cron string and arguments/options when invoking the job.
+ * @param {object} jobSchedule [Optional] - The 5 field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
  */
 export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
   pgBossStarted.then(async (boss) => {
