@@ -6,8 +6,8 @@ module Wasp.AppSpec.Job
     JobExecutor (..),
     Perform (..),
     Schedule (..),
-    performOptions,
-    scheduleOptions,
+    performExecutorOptions,
+    scheduleExecutorOptions,
     jobExecutors,
   )
 where
@@ -31,7 +31,7 @@ data JobExecutor = Passthrough | PgBoss
 
 data Perform = Perform
   { fn :: ExtImport,
-    options :: Maybe JSON
+    executorOptions :: Maybe JSON
   }
   deriving (Show, Eq, Data)
 
@@ -39,8 +39,8 @@ instance IsDecl Perform
 
 data Schedule = Schedule
   { cron :: String,
-    performFnArg :: Maybe JSON,
-    options :: Maybe JSON
+    args :: Maybe JSON,
+    executorOptions :: Maybe JSON
   }
   deriving (Show, Eq, Data)
 
@@ -50,8 +50,8 @@ jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]
 
 -- Helpers to disambiguate duplicate field `options`.
-performOptions :: Perform -> Maybe JSON
-performOptions p = options (p :: Perform)
+performExecutorOptions :: Perform -> Maybe JSON
+performExecutorOptions p = executorOptions (p :: Perform)
 
-scheduleOptions :: Schedule -> Maybe JSON
-scheduleOptions s = options (s :: Schedule)
+scheduleExecutorOptions :: Schedule -> Maybe JSON
+scheduleExecutorOptions s = executorOptions (s :: Schedule)

@@ -85,12 +85,12 @@ spec_Analyzer = do
                 "  executor: PgBoss,",
                 "  perform: {",
                 "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\",",
-                "    options: {=json { \"retryLimit\": 1 } json=}",
+                "    executorOptions: {=json { \"retryLimit\": 1 } json=}",
                 "  },",
                 "  schedule: {",
                 "    cron: \"*/5 * * * *\",",
-                "    performFnArg: {=json { \"job\": \"args\" } json=},",
-                "    options: {=json { \"retryLimit\": 0 } json=}",
+                "    args: {=json { \"job\": \"args\" } json=},",
+                "    executorOptions: {=json { \"retryLimit\": 0 } json=}",
                 "  }",
                 "}"
               ]

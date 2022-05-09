@@ -50,12 +50,14 @@ export async function startPgBoss() {
   pgBossStatus = PgBossStatus.Starting
   console.log('Starting pg-boss...')
 
-  boss.on('error', error => {
+  boss.on('error', error => console.error(error))
+  try {
+    await boss.start()
+  } catch (error) {
     console.error(error)
     pgBossStatus = PgBossStatus.Error
-  })
+  }
 
-  await boss.start()
   resolvePgBossStarted(boss)
 
   console.log('pg-boss started!')

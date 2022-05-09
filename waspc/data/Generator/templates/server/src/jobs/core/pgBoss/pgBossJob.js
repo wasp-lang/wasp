@@ -86,8 +86,9 @@ export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {
     // If a job schedule is provided, we should schedule the recurring job.
     // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
-    if (jobSchedule && jobSchedule.cron) {
-      await boss.schedule(jobName, jobSchedule.cron, jobSchedule.performFnArg || null, jobSchedule.options || {})
+    if (jobSchedule) {
+      const options = { ...defaultJobOptions, ...jobSchedule.options }
+      await boss.schedule(jobName, jobSchedule.cron, jobSchedule.args || null, options)
     }
   })
 

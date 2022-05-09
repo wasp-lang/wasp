@@ -46,33 +46,37 @@ import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
+
+genJob :: (String, Job) -> FileDraft
+genJob (jobName, job) =
+  C.mkTmplFdWithDstAndData
+    tmplFile
+    dstFile
+    ( Just $
+        object
+          [ "jobName" .= jobName,
+            "jobPerformFnName" .= jobPerformFnName,
+            "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
+            -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
+            -- This is why we must get a text representation of the object, either by
+            -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
+            "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
+            "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
+            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
+          ]
+    )
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
-    dstFileFromJobName jobName = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-
-    genJob :: (String, Job) -> FileDraft
-    genJob (jobName, job) =
-      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
-          maybeJobPerformOptions = J.performOptions . J.perform $ job
-          maybeJobSchedule =
-            J.schedule job
-              >>= (\s -> return $ object ["cron" .= J.cron s, "performFnArg" .= J.performFnArg s, "options" .= J.scheduleOptions s])
-       in C.mkTmplFdWithDstAndData
-            tmplFile
-            (dstFileFromJobName jobName)
-            ( Just $
-                object
-                  [ "jobName" .= jobName,
-                    "jobPerformFnName" .= jobPerformFnName,
-                    "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
-                    -- This is why we must get a text representation of the object, either by
-                    -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
-                    "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
-                    "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-                    "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
-                  ]
-            )
+    dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
+    (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+    maybeJobPerformOptions = J.performExecutorOptions . J.perform $ job
+    jobScheduleTmplData s =
+      object
+        [ "cron" .= J.cron s,
+          "args" .= J.args s,
+          "options" .= J.scheduleExecutorOptions s
+        ]
+    maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
