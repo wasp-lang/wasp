@@ -36,7 +36,7 @@ class PassthroughJob extends Job {
     sleep(this.#delaySeconds * 1000).then(() => this.#jobFn(jobArgs))
     // NOTE: Dumb random ID generator, mainly so we don't have to add `uuid`
     // as a dependency in the server generator for something nobody will likely use.
-    let jobId = (Math.random() + 1).toString(36).substring(7)
+    const jobId = (Math.random() + 1).toString(36).substring(7)
     return new SubmittedJob(this, jobId)
   }
 }

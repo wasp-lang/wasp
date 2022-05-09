@@ -11,9 +11,9 @@ class PgBossSubmittedJob extends SubmittedJob {
   constructor(boss, job, jobId) {
     super(job, jobId)
     this.pgBoss = {
-      async cancel() { return boss.cancel(jobId) },
-      async resume() { return boss.resume(jobId) },
-      async details() { return boss.getJobById(jobId) }
+      cancel: () => boss.cancel(jobId),
+      resume: () => boss.resume(jobId),
+      details: () => boss.getJobById(jobId),
     }
   }
 }
@@ -73,7 +73,7 @@ class PgBossJob extends Job {
  *                                     which can overriden in that call.
  * @param {object} jobSchedule [Optional] - The cron string and arguments/options when invoking the job.
  */
-export async function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
+export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
   pgBossStarted.then(async (boss) => {
     // As a safety precaution against undefined behavior of registering different
     // functions for the same job name, remove all registered functions first.

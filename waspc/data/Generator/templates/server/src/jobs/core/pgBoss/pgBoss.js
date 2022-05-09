@@ -4,14 +4,18 @@ import config from '../../../config.js'
 const boss = createPgBoss()
 
 function createPgBoss() {
-  let pgBossNewOptions = { connectionString: config.databaseUrl }
-  try {
-    // Add an escape hatch for advanced configuration of pg-boss to overwrite our defaults.
-    if (process.env.PG_BOSS_NEW_OPTIONS) {
+  let pgBossNewOptions = {
+    connectionString: config.databaseUrl,
+  }
+
+  // Add an escape hatch for advanced configuration of pg-boss to overwrite our defaults.
+  if (process.env.PG_BOSS_NEW_OPTIONS) {
+    try {
       pgBossNewOptions = JSON.parse(process.env.PG_BOSS_NEW_OPTIONS)
     }
-  } catch {
-    console.error("Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!")
+    catch {
+      console.error("Environment variable PG_BOSS_NEW_OPTIONS was not parsable by JSON.parse()!")
+    }
   }
 
   return new PgBoss(pgBossNewOptions)
@@ -24,7 +28,13 @@ export const pgBossStarted = new Promise((resolve, _reject) => {
 })
 
 // Ensure pg-boss can only be started once during a server's lifetime.
-let hasPgBossBeenStarted = false
+const PgBossStatus = {
+  Unstarted: 'Unstarted',
+  Starting: 'Starting',
+  Started: 'Started',
+  Error: 'Error'
+}
+let pgBossStatus = PgBossStatus.Unstarted
 
 /**
  * Prepares the target PostgreSQL database and begins job monitoring.
@@ -36,15 +46,18 @@ let hasPgBossBeenStarted = false
  * This should only be called once during a server's lifetime.
  */
 export async function startPgBoss() {
-  if (!hasPgBossBeenStarted) {
-    console.log('Starting pg-boss...')
+  if (pgBossStatus !== PgBossStatus.Unstarted) { return }
+  pgBossStatus = PgBossStatus.Starting
+  console.log('Starting pg-boss...')
 
-    boss.on('error', error => console.error(error))
-    await boss.start()
+  boss.on('error', error => {
+    console.error(error)
+    pgBossStatus = PgBossStatus.Error
+  })
 
-    resolvePgBossStarted(boss)
+  await boss.start()
+  resolvePgBossStarted(boss)
 
-    console.log('pg-boss started!')
-    hasPgBossBeenStarted = true
-  }
+  console.log('pg-boss started!')
+  pgBossStatus = PgBossStatus.Started
 }

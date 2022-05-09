@@ -7,7 +7,7 @@ module Wasp.AppSpec.Job
     Perform (..),
     Schedule (..),
     performOptions,
-    sheduleOptions,
+    scheduleOptions,
     jobExecutors,
   )
 where
@@ -53,5 +53,5 @@ jobExecutors = enumFrom minBound :: [JobExecutor]
 performOptions :: Perform -> Maybe JSON
 performOptions p = options (p :: Perform)
 
-sheduleOptions :: Schedule -> Maybe JSON
-sheduleOptions s = options (s :: Schedule)
+scheduleOptions :: Schedule -> Maybe JSON
+scheduleOptions s = options (s :: Schedule)

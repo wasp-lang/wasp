@@ -42,6 +42,7 @@ import Wasp.Generator.ServerGenerator.Common
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genJob <$> getJobs spec
@@ -55,7 +56,7 @@ genJobs spec = return $ genJob <$> getJobs spec
           maybeJobPerformOptions = J.performOptions . J.perform $ job
           maybeJobSchedule =
             J.schedule job
-              >>= (\s -> return $ object ["cron" .= J.cron s, "performFnArg" .= J.performFnArg s, "options" .= J.sheduleOptions s])
+              >>= (\s -> return $ object ["cron" .= J.cron s, "performFnArg" .= J.performFnArg s, "options" .= J.scheduleOptions s])
        in C.mkTmplFdWithDstAndData
             tmplFile
             (dstFileFromJobName jobName)
@@ -109,11 +110,11 @@ executorJobTemplateInJobsDir Passthrough = [relfile|core/passthroughJob.js|]
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)
 jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
-pgBossVersionBounds :: String
-pgBossVersionBounds = "^7.2.1"
+pgBossVersionBounds :: SV.VersionBounds
+pgBossVersionBounds = SV.BackwardsCompatibleWith (SV.Version 7 2 1)
 
 pgBossDependency :: AS.Dependency.Dependency
-pgBossDependency = AS.Dependency.make ("pg-boss", pgBossVersionBounds)
+pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionBounds)
 
 depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
