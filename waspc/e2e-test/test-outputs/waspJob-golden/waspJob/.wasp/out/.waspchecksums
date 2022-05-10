@@ -123,7 +123,7 @@
             "file",
             "server/src/jobs/MySpecialJob.js"
         ],
-        "7b06f538ad577addec09b634128e27bf61fb2b0317443804544f5a231f389de3"
+        "4639c4c738a9a6a5b0137962ac64252da12aaa01cff7918ba0937e8b375bf9e6"
     ],
     [
         [
@@ -142,23 +142,23 @@
     [
         [
             "file",
-            "server/src/jobs/core/passthroughJob.js"
-        ],
-        "5df690abebd10220346751adcfc157dd66f34a033abe017e34ac4e84287090bf"
-    ],
-    [
-        [
-            "file",
             "server/src/jobs/core/pgBoss/pgBoss.js"
         ],
-        "23fbb367a1cfe7729798be1b5fc22c4f4ffbda2941944a61057f68f5e43e6184"
+        "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"
     ],
     [
         [
             "file",
             "server/src/jobs/core/pgBoss/pgBossJob.js"
         ],
-        "3857d87db368c5014480b1840d29b262cbb431f99d7c102f45a1865878eecff4"
+        "9f04cf045b5d6b6f2bfaa1089e80a3fdc10cf9b8b1cd95da35f1530b0277ba10"
+    ],
+    [
+        [
+            "file",
+            "server/src/jobs/core/simpleJob.js"
+        ],
+        "ac538ab0a437f0acd2056197488ea4c6c6d056d86c34a0a1e36bf80e515c12e5"
     ],
     [
         [
