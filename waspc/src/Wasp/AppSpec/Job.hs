@@ -26,7 +26,7 @@ data Job = Job
 
 instance IsDecl Job
 
-data JobExecutor = Passthrough | PgBoss
+data JobExecutor = Simple | PgBoss
   deriving (Show, Eq, Data, Ord, Enum, Bounded)
 
 data Perform = Perform
@@ -51,7 +51,7 @@ instance IsDecl Schedule
 -- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON,
-    passthrough :: Maybe JSON
+    simple :: Maybe JSON
   }
   deriving (Show, Eq, Data)
 
@@ -70,6 +70,6 @@ scheduleExecutorOptionsJson job =
     Just s -> executorOptionsJson (executor job) (executorOptions (s :: Schedule))
 
 executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
-executorOptionsJson Passthrough (Just ExecutorOptions {passthrough = Just json}) = Just json
+executorOptionsJson Simple (Just ExecutorOptions {simple = Just json}) = Just json
 executorOptionsJson PgBoss (Just ExecutorOptions {pgBoss = Just json}) = Just json
 executorOptionsJson _ _ = Nothing

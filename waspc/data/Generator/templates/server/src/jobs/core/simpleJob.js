@@ -2,14 +2,14 @@ import { sleep } from '../../utils.js'
 import { Job } from './Job.js'
 import { SubmittedJob } from './SubmittedJob.js'
 
-export const PASSTHROUGH_EXECUTOR_NAME = Symbol('Passthrough')
+export const SIMPLE_EXECUTOR_NAME = Symbol('Simple')
 
 /**
  * A simple job mainly intended for testing. It will not submit work to any
  * job executor, but instead will simply invoke the underlying perform function.
- * It is dependency-free, however.
+ * It does not support `schedule`. It is dependency-free, however.
  */
-class PassthroughJob extends Job {
+class SimpleJob extends Job {
   #jobFn
   #delaySeconds
 
@@ -20,7 +20,7 @@ class PassthroughJob extends Job {
    * @param {int} delaySeconds - The number of seconds to delay invoking the Job function.
    */
   constructor(jobName, jobFn, delaySeconds = 0) {
-    super(jobName, PASSTHROUGH_EXECUTOR_NAME)
+    super(jobName, SIMPLE_EXECUTOR_NAME)
     this.#jobFn = jobFn
     this.#delaySeconds = delaySeconds
   }
@@ -29,7 +29,7 @@ class PassthroughJob extends Job {
    * @param {int} delaySeconds - Used to delay the processing of the job by some number of seconds.
    */
   delay(delaySeconds) {
-    return new PassthroughJob(this.jobName, this.#jobFn, delaySeconds)
+    return new SimpleJob(this.jobName, this.#jobFn, delaySeconds)
   }
 
   async submit(jobArgs) {
@@ -42,5 +42,5 @@ class PassthroughJob extends Job {
 }
 
 export function createJob({ jobName, jobFn } = {}) {
-  return new PassthroughJob(jobName, jobFn)
+  return new SimpleJob(jobName, jobFn)
 }

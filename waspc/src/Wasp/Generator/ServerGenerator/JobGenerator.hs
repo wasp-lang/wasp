@@ -28,7 +28,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (Passthrough, PgBoss), jobExecutors)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -108,7 +108,7 @@ executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) .
 
 executorJobTemplateInJobsDir :: JobExecutor -> Path' (Rel JobsDir) File'
 executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBoss/pgBossJob.js|]
-executorJobTemplateInJobsDir Passthrough = [relfile|core/passthroughJob.js|]
+executorJobTemplateInJobsDir Simple = [relfile|core/simpleJob.js|]
 
 -- Path to destination files are the same as in templates dir.
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)
