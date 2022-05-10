@@ -17,6 +17,7 @@ waspCompile/.wasp/out/server/src/ext-src/MainPage.js
 waspCompile/.wasp/out/server/src/ext-src/waspLogo.png
 waspCompile/.wasp/out/server/src/jobs/core/Job.js
 waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js
+waspCompile/.wasp/out/server/src/jobs/core/allJobs.js
 waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js

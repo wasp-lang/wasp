@@ -142,6 +142,13 @@
     [
         [
             "file",
+            "server/src/jobs/core/allJobs.js"
+        ],
+        "b5ddc268dfe8f1f7d96d775c1d8d407a647a45ed4937a87da7eb1eb50f9a4674"
+    ],
+    [
+        [
+            "file",
             "server/src/jobs/core/pgBoss/pgBoss.js"
         ],
         "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"
@@ -179,7 +186,7 @@
             "file",
             "server/src/server.js"
         ],
-        "6ee8aa871c3340f832d2a7fddac32a29a87683699f654bf6ada91377c26ddb2b"
+        "3570425ae5b581b91b00c46caa6931d0bd7445cb608fbca11d525389d2aff392"
     ],
     [
         [

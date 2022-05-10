@@ -19,6 +19,7 @@ waspJob/.wasp/out/server/src/ext-src/waspLogo.png
 waspJob/.wasp/out/server/src/jobs/MySpecialJob.js
 waspJob/.wasp/out/server/src/jobs/core/Job.js
 waspJob/.wasp/out/server/src/jobs/core/SubmittedJob.js
+waspJob/.wasp/out/server/src/jobs/core/allJobs.js
 waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspJob/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspJob/.wasp/out/server/src/jobs/core/simpleJob.js

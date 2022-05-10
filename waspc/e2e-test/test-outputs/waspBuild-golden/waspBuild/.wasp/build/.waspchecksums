@@ -128,6 +128,13 @@
     [
         [
             "file",
+            "server/src/jobs/core/allJobs.js"
+        ],
+        "90b1b3012216900efa82fff14911dcbf195fa2e449edb3b24ab80db0065d796f"
+    ],
+    [
+        [
+            "file",
             "server/src/jobs/core/pgBoss/pgBoss.js"
         ],
         "9821963d90b39058285343834c70e6f825d3d7696c738fd95539614b5e7d7b94"

@@ -22,6 +22,7 @@ waspMigrate/.wasp/out/server/src/ext-src/MainPage.js
 waspMigrate/.wasp/out/server/src/ext-src/waspLogo.png
 waspMigrate/.wasp/out/server/src/jobs/core/Job.js
 waspMigrate/.wasp/out/server/src/jobs/core/SubmittedJob.js
+waspMigrate/.wasp/out/server/src/jobs/core/allJobs.js
 waspMigrate/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspMigrate/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspMigrate/.wasp/out/server/src/jobs/core/simpleJob.js
