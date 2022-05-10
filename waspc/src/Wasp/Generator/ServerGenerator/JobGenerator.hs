@@ -69,12 +69,12 @@ genJob (jobName, job) =
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
     (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
-    maybeJobPerformOptions = J.performExecutorOptions . J.perform $ job
+    maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object
         [ "cron" .= J.cron s,
           "args" .= J.args s,
-          "options" .= J.scheduleExecutorOptions s
+          "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
 

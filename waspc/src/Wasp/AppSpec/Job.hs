@@ -6,8 +6,8 @@ module Wasp.AppSpec.Job
     JobExecutor (..),
     Perform (..),
     Schedule (..),
-    performExecutorOptions,
-    scheduleExecutorOptions,
+    performExecutorOptionsJson,
+    scheduleExecutorOptionsJson,
     jobExecutors,
   )
 where
@@ -31,7 +31,7 @@ data JobExecutor = Passthrough | PgBoss
 
 data Perform = Perform
   { fn :: ExtImport,
-    executorOptions :: Maybe JSON
+    executorOptions :: Maybe ExecutorOptions
   }
   deriving (Show, Eq, Data)
 
@@ -40,18 +40,33 @@ instance IsDecl Perform
 data Schedule = Schedule
   { cron :: String,
     args :: Maybe JSON,
-    executorOptions :: Maybe JSON
+    executorOptions :: Maybe ExecutorOptions
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Schedule
 
+data ExecutorOptions = ExecutorOptions
+  { pgBoss :: Maybe JSON,
+    passthrough :: Maybe JSON
+  }
+  deriving (Show, Eq, Data)
+
 jobExecutors :: [JobExecutor]
 jobExecutors = enumFrom minBound :: [JobExecutor]
 
--- Helpers to disambiguate duplicate field `options`.
-performExecutorOptions :: Perform -> Maybe JSON
-performExecutorOptions p = executorOptions (p :: Perform)
+-- Helpers to disambiguate duplicate field `executorOptions`.
+performExecutorOptionsJson :: Job -> Maybe JSON
+performExecutorOptionsJson job =
+  executorOptionsJson (executor job) (executorOptions (perform job :: Perform))
 
-scheduleExecutorOptions :: Schedule -> Maybe JSON
-scheduleExecutorOptions s = executorOptions (s :: Schedule)
+scheduleExecutorOptionsJson :: Job -> Maybe JSON
+scheduleExecutorOptionsJson job =
+  case schedule job of
+    Nothing -> Nothing
+    Just s -> executorOptionsJson (executor job) (executorOptions (s :: Schedule))
+
+executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
+executorOptionsJson Passthrough (Just ExecutorOptions {passthrough = Just json}) = Just json
+executorOptionsJson PgBoss (Just ExecutorOptions {pgBoss = Just json}) = Just json
+executorOptionsJson _ _ = Nothing
