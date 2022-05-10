@@ -85,12 +85,16 @@ spec_Analyzer = do
                 "  executor: PgBoss,",
                 "  perform: {",
                 "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\",",
-                "    executorOptions: {=json { \"retryLimit\": 1 } json=}",
+                "    executorOptions: {",
+                "      pgBoss: {=json { \"retryLimit\": 1 } json=}",
+                "    }",
                 "  },",
                 "  schedule: {",
                 "    cron: \"*/5 * * * *\",",
                 "    args: {=json { \"job\": \"args\" } json=},",
-                "    executorOptions: {=json { \"retryLimit\": 0 } json=}",
+                "    executorOptions: {",
+                "      pgBoss: {=json { \"retryLimit\": 0 } json=}",
+                "    }",
                 "  }",
                 "}"
               ]
@@ -208,12 +212,22 @@ spec_Analyzer = do
                   (ExtImportField "backgroundJob")
                   (fromJust $ SP.parseRelFileP "jobs/baz.js")
               )
-              (JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}")
+              ( Just $
+                  Job.ExecutorOptions
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}",
+                      Job.simple = Nothing
+                    }
+              )
       let jobSchedule =
             Job.Schedule
               "*/5 * * * *"
               (JSON.JSON <$> Aeson.decode "{\"job\":\"args\"}")
-              (JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}")
+              ( Just $
+                  Job.ExecutorOptions
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}",
+                      Job.simple = Nothing
+                    }
+              )
       let expectedJob =
             [ ( "BackgroundJob",
                 Job.Job

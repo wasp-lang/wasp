@@ -6,6 +6,7 @@ module Wasp.AppSpec.Job
     JobExecutor (..),
     Perform (..),
     Schedule (..),
+    ExecutorOptions (..),
     performExecutorOptionsJson,
     scheduleExecutorOptionsJson,
     jobExecutors,
