@@ -160,6 +160,7 @@ library
       Wasp.AppSpec.Action
       Wasp.AppSpec.App
       Wasp.AppSpec.App.Auth
+      Wasp.AppSpec.App.Client
       Wasp.AppSpec.App.Db
       Wasp.AppSpec.App.Dependency
       Wasp.AppSpec.App.Server

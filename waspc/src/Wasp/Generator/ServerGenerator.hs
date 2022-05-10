@@ -75,10 +75,10 @@ genDotEnv spec = return $
   case AS.dotEnvFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -163,18 +163,26 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|app.js|],
-      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|utils.js|],
-      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/AuthError.js|],
-      return $ C.mkSrcTmplFd $ C.asTmplSrcFile [relfile|core/HttpError.js|],
-      genDbClient spec,
+    [ genDbClient spec,
       genConfigFile spec,
       genServerJs spec
     ]
+    <++> genDirectCopies
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
+
+genDirectCopies :: Generator [FileDraft]
+genDirectCopies =
+  return $
+    map
+      C.mkSrcTmplFd
+      [ [relfile|app.js|],
+        [relfile|utils.js|],
+        [relfile|core/AuthError.js|],
+        [relfile|core/HttpError.js|]
+      ]
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

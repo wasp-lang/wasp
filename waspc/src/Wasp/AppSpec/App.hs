@@ -4,6 +4,7 @@ module Wasp.AppSpec.App (App (..)) where
 
 import Data.Data (Data)
 import Wasp.AppSpec.App.Auth (Auth)
+import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
 import Wasp.AppSpec.App.Dependency (Dependency)
 import Wasp.AppSpec.App.Server (Server)
@@ -14,6 +15,7 @@ data App = App
     head :: Maybe [String],
     auth :: Maybe Auth,
     server :: Maybe Server,
+    client :: Maybe Client,
     db :: Maybe Db,
     dependencies :: Maybe [Dependency]
   }
