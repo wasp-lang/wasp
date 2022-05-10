@@ -74,6 +74,14 @@ class PgBossJob extends Job {
  * @param {object} jobSchedule [Optional] - The 5 field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
  */
 export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
+  // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
+  // template, or else the NodeJS module bootstrapping process will block and fail as it would then depend
+  // on a runtime resolution of the promise in `startServer()`.
+  // Since `pgBossStarted` will resolve in the future, it may appear possible to send pg-boss
+  // a job before we actually have registered the handler via `boss.work()`. However, even if NodeJS does
+  // not execute this callback before any job `submit()` calls, this is not a problem since pg-boss allows you
+  // to submit jobs even if there are no workers registered.
+  // Once they are registered, they will just start on the first job in their queue.
   pgBossStarted.then(async (boss) => {
     // As a safety precaution against undefined behavior of registering different
     // functions for the same job name, remove all registered functions first.

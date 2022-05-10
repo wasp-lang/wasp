@@ -37,15 +37,18 @@ data Perform = Perform
 
 instance IsDecl Perform
 
+-- Allows jobs to run via some cron schedule.
 data Schedule = Schedule
-  { cron :: String,
-    args :: Maybe JSON,
+  { cron :: String, -- 5 field cron expression, exe: "*/5 * * * *".
+    args :: Maybe JSON, -- Arguments to pass to the job handler function (`Perform.fn`).
     executorOptions :: Maybe ExecutorOptions
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Schedule
 
+-- These are optional executor-specific JSON options we pass
+-- directly through to the executor when submitting jobs.
 data ExecutorOptions = ExecutorOptions
   { pgBoss :: Maybe JSON,
     passthrough :: Maybe JSON
