@@ -21,10 +21,11 @@ function createPgBoss() {
   return new PgBoss(pgBossNewOptions)
 }
 
-let resolvePgBossStarted
+let resolvePgBossStarted, rejectPgBossStarted
 // Code that wants to access pg-boss must wait until it has been started.
-export const pgBossStarted = new Promise((resolve, _reject) => {
+export const pgBossStarted = new Promise((resolve, reject) => {
   resolvePgBossStarted = resolve
+  rejectPgBossStarted = reject
 })
 
 // Ensure pg-boss can only be started once during a server's lifetime.
@@ -54,8 +55,11 @@ export async function startPgBoss() {
   try {
     await boss.start()
   } catch (error) {
+    console.error('pg-boss failed to start!')
     console.error(error)
     pgBossStatus = PgBossStatus.Error
+    rejectPgBossStarted(boss)
+    return
   }
 
   resolvePgBossStarted(boss)
