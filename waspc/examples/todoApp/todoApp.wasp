@@ -118,12 +118,19 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
+  }
+}
+
+job mySpecialScheduledJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js"
   },
   schedule: {
-    cron: "*/5 * * * *",
+    cron: "*/2 * * * *",
     args: {=json { "foo": "bar" } json=},
     executorOptions: {
-      pgBoss: {=json { "retryLimit": 0 } json=}
+      pgBoss: {=json { "retryLimit": 2 } json=}
     }
   }
 }

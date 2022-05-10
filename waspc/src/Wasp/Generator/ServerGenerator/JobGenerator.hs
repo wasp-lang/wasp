@@ -45,7 +45,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
-genJobs spec = return $ genJob <$> getJobs spec
+genJobs spec = return $ genAllJobImports spec : (genJob <$> getJobs spec)
 
 genJob :: (String, Job) -> FileDraft
 genJob (jobName, job) =
@@ -77,6 +77,26 @@ genJob (jobName, job) =
           "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+-- Creates a file that is imported on the server to ensure all job JS modules are loaded
+-- even if they are not referenced by user code. This ensures schedules are started, etc.
+genAllJobImports :: AppSpec -> FileDraft
+genAllJobImports spec =
+  let tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|core/_allJobs.js|]
+      dstFile = jobsDirInServerRootDir SP.</> [relfile|core/allJobs.js|]
+   in C.mkTmplFdWithDstAndData
+        tmplFile
+        dstFile
+        ( Just $
+            object
+              ["jobs" .= map buildJobInfo (fst <$> getJobs spec)]
+        )
+  where
+    buildJobInfo :: String -> Aeson.Value
+    buildJobInfo jobName =
+      object
+        [ "name" .= jobName
+        ]
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
