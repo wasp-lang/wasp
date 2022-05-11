@@ -2,7 +2,10 @@ import { useQuery } from '../queries'
 import config from '../config.js'
 import api, { handleApiError } from '../api.js'
 
-const getMe = async () => {
+export default function useAuth(queryFnArgs, config)  {
+  return useQuery(getMe, queryFnArgs, config)
+}
+async function getMe() {
   try {
     const response = await api.get(config.apiUrl + '/auth/me')
 
@@ -15,10 +18,5 @@ const getMe = async () => {
     }
   }
 }
+
 getMe.queryCacheKey = 'auth/me'
-
-const useAuth = (queryFnArgs, config) => {
-  return useQuery(getMe, queryFnArgs, config)
-}
-
-export default useAuth

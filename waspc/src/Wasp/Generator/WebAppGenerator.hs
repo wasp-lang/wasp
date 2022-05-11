@@ -6,24 +6,34 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
-  ( reldir,
+  ( Dir,
+    Path,
+    Posix,
+    Rel,
+    reldir,
     relfile,
     (</>),
   )
+import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
+import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
 import Wasp.Generator.WebAppGenerator.Common
-  ( asTmplFile,
+  ( WebAppSrcDir,
+    asTmplFile,
     asWebAppFile,
     mkSrcTmplFd,
   )
@@ -146,7 +156,7 @@ genPublicIndexHtml spec =
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
-  sequence [genRouter, genApi]
+  sequence [genRouter, genIndexJs spec, genApi]
     <++> genDirectCopies
     <++> genOperationsDir
     <++> genAuthDir
@@ -160,8 +170,7 @@ genDirectCopies =
   return $
     map
       mkSrcTmplFd
-      [ [relfile|index.js|],
-        [relfile|index.css|],
+      [ [relfile|index.css|],
         [relfile|logo.png|],
         [relfile|serviceWorker.js|],
         [relfile|config.js|],
@@ -173,21 +182,26 @@ genDirectCopies =
 genApi :: Generator FileDraft
 genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
--- genIndexJs :: AppSpec -> Generator FileDraft
--- genIndexJs spec =
---   return $
---     C.mkTmplFdWithDstAndData
---       (asTmplFile [relfile|src/index.js|])
---       (asWebAppFile [relfile|src/index.js|])
---       ( Just $
---           object
---             [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
---               "serverSetupJsFnImportStatement" .= isJust maybeSetupJsFnImportStmt,
---               "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
---             ]
---       )
---   where
---     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
---     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
---     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
---       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+-- | TODO(filip): we have almost the same thing in server
+genIndexJs :: AppSpec -> Generator FileDraft
+genIndexJs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile [relfile|src/index.js|])
+      (asWebAppFile [relfile|src/index.js|])
+      ( Just $
+          object
+            [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
+              "clientSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
+              "clientSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            ]
+      )
+  where
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+-- | TODO(filip): Move this somewhere common (we have the same thing in server) 
+relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
