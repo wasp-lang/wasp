@@ -17,3 +17,16 @@ const setup = async () => {
 }
 
 export default setup
+
+// WS test
+
+import WebSocket, { WebSocketServer } from 'ws';
+const ws = new WebSocketServer({ port: 8080 });
+
+ws.on('connection', function connection(wsConnection) {
+  wsConnection.on('message', function incoming(message) {
+    console.log(`server received: ${message}`);
+  });
+
+  wsConnection.send('got your message!');
+});
