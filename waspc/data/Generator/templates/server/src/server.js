@@ -11,7 +11,7 @@ import config from './config.js'
 
 {=# isPgBossJobExecutorUsed =}
 import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
-import * as allJobs from './jobs/core/allJobs.js'
+import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
 const startServer = async () => {
