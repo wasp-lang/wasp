@@ -202,6 +202,6 @@ genIndexJs spec =
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
--- | TODO(filip): Move this somewhere common (we have the same thing in server) 
+-- TODO(filip): Move this somewhere common (we have the same thing in server)
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]

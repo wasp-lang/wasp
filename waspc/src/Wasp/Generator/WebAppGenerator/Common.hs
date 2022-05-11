@@ -65,6 +65,7 @@ srcDirInWebAppTemplatesDir = [reldir|src|]
 
 -- * Templates
 
+-- TODO(filip): This function is almost the same as the one in ServerGenerator.Common
 mkSrcTmplFd :: Path' (Rel WebAppTemplatesSrcDir) File' -> FileDraft
 mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDst srcPath dstPath
   where

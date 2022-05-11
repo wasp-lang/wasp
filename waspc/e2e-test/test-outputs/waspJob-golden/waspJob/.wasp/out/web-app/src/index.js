@@ -6,17 +6,25 @@ import router from './router'
 import { queryClient } from './queryClient'
 import * as serviceWorker from './serviceWorker'
 
+
 import './index.css'
 
+startApp()
 
-ReactDOM.render(
-  <QueryClientProvider client={queryClient}>
-    { router }
-  </QueryClientProvider>,
-  document.getElementById('root')
-)
+async function startApp() {
+  render()
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+  // If you want your app to work offline and load faster, you can change
+  // unregister() to register() below. Note this comes with some pitfalls.
+  // Learn more about service workers: https://bit.ly/CRA-PWA
+  serviceWorker.unregister()
+}
+
+function render() {
+  ReactDOM.render(
+    <QueryClientProvider client={queryClient}>
+      { router }
+    </QueryClientProvider>,
+    document.getElementById('root')
+  )
+}

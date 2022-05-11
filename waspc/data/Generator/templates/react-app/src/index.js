@@ -35,4 +35,3 @@ function render() {
     document.getElementById('root')
   )
 }
-

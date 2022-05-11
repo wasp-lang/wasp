@@ -65,4 +65,3 @@ export function invalidateAndClearQueries() {
   // TODO(filip): why clear? What does it do exactly: https://github.com/tannerlinsley/react-query/blob/master/src/core/queryClient.ts
   queryClient.clear()
 }
-
