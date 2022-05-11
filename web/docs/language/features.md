@@ -514,7 +514,7 @@ job mySpecialJob {
     fn: import { foo } from "@ext/jobs/bar.js"
   },
   schedule: {
-    cron: "*/5 * * * *",
+    cron: "0 * * * *",
     args: {=json { "job": "args" } json=} // optional
   }
 }
