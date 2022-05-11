@@ -69,9 +69,9 @@ class PgBossJob extends Job {
  * functions, we will override the previous calls.
  * @param {string} jobName - The user-defined job name in their .wasp file.
  * @param {fn} jobFn - The user-defined async job callback function.
- * @param {object} defaultJobOptions - pg-boss specific options for boss.send() applied to every submit() invocation,
+ * @param {object} defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
  *                                     which can overriden in that call.
- * @param {object} jobSchedule [Optional] - The 5 field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
+ * @param {object} jobSchedule [Optional] - The 5-field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
  */
 export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
   // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
@@ -87,7 +87,7 @@ export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {
     // functions for the same job name, remove all registered functions first.
     await boss.offWork(jobName)
 
-    // This tells pgBoss to run given worker function when job/payload with given job name is submitted.
+    // This tells pg-boss to run given worker function when job with that name is submitted.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
     await boss.work(jobName, jobFn)
 

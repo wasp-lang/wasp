@@ -6,7 +6,7 @@ import config from './config.js'
 
 
 import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
-import * as allJobs from './jobs/core/allJobs.js'
+import './jobs/core/allJobs.js'
 
 const startServer = async () => {
   await startPgBoss()
