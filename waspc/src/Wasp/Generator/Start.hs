@@ -3,11 +3,13 @@ module Wasp.Generator.Start
   )
 where
 
-import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan)
+import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (concurrently, race)
 import Data.List (intercalate)
 import Data.Text (unpack)
+import Data.Time (getCurrentTime)
 import StrongPath (Abs, Dir, Path')
+import System.Directory (renamePath)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as Job
@@ -20,13 +22,9 @@ import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 start :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 start projectDir = do
   chan <- newChan
-  -- TODO: Next time we will take this into a separate function,
-  -- we can store the contents in memory, we can overwrite the file each time
-  -- we can add a HTML shell with JS to refresh, we can separate the
-  -- output stream by _jobType (server, react, db, and wasp messages).
+  -- TODO:
+  -- Need to handle Wasp messages.
   -- Figure out where to write and how to automatically open.
-  -- How to handle stopping app? Include last write timestamp (JS can check to warn).
-  -- Can have a race between readChan and a timer to ensure we always write at least every x seconds.
   -- Have separate areas for warning/errors that we have seen.
   -- Can show some sort of app structure diagram, etc. (May require AppSpec)
   -- How to handle escape sequences in output?
@@ -44,19 +42,37 @@ writeAppOutputToHtml chan = do
 
 writeOutput :: Chan JobMessage -> [JobMessage] -> IO ()
 writeOutput chan jobMessages = do
-  jobMessage <- readChan chan -- In future we could race with a timer
-  writeFile "/tmp/test.html" (htmlShell jobMessages)
-  writeOutput chan (jobMessage : jobMessages)
+  messageOrDelay <- race (readChan chan) (threadDelaySeconds 3)
+  messages <-
+    case messageOrDelay of
+      Left jobMessage -> return (jobMessage : jobMessages)
+      Right _timerExpired -> return jobMessages
+  writeOutputFile messages
+  writeOutput chan messages
+  where
+    writeOutputFile :: [JobMessage] -> IO ()
+    writeOutputFile messages = do
+      timestamp <- getCurrentTime
+      writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
+      renamePath "/tmp/test.html.tmp" "/tmp/test.html"
 
-htmlShell :: [JobMessage] -> String
-htmlShell jobMessages =
+    threadDelaySeconds :: Int -> IO ()
+    threadDelaySeconds =
+      let microsecondsInASecond = 1000000
+       in threadDelay . (* microsecondsInASecond)
+
+htmlShell :: String -> [JobMessage] -> String
+htmlShell timestamp jobMessages =
   unwords
     [ "<html><head>",
-        "<title>Wasp Powerline</title>",
+      "<title>Wasp Powerline</title>",
       "</head>",
       "<body>",
-        "<div class='logContainer'>" ++ splitJobMessages ++ "</div>",
-        "<script>setTimeout(() => { location.reload() }, 3000)</script>",
+      "<div><p>Last write timestamp: " ++ timestamp ++ "</p></div>",
+      "<div><p>Last JS refresh timestamp: <span id='jsTime'></span></p></div>",
+      "<div class='logContainer'>" ++ splitJobMessages ++ "</div>",
+      "<script>setTimeout(() => { location.reload() }, 3000)</script>",
+      "<script>document.getElementById('jsTime').innerHTML = new Date();</script>",
       "</body>",
       "</html>"
     ]
