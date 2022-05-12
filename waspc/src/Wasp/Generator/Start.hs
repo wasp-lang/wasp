@@ -51,9 +51,12 @@ writeOutput chan jobMessages = do
 htmlShell :: [JobMessage] -> String
 htmlShell jobMessages =
   unwords
-    [ "<html><head><title>Wasp Powerline</title></head>",
+    [ "<html><head>",
+        "<title>Wasp Powerline</title>",
+      "</head>",
       "<body>",
-      "<div class='logContainer'>" ++ splitJobMessages ++ "</div>",
+        "<div class='logContainer'>" ++ splitJobMessages ++ "</div>",
+        "<script>setTimeout(() => { location.reload() }, 3000)</script>",
       "</body>",
       "</html>"
     ]
