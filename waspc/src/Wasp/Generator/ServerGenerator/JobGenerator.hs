@@ -134,6 +134,8 @@ executorJobTemplateInJobsDir Simple = [relfile|core/simpleJob.js|]
 jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)
 jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
+-- NOTE: Our pg-boss related documentation references this version in URLs.
+-- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionBounds :: SV.VersionBounds
 pgBossVersionBounds = SV.BackwardsCompatibleWith (SV.Version 7 2 1)
 

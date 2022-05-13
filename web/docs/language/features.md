@@ -445,7 +445,7 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 ## Jobs
 
-If you have tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will persist between server restarts, can be retried if they fail, and they can even be delayed until the future (or have a recurring schedule)! Some examples where you may want to use a `job` include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
+If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will persist between server restarts, can be retried if they fail, and they can even be delayed until the future (or have a recurring schedule)! Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
 
 ### Job Executors
 
@@ -459,6 +459,8 @@ Currently, Wasp supports only one type of job executor, which is `PgBoss`, but i
 
 We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
+Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details for more information.
+
 <details>
   <summary>pg-boss details</summary>
 
@@ -469,8 +471,8 @@ We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job 
   If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
   ##### pg-boss considerations
-  - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. Accordingly, pg-boss and your web-server share the same NodeJS event loop, making it unsuitable for CPU-intensive tasks.
-    - Wasp does not support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
+  - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
+    - Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
   - The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `schedule` table in the `pgboss` schema of your database.
     - If you remove a `schedule` from a job, you will need to do the above as well.
 
