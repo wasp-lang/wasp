@@ -7,7 +7,8 @@ export const SIMPLE_EXECUTOR_NAME = Symbol('Simple')
 /**
  * A simple job mainly intended for testing. It will not submit work to any
  * job executor, but instead will simply invoke the underlying perform function.
- * It does not support `schedule`. It is dependency-free, however.
+ * It does not support `schedule`. It does not require any extra NPM dependencies
+ * or infrastructure, however.
  */
 class SimpleJob extends Job {
   #jobFn
