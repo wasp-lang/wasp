@@ -65,10 +65,9 @@ performExecutorOptionsJson job =
   executorOptionsJson (executor job) (executorOptions (perform job :: Perform))
 
 scheduleExecutorOptionsJson :: Job -> Maybe JSON
-scheduleExecutorOptionsJson job =
-  case schedule job of
-    Nothing -> Nothing
-    Just s -> executorOptionsJson (executor job) (executorOptions (s :: Schedule))
+scheduleExecutorOptionsJson job = do
+  s <- schedule job
+  executorOptionsJson (executor job) (executorOptions (s :: Schedule))
 
 executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
 executorOptionsJson Simple (Just ExecutorOptions {simple = Just json}) = Just json
