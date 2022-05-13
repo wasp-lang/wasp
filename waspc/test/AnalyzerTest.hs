@@ -3,6 +3,7 @@
 module AnalyzerTest where
 
 import Analyzer.TestUtil (ctx)
+import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
@@ -21,6 +22,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import qualified Wasp.AppSpec.JSON as JSON
 import qualified Wasp.AppSpec.Job as Job
 import qualified Wasp.AppSpec.Page as Page
 import qualified Wasp.AppSpec.Query as Query
@@ -82,7 +84,17 @@ spec_Analyzer = do
                 "job BackgroundJob {",
                 "  executor: PgBoss,",
                 "  perform: {",
-                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\"",
+                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\",",
+                "    executorOptions: {",
+                "      pgBoss: {=json { \"retryLimit\": 1 } json=}",
+                "    }",
+                "  },",
+                "  schedule: {",
+                "    cron: \"*/5 * * * *\",",
+                "    args: {=json { \"job\": \"args\" } json=},",
+                "    executorOptions: {",
+                "      pgBoss: {=json { \"retryLimit\": 0 } json=}",
+                "    }",
                 "  }",
                 "}"
               ]
@@ -194,18 +206,34 @@ spec_Analyzer = do
             ]
       takeDecls <$> decls `shouldBe` Right expectedAction
 
+      let jobPerform =
+            Job.Perform
+              ( ExtImport
+                  (ExtImportField "backgroundJob")
+                  (fromJust $ SP.parseRelFileP "jobs/baz.js")
+              )
+              ( Just $
+                  Job.ExecutorOptions
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":1}",
+                      Job.simple = Nothing
+                    }
+              )
+      let jobSchedule =
+            Job.Schedule
+              "*/5 * * * *"
+              (JSON.JSON <$> Aeson.decode "{\"job\":\"args\"}")
+              ( Just $
+                  Job.ExecutorOptions
+                    { Job.pgBoss = JSON.JSON <$> Aeson.decode "{\"retryLimit\":0}",
+                      Job.simple = Nothing
+                    }
+              )
       let expectedJob =
             [ ( "BackgroundJob",
                 Job.Job
                   { Job.executor = Job.PgBoss,
-                    Job.perform =
-                      Job.Perform
-                        { Job.fn =
-                            ExtImport
-                              (ExtImportField "backgroundJob")
-                              (fromJust $ SP.parseRelFileP "jobs/baz.js"),
-                          Job.options = Nothing
-                        }
+                    Job.perform = jobPerform,
+                    Job.schedule = Just jobSchedule
                   }
               )
             ]

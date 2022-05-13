@@ -1,25 +1,25 @@
-import { boss } from './pgBoss.js'
+import { pgBossStarted } from './pgBoss.js'
 import { Job } from '../Job.js'
 import { SubmittedJob } from '../SubmittedJob.js'
 
 export const PG_BOSS_EXECUTOR_NAME = Symbol('PgBoss')
 
 /**
- * A PgBoss specific SubmittedJob that adds additional PgBoss functionality.
+ * A pg-boss specific SubmittedJob that adds additional pg-boss functionality.
  */
 class PgBossSubmittedJob extends SubmittedJob {
-  constructor(job, jobId) {
+  constructor(boss, job, jobId) {
     super(job, jobId)
     this.pgBoss = {
-      async cancel() { return boss.cancel(jobId) },
-      async resume() { return boss.resume(jobId) },
-      async details() { return boss.getJobById(jobId) }
+      cancel: () => boss.cancel(jobId),
+      resume: () => boss.resume(jobId),
+      details: () => boss.getJobById(jobId),
     }
   }
 }
 
 /**
- * This is a class repesenting a job that can be submitted to PgBoss.
+ * This is a class repesenting a job that can be submitted to pg-boss.
  * It is not yet submitted until the caller invokes `submit()` on an instance.
  * The caller can make as many calls to `submit()` as they wish.
  */
@@ -51,14 +51,15 @@ class PgBossJob extends Job {
   }
 
   /**
-   * Submits the job to PgBoss.
+   * Submits the job to pg-boss.
    * @param {object} jobArgs - The job arguments supplied by the user for their perform callback.
-   * @param {object} jobOptions - PgBoss specific options for `boss.send()`, which can override their defaultJobOptions.
+   * @param {object} jobOptions - pg-boss specific options for `boss.send()`, which can override their defaultJobOptions.
    */
   async submit(jobArgs, jobOptions) {
+    const boss = await pgBossStarted
     const jobId = await boss.send(this.jobName, jobArgs,
       { ...this.#defaultJobOptions, ...(this.#startAfter && { startAfter: this.#startAfter }), ...jobOptions })
-    return new PgBossSubmittedJob(this, jobId)
+    return new PgBossSubmittedJob(boss, this, jobId)
   }
 }
 
@@ -68,17 +69,36 @@ class PgBossJob extends Job {
  * functions, we will override the previous calls.
  * @param {string} jobName - The user-defined job name in their .wasp file.
  * @param {fn} jobFn - The user-defined async job callback function.
- * @param {object} defaultJobOptions - PgBoss specific options for boss.send() applied to every submit() invocation,
+ * @param {object} defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
  *                                     which can overriden in that call.
+ * @param {object} jobSchedule [Optional] - The 5-field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
  */
-export async function createJob({ jobName, jobFn, defaultJobOptions } = {}) {
-  // As a safety precaution against undefined behavior of registering different
-  // functions for the same job name, remove all registered functions first.
-  await boss.offWork(jobName)
+export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
+  // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
+  // template, or else the NodeJS module bootstrapping process will block and fail as it would then depend
+  // on a runtime resolution of the promise in `startServer()`.
+  // Since `pgBossStarted` will resolve in the future, it may appear possible to send pg-boss
+  // a job before we actually have registered the handler via `boss.work()`. However, even if NodeJS does
+  // not execute this callback before any job `submit()` calls, this is not a problem since pg-boss allows you
+  // to submit jobs even if there are no workers registered.
+  // Once they are registered, they will just start on the first job in their queue.
+  pgBossStarted.then(async (boss) => {
+    // As a safety precaution against undefined behavior of registering different
+    // functions for the same job name, remove all registered functions first.
+    await boss.offWork(jobName)
 
-  // This tells pgBoss to run given worker function when job/payload with given job name is submitted.
-  // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
-  await boss.work(jobName, jobFn)
+    // This tells pg-boss to run given worker function when job with that name is submitted.
+    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
+    await boss.work(jobName, jobFn)
+
+    // If a job schedule is provided, we should schedule the recurring job.
+    // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
+    // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#scheduling
+    if (jobSchedule) {
+      const options = { ...defaultJobOptions, ...jobSchedule.options }
+      await boss.schedule(jobName, jobSchedule.cron, jobSchedule.args || null, options)
+    }
+  })
 
   return new PgBossJob(jobName, defaultJobOptions)
 }

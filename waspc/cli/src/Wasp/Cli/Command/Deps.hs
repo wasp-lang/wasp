@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
@@ -26,7 +27,11 @@ deps = do
       return
       appSpecOrCompileErrors
 
-  liftIO . putStrLn . unlines $
+  liftIO . putStrLn $ depsMessage appSpec
+
+depsMessage :: AppSpec -> String
+depsMessage appSpec =
+  unlines $
     [ "",
       title "Below are listed the dependencies that Wasp uses in your project. You can import and use these directly in the code as if you specified them yourself, but you can't change their versions.",
       ""
