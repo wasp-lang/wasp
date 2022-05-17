@@ -55,9 +55,17 @@ inferExprType' bindings expr = runWithBound bindings TD.empty $ inferExprType ex
 test :: String -> P.WithCtx P.Expr -> Either TypeError Type -> SpecWith (Arg Expectation)
 test name expr expected = it name $ do
   -- TODO: The test does not test whether inferExprType returns the correct expression,
-  -- it only looks at its type
+  -- it only looks at its type. What we should do is receive the whole expected typed expression
+  -- and compare that one with the result we get.
+  -- I actually wrote such test below (test').
   let actual = exprType . fromWithCtx <$> inferExprType' H.empty expr
   actual `shouldBe` expected
+
+-- TODO: Rename this function and functions above that operate on inferExprType, actually consider moving them
+-- all somewhere closer to tests taht test inferExprType.
+test' :: String -> P.WithCtx P.Expr -> Either TypeError (WithCtx TypedExpr) -> SpecWith (Arg Expectation)
+test' name expr expectedTexpr = it name $ do
+  inferExprType' H.empty expr `shouldBe` expectedTexpr
 
 testSuccess :: String -> P.WithCtx P.Expr -> Type -> SpecWith (Arg Expectation)
 testSuccess name expr = test name expr . Right
@@ -306,12 +314,27 @@ spec_Internal = do
         "Type checks a list where all elements have the same type"
         (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.DoubleLiteral 1.6])
         (ListType NumberType)
-      testSuccess
-        "Type checks a list containing strings and numbers"
-        (wctx1 $ P.List [wctx2 $ P.IntegerLiteral 5, wctx3 $ P.StringLiteral "4"])
+      test'
+        "Type checks a list containing expressions of different types (while keeping types of list elements specific)"
+        ( wctx1 $
+            P.List
+              [ wctx2 $ P.List [wctx3 $ P.IntegerLiteral 5],
+                wctx4 $ P.List [wctx5 $ P.BoolLiteral True],
+                wctx6 $ P.List []
+              ]
+        )
         -- TODO: decide on a representation for union types (e.g., set, list, tree, all types are unions)
         -- and correctly implement the equality instance.
-        (ListType (UnionType StringType NumberType))
+        ( Right
+            ( wctx1 $
+                List
+                  [ wctx2 $ List [wctx3 $ IntegerLiteral 5] (ListType NumberType),
+                    wctx4 $ List [wctx5 $ BoolLiteral True] (ListType BoolType),
+                    wctx6 $ List [] EmptyListType
+                  ]
+                  (ListType $ makeUnionType (ListType NumberType) (ListType BoolType))
+            )
+        )
 
       testSuccess
         "Creates a union when unifying a list of dictionaries with different fields"
