@@ -116,6 +116,10 @@ spec_Internal = do
           ]
 
     -- TODO: test makeUnionType.
+    describe "unify" $ do
+      it "Should find the correct supertype for a list of typed expressions" $ do
+        let exprs = wctx2 (IntegerLiteral 1) :| [wctx3 $ DoubleLiteral 2, wctx4 $ BoolLiteral True]
+        unify exprs `shouldBe` makeUnionType NumberType BoolType
 
     describe "weaken" $ do
       it "Should correctly weaken a simple expression to its supertype" $ do
