@@ -132,35 +132,19 @@ inferExprType = P.withCtx $ \ctx -> \case
       | key `M.member` m = throw $ mkTypeError ctx $ DictDuplicateField key
       | otherwise = return $ M.insert key value m
 
--- | Finds the strongest common type for all of the given expressions, "common" meaning
--- all the expressions can be typed with it and "strongest" meaning it is as specific
--- as possible. We know such a type exists because we can always unify non-overlapping types
+-- TODO: How come we need to weaken the entire tree, is it important to keep
+-- correct type information for child nodes. Do we even need the function
+-- "weaken" here if we know the correct type from above (superType)
+-- We thought about it: weaken assigns the calculated supertype to all child
+-- nodes which causes information loss. We decided it makes sense to keep node
+-- type information as precise as possible. In other words, each node should
+-- have the most narrow possible correct type.  Instead of calling weaken, we
+-- should most likely return the same tree with a different type at the top
+
+-- | @unifyTypes t1 t2@ finds the strongest type that both type @t1@ and @t2@
+-- are a sub-type of, with "strongest" meaning it is as specific as possible.
+-- We know such a type exists because we can always unify non-overlapping types
 -- into a union type.
---
--- The following property is gauranteed:
---
--- * IF   @unify exprs == (exprs', commonType)@
---   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
---
--- TODO: write tests.
-unify :: NonEmpty (WithCtx TypedExpr) -> Type
-unify texprs = foldl1 unifyTypes $ exprType . fromWithCtx <$> texprs
-
--- TODO: How come we need to weaken the entire tree, is it important to keep correct
--- type information for child nodes. Do we even need the function "weaken" here if we know
--- the correct type from above (superType)
--- We thought about it: weaken assigns the calculated supertype to all child nodes
--- which causes information loss. We decided it makes sense to keep node type information as
--- precise as possible. In other words, each node should have the most narrow possible correct type.
--- Instead of calling weaken, we should most likely return the same tree with a different type at the top
-
--- TODO: change documentation
-
--- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
--- type of typed expression @texpr@ are a sub-type of.
--- NOTE: The reason it operates on Type and TypedExpr and not just two Types is that
---   having a TypedExpr allows us to report the source position when we encounter a type error.
---   Anyway unification always happens for some typed expressions, so this makes sense.
 --
 -- NOTE: We decided NOT TO generalise types of lists of dictionaries for now.
 -- In other words, the expression `[{}, { b: "foo" }, { a: 4 }]` should resolve
