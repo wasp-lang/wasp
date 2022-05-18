@@ -167,14 +167,14 @@ genSrcDir spec =
       genConfigFile spec,
       genServerJs spec
     ]
-    <++> genDirectCopies
+    <++> genCopiesFromTemplates
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
 
-genDirectCopies :: Generator [FileDraft]
-genDirectCopies =
+genCopiesFromTemplates :: Generator [FileDraft]
+genCopiesFromTemplates =
   return $
     map
       C.mkSrcTmplFd

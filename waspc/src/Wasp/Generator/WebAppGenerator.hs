@@ -30,7 +30,7 @@ import Wasp.Generator.FileDraft
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
+import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import Wasp.Generator.WebAppGenerator.Common
   ( WebAppSrcDir,
     asTmplFile,
@@ -39,8 +39,8 @@ import Wasp.Generator.WebAppGenerator.Common
   )
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
-import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator as OperationsG
-import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
+import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
+import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -156,17 +156,17 @@ genPublicIndexHtml spec =
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
-  sequence [genRouter, genIndexJs spec, genApi]
-    <++> genDirectCopies
-    <++> genOperationsDir
-    <++> genAuthDir
-  where
-    genRouter = RouterGenerator.generateRouter spec
-    genOperationsDir = OperationsG.genOperations spec
-    genAuthDir = AuthG.genAuth spec
+  sequence
+    [ genRouter spec,
+      genIndexJs spec,
+      genApi
+    ]
+    <++> genCopiesFromTemplates
+    <++> genOperations spec
+    <++> genAuth spec
 
-genDirectCopies :: Generator [FileDraft]
-genDirectCopies =
+genCopiesFromTemplates :: Generator [FileDraft]
+genCopiesFromTemplates =
   return $
     map
       mkSrcTmplFd
