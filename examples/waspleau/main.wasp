@@ -8,10 +8,36 @@ app waspleau {
   db: { system: PostgreSQL },
 
   dependencies: [
-    ("bull", "4.1.1"),
     ("axios", "^0.21.1")
   ]
 }
+
+job github {
+  executor: PgBoss,
+  perform: {
+    fn: import { workerFunction } from "@ext/workers/github.js"
+  },
+  schedule: {
+    cron: "*/10 * * * *"
+  }
+}
+
+job loadTime {
+  executor: PgBoss,
+  perform: {
+    fn: import { workerFunction } from "@ext/workers/loadTime.js"
+  },
+  schedule: {
+    cron: "*/5 * * * *"
+  }
+}
+
+entity Metric {=psl
+    id          Int       @id @default(autoincrement())
+    name        String    @unique
+    value       String
+    updatedAt   DateTime  @updatedAt
+psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
@@ -19,9 +45,6 @@ page MainPage {
 }
 
 query dashboard {
-  fn: import { refreshDashboardData } from "@ext/dashboard.js"
+  fn: import { refreshDashboardData } from "@ext/dashboard.js",
+  entities: [Metric]
 }
-
-entity Dummy {=psl
-    id          Int     @id @default(autoincrement())
-psl=}

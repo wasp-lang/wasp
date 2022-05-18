@@ -1,5 +1,9 @@
-import { getDashboardData } from './serverSetup.js'
-
-export const refreshDashboardData = async (_args, _context) => {
-  return getDashboardData()
+export const refreshDashboardData = async (_args, context) => {
+  return context.entities.Metric.findMany({
+    orderBy: [
+      {
+        name: 'asc',
+      },
+    ],
+  })
 }
