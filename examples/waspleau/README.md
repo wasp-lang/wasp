@@ -21,3 +21,22 @@ Update ext/workers with whatever you want to track, add to main.wasp as a `Job`,
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
 
 Note: As you develop your own workers, keep in mind each time you save a file in the project it will automatically reload, hence restarting your server, `Job`s, and server function.
+
+## Heroku Deployment Note
+
+If you wish to deploy this on Heroku, pg-boss will fail to initialize as for some reason the pg client does not attempt to connect over SSL by default. This results in an error like:
+
+```
+pg-boss failed to start!
+2022-05-18T19:07:37.464126+00:00 app[web.1]: error: no pg_hba.conf entry for host "***", user "***", database "***", SSL off
+```
+
+Ref: https://help.heroku.com/DR0TTWWD/seeing-fatal-no-pg_hba-conf-entry-errors-in-postgres
+
+The solution is to set a `PG_BOSS_NEW_OPTIONS` environment variable to something like this:
+
+```
+{"connectionString":"<your-heroku-DATABASE_URL>","ssl":{"rejectUnauthorized":false}}
+```
+
+Ref: https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
