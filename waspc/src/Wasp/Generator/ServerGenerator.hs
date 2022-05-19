@@ -41,11 +41,6 @@ import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
-import Wasp.Generator.ServerGenerator.Common
-  ( ServerSrcDir,
-    asServerFile,
-    asTmplFile,
-  )
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
@@ -85,15 +80,15 @@ dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
 genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd (asTmplFile [relfile|README.md|])
+genReadme = return $ C.mkTmplFd (C.asTmplFile [relfile|README.md|])
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
   combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|package.json|])
-      (asServerFile [relfile|package.json|])
+      (C.asTmplFile [relfile|package.json|])
+      (C.asServerFile [relfile|package.json|])
       ( Just $
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
@@ -135,16 +130,16 @@ genNpmrc :: Generator FileDraft
 genNpmrc =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|npmrc|])
-      (asServerFile [relfile|.npmrc|])
+      (C.asTmplFile [relfile|npmrc|])
+      (C.asServerFile [relfile|.npmrc|])
       Nothing
 
 genNvmrc :: Generator FileDraft
 genNvmrc =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|nvmrc|])
-      (asServerFile [relfile|.nvmrc|])
+      (C.asTmplFile [relfile|nvmrc|])
+      (C.asServerFile [relfile|.nvmrc|])
       -- We want to specify only the major version here. If we specified the
       -- entire version string (i.e., 16.0.0), our project would work only with
       -- that exact version, which we don't want. Unfortunately, the nvmrc file
@@ -156,33 +151,28 @@ genGitignore :: Generator FileDraft
 genGitignore =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|gitignore|])
-      (asServerFile [relfile|.gitignore|])
+      (C.asTmplFile [relfile|gitignore|])
+      (C.asServerFile [relfile|.gitignore|])
       Nothing
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ genDbClient spec,
+    [ genCopyFileFromTemplate [relfile|app.js|],
+      genCopyFileFromTemplate [relfile|utils.js|],
+      genCopyFileFromTemplate [relfile|core/AuthError.js|],
+      genCopyFileFromTemplate [relfile|core/HttpError.js|],
+      genDbClient spec,
       genConfigFile spec,
       genServerJs spec
     ]
-    <++> genCopiesFromTemplates
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
 
-genCopiesFromTemplates :: Generator [FileDraft]
-genCopiesFromTemplates =
-  return $
-    map
-      C.mkSrcTmplFd
-      [ [relfile|app.js|],
-        [relfile|utils.js|],
-        [relfile|core/AuthError.js|],
-        [relfile|core/HttpError.js|]
-      ]
+genCopyFileFromTemplate :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
+genCopyFileFromTemplate = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -206,8 +196,8 @@ genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|src/server.js|])
-      (asServerFile [relfile|src/server.js|])
+      (C.asTmplFile [relfile|src/server.js|])
+      (C.asServerFile [relfile|src/server.js|])
       ( Just $
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
@@ -222,7 +212,7 @@ genServerJs spec =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
 -- | TODO: Make this not hardcoded!
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
@@ -231,8 +221,8 @@ genRoutesDir spec =
   -- but I did not bother with it yet since it is used only here for now.
   return
     [ C.mkTmplFdWithDstAndData
-        (asTmplFile [relfile|src/routes/index.js|])
-        (asServerFile [relfile|src/routes/index.js|])
+        (C.asTmplFile [relfile|src/routes/index.js|])
+        (C.asServerFile [relfile|src/routes/index.js|])
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),

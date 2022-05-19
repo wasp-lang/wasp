@@ -14,6 +14,7 @@ module Wasp.Generator.WebAppGenerator.Common
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
+    WebAppTemplatesSrcDir,
   )
 where
 
