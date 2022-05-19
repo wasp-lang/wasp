@@ -5,8 +5,9 @@ where
 
 import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (concurrently, race)
-import Data.List (intercalate)
-import Data.Text (unpack)
+import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
+import Data.Text (Text, intercalate, pack, unwords)
+import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
 import StrongPath (Abs, Dir, Path')
 import System.Directory (renamePath)
@@ -53,7 +54,7 @@ writeOutput chan jobMessages = do
     writeOutputFile :: [JobMessage] -> IO ()
     writeOutputFile messages = do
       timestamp <- getCurrentTime
-      writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
+      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
       renamePath "/tmp/test.html.tmp" "/tmp/test.html"
 
     threadDelaySeconds :: Int -> IO ()
@@ -61,42 +62,42 @@ writeOutput chan jobMessages = do
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-htmlShell :: String -> [JobMessage] -> String
+htmlShell :: String -> [JobMessage] -> Text
 htmlShell timestamp jobMessages =
-  unwords
+  Data.Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
       "</head>",
       "<body>",
-      "<div><p>Last write timestamp: " ++ timestamp ++ "</p></div>",
+      "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
       "<div><p>Last JS refresh timestamp: <span id='jsTime'></span></p></div>",
-      "<div class='logContainer'>" ++ splitJobMessages ++ "</div>",
+      "<div class='logContainer'>" <> splitJobMessages <> "</div>",
       "<script>setTimeout(() => { location.reload() }, 3000)</script>",
       "<script>document.getElementById('jsTime').innerHTML = new Date();</script>",
       "</body>",
       "</html>"
     ]
   where
-    splitJobMessages :: String
+    splitJobMessages :: Text
     splitJobMessages =
       let webAppMessages = filter (\jm -> Job._jobType jm == Job.WebApp) jobMessages
           serverMessages = filter (\jm -> Job._jobType jm == Job.Server) jobMessages
           dbMessages = filter (\jm -> Job._jobType jm == Job.Db) jobMessages
        in makeMessagesPretty webAppMessages "Web"
-            ++ makeMessagesPretty serverMessages "Server"
-            ++ makeMessagesPretty dbMessages "Db"
+            <> makeMessagesPretty serverMessages "Server"
+            <> makeMessagesPretty dbMessages "Db"
 
-    makeMessagesPretty :: [JobMessage] -> String -> String
+    makeMessagesPretty :: [JobMessage] -> Text -> Text
     makeMessagesPretty jms title =
-      unwords
+      Data.Text.unwords
         [ "<div>",
-          "<h2>" ++ title ++ "</h2>",
-          intercalate "<br/>" $ map makeMessagePretty jms,
+          "<h2>" <> title <> "</h2>",
+          Data.Text.intercalate "<br/>" $ map makeMessagePretty jms,
           "</div>"
         ]
 
-    makeMessagePretty :: JobMessage -> String
+    makeMessagePretty :: JobMessage -> Text
     makeMessagePretty jm =
       case Job._data jm of
-        Job.JobOutput txt _ -> unpack txt
+        Job.JobOutput txt _ -> stripAnsiEscapeCodes txt
         Job.JobExit _ -> ""
