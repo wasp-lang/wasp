@@ -46,22 +46,21 @@ export function invalidateQueriesUsing(resources) {
   }
 }
 
-export function removePrivateQueries() {
-  // TODO(matija): Currently we are removing all the queries, but we should remove only
-  // non-public, user-dependent queries - public queries are expected not to change in respect
-  // to the currently logged in user.
-  // TODO(filip): why remove? What does it do exactly: https://github.com/tannerlinsley/react-query/blob/master/src/core/queryClient.ts
+export function removeQueries() {
+  // TODO(filip): We are currently removing all the queries, but we should
+  // remove only non-public, user-dependent queries - public queries are
+  // expected not to change in respect to the currently logged in user.
   queryClient.removeQueries()
 }
 
+// TODO(filip): We are currently invalidating and removing  all the queries, but
+// we should remove only the non-public, user-dependent ones.
 export function invalidateAndClearQueries() {
-  // TODO(matija): We are currently invalidating all the queries, but we should clear only the
-  // non-public, user-dependent ones.
-  // TODO(filip): I don't think we should be invalidating anything here
+  // If we don't invalidate the queries before clearing them, Wasp will stay on
+  // the same page. The user would have to manually refresh the page to "finish"
+  // logging out.
   queryClient.invalidateQueries()
-
-  // TODO(matija): We are currently clearing all the queries, but we should clear only the
-  // non-public, user-dependent ones.
-  // TODO(filip): why clear? What does it do exactly: https://github.com/tannerlinsley/react-query/blob/master/src/core/queryClient.ts
-  queryClient.clear()
+  // If we don't remove the queries after invalidating them, the old query data
+  // remains in the cache, casuing a potential privacy issue.
+  queryClient.removeQueries()
 }

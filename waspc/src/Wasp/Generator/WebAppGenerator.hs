@@ -9,9 +9,7 @@ import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
-    File',
     Path,
-    Path',
     Posix,
     Rel,
     reldir,
@@ -153,21 +151,19 @@ genPublicIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ genCopyFileFromTemplate [relfile|index.css|],
-      genCopyFileFromTemplate [relfile|logo.png|],
-      genCopyFileFromTemplate [relfile|serviceWorker.js|],
-      genCopyFileFromTemplate [relfile|config.js|],
-      genCopyFileFromTemplate [relfile|queryClient.js|],
-      genCopyFileFromTemplate [relfile|utils.js|],
+    [ copyTmplFile [relfile|index.css|],
+      copyTmplFile [relfile|logo.png|],
+      copyTmplFile [relfile|serviceWorker.js|],
+      copyTmplFile [relfile|config.js|],
+      copyTmplFile [relfile|queryClient.js|],
+      copyTmplFile [relfile|utils.js|],
       genRouter spec,
       genIndexJs spec,
       genApi
     ]
     <++> genOperations spec
     <++> genAuth spec
-
-genCopyFileFromTemplate :: Path' (Rel C.WebAppTemplatesSrcDir) File' -> Generator FileDraft
-genCopyFileFromTemplate = return . C.mkSrcTmplFd
+  where copyTmplFile = return . C.mkSrcTmplFd
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: Generator FileDraft
@@ -193,6 +189,5 @@ genIndexJs spec =
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
--- TODO(filip): Move this somewhere common (we have the same thing in server)
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]

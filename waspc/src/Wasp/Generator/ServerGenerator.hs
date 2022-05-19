@@ -158,10 +158,10 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ genCopyFileFromTemplate [relfile|app.js|],
-      genCopyFileFromTemplate [relfile|utils.js|],
-      genCopyFileFromTemplate [relfile|core/AuthError.js|],
-      genCopyFileFromTemplate [relfile|core/HttpError.js|],
+    [ copyTmplFile [relfile|app.js|],
+      copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|core/AuthError.js|],
+      copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec
@@ -170,9 +170,7 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
-
-genCopyFileFromTemplate :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
-genCopyFileFromTemplate = return . C.mkSrcTmplFd
+  where copyTmplFile = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
