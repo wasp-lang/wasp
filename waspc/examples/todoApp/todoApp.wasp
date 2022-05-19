@@ -17,6 +17,7 @@ app todoApp {
   },
   client: {
     setupFn: import setup from "@ext/clientSetup.js"
+  },
   db: {
     system: PostgreSQL
   }
