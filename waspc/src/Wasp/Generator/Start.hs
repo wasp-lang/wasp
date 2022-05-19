@@ -6,7 +6,8 @@ where
 import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (concurrently, race)
 import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
-import Data.Text (Text, intercalate, pack, replace, unwords)
+import Data.Text (Text, pack)
+import qualified Data.Text as Text
 import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
 import StrongPath (Abs, Dir, Path')
@@ -54,7 +55,7 @@ writeOutput chan jobMessages = do
     writeOutputFile :: [JobMessage] -> IO ()
     writeOutputFile messages = do
       timestamp <- getCurrentTime
-      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
+      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) (reverse messages))
       renamePath "/tmp/test.html.tmp" "/tmp/test.html"
 
     threadDelaySeconds :: Int -> IO ()
@@ -64,9 +65,10 @@ writeOutput chan jobMessages = do
 
 htmlShell :: String -> [JobMessage] -> Text
 htmlShell timestamp jobMessages =
-  Data.Text.unwords
+  Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
+      "<style> div.scrollable { height: 20%; overflow-y: scroll; border: 1px solid black; } </style>",
       "</head>",
       "<body>",
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
@@ -89,16 +91,17 @@ htmlShell timestamp jobMessages =
 
     makeMessagesPretty :: [JobMessage] -> Text -> Text
     makeMessagesPretty jms title =
-      Data.Text.unwords
-        [ "<div>",
-          "<h2>" <> title <> "</h2>",
-          Data.Text.intercalate "<br/>" $ map makeMessagePretty jms,
-          "</div>"
+      Text.unwords
+        [ "<h2>" <> title <> "</h2>",
+          "<div class='scrollable'>",
+          Text.intercalate "<br/>" $ map makeMessagePretty jms,
+          "</div>",
+          "<hr/>"
         ]
 
     -- TODO: Hacky, fix this cleanup some
     makeMessagePretty :: JobMessage -> Text
     makeMessagePretty jm =
       case Job._data jm of
-        Job.JobOutput txt _ -> Data.Text.replace "\n" "<br/>" $ stripAnsiEscapeCodes txt
+        Job.JobOutput txt _ -> Text.intercalate "<br/>" . reverse . Text.split (== '\n') . Text.strip . stripAnsiEscapeCodes $ txt
         Job.JobExit _ -> ""
