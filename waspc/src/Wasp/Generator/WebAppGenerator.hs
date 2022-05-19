@@ -163,7 +163,8 @@ genSrcDir spec =
     ]
     <++> genOperations spec
     <++> genAuth spec
-  where copyTmplFile = return . C.mkSrcTmplFd
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: Generator FileDraft

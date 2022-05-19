@@ -172,7 +172,8 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
-  where copyTmplFile = return . C.mkSrcTmplFd
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
