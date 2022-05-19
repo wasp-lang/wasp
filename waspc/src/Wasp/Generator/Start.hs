@@ -6,7 +6,7 @@ where
 import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
 import Control.Concurrent.Async (concurrently, race)
 import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
-import Data.Text (Text, intercalate, pack, unwords)
+import Data.Text (Text, intercalate, pack, replace, unwords)
 import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
 import StrongPath (Abs, Dir, Path')
@@ -96,8 +96,9 @@ htmlShell timestamp jobMessages =
           "</div>"
         ]
 
+    -- TODO: Hacky, fix this cleanup some
     makeMessagePretty :: JobMessage -> Text
     makeMessagePretty jm =
       case Job._data jm of
-        Job.JobOutput txt _ -> stripAnsiEscapeCodes txt
+        Job.JobOutput txt _ -> Data.Text.replace "\n" "<br/>" $ stripAnsiEscapeCodes txt
         Job.JobExit _ -> ""
