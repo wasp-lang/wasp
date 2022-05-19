@@ -56,7 +56,7 @@ export function removeQueries() {
 // TODO(filip): We are currently invalidating and removing  all the queries, but
 // we should remove only the non-public, user-dependent ones.
 export function invalidateAndClearQueries() {
-  // If we don't invalidate the queries before clearing them, Wasp will stay on
+  // If we don't invalidate the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
   queryClient.invalidateQueries()

@@ -169,7 +169,6 @@ genSrcDir spec =
 genApi :: Generator FileDraft
 genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
--- | TODO(filip): we have almost the same thing in server
 genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =
   return $

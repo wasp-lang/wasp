@@ -42,8 +42,6 @@ asWebAppFile = SP.castRel
 asWebAppSrcFile :: Path' (Rel d) File' -> Path' (Rel WebAppSrcDir) File'
 asWebAppSrcFile = SP.castRel
 
--- * Paths
-
 -- | Path where web app root dir is generated, relative to the root directory of the whole generated project.
 webAppRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppRootDir)
 webAppRootDirInProjectRootDir = [reldir|web-app|]
@@ -64,9 +62,6 @@ webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
 srcDirInWebAppTemplatesDir :: Path' (Rel WebAppTemplatesDir) (Dir WebAppTemplatesSrcDir)
 srcDirInWebAppTemplatesDir = [reldir|src|]
 
--- * Templates
-
--- TODO(filip): This function is almost the same as the one in ServerGenerator.Common
 mkSrcTmplFd :: Path' (Rel WebAppTemplatesSrcDir) File' -> FileDraft
 mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDst srcPath dstPath
   where
