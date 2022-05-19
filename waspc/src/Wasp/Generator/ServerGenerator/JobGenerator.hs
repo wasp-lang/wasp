@@ -1,14 +1,16 @@
 module Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobs,
-    genJobFactories,
+    genJobExecutors,
+    pgBossVersionBounds,
+    pgBossDependency,
+    depsRequiredByJobs,
   )
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe
-  ( fromJust,
-  )
-import qualified GHC.Enum as Enum
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Text as Aeson.Text
+import Data.Maybe (fromJust, fromMaybe)
 import StrongPath
   ( Dir,
     File',
@@ -20,63 +22,125 @@ import StrongPath
     reldir,
     reldirP,
     relfile,
-    (</>),
+    toFilePath,
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
-import Wasp.AppSpec.Job (Job (perform))
+import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.JSON as AS.JSON
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
+import qualified Wasp.AppSpec.Job as J
+import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common
-  ( ServerSrcDir,
+  ( ServerRootDir,
+    ServerSrcDir,
+    ServerTemplatesDir,
+    srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import qualified Wasp.SemanticVersion as SV
+
+genJobs :: AppSpec -> Generator [FileDraft]
+genJobs spec = return $ genAllJobImports spec : (genJob <$> getJobs spec)
+
+genJob :: (String, Job) -> FileDraft
+genJob (jobName, job) =
+  C.mkTmplFdWithDstAndData
+    tmplFile
+    dstFile
+    ( Just $
+        object
+          [ "jobName" .= jobName,
+            "jobPerformFnName" .= jobPerformFnName,
+            "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
+            -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
+            -- This is why we must get a text representation of the object, either by
+            -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
+            "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
+            "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
+            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
+          ]
+    )
+  where
+    tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
+    dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
+    (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+    maybeJobPerformOptions = J.performExecutorOptionsJson job
+    jobScheduleTmplData s =
+      object
+        [ "cron" .= J.cron s,
+          "args" .= J.args s,
+          "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
+        ]
+    maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+-- Creates a file that is imported on the server to ensure all job JS modules are loaded
+-- even if they are not referenced by user code. This ensures schedules are started, etc.
+genAllJobImports :: AppSpec -> FileDraft
+genAllJobImports spec =
+  let tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|core/_allJobs.js|]
+      dstFile = jobsDirInServerRootDir SP.</> [relfile|core/allJobs.js|]
+   in C.mkTmplFdWithDstAndData
+        tmplFile
+        dstFile
+        ( Just $
+            object
+              ["jobs" .= (buildJobInfo <$> (fst <$> getJobs spec))]
+        )
+  where
+    buildJobInfo :: String -> Aeson.Value
+    buildJobInfo jobName =
+      object
+        [ "name" .= jobName
+        ]
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
 
-data JobFactory = PassthroughJobFactory
-  deriving (Show, Eq, Ord, Enum, Enum.Bounded)
-
-jobFactories :: [JobFactory]
-jobFactories = enumFrom minBound :: [JobFactory]
-
--- TODO: In future we will detect what type of JobFactory
--- to use based on what the Job is using.
-jobFactoryForJob :: Job -> JobFactory
-jobFactoryForJob _ = PassthroughJobFactory
-
-jobFactoryFilePath :: JobFactory -> Path' (Rel d) File'
-jobFactoryFilePath PassthroughJobFactory = [relfile|src/jobs/PassthroughJobFactory.js|]
-
-genJobs :: AppSpec -> Generator [FileDraft]
-genJobs spec = return $ genJob <$> getJobs spec
+genJobExecutors :: Generator [FileDraft]
+genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
   where
-    tmplFile = C.asTmplFile [relfile|src/jobs/_job.js|]
-    dstFileFromJobName jobName = C.asServerFile $ [reldir|src/jobs/|] </> fromJust (parseRelFile $ jobName ++ ".js")
-    genJob :: (String, Job) -> FileDraft
-    genJob (jobName, job) =
-      let (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ perform job
-       in C.mkTmplFdWithDstAndData
-            tmplFile
-            (dstFileFromJobName jobName)
-            ( Just $
-                object
-                  [ "jobName" .= jobName,
-                    "jobPerformFnName" .= jobPerformFnName,
-                    "jobPerformFnImportStatement" .= jobPerformFnImportStatement,
-                    "jobFactoryName" .= show (jobFactoryForJob job)
-                  ]
-            )
+    jobExecutorFds :: [FileDraft]
+    jobExecutorFds = genJobExecutor <$> jobExecutors
 
-genJobFactories :: Generator [FileDraft]
-genJobFactories = return $ genJobFactory <$> jobFactories
-  where
-    genJobFactory :: JobFactory -> FileDraft
-    genJobFactory jobFactory =
-      let jobFactoryFp = jobFactoryFilePath jobFactory
-          sourceTemplateFp = C.asTmplFile jobFactoryFp
-          destinationServerFp = C.asServerFile jobFactoryFp
-       in C.mkTmplFdWithDstAndData sourceTemplateFp destinationServerFp Nothing
+    genJobExecutor :: JobExecutor -> FileDraft
+    genJobExecutor jobExecutor = C.mkTmplFd $ executorJobTemplateInServerTemplatesDir jobExecutor
+
+    jobExecutorHelperFds :: [FileDraft]
+    jobExecutorHelperFds =
+      [ C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/pgBoss/pgBoss.js|],
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/Job.js|],
+        C.mkTmplFd $ jobsDirInServerTemplatesDir SP.</> [relfile|core/SubmittedJob.js|]
+      ]
+
+data JobsDir
+
+jobsDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir JobsDir)
+jobsDirInServerTemplatesDir = srcDirInServerTemplatesDir SP.</> [reldir|jobs|]
+
+executorJobTemplateInServerTemplatesDir :: JobExecutor -> Path SP.System (Rel ServerTemplatesDir) File'
+executorJobTemplateInServerTemplatesDir = (jobsDirInServerTemplatesDir SP.</>) . executorJobTemplateInJobsDir
+
+executorJobTemplateInJobsDir :: JobExecutor -> Path' (Rel JobsDir) File'
+executorJobTemplateInJobsDir PgBoss = [relfile|core/pgBoss/pgBossJob.js|]
+executorJobTemplateInJobsDir Simple = [relfile|core/simpleJob.js|]
+
+-- Path to destination files are the same as in templates dir.
+jobsDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir JobsDir)
+jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
+
+-- NOTE: Our pg-boss related documentation references this version in URLs.
+-- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
+pgBossVersionBounds :: SV.VersionBounds
+pgBossVersionBounds = SV.BackwardsCompatibleWith (SV.Version 7 2 1)
+
+pgBossDependency :: AS.Dependency.Dependency
+pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionBounds)
+
+depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]

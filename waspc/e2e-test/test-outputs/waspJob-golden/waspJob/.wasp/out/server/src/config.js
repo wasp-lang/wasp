@@ -11,6 +11,7 @@ const config = {
   all: {
     env,
     port: parseInt(process.env.PORT) || 3001,
+    databaseUrl: process.env.DATABASE_URL,
   },
   development: {
   },

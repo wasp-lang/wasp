@@ -7,6 +7,7 @@ import config from './config.js'
 
 
 const startServer = async () => {
+
   const debugLog = debug('server:server')
 
   const port = normalizePort(config.port)

@@ -17,6 +17,8 @@ app todoApp {
   },
   client: {
     setupFn: import setup from "@ext/clientSetup.js"
+  db: {
+    system: PostgreSQL
   }
 }
 
@@ -112,5 +114,25 @@ action toggleAllTasks {
 }
 
 job mySpecialJob {
-  perform: import { foo } from "@ext/jobs/bar.js"
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 1 } json=}
+    }
+  }
+}
+
+job mySpecialScheduledJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@ext/jobs/bar.js"
+  },
+  schedule: {
+    cron: "*/2 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 2 } json=}
+    }
+  }
 }

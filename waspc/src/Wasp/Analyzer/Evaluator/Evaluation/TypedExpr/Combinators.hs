@@ -19,6 +19,8 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
 where
 
 import Control.Arrow (left)
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.List (stripPrefix)
 import qualified StrongPath as SP
 import Wasp.Analyzer.Evaluator.Evaluation.Internal (evaluation, evaluation', runEvaluation)
@@ -176,5 +178,8 @@ extImport = evaluation' . withCtx $ \ctx -> \case
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON
 json = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.JSON str -> pure $ AppSpec.JSON.JSON str
+  -- TODO: Consider moving String to Aeson conversion into the Parser, so we have better typed info earlier.
+  TypedAST.JSON str -> either (Left . jsonParseError ctx) (Right . AppSpec.JSON.JSON) (Aeson.eitherDecode $ ByteStringLazyUTF8.fromString str)
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType (T.QuoterType "json") (TypedAST.exprType expr)
+  where
+    jsonParseError ctx errMsg = ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError $ "Unable to parse JSON. Details: " ++ errMsg

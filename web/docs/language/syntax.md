@@ -62,15 +62,16 @@ While fundamental types are here to be basic building blocks of a language, and 
       - Tuples can be of size 2, 3 and 4.
 - Domain types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/StdTypeDefinitions.hs))
   - Declaration types
-    - **app**
-    - **page**
-    - **route**
-    - **query**
     - **action**
+    - **app**
     - **entity**
+    - **job**
+    - **page**
+    - **query**
+    - **route**
   - Enum types
     - **AuthMethod**
     - **DbSystem**
-
+    - **JobExecutor**
 
 For more details about each of the domain types, both regarding their body types and what they mean, check the [Features](/language/features.md) section.

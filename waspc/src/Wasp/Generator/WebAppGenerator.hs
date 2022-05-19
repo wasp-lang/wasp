@@ -42,7 +42,7 @@ genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
   sequence
     [ genReadme,
-      genPackageJson spec npmDepsForWasp,
+      genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genNvmrc,
       genGitignore,
@@ -89,8 +89,8 @@ genNvmrc =
       -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
       (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
-npmDepsForWasp :: N.NpmDepsForWasp
-npmDepsForWasp =
+npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
+npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
