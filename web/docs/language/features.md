@@ -923,7 +923,7 @@ import AuthError from '@wasp/core/AuthError.js'
 
 ## Client configuration
 
-You can configure the client using the `server` field inside the `app`
+You can configure the client using the `client` field inside the `app`
 declaration, 
 
 ```c
