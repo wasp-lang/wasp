@@ -15,6 +15,7 @@ import qualified Wasp.Analyzer.TypeChecker as TC
 import qualified Wasp.AppSpec.Action as Action
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Dependency as Dependency
 import qualified Wasp.AppSpec.App.Server as Server
@@ -49,6 +50,9 @@ spec_Analyzer = do
                 "  ],",
                 "  server: {",
                 "    setupFn: import { setupServer } from \"@ext/bar.js\"",
+                "  },",
+                "  client: {",
+                "    setupFn: import { setupClient } from \"@ext/baz.js\"",
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL",
@@ -126,6 +130,13 @@ spec_Analyzer = do
                                 ExtImport
                                   (ExtImportField "setupServer")
                                   (fromJust $ SP.parseRelFileP "bar.js")
+                          },
+                    App.client =
+                      Just
+                        Client.Client
+                          { Client.setupFn =
+                              Just $
+                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz.js")
                           },
                     App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
                   }

@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.WebAppGenerator.RouterGenerator
-  ( generateRouter,
+  ( genRouter,
   )
 where
 
@@ -61,8 +61,8 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
-generateRouter :: AppSpec -> Generator FileDraft
-generateRouter spec = do
+genRouter :: AppSpec -> Generator FileDraft
+genRouter spec = do
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile $ [reldir|src|] </> routerPath)

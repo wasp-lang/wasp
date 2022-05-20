@@ -6,34 +6,35 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
-    Path',
+    Path,
+    Posix,
     Rel,
     reldir,
     relfile,
     (</>),
   )
+import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
+import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.WebAppGenerator.AuthG as AuthG
-import Wasp.Generator.WebAppGenerator.Common
-  ( asTmplFile,
-    asWebAppFile,
-    asWebAppSrcFile,
-  )
+import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
-import qualified Wasp.Generator.WebAppGenerator.RouterGenerator as RouterGenerator
+import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -45,14 +46,14 @@ genWebApp spec = do
       genNpmrc,
       genNvmrc,
       genGitignore,
-      return $ C.mkTmplFd $ asTmplFile [relfile|netlify.toml|]
+      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|]
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
     <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
 
 genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd $ asTmplFile [relfile|README.md|]
+genReadme = return $ C.mkTmplFd $ C.asTmplFile [relfile|README.md|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -75,16 +76,16 @@ genNpmrc :: Generator FileDraft
 genNpmrc =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|npmrc|])
-      (asWebAppFile [relfile|.npmrc|])
+      (C.asTmplFile [relfile|npmrc|])
+      (C.asWebAppFile [relfile|.npmrc|])
       Nothing
 
 genNvmrc :: Generator FileDraft
 genNvmrc =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|nvmrc|])
-      (asWebAppFile [relfile|.nvmrc|])
+      (C.asTmplFile [relfile|nvmrc|])
+      (C.asWebAppFile [relfile|.nvmrc|])
       -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
       (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
@@ -111,17 +112,17 @@ genGitignore :: Generator FileDraft
 genGitignore =
   return $
     C.mkTmplFdWithDst
-      (asTmplFile [relfile|gitignore|])
-      (asWebAppFile [relfile|.gitignore|])
+      (C.asTmplFile [relfile|gitignore|])
+      (C.asWebAppFile [relfile|.gitignore|])
 
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
-    C.mkTmplFd (asTmplFile [relfile|public/favicon.ico|]) :
+    C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|]) :
     publicIndexHtmlFd :
     ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          processPublicTmpl path = C.mkTmplFdWithData (asTmplFile $ [reldir|public|] </> path) tmplData
+          processPublicTmpl path = C.mkTmplFdWithData (C.asTmplFile $ [reldir|public|] </> path) tmplData
        in processPublicTmpl
             <$> [ [relfile|manifest.json|]
                 ]
@@ -131,7 +132,7 @@ genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
-      (asTmplFile [relfile|public/index.html|])
+      (C.asTmplFile [relfile|public/index.html|])
       targetPath
       (Just templateData)
   where
@@ -142,48 +143,51 @@ genPublicIndexHtml spec =
           "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
         ]
 
--- * Src dir
-
-srcDir :: Path' (Rel C.WebAppRootDir) (Dir C.WebAppSrcDir)
-srcDir = C.webAppSrcDirInWebAppRootDir
-
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.
 -- We could further "templatize" this file so only what is needed is generated.
 --
 
--- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
-genApi :: FileDraft
-genApi = C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
-
 genSrcDir :: AppSpec -> Generator [FileDraft]
-genSrcDir spec = do
-  routerFd <- RouterGenerator.generateRouter spec
-  operationsFds <- genOperations spec
-  authFds <- AuthG.genAuth spec
-
-  return $
-    generateLogo :
-    routerFd :
-    genApi :
-    map
-      processSrcTmpl
-      [ [relfile|index.js|],
-        [relfile|index.css|],
-        [relfile|serviceWorker.js|],
-        [relfile|config.js|],
-        [relfile|queryClient.js|],
-        [relfile|utils.js|]
-      ]
-      ++ operationsFds
-      ++ authFds
+genSrcDir spec =
+  sequence
+    [ copyTmplFile [relfile|index.css|],
+      copyTmplFile [relfile|logo.png|],
+      copyTmplFile [relfile|serviceWorker.js|],
+      copyTmplFile [relfile|config.js|],
+      copyTmplFile [relfile|queryClient.js|],
+      copyTmplFile [relfile|utils.js|],
+      genRouter spec,
+      genIndexJs spec,
+      genApi
+    ]
+    <++> genOperations spec
+    <++> genAuth spec
   where
-    generateLogo =
-      C.mkTmplFdWithDstAndData
-        (asTmplFile [relfile|src/logo.png|])
-        (srcDir </> asWebAppSrcFile [relfile|logo.png|])
-        Nothing
-    processSrcTmpl path =
-      C.mkTmplFdWithDst
-        (asTmplFile $ [reldir|src|] </> path)
-        (srcDir </> asWebAppSrcFile path)
+    copyTmplFile = return . C.mkSrcTmplFd
+
+-- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
+genApi :: Generator FileDraft
+genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
+
+genIndexJs :: AppSpec -> Generator FileDraft
+genIndexJs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/index.js|])
+      (C.asWebAppFile [relfile|src/index.js|])
+      ( Just $
+          object
+            [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
+              "clientSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
+              "clientSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            ]
+      )
+  where
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]

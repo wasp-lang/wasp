@@ -1,17 +1,9 @@
 import { clearLocalStorage } from '../api.js'
-import { queryClient } from '../queryClient'
+import { invalidateAndRemoveQueries } from '../operations/resources'
 
-const logout = () => {
+export default function logout() {
   clearLocalStorage()
-
-  // TODO(matija): We are currently invalidating all the queries, but we should invalidate only the
-  // non-public, user-dependent ones.
-  queryClient.invalidateQueries()
-
-  // TODO(matija): We are currently clearing all the queries, but we should clear only the
-  // non-public, user-dependent ones.
-  queryClient.clear()
+  // TODO(filip): We are currently invalidating and removing  all the queries, but
+  // we should remove only the non-public, user-dependent ones.
+  invalidateAndRemoveQueries()
 }
-
-export default logout
-

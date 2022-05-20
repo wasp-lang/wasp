@@ -1,6 +1,7 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( webAppRootDirInProjectRootDir,
     webAppSrcDirInWebAppRootDir,
+    mkSrcTmplFd,
     mkTmplFd,
     mkTmplFdWithDst,
     mkTmplFdWithData,
@@ -13,6 +14,7 @@ module Wasp.Generator.WebAppGenerator.Common
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
+    WebAppTemplatesSrcDir,
   )
 where
 
@@ -29,6 +31,8 @@ data WebAppSrcDir
 
 data WebAppTemplatesDir
 
+data WebAppTemplatesSrcDir
+
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
 asTmplFile = SP.castRel
 
@@ -38,8 +42,6 @@ asWebAppFile = SP.castRel
 asWebAppSrcFile :: Path' (Rel d) File' -> Path' (Rel WebAppSrcDir) File'
 asWebAppSrcFile = SP.castRel
 
--- * Paths
-
 -- | Path where web app root dir is generated, relative to the root directory of the whole generated project.
 webAppRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppRootDir)
 webAppRootDirInProjectRootDir = [reldir|web-app|]
@@ -48,14 +50,25 @@ webAppRootDirInProjectRootDir = [reldir|web-app|]
 webAppSrcDirInWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir WebAppSrcDir)
 webAppSrcDirInWebAppRootDir = [reldir|src|]
 
+-- | Path to generated web app src/ directory, relative to the root directory of the whole generated project.
 webAppSrcDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppSrcDir)
 webAppSrcDirInProjectRootDir = webAppRootDirInProjectRootDir </> webAppSrcDirInWebAppRootDir
-
--- * Templates
 
 -- | Path in templates directory where web app templates reside.
 webAppTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir WebAppTemplatesDir)
 webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
+
+-- | Path to the web app templates src/ directory, relative to the web app templates directory.
+srcDirInWebAppTemplatesDir :: Path' (Rel WebAppTemplatesDir) (Dir WebAppTemplatesSrcDir)
+srcDirInWebAppTemplatesDir = [reldir|src|]
+
+mkSrcTmplFd :: Path' (Rel WebAppTemplatesSrcDir) File' -> FileDraft
+mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDst srcPath dstPath
+  where
+    srcPath = srcDirInWebAppTemplatesDir </> pathInTemplatesSrcDir
+    dstPath =
+      webAppSrcDirInWebAppRootDir
+        </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel WebAppSrcDir) File')
 
 mkTmplFd :: Path' (Rel WebAppTemplatesDir) File' -> FileDraft
 mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)

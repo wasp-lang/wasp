@@ -13,7 +13,7 @@ const resourceToQueryCacheKeys = new Map()
  * @param {string} queryCacheKey - Unique key under used to identify query in the cache.
  * @param {string[]} resources - Names of resources that query is using.
  */
-export const addResourcesUsedByQuery = (queryCacheKey, resources) => {
+export function addResourcesUsedByQuery(queryCacheKey, resources) {
   for (const resource of resources) {
     let cacheKeys = resourceToQueryCacheKeys.get(resource)
     if (!cacheKeys) {
@@ -28,7 +28,7 @@ export const addResourcesUsedByQuery = (queryCacheKey, resources) => {
  * @param {string} resource - Resource name.
  * @returns {string[]} Array of "query cache keys" of queries that use specified resource.
  */
-export const getQueriesUsingResource = (resource) => {
+export function getQueriesUsingResource(resource) {
   return Array.from(resourceToQueryCacheKeys.get(resource) || [])
 }
 
@@ -36,7 +36,7 @@ export const getQueriesUsingResource = (resource) => {
  * Invalidates all queries that are using specified resources.
  * @param {string[]} resources - Names of resources.
  */
-export const invalidateQueriesUsing = (resources) => {
+export function invalidateQueriesUsing(resources) {
   const queryCacheKeysToInvalidate = new Set()
   for (const resource of resources) {
     getQueriesUsingResource(resource).forEach(key => queryCacheKeysToInvalidate.add(key))
@@ -44,4 +44,18 @@ export const invalidateQueriesUsing = (resources) => {
   for (const queryCacheKey of queryCacheKeysToInvalidate) {
     queryClient.invalidateQueries(queryCacheKey)
   }
+}
+
+export function removeQueries() {
+  queryClient.removeQueries()
+}
+
+export function invalidateAndRemoveQueries() {
+  // If we don't invalidate the queries before removing them, Wasp will stay on
+  // the same page. The user would have to manually refresh the page to "finish"
+  // logging out.
+  queryClient.invalidateQueries()
+  // If we don't remove the queries after invalidating them, the old query data
+  // remains in the cache, casuing a potential privacy issue.
+  queryClient.removeQueries()
 }

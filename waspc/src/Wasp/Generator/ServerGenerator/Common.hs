@@ -44,8 +44,6 @@ asServerFile = SP.castRel
 asServerSrcFile :: Path' (Rel d) File' -> Path' (Rel ServerSrcDir) File'
 asServerSrcFile = SP.castRel
 
--- * Paths
-
 -- | Path where server root dir is generated.
 serverRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir ServerRootDir)
 serverRootDirInProjectRootDir = [reldir|server|]
@@ -56,8 +54,6 @@ serverSrcDirInServerRootDir = [reldir|src|]
 
 serverSrcDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir ServerSrcDir)
 serverSrcDirInProjectRootDir = serverRootDirInProjectRootDir </> serverSrcDirInServerRootDir
-
--- * Templates
 
 mkTmplFd :: Path' (Rel ServerTemplatesDir) File' -> FileDraft
 mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing

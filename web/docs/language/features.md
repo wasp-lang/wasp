@@ -28,13 +28,17 @@ Head of your HTML Document. Your app's metadata (styles, links, etc) can be adde
 Authentication and authorization configuration.
 Check [`app.auth`](/docs/language/features#authentication--authorization) for more details.
 
-#### `db: dict` (optional)
-Database configuration.
-Check [`app.db`](/docs/language/features#database) for more details.
+#### `client: dict` (optional)
+Client configuration.
+Check [`app.client`](/docs/language/features#client-configuration) for more details.
 
 #### `server: dict` (optional)
 Server configuration.
-Check [`app.server`](/docs/language/features#server) for more details.
+Check [`app.server`](/docs/language/features#server-configuration) for more details.
+
+#### `db: dict` (optional)
+Database configuration.
+Check [`app.db`](/docs/language/features#database-configuration) for more details.
 
 #### `dependencies: [(string, string)]` (optional)
 List of dependencies (external libraries).
@@ -917,6 +921,45 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
+## Client configuration
+
+You can configure the client using the `client` field inside the `app`
+declaration, 
+
+```c
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    setupFn: import mySetupFunction from "@ext/myClientSetupCode.js"
+  }
+}
+```
+
+`app.client` is a dictionary with the following fields:
+
+#### `setupFn: ExtImport` (optional)
+
+`setupFn` declares a JavaScript function that Wasp executes on the client
+before everything else. It is expected to be asynchronous, and
+Wasp will await its completion before rendering the page. The function takes no
+arguments, and its return value is ignored.
+
+You can use this function to perform any custom setup (e.g., setting up
+client-side periodic jobs).
+
+Here's a dummy example of such a function:
+
+```js title="ext/myClientSetupCode.js"
+async function mySetupFunction() {
+  let count = 1;
+  setInterval(
+    () => console.log(`You have been online for ${count++} hours.`),
+    1000 * 60 * 60,
+  )
+}
+```
+
 ## Server configuration
 
 Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
@@ -995,7 +1038,7 @@ Any env vars defined in the `.env` will be forwarded to the server-side of your 
 console.log(process.env.DATABASE_URL)
 ```
 
-## Database
+## Database configuration
 
 Via `db` field of `app` declaration, you can configure the database used by Wasp.
 
