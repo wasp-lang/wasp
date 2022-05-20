@@ -28,7 +28,11 @@ job loadTime {
     fn: import { workerFunction } from "@ext/workers/loadTime.js"
   },
   schedule: {
-    cron: "*/5 * * * *"
+    cron: "*/5 * * * *",
+    args: {=json {
+      "url": "https://api.github.com/repos/wasp-lang/wasp",
+      "name": "wasp-lang.dev Load Time"
+    } json=}
   }
 }
 

@@ -6,7 +6,10 @@
 import { github } from '@wasp/jobs/github.js'
 import { loadTime } from '@wasp/jobs/loadTime.js'
 
-export default async function() {
+export default async function () {
   await github.submit()
-  await loadTime.submit()
+  await loadTime.submit({
+    url: "https://api.github.com/repos/wasp-lang/wasp",
+    name: "wasp-lang.dev Load Time"
+  })
 }
