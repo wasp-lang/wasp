@@ -30,15 +30,15 @@ Check [`app.auth`](/docs/language/features#authentication--authorization) for mo
 
 #### `client: dict` (optional)
 Server configuration.
-Check [`app.client`](/docs/language/features#client) for more details.
+Check [`app.client`](/docs/language/features#client-configuration) for more details.
 
 #### `server: dict` (optional)
 Server configuration.
-Check [`app.server`](/docs/language/features#server) for more details.
+Check [`app.server`](/docs/language/features#server-configuration) for more details.
 
 #### `db: dict` (optional)
 Database configuration.
-Check [`app.db`](/docs/language/features#database) for more details.
+Check [`app.db`](/docs/language/features#database-configuration) for more details.
 
 #### `dependencies: [(string, string)]` (optional)
 List of dependencies (external libraries).
@@ -940,44 +940,25 @@ app MyApp {
 
 #### `setupFn: ExtImport` (optional)
 
-`setupFn` declares a JavaScript function Wasp executes after loading the page.
-The function is expected to be asynchronous and Wasp will await its completion
-before rendering the page. The function takes no arguments and its return value
-is ignored.
+`setupFn` declares a JavaScript function that Wasp executes on the client
+before everything else. It is expected to be asynchronous, and
+Wasp will await its completion before rendering the page. The function takes no
+arguments, and its return value is ignored.
 
-You can use this function to perform any kind of custom setup (e.g. setting up
+You can use this function to perform any custom setup (e.g., setting up
 client-side periodic jobs).
 
-In case you want to store some values for later use, or to be accessed by the Operations, recommended way is to store those in variables in the same module/file where you defined the javascript setup function and then expose additional functions for reading those values, which you can then import directly from Operations and use. This effectively turns your module into a singleton whose construction is performed on server start.
-
-Dummy example of such function and its usage:
+Here's a dummy example of such a function:
 
 ```js title="ext/myServerSetupCode.js"
-let someResource = undefined
-
-const mySetupFunction = async () => {
-  // Let's pretend functions setUpSomeResource and startSomeCronJob
-  // are implemented below or imported from another file.
-  someResource = await setUpSomeResource()
-  startSomeCronJob()
-}
-
-export const getSomeResource = () => someResource
-
-export default mySetupFunction
-```
-
-```js title="ext/queries.js"
-import { getSomeResource } from './myServerSetupCode.js'
-
-...
-
-export const someQuery = async (args, context) => {
-  const someResource = getSomeResource()
-  return queryDataFromSomeResource(args, someResource)
+async function mySetupFunction() {
+  let count = 1;
+  setInterval(
+    () => console.log(`You have been online for ${count++} hours.`),
+    1000 * 60 * 60,
+  )
 }
 ```
-
 
 ## Server configuration
 
