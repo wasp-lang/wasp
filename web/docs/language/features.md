@@ -29,7 +29,7 @@ Authentication and authorization configuration.
 Check [`app.auth`](/docs/language/features#authentication--authorization) for more details.
 
 #### `client: dict` (optional)
-Server configuration.
+Client configuration.
 Check [`app.client`](/docs/language/features#client-configuration) for more details.
 
 #### `server: dict` (optional)
