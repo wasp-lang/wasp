@@ -28,13 +28,17 @@ Head of your HTML Document. Your app's metadata (styles, links, etc) can be adde
 Authentication and authorization configuration.
 Check [`app.auth`](/docs/language/features#authentication--authorization) for more details.
 
-#### `db: dict` (optional)
-Database configuration.
-Check [`app.db`](/docs/language/features#database) for more details.
+#### `client: dict` (optional)
+Server configuration.
+Check [`app.client`](/docs/language/features#client) for more details.
 
 #### `server: dict` (optional)
 Server configuration.
 Check [`app.server`](/docs/language/features#server) for more details.
+
+#### `db: dict` (optional)
+Database configuration.
+Check [`app.db`](/docs/language/features#database) for more details.
 
 #### `dependencies: [(string, string)]` (optional)
 List of dependencies (external libraries).
@@ -917,6 +921,64 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
+## Client configuration
+
+You can configure the client using the `server` field inside the `app`
+declaration, 
+
+```c
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    setupFn: import mySetupFunction from "@ext/myClientSetupCode.js"
+  }
+}
+```
+
+`app.client` is a dictionary with following fields:
+
+#### `setupFn: ExtImport` (optional)
+
+`setupFn` declares a JavaScript function Wasp executes after loading the page.
+The function is expected to be asynchronous and Wasp will await its completion
+before rendering the page. The function takes no arguments and its return value
+is ignored.
+
+You can use this function to perform any kind of custom setup (e.g. setting up
+client-side periodic jobs).
+
+In case you want to store some values for later use, or to be accessed by the Operations, recommended way is to store those in variables in the same module/file where you defined the javascript setup function and then expose additional functions for reading those values, which you can then import directly from Operations and use. This effectively turns your module into a singleton whose construction is performed on server start.
+
+Dummy example of such function and its usage:
+
+```js title="ext/myServerSetupCode.js"
+let someResource = undefined
+
+const mySetupFunction = async () => {
+  // Let's pretend functions setUpSomeResource and startSomeCronJob
+  // are implemented below or imported from another file.
+  someResource = await setUpSomeResource()
+  startSomeCronJob()
+}
+
+export const getSomeResource = () => someResource
+
+export default mySetupFunction
+```
+
+```js title="ext/queries.js"
+import { getSomeResource } from './myServerSetupCode.js'
+
+...
+
+export const someQuery = async (args, context) => {
+  const someResource = getSomeResource()
+  return queryDataFromSomeResource(args, someResource)
+}
+```
+
+
 ## Server configuration
 
 Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
@@ -995,7 +1057,7 @@ Any env vars defined in the `.env` will be forwarded to the server-side of your 
 console.log(process.env.DATABASE_URL)
 ```
 
-## Database
+## Database configuration
 
 Via `db` field of `app` declaration, you can configure the database used by Wasp.
 
