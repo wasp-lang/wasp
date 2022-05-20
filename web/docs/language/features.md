@@ -936,7 +936,7 @@ app MyApp {
 }
 ```
 
-`app.client` is a dictionary with following fields:
+`app.client` is a dictionary with the following fields:
 
 #### `setupFn: ExtImport` (optional)
 
