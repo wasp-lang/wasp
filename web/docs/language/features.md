@@ -950,7 +950,7 @@ client-side periodic jobs).
 
 Here's a dummy example of such a function:
 
-```js title="ext/myServerSetupCode.js"
+```js title="ext/myClientSetupCode.js"
 async function mySetupFunction() {
   let count = 1;
   setInterval(
