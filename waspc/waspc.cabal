@@ -131,6 +131,7 @@ library
       Wasp.Analyzer.Parser
       Wasp.Analyzer.Parser.AST
       Wasp.Analyzer.Parser.Ctx
+      Wasp.Analyzer.Parser.LexerUtils
       Wasp.Analyzer.Parser.Lexer
       Wasp.Analyzer.Parser.Monad
       Wasp.Analyzer.Parser.ParseError
