@@ -31,7 +31,12 @@ import Wasp.Generator.DbGenerator.Common
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
-import Wasp.Generator.Monad (Generator, GeneratorError (..), GeneratorWarning (GenericGeneratorWarning), logAndThrowGeneratorError)
+import Wasp.Generator.Monad
+  ( Generator,
+    GeneratorError (..),
+    GeneratorWarning (GeneratorNeedsMigrationWarning),
+    logAndThrowGeneratorError,
+  )
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
@@ -113,7 +118,7 @@ warnIfDbSchemaChangedSinceLastMigration spec projectRootDir = do
     entitiesExist = not . null $ getEntities spec
 
     warnIf :: Bool -> String -> Maybe GeneratorWarning
-    warnIf b msg = if b then Just $ GenericGeneratorWarning msg else Nothing
+    warnIf b msg = if b then Just $ GeneratorNeedsMigrationWarning msg else Nothing
 
 genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient spec projectRootDir = do

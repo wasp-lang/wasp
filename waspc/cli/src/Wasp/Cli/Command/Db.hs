@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Wasp.Cli.Command.Db
   ( runDbCommand,
     studio,
@@ -10,11 +12,13 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, runCommand)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
-import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
+import Wasp.CompileOptions (CompileOptions (warningsFilter))
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
 
 runDbCommand :: Command a -> IO ()
@@ -27,8 +31,19 @@ runDbCommand = runCommand . makeDbCommand
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
   -- Ensure code is generated and npm dependencies are installed.
-  compile
+  waspProjectDir <- findWaspProjectRootDirFromCwd
+  compileWithOptions $ compileOptions waspProjectDir
   cmd
+  where
+    compileOptions waspProjectDir =
+      (defaultCompileOptions waspProjectDir)
+        { warningsFilter =
+            filter
+              ( \case
+                  GeneratorNeedsMigrationWarning _ -> False
+                  _ -> True
+              )
+        }
 
 -- TODO(matija): should we extract this into a separate file, like we did for migrate?
 studio :: Command ()
