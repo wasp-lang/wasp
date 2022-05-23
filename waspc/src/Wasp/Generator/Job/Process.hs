@@ -167,6 +167,6 @@ makeNodeVersionMismatchMessage nodeVersion =
 waspNodeRequirementMessage :: String
 waspNodeRequirementMessage =
   unwords
-    [ "Wasp requires node " ++ show C.nodeVersionBounds ++ ".",
+    [ "Wasp requires Node.js to be the latest LTS version, which is currently v" ++ show (SV.major C.nodeVersion) ++ ".",
       "Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements."
     ]

@@ -16,6 +16,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 node -v  # must be something like 16.x.x
 ```
 
+:::info
+
+Why this specific Node.js version and not a newer one?
+Because at the moment of the latest Wasp release, this specific Node.js version was the latest LTS ("long-term support") version of Node.js, which guarantees that it is stable, ready for general usage, it is actively maintained, and is recommended for use in production, unlike the newer versions which are still maturing.
+Check out https://nodejs.org/en/about/releases/ for more details.
+
+:::
+
 ### NPM compatible with 8.0.0
 ```shell-session
 npm -v  # must be something like 8.x.x
