@@ -1,5 +1,8 @@
 module Wasp.Analyzer.Parser.LexerUtils
   ( AlexInput
+  , startCodeToInt
+  , alexGetByte
+  , alexInputPrevChar
   , beginQuoter
   , lexQuoterEndTag
   , createConstToken
@@ -9,8 +12,30 @@ module Wasp.Analyzer.Parser.LexerUtils
 import Wasp.Analyzer.Parser.Monad
 import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
 import Control.Monad.State.Lazy (gets)
+import Data.Word (Word8)
+import Codec.Binary.UTF8.String (encodeChar)
 
 type AlexInput = ParserInput
+
+-- Convert the ParserState's start code to an int for Alex to use
+startCodeToInt :: Int -> LexerStartCode -> Int
+startCodeToInt _ DefaultStartCode = 0
+startCodeToInt quoter (QuoterStartCode _) = quoter
+
+-- | Required by Alex.
+--
+--   This function is taken from the Alex basic wrapper.
+alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
+alexGetByte (prevChar, (b:bs), remainingSource) = Just (b, (prevChar, bs, remainingSource))
+alexGetByte (_, [], []) = Nothing
+alexGetByte (_, [], (currChar:remainingSource)) = case encodeChar currChar of
+                                                    (b:bs) -> Just (b, (currChar, bs, remainingSource))
+                                                    [] -> Nothing
+-- | Required by Alex.
+--
+--   This function is taken from the Alex basic wrapper.
+alexInputPrevChar :: AlexInput -> Char
+alexInputPrevChar (prevChar, _, _) = prevChar
 
 -- | Takes a lexeme like "{=json" and sets the quoter start code
 beginQuoter :: String -> Parser Token

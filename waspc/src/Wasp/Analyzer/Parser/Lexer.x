@@ -14,8 +14,6 @@ import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
 import Wasp.Analyzer.Parser.ParseError (ParseError (..))
 import Control.Monad.State.Lazy (gets)
 import Control.Monad.Except (throwError)
-import Data.Word (Word8)
-import Codec.Binary.UTF8.String (encodeChar)
 }
 
 -- Character set aliases
@@ -74,27 +72,6 @@ tokens :-
 
 {
 
--- Convert the ParserState's start code to an int for Alex to use
-startCodeToInt :: LexerStartCode -> Int
-startCodeToInt DefaultStartCode = 0
-startCodeToInt (QuoterStartCode _) = quoter
-
--- | Required by Alex.
---
---   This function is taken from the Alex basic wrapper.
-alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
-alexGetByte (prevChar, (b:bs), remainingSource) = Just (b, (prevChar, bs, remainingSource))
-alexGetByte (_, [], []) = Nothing
-alexGetByte (_, [], (currChar:remainingSource)) = case encodeChar currChar of
-                                                    (b:bs) -> Just (b, (currChar, bs, remainingSource))
-                                                    [] -> Nothing
-
--- | Required by Alex.
---
---   This function is taken from the Alex basic wrapper.
-alexInputPrevChar :: AlexInput -> Char
-alexInputPrevChar (prevChar, _, _) = prevChar
-
 -- | Lexes a single token from the input.
 --
 --   This function is designed for use with the Happy monadic parser that uses threaded/monadic lexer.
@@ -108,7 +85,7 @@ alexInputPrevChar (prevChar, _, _) = prevChar
 lexer :: (Token -> Parser a) -> Parser a
 lexer parseToken = do
   input@(_, _, remainingSource) <- gets parserRemainingInput
-  startCodeInt <- gets $ startCodeToInt . parserLexerStartCode
+  startCodeInt <- gets $ startCodeToInt quoter .  parserLexerStartCode
   case alexScan input startCodeInt of
     AlexError _input'@(_, _, c:_) -> do
       -- NOTE(martin): @_input'@ is actually the same as @input@ before the scan,
