@@ -1,6 +1,6 @@
 # Waspleau
 
-Welcome to the Waspleau example! This is a small Wasp project that will allow you to setup an easy Dashboard that pulls in data via Jobs and stores them in the database.
+Welcome to the Waspleau example! This is a small Wasp project that will allow you to setup an easy Dashboard that pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) and stores them in the database.
 
 ## Step 1
 
@@ -8,7 +8,7 @@ Clone this repo
 
 ## Step 2
 
-Update ext/workers with whatever you want to track, add to main.wasp as a `Job`, and optionally import in `serverSetup.js`.
+Update ext/workers with whatever you want to track, add them to main.wasp as a `job`, and optionally import and use them in `serverSetup.js` (or other server-side code).
 
 ## Step 3 (with PostgreSQL running)
 
@@ -20,11 +20,11 @@ Update ext/workers with whatever you want to track, add to main.wasp as a `Job`,
 
 This will start your background workers as Wasp Jobs and present a dashboard UI that will auto-refresh every minute.
 
-Note: As you develop your own workers, keep in mind each time you save a file in the project it will automatically reload, hence restarting your server, `Job`s, and server function.
+Note: As you develop your own workers, keep in mind each time you save a file in the project it will automatically reload everything, including restarting your server, which may re-submit or terminate running `job`s.
 
 ## Heroku Deployment Note
 
-If you wish to deploy this on Heroku, pg-boss will fail to initialize as for some reason the pg client does not attempt to connect over SSL by default. This results in an error like:
+If you wish to deploy this on Heroku, pg-boss will fail to initialize as for some reason the `pg` client does not attempt to connect over SSL by default. This results in an error like:
 
 ```
 pg-boss failed to start!
@@ -33,7 +33,7 @@ pg-boss failed to start!
 
 Ref: https://help.heroku.com/DR0TTWWD/seeing-fatal-no-pg_hba-conf-entry-errors-in-postgres
 
-The solution is to set a `PG_BOSS_NEW_OPTIONS` environment variable to something like this:
+Even if you force SSL, it will still fail as Heroku uses a self-signed certificate. The solution is to set a `PG_BOSS_NEW_OPTIONS` environment variable to something like this:
 
 ```
 {"connectionString":"<your-heroku-DATABASE_URL>","ssl":{"rejectUnauthorized":false}}
