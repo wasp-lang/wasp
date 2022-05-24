@@ -30,6 +30,7 @@ export const updateTask = async (args, context) => {
     throw new HttpError(403, 'Update check failed');
   }
   // This is an alternative, custom approach example, that duplicates above.
+  // NOTE: This would be an easy convention we could automatically check for users.
   if (ability2.cannot('operateOn', 'updateTask')) {
     throw new HttpError(403, 'Operate check failed');
   }
