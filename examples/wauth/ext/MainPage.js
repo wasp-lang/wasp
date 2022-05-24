@@ -1,41 +1,76 @@
 import React from 'react'
-import waspLogo from './waspLogo.png'
+import getTasks from '@wasp/queries/getTasks'
+import createTask from '@wasp/actions/createTask'
+import updateTask from '@wasp/actions/updateTask'
+import { useQuery } from '@wasp/queries'
 import './Main.css'
 
 const MainPage = () => {
+  const { data: tasks, isFetching, error } = useQuery(getTasks)
+
   return (
-    <div className="container">
-      <main>
-        <div className="logo">
-          <img src={waspLogo} alt="wasp" />
-        </div>
+    <div>
+      <NewTaskForm />
 
-        <h2 className="welcome-title"> Welcome to Wasp - you just started a new app! </h2>
-        <h3 className="welcome-subtitle">
-          This is page <code>MainPage</code> located at route <code>/</code>.
-          Open <code>ext/MainPage.js</code> to edit it.
-        </h3>
+      {tasks && <TasksList tasks={tasks} />}
 
-        <div className="buttons">
-          <a
-            className="button button-filled"
-            href="https://wasp-lang.dev/docs/tutorials/todo-app"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Take the Tutorial
-          </a>
-          <a
-            className="button button-outline"
-            href="https://discord.com/invite/rzdnErX"
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            Chat on Discord
-          </a>
-        </div>
-      </main>
+      {isFetching && 'Fetching...'}
+      {error && 'Error: ' + error}
     </div>
   )
 }
+
+const Task = (props) => {
+  const handleIsDoneChange = async (event) => {
+    try {
+      await updateTask({
+        taskId: props.task.id,
+        data: { isDone: event.target.checked }
+      })
+    } catch (error) {
+      window.alert('Error while updating task: ' + error.message)
+    }
+  }
+
+  return (
+    <div>
+      <input
+        type='checkbox' id={props.task.id}
+        checked={props.task.isDone} readonly
+        onChange={handleIsDoneChange}
+      />
+      {props.task.description}
+    </div>
+  )
+}
+
+const TasksList = (props) => {
+  if (!props.tasks?.length) return 'No tasks'
+  return props.tasks.map((task, idx) => <Task task={task} key={idx} />)
+}
+
+const NewTaskForm = (props) => {
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    try {
+      const description = event.target.description.value
+      event.target.reset()
+      await createTask({ description })
+    } catch (err) {
+      window.alert('Error: ' + err.message)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        name='description'
+        type='text'
+        defaultValue=''
+      />
+      <input type='submit' value='Create task' />
+    </form>
+  )
+}
+
 export default MainPage

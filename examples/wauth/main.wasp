@@ -6,3 +6,24 @@ route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import Main from "@ext/MainPage.js"
 }
+
+query getTasks {
+  fn: import { getTasks } from "@ext/queries.js",
+  entities: [Task]
+}
+
+action createTask {
+  fn: import { createTask } from "@ext/actions.js",
+  entities: [Task]
+}
+
+action updateTask {
+  fn: import { updateTask } from "@ext/actions.js",
+  entities: [Task]
+}
+
+entity Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+psl=}
