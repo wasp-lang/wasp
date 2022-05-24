@@ -1,0 +1,8 @@
+app wauth {
+  title: "wauth"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@ext/MainPage.js"
+}
