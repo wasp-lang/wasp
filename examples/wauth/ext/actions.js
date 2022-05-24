@@ -1,5 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import userAbility from './userAbility.js';
+import { taskAbility } from './operationAbilities.js';
 import { accessibleBy } from '@casl/prisma';
 import { subject } from '@casl/ability';
 
@@ -17,20 +18,28 @@ export const createTask = async ({ description }, context) => {
   });
 }
 
-export const updateTask = async ({ taskId, data }, context) => {
-  const ability = userAbility(context.user);
+export const updateTask = async (args, context) => {
+  const { taskId, data } = args;
+  const ability1 = userAbility(context.user);
+  const ability2 = await taskAbility(args, context);
   const task = await context.entities.Task.findUnique({
     where: { id: taskId }
   });
-  if (ability.cannot('update', subject('Task', task))) {
-    throw new HttpError(403);
+  // NOTE: Must use `subject()` since our task no longer has Prisma prototype chain.
+  if (ability1.cannot('update', subject('Task', task))) {
+    throw new HttpError(403, 'Update check failed');
+  }
+  // This is an alternative, custom approach example, that duplicates above.
+  if (ability2.cannot('operateOn', 'updateTask')) {
+    throw new HttpError(403, 'Operate check failed');
   }
 
-  // For some reason has to be `updateMany` instead of `update`?
+  // NOTE: Has to be `updateMany` instead of `update` since
+  // CASL Prisma assumes WhereInput and not WhereUniqueInput.
   return context.entities.Task.updateMany({
     where: {
       AND: [
-        accessibleBy(ability).Task,
+        accessibleBy(ability1).Task,
         { id: taskId }
       ]
     },
