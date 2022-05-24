@@ -5,7 +5,12 @@ app wauth {
     userEntity: User,
     methods: [ EmailAndPassword ],
     onAuthFailedRedirectTo: "/login"
-  }
+  },
+
+  dependencies: [
+    ("@casl/prisma", ""),
+    ("@casl/ability", "5.4.3")
+  ]
 }
 
 route RootRoute { path: "/", to: MainPage }
