@@ -1,19 +1,22 @@
-module Wasp.Analyzer.Parser.LexerUtils
-  ( AlexInput
-  , startCodeToInt
-  , alexGetByte
-  , alexInputPrevChar
-  , beginQuoter
-  , lexQuoterEndTag
-  , createConstToken
-  , createValueToken
-  ) where
+{-# LANGUAGE LambdaCase #-}
 
-import Wasp.Analyzer.Parser.Monad
-import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
+module Wasp.Analyzer.Parser.LexerUtils
+  ( AlexInput,
+    startCodeToInt,
+    alexGetByte,
+    alexInputPrevChar,
+    beginQuoter,
+    lexQuoterEndTag,
+    createConstToken,
+    createValueToken,
+  )
+where
+
+import Codec.Binary.UTF8.String (encodeChar)
 import Control.Monad.State.Lazy (gets)
 import Data.Word (Word8)
-import Codec.Binary.UTF8.String (encodeChar)
+import Wasp.Analyzer.Parser.Monad
+import Wasp.Analyzer.Parser.Token (Token (..), TokenType (..))
 
 type AlexInput = ParserInput
 
@@ -26,11 +29,12 @@ startCodeToInt quoter (QuoterStartCode _) = quoter
 --
 --   This function is taken from the Alex basic wrapper.
 alexGetByte :: AlexInput -> Maybe (Word8, AlexInput)
-alexGetByte (prevChar, (b:bs), remainingSource) = Just (b, (prevChar, bs, remainingSource))
+alexGetByte (prevChar, b : bs, remainingSource) = Just (b, (prevChar, bs, remainingSource))
 alexGetByte (_, [], []) = Nothing
-alexGetByte (_, [], (currChar:remainingSource)) = case encodeChar currChar of
-                                                    (b:bs) -> Just (b, (currChar, bs, remainingSource))
-                                                    [] -> Nothing
+alexGetByte (_, [], currChar : remainingSource) = case encodeChar currChar of
+  (b : bs) -> Just (b, (currChar, bs, remainingSource))
+  [] -> Nothing
+
 -- | Required by Alex.
 --
 --   This function is taken from the Alex basic wrapper.
@@ -46,13 +50,14 @@ beginQuoter leftQuoteTag = do
 
 -- | Takes a lexeme like "json=}" and either ends a quoter or add quoted text to the quoter
 lexQuoterEndTag :: String -> Parser Token
-lexQuoterEndTag rightQuoteTag = gets parserLexerStartCode >>= \startCode -> case startCode of
-  DefaultStartCode -> error "impossible: lexQuoterEndTag with DefaultStartCode"
-  QuoterStartCode startTag | startTag == tag -> do
-    setStartCode DefaultStartCode
-    createConstToken (TRQuote tag) rightQuoteTag
-  _ -> do
-    createValueToken TQuoted rightQuoteTag
+lexQuoterEndTag rightQuoteTag =
+  gets parserLexerStartCode >>= \case
+    DefaultStartCode -> error "impossible: lexQuoterEndTag with DefaultStartCode"
+    QuoterStartCode startTag | startTag == tag -> do
+      setStartCode DefaultStartCode
+      createConstToken (TRQuote tag) rightQuoteTag
+    _ -> do
+      createValueToken TQuoted rightQuoteTag
   where
     tag = take (length rightQuoteTag - 2) rightQuoteTag
 
@@ -60,12 +65,13 @@ lexQuoterEndTag rightQuoteTag = gets parserLexerStartCode >>= \startCode -> case
 createConstToken :: TokenType -> (String -> Parser Token)
 createConstToken tokType lexeme = do
   position <- gets parserSourcePosition
-  return $ Token { tokenType = tokType
-                 , tokenStartPosition = position
-                 , tokenLexeme = lexeme
-                 }
+  return $
+    Token
+      { tokenType = tokType,
+        tokenStartPosition = position,
+        tokenLexeme = lexeme
+      }
 
 -- | Makes an action that creates a token using the input lexeme.
 createValueToken :: (String -> TokenType) -> (String -> Parser Token)
 createValueToken getTokenType lexeme = createConstToken (getTokenType lexeme) lexeme
-
