@@ -1,23 +1,16 @@
 import axios from 'axios'
+import { upsertMetric } from './utils.js'
 
-const workerFunction = async (opts) => {
-  console.log('loadTime.js workerFunction')
+export async function workerFunction({ data } = {}) {
+  console.log('loadTime.js workerFunction', data)
 
-  const now = Date.now()
+  const start = Date.now()
+  await axios.get(data.url)
+  const end = Date.now()
 
-  try {
-    if (opts?.mockResponse) {
-      return [{ name: 'wasp-lang.dev Load Time', value: "150ms", updatedAt: now }]
-    } else {
-      const start = Date.now()
-      await axios.get('https://api.github.com/repos/wasp-lang/wasp')
-      const end = Date.now()
-      return [{ name: 'wasp-lang.dev Load Time', value: `${end - start}ms`, updatedAt: now }]
-    }
-  } catch (error) {
-    console.error(error)
-    return []
-  }
+  const metrics = [{ name: data.name, value: `${end - start}ms` }]
+
+  await Promise.all(metrics.map(upsertMetric))
+
+  return metrics
 }
-
-export const loadTimeWorker = { name: 'Website Load Time', fn: workerFunction, schedule: '*/5 * * * *' }

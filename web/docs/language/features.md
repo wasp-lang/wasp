@@ -479,6 +479,8 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
     - Wasp does not (yet) support independent, horizontal scaling of pg-boss-only applications, nor starting them as separate workers/processes/threads.
   - The job name/identifier in your `.wasp` file is the same name that will be used in the `name` column of pg-boss tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `schedule` table in the `pgboss` schema of your database.
     - If you remove a `schedule` from a job, you will need to do the above as well.
+  - If you wish to deploy to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
+- https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 
 </details>
 
@@ -507,7 +509,9 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor as if you called `foo({ job: "args" })`.
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ data: { job: "args" } })`.
+
+**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ### Recurring jobs
 
@@ -526,7 +530,9 @@ job mySpecialJob {
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "job": "args" })` getting automatically scheduled and invoked for you every hour.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ data: { "job": "args" } })` getting automatically scheduled and invoked for you every hour.
+
+**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ### Fully specified example
 Additionally, both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`.
@@ -574,6 +580,8 @@ job mySpecialJob {
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
   
+  **Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+  
   - ##### `executorOptions: dict` (optional)
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
@@ -594,6 +602,8 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `executorOptions: JSON` (optional)
 
 Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
+
+**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })
