@@ -30,7 +30,7 @@ job loadTime {
   schedule: {
     cron: "*/5 * * * *",
     args: {=json {
-      "url": "https://api.github.com/repos/wasp-lang/wasp",
+      "url": "https://wasp-lang.dev",
       "name": "wasp-lang.dev Load Time"
     } json=}
   }
