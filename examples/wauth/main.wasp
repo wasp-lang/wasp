@@ -29,6 +29,19 @@ page LoginPage {
   component: import Login from "@ext/LoginPage"
 }
 
+// For the whole app, this is how I would very crudely explain ACL to somebody:
+// 1. User should be able to get their own tasks.
+// 2. User should be able to create a task.
+//    They can't specify the "meta" fields though, like createdAt, updatedAt, id and similar,
+//    the only stuff they can specify is `description` and `isDone`.
+// 3. User should be able to update task if it belongs to them.
+//    Same rules for fields should apply as for when they do creation of a task.
+// So ideally Wasp code for rules would look very similar to this :D!
+// Some implicit thing from above are:
+//  - 'User' is authenticated user.
+//  - Once User creates a task, it belongs to them.
+//  - Belongnment (is that a word :D?) is determined via `userId` field in `Task`.
+
 query getTasks {
   fn: import { getTasks } from "@ext/queries.js",
   entities: [Task]
