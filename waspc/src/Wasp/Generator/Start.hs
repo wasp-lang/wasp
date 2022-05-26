@@ -55,7 +55,7 @@ writeOutput chan jobMessages = do
     writeOutputFile :: [JobMessage] -> IO ()
     writeOutputFile messages = do
       timestamp <- getCurrentTime
-      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) (reverse messages))
+      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
       renamePath "/tmp/test.html.tmp" "/tmp/test.html"
 
     threadDelaySeconds :: Int -> IO ()
@@ -68,13 +68,15 @@ htmlShell timestamp jobMessages =
   Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
-      "<style> div.scrollable { height: 20%; overflow-y: scroll; border: 1px solid black; } </style>",
+      "<style> div.scrollable { height: 20%; overflow-y: scroll; border: 1px solid black; display: flex; flex-direction: column-reverse; } </style>",
+      "<script>let shouldRefresh = true;</script>",
+      "<script>function disableRefresh() { shouldRefresh = false; document.getElementById('refreshButton').style.display = 'none';  }</script>",
       "</head>",
       "<body>",
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
-      "<div><p>Last JS refresh timestamp: <span id='jsTime'></span></p></div>",
+      "<div><p>Last JS refresh timestamp: <span id='jsTime'></span><button id='refreshButton' onclick='disableRefresh();'>Disable Refresh</button></p></div>",
       "<div class='logContainer'>" <> splitJobMessages <> "</div>",
-      "<script>setTimeout(() => { location.reload() }, 3000)</script>",
+      "<script>setTimeout(() => { shouldRefresh && location.reload() }, 3000)</script>",
       "<script>document.getElementById('jsTime').innerHTML = new Date();</script>",
       "</body>",
       "</html>"
@@ -94,7 +96,7 @@ htmlShell timestamp jobMessages =
       Text.unwords
         [ "<h2>" <> title <> "</h2>",
           "<div class='scrollable'>",
-          Text.intercalate "<br/>" $ map makeMessagePretty jms,
+          Text.intercalate "\n" $ map makeMessagePretty jms,
           "</div>",
           "<hr/>"
         ]
@@ -103,5 +105,5 @@ htmlShell timestamp jobMessages =
     makeMessagePretty :: JobMessage -> Text
     makeMessagePretty jm =
       case Job._data jm of
-        Job.JobOutput txt _ -> Text.intercalate "<br/>" . reverse . Text.split (== '\n') . Text.strip . stripAnsiEscapeCodes $ txt
+        Job.JobOutput txt _ -> "<div>" <> (Text.intercalate "<br/>" . Text.split (== '\n') . Text.strip . stripAnsiEscapeCodes $ txt) <> "</div>"
         Job.JobExit _ -> ""
