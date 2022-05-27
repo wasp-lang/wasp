@@ -1,15 +1,21 @@
 import { AbilityBuilder, Ability } from '@casl/ability';
 import { PrismaAbility } from '@casl/prisma';
 
-export async function taskAbility(args, context) {
-  const { can, cannot, rules } = new AbilityBuilder(PrismaAbility);
+// Wasp behind the scenes version that wraps user version.
+export async function _taskAbility(operationName, args, context) {
+  const builder = new AbilityBuilder(PrismaAbility);
+  await taskAbility(args, context, () => { builder.can('execute', operationName); }, () => { builder.cannot('execute', operationName); });
+  return builder.build();
+}
+
+// The interface the user can define operation checks on.
+// Used by importing this fn into a check for some operation.
+export async function taskAbility(args, context, allow, deny) {
   const task = await context.entities.Task.findUnique({
     where: { id: args.taskId }
   });
 
   if (context.user.id === task.userId) {
-    can('operateOn', 'updateTask');
+    allow();
   }
-
-  return new Ability(rules);
 }
