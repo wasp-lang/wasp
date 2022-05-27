@@ -10,6 +10,8 @@ export async function _taskAbility(operationName, args, context) {
 
 // The interface the user can define operation checks on.
 // Used by importing this fn into a check for some operation.
+// NOTE: All these checks will introduce an extra DB call, unless we let them
+// put them back into the context/args somehow.
 export async function taskAbility(args, context, allow, deny) {
   const task = await context.entities.Task.findUnique({
     where: { id: args.taskId }
