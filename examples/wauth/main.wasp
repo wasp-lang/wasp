@@ -43,7 +43,7 @@ page LoginPage {
 //  - Belongnment (is that a word :D?) is determined via `userId` field in `Task`.
 
 query getTasks {
-  fn: import { getTasks } from "@ext/queries.js",
+  fn: import { _getTasks } from "@ext/queries.js",
   entities: [Task]
 }
 

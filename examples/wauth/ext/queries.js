@@ -17,9 +17,14 @@ export const getTasksOld = async (args, context) => {
   });
 }
 
-// Example of doing checks via Proxy objects.
-export const getTasks = async (_args, context) => {
+// Wasp behind the scenes version that wraps user version.
+export const _getTasks = async (args, context) => {
   setupProxy(context, 'Task'); // Can set these up automatically by looking at entities[] in .wasp file.
+  return getTasks(args, context);
+}
+
+// Regular user query, but now has a "checked" version of entities.
+export const getTasks = async (_args, context) => {
   return context.checked.Task.findMany({ where: { userId: context.user.id } });
 }
 
