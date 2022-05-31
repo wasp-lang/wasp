@@ -37,7 +37,9 @@ makeDbCommand cmd = do
   where
     compileOptions waspProjectDir =
       (defaultCompileOptions waspProjectDir)
-        { warningsFilter =
+        { -- Ignore "DB needs migration warnings" during database commands, as that is redundant
+          -- for `db migrate-dev` and not helpful for `db studio`.
+          warningsFilter =
             filter
               ( \case
                   GeneratorNeedsMigrationWarning _ -> False

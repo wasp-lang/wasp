@@ -73,5 +73,7 @@ defaultCompileOptions waspProjectDir =
     { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
       isBuild = False,
       sendMessage = cliSendMessage,
+      -- Allows exclusion of certain warnings for specific commands where they do not make sense.
+      -- For example, warning the DB needs a migration while running `db migrate-dev`.
       warningsFilter = id
     }
