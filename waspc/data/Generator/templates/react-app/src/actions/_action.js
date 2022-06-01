@@ -2,9 +2,9 @@
 import { callOperation } from '../operations'
 import * as resources from '../operations/resources'
 
-const {= actionFnName =} = async (args) => {
+async function {= actionFnName =}(args) {
   const actionResult = await callOperation('{= actionRoute =}', args)
-  resources.invalidateQueriesUsing(entitiesUsed)
+  await resources.invalidateQueriesUsing(entitiesUsed)
   return actionResult
 }
 

@@ -1,4 +1,5 @@
 import { useQuery as rqUseQuery } from 'react-query'
+export { setupQueryClient } from '../queryClient'
 
 export function useQuery(queryFn, queryFnArgs, config) {
   if (typeof queryFn !== 'function') {

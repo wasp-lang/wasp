@@ -4,7 +4,12 @@ import ReactDOM from 'react-dom'
 import { QueryClientProvider } from 'react-query'
 
 import router from './router'
-import { queryClient } from './queryClient'
+import { 
+  queryClientInitialized,
+  {=^ doesClientSetupFnExist =}
+  setupQueryClient,
+  {=/ doesClientSetupFnExist =}
+} from './queryClient'
 import * as serviceWorker from './serviceWorker'
 
 {=# doesClientSetupFnExist =}
@@ -19,6 +24,9 @@ async function startApp() {
   {=# doesClientSetupFnExist =}
   await {= clientSetupJsFnIdentifier =}()
   {=/ doesClientSetupFnExist =}
+  {=^ doesClientSetupFnExist =}
+  setupQueryClient()
+  {=/ doesClientSetupFnExist =}
 
   render()
 
@@ -28,7 +36,8 @@ async function startApp() {
   serviceWorker.unregister()
 }
 
-function render() {
+async function render() {
+  const queryClient = await queryClientInitialized
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       { router }
