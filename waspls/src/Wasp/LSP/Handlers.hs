@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Wasp.LSP.Handlers
   ( initializedHandler,
     didOpenHandler,
@@ -6,10 +8,7 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Lens ((+~), (^.))
-import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Except (throwE)
-import Data.Function ((&))
+import Control.Lens ((.~), (^.))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers, LspT)
@@ -18,10 +17,8 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
 import qualified Wasp.Analyzer
-import qualified Wasp.Analyzer.AnalyzeError as WE
-import Wasp.Analyzer.Parser (Ctx (Ctx))
-import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.LSP.Core (ServerConfig, ServerError (ServerError), ServerM, Severity (..))
+import Wasp.LSP.Core
+import Wasp.LSP.Diagnostic (waspErrorToDiagnostic)
 
 -- LSP notification and request handlers
 
@@ -66,51 +63,25 @@ didSaveHandler =
 -- LSP client. In the future, it will also store information about the analyzed
 -- file in "Wasp.LSP.State.State".
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
-diagnoseWaspFile uri = do
-  src <- readVFSFile uri
-  let appSpecOrError = Wasp.Analyzer.analyze $ T.unpack src
-  diagnostics <- case appSpecOrError of
-    -- Valid wasp file, send no diagnostics
-    Right _ -> return $ LSP.List []
-    -- Report the error (for now, just one error per analyze is possible)
-    Left err ->
-      return $
-        LSP.List
-          [ waspErrorToLspDiagnostic err
-          ]
+diagnoseWaspFile _uri = do
+  updateState _uri
+  _diagnostics <- gets (^. Wasp.LSP.Core.diagnostics)
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
-      LSP.PublishDiagnosticsParams uri Nothing diagnostics
-  where
-    waspErrorToLspDiagnostic :: WE.AnalyzeError -> LSP.Diagnostic
-    waspErrorToLspDiagnostic err =
-      let errSrc = case err of
-            WE.ParseError _ -> "parse"
-            WE.TypeError _ -> "typecheck"
-            WE.EvaluationError _ -> "evaluate"
-          (errMsg, errCtx) = WE.getErrorMessageAndCtx err
-       in LSP.Diagnostic
-            { _range = waspCtxToLspRange errCtx,
-              _severity = Nothing,
-              _code = Nothing,
-              _source = Just errSrc,
-              _message = T.pack errMsg,
-              _tags = Nothing,
-              _relatedInformation = Nothing
-            }
+      LSP.PublishDiagnosticsParams _uri Nothing (LSP.List _diagnostics)
 
-    waspCtxToLspRange :: Ctx -> LSP.Range
-    waspCtxToLspRange (Ctx region) =
-      LSP.Range
-        { _start = waspSourcePositionToLspPosition (getRgnStart region),
-          -- Increment end character by 1: Wasp uses an inclusive convention for
-          -- the end position, but LSP considers end position to not be part of
-          -- the range.
-          _end = waspSourcePositionToLspPosition (getRgnEnd region) & LSP.character +~ (1 :: LSP.UInt)
-        }
-
-    waspSourcePositionToLspPosition (WE.SourcePosition l c) =
-      LSP.Position (fromIntegral $ l - 1) (fromIntegral $ c - 1)
+updateState :: LSP.Uri -> ServerM ()
+updateState _uri = do
+  src <- readVFSFile _uri
+  let analyzeResult = Wasp.Analyzer.analyze $ T.unpack src
+  case analyzeResult of
+    Right _ -> do
+      modify (Wasp.LSP.Core.diagnostics .~ [])
+    Left err -> do
+      let _diagnostics =
+            [ waspErrorToDiagnostic err
+            ]
+      modify (Wasp.LSP.Core.diagnostics .~ _diagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a

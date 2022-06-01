@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Rebuilds project when a source file changes
+
+inotifywait -m -e close_write -r src/ exe/ waspls.cabal |
+  while read directory action file; do
+    cabal build
+  done

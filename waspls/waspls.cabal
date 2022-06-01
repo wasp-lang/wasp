@@ -53,6 +53,8 @@ library
     Paths_waspls
     Wasp.LSP.Core
     Wasp.LSP.Handlers
+    Wasp.LSP.Diagnostic
+    Wasp.LSP.Util
     Wasp.Backend.Lexer.Internal
     Wasp.Backend.Lexer.Lexer
   hs-source-dirs:
