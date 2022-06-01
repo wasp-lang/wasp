@@ -6,9 +6,7 @@ import { QueryClientProvider } from 'react-query'
 import router from './router'
 import { 
   queryClientInitialized,
-  {=^ doesClientSetupFnExist =}
   setupQueryClient,
-  {=/ doesClientSetupFnExist =}
 } from './queryClient'
 import * as serviceWorker from './serviceWorker'
 
@@ -24,9 +22,7 @@ async function startApp() {
   {=# doesClientSetupFnExist =}
   await {= clientSetupJsFnIdentifier =}()
   {=/ doesClientSetupFnExist =}
-  {=^ doesClientSetupFnExist =}
   setupQueryClient()
-  {=/ doesClientSetupFnExist =}
 
   render()
 
