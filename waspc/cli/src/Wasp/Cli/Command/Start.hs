@@ -3,17 +3,17 @@ module Wasp.Cli.Command.Start
   )
 where
 
+import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
+import Control.Concurrent.Async (race)
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
+import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
 import Data.Text (Text, pack)
 import qualified Data.Text as Text
 import Data.Text.IO (writeFile)
-import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
 import Data.Time (getCurrentTime)
-import System.Directory (renamePath)
-import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay)
-import Control.Concurrent.Async (concurrently, race)
-import Control.Monad.Except (throwError)
-import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
+import System.Directory (renamePath)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -24,16 +24,16 @@ import Wasp.Cli.Command.Compile
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import qualified Wasp.Lib
-import qualified Wasp.Generator.Job as Job
 import Wasp.Generator.Job (JobMessage)
+import qualified Wasp.Generator.Job as Job
+import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  chan <- newChan
+  chan <- liftIO newChan
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
@@ -47,13 +47,13 @@ start = do
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
 
-  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir)
+  liftIO $ dupChan chan >>= writeAppOutputToHtml
+  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir chan)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
     Right startResult -> case startResult of
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
-
 
 writeAppOutputToHtml :: Chan JobMessage -> IO ()
 writeAppOutputToHtml chan = do
