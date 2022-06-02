@@ -253,6 +253,7 @@ library cli-lib
     , time
     , aeson
     , mtl
+    , text
     , async
     , exceptions
     , cryptonite
@@ -263,6 +264,7 @@ library cli-lib
     , strong-path
     , utf8-string
     , uuid
+    , strip-ansi-escape
     , waspc
   other-modules: Paths_waspc
   exposed-modules:
