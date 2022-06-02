@@ -16,12 +16,6 @@ import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 --   It will run as long as one of those processes does not fail.
 start :: Path' Abs (Dir ProjectRootDir) -> Chan JobMessage -> IO (Either String ())
 start projectDir chan = do
-  -- TODO:
-  -- Need to handle Wasp messages.
-  -- Figure out where to write and how to automatically open.
-  -- Have separate areas for warning/errors that we have seen.
-  -- Can show some sort of app structure diagram, etc. (May require AppSpec)
-  -- How to handle escape sequences in output?
   let runStartJobs = race (startServer projectDir chan) (startWebApp projectDir chan)
   (_, serverOrWebExitCode) <- concurrently (readJobMessagesAndPrintThemPrefixed chan) runStartJobs
   case serverOrWebExitCode of

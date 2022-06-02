@@ -33,12 +33,12 @@ import qualified Wasp.Message as Msg
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
 start :: Command ()
 start = do
-  chan <- liftIO newChan
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
+  compileChannel <- liftIO newChan -- TODO: pass into compileIO and watch
   compilationResult <- liftIO $ compileIO waspRoot outDir
   case compilationResult of
     Left compileError -> throwError $ CommandError "Compilation failed" compileError
@@ -47,31 +47,40 @@ start = do
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
 
-  liftIO $ dupChan chan >>= writeAppOutputToHtml
-  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir chan)
+  startChannel <- liftIO newChan
+  liftIO $ dupChan startChannel >>= writeAppOutputToHtml compileChannel
+  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir startChannel)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
     Right startResult -> case startResult of
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
 
-writeAppOutputToHtml :: Chan JobMessage -> IO ()
-writeAppOutputToHtml chan = do
-  _ <- forkIO $ writeOutput chan []
+-- TODO:
+-- Need to handle Wasp messages.
+-- Figure out where to write and how to automatically open.
+-- Have separate areas for warning/errors that we have seen.
+-- Can show some sort of app structure diagram, etc. (May require AppSpec)
+writeAppOutputToHtml :: Chan String -> Chan JobMessage -> IO ()
+writeAppOutputToHtml compileChannel startChannel = do
+  _ <- forkIO $ writeOutput compileChannel startChannel ([], [])
   return ()
 
-writeOutput :: Chan JobMessage -> [JobMessage] -> IO ()
-writeOutput chan jobMessages = do
-  messageOrDelay <- race (readChan chan) (threadDelaySeconds 3)
+writeOutput :: Chan String -> Chan JobMessage -> ([String], [JobMessage]) -> IO ()
+writeOutput compileChannel startChannel (compileMessages, jobMessages) = do
+  messageOrDelay <- race (race (readChan compileChannel) (readChan startChannel)) (threadDelaySeconds 3)
   messages <-
     case messageOrDelay of
-      Left jobMessage -> return (jobMessage : jobMessages)
-      Right _timerExpired -> return jobMessages
+      Left eitherJobMessage ->
+        case eitherJobMessage of
+          Left compileMessage -> return (compileMessage : compileMessages, jobMessages)
+          Right jobMessage -> return (compileMessages, jobMessage : jobMessages)
+      Right _timerExpired -> return (compileMessages, jobMessages)
   writeOutputFile messages
-  writeOutput chan messages
+  writeOutput compileChannel startChannel messages
   where
-    writeOutputFile :: [JobMessage] -> IO ()
-    writeOutputFile messages = do
+    writeOutputFile :: ([String], [JobMessage]) -> IO ()
+    writeOutputFile (_, messages) = do
       timestamp <- getCurrentTime
       Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
       renamePath "/tmp/test.html.tmp" "/tmp/test.html"
@@ -81,6 +90,7 @@ writeOutput chan jobMessages = do
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
+-- TODO: write compile output messages too
 htmlShell :: String -> [JobMessage] -> Text
 htmlShell timestamp jobMessages =
   Text.unwords
