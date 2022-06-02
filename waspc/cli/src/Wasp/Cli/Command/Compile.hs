@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
+    compileWithOptions,
     compileIOWithOptions,
     defaultCompileOptions,
   )
@@ -24,13 +25,21 @@ import qualified Wasp.Message as Msg
 
 compile :: Command ()
 compile = do
+  -- TODO: Consider a way to remove the redundancy of finding the project root
+  -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
+  -- add make externalCodeDirPath a helper function, along with any others we typically need.
+  waspProjectDir <- findWaspProjectRootDirFromCwd
+  compileWithOptions $ defaultCompileOptions waspProjectDir
+
+compileWithOptions :: CompileOptions -> Command ()
+compileWithOptions options = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   let outDir =
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir
           </> Common.generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Compiling wasp code..."
-  compilationResult <- liftIO $ compileIO waspProjectDir outDir
+  compilationResult <- liftIO $ compileIOWithOptions options waspProjectDir outDir
   case compilationResult of
     Left compileError -> throwError $ CommandError "Compilation failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
@@ -66,5 +75,6 @@ defaultCompileOptions waspProjectDir =
   CompileOptions
     { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
       isBuild = False,
-      sendMessage = cliSendMessage
+      sendMessage = cliSendMessage,
+      generatorWarningsFilter = id
     }

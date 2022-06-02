@@ -45,10 +45,13 @@ data GeneratorError = GenericGeneratorError String
 instance Show GeneratorError where
   show (GenericGeneratorError e) = e
 
-data GeneratorWarning = GenericGeneratorWarning String
+data GeneratorWarning
+  = GenericGeneratorWarning String
+  | GeneratorNeedsMigrationWarning String
 
 instance Show GeneratorWarning where
   show (GenericGeneratorWarning e) = e
+  show (GeneratorNeedsMigrationWarning e) = e
 
 -- Runs the generator and either returns a result, or a list of 1 or more errors.
 -- Results in error if any error was ever logged and thrown (even if caught).

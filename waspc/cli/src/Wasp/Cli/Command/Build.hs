@@ -1,3 +1,5 @@
+{-# LANGUAGE LambdaCase #-}
+
 module Wasp.Cli.Command.Build
   ( build,
   )
@@ -22,6 +24,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
+import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
 
@@ -56,5 +59,12 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
       CompileOptions
         { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
           isBuild = True,
-          sendMessage = cliSendMessage
+          sendMessage = cliSendMessage,
+          -- Ignore "DB needs migration warnings" during build, as that is not a required step.
+          generatorWarningsFilter =
+            filter
+              ( \case
+                  GeneratorNeedsMigrationWarning _ -> False
+                  _ -> True
+              )
         }

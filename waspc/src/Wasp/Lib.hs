@@ -16,7 +16,7 @@ import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
-import Wasp.CompileOptions (CompileOptions, sendMessage)
+import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
@@ -41,7 +41,7 @@ compile waspDir outDir options = do
       case ASV.validateAppSpec appSpec of
         [] -> do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          return (map show generatorWarnings, map show generatorErrors)
+          return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
         validationErrors -> do
           return ([], map show validationErrors)
 
