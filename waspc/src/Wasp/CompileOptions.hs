@@ -18,5 +18,9 @@ data CompileOptions = CompileOptions
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.
     sendMessage :: SendMessage,
-    warningsFilter :: [GeneratorWarning] -> [GeneratorWarning]
+    -- The generator returns a list of warnings and errors that happen during compilation.
+    -- CLI commands will almost always compile before they execute to ensure the project is up to date.
+    -- This filter function allows callers to ignore certain warnings where they do not make sense.
+    -- For example, showing a compilation warning to run `db migrate-dev` when you are running that command.
+    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning]
   }

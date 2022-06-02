@@ -15,7 +15,7 @@ import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
-import Wasp.CompileOptions (CompileOptions (warningsFilter))
+import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
@@ -39,7 +39,7 @@ makeDbCommand cmd = do
       (defaultCompileOptions waspProjectDir)
         { -- Ignore "DB needs migration warnings" during database commands, as that is redundant
           -- for `db migrate-dev` and not helpful for `db studio`.
-          warningsFilter =
+          generatorWarningsFilter =
             filter
               ( \case
                   GeneratorNeedsMigrationWarning _ -> False

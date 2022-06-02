@@ -25,6 +25,9 @@ import qualified Wasp.Message as Msg
 
 compile :: Command ()
 compile = do
+  -- TODO: Consider a way to remove the redundancy of finding the project root
+  -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
+  -- add make externalCodeDirPath a helper function, along with any others we typically need.
   waspProjectDir <- findWaspProjectRootDirFromCwd
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
@@ -73,7 +76,5 @@ defaultCompileOptions waspProjectDir =
     { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
       isBuild = False,
       sendMessage = cliSendMessage,
-      -- Allows exclusion of certain warnings for specific commands where they do not make sense.
-      -- For example, warning the DB needs a migration while running `db migrate-dev`.
-      warningsFilter = id
+      generatorWarningsFilter = id
     }
