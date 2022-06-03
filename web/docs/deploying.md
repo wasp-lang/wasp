@@ -92,7 +92,7 @@ heroku logs --tail --app <app-name>
 If you wish to deploy an app leveraging Jobs that use pg-boss as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 
-# Deploying web client (frontend)
+## Deploying web client (frontend)
 Position yourself in `.wasp/build/web-app` directory (reminder: which you created by running `wasp build` previously):
 ```
 cd .wasp/build/web-app
