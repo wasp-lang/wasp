@@ -105,7 +105,10 @@ npmDepsForWasp _spec =
           ],
       N.waspDevDependencies =
         AS.Dependency.fromList
-          []
+          [ -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
+            -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
+            ("react-error-overlay", "6.0.9")
+          ]
     }
 
 genGitignore :: Generator FileDraft
