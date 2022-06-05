@@ -5,18 +5,20 @@ image: /img/martijn-intro-banner.png
 tags: [wasp, gitpod, hackathon]
 ---
 
+import InBlogCta from './components/InBlogCta';
+import WaspIntro from './_wasp-intro.md';
 
 >*"All good thoughts and ideas mean nothing without the proper tools to achieve them."*<br/>
 >*Jason Statham*
 
+**TL;DR:** Wasp allows you to build and deploy a full-stack JS web app with a single config file. [Gitpod](https://gitpod.io/) spins up fresh, automated developer environments in the cloud, in seconds. A perfect tandem to win a hackathon and enjoy free pizza even before other teams even started to set up their coding env and realized they need to update their node version. 
 
-
-**TL;DR:** Wasp allows you to build and deploy a full-stack JS web app with a single config file. Gitpod spins up fresh, automated developer environments in the cloud, in seconds. A perfect tandem to win a hackathon and enjoy free pizza even before other teams even started to set up their coding env and realized they need to update their node version. 
-
+<WaspIntro />
+<InBlogCta />
 
 ## Intro:
 
-Usually, the steps of the hackathon are:<br/>
+Usually, every hackathon starts from similar activities:<br/>
 1) **setting up a local dev environment**, especially if all the team members use different operating systems. There are always issues with the SDK/packages/compiler, etc.<br/>
 2) **building project backbone** (folder structure, basic services, CRUD APIs, and so on).
 
