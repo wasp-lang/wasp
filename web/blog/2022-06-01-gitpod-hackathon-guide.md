@@ -1,7 +1,6 @@
 ---
 title: How to win a hackathon. Brief manual.
 authors: [maksym36ua]
-image: /img/martijn-intro-banner.png
 tags: [wasp, gitpod, hackathon]
 ---
 
@@ -50,7 +49,7 @@ An optional thing might be enabling the “Share” option to make the app acces
 
 You can pick up one of the following IDE’s, switch between light/dark themes and you can even install all your favorite extensions. 
 
-![How to share a workspace](../static/img/gitpod-ide.jpg)
+![Gitpod IDE types](../static/img/gitpod-ide.jpg)
 
 So, eventually, the workflow can look like this: someone from the team forks the template repo and shares it with others. Teammates open this repo in Gitpod, creating their own dev branches. 
 
