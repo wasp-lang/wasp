@@ -9,7 +9,8 @@ const Divider = () => (
 
 const InBlogCta = () => (
     <p>
-        <Link className='in-blog-cta--link' to={useBaseUrl('/docs')}>
+        <Link className='in-blog-cta--link' 
+            to='https://bit.ly/3Mo0Gu6'>
             We are in Alpha (try it out)!
         </Link>
         <Divider />
