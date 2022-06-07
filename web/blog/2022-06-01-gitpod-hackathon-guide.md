@@ -14,6 +14,8 @@ import WaspIntro from './_wasp-intro.md';
 
 **TL;DR:** Wasp allows you to build and deploy a full-stack JS web app with a single config file. [Gitpod](https://gitpod.io/) spins up fresh, automated developer environments in the cloud, in seconds. A perfect tandem to win a hackathon and enjoy free pizza even before other teams even started to set up their coding env and realized they need to update their node version. 
 
+<!--truncate-->
+
 <WaspIntro />
 <InBlogCta />
 
