@@ -1,5 +1,7 @@
 import { QueryClient } from 'react-query'
 
+const defaultQueryClientConfig = {}
+
 let queryClientConfig, resolveQueryClientInitialized, isQueryClientInitialized
 
 export const queryClientInitialized = new Promise(resolve => {
@@ -15,7 +17,7 @@ export function configureQueryClient(config) {
 }
 
 export function initializeQueryClient() {
-  const queryClient = new QueryClient(queryClientConfig)
+  const queryClient = new QueryClient(queryClientConfig ?? defaultQueryClientConfig)
   isQueryClientInitialized = true;
   resolveQueryClientInitialized(queryClient)
 }
