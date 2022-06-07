@@ -10,7 +10,7 @@ const Divider = () => (
 const InBlogCta = () => (
     <p>
         <Link className='in-blog-cta--link' 
-            to='https://wasp-lang.notion.site/Welcome-to-Wasp-Alpha-Testing-program-f3a8a350802341abac87fb7831bb1e60'>
+            to='https://bit.ly/3Mo0Gu6'>
             We are in Alpha (try it out)!
         </Link>
         <Divider />
