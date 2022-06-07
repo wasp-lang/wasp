@@ -30,7 +30,6 @@ module Wasp.Analyzer.TypeChecker.Internal
     inferExprType,
     unify,
     unifyTypes,
-    weaken,
   )
 where
 
@@ -131,24 +130,16 @@ inferExprType = P.withCtx $ \ctx -> \case
       | key `M.member` m = throw $ mkTypeError ctx $ DictDuplicateField key
       | otherwise = return $ M.insert key value m
 
--- | Finds the strongest common type for all of the given expressions, "common" meaning
--- all the expressions can be typed with it and "strongest" meaning it is as specific
--- as possible. If such a type exists, it returns that type and all of the given expressions
--- typed with the new type. If no such type exists, it returns an error.
+-- | Finds the strongest common type for all of the given expressions, "common"
+-- meaning all the expressions can be typed with it and "strongest" meaning it
+-- is as specific as possible. If such a type exists, it returns that type. If
+-- no such type exists, it returns an error.
 --
--- The following property is gauranteed:
---
--- * IF   @unify ctx exprs == Right (exprs', commonType)@
---   THEN @all ((==commonType) . exprType . fromWithCtx) exprs'@
---
--- First argument, `Ctx`, is the context of the top level structure or smth that contains all these expressions.
-unify :: P.Ctx -> NonEmpty (WithCtx TypedExpr) -> Either TypeError (NonEmpty (WithCtx TypedExpr), Type)
-unify ctx texprs@((WithCtx _ texprFirst) :| texprsRest) = do
-  superType <-
-    left (mkTypeError ctx . UnificationError) $
-      foldM unifyTypes (exprType texprFirst) texprsRest
-  left (mkTypeError ctx . WeakenError) $
-    (,superType) <$> mapM (weaken superType) texprs
+-- First argument, `Ctx`, is the context of the top level structure or smth that
+-- contains all these expressions.
+unify :: P.Ctx -> NonEmpty (WithCtx TypedExpr) -> Either TypeError  Type
+unify ctx ((WithCtx _ texprFirst) :| texprsRest) = left (mkTypeError ctx . UnificationError) superTypeOrError
+  where superTypeOrError = foldM unifyTypes (exprType texprFirst) texprsRest
 
 -- | @unifyTypes t texpr@ finds the strongest type that both type @t@ and
 -- type of typed expression @texpr@ are a sub-type of.
@@ -211,49 +202,49 @@ unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
 -- * If @weaken typ expr == Right expr'@ then @(exprType . fromWithCtx) expr' == typ@
 --
 -- When a @Left@ value is returned, then @expr@ can not be typed as @typ@.
-weaken :: Type -> WithCtx TypedExpr -> Either TypeCoercionError (WithCtx TypedExpr)
-weaken t texprwc@(WithCtx _ texpr)
-  | exprType texpr == t = Right texprwc
--- Apply [AnyList]: An empty list can be weakened to any list type
-weaken t@(ListType _) (WithCtx ctx (List [] EmptyListType)) = return $ WithCtx ctx $ List [] t
--- A non-empty list can be weakened to type @t@ if
--- - @t@ is of the form @ListType elemType@
--- - Every value in the list can be weakened to type @elemType@
-weaken t@(ListType elemType) texprwc@(WithCtx ctx ((List elems _))) = do
-  elems' <- annotateError $ mapM (weaken elemType) elems
-  return $ WithCtx ctx $ List elems' t
-  where
-    annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
-weaken t@(DictType entryTypes) texprwc@(WithCtx ctx (Dict entries _)) = do
-  entries' <- mapM weakenEntry entries
-  mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes
-  return $ WithCtx ctx $ Dict entries' t
-  where
-    -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
-    weakenEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError (Identifier, WithCtx TypedExpr)
-    weakenEntry (key, value) = case M.lookup key entryTypes of
-      -- @key@ is missing from @typ'@ => extra keys are not allowed
-      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
-      -- @key@ is required and present => only need to weaken the value's type
-      Just (DictRequired valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
-      -- @key@ is optional and present => weaken value's type + use [DictSome]
-      Just (DictOptional valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
+-- weaken :: Type -> WithCtx TypedExpr -> Either TypeCoercionError (WithCtx TypedExpr)
+-- weaken t texprwc@(WithCtx _ texpr)
+--   | exprType texpr == t = Right texprwc
+-- -- Apply [AnyList]: An empty list can be weakened to any list type
+-- weaken t@(ListType _) (WithCtx ctx (List [] EmptyListType)) = return $ WithCtx ctx $ List [] t
+-- -- A non-empty list can be weakened to type @t@ if
+-- -- - @t@ is of the form @ListType elemType@
+-- -- - Every value in the list can be weakened to type @elemType@
+-- weaken t@(ListType elemType) texprwc@(WithCtx ctx ((List elems _))) = do
+--   elems' <- annotateError $ mapM (weaken elemType) elems
+--   return $ WithCtx ctx $ List elems' t
+--   where
+--     annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
+-- weaken t@(DictType entryTypes) texprwc@(WithCtx ctx (Dict entries _)) = do
+--   entries' <- mapM weakenEntry entries
+--   mapM_ ensureExprSatisifiesEntryType $ M.toList entryTypes
+--   return $ WithCtx ctx $ Dict entries' t
+--   where
+--     -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
+--     weakenEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError (Identifier, WithCtx TypedExpr)
+--     weakenEntry (key, value) = case M.lookup key entryTypes of
+--       -- @key@ is missing from @typ'@ => extra keys are not allowed
+--       Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
+--       -- @key@ is required and present => only need to weaken the value's type
+--       Just (DictRequired valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
+--       -- @key@ is optional and present => weaken value's type + use [DictSome]
+--       Just (DictOptional valueTyp) -> (key,) <$> annotateKeyTypeError key (weaken valueTyp value)
 
-    -- Checks that all DictRequired entries in typ' exist in entries
-    ensureExprSatisifiesEntryType :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
-    ensureExprSatisifiesEntryType (key, DictOptional typ) = case lookup key entries of
-      -- @key@ is optional and missing => use [DictNone]
-      Nothing -> Right ()
-      -- @key@ is optional and present => weaken the value's type + use [DictSome]
-      Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
-    ensureExprSatisifiesEntryType (key, DictRequired typ) = case lookup key entries of
-      -- @key@ is required and missing => not allowed
-      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictNoKey key)
-      -- @key@ is required and present => only need to weaken value's type
-      Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
+--     -- Checks that all DictRequired entries in typ' exist in entries
+--     ensureExprSatisifiesEntryType :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
+--     ensureExprSatisifiesEntryType (key, DictOptional typ) = case lookup key entries of
+--       -- @key@ is optional and missing => use [DictNone]
+--       Nothing -> Right ()
+--       -- @key@ is optional and present => weaken the value's type + use [DictSome]
+--       Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
+--     ensureExprSatisifiesEntryType (key, DictRequired typ) = case lookup key entries of
+--       -- @key@ is required and missing => not allowed
+--       Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictNoKey key)
+--       -- @key@ is required and present => only need to weaken value's type
+--       Just entryVal -> void $ annotateKeyTypeError key $ weaken typ entryVal
 
-    -- Wraps a ReasonDictWrongKeyType error around a type error
-    annotateKeyTypeError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
-    annotateKeyTypeError key = left (TypeCoercionError texprwc t . ReasonDictWrongKeyType key)
--- All other cases can not be weakened
-weaken typ' expr = Left $ TypeCoercionError expr typ' ReasonUncoercable
+--     -- Wraps a ReasonDictWrongKeyType error around a type error
+--     annotateKeyTypeError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
+--     annotateKeyTypeError key = left (TypeCoercionError texprwc t . ReasonDictWrongKeyType key)
+-- -- All other cases can not be weakened
+-- weaken typ' expr = Left $ TypeCoercionError expr typ' ReasonUncoercable
