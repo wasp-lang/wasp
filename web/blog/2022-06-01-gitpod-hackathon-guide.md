@@ -7,6 +7,8 @@ tags: [wasp, gitpod, hackathon]
 import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 
+![Wasp app deploye to Gitpod](../static/img/gitpod-hackathon-preview.png)
+
 >*"All good thoughts and ideas mean nothing without the proper tools to achieve them."*<br/>
 >*Jason Statham*
 
