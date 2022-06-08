@@ -41,7 +41,7 @@ I never did buy that drink. He’s not letting me forget about it, though.
 
 #### Why did you join Wasp? What did you do before?
 
-I've wanted a job where I'd get a chance to design a language and build a
+I've wanted to work on a project where I'd get a chance to design a language and build a
 compiler for quite some time now. While I did develop my own language on the
 side (and even graduated with it), I thought getting paid for doing something
 similar this early in my career was pretty far-fetched.
