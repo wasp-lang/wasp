@@ -1,7 +1,7 @@
 import { useQuery as rqUseQuery } from 'react-query'
 export { configureQueryClient } from '../queryClient'
 
-export function useQuery(queryFn, queryFnArgs, config) {
+export function useQuery(queryFn, queryFnArgs, options) {
   if (typeof queryFn !== 'function') {
     throw new TypeError('useQuery requires queryFn to be a function.')
   }
@@ -12,6 +12,6 @@ export function useQuery(queryFn, queryFnArgs, config) {
   return rqUseQuery({
     queryKey: [queryFn.queryCacheKey, queryFnArgs],
     queryFn: () => queryFn(queryFnArgs),
-    ...config
+    ...options
   })
 }
