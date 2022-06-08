@@ -10,7 +10,7 @@ const Divider = () => (
 const InBlogCta = () => (
     <p>
         <Link className='in-blog-cta--link' 
-            to='https://bit.ly/3Mo0Gu6'>
+            to='https://e44cy1h4s0q.typeform.com/to/ycUzQa5A'>
             We are in Alpha (try it out)!
         </Link>
         <Divider />
