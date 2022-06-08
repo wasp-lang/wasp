@@ -312,7 +312,7 @@
             "file",
             "web-app/src/index.js"
         ],
-        "a477184a6e6e7cb33e056febc8a4a1e1132ecc697763855fa2af07cf02c79908"
+        "d0aeef2633b26de4c5d7064acc7c4533212cee8d3b36e91a3a785930621d02e4"
     ],
     [
         [
@@ -333,21 +333,21 @@
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "4772a216b647ace3eedace9b02897922725b58131031d21be59187b1652ccade"
+        "9bccf509e1a3e04e24444eacd69e0f093e590a9b85325bedb6f1d52ac85ead3c"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.js"
         ],
-        "39a659c6ed82cbbc38b834b607e049646e0d70e104d01317830f225629a5f14c"
+        "8510924f80b32cc0f67ca39fad9d97c4ce5d9695015da3ec8457e91a88868c78"
     ],
     [
         [
             "file",
             "web-app/src/queryClient.js"
         ],
-        "f53c6e82b0e1b13dd2c2fff423460c88cd1c331e154867edeb7cd5f98c3586e4"
+        "3adf1c16b436ce5eb71f0ef7a4ec2bcd04e0dafbc2b43291c5050d1621cb764c"
     ],
     [
         [
