@@ -1,7 +1,7 @@
 ---
 title: Meet the team - Filip Sodić, Founding Engineer
 authors: [matijasos]
-image: /img/shayne-intro-banner.png
+image: /img/filip-intro-banner.png
 tags: [wasp, new-hire]
 ---
 
@@ -10,7 +10,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 
-![Welcome Filip!](../static/img/shayne-intro-banner.png)
+![Welcome Filip!](../static/img/filip-intro-banner.png)
 
 Find Filip on [GitHub](https://github.com/sodic).
 
@@ -18,6 +18,8 @@ Find Filip on [GitHub](https://github.com/sodic).
 
 <WaspIntro />
 <InBlogCta />
+
+**We are immensely excited to welcome Filip, our latest Founding Software Engineer!** Filip is an experienced engineer and a passionate computer scientist - his two biggest passions are building compilers/designing programming languages and web development (what a lucky coincidence, right? ;)). Before joining Wasp, Filip earned his stripes in various domains, ranging from bioinformatics and the betting industry to route optimisation software. Welcome to the team, Filip - we can't wait to see what you build!
 
 #### Let’s start with two truths and a lie about yourself.
 
@@ -75,7 +77,7 @@ always looked interesting and exotic. I did get a few chances to use
 the language through university courses and on my own, but I've never really had an excuse to
 use it in my day-to-day.
 
-## What are you most excited about in Wasp?
+#### What are you most excited about in Wasp?
 
 From a developer’s perspective, I’m definitely most excited about designing the
 DSL and working on the compiler.
