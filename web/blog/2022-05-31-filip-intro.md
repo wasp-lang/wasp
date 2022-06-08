@@ -25,7 +25,7 @@ Find Filip on [GitHub](https://github.com/sodic).
 
 - I found out about Wasp through a friend/former colleague and still haven’t
   bought him a drink to say thanks.
-- I’ve created my own Turing-complete functional programming language that
+- I’ve designed and implemented my own Turing-complete functional programming language that
   compiles to JavaScript.
 - I wasted nearly 30 hours customizing my setup to maximize productivity and
   probably ended up in a less productive state
