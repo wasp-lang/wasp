@@ -136,7 +136,7 @@ projects because you think they aren’t ready yet. Good enough sometimes truly
 is good enough and things can often be considered done before _you_ consider them
 done.
 
-I still occasionally need to give this advice to myself :)
+I still occasionally need to give this advice to myself :).
 
 ####  Lastly, where can people find or connect with you online?
 
