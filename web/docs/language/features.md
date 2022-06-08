@@ -961,7 +961,7 @@ client-side periodic jobs).
 Here's a dummy example of such a function:
 
 ```js title="ext/myClientSetupCode.js"
-async function mySetupFunction() {
+export default async function mySetupFunction() {
   let count = 1;
   setInterval(
     () => console.log(`You have been online for ${count++} hours.`),
