@@ -7,6 +7,7 @@ import Control.Concurrent (Chan, dupChan, forkIO, newChan, readChan, threadDelay
 import Control.Concurrent.Async (race)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (intercalate)
 import Data.String.AnsiEscapeCodes.Strip.Text (stripAnsiEscapeCodes)
 import Data.Text (Text, pack)
 import qualified Data.Text as Text
@@ -39,7 +40,7 @@ start = do
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
   compileChannel <- liftIO newChan -- TODO: pass into compileIO and watch
-  compilationResult <- liftIO $ compileIO waspRoot outDir
+  compilationResult <- liftIO $ compileIO waspRoot outDir (Just compileChannel)
   case compilationResult of
     Left compileError -> throwError $ CommandError "Compilation failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
@@ -80,7 +81,7 @@ writeOutput compileChannel startChannel (compileMessages, jobMessages) = do
   writeOutput compileChannel startChannel messages
   where
     writeOutputFile :: ([String], [JobMessage]) -> IO ()
-    writeOutputFile (_, messages) = do
+    writeOutputFile messages = do
       timestamp <- getCurrentTime
       Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
       renamePath "/tmp/test.html.tmp" "/tmp/test.html"
@@ -91,8 +92,8 @@ writeOutput compileChannel startChannel (compileMessages, jobMessages) = do
        in threadDelay . (* microsecondsInASecond)
 
 -- TODO: write compile output messages too
-htmlShell :: String -> [JobMessage] -> Text
-htmlShell timestamp jobMessages =
+htmlShell :: String -> ([String], [JobMessage]) -> Text
+htmlShell timestamp (waspMessage, jobMessages) =
   Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
@@ -104,6 +105,7 @@ htmlShell timestamp jobMessages =
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
       "<div><p>Last JS refresh timestamp: <span id='jsTime'></span><button id='refreshButton' onclick='disableRefresh();'>Disable Refresh</button></p></div>",
       "<div class='logContainer'>" <> splitJobMessages <> "</div>",
+      Text.pack $ "<div class='waspMessageContainer'>" ++ intercalate "<br>" (reverse waspMessage) ++ "</div>",
       "<script>setTimeout(() => { shouldRefresh && location.reload() }, 3000)</script>",
       "<script>document.getElementById('jsTime').innerHTML = new Date();</script>",
       "</body>",

@@ -5,6 +5,7 @@ module Wasp.Cli.Command.Compile
   )
 where
 
+import Control.Concurrent (Chan, writeChan)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
@@ -29,7 +30,7 @@ compile = do
           </> Common.generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Compiling wasp code..."
-  compilationResult <- liftIO $ compileIO waspProjectDir outDir
+  compilationResult <- liftIO $ compileIO waspProjectDir outDir Nothing
   case compilationResult of
     Left compileError -> throwError $ CommandError "Compilation failed" compileError
     Right () -> cliSendMessageC $ Msg.Success "Code has been successfully compiled, project has been generated."
@@ -39,16 +40,24 @@ compile = do
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Maybe (Chan String) ->
   IO (Either String ())
-compileIO waspProjectDir outDir = compileIOWithOptions options waspProjectDir outDir
+compileIO waspProjectDir outDir chan = compileIOWithOptions options waspProjectDir outDir
   where
     options =
       CompileOptions
         { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
           isBuild = False,
-          sendMessage = cliSendMessage
+          sendMessage = forwardMessage chan
         }
+    forwardMessage :: Maybe (Chan String) -> Msg.SendMessage
+    forwardMessage Nothing = cliSendMessage
+    forwardMessage (Just c) =
+      \m -> do
+        writeChan c (show m)
+        cliSendMessage m
 
+-- TODO: capture warnings/errors like above
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir Common.WaspProjectDir) ->

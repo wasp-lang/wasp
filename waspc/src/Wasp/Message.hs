@@ -10,5 +10,6 @@ module Wasp.Message (Message (..), SendMessage) where
 -- If you need success or failure another purpose use return values.
 
 data Message = Info String | Start String | Success String | Failure String String | Warning String String
+  deriving (Show)
 
 type SendMessage = Message -> IO ()

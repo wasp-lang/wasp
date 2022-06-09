@@ -80,7 +80,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     recompile :: IO ()
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compilationResult <- compileIO waspProjectDir outDir
+      compilationResult <- compileIO waspProjectDir outDir Nothing
       case compilationResult of
         Left err -> cliSendMessage $ Msg.Failure "Recompilation on file change failed" err
         Right () -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
