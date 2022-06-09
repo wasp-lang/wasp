@@ -7,7 +7,7 @@ import { handleRejection } from '../../utils.js'
 
 const prisma = new Prisma.PrismaClient()
 
-export default handleRejection(async (req, res) => {
+export default handleRejection(async (req, res, next) => {
   const args = req.body || {}
 
   // Try to fetch user with the given email.
@@ -28,8 +28,19 @@ export default handleRejection(async (req, res) => {
       return res.status(401).send()
   }
 
-  // Save user id in session for future request use.
-  req.session.user_id = {= userEntityLower =}.id
+  // regenerate the session, which is good practice to help
+  // guard against forms of session fixation
+  req.session.regenerate(function (err) {
+    if (err) next(err)
 
-  return res.status(200).send()
+    // Save user id in session for future request use.
+    req.session.user_id = {= userEntityLower =}.id
+
+    // save the session before redirection to ensure page
+    // load does not happen before session is saved
+    req.session.save(function (err) {
+      if (err) return next(err)
+      return res.status(200).send()
+    })
+  })
 })

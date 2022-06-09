@@ -4,7 +4,7 @@ export default handleRejection(async (req, res, next) => {
   // clear the user from the session object and save.
   // this will ensure that re-using the old session id
   // does not have a logged in user
-  req.session.user = null
+  req.session.user_id = null
   req.session.save(function (err) {
     if (err) next(err)
 
@@ -12,8 +12,7 @@ export default handleRejection(async (req, res, next) => {
     // guard against forms of session fixation
     req.session.regenerate(function (err) {
       if (err) next(err)
+      return res.status(200).send()
     })
   })
-
-  return res.status(200).send()
 })
