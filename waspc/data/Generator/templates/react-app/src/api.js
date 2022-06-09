@@ -3,46 +3,7 @@ import config from './config'
 
 const api = axios.create({
   baseURL: config.apiUrl,
-})
-
-const WASP_APP_AUTH_TOKEN_NAME = "authToken"
-
-let authToken = null
-if (window.localStorage) {
-  authToken = window.localStorage.getItem(WASP_APP_AUTH_TOKEN_NAME)
-}
-
-export const setAuthToken = (token) => {
-  if (typeof token !== 'string') {
-    throw Error(`Token must be a string, but it was: {${typeof token}} ${token}.`)
-  }
-  authToken = token
-  window.localStorage && window.localStorage.setItem(WASP_APP_AUTH_TOKEN_NAME, token)
-}
-
-export const clearAuthToken = () => {
-  authToken = undefined
-  window.localStorage && window.localStorage.removeItem(WASP_APP_AUTH_TOKEN_NAME)
-}
-
-export const clearLocalStorage = () => {
-  authToken = undefined
-
-  window.localStorage && window.localStorage.clear()
-}
-
-api.interceptors.request.use(request => {
-  if (authToken) {
-    request.headers['Authorization'] = `Bearer ${authToken}`
-  }
-  return request
-})
-
-api.interceptors.response.use(undefined, error => {
-  if (error.response?.status === 401) {
-    clearAuthToken()
-  }
-  return Promise.reject(error)
+  withCredentials: true
 })
 
 /**

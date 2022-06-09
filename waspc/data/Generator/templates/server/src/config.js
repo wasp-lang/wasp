@@ -13,25 +13,35 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    trustProxyCount: undefined,
     {=# isAuthEnabled =}
-    auth: {
-      jwtSecret: undefined
-    }
+    session: {
+      name: process.env.SESSION_NAME || 'wasp_session',
+      secret: undefined,
+      cookie: {
+        maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms
+      }, 
+    },
     {=/ isAuthEnabled =}
+    frontendUrl: undefined,
   },
   development: {
+    trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 0,
     {=# isAuthEnabled =}
-    auth: {
-      jwtSecret: 'DEVJWTSECRET'
-    }
+    session: {
+      secret: process.env.SESSION_SECRET || 'sessionSecret',
+    },
     {=/ isAuthEnabled =}
+    frontendUrl: process.env.REACT_APP_URL || 'http://localhost:3000',
   },
   production: {
+    trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 1,
     {=# isAuthEnabled =}
-    auth: {
-      jwtSecret: process.env.JWT_SECRET
-    }
+    session: {
+      secret: process.env.SESSION_SECRET,
+    },
     {=/ isAuthEnabled =}
+    frontendUrl: process.env.REACT_APP_URL,
   }
 }
 

@@ -25,12 +25,13 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.App.Server as AS.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -112,12 +113,12 @@ npmDepsForWasp spec =
             ("express", "~4.16.1"),
             ("morgan", "~1.9.1"),
             ("@prisma/client", show prismaVersion),
-            ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-          ++ depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec
+          ++ depsRequiredBySessions spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
@@ -125,6 +126,17 @@ npmDepsForWasp spec =
             ("prisma", show prismaVersion)
           ]
     }
+
+depsRequiredBySessions :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredBySessions spec =
+  let deps =
+        if isAuthEnabled spec
+          then
+            [ ("cookie-session", "~2.0.0"),
+              ("csurf", "~1.11.0")
+            ]
+          else []
+   in AS.Dependency.make <$> deps
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -145,13 +157,14 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
+    [ copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|session.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genAppJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
@@ -174,7 +187,7 @@ genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
         then
           object
             [ "isAuthEnabled" .= True,
-              "userEntityUpper" .= (AS.refName (AS.App.Auth.userEntity $ fromJust maybeAuth) :: String)
+              "userEntityUpper" .= (AS.refName (AS.Auth.userEntity $ fromJust maybeAuth) :: String)
             ]
         else object []
 
@@ -193,10 +206,22 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeSetupJsFunction = AS.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+genAppJs :: AppSpec -> Generator FileDraft
+genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel appFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> appFileInSrcDir
+    tmplData =
+      object
+        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+        ]
+    appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    appFileInSrcDir = [relfile|app.js|]
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

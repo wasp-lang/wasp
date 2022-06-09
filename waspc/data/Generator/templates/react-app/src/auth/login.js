@@ -1,13 +1,12 @@
 import config from '../config.js'
 import { removeQueries } from '../operations/resources'
-import api, { setAuthToken, handleApiError } from '../api.js'
+import api, { handleApiError } from '../api.js'
 
 export default async function login(email, password) {
   try {
     const args = { email, password }
-    const response = await api.post(config.apiUrl + '/auth/login', args)
+    await api.post(config.apiUrl + '/auth/login', args)
 
-    setAuthToken(response.data.token)
     // This isn't really neccessary because we remove all private queries after
     // logout, but we do it to be extra safe.
     // 
