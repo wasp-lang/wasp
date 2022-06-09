@@ -26,7 +26,8 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(session({
+
+const sess = {
   name: 'wasp',
   secret: 'keyboard cat',
   // NOTE: The two options below are kinda finiky with PrismaSessionStore.
@@ -34,7 +35,6 @@ app.use(session({
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
     // sameSite ?
     maxAge: 7 * 24 * 60 * 60 * 1000 // ms
   },
@@ -43,7 +43,12 @@ app.use(session({
     dbRecordIdIsSessionId: true,
     dbRecordIdFunction: undefined
   })
-}))
+}
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+app.use(session(sess))
 
 // TESTING
 app.use(function (req, res, next) {
