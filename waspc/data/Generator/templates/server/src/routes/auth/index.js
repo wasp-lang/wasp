@@ -14,4 +14,3 @@ router.post('/signup', signup)
 router.get('/me', auth, me)
 
 export default router
-

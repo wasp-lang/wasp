@@ -12,7 +12,8 @@ export default handleRejection(async (req, res, next) => {
     // guard against forms of session fixation
     req.session.regenerate(function (err) {
       if (err) next(err)
-      res.redirect('/login')
     })
   })
+
+  return res.status(200).send()
 })

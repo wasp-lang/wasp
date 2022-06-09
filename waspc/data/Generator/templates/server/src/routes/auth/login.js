@@ -9,7 +9,6 @@ const prisma = new Prisma.PrismaClient()
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
-  const context = {}
 
   // Try to fetch user with the given email.
   const {= userEntityLower =} = await prisma.{= userEntityLower =}.findUnique({ where: { email: args.email.toLowerCase() } })
@@ -31,7 +30,6 @@ export default handleRejection(async (req, res) => {
 
   // Save user id in session for future request use.
   req.session.user_id = {= userEntityLower =}.id
-  console.log("Setting user_id in session: ", req.session)
 
   return res.status(200).send()
 })
