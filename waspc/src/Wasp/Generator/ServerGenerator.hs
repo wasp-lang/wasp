@@ -113,6 +113,7 @@ npmDepsForWasp spec =
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
             ("express-session", "~1.17.3"),
+            ("@quixo3/prisma-session-store", "~3.1.5"),
             ("morgan", "~1.9.1"),
             ("@prisma/client", show prismaVersionBounds),
             ("secure-password", "^4.0.0"),

@@ -38,6 +38,12 @@ entity Task {=psl
     userId      Int
 psl=}
 
+entity Session {=psl
+  id          String   @id
+  sid         String   @unique
+  data        String
+  expiresAt   DateTime
+psl=}
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {

@@ -4,7 +4,9 @@ import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
 import session from 'express-session'
+import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 
+import prisma from './dbClient.js'
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
 
@@ -27,17 +29,24 @@ app.use(cookieParser())
 app.use(session({
   name: 'wasp',
   secret: 'keyboard cat',
+  // NOTE: The two options below are kinda finiky with PrismaSessionStore.
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: false,
-    maxAge: 604800000 // 1 week
-  }
+    secure: process.env.NODE_ENV === "production",
+    // sameSite ?
+    maxAge: 7 * 24 * 60 * 60 * 1000 // ms
+  },
+  store: new PrismaSessionStore(prisma, {
+    checkPeriod: 2 * 60 * 1000,  //ms
+    dbRecordIdIsSessionId: true,
+    dbRecordIdFunction: undefined
+  })
 }))
 
 // TESTING
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   console.log("SessionID: " + req.sessionID);
   next();
 });
