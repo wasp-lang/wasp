@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
+import session from 'express-session'
 
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
@@ -13,11 +14,33 @@ import indexRouter from './routes/index.js'
 const app = express()
 
 app.use(helmet())
-app.use(cors()) // TODO: Consider configuring CORS to be more restrictive, right now it allows all CORS requests.
+// TESTING
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+  credentials: true
+}));
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+app.use(session({
+  name: 'wasp',
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    maxAge: 604800000 // 1 week
+  }
+}))
+
+// TESTING
+app.use(function(req, res, next) {
+  console.log("SessionID: " + req.sessionID);
+  next();
+});
 
 app.use('/', indexRouter)
 

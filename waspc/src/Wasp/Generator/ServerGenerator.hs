@@ -112,9 +112,9 @@ npmDepsForWasp spec =
             ("cors", "^2.8.5"),
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
+            ("express-session", "~1.17.3"),
             ("morgan", "~1.9.1"),
             ("@prisma/client", show prismaVersionBounds),
-            ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")

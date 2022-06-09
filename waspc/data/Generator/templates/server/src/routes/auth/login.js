@@ -2,7 +2,7 @@
 import Prisma from '@prisma/client'
 import SecurePassword from 'secure-password'
 
-import { sign, verifyPassword } from '../../core/auth.js'
+import { verifyPassword } from '../../core/auth.js'
 import { handleRejection } from '../../utils.js'
 
 const prisma = new Prisma.PrismaClient()
@@ -29,12 +29,9 @@ export default handleRejection(async (req, res) => {
       return res.status(401).send()
   }
 
-  // Email & password valid - generate token.
-  const token = await sign({= userEntityLower =}.id)
+  // Save user id in session for future request use.
+  req.session.user_id = {= userEntityLower =}.id
+  console.log("Setting user_id in session: ", req.session)
 
-  // NOTE(matija): Possible option - instead of explicitly returning token here,
-  // we could add to response header 'Set-Cookie {token}' directive which would then make
-  // browser automatically save cookie with token.
-
-  return res.json({ token })
+  return res.status(200).send()
 })

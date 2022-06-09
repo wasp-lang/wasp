@@ -24,6 +24,7 @@ genAuth spec = case maybeAuth of
         -- Auth routes
         genAuthRoutesIndex,
         genLoginRoute auth,
+        genLogoutRoute,
         genSignupRoute auth,
         genMeRoute auth
       ]
@@ -81,6 +82,13 @@ genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
             [ "userEntityUpper" .= (userEntityName :: String),
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
+
+genLogoutRoute :: Generator FileDraft
+genLogoutRoute = return $ C.mkTmplFdWithDstAndData tmplFile dstFile Nothing
+  where
+    logoutRouteRelToSrc = [relfile|routes/auth/logout.js|]
+    tmplFile = C.asTmplFile $ [reldir|src|] </> logoutRouteRelToSrc
+    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile logoutRouteRelToSrc
 
 genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
 genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
