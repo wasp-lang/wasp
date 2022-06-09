@@ -18,7 +18,7 @@ export default async function login(email, password) {
     // TODO(filip): We are currently removing all the queries, but we should
     // remove only non-public, user-dependent queries - public queries are
     // expected not to change in respect to the currently logged in user.
-    removeQueries()
+    await removeQueries()
   } catch (error) {
     handleApiError(error)
   }

@@ -30,6 +30,7 @@ spec_WebAppGenerator = do
                     { AS.App.title = "Test App",
                       AS.App.db = Nothing,
                       AS.App.server = Nothing,
+                      AS.App.client = Nothing,
                       AS.App.auth = Nothing,
                       AS.App.dependencies = Nothing,
                       AS.App.head = Nothing

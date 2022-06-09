@@ -1,4 +1,4 @@
-import { queryClient } from '../queryClient'
+import { queryClientInitialized } from '../queryClient'
 
 
 // Map where key is resource name and value is Set
@@ -30,26 +30,26 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
 export function getQueriesUsingResource(resource) {
   return Array.from(resourceToQueryCacheKeys.get(resource) || [])
 }
-
 /**
  * Invalidates all queries that are using specified resources.
  * @param {string[]} resources - Names of resources.
  */
-export function invalidateQueriesUsing(resources) {
-  const queryCacheKeysToInvalidate = new Set()
-  for (const resource of resources) {
-    getQueriesUsingResource(resource).forEach(key => queryCacheKeysToInvalidate.add(key))
-  }
-  for (const queryCacheKey of queryCacheKeysToInvalidate) {
+export async function invalidateQueriesUsing(resources) {
+  const queryClient = await queryClientInitialized
+
+  const queryCacheKeysToInvalidate = new Set(resources.flatMap(getQueriesUsingResource))
+  queryCacheKeysToInvalidate.forEach(queryCacheKey => 
     queryClient.invalidateQueries(queryCacheKey)
-  }
+  )
 }
 
-export function removeQueries() {
+export async function removeQueries() {
+  const queryClient = await queryClientInitialized
   queryClient.removeQueries()
 }
 
-export function invalidateAndRemoveQueries() {
+export async function invalidateAndRemoveQueries() {
+  const queryClient = await queryClientInitialized
   // If we don't invalidate the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
