@@ -14,10 +14,6 @@ import { useSession } from './session.js'
 
 const app = express()
 
-if (config.trustProxy) {
-  app.set('trust proxy', config.trustProxy)
-}
-
 app.use(helmet())
 app.use(cors({
   origin: config.frontendUrl,

@@ -13,7 +13,6 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
-    trustProxy: process.env.SESSION_TRUST_PROXY,
     session: {
       name: process.env.SESSION_NAME || 'wasp',
       secret: undefined,
