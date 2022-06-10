@@ -8,11 +8,11 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
+    // Optional: sessionEntityName: "Session",
     methods: [ EmailAndPassword ],
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
-  // sessions: true,
   server: {
     setupFn: import setup from "@ext/serverSetup.js"
   },
