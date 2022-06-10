@@ -12,6 +12,7 @@ app todoApp {
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
+  // sessions: true,
   server: {
     setupFn: import setup from "@ext/serverSetup.js"
   },
@@ -38,6 +39,7 @@ entity Task {=psl
     userId      Int
 psl=}
 
+// TODO: Create this for users automatically once sessions are enabled.
 entity Session {=psl
   id          String   @id
   sid         String   @unique
