@@ -13,10 +13,13 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    trustProxy: process.env.SESSION_TRUST_PROXY,
     session: {
       name: process.env.SESSION_NAME || 'wasp',
       secret: undefined,
-      trustProxyCount: parseInt(process.env.SESSION_TRUST_PROXY_COUNT) || 0,
+      cookie: {
+        maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms
+      }, 
     },
     frontendUrl: undefined,
   },

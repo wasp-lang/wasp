@@ -13,7 +13,7 @@ const sess = {
   cookie: {
     httpOnly: true,
     // TODO: Use sameSite ?
-    maxAge: 7 * 24 * 60 * 60 * 1000 // ms
+    maxAge: config.session.cookie.maxAge,
   },
   store: new PrismaSessionStore(prisma, {
     checkPeriod: 2 * 60 * 1000,  //ms
@@ -22,14 +22,9 @@ const sess = {
   })
 }
 
-export function initSession(app) {
+export function useSession(app) {
   if (app.get('env') === 'production') {
     sess.cookie.secure = true
   }
-
   app.use(session(sess))
-
-  if (config.session.trustProxyCount > 0) {
-    app.set('trust proxy', config.session.trustProxyCount)
-  }
 }

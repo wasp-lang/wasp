@@ -7,12 +7,16 @@ import helmet from 'helmet'
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
 import config from './config.js'
-import { initSession } from './session.js'
+import { useSession } from './session.js'
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
 //   it can be used in unit tests to test each route individually.
 
 const app = express()
+
+if (config.trustProxy) {
+  app.set('trust proxy', config.trustProxy)
+}
 
 app.use(helmet())
 app.use(cors({
@@ -25,7 +29,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-initSession(app)
+useSession(app)
 
 app.use('/', indexRouter)
 
