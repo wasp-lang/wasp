@@ -3,12 +3,11 @@ import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
-import session from 'express-session'
-import { PrismaSessionStore } from '@quixo3/prisma-session-store'
 
-import prisma from './dbClient.js'
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
+import config from './config.js'
+import { initSession } from './session.js'
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
 //   it can be used in unit tests to test each route individually.
@@ -16,9 +15,8 @@ import indexRouter from './routes/index.js'
 const app = express()
 
 app.use(helmet())
-// TESTING
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: config.frontendUrl,
   methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
   credentials: true
 }));
@@ -27,28 +25,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-const sess = {
-  name: 'wasp',
-  secret: 'keyboard cat',
-  // NOTE: The two options below are kinda finiky with PrismaSessionStore.
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    // sameSite ?
-    maxAge: 7 * 24 * 60 * 60 * 1000 // ms
-  },
-  store: new PrismaSessionStore(prisma, {
-    checkPeriod: 2 * 60 * 1000,  //ms
-    dbRecordIdIsSessionId: true,
-    dbRecordIdFunction: undefined
-  })
-}
-if (app.get('env') === 'production') {
-  app.set('trust proxy', 1) // trust first proxy
-  sess.cookie.secure = true // serve secure cookies
-}
-app.use(session(sess))
+initSession(app)
 
 app.use('/', indexRouter)
 
