@@ -50,12 +50,6 @@ if (app.get('env') === 'production') {
 }
 app.use(session(sess))
 
-// TESTING
-app.use(function (req, res, next) {
-  console.log("SessionID: " + req.sessionID);
-  next();
-});
-
 app.use('/', indexRouter)
 
 // Custom error handler.
