@@ -15,7 +15,7 @@ const config = {
     databaseUrl: process.env.DATABASE_URL,
     {=# isAuthEnabled =}
     session: {
-      name: process.env.SESSION_NAME || 'wasp',
+      name: process.env.SESSION_NAME || 'wasp_sid',
       secret: undefined,
       cookie: {
         maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms

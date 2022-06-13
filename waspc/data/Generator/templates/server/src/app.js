@@ -29,7 +29,6 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 {=# isAuthEnabled =}
-// TODO: Add CSRF protection.
 useSession(app)
 {=/ isAuthEnabled =}
 

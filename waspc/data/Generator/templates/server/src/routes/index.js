@@ -14,6 +14,10 @@ router.get('/', function (req, res, next) {
 
 {=# isAuthEnabled =}
 router.use('/auth', auth)
+
+router.get('/csrf-token', function (req, res) {
+  res.json(req.csrfToken())
+})
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', operations)
 

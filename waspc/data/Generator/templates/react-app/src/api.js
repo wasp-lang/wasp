@@ -6,6 +6,15 @@ const api = axios.create({
   withCredentials: true
 })
 
+api.interceptors.request.use(request => {
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+  if (csrfToken) {
+    request.headers['csrf-token'] = csrfToken
+  }
+
+  return request
+})
+
 /**
  * Takes an error returned by the app's API (as returned by axios), and transforms into a more
  * standard format to be further used by the client. It is also assumed that given API

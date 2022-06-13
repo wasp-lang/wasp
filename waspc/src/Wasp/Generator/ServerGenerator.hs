@@ -136,7 +136,8 @@ depsRequiredBySessions spec =
         if isAuthEnabled spec
           then
             [ ("express-session", "~1.17.3"),
-              ("@quixo3/prisma-session-store", "~3.1.5")
+              ("@quixo3/prisma-session-store", "~3.1.5"),
+              ("csurf", "~1.11.0")
             ]
           else []
    in AS.Dependency.make <$> deps
