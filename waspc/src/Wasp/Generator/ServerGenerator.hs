@@ -51,6 +51,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
+import qualified Wasp.Util as Util
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -246,7 +247,7 @@ genSessionJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
     sessionEntityName = AS.Auth.getSessionEntityName (AS.App.auth (snd $ getApp spec))
     tmplData =
       object
-        [ "sessionEntityName" .= sessionEntityName
+        [ "sessionEntityNameLower" .= Util.toLowerFirst sessionEntityName
         ]
     sessionFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     sessionFileInSrcDir = [relfile|session.js|]

@@ -18,7 +18,7 @@ const sess = {
     maxAge: config.session.cookie.maxAge,
   },
   store: new PrismaSessionStore(prisma, {
-    sessionModelName: "{= sessionEntityName =}",
+    sessionModelName: "{= sessionEntityNameLower =}",
     checkPeriod: 2 * 60 * 1000,  //ms
     dbRecordIdIsSessionId: true,
     dbRecordIdFunction: undefined
