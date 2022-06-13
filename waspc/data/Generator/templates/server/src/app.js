@@ -1,3 +1,4 @@
+{{={= =}=}}
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
@@ -7,7 +8,9 @@ import helmet from 'helmet'
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
 import config from './config.js'
+{=# isAuthEnabled =}
 import { useSession } from './session.js'
+{=/ isAuthEnabled =}
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
 //   it can be used in unit tests to test each route individually.
@@ -25,7 +28,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
+{=# isAuthEnabled =}
+// TODO: Add CSRF protection.
 useSession(app)
+{=/ isAuthEnabled =}
 
 app.use('/', indexRouter)
 

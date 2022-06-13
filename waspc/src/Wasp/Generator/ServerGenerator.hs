@@ -25,6 +25,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -112,15 +113,14 @@ npmDepsForWasp spec =
             ("cors", "^2.8.5"),
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
-            ("express-session", "~1.17.3"),
-            ("@quixo3/prisma-session-store", "~3.1.5"),
             ("morgan", "~1.9.1"),
             ("@prisma/client", show prismaVersionBounds),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
-          ++ depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec
+          ++ depsRequiredBySessions spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
@@ -128,6 +128,17 @@ npmDepsForWasp spec =
             ("prisma", show prismaVersionBounds)
           ]
     }
+
+depsRequiredBySessions :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredBySessions spec =
+  let deps =
+        if isAuthEnabled spec
+          then
+            [ ("express-session", "~1.17.3"),
+              ("@quixo3/prisma-session-store", "~3.1.5")
+            ]
+          else []
+   in AS.Dependency.make <$> deps
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -161,14 +172,14 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
+    [ copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|session.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genAppJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
@@ -214,6 +225,18 @@ genServerJs spec =
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+genAppJs :: AppSpec -> Generator FileDraft
+genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel appFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> appFileInSrcDir
+    tmplData =
+      object
+        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+        ]
+    appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    appFileInSrcDir = [relfile|app.js|]
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

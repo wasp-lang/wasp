@@ -5,15 +5,15 @@ import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 
 const auth = handleRejection(async (req, res, next) => {
-  const session = req.session
-  if (!session || !session.user_id) {
-    // NOTE(matija): for now we let sessionless requests through and make it operation's
+  const user_id = req?.session?.user_id
+  if (!user_id) {
+    // NOTE: for now we let requests without a user_id in the session through and make it operation's
     // responsibility to verify whether the request is authenticated or not. In the future
     // we will develop our own system at Wasp-level for that.
     return next()
   }
 
-  const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: session.user_id } })
+  const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: user_id } })
   if (!user) {
     return res.status(401).send()
   }

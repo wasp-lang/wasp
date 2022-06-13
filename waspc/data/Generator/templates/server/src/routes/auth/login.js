@@ -28,16 +28,16 @@ export default handleRejection(async (req, res, next) => {
       return res.status(401).send()
   }
 
-  // regenerate the session, which is good practice to help
-  // guard against forms of session fixation
+  // Regenerate the session, which is good practice to help
+  // guard against forms of session fixation. Ref: Express docs.
   req.session.regenerate(function (err) {
     if (err) next(err)
 
-    // Save user id in session for future request use.
+    // Save user_id in session for future request use.
     req.session.user_id = {= userEntityLower =}.id
 
-    // save the session before redirection to ensure page
-    // load does not happen before session is saved
+    // Save the session before redirection to ensure page
+    // load does not happen before session is saved.
     req.session.save(function (err) {
       if (err) return next(err)
       return res.status(200).send()

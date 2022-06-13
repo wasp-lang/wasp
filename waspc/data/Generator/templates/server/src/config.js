@@ -13,6 +13,7 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    {=# isAuthEnabled =}
     session: {
       name: process.env.SESSION_NAME || 'wasp',
       secret: undefined,
@@ -20,18 +21,23 @@ const config = {
         maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms
       }, 
     },
+    {=/ isAuthEnabled =}
     frontendUrl: undefined,
   },
   development: {
+    {=# isAuthEnabled =}
     session: {
       secret: process.env.SESSION_SECRET || 'sessionSecret',
     },
+    {=/ isAuthEnabled =}
     frontendUrl: process.env.REACT_APP_URL || 'http://localhost:3000',
   },
   production: {
+    {=# isAuthEnabled =}
     session: {
       secret: process.env.SESSION_SECRET,
     },
+    {=/ isAuthEnabled =}
     frontendUrl: process.env.REACT_APP_URL,
   }
 }
