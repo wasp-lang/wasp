@@ -14,3 +14,12 @@ generator client {
 {=# modelSchemas =}
 {=& . =}
 {=/ modelSchemas =}
+
+{=# isAuthEnabled =}
+model Session {
+  id String @id
+  sid String @unique
+  data String
+  expiresAt DateTime
+}
+{=/ isAuthEnabled =}

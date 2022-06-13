@@ -18,7 +18,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
@@ -58,7 +58,8 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String)
+            "datasourceUrl" .= (datasourceUrl :: String),
+            "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
           ]
 
   return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
