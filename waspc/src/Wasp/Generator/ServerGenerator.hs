@@ -29,9 +29,9 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.App.Server as AS.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -173,13 +173,13 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|session.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec,
-      genAppJs spec
+      genAppJs spec,
+      genSessionJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
@@ -202,7 +202,7 @@ genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
         then
           object
             [ "isAuthEnabled" .= True,
-              "userEntityUpper" .= (AS.refName (AS.App.Auth.userEntity $ fromJust maybeAuth) :: String)
+              "userEntityUpper" .= (AS.refName (AS.Auth.userEntity $ fromJust maybeAuth) :: String)
             ]
         else object []
 
@@ -221,7 +221,7 @@ genServerJs spec =
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeSetupJsFunction = AS.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
@@ -237,6 +237,19 @@ genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
         ]
     appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     appFileInSrcDir = [relfile|app.js|]
+
+genSessionJs :: AppSpec -> Generator FileDraft
+genSessionJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel sessionFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> sessionFileInSrcDir
+    sessionEntityName = AS.Auth.getSessionEntityName (AS.App.auth (snd $ getApp spec))
+    tmplData =
+      object
+        [ "sessionEntityName" .= sessionEntityName
+        ]
+    sessionFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    sessionFileInSrcDir = [relfile|session.js|]
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

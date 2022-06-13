@@ -14,8 +14,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App as App
-import qualified Wasp.AppSpec.App.Auth as Auth
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
@@ -35,7 +34,8 @@ validateAppSpec spec =
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec,
-          validateDbIsPostgresIfPgBossUsed spec
+          validateDbIsPostgresIfPgBossUsed spec,
+          validateSessionEntityNameIsUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -69,13 +69,13 @@ validateDbIsPostgresIfPgBossUsed spec =
     else []
 
 validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case AS.App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
-    if Auth.EmailAndPassword `notElem` Auth.methods auth
+    if AS.Auth.EmailAndPassword `notElem` AS.Auth.methods auth
       then []
       else
-        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+        let userEntity = snd $ AS.resolveRef spec (AS.Auth.userEntity auth)
             userEntityFields = Entity.getFields userEntity
             maybeEmailField = find ((== "email") . Entity.Field.fieldName) userEntityFields
             maybePasswordField = find ((== "password") . Entity.Field.fieldName) userEntityFields
@@ -96,6 +96,18 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case A
                     ]
               ]
 
+validateSessionEntityNameIsUnique :: AppSpec -> [ValidationError]
+validateSessionEntityNameIsUnique spec =
+  if sessionEntityName `elem` entityNames
+    then
+      [ GenericValidationError $
+          "Expected Session Entity name ('" ++ sessionEntityName ++ "') to be unique, but this name was used by a different Entity."
+      ]
+    else []
+  where
+    sessionEntityName = AS.Auth.getSessionEntityName (AS.App.auth (snd $ getApp spec))
+    entityNames = fst <$> AS.getEntities spec
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.
@@ -109,7 +121,7 @@ getApp spec = case takeDecls @App (AS.decls spec) of
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isAuthEnabled :: AppSpec -> Bool
-isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
+isAuthEnabled spec = isJust (AS.App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool

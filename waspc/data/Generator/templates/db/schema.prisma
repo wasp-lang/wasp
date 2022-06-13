@@ -16,7 +16,7 @@ generator client {
 {=/ modelSchemas =}
 
 {=# isAuthEnabled =}
-model Session {
+model {= sessionEntityName =} {
   id String @id
   sid String @unique
   data String

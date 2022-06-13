@@ -16,6 +16,7 @@ import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -59,7 +60,8 @@ genPrismaSchema spec = do
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= (datasourceProvider :: String),
             "datasourceUrl" .= (datasourceUrl :: String),
-            "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+            "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+            "sessionEntityName" .= sessionEntityName
           ]
 
   return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
@@ -67,6 +69,7 @@ genPrismaSchema spec = do
     dstPath = dbSchemaFileInProjectRootDir
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+    sessionEntityName = AS.Auth.getSessionEntityName (AS.App.auth (snd $ getApp spec))
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
