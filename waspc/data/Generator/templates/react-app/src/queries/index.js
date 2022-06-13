@@ -9,8 +9,9 @@ export function useQuery(queryFn, queryFnArgs, options) {
     throw new TypeError('queryFn needs to have queryCacheKey property defined.')
   }
 
+
   return rqUseQuery({
-    queryKey: [queryFn.queryCacheKey, queryFnArgs],
+    queryKey: [queryFn.queryCacheKey, ...queryFnArgs ?? []],
     queryFn: () => queryFn(queryFnArgs),
     ...options
   })
