@@ -12,21 +12,5 @@ adjusting this line in `cabal.project`.
 
 ## Usage
 
-Use in any place an LSP server can be used. Usage:
-
-```
-Usage: waspls [version] [-v|--version] [--log LOG_FILE] [--stdio]
-
-  LSP Server for the Wasp language
-
-Available options:
-  -h,--help                Show this help text
-  -v,--version             Display version
-  --log LOG_FILE           Write log output to this file, if present. If set to
-                           `[OUTPUT]`, log output is sent to the LSP client.
-  --stdio                  Use stdio (this flag is ignored, stdio is always
-                           used)
-
-Available commands:
-  version                  Display version
-```
+Use in any place an LSP server can be used. Run `waspls --help` for usage
+information.

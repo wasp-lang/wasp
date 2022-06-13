@@ -1,5 +1,7 @@
 {-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExplicitNamespaces #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Wasp.LSP.Server
   ( run,
@@ -13,9 +15,7 @@ import qualified Control.Monad.Trans.State.Strict as State
 import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
 import qualified Data.Text as Text
-import Language.LSP.Server (Options (..), ServerDefinition (..), type (<~>) (..))
 import qualified Language.LSP.Server as LSP
-import Language.LSP.Types (TextDocumentSyncOptions (..))
 import qualified Language.LSP.Types as J
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
@@ -24,35 +24,22 @@ import Wasp.LSP.State (HandlerM, ServerConfig, Severity (..), State)
 
 run :: Maybe FilePath -> IO ()
 run maybeLogFile = do
+  -- Setup DEBUG logger. Logs at other levels are ignored.
   case maybeLogFile of
-    Nothing -> pure ()
-    Just "[OUTPUT]" -> LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
-    file -> LSP.setupLogger file [] System.Log.Logger.DEBUG
+    Nothing ->
+      -- Don't set up any logger: logs are not output anywhere
+      pure ()
+    Just "[OUTPUT]" ->
+      -- Send log messages at "DEBUG" level to the LSP client
+      LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
+    file ->
+      -- Send log messages at "DEBUG" level to the file path given
+      LSP.setupLogger file [] System.Log.Logger.DEBUG
 
   state <- MVar.newMVar (def :: State)
 
-  let opts =
-        def
-          { textDocumentSync = Just syncOptions,
-            completionTriggerCharacters = Just [':']
-          }
-
-  let initialize env _req = return (Right env)
-
-  let onConfigChange _oldConfig json =
-        case Aeson.fromJSON json of
-          Aeson.Success config -> Right config
-          Aeson.Error string -> Left (Text.pack string)
-
-  let handlers =
-        mconcat
-          [ initializedHandler,
-            didOpenHandler,
-            didSaveHandler,
-            didChangeHandler
-          ]
-
-  let interpret env = Iso {forward = runHandler, backward = liftIO}
+  let lspServerInterpretHandler env =
+        LSP.Iso {forward = runHandler, backward = liftIO}
         where
           runHandler :: HandlerM a -> IO a
           runHandler handler =
@@ -83,25 +70,59 @@ run maybeLogFile = do
 
   exitCode <-
     LSP.runServer
-      ServerDefinition
+      LSP.ServerDefinition
         { defaultConfig = def :: ServerConfig,
-          onConfigurationChange = onConfigChange,
-          doInitialize = initialize,
-          staticHandlers = handlers,
-          interpretHandler = interpret,
-          options = opts
+          onConfigurationChange = lspServerOnConfigChange,
+          doInitialize = lspServerDoInitialize,
+          staticHandlers = lspServerHandlers,
+          interpretHandler = lspServerInterpretHandler,
+          options = lspServerOptions
         }
 
   case exitCode of
     0 -> return ()
     n -> exitWith (ExitFailure n)
 
-syncOptions :: TextDocumentSyncOptions
+lspServerOnConfigChange :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
+lspServerOnConfigChange _oldConfig json =
+  case Aeson.fromJSON json of
+    Aeson.Success config -> Right config
+    Aeson.Error string -> Left (Text.pack string)
+
+lspServerDoInitialize ::
+  LSP.LanguageContextEnv ServerConfig ->
+  J.Message 'J.Initialize ->
+  IO (Either J.ResponseError (LSP.LanguageContextEnv ServerConfig))
+lspServerDoInitialize env _req = return (Right env)
+
+lspServerOptions :: LSP.Options
+lspServerOptions =
+  (def :: LSP.Options)
+    { LSP.textDocumentSync = Just syncOptions,
+      LSP.completionTriggerCharacters = Just [':']
+    }
+
+lspServerHandlers :: LSP.Handlers HandlerM
+lspServerHandlers =
+  mconcat
+    [ initializedHandler,
+      didOpenHandler,
+      didSaveHandler,
+      didChangeHandler
+    ]
+
+syncOptions :: J.TextDocumentSyncOptions
 syncOptions =
-  TextDocumentSyncOptions
-    { _openClose = Just True,
+  J.TextDocumentSyncOptions
+    { -- Send open/close notifications be sent to the server.
+      _openClose = Just True,
+      -- Keep a copy of text documents contents in the VFS. When the document is
+      -- changed, only send the updates instead of the entire contents.
       _change = Just J.TdSyncIncremental,
+      -- Don't send will-save notifications to the server.
       _willSave = Just False,
+      -- Don't send will-save-wait-until notifications to the server.
       _willSaveWaitUntil = Just False,
-      _save = Just (J.InR (J.SaveOptions (Just False)))
+      -- Don't send save notifications to the server.
+      _save = Just (J.InR (J.SaveOptions (Just True)))
     }

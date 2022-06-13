@@ -37,7 +37,7 @@ parseOptions = Options <$> parseMode <*> parseVersion <*> optional parseLogFile 
     parseLogFile =
       strOption
         ( long "log"
-            <> help "Write log output to this file, if present. If set to `[OUTPUT]`, log output is sent to the LSP client."
+            <> help "Write log output to this file, if present. If not present, no logs are written. If set to `[OUTPUT]`, log output is sent to the LSP client."
             <> action "file"
             <> metavar "LOG_FILE"
         )
@@ -46,7 +46,7 @@ parseOptions = Options <$> parseMode <*> parseVersion <*> optional parseLogFile 
       switch
         ( long "version"
             <> short 'v'
-            <> help "Display version"
+            <> help "Display version and exit"
         )
 
     -- vscode passes this option to the language server. waspls always uses stdio,
@@ -62,5 +62,5 @@ parseOptions = Options <$> parseMode <*> parseVersion <*> optional parseLogFile 
     versionCommand =
       command
         "version"
-        (info (pure Version) (fullDesc <> progDesc "Display version"))
+        (info (pure Version) (fullDesc <> progDesc "Display version and exit"))
         <> metavar "version"

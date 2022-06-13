@@ -8,7 +8,7 @@ where
 
 import Control.Lens ((+~), (^.))
 import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Except (catchE, throwE)
+import Control.Monad.Trans.Except (throwE)
 import Data.Function ((&))
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -21,41 +21,45 @@ import qualified Wasp.Analyzer
 import qualified Wasp.Analyzer.AnalyzeError as WE
 import Wasp.Analyzer.Parser (Ctx (Ctx))
 import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.LSP.State (HandlerM, ServerConfig, Severity (..), State)
+import Wasp.LSP.State (HandlerM, ServerConfig, Severity (..))
 
-liftLSP :: LspT ServerConfig IO a -> HandlerM a
-liftLSP m = lift (lift m)
+-- LSP notification and request handlers
 
-readUri :: Uri -> HandlerM Text
-readUri _uri = do
-  mVirtualFile <- liftLSP $ LSP.getVirtualFile $ toNormalizedUri _uri
-  case mVirtualFile of
-    Just virtualFile -> return $ virtualFileText virtualFile
-    Nothing -> throwE (Error, "Could not find " <> T.pack (show _uri) <> " in VFS.")
-
-extractUri :: (HasParams a b, HasTextDocument b c, HasUri c Uri) => a -> Uri
-extractUri = (^. (params . textDocument . uri))
-
+-- | "Initialized" notification is sent when the client is started. We don't
+-- have anything we need to do at initialization, but this is required to be
+-- implemented.
 initializedHandler :: Handlers HandlerM
 initializedHandler =
   LSP.notificationHandler SInitialized $ \_ -> return ()
 
+-- | "TextDocumentDidOpen" is sent by the client when a new document is opened.
+-- This handler then runs the `diagnosticsHandler`.
 didOpenHandler :: Handlers HandlerM
 didOpenHandler =
   LSP.notificationHandler STextDocumentDidOpen $ diagnosticsHandler . extractUri
 
--- TODO: is performance bad doing this on every change?
+-- | "TextDocumentDidChange" is sent by the client when a document is changed
+-- (i.e. when the user types/deletes text). This handler then runs the
+-- `diagnosticsHandler`.
 didChangeHandler :: Handlers HandlerM
 didChangeHandler =
   LSP.notificationHandler STextDocumentDidChange $ diagnosticsHandler . extractUri
 
+-- | "TextDocumentDidSave" is sent by the client when a document is saved. This
+-- handler then runs the `diagnosticsHandler`.
 didSaveHandler :: Handlers HandlerM
 didSaveHandler =
   LSP.notificationHandler STextDocumentDidSave $ diagnosticsHandler . extractUri
 
+-- | Does not directly handle a notification or event, but should be run
+-- text document content changes.
+--
+-- It analyzes the document contents and sends any error messages back to the
+-- LSP client. In the future, it will also store information about the analyzed
+-- file in "Wasp.LSP.State.State".
 diagnosticsHandler :: Uri -> HandlerM ()
 diagnosticsHandler _uri = do
-  src <- readUri _uri
+  src <- readVFSFile _uri
   let analyzeResult = Wasp.Analyzer.analyze $ T.unpack src
   diags <- case analyzeResult of
     -- Valid wasp file, send no diagnostics
@@ -92,27 +96,28 @@ diagnosticsHandler _uri = do
     ctxToRange (Ctx region) =
       Range
         { _start = sourcePositionToPosition (getRgnStart region),
+          -- Increment end character by 1: Wasp uses an inclusive convention for
+          -- the end position, but LSP considers end position to not be part of
+          -- the range.
           _end = sourcePositionToPosition (getRgnEnd region) & character +~ (1 :: UInt)
         }
 
     sourcePositionToPosition (WE.SourcePosition l c) =
       Position (fromIntegral $ l - 1) (fromIntegral $ c - 1)
 
-handleErrorWithDefault :: (Either a b -> HandlerM c) -> b -> HandlerM c -> HandlerM c
-handleErrorWithDefault respond _def = flip catchE handler
-  where
-    handler (Log, _message) = do
-      liftLSP $
-        LSP.sendNotification SWindowLogMessage $
-          LogMessageParams {_xtype = MtLog, _message = _message}
-      respond (Right _def)
-    handler (_severity, _message) = do
-      let _xtype = case _severity of
-            Error -> MtError
-            Warning -> MtWarning
-            Info -> MtInfo
-            Log -> MtLog
-      liftLSP $
-        LSP.sendNotification SWindowShowMessage $
-          ShowMessageParams {_xtype = _xtype, _message = _message}
-      respond (Right _def)
+-- | Run a LSP function in the "HandlerM" monad.
+liftLSP :: LspT ServerConfig IO a -> HandlerM a
+liftLSP m = lift (lift m)
+
+-- | Read the contents of a "Uri" in the virtual file system maintained by the
+-- LSP library.
+readVFSFile :: Uri -> HandlerM Text
+readVFSFile _uri = do
+  mVirtualFile <- liftLSP $ LSP.getVirtualFile $ toNormalizedUri _uri
+  case mVirtualFile of
+    Just virtualFile -> return $ virtualFileText virtualFile
+    Nothing -> throwE (Error, "Could not find " <> T.pack (show _uri) <> " in VFS.")
+
+-- | Get the "Uri" from an object that has a "TextDocument".
+extractUri :: (HasParams a b, HasTextDocument b c, HasUri c Uri) => a -> Uri
+extractUri = (^. (params . textDocument . uri))
