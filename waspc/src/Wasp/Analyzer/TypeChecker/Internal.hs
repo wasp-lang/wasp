@@ -195,8 +195,8 @@ unifyTypes t@(DictType dict1EntryTypes) texpr@(WithCtx _ (Dict dict2Entries (Dic
     annotateError key = left (TypeCoercionError texpr t . ReasonDictWrongKeyType key)
 unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
 
--- | Checks that a typed expression is a subtype of a given type.
--- If it isn't, it returns an error.
+-- | Checks that a typed expression is a subtype of a given type. If it isn't,
+-- it returns an error.
 isSubTypeOf :: WithCtx TypedExpr -> Type -> Either TypeCoercionError ()
 isSubTypeOf (WithCtx _ texpr) t | exprType texpr == t = return ()
 -- Apply [AnyList]: An empty list is subtype of any list type
@@ -205,6 +205,9 @@ isSubTypeOf (WithCtx _ (List [] EmptyListType)) (ListType _) = return ()
 -- - @t@ is of the form @ListType elemType@
 -- - Every value in the list is subtype of type @elemType@
 isSubTypeOf texprwc@(WithCtx _ ((List elems _))) (ListType elemType) =
+  -- To get more detailed error messages, instead of only comparing list types
+  -- directly, we recurisvely check the subtype relationship for each list
+  -- element.
   annotateError $ mapM_ (`isSubTypeOf` elemType) elems
   where
     annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
@@ -213,6 +216,20 @@ isSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType entryTypes) = do
   mapM_ ensureAllRequiredEntriesExist $ M.toList entryTypes
   where
     -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
+    -- Checks whether an entry in a given dictionary typed expression has a
+    -- matching entry in expected dict type.  where matching entry is an entry
+    -- with the same key and whose value's type is a supertype in the expected
+    -- dict type and if the entry's value is of expected type
+    getExpectedTypeOfEntry :: Identifier -> Either TypeCoercionError Type
+    getExpectedTypeOfEntry key = case M.lookup key entryTypes of
+      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
+      Just typ -> return typ 
+    isDictEntrySubtypeOf :: (Identifier, WithCtx TypedExpr) -> Type -> Either TypeCoercionError ()
+    isDictEntrySubtypeOf (key, entryExpr) expectedType = 
+      annotateKeyTypeError key (isSubTypeOf (dictEntryType entryExpr) expectedType)
+    checkEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
+    checkEntry entry = (entry `isDictEntrySubtypeOf`) =<< getExpectedTypeOfEntry entry
+
     isEntrySubType :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
     isEntrySubType (key, value) = case M.lookup key entryTypes of
       -- @key@ is missing from @typ'@ => extra keys are not allowed
