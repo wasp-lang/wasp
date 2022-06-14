@@ -29,6 +29,7 @@ data TypeError'
   -- | Type coercion error that occurs when trying to "weaken" the typed expression from its type T1 to some type T2.
   -- If T2 is super type of T1 and T1 can be safely coerced to T2, "weaken" will succeed, but if not, we get this error.
   -- We use "weaken" in the TypeChecker when trying to match inferred type of typed expression with some expected type.
+  -- TODO: Rename from Weaken to smth else since we don't have concept of weaken anymore.
   | WeakenError         TypeCoercionError
   | NoDeclarationType   TypeName
   | UndefinedIdentifier Identifier

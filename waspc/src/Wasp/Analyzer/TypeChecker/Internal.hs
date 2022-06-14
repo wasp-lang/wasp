@@ -68,7 +68,7 @@ checkStmt (P.WithCtx ctx (P.Decl typeName name expr)) =
     Just (TD.DeclType _ expectedType _) -> do
       -- Decides whether the argument to the declaration has the correct type
       typedExpr <- inferExprType expr
-      case typedExpr `isSubTypeOf` expectedType of
+      case typedExpr `checkIsSubTypeOf` expectedType of
         Left e -> throw $ mkTypeError ctx $ WeakenError e
         Right () -> return $ WithCtx ctx $ Decl name typedExpr (DeclType typeName)
 
@@ -197,47 +197,35 @@ unifyTypes t texpr = Left $ TypeCoercionError texpr t ReasonUncoercable
 
 -- | Checks that a typed expression is a subtype of a given type. If it isn't,
 -- it returns an error.
-isSubTypeOf :: WithCtx TypedExpr -> Type -> Either TypeCoercionError ()
-isSubTypeOf (WithCtx _ texpr) t | exprType texpr == t = return ()
+checkIsSubTypeOf :: WithCtx TypedExpr -> Type -> Either TypeCoercionError ()
+checkIsSubTypeOf (WithCtx _ texpr) t | exprType texpr == t = return ()
 -- Apply [AnyList]: An empty list is subtype of any list type
-isSubTypeOf (WithCtx _ (List [] EmptyListType)) (ListType _) = return ()
+checkIsSubTypeOf (WithCtx _ (List [] EmptyListType)) (ListType _) = return ()
 -- A non-empty list is subtype of type @t@ if
 -- - @t@ is of the form @ListType elemType@
 -- - Every value in the list is subtype of type @elemType@
-isSubTypeOf texprwc@(WithCtx _ ((List elems _))) (ListType elemType) =
+checkIsSubTypeOf texprwc@(WithCtx _ ((List elems _))) (ListType elemType) =
   -- To get more detailed error messages, instead of only comparing list types
   -- directly, we recurisvely check the subtype relationship for each list
   -- element.
-  annotateError $ mapM_ (`isSubTypeOf` elemType) elems
+  annotateError $ mapM_ (`checkIsSubTypeOf` elemType) elems
   where
     annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
-isSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType entryTypes) = do
-  mapM_ isEntrySubType entries
-  mapM_ ensureAllRequiredEntriesExist $ M.toList entryTypes
+checkIsSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType expectedEntryTypes) = do
+  mapM_ checkEntry entries
+  mapM_ ensureAllRequiredEntriesExist $ M.toList expectedEntryTypes
   where
-    -- Tries to apply [DictSome] and [DictNone] rules to the entries of the dict
-    -- Checks whether an entry in a given dictionary typed expression has a
-    -- matching entry in expected dict type.  where matching entry is an entry
-    -- with the same key and whose value's type is a supertype in the expected
-    -- dict type and if the entry's value is of expected type
-    getExpectedTypeOfEntry :: Identifier -> Either TypeCoercionError Type
-    getExpectedTypeOfEntry key = case M.lookup key entryTypes of
-      Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
-      Just typ -> return typ 
-    isDictEntrySubtypeOf :: (Identifier, WithCtx TypedExpr) -> Type -> Either TypeCoercionError ()
-    isDictEntrySubtypeOf (key, entryExpr) expectedType = 
-      annotateKeyTypeError key (isSubTypeOf (dictEntryType entryExpr) expectedType)
     checkEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
-    checkEntry entry = (entry `isDictEntrySubtypeOf`) =<< getExpectedTypeOfEntry entry
+    checkEntry entry@(key, _) = getExpectedTypeOfEntry key >>= (entry `checkIsDictEntrySubtypeOf`)
 
-    isEntrySubType :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
-    isEntrySubType (key, value) = case M.lookup key entryTypes of
-      -- @key@ is missing from @typ'@ => extra keys are not allowed
+    getExpectedTypeOfEntry :: Identifier -> Either TypeCoercionError DictEntryType
+    getExpectedTypeOfEntry key = case M.lookup key expectedEntryTypes of
       Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictExtraKey key)
-      -- @key@ is required and present => only need to check the value's type is sub type of expected type.
-      Just (DictRequired valueTyp) -> annotateKeyTypeError key (isSubTypeOf value valueTyp)
-      -- @key@ is optional and present => check that value's type is sub type of expected type + use [DictSome]
-      Just (DictOptional valueTyp) -> annotateKeyTypeError key (isSubTypeOf value valueTyp)
+      Just typ -> return typ
+
+    checkIsDictEntrySubtypeOf :: (Identifier, WithCtx TypedExpr) -> DictEntryType -> Either TypeCoercionError ()
+    checkIsDictEntrySubtypeOf (key, entryExpr) expectedEntryType =
+      annotateKeyTypeError key (entryExpr `checkIsSubTypeOf` dictEntryType expectedEntryType)
 
     -- Checks that all DictRequired entries in typ' exist in entries
     ensureAllRequiredEntriesExist :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
@@ -249,4 +237,4 @@ isSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType entryTypes) = do
     -- Wraps a ReasonDictWrongKeyType error around a type error
     annotateKeyTypeError :: String -> Either TypeCoercionError a -> Either TypeCoercionError a
     annotateKeyTypeError key = left (TypeCoercionError texprwc t . ReasonDictWrongKeyType key)
-isSubTypeOf expr typ' = Left $ TypeCoercionError expr typ' ReasonUncoercable
+checkIsSubTypeOf expr typ' = Left $ TypeCoercionError expr typ' ReasonUncoercable
