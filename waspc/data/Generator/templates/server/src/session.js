@@ -15,7 +15,6 @@ const sessionConfig = {
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    // TODO: Use sameSite?
     maxAge: config.session.cookie.maxAge,
   },
   store: new PrismaSessionStore(prisma, {
@@ -36,7 +35,9 @@ const csrfConfig = {
 export function useSession(app) {
   if (config.env === 'production') {
     sessionConfig.cookie.secure = true
-    csurfConfig.cookie.secure = true
+    sessionConfig.cookie.sameSite = 'none'
+    csrfConfig.cookie.secure = true
+    csrfConfig.cookie.sameSite = 'none'
   }
 
   app.use(session(sessionConfig))

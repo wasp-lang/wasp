@@ -15,6 +15,7 @@ router.get('/', function (req, res, next) {
 {=# isAuthEnabled =}
 router.use('/auth', auth)
 
+// TODO: ensure this only can be requested by frontend
 router.get('/csrf-token', function (req, res) {
   res.json(req.csrfToken())
 })

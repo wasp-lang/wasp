@@ -36,7 +36,10 @@ async function startApp() {
   serviceWorker.unregister()
 }
 
-// TODO: Chat on options. Pretty hacky.
+// NOTE: Since users will likely have the backend running on a different domain than
+// the frontend, we are unable to set the token:
+// (a) on the page load, as the index.html is not served by Node, nor
+// (b) via a cookie, since the frontend JS will not be able to access a cross-domain cookie.
 async function setCsrfToken() {
   const token = await api.get(config.apiUrl + '/csrf-token')
 

@@ -18,6 +18,7 @@ import { useSession } from './session.js'
 const app = express()
 
 app.use(helmet())
+// TODO: review PR that concerns this.
 app.use(cors({
   origin: config.frontendUrl,
   methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
