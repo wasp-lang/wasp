@@ -8,20 +8,35 @@ export function useAction(actionFn, options) {
   const queryClient = useQueryClient();
   // todo: remove this
   window.queryClient = queryClient;
-  const optimisticUpdate = options && options.optimisticUpdate ?
-    getOptimisticUpdateFunctions(queryClient, options.optimisticUpdate) : {};
 
-  return useMutation(actionFn, {
+  const {
+    mutationFn,
+    optimisticUpdate
+  } = options && options.optimisticUpdate ?
+      parseOptimisticUpdate(queryClient, actionFn, options.optimisticUpdate) : {
+        mutationFn: actionFn,
+        optimisticUpdate: {}
+      };
+
+  return useMutation(mutationFn, {
     ...optimisticUpdate,
   })
 }
 
-export function getOptimisticUpdateFunctions(queryClient, optimisticUpdate) {
+// todo: come up with a better name
+function parseOptimisticUpdate(queryClient, actionFn, optimisticUpdate) {
   const {
     // how to make sure this is a query, a global query database?
     getQuery,
     updateFn
   } = optimisticUpdate
+
+  function mutationFn(args) {
+    const key = getQuery(args)
+    return actionFn.internal(args, {
+      optimisticallyUpdatedCacheKeys: [key]
+    })
+  }
 
   async function onMutate(item) {
     const query = getQuery(item)
@@ -38,7 +53,10 @@ export function getOptimisticUpdateFunctions(queryClient, optimisticUpdate) {
   }
 
   return {
-    onMutate,
-    onError,
+    mutationFn,
+    optimisticUpdate: {
+      onMutate,
+      onError,
+    }
   }
 }

@@ -26,20 +26,19 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
     cacheKeys.add(queryCacheKey)
   }
 }
-export function registerActionInProgress(resources) {
-  const queriesUsingResources = getQueriesUsingResources(resources)
-  queriesUsingResources.forEach(
+export function registerActionInProgress(optimisticallyUpdatedCacheKeys) {
+  optimisticallyUpdatedCacheKeys.forEach(
     queryCacheKey => actionCounter.increment(queryCacheKey)
   )
 }
 
-export async function registerActionDone(resources) {
-  const queriesUsingResources = getQueriesUsingResources(resources)
-  queriesUsingResources.forEach(
+export async function registerActionDone(resources, optimisticallyUpdatedCacheKeys) {
+  optimisticallyUpdatedCacheKeys.forEach(
     queryCacheKey => actionCounter.decrement(queryCacheKey)
   )
   await invalidateQueriesUsing(resources)
 }
+
 export async function removeQueries() {
   const queryClient = await queryClientInitialized
   queryClient.removeQueries()
@@ -71,8 +70,6 @@ async function invalidateQueriesUsing(resources) {
     queryClient.invalidateQueries(queryCacheKey)
   })
 }
-
-
 
 /**
  * @param {string} resource - Resource name.

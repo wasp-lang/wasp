@@ -1,16 +1,17 @@
-{{={= =}=}}
+{ {={= = }= } }
 import { callOperation } from '../operations'
 import * as resources from '../operations/resources'
 
-async function {= actionFnName =}(args) {
-  resources.registerActionInProgress(entitiesUsed)
+export async function internalAction(args, { optimisticallyUpdatedCacheKeys = [] }) {
+  resources.registerActionInProgress(optimisticallyUpdatedCacheKeys)
   const actionResult = await callOperation('{= actionRoute =}', args)
-  await resources.registerActionDone(entitiesUsed)
+  await resources.registerActionDone(entitiesUsed, optimisticallyUpdatedCacheKeys)
   return actionResult
 }
 
 export const entitiesUsed = {=& entitiesArray =}
 
-export default {= actionFnName =}
+const action = (args) => internalAction(args, {})
+action.internal = internalAction;
 
-
+export default action
