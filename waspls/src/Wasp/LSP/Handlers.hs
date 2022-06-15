@@ -8,7 +8,8 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Lens ((.~), (^.))
+import Control.Lens ((.~), (?~), (^.))
+import Data.List (intercalate)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers, LspT)
@@ -17,10 +18,13 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
 import Wasp.Analyzer (analyze)
-import Wasp.LSP.Diagnostic (waspErrorToDiagnostic)
+import Wasp.Backend.ConcreteParser (parseCST)
+import Wasp.Backend.ConcreteSyntax (cstPrettyPrint)
+import qualified Wasp.Backend.Lexer as L
+import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
-import Wasp.LSP.ServerState (diagnostics)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, logM, modify, throwError)
+import Wasp.LSP.ServerState (cst, diagnostics)
 
 -- LSP notification and request handlers
 
@@ -75,15 +79,28 @@ diagnoseWaspFile _uri = do
 updateState :: LSP.Uri -> ServerM ()
 updateState _uri = do
   src <- readVFSFile _uri
-  let analyzeResult = analyze $ T.unpack src
-  case analyzeResult of
-    Right _ -> do
-      modify (diagnostics .~ [])
-    Left err -> do
-      let _diagnostics =
-            [ waspErrorToDiagnostic err
-            ]
+  let srcString = T.unpack src
+  let concreteParse = parseCST $ L.lex srcString
+  -- Put CST in state
+  modify (cst ?~ snd concreteParse)
+  logM $ "[updateState] cst=\n" ++ intercalate "\n" (map (("  " ++) . cstPrettyPrint) $ snd concreteParse)
+  if not $ null $ fst concreteParse
+    then do
+      -- Errors found during concrete parsing. Replace diagnostics with new parse
+      -- diagnostics.
+      _diagnostics <- mapM (concreteParseErrorToDiagnostic srcString) $ fst concreteParse
       modify (diagnostics .~ _diagnostics)
+    else do
+      -- No concrete parse errors, run full analyzer!
+      let analyzeResult = analyze srcString
+      case analyzeResult of
+        Right _ -> do
+          modify (diagnostics .~ [])
+        Left err -> do
+          let _diagnostics =
+                [ waspErrorToDiagnostic err
+                ]
+          modify (diagnostics .~ _diagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a

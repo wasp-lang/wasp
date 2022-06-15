@@ -1,11 +1,43 @@
-module Wasp.LSP.Diagnostic (waspErrorToDiagnostic) where
+module Wasp.LSP.Diagnostic
+  ( waspErrorToDiagnostic,
+    concreteParseErrorToDiagnostic,
+  )
+where
 
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
+import qualified Wasp.Backend.ParseError as C
+import Wasp.LSP.ServerM (ServerM, logM)
 import Wasp.LSP.Util (waspSourceRegionToRange)
+
+concreteParseErrorToDiagnostic :: String -> C.ParseError -> ServerM LSP.Diagnostic
+concreteParseErrorToDiagnostic src err =
+  let _message = Text.pack $ C.showError src err
+      _source = "parse"
+      _range = concreteErrorRange err
+   in logM ("[concreteParseErroToDiagnostic] _range=" ++ show _range)
+        >> return
+          ( LSP.Diagnostic
+              { _range = _range,
+                _severity = Nothing,
+                _code = Nothing,
+                _source = Just _source,
+                _message = _message,
+                _tags = Nothing,
+                _relatedInformation = Nothing
+              }
+          )
+  where
+    concreteErrorRange e = case C.errorSpan e of
+      C.Span start end ->
+        let startPos = C.offsetToSourcePos src start
+            endPos = C.offsetToSourcePos src end
+         in LSP.Range (concretePosToLSPPos startPos) (concretePosToLSPPos endPos)
+    concretePosToLSPPos (C.SourcePos l c) =
+      LSP.Position (fromIntegral l - 1) (fromIntegral c - 1)
 
 waspErrorToDiagnostic :: W.AnalyzeError -> LSP.Diagnostic
 waspErrorToDiagnostic err =
