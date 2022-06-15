@@ -16,7 +16,7 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
-import qualified Wasp.Analyzer
+import Wasp.Analyzer (analyze)
 import Wasp.LSP.Diagnostic (waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
@@ -75,7 +75,7 @@ diagnoseWaspFile _uri = do
 updateState :: LSP.Uri -> ServerM ()
 updateState _uri = do
   src <- readVFSFile _uri
-  let analyzeResult = Wasp.Analyzer.analyze $ T.unpack src
+  let analyzeResult = analyze $ T.unpack src
   case analyzeResult of
     Right _ -> do
       modify (diagnostics .~ [])
