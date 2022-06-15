@@ -56,6 +56,7 @@ library
     Wasp.LSP.ServerM
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
+    Wasp.LSP.Completion
     Wasp.LSP.Util
     Wasp.Backend.Lexer.Internal
     Wasp.Backend.Lexer.Lexer

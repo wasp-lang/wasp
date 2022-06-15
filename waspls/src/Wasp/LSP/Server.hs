@@ -23,6 +23,16 @@ import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..))
 import Wasp.LSP.ServerState (ServerState)
 
+lspServerHandlers :: LSP.Handlers ServerM
+lspServerHandlers =
+  mconcat
+    [ initializedHandler,
+      didOpenHandler,
+      didSaveHandler,
+      didChangeHandler,
+      completionHandler
+    ]
+
 serve :: Maybe FilePath -> IO ()
 serve maybeLogFile = do
   setupLspLogger maybeLogFile
@@ -95,15 +105,6 @@ lspServerOptions =
     { LSP.textDocumentSync = Just syncOptions,
       LSP.completionTriggerCharacters = Just [':']
     }
-
-lspServerHandlers :: LSP.Handlers ServerM
-lspServerHandlers =
-  mconcat
-    [ initializedHandler,
-      didOpenHandler,
-      didSaveHandler,
-      didChangeHandler
-    ]
 
 -- | Options to tell the client how to update the server about the state of text
 -- documents in the workspace.

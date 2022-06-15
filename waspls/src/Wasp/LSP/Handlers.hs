@@ -5,6 +5,7 @@ module Wasp.LSP.Handlers
     didOpenHandler,
     didChangeHandler,
     didSaveHandler,
+    completionHandler,
   )
 where
 
@@ -21,10 +22,11 @@ import Wasp.Analyzer (analyze)
 import Wasp.Backend.ConcreteParser (parseCST)
 import Wasp.Backend.ConcreteSyntax (cstPrettyPrint)
 import qualified Wasp.Backend.Lexer as L
+import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, logM, modify, throwError)
-import Wasp.LSP.ServerState (cst, diagnostics)
+import Wasp.LSP.ServerState (cst, diagnostics, sourceString)
 
 -- LSP notification and request handlers
 
@@ -62,6 +64,12 @@ didSaveHandler :: Handlers ServerM
 didSaveHandler =
   LSP.notificationHandler LSP.STextDocumentDidSave $ diagnoseWaspFile . extractUri
 
+completionHandler :: Handlers ServerM
+completionHandler =
+  LSP.requestHandler LSP.STextDocumentCompletion $ \request respond -> do
+    completions <- getCompletionsAtPosition $ request ^. LSP.params . LSP.position
+    respond $ Right $ LSP.InL $ LSP.List completions
+
 -- | Does not directly handle a notification or event, but should be run when
 -- text document content changes.
 --
@@ -69,17 +77,18 @@ didSaveHandler =
 -- LSP client. In the future, it will also store information about the analyzed
 -- file in "Wasp.LSP.State.State".
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
-diagnoseWaspFile _uri = do
-  updateState _uri
-  _diagnostics <- gets (^. diagnostics)
+diagnoseWaspFile uri = do
+  updateState uri
+  currentDiagnostics <- gets (^. diagnostics)
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
-      LSP.PublishDiagnosticsParams _uri Nothing (LSP.List _diagnostics)
+      LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
 
 updateState :: LSP.Uri -> ServerM ()
-updateState _uri = do
-  src <- readVFSFile _uri
+updateState uri = do
+  src <- readVFSFile uri
   let srcString = T.unpack src
+  modify (sourceString .~ srcString)
   let concreteParse = parseCST $ L.lex srcString
   -- Put CST in state
   modify (cst ?~ snd concreteParse)
@@ -97,10 +106,10 @@ updateState _uri = do
         Right _ -> do
           modify (diagnostics .~ [])
         Left err -> do
-          let _diagnostics =
+          let newDiagnostics =
                 [ waspErrorToDiagnostic err
                 ]
-          modify (diagnostics .~ _diagnostics)
+          modify (diagnostics .~ newDiagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a
