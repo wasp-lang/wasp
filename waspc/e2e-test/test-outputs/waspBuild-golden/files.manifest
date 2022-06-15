@@ -4,7 +4,6 @@ waspBuild/.wasp/build/Dockerfile
 waspBuild/.wasp/build/db/schema.prisma
 waspBuild/.wasp/build/installedFullStackNpmDependencies.json
 waspBuild/.wasp/build/server/.npmrc
-waspBuild/.wasp/build/server/.nvmrc
 waspBuild/.wasp/build/server/README.md
 waspBuild/.wasp/build/server/package.json
 waspBuild/.wasp/build/server/src/app.js
@@ -26,7 +25,6 @@ waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.js
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/web-app/.npmrc
-waspBuild/.wasp/build/web-app/.nvmrc
 waspBuild/.wasp/build/web-app/README.md
 waspBuild/.wasp/build/web-app/netlify.toml
 waspBuild/.wasp/build/web-app/package.json

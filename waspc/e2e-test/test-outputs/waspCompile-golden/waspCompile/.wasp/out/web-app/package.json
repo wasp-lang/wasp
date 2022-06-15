@@ -23,9 +23,10 @@
     "uuid": "^3.4.0"
   },
   "devDependencies": {},
+  "engineStrict": true,
   "engines": {
-    "node": "^16.0.0",
-    "npm": "^8.0.0"
+    "node": "^16.0.0 <=16.15.0",
+    "npm": "^8.0.0 <=8.5.5"
   },
   "eslintConfig": {
     "extends": "react-app"

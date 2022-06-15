@@ -37,13 +37,6 @@
     [
         [
             "file",
-            "server/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "e14514b8b152dd2160a217d8fc66a710c8607c4ed1441a2148a0770701818249"
@@ -53,7 +46,7 @@
             "file",
             "server/package.json"
         ],
-        "54d8353286dae688a59458973227cfc1fae57549f49f318ddd46a1abdd716da2"
+        "66df15608f1f501f1eda942061e7b627a82a1033b0d73f8e7d00e430b6906df1"
     ],
     [
         [
@@ -198,13 +191,6 @@
     [
         [
             "file",
-            "web-app/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
-    ],
-    [
-        [
-            "file",
             "web-app/README.md"
         ],
         "aa1bd54732b015158d24c55e03bc79b2f211109bc2b0478d6f2ad6b52d15847f"
@@ -221,7 +207,7 @@
             "file",
             "web-app/package.json"
         ],
-        "1c8677831516081acee6696e3553d36b887332ccfeaad6c84fa758dcba88031e"
+        "3b3724d8f44d2a7652b6426f7e1e494031df868d23a29850afa260e67ff8da72"
     ],
     [
         [

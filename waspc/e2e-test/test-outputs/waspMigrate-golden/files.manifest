@@ -9,7 +9,6 @@ waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-migrate-checksum
 waspMigrate/.wasp/out/installedFullStackNpmDependencies.json
 waspMigrate/.wasp/out/server/.npmrc
-waspMigrate/.wasp/out/server/.nvmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/package.json
 waspMigrate/.wasp/out/server/src/app.js
@@ -31,7 +30,6 @@ waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.js
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/web-app/.npmrc
-waspMigrate/.wasp/out/web-app/.nvmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/netlify.toml
 waspMigrate/.wasp/out/web-app/package.json
