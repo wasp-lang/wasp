@@ -29,8 +29,11 @@ genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   genQueries spec
     <++> genActions spec
-    <++> return [C.mkSrcTmplFd [relfile|operations/index.js|]]
     <++> Resources.genResources spec
+    <++> return
+      [ C.mkSrcTmplFd [relfile|operations/index.js|],
+        C.mkSrcTmplFd [relfile|operations/actionCounter.js|]
+      ]
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
