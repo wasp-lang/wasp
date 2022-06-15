@@ -51,7 +51,13 @@ module Wasp.Backend.ConcreteParser.Internal
 
     -- * Future improvements
 
-    -- | While this works well in many cases, it can do what feels like the
+    -- | TODO: First "easy" place for more improvement is to add the same type
+    -- of error recovery in the "Group" parser to all other primitive parsers:
+    --
+    -- > Check if token we error on can be matched by any following parsers, if
+    -- > so, don't consume that token. Otherwise, do consume it.
+    -- 
+    -- While this works well in many cases, it can do what feels like the
     -- wrong thing in some cases. For example, consider the following invalid
     -- wasp code:
     --
@@ -196,8 +202,7 @@ doParse EOF =
       let firstTokenKind = tokenKind nextToken
       -- TODO: consider reporting all kinds here? not sure
       _tokenKinds <- collectUntilEOF
-      endOffset <- gets pstateNextOffset
-      throwError $ ParseError $ Unexpected (Span startOffset endOffset) firstTokenKind (esetSingleton Nothing)
+      throwError $ ParseError $ Unexpected (Span startOffset (startOffset + tokenWidth nextToken)) firstTokenKind (esetSingleton Nothing)
       where
         collectUntilEOF :: ParserM [TokenKind]
         collectUntilEOF =
