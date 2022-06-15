@@ -33,9 +33,7 @@ function parseOptimisticUpdate(queryClient, actionFn, optimisticUpdate) {
 
   function mutationFn(args) {
     const key = getQuery(args)
-    return actionFn.internal(args, {
-      optimisticallyUpdatedCacheKeys: [key]
-    })
+    return actionFn.internal(args, [key])
   }
 
   async function onMutate(item) {
