@@ -38,12 +38,18 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   mapM (genQuery spec) (AS.getQueries spec)
-    <++> return [C.mkSrcTmplFd [relfile|queries/index.js|]]
+    <++> return
+      [ C.mkSrcTmplFd [relfile|queries/index.js|],
+        C.mkSrcTmplFd [relfile|queries/core.js|]
+      ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   mapM (genAction spec) (AS.getActions spec)
-    <++> return [C.mkSrcTmplFd [relfile|actions/index.js|]]
+    <++> return
+      [ C.mkSrcTmplFd [relfile|actions/index.js|],
+        C.mkSrcTmplFd [relfile|actions/core.js|]
+      ]
 
 genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -53,8 +59,7 @@ genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFi
     dstFile = C.asWebAppFile $ [reldir|src/queries/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
-        [ "queryFnName" .= (queryName :: String),
-          "queryRoute"
+        [ "queryRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
                    ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
@@ -71,8 +76,7 @@ genAction _ (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile ds
     dstFile = C.asWebAppFile $ [reldir|src/actions/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
       object
-        [ "actionFnName" .= (actionName :: String),
-          "actionRoute"
+        [ "actionRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
                    ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
