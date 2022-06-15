@@ -1,5 +1,5 @@
-
 const actionCounter = new Map()
+// todo: remove
 window.actionCounter = actionCounter;
 
 export function makeActionCounter() {
