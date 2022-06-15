@@ -51,7 +51,9 @@ library
     Wasp.Backend.ConcreteParser.Internal
   other-modules:
     Paths_waspls
-    Wasp.LSP.Core
+    Wasp.LSP.ServerState
+    Wasp.LSP.ServerConfig
+    Wasp.LSP.ServerM
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Util

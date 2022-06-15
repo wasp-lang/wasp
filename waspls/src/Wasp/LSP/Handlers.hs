@@ -17,8 +17,10 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
 import qualified Wasp.Analyzer
-import Wasp.LSP.Core
 import Wasp.LSP.Diagnostic (waspErrorToDiagnostic)
+import Wasp.LSP.ServerConfig (ServerConfig)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
+import Wasp.LSP.ServerState (diagnostics)
 
 -- LSP notification and request handlers
 
@@ -65,7 +67,7 @@ didSaveHandler =
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile _uri = do
   updateState _uri
-  _diagnostics <- gets (^. Wasp.LSP.Core.diagnostics)
+  _diagnostics <- gets (^. diagnostics)
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
       LSP.PublishDiagnosticsParams _uri Nothing (LSP.List _diagnostics)
@@ -76,12 +78,12 @@ updateState _uri = do
   let analyzeResult = Wasp.Analyzer.analyze $ T.unpack src
   case analyzeResult of
     Right _ -> do
-      modify (Wasp.LSP.Core.diagnostics .~ [])
+      modify (diagnostics .~ [])
     Left err -> do
       let _diagnostics =
             [ waspErrorToDiagnostic err
             ]
-      modify (Wasp.LSP.Core.diagnostics .~ _diagnostics)
+      modify (diagnostics .~ _diagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a
@@ -94,7 +96,7 @@ readVFSFile uri = do
   mVirtualFile <- liftLSP $ LSP.getVirtualFile $ LSP.toNormalizedUri uri
   case mVirtualFile of
     Just virtualFile -> return $ virtualFileText virtualFile
-    Nothing -> throwE $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
+    Nothing -> throwError $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
 
 -- | Get the "Uri" from an object that has a "TextDocument".
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri

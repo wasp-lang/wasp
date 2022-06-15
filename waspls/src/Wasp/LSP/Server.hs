@@ -18,8 +18,10 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
-import Wasp.LSP.Core (ServerConfig, ServerError (ServerError), ServerM, ServerState, Severity (..))
 import Wasp.LSP.Handlers
+import Wasp.LSP.ServerConfig (ServerConfig)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..))
+import Wasp.LSP.ServerState (ServerState)
 
 serve :: Maybe FilePath -> IO ()
 serve maybeLogFile = do
