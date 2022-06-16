@@ -12,6 +12,7 @@ import Wasp.Backend.ConcreteSyntax
 import qualified Wasp.Backend.Lexer as L
 import Wasp.Backend.ParseError
 import qualified Wasp.Backend.Token as T
+import qualified Wasp.Backend.TokenSet as TokenSet
 
 token :: T.TokenKind -> String -> T.Token
 token kind text = T.Token {T.tokenKind = kind, T.tokenWidth = length text}
@@ -162,7 +163,7 @@ spec_ConcreteParser =
               token T.Identifier "title",
               token T.Colon ":"
             ]
-      let errors = [UnexpectedEOF 14 $ esetFromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]]
+      let errors = [UnexpectedEOF 14 $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]]
       let tree =
             node
               Program
@@ -211,7 +212,7 @@ spec_ConcreteParser =
               token T.RCurly "}"
             ]
       let errors =
-            [ Unexpected (Span 38 39) T.RCurly $ esetFromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
+            [ Unexpected (Span 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
             ]
       let tree =
             node

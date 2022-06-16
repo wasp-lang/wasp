@@ -13,32 +13,20 @@ module Wasp.Backend.ParseError
     Span (..),
     SourcePos (..),
     offsetToSourcePos,
-
-    -- * Expected set
-
-    -- | A type for saying what token kinds were expected
-    ExpectedSet,
-    esetEmpty,
-    esetMember,
-    esetInsert,
-    esetInsertKind,
-    esetUnion,
-    esetSingleton,
-    esetFromList,
   )
 where
 
 import Control.DeepSeq (NFData)
 import Data.List (intercalate)
-import Data.Set (Set)
-import qualified Data.Set as Set
 import GHC.Generics (Generic)
 import Wasp.Backend.Token (TokenKind)
 import qualified Wasp.Backend.Token as T
+import Wasp.Backend.TokenSet (TokenSet)
+import qualified Wasp.Backend.TokenSet as TokenSet
 
 data ParseError
-  = Unexpected !Span !TokenKind ExpectedSet
-  | UnexpectedEOF !Int ExpectedSet
+  = Unexpected !Span !TokenKind TokenSet
+  | UnexpectedEOF !Int TokenSet
   deriving (Eq, Ord, Show, Generic)
 
 instance NFData ParseError
@@ -65,38 +53,6 @@ offsetToSourcePos source targetOffset = reach 0 (SourcePos 1 1) source
         let sp' = SourcePos l (c + 1)
          in reach (o + 1) sp' remaining'
 
-data ExpectedSet = ExpectedSet {esetAllowEof :: Bool, esetKinds :: Set TokenKind}
-  deriving (Eq, Ord, Show, Generic)
-
-instance NFData ExpectedSet
-
-esetEmpty :: ExpectedSet
-esetEmpty = ExpectedSet {esetAllowEof = False, esetKinds = Set.empty}
-
-esetMember :: Maybe TokenKind -> ExpectedSet -> Bool
-esetMember Nothing eset = esetAllowEof eset
-esetMember (Just kind) eset = kind `Set.member` esetKinds eset
-
-esetInsertKind :: TokenKind -> ExpectedSet -> ExpectedSet
-esetInsertKind kind eset = Just kind `esetInsert` eset
-
-esetInsert :: Maybe TokenKind -> ExpectedSet -> ExpectedSet
-esetInsert Nothing eset = eset {esetAllowEof = True}
-esetInsert (Just kind) eset = eset {esetKinds = kind `Set.insert` esetKinds eset}
-
-esetUnion :: ExpectedSet -> ExpectedSet -> ExpectedSet
-esetUnion x y =
-  ExpectedSet
-    { esetAllowEof = esetAllowEof x || esetAllowEof y,
-      esetKinds = esetKinds x `Set.union` esetKinds y
-    }
-
-esetSingleton :: Maybe TokenKind -> ExpectedSet
-esetSingleton k = k `esetInsert` esetEmpty
-
-esetFromList :: [TokenKind] -> ExpectedSet
-esetFromList ks = ExpectedSet {esetAllowEof = False, esetKinds = Set.fromList ks}
-
 showError :: String -> ParseError -> String
 showError source msg =
   let (Span so eo) = errorSpan msg
@@ -114,13 +70,13 @@ showErrorMessage (UnexpectedEOF _ expecteds) =
 showErrorMessage (Unexpected _ actual expecteds) =
   "Unexpected token " ++ showTokenKind actual ++ ", " ++ showExpected expecteds
 
-showExpected :: ExpectedSet -> String
+showExpected :: TokenSet -> String
 showExpected expecteds = "expected one of " ++ showExpecteds expecteds
 
-showExpecteds :: ExpectedSet -> String
+showExpecteds :: TokenSet -> String
 showExpecteds expecteds =
-  let kindStrs = map showTokenKind $ Set.toList $ esetKinds expecteds
-      eofStrs = if esetAllowEof expecteds then ["<eof>"] else []
+  let kindStrs = map showTokenKind $ TokenSet.toList expecteds
+      eofStrs = if TokenSet.eofMember expecteds then ["<eof>"] else []
    in intercalate "," (kindStrs ++ eofStrs)
 
 showTokenKind :: TokenKind -> String

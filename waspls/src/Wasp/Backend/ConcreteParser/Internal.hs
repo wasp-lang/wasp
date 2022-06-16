@@ -56,7 +56,7 @@ module Wasp.Backend.ConcreteParser.Internal
     --
     -- > Check if token we error on can be matched by any following parsers, if
     -- > so, don't consume that token. Otherwise, do consume it.
-    -- 
+    --
     -- While this works well in many cases, it can do what feels like the
     -- wrong thing in some cases. For example, consider the following invalid
     -- wasp code:
@@ -91,6 +91,8 @@ import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.Backend.ParseError
 import Wasp.Backend.Token (Token (tokenKind, tokenWidth), TokenKind, tokenKindIsTrivia)
 import qualified Wasp.Backend.Token as T
+import Wasp.Backend.TokenSet (TokenSet)
+import qualified Wasp.Backend.TokenSet as TokenSet
 
 -- | A monoidal parser type. Use combinators and primitives to build more
 -- complex parsers. Run with `parse`, which supports reasonable automatic error
@@ -170,7 +172,7 @@ data ParseState = ParseState
     -- first parser in a "Chain".
     --
     -- A member @None@ represents EOF.
-    pstateFollowing :: [ExpectedSet]
+    pstateFollowing :: [TokenSet]
   }
   deriving (Eq, Show, Ord)
 
@@ -193,7 +195,7 @@ doParse (Primitive kind) =
                 snodeChildren = []
               }
       pushNode newNode
-    nextToken -> makeError nextToken (esetSingleton (Just kind))
+    nextToken -> makeError nextToken (TokenSet.fromKind kind)
 doParse EOF =
   (consumeWhitespace >> peek) >>= \case
     Just nextToken -> do
@@ -202,7 +204,7 @@ doParse EOF =
       let firstTokenKind = tokenKind nextToken
       -- TODO: consider reporting all kinds here? not sure
       _tokenKinds <- collectUntilEOF
-      throwError $ ParseError $ Unexpected (Span startOffset (startOffset + tokenWidth nextToken)) firstTokenKind (esetSingleton Nothing)
+      throwError $ ParseError $ Unexpected (Span startOffset (startOffset + tokenWidth nextToken)) firstTokenKind TokenSet.fromEOF
       where
         collectUntilEOF :: ParserM [TokenKind]
         collectUntilEOF =
@@ -243,7 +245,7 @@ doParse (Group label inner) = do
           followingStack <- gets pstateFollowing
           let errKindIsImmediatelyFollowing = case followingStack of
                 [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
-                (following : _) -> kind `esetMember` following
+                (following : _) -> kind `TokenSet.member` following
 
           pushGroupNode childNodes
 
@@ -261,10 +263,10 @@ doParse (Group label inner) = do
           let errKind = case perr of
                 UnexpectedEOF _ _ -> Nothing
                 Unexpected _ k _ -> Just k
-          let errKindIsFollowingKind = any (errKind `esetMember`) followingStack
+          let errKindIsFollowingKind = any (errKind `TokenSet.member`) followingStack
           let errKindIsImmediatelyFollowing = case followingStack of
                 [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
-                (following : _) -> errKind `esetMember` following
+                (following : _) -> errKind `TokenSet.member` following
 
           -- Make the error node and possibly consume the token
           nodeForErr <-
@@ -295,7 +297,7 @@ doParse (As label kind) =
                 snodeChildren = []
               }
       pushNode newNode
-    nextToken -> makeError nextToken (esetSingleton (Just kind))
+    nextToken -> makeError nextToken (TokenSet.fromKind kind)
 doParse (Chain first second) = do
   consumeWhitespace
   -- First, figure out following set for @second@
@@ -319,7 +321,7 @@ doParse (Alternative left right) = do
     else
       if nextKind `willSucceedIn` right
         then doParse right
-        else makeError nextToken (leftFirstTokens `esetUnion` rightFirstTokens)
+        else makeError nextToken (leftFirstTokens `TokenSet.union` rightFirstTokens)
 
 -- | Advance past whitespace, making nodes for the whitespace as it goes
 consumeWhitespace :: ParserM ()
@@ -362,7 +364,7 @@ advance =
 --
 -- Assumes @actual@ has not been `advance`d past yet (and does not advance past
 -- it).
-makeError :: Maybe Token -> ExpectedSet -> ParserM ()
+makeError :: Maybe Token -> TokenSet -> ParserM ()
 makeError Nothing eset = do
   offset <- gets pstateNextOffset
   throwError $ ParseError $ UnexpectedEOF offset eset
@@ -401,7 +403,7 @@ pushError :: ParseError -> ParserM ()
 pushError err = modify (\s -> s {pstateErrors = pstateErrors s ++ [err]})
 
 -- | Add an "ExpectedSet" to the following stack.
-pushFollowing :: ExpectedSet -> ParserM ()
+pushFollowing :: TokenSet -> ParserM ()
 pushFollowing eset = modify (\s -> s {pstateFollowing = eset : pstateFollowing s})
 
 -- | Remove the last added "ExpectedSet" from the following stack.
@@ -412,20 +414,20 @@ popFollowing = modify (\s -> s {pstateFollowing = drop 1 $ pstateFollowing s})
 -- in a "Parser".
 willSucceedIn :: Maybe TokenKind -> Parser -> Bool
 _ `willSucceedIn` Succeed = True
-k `willSucceedIn` parser = k `esetMember` findFirstTokens parser
+k `willSucceedIn` parser = k `TokenSet.member` findFirstTokens parser
 
 -- | Find the "ExpectedSet" of "TokenKind"s that the "Parser" would succeed on
 -- as its first input.
-findFirstTokens :: Parser -> ExpectedSet
-findFirstTokens parser = fst $ go parser esetEmpty
+findFirstTokens :: Parser -> TokenSet
+findFirstTokens parser = fst $ go parser TokenSet.empty
   where
     -- Returns (firstTokens, can succeed with no input?)
-    go :: Parser -> ExpectedSet -> (ExpectedSet, Bool)
+    go :: Parser -> TokenSet -> (TokenSet, Bool)
     go Succeed eset = (eset, True)
-    go (Primitive kind) eset = (kind `esetInsertKind` eset, False)
-    go EOF eset = (Nothing `esetInsert` eset, False)
+    go (Primitive kind) eset = (kind `TokenSet.insertKind` eset, False)
+    go EOF eset = (TokenSet.insertEof eset, False)
     go (Group _ p) eset = go p eset
-    go (As _ kind) eset = (kind `esetInsertKind` eset, False)
+    go (As _ kind) eset = (kind `TokenSet.insertKind` eset, False)
     go (Chain first second) eset =
       let (eset', firstCanBeEmpty) = go first eset
        in if firstCanBeEmpty

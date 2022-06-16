@@ -44,6 +44,7 @@ library
     Wasp.LSP.Server
     Wasp.Backend.Token
     Wasp.Backend.Lexer
+    Wasp.Backend.TokenSet
     Wasp.Backend.ParseError
     Wasp.Backend.ConcreteSyntax
     Wasp.Backend.ConcreteParser
