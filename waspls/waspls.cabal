@@ -1,5 +1,8 @@
 cabal-version:      2.4
 
+-- TODO: It make sense in the future to move this into "waspc" project as a
+-- separate project, but for now it is separated.
+
 name:               waspls
 version:            0.1.0.0
 description:        Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspls#readme>
@@ -39,7 +42,7 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
-    Wasp.LSP.State
+    Wasp.LSP.Core
     Wasp.LSP.Handlers
   other-modules:
     Paths_waspls

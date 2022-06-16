@@ -1,5 +1,5 @@
-module Wasp.LSP.State
-  ( HandlerM,
+module Wasp.LSP.Core
+  ( ServerM,
     Severity (..),
     State,
     ServerConfig,
@@ -14,10 +14,10 @@ import Data.Default (Default (def))
 import Data.Text (Text)
 import Language.LSP.Server (LspT)
 
-type HandlerM =
+type ServerM =
   ExceptT (Severity, Text) (StateT State (LspT ServerConfig IO))
 
--- | Log levels
+-- | Error severity levels
 data Severity
   = -- | Displayed to user as an error
     Error

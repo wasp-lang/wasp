@@ -1,66 +1,74 @@
 module Main where
 
 import Data.Version (showVersion)
-import Options.Applicative
+import qualified Options.Applicative as O
 import qualified Paths_waspls
-import Wasp.LSP.Server
+import qualified Wasp.LSP.Server as LSP
 
 main :: IO ()
 main = do
-  options <- execParser parse
-  if version options
-    then printVersion
-    else case mode options of
-      Version -> printVersion
-      Run -> run $ logFile options
+  args <- O.execParser parseArgsWithHelp
+  case command args of
+    PrintVersion -> doPrintVersion
+    Serve ->
+      if printVersion (options args)
+        then doPrintVersion
+        else LSP.run $ logFile $ options args
   where
-    printVersion = putStrLn $ showVersion Paths_waspls.version
+    doPrintVersion = putStrLn $ showVersion Paths_waspls.version
 
-parse :: ParserInfo Options
-parse =
-  info
-    (helper <*> parseOptions)
-    (progDesc "LSP Server for the Wasp language" <> fullDesc)
+parseArgsWithHelp :: O.ParserInfo Args
+parseArgsWithHelp =
+  O.info
+    (O.helper <*> parseArgs)
+    (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
 
-data Mode = Run | Version
+data Args = Args
+  { command :: Command,
+    options :: Options
+  }
+
+data Command = PrintVersion | Serve
 
 data Options = Options
-  { mode :: Mode,
-    version :: Bool,
+  { printVersion :: Bool,
     logFile :: Maybe FilePath,
     useStdio :: Bool
   }
 
-parseOptions :: Parser Options
-parseOptions = Options <$> parseMode <*> parseVersion <*> optional parseLogFile <*> parseStdio
+parseArgs :: O.Parser Args
+parseArgs = Args <$> parseCommand <*> parseOptions
+  where
+    parseCommand = O.hsubparser versionCommand O.<|> pure Serve
+
+    versionCommand =
+      O.command
+        "version"
+        (O.info (pure PrintVersion) (O.fullDesc <> O.progDesc "Display version and exit"))
+        <> O.metavar "version"
+
+parseOptions :: O.Parser Options
+parseOptions = Options <$> parseVersionFlag <*> O.optional parseLogFile <*> parseStdio
   where
     parseLogFile =
-      strOption
-        ( long "log"
-            <> help "Write log output to this file, if present. If not present, no logs are written. If set to `[OUTPUT]`, log output is sent to the LSP client."
-            <> action "file"
-            <> metavar "LOG_FILE"
+      O.strOption
+        ( O.long "log"
+            <> O.help "Write log output to this file, if present. If not present, no logs are written. If set to `[OUTPUT]`, log output is sent to the LSP client."
+            <> O.action "file"
+            <> O.metavar "LOG_FILE"
         )
 
-    parseVersion =
-      switch
-        ( long "version"
-            <> short 'v'
-            <> help "Display version and exit"
+    parseVersionFlag =
+      O.switch
+        ( O.long "version"
+            <> O.short 'v'
+            <> O.help "Display version and exit"
         )
 
     -- vscode passes this option to the language server. waspls always uses stdio,
     -- so this switch is ignored.
     parseStdio =
-      switch
-        ( long "stdio"
-            <> help "Use stdio (this flag is ignored, stdio is always used)"
+      O.switch
+        ( O.long "stdio"
+            <> O.help "Use stdio protocol for LSP communication. This is the only supported protocol, so stdio is used by default and this flag does nothing."
         )
-
-    parseMode = hsubparser versionCommand <|> pure Run
-
-    versionCommand =
-      command
-        "version"
-        (info (pure Version) (fullDesc <> progDesc "Display version and exit"))
-        <> metavar "version"

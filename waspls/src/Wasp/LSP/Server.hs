@@ -19,52 +19,28 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as J
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
+import Wasp.LSP.Core (ServerConfig, ServerM, Severity (..), State)
 import Wasp.LSP.Handlers
-import Wasp.LSP.State (HandlerM, ServerConfig, Severity (..), State)
 
 run :: Maybe FilePath -> IO ()
 run maybeLogFile = do
-  -- Setup DEBUG logger. Logs at other levels are ignored.
-  case maybeLogFile of
-    Nothing ->
-      -- Don't set up any logger: logs are not output anywhere
-      pure ()
-    Just "[OUTPUT]" ->
-      -- Send log messages at "DEBUG" level to the LSP client
-      LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
-    file ->
-      -- Send log messages at "DEBUG" level to the file path given
-      LSP.setupLogger file [] System.Log.Logger.DEBUG
+  setupLspLogger maybeLogFile
 
   state <- MVar.newMVar (def :: State)
 
   let lspServerInterpretHandler env =
         LSP.Iso {forward = runHandler, backward = liftIO}
         where
-          runHandler :: HandlerM a -> IO a
+          runHandler :: ServerM a -> IO a
           runHandler handler =
+            -- Get the state from the "MVar", run the handler in IO and update
+            -- the "MVar" state with the end state of the handler.
             MVar.modifyMVar state \oldState -> do
               LSP.runLspT env do
                 (e, newState) <- State.runStateT (Except.runExceptT handler) oldState
                 result <- case e of
-                  Left (Log, _message) -> do
-                    let _xtype = J.MtLog
-
-                    LSP.sendNotification J.SWindowLogMessage $
-                      J.LogMessageParams {_xtype = _xtype, _message = _message}
-                    liftIO (fail (Text.unpack _message))
-                  Left (severity_, _message) -> do
-                    let _xtype = case severity_ of
-                          Error -> J.MtError
-                          Warning -> J.MtWarning
-                          Info -> J.MtInfo
-                          Log -> J.MtLog
-
-                    LSP.sendNotification J.SWindowShowMessage $
-                      J.ShowMessageParams {_xtype = _xtype, _message = _message}
-                    liftIO (fail (Text.unpack _message))
-                  Right a -> do
-                    return a
+                  Left (severity, errMessage) -> sendErrorMessage severity errMessage
+                  Right a -> return a
 
                 return (newState, result)
 
@@ -82,6 +58,19 @@ run maybeLogFile = do
   case exitCode of
     0 -> return ()
     n -> exitWith (ExitFailure n)
+
+-- | Setup DEBUG logger. Logs at other levels are ignored.
+--
+-- @setupLspLogger Nothing@ doesn't set up any logger, so logs are not output
+-- anywhere.
+--
+-- @setupLspLogger (Just "[OUTPUT]")@ sends log messages to the LSP client
+--
+-- @setupLspLogger (Just filepath)@ writes log messages to the path given
+setupLspLogger :: Maybe FilePath -> IO ()
+setupLspLogger Nothing = pure ()
+setupLspLogger (Just "[OUTPUT]") = LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
+setupLspLogger file = LSP.setupLogger file [] System.Log.Logger.DEBUG
 
 lspServerOnConfigChange :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
 lspServerOnConfigChange _oldConfig json =
@@ -102,7 +91,7 @@ lspServerOptions =
       LSP.completionTriggerCharacters = Just [':']
     }
 
-lspServerHandlers :: LSP.Handlers HandlerM
+lspServerHandlers :: LSP.Handlers ServerM
 lspServerHandlers =
   mconcat
     [ initializedHandler,
@@ -111,6 +100,8 @@ lspServerHandlers =
       didChangeHandler
     ]
 
+-- | Options to tell the client how to update the server about the state of text
+-- documents in the workspace.
 syncOptions :: J.TextDocumentSyncOptions
 syncOptions =
   J.TextDocumentSyncOptions
@@ -126,3 +117,26 @@ syncOptions =
       -- Don't send save notifications to the server.
       _save = Just (J.InR (J.SaveOptions (Just True)))
     }
+
+-- | Send an error message to the LSP client.
+--
+-- Sends "Severiy.Log" level errors to the output panel. Higher severity errors
+-- are displayed in the window (i.e. in VSCode as a toast notification in the
+-- bottom right).
+sendErrorMessage :: Severity -> Text.Text -> LSP.LspT ServerConfig IO a
+sendErrorMessage Log errMessage = do
+  let messageType = J.MtLog
+
+  LSP.sendNotification J.SWindowLogMessage $
+    J.LogMessageParams {_xtype = messageType, _message = errMessage}
+  liftIO (fail (Text.unpack errMessage))
+sendErrorMessage severity errMessage = do
+  let messageType = case severity of
+        Error -> J.MtError
+        Warning -> J.MtWarning
+        Info -> J.MtInfo
+        Log -> J.MtLog
+
+  LSP.sendNotification J.SWindowShowMessage $
+    J.ShowMessageParams {_xtype = messageType, _message = errMessage}
+  liftIO (fail (Text.unpack errMessage))
