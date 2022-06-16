@@ -261,6 +261,13 @@
     [
         [
             "file",
+            "web-app/src/actions/core.js"
+        ],
+        "0891b7607b5503ada42386f73476a46f774a224d8b606f79ef37e451b229d399"
+    ],
+    [
+        [
+            "file",
             "web-app/src/api.js"
         ],
         "bcdb1fdc97fd622fbc882e4a16a7137e849748d6776b960121df6ccab577a3a9"
@@ -334,6 +341,13 @@
             "web-app/src/operations/resources.js"
         ],
         "9bccf509e1a3e04e24444eacd69e0f093e590a9b85325bedb6f1d52ac85ead3c"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/core.js"
+        ],
+        "031c6d10898cb43f7f7e581422542585383b262d8a4f4d8738c695cca4b3fca1"
     ],
     [
         [
