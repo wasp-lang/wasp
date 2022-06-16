@@ -9,7 +9,10 @@ export const getTasks = async (args, context) => {
 
   const Task = context.entities.Task
   const tasks = await Task.findMany(
-    { where: { user: { id: context.user.id } } }
+    {
+      where: { user: { id: context.user.id } },
+      orderBy: { id: 'asc' },
+    }
   )
   return tasks
 }
