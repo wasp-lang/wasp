@@ -11,21 +11,21 @@ import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Backend.ParseError as C
 import Wasp.LSP.ServerM (ServerM, logM)
-import Wasp.LSP.Util (waspSourceRegionToRange)
+import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
 concreteParseErrorToDiagnostic :: String -> C.ParseError -> ServerM LSP.Diagnostic
 concreteParseErrorToDiagnostic src err =
-  let _message = Text.pack $ C.showError src err
-      _source = "parse"
-      _range = concreteErrorRange err
-   in logM ("[concreteParseErroToDiagnostic] _range=" ++ show _range)
+  let message = Text.pack $ C.showError src err
+      source = "parse"
+      range = concreteErrorRange err
+   in logM ("[concreteParseErroToDiagnostic] _range=" ++ show range)
         >> return
           ( LSP.Diagnostic
-              { _range = _range,
+              { _range = range,
                 _severity = Nothing,
                 _code = Nothing,
-                _source = Just _source,
-                _message = _message,
+                _source = Just source,
+                _message = message,
                 _tags = Nothing,
                 _relatedInformation = Nothing
               }
@@ -41,15 +41,15 @@ concreteParseErrorToDiagnostic src err =
 
 waspErrorToDiagnostic :: W.AnalyzeError -> LSP.Diagnostic
 waspErrorToDiagnostic err =
-  let _message = waspErrorMessage err
-      _source = waspErrorSource err
-      _range = waspErrorRange err
+  let message = waspErrorMessage err
+      source = waspErrorSource err
+      range = waspErrorRange err
    in LSP.Diagnostic
-        { _range = _range,
+        { _range = range,
           _severity = Nothing,
           _code = Nothing,
-          _source = Just _source,
-          _message = _message,
+          _source = Just source,
+          _message = message,
           _tags = Nothing,
           _relatedInformation = Nothing
         }
@@ -69,4 +69,4 @@ waspErrorSource (W.EvaluationError _) = "evaluate"
 waspErrorRange :: W.AnalyzeError -> LSP.Range
 waspErrorRange err =
   let (_, W.Ctx rgn) = W.getErrorMessageAndCtx err
-   in waspSourceRegionToRange rgn
+   in waspSourceRegionToLspRange rgn
