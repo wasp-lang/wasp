@@ -8,6 +8,7 @@ module Wasp.SemanticVersion
     gte,
     eq,
     caret,
+    range,
   )
 where
 
@@ -142,6 +143,12 @@ isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet
 
 -- Helper methods.
 
+-- The idea is to use them like:
+--   Range [lt (Version 1 2 3) <> gt (Version 2 3 0), eq (Version 0 0 1)]
+--   or
+--   range [lt (Version 1 2 3), gt (Version 2 3 0)] <> range [eq (Version 0 0 1)]
+--   which both translate to: <1.2.3 >=2.3.0 || =0.0.1
+
 lt :: Version -> ComparatorSet
 lt = mkPrimCompSet LessThan
 
@@ -159,6 +166,10 @@ eq = mkPrimCompSet Equal
 
 caret :: Version -> ComparatorSet
 caret = ComparatorSet . pure . ComparatorS . Caret
+
+range :: [ComparatorSet] -> Range
+range [] = Range []
+range compSets = Range [foldl1 (<>) compSets]
 
 mkPrimCompSet :: Operator -> Version -> ComparatorSet
 mkPrimCompSet op = ComparatorSet . pure . ComparatorP . PrimitiveComparator op
