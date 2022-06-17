@@ -64,16 +64,19 @@ data ComparatorSet = ComparatorSet (NonEmpty Comparator)
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
-data Range = Range (NonEmpty ComparatorSet)
+data Range = Range [ComparatorSet]
   deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of version range.
 instance Show Range where
-  show (Range compSets) = intercalate " || " $ show <$> NE.toList compSets
+  show (Range compSets) = intercalate " || " $ show <$> compSets
 
 -- | We define concatenation of two version ranges as union of their comparator sets.
 instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ csets1 <> csets2
+
+instance Monoid Range where
+  mempty = Range []
 
 nextBreakingChangeVersion :: Version -> Version
 nextBreakingChangeVersion version = case version of
@@ -96,5 +99,6 @@ isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet
 rangeFromVersion :: (Operator, Version) -> Range
 rangeFromVersion = Range . pure . ComparatorSet . pure . uncurry Comparator
 
-rangeFromVersionsIntersection :: NonEmpty (Operator, Version) -> Range
-rangeFromVersionsIntersection = Range . pure . ComparatorSet . (uncurry Comparator <$>)
+rangeFromVersionsIntersection :: [(Operator, Version)] -> Range
+rangeFromVersionsIntersection [] = Range []
+rangeFromVersionsIntersection compPairs = Range $ pure $ ComparatorSet $ uncurry Comparator <$> NE.fromList compPairs
