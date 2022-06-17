@@ -1,12 +1,12 @@
 module SemanticVersionTest where
 
-import Data.List.NonEmpty (fromList)
 import Numeric.Natural
 import Test.Tasty.Hspec
 import Wasp.SemanticVersion
 
 spec_SemanticVersion :: Spec
 spec_SemanticVersion = do
+  -- TODO: Add more tests to cover everything.
   describe "`show` produces valid semver strings" $ do
     it "show Version" $ do
       show (Version 0 0 0) `shouldBe` "0.0.0"
@@ -15,33 +15,11 @@ spec_SemanticVersion = do
     it "show empty Range" $ do
       show (mempty :: Range) `shouldBe` ""
     it "show complex Range" $ do
-      let versionComp1 = (Equal, Version 1 2 3)
-      let versionComp2 = (LessThanOrEqual, Version 1 3 6)
-      let versionComp3 = (BackwardsCompatibleWith, Version 1 2 0)
-      let complexRange =
-            rangeFromVersionsIntersection [versionComp2, versionComp3]
-              <> rangeFromVersion versionComp1
-      show complexRange `shouldBe` "<=1.3.6 ^1.2.0 || =1.2.3"
-  it "concatenating two version ranges with `<>` produces union of their comparator sets" $ do
-    let concatenatedRange =
-          rangeFromVersion (LessThanOrEqual, Version 1 2 3)
-            <> rangeFromVersion (Equal, Version 1 0 0)
-    let expectedRange =
-          Range
-            [ ComparatorSet $ pure $ Comparator LessThanOrEqual (Version 1 2 3),
-              ComparatorSet $ pure $ Comparator Equal (Version 1 0 0)
-            ]
-    concatenatedRange `shouldBe` expectedRange
-  it "mempty of Range is empty Range" $ do
-    mempty `shouldBe` Range []
-  it "rangeFromVersionsIntersection produces version range that puts all version comparators into one comparator set" $ do
-    rangeFromVersionsIntersection [(LessThanOrEqual, Version 1 2 3), (Equal, Version 1 0 0)]
-      `shouldBe` ( Range . pure . ComparatorSet $
-                     fromList [Comparator LessThanOrEqual (Version 1 2 3), Comparator Equal (Version 1 0 0)]
-                 )
-  it "rangeFromVersion produces version range with single version comparator in it" $ do
-    rangeFromVersion (LessThanOrEqual, Version 1 2 3)
-      `shouldBe` (Range . pure . ComparatorSet . pure $ Comparator LessThanOrEqual (Version 1 2 3))
+      show
+        ( Range [lte (Version 1 3 6) <> caret (Version 1 2 0)]
+            <> Range [eq (Version 1 2 3)]
+        )
+        `shouldBe` "<=1.3.6 ^1.2.0 || =1.2.3"
   describe "isVersionInRange" $ do
     it "No version is in empty range" $
       testRange
@@ -55,7 +33,7 @@ spec_SemanticVersion = do
         ]
     it "Recognizes only version v to be in range '=v'" $
       testRange
-        (rangeFromVersion (Equal, Version 1 2 3))
+        (Range [eq (Version 1 2 3)])
         [ ((0, 5, 5), False),
           ((1, 0, 0), False),
           ((1, 2, 3), True),
@@ -65,7 +43,7 @@ spec_SemanticVersion = do
         ]
     it "Recognizes only versions lesser or equal to v to be in range '<=v'" $
       testRange
-        (rangeFromVersion (LessThanOrEqual, Version 1 2 3))
+        (Range [lte (Version 1 2 3)])
         [ ((0, 5, 5), True),
           ((1, 0, 0), True),
           ((1, 2, 3), True),
@@ -76,7 +54,7 @@ spec_SemanticVersion = do
     describe "Recognizes only versions >=v but smaller than next breaking change to be in range '^v'" $ do
       it "when v is of shape x.y.z where x != 0." $
         testRange
-          (rangeFromVersion (BackwardsCompatibleWith, Version 1 2 3))
+          (Range [caret (Version 1 2 3)])
           [ ((0, 5, 5), False),
             ((1, 0, 0), False),
             ((1, 2, 3), True),
@@ -86,7 +64,7 @@ spec_SemanticVersion = do
           ]
       it "when v is of shape 0.y.z where y != 0." $
         testRange
-          (rangeFromVersion (BackwardsCompatibleWith, Version 0 2 3))
+          (Range [caret (Version 0 2 3)])
           [ ((0, 0, 0), False),
             ((0, 1, 3), False),
             ((0, 2, 0), False),
@@ -98,7 +76,7 @@ spec_SemanticVersion = do
           ]
       it "when v is of shape 0.0.z." $
         testRange
-          (rangeFromVersion (BackwardsCompatibleWith, Version 0 0 2))
+          (Range [caret (Version 0 0 2)])
           [ ((0, 0, 1), False),
             ((0, 0, 2), True),
             ((0, 0, 3), False),
@@ -107,12 +85,7 @@ spec_SemanticVersion = do
           ]
       it "Correctly works for complex version range." $
         testRange
-          ( rangeFromVersionsIntersection
-              [ (LessThanOrEqual, Version 1 2 3),
-                (BackwardsCompatibleWith, Version 1 1 0)
-              ]
-              <> rangeFromVersion (Equal, Version 0 5 6)
-          )
+          (Range [lte (Version 1 2 3) <> caret (Version 1 1 0), eq (Version 0 5 6)])
           [ ((0, 5, 5), False),
             ((0, 5, 6), True),
             ((0, 5, 7), False),
