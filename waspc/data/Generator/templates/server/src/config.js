@@ -16,11 +16,16 @@ const config = {
     trustProxyCount: undefined,
     {=# isAuthEnabled =}
     session: {
-      name: process.env.SESSION_NAME || 'wasp_session',
-      secret: undefined,
       cookie: {
+        name: process.env.SESSION_COOKIE_NAME || 'wasp_session',
+        secret: undefined,
         maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms
-      }, 
+      },
+    },
+    csrf: {
+      cookie: {
+        name: process.env.CSRF_COOKIE_NAME || 'wasp_csrf',
+      },
     },
     {=/ isAuthEnabled =}
     frontendUrl: undefined,
@@ -29,7 +34,9 @@ const config = {
     trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 0,
     {=# isAuthEnabled =}
     session: {
-      secret: process.env.SESSION_SECRET || 'sessionSecret',
+      cookie: {
+        secret: process.env.SESSION_COOKIE_SECRET || 'sessionSecret',
+      },
     },
     {=/ isAuthEnabled =}
     frontendUrl: process.env.REACT_APP_URL || 'http://localhost:3000',
@@ -38,7 +45,9 @@ const config = {
     trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 1,
     {=# isAuthEnabled =}
     session: {
-      secret: process.env.SESSION_SECRET,
+      cookie: {
+        secret: process.env.SESSION_COOKIE_SECRET,
+      },
     },
     {=/ isAuthEnabled =}
     frontendUrl: process.env.REACT_APP_URL,

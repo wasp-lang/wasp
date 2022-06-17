@@ -32,7 +32,14 @@ Below we will explain the required env vars and also provide detailed instructio
 Server uses following environment variables, so you need to ensure they are set on your hosting provider:
 - `PORT` -> number of port at which it will listen for requests (e.g. `3001`).
 - `DATABASE_URL` -> url to the Postgres database that it should use (e.g. `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`)
-- `JWT_SECRET` -> you need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
+- `REACT_APP_URL` -> the URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is used for CORS protection.
+- `SESSION_COOKIE_SECRET` -> you need this if you are using Wasp's `auth` feature, which is used to sign cookies. Set it to a random string, at least 32 characters long.
+
+#### Optional env vars
+- `SESSION_COOKIE_NAME` -> name of cookie used to store session data (defaults to `"wasp_session"`).
+- `SESSION_COOKIE_MAX_AGE` -> max age of session cookie (defaults to `7` days).
+- `CSRF_COOKIE_NAME` -> name of cookie used to store csrf double submit pattern secret (defaults to `"wasp_csrf"`).
+- `TRUST_PROXY_COUNT` -> number of proxies for Express app to trust (defaults to `0` for dev, and `1` for prod).
 
 ### Deploying to Heroku
 
@@ -53,9 +60,10 @@ heroku addons:create --app <app-name> heroku-postgresql:hobby-dev
 ```
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using external database, you will have to set it yourself.
 
-`PORT` env var will also be provided by Heroku, so the only thing left is to set `JWT_SECRET` env var:
+`PORT` env var will also be provided by Heroku, so the only thing left is to set the `SESSION_SECRET` env var and `REACT_APP_URL`:
 ```
-heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
+heroku config:set --app <app-name> SESSION_SECRET=<random_string_at_least_32_characters_long>
+heroku config:set --app <app-name> REACT_APP_URL=<url_of_where_frontend_will_be_deployed>
 ```
 
 #### Deploy to a Heroku app
@@ -120,3 +128,5 @@ While positioned in `.wasp/build/web-app/` directory, and after you have created
 netlify deploy
 ```
 and that is it!
+
+Note: Make sure you set this URL as the `REACT_APP_URL` environment variable in Heroku.

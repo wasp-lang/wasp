@@ -4,8 +4,8 @@ import csrf from 'csurf'
 import config from './config.js'
 
 const sessionConfig = {
-  name: config.session.name,
-  secret: config.session.secret,
+  name: config.session.cookie.name,
+  secret: config.session.cookie.secret,
   httpOnly: true,
   signed: true,
   maxAge: config.session.cookie.maxAge,
@@ -13,7 +13,7 @@ const sessionConfig = {
 
 const csrfConfig = {
   cookie: {
-    key: 'wasp_csrf',
+    key: config.csrf.cookie.name,
     httpOnly: true,
   },
 }
