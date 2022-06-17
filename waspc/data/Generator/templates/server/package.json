@@ -15,9 +15,10 @@
   "nodemonConfig": {
     "delay": "1000"
   },
+  "engineStrict": true,
   "engines": {
-    "node": "{= nodeVersionBounds =}",
-    "npm": "{= npmVersionBounds =}"
+    "node": "{=& nodeVersionRange =}",
+    "npm": "{=& npmVersionRange =}"
   },
   {=& depsChunk =},
   {=& devDepsChunk =}

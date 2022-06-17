@@ -34,7 +34,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
+import Wasp.Generator.Common (nodeVersionRange, npmVersionRange, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -48,7 +48,6 @@ import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerE
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -57,7 +56,6 @@ genServer spec =
     [ genReadme,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
-      genNvmrc,
       genGitignore
     ]
     <++> genSrcDir spec
@@ -94,8 +92,8 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionBounds" .= show nodeVersionBounds,
-              "npmVersionBounds" .= show npmVersionBounds,
+              "nodeVersionRange" .= show nodeVersionRange,
+              "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
@@ -113,7 +111,7 @@ npmDepsForWasp spec =
             ("debug", "~2.6.9"),
             ("express", "~4.16.1"),
             ("morgan", "~1.9.1"),
-            ("@prisma/client", show prismaVersionBounds),
+            ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
@@ -124,7 +122,7 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", show prismaVersionBounds)
+            ("prisma", show prismaVersion)
           ]
     }
 
@@ -135,19 +133,6 @@ genNpmrc =
       (C.asTmplFile [relfile|npmrc|])
       (C.asServerFile [relfile|.npmrc|])
       Nothing
-
-genNvmrc :: Generator FileDraft
-genNvmrc =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|nvmrc|])
-      (C.asServerFile [relfile|.nvmrc|])
-      -- We want to specify only the major version here. If we specified the
-      -- entire version string (i.e., 16.0.0), our project would work only with
-      -- that exact version, which we don't want. Unfortunately, the nvmrc file
-      -- format doesn't allow semver compatibility strings (e.g., ^16.0.0) so
-      -- listing the major version was the next best thing.
-      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 genGitignore :: Generator FileDraft
 genGitignore =

@@ -100,7 +100,7 @@ runNodeCommandAsJob fromDir command args jobType chan = do
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
-      if SV.isVersionInBounds nodeVersion C.nodeVersionBounds
+      if SV.isVersionInRange nodeVersion C.nodeVersionRange
         then do
           let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
@@ -167,6 +167,6 @@ makeNodeVersionMismatchMessage nodeVersion =
 waspNodeRequirementMessage :: String
 waspNodeRequirementMessage =
   unwords
-    [ "Wasp requires node " ++ show C.nodeVersionBounds ++ ".",
+    [ "Wasp requires node " ++ show C.nodeVersionRange ++ ".",
       "Check Wasp docs for more details: https://wasp-lang.dev/docs#requirements."
     ]
