@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.5.1.0 (2022/06/17)
+
+### [NEW FEATURES]
+- There is now `app.client.setup` function in .wasp that you can use to define custom setup you want to do on client before on its initialization.
+- You can now configure the React Query's QueryClient by calling special function exposed by Wasp in your JS (in `app.client.setup`).
+
+### Various improvements and bug fixes
+- Limited Wasp node version to <=16.15.0 for now, since there is a problem with later versions and how Wasp uses `npx`.
+- Reduced some of the redundant warning messages in Wasp CLI.
+- Fixed unresponsive UI on server reload.
+
+---
 
 ## v0.5.0.0 (2022/05/18)
 
