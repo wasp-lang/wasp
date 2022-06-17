@@ -47,19 +47,21 @@ instance Show Operator where
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
 
-data Comparator = ComparatorP PrimitiveComparator | ComparatorS SpecialComparator
-  deriving (Eq)
-
 data PrimitiveComparator = PrimitiveComparator Operator Version
   deriving (Eq)
+
+-- | We rely on `show` here to produce valid semver representation of comparator.
+instance Show PrimitiveComparator where
+  show (PrimitiveComparator op v) = show op ++ show v
 
 data SpecialComparator = Caret Version
   deriving (Eq)
 
-data ComparatorSet = ComparatorSet (NonEmpty Comparator)
-  deriving (Eq)
+-- | We rely on `show` here to produce valid semver representation of comparator.
+instance Show SpecialComparator where
+  show (Caret v) = "^" ++ show v
 
-data PrimitiveComparatorSet = PrimitiveComparatorSet (NonEmpty PrimitiveComparator)
+data Comparator = ComparatorP PrimitiveComparator | ComparatorS SpecialComparator
   deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of comparator.
@@ -67,27 +69,28 @@ instance Show Comparator where
   show (ComparatorP c) = show c
   show (ComparatorS c) = show c
 
--- | We rely on `show` here to produce valid semver representation of comparator.
-instance Show SpecialComparator where
-  show (Caret v) = "^" ++ show v
-
--- | We rely on `show` here to produce valid semver representation of comparator.
-instance Show PrimitiveComparator where
-  show (PrimitiveComparator op v) = show op ++ show v
+data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+  deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of comparator set.
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
+-- | We define concatenation of two comparator sets union union of their comparators.
 instance Semigroup ComparatorSet where
   (ComparatorSet compsl) <> (ComparatorSet compsr) = ComparatorSet $ compsl <> compsr
+
+data PrimitiveComparatorSet = PrimitiveComparatorSet (NonEmpty PrimitiveComparator)
+  deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of comparator set.
 instance Show PrimitiveComparatorSet where
   show (PrimitiveComparatorSet comps) = unwords $ show <$> NE.toList comps
 
+-- | We define concatenation of two comparator sets union union of their comparators.
 instance Semigroup PrimitiveComparatorSet where
-  (PrimitiveComparatorSet compsl) <> (PrimitiveComparatorSet compsr) = PrimitiveComparatorSet $ compsl <> compsr
+  (PrimitiveComparatorSet compsl) <> (PrimitiveComparatorSet compsr) =
+    PrimitiveComparatorSet $ compsl <> compsr
 
 data Range = Range [ComparatorSet]
   deriving (Eq)
@@ -103,6 +106,38 @@ instance Semigroup Range where
 instance Monoid Range where
   mempty = Range []
 
+isVersionInRange :: Version -> Range -> Bool
+isVersionInRange version (Range compSets) =
+  any (doesVersionSatisfyComparatorSet version) compSets
+
+doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
+doesVersionSatisfyComparatorSet version comparatorSet =
+  doesVersionSatisfyPrimitiveComparatorSet version $
+    comparatorSetToPrimitiveComparatorSet comparatorSet
+
+doesVersionSatisfyPrimitiveComparatorSet :: Version -> PrimitiveComparatorSet -> Bool
+doesVersionSatisfyPrimitiveComparatorSet version (PrimitiveComparatorSet comps) =
+  all (doesVersionSatisfyPrimitiveComparator version) comps
+
+doesVersionSatisfyPrimitiveComparator :: Version -> PrimitiveComparator -> Bool
+doesVersionSatisfyPrimitiveComparator version (PrimitiveComparator operator compVersion) =
+  case operator of
+    Equal -> version == compVersion
+    LessThan -> version < compVersion
+    LessThanOrEqual -> version <= compVersion
+    GreaterThan -> version > compVersion
+    GreaterThanOrEqual -> version >= compVersion
+
+comparatorSetToPrimitiveComparatorSet :: ComparatorSet -> PrimitiveComparatorSet
+comparatorSetToPrimitiveComparatorSet (ComparatorSet comps) =
+  foldl1 (<>) $ comparatorToPrimitiveComparatorSet <$> comps
+
+comparatorToPrimitiveComparatorSet :: Comparator -> PrimitiveComparatorSet
+comparatorToPrimitiveComparatorSet (ComparatorP comp) =
+  PrimitiveComparatorSet $ fromList [comp]
+comparatorToPrimitiveComparatorSet (ComparatorS comp) =
+  specialComparatorToPrimitiveComparatorSet comp
+
 specialComparatorToPrimitiveComparatorSet :: SpecialComparator -> PrimitiveComparatorSet
 specialComparatorToPrimitiveComparatorSet (Caret version) =
   PrimitiveComparatorSet $
@@ -117,35 +152,7 @@ nextBreakingChangeVersion version = case version of
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
 
-doesVersionSatisfyPrimitiveComparator :: Version -> PrimitiveComparator -> Bool
-doesVersionSatisfyPrimitiveComparator version (PrimitiveComparator operator compVersion) = case operator of
-  Equal -> version == compVersion
-  LessThan -> version < compVersion
-  LessThanOrEqual -> version <= compVersion
-  GreaterThan -> version > compVersion
-  GreaterThanOrEqual -> version >= compVersion
-
-doesVersionSatisfyPrimitiveComparatorSet :: Version -> PrimitiveComparatorSet -> Bool
-doesVersionSatisfyPrimitiveComparatorSet version (PrimitiveComparatorSet comps) = all (doesVersionSatisfyPrimitiveComparator version) comps
-
-comparatorSetToPrimitiveComparatorSet :: ComparatorSet -> PrimitiveComparatorSet
-comparatorSetToPrimitiveComparatorSet (ComparatorSet comps) = foldl1 (<>) $ comparatorToPrimitiveComparatorSet <$> comps
-
-comparatorToPrimitiveComparatorSet :: Comparator -> PrimitiveComparatorSet
-comparatorToPrimitiveComparatorSet (ComparatorP comp) = PrimitiveComparatorSet $ fromList [comp]
-comparatorToPrimitiveComparatorSet (ComparatorS comp) = specialComparatorToPrimitiveComparatorSet comp
-
-doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
-doesVersionSatisfyComparatorSet version comparatorSet = doesVersionSatisfyPrimitiveComparatorSet version $ comparatorSetToPrimitiveComparatorSet comparatorSet
-
-isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
-
 -- Helper methods.
-
--- The idea is to use them like:
---   Range [lt (Version 1 2 3) & gt (Version 2 3 0), eq (Version 0 0 1)]
---   which translates to: <1.2.3 >=2.3.0 || =0.0.1
 
 (&) :: ComparatorSet -> ComparatorSet -> ComparatorSet
 (&) = (<>)
