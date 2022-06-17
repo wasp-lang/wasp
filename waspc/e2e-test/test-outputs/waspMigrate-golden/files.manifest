@@ -38,6 +38,7 @@ waspMigrate/.wasp/out/web-app/package.json
 waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/index.html
 waspMigrate/.wasp/out/web-app/public/manifest.json
+waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/api.js
 waspMigrate/.wasp/out/web-app/src/config.js
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
@@ -48,6 +49,7 @@ waspMigrate/.wasp/out/web-app/src/index.js
 waspMigrate/.wasp/out/web-app/src/logo.png
 waspMigrate/.wasp/out/web-app/src/operations/index.js
 waspMigrate/.wasp/out/web-app/src/operations/resources.js
+waspMigrate/.wasp/out/web-app/src/queries/core.js
 waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.js

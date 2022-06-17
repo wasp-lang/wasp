@@ -1,15 +1,8 @@
 {{={= =}=}}
-import { callOperation } from '../operations'
-import * as resources from '../operations/resources'
+import { createAction } from './core'
 
-async function {= actionFnName =}(args) {
-  const actionResult = await callOperation('{= actionRoute =}', args)
-  await resources.invalidateQueriesUsing(entitiesUsed)
-  return actionResult
-}
-
-export const entitiesUsed = {=& entitiesArray =}
-
-export default {= actionFnName =}
-
+export default createAction(
+  '{= actionRoute =}',
+  {=& entitiesArray =},
+)
 

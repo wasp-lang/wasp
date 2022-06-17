@@ -35,6 +35,7 @@ waspJob/.wasp/out/web-app/package.json
 waspJob/.wasp/out/web-app/public/favicon.ico
 waspJob/.wasp/out/web-app/public/index.html
 waspJob/.wasp/out/web-app/public/manifest.json
+waspJob/.wasp/out/web-app/src/actions/core.js
 waspJob/.wasp/out/web-app/src/api.js
 waspJob/.wasp/out/web-app/src/config.js
 waspJob/.wasp/out/web-app/src/ext-src/Main.css
@@ -46,6 +47,7 @@ waspJob/.wasp/out/web-app/src/index.js
 waspJob/.wasp/out/web-app/src/logo.png
 waspJob/.wasp/out/web-app/src/operations/index.js
 waspJob/.wasp/out/web-app/src/operations/resources.js
+waspJob/.wasp/out/web-app/src/queries/core.js
 waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.js
