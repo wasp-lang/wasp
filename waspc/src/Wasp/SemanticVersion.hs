@@ -5,7 +5,6 @@ module Wasp.SemanticVersion
     ComparatorSet (..),
     Range (..),
     isVersionInRange,
-    rangeFromVersion,
     rangeFromVersionsIntersection,
   )
 where
@@ -31,24 +30,19 @@ instance Show Version where
 
 data Operator
   = Equal
+  | LessThan
   | LessThanOrEqual
-  | -- | TODO: BackwardsCompatibleWith (^) is actually, by semver spec, a special "range" which desugarizes into basic
-    -- comparators.
-    -- Same goes for other special ranges like Hyphen, v.x.x, ~, ... . They are all sugars that can be expressed with basic
-    -- comparators.
-    -- Although they call them special "ranges", since they all desugarize into comparator sets (no ||), we can also
-    -- more strictly treat them as special "comparator sets".
-    -- Therefore, we should remove ^ as an operator from here and instead extend ComparatorSet as:
-    -- data ComparatorSet = Regular (NonEmpty Comparator) | Special ComparatorSetSpecial
-    -- data ComparatorSetSpecial = BackwardsCompatibleWith Version | Hyphen Version Version | ...
-    BackwardsCompatibleWith
+  | GreaterThan
+  | GreaterThanOrEqual
   deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of operator.
 instance Show Operator where
   show Equal = "="
+  show LessThan = "<"
   show LessThanOrEqual = "<="
-  show BackwardsCompatibleWith = "^"
+  show GreaterThan = ">"
+  show GreaterThanOrEqual = ">="
 
 data Comparator = Comparator Operator Version
   deriving (Eq)
@@ -57,12 +51,29 @@ data Comparator = Comparator Operator Version
 instance Show Comparator where
   show (Comparator op v) = show op ++ show v
 
-data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+newtype PrimitiveComparatorSet = PrimitiveComparatorSet (NonEmpty Comparator)
+  deriving (Eq)
+
+data SpecialComparatorSet = Caret Version
+  deriving (Eq)
+
+data ComparatorSet
+  = CSPrimitive PrimitiveComparatorSet
+  | CSSpecial SpecialComparatorSet
   deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of comparator set.
+instance Show PrimitiveComparatorSet where
+  show (PrimitiveComparatorSet comps) = unwords $ show <$> NE.toList comps
+
+-- | We rely on `show` here to produce valid semver representation of comparator set.
+instance Show SpecialComparatorSet where
+  show (Caret version) = "^" ++ show version
+
+-- | We rely on `show` here to produce valid semver representation of comparator set.
 instance Show ComparatorSet where
-  show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
+  show (CSPrimitive cs) = show cs
+  show (CSSpecial cs) = show cs
 
 data Range = Range [ComparatorSet]
   deriving (Eq)
@@ -87,18 +98,74 @@ nextBreakingChangeVersion version = case version of
 doesVersionSatisfyComparator :: Version -> Comparator -> Bool
 doesVersionSatisfyComparator version (Comparator operator compVersion) = case operator of
   Equal -> version == compVersion
+  LessThan -> version < compVersion
   LessThanOrEqual -> version <= compVersion
-  BackwardsCompatibleWith -> version >= compVersion && version < nextBreakingChangeVersion compVersion
+  GreaterThan -> version > compVersion
+  GreaterThanOrEqual -> version >= compVersion
+
+doesVersionSatisfyPrimitiveComparatorSet :: Version -> PrimitiveComparatorSet -> Bool
+doesVersionSatisfyPrimitiveComparatorSet version (PrimitiveComparatorSet comps) = all (doesVersionSatisfyComparator version) comps
+
+specialComparatorSetToPrimitiveComparatorSet :: SpecialComparatorSet -> PrimitiveComparatorSet
+specialComparatorSetToPrimitiveComparatorSet (Caret version) =
+  PrimitiveComparatorSet $
+    NE.fromList
+      [ Comparator GreaterThanOrEqual version,
+        Comparator LessThan (nextBreakingChangeVersion version)
+      ]
 
 doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
-doesVersionSatisfyComparatorSet version (ComparatorSet comps) = all (doesVersionSatisfyComparator version) comps
+doesVersionSatisfyComparatorSet version comparatorSet =
+  let primitiveComparatorSet = case comparatorSet of
+        CSPrimitive cs -> cs
+        CSSpecial cs -> specialComparatorSetToPrimitiveComparatorSet cs
+   in doesVersionSatisfyPrimitiveComparatorSet version primitiveComparatorSet
 
 isVersionInRange :: Version -> Range -> Bool
 isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
 
-rangeFromVersion :: (Operator, Version) -> Range
-rangeFromVersion = Range . pure . ComparatorSet . pure . uncurry Comparator
-
+-- TODO: This is a problem now, I can't put multiple ComparatorSet into one range while keeping them intersected since I assume they are OR and not AND.
 rangeFromVersionsIntersection :: [(Operator, Version)] -> Range
 rangeFromVersionsIntersection [] = Range []
 rangeFromVersionsIntersection compPairs = Range $ pure $ ComparatorSet $ uncurry Comparator <$> NE.fromList compPairs
+
+-- Helper methods for constructing ranges.
+
+lt :: Version -> Range
+lt = rangeFromPrimitiveComparatorSet LessThan
+
+lte :: Version -> Range
+lte = rangeFromPrimitiveComparatorSet LessThanOrEqual
+
+gt :: Version -> Range
+gt = rangeFromPrimitiveComparatorSet GreaterThan
+
+gte :: Version -> Range
+gte = rangeFromPrimitiveComparatorSet GreaterThanOrEqual
+
+eq :: Version -> Range
+eq = rangeFromPrimitiveComparatorSet Equal
+
+caret :: Version -> Range
+caret = rangeFromSpecialComparatorSet . Caret
+
+rangeFromPrimitiveComparatorSet :: Operator -> Version -> Range
+rangeFromPrimitiveComparatorSet op = Range . pure . CSPrimitive . PrimitiveComparatorSet . pure . Comparator op
+
+rangeFromSpecialComparatorSet :: SpecialComparatorSet -> Range
+rangeFromSpecialComparatorSet = Range . pure . CSSpecial
+
+-- data Comparator = ComparatorP PrimitiveComparator | ComparatorS SpecialComparator
+--   deriving (Eq)
+
+-- newtype PrimitiveComparator = PrimitiveComparator Operator Version
+--   deriving (Eq)
+
+-- data SpecialComparator = Caret Version
+--   deriving (Eq)
+
+-- data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+--   deriving (Eq)
+
+-- data PrimitiveComparatorSet = PrimitiveComparatorSet (NonEmpty PrimitiveComparator)
+--   deriving (Eq)
