@@ -11,11 +11,12 @@ module Wasp.SemanticVersion
 where
 
 import Data.List (intercalate)
-import Data.List.NonEmpty (NonEmpty, toList)
+import Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import Numeric.Natural
 import Text.Printf (printf)
 
--- Implements semantic version by following spec from https://github.com/npm/node-semver .
+-- Implements SemVer (semantic versioning) by following spec from https://github.com/npm/node-semver .
 
 data Version = Version
   { major :: Natural,
@@ -24,31 +25,41 @@ data Version = Version
   }
   deriving (Eq, Ord)
 
+-- | We rely on `show` here to produce valid semver representation of version.
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
 data Operator = Equal | LessThanOrEqual | BackwardsCompatibleWith
+  deriving (Eq)
 
+-- | We rely on `show` here to produce valid semver representation of operator.
 instance Show Operator where
   show Equal = "="
   show LessThanOrEqual = "<="
   show BackwardsCompatibleWith = "^"
 
 data Comparator = Comparator Operator Version
+  deriving (Eq)
 
+-- | We rely on `show` here to produce valid semver representation of comparator.
 instance Show Comparator where
   show (Comparator op v) = show op ++ show v
 
 data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+  deriving (Eq)
 
+-- | We rely on `show` here to produce valid semver representation of comparator set.
 instance Show ComparatorSet where
-  show (ComparatorSet comps) = unwords $ show <$> toList comps
+  show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
 data Range = Range (NonEmpty ComparatorSet)
+  deriving (Eq)
 
+-- | We rely on `show` here to produce valid semver representation of version range.
 instance Show Range where
-  show (Range compSets) = intercalate " || " $ show <$> toList compSets
+  show (Range compSets) = intercalate " || " $ show <$> NE.toList compSets
 
+-- | We define concatenation of two version ranges as union of their comparator sets.
 instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ csets1 <> csets2
 

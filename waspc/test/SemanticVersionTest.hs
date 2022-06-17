@@ -7,6 +7,38 @@ import Wasp.SemanticVersion
 
 spec_SemanticVersion :: Spec
 spec_SemanticVersion = do
+  describe "`show` produces valid semver strings" $ do
+    it "show Version" $ do
+      show (Version 0 0 0) `shouldBe` "0.0.0"
+      show (Version 0 19 0) `shouldBe` "0.19.0"
+      show (Version 1 2 314) `shouldBe` "1.2.314"
+    it "show complex Range" $ do
+      let versionComp1 = (Equal, Version 1 2 3)
+      let versionComp2 = (LessThanOrEqual, Version 1 3 6)
+      let versionComp3 = (BackwardsCompatibleWith, Version 1 2 0)
+      let complexRange =
+            rangeFromVersionsIntersection (fromList [versionComp2, versionComp3])
+              <> rangeFromVersion versionComp1
+      show complexRange `shouldBe` "<=1.3.6 ^1.2.0 || =1.2.3"
+  it "concatenating two version ranges with `<>` produces union of their comparator sets" $ do
+    let concatenatedRange =
+          rangeFromVersion (LessThanOrEqual, Version 1 2 3)
+            <> rangeFromVersion (Equal, Version 1 0 0)
+    let expectedRange =
+          Range $
+            fromList
+              [ ComparatorSet $ pure $ Comparator LessThanOrEqual (Version 1 2 3),
+                ComparatorSet $ pure $ Comparator Equal (Version 1 0 0)
+              ]
+    concatenatedRange `shouldBe` expectedRange
+  it "rangeFromVersionsIntersection produces version range that puts all version comparators into one comparator set" $ do
+    rangeFromVersionsIntersection (fromList [(LessThanOrEqual, Version 1 2 3), (Equal, Version 1 0 0)])
+      `shouldBe` ( Range . pure . ComparatorSet $
+                     fromList [Comparator LessThanOrEqual (Version 1 2 3), Comparator Equal (Version 1 0 0)]
+                 )
+  it "rangeFromVersion produces version range with single version comparator in it" $ do
+    rangeFromVersion (LessThanOrEqual, Version 1 2 3)
+      `shouldBe` (Range . pure . ComparatorSet . pure $ Comparator LessThanOrEqual (Version 1 2 3))
   describe "isVersionInRange" $ do
     it "Recognizes only version v to be in range '=v'" $
       testRange
