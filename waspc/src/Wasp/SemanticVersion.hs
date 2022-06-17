@@ -86,3 +86,20 @@ rangeFromVersion = Range . pure . ComparatorSet . pure . uncurry Comparator
 
 rangeFromVersionsIntersection :: NonEmpty (Operator, Version) -> Range
 rangeFromVersionsIntersection = Range . pure . ComparatorSet . (uncurry Comparator <$>)
+
+data Bound = Included {boundVersion :: Version} | Excluded {boundVersion :: Version}
+  deriving (Eq)
+
+data BoundsRange = LeftToRight Bound Bound | LeftToInf Bound
+
+mkBoundsRange :: Bound -> Maybe Bound -> BoundsRange
+mkBoundsRange bl Nothing = LeftToInf bl
+mkBoundsRange bl (Just br) | boundVersion bl <= boundVersion br = LeftToRight bl br
+mkBoundsRange bl@(Included vl) (Just br@(Included vr)) | vl == vr = LeftToRight bl br
+mkBoundsRange bl br = error "Invalid bounds range: " <> show bl <> show br
+
+rangeToBounds :: Range -> [BoundsRange]
+rangeToBounds = error "TODO"
+
+comparatorToBounds :: Comparator -> [BoundsRange]
+comparatorToBounds (Comparator op version) = error "TODO"
