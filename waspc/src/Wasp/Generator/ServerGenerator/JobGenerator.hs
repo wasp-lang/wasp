@@ -1,7 +1,7 @@
 module Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobs,
     genJobExecutors,
-    pgBossVersionBounds,
+    pgBossVersionRange,
     pgBossDependency,
     depsRequiredByJobs,
   )
@@ -136,11 +136,11 @@ jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
-pgBossVersionBounds :: SV.VersionBounds
-pgBossVersionBounds = SV.BackwardsCompatibleWith (SV.Version 7 2 1)
+pgBossVersionRange :: SV.Range
+pgBossVersionRange = SV.rangeFromVersion (SV.BackwardsCompatibleWith, SV.Version 7 2 1)
 
 pgBossDependency :: AS.Dependency.Dependency
-pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionBounds)
+pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionRange)
 
 depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]

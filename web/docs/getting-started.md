@@ -11,14 +11,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 1. Requirements
 
-### Node.js compatible with 16.0.0
-```shell-session
-node -v  # must be something like 16.x.x
-```
+You need to have `node` (and `npm`) installed on your machine and available in `PATH`.
+- `node`: >=16.11.0 and <=16.15.0
+- `npm`: >= 8.0.0 and <= 8.5.5
 
-### NPM compatible with 8.0.0
+You can check `node` and `npm` versions by running:
 ```shell-session
-npm -v  # must be something like 8.x.x
+node -v
+npm -v
 ```
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
@@ -31,14 +31,14 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
 
-  Then, install a version of node that you need (any version compatible with 16.0.0), e.g.:
+  Then, install a version of node that you need, e.g.:
   ```shell-session
-  nvm install 16
+  nvm install 16.15.0
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  nvm use 16
+  nvm use 16.15.0
   ```
   to set the node version for current shell session.
 
@@ -53,6 +53,17 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   </div>
 </details>
 
+:::info
+
+Why does Wasp require this specific `node` range and doesn't support a newer version x.y.z?
+
+At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why official Node.js team recommends it for usage in production.
+Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
+Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
+
+Sometimes we will make an exception to that and additionaly limit the Node.js version or postpone switching to the latest LTS if there are certain issues with new Node.js version, in which case we will catch up once those are resolved on Node.js side or we find a workaround on Wasp side.
+
+:::
 
 ## 2. Installation
 

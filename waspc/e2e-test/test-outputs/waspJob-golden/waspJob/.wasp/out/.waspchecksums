@@ -37,13 +37,6 @@
     [
         [
             "file",
-            "server/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "e14514b8b152dd2160a217d8fc66a710c8607c4ed1441a2148a0770701818249"
@@ -53,7 +46,7 @@
             "file",
             "server/package.json"
         ],
-        "ed4cedc6f1595457dbcf57380909f11e789d5b86af900009dbc1cfe6afa2bb04"
+        "af2ab353120775cc7d4e9ff61c853994c4e02e761e942fae06b70cee58651020"
     ],
     [
         [
@@ -212,13 +205,6 @@
     [
         [
             "file",
-            "web-app/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
-    ],
-    [
-        [
-            "file",
             "web-app/README.md"
         ],
         "aa1bd54732b015158d24c55e03bc79b2f211109bc2b0478d6f2ad6b52d15847f"
@@ -235,7 +221,7 @@
             "file",
             "web-app/package.json"
         ],
-        "67e7b3c15c7f0316d4988c50e0d03d3103759b369662ceca6cdc6217fe2b5632"
+        "b6e6aef85445808b54fa8cd9b5ac7b85105eeb2d55dc002fe20f374f06212c66"
     ],
     [
         [
@@ -257,6 +243,13 @@
             "web-app/public/manifest.json"
         ],
         "f223cbdd7db93d51c3ecf8282a06801449b29bfb6821313c383c1b18ad8c1479"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/actions/core.js"
+        ],
+        "0891b7607b5503ada42386f73476a46f774a224d8b606f79ef37e451b229d399"
     ],
     [
         [
@@ -334,6 +327,13 @@
             "web-app/src/operations/resources.js"
         ],
         "9bccf509e1a3e04e24444eacd69e0f093e590a9b85325bedb6f1d52ac85ead3c"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/core.js"
+        ],
+        "031c6d10898cb43f7f7e581422542585383b262d8a4f4d8738c695cca4b3fca1"
     ],
     [
         [

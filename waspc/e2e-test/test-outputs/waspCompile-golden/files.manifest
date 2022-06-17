@@ -4,7 +4,6 @@ waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedFullStackNpmDependencies.json
 waspCompile/.wasp/out/server/.npmrc
-waspCompile/.wasp/out/server/.nvmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/package.json
 waspCompile/.wasp/out/server/src/app.js
@@ -26,13 +25,13 @@ waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/web-app/.npmrc
-waspCompile/.wasp/out/web-app/.nvmrc
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/netlify.toml
 waspCompile/.wasp/out/web-app/package.json
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/index.html
 waspCompile/.wasp/out/web-app/public/manifest.json
+waspCompile/.wasp/out/web-app/src/actions/core.js
 waspCompile/.wasp/out/web-app/src/api.js
 waspCompile/.wasp/out/web-app/src/config.js
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
@@ -43,6 +42,7 @@ waspCompile/.wasp/out/web-app/src/index.js
 waspCompile/.wasp/out/web-app/src/logo.png
 waspCompile/.wasp/out/web-app/src/operations/index.js
 waspCompile/.wasp/out/web-app/src/operations/resources.js
+waspCompile/.wasp/out/web-app/src/queries/core.js
 waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.js

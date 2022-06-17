@@ -23,7 +23,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds)
+import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
@@ -35,7 +35,6 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -44,7 +43,6 @@ genWebApp spec = do
     [ genReadme,
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
-      genNvmrc,
       genGitignore,
       return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|]
     ]
@@ -67,8 +65,8 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionBounds" .= show nodeVersionBounds,
-              "npmVersionBounds" .= show npmVersionBounds
+              "nodeVersionRange" .= show nodeVersionRange,
+              "npmVersionRange" .= show npmVersionRange
             ]
       )
 
@@ -79,15 +77,6 @@ genNpmrc =
       (C.asTmplFile [relfile|npmrc|])
       (C.asWebAppFile [relfile|.npmrc|])
       Nothing
-
-genNvmrc :: Generator FileDraft
-genNvmrc =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|nvmrc|])
-      (C.asWebAppFile [relfile|.nvmrc|])
-      -- We want to specify only the major version, check the comment in `ServerGenerator.hs` for details
-      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp _spec =

@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.5.0.0
+version:        0.5.1.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -28,10 +28,8 @@ data-files:
   Generator/templates/dockerignore
   Generator/templates/react-app/gitignore
   Generator/templates/react-app/npmrc
-  Generator/templates/react-app/nvmrc
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
-  Generator/templates/server/nvmrc
   Generator/templates/**/*.prisma
   Generator/templates/**/*.toml
   Generator/templates/**/*.json
