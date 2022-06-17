@@ -29,7 +29,19 @@ data Version = Version
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
-data Operator = Equal | LessThanOrEqual | BackwardsCompatibleWith
+data Operator
+  = Equal
+  | LessThanOrEqual
+  | -- | TODO: BackwardsCompatibleWith (^) is actually, by semver spec, a special "range" which desugarizes into basic
+    -- comparators.
+    -- Same goes for other special ranges like Hyphen, v.x.x, ~, ... . They are all sugars that can be expressed with basic
+    -- comparators.
+    -- Although they call them special "ranges", since they all desugarize into comparator sets (no ||), we can also
+    -- more strictly treat them as special "comparator sets".
+    -- Therefore, we should remove ^ as an operator from here and instead extend ComparatorSet as:
+    -- data ComparatorSet = Regular (NonEmpty Comparator) | Special ComparatorSetSpecial
+    -- data ComparatorSetSpecial = BackwardsCompatibleWith Version | Hyphen Version Version | ...
+    BackwardsCompatibleWith
   deriving (Eq)
 
 -- | We rely on `show` here to produce valid semver representation of operator.
