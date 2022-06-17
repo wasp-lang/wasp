@@ -42,6 +42,7 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
+    Control.Syntax.Traverse
     Wasp.Backend.Token
     Wasp.Backend.Lexer
     Wasp.Backend.TokenSet
@@ -103,6 +104,7 @@ test-suite waspls-test
     , tasty-quickcheck      ^>= 0.10
   other-modules:
     TestUtil
+    Control.Syntax.TraverseTest
     Wasp.Backend.LexerTest
     Wasp.Backend.ConcreteParserTest
 
