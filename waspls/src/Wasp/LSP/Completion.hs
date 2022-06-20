@@ -4,20 +4,42 @@ module Wasp.LSP.Completion
 where
 
 import Control.Lens ((^.))
+import Control.Syntax.Traverse (fromSyntaxForest, kindAt)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import Wasp.Backend.ConcreteSyntax (SyntaxNode)
 import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
+import Wasp.LSP.Syntax (isAtExprPlace, toPosition)
 
--- TODO: make this smarter
--- for now, just find all declaration names and use them as completion items
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
 getCompletionsAtPosition position = do
-  src <- gets (^. sourceString)
-  declNames <- findDeclNames src 0 . concat <$> gets (^. cst)
-  logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " declNames=" ++ show declNames
+  mbSyntax <- gets (^. cst)
+  case mbSyntax of
+    -- If there is no syntax tree, make no completions
+    Nothing -> return []
+    Just syntax -> do
+      -- 'location' is a traversal through the syntax tree that points to 'position'
+      let location = toPosition position (fromSyntaxForest syntax)
+      src <- gets (^. sourceString)
+      exprCompletions <-
+        if isAtExprPlace location
+          then do
+            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=True"
+            getExprCompletions src syntax
+          else do
+            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=False atKind=" ++ show (kindAt location)
+            return []
+      let completions = exprCompletions
+      return completions
+
+-- | If the location is at an expression, find declaration names in the file
+-- and return them as autocomplete suggestions
+getExprCompletions :: String -> [SyntaxNode] -> ServerM [LSP.CompletionItem]
+getExprCompletions src syntax = do
+  let declNames = findDeclNames src 0 syntax
+  logM $ "[getExprCompletions] declnames=" ++ show declNames
   return $
     map
       ( \(name, typ) ->
@@ -25,7 +47,7 @@ getCompletionsAtPosition position = do
             { _label = Text.pack name,
               _kind = Just LSP.CiVariable,
               _tags = Nothing,
-              _detail = Just (Text.pack $ ":: " ++ typ),
+              _detail = Just (Text.pack $ ":: " ++ typ ++ " (declaration type)"),
               _documentation = Nothing,
               _deprecated = Nothing,
               _preselect = Nothing,
@@ -43,6 +65,7 @@ getCompletionsAtPosition position = do
       )
       declNames
 
+-- | TODO: refactor to use "Traversal"
 findDeclNames :: String -> Int -> [SyntaxNode] -> [(String, String)]
 findDeclNames _ _ [] = []
 findDeclNames src offset (node : rest) = case S.snodeKind node of

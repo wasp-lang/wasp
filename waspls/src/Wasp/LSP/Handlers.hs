@@ -92,7 +92,6 @@ updateState uri = do
   let concreteParse = parseCST $ L.lex srcString
   -- Put CST in state
   modify (cst ?~ snd concreteParse)
-  logM $ "[updateState] cst=\n" ++ intercalate "\n" (map (("  " ++) . cstPrettyPrint) $ snd concreteParse)
   if not $ null $ fst concreteParse
     then do
       -- Errors found during concrete parsing. Replace diagnostics with new parse

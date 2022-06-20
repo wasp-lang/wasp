@@ -59,6 +59,7 @@ library
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
     Wasp.LSP.Util
+    Wasp.LSP.Syntax
     Wasp.Backend.Lexer.Internal
     Wasp.Backend.Lexer.Lexer
   hs-source-dirs:

@@ -4,9 +4,12 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Control.Syntax.Traverse
-  ( -- * Generalized tree traversals
+  ( -- * Syntax tree traversal
 
-    -- | Library for traversing around trees isomorphic to rose trees.
+    -- | Library for traversing around syntax trees. The main benefits are:
+    --
+    -- - Easier to find nodes relative to a particular node
+    -- - Keeps track of absolute source offset
     --
     -- A design choice was made in this module to prefer partial functions with
     -- explicit invariants that must be checked by users of the library. This
@@ -234,7 +237,7 @@ next t
   | hasChildren t = until (not . hasChildren) down t
   | hasAncestors t = case until (\t' -> hasRightSiblings t' || not (hasAncestors t')) up t of
     t'
-      | not (hasAncestors t') -> error "Control.Tree.Traversal.next with no next nodes"
+      | not (hasRightSiblings t') -> error "Control.Tree.Traversal.next with no next nodes"
       | otherwise -> until (not . hasChildren) down (t' & right)
   | otherwise = error "Control.Tree.Traversal.next with no next nodes"
 
@@ -247,7 +250,7 @@ back t
   | hasChildren t = until (not . hasChildren) down t
   | hasAncestors t = case until (\t' -> hasLeftSiblings t' || not (hasAncestors t')) up t of
     t'
-      | not (hasAncestors t') -> error "Control.Tree.Traversal.back with no previous nodes"
+      | not (hasLeftSiblings t') -> error "Control.Tree.Traversal.back with no previous nodes"
       | otherwise -> until (not . hasChildren) (down .> until (not . hasRightSiblings) right) (t' & left)
   | otherwise = error "Control.Tree.Traversal.back with no previous nodes"
 
