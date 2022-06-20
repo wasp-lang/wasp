@@ -115,7 +115,10 @@ npmDepsForWasp spec =
             ("@prisma/client", show prismaVersion),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("helmet", "^4.6.0"),
+            -- TODO: Conditionally wrap these two passport deps.
+            ("passport", "0.6.0"),
+            ("passport-google-oauth2", "0.2.0")
           ]
           ++ depsRequiredByJobs spec
           ++ depsRequiredBySessions spec,
@@ -159,6 +162,7 @@ genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|session.js|],
+      copyTmplFile [relfile|passport.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,

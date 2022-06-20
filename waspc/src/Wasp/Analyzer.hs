@@ -40,7 +40,7 @@ module Wasp.Analyzer
     -- > app MyApp {
     -- >   title: "My App",
     -- >   homePage: DashboardPage,
-    -- >   auth: UsernameAndPassword
+    -- >   auth: EmailAndPassword
     -- > }
     -- >
     -- > page DashboardPage { ... }
@@ -50,7 +50,7 @@ module Wasp.Analyzer
     -- @auth@, @homePage@ and @title@ (and possibly some more optional fields).
     -- @title@ field is of fundamental type @string@.
     -- @homePage@ field is of domain type @page@ which is a Declaration.
-    -- @auth@ field is of domain type @AuthMethod@ which is an Enum (one of whose values is @UsernameAndPassword@).
+    -- @auth@ field is of domain type @AuthMethod@ which is an Enum (one of whose values is @EmailAndPassword@).
 
     -- *** Domain types and how to define them
 

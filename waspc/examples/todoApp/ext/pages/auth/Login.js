@@ -11,6 +11,8 @@ const Login = () => {
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
+      
+      <a class="button google" href="http://localhost:3001/login/federated/google">Sign in with Google</a>
     </>
   )
 }

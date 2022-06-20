@@ -8,7 +8,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ EmailAndPassword, Google ],
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
