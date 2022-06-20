@@ -25,10 +25,11 @@ toPosition (J.Position targetLine targetCol) t = go 0 0 t
     go l c t'
       | l == targetLine && c >= targetCol = t'
       | l > targetLine = t' -- The target line didn't have enough columns
-      -- TODO: uncomment this when hasNext is implemented
-      --  | not (hasNext t') = t' -- Source didn't have enough lines
-      | kindAt t' == S.Token T.Newline = go (l + 1) c (next t')
-      | otherwise = go l (c + fromIntegral (widthAt t')) (next t')
+      | otherwise = case t & next of
+        Nothing -> t -- Source doesn't have the position
+        Just t''
+          | kindAt t' == S.Token T.Newline -> go (l + 1) c t''
+          | otherwise -> go l (c + fromIntegral (widthAt t')) t''
 
 -- | Check whether a position in a CST is somewhere an expression belongs. These
 -- locations (as of now) are:
@@ -44,5 +45,5 @@ isAtExprPlace t =
     || (parentIs S.Decl && hasLeft S.DeclType && hasLeft S.DeclName)
     || parentIs S.Tuple
   where
-    parentIs k = hasAncestors t && (parentKind t == k)
+    parentIs k = Just k == parentKind t
     hasLeft k = k `elem` map S.snodeKind (leftSiblings t)

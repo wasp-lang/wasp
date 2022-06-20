@@ -53,6 +53,7 @@ library
   other-modules:
     Paths_waspls
     Wasp.LSP.ServerState
+    Control.Monad.Loops
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
     Wasp.LSP.Handlers

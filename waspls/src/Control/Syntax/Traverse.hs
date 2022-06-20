@@ -10,14 +10,6 @@ module Control.Syntax.Traverse
     --
     -- - Easier to find nodes relative to a particular node
     -- - Keeps track of absolute source offset
-    --
-    -- A design choice was made in this module to prefer partial functions with
-    -- explicit invariants that must be checked by users of the library. This
-    -- was done to reduce code noise in the use of the API.
-    --
-    -- TODO: Is this design choice justified in the context of how it is used?
-    -- Does use generally assume invariants are true or does it check them each
-    -- time?
     Traversal,
 
     -- * Constructors
@@ -26,24 +18,18 @@ module Control.Syntax.Traverse
 
     -- * Traversal operations
 
-    -- | The operators '(&)' and '(.>)' are exported to allow for a slightly
+    -- | The operators '(&)', '(?&)', and '(?>)' are exported to allow for a slightly
     -- more natural order in using traversal operations. For example, to
     -- get to the 3rd child from the left down 2 levels in a tree you can do
     --
-    -- >>> traversal & down & down & right & right
-    --
-    -- Or
-    --
-    -- >>> traversal & down .> down .> right .>
+    -- >>> traversal & down ?> down ?> right ?> right
     --
     -- Which is equivalent to:
     --
-    -- >>> right $ right $ down $ down $ traversal
-    --
-    -- '(&)' is reverse function application ('($)'), '(.>)' is reverse function
-    -- composition ('(.)').
+    -- >>> right <$> right <$> down <$> down <$> traversal
     (&),
-    (.>),
+    (?&),
+    (?>),
     down,
     up,
     left,
@@ -74,7 +60,10 @@ module Control.Syntax.Traverse
   )
 where
 
+import Control.Monad ((>=>))
+import Control.Monad.Loops (untilM)
 import Data.Function ((&))
+import Data.Maybe (isJust)
 import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
 
 -- | An in-progress traversal through some tree @f@.
@@ -122,82 +111,86 @@ levelFromTraversableTree offset node rSiblings =
       tlRightSiblings = rSiblings
     }
 
--- | Reverse function composition.
+-- | Apply a traversal operation to a traversal that may not exist
 --
--- @f .> g == g . f@
-infixl 2 .>
+-- @x ?& f == f <$> x
+infixl 1 ?&
 
-(.>) :: (a -> b) -> (b -> c) -> a -> c
-f .> g = g . f
+(?&) :: Maybe Traversal -> (Traversal -> Maybe Traversal) -> Maybe Traversal
+x ?& f = x >>= f
+
+-- | Composition of two traversal operations
+--
+-- @f ?> g == f >=> g@
+infixl 2 ?>
+
+(?>) :: (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal)
+f ?> g = f >=> g
 
 -- | Move down a level in the tree, to the first child of the current position.
---
--- This function is not total. Invariant: @'hasChildren' t == True@
-down :: Traversal -> Traversal
+down :: Traversal -> Maybe Traversal
 down t = case tlChildren (tCurrent t) of
-  [] -> error "Control.Tree.Traversal.down on leaf"
+  [] -> Nothing
   (c : cs) ->
-    Traversal
-      { tAncestors = tCurrent t : tAncestors t,
-        tCurrent = levelFromTraversableTree (offsetAt t) c cs
-      }
+    Just $
+      Traversal
+        { tAncestors = tCurrent t : tAncestors t,
+          tCurrent = levelFromTraversableTree (offsetAt t) c cs
+        }
 
 -- | Move up a level in the tree, to the parent of the current position.
---
--- This function is not total. Invariant: @'hasAncestors' t == True@
-up :: Traversal -> Traversal
+up :: Traversal -> Maybe Traversal
 up t = case tAncestors t of
-  [] -> error "Control.Tree.Traversal.up on root"
+  [] -> Nothing
   (a : as) ->
-    Traversal
-      { tAncestors = as,
-        tCurrent = a
-      }
+    Just $
+      Traversal
+        { tAncestors = as,
+          tCurrent = a
+        }
 
 -- | Move to the sibling left of the current position.
---
--- This function is not total. Invariant: @'hasLeftSiblings' t == True@
-left :: Traversal -> Traversal
+left :: Traversal -> Maybe Traversal
 left t = case leftSiblings t of
-  [] -> error "Control.Tree.Traversal.left with no left siblings"
+  [] -> Nothing
   (l : ls) ->
-    t
-      { tCurrent =
-          TraversalLevel
-            { tlKind = snodeKind l,
-              tlWidth = snodeWidth l,
-              tlOffset = offsetAt t - snodeWidth l,
-              tlChildren = snodeChildren l,
-              tlLeftSiblings = ls,
-              tlRightSiblings = nodeAt t : rightSiblings t
-            }
-      }
+    Just $
+      t
+        { tCurrent =
+            TraversalLevel
+              { tlKind = snodeKind l,
+                tlWidth = snodeWidth l,
+                tlOffset = offsetAt t - snodeWidth l,
+                tlChildren = snodeChildren l,
+                tlLeftSiblings = ls,
+                tlRightSiblings = nodeAt t : rightSiblings t
+              }
+        }
 
 -- | Move to the sibling right of the current position.
 --
 -- This function is not total. Invariant: @'hasRightSiblings' t == True@
-right :: Traversal -> Traversal
+right :: Traversal -> Maybe Traversal
 right t = case rightSiblings t of
-  [] -> error "Control.Tree.Traversal.right with no right siblings"
+  [] -> Nothing
   (r : rs) ->
-    t
-      { tCurrent =
-          TraversalLevel
-            { tlKind = snodeKind r,
-              tlWidth = snodeWidth r,
-              tlOffset = offsetAt t + widthAt t,
-              tlChildren = snodeChildren r,
-              tlLeftSiblings = nodeAt t : leftSiblings t,
-              tlRightSiblings = rs
-            }
-      }
+    Just $
+      t
+        { tCurrent =
+            TraversalLevel
+              { tlKind = snodeKind r,
+                tlWidth = snodeWidth r,
+                tlOffset = offsetAt t + widthAt t,
+                tlChildren = snodeChildren r,
+                tlLeftSiblings = nodeAt t : leftSiblings t,
+                tlRightSiblings = rs
+              }
+        }
 
 -- | Move to the next node in the tree.
 --
 -- The next node is the first childless node encountered after the current
 -- position in a left-to-right depth-first-search of the tree.
---
--- This function is not total. Invariant: @'hasNext' t == True@.
 --
 -- __Examples:__
 --
@@ -232,26 +225,22 @@ right t = case rightSiblings t of
 --                 │
 --           start & next
 -- @
-next :: Traversal -> Traversal
+next :: Traversal -> Maybe Traversal
 next t
-  | hasChildren t = until (not . hasChildren) down t
-  | hasAncestors t = case until (\t' -> hasRightSiblings t' || not (hasAncestors t')) up t of
-    t'
-      | not (hasRightSiblings t') -> error "Control.Tree.Traversal.next with no next nodes"
-      | otherwise -> until (not . hasChildren) down (t' & right)
-  | otherwise = error "Control.Tree.Traversal.next with no next nodes"
+  | hasChildren t = untilM (not . hasChildren) down t
+  | hasAncestors t = case untilM hasRightSiblings up t of
+    Nothing -> Nothing
+    Just t' -> t' & right ?> untilM (not . hasChildren) down
+  | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
 -- of right.
---
--- This function is not total. Invariant: @'hasPrevious' t == True@
-back :: Traversal -> Traversal
+back :: Traversal -> Maybe Traversal
 back t
-  | hasChildren t = until (not . hasChildren) down t
-  | hasAncestors t = case until (\t' -> hasLeftSiblings t' || not (hasAncestors t')) up t of
-    t'
-      | not (hasLeftSiblings t') -> error "Control.Tree.Traversal.back with no previous nodes"
-      | otherwise -> until (not . hasChildren) (down .> until (not . hasRightSiblings) right) (t' & left)
+  | hasChildren t = untilM (not . hasChildren) down t
+  | hasAncestors t = case untilM hasLeftSiblings up t of
+    Nothing -> Nothing
+    Just t' -> t' & right ?> untilM (not . hasChildren) (down ?> untilM (not . hasRightSiblings) right)
   | otherwise = error "Control.Tree.Traversal.back with no previous nodes"
 
 -- | Get the "SyntaxKind" at the current position.
@@ -271,8 +260,8 @@ offsetAt t = tlOffset (tCurrent t)
 -- [Property] @'parentKind' t == 'contentAt' (t & 'up')@
 --
 -- This function is not total. Invariant: @'hasAncestors' t == True@
-parentKind :: Traversal -> SyntaxKind
-parentKind t = kindAt $ up t
+parentKind :: Traversal -> Maybe SyntaxKind
+parentKind t = kindAt <$> up t
 
 -- | Get the node at the current position.
 nodeAt :: Traversal -> SyntaxNode
@@ -288,14 +277,14 @@ nodeAt t =
 -- [Property] @'parentOf' t == 'nodeAt' (t & 'up')@
 --
 -- This function is not total. Invariant: @'hasAncestors' t == True@
-parentOf :: Traversal -> SyntaxNode
-parentOf t = nodeAt $ up t
+parentOf :: Traversal -> Maybe SyntaxNode
+parentOf t = nodeAt <$> up t
 
 -- | Get the ancestor nodes of the current position.
 ancestors :: Traversal -> [SyntaxNode]
-ancestors t
-  | hasAncestors t = nodeAt t : ancestors (t & up)
-  | otherwise = []
+ancestors t = case t & up of
+  Nothing -> []
+  Just parent -> nodeAt parent : ancestors parent
 
 -- | Get the siblings of the current position (not including the current node).
 --
@@ -330,12 +319,12 @@ hasRightSiblings t = not $ null $ rightSiblings t
 -- | Check if the current position has a next position. See the documentation for
 -- 'next' for a definition of what this means.
 hasNext :: Traversal -> Bool
-hasNext t = undefined
+hasNext t = isJust $ next t
 
 -- | Check if the current position has a previous position. Analogue for 'back'
 -- of 'hasNext'.
 hasPrevious :: Traversal -> Bool
-hasPrevious t = undefined
+hasPrevious t = isJust $ back t
 
 -- | Check if the current position has at least one parent.
 hasAncestors :: Traversal -> Bool
