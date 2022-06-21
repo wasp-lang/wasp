@@ -28,8 +28,8 @@ export default handleRejection(async (req, res) => {
       return res.status(401).send()
   }
 
-  // Save user_id in session for future request use.
-  req.session = { user_id: {= userEntityLower =}.id }
+  // Save userId in session for future request use.
+  req.session = { userId: {= userEntityLower =}.id }
 
   return res.status(200).send()
 })

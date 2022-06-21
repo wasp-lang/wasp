@@ -162,7 +162,8 @@ genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|session.js|],
-      copyTmplFile [relfile|passport.js|],
+      copyTmplFile [relfile|auth/passport.js|],
+      copyTmplFile [relfile|auth/google.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
