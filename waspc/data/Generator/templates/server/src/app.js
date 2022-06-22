@@ -27,8 +27,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-if (config.trustProxyCount > 0) {
-  app.set('trust proxy', config.trustProxyCount)
+if (config.trustProxies) {
+  app.enable('trust proxy')
+  console.log("Trusting proxies")
 }
 
 {=# isAuthEnabled =}

@@ -41,7 +41,7 @@ Server uses following environment variables, so you need to ensure they are set 
 - `SESSION_COOKIE_NAME: string` -> name of cookie used to store session data (defaults to `"wasp_session"`).
 - `SESSION_COOKIE_MAX_AGE: int` -> max age of session cookie in milliseconds (defaults to one week).
 - `CSRF_COOKIE_NAME: string` -> name of cookie used to store csrf double submit pattern secret (defaults to `"wasp_csrf"`).
-- `TRUST_PROXY_COUNT: int` -> number of proxies for Express app to trust (defaults to `0` for dev, and `1` for prod).
+- `TRUST_PROXIES: bool` -> if Express app should trust proxies (defaults to `false` in development, and `true` in production).
 
 ### Deploying to Heroku
 

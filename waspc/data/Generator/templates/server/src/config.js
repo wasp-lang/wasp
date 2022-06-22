@@ -14,8 +14,10 @@ const config = {
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
     // This option is sometimes needed when running behind proxies/load balancers.
+    // For example, this is required for secure cookies to work on Heroku.
     // Ref: https://expressjs.com/en/guide/behind-proxies.html
-    trustProxyCount: undefined,
+    // For now, we only handle the boolean case.
+    trustProxies: undefined,
     {=# isAuthEnabled =}
     session: {
       cookie: {
@@ -33,7 +35,7 @@ const config = {
     frontendUrl: undefined,
   },
   development: {
-    trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 0,
+    trustProxies: toBooleanOrDefault(process.env.TRUST_PROXIES, false),
     {=# isAuthEnabled =}
     session: {
       cookie: {
@@ -44,7 +46,7 @@ const config = {
     frontendUrl: process.env.REACT_APP_URL || 'http://localhost:3000',
   },
   production: {
-    trustProxyCount: parseInt(process.env.TRUST_PROXY_COUNT) || 1,
+    trustProxies: toBooleanOrDefault(process.env.TRUST_PROXIES, true),
     {=# isAuthEnabled =}
     session: {
       cookie: {
@@ -58,6 +60,23 @@ const config = {
 
 const resolvedConfig = _.merge(config.all, config[env])
 export default resolvedConfig
+
+function toBooleanOrDefault(str, defaultValue) {
+  if (!str) {
+    return defaultValue
+  }
+
+  switch(str.toLowerCase()) {
+    case "t":
+    case "true":
+      return true
+    case "f":
+    case "false":
+      return false
+    default:
+      return defaultValue
+  }
+}
 
 export function checkCookieSecretLength(secret) {
   if (!secret || secret.length < 32) {
