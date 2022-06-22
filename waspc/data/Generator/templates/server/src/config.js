@@ -35,7 +35,7 @@ const config = {
     frontendUrl: undefined,
   },
   development: {
-    trustProxies: toBooleanOrDefault(process.env.TRUST_PROXIES, false),
+    trustProxies: parseBooleanOrDefault(process.env.TRUST_PROXIES, false),
     {=# isAuthEnabled =}
     session: {
       cookie: {
@@ -46,7 +46,7 @@ const config = {
     frontendUrl: process.env.REACT_APP_URL || 'http://localhost:3000',
   },
   production: {
-    trustProxies: toBooleanOrDefault(process.env.TRUST_PROXIES, true),
+    trustProxies: parseBooleanOrDefault(process.env.TRUST_PROXIES, true),
     {=# isAuthEnabled =}
     session: {
       cookie: {
@@ -61,7 +61,7 @@ const config = {
 const resolvedConfig = _.merge(config.all, config[env])
 export default resolvedConfig
 
-function toBooleanOrDefault(str, defaultValue) {
+function parseBooleanOrDefault(str, defaultValue) {
   if (!str) {
     return defaultValue
   }
