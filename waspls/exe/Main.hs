@@ -9,13 +9,10 @@ main :: IO ()
 main = do
   args <- O.execParser parseArgsWithHelp
   case command args of
-    PrintVersion -> doPrintVersion
-    Serve ->
-      if printVersion (options args)
-        then doPrintVersion
-        else LSP.run $ logFile $ options args
+    PrintVersion -> printVersion
+    Serve -> LSP.serve $ optionsLogFile $ options args
   where
-    doPrintVersion = putStrLn $ showVersion Paths_waspls.version
+    printVersion = putStrLn $ showVersion Paths_waspls.version
 
 parseArgsWithHelp :: O.ParserInfo Args
 parseArgsWithHelp =
@@ -31,16 +28,16 @@ data Args = Args
 data Command = PrintVersion | Serve
 
 data Options = Options
-  { printVersion :: Bool,
-    logFile :: Maybe FilePath,
-    useStdio :: Bool
+  { optionsLogFile :: Maybe FilePath,
+    optionsUseStdio :: Bool
   }
 
 parseArgs :: O.Parser Args
 parseArgs = Args <$> parseCommand <*> parseOptions
-  where
-    parseCommand = O.hsubparser versionCommand O.<|> pure Serve
 
+parseCommand :: O.Parser Command
+parseCommand = O.hsubparser versionCommand O.<|> pure Serve
+  where
     versionCommand =
       O.command
         "version"
@@ -48,7 +45,7 @@ parseArgs = Args <$> parseCommand <*> parseOptions
         <> O.metavar "version"
 
 parseOptions :: O.Parser Options
-parseOptions = Options <$> parseVersionFlag <*> O.optional parseLogFile <*> parseStdio
+parseOptions = Options <$> O.optional parseLogFile <*> parseStdio
   where
     parseLogFile =
       O.strOption
@@ -58,17 +55,10 @@ parseOptions = Options <$> parseVersionFlag <*> O.optional parseLogFile <*> pars
             <> O.metavar "LOG_FILE"
         )
 
-    parseVersionFlag =
-      O.switch
-        ( O.long "version"
-            <> O.short 'v'
-            <> O.help "Display version and exit"
-        )
-
     -- vscode passes this option to the language server. waspls always uses stdio,
     -- so this switch is ignored.
     parseStdio =
       O.switch
         ( O.long "stdio"
-            <> O.help "Use stdio protocol for LSP communication. This is the only supported protocol, so stdio is used by default and this flag does nothing."
+            <> O.help "Use stdio for communicating with LSP client. This is the only communication method we support for now, so this is the default anyway and this flag has no effect."
         )

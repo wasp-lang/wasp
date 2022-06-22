@@ -1,7 +1,7 @@
 module Wasp.LSP.Core
   ( ServerM,
     Severity (..),
-    State,
+    ServerState,
     ServerConfig,
   )
 where
@@ -15,7 +15,7 @@ import Data.Text (Text)
 import Language.LSP.Server (LspT)
 
 type ServerM =
-  ExceptT (Severity, Text) (StateT State (LspT ServerConfig IO))
+  ExceptT (Severity, Text) (StateT ServerState (LspT ServerConfig IO))
 
 -- | Error severity levels
 data Severity
@@ -40,7 +40,7 @@ instance FromJSON ServerConfig where
       "parsing ServerConfig failed, "
       (typeMismatch "Object" invalid)
 
-data State = State {}
+data ServerState = ServerState {}
 
-instance Default State where
-  def = State {}
+instance Default ServerState where
+  def = ServerState {}

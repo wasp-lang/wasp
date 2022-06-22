@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeOperators #-}
 
 module Wasp.LSP.Server
-  ( run,
+  ( serve,
   )
 where
 
@@ -16,17 +16,18 @@ import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
 import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
-import qualified Language.LSP.Types as J
+import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
-import Wasp.LSP.Core (ServerConfig, ServerM, Severity (..), State)
+import Wasp.LSP.Core (ServerConfig, ServerM, ServerState, Severity (..))
 import Wasp.LSP.Handlers
 
-run :: Maybe FilePath -> IO ()
-run maybeLogFile = do
+serve :: Maybe FilePath -> IO ()
+serve maybeLogFile = do
   setupLspLogger maybeLogFile
 
-  state <- MVar.newMVar (def :: State)
+  let defaultServerState = def :: ServerState
+  state <- MVar.newMVar defaultServerState
 
   let lspServerInterpretHandler env =
         LSP.Iso {forward = runHandler, backward = liftIO}
@@ -48,7 +49,7 @@ run maybeLogFile = do
     LSP.runServer
       LSP.ServerDefinition
         { defaultConfig = def :: ServerConfig,
-          onConfigurationChange = lspServerOnConfigChange,
+          onConfigurationChange = lspServerUpdateConfig,
           doInitialize = lspServerDoInitialize,
           staticHandlers = lspServerHandlers,
           interpretHandler = lspServerInterpretHandler,
@@ -59,7 +60,9 @@ run maybeLogFile = do
     0 -> return ()
     n -> exitWith (ExitFailure n)
 
--- | Setup DEBUG logger. Logs at other levels are ignored.
+-- | Setup global DEBUG logger. Logs at other levels are ignored.
+--
+-- Use 'System.Log.Logger.logM' at "DEBUG" level to write to this log.
 --
 -- @setupLspLogger Nothing@ doesn't set up any logger, so logs are not output
 -- anywhere.
@@ -72,16 +75,16 @@ setupLspLogger Nothing = pure ()
 setupLspLogger (Just "[OUTPUT]") = LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
 setupLspLogger file = LSP.setupLogger file [] System.Log.Logger.DEBUG
 
-lspServerOnConfigChange :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
-lspServerOnConfigChange _oldConfig json =
+lspServerUpdateConfig :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
+lspServerUpdateConfig _oldConfig json =
   case Aeson.fromJSON json of
     Aeson.Success config -> Right config
     Aeson.Error string -> Left (Text.pack string)
 
 lspServerDoInitialize ::
   LSP.LanguageContextEnv ServerConfig ->
-  J.Message 'J.Initialize ->
-  IO (Either J.ResponseError (LSP.LanguageContextEnv ServerConfig))
+  LSP.Message 'LSP.Initialize ->
+  IO (Either LSP.ResponseError (LSP.LanguageContextEnv ServerConfig))
 lspServerDoInitialize env _req = return (Right env)
 
 lspServerOptions :: LSP.Options
@@ -102,41 +105,41 @@ lspServerHandlers =
 
 -- | Options to tell the client how to update the server about the state of text
 -- documents in the workspace.
-syncOptions :: J.TextDocumentSyncOptions
+syncOptions :: LSP.TextDocumentSyncOptions
 syncOptions =
-  J.TextDocumentSyncOptions
+  LSP.TextDocumentSyncOptions
     { -- Send open/close notifications be sent to the server.
       _openClose = Just True,
       -- Keep a copy of text documents contents in the VFS. When the document is
       -- changed, only send the updates instead of the entire contents.
-      _change = Just J.TdSyncIncremental,
+      _change = Just LSP.TdSyncIncremental,
       -- Don't send will-save notifications to the server.
       _willSave = Just False,
       -- Don't send will-save-wait-until notifications to the server.
       _willSaveWaitUntil = Just False,
       -- Don't send save notifications to the server.
-      _save = Just (J.InR (J.SaveOptions (Just True)))
+      _save = Just (LSP.InR (LSP.SaveOptions (Just True)))
     }
 
 -- | Send an error message to the LSP client.
 --
--- Sends "Severiy.Log" level errors to the output panel. Higher severity errors
+-- Sends "Severity.Log" level errors to the output panel. Higher severity errors
 -- are displayed in the window (i.e. in VSCode as a toast notification in the
 -- bottom right).
 sendErrorMessage :: Severity -> Text.Text -> LSP.LspT ServerConfig IO a
 sendErrorMessage Log errMessage = do
-  let messageType = J.MtLog
+  let messageType = LSP.MtLog
 
-  LSP.sendNotification J.SWindowLogMessage $
-    J.LogMessageParams {_xtype = messageType, _message = errMessage}
+  LSP.sendNotification LSP.SWindowLogMessage $
+    LSP.LogMessageParams {_xtype = messageType, _message = errMessage}
   liftIO (fail (Text.unpack errMessage))
 sendErrorMessage severity errMessage = do
   let messageType = case severity of
-        Error -> J.MtError
-        Warning -> J.MtWarning
-        Info -> J.MtInfo
-        Log -> J.MtLog
+        Error -> LSP.MtError
+        Warning -> LSP.MtWarning
+        Info -> LSP.MtInfo
+        Log -> LSP.MtLog
 
-  LSP.sendNotification J.SWindowShowMessage $
-    J.ShowMessageParams {_xtype = messageType, _message = errMessage}
+  LSP.sendNotification LSP.SWindowShowMessage $
+    LSP.ShowMessageParams {_xtype = messageType, _message = errMessage}
   liftIO (fail (Text.unpack errMessage))
