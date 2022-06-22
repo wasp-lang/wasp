@@ -5,6 +5,7 @@ module Wasp.Backend.ConcreteSyntax
     SyntaxNode (..),
     SyntaxKind (..),
     cstPrettyPrint,
+    syntaxKindIsTrivia,
   )
 where
 
@@ -12,7 +13,7 @@ import Control.DeepSeq (NFData)
 import Data.Aeson (ToJSON)
 import Data.List (foldl', intercalate)
 import GHC.Generics (Generic)
-import Wasp.Backend.Token (TokenKind)
+import Wasp.Backend.Token (TokenKind, tokenKindIsTrivia)
 
 -- | The kind of a "SyntaxNode".
 data SyntaxKind
@@ -79,3 +80,7 @@ cstPrettyPrint node = go 0 "" node
                 ([], offset)
                 (snodeChildren pnode)
        in intercalate "\n" (nodeTxt : childrenTxt)
+
+syntaxKindIsTrivia :: SyntaxKind -> Bool
+syntaxKindIsTrivia (Token k) = tokenKindIsTrivia k
+syntaxKindIsTrivia _ = False
