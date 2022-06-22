@@ -9,50 +9,55 @@ export function useAction(actionFn, options) {
   // todo: remove this
   window.queryClient = queryClient;
 
+  if () {
+    return useMutation(actionFn)
+
+  }
   const {
     mutationFn,
-    optimisticUpdate
-  } = options && options.optimisticUpdate ?
-      parseOptimisticUpdate(queryClient, actionFn, options.optimisticUpdate) : {
-        mutationFn: actionFn,
-        optimisticUpdate: {}
-      };
+    options,
+  } = !options || !options.optimisticUpdates ? { mutationFn: actionFn }
+      : parseOptimisticUpdate(queryClient, actionFn, options.optimisticUpdates)
 
-  return useMutation(mutationFn, {
-    ...optimisticUpdate,
-  })
+
+  return useMutation(mutationFn, options)
 }
 
 // todo: come up with a better name
-function parseOptimisticUpdate(queryClient, actionFn, optimisticUpdate) {
-  const {
-    // how to make sure this is a query, a global query database?
-    getQuery,
-    updateFn
-  } = optimisticUpdate
-
+function useOptimisticallyUpdatedMutation(queryClient, actionFn, optimisticUpdates) {
+  // how to make sure this is a query, a global query database?
   function mutationFn(args) {
-    const key = getQuery(args)
-    return actionFn.internal(args, [key])
+    optimisticUpdates.forEach(({ getQuery }) => {
+      const key = getQuery(args)
+      return actionFn.internal(args, [key])
+    })
   }
 
   async function onMutate(item) {
-    const query = getQuery(item)
-    await queryClient.cancelQueries(query)
-    const previousData = queryClient.getQueryData(query)
-    queryClient.setQueryData(query, (old) => updateFn(item, old))
-    return { previousData }
+    const previousData = {}
+
+    await Promise.all(optimisticUpdates.map(async ({ getQuery, updateQuery }) => {
+      const query = getQuery(item)
+      await queryClient.cancelQueries(query)
+      const previousDataForQuery = queryClient.getQueryData(query)
+      queryClient.setQueryData(query, (old) => updateQuery(item, old))
+      previousData[query] = previousDataForQuery
+    }))
+
+    return previousData
   }
 
-  async function onError(err, item, context) {
-    const query = getQuery(item)
-    await queryClient.cancelQueries(query)
-    queryClient.setQueryData(query, context.previousData)
+  function onError(err, item, context) {
+    optimisticUpdates.forEach(async ({ getQuery }) => {
+      const query = getQuery(item)
+      await queryClient.cancelQueries(query)
+      queryClient.setQueryData(query, context.previousData[query])
+    })
   }
 
   return {
     mutationFn,
-    optimisticUpdate: {
+    options: {
       onMutate,
       onError,
     }

@@ -100,9 +100,9 @@ const Tasks = (props) => {
 
 const Task = (props) => {
   const action = useAction(updateTaskIsDone, {
-    optimisticUpdate: {
+    optimisticUpdates: {
       getQuery: () => getTasks.queryCacheKey,
-      updateFn: (updatedTask, oldTasks) =>
+      updateQuery: (updatedTask, oldTasks) =>
         oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
     }
   });
