@@ -3,33 +3,41 @@ module Wasp.LSP.Syntax
 
     -- | Module with utilities for working with/looking for patterns in CSTs
     positionToOffset,
-    toPosition,
+    toOffset,
     isAtExprPlace,
+    -- | Printing
+    showNeighborhood,
   )
 where
 
+import Control.Monad ((>=>))
 import Control.Syntax.Traverse
+import Data.List (intercalate, unfoldr)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Backend.ConcreteSyntax as S
-import qualified Wasp.Backend.Token as T
 
 positionToOffset :: String -> J.Position -> Int
 positionToOffset str (J.Position l c) =
-  let linesBefore = take (fromIntegral l - 1) (lines str)
-   in sum (map length linesBefore) + fromIntegral c
+  let linesBefore = take (fromIntegral l) (lines str)
+   in -- We add 1 to the length of each line to make sure to count the newline
+      sum (map ((+ 1) . length) linesBefore) + fromIntegral c
 
-toPosition :: J.Position -> Traversal -> Traversal
-toPosition (J.Position targetLine targetCol) t = go 0 0 t
+-- | Move to the node containing the offset.
+--
+-- This tries to prefer non-trivia tokens where possible. If the offset falls
+-- exactly between two tokens, it choses the left-most non-trivia token.
+toOffset :: Int -> Traversal -> Traversal
+toOffset targetOffset start = go $ bottom start
   where
-    go :: J.UInt -> J.UInt -> Traversal -> Traversal
-    go l c t'
-      | l == targetLine && c >= targetCol = t'
-      | l > targetLine = t' -- The target line didn't have enough columns
-      | otherwise = case t & next of
-        Nothing -> t -- Source doesn't have the position
-        Just t''
-          | kindAt t' == S.Token T.Newline -> go (l + 1) c t''
-          | otherwise -> go l (c + fromIntegral (widthAt t')) t''
+    go :: Traversal -> Traversal
+    go at
+      | offsetAt at == targetOffset = at
+      | offsetAfter at > targetOffset = at
+      | offsetAfter at == targetOffset && not (S.syntaxKindIsTrivia (kindAt at)) =
+        at
+      | otherwise = case at & next of
+        Nothing -> at -- Syntax tree stored in the traversal isn't wide enough
+        Just after -> go after
 
 -- | Check whether a position in a CST is somewhere an expression belongs. These
 -- locations (as of now) are:
@@ -47,3 +55,20 @@ isAtExprPlace t =
   where
     parentIs k = Just k == parentKind t
     hasLeft k = k `elem` map S.snodeKind (leftSiblings t)
+
+-- | Show the nodes around the current position
+--
+-- Used for debug purposes
+showNeighborhood :: Traversal -> String
+showNeighborhood t =
+  let parentStr = case t & up of
+        Nothing -> "<ROOT>"
+        Just parent -> showNode "" parent
+      leftSiblingLines = map (showNode "  ") $ reverse $ unfoldr (left >=> return . dupe) t
+      currentStr = showNode "  " t ++ " <--"
+      childrenLines = map (showNode "    ") $ concat $ down t >>= return . unfoldr (right >=> return . dupe)
+      rightSiblingLines = map (showNode "  ") $ unfoldr (right >=> return . dupe) t
+   in intercalate "\n" $ parentStr : leftSiblingLines ++ [currentStr] ++ childrenLines ++ rightSiblingLines
+  where
+    showNode indent node = indent ++ show (kindAt node) ++ "@" ++ show (offsetAt node) ++ ".." ++ show (offsetAfter node)
+    dupe x = (x, x)

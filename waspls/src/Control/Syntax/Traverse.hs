@@ -1,4 +1,3 @@
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeFamilies #-}
 -- For Eq, Ord, Show instances on Traversal
 {-# LANGUAGE UndecidableInstances #-}
@@ -30,6 +29,7 @@ module Control.Syntax.Traverse
     (&),
     (?&),
     (?>),
+    bottom,
     down,
     up,
     left,
@@ -41,6 +41,7 @@ module Control.Syntax.Traverse
     kindAt,
     widthAt,
     offsetAt,
+    offsetAfter,
     parentKind,
     nodeAt,
     parentOf,
@@ -126,6 +127,10 @@ infixl 2 ?>
 
 (?>) :: (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal)
 f ?> g = f >=> g
+
+-- | Move down the tree to the deepest left-most leaf
+bottom :: Traversal -> Traversal
+bottom t = maybe t bottom $ t & down
 
 -- | Move down a level in the tree, to the first child of the current position.
 down :: Traversal -> Maybe Traversal
@@ -241,7 +246,7 @@ back t
   | hasAncestors t = case untilM hasLeftSiblings up t of
     Nothing -> Nothing
     Just t' -> t' & right ?> untilM (not . hasChildren) (down ?> untilM (not . hasRightSiblings) right)
-  | otherwise = error "Control.Tree.Traversal.back with no previous nodes"
+  | otherwise = Nothing
 
 -- | Get the "SyntaxKind" at the current position.
 kindAt :: Traversal -> SyntaxKind
@@ -254,6 +259,10 @@ widthAt t = tlWidth (tCurrent t)
 -- | Get the offset of the start of the current node in the source text.
 offsetAt :: Traversal -> Int
 offsetAt t = tlOffset (tCurrent t)
+
+-- | Get the offset of the end of the current node in the source text.
+offsetAfter :: Traversal -> Int
+offsetAfter t = offsetAt t + widthAt t
 
 -- | Get the "SyntaxKind" of the parent of the current position.
 --

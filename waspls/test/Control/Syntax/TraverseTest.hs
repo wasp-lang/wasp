@@ -4,7 +4,6 @@ module Control.Syntax.TraverseTest where
 
 import Control.Syntax.Traverse
 import Test.Tasty.Hspec (Spec, it, shouldBe)
-import Test.Tasty.QuickCheck ()
 import Wasp.Backend.ConcreteParser (parseCST)
 import Wasp.Backend.ConcreteSyntax (SyntaxKind (..), SyntaxNode)
 import qualified Wasp.Backend.Lexer as L

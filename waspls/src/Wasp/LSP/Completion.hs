@@ -4,32 +4,34 @@ module Wasp.LSP.Completion
 where
 
 import Control.Lens ((^.))
-import Control.Syntax.Traverse (fromSyntaxForest, kindAt)
+import Control.Syntax.Traverse (fromSyntaxForest)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import Wasp.Backend.ConcreteSyntax (SyntaxNode)
 import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
-import Wasp.LSP.Syntax (isAtExprPlace, toPosition)
+import Wasp.LSP.Syntax (isAtExprPlace, positionToOffset, showNeighborhood, toOffset)
 
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
 getCompletionsAtPosition position = do
+  src <- gets (^. sourceString)
   mbSyntax <- gets (^. cst)
   case mbSyntax of
     -- If there is no syntax tree, make no completions
     Nothing -> return []
     Just syntax -> do
+      let offset = positionToOffset src position
       -- 'location' is a traversal through the syntax tree that points to 'position'
-      let location = toPosition position (fromSyntaxForest syntax)
-      src <- gets (^. sourceString)
+      let location = toOffset offset (fromSyntaxForest syntax)
+      logM $ "[getCompletionsAtPosition] neighborhood=\n" ++ showNeighborhood location
       exprCompletions <-
         if isAtExprPlace location
           then do
             logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=True"
             getExprCompletions src syntax
           else do
-            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=False atKind=" ++ show (kindAt location)
+            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=False"
             return []
       let completions = exprCompletions
       return completions

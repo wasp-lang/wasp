@@ -42,6 +42,7 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
+    Control.Monad.Loops
     Control.Syntax.Traverse
     Wasp.Backend.Token
     Wasp.Backend.Lexer
@@ -53,7 +54,6 @@ library
   other-modules:
     Paths_waspls
     Wasp.LSP.ServerState
-    Control.Monad.Loops
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
     Wasp.LSP.Handlers
@@ -107,6 +107,7 @@ test-suite waspls-test
   other-modules:
     TestUtil
     Control.Syntax.TraverseTest
+    Control.Monad.LoopsTest
     Wasp.Backend.LexerTest
     Wasp.Backend.ConcreteParserTest
 
