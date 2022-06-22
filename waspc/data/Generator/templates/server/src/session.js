@@ -1,14 +1,14 @@
 import cookieSession from 'cookie-session'
 import csrf from 'csurf'
 
-import config from './config.js'
+import config, { checkCookieSecretLength } from './config.js'
 
 const sessionConfig = {
   name: config.session.cookie.name,
   secret: config.session.cookie.secret,
   httpOnly: true,
   signed: true,
-  maxAge: config.session.cookie.maxAge,
+  maxAge: config.session.cookie.maxAgeMs,
 }
 
 const csrfConfig = {
@@ -20,6 +20,8 @@ const csrfConfig = {
 
 export function useSession(app) {
   if (config.env === 'production') {
+    checkCookieSecretLength(sessionConfig.secret)
+
     sessionConfig.secure = true
     sessionConfig.sameSite = 'none'
     csrfConfig.cookie.secure = true

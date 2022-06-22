@@ -130,13 +130,10 @@ npmDepsForWasp spec =
 depsRequiredBySessions :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredBySessions spec =
   let deps =
-        if isAuthEnabled spec
-          then
-            [ ("cookie-session", "~2.0.0"),
-              ("csurf", "~1.11.0")
-            ]
-          else []
-   in AS.Dependency.make <$> deps
+        [ ("cookie-session", "~2.0.0"),
+          ("csurf", "~1.11.0")
+        ]
+   in AS.Dependency.make <$> if isAuthEnabled spec then deps else []
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

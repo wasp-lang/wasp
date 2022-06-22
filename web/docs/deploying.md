@@ -12,6 +12,8 @@ Right now, deploying of Wasp project is done by generating the code and then dep
 
 In the future, the plan is to have Wasp take care of it completely: you would declaratively define your deployment in .wasp and then just call `wasp deploy` ([github issue](https://github.com/wasp-lang/wasp/issues/169)).
 
+NOTE: Both the frontend and the backend need to know the URLs of each other, creating a circular dependency on your first deploy. The deployment process covered below deploys the backend first, followed by the frontend. If you do not know your frontend URL when deploying your backend, that is ok. That environment variable can be set after both are deployed as a last step.
+
 ## Generating deployable code
 ```
 wasp build
@@ -65,6 +67,8 @@ Heroku will also set `DATABASE_URL` env var for us at this point. If you are usi
 heroku config:set --app <app-name> SESSION_COOKIE_SECRET=<random_string_at_least_32_characters_long>
 heroku config:set --app <app-name> REACT_APP_URL=<url_of_where_frontend_will_be_deployed>
 ```
+
+NOTE: If you do not know what your frontend URL is yet, don't worry. You can set `REACT_APP_URL` after you deploy your frontend.
 
 #### Deploy to a Heroku app
 Position yourself in `.wasp/build/` directory (reminder: which you created by running `wasp build` previously):
@@ -129,4 +133,4 @@ netlify deploy
 ```
 and that is it!
 
-Note: Make sure you set this URL as the `REACT_APP_URL` environment variable in Heroku.
+NOTE: Make sure you set this URL as the `REACT_APP_URL` environment variable in Heroku.

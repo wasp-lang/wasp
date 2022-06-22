@@ -15,9 +15,11 @@ router.get('/', function (req, res, next) {
 {=# isAuthEnabled =}
 router.use('/auth', auth)
 
-// NOTE: While we have CORS protection enabled in app.js, it is
-// vitally important that this route always be CORS-protected.
+// NOTE: This route, along with all other routes, are CORS-protected and
+// restricted to the frontend URL only, preventing CSRF. This helps prevent malicious sites
+// from getting a valid token that would be compatible with a logged-in user's cookie.
 router.get('/csrf-token', function (req, res) {
+  // Added by csurf middleware and creates a token that is validated against the visitor’s CSRF cookie.
   res.json(req.csrfToken())
 })
 {=/ isAuthEnabled =}

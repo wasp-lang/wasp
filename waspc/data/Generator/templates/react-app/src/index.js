@@ -26,7 +26,7 @@ async function startApp() {
   {=/ doesClientSetupFnExist =}
   initializeQueryClient()
 
-  await setCsrfTokenHeader()
+  await obtainCsrfTokenHeader()
 
   await render()
 
@@ -36,11 +36,12 @@ async function startApp() {
   serviceWorker.unregister()
 }
 
-// NOTE: Since users will likely have the backend running on a different domain than
-// the frontend, we are unable to set the token:
+// NOTE: Since users will possibly have the backend running on a different domain than
+// the frontend, we are unable to set the CSRF token:
 // (a) on the page load, as the index.html is not served by Node, nor
 // (b) via a cookie, since the frontend JS will not be able to access a cross-domain cookie.
-async function setCsrfTokenHeader() {
+// Therefore, we must use an API route to get the CSRF token.
+async function obtainCsrfTokenHeader() {
   try {
     const token = await api.get(config.apiUrl + '/csrf-token')
     if (token.data) {

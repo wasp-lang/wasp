@@ -13,13 +13,15 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    // This option is sometimes needed when running behind proxies/load balancers.
+    // Ref: https://expressjs.com/en/guide/behind-proxies.html
     trustProxyCount: undefined,
     {=# isAuthEnabled =}
     session: {
       cookie: {
         name: process.env.SESSION_COOKIE_NAME || 'wasp_session',
         secret: undefined,
-        maxAge: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // ms
+        maxAgeMs: parseInt(process.env.SESSION_COOKIE_MAX_AGE) || 7 * 24 * 60 * 60 * 1000, // 1 week in ms
       },
     },
     csrf: {
@@ -56,3 +58,9 @@ const config = {
 
 const resolvedConfig = _.merge(config.all, config[env])
 export default resolvedConfig
+
+export function checkCookieSecretLength(secret) {
+  if (!secret || secret.length < 32) {
+    throw new Error("SESSION_COOKIE_SECRET must be at least 32 characters long in production")
+  }
+}
