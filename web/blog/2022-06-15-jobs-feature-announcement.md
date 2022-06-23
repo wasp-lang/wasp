@@ -1,7 +1,7 @@
 ---
 title: Feature Release Announcement - Wasp Jobs
 authors: [shayneczyzewski]
-image: /img/waspleau-screenshot.png
+image: /img/jobs-snippet2.png
 tags: [webdev, wasp, feature, jobs]
 ---
 
