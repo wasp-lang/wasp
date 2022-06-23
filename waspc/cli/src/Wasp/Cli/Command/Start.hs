@@ -15,8 +15,7 @@ import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import System.Directory (renamePath, copyFile)
-import qualified Wasp.Data
+import System.Directory (copyFile, renamePath)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -27,6 +26,7 @@ import Wasp.Cli.Command.Compile
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
+import qualified Wasp.Data
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as Job
 import qualified Wasp.Lib
@@ -113,7 +113,7 @@ htmlShell timestamp (waspMessage, jobMessages) =
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
       "<div><p>Last JS refresh timestamp: <span id='jsTime'></span><button id='refreshButton' onclick='disableRefresh();'>Disable Refresh</button></p></div>",
       "<div class='logContainer'>" <> splitJobMessages <> "</div>",
-      Text.pack $ "<div class='waspMessageContainer'>" ++ intercalate "<br>" (reverse waspMessage) ++ "</div>",
+      Text.pack $ "<div class='logContainer'>" ++ "<div class='logSection waspMessages'><h2>Wasp</h2><div class='scrollable'>" ++ intercalate "<br>" (reverse waspMessage) ++ "</div></div></div>",
       "<script>setTimeout(() => { shouldRefresh && location.reload() }, 3000)</script>",
       "<script>document.getElementById('jsTime').innerHTML = new Date();</script>",
       "</body>",
@@ -124,19 +124,18 @@ htmlShell timestamp (waspMessage, jobMessages) =
     splitJobMessages =
       let webAppMessages = filter (\jm -> Job._jobType jm == Job.WebApp) jobMessages
           serverMessages = filter (\jm -> Job._jobType jm == Job.Server) jobMessages
-          dbMessages = filter (\jm -> Job._jobType jm == Job.Db) jobMessages
        in makeMessagesPretty webAppMessages "Web"
             <> makeMessagesPretty serverMessages "Server"
-            <> makeMessagesPretty dbMessages "Db"
 
     makeMessagesPretty :: [JobMessage] -> Text -> Text
     makeMessagesPretty jms title =
       Text.unwords
-        [ "<h2>" <> title <> "</h2>",
+        [ "<div class='logSection'>",
+          "<h2>" <> title <> "</h2>",
           "<div class='scrollable'>",
           Text.intercalate "\n" $ map makeMessagePretty jms,
           "</div>",
-          "<hr/>"
+          "</div>"
         ]
 
     -- TODO: Hacky, fix this cleanup some

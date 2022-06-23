@@ -1,3 +1,28 @@
 div.scrollable {
-  height: 20%; overflow-y: scroll; border: 1px solid black; display: flex; flex-direction: column-reverse;
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column-reverse;
+  background-color: #222;
+  color: rgb(65, 150, 65);
+}
+
+div.logContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content:space-evenly;
+}
+
+div.logSection {
+  width: 45%;
+}
+
+div.waspMessages {
+  margin-top: 3em;
+}
+
+div.waspMessages > div.scrollable {
+  height: 200px;
 }
