@@ -14,7 +14,9 @@ import qualified Data.Text as Text
 import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
 import StrongPath ((</>))
-import System.Directory (renamePath)
+import qualified StrongPath as SP
+import System.Directory (renamePath, copyFile)
+import qualified Wasp.Data
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -49,7 +51,7 @@ start = do
   cliSendMessageC $ Msg.Start "Starting up generated project..."
 
   startChannel <- liftIO newChan
-  liftIO $ dupChan startChannel >>= writeAppOutputToHtml compileChannel
+  liftIO $ dupChan startChannel >>= writePowerlineFiles compileChannel
   watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir startChannel)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
@@ -62,8 +64,14 @@ start = do
 -- Figure out where to write and how to automatically open.
 -- Have separate areas for warning/errors that we have seen.
 -- Can show some sort of app structure diagram, etc. (May require AppSpec)
-writeAppOutputToHtml :: Chan String -> Chan JobMessage -> IO ()
-writeAppOutputToHtml compileChannel startChannel = do
+writePowerlineFiles :: Chan String -> Chan JobMessage -> IO ()
+writePowerlineFiles compileChannel startChannel = do
+  dataDir <- Wasp.Data.getAbsDataDirPath
+
+  copyFile
+    (SP.fromAbsFile (dataDir </> [SP.relfile|Cli/templates/powerline/powerline.css|]))
+    "/tmp/powerline.css"
+
   _ <- forkIO $ writeOutput compileChannel startChannel ([], [])
   return ()
 
@@ -97,9 +105,9 @@ htmlShell timestamp (waspMessage, jobMessages) =
   Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
-      "<style> div.scrollable { height: 20%; overflow-y: scroll; border: 1px solid black; display: flex; flex-direction: column-reverse; } </style>",
       "<script>let shouldRefresh = true;</script>",
       "<script>function disableRefresh() { shouldRefresh = false; document.getElementById('refreshButton').style.display = 'none';  }</script>",
+      "<link rel=\"stylesheet\" href=\"./powerline.css\">",
       "</head>",
       "<body>",
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",

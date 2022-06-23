@@ -1,0 +1,3 @@
+div.scrollable {
+  height: 20%; overflow-y: scroll; border: 1px solid black; display: flex; flex-direction: column-reverse;
+}
