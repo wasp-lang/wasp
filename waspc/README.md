@@ -243,6 +243,14 @@ To run cli tests only, you can do `cabal test cli-test` (or `./run test:cli`).
 
 To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
 
+### End-to-end (e2e) tests
+
+Besides unit tests, we have e2e tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+
+This means that when you make a change in your code that affects the generated code, e2e tests will fail while showing a diff between the new generated code and the expected (golden) one.
+This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. If you notice something unexpected or weird, you have an opportunity to fix it.
+Once you are indeed happy with the changes in the generated code, you will want to update the expected (golden) output to the new (current) output, so that tests pass.
+
 ## Code analysis
 
 To run the code analysis, run:
