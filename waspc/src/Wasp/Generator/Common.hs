@@ -37,4 +37,4 @@ npmVersionRange =
     latestLTSExactVersionThatWeKnowWorks = SV.Version 8 5 5 -- Goes with node 16.15.0
 
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 3 9 1
+prismaVersion = SV.Version 3 15 2
