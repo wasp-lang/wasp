@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.2.0 (2022/06/23)
+
+### Upgraded Prisma to latest version (13.15.2)
+
+Among various other things, this brins support for OpenSSL3. So if you couldn't run Wasp on your operating system due to Prisma not supporting OpenSSL3, those days are over!
+
+---
+
 ## v0.5.1.0 (2022/06/17)
 
 ### [NEW FEATURES]
