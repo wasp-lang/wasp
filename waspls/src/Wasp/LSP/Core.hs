@@ -1,5 +1,6 @@
 module Wasp.LSP.Core
   ( ServerM,
+    ServerError (..),
     Severity (..),
     ServerState,
     ServerConfig,
@@ -15,7 +16,9 @@ import Data.Text (Text)
 import Language.LSP.Server (LspT)
 
 type ServerM =
-  ExceptT (Severity, Text) (StateT ServerState (LspT ServerConfig IO))
+  ExceptT ServerError (StateT ServerState (LspT ServerConfig IO))
+
+data ServerError = ServerError Severity Text
 
 -- | Error severity levels
 data Severity

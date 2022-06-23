@@ -21,7 +21,7 @@ import qualified Wasp.Analyzer
 import qualified Wasp.Analyzer.AnalyzeError as WE
 import Wasp.Analyzer.Parser (Ctx (Ctx))
 import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.LSP.Core (ServerConfig, ServerM, Severity (..))
+import Wasp.LSP.Core (ServerConfig, ServerError (ServerError), ServerM, Severity (..))
 
 -- LSP notification and request handlers
 
@@ -124,7 +124,7 @@ readVFSFile uri = do
   mVirtualFile <- liftLSP $ LSP.getVirtualFile $ LSP.toNormalizedUri uri
   case mVirtualFile of
     Just virtualFile -> return $ virtualFileText virtualFile
-    Nothing -> throwE (Error, "Could not find " <> T.pack (show uri) <> " in VFS.")
+    Nothing -> throwE $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
 
 -- | Get the "Uri" from an object that has a "TextDocument".
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri

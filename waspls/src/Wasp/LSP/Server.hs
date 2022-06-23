@@ -19,7 +19,7 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
-import Wasp.LSP.Core (ServerConfig, ServerM, ServerState, Severity (..))
+import Wasp.LSP.Core (ServerConfig, ServerError (ServerError), ServerM, ServerState, Severity (..))
 import Wasp.LSP.Handlers
 
 serve :: Maybe FilePath -> IO ()
@@ -40,7 +40,7 @@ serve maybeLogFile = do
               LSP.runLspT env do
                 (e, newState) <- State.runStateT (Except.runExceptT handler) oldState
                 result <- case e of
-                  Left (severity, errMessage) -> sendErrorMessage severity errMessage
+                  Left (ServerError severity errMessage) -> sendErrorMessage severity errMessage
                   Right a -> return a
 
                 return (newState, result)
@@ -117,7 +117,7 @@ syncOptions =
       _willSave = Just False,
       -- Don't send will-save-wait-until notifications to the server.
       _willSaveWaitUntil = Just False,
-      -- Don't send save notifications to the server.
+      -- Send save notifications to the server.
       _save = Just (LSP.InR (LSP.SaveOptions (Just True)))
     }
 
