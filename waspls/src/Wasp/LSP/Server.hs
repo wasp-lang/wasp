@@ -74,6 +74,7 @@ setupLspLogger Nothing = pure ()
 setupLspLogger (Just "[OUTPUT]") = LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
 setupLspLogger file = LSP.setupLogger file [] System.Log.Logger.DEBUG
 
+-- | Returns either a JSON parsing error message or the updated "ServerConfig".
 lspServerUpdateConfig :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig
 lspServerUpdateConfig _oldConfig json =
   case Aeson.fromJSON json of

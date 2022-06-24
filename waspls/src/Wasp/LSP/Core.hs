@@ -18,6 +18,9 @@ import Language.LSP.Server (LspT)
 type ServerM =
   ExceptT ServerError (StateT ServerState (LspT ServerConfig IO))
 
+-- | The type for a language server error. These are separate from diagnostics
+-- and should be reported when the server fails to process a request/notification
+-- for some reason.
 data ServerError = ServerError Severity Text
 
 -- | Error severity levels

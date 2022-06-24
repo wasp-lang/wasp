@@ -7,18 +7,19 @@ import qualified Wasp.LSP.Server as LSP
 
 main :: IO ()
 main = do
-  args <- O.execParser parseArgsWithHelp
+  args <- parseArgsOrPrintUsageAndExit
   case command args of
     PrintVersion -> printVersion
     Serve -> LSP.serve $ optionsLogFile $ options args
   where
     printVersion = putStrLn $ showVersion Paths_waspls.version
 
-parseArgsWithHelp :: O.ParserInfo Args
-parseArgsWithHelp =
-  O.info
-    (O.helper <*> parseArgs)
-    (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
+parseArgsOrPrintUsageAndExit :: IO Args
+parseArgsOrPrintUsageAndExit =
+  O.execParser $
+    O.info
+      (O.helper <*> parseArgs)
+      (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
 
 data Args = Args
   { command :: Command,

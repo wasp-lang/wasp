@@ -73,32 +73,31 @@ diagnoseWaspFile uri = do
     -- Valid wasp file, send no diagnostics
     Right _ -> return $ LSP.List []
     -- Report the error (for now, just one error per analyze is possible)
-    Left err -> do
-      let (errMsg, errSrc, errRange) = waspErrorToLspDiagnostic err
+    Left err ->
       return $
         LSP.List
-          [ LSP.Diagnostic
-              { _range = errRange,
-                _severity = Nothing,
-                _code = Nothing,
-                _source = Just errSrc,
-                _message = errMsg,
-                _tags = Nothing,
-                _relatedInformation = Nothing
-              }
+          [ waspErrorToLspDiagnostic err
           ]
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
       LSP.PublishDiagnosticsParams uri Nothing diagnostics
   where
-    waspErrorToLspDiagnostic :: WE.AnalyzeError -> (Text, Text, LSP.Range)
+    waspErrorToLspDiagnostic :: WE.AnalyzeError -> LSP.Diagnostic
     waspErrorToLspDiagnostic err =
       let errSrc = case err of
             WE.ParseError _ -> "parse"
             WE.TypeError _ -> "typecheck"
             WE.EvaluationError _ -> "evaluate"
           (errMsg, errCtx) = WE.getErrorMessageAndCtx err
-       in (T.pack errMsg, errSrc, waspCtxToLspRange errCtx)
+       in LSP.Diagnostic
+            { _range = waspCtxToLspRange errCtx,
+              _severity = Nothing,
+              _code = Nothing,
+              _source = Just errSrc,
+              _message = T.pack errMsg,
+              _tags = Nothing,
+              _relatedInformation = Nothing
+            }
 
     waspCtxToLspRange :: Ctx -> LSP.Range
     waspCtxToLspRange (Ctx region) =
