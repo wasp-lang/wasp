@@ -6,11 +6,12 @@ module Wasp.AppSpec.App.Auth
     GoogleConfig (..),
     emailAndPasswordAuthEnabled,
     googleAuthEnabled,
+    passportRequired,
   )
 where
 
 import Data.Data (Data)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (isJust)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -36,7 +37,10 @@ data GoogleConfig = GoogleConfig
   deriving (Show, Eq, Data)
 
 emailAndPasswordAuthEnabled :: Auth -> Bool
-emailAndPasswordAuthEnabled auth = fromMaybe False (emailAndPassword . methods $ auth)
+emailAndPasswordAuthEnabled auth = Just True == (emailAndPassword . methods $ auth)
 
 googleAuthEnabled :: Auth -> Bool
 googleAuthEnabled = isJust . google . methods
+
+passportRequired :: Auth -> Bool
+passportRequired auth = any ($ auth) [googleAuthEnabled]

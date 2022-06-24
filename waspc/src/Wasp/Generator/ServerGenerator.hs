@@ -162,14 +162,12 @@ genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|session.js|],
-      copyTmplFile [relfile|core/auth/passport.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec,
-      genAppJs spec,
-      genGoogleAuthJs spec
+      genAppJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
@@ -228,32 +226,9 @@ genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
     appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     appFileInSrcDir = [relfile|app.js|]
 
-genGoogleAuthJs :: AppSpec -> Generator FileDraft
-genGoogleAuthJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleFileInSrcDir
-    dstFile = C.serverSrcDirInServerRootDir </> googleFileInSrcDir
-    tmplData =
-      object
-        [ "configJsFnImportStatement" .= fromMaybe "" maybeConfigJsFnImportStmt,
-          "configJsFnIdentifier" .= fromMaybe "" maybeConfigJsFnImportIdentifier
-        ]
-
-    googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    googleFileInSrcDir = [relfile|core/auth/google.js|]
-
-    maybeConfigJsFunction = Just <$> AS.Auth.configFn =<< AS.Auth.google =<< Just <$> AS.Auth.methods =<< AS.App.auth (snd $ getApp spec)
-    maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir <$> maybeConfigJsFunction
-    (maybeConfigJsFnImportIdentifier, maybeConfigJsFnImportStmt) =
-      (fst <$> maybeConfigJsFnImportDetails, snd <$> maybeConfigJsFnImportDetails)
-
 -- | TODO: Make this not hardcoded!
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
-
--- | TODO: Make this not hardcoded!
-relPosixPathFromCoreAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromCoreAuthDirToExtSrcDir = [reldirP|../../ext-src|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =

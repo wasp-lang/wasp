@@ -4,15 +4,31 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (reldir, relfile, (</>))
+import Data.Maybe (fromMaybe)
+import StrongPath
+  ( Dir,
+    File',
+    Path,
+    Path',
+    Posix,
+    Rel,
+    reldir,
+    reldirP,
+    relfile,
+    (</>),
+  )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -28,6 +44,7 @@ genAuth spec = case maybeAuth of
         genSignupRoute auth,
         genMeRoute auth
       ]
+      <++> (if AS.Auth.passportRequired auth then genPassportAuthMethods auth else return [])
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -113,3 +130,34 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
       object
         [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]
+
+genPassportAuthMethods :: AS.Auth.Auth -> Generator [FileDraft]
+genPassportAuthMethods auth =
+  do
+    sequence [copyTmplFile [relfile|core/auth/passport.js|]]
+    <++> (if AS.Auth.googleAuthEnabled auth then genGoogleAuthJs auth else return [])
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
+
+genGoogleAuthJs :: AS.Auth.Auth -> Generator [FileDraft]
+genGoogleAuthJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> googleFileInSrcDir
+    tmplData =
+      object
+        [ "configJsFnImportStatement" .= fromMaybe "" maybeConfigJsFnImportStmt,
+          "configJsFnIdentifier" .= fromMaybe "" maybeConfigJsFnImportIdentifier
+        ]
+
+    googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    googleFileInSrcDir = [relfile|core/auth/google.js|]
+
+    maybeConfigJsFunction = AS.Auth.configFn <$> AS.Auth.google (AS.Auth.methods auth)
+    maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir <$> maybeConfigJsFunction
+    (maybeConfigJsFnImportIdentifier, maybeConfigJsFnImportStmt) =
+      (fst <$> maybeConfigJsFnImportDetails, snd <$> maybeConfigJsFnImportDetails)
+
+-- | TODO: Make this not hardcoded!
+relPosixPathFromCoreAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromCoreAuthDirToExtSrcDir = [reldirP|../../ext-src|]
