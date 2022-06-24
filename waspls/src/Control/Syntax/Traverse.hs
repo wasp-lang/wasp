@@ -1,6 +1,4 @@
 {-# LANGUAGE TypeFamilies #-}
--- For Eq, Ord, Show instances on Traversal
-{-# LANGUAGE UndecidableInstances #-}
 
 module Control.Syntax.Traverse
   ( -- * Syntax tree traversal

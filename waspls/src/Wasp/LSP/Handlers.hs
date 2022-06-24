@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.LSP.Handlers
   ( initializedHandler,
     didOpenHandler,
@@ -10,7 +8,6 @@ module Wasp.LSP.Handlers
 where
 
 import Control.Lens ((.~), (?~), (^.))
-import Data.List (intercalate)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers, LspT)
@@ -20,12 +17,11 @@ import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
 import Wasp.Analyzer (analyze)
 import Wasp.Backend.ConcreteParser (parseCST)
-import Wasp.Backend.ConcreteSyntax (cstPrettyPrint)
 import qualified Wasp.Backend.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, logM, modify, throwError)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
 import Wasp.LSP.ServerState (cst, diagnostics, sourceString)
 
 -- LSP notification and request handlers
@@ -96,8 +92,8 @@ updateState uri = do
     then do
       -- Errors found during concrete parsing. Replace diagnostics with new parse
       -- diagnostics.
-      _diagnostics <- mapM (concreteParseErrorToDiagnostic srcString) $ fst concreteParse
-      modify (diagnostics .~ _diagnostics)
+      newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) $ fst concreteParse
+      modify (diagnostics .~ newDiagnostics)
     else do
       -- No concrete parse errors, run full analyzer!
       let analyzeResult = analyze srcString

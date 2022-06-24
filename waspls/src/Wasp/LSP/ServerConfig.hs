@@ -1,10 +1,11 @@
 module Wasp.LSP.ServerConfig
-  ( ServerConfig (..)
-  ) where
+  ( ServerConfig (..),
+  )
+where
 
-import Data.Default (Default(def))
-import Data.Aeson
+import Data.Aeson (FromJSON (parseJSON), Value (Object))
 import Data.Aeson.Types (prependFailure, typeMismatch)
+import Data.Default (Default (def))
 
 data ServerConfig = ServerConfig {}
 

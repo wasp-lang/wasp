@@ -10,12 +10,7 @@ where
 
 import Control.Lens (makeClassy)
 import Data.Default (Default (def))
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.Text (Text)
-import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
-import qualified Wasp.Analyzer.Type
 import Wasp.Backend.ConcreteSyntax (SyntaxNode)
 
 -- | LSP State preserved between handlers
