@@ -16,6 +16,7 @@ import updateArticle from '@wasp/actions/updateArticle'
 import getArticle from '@wasp/queries/getArticle'
 
 import Navbar from '../../Navbar'
+import WaspSourceHeader from '../../WaspSourceHeader'
 
 const useStyles = makeStyles((theme) => ({
   /*
@@ -48,6 +49,8 @@ const ArticleEditorPage = (props) => {
   return articleError
     ? articleError.message || articleError
     : (
+      <>
+      <WaspSourceHeader name="Conduit" />
       <Container maxWidth="lg">
         <Navbar />
         <Grid container direction="row" justify="center">
@@ -56,6 +59,7 @@ const ArticleEditorPage = (props) => {
           </Grid>
         </Grid>
       </Container>
+      </>
     )
 }
 

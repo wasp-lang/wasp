@@ -18,6 +18,7 @@ import getFavoritedArticles from '@wasp/queries/getFavoritedArticles'
 import followUser from '@wasp/actions/followUser'
 import Navbar from '../../Navbar'
 import ArticleListPaginated from '../../article/components/ArticleListPaginated'
+import WaspSourceHeader from '../../WaspSourceHeader'
 import smileyImageUrl from '../../smiley.jpg'
 
 const useStyles = makeStyles((theme) => ({
@@ -45,6 +46,8 @@ const UserProfilePage = (props) => {
   }
 
   return user ? (
+    <>
+    <WaspSourceHeader name="Conduit" />
     <Container maxWidth="lg">
       <Navbar />
 
@@ -71,6 +74,7 @@ const UserProfilePage = (props) => {
       </Grid>
 
     </Container>
+    </>
   ) : null
 }
 

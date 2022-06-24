@@ -2,12 +2,15 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
+import WaspSourceHeader from './WaspSourceHeader.js'
 
 import mainLogo from './waspello-logo.svg'
 import './Signup.css'
 
 const LoginPage = (props) => {
   return (
+    <>
+    <WaspSourceHeader name="Waspello" />
     <div className="auth-root-container">
 
       <img alt="Waspello" className="main-logo" src={mainLogo} />
@@ -20,6 +23,7 @@ const LoginPage = (props) => {
       </div>
 
     </div>
+    </>
   )
 }
 

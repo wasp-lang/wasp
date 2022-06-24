@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login.js'
+import WaspSourceHeader from '../WaspSourceHeader'
 
 // TODO: A lot of duplication with the Sign up page, extract it into one component
 //   and then just use it in both LoginPage and SignupPage?
@@ -26,9 +27,11 @@ const LoginPage = () => {
 
   // TODO: I should look into using bootstrap v4, it might make all this simpler.
   return (
+    <>
+    <WaspSourceHeader name="Conduit" />
     <div>
       { submitError && (
-          <p> { submitError.message || submitError } </p>
+    <p> { submitError.message || submitError } </p>
       ) }
 
       <form onSubmit={handleSubmit}>
@@ -42,6 +45,7 @@ const LoginPage = () => {
         <input type='submit' value='Sign in' />
       </form>
     </div>
+    </>
   )
 }
 

@@ -19,11 +19,14 @@ import getFollowedArticles from '@wasp/queries/getFollowedArticles'
 import getAllArticles from '@wasp/queries/getAllArticles'
 import Navbar from './Navbar'
 import ArticleListPaginated from './article/components/ArticleListPaginated'
+import WaspSourceHeader from './WaspSourceHeader'
 
 const MainPage = () => {
   const { data: me } = useAuth()
 
   return (
+    <>
+    <WaspSourceHeader name="Conduit" />
     <Container maxWidth="lg">
       <Navbar />
 
@@ -37,6 +40,7 @@ const MainPage = () => {
       </Grid>
 
     </Container>
+    </>
   )
 }
 

@@ -4,14 +4,14 @@ import refreshDashboardData from '@wasp/queries/dashboard'
 import { useQuery } from '@wasp/queries'
 
 import './style.css'
-import WaspExampleHeader from './WaspExampleHeader.js'
+import WaspSourceHeader from './WaspSourceHeader.js'
 
 const MainPage = () => {
   const { data: dashboardData, isFetching, error } = useQuery(refreshDashboardData, null, { refetchInterval: 60 * 1000 })
 
   return (
     <div style={{ minWidth: "800px" }}>
-      <WaspExampleHeader name="Waspleau" />
+      <WaspSourceHeader name="Waspleau" />
 
       <div className="container">
         <div className="dashboard">

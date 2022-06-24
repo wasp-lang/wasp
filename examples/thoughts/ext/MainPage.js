@@ -8,6 +8,7 @@ import './Thought.css'
 
 import createThought from '@wasp/actions/createThought'
 import Layout from './Layout'
+import WaspSourceHeader from './WaspSourceHeader'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -29,9 +30,12 @@ import Layout from './Layout'
 
 const MainPage = ({ user }) => {
   return (
-    <Layout user={user}>
-      <Thought />
-    </Layout>
+    <>
+      <WaspSourceHeader name="Thoughts" />
+      <Layout user={user}>
+        <Thought />
+      </Layout>
+    </>
   )
 }
 

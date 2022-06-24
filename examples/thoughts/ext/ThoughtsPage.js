@@ -3,6 +3,7 @@ import Layout from './Layout'
 import ReactMarkdown from 'react-markdown'
 import { useLocation } from 'react-router-dom'
 import Tag from './Tag'
+import WaspSourceHeader from './WaspSourceHeader'
 
 import './ThoughtsPage.css'
 
@@ -17,14 +18,17 @@ const ThoughtsPage = (props) => {
   const { data: thoughts } = useQuery(getThoughts, { tagName: tag })
 
   return (
-    <Layout
-      user={props.user}
-      activeTag={tag || '_all'}
-    >
-      <div className="center-container">
-        <ThoughtsList thoughts={thoughts} />
-      </div>
-    </Layout>
+    <>
+      <WaspSourceHeader name="Thoughts" />
+      <Layout
+        user={props.user}
+        activeTag={tag || '_all'}
+      >
+        <div className="center-container">
+          <ThoughtsList thoughts={thoughts} />
+        </div>
+      </Layout>
+    </>
   )
 }
 
