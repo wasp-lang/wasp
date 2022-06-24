@@ -1,0 +1,8 @@
+dist-newstyle
+.hie
+
+*.orig
+*~
+.dir-locals.el
+.projectile
+.vscode
