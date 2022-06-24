@@ -142,12 +142,15 @@ genPassportAuthMethods auth =
 genGoogleAuthJs :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuthJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
   where
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> googleFileInSrcDir
     tmplData =
       object
         [ "configJsFnImportStatement" .= fromMaybe "" maybeConfigJsFnImportStmt,
-          "configJsFnIdentifier" .= fromMaybe "" maybeConfigJsFnImportIdentifier
+          "configJsFnIdentifier" .= fromMaybe "" maybeConfigJsFnImportIdentifier,
+          "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
         ]
 
     googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

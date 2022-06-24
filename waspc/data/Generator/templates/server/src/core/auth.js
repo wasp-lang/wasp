@@ -41,4 +41,13 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
+export async function findOrCreateUserEntity(email, password) {
+  // TODO: Remove race condition.
+  let user = await prisma.{= userEntityLower =}.findUnique({ where: { email } })
+  if (!user) {
+    user = await prisma.{= userEntityLower =}.create({ data: { email, password } })
+  }
+  return user
+}
+
 export default auth
