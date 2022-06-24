@@ -3,6 +3,7 @@
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
+    GoogleConfig (..),
     emailAndPasswordAuthEnabled,
     googleAuthEnabled,
   )

@@ -11,7 +11,7 @@ import config from './config.js'
 {=# isAuthEnabled =}
 import { useSession } from './session.js'
 
-import { usePassport } from './auth/passport.js'
+import { usePassport } from './core/auth/passport.js'
 {=/ isAuthEnabled =}
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that

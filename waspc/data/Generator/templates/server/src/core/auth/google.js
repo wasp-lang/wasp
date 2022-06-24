@@ -1,15 +1,9 @@
+{{={= =}=}}
 import GoogleStrategy from 'passport-google-oauth2'
 
-import prisma from '../dbClient.js'
+import prisma from '../../dbClient.js'
 
-// TEMP: Just testing what a user would provide.
-function configFn() {
-  return {
-    clientID: process.env['GOOGLE_CLIENT_ID'],
-    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-    scope: ['email'],
-  }
-}
+{=& configJsFnImportStatement =}
 
 // TEMP: Just testing what a user would provide.
 async function onSignInFn(_method, _context, args) {
@@ -42,12 +36,12 @@ async function googleCallback(req, accessToken, refreshToken, profile, done) {
 
 export function setupGoogleAuth(app, passport) {
   // TODO: Verify we have what we need.
-  const userConfig = configFn()
+  const userConfig = {= configJsFnIdentifier =}()
 
   passport.use(new GoogleStrategy.Strategy({
     clientID: userConfig.clientID,
     clientSecret: userConfig.clientSecret,
-    callbackURL: 'http://localhost:3001/oauth2/redirect/google',
+    callbackURL: userConfig.callbackURL,
     scope: userConfig.scope || ['email'],
     passReqToCallback: true
   }, googleCallback))
