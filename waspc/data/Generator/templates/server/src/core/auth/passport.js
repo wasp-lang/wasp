@@ -1,7 +1,9 @@
 {{={= =}=}}
 import passport from 'passport'
 
+{=# isGoogleAuthEnabled =}
 import { setupGoogleAuth } from './google.js'
+{=/ isGoogleAuthEnabled =}
 
 {=& onSignInJsFnImportStatement =}
 
@@ -12,6 +14,7 @@ export function usePassport(app) {
     successRedirectPath: "{= successRedirectPath =}",
   }
 
-  // TODO: Wrap conditionally.
+  {=# isGoogleAuthEnabled =}
   setupGoogleAuth(app, passport, authConfig)
+  {=/ isGoogleAuthEnabled =}
 }

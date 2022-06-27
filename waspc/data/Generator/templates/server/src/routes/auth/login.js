@@ -29,6 +29,7 @@ export default handleRejection(async (req, res) => {
   }
 
   // Save userId in session for future request use.
+  // NOTE: Ideally, we should look at what the Primary Key is as defined by Prisma.
   req.session = { userId: {= userEntityLower =}.id }
 
   return res.status(200).send()

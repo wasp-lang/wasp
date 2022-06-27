@@ -217,11 +217,13 @@ genServerJs spec =
 genAppJs :: AppSpec -> Generator FileDraft
 genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
+    maybeIsPassportRequired = AS.Auth.passportRequired <$> AS.App.auth (snd $ getApp spec)
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel appFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> appFileInSrcDir
     tmplData =
       object
-        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+          "isPassportRequired" .= (Just True == maybeIsPassportRequired :: Bool)
         ]
     appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     appFileInSrcDir = [relfile|app.js|]

@@ -147,7 +147,9 @@ genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
         [ "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
           "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier,
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+          -- TODO: What should the default redirect be on success?
+          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth),
+          "isGoogleAuthEnabled" .= AS.Auth.googleAuthEnabled auth
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

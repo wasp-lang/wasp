@@ -11,7 +11,9 @@ import config from './config.js'
 {=# isAuthEnabled =}
 import { useSession } from './session.js'
 
+{=# isPassportRequired =}
 import { usePassport } from './core/auth/passport.js'
+{=/ isPassportRequired =}
 {=/ isAuthEnabled =}
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
@@ -36,8 +38,9 @@ if (config.trustProxyCount > 0) {
 {=# isAuthEnabled =}
 useSession(app)
 
-// TODO: Check for an auth method that requires passport.
+{=# isPassportRequired =}
 usePassport(app)
+{=/ isPassportRequired =}
 {=/ isAuthEnabled =}
 
 app.use('/', indexRouter)
