@@ -26,7 +26,7 @@ function googleCallback(onSignInFn) {
   }
 }
 
-export function setupGoogleAuth(app, passport, onSignInFn) {
+export function setupGoogleAuth(app, passport, authConfig) {
   // TODO: Verify we have what we need.
   const userConfig = {= configJsFnIdentifier =}()
 
@@ -36,22 +36,21 @@ export function setupGoogleAuth(app, passport, onSignInFn) {
     callbackURL: userConfig.callbackURL,
     scope: userConfig.scope || ['email'],
     passReqToCallback: true
-  }, googleCallback(onSignInFn)))
+  }, googleCallback(authConfig.onSignInFn)))
 
-  // TODO: Clean up duplication with button.
   // Redirect user to Google.
+  // TODO: Clean up duplication with button.
   app.get('/login/federated/google', passport.authenticate('google', { session: false }))
 
   // Handle Google callback.
-  // TODO: Use onAuthFailedRedirectTo, etc.
   // TODO: Should we constrain what path users can use here?
   const callbackURL = new URL(userConfig.callbackURL)
   app.get(callbackURL.pathname,
     passport.authenticate('google', {
       session: false,
-      failureRedirect: `${waspServerConfig.frontendUrl}/login`
+      failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
     }),
     function (_req, res) {
-      res.redirect(`${waspServerConfig.frontendUrl}/profile`)
+      res.redirect(waspServerConfig.frontendUrl + authConfig.successRedirectPath)
     })
 }

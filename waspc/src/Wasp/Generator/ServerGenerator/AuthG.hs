@@ -145,7 +145,9 @@ genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
     tmplData =
       object
         [ "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
-          "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier
+          "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier,
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
+          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
