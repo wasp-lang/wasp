@@ -2,6 +2,9 @@
 
 module Wasp.Backend.ConcreteSyntax
   ( -- * Concrete Syntax
+
+    -- | This data structure for storing syntax information is inspired by the
+    -- rust analyzer's parsing library rowan (https://github.com/rust-analyzer/rowan).
     SyntaxNode (..),
     SyntaxKind (..),
     cstPrettyPrint,

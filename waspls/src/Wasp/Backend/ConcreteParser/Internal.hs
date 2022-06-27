@@ -85,7 +85,6 @@ where
 import Control.Monad (when)
 import Control.Monad.Except (ExceptT, MonadError (catchError, throwError), runExceptT)
 import Control.Monad.State.Strict (State, gets, modify, runState)
-import Control.Monad.Writer.Strict (MonadWriter (tell), WriterT, runWriterT)
 import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
 import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.Backend.ParseError
@@ -132,11 +131,8 @@ instance Semigroup Parser where
 instance Monoid Parser where
   mempty = Succeed
 
--- | Run a "Parser" on an input of tokens. Returns a tuple @(logs, errors, nodes)@.
---
--- @logs@ can be safely ignored, they are for debugging purposes and will be
--- removed once this parsing library is more stable.
-parse :: [Token] -> Parser -> ([String], [ParseError], [SyntaxNode])
+-- | Run a "Parser" on an input of tokens. Returns a tuple @(errors, nodes)@.
+parse :: [Token] -> Parser -> ([ParseError], [SyntaxNode])
 parse tokens parser =
   let initialState =
         ParseState
@@ -147,15 +143,15 @@ parse tokens parser =
             pstateLastOffset = 0,
             pstateFollowing = []
           }
-   in case runState (runWriterT (runExceptT (doParse parser))) initialState of
-        ((Left err, logs), state) -> case err of
+   in case runState (runExceptT (doParse parser)) initialState of
+        (Left err, state) -> case err of
           Unwind _ -> error "Unwind at top-level Parser (impossible, this is a bug in Wasp.Backend.ConcreteParser.Internal)"
           ParseError perr ->
             let errs = pstateErrors state ++ [perr]
                 newNode = errorNode perr False
                 nodes = pstateNodes state ++ [newNode]
-             in (logs, errs, nodes)
-        ((_, logs), state) -> (logs, pstateErrors state, pstateNodes state)
+             in (errs, nodes)
+        (_, state) -> (pstateErrors state, pstateNodes state)
 
 data ParseState = ParseState
   { -- | Remaining tokens in input
@@ -179,7 +175,7 @@ data ParseState = ParseState
 data ParseException = Unwind (Maybe TokenKind) | ParseError ParseError
 
 -- | Parsing monad
-type ParserM a = ExceptT ParseException (WriterT [String] (State ParseState)) a
+type ParserM a = ExceptT ParseException (State ParseState) a
 
 -- | Internal function to run a "Parser" in the "ParserM" monad.
 doParse :: Parser -> ParserM ()
@@ -223,7 +219,6 @@ doParse (Group label inner) = do
                   snodeChildren = children
                 }
 
-  debug $ "(Group) Entering group " ++ show label
   consumeWhitespace
   siblingNodes <- gets pstateNodes
   modify (\s -> s {pstateNodes = []})
@@ -233,7 +228,6 @@ doParse (Group label inner) = do
   case result of
     Nothing -> do
       pushGroupNode childNodes
-      debug $ "(Group) Exiting group " ++ show label
     Just err -> do
       case err of
         Unwind kind -> do
@@ -250,8 +244,8 @@ doParse (Group label inner) = do
           pushGroupNode childNodes
 
           if errKindIsImmediatelyFollowing
-            then debug $ "(Group) Exiting group " ++ show label
-            else debug ("(Group) Unwinding from group " ++ show label) >> throwError (Unwind kind)
+            then return ()
+            else throwError (Unwind kind) -- Re-throw unwind
         ParseError perr -> do
           -- ASSUMPTION: The token errored on has not been consumed
           --
@@ -282,10 +276,7 @@ doParse (Group label inner) = do
           pushGroupNode $ childNodes ++ [nodeForErr]
 
           when (errKindIsFollowingKind && not errKindIsImmediatelyFollowing) $ do
-            debug $ "(Group) Starting unwind from group " ++ show label
             throwError $ Unwind errKind
-
-          debug $ "(Group) Exiting group " ++ show label
 doParse (As label kind) =
   (consumeWhitespace >> peek) >>= \case
     Just nextToken | tokenKind nextToken == kind -> do
@@ -347,7 +338,7 @@ peek :: ParserM (Maybe Token)
 peek =
   gets pstateInput >>= \case
     [] -> return Nothing
-    tok : _ -> debug ("(peek) " ++ show tok) >> return (Just tok)
+    tok : _ -> return (Just tok)
 
 -- | Advance past the next token in the input, updating offsets.
 advance :: ParserM ()
@@ -357,7 +348,6 @@ advance =
     (consumed : remaining) -> do
       newLastOffset <- gets pstateNextOffset
       let newNextOffset = newLastOffset + tokenWidth consumed
-      debug $ "(advance) " ++ show consumed ++ ", newLastOffset=" ++ show newLastOffset ++ ", newNextOffset=" ++ show newNextOffset
       modify (\s -> s {pstateInput = remaining, pstateLastOffset = newLastOffset, pstateNextOffset = newNextOffset})
 
 -- | @makeError actual expected@ adds an error node and throws an error.
@@ -437,10 +427,6 @@ findFirstTokens parser = fst $ go parser TokenSet.empty
       let (eset', leftCanBeEmpty) = go left eset
           (eset'', rightCanBeEmpty) = go right eset'
        in (eset'', leftCanBeEmpty || rightCanBeEmpty)
-
--- | Add a debug message to the output.
-debug :: String -> ParserM ()
-debug msg = tell [msg]
 
 -- Combinators
 

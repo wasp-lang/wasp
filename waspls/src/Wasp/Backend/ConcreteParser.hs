@@ -19,18 +19,14 @@ import qualified Wasp.Backend.Token as T
 --
 -- See "SyntaxNode" for a description of what a concrete syntax tree contains.
 parseCST :: [Token] -> ([ParseError], [SyntaxNode])
-parseCST tokens =
-  let (_, errs, nodes) = parse tokens (root --> eof)
-   in (errs, nodes)
+parseCST tokens = parse tokens (root --> eof)
 
 -- | Parse a list of tokens into a concrete syntax tree for a wasp expression.
 -- This is mainly used for testing.
 --
 -- See "SyntaxNode" for a description of what a concrete syntax tree contains.
 parseCSTExpression :: [Token] -> ([ParseError], [SyntaxNode])
-parseCSTExpression tokens =
-  let (_, errs, nodes) = parse tokens (expr --> eof)
-   in (errs, nodes)
+parseCSTExpression tokens = parse tokens (expr --> eof)
 
 root :: Parser
 root = group Program stmts
