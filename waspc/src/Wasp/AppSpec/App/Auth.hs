@@ -21,7 +21,7 @@ data Auth = Auth
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String,
-    onSignInFn :: Maybe ExtImport
+    onSignInFn :: ExtImport
   }
   deriving (Show, Eq, Data)
 

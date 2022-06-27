@@ -133,14 +133,26 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
 genPassportAuthMethods :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportAuthMethods auth =
-  do
-    sequence [copyTmplFile [relfile|core/auth/passport.js|]]
-    <++> (if AS.Auth.googleAuthEnabled auth then genGoogleAuthJs auth else return [])
-  where
-    copyTmplFile = return . C.mkSrcTmplFd
+  genPassportJs auth
+    <++> (if AS.Auth.googleAuthEnabled auth then genGoogleJs auth else return [])
 
-genGoogleAuthJs :: AS.Auth.Auth -> Generator [FileDraft]
-genGoogleAuthJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+genPassportJs :: AS.Auth.Auth -> Generator [FileDraft]
+genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel passportFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
+    (onSignInJsFnImportIdentifier, onSignInJsFnImportStmt) = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir $ AS.Auth.onSignInFn auth
+    tmplData =
+      object
+        [ "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
+          "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier
+        ]
+
+    passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    passportFileInSrcDir = [relfile|core/auth/passport.js|]
+
+genGoogleJs :: AS.Auth.Auth -> Generator [FileDraft]
+genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleFileInSrcDir

@@ -3,32 +3,30 @@ import GoogleStrategy from 'passport-google-oauth2'
 
 import prisma from '../../dbClient.js'
 import waspServerConfig from '../../config.js'
-import { findOrCreateUserEntity } from '../auth.js'
 
 // TODO: What if this name collides? For example, they import { config }
 // and we imported config from '../../config.js'?
 {=& configJsFnImportStatement =}
 
-// TEMP: Just testing what a user would provide.
-async function onSignInFn(_method, _context, args) {
-  // TODO: Generate a secure, random password.
-  const user = await findOrCreateUserEntity(args.profile.email, "password123!")
-  return user
+function googleCallback(onSignInFn) {
+  return async (req, accessToken, refreshToken, profile, done) => {
+    console.log("In Google OAuth callback", accessToken, refreshToken, profile)
+
+    const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
+    // TODO: Make "google" a referenceable symbol.
+    const user = await onSignInFn("google", context, { profile })
+
+    if (!user?.id) {
+      throw new Error("auth.onSignInFn must return an object with an id property")
+    }
+
+    req.session = { userId: user.id }
+
+    return done(null, user)
+  }
 }
 
-async function googleCallback(req, accessToken, refreshToken, profile, done) {
-  console.log("In Google OAuth callback", accessToken, refreshToken, profile)
-
-  const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
-  // TODO: Make "google" a referenceable symbol.
-  const user = await onSignInFn("google", context, { profile })
-
-  req.session = { userId: user.id }
-
-  return done(null, user)
-}
-
-export function setupGoogleAuth(app, passport) {
+export function setupGoogleAuth(app, passport, onSignInFn) {
   // TODO: Verify we have what we need.
   const userConfig = {= configJsFnIdentifier =}()
 
@@ -38,15 +36,17 @@ export function setupGoogleAuth(app, passport) {
     callbackURL: userConfig.callbackURL,
     scope: userConfig.scope || ['email'],
     passReqToCallback: true
-  }, googleCallback))
+  }, googleCallback(onSignInFn)))
 
-  // TODO: ensure these routes do not require CORS/CSRF protection.
+  // TODO: Clean up duplication with button.
   // Redirect user to Google.
   app.get('/login/federated/google', passport.authenticate('google', { session: false }))
 
   // Handle Google callback.
   // TODO: Use onAuthFailedRedirectTo, etc.
-  app.get('/oauth2/redirect/google',
+  // TODO: Should we constrain what path users can use here?
+  const callbackURL = new URL(userConfig.callbackURL)
+  app.get(callbackURL.pathname,
     passport.authenticate('google', {
       session: false,
       failureRedirect: `${waspServerConfig.frontendUrl}/login`
