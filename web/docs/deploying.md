@@ -119,4 +119,6 @@ While positioned in `.wasp/build/web-app/` directory, and after you have created
 ```
 netlify deploy
 ```
-and that is it!
+and carefully follow their instructions (i.e. do you want to create a new app or use existing one, team under which your app will reside, ..., final step to run `netlify deploy --prod`).
+
+That is it!
