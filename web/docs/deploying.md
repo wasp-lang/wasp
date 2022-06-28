@@ -77,6 +77,19 @@ heroku container:push --app <app-name> web
 App is still not deployed at this point.
 This step might take some time, especially the very first time, since there are no cached docker layers.
 
+:::note
+#### Note for Apple M1 users
+Apple M1 users need to build a non-Arm image, so the above step will not work at this time. Instead of `heroku container:push`, users instead should:
+
+```bash
+docker buildx build --platform linux/amd64 -t <app-name> .
+docker tag <app-name> registry.heroku.com/<app-name>/web
+docker push registry.heroku.com/<app-name>/web
+```
+
+You are now ready to proceed to the next step.
+:::
+
 Deploy the pushed image and restart the app:
 ```
 heroku container:release --app <app-name> web
@@ -88,9 +101,11 @@ Additionally, you can check out the logs with:
 heroku logs --tail --app <app-name>
 ```
 
-#### Note on pg-boss
+:::note
+#### Note on using pg-boss with Heroku
 If you wish to deploy an app leveraging Jobs that use pg-boss as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
+:::
 
 ## Deploying web client (frontend)
 Position yourself in `.wasp/build/web-app` directory (reminder: which you created by running `wasp build` previously):
