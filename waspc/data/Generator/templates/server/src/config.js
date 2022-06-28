@@ -58,9 +58,6 @@ const config = {
   }
 }
 
-const resolvedConfig = _.merge(config.all, config[env])
-export default resolvedConfig
-
 function parseBooleanOrDefault(str, defaultValue) {
   if (!str) {
     return defaultValue
@@ -78,8 +75,19 @@ function parseBooleanOrDefault(str, defaultValue) {
   }
 }
 
-export function checkCookieSecretLength(secret) {
+function checkCookieSecretLength(secret) {
   if (!secret || secret.length < 32) {
-    throw new Error("SESSION_COOKIE_SECRET must be at least 32 characters long in production")
+    throw new Error("SESSION_COOKIE_SECRET must be at least 32 characters long")
   }
 }
+
+function performChecks(config) {
+  if (config.env === 'production') {
+    checkCookieSecretLength(config.session.cookie.secret)
+  }
+
+  return config
+}
+
+const resolvedConfig = performChecks(_.merge(config.all, config[env]))
+export default resolvedConfig
