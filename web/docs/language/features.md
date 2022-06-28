@@ -1110,22 +1110,26 @@ Default database is `SQLite`, since it is great for getting started with a new p
 Check below for more details on how to migrate from SQLite to PostgreSQL.
 
 ### PostgreSQL
-When using `PostgreSQL` (`db: { system: PostgreSQL }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
 
-One of the easiest ways to do this is by spinning up postgres docker container when you need it with the shell command
+One of the easiest ways to run a PostgreSQL database on your own is by spinning up [postgres docker](https://hub.docker.com/_/postgres) container when you need it with the following shell command:
 ```
 docker run \
   --rm \
   --publish 5432:5432 \
-  -v postgresql-data:/var/lib/postgresql/data \
-  --env POSTGRES_PASSWORD=devpass \
+  -v my-app-data:/var/lib/postgresql/data \
+  --env POSTGRES_PASSWORD=devpass1234 \
   postgres
 ```
-and adding the line
+
+:::note
+The password you provide via `POSTGRES_PASSWORD` is relevant only for the first time when you run that docker command, when database is set up for the first time. Consequent runs will ignore the value of `POSTGRES_PASSWORD` and will just use the password that was initially set. This is just how postgres docker works.
+:::
+
+The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
 ```
-DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
+DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
 ```
-to the `.env` file in the root directory of your Wasp project.
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.
