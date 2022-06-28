@@ -298,6 +298,7 @@ executable wasp-cli
     , async
     , waspc
     , cli-lib
+    , with-utf8 ^>= 1.0.2
   other-modules:
       Paths_waspc
 
