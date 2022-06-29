@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.Info
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
+import Wasp.Generator.Common (ProjectRootDir, prismaVersion, oSSpecificNpm)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
@@ -80,7 +80,7 @@ generatePrismaClient projectDir = do
 npmInstall :: Path' Abs (Dir ProjectRootDir) -> J.Job
 npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir "npm" ["install"] J.Db
+  runNodeCommandAsJob serverDir oSSpecificNpm ["install"] J.Db
 
 data JobMessageForwardingStrategy = ForwardEverything | ForwardOnlyRetryErrors
 

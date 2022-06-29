@@ -3,10 +3,14 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
+    oSSpecificNpm,
+    compileOsSpecificNodeCommand
   )
 where
 
 import qualified Wasp.SemanticVersion as SV
+import System.Info (os)
+import Data.List
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
@@ -38,3 +42,12 @@ npmVersionRange =
 
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
+
+oSSpecificNpm :: [Char]
+oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
+
+compileOsSpecificNodeCommand :: [Char] -> [[Char]] -> ([Char], [[Char]])
+compileOsSpecificNodeCommand command arguments = 
+  if os /= "mingw32"
+  then (command, arguments)
+  else ("cmd.exe", [intercalate " " (["/c", command] ++ arguments)])

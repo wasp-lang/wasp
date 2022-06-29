@@ -102,7 +102,8 @@ runNodeCommandAsJob fromDir command args jobType chan = do
     Right nodeVersion ->
       if SV.isVersionInRange nodeVersion C.nodeVersionRange
         then do
-          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
+          let (specificCommand, specificArgs) = C.compileOsSpecificNodeCommand command args
+          let process = (P.proc specificCommand specificArgs) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
         else
           exitWithError
