@@ -1,0 +1,31 @@
+<html>
+    <body>
+        <script>
+            const frontendUrl = "http://localhost:3000"
+            const csrfToken = "{{CSRF_TOKEN}}"
+
+            function deleteSessionCookies() {
+                // TODO: Set name from Node
+                document.cookie = "wasp_session=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+                document.cookie = "wasp_session.sig=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
+            }
+
+            window.addEventListener("message", (event) => {
+                console.log("iframe message: ", event);
+                if (event.origin !== frontendUrl) {
+                    return;
+                }
+
+                switch (event.data.message) {
+                    case "csrfToken":
+                        event.source.postMessage({message: "csrfToken", data: csrfToken}, frontendUrl)
+                        break
+                    case "clearCookies":
+                        deleteSessionCookies()
+                        event.source.postMessage({message: "clearCookies", data: "ok"}, frontendUrl)
+                        break
+                }
+            }, false)
+        </script>
+    </body>
+</html>

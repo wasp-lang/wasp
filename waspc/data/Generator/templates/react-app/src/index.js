@@ -21,12 +21,12 @@ import './index.css'
 startApp()
 
 async function startApp() {
+  await obtainCsrfTokenHeader()
+
   {=# doesClientSetupFnExist =}
   await {= clientSetupJsFnIdentifier =}()
   {=/ doesClientSetupFnExist =}
   initializeQueryClient()
-
-  await obtainCsrfTokenHeader()
 
   await render()
 
@@ -36,19 +36,13 @@ async function startApp() {
   serviceWorker.unregister()
 }
 
-// NOTE: Since users will possibly have the backend running on a different domain than
-// the frontend, we are unable to set the CSRF token:
-// (a) on the page load, as the index.html is not served by Node, nor
-// (b) via a cookie, since the frontend JS will not be able to access a cross-domain cookie.
-// Therefore, we must use an API route to get the CSRF token.
+// NOTE: Gets token from iframe, which also handles local logout.
 async function obtainCsrfTokenHeader() {
   try {
-    const token = await api.get(config.apiUrl + '/csrf-token')
-    if (token.data) {
-      api.defaults.headers.common['X-CSRF-Token'] = token.data
-    }
-  } catch (error) {
-    handleApiError(error)
+    const token = await window.csrfToken
+    api.defaults.headers.common['X-CSRF-Token'] = token
+  } catch (e) {
+    // TODO: render the failed page
   }
 }
 

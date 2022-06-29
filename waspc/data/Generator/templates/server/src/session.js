@@ -6,7 +6,7 @@ import config from './config.js'
 const sessionConfig = {
   name: config.session.cookie.name,
   secret: config.session.cookie.secret,
-  httpOnly: true,
+  httpOnly: false, // Need to be able to remove in JS
   signed: true,
   maxAge: config.session.cookie.maxAgeMs,
 }

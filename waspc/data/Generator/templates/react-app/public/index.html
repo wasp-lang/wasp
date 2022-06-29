@@ -46,5 +46,36 @@
              To create a production bundle, use `npm run build` or `yarn build`.
         -->
 
+        <script>
+            const backendUrl = "http://localhost:3001"
+ 
+            // TODO: Add a race and reject after timeout.
+            let resolveCsrfToken
+            window.csrfToken = new Promise((resolve, _reject) => {
+                resolveCsrfToken = resolve
+            })
+
+            window.sendMessage = (message) => {
+                window.frames.logout.postMessage(message, backendUrl)
+            }
+
+            window.addEventListener("message", (event) => {
+                console.log("outer message: ", event);
+                if (event.origin !== backendUrl) {
+                    return;
+                }
+
+                switch (event.data.message) {
+                    case "csrfToken":
+                        resolveCsrfToken(event.data.data)
+                        break
+                    case "clearCookies":
+                        // TODO: something here
+                        console.log("COOKIES CLEARED LOCALLY!")
+                        break
+                }
+            }, false)
+        </script>
+        <iframe src="http://localhost:3001/logout-iframe" name="logout" width="0" height="0" style="height: 0; width: 0; border: 0;" onload="window.sendMessage({message: 'csrfToken'})"></iframe>
     </body>
 </html>

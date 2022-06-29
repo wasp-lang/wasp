@@ -17,11 +17,19 @@ import { useSession } from './session.js'
 
 const app = express()
 
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", config.frontendUrl, "'unsafe-inline'"],
+      frameAncestors: ["'self'", config.frontendUrl]
+    }
+  }
+}))
 app.use(cors({
   origin: config.frontendUrl,
   credentials: true
-}));
+}))
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))

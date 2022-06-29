@@ -1,5 +1,9 @@
 {{={= =}=}}
 import express from 'express'
+import fs from 'fs'
+import { fileURLToPath } from 'url'
+import path, { dirname } from 'path'
+
 import operations from './operations/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
@@ -15,12 +19,13 @@ router.get('/', function (req, res, next) {
 {=# isAuthEnabled =}
 router.use('/auth', auth)
 
-// NOTE: This route, along with all other routes, are CORS-protected and
-// restricted to the frontend URL only, preventing CSRF. This helps prevent malicious sites
-// from getting a valid token that would be compatible with a logged-in user's cookie.
-router.get('/csrf-token', function (req, res) {
-  // Added by csurf middleware and creates a token that is validated against the visitor’s CSRF cookie.
-  res.json(req.csrfToken())
+router.get('/logout-iframe', function(req, res) {
+  // TODO: Serve properly.
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = dirname(__filename)
+  const htmlTemplate = fs.readFileSync(path.resolve(__dirname, './index.html'), { encoding: 'utf8' })
+  const html = htmlTemplate.replace("{{CSRF_TOKEN}}", req.csrfToken())
+  res.send(html)
 })
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', operations)
