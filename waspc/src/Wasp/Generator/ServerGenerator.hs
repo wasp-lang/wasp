@@ -161,7 +161,7 @@ genSrcDir spec =
       copyTmplFile [relfile|session.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
-      copyTmplFile [relfile|routes/index.html|],
+      copyTmplFile [relfile|routes/session.html|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec,

@@ -19,11 +19,11 @@ router.get('/', function (req, res, next) {
 {=# isAuthEnabled =}
 router.use('/auth', auth)
 
-router.get('/logout-iframe', function(req, res) {
+router.get('/session.html', function(req, res) {
   // TODO: Serve properly.
   const __filename = fileURLToPath(import.meta.url)
   const __dirname = dirname(__filename)
-  const htmlTemplate = fs.readFileSync(path.resolve(__dirname, './index.html'), { encoding: 'utf8' })
+  const htmlTemplate = fs.readFileSync(path.resolve(__dirname, './session.html'), { encoding: 'utf8' })
   const html = htmlTemplate.replace("{{CSRF_TOKEN}}", req.csrfToken())
   res.send(html)
 })
