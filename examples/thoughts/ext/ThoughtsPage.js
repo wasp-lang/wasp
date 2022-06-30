@@ -3,7 +3,6 @@ import Layout from './Layout'
 import ReactMarkdown from 'react-markdown'
 import { useLocation } from 'react-router-dom'
 import Tag from './Tag'
-import WaspSourceHeader from './WaspSourceHeader'
 
 import './ThoughtsPage.css'
 
@@ -19,7 +18,6 @@ const ThoughtsPage = (props) => {
 
   return (
     <>
-      <WaspSourceHeader name="Thoughts" />
       <Layout
         user={props.user}
         activeTag={tag || '_all'}
