@@ -7,7 +7,6 @@ import addWaspSourceHeader from './addWaspSourceHeader.js'
 const SignupPage = (props) => {
   return (
     <>
-      <WaspSourceHeader name="Thoughts" />
       <SignupForm/>
       <br/>
       <span>
