@@ -12,7 +12,6 @@ const MainPage = () => {
 
   return (
     <div>
-      <br/>
       <NewTaskForm />
 
       {tasks && <TasksList tasks={tasks} />}
