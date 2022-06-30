@@ -6,6 +6,7 @@ import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.Version (showVersion)
+import Main.Utf8 (withUtf8)
 import Paths_waspc (version)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
@@ -26,7 +27,7 @@ import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 
 main :: IO ()
-main = (`E.catch` handleInternalErrors) $ do
+main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
