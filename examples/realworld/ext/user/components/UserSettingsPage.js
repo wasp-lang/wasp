@@ -13,13 +13,11 @@ import updateUser from '@wasp/actions/updateUser'
 
 import { errorMessage } from '../../utils'
 
+import addWaspSourceHeader from '../../addWaspSourceHeader'
 import Navbar from '../../Navbar'
-import WaspSourceHeader from '../../WaspSourceHeader'
 
 const UserSettingsPage = ({ user }) => {
   return (
-    <>
-    <WaspSourceHeader name="Conduit" />
     <Container maxWidth="lg">
       <Navbar />
       <Grid container direction="row" justify="center">
@@ -28,7 +26,6 @@ const UserSettingsPage = ({ user }) => {
         </Grid>
       </Grid>
     </Container>
-    </>
   )
 
 }
@@ -148,4 +145,4 @@ const UserSettings = (props) => {
   )
 }
 
-export default UserSettingsPage
+export default addWaspSourceHeader(UserSettingsPage)
