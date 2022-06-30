@@ -9,14 +9,18 @@ where
 
 import Control.Concurrent (writeChan)
 import Control.Concurrent.Async (Concurrently (..))
+import Data.ByteString (ByteString)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
+import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
+import Data.Text.Encoding (decodeLatin1, decodeUtf8With)
+import GHC.IO.Encoding (TextEncoding, textEncodingName)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
+import System.IO (latin1, localeEncoding, utf8)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import qualified System.Info
 import qualified System.Process as P
@@ -42,29 +46,8 @@ runProcessAsJob process jobType chan =
     runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
-
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
+      let forwardStdoutToChan = forwardStandardOutputStreamToChan stdoutStream J.Stdout
+      let forwardStderrToChan = forwardStandardOutputStreamToChan stderrStream J.Stderr
 
       exitCode <-
         runConcurrently $
@@ -79,6 +62,20 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
+      where
+        -- @stream@ can be stdout stream or stderr stream.
+        forwardStandardOutputStreamToChan stream jobOutputType = runConduit $ stream .| CL.mapM_ forwardByteStringChunkToChan
+          where
+            forwardByteStringChunkToChan bs =
+              writeChan chan $
+                J.JobMessage
+                  { -- Since this is output of a command that was supposed to be shown in the terminal,
+                    -- it is our safest bet to assume it is using locale encoding (default encoding on the machine),
+                    -- instead of assuming it is utf8 (like we do for text files).
+                    -- Take a look at https://serokell.io/blog/haskell-with-utf8 for detailed reasoning.
+                    J._data = J.JobOutput (decodeLocaleEncoding bs) jobOutputType,
+                    J._jobType = jobType
+                  }
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
@@ -93,6 +90,20 @@ runProcessAsJob process jobType chan =
         then P.terminateProcess processHandle
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
+
+-- | Decodes given byte string while assuming it is using locale encoding (which is system's default encoding).
+decodeLocaleEncoding :: ByteString -> Text
+decodeLocaleEncoding = decodeEncoding localeEncoding
+
+-- | Decodes given byte string while assuming it is using provided text encoding.
+decodeEncoding :: TextEncoding -> ByteString -> Text
+decodeEncoding enc
+  | textEncodingName enc == textEncodingName latin1 = decodeLatin1
+  -- This will replace any invalid characters with \xfffd.
+  | textEncodingName enc == textEncodingName utf8 = decodeUtf8With onErrorUseReplacementChar
+  | otherwise = error $ "Encoding " ++ textEncodingName localeEncoding ++ " is not supported."
+  where
+    onErrorUseReplacementChar _ _ = Just '\xfffd'
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJob fromDir command args jobType chan = do

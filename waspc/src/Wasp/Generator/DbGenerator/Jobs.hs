@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.Info
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion, oSSpecificNpm)
+import Wasp.Generator.Common (ProjectRootDir, oSSpecificNpm, prismaVersion)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
@@ -44,10 +44,19 @@ migrateDev projectDir maybeMigrationName = do
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
   let npxPrismaMigrateCmd = npxPrismaCmd ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
   let scriptArgs =
-        if System.Info.os == "darwin"
-          then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
+        -- NOTE: This won't work on Windows, unless they have `script` command installed via cygwin, in which case
+        --   it will work since it same as on Linux then (Posix).
+        --   But maybe on Windows it doesn't even need `script`? We haven't tested it yet.
+        case System.Info.os of
+          "darwin" -> osxScriptArgs
+          _ -> posixScriptArgs
+        where
+          osxScriptArgs =
+            -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
             ["-Fq", "/dev/null"] ++ npxPrismaMigrateCmd
-          else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
+          posixScriptArgs =
+            -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
+            --   This should also work on Windows, if `script` command is installed via Cygwin.
             ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
 
   let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
