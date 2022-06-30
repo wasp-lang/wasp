@@ -9,8 +9,6 @@ import './Signup.css'
 
 const LoginPage = (props) => {
   return (
-    <>
-    <WaspSourceHeader name="Waspello" />
     <div className="auth-root-container">
 
       <img alt="Waspello" className="main-logo" src={mainLogo} />
@@ -23,7 +21,6 @@ const LoginPage = (props) => {
       </div>
 
     </div>
-    </>
   )
 }
 
