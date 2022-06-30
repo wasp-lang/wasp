@@ -6,8 +6,7 @@ app todoApp {
   dependencies: [
     ("@material-ui/core", "4.11.3"),
     ("passport", "0.6.0"),
-    ("passport-google-oauth2", "0.2.0"),
-    ("express-session", "1.17.3")
+    ("passport-google-oauth2", "0.2.0")
   ],
   auth: {
     userEntity: User,
@@ -31,6 +30,15 @@ entity User {=psl
     email       String  @unique
     password    String
     tasks       Task[]
+psl=}
+
+entity OtpToken {=psl
+    id          Int       @id @default(autoincrement())
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    token       String    @unique
+    claimed     Boolean   @default(false)
+    userId      Int
 psl=}
 
 entity Task {=psl
@@ -133,7 +141,7 @@ job mySpecialScheduledJob {
     fn: import { foo } from "@ext/jobs/bar.js"
   },
   schedule: {
-    cron: "*/2 * * * *",
+    cron: "0 * * * *",
     args: {=json { "foo": "bar" } json=},
     executorOptions: {
       pgBoss: {=json { "retryLimit": 2 } json=}

@@ -19,14 +19,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-import passport from 'passport';
-app.use(passport.initialize());
+import passport from 'passport'
+import GoogleStrategy from 'passport-google-oauth2'
+import { v4 as uuidv4 } from 'uuid'
+import prisma from './dbClient.js'
+import { sign } from './core/auth.js'
 
-import prisma from './dbClient.js';
-import { sign } from './core/auth.js';
-import GoogleStrategy from 'passport-google-oauth2';
-
-console.log('setting up Google');
+console.log('setting up Google')
 
 passport.use(new GoogleStrategy.Strategy({
   clientID: process.env['GOOGLE_CLIENT_ID'],
@@ -37,18 +36,18 @@ passport.use(new GoogleStrategy.Strategy({
 }, async function (request, accessToken, refreshToken, profile, done) {
   console.log("In Google OAuth callback")
 
-  let user = await prisma.user.findUnique({ where: { email: profile.email } });
+  let user = await prisma.user.findUnique({ where: { email: profile.email } })
   if (!user) {
-    user = await prisma.user.create({ data: { email: profile.email, password: "password123!" } });
+    user = await prisma.user.create({ data: { email: profile.email, password: "password123!" } })
   }
 
-  request.wasp = { ...request.wasp, user_id: user.id };
+  request.wasp = { ...request.wasp, userId: user.id }
 
-  return done(null, user);
-}));
+  return done(null, user)
+}))
 
 // Redirect user to Google
-app.get('/login/federated/google', passport.authenticate('google', { session: false }));
+app.get('/login/federated/google', passport.authenticate('google', { session: false }))
 
 // Handle Google callback
 app.get('/oauth2/redirect/google',
@@ -59,11 +58,42 @@ app.get('/oauth2/redirect/google',
   }),
   async function(req, res) {
     console.log("In Passport success callback")
+    const userId = req.wasp.userId
 
-    console.log("Tyring to find user_id: ", req.wasp.user_id);
-    const token = await sign(req.wasp.user_id);
-    res.redirect('http://localhost:3000/login?token=' + token);
-});
+    if (req.wasp.userId) {
+      const otpToken = await prisma.otpToken.create({ data: { userId, token: uuidv4() }})
+      res.redirect('http://localhost:3000/login?otpToken=' + otpToken.token)
+    }
+    else {
+      // NOTE: Should not happen if auth was successful.
+      console.error('In passport success callback, but user not in request.')
+      res.redirect('http://localhost:3000/login')
+    }
+})
+
+// This is a route that takes a 1-time use, time limited token
+// to lookup what user just successfully logged in above.
+app.post('/otpTokenExchange', async (req, res) => {
+  const args = req.body || {}
+  const now = new Date()
+  const minuteInMilliseconds = 60 * 1000;
+  const otpToken = await prisma.otpToken.findFirst({
+    where: {
+      token: args.otpToken,
+      claimed: false,
+      createdAt: {
+        gte: new Date(now - minuteInMilliseconds),
+        lte: now,
+      },
+    }
+  })
+  if (otpToken) {
+    await prisma.otpToken.update({ where: { id: otpToken.id }, data: { claimed: true } })
+    const token = await sign(otpToken.userId)
+    return res.json({ token })
+  }
+  return res.status(401).send()
+})
 
 app.use('/', indexRouter)
 

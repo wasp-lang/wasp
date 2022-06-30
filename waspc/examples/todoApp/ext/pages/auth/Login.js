@@ -1,19 +1,27 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-import { setAuthToken } from '@wasp/api.js'
+import api, { setAuthToken } from '@wasp/api.js'
 
 const Login = () => {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  const token = urlParams.get('token');
+  useEffect(() => {
+    const queryString = window.location.search
+    const urlParams = new URLSearchParams(queryString)
+    const otpToken = urlParams.get('otpToken')
 
-  if (token) {
-    console.log('Setting token: ', token);
-    setAuthToken(token);
-    window.location.replace("http://localhost:3000/profile");
-  }
+    async function fetchToken() {
+      console.log('Fetching JWT from otpToken: ', otpToken)
+      const response = await api.post('http://localhost:3001/otpTokenExchange', { otpToken })
+      console.log(response)
+      setAuthToken(response.data.token)
+      window.location.replace("http://localhost:3000/profile")
+    }
+
+    if (otpToken) {
+      fetchToken()
+    }
+  }, [])
 
   return (
     <>
