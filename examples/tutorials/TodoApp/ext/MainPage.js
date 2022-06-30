@@ -6,7 +6,6 @@ import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
 import Clocks from './Clocks'
-import WaspSourceHeader from './WaspSourceHeader'
 
 const MainPage = () => {
   const { data: tasks, isFetching, error } = useQuery(getTasks)
