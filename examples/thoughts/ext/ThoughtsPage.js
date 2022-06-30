@@ -17,16 +17,14 @@ const ThoughtsPage = (props) => {
   const { data: thoughts } = useQuery(getThoughts, { tagName: tag })
 
   return (
-    <>
-      <Layout
-        user={props.user}
-        activeTag={tag || '_all'}
-      >
-        <div className="center-container">
-          <ThoughtsList thoughts={thoughts} />
-        </div>
-      </Layout>
-    </>
+    <Layout
+      user={props.user}
+      activeTag={tag || '_all'}
+    >
+      <div className="center-container">
+        <ThoughtsList thoughts={thoughts} />
+      </div>
+    </Layout>
   )
 }
 
