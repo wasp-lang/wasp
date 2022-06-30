@@ -7,7 +7,6 @@ import addWaspSourceHeader from './addWaspSourceHeader.js'
 const LoginPage = (props) => {
   return (
     <>
-      <WaspSourceHeader name="Thoughts" />
       <LoginForm/>
       <br/>
       <span>
