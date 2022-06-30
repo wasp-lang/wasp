@@ -30,8 +30,6 @@ const SignupPage = () => {
 
   // TODO: I should look into using bootstrap v4, it might make all this simpler.
   return (
-    <>
-    <WaspSourceHeader name="Conduit" /> 
     <div>
       { submitError && (
           <p> { submitError.message ? errorMessage(submitError) : submitError } </p>
@@ -51,7 +49,6 @@ const SignupPage = () => {
         <input type='submit' value='Sign up' />
       </form>
     </div>
-    </>
   )
 }
 
