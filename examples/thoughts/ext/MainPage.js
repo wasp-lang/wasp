@@ -8,7 +8,6 @@ import './Thought.css'
 
 import createThought from '@wasp/actions/createThought'
 import Layout from './Layout'
-import addWaspSourceHeader from './addWaspSourceHeader'
 
 // TODO:
 //   - Rename this file to Thought.js.
@@ -167,4 +166,4 @@ const Thought = (props) => {
   )
 }
 
-export default addWaspSourceHeader(MainPage)
+export default MainPage
