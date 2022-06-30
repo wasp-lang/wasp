@@ -2,12 +2,10 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
-import WaspSourceHeader from './WaspSourceHeader'
 
 const SignupPage = () => {
   return (
     <>
-      <WaspSourceHeader name="Todo" />
       <SignupForm/>
       <br/>
       <span>
