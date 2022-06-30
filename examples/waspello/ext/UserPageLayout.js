@@ -1,13 +1,12 @@
 import React from 'react'
 
 import Navbar from './Navbar'
-import WaspSourceHeader from './WaspSourceHeader.js'
+import addWaspSourceHeader from './addWaspSourceHeader.js'
 
 import './UserPageLayout.css'
 
 const UserPageLayout = ({ user, children }) => (
   <div className='layout-root'>
-    <WaspSourceHeader name="Waspello" />
 
     <Navbar user={user} />
     <div className='layout-content'>
@@ -16,4 +15,4 @@ const UserPageLayout = ({ user, children }) => (
   </div>
 )
 
-export default UserPageLayout
+export default addWaspSourceHeader(UserPageLayout)

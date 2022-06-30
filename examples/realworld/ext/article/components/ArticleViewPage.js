@@ -27,7 +27,7 @@ import createComment from '@wasp/actions/createComment'
 import deleteComment from '@wasp/actions/deleteComment'
 
 import Navbar from '../../Navbar'
-import WaspSourceHeader from '../../WaspSourceHeader.js'
+import addWaspSourceHeader from '../../addWaspSourceHeader.js'
 
 const useStyles = makeStyles((theme) => ({
   tags: {
@@ -92,8 +92,6 @@ const ArticleViewPage = (props) => {
   }
 
   return article ? (
-    <>
-    <WaspSourceHeader name="Conduit" />
     <Container maxWidth="lg">
       <Navbar />
 
@@ -133,7 +131,6 @@ const ArticleViewPage = (props) => {
 
       </Grid>
     </Container>
-    </>
   ) : null
 }
 
@@ -248,4 +245,4 @@ CreateComment.propTypes = {
   article: PropTypes.object.isRequired
 }
 
-export default ArticleViewPage
+export default addWaspSourceHeader(ArticleViewPage)

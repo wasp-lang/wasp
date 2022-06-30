@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login.js'
-import WaspSourceHeader from '../WaspSourceHeader'
+import addWaspSourceHeader from '../addWaspSourceHeader'
 
 // TODO: A lot of duplication with the Sign up page, extract it into one component
 //   and then just use it in both LoginPage and SignupPage?
@@ -49,4 +49,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default addWaspSourceHeader(LoginPage)

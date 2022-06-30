@@ -13,7 +13,6 @@ const MainPage = () => {
 
   return (
     <div>
-      <WaspSourceHeader name="Todo" />
       <br/>
       <NewTaskForm />
 
