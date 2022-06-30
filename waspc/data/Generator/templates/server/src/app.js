@@ -33,7 +33,7 @@ passport.use(new GoogleStrategy.Strategy({
   callbackURL: 'http://localhost:3001/oauth2/redirect/google',
   scope: ['email'],
   passReqToCallback: true
-}, async function (request, accessToken, refreshToken, profile, done) {
+}, async function (request, _accessToken, _refreshToken, profile, done) {
   console.log("In Google OAuth callback")
 
   let user = await prisma.user.findUnique({ where: { email: profile.email } })
@@ -54,7 +54,6 @@ app.get('/oauth2/redirect/google',
   passport.authenticate('google', {
     session: false,
     failureRedirect: 'http://localhost:3000/login',
-    failureMessage: true
   }),
   async function(req, res) {
     console.log("In Passport success callback")
