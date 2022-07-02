@@ -4,13 +4,13 @@ module Wasp.Generator.Common
     npmVersionRange,
     prismaVersion,
     oSSpecificNpm,
-    buildNpmCmdWithArgs
+    buildNpmCmdWithArgs,
   )
 where
 
-import qualified Wasp.SemanticVersion as SV
-import System.Info (os)
 import Data.List (intercalate)
+import System.Info (os)
+import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
@@ -49,9 +49,9 @@ oSSpecificNpm :: String
 oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
 -- | Changes an npm command to a cmd.exe command on Windows only. Calling npm from API causes troubles.
---   The reason and solution exaplined here: https://stackoverflow.com/a/44820337 
+--   The reason and solution exaplined here: https://stackoverflow.com/a/44820337
 buildNpmCmdWithArgs :: String -> [String] -> (String, [String])
-buildNpmCmdWithArgs command arguments = 
+buildNpmCmdWithArgs command arguments =
   if os /= "mingw32"
-  then (command, arguments)
-  else ("cmd.exe", [intercalate " " (["/c", command] ++ arguments)])
+    then (command, arguments)
+    else ("cmd.exe", [intercalate " " (["/c", command] ++ arguments)])
