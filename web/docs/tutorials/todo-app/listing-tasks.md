@@ -51,13 +51,13 @@ Query function parameters:
 - `context`: `object`, additional stuff provided by Wasp.
 
 
-Since we declared in `main.wasp` that our query uses entity Task, Wasp injected [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for entity Task as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since we declared in `main.wasp` that our query uses entity Task, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for entity Task as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and actions are NodeJS functions that are executed on the server.
 :::
 
-## Invoking query from React
+## Invoking the query from React
 
 Finally, let's use the query we just created, `getTasks`, in our React component to list the tasks:
 
@@ -100,11 +100,11 @@ export default MainPage
 
 All of this is just regular React, except for the two special `@wasp` imports:
  - `import getTasks from '@wasp/queries/getTasks'`: provides us with our freshly defined Wasp query.
- - `import { useQuery } from '@wasp/queries'`: provides us with Wasp's [useQuery](language/features.md#usequery) React hook which is actually just a thin wrapper over [react-query](https://github.com/tannerlinsley/react-query) [useQuery](https://react-query.tanstack.com/docs/guides/queries) hook, behaving very similarly while offering some extra integration with Wasp.
+ - `import { useQuery } from '@wasp/queries'`: provides us with Wasp's [useQuery](language/features.md#usequery) React hook which is actually just a thin wrapper over [react-query](https://github.com/tannerlinsley/react-query)'s [useQuery](https://react-query.tanstack.com/docs/guides/queries) hook, behaving very similarly while offering some extra integration with Wasp.
 
-While we could call query directly as `getTasks()`, calling it as `useQuery(getTasks)` gives us the reactivity (React component gets re-rendered if result of the query changes).
+While we could call query directly as `getTasks()`, calling it as `useQuery(getTasks)` gives us reactivity- the React component gets re-rendered if the result of the query changes.
 
-With these changes, you should be seeing text "No tasks" on the screen:
+With these changes, you should be seein the text "No tasks" on the screen:
 
 <img alt="Todo App - No Tasks"
      src={useBaseUrl('img/todo-app-no-tasks.png')}
