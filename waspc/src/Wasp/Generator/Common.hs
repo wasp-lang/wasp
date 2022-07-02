@@ -10,7 +10,7 @@ where
 
 import qualified Wasp.SemanticVersion as SV
 import System.Info (os)
-import Data.List
+import Data.List (intercalate)
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
