@@ -43,10 +43,10 @@ npmVersionRange =
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
 
-oSSpecificNpm :: [Char]
+oSSpecificNpm :: String
 oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
-compileOsSpecificNodeCommand :: [Char] -> [[Char]] -> ([Char], [[Char]])
+compileOsSpecificNodeCommand :: String -> [String] -> (String, [String])
 compileOsSpecificNodeCommand command arguments = 
   if os /= "mingw32"
   then (command, arguments)
