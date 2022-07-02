@@ -15,7 +15,7 @@ import Wasp.Generator.Common (ProjectRootDir, oSSpecificNpm, prismaVersion)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import Wasp.Generator.Job.Process (runCommandThatRequiresNodeAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 
 -- `--no-install` is the magic that causes this command to fail if npx cannot find it locally
@@ -59,7 +59,7 @@ migrateDev projectDir maybeMigrationName = do
             --   This should also work on Windows, if `script` command is installed via Cygwin.
             ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
 
-  let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+  let job = runCommandThatRequiresNodeAsJob serverDir "script" scriptArgs J.Db
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -70,7 +70,7 @@ runStudio projectDir = do
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
   let npxPrismaStudioCmd = npxPrismaCmd ++ ["studio", "--schema", SP.toFilePath schemaFile]
-  let job = runNodeCommandAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
+  let job = runCommandThatRequiresNodeAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -80,7 +80,7 @@ generatePrismaClient projectDir = do
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
   let npxPrismaGenerateCmd = npxPrismaCmd ++ ["generate", "--schema", SP.toFilePath schemaFile]
-  let job = runNodeCommandAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
+  let job = runCommandThatRequiresNodeAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardOnlyRetryErrors
 
@@ -89,7 +89,7 @@ generatePrismaClient projectDir = do
 npmInstall :: Path' Abs (Dir ProjectRootDir) -> J.Job
 npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir oSSpecificNpm ["install"] J.Db
+  runCommandThatRequiresNodeAsJob serverDir oSSpecificNpm ["install"] J.Db
 
 data JobMessageForwardingStrategy = ForwardEverything | ForwardOnlyRetryErrors
 

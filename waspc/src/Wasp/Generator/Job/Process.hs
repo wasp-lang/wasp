@@ -2,7 +2,7 @@
 
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
-    runNodeCommandAsJob,
+    runCommandThatRequiresNodeAsJob,
     parseNodeVersion,
   )
 where
@@ -105,15 +105,15 @@ decodeEncoding enc
   where
     onErrorUseReplacementChar _ _ = Just '\xfffd'
 
-runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob fromDir command args jobType chan = do
+runCommandThatRequiresNodeAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runCommandThatRequiresNodeAsJob fromDir command args jobType chan = do
   errorOrNodeVersion <- getNodeVersion
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
       if SV.isVersionInRange nodeVersion C.nodeVersionRange
         then do
-          let (specificCommand, specificArgs) = C.compileOsSpecificNodeCommand command args
+          let (specificCommand, specificArgs) = C.buildNpmCmdWithArgs command args
           let process = (P.proc specificCommand specificArgs) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
         else

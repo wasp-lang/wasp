@@ -4,7 +4,7 @@ module Wasp.Generator.Common
     npmVersionRange,
     prismaVersion,
     oSSpecificNpm,
-    compileOsSpecificNodeCommand
+    buildNpmCmdWithArgs
   )
 where
 
@@ -46,8 +46,8 @@ prismaVersion = SV.Version 3 15 2
 oSSpecificNpm :: String
 oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
-compileOsSpecificNodeCommand :: String -> [String] -> (String, [String])
-compileOsSpecificNodeCommand command arguments = 
+buildNpmCmdWithArgs :: String -> [String] -> (String, [String])
+buildNpmCmdWithArgs command arguments = 
   if os /= "mingw32"
   then (command, arguments)
   else ("cmd.exe", [intercalate " " (["/c", command] ++ arguments)])
