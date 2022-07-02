@@ -104,7 +104,7 @@ All of this is just regular React, except for the two special `@wasp` imports:
 
 While we could call query directly as `getTasks()`, calling it as `useQuery(getTasks)` gives us reactivity- the React component gets re-rendered if the result of the query changes.
 
-With these changes, you should be seein the text "No tasks" on the screen:
+With these changes, you should be seeing the text "No tasks" on the screen:
 
 <img alt="Todo App - No Tasks"
      src={useBaseUrl('img/todo-app-no-tasks.png')}
