@@ -113,8 +113,7 @@ runCommandThatRequiresNodeAsJob fromDir command args jobType chan = do
     Right nodeVersion ->
       if SV.isVersionInRange nodeVersion C.nodeVersionRange
         then do
-          let (specificCommand, specificArgs) = C.buildNpmCmdWithArgs command args
-          let process = (P.proc specificCommand specificArgs) {P.cwd = Just $ SP.fromAbsDir fromDir}
+          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
           runProcessAsJob process jobType chan
         else
           exitWithError

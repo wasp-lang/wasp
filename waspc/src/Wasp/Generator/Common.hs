@@ -50,8 +50,8 @@ oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
 -- | Changes an npm command to a cmd.exe command on Windows only. Calling npm from API causes troubles.
 --   The reason and solution exaplined here: https://stackoverflow.com/a/44820337
-buildNpmCmdWithArgs :: String -> [String] -> (String, [String])
-buildNpmCmdWithArgs command arguments =
+buildNpmCmdWithArgs :: [String] -> (String, [String])
+buildNpmCmdWithArgs arguments =
   if os /= "mingw32"
-    then (command, arguments)
-    else ("cmd.exe", [intercalate " " (["/c", command] ++ arguments)])
+    then (oSSpecificNpm, arguments)
+    else ("cmd.exe", [intercalate " " (["/c", oSSpecificNpm] ++ arguments)])
