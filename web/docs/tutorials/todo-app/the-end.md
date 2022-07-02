@@ -17,7 +17,7 @@ If you are interested in what is Wasp actually generating in the background, you
 
 ## Where next?
 
-Well, you could check [the "Language" section](language/overview) of the docs for more details on specific parts of Wasp.  
+Well, you could check [the "Language" section](language/overview.md) of the docs for more details on specific parts of Wasp.  
 Or, you could try to build something on your own with Wasp!  
 
 You are likely to find that some feature that you want is missing, since Wasp is still in Alpha.
