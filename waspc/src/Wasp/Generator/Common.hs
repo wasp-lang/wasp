@@ -43,9 +43,13 @@ npmVersionRange =
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
 
+-- | Adds .cmd extension to callable npm command if ran on Windows, since npm does note have .exe on Windows.
+--   The reason explained here: https://stackoverflow.com/questions/43139364/createprocess-weird-behavior-with-files-without-extension
 oSSpecificNpm :: String
 oSSpecificNpm = "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
+-- | Changes an npm command to a cmd.exe command on Windows only. Calling npm from API causes troubles.
+--   The reason and solution exaplined here: https://stackoverflow.com/a/44820337 
 buildNpmCmdWithArgs :: String -> [String] -> (String, [String])
 buildNpmCmdWithArgs command arguments = 
   if os /= "mingw32"
