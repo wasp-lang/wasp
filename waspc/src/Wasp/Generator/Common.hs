@@ -45,16 +45,17 @@ prismaVersion = SV.Version 3 15 2
 
 npmCmd :: String
 npmCmd =
-  -- Windows add ".exe" to command, when calling it programmatically, if it doesn't
+  -- Windows adds ".exe" to command, when calling it programmatically, if it doesn't
   -- have an extension already, meaning that calling `npm` actually calls `npm.exe`.
   -- However, there is no `npm.exe` on Windows, instead there is `npm` or `npm.cmd`, so we make sure here to call `npm.cmd`.
   -- Extra info: https://stackoverflow.com/questions/43139364/createprocess-weird-behavior-with-files-without-extension .
   "npm" ++ if os /= "mingw32" then "" else ".cmd"
 
--- | Changes an npm command to a cmd.exe command on Windows only. Calling npm from API causes troubles.
---   The reason and solution exaplined here: https://stackoverflow.com/a/44820337
 buildNpmCmdWithArgs :: [String] -> (String, [String])
 buildNpmCmdWithArgs arguments =
+  -- Changes an npm command to a cmd.exe command on Windows only. 
+  -- Calling npm from API causes troubles, because Haskell changes work directory, which is used inside npm.cmd script.
+  -- Extra info: https://stackoverflow.com/a/44820337
   if os /= "mingw32"
     then (oSSpecificNpm, arguments)
     else ("cmd.exe", [intercalate " " (["/c", oSSpecificNpm] ++ arguments)])
