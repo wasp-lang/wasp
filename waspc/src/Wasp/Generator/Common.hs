@@ -5,6 +5,8 @@ module Wasp.Generator.Common
     prismaVersion,
     npmCmd,
     buildNpmCmdWithArgs,
+    npxCmd,
+    buildNpxCmdWithArgs,
   )
 where
 
@@ -51,11 +53,26 @@ npmCmd = case os of
   "mingw32" -> "npm.cmd"
   _ -> "npm"
 
+npxCmd :: String
+npxCmd = case os of
+  -- Read above, for "npm", why we need to handle Win in special way.
+  "mingw32" -> "npx.cmd"
+  _ -> "npx"
+
 buildNpmCmdWithArgs :: [String] -> (String, [String])
 buildNpmCmdWithArgs args = case os of
   -- On Windows, due to how npm.cmd script is written, it happens that script
   -- resolves some paths (work directory) incorrectly when called programmatically, sometimes.
   -- Therefore, we call it via `cmd.exe`, which ensures this issue doesn't happen.
   -- Extra info: https://stackoverflow.com/a/44820337 .
-  "mingw32" -> ("cmd.exe", [unwords $ "/c" : npmCmd : args])
+  "mingw32" -> wrapCmdAndArgsInWinCmdExe (npmCmd, args)
   _ -> (npmCmd, args)
+
+buildNpxCmdWithArgs :: [String] -> (String, [String])
+buildNpxCmdWithArgs args = case os of
+  -- Read above, for "npm", why we need to handle Win in special way.
+  "mingw32" -> wrapCmdAndArgsInWinCmdExe (npxCmd, args)
+  _ -> (npxCmd, args)
+
+wrapCmdAndArgsInWinCmdExe :: (String, [String]) -> (String, [String])
+wrapCmdAndArgsInWinCmdExe (cmd, args) = ("cmd.exe", [unwords $ "/c" : cmd : args])

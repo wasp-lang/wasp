@@ -25,7 +25,7 @@ import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.Util.Encoding as E
+import Data.Text.Encoding (decodeUtf8)
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -65,11 +65,12 @@ runProcessAsJob process jobType chan =
             forwardByteStringChunkToChan bs =
               writeChan chan $
                 J.JobMessage
-                  { -- Since this is output of a command that was supposed to be shown in the terminal,
+                  { -- TODO: Since this is output of a command that was supposed to be shown in the terminal,
                     -- it is our safest bet to assume it is using locale encoding (default encoding on the machine),
                     -- instead of assuming it is utf8 (like we do for text files).
                     -- Take a look at https://serokell.io/blog/haskell-with-utf8 for detailed reasoning.
-                    J._data = J.JobOutput (E.decodeLocaleEncoding bs) jobOutputType,
+                    -- However, right now we just assume it is utf8, due to not prioritizing finding a proper solution.
+                    J._data = J.JobOutput (decodeUtf8 bs) jobOutputType,
                     J._jobType = jobType
                   }
 
