@@ -2,7 +2,7 @@
 
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
-    runCommandThatRequiresNodeAsJob,
+    runNodeDependentCommandAsJob,
     parseNodeVersion,
   )
 where
@@ -107,8 +107,8 @@ decodeEncoding enc
 
 -- | First checks if correct version of node is installed on the machine, then runs the given command
 -- as a Job (since it assumes this command requires node to be installed).
-runCommandThatRequiresNodeAsJob :: J.JobType -> Path' Abs (Dir a) -> (String, [String]) -> J.Job
-runCommandThatRequiresNodeAsJob jobType fromDir (command, args) chan = do
+runNodeDependentCommandAsJob :: J.JobType -> Path' Abs (Dir a) -> (String, [String]) -> J.Job
+runNodeDependentCommandAsJob jobType fromDir (command, args) chan = do
   errorOrNodeVersion <- getNodeVersion
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
