@@ -24,6 +24,8 @@ TEST_CMD="cabal test"
 TEST_UNIT_CMD="cabal test waspc-test"
 TEST_CLI_CMD="cabal test cli-test"
 TEST_E2E_CMD="cabal test e2e-test"
+TEST_E2E_DELETE_GOLDENS="rm -r $PROJECT_ROOT/e2e-test/test-outputs/*-golden"
+TEST_E2E_ACCEPT_ALL_CMD="$TEST_E2E_DELETE_GOLDENS && $TEST_E2E_CMD"
 RUN_CMD="cabal run wasp-cli ${ARGS[@]}"
 GHCID_CMD="ghcid --command=cabal repl"
 GHCID_TEST_CMD="ghcid --command=cabal repl"
@@ -66,6 +68,8 @@ print_usage () {
                     "Executes only cli unit tests. Builds the project first if needed."
     print_usage_cmd "test:e2e" \
                     "Executes only e2e tests. Builds the project first if needed."
+    print_usage_cmd "test:e2e:accept-all" \
+                    "Accepts any diffs in the generated code in e2e tests. Does so by deleting current golden output and re-running e2e tests to produce new golden output."
     print_usage_cmd "wasp-cli <args>" \
                     "Runs the wasp executable while forwarding arguments. Builds the project first if needed."
     print_usage_cmd "ghcid" \
@@ -121,6 +125,9 @@ case $COMMAND in
         ;;
     test:e2e)
         echo_and_eval "$TEST_E2E_CMD"
+        ;;
+    test:e2e:accept-all)
+        echo_and_eval "$TEST_E2E_ACCEPT_ALL_CMD"
         ;;
     wasp-cli)
         echo_and_eval "$RUN_CMD"

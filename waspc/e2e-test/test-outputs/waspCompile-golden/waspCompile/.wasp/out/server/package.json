@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@prisma/client": "3.9.1",
+    "@prisma/client": "3.15.2",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "debug": "~2.6.9",
@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.4",
-    "prisma": "3.9.1",
+    "prisma": "3.15.2",
     "standard": "^14.3.4"
   },
   "engineStrict": true,
