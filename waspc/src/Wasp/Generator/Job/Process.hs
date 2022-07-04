@@ -9,18 +9,13 @@ where
 
 import Control.Concurrent (writeChan)
 import Control.Concurrent.Async (Concurrently (..))
-import Data.ByteString (ByteString)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
-import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeLatin1, decodeUtf8With)
-import GHC.IO.Encoding (TextEncoding, textEncodingName)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import System.IO (latin1, localeEncoding, utf8)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import qualified System.Info
 import qualified System.Process as P
@@ -30,6 +25,7 @@ import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Util.Encoding as E
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -73,7 +69,7 @@ runProcessAsJob process jobType chan =
                     -- it is our safest bet to assume it is using locale encoding (default encoding on the machine),
                     -- instead of assuming it is utf8 (like we do for text files).
                     -- Take a look at https://serokell.io/blog/haskell-with-utf8 for detailed reasoning.
-                    J._data = J.JobOutput (decodeLocaleEncoding bs) jobOutputType,
+                    J._data = J.JobOutput (E.decodeLocaleEncoding bs) jobOutputType,
                     J._jobType = jobType
                   }
 
@@ -90,20 +86,6 @@ runProcessAsJob process jobType chan =
         then P.terminateProcess processHandle
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
-
--- | Decodes given byte string while assuming it is using locale encoding (which is system's default encoding).
-decodeLocaleEncoding :: ByteString -> Text
-decodeLocaleEncoding = decodeEncoding localeEncoding
-
--- | Decodes given byte string while assuming it is using provided text encoding.
-decodeEncoding :: TextEncoding -> ByteString -> Text
-decodeEncoding enc
-  | textEncodingName enc == textEncodingName latin1 = decodeLatin1
-  -- This will replace any invalid characters with \xfffd.
-  | textEncodingName enc == textEncodingName utf8 = decodeUtf8With onErrorUseReplacementChar
-  | otherwise = error $ "Encoding " ++ textEncodingName localeEncoding ++ " is not supported."
-  where
-    onErrorUseReplacementChar _ _ = Just '\xfffd'
 
 -- | First checks if correct version of node is installed on the machine, then runs the given command
 -- as a Job (since it assumes this command requires node to be installed).
