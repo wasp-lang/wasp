@@ -12,5 +12,4 @@ import qualified Wasp.Generator.WebAppGenerator.Common as Common
 installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> J.Job
 installNpmDependencies projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  let (npmCmd, args) = buildNpmCmdWithArgs ["install"]
-  runCommandThatRequiresNodeAsJob webAppDir npmCmd args J.WebApp
+  runCommandThatRequiresNodeAsJob J.WebApp webAppDir $ buildNpmCmdWithArgs ["install"]

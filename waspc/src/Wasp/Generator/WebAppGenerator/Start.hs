@@ -12,5 +12,4 @@ import qualified Wasp.Generator.WebAppGenerator.Common as Common
 startWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
 startWebApp projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  let (npmCmd, args) = buildNpmCmdWithArgs ["start"]
-  runCommandThatRequiresNodeAsJob webAppDir npmCmd args J.WebApp
+  runCommandThatRequiresNodeAsJob J.WebApp webAppDir $ buildNpmCmdWithArgs ["start"]

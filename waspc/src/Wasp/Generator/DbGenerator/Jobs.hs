@@ -59,7 +59,7 @@ migrateDev projectDir maybeMigrationName = do
             --   This should also work on Windows, if `script` command is installed via Cygwin.
             ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
 
-  let job = runCommandThatRequiresNodeAsJob serverDir "script" scriptArgs J.Db
+  let job = runCommandThatRequiresNodeAsJob J.Db serverDir ("script", scriptArgs)
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -70,7 +70,7 @@ runStudio projectDir = do
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
   let npxPrismaStudioCmd = npxPrismaCmd ++ ["studio", "--schema", SP.toFilePath schemaFile]
-  let job = runCommandThatRequiresNodeAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
+  let job = runCommandThatRequiresNodeAsJob J.Db serverDir (head npxPrismaStudioCmd, tail npxPrismaStudioCmd)
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -80,7 +80,7 @@ generatePrismaClient projectDir = do
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
   let npxPrismaGenerateCmd = npxPrismaCmd ++ ["generate", "--schema", SP.toFilePath schemaFile]
-  let job = runCommandThatRequiresNodeAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
+  let job = runCommandThatRequiresNodeAsJob J.Db serverDir (head npxPrismaGenerateCmd, tail npxPrismaGenerateCmd)
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardOnlyRetryErrors
 
@@ -89,8 +89,7 @@ generatePrismaClient projectDir = do
 npmInstall :: Path' Abs (Dir ProjectRootDir) -> J.Job
 npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let (npmCmd, args) = buildNpmCmdWithArgs ["install"]
-  runCommandThatRequiresNodeAsJob serverDir npmCmd args J.Db
+  runCommandThatRequiresNodeAsJob J.Db serverDir $ buildNpmCmdWithArgs ["install"]
 
 data JobMessageForwardingStrategy = ForwardEverything | ForwardOnlyRetryErrors
 

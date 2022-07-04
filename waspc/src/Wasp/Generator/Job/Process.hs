@@ -105,8 +105,10 @@ decodeEncoding enc
   where
     onErrorUseReplacementChar _ _ = Just '\xfffd'
 
-runCommandThatRequiresNodeAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runCommandThatRequiresNodeAsJob fromDir command args jobType chan = do
+-- | First checks if correct version of node is installed on the machine, then runs the given command
+-- as a Job (since it assumes this command requires node to be installed).
+runCommandThatRequiresNodeAsJob :: J.JobType -> Path' Abs (Dir a) -> (String, [String]) -> J.Job
+runCommandThatRequiresNodeAsJob jobType fromDir (command, args) chan = do
   errorOrNodeVersion <- getNodeVersion
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)

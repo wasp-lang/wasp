@@ -3,12 +3,11 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
-    oSSpecificNpm,
+    npmCmd,
     buildNpmCmdWithArgs,
   )
 where
 
-import Data.List (intercalate)
 import System.Info (os)
 import qualified Wasp.SemanticVersion as SV
 
@@ -44,18 +43,19 @@ prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
 
 npmCmd :: String
-npmCmd =
+npmCmd = case os of
   -- Windows adds ".exe" to command, when calling it programmatically, if it doesn't
   -- have an extension already, meaning that calling `npm` actually calls `npm.exe`.
   -- However, there is no `npm.exe` on Windows, instead there is `npm` or `npm.cmd`, so we make sure here to call `npm.cmd`.
   -- Extra info: https://stackoverflow.com/questions/43139364/createprocess-weird-behavior-with-files-without-extension .
-  "npm" ++ if os /= "mingw32" then "" else ".cmd"
+  "mingw32" -> "npm.cmd"
+  _ -> "npm"
 
 buildNpmCmdWithArgs :: [String] -> (String, [String])
-buildNpmCmdWithArgs arguments =
-  -- Changes an npm command to a cmd.exe command on Windows only. 
-  -- Calling npm from API causes troubles, because Haskell changes work directory, which is used inside npm.cmd script.
-  -- Extra info: https://stackoverflow.com/a/44820337
-  if os /= "mingw32"
-    then (oSSpecificNpm, arguments)
-    else ("cmd.exe", [intercalate " " (["/c", oSSpecificNpm] ++ arguments)])
+buildNpmCmdWithArgs args = case os of
+  -- On Windows, due to how npm.cmd script is written, it happens that script
+  -- resolves some paths (work directory) incorrectly when called programmatically, sometimes.
+  -- Therefore, we call it via `cmd.exe`, which ensures this issue doesn't happen.
+  -- Extra info: https://stackoverflow.com/a/44820337 .
+  "mingw32" -> ("cmd.exe", [unwords $ "/c" : npmCmd : args])
+  _ -> (npmCmd, args)
