@@ -20,8 +20,4 @@ jobs: $ncpus
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2022-03-22T14:16:26Z
-
--- We turned off the @systemencoding@ flag for @encoding@ package because it doesn't compile on Win otherwise,
--- and we don't need that functionality anyway.
-constraints: encoding -systemencoding
+index-state: 2022-07-05T07:45:23Z
