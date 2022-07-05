@@ -14,7 +14,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 ![Language lifecycle](../static/img/language-lifecycle-copilot.png)
 
 
-We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of potential investors and some users asked us “*Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for you?*”.
+We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of times we've been asked “*Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for you?*”.
 
 This is on our take on the situation and what we think things might look like in the future.
 
