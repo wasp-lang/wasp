@@ -26,7 +26,7 @@ const Todo = (props) => {
             return [updatedTask]
           } else {
             return oldTasks.map(task => 
-              task.id === updatedTask.id ? { ...task, updatedTask } : task
+              task.id === updatedTask.id ? { ...task, ...updatedTask } : task
             )
           }
         },
