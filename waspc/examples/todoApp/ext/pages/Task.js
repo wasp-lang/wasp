@@ -2,15 +2,24 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
+import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
 import getTask from '@wasp/queries/getTask.js'
 
 const Todo = (props) => {
   const taskId = parseInt(props.match.params.id)
-  const { data: task, isFetching, error } =
-    useQuery(getTask, { id: taskId })
+  const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 
   if (!task) return <div>Task with id {taskId} does not exist.</div>
   if (error) return <div>Error occurred! {error}</div>
+
+  async function toggleIsDone() {
+    try {
+      updateTaskIsDone({ id: task.id, isDone: !task.isDone })
+    } catch (err) {
+      window.alert("Error: " + err.message)
+      console.log(err)
+    }
+  }
 
   return (
     <>
@@ -22,6 +31,7 @@ const Todo = (props) => {
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
+          <button onClick={toggleIsDone}>Mark as {task.isDone ? 'done' : 'undone'}</button>
         </>
       )}
       <br />
