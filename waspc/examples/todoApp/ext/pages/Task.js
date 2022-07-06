@@ -11,18 +11,25 @@ const Todo = (props) => {
   const taskId = parseInt(props.match.params.id)
   const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 
-  const updateTaskIsDone = useAction(updateTaskIsDone, {
+  const updateTaskIsDoneAction = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
         getQuery: () => [getTask, { id: taskId }],
+        // This query's cache should should never be emtpy
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask, isDone }),
       },
       {
-        getQuery: getTasks,
-        updateQuery: (updatedTask, oldTasks) =>
-          oldTasks.map(task => 
-            task.id === updatedTask.id ? { ...task, updatedTask } : task
-          ),
+        getQuery: () => [getTasks],
+        updateQuery: (updatedTask, oldTasks) => {
+          if (oldTasks === undefined) {
+            // cache is empty
+            return [updatedTask]
+          } else {
+            return oldTasks.map(task => 
+              task.id === updatedTask.id ? { ...task, updatedTask } : task
+            )
+          }
+        },
       }
     ]
   })

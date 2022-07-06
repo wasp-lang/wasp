@@ -100,11 +100,18 @@ const Tasks = (props) => {
 
 const Task = (props) => {
   const action = useAction(updateTaskIsDone, {
-    optimisticUpdates: {
-      getQuery: () => getTasks.queryCacheKey,
-      updateQuery: (updatedTask, oldTasks) =>
-        oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
-    }
+    optimisticUpdates: [{
+      getQuery: () => [getTasks],
+      // TODO: decide what we do when the cache
+      updateQuery: (updatedTask, oldTasks) => {
+        if (oldTasks === undefined) {
+          // cache is empty
+          return [updatedTask];
+        } else {
+          return oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
+        }
+      }
+    }]
   });
   const handleTaskIsDoneChange = async (event) => {
     const id = parseInt(event.target.id)

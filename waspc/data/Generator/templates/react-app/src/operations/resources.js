@@ -1,14 +1,14 @@
 {{= {= =} =}}
 // todo: can i remove the template thing above ^
 import { queryClientInitialized } from '../queryClient'
-import { makeActionCounter } from './actionCounter'
+import { makeCounter } from './counter'
 
 
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
 const resourceToQueryCacheKeys = new Map()
-const actionCounter = makeActionCounter()
+const actionCounter = makeCounter()
 
 /**
  * Remembers that specified query is using specified resources.
@@ -26,16 +26,29 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
     cacheKeys.add(queryCacheKey)
   }
 }
-export function registerActionInProgress(optimisticallyUpdatedCacheKeys) {
-  optimisticallyUpdatedCacheKeys.forEach(
-    queryCacheKey => actionCounter.increment(queryCacheKey)
-  )
+
+function getQueryHashes(queryClient, optimisticallyUpdatedCacheKeys) {
+  return optimisticallyUpdatedCacheKeys
+    .map(queryCacheKey => getQueryHash(queryClient, queryCacheKey))
+    // filter out non-existing queries
+    // very ugly
+    .filter(Boolean)
+}
+
+export async function registerActionInProgress(optimisticallyUpdatedCacheKeys) {
+  const queryClient = await queryClientInitialized
+  const queryHashes = await getQueryHashes(queryClient, optimisticallyUpdatedCacheKeys)
+  queryHashes.forEach(queryHash => actionCounter.increment(queryHash))
+}
+
+function getQueryHash(queryClient, queryCacheKey) {
+  return queryClient.getQueryCache().find(queryCacheKey, { exact: true })?.queryHash
 }
 
 export async function registerActionDone(resources, optimisticallyUpdatedCacheKeys) {
-  optimisticallyUpdatedCacheKeys.forEach(
-    queryCacheKey => actionCounter.decrement(queryCacheKey)
-  )
+  const queryClient = await queryClientInitialized
+  const queryHashes = await getQueryHashes(queryClient, optimisticallyUpdatedCacheKeys)
+  queryHashes.forEach(queryHash => actionCounter.decrement(queryHash))
   await invalidateQueriesUsing(resources)
 }
 
@@ -63,12 +76,17 @@ async function invalidateQueriesUsing(resources) {
   const queryClient = await queryClientInitialized
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
-    .filter(queryCacheKey => actionCounter.hasNoActionsInProgress(queryCacheKey))
+    .filter(queryCacheKey => hasNoActionsInProgress(queryClient, queryCacheKey))
 
   queryCacheKeysToInvalidate.forEach(queryCacheKey => {
     console.log('invalidating', queryCacheKey)
     queryClient.invalidateQueries(queryCacheKey)
   })
+}
+
+function hasNoActionsInProgress(queryClient, queryCacheKey) {
+  const queryHash = getQueryHash(queryClient, queryCacheKey)
+  return actionCounter.count(queryHash) === 0
 }
 
 /**

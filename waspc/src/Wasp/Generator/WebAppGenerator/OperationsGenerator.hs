@@ -32,7 +32,7 @@ genOperations spec =
     <++> Resources.genResources spec
     <++> return
       [ C.mkSrcTmplFd [relfile|operations/index.js|],
-        C.mkSrcTmplFd [relfile|operations/actionCounter.js|]
+        C.mkSrcTmplFd [relfile|operations/counter.js|]
       ]
 
 genQueries :: AppSpec -> Generator [FileDraft]
