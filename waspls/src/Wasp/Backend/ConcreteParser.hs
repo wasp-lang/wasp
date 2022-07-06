@@ -28,20 +28,20 @@ parseCST tokens = parse tokens (root --> eof)
 parseCSTExpression :: [Token] -> ([ParseError], [SyntaxNode])
 parseCSTExpression tokens = parse tokens (expr --> eof)
 
-root :: Parser
+root :: GrammarRule
 root = group Program stmts
 
-stmts :: Parser
+stmts :: GrammarRule
 stmts = eof <> (stmt --> stmts)
 
-stmt :: Parser
+stmt :: GrammarRule
 stmt =
   group Decl $
     (T.Identifier `as` DeclType)
       --> (T.Identifier `as` DeclName)
       --> expr
 
-expr :: Parser
+expr :: GrammarRule
 expr =
   group Dict (listLike lcurly dictEntry comma rcurly)
     <> group List (listLike lsquare expr comma rsquare)
@@ -57,18 +57,18 @@ expr =
     <> kwFalse
     <> extImport
 
-dictEntry :: Parser
+dictEntry :: GrammarRule
 dictEntry = group DictEntry $ (T.Identifier `as` DictKey) --> colon --> expr
 
-quotedText :: Parser
+quotedText :: GrammarRule
 quotedText = eof <> rquote <> (quoted --> quotedText)
 
-extImport :: Parser
+extImport :: GrammarRule
 extImport =
   group ExtImport $
     kwImport --> extImportName --> kwFrom --> (T.String `as` ExtImportPath)
 
-extImportName :: Parser
+extImportName :: GrammarRule
 extImportName =
   (lcurly --> (T.Identifier `as` ExtImportField) --> rcurly)
     <> (T.Identifier `as` ExtImportModule)
@@ -79,19 +79,19 @@ extImportName =
 --
 -- In other words, a list with an optional trailing separator.
 listLike ::
-  -- | start parser
-  Parser ->
-  -- | value parser
-  Parser ->
-  -- | separator parser
-  Parser ->
-  -- | end parser
-  Parser ->
-  Parser
+  -- | start grammar rule
+  GrammarRule ->
+  -- | value grammar rule
+  GrammarRule ->
+  -- | separator grammar rule
+  GrammarRule ->
+  -- | end grammar rule
+  GrammarRule ->
+  GrammarRule
 listLike open value sep close =
   open --> listLikeValues
   where
-    listLikeValues :: Parser
+    listLikeValues :: GrammarRule
     listLikeValues =
       eof
         <> close

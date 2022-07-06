@@ -53,7 +53,7 @@ instance ToJSON SyntaxKind
 -- comments, whitespace, and unexpected tokens/characters.
 --
 -- Later, this CST is processed into an AST, a more strongly typed format that
--- leaves out all of the
+-- leaves out all of the trivia tokens.
 data SyntaxNode = SyntaxNode
   { snodeKind :: !SyntaxKind,
     -- | Width of this "SyntaxNode". For nodes with children, this is the sum
