@@ -31,7 +31,7 @@ const Todo = (props) => {
           <div> id: {task.id} </div>
           <div> description: {task.description} </div>
           <div> is done: {task.isDone ? 'Yes' : 'No'} </div>
-          <button onClick={toggleIsDone}>Mark as {task.isDone ? 'done' : 'undone'}</button>
+          <button onClick={toggleIsDone}>Mark as {task.isDone ? 'undone' : 'done'}</button>
         </>
       )}
       <br />
