@@ -25,11 +25,13 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -117,6 +119,7 @@ npmDepsForWasp spec =
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0")
           ]
+          ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -145,13 +148,13 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
+    [ copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|core/AuthError.js|],
       copyTmplFile [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genAppJs spec
     ]
     <++> genRoutesDir spec
     <++> genOperationsRoutes spec
@@ -198,6 +201,20 @@ genServerJs spec =
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
+genAppJs :: AppSpec -> Generator FileDraft
+genAppJs spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    maybeIsPassportRequired = AS.App.Auth.passportRequired <$> AS.App.auth (snd $ getApp spec)
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel appFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> appFileInSrcDir
+    tmplData =
+      object
+        [ "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+          "isPassportRequired" .= (Just True == maybeIsPassportRequired :: Bool)
+        ]
+    appFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    appFileInSrcDir = [relfile|app.js|]
+
 -- | TODO: Make this not hardcoded!
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
@@ -220,3 +237,17 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
+depsRequiredByPassport spec = depsRequiredByPassport' maybeAuth
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+    depsRequiredByPassport' :: Maybe AS.App.Auth.Auth -> [App.Dependency.Dependency]
+    depsRequiredByPassport' Nothing = []
+    depsRequiredByPassport' (Just auth) =
+      AS.Dependency.fromList $
+        concat
+          [ [("passport", "0.6.0") | AS.App.Auth.passportRequired auth],
+            [("passport-google-oauth2", "0.2.0") | AS.App.Auth.googleAuthEnabled auth]
+          ]

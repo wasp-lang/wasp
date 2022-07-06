@@ -4,15 +4,19 @@ app todoApp {
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
   ],
   dependencies: [
-    ("@material-ui/core", "4.11.3"),
-    ("passport", "0.6.0"),
-    ("passport-google-oauth2", "0.2.0")
+    ("@material-ui/core", "4.11.3")
   ],
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: {
+     emailAndPassword: true,
+     google: {
+      configFn: import { config } from "@ext/auth/google.js"
+     }
+    },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/profile"
+    onAuthSucceededRedirectTo: "/profile",
+    onSignInFn: import signInHandler from "@ext/auth/shared.js"
   },
   server: {
     setupFn: import setup from "@ext/serverSetup.js"

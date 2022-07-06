@@ -1,3 +1,4 @@
+{{={= =}=}}
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
@@ -6,6 +7,10 @@ import helmet from 'helmet'
 
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
+
+{=# isPassportRequired =}
+import { usePassport } from './core/auth/passport/passport.js'
+{=/ isPassportRequired =}
 
 // TODO: Consider extracting most of this logic into createApp(routes, path) function so that
 //   it can be used in unit tests to test each route individually.
@@ -19,57 +24,14 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-import passport from 'passport'
-import GoogleStrategy from 'passport-google-oauth2'
-import { v4 as uuidv4 } from 'uuid'
 import prisma from './dbClient.js'
 import { sign } from './core/auth.js'
 
-console.log('setting up Google')
+{=# isPassportRequired =}
+usePassport(app)
+{=/ isPassportRequired =}
 
-passport.use(new GoogleStrategy.Strategy({
-  clientID: process.env['GOOGLE_CLIENT_ID'],
-  clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-  callbackURL: 'http://localhost:3001/oauth2/redirect/google',
-  scope: ['email'],
-  passReqToCallback: true
-}, async function (request, _accessToken, _refreshToken, profile, done) {
-  console.log("In Google OAuth callback")
-
-  let user = await prisma.user.findUnique({ where: { email: profile.email } })
-  if (!user) {
-    user = await prisma.user.create({ data: { email: profile.email, password: "password123!" } })
-  }
-
-  request.wasp = { ...request.wasp, userId: user.id }
-
-  return done(null, user)
-}))
-
-// Redirect user to Google
-app.get('/login/federated/google', passport.authenticate('google', { session: false }))
-
-// Handle Google callback
-app.get('/oauth2/redirect/google',
-  passport.authenticate('google', {
-    session: false,
-    failureRedirect: 'http://localhost:3000/login',
-  }),
-  async function(req, res) {
-    console.log("In Passport success callback")
-    const userId = req.wasp.userId
-
-    if (req.wasp.userId) {
-      const otpToken = await prisma.otpToken.create({ data: { userId, token: uuidv4() }})
-      res.redirect('http://localhost:3000/login?otpToken=' + otpToken.token)
-    }
-    else {
-      // NOTE: Should not happen if auth was successful.
-      console.error('In passport success callback, but user not in request.')
-      res.redirect('http://localhost:3000/login')
-    }
-})
-
+// TODO: Figure out why this cannot go into usePassport
 // This is a route that takes a 1-time use, time limited token
 // to lookup what user just successfully logged in above.
 app.post('/otpTokenExchange', async (req, res) => {

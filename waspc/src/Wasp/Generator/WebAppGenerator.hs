@@ -114,6 +114,8 @@ genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
     C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|]) :
+    -- TODO: copy whole dir?
+    C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|]) :
     publicIndexHtmlFd :
     ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           processPublicTmpl path = C.mkTmplFdWithData (C.asTmplFile $ [reldir|public|] </> path) tmplData
