@@ -39,13 +39,13 @@ migrateDev projectDir maybeMigrationName = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let npxPrismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
+  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-            ["-Fq", "/dev/null"] ++ npxPrismaMigrateCmd
+            ["-Fq", "/dev/null"] ++ prismaMigrateCmd
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-            ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
+            ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
@@ -54,14 +54,14 @@ runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
 runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let npxPrismaStudioCmd = ["studio", "--schema", SP.toFilePath schemaFile]
+  let prismaStudioCmd = ["studio", "--schema", SP.toFilePath schemaFile]
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) npxPrismaStudioCmd J.Db
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmd J.Db
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let npxPrismaGenerateCmd = ["generate", "--schema", SP.toFilePath schemaFile]
+  let prismaGenerateCmd = ["generate", "--schema", SP.toFilePath schemaFile]
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) npxPrismaGenerateCmd J.Db
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaGenerateCmd J.Db
