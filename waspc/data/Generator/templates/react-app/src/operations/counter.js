@@ -10,15 +10,15 @@ export function makeCounter() {
     console.log('increment action counter', key, counter.get(key))
   }
 
-  function decrement(queryCacheKey) {
-    const currentCount = counter.get(queryCacheKey) ?? 0;
-    counter.set(queryCacheKey, currentCount - 1)
+  function decrement(key) {
+    const currentCount = counter.get(key) ?? 0;
+    counter.set(key, currentCount - 1)
     // todo: remove this
-    console.log('decrement action counter', queryCacheKey, counter.get(queryCacheKey))
+    console.log('decrement action counter', key, counter.get(key))
   }
 
-  function count(queryCacheKey) {
-    return counter.get(queryCacheKey) ?? 0
+  function count(key) {
+    return counter.get(key) ?? 0
   }
 
   return {
