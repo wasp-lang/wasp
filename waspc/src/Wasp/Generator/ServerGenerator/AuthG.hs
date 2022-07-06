@@ -38,12 +38,12 @@ genAuth spec = case maybeAuth of
       [ genCoreAuth auth,
         genAuthMiddleware auth,
         -- Auth routes
-        genAuthRoutesIndex,
+        genAuthRoutesIndex auth,
         genLoginRoute auth,
         genSignupRoute auth,
         genMeRoute auth
       ]
-      <++> (if AS.Auth.passportRequired auth then genPassportAuthMethods auth else return [])
+      <++> (if AS.Auth.passportRequired auth then genPassportRoutes auth else return [])
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -82,8 +82,17 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
             [ "userEntityUpper" .= (userEntityName :: String)
             ]
 
-genAuthRoutesIndex :: Generator FileDraft
-genAuthRoutesIndex = return $ C.mkSrcTmplFd (C.asTmplSrcFile [relfile|routes/auth/index.js|])
+genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
+genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    indexRouteRelToSrc = [relfile|routes/auth/index.js|]
+    tmplFile = C.asTmplFile $ [reldir|src|] </> indexRouteRelToSrc
+    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile indexRouteRelToSrc
+
+    tmplData =
+      object
+        [ "isPassportRequired" .= AS.Auth.passportRequired auth
+        ]
 
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -123,9 +132,10 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]
 
-genPassportAuthMethods :: AS.Auth.Auth -> Generator [FileDraft]
-genPassportAuthMethods auth =
-  genPassportJs auth
+genPassportRoutes :: AS.Auth.Auth -> Generator [FileDraft]
+genPassportRoutes auth =
+  genConfigJs auth
+    <++> genPassportJs auth
     <++> (if AS.Auth.googleAuthEnabled auth then genGoogleJs auth else return [])
 
 genPassportJs :: AS.Auth.Auth -> Generator [FileDraft]
@@ -133,19 +143,32 @@ genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel passportFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
-    (onSignInJsFnImportIdentifier, onSignInJsFnImportStmt) = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir $ AS.Auth.onSignInFn auth
     tmplData =
       object
-        [ "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
-          "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier,
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          -- TODO: What should the default redirect be on success?
-          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth),
-          "isGoogleAuthEnabled" .= AS.Auth.googleAuthEnabled auth
+        [ "isGoogleAuthEnabled" .= AS.Auth.googleAuthEnabled auth
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    passportFileInSrcDir = [relfile|core/auth/passport/passport.js|]
+    passportFileInSrcDir = [relfile|routes/auth/passport/passport.js|]
+
+genConfigJs :: AS.Auth.Auth -> Generator [FileDraft]
+genConfigJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
+    (onSignInJsFnImportIdentifier, onSignInJsFnImportStmt) = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir $ AS.Auth.onSignInFn auth
+
+    tmplData =
+      object
+        [ "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier,
+          "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
+          -- TODO: What should the default redirect be on success?
+          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+        ]
+
+    configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    configFileInSrcDir = [relfile|routes/auth/passport/config.js|]
 
 genGoogleJs :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
@@ -162,7 +185,7 @@ genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         ]
 
     googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    googleFileInSrcDir = [relfile|core/auth/passport/google.js|]
+    googleFileInSrcDir = [relfile|routes/auth/passport/google.js|]
 
     maybeConfigJsFunction = AS.Auth.configFn <$> AS.Auth.google (AS.Auth.methods auth)
     maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir <$> maybeConfigJsFunction

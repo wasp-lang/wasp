@@ -16,7 +16,7 @@ const Login = () => {
     async function fetchToken() {
       console.log('Fetching JWT from otpToken: ', otpToken)
       try {
-        const response = await api.post('http://localhost:3001/otpTokenExchange', { otpToken })
+        const response = await api.post('http://localhost:3001/auth/passport/otpTokenExchange', { otpToken })
         console.log(response)
         setAuthToken(response.data.token)
         window.location.replace("http://localhost:3000/profile")
@@ -40,7 +40,7 @@ const Login = () => {
       </span>
 
       <div>
-        <a href="http://localhost:3001/login/federated/google">
+        <a href="http://localhost:3001/auth/passport/google/login">
           <img height="40" src="/images/btn_google_signin_dark_normal_web@2x.png" />
         </a>
       </div>
