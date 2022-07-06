@@ -12,13 +12,13 @@ export default handleRejection(async (req, res) => {
   const context = {}
 
   // Try to fetch user with the given email.
-  const {= userEntityLower =} = await prisma.{= userEntityLower =}.findUnique({ where: { email: args.email.toLowerCase() } })
+  const user = await prisma.{= userEntityLower =}.findUnique({ where: { email: args.email.toLowerCase() } })
   if (!user) {
     return res.status(401).send()
   }
 
   // We got user - now check the password.
-  const verifyPassRes = await verifyPassword({= userEntityLower =}.password, args.password)
+  const verifyPassRes = await verifyPassword(user.password, args.password)
   switch (verifyPassRes) {
     case SecurePassword.VALID:
       break
@@ -30,11 +30,12 @@ export default handleRejection(async (req, res) => {
   }
 
   // Email & password valid - generate token.
-  const token = await sign({= userEntityLower =}.id)
+  const token = await sign(user.id)
 
   // NOTE(matija): Possible option - instead of explicitly returning token here,
   // we could add to response header 'Set-Cookie {token}' directive which would then make
   // browser automatically save cookie with token.
+  // NOTE(shayne): Cross-domain cookies have serious limitations, which we recently explored.
 
   return res.json({ token })
 })

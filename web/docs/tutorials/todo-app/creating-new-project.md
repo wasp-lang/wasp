@@ -13,13 +13,13 @@ Enter the created directory and run:
 cd TodoApp
 wasp start
 ```
-You have just ran your app in the development mode!
+You have just run your app in the development mode!
 
 :::note
 `wasp start` might take a little bit longer, due to the first time setup.
 :::
 
-You will be seeing a lot of different output from client, server and database setting themselves up.
+You will be seeing a lot of different output from the client, server and database setting themselves up.
 Once ready, a new tab should open in your browser at `http://localhost:3000`, with simple placeholder page:
 
 <img alt="Screenshot of new Wasp app"
@@ -28,7 +28,7 @@ Once ready, a new tab should open in your browser at `http://localhost:3000`, wi
      height="400px"
 />
 
-We just set the foundations of our app! We don't have yet the features to show it, but Wasp already generated for us full front-end and back-end code of the app. Take a peek at `TodoApp/.wasp/out` if you are curious and see how it looks like!
+We just set the foundations of our app! We don't have yet the features to show it, but Wasp has already generated for us the full front-end and back-end code of the app. Take a peek at `TodoApp/.wasp/out` if you are curious and see how it looks like!
 
 ## Taking a closer look at the code
 
@@ -44,7 +44,7 @@ TodoApp/
 └── .wasproot
 ```
 
-Let's start with `main.wasp` file which introduces 3 new concepts:
+Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [app](language/features.md#app),
 [page](language/features.md#page) and
 [route](language/features.md#route).
@@ -75,7 +75,7 @@ const MainPage = () => {
 }
 export default MainPage
 ```
-As we can see, this is just a simple functional React component using css and wasp logo that are next to it.
+As we can see, this is just a simple functional React component, using the CSS and Wasp logo files that are next to it.
 
 This is all the code!
 Wasp in the background takes care of everything else needed to define, build and run a web app.
@@ -98,7 +98,7 @@ const MainPage = () => {
 export default MainPage
 ```
 
-At this point, you should be seeing smth like
+At this point, you should be seeing something like
 
 <img alt="Todo App - Hello World"
      src={useBaseUrl('img/todo-app-hello-world.png')}

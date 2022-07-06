@@ -56,7 +56,7 @@ What this means for us is that Wasp now offers us:
 
 This is a very high-level API for auth which makes it very easy to get started quickly, but is
 not very flexible. If you require more control (e.g. want to execute some custom code on the server
-during signup, check out [lower-level auth API](/docs/language/features#lower-level-api).
+during signup, check out the [lower-level auth API](/docs/language/features#lower-level-api).
 
 Ok, that was easy!
 
@@ -66,7 +66,7 @@ To recap, so far we have defined:
 
 ## Adding Login and Signup pages
 
-When we defined `app.auth` we got login and signup forms generated for us, but now we have to use them in their pages. In our `main.wasp` file we'll add the following:
+When we defined `app.auth` we got login and signup forms generated for us, but now we have to create Login and Signup pages that use them. In our `main.wasp` file we'll add the following:
 
 ```c title="main.wasp"
 // ...
@@ -105,7 +105,7 @@ const LoginPage = () => {
 export default LoginPage
 ```
 
-Signup page is very similar to the login one:
+The Signup page is very similar to the login one:
 
 ```jsx title="ext/SignupPage.js"
 import React from 'react'
@@ -131,7 +131,7 @@ export default SignupPage
 
 ## Updating `MainPage` page to check if user is authenticated
 
-Now, let's see how are we going to handle the situation when user is not logged in.
+Now, let's see how we're going to handle the situation when user is not logged in.
 `MainPage` page is a private page and we want users to be able to see it only if they are authenticated.
 There is a specific Wasp feature that allows us to achieve this in a simple way:
 
@@ -143,8 +143,8 @@ page MainPage {
 }
 ```
 
-With `authRequired: true` we declared that page `MainPage` is accessible only to the authenticated users.
-If an unauthenticated user tries to access route `/` where our page `MainPage` is, they will be redirected to `/login` as specified with `onAuthFailedRedirectTo` property in `app.auth`.
+With `authRequired: true` we declared that page `MainPage` is accessible only to authenticated users.
+If an unauthenticated user tries to access route `/` where our page `MainPage` is, they will be redirected to `/login` as specified with the `onAuthFailedRedirectTo` property in `app.auth`.
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 
@@ -161,7 +161,7 @@ Now, we can again run
 wasp start
 ```
 
-Try going to `/` in our web app -> it will now ask you to log in, and if you follow the link, you will end up at `/login`.
+Try going to `/` in our web app. It will now redirect you to `/login`, where you'll be asked to authenticate.
 Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
 
 Let's now see how things look in the database! Run:
@@ -175,12 +175,12 @@ wasp db studio
 
 We see there is a user and that its password is already hashed! Wasp took care of this for us.
 
-However, you will notice, if you try logging in with different users and creating tasks, that all users are still sharing tasks.
-That is because we did not yet update queries and actions to work only on current user's tasks, so let's do that next!
+However, you will notice that if you try logging in with different users and creating tasks, all users are still sharing tasks.
+That is because we did not yet update queries and actions to work only on the current user's tasks, so let's do that next!
 
 ## Defining User-Task relation in entities
 
-First, let's define User-Task (one-to-many) relation (check [prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
+First, let's define a one-to-many relation between User and Task (check the [prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
 ```c {6,13-14} title="main.wasp"
 // ...
 entity User {=psl
@@ -200,7 +200,7 @@ psl=}
 // ...
 ```
 
-We modified entities by adding User-Task relation, so let's run
+We modified entities by adding the User-Task relation, so let's run
 ```shell-session
 wasp db migrate-dev
 ```
@@ -208,14 +208,14 @@ to create a database schema migration and apply it to the database.
 
 :::note
 We made `user` and `userId` in `Task` optional (via `?`) because that allows us to keep the existing tasks, which don't have a user assigned, in the database.
-This is not recommended because it allows unwanted state in the database (what is the purpose of the task not belonging to anybody?) and normally we would not make these fields optional.
+This is not recommended because it allows an unwanted state in the database (what is the purpose of the task not belonging to anybody?) and normally we would not make these fields optional.
 Instead, we would do a data migration to take care of those tasks, even if it means just deleting them all.
 However, for this tutorial, for the sake of simplicity, we will stick with this.
 :::
 
 ## Updating operations to forbid access to non-authenticated users
 
-Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on currently logged in user's tasks:
+Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged in user's tasks:
 ```js {1,4,6} title="ext/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
@@ -291,4 +291,4 @@ const MainPage = () => {
 }
 ```
 
-This is it, we have working authentication system and our app is multi-user!
+This is it, we have a working authentication system, and our Todo app is multi-user!
