@@ -1,3 +1,7 @@
+body {
+  font-family: monospace;
+}
+
 div.scrollable {
   height: 400px;
   overflow-y: scroll;
@@ -6,7 +10,11 @@ div.scrollable {
   flex-direction: column-reverse;
   background-color: #222;
   color: rgb(65, 150, 65);
+  font-size: 1.3em;
+  font-display: fallback;
+  padding-left: 0.5em;
 }
+
 
 div.logContainer {
   display: flex;

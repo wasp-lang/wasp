@@ -117,9 +117,11 @@ htmlShell timestamp (waspMessage, jobMessages) =
   Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
+
       "<script>let shouldRefresh = true;</script>",
       "<script>function disableRefresh() { shouldRefresh = false; document.getElementById('refreshButton').style.display = 'none';  }</script>",
       "<link rel=\"stylesheet\" href=\"./powerline.css\">",
+
       "</head>",
       "<body>",
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
