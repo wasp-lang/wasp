@@ -1,19 +1,21 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-deferred-out-of-scope-variables #-}
 
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
-    runNodeCommandAsJob,
+    runNodeDependentCommandAsJob,
     parseNodeVersion,
   )
 where
 
 import Control.Concurrent (writeChan)
 import Control.Concurrent.Async (Concurrently (..))
+import Data.ByteString (ByteString)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
 import qualified Data.Text as T
-import Data.Text.Encoding (decodeUtf8)
+import GHC.IO.Encoding (initLocaleEncoding)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
@@ -26,6 +28,7 @@ import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Util.Encoding as E
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -42,29 +45,8 @@ runProcessAsJob process jobType chan =
     runStreamingProcessAsJob
   where
     runStreamingProcessAsJob (CP.Inherited, stdoutStream, stderrStream, processHandle) = do
-      let forwardStdoutToChan =
-            runConduit $
-              stdoutStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stdout,
-                            J._jobType = jobType
-                          }
-                  )
-
-      let forwardStderrToChan =
-            runConduit $
-              stderrStream
-                .| CL.mapM_
-                  ( \bs ->
-                      writeChan chan $
-                        J.JobMessage
-                          { J._data = J.JobOutput (decodeUtf8 bs) J.Stderr,
-                            J._jobType = jobType
-                          }
-                  )
+      let forwardStdoutToChan = forwardStandardOutputStreamToChan stdoutStream J.Stdout
+      let forwardStderrToChan = forwardStandardOutputStreamToChan stderrStream J.Stderr
 
       exitCode <-
         runConcurrently $
@@ -79,6 +61,22 @@ runProcessAsJob process jobType chan =
           }
 
       return exitCode
+      where
+        -- @stream@ can be stdout stream or stderr stream.
+        forwardStandardOutputStreamToChan stream jobOutputType = runConduit $ stream .| CL.mapM_ forwardByteStringChunkToChan
+          where
+            forwardByteStringChunkToChan bs = do
+              writeChan chan $
+                J.JobMessage
+                  { -- NOTE: We decode while using locale encoding, since that is the best option when
+                    --   dealing with ephemeral standard in/outputs. Here is a blog explaining this in more details:
+                    --   https://serokell.io/blog/haskell-with-utf8 .
+                    J._data = J.JobOutput (decodeLocaleEncoding bs) jobOutputType,
+                    J._jobType = jobType
+                  }
+
+            decodeLocaleEncoding :: ByteString -> T.Text
+            decodeLocaleEncoding = T.pack . E.decodeWithTELenient initLocaleEncoding
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.
@@ -94,8 +92,10 @@ runProcessAsJob process jobType chan =
         else P.interruptProcessGroupOf processHandle
       return $ ExitFailure 1
 
-runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob fromDir command args jobType chan = do
+-- | First checks if correct version of node is installed on the machine, then runs the given command
+-- as a Job (since it assumes this command requires node to be installed).
+runNodeDependentCommandAsJob :: J.JobType -> Path' Abs (Dir a) -> (String, [String]) -> J.Job
+runNodeDependentCommandAsJob jobType fromDir (command, args) chan = do
   errorOrNodeVersion <- getNodeVersion
   case errorOrNodeVersion of
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)

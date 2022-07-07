@@ -11,20 +11,21 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.Info
-import Wasp.Generator.Common (ProjectRootDir, prismaVersion)
+import Wasp.Generator.Common (ProjectRootDir, buildNpmCmdWithArgs, buildNpxCmdWithArgs, prismaVersion)
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.Job (JobMessage, JobMessageData (JobExit, JobOutput))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import Wasp.Generator.Job.Process (runNodeDependentCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 
+-- Args to be passed to `npx` in order to run prisma.
 -- `--no-install` is the magic that causes this command to fail if npx cannot find it locally
 --    (either in node_modules, or globally in npx). We do not want to allow npx to ask
 --    a user without prisma to install the latest version.
 -- We also pin the version to what we need so it won't accidentally find a different version globally
 --   somewhere on the PATH.
-npxPrismaCmd :: [String]
-npxPrismaCmd = ["npx", "--no-install", "prisma@" ++ show prismaVersion]
+npxPrismaArgs :: [String]
+npxPrismaArgs = ["--no-install", "prisma@" ++ show prismaVersion]
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
 migrateDev projectDir maybeMigrationName = do
@@ -33,24 +34,35 @@ migrateDev projectDir maybeMigrationName = do
 
   let optionalMigrationArgs = maybe [] (\name -> ["--name", name]) maybeMigrationName
 
-  -- NOTE(matija): We are running this command from server's root dir since that is where
-  -- Prisma packages (cli and client) are currently installed.
+  -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
+  let npxPrismaMigrateArgs = npxPrismaArgs ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
+  let npxPrismaMigrateCmdWithArgs = buildNpxCmdWithArgs npxPrismaMigrateArgs
+
   -- NOTE(martin): `prisma migrate dev` refuses to execute when interactivity is needed if stdout is being piped,
   --   because it assumes it is used in non-interactive environment. In our case we are piping both stdin and stdout
   --   so we do have interactivity, but Prisma doesn't know that.
   --   I opened an issue with Prisma https://github.com/prisma/prisma/issues/7113, but in the meantime
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
+  let osSpecificCmdAndArgs = case System.Info.os of
+        "darwin" -> osxCmdAndArgs
+        "mingw32" -> winCmdAndArgs
+        _ -> posixCmdAndArgs
+        where
+          osxCmdAndArgs =
+            -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
+            ("script", ["-Fq", "/dev/null"] ++ uncurry (:) npxPrismaMigrateCmdWithArgs)
+          posixCmdAndArgs =
+            -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
+            ("script", ["-feqc", unwords $ uncurry (:) npxPrismaMigrateCmdWithArgs, "/dev/null"])
+          winCmdAndArgs =
+            -- TODO: For Windows we don't do anything at the moment.
+            --   Does this work when interactivity is needed, or does Prisma block us same as on mac and linux?
+            --   If it does, find an alternative to `script` since it does not exist for Windows.
+            npxPrismaMigrateCmdWithArgs
 
-  -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let npxPrismaMigrateCmd = npxPrismaCmd ++ ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
-  let scriptArgs =
-        if System.Info.os == "darwin"
-          then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
-            ["-Fq", "/dev/null"] ++ npxPrismaMigrateCmd
-          else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
-            ["-feqc", unwords npxPrismaMigrateCmd, "/dev/null"]
-
-  let job = runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+  -- NOTE(matija): We are running this command from server's root dir since that is where
+  --   Prisma packages (cli and client) are currently installed.
+  let job = runNodeDependentCommandAsJob J.Db serverDir osSpecificCmdAndArgs
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -60,8 +72,8 @@ runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
-  let npxPrismaStudioCmd = npxPrismaCmd ++ ["studio", "--schema", SP.toFilePath schemaFile]
-  let job = runNodeCommandAsJob serverDir (head npxPrismaStudioCmd) (tail npxPrismaStudioCmd) J.Db
+  let npxPrismaStudioCmdWithArgs = buildNpxCmdWithArgs $ npxPrismaArgs ++ ["studio", "--schema", SP.toFilePath schemaFile]
+  let job = runNodeDependentCommandAsJob J.Db serverDir npxPrismaStudioCmdWithArgs
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardEverything
 
@@ -70,8 +82,8 @@ generatePrismaClient projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
 
-  let npxPrismaGenerateCmd = npxPrismaCmd ++ ["generate", "--schema", SP.toFilePath schemaFile]
-  let job = runNodeCommandAsJob serverDir (head npxPrismaGenerateCmd) (tail npxPrismaGenerateCmd) J.Db
+  let npxPrismaGenerateCmdWithArgs = buildNpxCmdWithArgs $ npxPrismaArgs ++ ["generate", "--schema", SP.toFilePath schemaFile]
+  let job = runNodeDependentCommandAsJob J.Db serverDir npxPrismaGenerateCmdWithArgs
 
   retryJobOnErrorWith job (npmInstall projectDir) ForwardOnlyRetryErrors
 
@@ -80,7 +92,7 @@ generatePrismaClient projectDir = do
 npmInstall :: Path' Abs (Dir ProjectRootDir) -> J.Job
 npmInstall projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir "npm" ["install"] J.Db
+  runNodeDependentCommandAsJob J.Db serverDir $ buildNpmCmdWithArgs ["install"]
 
 data JobMessageForwardingStrategy = ForwardEverything | ForwardOnlyRetryErrors
 

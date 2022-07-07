@@ -19,6 +19,7 @@ import StrongPath
     Posix,
     Rel,
     parseRelFile,
+    relFileToPosix,
     reldir,
     reldirP,
     relfile,
@@ -62,7 +63,7 @@ genJob (jobName, job) =
             -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
+            "executorJobRelFP" .= toFilePath (fromJust $ relFileToPosix $ executorJobTemplateInJobsDir $ J.executor job)
           ]
     )
   where

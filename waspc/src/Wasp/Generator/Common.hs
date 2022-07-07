@@ -3,9 +3,14 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
+    npmCmd,
+    buildNpmCmdWithArgs,
+    npxCmd,
+    buildNpxCmdWithArgs,
   )
 where
 
+import System.Info (os)
 import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
@@ -38,3 +43,36 @@ npmVersionRange =
 
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
+
+npmCmd :: String
+npmCmd = case os of
+  -- Windows adds ".exe" to command, when calling it programmatically, if it doesn't
+  -- have an extension already, meaning that calling `npm` actually calls `npm.exe`.
+  -- However, there is no `npm.exe` on Windows, instead there is `npm` or `npm.cmd`, so we make sure here to call `npm.cmd`.
+  -- Extra info: https://stackoverflow.com/questions/43139364/createprocess-weird-behavior-with-files-without-extension .
+  "mingw32" -> "npm.cmd"
+  _ -> "npm"
+
+npxCmd :: String
+npxCmd = case os of
+  -- Read above, for "npm", why we need to handle Win in special way.
+  "mingw32" -> "npx.cmd"
+  _ -> "npx"
+
+buildNpmCmdWithArgs :: [String] -> (String, [String])
+buildNpmCmdWithArgs args = case os of
+  -- On Windows, due to how npm.cmd script is written, it happens that script
+  -- resolves some paths (work directory) incorrectly when called programmatically, sometimes.
+  -- Therefore, we call it via `cmd.exe`, which ensures this issue doesn't happen.
+  -- Extra info: https://stackoverflow.com/a/44820337 .
+  "mingw32" -> wrapCmdAndArgsInWinCmdExe (npmCmd, args)
+  _ -> (npmCmd, args)
+
+buildNpxCmdWithArgs :: [String] -> (String, [String])
+buildNpxCmdWithArgs args = case os of
+  -- Read above, for "npm", why we need to handle Win in special way.
+  "mingw32" -> wrapCmdAndArgsInWinCmdExe (npxCmd, args)
+  _ -> (npxCmd, args)
+
+wrapCmdAndArgsInWinCmdExe :: (String, [String]) -> (String, [String])
+wrapCmdAndArgsInWinCmdExe (cmd, args) = ("cmd.exe", [unwords $ "/c" : cmd : args])

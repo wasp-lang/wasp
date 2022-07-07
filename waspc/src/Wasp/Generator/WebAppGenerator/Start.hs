@@ -4,12 +4,12 @@ module Wasp.Generator.WebAppGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir, buildNpmCmdWithArgs)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import Wasp.Generator.Job.Process (runNodeDependentCommandAsJob)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
 startWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
 startWebApp projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  runNodeCommandAsJob webAppDir "npm" ["start"] J.WebApp
+  runNodeDependentCommandAsJob J.WebApp webAppDir $ buildNpmCmdWithArgs ["start"]
