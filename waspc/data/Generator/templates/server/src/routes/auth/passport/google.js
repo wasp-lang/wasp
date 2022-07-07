@@ -64,7 +64,7 @@ router.get(callbackPath,
     }
 
     const otpToken = await prisma.otpToken.create({ data: { userId, token: uuidv4() }})
-    res.redirect(`${waspServerConfig.frontendUrl}/login?otpToken=${otpToken.token}`)
+    res.redirect(`${waspServerConfig.frontendUrl}/tokenExchange?otpToken=${otpToken.token}`)
   })
 
 export default router

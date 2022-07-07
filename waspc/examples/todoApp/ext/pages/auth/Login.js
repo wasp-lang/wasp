@@ -2,35 +2,10 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
+import { Google } from '@wasp/auth/forms/SocialLoginButtons'
 import api, { setAuthToken } from '@wasp/api.js'
 
-// TODO: Fix all hardcoded URLs.
-
 const Login = () => {
-  // TODO: Move to a different component.
-  useEffect(() => {
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
-    const otpToken = urlParams.get('otpToken')
-
-    async function fetchToken() {
-      console.log('Fetching JWT from otpToken: ', otpToken)
-      try {
-        const response = await api.post('http://localhost:3001/auth/external/otpTokenExchange', { otpToken })
-        console.log(response)
-        setAuthToken(response.data.token)
-        window.location.replace("/profile")
-      } catch (e) {
-        console.error('Error fetching JWT!')
-        window.location.replace("/login")
-      }
-    }
-
-    if (otpToken) {
-      fetchToken()
-    }
-  }, [])
-
   return (
     <>
       <LoginForm/>
@@ -40,9 +15,7 @@ const Login = () => {
       </span>
 
       <div>
-        <a href="http://localhost:3001/auth/external/google/login">
-          <img height="40" src="/images/btn_google_signin_dark_normal_web@2x.png" />
-        </a>
+        <Google/>
       </div>
     </>
   )

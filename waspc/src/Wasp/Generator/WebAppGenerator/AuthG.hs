@@ -61,7 +61,9 @@ genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genLoginForm auth,
-      genSignupForm auth
+      genSignupForm auth,
+      genSocialLoginButtons auth,
+      genOtpRedirect auth
     ]
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
@@ -77,6 +79,18 @@ genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
     ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+
+genSocialLoginButtons :: AS.Auth.Auth -> Generator FileDraft
+genSocialLoginButtons _auth =
+  compileTmplToSamePath
+    [relfile|auth/forms/SocialLoginButtons.js|]
+    []
+
+genOtpRedirect :: AS.Auth.Auth -> Generator FileDraft
+genOtpRedirect _auth =
+  compileTmplToSamePath
+    [relfile|auth/forms/OtpRedirect.js|]
+    []
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
