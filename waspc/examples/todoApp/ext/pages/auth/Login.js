@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-import { Google } from '@wasp/auth/forms/SocialLoginButtons'
-import api, { setAuthToken } from '@wasp/api.js'
+import Google from '@wasp/auth/buttons/Google'
 
 const Login = () => {
   return (

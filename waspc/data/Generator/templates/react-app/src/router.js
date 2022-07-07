@@ -10,7 +10,7 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 import {= importWhat =} from "{= importFrom =}"
 {=/ pagesToImport =}
 
-import OtpRedirect from "./auth/forms/OtpRedirect"
+import TokenExchange from "./auth/pages/TokenExchange"
 
 const router = (
   <Router>
@@ -19,7 +19,7 @@ const router = (
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
 
-      <Route exact path="/tokenExchange" component={ OtpRedirect }/>
+      <Route exact path="/tokenExchange" component={ TokenExchange }/>
     </div>
   </Router>
 )

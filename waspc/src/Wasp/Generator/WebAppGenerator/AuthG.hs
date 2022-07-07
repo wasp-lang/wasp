@@ -63,7 +63,7 @@ genAuthForms auth =
     [ genLoginForm auth,
       genSignupForm auth,
       genSocialLoginButtons auth,
-      genOtpRedirect auth
+      genTokenExchange auth
     ]
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
@@ -83,13 +83,13 @@ genSignupForm auth =
 genSocialLoginButtons :: AS.Auth.Auth -> Generator FileDraft
 genSocialLoginButtons _auth =
   compileTmplToSamePath
-    [relfile|auth/forms/SocialLoginButtons.js|]
+    [relfile|auth/buttons/Google.js|]
     []
 
-genOtpRedirect :: AS.Auth.Auth -> Generator FileDraft
-genOtpRedirect _auth =
+genTokenExchange :: AS.Auth.Auth -> Generator FileDraft
+genTokenExchange _auth =
   compileTmplToSamePath
-    [relfile|auth/forms/OtpRedirect.js|]
+    [relfile|auth/pages/TokenExchange.js|]
     []
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
