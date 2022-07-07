@@ -2,14 +2,21 @@
 // todo: can i remove the template thing above ^
 import { queryClientInitialized } from '../queryClient'
 import { makeCounter } from './counter'
-import { hashQueryKey } from 'react-query'
 
 
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
 const resourceToQueryCacheKeys = new Map()
-const actionCounter = makeCounter(hashQueryKey)
+
+// A counter that counts many actions are currently in progress that will
+// invalidate a given queryCacheKey. It helps us stop premature invalidation and
+// UI flickering after optimistic updates.
+const actionCounter = makeCounter(
+  (queryCacheKey) => {
+    return Array.isArray(queryCacheKey) ? queryCacheKey[0] : queryCacheKey
+  }
+)
 
 /**
  * Remembers that specified query is using specified resources.
@@ -62,11 +69,9 @@ async function invalidateQueriesUsing(resources) {
     .filter(hasNoActionsInProgress)
 
   const queryClient = await queryClientInitialized
-  queryCacheKeysToInvalidate.forEach(queryCacheKey => {
-    // todo remove
-    console.log('invalidating', queryCacheKey)
-    queryClient.invalidateQueries(queryCacheKey)
-  })
+  queryCacheKeysToInvalidate.forEach(
+    queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
+  )
 }
 
 function hasNoActionsInProgress(queryCacheKey) {

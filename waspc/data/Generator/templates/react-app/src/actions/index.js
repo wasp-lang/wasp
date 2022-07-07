@@ -7,11 +7,9 @@ export { configureQueryClient } from '../queryClient'
 
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
-  // todo: remove this
-  window.queryClient = queryClient;
 
   let mutationFn = actionFn
-  // Do we allow all react query options or should we consider a list of allowed options?
+  // TODO(filip): Do we allow all react query options or should we consider a list of allowed options?
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {
