@@ -13,9 +13,9 @@ import Data.Text (Text, pack)
 import qualified Data.Text as Text
 import Data.Text.IO (writeFile)
 import Data.Time (getCurrentTime)
-import StrongPath ((</>))
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
-import System.Directory (copyFile, renamePath)
+import System.Directory (copyFile, createDirectoryIfMissing, renamePath)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -27,6 +27,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as Job
 import qualified Wasp.Lib
@@ -51,7 +52,7 @@ start = do
   cliSendMessageC $ Msg.Start "Starting up generated project..."
 
   startChannel <- liftIO newChan
-  liftIO $ dupChan startChannel >>= writePowerlineFiles compileChannel
+  liftIO $ dupChan startChannel >>= writePowerlineFiles outDir compileChannel
   watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir startChannel)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
@@ -59,24 +60,32 @@ start = do
       Left startError -> throwError $ CommandError "Start failed" startError
       Right () -> error "This should never happen, start should never end but it did."
 
+data PowerlineOutputDir
+
+powerlineOutputDir :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir PowerlineOutputDir)
+powerlineOutputDir generatedCodeDir = generatedCodeDir </> [SP.reldir|powerline|]
+
 -- TODO:
 -- Need to handle Wasp messages.
 -- Figure out where to write and how to automatically open.
 -- Have separate areas for warning/errors that we have seen.
 -- Can show some sort of app structure diagram, etc. (May require AppSpec)
-writePowerlineFiles :: Chan String -> Chan JobMessage -> IO ()
-writePowerlineFiles compileChannel startChannel = do
+writePowerlineFiles :: Path' Abs (Dir ProjectRootDir) -> Chan String -> Chan JobMessage -> IO ()
+writePowerlineFiles generatedCodeDir compileChannel startChannel = do
   dataDir <- Wasp.Data.getAbsDataDirPath
+  let powerlineOutDir = powerlineOutputDir generatedCodeDir
+
+  createDirectoryIfMissing False (SP.fromAbsDir powerlineOutDir)
 
   copyFile
     (SP.fromAbsFile (dataDir </> [SP.relfile|Cli/templates/powerline/powerline.css|]))
-    "/tmp/powerline.css"
+    (SP.fromAbsFile (powerlineOutDir </> [SP.relfile|powerline.css|]))
 
-  _ <- forkIO $ writeOutput compileChannel startChannel ([], [])
+  _ <- forkIO $ writeOutput powerlineOutDir compileChannel startChannel ([], [])
   return ()
 
-writeOutput :: Chan String -> Chan JobMessage -> ([String], [JobMessage]) -> IO ()
-writeOutput compileChannel startChannel (compileMessages, jobMessages) = do
+writeOutput :: Path' Abs (Dir PowerlineOutputDir) -> Chan String -> Chan JobMessage -> ([String], [JobMessage]) -> IO ()
+writeOutput powerlineOutDir compileChannel startChannel (compileMessages, jobMessages) = do
   messageOrDelay <- race (race (readChan compileChannel) (readChan startChannel)) (threadDelaySeconds 3)
   messages <-
     case messageOrDelay of
@@ -86,13 +95,16 @@ writeOutput compileChannel startChannel (compileMessages, jobMessages) = do
           Right jobMessage -> return (compileMessages, jobMessage : jobMessages)
       Right _timerExpired -> return (compileMessages, jobMessages)
   writeOutputFile messages
-  writeOutput compileChannel startChannel messages
+  writeOutput powerlineOutDir compileChannel startChannel messages
   where
+    tmpHtmlOutputFileFp = SP.fromAbsFile $ powerlineOutDir </> [SP.relfile|test.html.tmp|]
+    htmlOutputFileFp = SP.fromAbsFile $ powerlineOutDir </> [SP.relfile|test.html|]
+
     writeOutputFile :: ([String], [JobMessage]) -> IO ()
     writeOutputFile messages = do
       timestamp <- getCurrentTime
-      Data.Text.IO.writeFile "/tmp/test.html.tmp" (htmlShell (show timestamp) messages)
-      renamePath "/tmp/test.html.tmp" "/tmp/test.html"
+      Data.Text.IO.writeFile tmpHtmlOutputFileFp (htmlShell (show timestamp) messages)
+      renamePath tmpHtmlOutputFileFp htmlOutputFileFp
 
     threadDelaySeconds :: Int -> IO ()
     threadDelaySeconds =
