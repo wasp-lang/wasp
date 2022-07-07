@@ -49,10 +49,95 @@ module Wasp.Backend.ConcreteParser.Internal
     -- done with an `as`, i.e. @"T.Identifier" ``as`` "S.DictKey"@
     eof,
 
+    -- * Error Recovery
+
+    -- | This parser has built-in automatic error recovery. Currently, error
+    -- recovery occurs when an error is produced inside of a 'group' rule. Recovery
+    -- is based on the possible tokens that can follow the current rule.
+    --
+    -- At a basic level, we can describe the mechanism as follows:
+    --
+    -- For a "GrammarRule" @'group' label first '-->' next@, if an error occurs
+    -- while parsing @first@, check if the next token is in the "follow set" of
+    -- the group (the follow set of a rule is the set of tokens that can appear
+    -- directly after the rule in valid source). If it is, register an error in
+    -- the output and do not consume the token. Otherwise, register an error and
+    -- consume the token.
+    --
+    -- As an example, consider the grammar rules:
+    --
+    -- @
+    -- stmts = eof <> (stmt --> stmts)
+    -- stmt = group Stmt $ "let" --> identifier --> "=" --> expr --> ";"
+    -- @
+    --
+    -- With the example source text:
+    --
+    -- @
+    -- let x = 2
+    -- let y = 4;
+    -- @
+    --
+    -- A parse error will occur at the beginning of line 2, when @let@ is found
+    -- instead of the expected @;@. The follow set of this @Stmt@ group is
+    -- @[eof, "let"]@. Since the next token is in this set, it does not get
+    -- consumed by the group. This leaves it available for the recursive call to
+    -- @stmt@, which can parse successfully because of this, resulting in the
+    -- following parse tree and error:
+    --
+    -- @
+    -- [ Stmt ["let", "x", "=", "2", error]
+    -- , Stmt ["let", "y", "=", "4", ";"]
+    -- ]
+    --
+    -- [Unexpected "let" at line 2 column 1: expected ";"]
+    -- @
+    --
+    -- However, this does not work in situations with multiple levels of groups,
+    -- i.e.:
+    --
+    -- @
+    -- list = group List $ '[' --> exprs --> ']'
+    -- tuple = group Tuple $ '(' --> exprs --> ')'
+    -- @
+    --
+    -- with source:
+    --
+    -- @
+    -- [1, (2, ]
+    -- @
+    --
+    -- To handle this scenario, we introduce an unwinding behavior to travel up
+    -- through 'group' rules until an appropriate point is found to recover. We
+    -- do this first by defining the extended follow set of a group rule @R@ as
+    -- the union of the follow sets of @R@ and its ancestor group rules. In the
+    -- above example, after the comma the follow set is @[expression]@, but the
+    -- extended follow set is @[expression, comma, rparen, rsquare]@.
+    --
+    -- Unwinding starts when:
+    --
+    -- (1) The next token __is not__ in the follow set of the current rule
+    -- (2) The next token __is__ in the extended follow set of the current rule
+    --
+    -- While unwinding, the parser will stop at each group ancestor of the
+    -- original rule to determine whether to continue unwinding. Unwinding stops
+    -- when a group rule @S@ is reached such that the follow set of @S@ includes
+    -- the next token. At this point, the same thing happens as in the first
+    -- description of error recovery.
+    --
+    -- The example rules and source would produce the following parse tree and
+    -- errors:
+    --
+    -- @
+    -- [List ["1", ",", Tuple ["(", "2", ","], "]"]]
+    --
+    -- [Unexpected "]" at line 1 column 9: expected expression]
+    -- @
+
     -- * Future improvements
 
-    -- | TODO: First "easy" place for more improvement is to add the same type
-    -- of error recovery in the "Group" grammar rule to all other primitive grammar rule:
+    -- | TODO: First improvement is to move error recovery from the 'group' rule
+    -- to the '-->' rule:
     --
     -- > Check if token we error on can be matched by any following grammar rule, if
     -- > so, don't consume that token. Otherwise, do consume it.

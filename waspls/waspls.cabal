@@ -48,13 +48,13 @@ library
     Wasp.Backend.ParseError
     Wasp.Backend.ConcreteSyntax
     Wasp.Backend.ConcreteParser
+    Wasp.Backend.ConcreteParser.Internal
   other-modules:
     Paths_waspls
     Wasp.LSP.Core
     Wasp.LSP.Handlers
     Wasp.Backend.Lexer.Internal
     Wasp.Backend.Lexer.Lexer
-    Wasp.Backend.ConcreteParser.Internal
   hs-source-dirs:
     src
   build-tool-depends:
