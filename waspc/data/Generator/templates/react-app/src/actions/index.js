@@ -39,7 +39,6 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
   }
 }
 
-// todo: come up with a better name
 function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   async function onMutate(item) {
     const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
