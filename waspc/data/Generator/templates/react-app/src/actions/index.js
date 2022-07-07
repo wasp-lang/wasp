@@ -13,7 +13,7 @@ export function useAction(actionFn, actionOptions) {
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {
-    const optimisticUpdatesConfig = getOptimisticUpdatesConfig(actionOptions.optimisticUpdates)
+    const optimisticUpdatesConfig = makeOptimisticUpdatesConfig(actionOptions.optimisticUpdates)
     mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig)
     options = makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig)
   }
@@ -22,7 +22,7 @@ export function useAction(actionFn, actionOptions) {
 }
 
 
-function getOptimisticUpdatesConfig(optimisticUpdatesConfig) {
+function makeOptimisticUpdatesConfig(optimisticUpdatesConfig) {
   return optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
     getQuery: (item) => parseQueryKey(getQuery(item)),
     ...rest,
@@ -54,14 +54,13 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
     // However, awaiting cancellation probably doesn't take too much time.
-    // TODO: why is canelQueries even async?
     await Promise.all(queryCancellations)
 
+    // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
     queriesToUpdate.forEach(({ query, updateQuery }) => {
       const previousDataForQuery = queryClient.getQueryData(query)
       queryClient.setQueryData(query, (old) => updateQuery(item, old))
-      // We're using a Map to avoid serializing query keys that contain objects
       previousData.set(query, previousDataForQuery)
     })
 
@@ -70,9 +69,9 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
 
   function onError(err, item, context) {
     context.previousData.forEach(async (data, queryKey) => {
-      await queryClient.cancelQueries(queryKey)
-      queryClient.setQueryData(queryKey, data)
-    }
+        await queryClient.cancelQueries(queryKey)
+        queryClient.setQueryData(queryKey, data)
+      }
     )
   }
 

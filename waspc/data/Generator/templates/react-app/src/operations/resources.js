@@ -1,5 +1,3 @@
-{{= {= =} =}}
-// todo: can i remove the template thing above ^
 import { queryClientInitialized } from '../queryClient'
 import { makeCounter } from './counter'
 
