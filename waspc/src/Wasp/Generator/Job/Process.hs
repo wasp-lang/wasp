@@ -14,15 +14,11 @@ import Data.ByteString (ByteString)
 import Data.Conduit (runConduit, (.|))
 import qualified Data.Conduit.List as CL
 import qualified Data.Conduit.Process as CP
-import qualified Data.Knob as K
 import qualified Data.Text as T
-import qualified Data.Text.IO as T
 import GHC.IO.Encoding (initLocaleEncoding)
-import GHC.IO.Handle (hSetEncoding)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import System.IO (IOMode (ReadMode))
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import qualified System.Info
 import qualified System.Process as P
@@ -32,6 +28,7 @@ import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Common as C
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Util.Encoding as E
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -69,29 +66,17 @@ runProcessAsJob process jobType chan =
         forwardStandardOutputStreamToChan stream jobOutputType = runConduit $ stream .| CL.mapM_ forwardByteStringChunkToChan
           where
             forwardByteStringChunkToChan bs = do
-              content <- decodeLocaleEncoding bs
               writeChan chan $
                 J.JobMessage
-                  { J._data = J.JobOutput content jobOutputType,
+                  { -- NOTE: We decode while using locale encoding, since that is the best option when
+                    --   dealing with ephemeral standard in/outputs. Here is a blog explaining this in more details:
+                    --   https://serokell.io/blog/haskell-with-utf8 .
+                    J._data = J.JobOutput (decodeLocaleEncoding bs) jobOutputType,
                     J._jobType = jobType
                   }
 
-            decodeLocaleEncoding :: ByteString -> IO T.Text
-            decodeLocaleEncoding bs = do
-              -- TODO: We turn bytestring into handle, because we want to use Haskell's capabilities
-              --   for decoding encodings, and those are most easily available when dealing with handles.
-              --   This is somewhat silly, since we go from handles to bytestring back to handles, and we have to use
-              --   `knob` library which is cool but is very small and it would be nicer to not have to use anything.
-              --   We set encoding to locale encoding, since that is the best option when dealing with standard in/outputs.
-              --   Here is a blog explaining this in more details: https://serokell.io/blog/haskell-with-utf8 .
-              --   Nicer solutions could be:
-              --   1. Run the streaming process differently, so that we get handles from it, and not bytestrings.
-              --      Then we just encoding to initLocaleEncoding, do hGetContents, and that is it.
-              --      Basically we can skip the first step with the `knob`.
-              --   2. Use (mkTextDecoder initLocaleEncoding) to decode the ByteString (it has pretty complex types though).
-              handle <- K.newKnob bs >>= \k -> K.newFileHandle k "job_stdout/stderr" ReadMode
-              hSetEncoding handle initLocaleEncoding
-              T.hGetContents handle
+            decodeLocaleEncoding :: ByteString -> T.Text
+            decodeLocaleEncoding = T.pack . E.decodeWithTELenient initLocaleEncoding
 
     -- NOTE(shayne): On *nix, we use interruptProcessGroupOf instead of terminateProcess because many
     -- processes we run will spawn child processes, which themselves may spawn child processes.

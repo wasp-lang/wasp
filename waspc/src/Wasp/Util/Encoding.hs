@@ -23,8 +23,10 @@ import GHC.IO.Encoding.Types (TextEncoding (textEncodingName))
 -- which points to this code in Filepath (with some small modifications):
 --   https://gitlab.haskell.org/haskell/filepath/-/blob/master/System/OsPath/Encoding/Internal.hs#L298
 
+type EncodingError = String
+
 -- | Decode with the given 'TextEncoding'.
-decodeWithTE :: TextEncoding -> ByteString -> Either String String
+decodeWithTE :: TextEncoding -> ByteString -> Either EncodingError String
 decodeWithTE enc bs = unsafePerformIO $ do
   decodedOrError <- decodeWithTEIO enc bs
   evaluate $ force decodedOrError
@@ -36,13 +38,13 @@ decodeWithTELenient enc bs = unsafePerformIO $ do
   decodedOrError <- decodeWithTEIO encTranslit bs
   evaluate $ force $ fromRight' error decodedOrError
 
-decodeWithTEIO :: TextEncoding -> ByteString -> IO (Either String String)
+decodeWithTEIO :: TextEncoding -> ByteString -> IO (Either EncodingError String)
 decodeWithTEIO enc bs = do
   decodedStrOrError <- try @SomeException $ BS.useAsCStringLen bs $ GHC.peekCStringLen enc
   return $ first displayException decodedStrOrError
 
 -- | Encode with the given 'TextEncoding'.
-encodeWithTE :: TextEncoding -> String -> Either String ByteString
+encodeWithTE :: TextEncoding -> String -> Either EncodingError ByteString
 encodeWithTE enc str = unsafePerformIO $ do
   encodedBsOrError <- try @SomeException $ GHC.withCStringLen enc str BS.packCStringLen
   evaluate $ force $ first displayException encodedBsOrError
