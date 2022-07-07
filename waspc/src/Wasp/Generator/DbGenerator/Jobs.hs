@@ -54,14 +54,14 @@ runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
 runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaStudioCmd = ["studio", "--schema", SP.toFilePath schemaFile]
+  let prismaStudioCmdArgs = ["studio", "--schema", SP.toFilePath schemaFile]
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmd J.Db
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmdArgs J.Db
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
 generatePrismaClient projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaGenerateCmd = ["generate", "--schema", SP.toFilePath schemaFile]
+  let prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaGenerateCmd J.Db
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaGenerateCmdArgs J.Db
