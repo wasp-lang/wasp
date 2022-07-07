@@ -8,6 +8,7 @@ import me from './me.js'
 
 {=# isPassportRequired =}
 import passportAuth from './passport/passport.js'
+import { passportRoutePrefix } from './passport/config.js'
 {=/ isPassportRequired =}
 
 const router = express.Router()
@@ -17,7 +18,7 @@ router.post('/signup', signup)
 router.get('/me', auth, me)
 
 {=# isPassportRequired =}
-router.use('/passport', passportAuth)
+router.use(passportRoutePrefix, passportAuth)
 {=/ isPassportRequired =}
 
 export default router

@@ -6,12 +6,13 @@ import { sign } from '../../../core/auth.js'
 
 {=# isGoogleAuthEnabled =}
 import googleAuth from './google.js'
+import { googleRoutePrefix } from './config.js'
 {=/ isGoogleAuthEnabled =}
 
 const router = express.Router()
 
-// This is a route that takes a 1-time use, time limited token
-// to lookup what user just successfully logged in above.
+// This is a route that takes a one-time use, time-limited token
+// to lookup what user just successfully logged in via Passport.
 router.post('/otpTokenExchange', async (req, res) => {
   const args = req.body || {}
   const now = new Date()
@@ -28,17 +29,17 @@ router.post('/otpTokenExchange', async (req, res) => {
     }
   })
 
-  if (otpToken) {
-    await prisma.otpToken.update({ where: { id: otpToken.id }, data: { claimed: true } })
-    const token = await sign(otpToken.userId)
-    return res.json({ token })
+  if (!otpToken) {
+    return res.status(401).send()
   }
 
-  return res.status(401).send()
+  await prisma.otpToken.update({ where: { id: otpToken.id }, data: { claimed: true } })
+  const token = await sign(otpToken.userId)
+  res.json({ token })
 })
 
 {=# isGoogleAuthEnabled =}
-router.use('/google', googleAuth)
+router.use(googleRoutePrefix, googleAuth)
 {=/ isGoogleAuthEnabled =}
 
 export default router

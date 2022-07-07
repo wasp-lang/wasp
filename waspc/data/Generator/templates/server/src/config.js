@@ -13,6 +13,7 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    frontendUrl: undefined,
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: undefined
@@ -20,6 +21,7 @@ const config = {
     {=/ isAuthEnabled =}
   },
   development: {
+    frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: 'DEVJWTSECRET'
@@ -27,6 +29,7 @@ const config = {
     {=/ isAuthEnabled =}
   },
   production: {
+    frontendUrl: process.env.WASP_WEB_CLIENT_URL,
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: process.env.JWT_SECRET
