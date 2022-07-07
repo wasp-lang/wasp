@@ -16,12 +16,12 @@ const router = express.Router()
 
 const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 
-async function googleCallback(req, accessToken, refreshToken, profile, done) {
+async function googleCallback(req, _accessToken, _refreshToken, profile, done) {
   // TODO: Make "google" a referenceable symbol.
   const user = await authConfig.onSignInFn("google", context, { profile })
 
   if (!user?.id) {
-    throw new Error("auth.onSignInFn must return an object with an id property")
+    throw new Error("auth.onSignInFn must return a user object with an id property")
   }
 
   req.wasp = { ...req.wasp, userId: user.id }
@@ -56,8 +56,8 @@ router.get(callbackPath,
 
     if (!userId) {
       // NOTE: Should not happen if auth was successful.
-      console.error('In Google OAuth success callback, but user not in request.')
-      return res.redirect(`${waspServerConfig.frontendUrl}/login`)
+      console.error('In Google OAuth success callback, but userId not in request. This should not happen!')
+      return res.redirect(waspServerConfig.frontendUrl + authConfig.failureRedirectPath)
     }
 
     const otpToken = await prisma.otpToken.create({ data: { userId, token: uuidv4() }})
