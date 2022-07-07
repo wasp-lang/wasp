@@ -19,6 +19,7 @@ const router = (
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
 
+      {/* TODO: Conditionally wrap. */}
       <Route exact path="/tokenExchange" component={ TokenExchange }/>
     </div>
   </Router>

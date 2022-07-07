@@ -17,8 +17,6 @@ const router = express.Router()
 const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 
 async function googleCallback(req, accessToken, refreshToken, profile, done) {
-  console.log("In Google OAuth callback", accessToken, refreshToken, profile, done)
-
   // TODO: Make "google" a referenceable symbol.
   const user = await authConfig.onSignInFn("google", context, { profile })
 
@@ -54,12 +52,11 @@ router.get(callbackPath,
     failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
   }),
   async function (req, res) {
-    console.log("In Google success callback")
     const userId = req.wasp.userId
 
     if (!userId) {
       // NOTE: Should not happen if auth was successful.
-      console.error('In passport success callback, but user not in request.')
+      console.error('In Google OAuth success callback, but user not in request.')
       return res.redirect(`${waspServerConfig.frontendUrl}/login`)
     }
 
