@@ -44,7 +44,6 @@ const Todo = (props) => {
       window.alert("Error: " + err.message)
       console.log(err)
     }
-
   }
 
   return (
