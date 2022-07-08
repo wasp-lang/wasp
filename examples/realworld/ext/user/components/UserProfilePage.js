@@ -17,6 +17,7 @@ import getArticlesByUser from '@wasp/queries/getArticlesByUser'
 import getFavoritedArticles from '@wasp/queries/getFavoritedArticles'
 import followUser from '@wasp/actions/followUser'
 import Navbar from '../../Navbar'
+import addWaspSourceHeader from '../../addWaspSourceHeader'
 import ArticleListPaginated from '../../article/components/ArticleListPaginated'
 import smileyImageUrl from '../../smiley.jpg'
 
@@ -162,4 +163,4 @@ const Articles = (props) => {
   )
 }
 
-export default UserProfilePage
+export default addWaspSourceHeader(UserProfilePage)

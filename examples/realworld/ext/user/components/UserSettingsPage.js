@@ -13,6 +13,7 @@ import updateUser from '@wasp/actions/updateUser'
 
 import { errorMessage } from '../../utils'
 
+import addWaspSourceHeader from '../../addWaspSourceHeader'
 import Navbar from '../../Navbar'
 
 const UserSettingsPage = ({ user }) => {
@@ -144,4 +145,4 @@ const UserSettings = (props) => {
   )
 }
 
-export default UserSettingsPage
+export default addWaspSourceHeader(UserSettingsPage)

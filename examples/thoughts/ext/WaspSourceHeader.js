@@ -1,6 +1,6 @@
 import waspLogo from './waspLogo.png'
 
-const WaspExampleHeader = (props) => {
+const WaspSourceHeader = (props) => {
   const divStyle = {
     position: "sticky",
     top: 0,
@@ -27,4 +27,4 @@ const WaspExampleHeader = (props) => {
   )
 }
 
-export default WaspExampleHeader
+export default WaspSourceHeader

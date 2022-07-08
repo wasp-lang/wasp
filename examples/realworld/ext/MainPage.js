@@ -19,6 +19,7 @@ import getFollowedArticles from '@wasp/queries/getFollowedArticles'
 import getAllArticles from '@wasp/queries/getAllArticles'
 import Navbar from './Navbar'
 import ArticleListPaginated from './article/components/ArticleListPaginated'
+import addWaspSourceHeader from './addWaspSourceHeader'
 
 const MainPage = () => {
   const { data: me } = useAuth()
@@ -135,4 +136,4 @@ const Tags = () => {
   )
 }
 
-export default MainPage
+export default addWaspSourceHeader(MainPage)
