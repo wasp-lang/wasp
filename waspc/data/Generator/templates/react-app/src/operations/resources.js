@@ -11,9 +11,7 @@ const resourceToQueryCacheKeys = new Map()
 // invalidate a given queryCacheKey. It helps us stop premature invalidation and
 // UI flickering after optimistic updates.
 const actionCounter = makeCounter(
-  (queryCacheKey) => {
-    return Array.isArray(queryCacheKey) ? queryCacheKey[0] : queryCacheKey
-  }
+  (queryCacheKey) => Array.isArray(queryCacheKey) ? queryCacheKey[0] : queryCacheKey
 )
 
 /**
