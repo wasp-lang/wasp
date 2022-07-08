@@ -31,11 +31,8 @@ function makeOptimisticUpdatesConfig(optimisticUpdatesConfig) {
 
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
   return function optimisticallyUpdateQueries(args) {
-    optimisticUpdatesConfig.forEach(({ getQuery }) => {
-      // how to make sure this is a query, a global query database?
-      const key = getQuery(args)
-      return actionFn.internal(args, [key])
-    })
+    const optimisticallyUpdatedCacheKeys = optimisticUpdatesConfig.map(({ getQuery }) => getQuery(args))
+    return actionFn.internal(args, optimisticallyUpdatedCacheKeys)
   }
 }
 
