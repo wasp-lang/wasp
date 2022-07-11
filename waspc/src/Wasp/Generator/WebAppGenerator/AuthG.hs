@@ -87,10 +87,12 @@ genSocialLoginButtons _auth =
     []
 
 genTokenExchange :: AS.Auth.Auth -> Generator FileDraft
-genTokenExchange _auth =
+genTokenExchange auth =
   compileTmplToSamePath
     [relfile|auth/pages/TokenExchange.js|]
-    []
+    [ "onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth),
+      "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+    ]
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =

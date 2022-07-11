@@ -1,3 +1,4 @@
+{{={= =}=}}
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -21,17 +22,16 @@ async function exchangeTokenAndRedirect(history) {
   const urlParams = new URLSearchParams(queryString)
   const otpToken = urlParams.get('otpToken')
 
-  // TODO: Make use of redirect paths instead of "/profile" and "/login".
   if (otpToken) {
     const token = await exchangeToken(otpToken, history)
     if (token) {
       setAuthToken(token)
-      return history.push("/profile")
+      return history.push('{= onAuthSucceededRedirectTo =}')
     }
   }
 
   console.error('Error obtaining JWT token')
-  history.push("/login")
+  history.push('{= onAuthFailedRedirectTo =}')
 }
 
 async function exchangeToken(otpToken) {
