@@ -168,7 +168,11 @@ genConfigJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         ]
 
     configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    configFileInSrcDir = [relfile|routes/auth/passport/config.js|]
+    configFileInSrcDir = [relfile|routes/auth/config.js|]
+
+-- | TODO: Make this not hardcoded!
+relPosixPathFromCoreAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromCoreAuthDirToExtSrcDir = [reldirP|../../ext-src|]
 
 genGoogleJs :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
@@ -188,10 +192,10 @@ genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
     googleFileInSrcDir = [relfile|routes/auth/passport/google.js|]
 
     maybeConfigJsFunction = AS.Auth.configFn <$> AS.Auth.google (AS.Auth.methods auth)
-    maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir <$> maybeConfigJsFunction
+    maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeConfigJsFunction
     (maybeConfigJsFnImportIdentifier, maybeConfigJsFnImportStmt) =
       (fst <$> maybeConfigJsFnImportDetails, snd <$> maybeConfigJsFnImportDetails)
 
 -- | TODO: Make this not hardcoded!
-relPosixPathFromCoreAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromCoreAuthDirToExtSrcDir = [reldirP|../../../ext-src|]
+relPosixPathFromPassportAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromPassportAuthDirToExtSrcDir = [reldirP|../../../ext-src|]

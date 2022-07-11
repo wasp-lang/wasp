@@ -36,6 +36,7 @@ entity User {=psl
     tasks       Task[]
 psl=}
 
+// TODO: Do this behind the scenes.
 entity OtpToken {=psl
     id          Int       @id @default(autoincrement())
     createdAt   DateTime  @default(now())

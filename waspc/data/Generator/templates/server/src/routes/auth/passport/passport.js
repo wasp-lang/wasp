@@ -6,7 +6,6 @@ import { sign } from '../../../core/auth.js'
 
 {=# isGoogleAuthEnabled =}
 import googleAuth from './google.js'
-import { googleRoutePrefix } from './config.js'
 {=/ isGoogleAuthEnabled =}
 
 const router = express.Router()
@@ -39,7 +38,7 @@ router.post('/otpTokenExchange', async (req, res) => {
 })
 
 {=# isGoogleAuthEnabled =}
-router.use(googleRoutePrefix, googleAuth)
+router.use('/google', googleAuth)
 {=/ isGoogleAuthEnabled =}
 
 export default router

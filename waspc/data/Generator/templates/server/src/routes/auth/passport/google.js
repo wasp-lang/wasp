@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
-import { authConfig, googleFullRoutePrefix, googleLoginPath } from './config.js'
+import { authConfig } from '../config.js'
 
 export const GOOGLE_AUTH_METHOD = Symbol('Google')
 
@@ -38,13 +38,12 @@ const callbackPath = '/oauth2/redirect'
 passport.use(new GoogleStrategy.Strategy({
   clientID: userConfig.clientID,
   clientSecret: userConfig.clientSecret,
-  callbackURL: `${googleFullRoutePrefix}${callbackPath}`,
+  callbackURL: `/auth/external/google${callbackPath}`,
   scope: ['profile', 'email'],
   passReqToCallback: true
 }, googleCallback))
 
-// TODO: Add route helper for button in UI.
-router.get(googleLoginPath, passport.authenticate('google', { session: false }))
+router.get('/login', passport.authenticate('google', { session: false }))
 
 router.get(callbackPath,
   passport.authenticate('google', {
