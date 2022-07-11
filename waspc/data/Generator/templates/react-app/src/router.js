@@ -10,7 +10,9 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 import {= importWhat =} from "{= importFrom =}"
 {=/ pagesToImport =}
 
+{=# isPassportRequired =}
 import TokenExchange from "./auth/pages/TokenExchange"
+{=/ isPassportRequired =}
 
 const router = (
   <Router>
@@ -19,8 +21,9 @@ const router = (
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
 
-      {/* TODO: Conditionally wrap. */}
+      {=# isPassportRequired =}
       <Route exact path="/tokenExchange" component={ TokenExchange }/>
+      {=/ isPassportRequired =}
     </div>
   </Router>
 )
