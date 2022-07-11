@@ -38,7 +38,8 @@ passport.use(new GoogleStrategy.Strategy({
   clientID: userConfig.clientID,
   clientSecret: userConfig.clientSecret,
   callbackURL: `${googleFullRoutePrefix}${callbackPath}`,
-  scope: ['email'],
+  userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
+  scope: ['profile', 'email'],
   passReqToCallback: true
 }, googleCallback))
 
