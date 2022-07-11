@@ -27,6 +27,7 @@ import createComment from '@wasp/actions/createComment'
 import deleteComment from '@wasp/actions/deleteComment'
 
 import Navbar from '../../Navbar'
+import addWaspSourceHeader from '../../addWaspSourceHeader.js'
 
 const useStyles = makeStyles((theme) => ({
   tags: {
@@ -244,4 +245,4 @@ CreateComment.propTypes = {
   article: PropTypes.object.isRequired
 }
 
-export default ArticleViewPage
+export default addWaspSourceHeader(ArticleViewPage)

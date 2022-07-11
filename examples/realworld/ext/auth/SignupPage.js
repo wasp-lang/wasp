@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
+import addWaspSourceHeader from '../addWaspSourceHeader'
 
 import { errorMessage } from '../utils.js'
 
@@ -51,4 +52,4 @@ const SignupPage = () => {
   )
 }
 
-export default SignupPage
+export default addWaspSourceHeader(SignupPage)

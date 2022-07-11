@@ -1,6 +1,6 @@
 import waspLogo from './waspLogo.png'
 
-const WaspExampleHeader = (props) => {
+const WaspSourceHeader = (props) => {
   const divStyle = {
     position: "sticky",
     top: 0,
@@ -18,10 +18,13 @@ const WaspExampleHeader = (props) => {
   return (
     <div style={divStyle}>
       <span style={{ marginRight: "5px" }}><img alt="Wasp" src={waspLogo} height={30} /></span>
-      <span>This is an example <a href="https://wasp-lang.dev" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>Wasp</a> application{props.name && ` called ${props.name}`}. To see the source, please visit our <a href="https://github.com/wasp-lang/wasp/tree/main/examples" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>GitHub repo</a>.</span>
+      <span>
+        This is an example <a href="https://wasp-lang.dev" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>Wasp</a> application{props.name && ` called ${props.name}`}.
+        To see the source, please visit our <a href="https://github.com/wasp-lang/wasp/tree/main/examples" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>GitHub repo</a>.
+      </span>
       <span style={{ marginLeft: "5px" }}>🚀</span>
     </div>
   )
 }
 
-export default WaspExampleHeader
+export default WaspSourceHeader

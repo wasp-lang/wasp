@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login.js'
+import addWaspSourceHeader from '../addWaspSourceHeader'
 
 // TODO: A lot of duplication with the Sign up page, extract it into one component
 //   and then just use it in both LoginPage and SignupPage?
@@ -28,7 +29,7 @@ const LoginPage = () => {
   return (
     <div>
       { submitError && (
-          <p> { submitError.message || submitError } </p>
+      <p> { submitError.message || submitError } </p>
       ) }
 
       <form onSubmit={handleSubmit}>
@@ -45,4 +46,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default addWaspSourceHeader(LoginPage)
