@@ -8,6 +8,8 @@ import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 import config from '../config.js'
 
+export { GOOGLE_AUTH_METHOD } from '../routes/auth/passport/google.js'
+
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
 
