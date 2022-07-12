@@ -44,7 +44,7 @@ function validateConfig(config) {
 
 const callbackPath = '/oauth2/redirect'
 
-passport.use(new GoogleStrategy.Strategy({
+passport.use(new GoogleStrategy({
   clientID: userConfig.clientId,
   clientSecret: userConfig.clientSecret,
   callbackURL: `/auth/external/google${callbackPath}`,
