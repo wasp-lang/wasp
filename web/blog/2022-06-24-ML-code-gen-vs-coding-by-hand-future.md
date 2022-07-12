@@ -1,5 +1,5 @@
 ---
-title: ML code generation vs coding by hand - a hypothesis of the future
+title: ML code generation vs. coding by hand - what we think programming is going to look like
 authors: [matijasos]
 image: /img/language-lifecycle-copilot.png
 tags: [webdev, wasp, ML, language]
