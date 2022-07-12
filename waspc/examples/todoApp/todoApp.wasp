@@ -36,16 +36,6 @@ entity User {=psl
     tasks       Task[]
 psl=}
 
-// TODO: Do this behind the scenes.
-entity OtpToken {=psl
-    id          Int       @id @default(autoincrement())
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
-    token       String    @unique
-    claimed     Boolean   @default(false)
-    userId      Int
-psl=}
-
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -53,7 +43,6 @@ entity Task {=psl
     user        User    @relation(fields: [userId], references: [id])
     userId      Int
 psl=}
-
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
