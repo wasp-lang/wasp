@@ -212,11 +212,11 @@ checkIsSubTypeOf texprwc@(WithCtx _ ((List elems _))) (ListType elemType) =
   where
     annotateError = left (TypeCoercionError texprwc elemType . ReasonList)
 checkIsSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType expectedEntryTypes) = do
-  mapM_ checkEntry entries
-  mapM_ ensureAllRequiredEntriesExist $ M.toList expectedEntryTypes
+  mapM_ checkEntryHasExpectedType entries
+  mapM_ checkAllRequiredEntriesExist $ M.toList expectedEntryTypes
   where
-    checkEntry :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
-    checkEntry entry@(key, _) = getExpectedTypeOfEntry key >>= (entry `checkIsDictEntrySubtypeOf`)
+    checkEntryHasExpectedType :: (Identifier, WithCtx TypedExpr) -> Either TypeCoercionError ()
+    checkEntryHasExpectedType entry@(key, _) = getExpectedTypeOfEntry key >>= (entry `checkIsDictEntrySubtypeOf`)
 
     getExpectedTypeOfEntry :: Identifier -> Either TypeCoercionError DictEntryType
     getExpectedTypeOfEntry key = case M.lookup key expectedEntryTypes of
@@ -228,9 +228,9 @@ checkIsSubTypeOf texprwc@(WithCtx _ (Dict entries _)) t@(DictType expectedEntryT
       annotateKeyTypeError key (entryExpr `checkIsSubTypeOf` dictEntryType expectedEntryType)
 
     -- Checks that all DictRequired entries in typ' exist in entries
-    ensureAllRequiredEntriesExist :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
-    ensureAllRequiredEntriesExist (_, DictOptional _) = return ()
-    ensureAllRequiredEntriesExist (key, DictRequired _) = case lookup key entries of
+    checkAllRequiredEntriesExist :: (Identifier, DictEntryType) -> Either TypeCoercionError ()
+    checkAllRequiredEntriesExist (_, DictOptional _) = return ()
+    checkAllRequiredEntriesExist (key, DictRequired _) = case lookup key entries of
       Nothing -> Left $ TypeCoercionError texprwc t (ReasonDictNoKey key)
       Just _ -> return ()
 
