@@ -8,13 +8,11 @@ import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import { authConfig } from '../config.js'
 
-export const GOOGLE_AUTH_METHOD = Symbol('Google')
-
-const router = express.Router()
-
 // TODO: What if this name collides? For example, they import { config }
 // and we imported config from '../../../config.js'?
 {=& configJsFnImportStatement =}
+
+export const GOOGLE_AUTH_METHOD = Symbol('Google')
 
 const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 
@@ -30,18 +28,31 @@ async function googleCallback(req, _accessToken, _refreshToken, profile, done) {
   done(null, user)
 }
 
-// TODO: Verify we have what we need.
-const userConfig = {= configJsFnIdentifier =}()
+const userConfig = validateConfig({= configJsFnIdentifier =}())
+
+function validateConfig(config) {
+  if (!config?.clientId) {
+    throw new Error("auth.google.configFn must return an object with clientId property")
+  }
+
+  if (!config?.clientSecret) {
+    throw new Error("auth.google.configFn must return an object with clientSecret property")
+  }
+
+  return config
+}
 
 const callbackPath = '/oauth2/redirect'
 
 passport.use(new GoogleStrategy.Strategy({
-  clientID: userConfig.clientID,
+  clientID: userConfig.clientId,
   clientSecret: userConfig.clientSecret,
   callbackURL: `/auth/external/google${callbackPath}`,
   scope: ['profile', 'email'],
   passReqToCallback: true
 }, googleCallback))
+
+const router = express.Router()
 
 router.get('/login', passport.authenticate('google', { session: false }))
 
