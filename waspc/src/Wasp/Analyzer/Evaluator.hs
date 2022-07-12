@@ -26,7 +26,7 @@ evalStmts :: [AST.WithCtx AST.TypedStmt] -> Eval [Decl]
 evalStmts = traverse evalStmt
 
 evalStmt :: AST.WithCtx AST.TypedStmt -> Eval Decl
-evalStmt (AST.WithCtx _ctx (AST.Decl name param (Type.DeclType declTypeName))) = do
+evalStmt (AST.WithCtx _ctx (AST.Decl declName declBody (Type.DeclType declTypeName))) = do
   declType <-
     asks
       ( fromMaybe
@@ -35,9 +35,9 @@ evalStmt (AST.WithCtx _ctx (AST.Decl name param (Type.DeclType declTypeName))) =
       )
   typeDefs <- ask
   bindings <- get
-  case TD.dtEvaluate declType typeDefs bindings name param of
+  case TD.dtEvaluate declType typeDefs bindings declName declBody of
     Left err -> throwError err
-    Right decl -> modify (H.insert name decl) >> return decl
+    Right decl -> modify (H.insert declName decl) >> return decl
 evalStmt (AST.WithCtx _ AST.Decl {}) = error "impossible: Decl statement has non-Decl type after type checking"
 
 type Eval a = StateT Bindings (ReaderT TD.TypeDefinitions (Except EvaluationError)) a

@@ -1,6 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE TupleSections #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
 
 -- | This module implements the type rules defined by the wasplang document
 -- in two phases.
@@ -35,9 +34,9 @@ module Wasp.Analyzer.TypeChecker.Internal
 where
 
 import Control.Arrow (left, second)
-import Control.Monad (foldM, void)
+import Control.Monad (foldM)
 import qualified Data.HashMap.Strict as M
-import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty, toList)
+import Data.List.NonEmpty (NonEmpty ((:|)), nonEmpty)
 import Data.Maybe (fromJust)
 import Wasp.Analyzer.Parser (AST)
 import qualified Wasp.Analyzer.Parser as P
