@@ -1,7 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import passport from 'passport'
-import GoogleStrategy from 'passport-google-oauth2'
+import GoogleStrategy from 'passport-google-oauth20'
 import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../../../dbClient.js'
@@ -48,7 +48,7 @@ passport.use(new GoogleStrategy.Strategy({
   clientID: userConfig.clientId,
   clientSecret: userConfig.clientSecret,
   callbackURL: `/auth/external/google${callbackPath}`,
-  scope: ['profile', 'email'],
+  scope: [ 'email', 'profile' ],
   passReqToCallback: true
 }, googleCallback))
 

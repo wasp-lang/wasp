@@ -5,7 +5,7 @@ async function onSignInFn(method, _context, args) {
 
   switch (method) {
     case GOOGLE_AUTH_METHOD:
-      email = args.profile.email
+      email = args.profile.emails[0].value
       break;
     default:
       throw `Unknown auth method: ${method}`
