@@ -1,6 +1,8 @@
 import Prisma from '@prisma/client'
 import HttpError from './core/HttpError.js'
 
+export { findOrCreateUserEntity } from './core/auth.js';
+
 /**
  * Decorator for async express middleware that handles promise rejections.
  * @param {Func} middleware - Express middleware function.

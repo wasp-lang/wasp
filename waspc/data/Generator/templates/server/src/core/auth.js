@@ -2,6 +2,7 @@
 import jwt from 'jsonwebtoken'
 import SecurePassword from 'secure-password'
 import util from 'util'
+import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
@@ -69,5 +70,14 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
-export default auth
+export async function findOrCreateUserEntity(email) {
+  const password = uuidv4()
+  // TODO: Remove race condition.
+  let user = await prisma.{= userEntityLower =}.findUnique({ where: { email } })
+  if (!user) {
+    user = await prisma.{= userEntityLower =}.create({ data: { email, password } })
+  }
+  return user
+}
 
+export default auth
