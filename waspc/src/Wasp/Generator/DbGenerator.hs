@@ -60,7 +60,7 @@ genPrismaSchema spec = do
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= (datasourceProvider :: String),
             "datasourceUrl" .= (datasourceUrl :: String),
-            "isPassportRequired" .= maybe False AS.App.Auth.passportRequired (AS.App.auth (snd $ getApp spec))
+            "isExternalAuthEnabled" .= maybe False AS.App.Auth.isExternalAuthEnabled (AS.App.auth (snd $ getApp spec))
           ]
 
   return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)

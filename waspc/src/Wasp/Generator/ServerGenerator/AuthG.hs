@@ -43,7 +43,7 @@ genAuth spec = case maybeAuth of
         genSignupRoute auth,
         genMeRoute auth
       ]
-      <++> (if AS.Auth.passportRequired auth then genPassportRoutes auth else return [])
+      <++> (if AS.Auth.isExternalAuthEnabled auth then genPassportRoutes auth else return [])
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -91,7 +91,7 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 
     tmplData =
       object
-        [ "isPassportRequired" .= AS.Auth.passportRequired auth
+        [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
         ]
 
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
@@ -136,7 +136,7 @@ genPassportRoutes :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportRoutes auth =
   genConfigJs auth
     <++> genPassportJs auth
-    <++> (if AS.Auth.googleAuthEnabled auth then genGoogleJs auth else return [])
+    <++> (if AS.Auth.isGoogleAuthEnabled auth then genGoogleJs auth else return [])
 
 genPassportJs :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
@@ -145,7 +145,7 @@ genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
     dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
     tmplData =
       object
-        [ "isGoogleAuthEnabled" .= AS.Auth.googleAuthEnabled auth
+        [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

@@ -4,9 +4,9 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
     GoogleConfig (..),
-    emailAndPasswordAuthEnabled,
-    googleAuthEnabled,
-    passportRequired,
+    isEmailAndPasswordAuthEnabled,
+    isGoogleAuthEnabled,
+    isExternalAuthEnabled,
   )
 where
 
@@ -36,11 +36,11 @@ data GoogleConfig = GoogleConfig
   }
   deriving (Show, Eq, Data)
 
-emailAndPasswordAuthEnabled :: Auth -> Bool
-emailAndPasswordAuthEnabled auth = Just True == (emailAndPassword . methods $ auth)
+isEmailAndPasswordAuthEnabled :: Auth -> Bool
+isEmailAndPasswordAuthEnabled auth = Just True == (emailAndPassword . methods $ auth)
 
-googleAuthEnabled :: Auth -> Bool
-googleAuthEnabled = isJust . google . methods
+isGoogleAuthEnabled :: Auth -> Bool
+isGoogleAuthEnabled = isJust . google . methods
 
-passportRequired :: Auth -> Bool
-passportRequired auth = any ($ auth) [googleAuthEnabled]
+isExternalAuthEnabled :: Auth -> Bool
+isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled]

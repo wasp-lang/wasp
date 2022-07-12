@@ -233,6 +233,6 @@ depsRequiredByPassport spec = depsRequiredByPassport' maybeAuth
     depsRequiredByPassport' (Just auth) =
       AS.Dependency.fromList $
         concat
-          [ [("passport", "0.6.0") | AS.App.Auth.passportRequired auth],
-            [("passport-google-oauth2", "0.2.0") | AS.App.Auth.googleAuthEnabled auth]
+          [ [("passport", "0.6.0") | AS.App.Auth.isExternalAuthEnabled auth],
+            [("passport-google-oauth2", "0.2.0") | AS.App.Auth.isGoogleAuthEnabled auth]
           ]

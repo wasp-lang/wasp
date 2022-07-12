@@ -6,9 +6,9 @@ import login from './login.js'
 import signup from './signup.js'
 import me from './me.js'
 
-{=# isPassportRequired =}
+{=# isExternalAuthEnabled =}
 import passportAuth from './passport/passport.js'
-{=/ isPassportRequired =}
+{=/ isExternalAuthEnabled =}
 
 const router = express.Router()
 
@@ -16,8 +16,8 @@ router.post('/login', login)
 router.post('/signup', signup)
 router.get('/me', auth, me)
 
-{=# isPassportRequired =}
+{=# isExternalAuthEnabled =}
 router.use('/external', passportAuth)
-{=/ isPassportRequired =}
+{=/ isExternalAuthEnabled =}
 
 export default router

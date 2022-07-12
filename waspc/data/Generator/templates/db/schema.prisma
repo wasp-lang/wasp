@@ -15,7 +15,7 @@ generator client {
 {=& . =}
 {=/ modelSchemas =}
 
-{=# isPassportRequired =}
+{=# isExternalAuthEnabled =}
 model OtpToken {
   id          Int       @id @default(autoincrement())
   createdAt   DateTime  @default(now())
@@ -24,4 +24,4 @@ model OtpToken {
   claimed     Boolean   @default(false)
   userId      Int
 }
-{=/ isPassportRequired =}
+{=/ isExternalAuthEnabled =}
