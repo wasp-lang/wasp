@@ -17,15 +17,19 @@ export const GOOGLE_AUTH_METHOD = Symbol('Google')
 const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 
 async function googleCallback(req, _accessToken, _refreshToken, profile, done) {
-  const user = await authConfig.onSignInFn(GOOGLE_AUTH_METHOD, context, { profile })
+  try {
+    const user = await authConfig.onSignInFn(GOOGLE_AUTH_METHOD, context, { profile })
 
-  if (!user?.id) {
-    throw new Error("auth.onSignInFn must return a user object with an id property")
+    if (!user?.id) {
+      return done(new Error('auth.onSignInFn must return a user object with an id property'))
+    }
+
+    req.wasp = { ...req.wasp, userId: user.id }
+
+    done(null, user)
+  } catch (err) {
+    return done(err)
   }
-
-  req.wasp = { ...req.wasp, userId: user.id }
-
-  done(null, user)
 }
 
 const userConfig = validateConfig({= configJsFnIdentifier =}())
