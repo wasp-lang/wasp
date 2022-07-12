@@ -30,8 +30,6 @@ import qualified Wasp.AppSpec.Core.Decl as AppSpecDecl
 class (Typeable a, AppSpecDecl.IsDecl a) => IsDeclType a where
   declType :: DeclType
 
-  -- TODO: We updated the comment below, but now we need to update implementation to obey it.
-
   -- | Evaluates a given Wasp "TypedExpr" to @a@, assuming given typed
   -- expression is a subtype of declaration type described by @dtBodyType .
   -- declType@ and @dtName . declType@ (otherwise throws an error).

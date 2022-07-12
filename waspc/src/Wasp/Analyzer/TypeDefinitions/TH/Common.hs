@@ -12,5 +12,6 @@ nameToStringLiteralExpr :: Name -> ExpQ
 nameToStringLiteralExpr = litE . stringL . nameBase
 
 -- | @genFunc name expr@ writes a function like @name = expr@
+-- TODO: This function should use `valD` instead of `funD` because we're declaring a value
 genFunc :: Name -> ExpQ -> DecQ
 genFunc name expr = funD name [clause [] (normalB expr) []]

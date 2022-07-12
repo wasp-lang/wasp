@@ -7,7 +7,7 @@ where
 
 import Language.Haskell.TH
 import Wasp.Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
-import Wasp.Analyzer.TypeDefinitions.TH.Common
+import qualified Wasp.Analyzer.TypeDefinitions.TH.Common as THC 
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.
@@ -47,31 +47,35 @@ makeEnumType typeName = do
       instanceDefinition = makeIsEnumTypeDefinition typeName dataConstructorNames
   sequence [instanceDeclaration]
 
+namesOfEnumDataConstructors :: [Con] -> Q [Name]
+namesOfEnumDataConstructors = mapM conName
+  where
+    conName (NormalC name []) = pure name
+    conName _ = fail "Enum variant should have only one value"
+
 makeIsEnumTypeDefinition :: Name -> [Name] -> Q [DecQ]
 makeIsEnumTypeDefinition typeName dataConstructorNames =
   pure
-    [ genFunc
-        'enumType
-        [|
-          EnumType
-            { etName = $(nameToLowerFirstStringLiteralExpr typeName),
-              etVariants = $(listE $ map nameToStringLiteralExpr dataConstructorNames)
-            }
-          |],
-      genEnumFromVariants dataConstructorNames
+    [ genEnumType typeName dataConstructorNames,
+      genEnumEvaluate dataConstructorNames
     ]
 
-genEnumFromVariants :: [Name] -> DecQ
-genEnumFromVariants dataConstructorNames = do
+genEnumType :: Name -> [Name] -> DecQ
+genEnumType typeName dataConstructorNames =
+  THC.genFunc
+    'enumType
+    [|
+      EnumType
+        { etName = $(THC.nameToLowerFirstStringLiteralExpr typeName),
+          etVariants = $(listE $ map THC.nameToStringLiteralExpr dataConstructorNames)
+        }
+      |]
+
+genEnumEvaluate :: [Name] -> DecQ
+genEnumEvaluate dataConstructorNames = do
   let clauses = map genClause dataConstructorNames
   let invalidVariantClause = clause [[p|_|]] (normalB [|Nothing|]) []
   funD 'enumEvaluate (clauses ++ [invalidVariantClause])
   where
     genClause :: Name -> ClauseQ
     genClause name = clause [litP $ stringL $ nameBase name] (normalB [|Just $(conE name)|]) []
-
-namesOfEnumDataConstructors :: [Con] -> Q [Name]
-namesOfEnumDataConstructors = mapM conName
-  where
-    conName (NormalC name []) = pure name
-    conName _ = fail "Enum variant should have only one value"
