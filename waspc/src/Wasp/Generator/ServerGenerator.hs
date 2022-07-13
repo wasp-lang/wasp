@@ -59,6 +59,7 @@ genServer spec =
       genNpmrc,
       genGitignore
     ]
+    <++> genPatches
     <++> genSrcDir spec
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
@@ -102,6 +103,9 @@ genPackageJson spec waspDependencies = do
             ]
       )
 
+genPatches :: Generator [FileDraft]
+genPatches = return [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])]
+
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
@@ -124,7 +128,8 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", show prismaVersion)
+            ("prisma", show prismaVersion),
+            ("patch-package", "^6.4.7")
           ]
     }
 

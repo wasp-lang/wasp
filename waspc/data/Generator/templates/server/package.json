@@ -10,7 +10,8 @@
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}",
-    "standard": "standard"
+    "standard": "standard",
+    "postinstall": "patch-package"
   },
   "nodemonConfig": {
     "delay": "1000"
