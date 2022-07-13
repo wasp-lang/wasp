@@ -1,13 +1,14 @@
 diff --git a/node_modules/oauth/lib/oauth2.js b/node_modules/oauth/lib/oauth2.js
-index 77241c4..c7c8982 100644
+index 77241c4..b6c0184 100644
 --- a/node_modules/oauth/lib/oauth2.js
 +++ b/node_modules/oauth/lib/oauth2.js
-@@ -158,8 +158,13 @@ exports.OAuth2.prototype._executeRequest= function( http_library, options, post_
+@@ -158,8 +158,14 @@ exports.OAuth2.prototype._executeRequest= function( http_library, options, post_
      });
    });
    request.on('error', function(e) {
 -    callbackCalled= true;
 -    callback(e);
++    // Ref: https://github.com/ciaranj/node-oauth/pull/363
 +    // `www.googleapis.com` does `ECONNRESET` just after data is received in `passBackControl`
 +    // this prevents the callback from being called twice, first in passBackControl and second time in here
 +    // see also NodeJS Stream documentation: "The 'error' event may be emitted by a Readable implementation at any time"
