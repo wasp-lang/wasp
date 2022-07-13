@@ -11,7 +11,7 @@ import {= importWhat =} from "{= importFrom =}"
 {=/ pagesToImport =}
 
 {=# isExternalAuthEnabled =}
-import TokenExchange from "./auth/pages/TokenExchange"
+import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 {=/ isExternalAuthEnabled =}
 
 const router = (
@@ -22,7 +22,8 @@ const router = (
       {=/ routes =}
 
       {=# isExternalAuthEnabled =}
-      <Route exact path="/tokenExchange" component={ TokenExchange }/>
+      <Route exact path="/auth/redirect/google"
+        render={(props) => <OAuthCodeExchange validationPath="/auth/external/google/validateCode" {...props} />} />
       {=/ isExternalAuthEnabled =}
     </div>
   </Router>

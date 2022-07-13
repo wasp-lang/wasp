@@ -63,7 +63,7 @@ genAuthForms auth =
     [ genLoginForm auth,
       genSignupForm auth,
       genSocialLoginButtons auth,
-      genTokenExchange auth
+      genOAuthCodeExchange auth
     ]
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
@@ -86,10 +86,10 @@ genSocialLoginButtons _auth =
     [relfile|auth/buttons/Google.js|]
     []
 
-genTokenExchange :: AS.Auth.Auth -> Generator FileDraft
-genTokenExchange auth =
+genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
+genOAuthCodeExchange auth =
   compileTmplToSamePath
-    [relfile|auth/pages/TokenExchange.js|]
+    [relfile|auth/pages/OAuthCodeExchange.js|]
     [ "onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth),
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
