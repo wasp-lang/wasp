@@ -120,7 +120,9 @@ npmDepsForWasp spec =
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("helmet", "^4.6.0"),
+            -- NOTE: Not in DevDeps so we can patch in prod contexts (e.g., Docker, PaaS, etc.)
+            ("patch-package", "^6.4.7")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
@@ -128,8 +130,7 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.4"),
             ("standard", "^14.3.4"),
-            ("prisma", show prismaVersion),
-            ("patch-package", "^6.4.7")
+            ("prisma", show prismaVersion)
           ]
     }
 

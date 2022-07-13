@@ -14,6 +14,11 @@ const config = {
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
     frontendUrl: undefined,
+    // This option is sometimes needed when running behind proxies/load balancers.
+    // For example, this is required for relative paths with Passport to work on Heroku.
+    // Ref: https://expressjs.com/en/guide/behind-proxies.html
+    // For now, we only handle the boolean case.
+    trustProxies: undefined,
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: undefined
@@ -22,6 +27,7 @@ const config = {
   },
   development: {
     frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
+    trustProxies: parseBooleanOrDefault(process.env.TRUST_PROXIES, false),
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: 'DEVJWTSECRET'
@@ -30,11 +36,29 @@ const config = {
   },
   production: {
     frontendUrl: process.env.WASP_WEB_CLIENT_URL,
+    trustProxies: parseBooleanOrDefault(process.env.TRUST_PROXIES, true),
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: process.env.JWT_SECRET
     }
     {=/ isAuthEnabled =}
+  }
+}
+
+function parseBooleanOrDefault(str, defaultValue) {
+  if (!str) {
+    return defaultValue
+  }
+
+  switch(str.toLowerCase()) {
+    case "t":
+    case "true":
+      return true
+    case "f":
+    case "false":
+      return false
+    default:
+      return defaultValue
   }
 }
 

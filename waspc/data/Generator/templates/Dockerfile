@@ -1,5 +1,5 @@
 {{={= =}=}}
-FROM node:14-alpine AS node
+FROM node:16-alpine AS node
 
 
 FROM node AS base
@@ -12,6 +12,7 @@ RUN apk add --no-cache build-base libtool autoconf automake python3
 WORKDIR /app
 # Install npm packages, resulting in node_modules/.
 COPY server/package*.json ./server/
+# TODO: Figure out why postinstall not running here (but works when manually running on container)
 RUN cd server && npm install
 {=# usingPrisma =}
 COPY db/schema.prisma ./db/
