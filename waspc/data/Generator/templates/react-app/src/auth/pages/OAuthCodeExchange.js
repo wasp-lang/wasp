@@ -6,7 +6,6 @@ import config from '../../config.js'
 import api, { setAuthToken } from '../../api.js'
 
 const OAuthCodeExchange = (props) => {
-  console.log(props)
   const history = useHistory()
   const validationPath = props.validationPath
 
@@ -34,7 +33,6 @@ async function exchangeCodeForJwtAndRedirect(history, validationPath) {
 
 async function exchangeCodeForJwt(queryParams, validationPath) {
   const validationUrl = `${config.apiUrl}${validationPath}${queryParams}`
-  console.log(validationUrl)
 
   let token = null
   try {

@@ -14,14 +14,3 @@ generator client {
 {=# modelSchemas =}
 {=& . =}
 {=/ modelSchemas =}
-
-{=# isExternalAuthEnabled =}
-model OtpToken {
-  id          Int       @id @default(autoincrement())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  token       String    @unique
-  claimed     Boolean   @default(false)
-  userId      Int
-}
-{=/ isExternalAuthEnabled =}

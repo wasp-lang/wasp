@@ -16,7 +16,6 @@ import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
@@ -59,8 +58,7 @@ genPrismaSchema spec = do
         object
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String),
-            "isExternalAuthEnabled" .= maybe False AS.App.Auth.isExternalAuthEnabled (AS.App.auth (snd $ getApp spec))
+            "datasourceUrl" .= (datasourceUrl :: String)
           ]
 
   return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)

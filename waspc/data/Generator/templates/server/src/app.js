@@ -23,11 +23,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
-if (config.trustProxies) {
-  app.enable('trust proxy')
-  console.log("Trusting proxies")
-}
-
 app.use('/', indexRouter)
 
 // Custom error handler.
