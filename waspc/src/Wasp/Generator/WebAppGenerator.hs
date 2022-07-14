@@ -20,6 +20,7 @@ import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
@@ -114,14 +115,15 @@ genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
     C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|]) :
-    C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|]) :
     publicIndexHtmlFd :
     ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           processPublicTmpl path = C.mkTmplFdWithData (C.asTmplFile $ [reldir|public|] </> path) tmplData
-       in processPublicTmpl
-            <$> [ [relfile|manifest.json|]
-                ]
-    )
+       in processPublicTmpl [relfile|manifest.json|]
+    ) :
+      [C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|]) | googleAuthEnabled]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+    googleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =
