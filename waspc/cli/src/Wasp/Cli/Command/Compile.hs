@@ -8,8 +8,8 @@ where
 import Control.Concurrent (Chan, writeChan)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List (intercalate)
 import Data.Foldable (forM_)
+import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
@@ -58,7 +58,6 @@ compileIO waspProjectDir outDir chan = compileIOWithOptions options waspProjectD
         writeChan c (show m)
         cliSendMessage m
 
--- TODO: capture warnings/errors like above
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir Common.WaspProjectDir) ->
@@ -67,7 +66,7 @@ compileIOWithOptions ::
   IO (Either String ())
 compileIOWithOptions options waspProjectDir outDir chan = do
   (compilerWarnings, compilerErrors) <- Wasp.Lib.compile waspProjectDir outDir options
-    
+
   forM_ chan (writeCompilerOutputToChan compilerWarnings compilerErrors)
 
   case compilerErrors of
@@ -77,8 +76,8 @@ compileIOWithOptions options waspProjectDir outDir chan = do
     errors -> return $ Left $ formatMessages errors
   where
     writeCompilerOutputToChan compilerWarnings compilerErrors c = do
-      mapM_ (writeChan c . show) compilerWarnings
-      mapM_ (writeChan c . show) compilerErrors
+      mapM_ (\w -> writeChan c ("Warning " ++ show w)) compilerWarnings
+      mapM_ (\w -> writeChan c ("Warning " ++ show w)) compilerErrors
 
     formatMessages messages = intercalate "\n" $ map ("- " ++) messages
     displayWarnings [] = return ()

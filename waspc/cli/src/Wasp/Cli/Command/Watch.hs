@@ -34,8 +34,8 @@ import qualified Wasp.Message as Msg
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
 --   It will defer recompilation until no new change was detected in the last second.
-watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> IO ()
-watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
+watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> Maybe (Chan String) -> IO ()
+watch waspProjectDir outDir maybeChan = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
@@ -80,7 +80,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     recompile :: IO ()
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compilationResult <- compileIO waspProjectDir outDir Nothing
+      compilationResult <- compileIO waspProjectDir outDir maybeChan
       case compilationResult of
         Left err -> cliSendMessage $ Msg.Failure "Recompilation on file change failed" err
         Right () -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."

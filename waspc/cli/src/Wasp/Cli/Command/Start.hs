@@ -53,7 +53,7 @@ start = do
 
   startChannel <- liftIO newChan
   liftIO $ dupChan startChannel >>= writePowerlineFiles outDir compileChannel
-  watchOrStartResult <- liftIO $ race (watch waspRoot outDir) (Wasp.Lib.start outDir startChannel)
+  watchOrStartResult <- liftIO $ race (watch waspRoot outDir (Just compileChannel)) (Wasp.Lib.start outDir startChannel)
   case watchOrStartResult of
     Left () -> error "This should never happen, listening for file changes should never end but it did."
     Right startResult -> case startResult of
@@ -117,11 +117,9 @@ htmlShell timestamp (waspMessage, jobMessages) =
   Text.unwords
     [ "<html><head>",
       "<title>Wasp Powerline</title>",
-
       "<script>let shouldRefresh = true;</script>",
       "<script>function disableRefresh() { shouldRefresh = false; document.getElementById('refreshButton').style.display = 'none';  }</script>",
       "<link rel=\"stylesheet\" href=\"./powerline.css\">",
-
       "</head>",
       "<body>",
       "<div><p>Last write timestamp: " <> pack timestamp <> "</p></div>",
