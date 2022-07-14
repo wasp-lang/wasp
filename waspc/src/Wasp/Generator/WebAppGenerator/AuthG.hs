@@ -62,10 +62,9 @@ genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genLoginForm auth,
-      genSignupForm auth,
-      genOAuthCodeExchange auth
+      genSignupForm auth
     ]
-    <++> genSocialLoginButtons auth
+    <++> (if AS.App.Auth.isExternalAuthEnabled auth then genExternalAuth auth else return [])
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
@@ -80,6 +79,13 @@ genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
     ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+
+genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genExternalAuth auth =
+  sequence
+    [ genOAuthCodeExchange auth
+    ]
+    <++> genSocialLoginButtons auth
 
 genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialLoginButtons auth =
