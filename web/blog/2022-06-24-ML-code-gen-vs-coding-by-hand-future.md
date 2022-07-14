@@ -11,10 +11,8 @@ import InBlogCta from './components/InBlogCta';
 import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
-![Language lifecycle](../static/img/language-lifecycle-copilot.png)
 
-
-We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of times we've been asked “*Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for you?*”.
+We are working on a config language / DSL for building web apps that integrates with React & Node.js. A number of times we've been asked “*Why are you bothering creating a new language for web app development? Isn’t Github Copilot\* soon going to be generating all the code for developers anyhow?*”.
 
 This is on our take on the situation and what we think things might look like in the future.
 
@@ -26,37 +24,23 @@ In order to make development faster, we came up with IDE autocompletion - e.g. i
 
 **Although that’s already great, how do we take it to the next level?** Traditional IDE support is based on rules written by humans and if we e.g. wanted to make IDE capable of implementing common functions for us, there would be just too many of them to catalogize and maintain by hand.
 
-If there was only a way for a computer to analyze all the code we’ve written so far and learn by itself how to autocomplete our code and what to do about humanity in general, instead of us doing all the hard work - oh, wait, ...
+If there was only a way for a computer to analyze all the code we’ve written so far and learn by itself how to autocomplete our code and what to do about humanity in general, instead of us doing all the hard work ...
 
-<ImgWithCaption
-    alt="The cake is a lie"
-    source="img/portal-cake.jpg"
-    caption="What? Everybody likes a nice piece of cake, that’s a well known fact about humans. Especially when it has cherries on top."
-/>
-
-Delicious and moist cake aside, we actually have this working! IDEs can now do some really cool things like proposing the full implementation of a function, based on its name and the accompanying comments:
+Delicious and moist cake aside, we actually have this working! Thanks to the latest advances in machine learning, IDEs can now do some really cool things like proposing the full implementation of a function, based on its name and the accompanying comments:
 
 <ImgWithCaption
     alt="Copilot example - text sentiment"
     source="img/copilot-example-sentiment.gif"
-    caption="GitHub Copilot generating a whole function based on the comments and its signature"
+    caption="GitHub Copilot generating a whole function body based on its signature and the comments on top of it."
 />
 
-This is pretty amazing! The example above is powered by [Github Copilot](https://copilot.github.com/) - it’s essentially a neural network trained on a huge amount of publicly available code. I will not get into the technical details of how it works under the hood, but there are [a lot](https://betterprogramming.pub/ai-review-github-copilot-d43afde51a5a#:~:text=They%20fine%2Dtuned%20the%20Codex,code%20it's%20been%20trained%20on.) [of great](https://www.fast.ai/2021/07/19/copilot/) [articles](https://arxiv.org/abs/2107.03374) covering the science behind it.
+This is pretty amazing! The example above is powered by [Github Copilot](https://copilot.github.com/) - it’s essentially a neural network trained on a huge amount of publicly available code. I will not get into the technical details of how it works under the hood, but there are [lots](https://betterprogramming.pub/ai-review-github-copilot-d43afde51a5a#:~:text=They%20fine%2Dtuned%20the%20Codex,code%20it's%20been%20trained%20on.) [of great](https://www.fast.ai/2021/07/19/copilot/) [articles](https://arxiv.org/abs/2107.03374) covering the science behind it.
 
-Seeing this, questions arise - what does this mean for the future of programming? Is this just IDE autocompletion on steroids or something more? Do we need to keep bothering with manually writing code, if we can just type in the comments what we want and that’s it?
+**Seeing this, questions arise - what does this mean for the future of programming**? Is this just IDE autocompletion on steroids or something more? Do we need to keep bothering with manually writing code, if we can just type in the comments what we want and that’s it?
 
-<ImgWithCaption
-    alt="PMs learn about GitHub Copilot"
-    source="img/pms-learn-about-github-copilot.jpg"
-    caption="I knew it - those pesky developers will hear from me! (“cutting all estimates in half”)"
-/>
+## Who maintains the code once it’s generated?
 
-## The cake is a lie** - who maintains the code once it’s generated?
-
-***a reference to [Portal](https://en.wikipedia.org/wiki/Portal_(video_game)), a famous video game where AI conducts experiments on humans while pretending to be well-intended and promising them a cake if they follow through. The AI eventually ends up embedded in a potato.* 
-
-When thinking about how ML code generation affects the overall development process, there is one thing to consider that often doesn’t immediately spring to mind when looking at the awesome Copilot examples.
+When thinking about how ML code generation affects the overall development process, there is one thing to consider that often doesn’t immediately spring to mind when looking at the impressive Copilot examples.
 
 :::note
 For the purposes of this post, I will not delve into the questions of code quality, [security](https://www.theinsaneapp.com/2021/09/github-copilot-generated-40-percent-insecure-code.html), [legal & privacy issues](https://fosspost.org/github-copilot/), pricing, and others of similar character that are often brought up in these early days of ML code generation. Let’s just assume all this is sorted out and see what happens next.
@@ -67,12 +51,11 @@ For the purposes of this post, I will not delve into the questions of code quali
 <ImgWithCaption
     alt="Devs still need to maintain generated code"
     source="img/always-has-been-copilot.png"
-    caption="PM shrieking indiscernibly in the corner (”firing up Jira to revert all the cut estimates”)"
 />
 
-Although ML code generation helps with getting the initial code written, it cannot do much beyond that - if that code is to be maintained and changed in the future (and if anyone uses it, it is), the developer still needs to fully own and understand it.
+Although ML code generation helps with getting the initial code written, it cannot do much beyond that - if that code is to be maintained and changed in the future (and if anyone uses the product, it is), the developer still needs to fully own and understand it.
 
-Imagine all we had was an assembly language, but IDE completion worked really well for it, and you could say “implement a function that sorts an array, ascending” and it would produce the required code perfectly. Would that still be something you’d like to return to in the future when you need to change your sort to descending 😅 ? 
+Imagine all we had was an assembly language, but IDE completion worked really well for it, and you could say “implement a function that sorts an array, ascending” and it would produce the required code perfectly. Would that still be something you’d like to return to in the future once you need to change your sort to descending 😅 ? 
 
 In other words, it means Copilot and similar solutions do not reduce the code complexity nor the amount of knowledge required to build features, they just help write the initial code faster, and bring the knowledge/examples closer to the code (which is really helpful). If a developer accepts the generated code blindly, they are just creating tech debt and pushing it forward.
 
@@ -92,7 +75,7 @@ Introducing abstractions inevitably means giving up on a certain amount of power
 
 **The only way not to be responsible for a piece of code is that it doesn’t exist in the first place**. 
 
-Because as soon as pixels on the screen change their color it’s something you have to worry about, and that is why the main benefit of all the frameworks, languages, etc. is *less code* == *less decisions* == *less responsibility.*
+Because as soon as pixels on the screen change their color it’s something you have to worry about, and that is why the main benefit of all frameworks, languages, etc. is *less code* == *less decisions* == *less responsibility.*
 
 The only way to have less code is to make less decisions and provide fewer details to the computer on how to do a certain task - ideally, we’d just state what we want and we wouldn’t even care about how it is done, as long as it’s within the time/memory/cost boundaries we have (so we might need to state those as well).
 
@@ -181,12 +164,6 @@ If somebody later asks “*so why exactly did you choose secure-password npm pac
 
 Another thing to keep in mind is that we should also track how things change over time, and make sure that after a couple of years we’re still using the best practices and that the packages are regularly updated.
 
-<ImgWithCaption
-    alt="Making decisions"
-    source="img/sweating.gif"
-    caption="Everything is fine (still looking for that SO post from 2012)"
-/>
-
 If we try to apply the principles from above (less code, less detailed instructions, stating **what** we want instead of **how** it needs to be done), the code for auth might look something like this: 
 
 ```css
@@ -236,7 +213,7 @@ This means we are winning on both sides - when the language is mainstream we can
 - [Is GitHub Copilot a blessing, or a curse? (fast.ai)](https://www.fast.ai/2021/07/19/copilot/) - an objective and extremely well-written overview of GitHub Copilot with real-world examples
 - [6 Reasons Why You Should Avoid GitHub Copilot and “Fly Solo” Instead](https://betterprogramming.pub/6-reasons-why-you-should-avoid-github-copilot-and-fly-solo-instead-8a948665433f) - brings up and questions the potential downsides of ML code generation and Github Copilot
 - [Github Copilot Wants to Play Chess Instead of Code](https://dagshub.com/blog/github-copilot-not-code/) - a fresh approach to GitHub Copilot where it is used as a conversation partner instead of writing code!
-- [Conversational Programming](https://jessmart.in/articles/copilot) - a forward looking post that proposes a future where AI will serve as a "sparring partner" and help us reach the optimal solutions through iterations, instead of programmer doing all the work by themself.
+- [Conversational Programming](https://jessmart.in/articles/copilot) - a forward looking post that proposes a future where AI will serve as a "sparring partner" and help us reach the optimal solution through iterations 
 
 ### Thanks to the reviewers
 
