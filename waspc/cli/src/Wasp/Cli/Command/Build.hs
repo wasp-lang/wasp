@@ -50,7 +50,7 @@ buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   IO (Either String ())
-buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
+buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir Nothing
   where
     options =
       CompileOptions

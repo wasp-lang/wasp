@@ -9,6 +9,7 @@ import Control.Concurrent (Chan, writeChan)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import Data.Foldable (forM_)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
@@ -42,7 +43,7 @@ compileIO ::
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
   Maybe (Chan String) ->
   IO (Either String ())
-compileIO waspProjectDir outDir chan = compileIOWithOptions options waspProjectDir outDir
+compileIO waspProjectDir outDir chan = compileIOWithOptions options waspProjectDir outDir chan
   where
     options =
       CompileOptions
@@ -62,15 +63,23 @@ compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Maybe (Chan String) ->
   IO (Either String ())
-compileIOWithOptions options waspProjectDir outDir = do
+compileIOWithOptions options waspProjectDir outDir chan = do
   (compilerWarnings, compilerErrors) <- Wasp.Lib.compile waspProjectDir outDir options
+    
+  forM_ chan (writeCompilerOutputToChan compilerWarnings compilerErrors)
+
   case compilerErrors of
     [] -> do
       displayWarnings compilerWarnings
       return $ Right ()
     errors -> return $ Left $ formatMessages errors
   where
+    writeCompilerOutputToChan compilerWarnings compilerErrors c = do
+      mapM_ (writeChan c . show) compilerWarnings
+      mapM_ (writeChan c . show) compilerErrors
+
     formatMessages messages = intercalate "\n" $ map ("- " ++) messages
     displayWarnings [] = return ()
     displayWarnings warnings =
