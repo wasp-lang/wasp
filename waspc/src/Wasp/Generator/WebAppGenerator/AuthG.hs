@@ -9,6 +9,7 @@ import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -62,9 +63,9 @@ genAuthForms auth =
   sequence
     [ genLoginForm auth,
       genSignupForm auth,
-      genSocialLoginButtons auth,
       genOAuthCodeExchange auth
     ]
+    <++> genSocialLoginButtons auth
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
@@ -80,11 +81,9 @@ genSignupForm auth =
     [relfile|auth/forms/Signup.js|]
     ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
 
-genSocialLoginButtons :: AS.Auth.Auth -> Generator FileDraft
-genSocialLoginButtons _auth =
-  compileTmplToSamePath
-    [relfile|auth/buttons/Google.js|]
-    []
+genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
+genSocialLoginButtons auth =
+  return ([C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth])
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =

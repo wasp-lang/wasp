@@ -59,12 +59,12 @@ genServer spec =
       genNpmrc,
       genGitignore
     ]
-    <++> genPatches
     <++> genSrcDir spec
     <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
+    <++> genPatches spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -102,9 +102,6 @@ genPackageJson spec waspDependencies = do
                    )
             ]
       )
-
-genPatches :: Generator [FileDraft]
-genPatches = return [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])]
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
@@ -242,3 +239,18 @@ depsRequiredByPassport spec = depsRequiredByPassport' maybeAuth
           [ [("passport", "0.6.0") | AS.App.Auth.isExternalAuthEnabled auth],
             [("passport-google-oauth20", "2.0.0") | AS.App.Auth.isGoogleAuthEnabled auth]
           ]
+
+genPatches :: AppSpec -> Generator [FileDraft]
+genPatches spec = patchesRequiredByPassport spec
+
+patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
+patchesRequiredByPassport spec = patchesRequiredByPassport' maybeAuth
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+    patchesRequiredByPassport' :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
+    patchesRequiredByPassport' Nothing = return []
+    patchesRequiredByPassport' (Just auth) =
+      if AS.App.Auth.isExternalAuthEnabled auth
+        then return [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])]
+        else return []
