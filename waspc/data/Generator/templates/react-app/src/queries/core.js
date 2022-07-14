@@ -1,9 +1,16 @@
 import { callOperation } from '../operations'
-import { addResourcesUsedByQuery } from '../operations/resources'
+import {
+  addResourcesUsedByQuery,
+  getPendingUpdatesForQuery
+} from '../operations/resources'
 
 export function createQuery(queryRoute, entitiesUsed) {
-  function query(args) {
-    return callOperation(queryRoute, args)
+  async function query(queryKey, queryArgs) {
+    const serverResult = await callOperation(queryRoute, queryArgs)
+    return getPendingUpdatesForQuery(queryKey).reduce(
+      (result, pendingUpdate) => pendingUpdate(result), 
+      serverResult,
+    )
   }
 
   query.queryCacheKey = queryRoute

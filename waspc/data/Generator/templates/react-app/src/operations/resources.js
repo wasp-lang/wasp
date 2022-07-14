@@ -1,5 +1,6 @@
 import { queryClientInitialized } from '../queryClient'
-import { makeCounter } from './counter'
+import { makeOptimisticUpdatesMap } from './optimisticUpdatesMap'
+import { hashQueryKey } from 'react-query'
 
 
 // Map where key is resource name and value is Set
@@ -7,13 +8,7 @@ import { makeCounter } from './counter'
 // that resource.
 const resourceToQueryCacheKeys = new Map()
 
-// A counter that counts many actions are currently in progress that will
-// invalidate a given queryCacheKey. It helps us stop premature invalidation and
-// UI flickering after optimistic updates.
-const actionCounter = makeCounter(
-  (queryCacheKey) => Array.isArray(queryCacheKey) ? queryCacheKey[0] : queryCacheKey
-)
-
+const updatesHandlerMap = makeOptimisticUpdatesMap(hashQueryKey)
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
@@ -31,12 +26,19 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
   }
 }
 
-export function registerActionInProgress(optimisticallyUpdatedCacheKeys) {
-  optimisticallyUpdatedCacheKeys.forEach(queryCachekey => actionCounter.increment(queryCachekey))
+export function registerActionInProgress(optimisticUpdateTuples) {
+  console.log("Registering action with tuples", optimisticUpdateTuples)
+  optimisticUpdateTuples.forEach(
+    ({ queryKey, updateQueryFn}) => updatesHandlerMap.add(queryKey, updateQueryFn)
+  )
 }
 
-export async function registerActionDone(resources, optimisticallyUpdatedCacheKeys) {
-  optimisticallyUpdatedCacheKeys.forEach(queryCacheKey => actionCounter.decrement(queryCacheKey))
+export function getPendingUpdatesForQuery(queryKey) {
+  return updatesHandlerMap.getUpdateHandlers(queryKey)
+}
+
+export async function registerActionDone(resources, optimisticUpdateTuples) {
+  optimisticUpdateTuples.forEach(({ queryKey }) => updatesHandlerMap.remove(queryKey))
   await invalidateQueriesUsing(resources)
 }
 
@@ -61,17 +63,12 @@ export async function invalidateAndRemoveQueries() {
  * @param {string[]} resources - Names of resources.
  */
 async function invalidateQueriesUsing(resources) {
-  const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
-    .filter(hasNoActionsInProgress)
-
   const queryClient = await queryClientInitialized
+
+  const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
   queryCacheKeysToInvalidate.forEach(
     queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
   )
-}
-
-function hasNoActionsInProgress(queryCacheKey) {
-  return actionCounter.count(queryCacheKey) === 0
 }
 
 /**

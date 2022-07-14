@@ -30,13 +30,20 @@ function makeOptimisticUpdatesConfig(optimisticUpdatesConfig) {
 }
 
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
-  return function optimisticallyUpdateQueries(args) {
-    const optimisticallyUpdatedCacheKeys = optimisticUpdatesConfig.map(({ getQuery }) => getQuery(args))
-    return actionFn.internal(args, optimisticallyUpdatedCacheKeys)
+  return function optimisticallyUpdateQueries(item) {
+    const optimisticUpdateTuples = optimisticUpdatesConfig.map(
+      ({ getQuery, updateQuery }) => ({
+        queryKey: getQuery(item), 
+        updateQueryFn: (old) => updateQuery(item, old),
+      })
+    ) 
+    return actionFn.internal(item, optimisticUpdateTuples)
   }
 }
 
 function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
+  const updateList = []
+
   async function onMutate(item) {
     const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
       query: getQuery(item),
@@ -56,24 +63,25 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
     const previousData = new Map()
     queriesToUpdate.forEach(({ query, updateQuery }) => {
       const previousDataForQuery = queryClient.getQueryData(query)
-      queryClient.setQueryData(query, (old) => updateQuery(item, old))
+      const updateFn = (old) => updateQuery(item, old)
+
+      queryClient.setQueryData(query, updateFn)
+      updateList.push({ queryKey: query, updateQueryFn: updateFn })
       previousData.set(query, previousDataForQuery)
     })
-
-    return previousData
   }
 
   function onError(err, item, context) {
     context.previousData.forEach(async (data, queryKey) => {
-        await queryClient.cancelQueries(queryKey)
-        queryClient.setQueryData(queryKey, data)
-      }
-    )
+      await queryClient.cancelQueries(queryKey)
+      queryClient.setQueryData(queryKey, data)
+    })
   }
 
   return {
     onMutate,
     onError,
+    updateList
   }
 }
 

@@ -5,14 +5,14 @@ import {
 } from '../operations/resources'
 
 export function createAction(actionRoute, entitiesUsed) {
-  async function internalAction(args, optimisticallyUpdatedCacheKeys = []) {
-    registerActionInProgress(optimisticallyUpdatedCacheKeys)
+  async function internalAction(args, optimisticUpdateTuples) {
+    registerActionInProgress(optimisticUpdateTuples)
     const actionResult = await callOperation(actionRoute, args)
-    await registerActionDone(entitiesUsed, optimisticallyUpdatedCacheKeys)
+    await registerActionDone(entitiesUsed, optimisticUpdateTuples)
     return actionResult
   }
 
-  const action = (args) => internalAction(args)
+  const action = (args) => internalAction(args, [])
   action.internal = internalAction
 
   return action
