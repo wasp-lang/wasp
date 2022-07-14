@@ -2,24 +2,55 @@
 import express from 'express'
 import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth20'
-import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import { authConfig } from '../config.js'
 import { sign } from '../../../core/auth.js'
 
+{=# doesConfigFnExist =}
 // TODO: What if this name collides? For example, they import { config }
 // and we imported config from '../../../config.js'?
-{=& configJsFnImportStatement =}
+{=& configFnImportStatement =}
+{=/ doesConfigFnExist =}
 
-export const GOOGLE_AUTH_METHOD = Symbol('Google')
+{=# doesOnSignInFnExist =}
+{=& onSignInFnImportStatement =}
+{=/ doesOnSignInFnExist =}
+{=^ doesOnSignInFnExist =}
+import { findOrCreateUserEntity } from '../../../core/auth.js'
+{=/ doesOnSignInFnExist =}
+
+
+{=# doesConfigFnExist =}
+const userConfigFnExists = true
+const configFn = {= configFnIdentifier =}
+{=/ doesConfigFnExist =}
+{=^ doesConfigFnExist =}
+const userConfigFnExists = false
+function configFn() {
+  return {
+    clientId: process.env['GOOGLE_CLIENT_ID'],
+    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+  }
+}
+{=/ doesConfigFnExist =}
+
+{=# doesOnSignInFnExist =}
+const onSignInFn = {= onSignInFnIdentifier =}
+{=/ doesOnSignInFnExist =}
+{=^ doesOnSignInFnExist =}
+async function onSignInFn (_context, args) {
+  const email = args.profile.emails[0].value
+  return await findOrCreateUserEntity(email)
+}
+{=/ doesOnSignInFnExist =}
 
 const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 
 async function googleSuccessCallback(req, _accessToken, _refreshToken, profile, done) {
   try {
-    const user = await authConfig.onSignInFn(GOOGLE_AUTH_METHOD, context, { profile })
+    const user = await onSignInFn(context, { profile })
 
     if (!user?.id) {
       return done(new Error('auth.onSignInFn must return a user object with an id property'))
@@ -33,15 +64,23 @@ async function googleSuccessCallback(req, _accessToken, _refreshToken, profile, 
   }
 }
 
-const userConfig = validateConfig({= configJsFnIdentifier =}())
+const userConfig = validateConfig(configFn())
 
 function validateConfig(config) {
   if (!config?.clientId) {
-    throw new Error("auth.google.configFn must return an object with clientId property")
+    if (userConfigFnExists) {
+      throw new Error("auth.google.configFn must return an object with clientId property.")
+    } else {
+      throw new Error("Missing GOOGLE_CLIENT_ID environment variable.")
+    }
   }
 
   if (!config?.clientSecret) {
-    throw new Error("auth.google.configFn must return an object with clientSecret property")
+    if (userConfigFnExists) {
+      throw new Error("auth.google.configFn must return an object with clientSecret property.")
+    } else {
+      throw new Error("Missing GOOGLE_CLIENT_SECRET environment variable.")
+    }
   }
 
   return config

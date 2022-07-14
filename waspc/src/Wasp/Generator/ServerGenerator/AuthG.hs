@@ -4,7 +4,7 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -156,23 +156,15 @@ genConfigJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
-    (onSignInJsFnImportIdentifier, onSignInJsFnImportStmt) = getJsImportDetailsForExtFnImport relPosixPathFromCoreAuthDirToExtSrcDir $ AS.Auth.onSignInFn auth
-
     tmplData =
       object
-        [ "onSignInJsFnIdentifier" .= onSignInJsFnImportIdentifier,
-          "onSignInJsFnImportStatement" .= onSignInJsFnImportStmt,
-          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
+        [ "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           -- TODO: What should the default redirect be on success?
           "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
         ]
 
     configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     configFileInSrcDir = [relfile|routes/auth/config.js|]
-
--- | TODO: Make this not hardcoded!
-relPosixPathFromCoreAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromCoreAuthDirToExtSrcDir = [reldirP|../../ext-src|]
 
 genGoogleJs :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
@@ -182,8 +174,12 @@ genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
     dstFile = C.serverSrcDirInServerRootDir </> googleFileInSrcDir
     tmplData =
       object
-        [ "configJsFnImportStatement" .= fromMaybe "" maybeConfigJsFnImportStmt,
-          "configJsFnIdentifier" .= fromMaybe "" maybeConfigJsFnImportIdentifier,
+        [ "doesConfigFnExist" .= isJust maybeConfigFn,
+          "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,
+          "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
+          "doesOnSignInFnExist" .= isJust maybeOnSignInFn,
+          "onSignInFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
+          "onSignInFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier,
           "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
         ]
@@ -191,10 +187,15 @@ genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
     googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     googleFileInSrcDir = [relfile|routes/auth/passport/google.js|]
 
-    maybeConfigJsFunction = AS.Auth.configFn <$> AS.Auth.google (AS.Auth.methods auth)
-    maybeConfigJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeConfigJsFunction
-    (maybeConfigJsFnImportIdentifier, maybeConfigJsFnImportStmt) =
-      (fst <$> maybeConfigJsFnImportDetails, snd <$> maybeConfigJsFnImportDetails)
+    maybeConfigFn = AS.Auth.configFn =<< AS.Auth.google (AS.Auth.methods auth)
+    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeConfigFn
+    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) =
+      (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
+
+    maybeOnSignInFn = AS.Auth.onSignInFn =<< AS.Auth.google (AS.Auth.methods auth)
+    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeOnSignInFn
+    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) =
+      (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromPassportAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

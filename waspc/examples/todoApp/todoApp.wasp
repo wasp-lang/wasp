@@ -9,14 +9,14 @@ app todoApp {
   auth: {
     userEntity: User,
     methods: {
-     emailAndPassword: true,
+     emailAndPassword: {},
      google: {
-      configFn: import { config } from "@ext/auth/google.js"
+      configFn: import { config } from "@ext/auth/google.js",
+      onSignInFn: import { signInHandler } from "@ext/auth/google.js"
      }
     },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/profile",
-    onSignInFn: import signInHandler from "@ext/auth/shared.js"
+    onAuthSucceededRedirectTo: "/profile"
   },
   server: {
     setupFn: import setup from "@ext/serverSetup.js"

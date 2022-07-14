@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
@@ -20,24 +21,30 @@ data Auth = Auth
   { userEntity :: Ref Entity,
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
-    onAuthSucceededRedirectTo :: Maybe String,
-    onSignInFn :: ExtImport
+    onAuthSucceededRedirectTo :: Maybe String
   }
   deriving (Show, Eq, Data)
 
 data AuthMethods = AuthMethods
-  { emailAndPassword :: Maybe Bool,
+  { emailAndPassword :: Maybe EmailAndPasswordConfig,
     google :: Maybe GoogleConfig
   }
   deriving (Show, Eq, Data)
 
+data EmailAndPasswordConfig = EmailAndPasswordConfig
+  { -- NOTE: Not used right now, but Analyzer does not support an empty data type.
+    configFn :: Maybe ExtImport
+  }
+  deriving (Show, Eq, Data)
+
 data GoogleConfig = GoogleConfig
-  { configFn :: ExtImport
+  { configFn :: Maybe ExtImport,
+    onSignInFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 
 isEmailAndPasswordAuthEnabled :: Auth -> Bool
-isEmailAndPasswordAuthEnabled auth = Just True == (emailAndPassword . methods $ auth)
+isEmailAndPasswordAuthEnabled = isJust . emailAndPassword . methods
 
 isGoogleAuthEnabled :: Auth -> Bool
 isGoogleAuthEnabled = isJust . google . methods
