@@ -9,10 +9,10 @@ app todoApp {
   auth: {
     userEntity: User,
     methods: {
-     emailAndPassword: {},
-     google: {
-      configFn: import { config } from "@ext/auth/google.js",
-      onSignInFn: import { signInHandler } from "@ext/auth/google.js"
+      emailAndPassword: {},
+      google: {
+        configFn: import { config } from "@ext/auth/google.js",
+        onSignInFn: import { signInHandler } from "@ext/auth/google.js"
      }
     },
     onAuthFailedRedirectTo: "/login",
