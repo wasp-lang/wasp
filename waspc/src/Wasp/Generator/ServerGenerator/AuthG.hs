@@ -43,7 +43,7 @@ genAuth spec = case maybeAuth of
         genSignupRoute auth,
         genMeRoute auth
       ]
-      <++> (if AS.Auth.isExternalAuthEnabled auth then genPassportRoutes auth else return [])
+      <++> (if AS.Auth.isExternalAuthEnabled auth then genPassportAuth auth else return [])
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -132,14 +132,16 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
         ]
 
-genPassportRoutes :: AS.Auth.Auth -> Generator [FileDraft]
-genPassportRoutes auth =
-  genConfigJs auth
-    <++> genPassportJs auth
-    <++> (if AS.Auth.isGoogleAuthEnabled auth then genGoogleJs auth else return [])
+genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genPassportAuth auth =
+  sequence
+    [ genUtilsJs auth,
+      genPassportJs auth
+    ]
+    <++> (if AS.Auth.isGoogleAuthEnabled auth then genGoogleAuth auth else return [])
 
-genPassportJs :: AS.Auth.Auth -> Generator [FileDraft]
-genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+genPassportJs :: AS.Auth.Auth -> Generator FileDraft
+genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel passportFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
@@ -151,27 +153,39 @@ genPassportJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmp
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     passportFileInSrcDir = [relfile|routes/auth/passport/passport.js|]
 
-genConfigJs :: AS.Auth.Auth -> Generator [FileDraft]
-genConfigJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+genUtilsJs :: AS.Auth.Auth -> Generator FileDraft
+genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel configFileInSrcDir
-    dstFile = C.serverSrcDirInServerRootDir </> configFileInSrcDir
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel utilsFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> utilsFileInSrcDir
     tmplData =
       object
-        [ "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           -- TODO: What should the default redirect be on success?
           "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
         ]
 
-    configFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    configFileInSrcDir = [relfile|routes/auth/config.js|]
+    utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    utilsFileInSrcDir = [relfile|routes/auth/passport/utils.js|]
 
-genGoogleJs :: AS.Auth.Auth -> Generator [FileDraft]
-genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)]
+genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genGoogleAuth auth =
+  sequence
+    [ copyTmplFile [relfile|routes/auth/passport/google/google.js|],
+      copyTmplFile [relfile|routes/auth/passport/google/googleDefaults.js|],
+      genGoogleImportsJs auth
+    ]
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleFileInSrcDir
-    dstFile = C.serverSrcDirInServerRootDir </> googleFileInSrcDir
+    copyTmplFile = return . C.mkSrcTmplFd
+
+genGoogleImportsJs :: AS.Auth.Auth -> Generator FileDraft
+genGoogleImportsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleImportsFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> googleImportsFileInSrcDir
     tmplData =
       object
         [ "doesConfigFnExist" .= isJust maybeConfigFn,
@@ -179,24 +193,22 @@ genGoogleJs auth = return [C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
           "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
           "doesOnSignInFnExist" .= isJust maybeOnSignInFn,
           "onSignInFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
-          "onSignInFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier,
-          "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
+          "onSignInFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
         ]
 
-    googleFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    googleFileInSrcDir = [relfile|routes/auth/passport/google.js|]
+    googleImportsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    googleImportsFileInSrcDir = [relfile|routes/auth/passport/google/googleImports.js|]
 
     maybeConfigFn = AS.Auth.configFn =<< AS.Auth.google (AS.Auth.methods auth)
-    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeConfigFn
+    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeConfigFn
     (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) =
       (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
     maybeOnSignInFn = AS.Auth.onSignInFn =<< AS.Auth.google (AS.Auth.methods auth)
-    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromPassportAuthDirToExtSrcDir <$> maybeOnSignInFn
+    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeOnSignInFn
     (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) =
       (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
 -- | TODO: Make this not hardcoded!
-relPosixPathFromPassportAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromPassportAuthDirToExtSrcDir = [reldirP|../../../ext-src|]
+relPosixPathFromGoogleAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromGoogleAuthDirToExtSrcDir = [reldirP|../../../../ext-src|]

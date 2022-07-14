@@ -2,7 +2,7 @@
 import express from 'express'
 
 {=# isGoogleAuthEnabled =}
-import googleAuth from './google.js'
+import googleAuth from './google/google.js'
 {=/ isGoogleAuthEnabled =}
 
 const router = express.Router()

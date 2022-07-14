@@ -1,56 +1,15 @@
-{{={= =}=}}
 import express from 'express'
 import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth20'
 
-import prisma from '../../../dbClient.js'
-import waspServerConfig from '../../../config.js'
-import { authConfig } from '../config.js'
-import { sign } from '../../../core/auth.js'
-
-{=# doesConfigFnExist =}
-// TODO: What if this name collides? For example, they import { config }
-// and we imported config from '../../../config.js'?
-{=& configFnImportStatement =}
-{=/ doesConfigFnExist =}
-
-{=# doesOnSignInFnExist =}
-{=& onSignInFnImportStatement =}
-{=/ doesOnSignInFnExist =}
-{=^ doesOnSignInFnExist =}
-import { findOrCreateUserEntity } from '../../../core/auth.js'
-{=/ doesOnSignInFnExist =}
-
-
-{=# doesConfigFnExist =}
-const userConfigFnExists = true
-const configFn = {= configFnIdentifier =}
-{=/ doesConfigFnExist =}
-{=^ doesConfigFnExist =}
-const userConfigFnExists = false
-function configFn() {
-  return {
-    clientId: process.env['GOOGLE_CLIENT_ID'],
-    clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
-  }
-}
-{=/ doesConfigFnExist =}
-
-{=# doesOnSignInFnExist =}
-const onSignInFn = {= onSignInFnIdentifier =}
-{=/ doesOnSignInFnExist =}
-{=^ doesOnSignInFnExist =}
-async function onSignInFn (_context, args) {
-  const email = args.profile.emails[0].value
-  return await findOrCreateUserEntity(email)
-}
-{=/ doesOnSignInFnExist =}
-
-const context = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
+import waspServerConfig from '../../../../config.js'
+import { contextWithUserEntity, authConfig } from '../utils.js'
+import { sign } from '../../../../core/auth.js'
+import { userConfigFnExists, configFn, onSignInFn } from './googleImports.js'
 
 async function googleSuccessCallback(req, _accessToken, _refreshToken, profile, done) {
   try {
-    const user = await onSignInFn(context, { profile })
+    const user = await onSignInFn(contextWithUserEntity, { profile })
 
     if (!user?.id) {
       return done(new Error('auth.onSignInFn must return a user object with an id property'))
@@ -90,7 +49,7 @@ passport.use(new GoogleStrategy({
   clientID: userConfig.clientId,
   clientSecret: userConfig.clientSecret,
   callbackURL: `${waspServerConfig.frontendUrl}/auth/redirect/google`,
-  scope: [ 'email', 'profile' ],
+  scope: ['email', 'profile'],
   passReqToCallback: true
 }, googleSuccessCallback))
 
