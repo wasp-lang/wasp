@@ -29,49 +29,51 @@ parseCSTExpression :: [Token] -> ([ParseError], [SyntaxNode])
 parseCSTExpression tokens = parse tokens (expr --> eof)
 
 root :: GrammarRule
-root = group Program stmts
+root = Program <$$> stmts
 
 stmts :: GrammarRule
-stmts = eof <> (stmt --> stmts)
+stmts = eof <|> (stmt --> stmts)
 
 stmt :: GrammarRule
 stmt =
-  group Decl $
-    (T.Identifier `as` DeclType)
-      --> (T.Identifier `as` DeclName)
-      --> expr
+  Decl
+    <$$> (T.Identifier `as` DeclType)
+    --> (T.Identifier `as` DeclName)
+    --> expr
 
+{- ORMOLU_DISABLE -}
 expr :: GrammarRule
 expr =
-  group Dict (listLike lcurly dictEntry comma rcurly)
-    <> group List (listLike lsquare expr comma rsquare)
-    <> group Quoter (lquote --> quotedText)
+        Dict <$$> listLike lcurly dictEntry comma rcurly
+    <|> List <$$> listLike lsquare expr comma rsquare
+    <|> Quoter <$$> (lquote --> quotedText)
     -- Note that we don't check number of tuple element here: this is left to
     -- the next phase of parsing.
-    <> group Tuple (listLike lparen expr comma rparen)
-    <> int
-    <> double
-    <> string
-    <> (T.Identifier `as` Var)
-    <> kwTrue
-    <> kwFalse
-    <> extImport
+    <|> Tuple <$$> listLike lparen expr comma rparen
+    <|> int
+    <|> double
+    <|> string
+    <|> (T.Identifier `as` Var)
+    <|> kwTrue
+    <|> kwFalse
+    <|> extImport
+{- ORMOLU_ENABLE -}
 
 dictEntry :: GrammarRule
-dictEntry = group DictEntry $ (T.Identifier `as` DictKey) --> colon --> expr
+dictEntry = DictEntry <$$> (T.Identifier `as` DictKey) --> colon --> expr
 
 quotedText :: GrammarRule
-quotedText = eof <> rquote <> (quoted --> quotedText)
+quotedText = rquote <|> (quoted --> quotedText)
 
 extImport :: GrammarRule
 extImport =
-  group ExtImport $
-    kwImport --> extImportName --> kwFrom --> (T.String `as` ExtImportPath)
-
-extImportName :: GrammarRule
-extImportName =
-  (lcurly --> (T.Identifier `as` ExtImportField) --> rcurly)
-    <> (T.Identifier `as` ExtImportModule)
+  ExtImport
+    <$$> kwImport --> extImportName --> kwFrom --> (T.String `as` ExtImportPath)
+  where
+    extImportName :: GrammarRule
+    extImportName =
+      lcurly --> (T.Identifier `as` ExtImportField) --> rcurly
+        <|> (T.Identifier `as` ExtImportModule)
 
 -- | @listLike open value sep close@ parses list like structures in the form:
 --
@@ -93,6 +95,4 @@ listLike open value sep close =
   where
     listLikeValues :: GrammarRule
     listLikeValues =
-      eof
-        <> close
-        <> (perhaps sep --> ((value --> listLikeValues) <> close))
+      close <|> (perhaps sep --> ((value --> listLikeValues) <|> close))

@@ -57,8 +57,8 @@ instance ToJSON SyntaxKind
 data SyntaxNode = SyntaxNode
   { snodeKind :: !SyntaxKind,
     -- | Width of this "SyntaxNode". For nodes with children, this is the sum
-    -- of their children's lengths. For nodes without children, this is the
-    -- length of the source text covered by the node.
+    -- of their children's widths. For nodes without children, this is the
+    -- width of the source text covered by the node.
     snodeWidth :: !Int,
     snodeChildren :: [SyntaxNode]
   }

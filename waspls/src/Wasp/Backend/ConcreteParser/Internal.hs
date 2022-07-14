@@ -7,20 +7,21 @@ module Wasp.Backend.ConcreteParser.Internal
     parse,
 
     -- * Combinators
+
+    -- | The fixity of the operators ('(-->)', 'as', '(<$$>)', and '(<|>)') was
+    -- chosen to make using operators require as little parentheses as possible:
+    --
+    -- >>> Program <$$> lparen --> rparen
+    --       <|> string
+    -- Alternative (Group Program (Chain (Token LParen) (Token RParen))) (Token String)
+    --
+    -- It's still recommended to use parentheses when white space does not make
+    -- the meaning extremely clear.
     (-->),
     as,
-    group,
+    (<$$>),
     perhaps,
-    -- | `(<>)` is used to add choice to a parser.
-    --
-    -- __Example:__
-    --
-    -- >>> let number = int <> double
-    -- >>> parse [T.Token T.Int 2] number
-    -- (...,[],[SyntaxNode (Token T.Int) 2 []])
-    -- >>> parse [T.Token  T.Double 3] number
-    -- (...,[],[SyntaxNode (Token T.Double) 2 []])
-    (<>),
+    (<|>),
 
     -- * Primitive grammar rules
 
@@ -52,23 +53,23 @@ module Wasp.Backend.ConcreteParser.Internal
     -- * Error Recovery
 
     -- | This parser has built-in automatic error recovery. Currently, error
-    -- recovery occurs when an error is produced inside of a 'group' rule. Recovery
+    -- recovery occurs when an error is produced inside of a group rule. Recovery
     -- is based on the possible tokens that can follow the current rule.
     --
     -- At a basic level, we can describe the mechanism as follows:
     --
-    -- For a "GrammarRule" @'group' label first '-->' next@, if an error occurs
+    -- For a "GrammarRule" @label '<$$>' first '-->' next@, if an error occurs
     -- while parsing @first@, check if the next token is in the "follow set" of
     -- the group (the follow set of a rule is the set of tokens that can appear
     -- directly after the rule in valid source). If it is, register an error in
-    -- the output and do not consume the token. Otherwise, register an error and
-    -- consume the token.
+    -- the output and leave the token in the input. Otherwise, register an error and
+    -- discard the token.
     --
     -- As an example, consider the grammar rules:
     --
     -- @
-    -- stmts = eof <> (stmt --> stmts)
-    -- stmt = group Stmt $ "let" --> identifier --> "=" --> expr --> ";"
+    -- stmts = eof <|> (stmt --> stmts)
+    -- stmt = Stmt <$$> "let" --> identifier --> "=" --> expr --> ";"
     -- @
     --
     -- With the example source text:
@@ -81,7 +82,7 @@ module Wasp.Backend.ConcreteParser.Internal
     -- A parse error will occur at the beginning of line 2, when @let@ is found
     -- instead of the expected @;@. The follow set of this @Stmt@ group is
     -- @[eof, "let"]@. Since the next token is in this set, it does not get
-    -- consumed by the group. This leaves it available for the recursive call to
+    -- discarded by the group. This leaves it available for the recursive call to
     -- @stmt@, which can parse successfully because of this, resulting in the
     -- following parse tree and error:
     --
@@ -97,8 +98,8 @@ module Wasp.Backend.ConcreteParser.Internal
     -- i.e.:
     --
     -- @
-    -- list = group List $ '[' --> exprs --> ']'
-    -- tuple = group Tuple $ '(' --> exprs --> ')'
+    -- list = List <$$> '[' --> exprs --> ']'
+    -- tuple = Tuple <$$> '(' --> exprs --> ')'
     -- @
     --
     -- with source:
@@ -108,7 +109,7 @@ module Wasp.Backend.ConcreteParser.Internal
     -- @
     --
     -- To handle this scenario, we introduce an unwinding behavior to travel up
-    -- through 'group' rules until an appropriate point is found to recover. We
+    -- through group rules until an appropriate point is found to recover. We
     -- do this first by defining the extended follow set of a group rule @R@ as
     -- the union of the follow sets of @R@ and its ancestor group rules. In the
     -- above example, after the comma the follow set is @[expression]@, but the
@@ -136,11 +137,11 @@ module Wasp.Backend.ConcreteParser.Internal
 
     -- * Future improvements
 
-    -- | TODO: First improvement is to move error recovery from the 'group' rule
-    -- to the '-->' rule:
+    -- | TODO: First improvement is to move error recovery from the group rule
+    -- to the '-->' rules:
     --
     -- > Check if token we error on can be matched by any following grammar rule, if
-    -- > so, don't consume that token. Otherwise, do consume it.
+    -- > so, leave the token for the following rule. Otherwise, discard the token.
     --
     -- While this works well in many cases, it can do what feels like the
     -- wrong thing in some cases. For example, consider the following invalid
@@ -153,8 +154,9 @@ module Wasp.Backend.ConcreteParser.Internal
     -- @
     --
     -- To a human, this should parse as two declaration statements. But the
-    -- current system instead considers the first occurence of @TestPage@ as
-    -- a dictionary key, then complains about the following left curly brace.
+    -- current system identifies @page@ as a variable for the dictionary entry
+    -- @to:@. Then it treats @TestPage@ as the key for another entry, and
+    -- complains that it found @{@ instead of @:@.
     --
     -- This is due to the unwinding behavior on errors being very short-sighted:
     -- it only cares whether the next non-white token will succeed.
@@ -178,43 +180,48 @@ import qualified Wasp.Backend.Token as T
 import Wasp.Backend.TokenSet (TokenSet)
 import qualified Wasp.Backend.TokenSet as TokenSet
 
--- | A monoidal grammar type. Use combinators and primitives to build more
+-- | The type of a grammar rule. Use combinators and primitives to build more
 -- complex grammars. Run with `parse`, which supports reasonable automatic error
 -- recovery.
+--
+-- Every rule begins parsing by consuming trivia tokens at the beginning of the
+-- input and creating a syntax node for each trivia token.
 data GrammarRule
-  = -- | Always succeeds, consuming no input
+  = -- | Always succeeds, consuming only trivia tokens.
     Succeed
-  | -- | Consumes and produces a node when the next token is the specified kind.
-    -- Also consumes and produces any whitespace (even on failure).
+  | -- | Checks if the first non-trivia token is the expected token
+    -- kind. If it is, it consumes the token and output a syntax node. Otherwise,
+    -- it does not consume the token and throws a parse error exception.
+    Token TokenKind
+  | -- | Succeeds if the input is empty after consuming trivia tokens at the
+    -- beginning of the input.
     --
-    -- On failure, does not consume any input (except whitespace).
-    Primitive TokenKind
-  | -- | Succeeds at the end of a file
+    -- If it fails, it will report an error at the first non-trivia token while
+    -- also consuming all remaining input.
     EOF
-  | -- | Run the inner grammar rule and place its resulting node in a node
+  | -- | Run the inner grammar rule and wraps its resulting node in a node
     -- labelled by the given kind. If it fails, try recovering:
     --
     -- 1. If the failed token is in top `pstateFollowing`, then produce an error
     -- but do not consume the token.
     --
     -- 2. Otherwise, produce an error and consume the token.
+    --
+    -- This is the only rule that adds structure and depth into the CST.
     Group SyntaxKind GrammarRule
-  | -- | @"As" skind tkind@ is like @"Primitive" tkind@, except the resulting
+  | -- | @"As" skind tkind@ is like @"Token" tkind@, except the resulting
     -- syntax node is labeled by @skind@ instead of @tkind@.
     As SyntaxKind TokenKind
-  | -- | Run the first grammar rule, then the second grammar rule (aborts early
-    -- if the first grammar rule fails
+  | -- | Run the first grammar rule. If it succeeds, run the second rule.
     Chain GrammarRule GrammarRule
-  | -- | Tries the left grammar rule first. If it fails, backtrack and try the right
-    -- grammar rule
+  | -- | Run the grammar rule that can accept the next token in the input as its
+    -- first token. If both rules can be used, it chooses the left rule. Because
+    -- of this, avoid making alternatives between rules that can be ambiguous
+    -- in this way.
+    --
+    -- TODO: Try running each rule and use backtracking on failure
     Alternative GrammarRule GrammarRule
   deriving (Eq, Ord, Show)
-
-instance Semigroup GrammarRule where
-  x <> y = Alternative x y
-
-instance Monoid GrammarRule where
-  mempty = Succeed
 
 -- | Run a "GrammarRule" on an input of tokens. Returns a tuple @(errors, nodes)@.
 parse :: [Token] -> GrammarRule -> ([ParseError], [SyntaxNode])
@@ -224,11 +231,11 @@ parse tokens grammar =
           { pstateInput = tokens,
             pstateNodes = [],
             pstateErrors = [],
-            pstateNextOffset = 0,
-            pstateLastOffset = 0,
-            pstateFollowing = []
+            pstateNextTokenOffset = 0,
+            pstatePrevTokenOffset = 0,
+            pstateFollowingTokens = []
           }
-   in case runState (runExceptT (doParse grammar)) initialState of
+   in case runState (runExceptT (parseRule grammar)) initialState of
         (Left err, state) -> case err of
           Unwind _ -> error "Unwind at top-level GrammarRule (impossible, this is a bug in Wasp.Backend.ConcreteParser.Internal)"
           ParseError perr ->
@@ -239,77 +246,82 @@ parse tokens grammar =
         (_, state) -> (pstateErrors state, pstateNodes state)
 
 data ParseState = ParseState
-  { -- | Remaining tokens in input
+  { -- | Remaining tokens in input.
     pstateInput :: [Token],
-    -- | Nodes collected. Reset every time a group is entered/exited (sorta)
+    -- | "SyntaxNode"s to be used as children for a group node or as the top-level nodes.
+    --
+    -- When a group rule is entered, the field is replaced with an empty list. After
+    -- running the inner rule, this field is used as the group's children and the
+    -- original value is restored.
     pstateNodes :: [SyntaxNode],
-    -- | Errors collected, to be reported
+    -- | Errors collected that will be reported.
     pstateErrors :: [ParseError],
-    -- | 0-based offset of the start of the next token (@head . `pstateInput`@)
-    pstateNextOffset :: !Int,
-    -- | 0-based offset of the start of the last consumed token
-    pstateLastOffset :: !Int,
+    -- | 0-based offset from the beginnning of the source file, in characters,
+    -- of the start of the next token (@head . `pstateInput`@).
+    pstateNextTokenOffset :: !Int,
+    -- | 0-based offset from the beginnning of the source file, in characters,
+    -- of the start of the last consumed token
+    pstatePrevTokenOffset :: !Int,
     -- | Stack of possible first tokens, collected when we enter a group as the
     -- first grammar rule in a "Chain".
     --
     -- A member @None@ represents EOF.
-    pstateFollowing :: [TokenSet]
+    pstateFollowingTokens :: [TokenSet]
   }
   deriving (Eq, Show, Ord)
 
+-- | Two kinds of exceptions are used by the parser:
+--
+-- (1) 'Unwind': Thrown and caught to implement the error recovery unwinding
+-- behavior as described in the module documentation.
+--
+-- (2) 'ParseError': Thrown when a parse error is encountered. This can be caught
+-- and stored in 'pstateErrors' during error recovery.
 data ParseException = Unwind (Maybe TokenKind) | ParseError ParseError
 
--- | Parsing monad
 type ParserM a = ExceptT ParseException (State ParseState) a
 
 -- | Run a "GrammarRule" in the "ParserM" monad.
-doParse :: GrammarRule -> ParserM ()
-doParse Succeed = parseSucceed
-doParse (Primitive kind) = parsePrimitive kind
-doParse EOF = parseEOF
-doParse (As label kind) = parseAs label kind
-doParse (Group label inner) = parseGroup label inner
-doParse (Chain first second) = parseChain first second
-doParse (Alternative left right) = parseAlternative left right
+parseRule :: GrammarRule -> ParserM ()
+parseRule Succeed = parseSucceed
+parseRule (Token expectedKind) = parseToken expectedKind
+parseRule EOF = parseEOF
+parseRule (As label kind) = parseAs label kind
+parseRule (Group label inner) = parseGroup label inner
+parseRule (Chain first second) = parseChain first second
+parseRule (Alternative left right) = parseAlternative left right
 
--- | Parse "Succeed" rule by consuming whitespace and then succeeding
 parseSucceed :: ParserM ()
-parseSucceed = consumeWhitespace
+parseSucceed = consumeTrivia
 
--- | Parse "Primitive" rule. Checks whether the first non-trivia token in the
--- remaining input is the correct kind. Outputs a syntax node if it is, otherwise
--- reports an error, without consuming the next non-trivia token.
-parsePrimitive :: TokenKind -> ParserM ()
-parsePrimitive kind =
-  (consumeWhitespace >> peek) >>= \case
-    Just nextToken | tokenKind nextToken == kind -> do
+parseToken :: TokenKind -> ParserM ()
+parseToken expectedKind =
+  (consumeTrivia >> peek) >>= \case
+    Just nextToken | tokenKind nextToken == expectedKind -> do
       advance
       let newNode =
             SyntaxNode
-              { snodeKind = S.Token kind,
+              { snodeKind = S.Token expectedKind,
                 snodeWidth = tokenWidth nextToken,
                 snodeChildren = []
               }
       pushNode newNode
-    nextToken -> makeError nextToken (TokenSet.fromKind kind)
+    nextToken -> throwParseError nextToken (TokenSet.fromKind expectedKind)
 
--- | Parse "EOF" rule. If there are no non-trivia tokens in the remaining input,
--- this parser succeeds without making any nodes. Otherwise, it consumes all
--- remaining input and reports an error at the first non-trivia token.
 parseEOF :: ParserM ()
 parseEOF =
-  (consumeWhitespace >> peek) >>= \case
+  (consumeTrivia >> peek) >>= \case
     Just nextToken -> do
-      startOffset <- gets pstateNextOffset
+      nextTokenOffset <- gets pstateNextTokenOffset
       advance
-      let firstTokenKind = tokenKind nextToken
+      let nextTokenKind = tokenKind nextToken
       -- TODO: consider reporting all kinds here? not sure
       _tokenKinds <- collectUntilEOF
       throwError $
         ParseError $
           Unexpected
-            (Span startOffset (startOffset + tokenWidth nextToken))
-            firstTokenKind
+            (Span nextTokenOffset (nextTokenOffset + tokenWidth nextToken))
+            nextTokenKind
             TokenSet.fromEOF
       where
         collectUntilEOF :: ParserM [TokenKind]
@@ -320,11 +332,9 @@ parseEOF =
     Nothing -> do
       return ()
 
--- | Parse "As" rule. Identical to "Primitive", but uses the label as the kind
--- for the syntax node when it succeeds.
 parseAs :: SyntaxKind -> TokenKind -> ParserM ()
 parseAs label kind =
-  (consumeWhitespace >> peek) >>= \case
+  (consumeTrivia >> peek) >>= \case
     Just nextToken | tokenKind nextToken == kind -> do
       advance
       let newNode =
@@ -334,116 +344,120 @@ parseAs label kind =
                 snodeChildren = []
               }
       pushNode newNode
-    nextToken -> makeError nextToken (TokenSet.fromKind kind)
+    nextToken -> throwParseError nextToken (TokenSet.fromKind kind)
 
--- | Parse "Group" rule. Runs the inner parser. When it succeeds, it puts the
--- outputted nodes from that parser under a parent node with the label. When it
--- fails, it recovers from the error by catching the error or unwinding.
 parseGroup :: SyntaxKind -> GrammarRule -> ParserM ()
 parseGroup label inner = do
-  let pushGroupNode children =
-        let width = sum $ map snodeWidth children
-         in pushNode $
-              SyntaxNode
-                { snodeKind = label,
-                  snodeWidth = width,
-                  snodeChildren = children
-                }
-
-  consumeWhitespace
-  siblingNodes <- gets pstateNodes
+  consumeTrivia
+  previousNodes <- gets pstateNodes
   modify (\s -> s {pstateNodes = []})
-  result <- tryError $ doParse inner
+  maybeInnerParserError <- tryError $ parseRule inner
   childNodes <- gets pstateNodes
-  modify (\s -> s {pstateNodes = siblingNodes})
-  case result of
-    Nothing -> do
+  modify (\s -> s {pstateNodes = previousNodes})
+  case maybeInnerParserError of
+    Nothing -> pushGroupNode childNodes
+    Just (ParseError parseError) -> handleInnerParseError childNodes parseError
+    Just (Unwind nextTokenKind) -> handleInnerUnwind childNodes nextTokenKind
+  where
+    handleInnerParseError :: [SyntaxNode] -> ParseError -> ParserM ()
+    handleInnerParseError childNodes parseError = do
+      -- ASSUMPTION: The token errored on has not been consumed
+      --
+      -- (1) Check whether the kind we errored on is in the first `pstateFollowingTokens`
+      -- list.
+      --
+      -- (2) If if it is not in the following stack, consume the error token.
+      --
+      -- (3) Report the error and create the group node
+      --
+      -- (4) If the kind is not in first "TokenSet" in the following stack, start
+      -- unwinding.
+
+      -- (1)
+      followingTokenStack <- gets pstateFollowingTokens
+      let expectedKind = case parseError of
+            UnexpectedEOF _ _ -> Nothing
+            Unexpected _ k _ -> Just k
+      let expectedKindIsFollowingKind = any (expectedKind `TokenSet.member`) followingTokenStack
+      let expectedKindIsImmediatelyFollowing = case followingTokenStack of
+            [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
+            (following : _) -> expectedKind `TokenSet.member` following
+
+      -- (2)
+      nodeForErr <-
+        if expectedKindIsFollowingKind
+          then do
+            return $ errorNode parseError True
+          else do
+            advance
+            return $ errorNode parseError False
+
+      -- (3)
+      pushError parseError
+      pushGroupNode $ childNodes ++ [nodeForErr]
+
+      -- (4)
+      when (expectedKindIsFollowingKind && not expectedKindIsImmediatelyFollowing) $ do
+        throwError $ Unwind expectedKind
+
+    handleInnerUnwind :: [SyntaxNode] -> Maybe TokenKind -> ParserM ()
+    handleInnerUnwind childNodes nextTokenKind = do
+      -- When unwinding, check if this is the level where we have the
+      -- following token. If it is, then we can get rid of the unwind.
+      --
+      -- Otherwise, we re-throw the unwind
+      followingTokenStack <- gets pstateFollowingTokens
+      let nextTokenKindIsImmediatelyFollowing = case followingTokenStack of
+            [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
+            (following : _) -> nextTokenKind `TokenSet.member` following
+
       pushGroupNode childNodes
-    Just err -> do
-      case err of
-        Unwind kind -> do
-          -- When unwinding, check if this is the level where we have the
-          -- following token. If it is, then we can get rid of the unwind.
-          --
-          -- Otherwise, we re-throw the unwind
 
-          followingStack <- gets pstateFollowing
-          let errKindIsImmediatelyFollowing = case followingStack of
-                [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
-                (following : _) -> kind `TokenSet.member` following
+      if nextTokenKindIsImmediatelyFollowing
+        then return ()
+        else throwError (Unwind nextTokenKind)
 
-          pushGroupNode childNodes
+    pushGroupNode :: [SyntaxNode] -> ParserM ()
+    pushGroupNode children =
+      let width = sum $ map snodeWidth children
+       in pushNode $
+            SyntaxNode
+              { snodeKind = label,
+                snodeWidth = width,
+                snodeChildren = children
+              }
 
-          if errKindIsImmediatelyFollowing
-            then return ()
-            else throwError (Unwind kind) -- Re-throw unwind
-        ParseError perr -> do
-          -- ASSUMPTION: The token errored on has not been consumed
-          --
-          -- First, check whether the kind we errored on is in the first `pstateFollowing`
-          -- list. If it is not, we consume the token.
-          --
-          -- Then, report the error to the state. Now, we have recovered!
-          followingStack <- gets pstateFollowing
-          let errKind = case perr of
-                UnexpectedEOF _ _ -> Nothing
-                Unexpected _ k _ -> Just k
-          let errKindIsFollowingKind = any (errKind `TokenSet.member`) followingStack
-          let errKindIsImmediatelyFollowing = case followingStack of
-                [] -> False -- technically unreachable, but this is sensible (TODO: consider using error here?)
-                (following : _) -> errKind `TokenSet.member` following
-
-          -- Make the error node and possibly consume the token
-          nodeForErr <-
-            if errKindIsFollowingKind
-              then do
-                return $ errorNode perr True
-              else do
-                advance
-                return $ errorNode perr False
-
-          -- Report the error and add the error node
-          pushError perr
-          pushGroupNode $ childNodes ++ [nodeForErr]
-
-          when (errKindIsFollowingKind && not errKindIsImmediatelyFollowing) $ do
-            throwError $ Unwind errKind
-
--- | Parse "Chain" rule. Runs the first and then the second parser.
 parseChain :: GrammarRule -> GrammarRule -> ParserM ()
 parseChain first second = do
-  consumeWhitespace
+  consumeTrivia
   -- First, figure out following set for @second@
-  let following = findFirstTokens second
-  pushFollowing following
-  mbError <- tryError (doParse first)
-  -- Make sure to remove following set now that we're leaving this "Then"
-  popFollowing
+  let following = getValidFirstTokens second
+  pushFollowingTokens following
+  maybeError <- tryError (parseRule first)
+  -- Make sure to remove following set now that we're leaving this "Chain"
+  popFollowingTokens
   -- Run second (or throw error if first failed)
-  case mbError of
-    Nothing -> doParse second
+  case maybeError of
+    Nothing -> parseRule second
     Just err -> throwError err
 
--- | Parse "Alternative" rule. If the left parser can consume the next token in
--- the input, run that parser. If the right parser can consume the next token,
--- run that parser. Otherwise, report an error.
 parseAlternative :: GrammarRule -> GrammarRule -> ParserM ()
 parseAlternative left right = do
-  consumeWhitespace
-  let leftFirstTokens = findFirstTokens left
-  let rightFirstTokens = findFirstTokens right
+  consumeTrivia
+  let leftFirstTokens = getValidFirstTokens left
+  let rightFirstTokens = getValidFirstTokens right
   nextToken <- peek
   let nextKind = tokenKind <$> nextToken
   if nextKind `willSucceedIn` left
-    then doParse left
+    then parseRule left
     else
       if nextKind `willSucceedIn` right
-        then doParse right
-        else makeError nextToken (leftFirstTokens `TokenSet.union` rightFirstTokens)
+        then parseRule right
+        else throwParseError nextToken (leftFirstTokens `TokenSet.union` rightFirstTokens)
 
--- | Advance past whitespace, making nodes for the whitespace as it goes
-consumeWhitespace :: ParserM ()
-consumeWhitespace =
+-- | Advance past trivia tokens, making syntax nodes for each token
+consumeTrivia :: ParserM ()
+consumeTrivia =
   peek >>= \case
     Nothing -> pure ()
     Just nextToken
@@ -457,10 +471,10 @@ consumeWhitespace =
                   snodeChildren = []
                 }
         pushNode newNode
-        consumeWhitespace
+        consumeTrivia
       | otherwise -> pure ()
 
--- | Peek the immediate next token in input (including whitespace)
+-- | Peek the immediate next token in input (including trivia)
 peek :: ParserM (Maybe Token)
 peek =
   gets pstateInput >>= \case
@@ -471,28 +485,28 @@ peek =
 advance :: ParserM ()
 advance =
   gets pstateInput >>= \case
-    [] -> modify (\s -> s {pstateLastOffset = pstateNextOffset s})
+    [] -> modify (\s -> s {pstatePrevTokenOffset = pstateNextTokenOffset s})
     (consumed : remaining) -> do
-      newLastOffset <- gets pstateNextOffset
+      newLastOffset <- gets pstateNextTokenOffset
       let newNextOffset = newLastOffset + tokenWidth consumed
-      modify (\s -> s {pstateInput = remaining, pstateLastOffset = newLastOffset, pstateNextOffset = newNextOffset})
+      modify (\s -> s {pstateInput = remaining, pstatePrevTokenOffset = newLastOffset, pstateNextTokenOffset = newNextOffset})
 
--- | @makeError actual expected@ throws an error.
+-- | @throwParseError actual expected@ throws an error.
 --
 -- Assumes @actual@ has not been `advance`d past yet (and does not advance past
 -- it).
-makeError :: Maybe Token -> TokenSet -> ParserM ()
-makeError Nothing eset = do
-  offset <- gets pstateNextOffset
+throwParseError :: Maybe Token -> TokenSet -> ParserM ()
+throwParseError Nothing eset = do
+  offset <- gets pstateNextTokenOffset
   throwError $ ParseError $ UnexpectedEOF offset eset
-makeError (Just actual) eset = do
-  offset <- gets pstateNextOffset
-  throwError $ ParseError $ Unexpected (Span offset (offset + tokenWidth actual)) (tokenKind actual) eset
+throwParseError (Just actual) expectedTokens = do
+  offset <- gets pstateNextTokenOffset
+  throwError $ ParseError $ Unexpected (Span offset (offset + tokenWidth actual)) (tokenKind actual) expectedTokens
 
 -- | Make an error node. Error node should only be produced when catching and
 -- pushing errors to the state.
 errorNode ::
-  -- | error to make an error node from
+  -- | Parse error that will be used to calculate the width of the error node.
   ParseError ->
   -- | If "True", give the error node a width of 0. Otherwise, use the
   -- width of the error item.
@@ -519,29 +533,29 @@ pushNode node = modify (\s -> s {pstateNodes = pstateNodes s ++ [node]})
 pushError :: ParseError -> ParserM ()
 pushError err = modify (\s -> s {pstateErrors = pstateErrors s ++ [err]})
 
--- | Add an "ExpectedSet" to the following stack.
-pushFollowing :: TokenSet -> ParserM ()
-pushFollowing eset = modify (\s -> s {pstateFollowing = eset : pstateFollowing s})
+-- | Add an "TokenSet" to the following stack.
+pushFollowingTokens :: TokenSet -> ParserM ()
+pushFollowingTokens eset = modify (\s -> s {pstateFollowingTokens = eset : pstateFollowingTokens s})
 
--- | Remove the last added "ExpectedSet" from the following stack.
-popFollowing :: ParserM ()
-popFollowing = modify (\s -> s {pstateFollowing = drop 1 $ pstateFollowing s})
+-- | Remove the last added "TokenSet" from the following stack.
+popFollowingTokens :: ParserM ()
+popFollowingTokens = modify (\s -> s {pstateFollowingTokens = drop 1 $ pstateFollowingTokens s})
 
 -- | Check if a "TokenKind" (or end of file) is one of the first possible tokens
 -- in a "GrammarRule".
 willSucceedIn :: Maybe TokenKind -> GrammarRule -> Bool
 _ `willSucceedIn` Succeed = True
-k `willSucceedIn` grammarRule = k `TokenSet.member` findFirstTokens grammarRule
+k `willSucceedIn` grammarRule = k `TokenSet.member` getValidFirstTokens grammarRule
 
--- | Find the "ExpectedSet" of "TokenKind"s that the "GrammarRule" would succeed on
+-- | Find the "TokenSet" of "TokenKind"s that the "GrammarRule" would succeed on
 -- as its first input.
-findFirstTokens :: GrammarRule -> TokenSet
-findFirstTokens grammarRule = fst $ go grammarRule TokenSet.empty
+getValidFirstTokens :: GrammarRule -> TokenSet
+getValidFirstTokens grammarRule = fst $ go grammarRule TokenSet.empty
   where
     -- Returns (firstTokens, can succeed with no input?)
     go :: GrammarRule -> TokenSet -> (TokenSet, Bool)
     go Succeed eset = (eset, True)
-    go (Primitive kind) eset = (kind `TokenSet.insertKind` eset, False)
+    go (Token kind) eset = (kind `TokenSet.insertKind` eset, False)
     go EOF eset = (TokenSet.insertEof eset, False)
     go (Group _ p) eset = go p eset
     go (As _ kind) eset = (kind `TokenSet.insertKind` eset, False)
@@ -557,7 +571,7 @@ findFirstTokens grammarRule = fst $ go grammarRule TokenSet.empty
 
 -- Combinators
 
-infixr 9 -->
+infixr 8 -->
 
 -- | Run grammar rules one after another.
 --
@@ -576,60 +590,77 @@ infix 9 `as`
 -- __Example:__
 --
 -- >>> parse [T.Token T.Identifier 3] $ T.Identifier `as` S.DeclName
--- (...,[],[SyntaxNode {snodeKind = DeclName, snodeWidth = 3, snodeChildren = []}])
+-- ([],[SyntaxNode {snodeKind = DeclName, snodeWidth = 3, snodeChildren = []}])
 as :: TokenKind -> SyntaxKind -> GrammarRule
 tkind `as` skind = As skind tkind
 
--- | Runs a grammar rule and places the nodes that grammar rule adds to the
+infixr 7 <$$>
+
+-- | @kind '<$$>' rule@ (pronounced group) runs a grammar rule and places the
+-- nodes that grammar rule adds to the
 -- output in a parent node.
 --
 -- __Example:__
 --
--- >>> parse [T.Token T.Identifier 3, T.Token T.Int 2] $ group S.Decl (identifier --> int)
--- (...,[],[SyntaxNode {snodeKind = Decl, snodeWidth = 5, snodeChildren = [SyntaxNode {snodeKind = Token Identifier, snodeWidth = 3, snodeChildren = []},SyntaxNode {snodeKind = Token Int, snodeWidth = 2, snodeChildren = []}]}])
-group :: SyntaxKind -> GrammarRule -> GrammarRule
-group kind grammarRule = Group kind grammarRule
+-- >>> parse [T.Token T.Identifier 3, T.Token T.Int 2] $ S.Decl <$$> identifier --> int
+-- ([],[SyntaxNode {snodeKind = Decl, snodeWidth = 5, snodeChildren = [SyntaxNode {snodeKind = Token Identifier, snodeWidth = 3, snodeChildren = []},SyntaxNode {snodeKind = Token Int, snodeWidth = 2, snodeChildren = []}]}])
+(<$$>) :: SyntaxKind -> GrammarRule -> GrammarRule
+kind <$$> grammarRule = Group kind grammarRule
 
 -- | Run a grammar rule or consume no input.
 --
 -- __Example:__
 --
 -- >>> parse [T.Token T.Int 1, T.Token T.Int 1] $ int --> perhaps comma --> int
--- (...,[],[SyntaxNode {snodeKind = Token Int, snodeWidth = 1, snodeChildren = []},SyntaxNode {snodeKind = Token Int, snodeWidth = 1, snodeChildren = []}])
+-- ([],[SyntaxNode {snodeKind = Token Int, snodeWidth = 1, snodeChildren = []},SyntaxNode {snodeKind = Token Int, snodeWidth = 1, snodeChildren = []}])
 perhaps :: GrammarRule -> GrammarRule
-perhaps grammarRule = grammarRule <> Succeed
+perhaps grammarRule = grammarRule <|> Succeed
 
--- Token grammar rules
+infixr 6 <|>
+
+-- | Run a grammar, choosing either the left or the right rule.
+--
+-- __Example:__
+--
+-- >>> let number = int <|> double
+-- >>> parse [T.Token T.Int 2] number
+-- ([],[SyntaxNode (Token T.Int) 2 []])
+-- >>> parse [T.Token  T.Double 3] number
+-- ([],[SyntaxNode (Token T.Double) 2 []])
+(<|>) :: GrammarRule -> GrammarRule -> GrammarRule
+left <|> right = Alternative left right
+
+-- Primitive grammar rules
 
 lparen :: GrammarRule
-lparen = Primitive T.LParen
+lparen = Token T.LParen
 
 rparen :: GrammarRule
-rparen = Primitive T.RParen
+rparen = Token T.RParen
 
 lsquare :: GrammarRule
-lsquare = Primitive T.LSquare
+lsquare = Token T.LSquare
 
 rsquare :: GrammarRule
-rsquare = Primitive T.RSquare
+rsquare = Token T.RSquare
 
 lcurly :: GrammarRule
-lcurly = Primitive T.LCurly
+lcurly = Token T.LCurly
 
 rcurly :: GrammarRule
-rcurly = Primitive T.RCurly
+rcurly = Token T.RCurly
 
 comma :: GrammarRule
-comma = Primitive T.Comma
+comma = Token T.Comma
 
 colon :: GrammarRule
-colon = Primitive T.Colon
+colon = Token T.Colon
 
 kwImport :: GrammarRule
-kwImport = Primitive T.KwImport
+kwImport = Token T.KwImport
 
 kwFrom :: GrammarRule
-kwFrom = Primitive T.KwFrom
+kwFrom = Token T.KwFrom
 
 -- | Produces a "S.BoolTrue" syntax node
 kwTrue :: GrammarRule
@@ -652,13 +683,13 @@ double :: GrammarRule
 double = T.Double `as` S.Double
 
 lquote :: GrammarRule
-lquote = Primitive T.LQuote
+lquote = Token T.LQuote
 
 rquote :: GrammarRule
-rquote = Primitive T.RQuote
+rquote = Token T.RQuote
 
 quoted :: GrammarRule
-quoted = Primitive T.Quoted
+quoted = Token T.Quoted
 
 -- | Succeeds when the parser is at the end of the file.
 eof :: GrammarRule
