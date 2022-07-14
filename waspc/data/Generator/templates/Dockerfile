@@ -1,4 +1,5 @@
 {{={= =}=}}
+# TODO: Pull major version from Haskell.
 FROM node:16-alpine AS node
 
 

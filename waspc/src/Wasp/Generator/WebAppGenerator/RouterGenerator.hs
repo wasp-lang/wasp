@@ -83,11 +83,12 @@ createRouterTemplateData spec =
     { _routes = routes,
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled (AS.App.auth (snd $ getApp spec))
+      _isExternalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =

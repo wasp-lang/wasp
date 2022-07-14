@@ -227,30 +227,24 @@ operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
-depsRequiredByPassport spec = depsRequiredByPassport' maybeAuth
+depsRequiredByPassport spec =
+  AS.Dependency.fromList $
+    concat
+      [ [("passport", "0.6.0") | externalAuthEnabled],
+        [("passport-google-oauth20", "2.0.0") | googleAuthEnabled]
+      ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-    depsRequiredByPassport' :: Maybe AS.App.Auth.Auth -> [App.Dependency.Dependency]
-    depsRequiredByPassport' Nothing = []
-    depsRequiredByPassport' (Just auth) =
-      AS.Dependency.fromList $
-        concat
-          [ [("passport", "0.6.0") | AS.App.Auth.isExternalAuthEnabled auth],
-            [("passport-google-oauth20", "2.0.0") | AS.App.Auth.isGoogleAuthEnabled auth]
-          ]
+    externalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
+    googleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
 
 genPatches :: AppSpec -> Generator [FileDraft]
 genPatches spec = patchesRequiredByPassport spec
 
 patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
-patchesRequiredByPassport spec = patchesRequiredByPassport' maybeAuth
+patchesRequiredByPassport spec =
+  return $
+    [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|]) | externalAuthEnabled]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-    patchesRequiredByPassport' :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
-    patchesRequiredByPassport' Nothing = return []
-    patchesRequiredByPassport' (Just auth) =
-      if AS.App.Auth.isExternalAuthEnabled auth
-        then return [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])]
-        else return []
+    externalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
