@@ -44,7 +44,7 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
 function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   async function onMutate(item) {
     const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-      query: getQuery(item),
+      queryKey: getQuery(item),
       ...rest,
     }))
 
