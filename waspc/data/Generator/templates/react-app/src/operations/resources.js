@@ -1,5 +1,5 @@
 import { queryClientInitialized } from '../queryClient'
-import { makeOptimisticUpdatesMap } from './optimisticUpdatesMap'
+import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from 'react-query'
 
 
@@ -8,7 +8,7 @@ import { hashQueryKey } from 'react-query'
 // that resource.
 const resourceToQueryCacheKeys = new Map()
 
-const updatesHandlerMap = makeOptimisticUpdatesMap(hashQueryKey)
+const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
@@ -27,19 +27,18 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
 }
 
 export function registerActionInProgress(optimisticUpdateTuples) {
-  console.log("Registering action with tuples", optimisticUpdateTuples)
   optimisticUpdateTuples.forEach(
-    ({ queryKey, updateQueryFn}) => updatesHandlerMap.add(queryKey, updateQueryFn)
+    ({ queryKey, updateQueryFn}) => updateHandlers.add(queryKey, updateQueryFn)
   )
 }
 
-export function getPendingUpdatesForQuery(queryKey) {
-  return updatesHandlerMap.getUpdateHandlers(queryKey)
+export async function registerActionDone(resources, optimisticUpdateTuples) {
+  optimisticUpdateTuples.forEach(({ queryKey }) => updateHandlers.remove(queryKey))
+  await invalidateQueriesUsing(resources)
 }
 
-export async function registerActionDone(resources, optimisticUpdateTuples) {
-  optimisticUpdateTuples.forEach(({ queryKey }) => updatesHandlerMap.remove(queryKey))
-  await invalidateQueriesUsing(resources)
+export function getPendingUpdatesForQuery(queryKey) {
+  return updateHandlers.getUpdateHandlers(queryKey)
 }
 
 export async function removeQueries() {

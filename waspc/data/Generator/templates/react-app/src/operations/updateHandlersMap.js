@@ -1,24 +1,24 @@
-export function makeOptimisticUpdatesMap(calculateHash) {
+export function makeUpdateHandlersMap(calculateHash) {
   const updateHandlers = new Map()
 
-  function _getUpdateHandlers(queryKeyHash) {
+  function getHandlerTuples(queryKeyHash) {
     return updateHandlers.get(queryKeyHash) || [];
   }
 
   function add(queryKey, updateQueryFn) {
     const queryKeyHash = calculateHash(queryKey)
-    const handlers = _getUpdateHandlers(queryKeyHash);
+    const handlers = getHandlerTuples(queryKeyHash);
     updateHandlers.set(queryKeyHash, [...handlers, { queryKey, updateQueryFn }])
   }
 
   function getUpdateHandlers(queryKey) {
     const queryKeyHash = calculateHash(queryKey)
-    return _getUpdateHandlers(queryKeyHash).map(({ updateQueryFn }) => updateQueryFn)
+    return getHandlerTuples(queryKeyHash).map(({ updateQueryFn }) => updateQueryFn)
   }
 
   function remove(queryKeyToRemove) {
     const queryKeyHash = calculateHash(queryKeyToRemove)
-    const filteredHandlers = _getUpdateHandlers(queryKeyHash).filter(
+    const filteredHandlers = getHandlerTuples(queryKeyHash).filter(
       ({ queryKey }) => queryKey !== queryKeyToRemove
     )
 
