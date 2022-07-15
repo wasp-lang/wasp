@@ -65,6 +65,8 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
       queryClient.setQueryData(queryKey, updateFn)
       previousData.set(queryKey, previousDataForQuery)
     })
+
+    return previousData
   }
 
   function onError(err, item, context) {
