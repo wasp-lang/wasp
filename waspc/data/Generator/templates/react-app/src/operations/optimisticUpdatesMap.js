@@ -1,8 +1,6 @@
-const updateHandlers = new Map()
-// TODO: remove
-window.updateHandlers = updateHandlers
-
 export function makeOptimisticUpdatesMap(calculateHash) {
+  const updateHandlers = new Map()
+
   function _getUpdateHandlers(queryKeyHash) {
     return updateHandlers.get(queryKeyHash) || [];
   }
