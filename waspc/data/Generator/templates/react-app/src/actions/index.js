@@ -39,7 +39,7 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
 function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   async function onMutate(item) {
     const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-      query: getQuery(item),
+      queryKey: getQuery(item),
       ...rest,
     }))
 
@@ -54,10 +54,11 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    queriesToUpdate.forEach(({ query, updateQuery }) => {
-      const previousDataForQuery = queryClient.getQueryData(query)
-      queryClient.setQueryData(query, (old) => updateQuery(item, old))
-      previousData.set(query, previousDataForQuery)
+    queriesToUpdate.forEach(({ queryKey, updateQuery }) => {
+      const previousDataForQuery = queryClient.getQueryData(queryKey)
+      const updateFn = (old) => updateQuery(item, old)
+      queryClient.setQueryData(queryKey, updateFn)
+      previousData.set(queryKey, previousDataForQuery)
     })
 
     return previousData
@@ -65,10 +66,9 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
 
   function onError(err, item, context) {
     context.previousData.forEach(async (data, queryKey) => {
-        await queryClient.cancelQueries(queryKey)
-        queryClient.setQueryData(queryKey, data)
-      }
-    )
+      await queryClient.cancelQueries(queryKey)
+      queryClient.setQueryData(queryKey, data)
+    })
   }
 
   return {
