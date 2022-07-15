@@ -42,8 +42,6 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
 }
 
 function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
-  const updateList = []
-
   async function onMutate(item) {
     const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
       query: getQuery(item),
@@ -64,9 +62,7 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
     queriesToUpdate.forEach(({ query, updateQuery }) => {
       const previousDataForQuery = queryClient.getQueryData(query)
       const updateFn = (old) => updateQuery(item, old)
-
       queryClient.setQueryData(query, updateFn)
-      updateList.push({ queryKey: query, updateQueryFn: updateFn })
       previousData.set(query, previousDataForQuery)
     })
   }
@@ -81,7 +77,6 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   return {
     onMutate,
     onError,
-    updateList
   }
 }
 
