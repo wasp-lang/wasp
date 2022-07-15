@@ -1,6 +1,6 @@
-const counter = new Map()
-
 export function makeCounter(calculateHash) {
+  const counter = new Map()
+
   function increment(value) {
     const key = calculateHash(value)
     const currentCount = counter.get(key) ?? 0
