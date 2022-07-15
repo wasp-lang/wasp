@@ -59,11 +59,11 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    queriesToUpdate.forEach(({ query, updateQuery }) => {
-      const previousDataForQuery = queryClient.getQueryData(query)
+    queriesToUpdate.forEach(({ queryKey, updateQuery }) => {
+      const previousDataForQuery = queryClient.getQueryData(queryKey)
       const updateFn = (old) => updateQuery(item, old)
-      queryClient.setQueryData(query, updateFn)
-      previousData.set(query, previousDataForQuery)
+      queryClient.setQueryData(queryKey, updateFn)
+      previousData.set(queryKey, previousDataForQuery)
     })
   }
 
