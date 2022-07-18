@@ -9,6 +9,7 @@ const router = (
   <Router>
     <div>
       <Route exact path="/" component={ MainPage }/>
+
     </div>
   </Router>
 )

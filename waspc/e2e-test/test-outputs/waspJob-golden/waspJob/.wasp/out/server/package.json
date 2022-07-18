@@ -9,6 +9,7 @@
     "helmet": "^4.6.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
+    "patch-package": "^6.4.7",
     "pg-boss": "^7.2.1",
     "secure-password": "^4.0.0"
   },
@@ -31,6 +32,7 @@
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "debug": "DEBUG=server:* npm start",
+    "postinstall": "patch-package",
     "standard": "standard",
     "start": "nodemon -r dotenv/config ./src/server.js",
     "start-production": "NODE_ENV=production node ./src/server.js"
