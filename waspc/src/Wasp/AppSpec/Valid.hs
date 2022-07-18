@@ -72,7 +72,7 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed :: AppSpec ->
 validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
-    if Auth.isEmailAndPasswordAuthEnabled auth
+    if not $ Auth.isEmailAndPasswordAuthEnabled auth
       then []
       else
         let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)

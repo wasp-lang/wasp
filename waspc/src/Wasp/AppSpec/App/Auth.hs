@@ -5,6 +5,7 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
     GoogleConfig (..),
+    emailAndPasswordConfig,
     isEmailAndPasswordAuthEnabled,
     isGoogleAuthEnabled,
     isExternalAuthEnabled,
@@ -43,6 +44,9 @@ data GoogleConfig = GoogleConfig
     onSignInFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
+
+emailAndPasswordConfig :: EmailAndPasswordConfig
+emailAndPasswordConfig = EmailAndPasswordConfig Nothing
 
 onAuthSucceededRedirectToOrDefault :: Auth -> String
 onAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (onAuthSucceededRedirectTo auth)

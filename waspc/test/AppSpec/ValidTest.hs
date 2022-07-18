@@ -53,7 +53,11 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                AS.Auth.methods = [AS.Auth.EmailAndPassword],
+                AS.Auth.methods =
+                  AS.Auth.AuthMethods
+                    { AS.Auth.emailAndPassword = Just AS.Auth.emailAndPasswordConfig,
+                      AS.Auth.google = Nothing
+                    },
                 AS.Auth.onAuthFailedRedirectTo = "/",
                 AS.Auth.onAuthSucceededRedirectTo = Nothing
               }
