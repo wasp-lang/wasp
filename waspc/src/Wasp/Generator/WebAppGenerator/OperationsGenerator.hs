@@ -29,8 +29,8 @@ genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   genQueries spec
     <++> genActions spec
-    <++> return [C.mkTmplFd $ C.asTmplFile [relfile|src/operations/index.js|]]
     <++> Resources.genResources spec
+    <++> return [C.mkSrcTmplFd [relfile|operations/index.js|]]
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
@@ -43,7 +43,10 @@ genQueries spec =
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   mapM (genAction spec) (AS.getActions spec)
-    <++> return [C.mkSrcTmplFd [relfile|actions/core.js|]]
+    <++> return
+      [ C.mkSrcTmplFd [relfile|actions/index.js|],
+        C.mkSrcTmplFd [relfile|actions/core.js|]
+      ]
 
 genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

@@ -11,6 +11,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 
 import { useQuery } from '@wasp/queries'
+import { useAction } from '@wasp/actions'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
@@ -98,12 +99,25 @@ const Tasks = (props) => {
 }
 
 const Task = (props) => {
+  const action = useAction(updateTaskIsDone, {
+    optimisticUpdates: [{
+      getQuery: () => [getTasks],
+      updateQuery: (updatedTask, oldTasks) => {
+        if (oldTasks === undefined) {
+          // cache is empty
+          return [updatedTask];
+        } else {
+          return oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
+        }
+      }
+    }]
+  });
   const handleTaskIsDoneChange = async (event) => {
     const id = parseInt(event.target.id)
     const isDone = event.target.checked
 
     try {
-      await updateTaskIsDone({ id, isDone })
+      await action.mutateAsync({ id, isDone })
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
