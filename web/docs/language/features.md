@@ -689,8 +689,8 @@ Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `emailAndPassword`: Provides support for authentication with email address and a password.
-* `google`: Provides support for authentication with email address and a password.
+* `emailAndPassword`: Provides support for authentication with email address and a password. See [here](#email-and-password) for more.
+* `google`: Provides support for authentication with email address and a password. See [here](#google) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -948,7 +948,7 @@ import AuthError from '@wasp/core/AuthError.js'
   - By default, we expect you to set two environment variables in order to use Google authentication:
     - `GOOGLE_CLIENT_ID`
     - `GOOGLE_CLIENT_SECRET`
-  - These can be obtained in your Google Developer's Console. See here for more.
+  - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
 
 - Sign in:
   - By default, when a user signs in with Google we will attempt to look up the user by email.
