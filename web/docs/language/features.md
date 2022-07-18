@@ -673,7 +673,10 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: {
+      emailAndPassword: {},
+      google: {}
+    },
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
@@ -684,9 +687,10 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
-#### `methods: [AuthMethod]` (required)
+#### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `EmailAndPassword`: Provides support for authentication with email address and a password.
+* `emailAndPassword`: Provides support for authentication with email address and a password.
+* `google`: Provides support for authentication with email address and a password.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -698,7 +702,7 @@ Default value is "/".
 
 ### Email and Password
 
-`EmailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
+`emailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
 This method requires that `userEntity` specified in `auth` contains `email: string` and `password: string` fields.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
@@ -934,6 +938,82 @@ import AuthError from '@wasp/core/AuthError.js'
     }
   }
 ```
+
+### Google
+
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or a sign-in function, you can override the defaults.
+
+#### Default settings
+- Configuration:
+  - By default, we expect you to set two environment variables in order to use Google authentication:
+    - `GOOGLE_CLIENT_ID`
+    - `GOOGLE_CLIENT_SECRET`
+  - These can be obtained in your Google Developer's Console. See here for more.
+
+- Sign in:
+  - By default, when a user signs in with Google we will attempt to look up the user by email.
+    - If they exist, we will do nothing and return the JWT.
+    - If they do not exist, we will create a new user with a random password and return the JWT.
+
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js
+
+#### Overrides
+If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
+
+```js
+  auth: {
+    userEntity: User,
+    methods: {
+      google: {
+        configFn: import { config } from "@ext/auth/google.js",
+        onSignInFn: import { signInHandler } from "@ext/auth/google.js"
+      }
+    },
+    ...
+  }
+```
+
+- `configFn`: This function should return an object with the following shape:
+```js
+export function config() {
+  return {
+    clientId: // look up from env or elsewhere,
+    clientSecret: // look up from env or elsewhere
+  }
+}
+```
+- `onSignInFn`: This function should return a user id:
+```js
+export async function signInHandler(context, args) {
+  // Find or create a context.entities.User based on args
+  return user
+}
+```
+
+#### UI helpers
+
+To use the Google sign-in button on your login page, simply do the following:
+
+```js
+...
+import Google from '@wasp/auth/buttons/Google'
+
+const Login = () => {
+  return (
+    <>
+      ...
+
+      <div>
+        <Google/>
+      </div>
+    </>
+  )
+}
+
+export default Login
+```
+
+You can set the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px.
 
 ## Client configuration
 
