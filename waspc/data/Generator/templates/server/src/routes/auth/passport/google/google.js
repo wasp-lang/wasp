@@ -15,6 +15,7 @@ async function googleSuccessCallback(req, _accessToken, _refreshToken, profile, 
       return done(new Error('auth.onSignInFn must return a user object with an id property'))
     }
 
+    // Pass along the userId so we can create the JWT in the OAuth code validation handler.
     req.wasp = { ...req.wasp, userId: user.id }
 
     done(null, user)
@@ -59,7 +60,7 @@ const router = express.Router()
 router.get('/login', passport.authenticate('google', { session: false }))
 
 // Validates the OAuth code from the frontend, via server-to-server communication
-// with Google. If valid, provides them with a JWT.
+// with Google. If valid, provides frontend a response containing the JWT.
 router.get('/validateCode',
   passport.authenticate('google', {
     session: false,

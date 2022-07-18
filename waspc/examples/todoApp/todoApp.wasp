@@ -11,8 +11,8 @@ app todoApp {
     methods: {
       emailAndPassword: {},
       google: {
-        configFn: import { config } from "@ext/auth/google.js",
-        onSignInFn: import { signInHandler } from "@ext/auth/google.js"
+        // configFn: import { config } from "@ext/auth/google.js",
+        // onSignInFn: import { signInHandler } from "@ext/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login",
