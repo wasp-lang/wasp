@@ -7,7 +7,7 @@ import { makeCounter } from './counter'
 // that resource.
 const resourceToQueryCacheKeys = new Map()
 
-// A counter that counts many actions are currently in progress that will
+// A counter that counts how many actions are currently in progress that will
 // invalidate a given queryCacheKey. It helps us stop premature invalidation and
 // UI flickering after optimistic updates.
 const actionCounter = makeCounter(
