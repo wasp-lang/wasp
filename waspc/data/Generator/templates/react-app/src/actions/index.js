@@ -78,7 +78,6 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
 }
 
 function parseQueryKey(queryKey) {
-  const [queryFnOrCacheKey, ...otherKeys] = queryKey
-  const queryCacheKey = typeof queryFnOrCacheKey == 'function' ? queryFnOrCacheKey.queryCacheKey : queryFnOrCacheKey;
-  return [queryCacheKey, ...otherKeys]
+  const [queryFn, ...otherKeys] = queryKey
+  return [queryFn.queryCacheKey, ...otherKeys]
 }
