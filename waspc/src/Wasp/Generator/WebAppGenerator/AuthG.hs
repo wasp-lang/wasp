@@ -5,7 +5,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
-import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -68,17 +67,15 @@ genAuthForms auth =
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
-  -- TODO: Logic that says "/" is a default redirect on success is duplicated here and in the function below.
-  --   We should remove that duplication.
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth]
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth]
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth =
@@ -95,7 +92,7 @@ genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   compileTmplToSamePath
     [relfile|auth/pages/OAuthCodeExchange.js|]
-    [ "onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth),
+    [ "onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
 

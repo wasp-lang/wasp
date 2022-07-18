@@ -85,14 +85,15 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    indexRouteRelToSrc = [relfile|routes/auth/index.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> indexRouteRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile indexRouteRelToSrc
-
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
       object
         [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
         ]
+
+    authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
 
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -164,8 +165,7 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          -- TODO: What should the default redirect be on success?
-          "successRedirectPath" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+          "successRedirectPath" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
@@ -201,13 +201,11 @@ genGoogleImportsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 
     maybeConfigFn = AS.Auth.configFn =<< AS.Auth.google (AS.Auth.methods auth)
     maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeConfigFn
-    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) =
-      (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
+    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
     maybeOnSignInFn = AS.Auth.onSignInFn =<< AS.Auth.google (AS.Auth.methods auth)
     maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeOnSignInFn
-    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) =
-      (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
+    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
 -- | TODO: Make this not hardcoded!
 relPosixPathFromGoogleAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

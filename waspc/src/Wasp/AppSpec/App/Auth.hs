@@ -8,11 +8,12 @@ module Wasp.AppSpec.App.Auth
     isEmailAndPasswordAuthEnabled,
     isGoogleAuthEnabled,
     isExternalAuthEnabled,
+    onAuthSucceededRedirectToOrDefault,
   )
 where
 
 import Data.Data (Data)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -42,6 +43,9 @@ data GoogleConfig = GoogleConfig
     onSignInFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
+
+onAuthSucceededRedirectToOrDefault :: Auth -> String
+onAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (onAuthSucceededRedirectTo auth)
 
 isEmailAndPasswordAuthEnabled :: Auth -> Bool
 isEmailAndPasswordAuthEnabled = isJust . emailAndPassword . methods
