@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.5.2.1 (2022/07/14)
+
+### Bug fixes
+- Made wasp CLI more robust regarding encoding used on the machine.
+- Worked around the bug in latest npm, so that Wasp now again supports latest LTS npm version.
+
+---
+
 ## v0.5.2.0 (2022/06/23)
 
 ### Upgraded Prisma to latest version (13.15.2)

@@ -2,7 +2,6 @@ import { queryClientInitialized } from '../queryClient'
 import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from 'react-query'
 
-
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
