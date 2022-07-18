@@ -1,7 +1,6 @@
 import { queryClientInitialized } from '../queryClient'
 import { makeCounter } from './counter'
 
-
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
