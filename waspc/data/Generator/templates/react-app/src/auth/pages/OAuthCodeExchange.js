@@ -7,6 +7,8 @@ import api, { setAuthToken } from '../../api.js'
 
 const OAuthCodeExchange = (props) => {
   const history = useHistory()
+  // Note: Different auth methods will have different API server validation paths.
+  // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
   const validationPath = props.validationPath
 
   useEffect(() => {
@@ -19,21 +21,22 @@ const OAuthCodeExchange = (props) => {
 }
 
 async function exchangeCodeForJwtAndRedirect(history, validationPath) {
+  // Take the redirect query params supplied by the external OAuth provider and
+  // send them as-is to our backend, so Passport can finish the process.
   const queryParams = window.location.search
-
-  const token = await exchangeCodeForJwt(queryParams, validationPath)
-  if (token) {
-    setAuthToken(token)
-    return history.push('{= onAuthSucceededRedirectTo =}')
-  }
-
-  console.error('Error obtaining JWT token')
-  history.push('{= onAuthFailedRedirectTo =}')
-}
-
-async function exchangeCodeForJwt(queryParams, validationPath) {
   const validationUrl = `${config.apiUrl}${validationPath}${queryParams}`
 
+  const token = await exchangeCodeForJwt(validationUrl)
+  if (!token) {
+    console.error('Error obtaining JWT token')
+    return history.push('{= onAuthFailedRedirectTo =}')
+  }
+
+  setAuthToken(token)
+  history.push('{= onAuthSucceededRedirectTo =}')
+}
+
+async function exchangeCodeForJwt(validationUrl) {
   let token = null
   try {
     const response = await api.get(validationUrl)
