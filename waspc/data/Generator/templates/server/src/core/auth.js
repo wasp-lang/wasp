@@ -72,7 +72,13 @@ export const verifyPassword = async (hashedPassword, password) => {
 
 export async function findOrCreateUserEntity(email) {
   const password = uuidv4()
-  // TODO: Remove race condition.
+
+  // NOTE(shayne): We cannot easily use the "upsert" trick to "find or create" users that Prisma recommends
+  // since we apply checks to email and password as part of this (so we cannot `update: {}`).
+  // Therefore, while this could theoretically have a race condition with multiple node servers operating
+  // on the same new user at the same time, the practical odds are so low it doesn't seem like getting the
+  // other approach working is justified right now.
+  // Ref: https://github.com/prisma/docs/issues/640
   let user = await prisma.{= userEntityLower =}.findUnique({ where: { email } })
   if (!user) {
     user = await prisma.{= userEntityLower =}.create({ data: { email, password } })

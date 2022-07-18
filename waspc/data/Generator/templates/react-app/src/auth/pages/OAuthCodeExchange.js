@@ -7,7 +7,7 @@ import api, { setAuthToken } from '../../api.js'
 
 const OAuthCodeExchange = (props) => {
   const history = useHistory()
-  // Note: Different auth methods will have different API server validation paths.
+  // NOTE: Different auth methods will have different Wasp API server validation paths.
   // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
   const validationPath = props.validationPath
 
