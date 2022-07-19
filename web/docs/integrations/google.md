@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Google Auth
 
-In order to use Google as an authentication method (covered [here](/docs/language/features#google)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
+To use Google as an authentication method (covered [here](/docs/language/features#google)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
 
 - Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 - Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard

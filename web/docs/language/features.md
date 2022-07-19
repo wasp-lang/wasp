@@ -690,7 +690,7 @@ Entity which represents the user (sometimes also referred to as *Principal*).
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `emailAndPassword`: Provides support for authentication with email address and a password. See [here](#email-and-password) for more.
-* `google`: Provides support for authentication with email address and a password. See [here](#google) for more.
+* `google`: Provides support for login via Google accounts. See [here](#google) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
