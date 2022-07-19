@@ -19,6 +19,7 @@ module Wasp.Backend.TokenSet
     insertKind,
     insertEof,
     union,
+    intersection,
 
     -- * Constructors
     empty,
@@ -75,6 +76,13 @@ union left right =
   let unionEofMember = eofMember left || eofMember right
       unionKindSet = kindSet left `Set.union` kindSet right
    in TokenSet {eofMember = unionEofMember, kindSet = unionKindSet}
+
+-- | Get the intersection of two "TokenSet"s.
+intersection :: TokenSet -> TokenSet -> TokenSet
+intersection left right =
+  let intersectionEofMember = eofMember left && eofMember right
+      intersectionKindSet = kindSet left `Set.intersection` kindSet right
+   in TokenSet {eofMember = intersectionEofMember, kindSet = intersectionKindSet}
 
 -- | The empty "TokenSet".
 empty :: TokenSet

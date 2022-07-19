@@ -19,34 +19,34 @@ import qualified Wasp.Backend.Token as T
 --
 -- See "SyntaxNode" for a description of what a concrete syntax tree contains.
 parseCST :: [Token] -> ([ParseError], [SyntaxNode])
-parseCST tokens = parse tokens (root --> eof)
+parseCST tokens = parse tokens (root <> eof)
 
 -- | Parse a list of tokens into a concrete syntax tree for a wasp expression.
 -- This is mainly used for testing.
 --
 -- See "SyntaxNode" for a description of what a concrete syntax tree contains.
 parseCSTExpression :: [Token] -> ([ParseError], [SyntaxNode])
-parseCSTExpression tokens = parse tokens (expr --> eof)
+parseCSTExpression tokens = parse tokens (expr <> eof)
 
 root :: GrammarRule
 root = Program <$$> stmts
 
 stmts :: GrammarRule
-stmts = eof <|> (stmt --> stmts)
+stmts = eof <|> (stmt <> stmts)
 
 stmt :: GrammarRule
 stmt =
   Decl
     <$$> (T.Identifier `as` DeclType)
-    --> (T.Identifier `as` DeclName)
-    --> expr
+    <> (T.Identifier `as` DeclName)
+    <> expr
 
 {- ORMOLU_DISABLE -}
 expr :: GrammarRule
 expr =
         Dict <$$> listLike lcurly dictEntry comma rcurly
     <|> List <$$> listLike lsquare expr comma rsquare
-    <|> Quoter <$$> (lquote --> quotedText)
+    <|> Quoter <$$> (lquote <> quotedText)
     -- Note that we don't check number of tuple element here: this is left to
     -- the next phase of parsing.
     <|> Tuple <$$> listLike lparen expr comma rparen
@@ -60,19 +60,19 @@ expr =
 {- ORMOLU_ENABLE -}
 
 dictEntry :: GrammarRule
-dictEntry = DictEntry <$$> (T.Identifier `as` DictKey) --> colon --> expr
+dictEntry = DictEntry <$$> (T.Identifier `as` DictKey) <> colon <> expr
 
 quotedText :: GrammarRule
-quotedText = rquote <|> (quoted --> quotedText)
+quotedText = rquote <|> (quoted <> quotedText)
 
 extImport :: GrammarRule
 extImport =
   ExtImport
-    <$$> kwImport --> extImportName --> kwFrom --> (T.String `as` ExtImportPath)
+    <$$> kwImport <> extImportName <> kwFrom <> (T.String `as` ExtImportPath)
   where
     extImportName :: GrammarRule
     extImportName =
-      lcurly --> (T.Identifier `as` ExtImportField) --> rcurly
+      lcurly <> (T.Identifier `as` ExtImportField) <> rcurly
         <|> (T.Identifier `as` ExtImportModule)
 
 -- | @listLike open value sep close@ parses list like structures in the form:
@@ -91,8 +91,8 @@ listLike ::
   GrammarRule ->
   GrammarRule
 listLike open value sep close =
-  open --> listLikeValues
+  open <> listLikeValues
   where
     listLikeValues :: GrammarRule
     listLikeValues =
-      close <|> (perhaps sep --> ((value --> listLikeValues) <|> close))
+      perhaps sep <> (close <|> (value <> listLikeValues))
