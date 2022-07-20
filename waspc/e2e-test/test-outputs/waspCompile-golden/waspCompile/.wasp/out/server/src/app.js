@@ -15,7 +15,7 @@ const app = express()
 
 app.use(helmet())
 app.use(cors({
-  // TODO: Consider allowing users to provide a function to further configure CORS setup.
+  // TODO: Consider allowing users to provide an ENV variable or function to further configure CORS setup.
   origin: config.frontendUrl,
 }))
 app.use(logger('dev'))
