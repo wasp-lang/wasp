@@ -28,7 +28,8 @@ data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
     _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
-    _isExternalAuthEnabled :: Bool
+    _isExternalAuthEnabled :: Bool,
+    _isGoogleAuthEnabled :: Bool
   }
 
 instance ToJSON RouterTemplateData where
@@ -37,7 +38,8 @@ instance ToJSON RouterTemplateData where
       [ "routes" .= _routes routerTD,
         "pagesToImport" .= _pagesToImport routerTD,
         "isAuthEnabled" .= _isAuthEnabled routerTD,
-        "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD
+        "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
+        "isGoogleAuthEnabled" .= _isGoogleAuthEnabled routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -83,7 +85,8 @@ createRouterTemplateData spec =
     { _routes = routes,
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
+      _isExternalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth,
+      _isGoogleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec

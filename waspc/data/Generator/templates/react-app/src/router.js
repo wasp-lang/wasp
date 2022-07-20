@@ -22,8 +22,13 @@ const router = (
       {=/ routes =}
 
       {=# isExternalAuthEnabled =}
-      <Route exact path="/auth/redirect/google"
-        render={(props) => <OAuthCodeExchange validationPath="/auth/external/google/validateCode" {...props} />} />
+
+      {=# isGoogleAuthEnabled =}
+      <Route exact path="/auth/redirect/google">
+        <OAuthCodeExchange handleOauthRedirectPath="/auth/external/google/validateCode" />
+      </Route>
+      {=/ isGoogleAuthEnabled =}
+
       {=/ isExternalAuthEnabled =}
     </div>
   </Router>
