@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-import Google from '@wasp/auth/buttons/Google'
+import { GoogleSignInButton } from '@wasp/auth/buttons/Google'
 
 const Login = () => {
   return (
@@ -14,7 +14,7 @@ const Login = () => {
       </span>
 
       <div>
-        <Google/>
+        <GoogleSignInButton/>
       </div>
     </>
   )

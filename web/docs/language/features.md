@@ -992,20 +992,20 @@ export async function signInHandler(context, args) {
 
 #### UI helpers
 
-To use the Google sign-in button on your login page, simply do the following:
+To use the Google sign-in button or URL on your login page, do either of the following:
 
 ```js
 ...
-import Google from '@wasp/auth/buttons/Google'
+import { GoogleSignInButton, googleSignInUrl } from '@wasp/auth/buttons/Google'
 
 const Login = () => {
   return (
     <>
       ...
 
-      <div>
-        <Google/>
-      </div>
+      <GoogleSignInButton/>
+      {/* or */}
+      <a href={googleSignInUrl}>Sign in with Google</a>
     </>
   )
 }
