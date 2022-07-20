@@ -41,7 +41,8 @@ genAuth spec = case maybeAuth of
         genAuthRoutesIndex auth,
         genLoginRoute auth,
         genSignupRoute auth,
-        genMeRoute auth
+        genMeRoute auth,
+        genUtilsJs auth
       ]
       <++> (if AS.Auth.isExternalAuthEnabled auth then genPassportAuth auth else return [])
   Nothing -> return []
@@ -136,8 +137,7 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportAuth auth =
   sequence
-    [ genUtilsJs auth,
-      genPassportJs auth
+    [ genPassportJs auth
     ]
     <++> (if AS.Auth.isGoogleAuthEnabled auth then genGoogleAuth auth else return [])
 
@@ -169,7 +169,7 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    utilsFileInSrcDir = [relfile|routes/auth/passport/utils.js|]
+    utilsFileInSrcDir = [relfile|routes/auth/utils.js|]
 
 genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth =

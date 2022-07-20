@@ -1,6 +1,6 @@
 {{={= =}=}}
 
-import prisma from '../../../dbClient.js'
+import prisma from '../../dbClient.js'
 
 export const contextWithUserEntity = { entities: { {= userEntityUpper =}: prisma.{= userEntityLower =} } }
 

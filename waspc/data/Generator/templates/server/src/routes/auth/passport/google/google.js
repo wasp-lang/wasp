@@ -3,7 +3,7 @@ import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth20'
 
 import waspServerConfig from '../../../../config.js'
-import { contextWithUserEntity, authConfig } from '../utils.js'
+import { contextWithUserEntity, authConfig } from '../../utils.js'
 import { sign } from '../../../../core/auth.js'
 import { configFn, onSignInFn } from './googleConfig.js'
 
