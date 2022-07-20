@@ -70,19 +70,20 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
-export async function findOrCreateUserEntity(email) {
+// NOTE(shayne): This function helps us handle external auth users.
+// We have two security-related scenarios to consider:
+// 1) If the user is new and comes via external auth first, we simply create
+// their account with a random password. They cannot use `emailAndPassword`
+// to log with this email in until we add password reset functionality.
+// 2) If a user already exists from `emailAndPassword`, we cannot be
+// sure it really belongs to them since we do not yet do email validation.
+// Therefore, we *also* reset the password when we find an existing user, just
+// in case it was someone else who created that account. We do not want them to
+// still have access.
+// Upsert solves for both of these cases (always randomize password) cleanly and efficiently.
+export async function upsertUserWithRandomPassword(email) {
   const randomPassword = uuidv4()
 
-  // NOTE(shayne): We have two security-related scenarios to consider:
-  // 1) If the user is new and comes via external auth, we simply create
-  // their account with a random password. They cannot use `emailAndPassword`
-  // to log with this email in until we add password reset functionality.
-  // 2) If a user already exists from `emailAndPassword`, we cannot be
-  // sure it really belongs to them since we do not yet do email validation.
-  // Therefore, we also reset the password when we find an existing user, just
-  // in case it was someone else who created that account. We do not want them to
-  // still have access.
-  // Upsert solves for both of these cases (always randomize password) cleanly and efficiently.
   const user = await prisma.{= userEntityLower =}.upsert({
     where: { email },
     update: { password: randomPassword },
