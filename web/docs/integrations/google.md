@@ -36,7 +36,7 @@ To use Google as an authentication method (covered [here](/docs/language/feature
     - ![Google Console Screenshot 12](../../static/img/integrations-google-12.jpg)
   - Under Authorized URIs, put in: `http://localhost:3000/auth/redirect/google`
     - ![Google Console Screenshot 13](../../static/img/integrations-google-13.jpg)
-    - You can optionally put in any Heroku or other PaaS URL where your API server will be deployed
+    - Once you know on which URL(s) your API server will be deployed, also add those URL(s)
       - For example: `https://someotherhost.com/auth/redirect/google`
   - When you save, you can click the Edit icon and your credentials will be shown
     - ![Google Console Screenshot 14](../../static/img/integrations-google-14.jpg)

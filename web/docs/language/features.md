@@ -952,8 +952,10 @@ import AuthError from '@wasp/core/AuthError.js'
 
 - Sign in:
   - By default, when a user signs in with Google we will attempt to look up the user by email.
-    - If they exist, we will do nothing and return the JWT.
-    - If they do not exist, we will create a new user with a random password and return the JWT.
+    - If user exists in the database, we will log in the user by returning the JWT (which is then passed to the web client).
+      - NOTE: For security reasons, we also update the existing password to a random password. This is because Wasp does not provide email validation at this time, so we cannot be sure the existing user actually owns that email.
+    - If they do not exist, we will create a new user with a random password and log in the user by returning the JWT.
+  - NOTE: At this time, Wasp does not provide password reset. Therefore, you will not be able to log in with Email & Password for accounts using Google sign in.
 
 - Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js
 
@@ -978,11 +980,12 @@ If you require modifications to the above, you can add one or more of the follow
 export function config() {
   return {
     clientId: // look up from env or elsewhere,
-    clientSecret: // look up from env or elsewhere
+    clientSecret: // look up from env or elsewhere,
+    scope: ['email', 'profile'] // must include these two
   }
 }
 ```
-- `onSignInFn`: This function should return a user id:
+- `onSignInFn`: This function should return a user. The context contains a User entity for DB access, and the args are what the OAuth provider responds with.
 ```js
 export async function signInHandler(context, args) {
   // Find or create a context.entities.User based on args
