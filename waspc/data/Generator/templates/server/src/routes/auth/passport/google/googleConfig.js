@@ -1,12 +1,10 @@
 {{={= =}=}}
 
 {=# doesConfigFnExist =}
-export const userConfigFnExists = true
 {=& configFnImportStatement =}
 export { {= configFnIdentifier =} as configFn }
 {=/ doesConfigFnExist =}
 {=^ doesConfigFnExist =}
-export const userConfigFnExists = false
 export { configFn } from './googleDefaults.js'
 {=/ doesConfigFnExist =}
 

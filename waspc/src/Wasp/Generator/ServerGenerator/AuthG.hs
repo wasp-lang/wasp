@@ -176,16 +176,16 @@ genGoogleAuth auth =
   sequence
     [ copyTmplFile [relfile|routes/auth/passport/google/google.js|],
       copyTmplFile [relfile|routes/auth/passport/google/googleDefaults.js|],
-      genGoogleImportsJs auth
+      genGoogleConfigJs auth
     ]
   where
     copyTmplFile = return . C.mkSrcTmplFd
 
-genGoogleImportsJs :: AS.Auth.Auth -> Generator FileDraft
-genGoogleImportsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genGoogleConfigJs :: AS.Auth.Auth -> Generator FileDraft
+genGoogleConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleImportsFileInSrcDir
-    dstFile = C.serverSrcDirInServerRootDir </> googleImportsFileInSrcDir
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel googleConfigFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> googleConfigFileInSrcDir
     tmplData =
       object
         [ "doesConfigFnExist" .= isJust maybeConfigFn,
@@ -196,8 +196,8 @@ genGoogleImportsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
           "onSignInFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
         ]
 
-    googleImportsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    googleImportsFileInSrcDir = [relfile|routes/auth/passport/google/googleImports.js|]
+    googleConfigFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    googleConfigFileInSrcDir = [relfile|routes/auth/passport/google/googleConfig.js|]
 
     maybeConfigFn = AS.Auth.configFn =<< AS.Auth.google (AS.Auth.methods auth)
     maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeConfigFn
