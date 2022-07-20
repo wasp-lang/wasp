@@ -10,7 +10,7 @@ import StrongPath (File', Path', Rel, relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, latestNodeLTSVersion)
+import Wasp.Generator.Common (ProjectRootDir, latestMajorNodeVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -29,7 +29,7 @@ genDockerfile spec =
       ( Just $
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
-              "nodeMajorVersion" .= show (SV.major latestNodeLTSVersion)
+              "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion)
             ]
       )
 
