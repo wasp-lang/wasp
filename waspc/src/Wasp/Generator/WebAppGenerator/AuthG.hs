@@ -69,13 +69,13 @@ genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth]
+    ["onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth]
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth]
+    ["onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth]
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth =
@@ -92,7 +92,7 @@ genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   compileTmplToSamePath
     [relfile|auth/pages/OAuthCodeExchange.js|]
-    [ "onAuthSucceededRedirectTo" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth,
+    [ "onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
 

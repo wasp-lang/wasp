@@ -11,6 +11,7 @@ module Wasp.Generator.WebAppGenerator.Common
     asTmplFile,
     asWebAppFile,
     asWebAppSrcFile,
+    getOnAuthSucceededRedirectToOrDefault,
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
@@ -19,8 +20,10 @@ module Wasp.Generator.WebAppGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
+import Data.Maybe (fromMaybe)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -89,3 +92,6 @@ mkTmplFdWithDstAndData srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplDa
     (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)
     (webAppTemplatesDirInTemplatesDir </> srcPathInWebAppTemplatesDir)
     tmplData
+
+getOnAuthSucceededRedirectToOrDefault :: AS.App.Auth.Auth -> String
+getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.App.Auth.onAuthSucceededRedirectTo auth)

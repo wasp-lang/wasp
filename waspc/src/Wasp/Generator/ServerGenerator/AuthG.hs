@@ -165,7 +165,7 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= AS.Auth.onAuthSucceededRedirectToOrDefault auth
+          "successRedirectPath" .= C.getOnAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
