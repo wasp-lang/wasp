@@ -8,7 +8,9 @@ module Wasp.AppSpec.App.Auth
     emailAndPasswordConfig,
     isEmailAndPasswordAuthEnabled,
     isGoogleAuthEnabled,
+    isGoogleAuthEnabled',
     isExternalAuthEnabled,
+    isExternalAuthEnabled',
   )
 where
 
@@ -53,5 +55,11 @@ isEmailAndPasswordAuthEnabled = isJust . emailAndPassword . methods
 isGoogleAuthEnabled :: Auth -> Bool
 isGoogleAuthEnabled = isJust . google . methods
 
+isGoogleAuthEnabled' :: Maybe Auth -> Bool
+isGoogleAuthEnabled' maybeAuth = maybe False isGoogleAuthEnabled maybeAuth
+
 isExternalAuthEnabled :: Auth -> Bool
 isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled]
+
+isExternalAuthEnabled' :: Maybe Auth -> Bool
+isExternalAuthEnabled' maybeAuth = maybe False isExternalAuthEnabled maybeAuth

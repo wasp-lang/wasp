@@ -120,10 +120,9 @@ genPublicDir spec = do
           processPublicTmpl path = C.mkTmplFdWithData (C.asTmplFile $ [reldir|public|] </> path) tmplData
        in processPublicTmpl [relfile|manifest.json|]
     ) :
-      [C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|]) | googleAuthEnabled]
+      [C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|]) | AS.App.Auth.isGoogleAuthEnabled' maybeAuth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    googleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =

@@ -85,8 +85,8 @@ createRouterTemplateData spec =
     { _routes = routes,
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
-      _isExternalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth,
-      _isGoogleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
+      _isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled' maybeAuth,
+      _isGoogleAuthEnabled = AS.App.Auth.isGoogleAuthEnabled' maybeAuth
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec

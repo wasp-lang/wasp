@@ -118,7 +118,6 @@ npmDepsForWasp spec =
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0"),
-            -- NOTE: Not in DevDeps so we can patch in prod contexts (e.g., Docker, PaaS, etc.)
             ("patch-package", "^6.4.7")
           ]
           ++ depsRequiredByPassport spec
@@ -230,13 +229,11 @@ depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =
   AS.Dependency.fromList $
     concat
-      [ [("passport", "0.6.0") | externalAuthEnabled],
-        [("passport-google-oauth20", "2.0.0") | googleAuthEnabled]
+      [ [("passport", "0.6.0") | AS.App.Auth.isExternalAuthEnabled' maybeAuth],
+        [("passport-google-oauth20", "2.0.0") | AS.App.Auth.isGoogleAuthEnabled' maybeAuth]
       ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    externalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
-    googleAuthEnabled = maybe False AS.App.Auth.isGoogleAuthEnabled maybeAuth
 
 genPatches :: AppSpec -> Generator [FileDraft]
 genPatches spec = patchesRequiredByPassport spec
@@ -244,7 +241,6 @@ genPatches spec = patchesRequiredByPassport spec
 patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
 patchesRequiredByPassport spec =
   return $
-    [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|]) | externalAuthEnabled]
+    [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|]) | AS.App.Auth.isExternalAuthEnabled' maybeAuth]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    externalAuthEnabled = maybe False AS.App.Auth.isExternalAuthEnabled maybeAuth
