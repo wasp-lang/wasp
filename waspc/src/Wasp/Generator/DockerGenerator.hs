@@ -13,6 +13,7 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.Generator.Common (ProjectRootDir, latestMajorNodeVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.ServerGenerator (areServerPatchesUsed)
 import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
@@ -21,7 +22,8 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: AppSpec -> Generator FileDraft
-genDockerfile spec =
+genDockerfile spec = do
+  usingServerPatches <- areServerPatchesUsed spec
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel ProjectRootDir) File')
@@ -29,7 +31,8 @@ genDockerfile spec =
       ( Just $
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
-              "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion)
+              "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
+              "usingServerPatches" .= usingServerPatches
             ]
       )
 

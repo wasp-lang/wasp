@@ -4,6 +4,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsForWasp,
+    areServerPatchesUsed,
   )
 where
 
@@ -234,6 +235,9 @@ depsRequiredByPassport spec =
       ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+areServerPatchesUsed :: AppSpec -> Generator Bool
+areServerPatchesUsed spec = not . null <$> genPatches spec
 
 genPatches :: AppSpec -> Generator [FileDraft]
 genPatches spec = patchesRequiredByPassport spec
