@@ -25,7 +25,7 @@ const router = (
 
       {=# isGoogleAuthEnabled =}
       <Route exact path="/auth/redirect/google">
-        <OAuthCodeExchange handleOauthRedirectPath="/auth/external/google/validateCode" />
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/google/validateCode" />
       </Route>
       {=/ isGoogleAuthEnabled =}
 

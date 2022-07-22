@@ -5,32 +5,33 @@ import { useHistory } from 'react-router-dom'
 import config from '../../config.js'
 import api, { setAuthToken } from '../../api.js'
 
-// This component is rendered in response to an OAuth 2.0 redirect request,
-// where it takes all of the query string parameters and sends them to the Wasp
-// API server to complete the OAuth process. Upon completion, we will
-// obtain a JWT and redirect to the auth success path.
+// After a user authenticates via an Oauth 2.0 provider, this is the page that
+// the provider should redirect them to, while providing query string parameters
+// that contain information needed for the API server to authenticate with the provider.
+// This page forwards that information to the API server and in response get a JWT,
+// which it stores on the client, therefore completing the OAuth authentication process.
 const OAuthCodeExchange = (props) => {
   const history = useHistory()
   // NOTE: Different auth methods will have different Wasp API server validation paths.
   // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
-  const handleOauthRedirectPath = props.handleOauthRedirectPath
+  const pathToApiServerRouteHandlingOauthRedirect = props.pathToApiServerRouteHandlingOauthRedirect
 
   useEffect(() => {
-    exchangeCodeForJwtAndRedirect(history, handleOauthRedirectPath)
-  }, [history, handleOauthRedirectPath])
+    exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandlingOauthRedirect)
+  }, [history, pathToApiServerRouteHandlingOauthRedirect])
 
   return (
     <p>Completing login process...</p>
   )
 }
 
-async function exchangeCodeForJwtAndRedirect(history, handleOauthRedirectPath) {
+async function exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandlingOauthRedirect) {
   // Take the redirect query params supplied by the external OAuth provider and
   // send them as-is to our backend, so Passport can finish the process.
   const queryParams = window.location.search
-  const handleOauthRedirectUrl = `${config.apiUrl}${handleOauthRedirectPath}${queryParams}`
+  const apiServerUrlHandlingOauthRedirect = `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
 
-  const token = await exchangeCodeForJwt(handleOauthRedirectUrl)
+  const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
   if (!token) {
     console.error('Error obtaining JWT token')
     return history.push('{= onAuthFailedRedirectTo =}')
@@ -40,10 +41,10 @@ async function exchangeCodeForJwtAndRedirect(history, handleOauthRedirectPath) {
   history.push('{= onAuthSucceededRedirectTo =}')
 }
 
-async function exchangeCodeForJwt(validationUrl) {
+async function exchangeCodeForJwt(url) {
   let token = null
   try {
-    const response = await api.get(validationUrl)
+    const response = await api.get(url)
     token = response?.data?.token
   } catch (e) {
     console.error(e)

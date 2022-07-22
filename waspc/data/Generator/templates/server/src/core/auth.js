@@ -70,17 +70,9 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
-// NOTE(shayne): This function helps us handle external auth users.
-// We have two security-related scenarios to consider:
-// 1) If the user is new and comes via external auth first, we simply create
-// their account with a random password. They cannot use `emailAndPassword`
-// to log with this email in until we add password reset functionality.
-// 2) If a user already exists from `emailAndPassword`, we cannot be
-// sure it really belongs to them since we do not yet do email validation.
-// Therefore, we *also* reset the password when we find an existing user, just
-// in case it was someone else who created that account. We do not want them to
-// still have access.
-// Upsert solves for both of these cases (always randomize password) cleanly and efficiently.
+// Looks up a user by email and if:
+// (1) the user does not exist, create them with a random password, or
+// (2) if the user does exist, update their existing password to a random password.
 export async function upsertUserWithRandomPassword(email) {
   const randomPassword = uuidv4()
 
