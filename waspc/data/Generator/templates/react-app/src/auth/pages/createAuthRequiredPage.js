@@ -1,7 +1,7 @@
 {{={= =}=}}
 import React from 'react'
 
-import { Redirect } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import useAuth from '../../auth/useAuth.js'
 
 
@@ -15,7 +15,7 @@ const createAuthRequiredPage = (Page) => {
           <Page {...props} user={user} />
         )
       } else {
-        return <Redirect to="{= onAuthFailedRedirectTo =}" />
+        return <Navigate to="{= onAuthFailedRedirectTo =}" />
       }
     } else if (isLoading) {
       return <span>Loading...</span>

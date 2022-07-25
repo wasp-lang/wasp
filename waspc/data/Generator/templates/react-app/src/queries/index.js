@@ -1,4 +1,4 @@
-import { useQuery as rqUseQuery } from 'react-query'
+import { useQuery as rqUseQuery } from '@tanstack/react-query'
 export { configureQueryClient } from '../queryClient'
 
 export function useQuery(queryFn, queryFnArgs, options) {

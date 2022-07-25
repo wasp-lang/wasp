@@ -1,7 +1,7 @@
 {{={= =}=}}
 import React from 'react'
-import ReactDOM from 'react-dom'
-import { QueryClientProvider } from 'react-query'
+import { createRoot } from 'react-dom/client'
+import { QueryClientProvider } from '@tanstack/react-query'
 
 import router from './router'
 import { 
@@ -34,10 +34,11 @@ async function startApp() {
 
 async function render() {
   const queryClient = await queryClientInitialized
-  ReactDOM.render(
+  const container = document.getElementById('root')
+  const root = createRoot(container)
+  root.render(
     <QueryClientProvider client={queryClient}>
       { router }
-    </QueryClientProvider>,
-    document.getElementById('root')
+    </QueryClientProvider>
   )
 }

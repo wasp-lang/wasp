@@ -83,17 +83,17 @@ npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("axios", "^0.21.1"),
-            ("lodash", "^4.17.15"),
-            ("react", "^16.12.0"),
-            ("react-dom", "^16.12.0"),
-            ("react-query", "^3.34.19"),
-            ("react-router-dom", "^5.1.2"),
-            ("react-scripts", "4.0.3"),
-            ("uuid", "^3.4.0"),
+          [ ("axios", "^0.27.2"),
+            ("lodash", "^4.17.21"),
+            ("react", "^18.2.0"), -- 16.14.0
+            ("react-dom", "^18.2.0"),
+            ("@tanstack/react-query", "^4.0.10"),
+            ("react-router-dom", "^6.3.0"),
+            ("react-scripts", "5.0.1"),
+            ("uuid", "^8.3.2")
             -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
             -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
-            ("react-error-overlay", "6.0.9")
+            -- ("react-error-overlay", "6.0.9")
           ],
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
       -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621

@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { Route, BrowserRouter as Router } from 'react-router-dom'
+import { Route, Routes, BrowserRouter as Router } from 'react-router-dom'
 
 {=# isAuthEnabled =}
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
@@ -10,14 +10,22 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 import {= importWhat =} from "{= importFrom =}"
 {=/ pagesToImport =}
 
+{=# routes =}
+{=# authRequired =}
+const {= targetComponent =}Component = createAuthRequiredPage({= targetComponent =})
+{=/ authRequired =}
+{=^ authRequired =}
+const {= targetComponent =}Component = {= targetComponent =}
+{=/ authRequired =}
+{=/ routes =}
 
 const router = (
   <Router>
-    <div>
+    <Routes>
       {=# routes =}
-      <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
+      <Route exact path="{= urlPath =}" element={ <{= targetComponent =}Component /> }/>
       {=/ routes =}
-    </div>
+    </Routes>
   </Router>
 )
 

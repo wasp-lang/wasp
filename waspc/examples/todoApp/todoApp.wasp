@@ -4,7 +4,9 @@ app todoApp {
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
   ],
   dependencies: [
-    ("@material-ui/core", "4.11.3")
+    ("@mui/material", "5.9.2"),
+    ("@emotion/react", "11.9.3"),
+    ("@emotion/styled", "11.9.3")
   ],
   auth: {
     userEntity: User,

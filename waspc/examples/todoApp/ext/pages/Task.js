@@ -1,12 +1,13 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
 import getTask from '@wasp/queries/getTask.js'
 
 const Todo = (props) => {
-  const taskId = parseInt(props.match.params.id)
+  const params = useParams()
+  const taskId = parseInt(params.id)
   const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 
   if (!task) return <div>Task with id {taskId} does not exist.</div>

@@ -38,14 +38,16 @@ instance ToJSON RouterTemplateData where
 
 data RouteTemplateData = RouteTemplateData
   { _urlPath :: !String,
-    _targetComponent :: !String
+    _targetComponent :: !String,
+    _authRequired :: !Bool
   }
 
 instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
       [ "urlPath" .= _urlPath routeTD,
-        "targetComponent" .= _targetComponent routeTD
+        "targetComponent" .= _targetComponent routeTD,
+        "authRequired" .= _authRequired routeTD
       ]
 
 data PageTemplateData = PageTemplateData
@@ -88,16 +90,18 @@ createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateD
 createRouteTemplateData spec namedRoute@(_, route) =
   RouteTemplateData
     { _urlPath = AS.Route.path route,
-      _targetComponent = determineRouteTargetComponent spec namedRoute
+      _targetComponent = determineRouteTargetComponent namedRoute,
+      _authRequired = determineIfRouteTargetRequiresAuth spec namedRoute
     }
 
 -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
-determineRouteTargetComponent spec (_, route) =
-  maybe
-    targetPageName
-    determineRouteTargetComponent'
-    (AS.Page.authRequired $ snd targetPage)
+determineRouteTargetComponent :: (String, AS.Route.Route) -> String
+determineRouteTargetComponent (_, route) = targetPageName
+  where
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+
+determineIfRouteTargetRequiresAuth :: AppSpec -> (String, AS.Route.Route) -> Bool
+determineIfRouteTargetRequiresAuth spec (_, route) = AS.Page.authRequired (snd targetPage) == Just True
   where
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage =
@@ -109,13 +113,6 @@ determineRouteTargetComponent spec (_, route) =
               ++ "'"
         )
         (find ((==) targetPageName . fst) (AS.getPages spec))
-
-    determineRouteTargetComponent' :: Bool -> String
-    determineRouteTargetComponent' authRequired =
-      if authRequired
-        then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
-          "createAuthRequiredPage(" ++ targetPageName ++ ")"
-        else targetPageName
 
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =

@@ -1,13 +1,13 @@
 {{={= =}=}}
 import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import signup from '../signup.js'
 import login from '../login.js'
 import { errorMessage } from '../../utils.js'
 
 const SignupForm = () => {
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const [emailFieldVal, setEmailFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
@@ -22,7 +22,7 @@ const SignupForm = () => {
       setPasswordFieldVal('')
 
       // Redirect to configured page, defaults to /.
-      history.push('{= onAuthSucceededRedirectTo =}')
+      navigate('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)
       window.alert(errorMessage(err))
