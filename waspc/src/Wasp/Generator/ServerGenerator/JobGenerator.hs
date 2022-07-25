@@ -10,6 +10,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
+import Data.Char (toLower)
 import Data.Maybe (fromJust, fromMaybe)
 import StrongPath
   ( Dir,
@@ -26,6 +27,7 @@ import StrongPath
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
@@ -62,7 +64,8 @@ genJob (jobName, job) =
             -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
+            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job)),
+            "entities" .= maybe [] (map (buildEntityData . AS.refName)) (J.entities job)
           ]
     )
   where
@@ -77,6 +80,13 @@ genJob (jobName, job) =
           "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+    buildEntityData :: String -> Aeson.Value
+    buildEntityData entityName =
+      object
+        [ "name" .= entityName,
+          "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
+        ]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded
 -- even if they are not referenced by user code. This ensures schedules are started, etc.
