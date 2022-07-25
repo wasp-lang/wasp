@@ -47,10 +47,10 @@ expr :: GrammarRule
 expr =
         Dict <$$> listLike lcurly dictEntry comma rcurly
     <|> List <$$> listLike lsquare expr comma rsquare
-    <|> Quoter <$$> (lquote <> quotedText)
     -- Note that we don't check number of tuple element here: this is left to
     -- the next phase of parsing.
     <|> Tuple <$$> listLike lparen expr comma rparen
+    <|> quoter
     <|> int
     <|> double
     <|> string
@@ -63,8 +63,10 @@ expr =
 dictEntry :: GrammarRule
 dictEntry = DictEntry <$$> (T.Identifier `as` DictKey) <> colon <> expr
 
-quotedText :: GrammarRule
-quotedText = rquote <|> (quoted <> quotedText)
+quoter :: GrammarRule
+quoter = Quoter <$$> lquote <> quoterTail
+  where
+    quoterTail = rquote <|> (quoted <> quoterTail)
 
 extImport :: GrammarRule
 extImport =

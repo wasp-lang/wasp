@@ -212,7 +212,7 @@ spec_ConcreteParser =
               token T.RCurly "}"
             ]
       let errors =
-            [ Unexpected (Span 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
+            [ UnexpectedToken (Region 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
             ]
       let tree =
             node
@@ -268,4 +268,4 @@ instance Diffable SyntaxNode where
   toLines n = lines $ cstPrettyPrint n
 
 instance Diffable ParseError where
-  toLines err = ["At " ++ show (errorSpan err), "  " ++ showErrorMessage err]
+  toLines err = ["At " ++ show (errorRegion err), "  " ++ showErrorMessage err]

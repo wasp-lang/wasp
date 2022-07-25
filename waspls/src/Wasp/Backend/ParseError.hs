@@ -7,10 +7,10 @@ module Wasp.Backend.ParseError
     -- * Display functions
     showError,
     showErrorMessage,
-    errorSpan,
+    errorRegion,
 
     -- * Source positions
-    Span (..),
+    Region (..),
     SourcePos (..),
     offsetToSourcePos,
   )
@@ -25,15 +25,15 @@ import Wasp.Backend.TokenSet (TokenSet)
 import qualified Wasp.Backend.TokenSet as TokenSet
 
 data ParseError
-  = Unexpected !Span !TokenKind TokenSet
+  = UnexpectedToken !Region !TokenKind TokenSet
   | UnexpectedEOF !Int TokenSet
   deriving (Eq, Ord, Show, Generic)
 
 instance NFData ParseError
 
-data Span = Span !Int !Int deriving (Eq, Ord, Show, Generic)
+data Region = Region !Int !Int deriving (Eq, Ord, Show, Generic)
 
-instance NFData Span
+instance NFData Region
 
 data SourcePos = SourcePos !Int !Int deriving (Eq, Ord, Show, Generic)
 
@@ -55,19 +55,19 @@ offsetToSourcePos source targetOffset = reach 0 (SourcePos 1 1) source
 
 showError :: String -> ParseError -> String
 showError source msg =
-  let (Span so eo) = errorSpan msg
+  let (Region so eo) = errorRegion msg
       start = offsetToSourcePos source so
       end = offsetToSourcePos source eo
    in "Parse error at " ++ showRegion start end ++ " (" ++ show so ++ ".." ++ show eo ++ ")\n  " ++ showErrorMessage msg
 
-errorSpan :: ParseError -> Span
-errorSpan (UnexpectedEOF o _) = Span o o
-errorSpan (Unexpected spn _ _) = spn
+errorRegion :: ParseError -> Region
+errorRegion (UnexpectedEOF o _) = Region o o
+errorRegion (UnexpectedToken rgn _ _) = rgn
 
 showErrorMessage :: ParseError -> String
 showErrorMessage (UnexpectedEOF _ expecteds) =
   "Unexpected end of file, " ++ showExpected expecteds
-showErrorMessage (Unexpected _ actual expecteds) =
+showErrorMessage (UnexpectedToken _ actual expecteds) =
   "Unexpected token " ++ showTokenKind actual ++ ", " ++ showExpected expecteds
 
 showExpected :: TokenSet -> String

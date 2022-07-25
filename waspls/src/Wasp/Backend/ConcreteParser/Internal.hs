@@ -365,8 +365,8 @@ parseEOF =
       _tokenKinds <- collectUntilEOF
       throwError $
         ParseError $
-          Unexpected
-            (Span nextTokenOffset (nextTokenOffset + tokenWidth nextToken))
+          UnexpectedToken
+            (Region nextTokenOffset (nextTokenOffset + tokenWidth nextToken))
             nextTokenKind
             TokenSet.fromEOF
       where
@@ -411,7 +411,7 @@ parseGroup label inner = do
       -- (1)
       let errorTokenKind = case parseError of
             UnexpectedEOF _ _ -> Nothing
-            Unexpected _ k _ -> Just k
+            UnexpectedToken _ k _ -> Just k
       errorCanBeHandled <- canFollowingRuleAcceptTokenKind errorTokenKind
       errorCanBeHandledWithoutUnwind <- canNextRuleAcceptTokenKind errorTokenKind
 
@@ -532,7 +532,7 @@ throwParseError Nothing eset = do
   throwError $ ParseError $ UnexpectedEOF offset eset
 throwParseError (Just actual) expectedTokens = do
   offset <- gets pstateNextTokenOffset
-  throwError $ ParseError $ Unexpected (Span offset (offset + tokenWidth actual)) (tokenKind actual) expectedTokens
+  throwError $ ParseError $ UnexpectedToken (Region offset (offset + tokenWidth actual)) (tokenKind actual) expectedTokens
 
 -- | Make an error node. Error node should only be produced when catching and
 -- pushing errors to the state.
@@ -549,7 +549,7 @@ makeErrorNode (UnexpectedEOF _ _) _ =
       snodeWidth = 0,
       snodeChildren = []
     }
-makeErrorNode (Unexpected (Span so eo) _ _) zeroWidth =
+makeErrorNode (UnexpectedToken (Region so eo) _ _) zeroWidth =
   SyntaxNode
     { snodeKind = S.Error,
       snodeWidth = if zeroWidth then 0 else eo - so,
