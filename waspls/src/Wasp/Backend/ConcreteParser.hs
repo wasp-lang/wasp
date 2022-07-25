@@ -15,7 +15,8 @@ import Wasp.Backend.ParseError
 import Wasp.Backend.Token (Token)
 import qualified Wasp.Backend.Token as T
 
--- | Parse a list of tokens into a concrete syntax tree for an entire wasp file.
+-- | Parse a list of tokens representing a Wasp program into a concrete syntax
+-- tree.
 --
 -- See "SyntaxNode" for a description of what a concrete syntax tree contains.
 parseCST :: [Token] -> ([ParseError], [SyntaxNode])
@@ -91,8 +92,8 @@ listLike ::
   GrammarRule ->
   GrammarRule
 listLike open value sep close =
-  open <> listLikeValues
+  open <> listLikeTail
   where
-    listLikeValues :: GrammarRule
-    listLikeValues =
-      perhaps sep <> (close <|> (value <> listLikeValues))
+    listLikeTail :: GrammarRule
+    listLikeTail =
+      perhaps sep <> (close <|> (value <> listLikeTail))
