@@ -565,7 +565,7 @@ job mySpecialJob {
 ####  `perform: dict` (required)
 
   - ##### `fn: fn` (required)
-  An `async` JavaScript function of work to be performed. It recieves a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
+  An `async` JavaScript function of work to be performed. It receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
 
   ```js
   export async function foo(args, context) {
