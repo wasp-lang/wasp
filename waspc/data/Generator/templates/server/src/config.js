@@ -1,5 +1,4 @@
 {{={= =}=}}
-import _ from 'lodash'
 
 const env = process.env.NODE_ENV || 'development'
 
@@ -35,5 +34,5 @@ const config = {
   }
 }
 
-const resolvedConfig = _.merge(config.all, config[env])
+const resolvedConfig = {...config.all, ...config[env]}
 export default resolvedConfig

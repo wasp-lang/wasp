@@ -106,22 +106,22 @@ npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("cookie-parser", "~1.4.4"),
+          [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("debug", "~2.6.9"),
-            ("express", "~4.16.1"),
-            ("morgan", "~1.9.1"),
+            ("debug", "~4.3.4"),
+            ("express", "~4.18.1"),
+            ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
-            ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("dotenv", "16.0.1"),
+            ("helmet", "^5.1.1")
           ]
           ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
-          [ ("nodemon", "^2.0.4"),
-            ("standard", "^14.3.4"),
+          [ ("nodemon", "^2.0.19"),
+            ("standard", "^17.0.0"),
             ("prisma", show prismaVersion)
           ]
     }
