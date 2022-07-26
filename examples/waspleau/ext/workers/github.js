@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { upsertMetric } from './utils.js'
 
-export async function workerFunction() {
-  console.log('github.js workerFunction')
+export async function workerFunction(args, context) {
+  console.log('github.js workerFunction', args, context)
 
   const response = await axios.get('https://api.github.com/repos/wasp-lang/wasp')
 
@@ -13,7 +13,7 @@ export async function workerFunction() {
     { name: 'Wasp GitHub Open Issues', value: response.data.open_issues },
   ]
 
-  await Promise.all(metrics.map(upsertMetric))
+  await Promise.all(metrics.map(upsertMetric(context)))
 
   return metrics
 }
