@@ -23,7 +23,7 @@ genAuth spec =
       sequence
         [ genSignup,
           genLogin,
-          genLogout,
+          genLogout auth,
           genUseAuth,
           genCreateAuthRequiredPage auth
         ]
@@ -41,8 +41,11 @@ genLogin :: Generator FileDraft
 genLogin = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/login.js|])
 
 -- | Generates file with logout function to be used by Wasp developer.
-genLogout :: Generator FileDraft
-genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
+genLogout :: AS.Auth.Auth -> Generator FileDraft
+genLogout auth =
+  compileTmplToSamePath
+    [relfile|auth/logout.js|]
+    ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth]
 
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft

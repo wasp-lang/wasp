@@ -1,18 +1,18 @@
 import React from 'react'
 import Button from '@mui/material/Button'
 
-import logout from '@wasp/auth/logout.js'
+import { Logout } from '@wasp/auth/logout.js'
 import Todo from '../Todo.js'
 import '../Main.css'
 
 const Main = () => {
   return (
     <>
-      <Button
-        variant='contained' color='primary'
-        onClick={logout}>
-        Logout
-      </Button>
+      <Logout>
+        <Button variant='contained' color='primary'>
+          Logout
+        </Button>
+      </Logout>
       <Todo />
     </>
   )
