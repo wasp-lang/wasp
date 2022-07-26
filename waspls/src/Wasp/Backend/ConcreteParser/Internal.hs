@@ -315,7 +315,7 @@ parse tokens grammar =
           }
    in case runState (runExceptT (parseRule grammar)) initialState of
         (Left err, state) -> case err of
-          Unwind _ -> error "Unwind at top-level GrammarRule (impossible, this is a bug in Wasp.Backend.ConcreteParser.Internal)"
+          Unwind -> error "Unwind at top-level GrammarRule (impossible, this is a bug in Wasp.Backend.ConcreteParser.Internal)"
           ParseError perr ->
             let errs = pstateErrors state ++ [perr]
                 newNode = makeErrorNode perr False
@@ -360,9 +360,7 @@ data ParseException
     --
     -- Essentially, it means "I don't know how to parse this, but I know someone
     -- above me can. Can you? If not, pass it along."
-    --
-    -- @tokenKind@ is the kind of the token that an error was produced on.
-    Unwind (Maybe TokenKind)
+    Unwind
 
 type ParserM a = ExceptT ParseException (State ParseState) a
 
@@ -427,7 +425,7 @@ parseGroup label inner = do
   case maybeInnerParserError of
     Nothing -> pushGroupNode childNodes
     Just (ParseError parseError) -> handleInnerParseError childNodes parseError
-    Just (Unwind nextTokenKind) -> handleInnerUnwind childNodes nextTokenKind
+    Just Unwind -> handleInnerUnwind childNodes
   where
     handleInnerParseError :: [SyntaxNode] -> ParseError -> ParserM ()
     handleInnerParseError childNodes parseError = do
@@ -463,17 +461,18 @@ parseGroup label inner = do
         then -- (3a)
           advance
         else -- (3b)
-          unless errorCanBeHandledWithoutUnwind $ throwError $ Unwind errorTokenKind
+          unless errorCanBeHandledWithoutUnwind $ throwError Unwind
 
-    handleInnerUnwind :: [SyntaxNode] -> Maybe TokenKind -> ParserM ()
-    handleInnerUnwind childNodes errorTokenKind = do
+    handleInnerUnwind :: [SyntaxNode] -> ParserM ()
+    handleInnerUnwind childNodes = do
+      errorTokenKind <- fmap tokenKind <$> peek
       -- When unwinding, check if this is the level where we can parse the error
       -- token. If it is, then stop unwinding. Otherwise, we continue unwinding.
       errorCanBeHandledWithoutUnwind <- canAnyFollowingRuleAcceptTokenKind errorTokenKind
 
       pushGroupNode childNodes
 
-      unless errorCanBeHandledWithoutUnwind $ throwError $ Unwind errorTokenKind
+      unless errorCanBeHandledWithoutUnwind $ throwError Unwind
 
     pushGroupNode :: [SyntaxNode] -> ParserM ()
     pushGroupNode children =
