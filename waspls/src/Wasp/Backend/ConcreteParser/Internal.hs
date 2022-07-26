@@ -52,14 +52,20 @@ module Wasp.Backend.ConcreteParser.Internal
     -- recovery occurs when an error is produced inside of a group rule. Recovery
     -- is based on the possible tokens that can follow the current rule.
     --
-    -- At a basic level, we can describe the mechanism as follows:
+    -- First, we define the follow set of a grammar rule @R@ in the grammar
+    -- @R <> S@ to be the set of token kinds that @S@ can accept as its first
+    -- token. For example, @"let"@ in @"let" <> ("=" <|> "+=")@ has the follow
+    -- set @["=", "+="]@.
+    --
+    -- We can then describe the basic mechanism as follows:
     --
     -- For a "GrammarRule" @label '<$$>' first '<>' next@, if an error occurs
     -- while parsing @first@, check if the token it errored on is in the follow
     -- set for the group.
     --
-    -- If yes, then there is a rule that can accept this token. So just continue
-    -- parsing. Otherwise, no rule has a use for the token, so discard it.
+    -- If yes, then there is a following rule that can accept this token. So
+    -- just continue parsing. Otherwise, no following rule has a use for the
+    -- token, so discard it.
     --
     -- In either case, we log an error to report at the end of parsing.
     --
@@ -98,8 +104,8 @@ module Wasp.Backend.ConcreteParser.Internal
     -- [Unexpected "let" at line 2 column 1: expected ";"]
     -- @
     --
-    -- However, this does not work in situations with multiple levels of groups,
-    -- i.e.:
+    -- But if we look at a more complex situation, with nested groups, we need
+    -- to introduce another concept to produce correct parses. For example:
     --
     -- @
     -- list = List <$$> '[' <> expr <> ']'
@@ -112,6 +118,11 @@ module Wasp.Backend.ConcreteParser.Internal
     -- @
     -- [(2 ]
     -- @
+    --
+    -- If we were to apply the same logic as before, we would find the follow
+    -- set of the @2@ to be @[")"]@. Since @]@ is not in this set, we discard
+    -- the right square bracket. But what we want to do is leave it so that
+    -- the @list@ rule can use it as its closing bracket.
     --
     -- To handle this scenario, we introduce an unwinding behavior to travel up
     -- through group rules until an appropriate point is found to recover. We
@@ -199,6 +210,27 @@ module Wasp.Backend.ConcreteParser.Internal
     -- A possible fix to this is to explore all possible (or many possible)
     -- unwinding stopping points and figuring out which one results in the
     -- fewest future parse errors.
+    --
+    -- In case this has performance issues with having to explore lots of possible
+    -- parse trees, we could limit how many branches we check, similar to optimizing
+    -- DFS for state tree searches (like a chess solver).
+    --
+    -- __TODO #3:__
+    --
+    -- Change wasp language a bit to make the start of a declaration unambiguous.
+    -- This would make it much easier for the parser to recover from an unfinished
+    -- declaration.
+    --
+    -- Ideas for this:
+    --
+    -- (1) Make all type names reserved keywords in the grammar
+    -- (2) Distinguish between type names and variable names based on the case
+    --     of the first letter (lowercase = type, uppercase = variable)
+    --
+    -- __TODO #4:__
+    --
+    -- When the next token is not in the follow set of the rule, try discarding
+    -- multiple tokens, stopping when we do find a token in the follow set.
   )
 where
 
@@ -308,12 +340,22 @@ data ParseState = ParseState
     pstatePrevTokenOffset :: !Int,
     -- | Stack of acceptable next tokens, where entries to the stack are added
     -- when we enter a group rule for parsing.
+    --
+    -- The first token set in this list is the current follow set and the union
+    -- of all of the token sets is the extended follow set.
     pstateAcceptableNextTokens :: [TokenSet]
   }
   deriving (Eq, Show, Ord)
 
 data ParseException
-  = -- | @Unwind tokenKind@ is used as a signal during error recovery. It is used
+  = -- | @ParseError parseError@ is used as a signal when an unexpected token is
+    -- encountered. This kind of exception is caught by error recovery points
+    -- and added to the output list of errors.
+    --
+    -- This may be converted into "Unwind" if error recovery determines unwinding
+    -- should occur.
+    ParseError ParseError
+  | -- | @Unwind tokenKind@ is used as a signal during error recovery. It is used
     -- to implement the unwinding behavior described at the top of the module.
     --
     -- Essentially, it means "I don't know how to parse this, but I know someone
@@ -321,10 +363,6 @@ data ParseException
     --
     -- @tokenKind@ is the kind of the token that an error was produced on.
     Unwind (Maybe TokenKind)
-  | -- | @ParseError parseError@ is used as a signal when an unexpected token is
-    -- encountered. This kind of exception is caught by error recovery points
-    -- and added to the output list of errors.
-    ParseError ParseError
 
 type ParserM a = ExceptT ParseException (State ParseState) a
 
@@ -412,8 +450,8 @@ parseGroup label inner = do
       let errorTokenKind = case parseError of
             UnexpectedEOF _ _ -> Nothing
             UnexpectedToken _ k _ -> Just k
-      errorCanBeHandled <- canFollowingRuleAcceptTokenKind errorTokenKind
-      errorCanBeHandledWithoutUnwind <- canNextRuleAcceptTokenKind errorTokenKind
+      errorCanBeHandled <- canAnyFollowingRuleAcceptTokenKind errorTokenKind
+      errorCanBeHandledWithoutUnwind <- canImmediateFollowingRuleAcceptTokenKind errorTokenKind
 
       -- (2)
       logError parseError
@@ -431,7 +469,7 @@ parseGroup label inner = do
     handleInnerUnwind childNodes errorTokenKind = do
       -- When unwinding, check if this is the level where we can parse the error
       -- token. If it is, then stop unwinding. Otherwise, we continue unwinding.
-      errorCanBeHandledWithoutUnwind <- canFollowingRuleAcceptTokenKind errorTokenKind
+      errorCanBeHandledWithoutUnwind <- canAnyFollowingRuleAcceptTokenKind errorTokenKind
 
       pushGroupNode childNodes
 
@@ -602,8 +640,8 @@ getValidFirstTokens grammarRule = fst $ go grammarRule TokenSet.empty
 -- | Check if any following rule can accept the given "TokenKind". If this is
 -- true, then unwinding at the current location will succeed in recovering from
 -- an error.
-canFollowingRuleAcceptTokenKind :: Maybe TokenKind -> ParserM Bool
-canFollowingRuleAcceptTokenKind nextTokenKind = do
+canAnyFollowingRuleAcceptTokenKind :: Maybe TokenKind -> ParserM Bool
+canAnyFollowingRuleAcceptTokenKind nextTokenKind = do
   followingTokens <- gets pstateAcceptableNextTokens
   return $ any (TokenSet.member nextTokenKind) followingTokens
 
@@ -611,13 +649,11 @@ canFollowingRuleAcceptTokenKind nextTokenKind = do
 -- then an error can be recovered from at the current context with no unwinding.
 --
 -- Pre-condition: @pstateAcceptableNextTokens@ is not empty.
-canNextRuleAcceptTokenKind :: Maybe TokenKind -> ParserM Bool
-canNextRuleAcceptTokenKind nextTokenKind = do
+canImmediateFollowingRuleAcceptTokenKind :: Maybe TokenKind -> ParserM Bool
+canImmediateFollowingRuleAcceptTokenKind nextTokenKind = do
   followingTokens <- gets pstateAcceptableNextTokens
   return $ case followingTokens of
-    -- The pre-condition prevents this case from happening, but returning False
-    -- here is reasonable. TODO: consider using 'error' here instead.
-    [] -> error "canNextRuleAcceptTokenKind called with empty pstateAcceptableNextTokens. This is a parser library error."
+    [] -> error "canImmediateFollowingRuleAcceptTokenKind called with empty pstateAcceptableNextTokens. This is a parser library error."
     (nextTokens : _) -> nextTokenKind `TokenSet.member` nextTokens
 
 infix 9 `as`

@@ -2,7 +2,7 @@ module Wasp.Backend.ConcreteParser
   ( -- * Concrete parser
 
     -- | This module contains functions for converting lists of "Token"s into
-    -- concrete syntax trees. These trees represent any source file completely,
+    -- concrete syntax trees. These trees represent any Wasp source file completely,
     -- including whitespace and comments, even if the source file is invalid.
     parseCST,
     parseCSTExpression,
@@ -98,4 +98,4 @@ listLike open value sep close =
   where
     listLikeTail :: GrammarRule
     listLikeTail =
-      perhaps sep <> (close <|> (value <> listLikeTail))
+      close <|> (value <> ((sep <> listLikeTail) <|> close))
