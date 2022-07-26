@@ -10,7 +10,6 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
-import Data.Char (toLower)
 import Data.Maybe (fromJust, fromMaybe)
 import StrongPath
   ( Dir,
@@ -85,7 +84,7 @@ genJob (jobName, job) =
     buildEntityData entityName =
       object
         [ "name" .= entityName,
-          "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
+          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
         ]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded

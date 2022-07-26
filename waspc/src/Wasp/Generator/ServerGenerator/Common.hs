@@ -10,6 +10,7 @@ module Wasp.Generator.ServerGenerator.Common
     asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
+    entityNameToPrismaIdentifier,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -18,6 +19,7 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
+import Data.Char (toLower)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
@@ -85,3 +87,6 @@ serverTemplatesDirInTemplatesDir = [reldir|server|]
 
 srcDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir ServerTemplatesSrcDir)
 srcDirInServerTemplatesDir = [reldir|src|]
+
+entityNameToPrismaIdentifier :: String -> String
+entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
