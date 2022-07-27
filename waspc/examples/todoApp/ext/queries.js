@@ -2,7 +2,7 @@ import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
   console.log('user who made the query: ', context.user)
   console.log('TEST_ENV_VAR', process.env.TEST_ENV_VAR)
@@ -23,7 +23,7 @@ export const getNumTasks = async (args, context) => {
 
 export const getTask = async ({ id }, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   const Task = context.entities.Task
@@ -34,7 +34,7 @@ export const getTask = async ({ id }, context) => {
     throw new HttpError(404)
   }
   if (task.user.id !== context.user.id) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   return task

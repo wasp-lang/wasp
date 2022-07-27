@@ -3,7 +3,7 @@ import { getSomeResource } from './serverSetup.js'
 
 export const createTask = async (task, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   const Task = context.entities.Task
@@ -22,7 +22,7 @@ export const createTask = async (task, context) => {
 
 export const updateTaskIsDone = async ({ id, isDone }, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   const Task = context.entities.Task
@@ -34,7 +34,7 @@ export const updateTaskIsDone = async ({ id, isDone }, context) => {
 
 export const deleteCompletedTasks = async (args, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   const Task = context.entities.Task
@@ -45,7 +45,7 @@ export const deleteCompletedTasks = async (args, context) => {
 
 export const toggleAllTasks = async (args, context) => {
   if (!context.user) {
-    throw new HttpError(403)
+    throw new HttpError(401)
   }
 
   const whereIsDone = isDone => ({ isDone, user: { id: context.user.id } })
