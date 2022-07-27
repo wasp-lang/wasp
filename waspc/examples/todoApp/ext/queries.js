@@ -33,8 +33,10 @@ export const getTask = async ({ id }, context) => {
   if (!task) {
     throw new HttpError(404)
   }
+  // 404 is used to 'hide' the current existence of a forbidden target resource as a security measure
+  // for vulnerabilities like IDOR
   if (task.user.id !== context.user.id) {
-    throw new HttpError(401)
+    throw new HttpError(404)
   }
 
   return task
