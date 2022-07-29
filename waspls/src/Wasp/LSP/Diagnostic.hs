@@ -31,8 +31,8 @@ concreteParseErrorToDiagnostic src err =
               }
           )
   where
-    concreteErrorRange e = case C.errorSpan e of
-      C.Span start end ->
+    concreteErrorRange e = case C.errorRegion e of
+      C.Region start end ->
         let startPos = C.offsetToSourcePos src start
             endPos = C.offsetToSourcePos src end
          in LSP.Range (concretePosToLSPPos startPos) (concretePosToLSPPos endPos)
