@@ -5,13 +5,15 @@ module Wasp.LSP.Syntax
     positionToOffset,
     toOffset,
     isAtExprPlace,
+    lexemeAt,
+    findChild,
     -- | Printing
     showNeighborhood,
   )
 where
 
 import Control.Syntax.Traverse
-import Data.List (intercalate, unfoldr)
+import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Backend.ConcreteSyntax as S
 
@@ -75,3 +77,11 @@ showNeighborhood t =
         ++ show (offsetAt node)
         ++ ".."
         ++ show (offsetAfter node)
+
+-- | Search for a child node with the matching "SyntaxKind".
+findChild :: S.SyntaxKind -> Traversal -> Maybe Traversal
+findChild skind t = find ((== skind) . kindAt) $ children t
+
+-- | @lexeme src traversal@
+lexemeAt :: String -> Traversal -> String
+lexemeAt src t = take (widthAt t) $ drop (offsetAt t) src

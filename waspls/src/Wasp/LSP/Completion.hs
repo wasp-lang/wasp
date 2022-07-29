@@ -5,7 +5,6 @@ where
 
 import Control.Lens ((^.))
 import Control.Syntax.Traverse
-import Data.List (find)
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
@@ -13,7 +12,7 @@ import Wasp.Backend.ConcreteSyntax (SyntaxNode)
 import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
-import Wasp.LSP.Syntax (isAtExprPlace, positionToOffset, showNeighborhood, toOffset)
+import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, positionToOffset, showNeighborhood, toOffset)
 
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
@@ -88,13 +87,5 @@ findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
       let maybeName = findChild S.DeclName t
           maybeType = findChild S.DeclType t
        in case (maybeName, maybeType) of
-            (Just nameT, Just typeT) -> Just (lexeme src nameT, lexeme src typeT)
+            (Just nameT, Just typeT) -> Just (lexemeAt src nameT, lexemeAt src typeT)
             _ -> Nothing
-
--- | Search for a child node with the matching "SyntaxKind".
-findChild :: S.SyntaxKind -> Traversal -> Maybe Traversal
-findChild skind t = find ((== skind) . kindAt) $ children t
-
--- | @lexeme src traversal@
-lexeme :: String -> Traversal -> String
-lexeme src t = take (widthAt t) $ drop (offsetAt t) src
