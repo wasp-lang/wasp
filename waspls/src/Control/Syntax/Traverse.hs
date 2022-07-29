@@ -171,8 +171,6 @@ left t = case leftSiblings t of
         }
 
 -- | Move to the sibling right of the current position.
---
--- This function is not total. Invariant: @'hasRightSiblings' t == True@
 right :: Traversal -> Maybe Traversal
 right t = case rightSiblings t of
   [] -> Nothing
@@ -243,7 +241,7 @@ back t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasLeftSiblings up t of
     Nothing -> Nothing
-    Just t' -> t' & right ?> untilM (not . hasChildren) (down ?> untilM (not . hasRightSiblings) right)
+    Just t' -> t' & left ?> untilM (not . hasChildren) (down ?> untilM (not . hasRightSiblings) right)
   | otherwise = Nothing
 
 -- | Get the "SyntaxKind" at the current position.
@@ -265,8 +263,6 @@ offsetAfter t = offsetAt t + widthAt t
 -- | Get the "SyntaxKind" of the parent of the current position.
 --
 -- [Property] @'parentKind' t == 'contentAt' (t & 'up')@
---
--- This function is not total. Invariant: @'hasAncestors' t == True@
 parentKind :: Traversal -> Maybe SyntaxKind
 parentKind t = kindAt <$> up t
 
@@ -282,8 +278,6 @@ nodeAt t =
 -- | Get the parent node of the current position.
 --
 -- [Property] @'parentOf' t == 'nodeAt' (t & 'up')@
---
--- This function is not total. Invariant: @'hasAncestors' t == True@
 parentOf :: Traversal -> Maybe SyntaxNode
 parentOf t = nodeAt <$> up t
 
