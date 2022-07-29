@@ -15,25 +15,33 @@ module Control.Syntax.Traverse
 
     -- * Traversal operations
 
-    -- | The operators '(&)', '(?&)', and '(?>)' are exported to allow for a slightly
-    -- more natural order in using traversal operations. For example, to
-    -- get to the 3rd child from the left down 2 levels in a tree you can do
-    --
-    -- >>> traversal & down ?> down ?> right ?> right
-    --
-    -- Which is equivalent to:
-    --
-    -- >>> right <$> right <$> down <$> down <$> traversal
-    (&),
-    (?&),
-    (?>),
+    -- | See the section on composition functions on how to compose these.
     bottom,
     down,
     up,
     left,
     right,
     next,
-    back,
+    previous,
+
+    -- * Composition functions
+
+    -- | These functions can be used to combine many traversal operators
+    -- together in a more readable form.
+    --
+    -- Using @&@ is recommended so that expressions start with the traversal and
+    -- then have the operations. @>=>@ can be used for left-to-right composition
+    -- of two operations.
+    --
+    -- For example, you could right @traversal & pipe (replicate 3 next)@ to move
+    -- 3 times to the next position in the traversal.
+    --
+    -- @&?@ is also exported for the same reason as @&@, but for use with
+    -- @Maybe Traversal@.
+    (&),
+    (&?),
+    (>=>),
+    pipe,
 
     -- * Collectors
     kindAt,
@@ -61,6 +69,7 @@ where
 
 import Control.Monad ((>=>))
 import Control.Monad.Loops (untilM)
+import Data.Foldable (Foldable (foldl'))
 import Data.Function ((&))
 import Data.Maybe (isJust)
 import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
@@ -110,21 +119,14 @@ levelFromTraversableTree offset node rSiblings =
       tlRightSiblings = rSiblings
     }
 
--- | Apply a traversal operation to a traversal that may not exist
---
--- @x ?& f == f <$> x
-infixl 1 ?&
+-- | Left-to-right composition of several traversal operations.
+pipe :: [Traversal -> Maybe Traversal] -> (Traversal -> Maybe Traversal)
+pipe ops = foldl' (>=>) Just ops
 
-(?&) :: Maybe Traversal -> (Traversal -> Maybe Traversal) -> Maybe Traversal
-x ?& f = x >>= f
-
--- | Composition of two traversal operations
---
--- @f ?> g == f >=> g@
-infixl 2 ?>
-
-(?>) :: (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal) -> (Traversal -> Maybe Traversal)
-f ?> g = f >=> g
+-- | Synonym for @>>=@. Meant to be more visually similar to @&@, since they are
+-- used for essentially the same purpose in this library.
+(&?) :: Maybe Traversal -> (Traversal -> Maybe Traversal) -> Maybe Traversal
+t &? op = t >>= op
 
 -- | Move down the tree to the deepest left-most leaf
 bottom :: Traversal -> Traversal
@@ -224,25 +226,27 @@ right t = case rightSiblings t of
 --             ▲   │
 --           start │
 --                 │
---           start & next
+--            start & next
 -- @
 next :: Traversal -> Maybe Traversal
 next t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasRightSiblings up t of
     Nothing -> Nothing
-    Just t' -> t' & right ?> untilM (not . hasChildren) down
+    Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
   | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
 -- of right.
-back :: Traversal -> Maybe Traversal
-back t
+previous :: Traversal -> Maybe Traversal
+previous t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasLeftSiblings up t of
     Nothing -> Nothing
-    Just t' -> t' & left ?> untilM (not . hasChildren) (down ?> untilM (not . hasRightSiblings) right)
+    Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
   | otherwise = Nothing
+  where
+    rightMostSibling = untilM (not . hasRightSiblings) right
 
 -- | Get the "SyntaxKind" at the current position.
 kindAt :: Traversal -> SyntaxKind
@@ -322,10 +326,10 @@ hasRightSiblings t = not $ null $ rightSiblings t
 hasNext :: Traversal -> Bool
 hasNext t = isJust $ next t
 
--- | Check if the current position has a previous position. Analogue for 'back'
+-- | Check if the current position has a previous position. Analogue for 'previous'
 -- of 'hasNext'.
 hasPrevious :: Traversal -> Bool
-hasPrevious t = isJust $ back t
+hasPrevious t = isJust $ previous t
 
 -- | Check if the current position has at least one parent.
 hasAncestors :: Traversal -> Bool

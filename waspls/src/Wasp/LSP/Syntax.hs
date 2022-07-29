@@ -10,7 +10,6 @@ module Wasp.LSP.Syntax
   )
 where
 
-import Control.Monad ((>=>))
 import Control.Syntax.Traverse
 import Data.List (intercalate, unfoldr)
 import qualified Language.LSP.Types as J
@@ -35,9 +34,9 @@ toOffset targetOffset start = go $ bottom start
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset && not (S.syntaxKindIsTrivia (kindAt at)) =
         at
-      | otherwise = case at & next of
-        Nothing -> at -- Syntax tree stored in the traversal isn't wide enough
-        Just after -> go after
+      -- If @at & next@ fails, the input doesn't contain the offset, so just
+      -- return the last node instead.
+      | otherwise = maybe at go $ at & next
 
 -- | Check whether a position in a CST is somewhere an expression belongs. These
 -- locations (as of now) are:
@@ -64,11 +63,12 @@ showNeighborhood t =
   let parentStr = case t & up of
         Nothing -> "<ROOT>"
         Just parent -> showNode "" parent
-      leftSiblingLines = map (showNode "  ") $ reverse $ unfoldr (left >=> return . dupe) t
+      leftSiblingLines = map (showNode "  ") $ reverse $ collect left t
       currentStr = showNode "  " t ++ " <--"
-      childrenLines = map (showNode "    ") $ concat $ down t >>= return . unfoldr (right >=> return . dupe)
-      rightSiblingLines = map (showNode "  ") $ unfoldr (right >=> return . dupe) t
-   in intercalate "\n" $ parentStr : leftSiblingLines ++ [currentStr] ++ childrenLines ++ rightSiblingLines
+      rightSiblingLines = map (showNode "  ") $ collect right t
+   in intercalate "\n" $ parentStr : leftSiblingLines ++ [currentStr] ++ rightSiblingLines
   where
     showNode indent node = indent ++ show (kindAt node) ++ "@" ++ show (offsetAt node) ++ ".." ++ show (offsetAfter node)
     dupe x = (x, x)
+    collect :: (Traversal -> Maybe Traversal) -> Traversal -> [Traversal]
+    collect op = unfoldr (op >=> return . dupe)
