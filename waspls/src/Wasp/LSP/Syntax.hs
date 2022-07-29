@@ -53,7 +53,7 @@ isAtExprPlace t =
     || parentIs S.Tuple
   where
     parentIs k = Just k == parentKind t
-    hasLeft k = k `elem` map S.snodeKind (leftSiblings t)
+    hasLeft k = k `elem` map kindAt (leftSiblings t)
 
 -- | Show the nodes around the current position
 --
@@ -63,12 +63,15 @@ showNeighborhood t =
   let parentStr = case t & up of
         Nothing -> "<ROOT>"
         Just parent -> showNode "" parent
-      leftSiblingLines = map (showNode "  ") $ reverse $ collect left t
+      leftSiblingLines = map (showNode "  ") $ leftSiblings t
       currentStr = showNode "  " t ++ " <--"
-      rightSiblingLines = map (showNode "  ") $ collect right t
+      rightSiblingLines = map (showNode "  ") $ rightSiblings t
    in intercalate "\n" $ parentStr : leftSiblingLines ++ [currentStr] ++ rightSiblingLines
   where
-    showNode indent node = indent ++ show (kindAt node) ++ "@" ++ show (offsetAt node) ++ ".." ++ show (offsetAfter node)
-    dupe x = (x, x)
-    collect :: (Traversal -> Maybe Traversal) -> Traversal -> [Traversal]
-    collect op = unfoldr (op >=> return . dupe)
+    showNode indent node =
+      indent
+        ++ show (kindAt node)
+        ++ "@"
+        ++ show (offsetAt node)
+        ++ ".."
+        ++ show (offsetAfter node)

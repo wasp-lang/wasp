@@ -71,6 +71,7 @@ import Control.Monad ((>=>))
 import Control.Monad.Loops (untilM)
 import Data.Foldable (Foldable (foldl'))
 import Data.Function ((&))
+import Data.List (unfoldr)
 import Data.Maybe (isJust)
 import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
 
@@ -90,6 +91,15 @@ data TraversalLevel = TraversalLevel
     tlRightSiblings :: [SyntaxNode]
   }
   deriving (Eq, Show, Ord)
+
+tLeftSiblings :: Traversal -> [SyntaxNode]
+tLeftSiblings t = tlLeftSiblings $ tCurrent t
+
+tRightSiblings :: Traversal -> [SyntaxNode]
+tRightSiblings t = tlRightSiblings $ tCurrent t
+
+tChildren :: Traversal -> [SyntaxNode]
+tChildren t = tlChildren $ tCurrent t
 
 -- | Create a new "Traversal" from a "SyntaxNode", starting at the root.
 fromSyntax :: SyntaxNode -> Traversal
@@ -134,7 +144,7 @@ bottom t = maybe t bottom $ t & down
 
 -- | Move down a level in the tree, to the first child of the current position.
 down :: Traversal -> Maybe Traversal
-down t = case tlChildren (tCurrent t) of
+down t = case tChildren t of
   [] -> Nothing
   (c : cs) ->
     Just $
@@ -156,7 +166,7 @@ up t = case tAncestors t of
 
 -- | Move to the sibling left of the current position.
 left :: Traversal -> Maybe Traversal
-left t = case leftSiblings t of
+left t = case tLeftSiblings t of
   [] -> Nothing
   (l : ls) ->
     Just $
@@ -168,13 +178,13 @@ left t = case leftSiblings t of
                 tlOffset = offsetAt t - snodeWidth l,
                 tlChildren = snodeChildren l,
                 tlLeftSiblings = ls,
-                tlRightSiblings = nodeAt t : rightSiblings t
+                tlRightSiblings = nodeAt t : tRightSiblings t
               }
         }
 
 -- | Move to the sibling right of the current position.
 right :: Traversal -> Maybe Traversal
-right t = case rightSiblings t of
+right t = case tRightSiblings t of
   [] -> Nothing
   (r : rs) ->
     Just $
@@ -185,7 +195,7 @@ right t = case rightSiblings t of
                 tlWidth = snodeWidth r,
                 tlOffset = offsetAt t + widthAt t,
                 tlChildren = snodeChildren r,
-                tlLeftSiblings = nodeAt t : leftSiblings t,
+                tlLeftSiblings = nodeAt t : tLeftSiblings t,
                 tlRightSiblings = rs
               }
         }
@@ -276,7 +286,7 @@ nodeAt t =
   SyntaxNode
     { snodeKind = kindAt t,
       snodeWidth = widthAt t,
-      snodeChildren = children t
+      snodeChildren = tChildren t
     }
 
 -- | Get the parent node of the current position.
@@ -294,20 +304,27 @@ ancestors t = case t & up of
 -- | Get the siblings of the current position (not including the current node).
 --
 -- [Property] @'siblings' t == 'leftSiblings' t ++ 'rightSiblings' t@
-siblings :: Traversal -> [SyntaxNode]
+siblings :: Traversal -> [Traversal]
 siblings t = leftSiblings t ++ rightSiblings t
 
 -- | Get siblings left of the current position.
-leftSiblings :: Traversal -> [SyntaxNode]
-leftSiblings t = tlLeftSiblings (tCurrent t)
+leftSiblings :: Traversal -> [Traversal]
+leftSiblings t = reverse $ unfoldr step t
+  where
+    step = left >=> (\x -> return (x, x))
 
 -- | Get siblings right of the current position.
-rightSiblings :: Traversal -> [SyntaxNode]
-rightSiblings t = tlRightSiblings (tCurrent t)
+rightSiblings :: Traversal -> [Traversal]
+rightSiblings t = unfoldr step t
+  where
+    step = right >=> (\x -> return (x, x))
 
 -- | Get the children of the current position.
-children :: Traversal -> [SyntaxNode]
-children t = tlChildren (tCurrent t)
+children :: Traversal -> [Traversal]
+children t = unfoldr step (t & down)
+  where
+    step Nothing = Nothing
+    step (Just t') = Just (t', t' & right)
 
 -- | Check if the current position has children.
 hasChildren :: Traversal -> Bool

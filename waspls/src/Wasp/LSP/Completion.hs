@@ -4,7 +4,9 @@ module Wasp.LSP.Completion
 where
 
 import Control.Lens ((^.))
-import Control.Syntax.Traverse (fromSyntaxForest)
+import Control.Syntax.Traverse
+import Data.List (find)
+import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import Wasp.Backend.ConcreteSyntax (SyntaxNode)
@@ -13,11 +15,12 @@ import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
 import Wasp.LSP.Syntax (isAtExprPlace, positionToOffset, showNeighborhood, toOffset)
 
+-- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
 getCompletionsAtPosition position = do
   src <- gets (^. sourceString)
-  mbSyntax <- gets (^. cst)
-  case mbSyntax of
+  maybeSyntax <- gets (^. cst)
+  case maybeSyntax of
     -- If there is no syntax tree, make no completions
     Nothing -> return []
     Just syntax -> do
@@ -38,9 +41,11 @@ getCompletionsAtPosition position = do
 
 -- | If the location is at an expression, find declaration names in the file
 -- and return them as autocomplete suggestions
+--
+-- TODO: include completions for enum variants (use standard type defs from waspc)
 getExprCompletions :: String -> [SyntaxNode] -> ServerM [LSP.CompletionItem]
 getExprCompletions src syntax = do
-  let declNames = findDeclNames src 0 syntax
+  let declNames = findDeclNames src syntax
   logM $ "[getExprCompletions] declnames=" ++ show declNames
   return $
     map
@@ -67,29 +72,29 @@ getExprCompletions src syntax = do
       )
       declNames
 
--- | TODO: refactor to use "Traversal"
-findDeclNames :: String -> Int -> [SyntaxNode] -> [(String, String)]
-findDeclNames _ _ [] = []
-findDeclNames src offset (node : rest) = case S.snodeKind node of
-  S.Program -> findDeclNames src offset (S.snodeChildren node) ++ findDeclNames src (offset + S.snodeWidth node) rest
-  S.Decl ->
-    let mbName = findSnode S.DeclName offset (S.snodeChildren node)
-        mbTyp = findSnode S.DeclType offset (S.snodeChildren node)
-        names = case (mbName, mbTyp) of
-          (Just (nameOffset, nameNode), Just (typOffset, typNode)) ->
-            let name = lexeme src nameOffset (S.snodeWidth nameNode)
-                typ = lexeme src typOffset (S.snodeWidth typNode)
-             in [(name, typ)]
-          _ -> []
-     in names ++ findDeclNames src (offset + S.snodeWidth node) rest
-  _ -> findDeclNames src (offset + S.snodeWidth node) rest
+-- | Search through the CST and collect all @(declName, declType)@ pairs.
+findDeclNames :: String -> [SyntaxNode] -> [(String, String)]
+findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
+  where
+    traverseForDeclNames :: Traversal -> [(String, String)]
+    traverseForDeclNames t = case kindAt t of
+      S.Program -> maybe [] traverseForDeclNames $ down t
+      S.Decl ->
+        let declNameAndType = maybeToList $ locateDeclNameAndType t
+         in declNameAndType ++ maybe [] traverseForDeclNames (right t)
+      _ -> maybe [] traverseForDeclNames $ right t
+    locateDeclNameAndType :: Traversal -> Maybe (String, String)
+    locateDeclNameAndType t =
+      let maybeName = findChild S.DeclName t
+          maybeType = findChild S.DeclType t
+       in case (maybeName, maybeType) of
+            (Just nameT, Just typeT) -> Just (lexeme src nameT, lexeme src typeT)
+            _ -> Nothing
 
-findSnode :: S.SyntaxKind -> Int -> [SyntaxNode] -> Maybe (Int, SyntaxNode)
-findSnode _ _ [] = Nothing
-findSnode k offset (n : ns)
-  | S.snodeKind n == k = Just (offset, n)
-  | otherwise = findSnode k (offset + S.snodeWidth n) ns
+-- | Search for a child node with the matching "SyntaxKind".
+findChild :: S.SyntaxKind -> Traversal -> Maybe Traversal
+findChild skind t = find ((== skind) . kindAt) $ children t
 
--- | @lexeme src offset width@
-lexeme :: String -> Int -> Int -> String
-lexeme src offset width = take width $ drop offset src
+-- | @lexeme src traversal@
+lexeme :: String -> Traversal -> String
+lexeme src t = take (widthAt t) $ drop (offsetAt t) src
