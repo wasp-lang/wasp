@@ -1,5 +1,6 @@
 module Wasp.Generator.Job.IO
-  ( readJobMessagesAndPrintThemPrefixed,
+  ( readJobMessagesAndReturnTextOutput,
+    readJobMessagesAndPrintThemPrefixed,
     printPrefixedJobMessage,
     printJobMessage,
   )
@@ -12,6 +13,15 @@ import System.Exit (ExitCode (..))
 import System.IO (Handle, hFlush, stderr, stdout)
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.Util.Terminal as Term
+
+readJobMessagesAndReturnTextOutput :: Chan J.JobMessage -> IO [T.Text]
+readJobMessagesAndReturnTextOutput =
+  let go jobMessages chan = do
+        jobMsg <- readChan chan
+        case J._data jobMsg of
+          J.JobOutput output _ -> go (output : jobMessages) chan
+          J.JobExit {} -> return . reverse $ jobMessages
+   in go []
 
 readJobMessagesAndPrintThemPrefixed :: Chan J.JobMessage -> IO ()
 readJobMessagesAndPrintThemPrefixed =

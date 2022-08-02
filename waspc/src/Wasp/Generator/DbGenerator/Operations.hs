@@ -1,6 +1,9 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
+    areAllMigrationsApplied,
+    doesSchemaMatchDb,
+    writeDbSchemaChecksumToFile,
   )
 where
 
@@ -8,6 +11,7 @@ import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Catch (catch)
+import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified StrongPath as SP
@@ -28,7 +32,11 @@ import Wasp.Generator.FileDraft.WriteableMonad
   )
 import Wasp.Generator.Job (JobMessage)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO
+  ( printJobMessage,
+    readJobMessagesAndPrintThemPrefixed,
+    readJobMessagesAndReturnTextOutput,
+  )
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
 
@@ -96,3 +104,30 @@ generatePrismaClient genProjectRootDirAbs = do
       writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
       return $ Right ()
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+
+areAllMigrationsApplied :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+areAllMigrationsApplied genProjectRootDirAbs = do
+  let successMessage = "Database schema is up to date!" :: T.Text
+  chan <- newChan
+  (jobOutput, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndReturnTextOutput chan)
+      (DbJobs.migrateStatus genProjectRootDirAbs chan)
+  case dbExitCode of
+    ExitSuccess -> do
+      return $ Just $ any (successMessage `T.isInfixOf`) jobOutput
+    ExitFailure _ -> return Nothing
+
+doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+doesSchemaMatchDb genProjectRootDirAbs = do
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndReturnTextOutput chan)
+      (DbJobs.migrateDiff genProjectRootDirAbs chan)
+  -- Schema in sync: 0, Error: 1, Schema differs: 2
+  case dbExitCode of
+    ExitSuccess -> do
+      return $ Just True
+    ExitFailure 2 -> return $ Just False
+    ExitFailure _ -> return Nothing
