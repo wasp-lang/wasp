@@ -2,7 +2,7 @@ module Wasp.LSP.Syntax
   ( -- * Syntax
 
     -- | Module with utilities for working with/looking for patterns in CSTs
-    positionToOffset,
+    lspPositionToOffset,
     toOffset,
     isAtExprPlace,
     lexemeAt,
@@ -17,9 +17,11 @@ import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Backend.ConcreteSyntax as S
 
-positionToOffset :: String -> J.Position -> Int
-positionToOffset str (J.Position l c) =
-  let linesBefore = take (fromIntegral l) (lines str)
+-- | @lspPositionToOffset srcString position@ returns 0-based offset from the
+-- start of @srcString@ to the specified line and column.
+lspPositionToOffset :: String -> J.Position -> Int
+lspPositionToOffset srcString (J.Position l c) =
+  let linesBefore = take (fromIntegral l) (lines srcString)
    in -- We add 1 to the length of each line to make sure to count the newline
       sum (map ((+ 1) . length) linesBefore) + fromIntegral c
 

@@ -22,7 +22,7 @@ import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
-import Wasp.LSP.ServerState (cst, diagnostics, sourceString)
+import Wasp.LSP.ServerState (cst, latestDiagnostics, sourceString)
 
 -- LSP notification and request handlers
 
@@ -74,37 +74,41 @@ completionHandler =
 -- file in "Wasp.LSP.State.State".
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
-  updateState uri
-  currentDiagnostics <- gets (^. diagnostics)
+  analyzeWaspFile uri
+  currentDiagnostics <- gets (^. latestDiagnostics)
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
       LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
 
-updateState :: LSP.Uri -> ServerM ()
-updateState uri = do
-  src <- readVFSFile uri
-  let srcString = T.unpack src
-  modify (sourceString .~ srcString)
-  let concreteParse = parseCST $ L.lex srcString
-  -- Put CST in state
-  modify (cst ?~ snd concreteParse)
-  if not $ null $ fst concreteParse
-    then do
-      -- Errors found during concrete parsing. Replace diagnostics with new parse
-      -- diagnostics.
-      newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) $ fst concreteParse
-      modify (diagnostics .~ newDiagnostics)
-    else do
-      -- No concrete parse errors, run full analyzer!
+analyzeWaspFile :: LSP.Uri -> ServerM ()
+analyzeWaspFile uri = do
+  srcString <- readAndStoreSourceString
+  let (concreteErrorMessages, concreteSyntax) = parseCST $ L.lex srcString
+  modify (cst ?~ concreteSyntax)
+  if not $ null concreteErrorMessages
+    then storeCSTErrors concreteErrorMessages
+    else runWaspAnalyzer srcString
+  where
+    readAndStoreSourceString = do
+      srcString <- T.unpack <$> readVFSFile uri
+      modify (sourceString .~ srcString)
+      return srcString
+
+    storeCSTErrors concreteErrorMessages = do
+      srcString <- gets (^. sourceString)
+      newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) concreteErrorMessages
+      modify (latestDiagnostics .~ newDiagnostics)
+
+    runWaspAnalyzer srcString = do
       let analyzeResult = analyze srcString
       case analyzeResult of
         Right _ -> do
-          modify (diagnostics .~ [])
+          modify (latestDiagnostics .~ [])
         Left err -> do
           let newDiagnostics =
                 [ waspErrorToDiagnostic err
                 ]
-          modify (diagnostics .~ newDiagnostics)
+          modify (latestDiagnostics .~ newDiagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a

@@ -3,7 +3,8 @@
 module Control.Syntax.Traverse
   ( -- * Syntax tree traversal
 
-    -- | Library for traversing around syntax trees. The main benefits are:
+    -- | Library for traversing around a concrete syntax trees. The main
+    -- benefits are:
     --
     -- - Easier to find nodes relative to a particular node
     -- - Keeps track of absolute source offset
@@ -33,7 +34,7 @@ module Control.Syntax.Traverse
     -- then have the operations. @>=>@ can be used for left-to-right composition
     -- of two operations.
     --
-    -- For example, you could right @traversal & pipe (replicate 3 next)@ to move
+    -- For example, you could write @traversal & pipe (replicate 3 next)@ to move
     -- 3 times to the next position in the traversal.
     --
     -- @&?@ is also exported for the same reason as @&@, but for use with
@@ -50,7 +51,7 @@ module Control.Syntax.Traverse
     offsetAfter,
     parentKind,
     nodeAt,
-    parentOf,
+    parentNode,
     ancestors,
     siblings,
     leftSiblings,
@@ -72,34 +73,33 @@ import Control.Monad.Loops (untilM)
 import Data.Foldable (Foldable (foldl'))
 import Data.Function ((&))
 import Data.List (unfoldr)
+import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
-import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
+import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
 
 -- | An in-progress traversal through some tree @f@.
 data Traversal = Traversal
-  { tAncestors :: [TraversalLevel],
-    tCurrent :: TraversalLevel
+  { ancestorLevels :: [TraversalLevel],
+    currentLevel :: TraversalLevel
   }
   deriving (Eq, Ord, Show)
 
 data TraversalLevel = TraversalLevel
-  { tlKind :: !SyntaxKind,
-    tlWidth :: !Int,
-    tlOffset :: !Int,
-    tlChildren :: [SyntaxNode],
+  { tlCurrentNode :: !SyntaxNode,
+    tlCurrentOffset :: !Int,
     tlLeftSiblings :: [SyntaxNode],
     tlRightSiblings :: [SyntaxNode]
   }
   deriving (Eq, Show, Ord)
 
 tLeftSiblings :: Traversal -> [SyntaxNode]
-tLeftSiblings t = tlLeftSiblings $ tCurrent t
+tLeftSiblings t = tlLeftSiblings $ currentLevel t
 
 tRightSiblings :: Traversal -> [SyntaxNode]
-tRightSiblings t = tlRightSiblings $ tCurrent t
+tRightSiblings t = tlRightSiblings $ currentLevel t
 
 tChildren :: Traversal -> [SyntaxNode]
-tChildren t = tlChildren $ tCurrent t
+tChildren t = snodeChildren $ nodeAt t
 
 -- | Create a new "Traversal" from a "SyntaxNode", starting at the root.
 fromSyntax :: SyntaxNode -> Traversal
@@ -113,18 +113,16 @@ fromSyntaxForest :: [SyntaxNode] -> Traversal
 fromSyntaxForest [] = error "Control.Tree.Traversal.fromTraversableForest on empty list"
 fromSyntaxForest (t : ts) =
   Traversal
-    { tAncestors = [],
-      tCurrent = levelFromTraversableTree 0 t ts
+    { ancestorLevels = [],
+      currentLevel = levelFromTraversableTree 0 (t :| ts)
     }
 
--- | Create a new "TraversalLevel" from a node and its right siblings.
-levelFromTraversableTree :: Int -> SyntaxNode -> [SyntaxNode] -> TraversalLevel
-levelFromTraversableTree offset node rSiblings =
+-- | Create a new "TraversalLevel" from a non-empty list of nodes.
+levelFromTraversableTree :: Int -> NonEmpty SyntaxNode -> TraversalLevel
+levelFromTraversableTree offset (node :| rSiblings) =
   TraversalLevel
-    { tlKind = snodeKind node,
-      tlWidth = snodeWidth node,
-      tlOffset = offset,
-      tlChildren = snodeChildren node,
+    { tlCurrentNode = node,
+      tlCurrentOffset = offset,
       tlLeftSiblings = [],
       tlRightSiblings = rSiblings
     }
@@ -149,19 +147,19 @@ down t = case tChildren t of
   (c : cs) ->
     Just $
       Traversal
-        { tAncestors = tCurrent t : tAncestors t,
-          tCurrent = levelFromTraversableTree (offsetAt t) c cs
+        { ancestorLevels = currentLevel t : ancestorLevels t,
+          currentLevel = levelFromTraversableTree (offsetAt t) (c :| cs)
         }
 
 -- | Move up a level in the tree, to the parent of the current position.
 up :: Traversal -> Maybe Traversal
-up t = case tAncestors t of
+up t = case ancestorLevels t of
   [] -> Nothing
   (a : as) ->
     Just $
       Traversal
-        { tAncestors = as,
-          tCurrent = a
+        { ancestorLevels = as,
+          currentLevel = a
         }
 
 -- | Move to the sibling left of the current position.
@@ -171,12 +169,10 @@ left t = case tLeftSiblings t of
   (l : ls) ->
     Just $
       t
-        { tCurrent =
+        { currentLevel =
             TraversalLevel
-              { tlKind = snodeKind l,
-                tlWidth = snodeWidth l,
-                tlOffset = offsetAt t - snodeWidth l,
-                tlChildren = snodeChildren l,
+              { tlCurrentNode = l,
+                tlCurrentOffset = offsetAt t - snodeWidth l,
                 tlLeftSiblings = ls,
                 tlRightSiblings = nodeAt t : tRightSiblings t
               }
@@ -189,12 +185,10 @@ right t = case tRightSiblings t of
   (r : rs) ->
     Just $
       t
-        { tCurrent =
+        { currentLevel =
             TraversalLevel
-              { tlKind = snodeKind r,
-                tlWidth = snodeWidth r,
-                tlOffset = offsetAt t + widthAt t,
-                tlChildren = snodeChildren r,
+              { tlCurrentNode = r,
+                tlCurrentOffset = offsetAt t + widthAt t,
                 tlLeftSiblings = nodeAt t : tLeftSiblings t,
                 tlRightSiblings = rs
               }
@@ -260,15 +254,15 @@ previous t
 
 -- | Get the "SyntaxKind" at the current position.
 kindAt :: Traversal -> SyntaxKind
-kindAt t = tlKind (tCurrent t)
+kindAt t = snodeKind $ nodeAt t
 
 -- | Get the width of the current node.
 widthAt :: Traversal -> Int
-widthAt t = tlWidth (tCurrent t)
+widthAt t = snodeWidth $ nodeAt t
 
 -- | Get the offset of the start of the current node in the source text.
 offsetAt :: Traversal -> Int
-offsetAt t = tlOffset (tCurrent t)
+offsetAt t = tlCurrentOffset (currentLevel t)
 
 -- | Get the offset of the end of the current node in the source text.
 offsetAfter :: Traversal -> Int
@@ -282,24 +276,20 @@ parentKind t = kindAt <$> up t
 
 -- | Get the node at the current position.
 nodeAt :: Traversal -> SyntaxNode
-nodeAt t =
-  SyntaxNode
-    { snodeKind = kindAt t,
-      snodeWidth = widthAt t,
-      snodeChildren = tChildren t
-    }
+nodeAt t = tlCurrentNode (currentLevel t)
 
 -- | Get the parent node of the current position.
 --
--- [Property] @'parentOf' t == 'nodeAt' (t & 'up')@
-parentOf :: Traversal -> Maybe SyntaxNode
-parentOf t = nodeAt <$> up t
+-- [Property] @'parentNode' t == 'nodeAt' (t & 'up')@
+parentNode :: Traversal -> Maybe SyntaxNode
+parentNode t = nodeAt <$> up t
 
--- | Get the ancestor nodes of the current position.
-ancestors :: Traversal -> [SyntaxNode]
-ancestors t = case t & up of
-  Nothing -> []
-  Just parent -> nodeAt parent : ancestors parent
+-- | Get the ancestors of the current position.
+ancestors :: Traversal -> [Traversal]
+ancestors t = unfoldr step (t & up)
+  where
+    step Nothing = Nothing
+    step (Just t') = Just (t', t' & up)
 
 -- | Get the siblings of the current position (not including the current node).
 --
@@ -350,4 +340,4 @@ hasPrevious t = isJust $ previous t
 
 -- | Check if the current position has at least one parent.
 hasAncestors :: Traversal -> Bool
-hasAncestors t = not $ null $ tAncestors t
+hasAncestors t = not $ null $ ancestorLevels t

@@ -41,7 +41,7 @@ concreteParseErrorToDiagnostic src err =
 
 waspErrorToDiagnostic :: W.AnalyzeError -> LSP.Diagnostic
 waspErrorToDiagnostic err =
-  let message = waspErrorMessage err
+  let message = waspErrorAsPrettyEditorMessage err
       source = waspErrorSource err
       range = waspErrorRange err
    in LSP.Diagnostic
@@ -58,8 +58,8 @@ waspErrorToDiagnostic err =
 --
 -- TODO: Write a new conversion from error to text here that is better suited
 -- for in-editor display
-waspErrorMessage :: W.AnalyzeError -> Text
-waspErrorMessage = Text.pack . fst . W.getErrorMessageAndCtx
+waspErrorAsPrettyEditorMessage :: W.AnalyzeError -> Text
+waspErrorAsPrettyEditorMessage = Text.pack . fst . W.getErrorMessageAndCtx
 
 waspErrorSource :: W.AnalyzeError -> Text
 waspErrorSource (W.ParseError _) = "parse"

@@ -3,16 +3,17 @@ module Wasp.LSP.Completion
   )
 where
 
-import Control.Lens ((^.))
+import Control.Lens ((?~), (^.))
 import Control.Syntax.Traverse
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
+import qualified Language.LSP.Types.Lens as LSP
 import Wasp.Backend.ConcreteSyntax (SyntaxNode)
 import qualified Wasp.Backend.ConcreteSyntax as S
 import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
-import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, positionToOffset, showNeighborhood, toOffset)
+import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, lspPositionToOffset, showNeighborhood, toOffset)
 
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
@@ -23,7 +24,7 @@ getCompletionsAtPosition position = do
     -- If there is no syntax tree, make no completions
     Nothing -> return []
     Just syntax -> do
-      let offset = positionToOffset src position
+      let offset = lspPositionToOffset src position
       -- 'location' is a traversal through the syntax tree that points to 'position'
       let location = toOffset offset (fromSyntaxForest syntax)
       logM $ "[getCompletionsAtPosition] neighborhood=\n" ++ showNeighborhood location
@@ -49,25 +50,9 @@ getExprCompletions src syntax = do
   return $
     map
       ( \(name, typ) ->
-          LSP.CompletionItem
-            { _label = Text.pack name,
-              _kind = Just LSP.CiVariable,
-              _tags = Nothing,
-              _detail = Just (Text.pack $ ":: " ++ typ ++ " (declaration type)"),
-              _documentation = Nothing,
-              _deprecated = Nothing,
-              _preselect = Nothing,
-              _sortText = Nothing,
-              _filterText = Nothing,
-              _insertText = Nothing,
-              _insertTextFormat = Nothing,
-              _insertTextMode = Nothing,
-              _textEdit = Nothing,
-              _additionalTextEdits = Nothing,
-              _commitCharacters = Nothing,
-              _command = Nothing,
-              _xdata = Nothing
-            }
+          makeBasicCompletionItem (Text.pack name)
+            & (LSP.kind ?~ LSP.CiVariable)
+            & (LSP.detail ?~ Text.pack (":: " ++ typ ++ " (declaration type)"))
       )
       declNames
 
@@ -79,11 +64,34 @@ findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
     traverseForDeclNames t = case kindAt t of
       S.Program -> maybe [] traverseForDeclNames $ down t
       S.Decl ->
-        let declNameAndType = maybeToList $ locateDeclNameAndType t
+        let declNameAndType = maybeToList $ getDeclNameAndType t
          in declNameAndType ++ maybe [] traverseForDeclNames (right t)
       _ -> maybe [] traverseForDeclNames $ right t
-    locateDeclNameAndType :: Traversal -> Maybe (String, String)
+    getDeclNameAndType :: Traversal -> Maybe (String, String)
     getDeclNameAndType t = do
       nameT <- findChild S.DeclName t
       typeT <- findChild S.DeclType t
       return (lexemeAt src nameT, lexemeAt src typeT)
+
+-- | Create a completion item containing only a label.
+makeBasicCompletionItem :: Text.Text -> LSP.CompletionItem
+makeBasicCompletionItem name =
+  LSP.CompletionItem
+    { _label = name,
+      _kind = Nothing,
+      _tags = Nothing,
+      _detail = Nothing,
+      _documentation = Nothing,
+      _deprecated = Nothing,
+      _preselect = Nothing,
+      _sortText = Nothing,
+      _filterText = Nothing,
+      _insertText = Nothing,
+      _insertTextFormat = Nothing,
+      _insertTextMode = Nothing,
+      _textEdit = Nothing,
+      _additionalTextEdits = Nothing,
+      _commitCharacters = Nothing,
+      _command = Nothing,
+      _xdata = Nothing
+    }
