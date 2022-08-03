@@ -4,6 +4,7 @@ module Wasp.Generator.DbGenerator.Operations
     areAllMigrationsApplied,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
+    isDbMissing,
   )
 where
 
@@ -106,8 +107,16 @@ generatePrismaClient genProjectRootDirAbs = do
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
 
 areAllMigrationsApplied :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
-areAllMigrationsApplied genProjectRootDirAbs = do
-  let successMessage = "Database schema is up to date!" :: T.Text
+areAllMigrationsApplied genProjectRootDirAbs =
+  doesMigrateStatusContainText genProjectRootDirAbs "Database schema is up to date!"
+
+isDbMissing :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+isDbMissing genProjectRootDirAbs =
+  doesMigrateStatusContainText genProjectRootDirAbs "P1003:"
+
+doesMigrateStatusContainText :: Path' Abs (Dir ProjectRootDir) -> T.Text -> IO (Maybe Bool)
+doesMigrateStatusContainText genProjectRootDirAbs desiredTextOutput = do
+  let connectionErrorText = "Database connection error:"
   chan <- newChan
   (jobOutput, dbExitCode) <-
     concurrently
@@ -115,8 +124,15 @@ areAllMigrationsApplied genProjectRootDirAbs = do
       (DbJobs.migrateStatus genProjectRootDirAbs chan)
   case dbExitCode of
     ExitSuccess -> do
-      return $ Just $ any (successMessage `T.isInfixOf`) jobOutput
+      if desiredTextOutput `isIn` jobOutput
+        then return $ Just True
+        else
+          if connectionErrorText `isIn` jobOutput
+            then return Nothing
+            else return $ Just False
     ExitFailure _ -> return Nothing
+  where
+    needleText `isIn` haystackTextList = any (needleText `T.isInfixOf`) haystackTextList
 
 doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 doesSchemaMatchDb genProjectRootDirAbs = do

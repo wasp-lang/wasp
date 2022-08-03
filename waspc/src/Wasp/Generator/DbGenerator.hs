@@ -127,15 +127,22 @@ warnIfSchemaDiffers dbSchemaFp dbSchemaChecksumFp = do
 
 warnIfDbDiffers :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbDiffers projectRootDir = do
-  allMigrationsApplied <- DbOps.areAllMigrationsApplied projectRootDir
-  schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
-  case (allMigrationsApplied, schemaMatchesDb) of
-    (Just True, Just True) -> do
-      DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
-      return Nothing
-    (Just False, _) -> return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations, you should run `wasp db migrate-dev`."
-    (_, Just False) -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, you should run `wasp db migrate-dev`."
-    _ -> return Nothing -- something went wrong running Prisma commands
+  isDbMissing <- DbOps.isDbMissing projectRootDir
+  case isDbMissing of
+    Nothing -> return Nothing
+    Just True -> return . Just $ GeneratorNeedsMigrationWarning "Your database does not exist, you should run `wasp db migrate-dev`."
+    Just False -> do
+      allMigrationsApplied <- DbOps.areAllMigrationsApplied projectRootDir
+      schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
+      case (allMigrationsApplied, schemaMatchesDb) of
+        (Just True, Just True) -> do
+          -- NOTE: This is an optimization, since we know migrations == db == schema. Writing this file
+          -- prevents future redundant checks.
+          DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+          return Nothing
+        (Just False, _) -> return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations, you should run `wasp db migrate-dev`."
+        (_, Just False) -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, you should run `wasp db migrate-dev`."
+        _ -> return Nothing -- Something went wrong running Prisma commands.
 
 genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient spec projectRootDir = do
