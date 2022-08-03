@@ -83,9 +83,7 @@ findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
          in declNameAndType ++ maybe [] traverseForDeclNames (right t)
       _ -> maybe [] traverseForDeclNames $ right t
     locateDeclNameAndType :: Traversal -> Maybe (String, String)
-    locateDeclNameAndType t =
-      let maybeName = findChild S.DeclName t
-          maybeType = findChild S.DeclType t
-       in case (maybeName, maybeType) of
-            (Just nameT, Just typeT) -> Just (lexemeAt src nameT, lexemeAt src typeT)
-            _ -> Nothing
+    getDeclNameAndType t = do
+      nameT <- findChild S.DeclName t
+      typeT <- findChild S.DeclType t
+      return (lexemeAt src nameT, lexemeAt src typeT)
