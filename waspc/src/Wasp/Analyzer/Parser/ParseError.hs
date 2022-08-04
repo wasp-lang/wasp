@@ -8,24 +8,26 @@ where
 
 import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
-import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.Analyzer.Parser.Token (Token (..))
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion, getRgnEnd, getRgnStart)
+import Wasp.Analyzer.Parser.Token (Token (..), TokenKind)
+import Wasp.Analyzer.Parser.TokenSet (TokenSet)
 
 data ParseError
-  = -- | A lexical error representing an invalid character. It means that lexer
-    -- failed to construct/parse a token due to this unexpected character.
-    UnexpectedChar Char SourcePosition
-  | -- | In @ParseError token expectedTokens@, @token@ is the token where parse error
-    -- occured, while @expectedTokens@ is a list of tokens that would (any of them)
-    -- avoid that error if they were there instead of the @token@.
-    -- NOTE(martin): These @expectedTokens@ are represented via the names used for them
-    --   in the grammar defined in Parser.y, under section @%token@ (names are in the
-    --   first column), that have been a bit prettyfied (check Parser.y for details).
-    UnexpectedToken Token [String]
+  = -- | @UnexpectedToken rgn errorKind expectedKinds@ is an error that occurs
+    -- when one of @expectedKinds@ is expected, but the actual next token is
+    -- @errorKind@.
+    UnexpectedToken !SourceRegion !TokenKind TokenSet
+  | -- | @UnexpectedEOF posn expectedKinds@ is an error that occurs when one of
+    -- @expectedKinds@ is expected, but the input is empty.
+    UnexpectedEOF !SourcePosition TokenSet
   | -- | Thrown if parser encounters a quoter that has different tags, e.g.
     -- {=json psl=}. Then the first String in QuoterDifferentTags will be "json"
     -- while the second one will be "psl".
     QuoterDifferentTags (WithCtx String) (WithCtx String)
+  | -- | Thrown when the CST can not be coerced into an AST.
+    --
+    -- TODO: Add more specific variants instead of a generic catch-all error.
+    ASTCoercionError String
   deriving (Eq, Show)
 
 getErrorMessageAndCtx :: ParseError -> (String, Ctx)
