@@ -24,6 +24,9 @@ data ParseError
   | -- | Thrown if parser encounters a quoter that has different tags, e.g.
     -- {=json psl=}. Then the first String in QuoterDifferentTags will be "json"
     -- while the second one will be "psl".
+    --
+    -- TODO: This error is never actually used: the lexer will never produce a
+    -- {= and =} next to each other with different tags.
     QuoterDifferentTags (WithCtx String) (WithCtx String)
   | -- | Thrown when the CST can not be coerced into an AST.
     --

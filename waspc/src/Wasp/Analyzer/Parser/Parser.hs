@@ -6,6 +6,7 @@ module Wasp.Analyzer.Parser.Parser
   )
 where
 
+import Control.Arrow (Arrow (first))
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Maybe (catMaybes)
@@ -89,7 +90,27 @@ coerceExpr (SyntaxNode k w children : ns)
     return (WithCtx (ctxFromRgn startPos endPos) expr, ns)
 
 coerceDict :: [SyntaxNode] -> ParserM Expr
-coerceDict = undefined
+coerceDict syntax = do
+  (_, syntax') <- coerceLexeme (S.Token T.LCurly) "{" syntax
+  (entries, syntax'') <- coerceEntries syntax'
+  (_, syntax''') <- coerceLexeme (S.Token T.RCurly) "}" syntax''
+  mapM_ (advance . S.snodeWidth) syntax'''
+  return $ Dict entries
+
+coerceEntries :: [SyntaxNode] -> ParserM ([(Identifier, WithCtx Expr)], [SyntaxNode])
+coerceEntries [] = return ([], [])
+coerceEntries (n@(SyntaxNode k w children) : ns)
+  | k == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries ns
+  | k == S.Token T.Comma || S.syntaxKindIsTrivia k = advance w >> coerceEntries ns
+  | otherwise = return ([], n : ns)
+
+coerceEntry :: [SyntaxNode] -> ParserM (Identifier, WithCtx Expr)
+coerceEntry syntax = do
+  (dictKey, syntax') <- coerceLexeme S.DictKey "dictionary key" syntax
+  (_, syntax'') <- coerceLexeme (S.Token T.Colon) ":" syntax'
+  (expr, syntax''') <- coerceExpr syntax''
+  mapM_ (advance . S.snodeWidth) syntax'''
+  return (dictKey, expr)
 
 coerceList :: [SyntaxNode] -> ParserM Expr
 coerceList = undefined
@@ -101,7 +122,34 @@ coerceExtImport :: [SyntaxNode] -> ParserM Expr
 coerceExtImport = undefined
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
-coerceQuoter = undefined
+coerceQuoter syntax = do
+  lquoteStart <- gets pstatePos
+  (lquote, syntax') <- coerceLexeme (S.Token T.LQuote) "{=tag" syntax
+  lquoteEnd <- gets pstatePos
+  (contents, syntax'') <- first concat <$> collectQuoted syntax'
+  rquoteStart <- gets pstatePos
+  (rquote, syntax''') <- coerceLexeme (S.Token T.RQuote) "tag=}" syntax''
+  rquoteEnd <- gets pstatePos
+  mapM_ (advance . S.snodeWidth) syntax'''
+  let ltag = drop 2 lquote
+  let rtag = take (length rquote - 2) rquote
+  if ltag /= rtag
+    then
+      throwError $
+        QuoterDifferentTags
+          (WithCtx (ctxFromRgn lquoteStart lquoteEnd) lquote)
+          (WithCtx (ctxFromRgn rquoteStart rquoteEnd) rquote)
+    else return $ Quoter ltag contents
+
+collectQuoted :: [SyntaxNode] -> ParserM ([String], [SyntaxNode])
+collectQuoted [] = return ([], [])
+collectQuoted (n@(SyntaxNode k w _) : ns)
+  | k == S.Token T.Quoted = do
+    lexeme <- consume w
+    (lexemes, remaining) <- collectQuoted ns
+    return (lexeme : lexemes, remaining)
+  | k == S.Token T.RQuote = return ([], n : ns)
+  | otherwise = failParse "Unexpected syntax inside quoter (this is a bug in waspc)"
 
 coerceLexeme :: SyntaxKind -> String -> [SyntaxNode] -> ParserM (String, [SyntaxNode])
 coerceLexeme _ description [] = failParse $ "Could not find " ++ description
