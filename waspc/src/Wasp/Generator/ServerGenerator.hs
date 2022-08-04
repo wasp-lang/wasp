@@ -66,7 +66,7 @@ genServer spec =
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
-  case AS.dotEnvFile spec of
+  case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
           [ createCopyFileDraft

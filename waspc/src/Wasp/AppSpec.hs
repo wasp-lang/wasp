@@ -44,7 +44,8 @@ data AppSpec = AppSpec
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Absolute path to the .env file in wasp project source. It contains env variables to be
     -- provided to the server only during the development.
-    dotEnvFile :: Maybe (Path' Abs File'),
+    dotEnvServerFile :: Maybe (Path' Abs File'),
+    dotEnvClientFile :: Maybe (Path' Abs File'),
     -- | If true, it means project is being compiled for production/deployment -> it is being "built".
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool

@@ -66,7 +66,8 @@ analyzeWaspProject waspDir options = do
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
-          maybeDotEnvFile <- findDotEnvFile waspDir
+          maybeDotEnvServerFile <- findDotEnvServer waspDir
+          maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           return $
             Right
@@ -75,7 +76,8 @@ analyzeWaspProject waspDir options = do
                   AS.externalCodeFiles = externalCodeFiles,
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,
-                  AS.dotEnvFile = maybeDotEnvFile,
+                  AS.dotEnvServerFile = maybeDotEnvServerFile,
+                  AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options
                 }
 
@@ -88,11 +90,17 @@ findWaspFile waspDir = do
       ".wasp" `isSuffixOf` SP.toFilePath path
         && (length (SP.toFilePath path) > length (".wasp" :: String))
 
-findDotEnvFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvFile waspDir = do
-  let dotEnvAbsPath = waspDir SP.</> [relfile|.env|]
-  dotEnvExists <- doesFileExist (SP.toFilePath dotEnvAbsPath)
-  return $ if dotEnvExists then Just dotEnvAbsPath else Nothing
+findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvServer waspDir = do
+  let dotEnvServerAbsPath = waspDir SP.</> [relfile|.env.server|]
+  dotEnvServerExists <- doesFileExist (SP.toFilePath dotEnvServerAbsPath)
+  return $ if dotEnvServerExists then Just dotEnvServerAbsPath else Nothing
+
+findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvClient waspDir = do
+  let dotEnvClientAbsPath = waspDir SP.</> [relfile|.env.client|]
+  dotEnvClientExists <- doesFileExist (SP.toFilePath dotEnvClientAbsPath)
+  return $ if dotEnvClientExists then Just dotEnvClientAbsPath else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->

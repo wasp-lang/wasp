@@ -122,7 +122,8 @@ createNewProject' (ProjectName projectName) = do
     gitignoreFileContent =
       unlines
         [ "/.wasp/",
-          "/.env"
+          "/.env.server",
+          "/.env.client"
         ]
 
     waspignoreFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
