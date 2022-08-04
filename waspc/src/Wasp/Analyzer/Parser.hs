@@ -34,8 +34,6 @@ module Wasp.Analyzer.Parser
   )
 where
 
-import Control.Monad.Except (runExcept)
-import Control.Monad.State (evalStateT)
 import Wasp.Analyzer.Parser.AST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
 import Wasp.Analyzer.Parser.ParseError
