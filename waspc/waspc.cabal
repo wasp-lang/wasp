@@ -130,6 +130,7 @@ library
       Wasp.Analyzer.Parser.AST
       Wasp.Analyzer.Parser.Ctx
       Wasp.Analyzer.Parser.ConcreteParser
+      Wasp.Analyzer.Parser.ConcreteParser.ParseError
       Wasp.Analyzer.Parser.ConcreteParser.CST
       Wasp.Analyzer.Parser.ConcreteParser.Internal
       Wasp.Analyzer.Parser.Lexer

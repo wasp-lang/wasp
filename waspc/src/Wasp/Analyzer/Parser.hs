@@ -30,7 +30,7 @@ module Wasp.Analyzer.Parser
     ParseError (..),
     SourcePosition (..),
     Token (..),
-    TokenType (..),
+    TokenKind (..),
   )
 where
 
@@ -38,9 +38,7 @@ import Control.Monad.Except (runExcept)
 import Control.Monad.State (evalStateT)
 import Wasp.Analyzer.Parser.AST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
-import Wasp.Analyzer.Parser.Monad (Parser, makeInitialState)
 import Wasp.Analyzer.Parser.ParseError
-import qualified Wasp.Analyzer.Parser.Parser as P
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.Token
 
@@ -50,10 +48,7 @@ isValidWaspIdentifier str = case parseExpression str of
   _ -> False
 
 parseStatements :: String -> Either ParseError AST
-parseStatements = runParser P.parseStatements
+parseStatements = undefined
 
 parseExpression :: String -> Either ParseError Expr
-parseExpression = runParser P.parseExpression
-
-runParser :: Parser a -> String -> Either ParseError a
-runParser parser = runExcept . evalStateT parser . makeInitialState
+parseExpression = undefined

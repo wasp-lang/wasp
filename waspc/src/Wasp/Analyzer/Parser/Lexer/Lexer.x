@@ -3,12 +3,12 @@
 -- the module `Wasp.Backend.Lexer.Lexer`
 
 module Wasp.Analyzer.Parser.Lexer.Lexer
-  ( Wasp.Backend.Lexer.Lexer.lex
+  ( Wasp.Analyzer.Parser.Lexer.Lexer.lex
   ) where
 
-import Wasp.Backend.Lexer.Internal
-import Wasp.Backend.Token (Token)
-import qualified Wasp.Backend.Token as T
+import Wasp.Analyzer.Parser.Lexer.Internal
+import Wasp.Analyzer.Parser.Token (Token)
+import qualified Wasp.Analyzer.Parser.Token as T
 }
 
 -- Character set aliases

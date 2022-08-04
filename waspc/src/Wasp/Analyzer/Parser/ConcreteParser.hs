@@ -11,7 +11,7 @@ where
 
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind (..), SyntaxNode)
 import Wasp.Analyzer.Parser.ConcreteParser.Internal
-import Wasp.Analyzer.Parser.ParseError
+import Wasp.Analyzer.Parser.ConcreteParser.ParseError
 import Wasp.Analyzer.Parser.Token (Token)
 import qualified Wasp.Analyzer.Parser.Token as T
 

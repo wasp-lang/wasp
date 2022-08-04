@@ -4,6 +4,7 @@ module Wasp.Analyzer.Parser.Token
   ( Token (..),
     TokenKind (..),
     tokenKindIsTrivia,
+    showTokenKind,
   )
 where
 
@@ -79,3 +80,28 @@ tokenKindIsTrivia White = True
 tokenKindIsTrivia Newline = True
 tokenKindIsTrivia Comment = True
 tokenKindIsTrivia _ = False
+
+showTokenKind :: TokenKind -> String
+showTokenKind White = "<whitespace>"
+showTokenKind Newline = "\\n"
+showTokenKind Comment = "<comment>"
+showTokenKind LParen = "'('"
+showTokenKind RParen = "')'"
+showTokenKind LSquare = "'['"
+showTokenKind RSquare = "']'"
+showTokenKind LCurly = "'{'"
+showTokenKind RCurly = "'}'"
+showTokenKind Comma = "','"
+showTokenKind Colon = "':'"
+showTokenKind KwImport = "'import'"
+showTokenKind KwFrom = "'from'"
+showTokenKind KwTrue = "'true'"
+showTokenKind KwFalse = "'false'"
+showTokenKind String = "<string>"
+showTokenKind Int = "<number>"
+showTokenKind Double = "<number>"
+showTokenKind LQuote = "'{='"
+showTokenKind RQuote = "'=}'"
+showTokenKind Quoted = "<any>"
+showTokenKind Identifier = "<identifier>"
+showTokenKind Error = "<error>"

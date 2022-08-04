@@ -13,6 +13,7 @@ module Wasp.Analyzer.Parser.TokenSet
     member,
     eofMember,
     kindMember,
+    Wasp.Analyzer.Parser.TokenSet.null,
 
     -- * Operations
     insert,
@@ -30,14 +31,16 @@ module Wasp.Analyzer.Parser.TokenSet
 
     -- * Destructors
     toList,
+    showTokenSet,
   )
 where
 
 import Control.DeepSeq (NFData)
+import Data.List (intercalate)
 import Data.Set (Set)
 import qualified Data.Set as Set
 import GHC.Generics (Generic)
-import Wasp.Analyzer.Parser.Token (TokenKind)
+import Wasp.Analyzer.Parser.Token (TokenKind, showTokenKind)
 
 data TokenSet = TokenSet
   { -- | Check if EOF is part of the "TokenSet"
@@ -56,6 +59,9 @@ member (Just k) set = kindMember k set
 -- | Check if a "TokenKind" is part of the "TokenSet".
 kindMember :: TokenKind -> TokenSet -> Bool
 kindMember k set = k `Set.member` kindSet set
+
+null :: TokenSet -> Bool
+null set = Set.null (kindSet set) && not (eofMember set)
 
 -- | Insert a "TokenKind" or EOF into a "TokenSet".
 insert :: Maybe TokenKind -> TokenSet -> TokenSet
@@ -108,3 +114,9 @@ fromList ks = TokenSet {eofMember = False, kindSet = Set.fromList ks}
 -- | Get a list of all "TokenKind"s in a "TokenSet".
 toList :: TokenSet -> [TokenKind]
 toList set = Set.toList (kindSet set)
+
+showTokenSet :: TokenSet -> String
+showTokenSet set =
+  let kindStrs = map showTokenKind $ toList set
+      eofStrs = if eofMember set then ["<eof>"] else []
+   in intercalate "," (kindStrs ++ eofStrs)
