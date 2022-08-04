@@ -11,6 +11,6 @@ export const getExcuse = async () => {
           });
 }
 
-export const getAllExcuses = async (context) => {
+export const getAllExcuses = async (_args, context) => {
      return context.entities.Excuse.findMany()
-   }
+}
