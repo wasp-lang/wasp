@@ -9,6 +9,5 @@ devexcuses-api Github project](https://github.com/michelegera/devexcuses-api) an
 
 Clone the repo, open the terminal in the containing folder, and run:
 
-    npm install axios
     wasp db migrate-dev
     wasp start

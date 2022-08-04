@@ -1,7 +1,12 @@
 app ItWaspsOnMyMachine {
   title: "It Wasps On My Machine",
+
   head: [
     "<script src='https://cdn.tailwindcss.com'></script>"
+  ],
+
+  dependencies: [
+    ("axios", "^0.21.1")
   ]
 }
 
