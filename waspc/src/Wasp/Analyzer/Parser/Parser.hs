@@ -8,13 +8,14 @@ where
 
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
-import Data.Maybe (catMaybes, fromJust)
-import Wasp.Analyzer.Parser (SourcePosition (SourcePosition), WithCtx (WithCtx), ctxFromRgn)
+import Data.Maybe (catMaybes)
 import Wasp.Analyzer.Parser.AST (AST, Expr, Stmt)
 import Wasp.Analyzer.Parser.AST as AST
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
+import Wasp.Analyzer.Parser.Ctx (WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import qualified Wasp.Analyzer.Parser.Token as T
 
 data ParseState = ParseState
@@ -73,8 +74,8 @@ coerceExpr (SyntaxNode k w children : ns)
     startPos <- gets pstatePos
     expr <- case k of
       S.String -> AST.StringLiteral . tail . init <$> consume w
-      S.Int -> AST.IntegerLiteral . fromJust . read <$> consume w
-      S.Double -> AST.DoubleLiteral . fromJust . read <$> consume w
+      S.Int -> AST.IntegerLiteral . read <$> consume w
+      S.Double -> AST.DoubleLiteral . read <$> consume w
       S.BoolTrue -> advance w >> return (AST.BoolLiteral True)
       S.BoolFalse -> advance w >> return (AST.BoolLiteral False)
       S.Var -> AST.Var <$> consume w

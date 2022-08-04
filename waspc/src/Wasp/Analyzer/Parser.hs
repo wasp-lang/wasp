@@ -35,8 +35,11 @@ module Wasp.Analyzer.Parser
 where
 
 import Wasp.Analyzer.Parser.AST
+import qualified Wasp.Analyzer.Parser.ConcreteParser as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
+import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.Analyzer.Parser.ParseError
+import qualified Wasp.Analyzer.Parser.Parser as P
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.Token
 
@@ -46,7 +49,10 @@ isValidWaspIdentifier str = case parseExpression str of
   _ -> False
 
 parseStatements :: String -> Either ParseError AST
-parseStatements = undefined
+parseStatements source =
+  case CST.parseCST (L.lex source) of
+    ([], cst) -> P.parseStatements source cst
+    (cstErrors, _) -> error "TODO: convert cstErrors to list of errors"
 
 parseExpression :: String -> Either ParseError Expr
-parseExpression = undefined
+parseExpression = error "TODO: implement parseExpression"
