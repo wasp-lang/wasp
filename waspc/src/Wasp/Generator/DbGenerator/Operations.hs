@@ -114,8 +114,13 @@ isDbMissing :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 isDbMissing genProjectRootDirAbs =
   doesMigrateStatusContainText genProjectRootDirAbs "P1003:"
 
+-- | Checks `prisma migrate status` command stdout for some text. Returns Nothing on error.
+-- NOTE: Prisma does not return a proper exit code on errors here. This means we have to
+-- search for some error indicator string in the output. This is not ideal and fragile, of course.
+-- Ref: https://github.com/prisma/prisma/issues/12349
 doesMigrateStatusContainText :: Path' Abs (Dir ProjectRootDir) -> T.Text -> IO (Maybe Bool)
 doesMigrateStatusContainText genProjectRootDirAbs desiredTextOutput = do
+  -- TODO: What other error modes/strings does this miss?
   let connectionErrorText = "Database connection error:"
   chan <- newChan
   (jobOutput, dbExitCode) <-
