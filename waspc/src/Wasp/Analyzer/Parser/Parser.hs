@@ -14,9 +14,10 @@ import Wasp.Analyzer.Parser.AST (AST, Expr, Stmt)
 import Wasp.Analyzer.Parser.AST as AST
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
-import Wasp.Analyzer.Parser.Ctx (WithCtx (WithCtx), ctxFromRgn)
+import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import qualified Wasp.Analyzer.Parser.Token as T
 
 data ParseState = ParseState
@@ -29,6 +30,37 @@ pstatePos :: ParseState -> SourcePosition
 pstatePos s = SourcePosition (pstateLine s) (pstateColumn s)
 
 type ParserM a = StateT ParseState (Except ParseError) a
+
+-- | An operation that turns some syntax nodes into a value and outputs the
+-- remaining nodes.
+type Action a = [SyntaxNode] -> ParserM (a, [SyntaxNode])
+
+sequence2 :: (Action a, Action b) -> Action (a, b)
+sequence2 (fa, fb) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  return ((a, b), syntax'')
+
+sequence3 :: (Action a, Action b, Action c) -> Action (a, b, c)
+sequence3 (fa, fb, fc) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  (c, syntax''') <- fc syntax''
+  return ((a, b, c), syntax''')
+
+-- | Run an action and advance past all remaining nodes.
+runAction :: [SyntaxNode] -> Action a -> ParserM a
+runAction syntax fa = do
+  (a, syntax') <- fa syntax
+  mapM_ (advance . S.snodeWidth) syntax'
+  return a
+
+withRegion :: Action a -> Action (a, SourceRegion)
+withRegion fa syntax = do
+  start <- gets pstatePos
+  (a, syntax') <- fa syntax
+  end <- gets pstatePos
+  return ((a, SourceRegion start end), syntax')
 
 -- | @parseStatements sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST.
@@ -55,11 +87,15 @@ coerceProgram (SyntaxNode k w _ : ns)
 coerceStmt :: SyntaxNode -> ParserM (Maybe (WithCtx Stmt))
 coerceStmt (SyntaxNode S.Decl _ children) = do
   startPos <- gets pstatePos
-  (declType, children') <- coerceLexeme S.DeclType "declaration type" children
-  (declName, children'') <- coerceLexeme S.DeclName "declaration name" children'
-  (expr, children''') <- coerceExpr children''
+  ((declType, declName, expr), remaining) <-
+    sequence3
+      ( coerceLexeme S.DeclType "declaration type",
+        coerceLexeme S.DeclName "declaration name",
+        coerceExpr
+      )
+      children
   endPos <- gets pstatePos
-  mapM_ (advance . S.snodeWidth) children'''
+  mapM_ (advance . S.snodeWidth) remaining
   return $ Just $ WithCtx (ctxFromRgn startPos endPos) (Decl declType declName expr)
 coerceStmt (SyntaxNode k w _)
   | S.syntaxKindIsTrivia k = advance w >> return Nothing
@@ -91,10 +127,13 @@ coerceExpr (SyntaxNode k w children : ns)
 
 coerceDict :: [SyntaxNode] -> ParserM Expr
 coerceDict syntax = do
-  (_, syntax') <- coerceLexeme (S.Token T.LCurly) "{" syntax
-  (entries, syntax'') <- coerceEntries syntax'
-  (_, syntax''') <- coerceLexeme (S.Token T.RCurly) "}" syntax''
-  mapM_ (advance . S.snodeWidth) syntax'''
+  (_, entries, _) <-
+    runAction syntax $
+      sequence3
+        ( coerceLexeme (S.Token T.LCurly) "{",
+          coerceEntries,
+          coerceLexeme (S.Token T.RCurly) "}"
+        )
   return $ Dict entries
 
 coerceEntries :: [SyntaxNode] -> ParserM ([(Identifier, WithCtx Expr)], [SyntaxNode])
@@ -106,10 +145,13 @@ coerceEntries (n@(SyntaxNode k w children) : ns)
 
 coerceEntry :: [SyntaxNode] -> ParserM (Identifier, WithCtx Expr)
 coerceEntry syntax = do
-  (dictKey, syntax') <- coerceLexeme S.DictKey "dictionary key" syntax
-  (_, syntax'') <- coerceLexeme (S.Token T.Colon) ":" syntax'
-  (expr, syntax''') <- coerceExpr syntax''
-  mapM_ (advance . S.snodeWidth) syntax'''
+  (dictKey, _, expr) <-
+    runAction syntax $
+      sequence3
+        ( coerceLexeme S.DictKey "dictionary key",
+          coerceLexeme (S.Token T.Colon) ":",
+          coerceExpr
+        )
   return (dictKey, expr)
 
 coerceList :: [SyntaxNode] -> ParserM Expr
@@ -123,22 +165,21 @@ coerceExtImport = undefined
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
 coerceQuoter syntax = do
-  lquoteStart <- gets pstatePos
-  (lquote, syntax') <- coerceLexeme (S.Token T.LQuote) "{=tag" syntax
-  lquoteEnd <- gets pstatePos
-  (contents, syntax'') <- first concat <$> collectQuoted syntax'
-  rquoteStart <- gets pstatePos
-  (rquote, syntax''') <- coerceLexeme (S.Token T.RQuote) "tag=}" syntax''
-  rquoteEnd <- gets pstatePos
-  mapM_ (advance . S.snodeWidth) syntax'''
+  ((lquote, lquoteRgn), contents, (rquote, rquoteRgn)) <-
+    runAction syntax $
+      sequence3
+        ( withRegion $ coerceLexeme (S.Token T.LQuote) "{=tag",
+          (first concat <$>) . collectQuoted,
+          withRegion $ coerceLexeme (S.Token T.RQuote) "tag=}"
+        )
   let ltag = drop 2 lquote
   let rtag = take (length rquote - 2) rquote
   if ltag /= rtag
     then
       throwError $
         QuoterDifferentTags
-          (WithCtx (ctxFromRgn lquoteStart lquoteEnd) lquote)
-          (WithCtx (ctxFromRgn rquoteStart rquoteEnd) rquote)
+          (WithCtx (Ctx lquoteRgn) lquote)
+          (WithCtx (Ctx rquoteRgn) rquote)
     else return $ Quoter ltag contents
 
 collectQuoted :: [SyntaxNode] -> ParserM ([String], [SyntaxNode])
