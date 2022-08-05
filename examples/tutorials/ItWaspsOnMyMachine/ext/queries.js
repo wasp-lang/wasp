@@ -1,16 +1,16 @@
 import axios from 'axios';
 
 export const getExcuse = async () => {
-     return axios
-          .get('https://api.devexcus.es/')
-          .then(res => {
-               return res.data;
-          })
-          .catch(error => {
-               console.error(error);
-          });
+  return axios
+    .get('https://api.devexcus.es/')
+    .then(res => {
+      return res.data;
+    })
+    .catch(error => {
+      console.error(error);
+    });
 }
 
 export const getAllExcuses = async (_args, context) => {
-     return context.entities.Excuse.findMany()
+  return context.entities.Excuse.findMany()
 }

@@ -13,17 +13,17 @@ const MainPage = () => {
     try {
       setCurrentExcuse(await getExcuse())
     } catch (err) {
-      window.alert('Error while deleting list: ' + err.message)
+      window.alert('Error while getting the excuse: ' + err.message)
     }
   }
 
   const handleSaveExcuse = async () => {
-    try {
-      if (currentExcuse.text) {
+    if (currentExcuse.text) {
+      try {
         await saveExcuse(currentExcuse)
+      } catch (err) {
+        window.alert('Error while saving the excuse: ' + err.message)
       }
-    } catch (err) {
-      window.alert('Error while deleting list: ' + err.message)
     }
   }
 
