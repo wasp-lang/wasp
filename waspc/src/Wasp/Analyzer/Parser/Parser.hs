@@ -10,8 +10,8 @@ import Control.Arrow (Arrow (first))
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
 import Data.Maybe (catMaybes)
-import Wasp.Analyzer.Parser.AST (AST, Expr, Stmt)
-import Wasp.Analyzer.Parser.AST as AST
+import Wasp.Analyzer.Parser.AST (AST, Expr, ExtImportName, Identifier, Stmt)
+import qualified Wasp.Analyzer.Parser.AST as AST
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
@@ -47,6 +47,14 @@ sequence3 (fa, fb, fc) syntax = do
   (b, syntax'') <- fb syntax'
   (c, syntax''') <- fc syntax''
   return ((a, b, c), syntax''')
+
+sequence4 :: (Action a, Action b, Action c, Action d) -> Action (a, b, c, d)
+sequence4 (fa, fb, fc, fd) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  (c, syntax''') <- fc syntax''
+  (d, syntax'''') <- fd syntax'''
+  return ((a, b, c, d), syntax'''')
 
 -- | Run an action and advance past all remaining nodes.
 runAction :: [SyntaxNode] -> Action a -> ParserM a
@@ -96,14 +104,14 @@ coerceStmt (SyntaxNode S.Decl _ children) = do
       children
   endPos <- gets pstatePos
   mapM_ (advance . S.snodeWidth) remaining
-  return $ Just $ WithCtx (ctxFromRgn startPos endPos) (Decl declType declName expr)
+  return $ Just $ WithCtx (ctxFromRgn startPos endPos) (AST.Decl declType declName expr)
 coerceStmt (SyntaxNode k w _)
   | S.syntaxKindIsTrivia k = advance w >> return Nothing
   | otherwise = failParse "Unexpected syntax at top-level"
 
 -- | Try to turn CST into Expr AST. Returns @(expr, remainingNodesFromInput)@
 -- when successful.
-coerceExpr :: [SyntaxNode] -> ParserM (WithCtx Expr, [SyntaxNode])
+coerceExpr :: Action (WithCtx Expr)
 coerceExpr [] = failParse "Could not find expression"
 coerceExpr (SyntaxNode k w children : ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceExpr ns
@@ -134,9 +142,9 @@ coerceDict syntax = do
           coerceEntries,
           coerceLexeme (S.Token T.RCurly) "}"
         )
-  return $ Dict entries
+  return $ AST.Dict entries
 
-coerceEntries :: [SyntaxNode] -> ParserM ([(Identifier, WithCtx Expr)], [SyntaxNode])
+coerceEntries :: Action [(Identifier, WithCtx Expr)]
 coerceEntries [] = return ([], [])
 coerceEntries (n@(SyntaxNode k w children) : ns)
   | k == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries ns
@@ -155,13 +163,67 @@ coerceEntry syntax = do
   return (dictKey, expr)
 
 coerceList :: [SyntaxNode] -> ParserM Expr
-coerceList = undefined
+coerceList syntax = do
+  (_, values, _) <-
+    runAction syntax $
+      sequence3
+        ( coerceLexeme (S.Token T.LSquare) "[",
+          coerceValues,
+          coerceLexeme (S.Token T.RSquare) "]"
+        )
+  return $ AST.List values
 
 coerceTuple :: [SyntaxNode] -> ParserM Expr
-coerceTuple = undefined
+coerceTuple syntax = do
+  (_, values, _) <-
+    runAction syntax $
+      sequence3
+        ( coerceLexeme (S.Token T.LParen) "(",
+          coerceValues,
+          coerceLexeme (S.Token T.RParen) ")"
+        )
+  case values of
+    (x1 : x2 : xs) -> return $ AST.Tuple (x1, x2, xs)
+    _ -> failParse "Less than 2 values in a tuple"
+
+coerceValues :: Action [WithCtx Expr]
+coerceValues [] = return ([], [])
+coerceValues (n@(SyntaxNode k w _) : ns)
+  | k == S.Token T.Comma || S.syntaxKindIsTrivia k = advance w >> coerceValues ns
+  | S.syntaxKindIsExpr k = do
+    expr <- runAction [n] coerceExpr
+    first (expr :) <$> coerceValues ns
+  | otherwise = return ([], n : ns)
 
 coerceExtImport :: [SyntaxNode] -> ParserM Expr
-coerceExtImport = undefined
+coerceExtImport syntax = do
+  (_, name, _, from) <-
+    runAction syntax $
+      sequence4
+        ( coerceLexeme (S.Token T.KwImport) "import",
+          coerceExtImportName,
+          coerceLexeme (S.Token T.KwFrom) "from",
+          coerceLexeme S.ExtImportPath "a string"
+        )
+  return $ AST.ExtImport name from
+
+coerceExtImportName :: Action ExtImportName
+coerceExtImportName [] = failParse "Could not find external import name"
+coerceExtImportName (SyntaxNode k w children : ns)
+  | k == S.ExtImportModule = do
+    name <- AST.ExtImportModule <$> consume w
+    return (name, ns)
+  | k == S.ExtImportField = do
+    (_, name, _) <-
+      runAction children $
+        sequence3
+          ( coerceLexeme (S.Token T.LCurly) "{",
+            coerceLexeme S.ExtImportField "external import field",
+            coerceLexeme (S.Token T.RCurly) "}"
+          )
+    return (AST.ExtImportField name, ns)
+  | S.syntaxKindIsTrivia k = advance w >> coerceExtImportName ns
+  | otherwise = failParse "Unexpected syntax in external import, expected external import name"
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
 coerceQuoter syntax = do
@@ -180,9 +242,9 @@ coerceQuoter syntax = do
         QuoterDifferentTags
           (WithCtx (Ctx lquoteRgn) lquote)
           (WithCtx (Ctx rquoteRgn) rquote)
-    else return $ Quoter ltag contents
+    else return $ AST.Quoter ltag contents
 
-collectQuoted :: [SyntaxNode] -> ParserM ([String], [SyntaxNode])
+collectQuoted :: Action [String]
 collectQuoted [] = return ([], [])
 collectQuoted (n@(SyntaxNode k w _) : ns)
   | k == S.Token T.Quoted = do
@@ -192,13 +254,14 @@ collectQuoted (n@(SyntaxNode k w _) : ns)
   | k == S.Token T.RQuote = return ([], n : ns)
   | otherwise = failParse "Unexpected syntax inside quoter (this is a bug in waspc)"
 
-coerceLexeme :: SyntaxKind -> String -> [SyntaxNode] -> ParserM (String, [SyntaxNode])
+coerceLexeme :: SyntaxKind -> String -> Action String
 coerceLexeme _ description [] = failParse $ "Could not find " ++ description
 coerceLexeme wantedKind description (SyntaxNode k w _ : ns)
   | k == wantedKind = do
     lexeme <- consume w
     return (lexeme, ns)
-  | otherwise = advance w >> coerceLexeme wantedKind description ns
+  | S.syntaxKindIsTrivia k = advance w >> coerceLexeme wantedKind description ns
+  | otherwise = failParse $ "Unexpected syntax, expected " ++ description
 
 consume :: Int -> ParserM String
 consume amount = do

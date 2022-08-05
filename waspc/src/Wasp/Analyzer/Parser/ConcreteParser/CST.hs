@@ -9,6 +9,7 @@ module Wasp.Analyzer.Parser.ConcreteParser.CST
     SyntaxKind (..),
     cstPrettyPrint,
     syntaxKindIsTrivia,
+    syntaxKindIsExpr,
   )
 where
 
@@ -87,3 +88,16 @@ cstPrettyPrint node = go 0 "" node
 syntaxKindIsTrivia :: SyntaxKind -> Bool
 syntaxKindIsTrivia (Token k) = tokenKindIsTrivia k
 syntaxKindIsTrivia _ = False
+
+syntaxKindIsExpr :: SyntaxKind -> Bool
+syntaxKindIsExpr Dict = True
+syntaxKindIsExpr List = True
+syntaxKindIsExpr Tuple = True
+syntaxKindIsExpr ExtImport = True
+syntaxKindIsExpr String = True
+syntaxKindIsExpr Int = True
+syntaxKindIsExpr Double = True
+syntaxKindIsExpr BoolTrue = True
+syntaxKindIsExpr BoolFalse = True
+syntaxKindIsExpr Var = True
+syntaxKindIsExpr _ = False
