@@ -2,7 +2,7 @@
 
 module Wasp.Analyzer.Parser.Parser
   ( parseStatements,
-  -- parseExpression
+    parseExpression,
   )
 where
 
@@ -74,6 +74,21 @@ withRegion fa syntax = do
 -- tree into an AST.
 parseStatements :: String -> [SyntaxNode] -> Either ParseError AST
 parseStatements source syntax = runExcept $ evalStateT (coerceProgram syntax) initialState
+  where
+    initialState =
+      ParseState
+        { pstateLine = 0,
+          pstateColumn = 0,
+          pstateRemainingSource = source
+        }
+
+-- | @parseExpression sourceString syntax@ tries to convert a concrete syntax
+-- tree into an AST representing a single expression. Currently, it allows extra
+-- syntax after the single expression.
+parseExpression :: String -> [SyntaxNode] -> Either ParseError Expr
+parseExpression source syntax = case runExcept $ evalStateT (coerceExpr syntax) initialState of
+  Left err -> Left err
+  Right (WithCtx _ expr, _) -> Right expr
   where
     initialState =
       ParseState
