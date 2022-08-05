@@ -1,6 +1,7 @@
 module Wasp.Analyzer.Parser.SourcePosition
   ( SourcePosition (..),
     calcNextPosition,
+    offsetToPosition,
   )
 where
 
@@ -21,3 +22,12 @@ calcNextPosition ('\n' : cs) (SourcePosition line _) = calcNextPosition cs $ Sou
 calcNextPosition (_ : cs) (SourcePosition line col) = calcNextPosition cs $ SourcePosition line (col + 1)
 
 type SourceFragment = String
+
+offsetToPosition :: String -> Int -> SourcePosition
+offsetToPosition source targetOffset = scan source (SourcePosition 0 0) 0
+  where
+    scan :: SourceFragment -> SourcePosition -> Int -> SourcePosition
+    scan [] pos _ = pos
+    scan remaining pos offset
+      | offset >= targetOffset = pos
+      | otherwise = scan (tail remaining) (calcNextPosition remaining pos) (offset + 1)

@@ -52,7 +52,9 @@ parseStatements :: String -> Either ParseError AST
 parseStatements source =
   case CST.parseCST (L.lex source) of
     ([], cst) -> P.parseStatements source cst
-    (cstErrors, _) -> error "TODO: convert cstErrors to list of errors"
+    -- TODO: report multiple errors. Have to hunt down everywhere this return is
+    -- used and figure out best way to handle list of ParseError
+    (cstErrors, _) -> Left $ head $ map (parseErrorFromCSTParseError source) cstErrors
 
 parseExpression :: String -> Either ParseError Expr
 parseExpression = error "TODO: implement parseExpression"
