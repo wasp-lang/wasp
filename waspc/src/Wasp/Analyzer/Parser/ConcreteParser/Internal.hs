@@ -241,7 +241,6 @@ import Data.Maybe (fromMaybe)
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import Wasp.Analyzer.Parser.Token (Token (tokenKind, tokenWidth), TokenKind, tokenKindIsTrivia)
 import qualified Wasp.Analyzer.Parser.Token as T
 import Wasp.Analyzer.Parser.TokenSet (TokenSet)
