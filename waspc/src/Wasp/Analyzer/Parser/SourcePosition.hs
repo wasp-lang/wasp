@@ -24,10 +24,11 @@ calcNextPosition (_ : cs) (SourcePosition line col) = calcNextPosition cs $ Sour
 type SourceFragment = String
 
 offsetToPosition :: String -> Int -> SourcePosition
-offsetToPosition source targetOffset = scan source (SourcePosition 0 0) 0
+offsetToPosition source targetOffset = scan source (SourcePosition 1 1) 0
   where
     scan :: SourceFragment -> SourcePosition -> Int -> SourcePosition
     scan [] pos _ = pos
-    scan remaining pos offset
-      | offset >= targetOffset = pos
-      | otherwise = scan (tail remaining) (calcNextPosition remaining pos) (offset + 1)
+    scan (c : cs) (SourcePosition line col) offset
+      | offset >= targetOffset = SourcePosition line col
+      | c == '\n' = scan cs (SourcePosition (line + 1) 1) (offset + 1)
+      | otherwise = scan cs (SourcePosition line (col + 1)) (offset + 1)

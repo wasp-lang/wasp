@@ -1,7 +1,11 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Wasp.Analyzer.Parser.Parser
-  ( parseStatements,
+  ( -- * AST to CST conversion
+
+    -- | This module takes @["SyntaxNode"]@ produced by 'Wasp.Analyzer.Parser.ConcreteParser'
+    -- and converts it into an abstract syntax tree.
+    parseStatements,
     parseExpression,
   )
 where
@@ -42,8 +46,8 @@ parseStatements source syntax = runExcept $ evalStateT (coerceProgram syntax) in
   where
     initialState =
       ParseState
-        { pstateLine = 0,
-          pstateColumn = 0,
+        { pstateLine = 1,
+          pstateColumn = 1,
           pstateRemainingSource = source
         }
 
@@ -57,8 +61,8 @@ parseExpression source syntax = case runExcept $ evalStateT (coerceExpr syntax) 
   where
     initialState =
       ParseState
-        { pstateLine = 0,
-          pstateColumn = 0,
+        { pstateLine = 1,
+          pstateColumn = 1,
           pstateRemainingSource = source
         }
 
@@ -187,23 +191,23 @@ coerceExtImport syntax = do
           coerceLexeme (S.Token T.KwFrom) "from",
           coerceLexeme S.ExtImportPath "a string"
         )
-  return $ AST.ExtImport name from
+  return $ AST.ExtImport name (tail $ init from)
 
 coerceExtImportName :: Action ExtImportName
 coerceExtImportName [] = failParse $ MissingSyntax "external import name"
-coerceExtImportName (SyntaxNode k w children : ns)
+coerceExtImportName (SyntaxNode k w _ : ns)
   | k == S.ExtImportModule = do
     name <- AST.ExtImportModule <$> consume w
     return (name, ns)
-  | k == S.ExtImportField = do
-    (_, name, _) <-
-      runAction children $
-        sequence3
-          ( coerceLexeme (S.Token T.LCurly) "{",
-            coerceLexeme S.ExtImportField "external import field",
-            coerceLexeme (S.Token T.RCurly) "}"
-          )
-    return (AST.ExtImportField name, ns)
+  | k == S.Token T.LCurly = do
+    advance w
+    ((name, _), syntax') <-
+      sequence2
+        ( coerceLexeme S.ExtImportField "external import field",
+          coerceLexeme (S.Token T.RCurly) "}"
+        )
+        ns
+    return (AST.ExtImportField name, syntax')
   | S.syntaxKindIsTrivia k = advance w >> coerceExtImportName ns
   | otherwise = failParse $ UnexpectedNode k "in external import name"
 
@@ -235,6 +239,13 @@ collectQuoted (n@(SyntaxNode k w _) : ns)
     return (lexeme : lexemes, remaining)
   | k == S.Token T.RQuote = return ([], n : ns)
   | otherwise = failParse $ UnexpectedNode k "inside quoter"
+
+-- | Run 2 actions, using the remaining nodes from each action for the next
+sequence2 :: (Action a, Action b) -> Action (a, b)
+sequence2 (fa, fb) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  return ((a, b), syntax'')
 
 -- | Run 3 actions, using the remaining nodes from each action for the next
 sequence3 :: (Action a, Action b, Action c) -> Action (a, b, c)
@@ -287,7 +298,7 @@ advance :: Int -> ParserM ()
 advance 0 = return ()
 advance amount = do
   gets (head . pstateRemainingSource) >>= \case
-    '\n' -> modify (\s -> s {pstateLine = pstateLine s + 1, pstateColumn = 0})
+    '\n' -> modify (\s -> s {pstateLine = pstateLine s + 1, pstateColumn = 1})
     _ -> modify (\s -> s {pstateColumn = pstateColumn s + 1})
   modify (\s -> s {pstateRemainingSource = tail (pstateRemainingSource s)})
   advance (amount - 1)
