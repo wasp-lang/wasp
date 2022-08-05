@@ -68,7 +68,7 @@ coerceProgram [] = return $ AST.AST []
 coerceProgram (SyntaxNode S.Program _ children : _) = AST.AST . catMaybes <$> mapM coerceStmt children
 coerceProgram (SyntaxNode k w _ : ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceProgram ns
-  | otherwise = failParse "Unexpected syntax at top-level"
+  | otherwise = failParse $ UnexpectedNode k "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
 -- trivia node.
@@ -87,12 +87,12 @@ coerceStmt (SyntaxNode S.Decl _ children) = do
   return $ Just $ WithCtx (ctxFromRgn startPos endPos) (AST.Decl declType declName expr)
 coerceStmt (SyntaxNode k w _)
   | S.syntaxKindIsTrivia k = advance w >> return Nothing
-  | otherwise = failParse "Unexpected syntax at top-level"
+  | otherwise = failParse $ UnexpectedNode k "in Program"
 
 -- | Try to turn CST into Expr AST. Returns @(expr, remainingNodesFromInput)@
 -- when successful.
 coerceExpr :: Action (WithCtx Expr)
-coerceExpr [] = failParse "Could not find expression"
+coerceExpr [] = failParse $ MissingSyntax "expression"
 coerceExpr (SyntaxNode k w children : ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceExpr ns
   | otherwise = do
@@ -109,7 +109,7 @@ coerceExpr (SyntaxNode k w children : ns)
       S.Tuple -> coerceTuple children
       S.ExtImport -> coerceExtImport children
       S.Quoter -> coerceQuoter children
-      _ -> failParse "Unexpected syntax where an expression was expected"
+      _ -> failParse $ UnexpectedNode k "where an expression was expected"
     endPos <- gets pstatePos
     return (WithCtx (ctxFromRgn startPos endPos) expr, ns)
 
@@ -155,6 +155,7 @@ coerceList syntax = do
 
 coerceTuple :: [SyntaxNode] -> ParserM Expr
 coerceTuple syntax = do
+  startPos <- gets pstatePos
   (_, values, _) <-
     runAction syntax $
       sequence3
@@ -162,9 +163,10 @@ coerceTuple syntax = do
           coerceValues,
           coerceLexeme (S.Token T.RParen) ")"
         )
+  endPos <- gets pstatePos
   case values of
     (x1 : x2 : xs) -> return $ AST.Tuple (x1, x2, xs)
-    _ -> failParse "Less than 2 values in a tuple"
+    _ -> throwError $ TupleTooFewValues (SourceRegion startPos endPos) (length values)
 
 coerceValues :: Action [WithCtx Expr]
 coerceValues [] = return ([], [])
@@ -188,7 +190,7 @@ coerceExtImport syntax = do
   return $ AST.ExtImport name from
 
 coerceExtImportName :: Action ExtImportName
-coerceExtImportName [] = failParse "Could not find external import name"
+coerceExtImportName [] = failParse $ MissingSyntax "external import name"
 coerceExtImportName (SyntaxNode k w children : ns)
   | k == S.ExtImportModule = do
     name <- AST.ExtImportModule <$> consume w
@@ -203,7 +205,7 @@ coerceExtImportName (SyntaxNode k w children : ns)
           )
     return (AST.ExtImportField name, ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceExtImportName ns
-  | otherwise = failParse "Unexpected syntax in external import, expected external import name"
+  | otherwise = failParse $ UnexpectedNode k "in external import name"
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
 coerceQuoter syntax = do
@@ -232,7 +234,7 @@ collectQuoted (n@(SyntaxNode k w _) : ns)
     (lexemes, remaining) <- collectQuoted ns
     return (lexeme : lexemes, remaining)
   | k == S.Token T.RQuote = return ([], n : ns)
-  | otherwise = failParse "Unexpected syntax inside quoter (this is a bug in waspc)"
+  | otherwise = failParse $ UnexpectedNode k "inside quoter"
 
 -- | Run 3 actions, using the remaining nodes from each action for the next
 sequence3 :: (Action a, Action b, Action c) -> Action (a, b, c)
@@ -267,13 +269,13 @@ withRegion fa syntax = do
   return ((a, SourceRegion start end), syntax')
 
 coerceLexeme :: SyntaxKind -> String -> Action String
-coerceLexeme _ description [] = failParse $ "Could not find " ++ description
+coerceLexeme _ description [] = failParse $ MissingSyntax description
 coerceLexeme wantedKind description (SyntaxNode k w _ : ns)
   | k == wantedKind = do
     lexeme <- consume w
     return (lexeme, ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceLexeme wantedKind description ns
-  | otherwise = failParse $ "Unexpected syntax, expected " ++ description
+  | otherwise = failParse $ UnexpectedNode k $ "instead of " ++ description
 
 consume :: Int -> ParserM String
 consume amount = do
@@ -290,7 +292,7 @@ advance amount = do
   modify (\s -> s {pstateRemainingSource = tail (pstateRemainingSource s)})
   advance (amount - 1)
 
-failParse :: String -> ParserM a
+failParse :: ASTCoercionError -> ParserM a
 failParse reason = do
   pos <- SourcePosition <$> gets pstateLine <*> gets pstateColumn
   throwError $ ASTCoercionError pos reason
