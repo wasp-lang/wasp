@@ -316,7 +316,7 @@ parse tokens grammar =
           }
    in case runState (runExceptT (parseRule grammar)) initialState of
         (Left err, state) -> case err of
-          Unwind -> error "Unwind at top-level GrammarRule (impossible, this is a bug in Wasp.Backend.ConcreteParser.Internal)"
+          Unwind -> error "Unwind at top-level GrammarRule (impossible, this is a bug in Wasp.Analyzer.Parser.ConcreteParser.Internal)"
           ParseError perr ->
             let errs = pstateErrors state ++ [perr]
                 newNode = makeErrorNode perr False

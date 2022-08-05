@@ -6,10 +6,15 @@ module Wasp.Analyzer.Parser.ConcreteParser
     -- including whitespace and comments, even if the source file is invalid.
     parseCST,
     parseCSTExpression,
+
+    -- * Types
+    SyntaxNode (..),
+    SyntaxKind (..),
+    ParseError (..),
   )
 where
 
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind (..), SyntaxNode)
+import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind (..), SyntaxNode (..))
 import Wasp.Analyzer.Parser.ConcreteParser.Internal
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError
 import Wasp.Analyzer.Parser.Token (Token)

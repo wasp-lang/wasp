@@ -1,6 +1,6 @@
 {
 -- This file is processed by Alex (https://www.haskell.org/alex/) and generates
--- the module `Wasp.Backend.Lexer.Lexer`
+-- the module `Wasp.Analyzer.Parser.Lexer.Lexer`
 
 module Wasp.Analyzer.Parser.Lexer.Lexer
   ( Wasp.Analyzer.Parser.Lexer.Lexer.lex

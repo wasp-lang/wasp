@@ -35,41 +35,6 @@ type ParserM a = StateT ParseState (Except ParseError) a
 -- remaining nodes.
 type Action a = [SyntaxNode] -> ParserM (a, [SyntaxNode])
 
-sequence2 :: (Action a, Action b) -> Action (a, b)
-sequence2 (fa, fb) syntax = do
-  (a, syntax') <- fa syntax
-  (b, syntax'') <- fb syntax'
-  return ((a, b), syntax'')
-
-sequence3 :: (Action a, Action b, Action c) -> Action (a, b, c)
-sequence3 (fa, fb, fc) syntax = do
-  (a, syntax') <- fa syntax
-  (b, syntax'') <- fb syntax'
-  (c, syntax''') <- fc syntax''
-  return ((a, b, c), syntax''')
-
-sequence4 :: (Action a, Action b, Action c, Action d) -> Action (a, b, c, d)
-sequence4 (fa, fb, fc, fd) syntax = do
-  (a, syntax') <- fa syntax
-  (b, syntax'') <- fb syntax'
-  (c, syntax''') <- fc syntax''
-  (d, syntax'''') <- fd syntax'''
-  return ((a, b, c, d), syntax'''')
-
--- | Run an action and advance past all remaining nodes.
-runAction :: [SyntaxNode] -> Action a -> ParserM a
-runAction syntax fa = do
-  (a, syntax') <- fa syntax
-  mapM_ (advance . S.snodeWidth) syntax'
-  return a
-
-withRegion :: Action a -> Action (a, SourceRegion)
-withRegion fa syntax = do
-  start <- gets pstatePos
-  (a, syntax') <- fa syntax
-  end <- gets pstatePos
-  return ((a, SourceRegion start end), syntax')
-
 -- | @parseStatements sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST.
 parseStatements :: String -> [SyntaxNode] -> Either ParseError AST
@@ -268,6 +233,38 @@ collectQuoted (n@(SyntaxNode k w _) : ns)
     return (lexeme : lexemes, remaining)
   | k == S.Token T.RQuote = return ([], n : ns)
   | otherwise = failParse "Unexpected syntax inside quoter (this is a bug in waspc)"
+
+-- | Run 3 actions, using the remaining nodes from each action for the next
+sequence3 :: (Action a, Action b, Action c) -> Action (a, b, c)
+sequence3 (fa, fb, fc) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  (c, syntax''') <- fc syntax''
+  return ((a, b, c), syntax''')
+
+-- Run 4 actions, using the remaining nodes from each action for the next
+sequence4 :: (Action a, Action b, Action c, Action d) -> Action (a, b, c, d)
+sequence4 (fa, fb, fc, fd) syntax = do
+  (a, syntax') <- fa syntax
+  (b, syntax'') <- fb syntax'
+  (c, syntax''') <- fc syntax''
+  (d, syntax'''') <- fd syntax'''
+  return ((a, b, c, d), syntax'''')
+
+-- | Run an action and advance past all remaining nodes.
+runAction :: [SyntaxNode] -> Action a -> ParserM a
+runAction syntax fa = do
+  (a, syntax') <- fa syntax
+  mapM_ (advance . S.snodeWidth) syntax'
+  return a
+
+-- | Run an action and track the region surrounding it
+withRegion :: Action a -> Action (a, SourceRegion)
+withRegion fa syntax = do
+  start <- gets pstatePos
+  (a, syntax') <- fa syntax
+  end <- gets pstatePos
+  return ((a, SourceRegion start end), syntax')
 
 coerceLexeme :: SyntaxKind -> String -> Action String
 coerceLexeme _ description [] = failParse $ "Could not find " ++ description

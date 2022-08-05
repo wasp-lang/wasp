@@ -1,17 +1,15 @@
 module Wasp.Analyzer.Parser
   ( -- * Overview
 
-    -- | The "Analyzer.Parser" module is built of two parts:
+    -- | The "Analyzer.Parser" module is built of three parts:
     --
     -- - The lexer, generated with Alex, which creates tokens from wasp source.
-    -- - The parser, generated with Happy, which builds an abstract syntax
-    --   tree from the tokens.
+    -- - The concrete syntax parser, which takes tokens and builds a loosely
+    --   structured concrete syntax tree
+    -- - The abstract syntax parser, which takes a concrete syntax tree and converts
+    --   it into an abstract tree.
     --
-    -- Lexing and parsing are not implemented as two separate phases that happen one after another.
-    -- Instead, parser controls and uses lexer internally to produce tokens as needed, on the go.
-    --
-    -- Both lexer and parser are operating in a "Parser" monad, which manages state and exceptions for the parser,
-    -- and therefore also for the lexer, which functions as a part of and is controlled by the parser.
+    -- The phases are run in sequence, one after another.
     parseStatements,
     parseExpression,
     AST (..),
@@ -36,8 +34,6 @@ where
 
 import Wasp.Analyzer.Parser.AST
 import qualified Wasp.Analyzer.Parser.ConcreteParser as CST
-import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as CST
-import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.Analyzer.Parser.ParseError
