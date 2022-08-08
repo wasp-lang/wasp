@@ -114,7 +114,7 @@ isDbMissing :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 isDbMissing genProjectRootDirAbs =
   doesMigrateStatusContainText genProjectRootDirAbs "P1003:"
 
--- | Checks `prisma migrate status` command stdout for some text. Returns Nothing on error.
+-- | Checks `prisma migrate status` command stdout for presense of some text. Returns Nothing on error.
 -- NOTE: Prisma does not return a proper exit code on errors here. This means we have to
 -- search for some error indicator string in the output. This is not ideal and fragile, of course.
 -- Ref: https://github.com/prisma/prisma/issues/12349
@@ -139,6 +139,8 @@ doesMigrateStatusContainText genProjectRootDirAbs desiredTextOutput = do
   where
     needleText `isIn` haystackTextList = any (needleText `T.isInfixOf`) haystackTextList
 
+-- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
+-- different than the DB. Returns Nothing on error.
 doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 doesSchemaMatchDb genProjectRootDirAbs = do
   chan <- newChan
