@@ -2,13 +2,11 @@
 
 module Wasp.Analyzer.Parser.ParseError
   ( ParseError (..),
-    ASTCoercionError (..),
     parseErrorFromCSTParseError,
     getErrorMessageAndCtx,
   )
 where
 
-import Wasp.Analyzer.Parser.ConcreteParser (SyntaxKind)
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), offsetToPosition)
@@ -18,7 +16,7 @@ import Wasp.Analyzer.Parser.TokenSet (TokenSet)
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
 
 data ParseError
-  = -- | @UnexpectedToken rgn lexeme errorKind expectedKinds@ is an error that occurs
+  = -- | @UnexpectedToken region lexeme errorKind expectedKinds@ is an error that occurs
     -- when one of @expectedKinds@ is expected, but the actual next token is
     -- @errorKind@.
     UnexpectedToken !SourceRegion String !TokenKind TokenSet
@@ -35,18 +33,12 @@ data ParseError
   | -- | @TupleTooFewValues tupleRegion tupleSize@ occurs when a tuple contains
     -- less than the required two values.
     TupleTooFewValues !SourceRegion !Int
-  | -- | Thrown when the CST can not be coerced into an AST.
-    --
-    -- TODO: Add more specific variants instead of a generic catch-all error.
-    ASTCoercionError !SourcePosition ASTCoercionError
-  deriving (Eq, Show)
-
-data ASTCoercionError
-  = -- | @UnexpectedNode unexpectedKind location@ is used when an invalid node
-    -- type is encountered. This only happens when the CST parser produces
-    -- incorrectly structured syntax trees, which is a bug, not user error.
-    UnexpectedNode SyntaxKind String
-  | MissingSyntax String
+  | -- | @MissingSyntax pos expectedSyntax@ occurs when a piece of syntax is not
+    -- found in the concrete parse tree. @expectedSyntax@ is a noun describing
+    -- what type of syntax was expected. For example, if the source code is
+    -- missing a comma after a dictionary entry, it would report @MissingSyntax
+    -- _ "comma"@.
+    MissingSyntax !SourcePosition String
   deriving (Eq, Show)
 
 -- | @parseErrorFromCSTParseError source cstParseError@ creates a "ParseError"
@@ -87,10 +79,4 @@ getErrorMessageAndCtx = \case
     ( "Tuple only contains " ++ show actualLength ++ " values, but it must contain at least 2 values",
       Ctx region
     )
-  ASTCoercionError pos reason -> (getASTCoercionErrorMessage reason, ctxFromPos pos)
-
-getASTCoercionErrorMessage :: ASTCoercionError -> String
-getASTCoercionErrorMessage (UnexpectedNode unexpectedKind location) =
-  "Unexpected syntax node " ++ show unexpectedKind ++ " " ++ location ++ ". Report this to the maintainers of wasp."
-getASTCoercionErrorMessage (MissingSyntax description) =
-  "Could not find expected " ++ description
+  MissingSyntax pos expectedSyntax -> ("Missing expected " ++ expectedSyntax, ctxFromPos pos)

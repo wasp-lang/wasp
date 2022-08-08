@@ -1,6 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Wasp.Analyzer.Parser.Parser
+module Wasp.Analyzer.Parser.AbstractParser
   ( -- * AST to CST conversion
 
     -- | This module takes @["SyntaxNode"]@ produced by 'Wasp.Analyzer.Parser.ConcreteParser'
@@ -72,7 +72,7 @@ coerceProgram [] = return $ AST.AST []
 coerceProgram (SyntaxNode S.Program _ children : _) = AST.AST . catMaybes <$> mapM coerceStmt children
 coerceProgram (SyntaxNode k w _ : ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceProgram ns
-  | otherwise = failParse $ UnexpectedNode k "in root"
+  | otherwise = unexpectedNode k "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
 -- trivia node.
@@ -91,12 +91,12 @@ coerceStmt (SyntaxNode S.Decl _ children) = do
   return $ Just $ WithCtx (ctxFromRgn startPos endPos) (AST.Decl declType declName expr)
 coerceStmt (SyntaxNode k w _)
   | S.syntaxKindIsTrivia k = advance w >> return Nothing
-  | otherwise = failParse $ UnexpectedNode k "in Program"
+  | otherwise = unexpectedNode k "in Program"
 
 -- | Try to turn CST into Expr AST. Returns @(expr, remainingNodesFromInput)@
 -- when successful.
 coerceExpr :: Action (WithCtx Expr)
-coerceExpr [] = failParse $ MissingSyntax "expression"
+coerceExpr [] = throwMissingSyntax "expression"
 coerceExpr (SyntaxNode k w children : ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceExpr ns
   | otherwise = do
@@ -113,7 +113,7 @@ coerceExpr (SyntaxNode k w children : ns)
       S.Tuple -> coerceTuple children
       S.ExtImport -> coerceExtImport children
       S.Quoter -> coerceQuoter children
-      _ -> failParse $ UnexpectedNode k "where an expression was expected"
+      _ -> unexpectedNode k "where an expression was expected"
     endPos <- gets pstatePos
     return (WithCtx (ctxFromRgn startPos endPos) expr, ns)
 
@@ -194,7 +194,7 @@ coerceExtImport syntax = do
   return $ AST.ExtImport name (tail $ init from)
 
 coerceExtImportName :: Action ExtImportName
-coerceExtImportName [] = failParse $ MissingSyntax "external import name"
+coerceExtImportName [] = throwMissingSyntax "external import name"
 coerceExtImportName (SyntaxNode k w _ : ns)
   | k == S.ExtImportModule = do
     name <- AST.ExtImportModule <$> consume w
@@ -209,7 +209,7 @@ coerceExtImportName (SyntaxNode k w _ : ns)
         ns
     return (AST.ExtImportField name, syntax')
   | S.syntaxKindIsTrivia k = advance w >> coerceExtImportName ns
-  | otherwise = failParse $ UnexpectedNode k "in external import name"
+  | otherwise = unexpectedNode k "in external import name"
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
 coerceQuoter syntax = do
@@ -238,7 +238,7 @@ collectQuoted (n@(SyntaxNode k w _) : ns)
     (lexemes, remaining) <- collectQuoted ns
     return (lexeme : lexemes, remaining)
   | k == S.Token T.RQuote = return ([], n : ns)
-  | otherwise = failParse $ UnexpectedNode k "inside quoter"
+  | otherwise = unexpectedNode k "inside quoter"
 
 -- | Run 2 actions, using the remaining nodes from each action for the next
 sequence2 :: (Action a, Action b) -> Action (a, b)
@@ -280,13 +280,13 @@ withRegion fa syntax = do
   return ((a, SourceRegion start end), syntax')
 
 coerceLexeme :: SyntaxKind -> String -> Action String
-coerceLexeme _ description [] = failParse $ MissingSyntax description
+coerceLexeme _ description [] = throwMissingSyntax description
 coerceLexeme wantedKind description (SyntaxNode k w _ : ns)
   | k == wantedKind = do
     lexeme <- consume w
     return (lexeme, ns)
   | S.syntaxKindIsTrivia k = advance w >> coerceLexeme wantedKind description ns
-  | otherwise = failParse $ UnexpectedNode k $ "instead of " ++ description
+  | otherwise = unexpectedNode k $ "instead of " ++ description
 
 consume :: Int -> ParserM String
 consume amount = do
@@ -303,7 +303,14 @@ advance amount = do
   modify (\s -> s {pstateRemainingSource = tail (pstateRemainingSource s)})
   advance (amount - 1)
 
-failParse :: ASTCoercionError -> ParserM a
-failParse reason = do
+-- | Returns a GHC error. Use this when a node is found in the CST that should
+-- not be in that position. This scenario is a bug in the parser, which is why
+-- it crashes waspc.
+unexpectedNode :: SyntaxKind -> String -> ParserM a
+unexpectedNode unexpectedKind locationDescription =
+  error $ "Unexpected syntax " ++ show unexpectedKind ++ " " ++ locationDescription ++ " created by CST"
+
+throwMissingSyntax :: String -> ParserM a
+throwMissingSyntax reason = do
   pos <- SourcePosition <$> gets pstateLine <*> gets pstateColumn
-  throwError $ ASTCoercionError pos reason
+  throwError $ MissingSyntax pos reason

@@ -5,7 +5,9 @@ module Wasp.Analyzer.Parser
     --
     -- - The lexer, generated with Alex, which creates tokens from wasp source.
     -- - The concrete syntax parser, which takes tokens and builds a loosely
-    --   structured concrete syntax tree
+    --   structured concrete syntax tree. This step is included because it can
+    --   handle syntax error recovery and allows for analysis on source that has
+    --   errors in it (used in the language server).
     -- - The abstract syntax parser, which takes a concrete syntax tree and converts
     --   it into an abstract tree.
     --
@@ -33,11 +35,11 @@ module Wasp.Analyzer.Parser
 where
 
 import Wasp.Analyzer.Parser.AST
+import qualified Wasp.Analyzer.Parser.AbstractParser as P
 import qualified Wasp.Analyzer.Parser.ConcreteParser as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn, fromWithCtx, getCtxRgn, withCtx)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.Analyzer.Parser.ParseError
-import qualified Wasp.Analyzer.Parser.Parser as P
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
 import Wasp.Analyzer.Parser.Token
 

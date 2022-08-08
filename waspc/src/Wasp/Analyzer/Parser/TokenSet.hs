@@ -2,11 +2,6 @@
 
 module Wasp.Analyzer.Parser.TokenSet
   ( -- * TokenSet
-
-    -- | A set of "TokenKind"s and possibly EOF (which is not a "TokenKind").
-    --
-    -- In functions on a "TokenSet", a @Maybe "TokenKind"@ is either @Nothing@,
-    -- representing EOF, or @Just k@, representing the kind @k@.
     TokenSet,
 
     -- * Membership predicates
@@ -42,6 +37,13 @@ import qualified Data.Set as Set
 import GHC.Generics (Generic)
 import Wasp.Analyzer.Parser.Token (TokenKind, showTokenKind)
 
+-- | A set of "TokenKind"s and possibly EOF (which is not a "TokenKind").
+--
+-- In functions on a "TokenSet", a @Maybe "TokenKind"@ is either @Nothing@,
+-- representing EOF, or @Just k@, representing the kind @k@.
+--
+-- "TokenSet" is used instead of a plain "Set" to make handling EOF in the set
+-- easier.
 data TokenSet = TokenSet
   { -- | Check if EOF is part of the "TokenSet"
     eofMember :: !Bool,
