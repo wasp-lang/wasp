@@ -500,25 +500,25 @@ parseChain first second = do
 parseAlternative :: GrammarRule -> GrammarRule -> ParserM ()
 parseAlternative left right
   | leftFirstTokens `TokenSet.intersection` rightFirstTokens /= TokenSet.empty =
-    error $
-      unlines
-        [ "[WARNING] Alternative grammar rule has two rules that can accept the same first token."
-            ++ "This will result in the second rule never running on these tokens.",
-          "\tLeft Tokens:",
-          "\t" ++ show leftFirstTokens,
-          "\n\tRight Tokens:",
-          "\t" ++ show rightFirstTokens
-        ]
+      error $
+        unlines
+          [ "[WARNING] Alternative grammar rule has two rules that can accept the same first token."
+              ++ "This will result in the second rule never running on these tokens.",
+            "\tLeft Tokens:",
+            "\t" ++ show leftFirstTokens,
+            "\n\tRight Tokens:",
+            "\t" ++ show rightFirstTokens
+          ]
   | otherwise = do
-    consumeTrivia
-    nextToken <- peek
-    let nextKind = tokenKind <$> nextToken
-    if nextKind `willSucceedIn` left
-      then parseRule left
-      else
-        if nextKind `willSucceedIn` right
-          then parseRule right
-          else throwParseError nextToken (leftFirstTokens `TokenSet.union` rightFirstTokens)
+      consumeTrivia
+      nextToken <- peek
+      let nextKind = tokenKind <$> nextToken
+      if nextKind `willSucceedIn` left
+        then parseRule left
+        else
+          if nextKind `willSucceedIn` right
+            then parseRule right
+            else throwParseError nextToken (leftFirstTokens `TokenSet.union` rightFirstTokens)
   where
     leftFirstTokens = getValidFirstTokens left
     rightFirstTokens = getValidFirstTokens right
@@ -531,15 +531,15 @@ consumeTrivia =
     Just nextToken
       -- Consume any whitespace
       | tokenKindIsTrivia (tokenKind nextToken) -> do
-        advance
-        let newNode =
-              SyntaxNode
-                { snodeKind = S.Token (tokenKind nextToken),
-                  snodeWidth = tokenWidth nextToken,
-                  snodeChildren = []
-                }
-        pushNode newNode
-        consumeTrivia
+          advance
+          let newNode =
+                SyntaxNode
+                  { snodeKind = S.Token (tokenKind nextToken),
+                    snodeWidth = tokenWidth nextToken,
+                    snodeChildren = []
+                  }
+          pushNode newNode
+          consumeTrivia
       | otherwise -> pure ()
 
 -- | Peek the immediate next token in input (including trivia)

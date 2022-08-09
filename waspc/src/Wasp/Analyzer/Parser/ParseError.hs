@@ -10,7 +10,7 @@ where
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), offsetToPosition)
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion), getRgnEnd, getRgnStart, offsetRegionToSourceRegion)
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion, getRgnEnd, getRgnStart, offsetRegionToSourceRegion)
 import Wasp.Analyzer.Parser.Token (TokenKind)
 import Wasp.Analyzer.Parser.TokenSet (TokenSet)
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
