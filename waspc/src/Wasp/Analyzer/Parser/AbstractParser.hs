@@ -70,9 +70,9 @@ parseExpression source syntax = case runExcept $ evalStateT (coerceExpr syntax) 
 coerceProgram :: [SyntaxNode] -> ParserM AST
 coerceProgram [] = return $ AST.AST []
 coerceProgram (SyntaxNode S.Program _ children : _) = AST.AST . catMaybes <$> mapM coerceStmt children
-coerceProgram (SyntaxNode k w _ : ns)
-  | S.syntaxKindIsTrivia k = advance w >> coerceProgram ns
-  | otherwise = unexpectedNode k "in root"
+coerceProgram (SyntaxNode kind width _ : remaining)
+  | S.syntaxKindIsTrivia kind = advance width >> coerceProgram remaining
+  | otherwise = unexpectedNode kind "in root"
 
 -- | Try to turn CST into Stmt AST. Returns @Nothing@ if the given node is a
 -- trivia node.
@@ -89,33 +89,33 @@ coerceStmt (SyntaxNode S.Decl _ children) = do
   endPos <- gets pstatePos
   mapM_ (advance . S.snodeWidth) remaining
   return $ Just $ WithCtx (ctxFromRgn startPos endPos) (AST.Decl declType declName expr)
-coerceStmt (SyntaxNode k w _)
-  | S.syntaxKindIsTrivia k = advance w >> return Nothing
-  | otherwise = unexpectedNode k "in Program"
+coerceStmt (SyntaxNode kind width _)
+  | S.syntaxKindIsTrivia kind = advance width >> return Nothing
+  | otherwise = unexpectedNode kind "in Program"
 
 -- | Try to turn CST into Expr AST. Returns @(expr, remainingNodesFromInput)@
 -- when successful.
 coerceExpr :: Action (WithCtx Expr)
 coerceExpr [] = throwMissingSyntax "expression"
-coerceExpr (SyntaxNode k w children : ns)
-  | S.syntaxKindIsTrivia k = advance w >> coerceExpr ns
+coerceExpr (SyntaxNode kind width children : remaining)
+  | S.syntaxKindIsTrivia kind = advance width >> coerceExpr remaining
   | otherwise = do
     startPos <- gets pstatePos
-    expr <- case k of
-      S.String -> AST.StringLiteral . tail . init <$> consume w
-      S.Int -> AST.IntegerLiteral . read <$> consume w
-      S.Double -> AST.DoubleLiteral . read <$> consume w
-      S.BoolTrue -> advance w >> return (AST.BoolLiteral True)
-      S.BoolFalse -> advance w >> return (AST.BoolLiteral False)
-      S.Var -> AST.Var <$> consume w
+    expr <- case kind of
+      S.String -> AST.StringLiteral . tail . init <$> consume width
+      S.Int -> AST.IntegerLiteral . read <$> consume width
+      S.Double -> AST.DoubleLiteral . read <$> consume width
+      S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
+      S.BoolFalse -> advance width >> return (AST.BoolLiteral False)
+      S.Var -> AST.Var <$> consume width
       S.Dict -> coerceDict children
       S.List -> coerceList children
       S.Tuple -> coerceTuple children
       S.ExtImport -> coerceExtImport children
       S.Quoter -> coerceQuoter children
-      _ -> unexpectedNode k "where an expression was expected"
+      _ -> unexpectedNode kind "where an expression was expected"
     endPos <- gets pstatePos
-    return (WithCtx (ctxFromRgn startPos endPos) expr, ns)
+    return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
 
 coerceDict :: [SyntaxNode] -> ParserM Expr
 coerceDict syntax = do
@@ -130,10 +130,10 @@ coerceDict syntax = do
 
 coerceEntries :: Action [(Identifier, WithCtx Expr)]
 coerceEntries [] = return ([], [])
-coerceEntries (n@(SyntaxNode k w children) : ns)
-  | k == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries ns
-  | k == S.Token T.Comma || S.syntaxKindIsTrivia k = advance w >> coerceEntries ns
-  | otherwise = return ([], n : ns)
+coerceEntries (n@(SyntaxNode kind width children) : remaining)
+  | kind == S.DictEntry = (first . (:)) <$> coerceEntry children <*> coerceEntries remaining
+  | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceEntries remaining
+  | otherwise = return ([], n : remaining)
 
 coerceEntry :: [SyntaxNode] -> ParserM (Identifier, WithCtx Expr)
 coerceEntry syntax = do
@@ -174,12 +174,12 @@ coerceTuple syntax = do
 
 coerceValues :: Action [WithCtx Expr]
 coerceValues [] = return ([], [])
-coerceValues (n@(SyntaxNode k w _) : ns)
-  | k == S.Token T.Comma || S.syntaxKindIsTrivia k = advance w >> coerceValues ns
-  | S.syntaxKindIsExpr k = do
+coerceValues (n@(SyntaxNode kind width _) : remaining)
+  | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceValues remaining
+  | S.syntaxKindIsExpr kind = do
     expr <- runAction [n] coerceExpr
-    first (expr :) <$> coerceValues ns
-  | otherwise = return ([], n : ns)
+    first (expr :) <$> coerceValues remaining
+  | otherwise = return ([], n : remaining)
 
 coerceExtImport :: [SyntaxNode] -> ParserM Expr
 coerceExtImport syntax = do
@@ -195,21 +195,21 @@ coerceExtImport syntax = do
 
 coerceExtImportName :: Action ExtImportName
 coerceExtImportName [] = throwMissingSyntax "external import name"
-coerceExtImportName (SyntaxNode k w _ : ns)
-  | k == S.ExtImportModule = do
-    name <- AST.ExtImportModule <$> consume w
-    return (name, ns)
-  | k == S.Token T.LCurly = do
-    advance w
+coerceExtImportName (SyntaxNode kind width _ : remaining)
+  | kind == S.ExtImportModule = do
+    name <- AST.ExtImportModule <$> consume width
+    return (name, remaining)
+  | kind == S.Token T.LCurly = do
+    advance width
     ((name, _), syntax') <-
       sequence2
         ( coerceLexeme S.ExtImportField "external import field",
           coerceLexeme (S.Token T.RCurly) "}"
         )
-        ns
+        remaining
     return (AST.ExtImportField name, syntax')
-  | S.syntaxKindIsTrivia k = advance w >> coerceExtImportName ns
-  | otherwise = unexpectedNode k "in external import name"
+  | S.syntaxKindIsTrivia kind = advance width >> coerceExtImportName remaining
+  | otherwise = unexpectedNode kind "in external import name"
 
 coerceQuoter :: [SyntaxNode] -> ParserM Expr
 coerceQuoter syntax = do
@@ -232,13 +232,12 @@ coerceQuoter syntax = do
 
 collectQuoted :: Action [String]
 collectQuoted [] = return ([], [])
-collectQuoted (n@(SyntaxNode k w _) : ns)
-  | k == S.Token T.Quoted = do
-    lexeme <- consume w
-    (lexemes, remaining) <- collectQuoted ns
-    return (lexeme : lexemes, remaining)
-  | k == S.Token T.RQuote = return ([], n : ns)
-  | otherwise = unexpectedNode k "inside quoter"
+collectQuoted (n@(SyntaxNode kind width _) : remaining)
+  | kind == S.Token T.Quoted = do
+    lexeme <- consume width
+    first (lexeme :) <$> collectQuoted remaining
+  | kind == S.Token T.RQuote = return ([], n : remaining)
+  | otherwise = unexpectedNode kind "inside quoter"
 
 -- | Run 2 actions, using the remaining nodes from each action for the next
 sequence2 :: (Action a, Action b) -> Action (a, b)
@@ -281,12 +280,12 @@ withRegion fa syntax = do
 
 coerceLexeme :: SyntaxKind -> String -> Action String
 coerceLexeme _ description [] = throwMissingSyntax description
-coerceLexeme wantedKind description (SyntaxNode k w _ : ns)
-  | k == wantedKind = do
-    lexeme <- consume w
-    return (lexeme, ns)
-  | S.syntaxKindIsTrivia k = advance w >> coerceLexeme wantedKind description ns
-  | otherwise = unexpectedNode k $ "instead of " ++ description
+coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
+  | kind == wantedKind = do
+    lexeme <- consume width
+    return (lexeme, remaining)
+  | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
+  | otherwise = unexpectedNode kind $ "instead of " ++ description
 
 consume :: Int -> ParserM String
 consume amount = do
