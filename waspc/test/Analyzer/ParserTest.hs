@@ -30,11 +30,28 @@ spec_ParseExpression = do
   it "Parses int literals" $ do
     parseExpression "5" `shouldBe` Right (IntegerLiteral 5)
 
+-- | To add more test cases to the parser, create a `.wasp` and `.golden` file
+-- in the `parserTests` directory with wasp source code to parse and the expected
+-- output, respectively.
+--
+-- See `declsDictsAndLiterals` for an example of a test case with a successful
+-- parse.
+--
+-- See `dictNoCloseBracket` for an example of a test case with an unsuccessful
+-- parse.
+--
+-- While the testing framework will create the `.golden` file for you if it does
+-- not exist, it is recommended that you manually write the `.golden` file to
+-- make sure the output is as expected.
+--
+-- When the golden file does not match the actual output, a diff will be shown
+-- in the terminal.
 test_Parser :: IO TestTree
 test_Parser = do
   waspFiles <- findByExtension [".wasp"] "./test/Analyzer/parserTests"
   return $ testGroup "Wasp.Analyzer.Parser" $ map testCase waspFiles
 
+-- | Run a single golden test case for the given wasp file.
 testCase :: FilePath -> TestTree
 testCase waspFile =
   let astFile = replaceExtension waspFile ".golden"
@@ -48,6 +65,10 @@ testCase waspFile =
             return $ BSC.pack $ showResult $ parseStatements source
         )
 
+-- | Pretty print the result of a parse. The purpose of a custom implementation
+-- here is to make golden file diffs readable/useful.
+--
+-- To see examples of pretty prints, see the golden files in `./parserTests`.
 showResult :: Either ParseError AST -> String
 showResult (Left err) =
   let (message, ctx) = getErrorMessageAndCtx err
