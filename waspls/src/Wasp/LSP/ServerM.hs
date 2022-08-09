@@ -2,9 +2,17 @@ module Wasp.LSP.ServerM
   ( ServerM,
     ServerError (..),
     Severity (..),
-    gets,
-    put,
-    modify,
+    -- | You should usually use lenses for accessing the state.
+    --
+    -- __Examples:__
+    --
+    -- > import Control.Lens ((^.))
+    -- > gets (^. diagnostics) -- Gets the list of diagnostics
+    --
+    -- > import Control.Lens ((.~))
+    -- > modify (diagnostics .~ []) -- Clears diagnostics in the state
+    StateT.gets,
+    StateT.modify,
     logM,
     lift,
     catchError,
@@ -23,29 +31,6 @@ import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerState (ServerState)
 
 type ServerM = ExceptT ServerError (StateT ServerState (LspT ServerConfig IO))
-
--- | Get the state, usually using a lens.
---
--- __Examples:__
---
--- > import Control.Lens ((^.))
--- > gets (^. diagnostics) :: ServerM [J.Diagnostic] -- Gets the list of diagnostics
-gets :: (ServerState -> a) -> ServerM a
-gets = StateT.gets
-
--- | Replace the state with a new value. Recommended to use @modify@ with a lens
--- instead of this.
-put :: ServerState -> ServerM ()
-put = StateT.put
-
--- | Modify the state, usually using a lens.
---
--- __Examples:__
---
--- > import Control.Lens ((.~))
--- > modify (diagnostics .~ []) -- Clears diagnostics in the state
-modify :: (ServerState -> ServerState) -> ServerM ()
-modify = StateT.modify
 
 -- | Log a string.
 --

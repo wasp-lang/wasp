@@ -22,7 +22,7 @@ import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
-import Wasp.LSP.ServerState (cst, latestDiagnostics, sourceString)
+import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 
 -- LSP notification and request handlers
 
@@ -91,11 +91,11 @@ analyzeWaspFile uri = do
   where
     readAndStoreSourceString = do
       srcString <- T.unpack <$> readVFSFile uri
-      modify (sourceString .~ srcString)
+      modify (currentWaspSource .~ srcString)
       return srcString
 
     storeCSTErrors concreteErrorMessages = do
-      srcString <- gets (^. sourceString)
+      srcString <- gets (^. currentWaspSource)
       newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) concreteErrorMessages
       modify (latestDiagnostics .~ newDiagnostics)
 

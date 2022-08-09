@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
-
 module Control.Syntax.Traverse
   ( -- * Syntax tree traversal
 

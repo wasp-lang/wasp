@@ -18,7 +18,7 @@ import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, lspPositionToOffset,
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
 getCompletionsAtPosition position = do
-  src <- gets (^. sourceString)
+  src <- gets (^. currentWaspSource)
   maybeSyntax <- gets (^. cst)
   case maybeSyntax of
     -- If there is no syntax tree, make no completions
