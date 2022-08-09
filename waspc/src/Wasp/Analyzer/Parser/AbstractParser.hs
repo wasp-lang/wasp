@@ -21,6 +21,7 @@ import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNo
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import qualified Wasp.Analyzer.Parser.Token as T
 
@@ -53,7 +54,7 @@ coerceProgram (SyntaxNode kind width _ : remaining)
 -- trivia node.
 coerceStmt :: SyntaxNode -> ParserM (Maybe (WithCtx Stmt))
 coerceStmt (SyntaxNode S.Decl _ children) = do
-  startPos <- gets pstatePos
+  startPos <- gets pstateStartPos
   ((declType, declName, expr), remaining) <-
     sequence3
       ( coerceLexeme S.DeclType "declaration type",
@@ -61,7 +62,7 @@ coerceStmt (SyntaxNode S.Decl _ children) = do
         coerceExpr
       )
       children
-  endPos <- gets pstatePos
+  endPos <- gets pstateEndPos
   mapM_ (advance . S.snodeWidth) remaining
   return $ Just $ WithCtx (ctxFromRgn startPos endPos) (AST.Decl declType declName expr)
 coerceStmt (SyntaxNode kind width _)
@@ -75,7 +76,7 @@ coerceExpr [] = throwMissingSyntax "expression"
 coerceExpr (SyntaxNode kind width children : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceExpr remaining
   | otherwise = do
-    startPos <- gets pstatePos
+    startPos <- gets pstateStartPos
     expr <- case kind of
       S.String -> AST.StringLiteral . tail . init <$> consume width
       S.Int -> AST.IntegerLiteral . read <$> consume width
@@ -89,7 +90,7 @@ coerceExpr (SyntaxNode kind width children : remaining)
       S.ExtImport -> coerceExtImport children
       S.Quoter -> coerceQuoter children
       _ -> unexpectedNode kind "where an expression was expected"
-    endPos <- gets pstatePos
+    endPos <- gets pstateEndPos
     return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
 
 coerceDict :: [SyntaxNode] -> ParserM Expr
@@ -134,7 +135,7 @@ coerceList syntax = do
 
 coerceTuple :: [SyntaxNode] -> ParserM Expr
 coerceTuple syntax = do
-  startPos <- gets pstatePos
+  startPos <- gets pstateStartPos
   (_, values, _) <-
     runAction syntax $
       sequence3
@@ -142,7 +143,7 @@ coerceTuple syntax = do
           coerceValues,
           coerceLexeme (S.Token T.RParen) ")"
         )
-  endPos <- gets pstatePos
+  endPos <- gets pstateEndPos
   case values of
     (x1 : x2 : xs) -> return $ AST.Tuple (x1, x2, xs)
     _ -> throwError $ TupleTooFewValues (SourceRegion startPos endPos) (length values)
@@ -248,9 +249,9 @@ runAction syntax fa = do
 -- | Run an action and track the region surrounding it
 withRegion :: Action a -> Action (a, SourceRegion)
 withRegion fa syntax = do
-  start <- gets pstatePos
+  start <- gets pstateStartPos
   (a, syntax') <- fa syntax
-  end <- gets pstatePos
+  end <- gets pstateEndPos
   return ((a, SourceRegion start end), syntax')
 
 coerceLexeme :: SyntaxKind -> String -> Action String
@@ -261,3 +262,16 @@ coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
     return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
+
+-- | Alias for 'pstatePos'
+pstateStartPos :: ParseState -> SourcePosition
+pstateStartPos = pstatePos
+
+-- | Get the position of the previous character. This can be used for getting
+-- the (inclusive) end position for a region.
+pstateEndPos :: ParseState -> SourcePosition
+pstateEndPos state = case pstatePos state of
+  -- Move back a character, moving up a line if necessary
+  SourcePosition 1 1 -> SourcePosition 1 1
+  SourcePosition l 1 -> SourcePosition (l - 1) (pstateLastLineLength state)
+  SourcePosition l c -> SourcePosition l (c - 1)

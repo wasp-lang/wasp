@@ -21,6 +21,7 @@ import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 data ParseState = ParseState
   { pstateLine :: !Int,
     pstateColumn :: !Int,
+    pstateLastLineLength :: !Int,
     pstateRemainingSource :: String
   }
 
@@ -36,6 +37,7 @@ runParserM source parser = runExcept $ evalStateT parser initialState
       ParseState
         { pstateLine = 1,
           pstateColumn = 1,
+          pstateLastLineLength = 1,
           pstateRemainingSource = source
         }
 
@@ -49,7 +51,7 @@ advance :: Int -> ParserM ()
 advance 0 = return ()
 advance amount = do
   gets (head . pstateRemainingSource) >>= \case
-    '\n' -> modify (\s -> s {pstateLine = pstateLine s + 1, pstateColumn = 1})
+    '\n' -> modify (\s -> s {pstateLine = pstateLine s + 1, pstateColumn = 1, pstateLastLineLength = pstateColumn s})
     _ -> modify (\s -> s {pstateColumn = pstateColumn s + 1})
   modify (\s -> s {pstateRemainingSource = tail (pstateRemainingSource s)})
   advance (amount - 1)
