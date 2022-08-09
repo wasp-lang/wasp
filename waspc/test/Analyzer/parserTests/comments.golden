@@ -1,0 +1,5 @@
+(AST
+  (Decl@5:1-23 type=test name=Decl
+    (Integer@5:22-23 value=42)
+  )
+)
