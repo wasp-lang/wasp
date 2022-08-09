@@ -138,6 +138,7 @@ library
       Wasp.Analyzer.Parser.Lexer.Internal
       Wasp.Analyzer.Parser.ParseError
       Wasp.Analyzer.Parser.AbstractParser
+      Wasp.Analyzer.Parser.AbstractParser.Monad
       Wasp.Analyzer.Parser.SourcePosition
       Wasp.Analyzer.Parser.SourceRegion
       Wasp.Analyzer.Parser.Token

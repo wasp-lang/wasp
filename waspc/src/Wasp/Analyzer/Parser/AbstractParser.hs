@@ -11,29 +11,18 @@ module Wasp.Analyzer.Parser.AbstractParser
 where
 
 import Control.Arrow (Arrow (first))
-import Control.Monad.Except (Except, runExcept, throwError)
-import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
+import Control.Monad.Except (throwError)
+import Control.Monad.State.Strict (gets)
 import Data.Maybe (catMaybes)
 import Wasp.Analyzer.Parser.AST (AST, Expr, ExtImportName, Identifier, Stmt)
 import qualified Wasp.Analyzer.Parser.AST as AST
+import Wasp.Analyzer.Parser.AbstractParser.Monad
 import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import qualified Wasp.Analyzer.Parser.Token as T
-
-data ParseState = ParseState
-  { pstateLine :: !Int,
-    pstateColumn :: !Int,
-    pstateRemainingSource :: String
-  }
-
-pstatePos :: ParseState -> SourcePosition
-pstatePos s = SourcePosition (pstateLine s) (pstateColumn s)
-
-type ParserM a = StateT ParseState (Except ParseError) a
 
 -- | An operation that turns some syntax nodes into a value and outputs the
 -- remaining nodes.
@@ -42,29 +31,15 @@ type Action a = [SyntaxNode] -> ParserM (a, [SyntaxNode])
 -- | @parseStatements sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST.
 parseStatements :: String -> [SyntaxNode] -> Either ParseError AST
-parseStatements source syntax = runExcept $ evalStateT (coerceProgram syntax) initialState
-  where
-    initialState =
-      ParseState
-        { pstateLine = 1,
-          pstateColumn = 1,
-          pstateRemainingSource = source
-        }
+parseStatements source syntax = runParserM source $ coerceProgram syntax
 
 -- | @parseExpression sourceString syntax@ tries to convert a concrete syntax
 -- tree into an AST representing a single expression. Currently, it allows extra
 -- syntax after the single expression.
 parseExpression :: String -> [SyntaxNode] -> Either ParseError Expr
-parseExpression source syntax = case runExcept $ evalStateT (coerceExpr syntax) initialState of
+parseExpression source syntax = case runParserM source $ coerceExpr syntax of
   Left err -> Left err
   Right (WithCtx _ expr, _) -> Right expr
-  where
-    initialState =
-      ParseState
-        { pstateLine = 1,
-          pstateColumn = 1,
-          pstateRemainingSource = source
-        }
 
 -- | Try to turn CST into top-level AST.
 coerceProgram :: [SyntaxNode] -> ParserM AST
@@ -286,30 +261,3 @@ coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
     return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
-
-consume :: Int -> ParserM String
-consume amount = do
-  lexeme <- gets (take amount . pstateRemainingSource)
-  advance amount
-  return lexeme
-
-advance :: Int -> ParserM ()
-advance 0 = return ()
-advance amount = do
-  gets (head . pstateRemainingSource) >>= \case
-    '\n' -> modify (\s -> s {pstateLine = pstateLine s + 1, pstateColumn = 1})
-    _ -> modify (\s -> s {pstateColumn = pstateColumn s + 1})
-  modify (\s -> s {pstateRemainingSource = tail (pstateRemainingSource s)})
-  advance (amount - 1)
-
--- | Returns a GHC error. Use this when a node is found in the CST that should
--- not be in that position. This scenario is a bug in the parser, which is why
--- it crashes waspc.
-unexpectedNode :: SyntaxKind -> String -> ParserM a
-unexpectedNode unexpectedKind locationDescription =
-  error $ "Unexpected syntax " ++ show unexpectedKind ++ " " ++ locationDescription ++ " created by CST"
-
-throwMissingSyntax :: String -> ParserM a
-throwMissingSyntax reason = do
-  pos <- SourcePosition <$> gets pstateLine <*> gets pstateColumn
-  throwError $ MissingSyntax pos reason
