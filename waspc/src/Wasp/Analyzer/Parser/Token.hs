@@ -53,8 +53,7 @@ instance NFData TokenKind
 
 instance ToJSON TokenKind
 
--- | A token representing a span of text from the source. For value-containing
--- tokens, the value can be recovered using @tokenText@.
+-- | A token representing a span of text from the source.
 data Token = Token
   { tokenKind :: !TokenKind,
     -- | The width of the text representing this token. The source position is
@@ -62,9 +61,6 @@ data Token = Token
     -- from an entire tree of tokens, and source position is determined on
     -- demand (for example, when an offset is going to be displayerd in an error
     -- message).
-    --
-    -- This is guaranteed to be equivalent to @length . tokenText@, but is
-    -- stored explicitly since it is accessed frequently.
     tokenWidth :: !Int
   }
   deriving (Eq, Show, Ord, Generic)
