@@ -42,6 +42,8 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
+    Control.Monad.Loops
+    Control.Syntax.Traverse
     Wasp.Backend.Token
     Wasp.Backend.Lexer
     Wasp.Backend.TokenSet
@@ -51,8 +53,14 @@ library
     Wasp.Backend.ConcreteParser.Internal
   other-modules:
     Paths_waspls
-    Wasp.LSP.Core
+    Wasp.LSP.ServerState
+    Wasp.LSP.ServerConfig
+    Wasp.LSP.ServerM
     Wasp.LSP.Handlers
+    Wasp.LSP.Diagnostic
+    Wasp.LSP.Completion
+    Wasp.LSP.Util
+    Wasp.LSP.Syntax
     Wasp.Backend.Lexer.Internal
     Wasp.Backend.Lexer.Lexer
   hs-source-dirs:
@@ -98,6 +106,8 @@ test-suite waspls-test
     , tasty-quickcheck      ^>= 0.10
   other-modules:
     TestUtil
+    Control.Syntax.TraverseTest
+    Control.Monad.LoopsTest
     Wasp.Backend.LexerTest
     Wasp.Backend.ConcreteParserTest
 
