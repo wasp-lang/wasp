@@ -1,0 +1,7 @@
+(AST
+  (Decl@1:1-34 type=test name=TwoOpenTags
+    (Quoter@1:18-34 tag=foo
+      {= {=foo =}
+    )
+  )
+)
