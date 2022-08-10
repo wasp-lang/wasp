@@ -89,22 +89,22 @@ coerceExpr [] = throwMissingSyntax "expression"
 coerceExpr (SyntaxNode kind width children : remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceExpr remaining
   | otherwise = do
-    startPos <- gets pstateStartPos
-    expr <- case kind of
-      S.String -> AST.StringLiteral . tail . init <$> consume width
-      S.Int -> AST.IntegerLiteral . read <$> consume width
-      S.Double -> AST.DoubleLiteral . read <$> consume width
-      S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
-      S.BoolFalse -> advance width >> return (AST.BoolLiteral False)
-      S.Var -> AST.Var <$> consume width
-      S.Dict -> coerceDict children
-      S.List -> coerceList children
-      S.Tuple -> coerceTuple children
-      S.ExtImport -> coerceExtImport children
-      S.Quoter -> coerceQuoter children
-      _ -> unexpectedNode kind "where an expression was expected"
-    endPos <- gets pstateEndPos
-    return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
+      startPos <- gets pstateStartPos
+      expr <- case kind of
+        S.String -> AST.StringLiteral . tail . init <$> consume width
+        S.Int -> AST.IntegerLiteral . read <$> consume width
+        S.Double -> AST.DoubleLiteral . read <$> consume width
+        S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
+        S.BoolFalse -> advance width >> return (AST.BoolLiteral False)
+        S.Var -> AST.Var <$> consume width
+        S.Dict -> coerceDict children
+        S.List -> coerceList children
+        S.Tuple -> coerceTuple children
+        S.ExtImport -> coerceExtImport children
+        S.Quoter -> coerceQuoter children
+        _ -> unexpectedNode kind "where an expression was expected"
+      endPos <- gets pstateEndPos
+      return (WithCtx (ctxFromRgn startPos endPos) expr, remaining)
 
 coerceDict :: NodesParser Expr
 coerceDict syntax = do
@@ -166,8 +166,8 @@ coerceValues [] = return ([], [])
 coerceValues (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Comma || S.syntaxKindIsTrivia kind = advance width >> coerceValues remaining
   | S.syntaxKindIsExpr kind = do
-    expr <- runNodesPartialParser [n] coerceExpr
-    first (expr :) <$> coerceValues remaining
+      expr <- runNodesPartialParser [n] coerceExpr
+      first (expr :) <$> coerceValues remaining
   | otherwise = return ([], n : remaining)
 
 coerceExtImport :: NodesParser Expr
@@ -186,17 +186,17 @@ coerceExtImportName :: NodesPartialParser ExtImportName
 coerceExtImportName [] = throwMissingSyntax "external import name"
 coerceExtImportName (SyntaxNode kind width _ : remaining)
   | kind == S.ExtImportModule = do
-    name <- AST.ExtImportModule <$> consume width
-    return (name, remaining)
+      name <- AST.ExtImportModule <$> consume width
+      return (name, remaining)
   | kind == S.Token T.LCurly = do
-    advance width
-    ((name, _), syntax') <-
-      sequence2
-        ( coerceLexeme S.ExtImportField "external import field",
-          coerceLexeme (S.Token T.RCurly) "}"
-        )
-        remaining
-    return (AST.ExtImportField name, syntax')
+      advance width
+      ((name, _), syntax') <-
+        sequence2
+          ( coerceLexeme S.ExtImportField "external import field",
+            coerceLexeme (S.Token T.RCurly) "}"
+          )
+          remaining
+      return (AST.ExtImportField name, syntax')
   | S.syntaxKindIsTrivia kind = advance width >> coerceExtImportName remaining
   | otherwise = unexpectedNode kind "in external import name"
 
@@ -223,8 +223,8 @@ collectQuoted :: NodesPartialParser [String]
 collectQuoted [] = return ([], [])
 collectQuoted (n@(SyntaxNode kind width _) : remaining)
   | kind == S.Token T.Quoted = do
-    lexeme <- consume width
-    first (lexeme :) <$> collectQuoted remaining
+      lexeme <- consume width
+      first (lexeme :) <$> collectQuoted remaining
   | kind == S.Token T.RQuote = return ([], n : remaining)
   | otherwise = unexpectedNode kind "inside quoter"
 
@@ -275,8 +275,8 @@ coerceLexeme :: SyntaxKind -> String -> NodesPartialParser String
 coerceLexeme _ description [] = throwMissingSyntax description
 coerceLexeme wantedKind description (SyntaxNode kind width _ : remaining)
   | kind == wantedKind = do
-    lexeme <- consume width
-    return (lexeme, remaining)
+      lexeme <- consume width
+      return (lexeme, remaining)
   | S.syntaxKindIsTrivia kind = advance width >> coerceLexeme wantedKind description remaining
   | otherwise = unexpectedNode kind $ "instead of " ++ description
 
