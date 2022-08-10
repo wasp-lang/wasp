@@ -54,6 +54,27 @@ instance NFData TokenKind
 instance ToJSON TokenKind
 
 -- | A token representing a span of text from the source.
+--
+-- __Note:__
+--
+-- The lexeme that a token represents is not stored with the token. This is
+-- because the CST parser does not need to use lexemes during its parsing. The
+-- effect of this is that we need to carry the source string around after parsing
+-- and pass it to any functions that will need to get the lexeme from a token
+-- or CST nodes. Needing to access a lexeme for a token is the edge case, since
+-- for most tokens the lexeme doesn't matter. Some of the cases that need it are:
+--
+-- - Error reporting
+-- - Getting values for literal nodes, variable names, and quoters
+--
+-- We could store the lexeme inside tokens and/or inside CST nodes. Two ways
+-- we could go about storing lexemes in the CST nodes:
+--
+-- (1) We store a lexeme for every syntax node, which could lead towards
+--    somewhat significant memory usage, since the lexeme for each token is
+--    duplicated by all of its ancestors.
+-- (2) We store a lexeme only for syntax nodes with no children, which makes it
+--     kind of complicated to get the lexeme for a non-leaf node.
 data Token = Token
   { tokenKind :: !TokenKind,
     -- | The width of the text representing this token. The source position is
