@@ -340,7 +340,6 @@ test-suite waspc-test
       Analyzer.EvaluatorTest
       Analyzer.Parser.ParseErrorTest
       Analyzer.Parser.SourcePositionTest
-      Analyzer.Parser.TokenTest
       Analyzer.ParserTest
       Analyzer.TestUtil
       Analyzer.TypeChecker.InternalTest

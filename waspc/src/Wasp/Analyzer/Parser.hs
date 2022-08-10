@@ -29,6 +29,7 @@ module Wasp.Analyzer.Parser
     ExtImportName (..),
     ParseError (..),
     SourcePosition (..),
+    SourceRegion (..),
     Token (..),
     TokenKind (..),
   )
@@ -41,6 +42,7 @@ import Wasp.Analyzer.Parser.Ctx (Ctx (..), WithCtx (..), ctxFromPos, ctxFromRgn,
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (..))
 import Wasp.Analyzer.Parser.Token
 
 -- | Checks if a string is a valid wasp identifier.

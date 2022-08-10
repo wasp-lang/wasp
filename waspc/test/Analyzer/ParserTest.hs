@@ -8,7 +8,6 @@ import Test.Tasty.Golden (findByExtension, goldenVsStringDiff)
 import Test.Tasty.Hspec
 import Wasp.Analyzer.Parser hiding (withCtx)
 import Wasp.Analyzer.Parser.ParseError (getErrorMessageAndCtx)
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import Wasp.Util (indent)
 
 spec_IsValidWaspIdentifier :: Spec
@@ -57,7 +56,7 @@ testCase waspFile =
   let astFile = replaceExtension waspFile ".golden"
    in goldenVsStringDiff
         (takeBaseName waspFile) -- Test case name
-        (\ref new -> ["diff", "-u", "--color=always", ref, new]) -- Diff command
+        (\ref new -> ["diff", "-u", ref, new]) -- Diff command
         astFile -- Golden file path
         ( do
             -- Read from wasp file and return parse result
