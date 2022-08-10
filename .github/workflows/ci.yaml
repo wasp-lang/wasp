@@ -43,7 +43,8 @@ jobs:
 
     steps:
       - name: Configure git
-        run: |-
+        working-directory: ~
+        run: |
           git config --global core.autocrlf input
           git config --global core.eol lf
 
