@@ -42,6 +42,11 @@ jobs:
           - windows-latest
 
     steps:
+      - name: Configure git
+      - run: |-
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
       - name: Checkout the repo
         uses: actions/checkout@v2
 
