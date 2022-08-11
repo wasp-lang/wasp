@@ -1,0 +1,14 @@
+(AST
+  (Decl@1:1-3:6 type=test name=JSON
+    (Quoter@1:11-3:6 tag=json
+      {=
+        "key": "value"
+      =}
+    )
+  )
+  (Decl@4:1-34 type=test name=JSON2
+    (Quoter@4:12-34 tag=json
+      {= [1, 2, 3] =}
+    )
+  )
+)

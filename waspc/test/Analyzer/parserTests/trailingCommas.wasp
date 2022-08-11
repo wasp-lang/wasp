@@ -1,0 +1,3 @@
+test Decl {
+  list: [ 1, ],
+}

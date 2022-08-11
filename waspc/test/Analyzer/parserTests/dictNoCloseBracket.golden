@@ -1,0 +1,3 @@
+Parse error at 2:1:
+  Unexpected end of file
+  Expected one of the following tokens instead: '}',<identifier>

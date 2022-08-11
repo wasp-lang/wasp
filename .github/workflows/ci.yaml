@@ -42,6 +42,15 @@ jobs:
           - windows-latest
 
     steps:
+      - name: Configure git
+        working-directory: ~
+        # For waspc parser tests, we need to make sure git doesn't convert line
+        # endings to CRLF during checkout on Windows because that would cause
+        # the test cases to fail.
+        run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
       - name: Checkout the repo
         uses: actions/checkout@v2
 
