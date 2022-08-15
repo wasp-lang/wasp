@@ -10,7 +10,8 @@
     "jsonwebtoken": "^8.5.1",
     "morgan": "~1.9.1",
     "patch-package": "^6.4.7",
-    "secure-password": "^4.0.0"
+    "secure-password": "^4.0.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.4",

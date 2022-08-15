@@ -91,7 +91,6 @@ npmDepsForWasp _spec =
             ("react-query", "^3.34.19"),
             ("react-router-dom", "^5.1.2"),
             ("react-scripts", "4.0.3"),
-            ("uuid", "^3.4.0"),
             -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
             -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
             ("react-error-overlay", "6.0.9")

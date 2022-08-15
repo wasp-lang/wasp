@@ -119,7 +119,8 @@ npmDepsForWasp spec =
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
             ("helmet", "^4.6.0"),
-            ("patch-package", "^6.4.7")
+            ("patch-package", "^6.4.7"),
+            ("uuid", "^8.3.2")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
