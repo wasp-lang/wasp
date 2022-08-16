@@ -1,7 +1,7 @@
 ---
 title: How to communicate why your startup is worth joining
 authors: [flreln]
-image: /img/worth-joining/illustration-1-min-min.png
+image: /img/worth-joining/illustration-1-min.png
 tags: [startups, hiring, wasp]
 ---
 
