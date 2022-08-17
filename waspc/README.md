@@ -354,9 +354,9 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 ### Typical Release Process
 - Update ChangeLog.md with release notes and open an PR for feedback.
 - After approval, squash and merge PR for ChangeLog.md into `main`.
-- Update your local repository state to have all remote changes.
-- Merge `release` into `main`.
-- Merge `main` into `release`.
+- Update your local repository state to have all remote changes (`git fetch`).
+- Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
+- Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
 - Make sure you are on `release` and then run `./new-release 0.x.y.z`.
   - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
 - Wait for CI to finish & succeed for the new tag.
