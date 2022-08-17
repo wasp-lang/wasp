@@ -513,9 +513,7 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ data: { job: "args" } })`.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
 
 ### Recurring jobs
 
@@ -534,16 +532,15 @@ job mySpecialJob {
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ data: { "job": "args" } })` getting automatically scheduled and invoked for you every hour.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "job": "args" })` getting automatically scheduled and invoked for you every hour.
 
 ### Fully specified example
-Additionally, both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`.
+Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
 ```css
 job mySpecialJob {
   executor: PgBoss,
+  entities: [Task],
   perform: {
     fn: import { foo } from "@ext/jobs/bar.js",
     executorOptions: {
@@ -568,7 +565,13 @@ job mySpecialJob {
 ####  `perform: dict` (required)
 
   - ##### `fn: fn` (required)
-  An `async` JavaScript function of work to be performed. It can optionally take a JSON value as an argument.
+  An `async` JavaScript function of work to be performed. It receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
+
+  ```js
+  export async function foo(args, context) {
+    // Can reference context.entities.Task, for example.
+  }
+  ```
   
   - ##### `executorOptions: dict` (optional)
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
@@ -583,14 +586,15 @@ job mySpecialJob {
   
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
-  
-  **Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
-  
+    
   - ##### `executorOptions: dict` (optional)
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
     See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+
+#### `entities: [Entity]` (optional)
+A list of entities you wish to use inside your Job (similar to Queries and Actions).
 
 ### JavaScript API
 
@@ -606,8 +610,6 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `executorOptions: JSON` (optional)
 
 Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })

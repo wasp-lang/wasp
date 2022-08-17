@@ -121,7 +121,8 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
-  }
+  },
+  entities: [Task]
 }
 
 job mySpecialScheduledJob {
