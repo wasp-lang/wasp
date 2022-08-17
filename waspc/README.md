@@ -324,15 +324,16 @@ All Wasp development should be done on feature branches. They form the basis of 
 - `main`: this branch contains all the actively developed new features and corresponding documentation updates. Some of these things may not yet be released, but anything merged into `main` should be in a release-ready state.
   - This is the default branch to target for any Wasp feature branches.
 - `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
-  - When we do a full release, we first backmerge `release` into `main` to pick up any diverging changes (see below). We then merge `main` into `release` to get all the new changes. We can now create a new Wasp release as well as deploy the website from the `release` branch.
+  - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
+    1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
+    2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
+
 How do I know where I want to target my PR, to `release` or `main`?
   - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, ... .
   - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
   - TLDR;
     - `release` is for changes to the already published stuff (the present).
     - `main` is for changes to the to-be-published stuff (the future).
-
-NOTE: The term "backmerge" here just refers to a normal git merge, but in the opposite or backwards direction to the normal merge flow. Our normal flow is from `main` -> `release`, but we should backport any direct-to-`release` commits via a backmerge from `release` -> `main`.
 
 ## Deployment / CI
 We use Github Actions for CI.
@@ -354,7 +355,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Update ChangeLog.md with release notes and open an PR for feedback.
 - After approval, squash and merge PR for ChangeLog.md into `main`.
 - Update your local repository state to have all remote changes.
-- Backmerge `release` into `main`.
+- Merge `release` into `main`.
 - Merge `main` into `release`.
 - Make sure you are on `release` and then run `./new-release 0.x.y.z`.
   - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
