@@ -13,7 +13,7 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
-- [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
+- [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 
 ## Quick overview
