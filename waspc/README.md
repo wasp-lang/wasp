@@ -13,7 +13,7 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
-- [ ] Make a PR and have it accepted! Check [Typical workflow](#typical-development-workflow) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
+- [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 
 ## Quick overview
@@ -316,6 +316,25 @@ NOTE: When you run it for the first time it might take a while (~10 minutes) for
 ## Commit message conventions
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
+## Branching and merging strategy
+This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`). In order to facilitate the development of Wasp code while still allowing for website updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
+
+All Wasp development should be done on feature branches. They form the basis of PRs that will target one of the two following branches:
+
+- `main`: this branch contains all the actively developed new features and corresponding documentation updates. Some of these things may not yet be released, but anything merged into `main` should be in a release-ready state.
+  - This is the default branch to target for any Wasp feature branches.
+- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
+  - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
+    1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
+    2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
+
+How do I know where I want to target my PR, to `release` or `main`?
+  - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, ... .
+  - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
+  - TLDR;
+    - `release` is for changes to the already published stuff (the present).
+    - `main` is for changes to the to-be-published stuff (the future).
+
 ## Deployment / CI
 We use Github Actions for CI.
 
@@ -335,13 +354,16 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 ### Typical Release Process
 - Update ChangeLog.md with release notes and open an PR for feedback.
 - After approval, squash and merge PR for ChangeLog.md into `main`.
-- Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`.
+- Update your local repository state to have all remote changes (`git fetch`).
+- Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
+- Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
+- Make sure you are on `release` and then run `./new-release 0.x.y.z`.
   - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
 - Wait for CI to finish & succeed for the new tag.
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - Publish the draft release when ready.
-- Publish new [docs](/web#deployment).
+- Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
 
 ## Documentation

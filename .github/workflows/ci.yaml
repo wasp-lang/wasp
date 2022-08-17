@@ -1,7 +1,10 @@
 name: CI
 
 on:
-  push: { branches: [main] }
+  push:
+    branches:
+      - main
+      - release
   pull_request: { }
   create: { tags: [v*] }
   schedule:
