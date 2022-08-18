@@ -7,11 +7,11 @@ sampleBodySchema :: String
 sampleBodySchema =
   unlines
     [ "  id Int @id @default(value: autoincrement())",
-      "  email String? @db.VarChar(200)",
+      "  username String? @db.VarChar(200)",
       "  posts Post[] @relation(\"UserPosts\", references: [id]) @customattr",
       "  weirdType Unsupported(\"weird\")",
       "",
-      "  @@someattr([id, email], 2 + 4, [posts])"
+      "  @@someattr([id, username], 2 + 8, [posts])"
     ]
 
 -- | Corresponds to sampleBodySchema above.
@@ -39,7 +39,7 @@ sampleBodyAst =
         ),
       AST.ElementField
         ( AST.Field
-            { AST._name = "email",
+            { AST._name = "username",
               AST._type = AST.String,
               AST._typeModifiers = [AST.Optional],
               AST._attrs =
@@ -84,8 +84,8 @@ sampleBodyAst =
         ( AST.Attribute
             { AST._attrName = "someattr",
               AST._attrArgs =
-                [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["id", "email"]),
-                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 4"),
+                [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["id", "username"]),
+                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 8"),
                   AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["posts"])
                 ]
             }
