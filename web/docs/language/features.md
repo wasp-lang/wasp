@@ -675,7 +675,7 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ UsernameAndPassword ],
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
@@ -688,7 +688,7 @@ Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `methods: [AuthMethod]` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `EmailAndPassword`: Provides support for authentication with email address and a password.
+* `UsernameAndPassword`: Provides support for authentication with a username and password.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -698,13 +698,13 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#
 Path where a successfully authenticated user will be sent upon successful login/signup.
 Default value is "/".
 
-### Email and Password
+### Username and Password
 
-`EmailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
-This method requires that `userEntity` specified in `auth` contains `email: string` and `password: string` fields.
+`UsernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
+This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
-- `email`: non-empty
+- `username`: non-empty
 - `password`: non-empty, at least 8 characters, and contains a number
 
 #### High-level API
@@ -728,7 +728,7 @@ export const signUp = async (args, context) => {
     // Your custom code before sign-up.
     // ...
     const newUser = context.entities.User.create({
-        data: { email: 'some@email.com', password: 'this will be hashed!' }
+        data: { username: 'someone', password: 'this will be hashed!' }
     })
 
     // Your custom code after sign-up.
@@ -746,7 +746,7 @@ You don't need to worry about hashing the password yourself! Even when you are u
 To disable/enable default validations, or add your own, you can do:
 ```js
 const newUser = context.entities.User.create({
-  data: { email: 'some@email.com', password: 'this will be hashed!' },
+  data: { username: 'someone', password: 'this will be hashed!' },
   _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
   _waspCustomValidations: [
     {
@@ -759,7 +759,7 @@ const newUser = context.entities.User.create({
 ```
 
 :::info
-Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'email'` or `'password'` fields.
+Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'username'` or `'password'` fields.
 :::
 
 #### Specification
@@ -767,10 +767,10 @@ Validations always run on `create()`, but only when the field mentioned in `vali
 ### `login()`
 An action for logging in the user.
 ```js
-login(email, password)
+login(username, password)
 ```
-#### `email: string`
-Email of the user logging in.
+#### `username: string`
+Username of the user logging in.
 
 #### `password: string`
 Password of the user logging in.
