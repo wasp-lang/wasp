@@ -11,7 +11,7 @@ sampleBodySchema =
       "  posts Post[] @relation(\"UserPosts\", references: [id]) @customattr",
       "  weirdType Unsupported(\"weird\")",
       "",
-      "  @@someattr([id, username], 2 + 8, [posts])"
+      "  @@someattr([id, username], 2 + 4, [posts])"
     ]
 
 -- | Corresponds to sampleBodySchema above.
@@ -85,7 +85,7 @@ sampleBodyAst =
             { AST._attrName = "someattr",
               AST._attrArgs =
                 [ AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["id", "username"]),
-                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 8"),
+                  AST.AttrArgUnnamed (AST.AttrArgUnknown "2 + 4"),
                   AST.AttrArgUnnamed (AST.AttrArgFieldRefList ["posts"])
                 ]
             }
