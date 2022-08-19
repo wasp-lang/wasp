@@ -10,7 +10,7 @@ import api, { setAuthToken } from '../../api.js'
 // that contain information needed for the API server to authenticate with the provider.
 // This page forwards that information to the API server and in response get a JWT,
 // which it stores on the client, therefore completing the OAuth authentication process.
-const OAuthCodeExchange = (props) => {
+export default function OAuthCodeExchange(props) {
   const history = useHistory()
   // NOTE: Different auth methods will have different Wasp API server validation paths.
   // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
@@ -32,25 +32,20 @@ async function exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandli
   const apiServerUrlHandlingOauthRedirect = `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
 
   const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
-  if (!token) {
+  if (token) {
+    setAuthToken(token)
+    history.push('{= onAuthSucceededRedirectTo =}')
+  } else {
     console.error('Error obtaining JWT token')
-    return history.push('{= onAuthFailedRedirectTo =}')
+    history.push('{= onAuthFailedRedirectTo =}')
   }
-
-  setAuthToken(token)
-  history.push('{= onAuthSucceededRedirectTo =}')
 }
 
 async function exchangeCodeForJwt(url) {
-  let token = null
   try {
     const response = await api.get(url)
-    token = response?.data?.token
+    return response?.data?.token
   } catch (e) {
     console.error(e)
   }
-
-  return token
 }
-
-export default OAuthCodeExchange
