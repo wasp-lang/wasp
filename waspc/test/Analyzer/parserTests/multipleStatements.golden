@@ -1,0 +1,8 @@
+(AST
+  (Decl@1:1-19 type=constant name=Pi
+    (Double@1:13-19 value=3.14159)
+  )
+  (Decl@2:1-19 type=constant name=E
+    (Double@2:13-19 value=2.71828)
+  )
+)

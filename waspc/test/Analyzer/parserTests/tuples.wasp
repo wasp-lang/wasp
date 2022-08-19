@@ -1,0 +1,4 @@
+test Pair (1, "foo")
+test Triple (1, "foo", 2)
+test Quadruple (1, "foo", 2, true)
+test TrailingComma (42, 314,)

@@ -10,7 +10,6 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
 import Data.Maybe (fromJust)
 import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
@@ -90,5 +89,5 @@ operationTmplData operation =
     buildEntityData entityName =
       object
         [ "name" .= entityName,
-          "prismaIdentifier" .= (toLower (head entityName) : tail entityName)
+          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
         ]

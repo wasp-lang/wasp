@@ -1,0 +1,7 @@
+(AST
+  (Decl@1:1-42 type=test name=DifferentNestedOpen
+    (Quoter@1:26-42 tag=foo
+      {= {=bar =}
+    )
+  )
+)
