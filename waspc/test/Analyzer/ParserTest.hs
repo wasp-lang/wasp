@@ -29,63 +29,73 @@ spec_ParseExpression = do
   it "Parses int literals" $ do
     parseExpression "5" `shouldBe` Right (IntegerLiteral 5)
 
--- | To add more test cases to the parser, create a `.wasp` and `.golden` file
--- in the `parserTests` directory with wasp source code to parse and the expected
--- output, respectively.
---
--- See `declsDictsAndLiterals` for an example of a test case with a successful
--- parse.
---
--- See `dictNoCloseBracket` for an example of a test case with an unsuccessful
--- parse.
---
--- While the testing framework will create the `.golden` file for you if it does
--- not exist, it is recommended that you manually write the `.golden` file to
--- make sure the output is as expected.
---
--- When the golden file does not match the actual output, a diff will be shown
--- in the terminal.
-test_Parser :: IO TestTree
-test_Parser = do
-  waspFiles <- findByExtension [".wasp"] "./test/Analyzer/parserTests"
-  return $ testGroup "Wasp.Analyzer.Parser" $ map testCase waspFiles
+test_ParseStatements :: IO TestTree
+test_ParseStatements = do
+  -- To make writing tests easier, we use golden files to define our tests here.
+  --
+  -- In parseStatementsTests/ dir there are .wasp files and .golden files, where
+  -- each .wasp source file represents input of a single test,
+  -- while corresponding .golden file represents expected output of that test.
+  --
+  -- See `declsDictsAndLiterals` for an example of a test case with a successful
+  -- parse.
+  --
+  -- See `dictNoCloseBracket` for an example of a test case with an unsuccessful
+  -- parse.
+  --
+  -- While the testing framework will create the `.golden` file for you if it does
+  -- not exist, it is recommended that you manually write the `.golden` file to
+  -- make sure the output is as expected.
+  --
+  -- When the golden file does not match the actual output, a diff will be shown
+  -- in the terminal.
+  waspFiles <- findByExtension [".wasp"] "./test/Analyzer/ParserTest/parseStatementsTests"
+  return $
+    testGroup "Wasp.Analyzer.Parser.parseStatements" $
+      makeParseStatementsGoldenTest <$> waspFiles
 
--- | Run a single golden test case for the given wasp file.
-testCase :: FilePath -> TestTree
-testCase waspFile =
-  let astFile = replaceExtension waspFile ".golden"
+-- | Make a golden test where given wasp source file is parsed with
+-- @parseStatements@ and the AST that is the result of parsing is the output of test.
+-- This means that AST will be persisted to codebase as a "golden" output and compared
+-- against the next time this test is run -> any difference is reported as failed test.
+-- If no such file exists yet on the disk, it is created.
+makeParseStatementsGoldenTest :: FilePath -> TestTree
+makeParseStatementsGoldenTest waspFile =
+  let goldenAstFile = replaceExtension waspFile ".golden"
+      testCaseName = takeBaseName waspFile
+      diffCmd = \ref new -> ["diff", "-u", ref, new]
    in goldenVsStringDiff
-        (takeBaseName waspFile) -- Test case name
-        (\ref new -> ["diff", "-u", ref, new]) -- Diff command
-        astFile -- Golden file path
+        testCaseName
+        diffCmd
+        goldenAstFile
         ( do
-            -- Read from wasp file and return parse result
+            -- Read from wasp file and return parse result.
             source <- BSC.unpack <$> BS.readFile waspFile
-            return $ BSC.pack $ showResult $ parseStatements source
+            return $ BSC.pack $ prettyPrintParserResult $ parseStatements source
         )
 
 -- | Pretty print the result of a parse. The purpose of a custom implementation
 -- here is to make golden file diffs readable/useful.
 --
--- To see examples of pretty prints, see the golden files in `./parserTests`.
-showResult :: Either ParseError AST -> String
-showResult (Left err) =
+-- To see examples of pretty prints, see the golden files in `./ParserTest/parseStatementsTests`.
+prettyPrintParserResult :: Either ParseError AST -> String
+prettyPrintParserResult (Left err) =
   let (message, ctx) = getErrorMessageAndCtx err
-      locationStr = "at " ++ showCtx ctx
+      locationStr = "at " ++ prettyPrintCtx ctx
    in "Parse error " ++ locationStr ++ ":\n" ++ indent 2 message ++ "\n"
-showResult (Right ast) = showAST ast
+prettyPrintParserResult (Right ast) = prettyPrintAST ast
 
-showAST :: AST -> String
-showAST (AST stmts) = "(AST\n" ++ indent 2 (concatMap showStmt stmts) ++ ")\n"
+prettyPrintAST :: AST -> String
+prettyPrintAST (AST stmts) = "(AST\n" ++ indent 2 (concatMap prettyPrintStmt stmts) ++ ")\n"
 
-showStmt :: WithCtx Stmt -> String
-showStmt (WithCtx ctx (Decl typ name body)) =
-  withCtx "(Decl" ctx ++ " type=" ++ typ ++ " name=" ++ name ++ "\n"
-    ++ indent 2 (showExpr body)
+prettyPrintStmt :: WithCtx Stmt -> String
+prettyPrintStmt (WithCtx ctx (Decl typ name body)) =
+  prettyPrintWithCtx "(Decl" ctx ++ " type=" ++ typ ++ " name=" ++ name ++ "\n"
+    ++ indent 2 (prettyPrintExpr body)
     ++ ")\n"
 
-showExpr :: WithCtx Expr -> String
-showExpr (WithCtx ctx expr) = "(" ++ withCtx (exprName expr) ctx ++ showDetails expr ++ ")\n"
+prettyPrintExpr :: WithCtx Expr -> String
+prettyPrintExpr (WithCtx ctx expr) = "(" ++ prettyPrintWithCtx (exprName expr) ctx ++ showDetails expr ++ ")\n"
   where
     exprName (Dict _) = "Dict"
     exprName (List _) = "List"
@@ -101,8 +111,8 @@ showExpr (WithCtx ctx expr) = "(" ++ withCtx (exprName expr) ctx ++ showDetails 
     showDetails (Dict []) = ""
     showDetails (Dict entries) = "\n" ++ indent 2 (concatMap showEntry entries)
     showDetails (List []) = ""
-    showDetails (List values) = "\n" ++ indent 2 (concatMap showExpr values)
-    showDetails (Tuple (a, b, cs)) = "\n" ++ indent 2 (concatMap showExpr (a : b : cs))
+    showDetails (List values) = "\n" ++ indent 2 (concatMap prettyPrintExpr values)
+    showDetails (Tuple (a, b, cs)) = "\n" ++ indent 2 (concatMap prettyPrintExpr (a : b : cs))
     showDetails (StringLiteral s) = showLiteral s
     showDetails (IntegerLiteral n) = showLiteral n
     showDetails (DoubleLiteral n) = showLiteral n
@@ -111,7 +121,7 @@ showExpr (WithCtx ctx expr) = "(" ++ withCtx (exprName expr) ctx ++ showDetails 
     showDetails (Var v) = " variable=" ++ v
     showDetails (Quoter tag contents) = " tag=" ++ tag ++ "\n" ++ indent 2 ("{=" ++ contents ++ "=}") ++ "\n"
 
-    showEntry (key, value) = "(DictEntry key=" ++ key ++ "\n" ++ indent 2 (showExpr value) ++ ")\n"
+    showEntry (key, value) = "(DictEntry key=" ++ key ++ "\n" ++ indent 2 (prettyPrintExpr value) ++ ")\n"
 
     showExtImportName (ExtImportField name) = "field=" ++ name
     showExtImportName (ExtImportModule name) = "module=" ++ name
@@ -119,11 +129,11 @@ showExpr (WithCtx ctx expr) = "(" ++ withCtx (exprName expr) ctx ++ showDetails 
     showLiteral :: Show a => a -> String
     showLiteral value = " value=" ++ show value
 
-withCtx :: String -> Ctx -> String
-withCtx name ctx = name ++ "@" ++ showCtx ctx
+prettyPrintWithCtx :: String -> Ctx -> String
+prettyPrintWithCtx name ctx = name ++ "@" ++ prettyPrintCtx ctx
 
-showCtx :: Ctx -> String
-showCtx (Ctx (SourceRegion (SourcePosition sl sc) (SourcePosition el ec)))
+prettyPrintCtx :: Ctx -> String
+prettyPrintCtx (Ctx (SourceRegion (SourcePosition sl sc) (SourcePosition el ec)))
   | sl == el && sc == ec = show sl ++ ":" ++ show sc
   | sl == el = show sl ++ ":" ++ show sc ++ "-" ++ show ec
   | otherwise = show sl ++ ":" ++ show sc ++ "-" ++ show el ++ ":" ++ show ec
