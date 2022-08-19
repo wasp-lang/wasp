@@ -128,6 +128,7 @@ library
       Wasp.Analyzer.Evaluator.EvaluationError
       Wasp.Analyzer.Parser
       Wasp.Analyzer.Parser.AST
+      Wasp.Analyzer.Parser.AST.PrettyPrinter
       Wasp.Analyzer.Parser.Ctx
       Wasp.Analyzer.Parser.ConcreteParser
       Wasp.Analyzer.Parser.ConcreteParser.ParseError
@@ -137,6 +138,7 @@ library
       Wasp.Analyzer.Parser.Lexer.Lexer
       Wasp.Analyzer.Parser.Lexer.Internal
       Wasp.Analyzer.Parser.ParseError
+      Wasp.Analyzer.Parser.PrettyPrinter
       Wasp.Analyzer.Parser.AbstractParser
       Wasp.Analyzer.Parser.AbstractParser.Monad
       Wasp.Analyzer.Parser.SourcePosition
