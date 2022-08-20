@@ -28,6 +28,7 @@ module Wasp.Util
     fromMaybeM,
     orIfNothing,
     orIfNothingM,
+    projectNameToAppIdentifier,
   )
 where
 
@@ -39,7 +40,7 @@ import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (intercalate)
-import Data.List.Split (splitOn)
+import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -56,6 +57,13 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
         (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
+
+projectNameToAppIdentifier :: String -> String
+projectNameToAppIdentifier = concat . capitalizeWords . wordsBy (== '-')
+  where
+    capitalizeWords :: [String] -> [String]
+    capitalizeWords [] = []
+    capitalizeWords (kebabHead : kebabTail) = kebabHead : map toUpperFirst kebabTail
 
 -- | Applies given function to the first element of the list.
 --   If list is empty, returns empty list.

@@ -18,14 +18,16 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
-import Wasp.Util (indent)
+import Wasp.Util (indent, projectNameToAppIdentifier)
 import qualified Wasp.Util.Terminal as Term
 
 newtype ProjectName = ProjectName {_projectName :: String}
 
+newtype AppIdentifier = AppIdentifier {_appIdentifier :: String}
+
 createNewProject :: String -> Command ()
 createNewProject name
-  | isValidWaspIdentifier name = createNewProject' (ProjectName name)
+  | isValidWaspIdentifier appIdentifier = createNewProject' (ProjectName name) (AppIdentifier appIdentifier)
   | otherwise =
       throwError $
         CommandError "Project creation failed" $
@@ -36,9 +38,11 @@ createNewProject name
               indent 2 "- It can contain only letters, numbers, or underscores.",
               indent 2 "- It can't be a Wasp keyword."
             ]
+  where
+    appIdentifier = projectNameToAppIdentifier name
 
-createNewProject' :: ProjectName -> Command ()
-createNewProject' (ProjectName projectName) = do
+createNewProject' :: ProjectName -> AppIdentifier -> Command ()
+createNewProject' (ProjectName projectName) (AppIdentifier appIdentifier) = do
   absCwd <- liftIO getCurrentDirectory
   waspProjectDir <- case SP.parseAbsDir $ absCwd FP.</> projectName of
     Left err ->
@@ -106,7 +110,7 @@ createNewProject' (ProjectName projectName) = do
 
     mainWaspFileContent =
       unlines
-        [ "app %s {" `printf` projectName,
+        [ "app %s {" `printf` appIdentifier,
           "  title: \"%s\"" `printf` projectName,
           "}",
           "",

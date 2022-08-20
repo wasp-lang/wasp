@@ -18,6 +18,17 @@ spec_camelToKebabCase = do
     camel ~> kebab = it (camel ++ " -> " ++ kebab) $ do
       camelToKebabCase camel `shouldBe` kebab
 
+spec_projectNameToAppIdentifier :: Spec
+spec_projectNameToAppIdentifier = do
+  "foobar" ~> "foobar"
+  "s3" ~> "s3"
+  "foo-bar-bar" ~> "fooBarBar"
+  "todo-App" ~> "todoApp"
+  "TODO-app" ~> "TODOApp"
+  where
+    kebab ~> camel = it (kebab ++ " -> " ++ camel) $ do
+      projectNameToAppIdentifier kebab `shouldBe` camel
+
 spec_onFirst :: Spec
 spec_onFirst = do
   it "Returns empty list for empty list" $ do
