@@ -30,10 +30,21 @@ app todoApp {
 }
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    email       String  @unique
-    password    String
-    tasks       Task[]
+    id            Int           @id @default(autoincrement())
+    email         String        @unique
+    password      String
+    tasks         Task[]
+    socialLogins  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
 psl=}
 
 entity Task {=psl

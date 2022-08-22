@@ -70,19 +70,4 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
-// Looks up a user by email and if:
-// (1) the user does not exist, create them with a random password, or
-// (2) if the user does exist, update their existing password to a random password.
-export async function upsertUserWithRandomPassword(email) {
-  const randomPassword = uuidv4()
-
-  const user = await prisma.{= userEntityLower =}.upsert({
-    where: { email },
-    update: { password: randomPassword },
-    create: { email, password: randomPassword },
-  })
-
-  return user
-}
-
 export default auth

@@ -1,5 +1,3 @@
-import { upsertUserWithRandomPassword } from '@wasp/core/auth.js'
-
 // NOTE: These functions are just samples for testing and same as the defaults.
 export function config() {
   console.log("Inside user-supplied Google config")
@@ -9,8 +7,7 @@ export function config() {
   }
 }
 
-export function signInHandler(_context, args) {
-  console.log("Inside user-supplied Google sign in function")
-  const email = args.profile.emails[0].value
-  return upsertUserWithRandomPassword(email)
+// TODO
+export function firstSignInConfig(_context, args) {
+  throw 'TODO'
 }

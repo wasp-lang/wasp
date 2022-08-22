@@ -10,8 +10,8 @@ export { configFn } from './googleDefaults.js'
 
 {=# doesOnSignInFnExist =}
 {=& onSignInFnImportStatement =}
-export { {= onSignInFnIdentifier =} as onSignInFn }
+export { {= onSignInFnIdentifier =} as firstSignInConfig }
 {=/ doesOnSignInFnExist =}
 {=^ doesOnSignInFnExist =}
-export { onSignInFn } from './googleDefaults.js'
+export { firstSignInConfig } from './googleDefaults.js'
 {=/ doesOnSignInFnExist =}

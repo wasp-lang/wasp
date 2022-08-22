@@ -3,9 +3,9 @@ import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth20'
 
 import waspServerConfig from '../../../../config.js'
-import { contextWithUserEntity, authConfig } from '../../utils.js'
+import { contextWithUserEntity, authConfig, findOrCreateUserBySocialLogin } from '../../utils.js'
 import { sign } from '../../../../core/auth.js'
-import { configFn, onSignInFn } from './googleConfig.js'
+import { configFn, firstSignInConfig } from './googleConfig.js'
 
 const config = validateConfig(configFn())
 
@@ -21,14 +21,22 @@ passport.use('waspGoogleStrategy', new GoogleStrategy({
 // This token was used to get the Google profile information supplied as a parameter.
 async function oauthCodeValidationSucceeded(req, _accessToken, _refreshToken, profile, done) {
   try {
-    const user = await onSignInFn(contextWithUserEntity, { profile })
+    const googleUserId = profile?.id
 
-    if (!user?.id) {
-      return done(new Error('auth.onSignInFn must return a user object with an id property'))
+    if (!googleUserId) {
+      throw new Error("Google profile was missing required id property.")
     }
 
+    const firstSignInConfigPromise = firstSignInConfig(contextWithUserEntity, { profile })
+    const { user, created: firstSignIn } = await findOrCreateUserBySocialLogin('google', googleUserId, firstSignInConfigPromise)
+
     // Pass along the userId so we can create the JWT in the OAuth code validation route handler.
-    req.wasp = { ...req.wasp, userId: user.id }
+    // Additionally, if this was the users first sign in, include any redirectPath from firstSignInConfig.
+    req.wasp = {
+      ...req.wasp,
+      userId: user.id,
+      ...(firstSignIn && (await firstSignInConfigPromise).redirectPath && { redirectPath: (await firstSignInConfigPromise).redirectPath })
+    }
 
     done(null, user)
   } catch (err) {
@@ -47,8 +55,8 @@ function validateConfig(config) {
 
   if (!config?.scope) {
     throw new Error("auth.google.configFn must return an object with a scope property.")
-  } else if (!Array.isArray(config.scope) || !config.scope.includes('email') || !config.scope.includes('profile')) {
-    throw new Error("auth.google.configFn returned an object with an invalid scope property. It must be an array including 'email' and 'profile'.")
+  } else if (!Array.isArray(config.scope) || !config.scope.includes('profile')) {
+    throw new Error("auth.google.configFn returned an object with an invalid scope property. It must be an array including 'profile'.")
   }
 
   return config
@@ -69,7 +77,7 @@ router.get('/validateCode',
     failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
   }),
   async function (req, res) {
-    const userId = req.wasp.userId
+    const userId = req?.wasp?.userId
 
     if (!userId) {
       console.error('In Google OAuth success callback, but userId not in request. This should not happen!')
