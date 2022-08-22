@@ -31,11 +31,9 @@ async function oauthCodeValidationSucceeded(req, _accessToken, _refreshToken, pr
     const { user, created: firstSignIn } = await findOrCreateUserBySocialLogin('google', googleUserId, firstSignInConfigPromise)
 
     // Pass along the userId so we can create the JWT in the OAuth code validation route handler.
-    // Additionally, if this was the users first sign in, include any redirectPath from firstSignInConfig.
     req.wasp = {
       ...req.wasp,
       userId: user.id,
-      ...(firstSignIn && (await firstSignInConfigPromise).redirectPath && { redirectPath: (await firstSignInConfigPromise).redirectPath })
     }
 
     done(null, user)

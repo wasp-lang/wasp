@@ -32,6 +32,7 @@ async function exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandli
   const apiServerUrlHandlingOauthRedirect = `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
 
   const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
+
   if (token) {
     setAuthToken(token)
     history.push('{= onAuthSucceededRedirectTo =}')
