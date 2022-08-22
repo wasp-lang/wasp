@@ -7,7 +7,10 @@ module Wasp.Analyzer.Parser.AST.PrettyPrinter
   )
 where
 
-import Wasp.Analyzer.Parser hiding (withCtx)
+import Wasp.Analyzer.Parser.AST (AST (AST), Expr (..), ExtImportName (..), Stmt (..))
+import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (..))
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import Wasp.Util (indent)
 
 prettyPrintAST :: AST -> String
@@ -58,7 +61,7 @@ prettyPrintWithCtx :: String -> Ctx -> String
 prettyPrintWithCtx name ctx = name ++ "@" ++ prettyPrintCtx ctx
 
 prettyPrintCtx :: Ctx -> String
-prettyPrintCtx (Ctx (SourceRegion (SourcePosition sl sc) (SourcePosition el ec)))
-  | sl == el && sc == ec = show sl ++ ":" ++ show sc
-  | sl == el = show sl ++ ":" ++ show sc ++ "-" ++ show ec
-  | otherwise = show sl ++ ":" ++ show sc ++ "-" ++ show el ++ ":" ++ show ec
+prettyPrintCtx (Ctx (SourceRegion (SourcePosition startLine startColumn) (SourcePosition endLine endColumn)))
+  | startLine == endLine && startColumn == endColumn = show startLine ++ ":" ++ show startColumn
+  | startLine == endLine = show startLine ++ ":" ++ show startColumn ++ "-" ++ show endColumn
+  | otherwise = show startLine ++ ":" ++ show startColumn ++ "-" ++ show endLine ++ ":" ++ show endColumn
