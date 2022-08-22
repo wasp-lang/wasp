@@ -10,7 +10,6 @@ module Wasp.Generator.ServerGenerator.Common
     asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
-    getOnAuthSucceededRedirectToOrDefault,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -19,10 +18,8 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromMaybe)
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -88,6 +85,3 @@ serverTemplatesDirInTemplatesDir = [reldir|server|]
 
 srcDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir ServerTemplatesSrcDir)
 srcDirInServerTemplatesDir = [reldir|src|]
-
-getOnAuthSucceededRedirectToOrDefault :: AS.App.Auth.Auth -> String
-getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.App.Auth.onAuthSucceededRedirectTo auth)

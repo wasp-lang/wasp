@@ -5,6 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
+import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -63,36 +64,38 @@ genAuthForms auth =
     [ genLoginForm auth,
       genSignupForm auth
     ]
-    <++> (if AS.App.Auth.isExternalAuthEnabled auth then genExternalAuth auth else return [])
+    <++> genExternalAuth auth
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth]
+    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth]
+    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genExternalAuth auth =
-  sequence
-    [ genOAuthCodeExchange auth
-    ]
-    <++> genSocialLoginButtons auth
+genExternalAuth auth
+  | AS.App.Auth.isExternalAuthEnabled auth =
+      sequence
+        [ genOAuthCodeExchange auth
+        ]
+        <++> genSocialLoginButtons auth
+  | otherwise = return []
 
 genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialLoginButtons auth =
-  return ([C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth])
+  return [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   compileTmplToSamePath
     [relfile|auth/pages/OAuthCodeExchange.js|]
-    [ "onAuthSucceededRedirectTo" .= C.getOnAuthSucceededRedirectToOrDefault auth,
+    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
 
@@ -106,3 +109,6 @@ compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
   where
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile tmplFileInTmplSrcDir
     templateData = object keyValuePairs
+
+getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
+getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

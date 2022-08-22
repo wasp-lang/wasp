@@ -9,8 +9,8 @@ export function config() {
   }
 }
 
-export async function signInHandler(_context, args) {
+export function signInHandler(_context, args) {
   console.log("Inside user-supplied Google sign in function")
   const email = args.profile.emails[0].value
-  return await upsertUserWithRandomPassword(email)
+  return upsertUserWithRandomPassword(email)
 }
