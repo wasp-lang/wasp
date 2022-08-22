@@ -7,42 +7,7 @@ import { contextWithUserEntity, authConfig, findOrCreateUserBySocialLogin } from
 import { sign } from '../../../../core/auth.js'
 import { configFn, firstSignInConfig } from './googleConfig.js'
 
-const config = validateConfig(configFn())
-
-passport.use('waspGoogleStrategy', new GoogleStrategy({
-  clientID: config.clientId,
-  clientSecret: config.clientSecret,
-  callbackURL: `${waspServerConfig.frontendUrl}/auth/redirect/google`,
-  scope: config.scope,
-  passReqToCallback: true
-}, oauthCodeValidationSucceeded))
-
-// This function is invoked after we successfully exchange the one-time-use OAuth code for a real Google API token.
-// This token was used to get the Google profile information supplied as a parameter.
-async function oauthCodeValidationSucceeded(req, _accessToken, _refreshToken, profile, done) {
-  try {
-    const googleUserId = profile?.id
-
-    if (!googleUserId) {
-      throw new Error("Google profile was missing required id property.")
-    }
-
-    const firstSignInConfigPromise = firstSignInConfig(contextWithUserEntity, { profile })
-    const { user, created: firstSignIn } = await findOrCreateUserBySocialLogin('google', googleUserId, firstSignInConfigPromise)
-
-    // Pass along the userId so we can create the JWT in the OAuth code validation route handler.
-    req.wasp = {
-      ...req.wasp,
-      userId: user.id,
-    }
-
-    done(null, user)
-  } catch (err) {
-    return done(err)
-  }
-}
-
-function validateConfig(config) {
+const config = ((config) => {
   if (!config?.clientId) {
     throw new Error("auth.google.configFn must return an object with a clientId property.")
   }
@@ -58,6 +23,23 @@ function validateConfig(config) {
   }
 
   return config
+})(configFn())
+
+passport.use('waspGoogleStrategy', new GoogleStrategy({
+  clientID: config.clientId,
+  clientSecret: config.clientSecret,
+  callbackURL: `${waspServerConfig.frontendUrl}/auth/redirect/google`,
+  scope: config.scope,
+  passReqToCallback: true
+}, addGoogleProfileToRequest))
+
+// This function is invoked after we successfully exchange the one-time-use OAuth code for a real Google API token.
+// This token was used to get the Google profile information supplied as a parameter.
+// We add it to the request for downstream use.
+async function addGoogleProfileToRequest(req, _accessToken, _refreshToken, googleProfile, done) {
+  req.wasp = { ...req.wasp, googleProfile }
+
+  done(null, true)
 }
 
 const router = express.Router()
@@ -68,21 +50,25 @@ router.get('/login', passport.authenticate('waspGoogleStrategy', { session: fals
 // Validates the OAuth code from the frontend, via server-to-server communication
 // with Google. If valid, provides frontend a response containing the JWT.
 // NOTE: `oauthCodeValidationSucceeded` is invoked as part of the `passport.authenticate`
-// call, before the final route handler callback. This is how we gain access to `req.wasp`. 
+// call, before the final route handler callback. This is how we gain access to `req.wasp.googleProfile`. 
 router.get('/validateCode',
   passport.authenticate('waspGoogleStrategy', {
     session: false,
     failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
   }),
   async function (req, res) {
-    const userId = req?.wasp?.userId
+    const googleProfile = req?.wasp?.googleProfile
 
-    if (!userId) {
-      console.error('In Google OAuth success callback, but userId not in request. This should not happen!')
-      return res.status(500).send()
+    if (!googleProfile) {
+      throw new Error('Missing Google profile on request. This should not happen! Please contact Wasp.')
+    } else if (!googleProfile.id) {
+      throw new Error("Google profile was missing required id property. This should not happen! Please contact Wasp.")
     }
 
-    const token = await sign(userId)
+    const firstSignInConfigPromise = firstSignInConfig(contextWithUserEntity, { profile: googleProfile })
+    const { user, created: firstSignIn } = await findOrCreateUserBySocialLogin('google', googleProfile.id, firstSignInConfigPromise)
+
+    const token = await sign(user.id)
     res.json({ token })
   })
 
