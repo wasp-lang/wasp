@@ -1,4 +1,4 @@
-import { availableDictionaryUsername } from '../../utils.js'
+import { generateAvailableDictionaryUsername } from '../../utils.js'
 
 // Default implementation if there is no `auth.methods.google.configFn`.
 export function configFn() {
@@ -17,8 +17,9 @@ export function configFn() {
 }
 
 // Default implementation if there is no `auth.methods.google.getUserFields`.
-export async function getUserFields(_context, _args) {
-  const username = await availableDictionaryUsername()
+export async function getUserFields(_context, args) {
+  const username = await generateAvailableDictionaryUsername()
+  // const username = await generateAvailableUsername(args.profile.displayName.split(' '))
   // TODO: rename `email` to `username` after merge.
   return { email: username }
 }

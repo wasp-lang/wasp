@@ -41,7 +41,7 @@ export async function findOrCreateUserBySocialLogin(provider, providerId, userFi
   return await prisma.{= userEntityLower =}.create({ data: userAndSocialLogin })
 }
 
-export async function availableDictionaryUsername() {
+export async function generateAvailableDictionaryUsername() {
   const adjectives = ['fuzzy', 'tall', 'short', 'nice', 'happy', 'quick', 'slow', 'good', 'new', 'old', 'first', 'last', 'old', 'young']
   const colors = ['red', 'green', 'blue', 'white', 'black', 'brown', 'purple', 'orange', 'yellow']
   const nouns = ['cat', 'dog', 'lion', 'rabbit', 'duck', 'pig', 'bee', 'goat', 'crab', 'fish', 'chicken', 'horse', 'llama', 'camel', 'sheep']
@@ -52,6 +52,23 @@ export async function availableDictionaryUsername() {
     potentialUsernames.push(potentialUsername)
   }
 
+  return findAvailableUsername(potentialUsernames)
+}
+
+export async function generateAvailableUsername(strings, config) {
+  const separator = config?.separator || '-'
+  const baseUsername = strings.join(separator)
+
+  const potentialUsernames = []
+  for (let i = 0; i < 10; i++) {
+    const potentialUsername = `${baseUsername}-${randomInt(100_000)}`
+    potentialUsernames.push(potentialUsername)
+  }
+
+  return findAvailableUsername(potentialUsernames)
+}
+
+async function findAvailableUsername(potentialUsernames) {
   // TODO: Change `email` to `username` after merge.
   const users = await prisma.{= userEntityLower =}.findMany({
     where: {
@@ -61,7 +78,9 @@ export async function availableDictionaryUsername() {
   const takenUsernames = users.map(user => user.email)
   const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
 
+  if (availableUsernames.length === 0) {
+    throw 'No available dictionary names. Please contact Wasp.'
+  }
+
   return availableUsernames[0]
 }
-
-// TODO: Add username option for combining strings (like first and last) together
