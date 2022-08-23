@@ -20,7 +20,7 @@ export async function findOrCreateUserBySocialLogin(provider, providerId, userFi
   // Attempt to find a User by an associated SocialLogin.
   const socialLogin = await prisma.{= socialLoginEntityLower =}.findFirst({
     where: { provider, providerId },
-    include: { user: true },
+    include: { user: true }
   })
 
   if (socialLogin) {
@@ -79,7 +79,7 @@ async function findAvailableUsername(potentialUsernames) {
   const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
 
   if (availableUsernames.length === 0) {
-    throw 'No available dictionary names. Please contact Wasp.'
+    throw 'Unable to generate a unique username. Please contact Wasp.'
   }
 
   return availableUsernames[0]
