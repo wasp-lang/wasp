@@ -5,7 +5,7 @@ import GoogleStrategy from 'passport-google-oauth20'
 import waspServerConfig from '../../../../config.js'
 import { contextWithUserEntity, authConfig, findOrCreateUserBySocialLogin } from '../../utils.js'
 import { sign } from '../../../../core/auth.js'
-import { configFn, firstSignInConfig } from './googleConfig.js'
+import { configFn, getUserFields } from './googleConfig.js'
 
 const config = ((config) => {
   if (!config?.clientId) {
@@ -25,34 +25,34 @@ const config = ((config) => {
   return config
 })(configFn())
 
-passport.use('waspGoogleStrategy', new GoogleStrategy({
+passport.use('waspGoogleLoginStrategy', new GoogleStrategy({
   clientID: config.clientId,
   clientSecret: config.clientSecret,
-  callbackURL: `${waspServerConfig.frontendUrl}/auth/redirect/google`,
+  callbackURL: `${waspServerConfig.frontendUrl}/auth/login/google`,
   scope: config.scope,
   passReqToCallback: true
 }, addGoogleProfileToRequest))
 
 // This function is invoked after we successfully exchange the one-time-use OAuth code for a real Google API token.
 // This token was used to get the Google profile information supplied as a parameter.
-// We add it to the request for downstream use.
+// We add the Google profile to the request for downstream use.
 async function addGoogleProfileToRequest(req, _accessToken, _refreshToken, googleProfile, done) {
   req.wasp = { ...req.wasp, googleProfile }
 
-  done(null, true)
+  done(null, {})
 }
 
 const router = express.Router()
 
 // Constructs a Google OAuth URL and redirects browser to start sign in flow.
-router.get('/login', passport.authenticate('waspGoogleStrategy', { session: false }))
+router.get('/login', passport.authenticate('waspGoogleLoginStrategy', { session: false }))
 
 // Validates the OAuth code from the frontend, via server-to-server communication
 // with Google. If valid, provides frontend a response containing the JWT.
-// NOTE: `oauthCodeValidationSucceeded` is invoked as part of the `passport.authenticate`
+// NOTE: `addGoogleProfileToRequest` is invoked as part of the `passport.authenticate`
 // call, before the final route handler callback. This is how we gain access to `req.wasp.googleProfile`. 
-router.get('/validateCode',
-  passport.authenticate('waspGoogleStrategy', {
+router.get('/validateCodeForLogin',
+  passport.authenticate('waspGoogleLoginStrategy', {
     session: false,
     failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
   }),
@@ -65,8 +65,8 @@ router.get('/validateCode',
       throw new Error("Google profile was missing required id property. This should not happen! Please contact Wasp.")
     }
 
-    const firstSignInConfigPromise = firstSignInConfig(contextWithUserEntity, { profile: googleProfile })
-    const { user, created: firstSignIn } = await findOrCreateUserBySocialLogin('google', googleProfile.id, firstSignInConfigPromise)
+    const userFieldsPromise = getUserFields(contextWithUserEntity, { profile: googleProfile })
+    const user = await findOrCreateUserBySocialLogin('google', googleProfile.id, userFieldsPromise)
 
     const token = await sign(user.id)
     res.json({ token })

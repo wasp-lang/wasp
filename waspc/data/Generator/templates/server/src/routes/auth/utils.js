@@ -17,20 +17,20 @@ export const authConfig = {
 }
 
 // TODO: Use template helpers instead of prisma.tableNames
-export async function findOrCreateUserBySocialLogin(provider, providerId, firstSignInConfigPromise) {
-  // Attempt to find User by an associated SocialLogin.
+export async function findOrCreateUserBySocialLogin(provider, providerId, userFieldsPromise) {
+  // Attempt to find a User by an associated SocialLogin.
   const socialLogin = await prisma.socialLogin.findFirst({
     where: { provider, providerId },
     include: { user: true },
   })
 
   if (socialLogin) {
-    return { user: socialLogin.user, created: false }
+    return socialLogin.user
   }
 
   // No SocialLogin linkage found. Create a new User using details from
-  // firstSignInConfigPromise. Additionally, associate the SocialLogin with the new User.
-  const userFields = (await firstSignInConfigPromise).userFields
+  // `userFieldsPromise`. Additionally, associate the SocialLogin with the new User.
+  const userFields = await userFieldsPromise
   const userAndSocialLogin = {
     ...userFields,
     password: uuidv4(),
@@ -39,13 +39,10 @@ export async function findOrCreateUserBySocialLogin(provider, providerId, firstS
     }
   }
 
-  return {
-    user: await prisma.user.create({ data: { ...userAndSocialLogin } }),
-    created: true
-  }
+  return await prisma.user.create({ data: userAndSocialLogin })
 }
 
-export async function generateAvailableUsername() {
+export async function availableDictionaryUsername() {
   const adjectives = ['fuzzy', 'tall', 'short', 'nice', 'happy', 'quick', 'slow', 'good', 'new', 'old', 'first', 'last', 'old', 'young']
   const colors = ['red', 'green', 'blue', 'white', 'black', 'brown', 'purple', 'orange', 'yellow']
   const nouns = ['cat', 'dog', 'lion', 'rabbit', 'duck', 'pig', 'bee', 'goat', 'crab', 'fish', 'chicken', 'horse', 'llama', 'camel', 'sheep']
@@ -65,7 +62,7 @@ export async function generateAvailableUsername() {
   const takenUsernames = users.map(user => user.email)
   const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
 
-  console.log(potentialUsernames, takenUsernames, availableUsernames)
-
   return availableUsernames[0]
 }
+
+// TODO: Add username option for combining strings (like first and last) together
