@@ -8,6 +8,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
+    socialLoginEntity: SocialLogin,
     methods: {
       emailAndPassword: {},
       google: {

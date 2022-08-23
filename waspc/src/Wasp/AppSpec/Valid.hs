@@ -96,6 +96,8 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case A
                     ]
               ]
 
+-- TODO: validateAuthSocialLoginEntityHasCorrectFieldsIfAnySocialLoginIsUsed
+
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
 --   Check https://github.com/wasp-lang/wasp/pull/455 for considerations on this and analysis of different approaches.

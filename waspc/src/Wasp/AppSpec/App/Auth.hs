@@ -20,6 +20,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Auth = Auth
   { userEntity :: Ref Entity,
+    socialLoginEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String

@@ -16,10 +16,9 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-// TODO: Use template helpers instead of prisma.tableNames
 export async function findOrCreateUserBySocialLogin(provider, providerId, userFieldsPromise) {
   // Attempt to find a User by an associated SocialLogin.
-  const socialLogin = await prisma.socialLogin.findFirst({
+  const socialLogin = await prisma.{= socialLoginEntityLower =}.findFirst({
     where: { provider, providerId },
     include: { user: true },
   })
@@ -39,7 +38,7 @@ export async function findOrCreateUserBySocialLogin(provider, providerId, userFi
     }
   }
 
-  return await prisma.user.create({ data: userAndSocialLogin })
+  return await prisma.{= userEntityLower =}.create({ data: userAndSocialLogin })
 }
 
 export async function availableDictionaryUsername() {
@@ -54,7 +53,7 @@ export async function availableDictionaryUsername() {
   }
 
   // TODO: Change `email` to `username` after merge.
-  const users = await prisma.user.findMany({
+  const users = await prisma.{= userEntityLower =}.findMany({
     where: {
       email: { in: potentialUsernames },
     }
