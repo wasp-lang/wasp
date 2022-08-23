@@ -728,7 +728,7 @@ export const signUp = async (args, context) => {
     // Your custom code before sign-up.
     // ...
     const newUser = context.entities.User.create({
-        data: { username: 'someone', password: 'this will be hashed!' }
+        data: { username: 'waspeteer', password: 'this will be hashed!' }
     })
 
     // Your custom code after sign-up.
@@ -746,7 +746,7 @@ You don't need to worry about hashing the password yourself! Even when you are u
 To disable/enable default validations, or add your own, you can do:
 ```js
 const newUser = context.entities.User.create({
-  data: { username: 'someone', password: 'this will be hashed!' },
+  data: { username: 'waspeteer', password: 'this will be hashed!' },
   _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
   _waspCustomValidations: [
     {
