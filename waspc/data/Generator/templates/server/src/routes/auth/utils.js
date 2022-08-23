@@ -61,7 +61,7 @@ export async function generateAvailableUsername(strings, config) {
 
   const potentialUsernames = []
   for (let i = 0; i < 10; i++) {
-    const potentialUsername = `${baseUsername}-${randomInt(100_000)}`
+    const potentialUsername = `${baseUsername}${separator}${randomInt(100_000)}`
     potentialUsernames.push(potentialUsername)
   }
 
