@@ -91,7 +91,7 @@ coerceExpr (SyntaxNode kind width children : remaining)
   | otherwise = do
       startPos <- gets pstateStartPos
       expr <- case kind of
-        S.String -> AST.StringLiteral . tail . init <$> consume width
+        S.String -> AST.StringLiteral . read <$> consume width
         S.Int -> AST.IntegerLiteral . read <$> consume width
         S.Double -> AST.DoubleLiteral . read <$> consume width
         S.BoolTrue -> advance width >> return (AST.BoolLiteral True)
