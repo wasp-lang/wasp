@@ -248,7 +248,8 @@ spec_Analyzer = do
                 Job.Job
                   { Job.executor = Job.PgBoss,
                     Job.perform = jobPerform,
-                    Job.schedule = Just jobSchedule
+                    Job.schedule = Just jobSchedule,
+                    Job.entities = Nothing
                   }
               )
             ]

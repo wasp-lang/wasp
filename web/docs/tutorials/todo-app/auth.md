@@ -22,7 +22,7 @@ First, let's define entity `User`:
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
 psl=}
 ```
@@ -41,7 +41,7 @@ app TodoApp {
   title: "Todo app",
 
   auth: {
-    // Expects entity User to have (email:String) and (password:String) fields.
+    // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
     methods: {
       emailAndPassword: {} // We also support Google, with more on the way!
@@ -187,7 +187,7 @@ First, let's define a one-to-many relation between User and Task (check the [pri
 // ...
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     tasks       Task[]
 psl=}

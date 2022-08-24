@@ -9,7 +9,7 @@ import addWaspSourceHeader from '../addWaspSourceHeader'
 
 const LoginPage = () => {
   const history = useHistory()
-  const [email, setEmail] = useState()
+  const [username, setUsername] = useState()
   const [password, setPassword] = useState()
   const [submitError, setSubmitError] = useState()
 
@@ -17,7 +17,7 @@ const LoginPage = () => {
     event.preventDefault()
     setSubmitError(null)
     try {
-      await login(email, password)
+      await login(username, password)
       history.push('/')
     } catch (err) {
       // TODO: If error is 401, inform user that either username or password is not right.
@@ -33,8 +33,8 @@ const LoginPage = () => {
       ) }
 
       <form onSubmit={handleSubmit}>
-        <h2> Email </h2>
-        <input type='text' value={email} onChange={e => setEmail(e.target.value)} />
+        <h2> Username </h2>
+        <input type='text' value={username} onChange={e => setUsername(e.target.value)} />
 
         <h2> Password </h2>
         <input type='password' value={password} onChange={e => setPassword(e.target.value)} />

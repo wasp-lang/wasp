@@ -34,7 +34,7 @@ validateAppSpec spec =
       -- NOTE: We check these only if App exists because they all rely on it existing.
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
-          validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec,
+          validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
 
@@ -68,8 +68,8 @@ validateDbIsPostgresIfPgBossUsed spec =
       ]
     else []
 
-validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
+validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
     if not $ Auth.isEmailAndPasswordAuthEnabled auth
@@ -77,15 +77,15 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAndPasswordAuthIsUsed spec = case A
       else
         let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
             userEntityFields = Entity.getFields userEntity
-            maybeEmailField = find ((== "email") . Entity.Field.fieldName) userEntityFields
+            maybeUsernameField = find ((== "username") . Entity.Field.fieldName) userEntityFields
             maybePasswordField = find ((== "password") . Entity.Field.fieldName) userEntityFields
          in concat
-              [ case maybeEmailField of
-                  Just emailField
-                    | Entity.Field.fieldType emailField == Entity.Field.FieldTypeScalar Entity.Field.String -> []
+              [ case maybeUsernameField of
+                  Just usernameField
+                    | Entity.Field.fieldType usernameField == Entity.Field.FieldTypeScalar Entity.Field.String -> []
                   _ ->
                     [ GenericValidationError
-                        "Expected an Entity referenced by app.auth.userEntity to have field 'email' of type 'string'."
+                        "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'string'."
                     ],
                 case maybePasswordField of
                   Just passwordField

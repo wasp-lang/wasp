@@ -5,7 +5,7 @@
         (String@2:11-25 value="Hello Wasp =}")
       )
       (DictEntry key=escapedString
-        (String@3:18-29 value="Look, a \\\"")
+        (String@3:18-29 value="Look, a \"")
       )
       (DictEntry key=integer
         (Integer@4:12-13 value=42)

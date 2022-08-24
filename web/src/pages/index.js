@@ -212,10 +212,10 @@ export default () => <span> Hello World! </span>
 
 /* ... */
 
-/* email & password required because of the auth method above */
+/* username & password required because of the auth method above */
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
 psl=}
 
@@ -776,7 +776,7 @@ function Home() {
               <div className="col col--6">
                 <h3 className={styles.featureListTitle}>Alpha</h3>
                 <ul className={clsx(styles.featuresList, styles.featuresListDone)}>
-                  <li> full-stack auth (email & password, Google) </li>
+                  <li> full-stack auth (username & password) </li>
                   <li> pages & routing </li>
                   <li> blurs the line between client & server - define your server actions and queries and call them directly in your client code (RPC)! </li>
                   <li> smart caching of server actions and queries (automatic cache invalidation) </li>

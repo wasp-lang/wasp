@@ -72,8 +72,9 @@ class PgBossJob extends Job {
  * @param {object} defaultJobOptions - pg-boss specific options for `boss.send()` applied to every `submit()` invocation,
  *                                     which can overriden in that call.
  * @param {object} jobSchedule [Optional] - The 5-field cron string, job function JSON arg, and `boss.send()` options when invoking the job.
+ * @param {array} entities - Entities used by job, passed into callback context.
  */
-export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {}) {
+export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule, entities } = {}) {
   // NOTE(shayne): We are not awaiting `pgBossStarted` here since we need to return an instance to the job
   // template, or else the NodeJS module bootstrapping process will block and fail as it would then depend
   // on a runtime resolution of the promise in `startServer()`.
@@ -89,7 +90,7 @@ export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {
 
     // This tells pg-boss to run given worker function when job with that name is submitted.
     // Ref: https://github.com/timgit/pg-boss/blob/master/docs/readme.md#work
-    await boss.work(jobName, jobFn)
+    await boss.work(jobName, pgBossCallbackWrapper(jobFn, entities))
 
     // If a job schedule is provided, we should schedule the recurring job.
     // If the schedule name already exists, it's updated to the provided cron expression, arguments, and options.
@@ -101,4 +102,19 @@ export function createJob({ jobName, jobFn, defaultJobOptions, jobSchedule } = {
   })
 
   return new PgBossJob(jobName, defaultJobOptions)
+}
+
+/**
+ * Wraps the normal pg-boss callback function to inject entities, as well as extract
+ * the `data` property so the arguments passed into the job are the exact same as those received.
+ * 
+ * @param {fn} jobFn - The user-defined async job callback function.
+ * @param {array} entities - Entities used by job, passed into callback context.
+ * @returns a function that accepts the pg-boss callback arguments and invokes the user-defined callback.
+ */
+function pgBossCallbackWrapper(jobFn, entities) {
+  return (args) => {
+    const context = { entities }
+    return jobFn(args.data, context)
+  }
 }

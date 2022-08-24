@@ -116,7 +116,7 @@
             "file",
             "server/src/jobs/MySpecialJob.js"
         ],
-        "4639c4c738a9a6a5b0137962ac64252da12aaa01cff7918ba0937e8b375bf9e6"
+        "69926a4b7eafc2e80e50732fee80865625c06f74004cbcd7be1701b4ce9249eb"
     ],
     [
         [
@@ -151,7 +151,7 @@
             "file",
             "server/src/jobs/core/pgBoss/pgBossJob.js"
         ],
-        "6a58878b76d5086454bc721dc779d0589eab6096913272910f390dc502a34708"
+        "532ed0f34a2011cff2a9c43b712a513ba505e77d896455d6c7f36add6f88741d"
     ],
     [
         [

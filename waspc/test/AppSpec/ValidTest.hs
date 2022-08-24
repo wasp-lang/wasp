@@ -46,7 +46,7 @@ spec_AppSpecValid = do
       let validUserEntity =
             AS.Entity.makeEntity
               ( PslM.Body
-                  [ PslM.ElementField $ makeBasicPslField "email" PslM.String,
+                  [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
                     PslM.ElementField $ makeBasicPslField "password" PslM.String
                   ]
               )
@@ -85,7 +85,7 @@ spec_AppSpecValid = do
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
 
-      describe "should validate that when app.auth is using EmailAndPassword, user entity is of valid shape." $ do
+      describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
               basicAppSpec
                 { AS.decls =
@@ -97,14 +97,14 @@ spec_AppSpecValid = do
         let invalidUserEntity =
               AS.Entity.makeEntity
                 ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String,
+                    [ PslM.ElementField $ makeBasicPslField "email" PslM.String,
                       PslM.ElementField $ makeBasicPslField "password" PslM.String
                     ]
                 )
         let invalidUserEntity2 =
               AS.Entity.makeEntity
                 ( PslM.Body
-                    [ PslM.ElementField $ makeBasicPslField "email" PslM.String
+                    [ PslM.ElementField $ makeBasicPslField "username" PslM.String
                     ]
                 )
 
@@ -116,7 +116,7 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'email' of type 'string'."
+                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'string'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
             `shouldBe` [ ASV.GenericValidationError
