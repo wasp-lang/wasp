@@ -65,8 +65,9 @@ router.get('/validateCodeForLogin',
       throw new Error("Google profile was missing required id property. This should not happen! Please contact Wasp.")
     }
 
-    const userFieldsPromise = getUserFields(contextWithUserEntity, { profile: googleProfile })
-    const user = await findOrCreateUserBySocialLogin('google', googleProfile.id, userFieldsPromise)
+    // Wrap call to getUserFields so we can invoke only if needed.
+    const getUserFieldsAsync = async () => await getUserFields(contextWithUserEntity, { profile: googleProfile })
+    const user = await findOrCreateUserBySocialLogin('google', googleProfile.id, getUserFieldsAsync)
 
     const token = await sign(user.id)
     res.json({ token })

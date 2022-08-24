@@ -16,7 +16,7 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findOrCreateUserBySocialLogin(provider, providerId, userFieldsPromise) {
+export async function findOrCreateUserBySocialLogin(provider, providerId, getUserFieldsAsync) {
   // Attempt to find a User by an associated SocialLogin.
   const socialLogin = await prisma.{= socialLoginEntityLower =}.findFirst({
     where: { provider, providerId },
@@ -28,8 +28,8 @@ export async function findOrCreateUserBySocialLogin(provider, providerId, userFi
   }
 
   // No SocialLogin linkage found. Create a new User using details from
-  // `userFieldsPromise`. Additionally, associate the SocialLogin with the new User.
-  const userFields = await userFieldsPromise
+  // `getUserFieldsAsync()`. Additionally, associate the SocialLogin with the new User.
+  const userFields = await getUserFieldsAsync()
   const userAndSocialLogin = {
     ...userFields,
     password: uuidv4(),
