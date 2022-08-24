@@ -31,7 +31,7 @@ data DeclType = DeclType
 -- | Describes a specific enum type in Wasp.
 -- For example, such enum type could be @AuthMethod@, or @DbType@.
 -- Enum type is defined by its name (@etName@) and its variations (possible values) (@etVariants@).
--- Example: @EnumType { etName = "AuthMethod", etVariants = ["Google", "EmailAndPassword", "LinkedIn"] }@.
+-- Example: @EnumType { etName = "AuthMethod", etVariants = ["Google", "UsernameAndPassword", "LinkedIn"] }@.
 data EnumType = EnumType
   { etName :: EnumTypeName,
     etVariants :: [String]

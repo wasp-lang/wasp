@@ -10,7 +10,7 @@ const TopNavbar = (props) => {
 
   return (
     <div className="top-navbar">
-      { user.email }
+      { user.username }
       &nbsp;|&nbsp;
       <button className="plain" onClick={logout}> logout </button>
     </div>
