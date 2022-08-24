@@ -675,8 +675,9 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
+    socialLoginEntity: SocialLogin,
     methods: {
-      emailAndPassword: {},
+      usernameAndPassword: {},
       google: {}
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -689,9 +690,12 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
+#### `socialLoginEntity: entity` (optional)
+Entity which associates a user with some external authentication provider.
+
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `emailAndPassword`: Provides support for authentication with email address and a password. See [here](#email-and-password) for more.
+* `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
 * `google`: Provides support for login via Google accounts. See [here](#google) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
@@ -943,22 +947,17 @@ import AuthError from '@wasp/core/AuthError.js'
 
 ### Google
 
-`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or a sign-in function, you can override the defaults.
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or user entity field assignment, you can override the defaults.
 
+This method requires that `socialLoginEntity` specified in `auth` [described here](features#socialloginentity).
 #### Default settings
 - Configuration:
   - By default, we expect you to set two environment variables in order to use Google authentication:
     - `GOOGLE_CLIENT_ID`
     - `GOOGLE_CLIENT_SECRET`
   - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
-
 - Sign in:
-  - By default, when a user signs in with Google we will attempt to look up the user by email.
-    - If user exists in the database, we will log in the user by returning the JWT (which is then passed to the web client).
-      - NOTE: For security reasons, we also update the existing password to a random password. This is because Wasp does not provide email validation at this time, so we cannot be sure the existing user actually owns that email.
-    - If they do not exist, we will create a new user with a random password and log in the user by returning the JWT.
-  - NOTE: At this time, Wasp does not provide password reset. Therefore, you will not be able to log in with Email & Password for accounts using Google sign in.
-
+  - When a user signs in for the first time, we will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
 - Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js
 
 #### Overrides
@@ -967,10 +966,11 @@ If you require modifications to the above, you can add one or more of the follow
 ```js
   auth: {
     userEntity: User,
+    socialLoginEntity: SocialLogin,
     methods: {
       google: {
         configFn: import { config } from "@ext/auth/google.js",
-        onSignInFn: import { signInHandler } from "@ext/auth/google.js"
+        getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
       }
     },
     ...
@@ -978,22 +978,25 @@ If you require modifications to the above, you can add one or more of the follow
 ```
 
 - `configFn`: This function should return an object with the following shape:
-```js
-export function config() {
-  return {
-    clientId: // look up from env or elsewhere,
-    clientSecret: // look up from env or elsewhere,
-    scope: ['email', 'profile'] // must include these two
+  ```js
+  export function config() {
+    return {
+      clientId: // look up from env or elsewhere,
+      clientSecret: // look up from env or elsewhere,
+      scope: ['profile'] // must include at least 'profile'
+    }
   }
-}
-```
-- `onSignInFn`: This function should return a user. The context contains a User entity for DB access, and the args are what the OAuth provider responds with.
-```js
-export async function signInHandler(context, args) {
-  // Find or create a context.entities.User based on args
-  return user
-}
-```
+  ```
+- `getUserFieldsFn`: This function should return user fields. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
+  ```js
+  import { generateAvailableUsername } from '@wasp/core/auth.js'
+
+  export async function getUserFields(_context, args) {
+    const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
+    return { username }
+  }
+  ```
+  - `generateAvailableUsername` takes an array of Strings, and an optional separator, and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for some Google user Jim Smith.
 
 #### UI helpers
 
@@ -1019,6 +1022,35 @@ export default Login
 ```
 
 You can set the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px.
+
+
+### `socialLoginEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example Google, we require a `socialLoginEntity` specified in `auth` contains the following fields:
+
+```css
+...
+  auth: {
+    userEntity: User,
+    socialLoginEntity: SocialLogin,
+...
+
+entity User {=psl
+    id            Int           @id @default(autoincrement())
+    username      String        @unique
+    password      String
+    socialLogins  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+```
 
 ## Client configuration
 

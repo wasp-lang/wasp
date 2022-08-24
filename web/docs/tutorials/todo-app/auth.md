@@ -44,7 +44,7 @@ app TodoApp {
     // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
     methods: {
-      emailAndPassword: {} // We also support Google, with more on the way!
+      usernameAndPassword: {} // We also support Google, with more on the way!
     }
     onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
   }

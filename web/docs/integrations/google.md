@@ -20,7 +20,7 @@ To use Google as an authentication method (covered [here](/docs/language/feature
     ![Google Console Screenshot 4](../../static/img/integrations-google-4.jpg)
   - Fill out applicable information on Page 1
     ![Google Console Screenshot 5](../../static/img/integrations-google-5.jpg)
-  - On Page 2, Scopes, search for `email`
+  - On Page 2, Scopes, you can optionally search for things like `email`
     - Select the `userinfo.email` row
       ![Google Console Screenshot 6](../../static/img/integrations-google-6.jpg)
       ![Google Console Screenshot 7](../../static/img/integrations-google-7.jpg)
@@ -34,10 +34,10 @@ To use Google as an authentication method (covered [here](/docs/language/feature
     ![Google Console Screenshot 11](../../static/img/integrations-google-11.jpg)
   - Complete the form
     ![Google Console Screenshot 12](../../static/img/integrations-google-12.jpg)
-  - Under Authorized URIs, put in: `http://localhost:3000/auth/redirect/google`
+  - Under Authorized URIs, put in: `http://localhost:3000/auth/login/google`
     ![Google Console Screenshot 13](../../static/img/integrations-google-13.jpg)
     - Once you know on which URL(s) your API server will be deployed, also add those URL(s)
-      - For example: `https://someotherhost.com/auth/redirect/google`
+      - For example: `https://someotherhost.com/auth/login/google`
   - When you save, you can click the Edit icon and your credentials will be shown
     ![Google Console Screenshot 14](../../static/img/integrations-google-14.jpg)
 - Copy your Client ID and Client secret, and expose them as environment variables named `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` wherever your app is running

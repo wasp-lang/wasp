@@ -125,8 +125,9 @@ function HeroCodeExample() {
 
   auth: { /* full-stack auth out-of-the-box */
     userEntity: User,
+    socialLoginEntity: SocialLogin,
     methods: {
-      emailAndPassword: {},
+      usernameAndPassword: {},
       google: {}
     }
   }
@@ -202,8 +203,9 @@ export default () => <span> Hello World! </span>
   /* full-stack auth out-of-the-box */
   auth: {
     userEntity: User,
+    socialLoginEntity: SocialLogin,
     methods: {
-      emailAndPassword: {},
+      usernameAndPassword: {},
       google: {}
     }
     onAuthFailedRedirectTo: "/login"
