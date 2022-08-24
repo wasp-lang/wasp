@@ -1,13 +1,16 @@
-// NOTE: These functions are just samples for testing and same as the defaults.
+import { generateAvailableUsername } from '@wasp/core/auth.js'
+
 export function config() {
   console.log("Inside user-supplied Google config")
   return {
     clientId: process.env['GOOGLE_CLIENT_ID'],
     clientSecret: process.env['GOOGLE_CLIENT_SECRET'],
+    scope: ['profile']
   }
 }
 
-// TODO
-export function firstSignInConfig(_context, args) {
-  throw 'TODO'
+export async function getUserFields(_context, args) {
+  console.log("Inside user-supplied Google getUserFields")
+  const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
+  return { email: username }
 }

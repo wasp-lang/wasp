@@ -41,7 +41,7 @@ data EmailAndPasswordConfig = EmailAndPasswordConfig
 
 data GoogleConfig = GoogleConfig
   { configFn :: Maybe ExtImport,
-    onSignInFn :: Maybe ExtImport
+    getUserFieldsFn :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
 

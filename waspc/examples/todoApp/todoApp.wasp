@@ -13,7 +13,7 @@ app todoApp {
       emailAndPassword: {},
       google: {
         // configFn: import { config } from "@ext/auth/google.js",
-        // onSignInFn: import { signInHandler } from "@ext/auth/google.js"
+        // getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
       }
     },
     onAuthFailedRedirectTo: "/login",

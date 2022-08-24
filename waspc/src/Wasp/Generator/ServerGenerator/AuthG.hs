@@ -197,9 +197,9 @@ genGoogleConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
         [ "doesConfigFnExist" .= isJust maybeConfigFn,
           "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,
           "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
-          "doesOnSignInFnExist" .= isJust maybeOnSignInFn,
-          "onSignInFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
-          "onSignInFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
+          "doesOnSignInFnExist" .= isJust maybeGetUserFieldsFn,
+          "getUserFieldsFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
+          "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
         ]
 
     googleConfigFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
@@ -209,8 +209,8 @@ genGoogleConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
     maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeConfigFn
     (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
-    maybeOnSignInFn = AS.Auth.onSignInFn =<< AS.Auth.google (AS.Auth.methods auth)
-    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeOnSignInFn
+    maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< AS.Auth.google (AS.Auth.methods auth)
+    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
 -- | TODO: Make this not hardcoded!

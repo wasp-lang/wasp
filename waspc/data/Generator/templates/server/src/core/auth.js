@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken'
 import SecurePassword from 'secure-password'
 import util from 'util'
-import { v4 as uuidv4 } from 'uuid'
+import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
@@ -68,6 +68,50 @@ export const verifyPassword = async (hashedPassword, password) => {
     console.error(error)
     return false
   }
+}
+
+export async function generateAvailableDictionaryUsername() {
+  const adjectives = ['fuzzy', 'tall', 'short', 'nice', 'happy', 'quick', 'slow', 'good', 'new', 'old', 'first', 'last', 'old', 'young']
+  const colors = ['red', 'green', 'blue', 'white', 'black', 'brown', 'purple', 'orange', 'yellow']
+  const nouns = ['cat', 'dog', 'lion', 'rabbit', 'duck', 'pig', 'bee', 'goat', 'crab', 'fish', 'chicken', 'horse', 'llama', 'camel', 'sheep']
+
+  const potentialUsernames = []
+  for (let i = 0; i < 10; i++) {
+    const potentialUsername = `${adjectives[randomInt(adjectives.length)]}-${colors[randomInt(colors.length)]}-${nouns[randomInt(nouns.length)]}-${randomInt(100_000)}`
+    potentialUsernames.push(potentialUsername)
+  }
+
+  return findAvailableUsername(potentialUsernames)
+}
+
+export async function generateAvailableUsername(strings, config) {
+  const separator = config?.separator || '-'
+  const baseUsername = strings.join(separator)
+
+  const potentialUsernames = []
+  for (let i = 0; i < 10; i++) {
+    const potentialUsername = `${baseUsername}${separator}${randomInt(100_000)}`
+    potentialUsernames.push(potentialUsername)
+  }
+
+  return findAvailableUsername(potentialUsernames)
+}
+
+async function findAvailableUsername(potentialUsernames) {
+  // TODO: Change `email` to `username` after merge.
+  const users = await prisma.{= userEntityLower =}.findMany({
+    where: {
+      email: { in: potentialUsernames },
+    }
+  })
+  const takenUsernames = users.map(user => user.email)
+  const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
+
+  if (availableUsernames.length === 0) {
+    throw 'Unable to generate a unique username. Please contact Wasp.'
+  }
+
+  return availableUsernames[0]
 }
 
 export default auth
