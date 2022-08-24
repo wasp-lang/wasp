@@ -55,7 +55,7 @@ spec_AppSpecValid = do
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
-                    { AS.Auth.emailAndPassword = Just AS.Auth.emailAndPasswordConfig,
+                    { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
                       AS.Auth.google = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",

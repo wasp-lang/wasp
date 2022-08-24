@@ -12,5 +12,5 @@ export function config() {
 export async function getUserFields(_context, args) {
   console.log("Inside user-supplied Google getUserFields")
   const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
-  return { email: username }
+  return { username }
 }

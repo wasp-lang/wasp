@@ -5,8 +5,8 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
     GoogleConfig (..),
-    emailAndPasswordConfig,
-    isEmailAndPasswordAuthEnabled,
+    usernameAndPasswordConfig,
+    isUsernameAndPasswordAuthEnabled,
     isGoogleAuthEnabled,
     isExternalAuthEnabled,
   )
@@ -28,12 +28,12 @@ data Auth = Auth
   deriving (Show, Eq, Data)
 
 data AuthMethods = AuthMethods
-  { emailAndPassword :: Maybe EmailAndPasswordConfig,
+  { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
     google :: Maybe GoogleConfig
   }
   deriving (Show, Eq, Data)
 
-data EmailAndPasswordConfig = EmailAndPasswordConfig
+data UsernameAndPasswordConfig = UsernameAndPasswordConfig
   { -- NOTE: Not used right now, but Analyzer does not support an empty data type.
     configFn :: Maybe ExtImport
   }
@@ -45,11 +45,11 @@ data GoogleConfig = GoogleConfig
   }
   deriving (Show, Eq, Data)
 
-emailAndPasswordConfig :: EmailAndPasswordConfig
-emailAndPasswordConfig = EmailAndPasswordConfig Nothing
+usernameAndPasswordConfig :: UsernameAndPasswordConfig
+usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 
-isEmailAndPasswordAuthEnabled :: Auth -> Bool
-isEmailAndPasswordAuthEnabled = isJust . emailAndPassword . methods
+isUsernameAndPasswordAuthEnabled :: Auth -> Bool
+isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
 
 isGoogleAuthEnabled :: Auth -> Bool
 isGoogleAuthEnabled = isJust . google . methods

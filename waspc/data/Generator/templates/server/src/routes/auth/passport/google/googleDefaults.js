@@ -19,7 +19,5 @@ export function configFn() {
 // Default implementation if there is no `auth.methods.google.getUserFields`.
 export async function getUserFields(_context, _args) {
   const username = await generateAvailableDictionaryUsername()
-  // const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
-  // TODO: rename `email` to `username` after merge.
-  return { email: username }
+  return { username }
 }

@@ -98,13 +98,12 @@ export async function generateAvailableUsername(strings, config) {
 }
 
 async function findAvailableUsername(potentialUsernames) {
-  // TODO: Change `email` to `username` after merge.
   const users = await prisma.{= userEntityLower =}.findMany({
     where: {
-      email: { in: potentialUsernames },
+      username: { in: potentialUsernames },
     }
   })
-  const takenUsernames = users.map(user => user.email)
+  const takenUsernames = users.map(user => user.username)
   const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
 
   if (availableUsernames.length === 0) {

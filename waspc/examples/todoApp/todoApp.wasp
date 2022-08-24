@@ -10,7 +10,7 @@ app todoApp {
     userEntity: User,
     socialLoginEntity: SocialLogin,
     methods: {
-      emailAndPassword: {},
+      usernameAndPassword: {},
       google: {
         // configFn: import { config } from "@ext/auth/google.js",
         // getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
@@ -32,7 +32,7 @@ app todoApp {
 
 entity User {=psl
     id            Int           @id @default(autoincrement())
-    email         String        @unique
+    username      String        @unique
     password      String
     tasks         Task[]
     socialLogins  SocialLogin[]
