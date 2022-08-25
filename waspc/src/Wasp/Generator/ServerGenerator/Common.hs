@@ -5,6 +5,7 @@ module Wasp.Generator.ServerGenerator.Common
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
+    dotEnvServer,
     srcDirInServerTemplatesDir,
     asTmplFile,
     asTmplSrcFile,
@@ -18,11 +19,12 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Common (WaspProjectDir)
 
 data ServerRootDir
 
@@ -85,3 +87,6 @@ serverTemplatesDirInTemplatesDir = [reldir|server|]
 
 srcDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir ServerTemplatesSrcDir)
 srcDirInServerTemplatesDir = [reldir|src|]
+
+dotEnvServer :: Path' (SP.Rel WaspProjectDir) File'
+dotEnvServer = [relfile|.env.server|]

@@ -8,7 +8,7 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', relfile)
+import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
@@ -22,6 +22,8 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
+import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -91,16 +93,16 @@ findWaspFile waspDir = do
         && (length (SP.toFilePath path) > length (".wasp" :: String))
 
 findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvServer waspDir = do
-  let dotEnvServerAbsPath = waspDir SP.</> [relfile|.env.server|]
-  dotEnvServerExists <- doesFileExist (SP.toFilePath dotEnvServerAbsPath)
-  return $ if dotEnvServerExists then Just dotEnvServerAbsPath else Nothing
+findDotEnvServer waspDir = toMaybeAbsFile waspDir dotEnvServer
 
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvClient waspDir = do
-  let dotEnvClientAbsPath = waspDir SP.</> [relfile|.env.client|]
-  dotEnvClientExists <- doesFileExist (SP.toFilePath dotEnvClientAbsPath)
-  return $ if dotEnvClientExists then Just dotEnvClientAbsPath else Nothing
+findDotEnvClient waspDir = toMaybeAbsFile waspDir dotEnvClient
+
+toMaybeAbsFile :: Path' Abs (Dir WaspProjectDir) -> Path' (SP.Rel WaspProjectDir) File' -> IO (Maybe (Path' Abs File'))
+toMaybeAbsFile waspDir dotEnvFile = do
+  let dotEnvAbsFp = waspDir SP.</> dotEnvFile
+  dotEnvFileExists <- doesFileExist $ SP.toFilePath dotEnvAbsFp
+  return $ if dotEnvFileExists then Just dotEnvAbsFp else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->
