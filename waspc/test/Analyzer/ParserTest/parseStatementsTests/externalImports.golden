@@ -1,0 +1,12 @@
+(AST
+  (Decl@1:1-4:1 type=test name=Imports
+    (Dict@1:14-4:1
+      (DictEntry key=module
+        (ExtImport@2:11-37 module=Page path="page.jsx")
+      )
+      (DictEntry key=field
+        (ExtImport@3:10-40 field=Page path="page.jsx")
+      )
+    )
+  )
+)

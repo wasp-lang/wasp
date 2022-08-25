@@ -513,9 +513,7 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ data: { job: "args" } })`.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
 
 ### Recurring jobs
 
@@ -534,16 +532,15 @@ job mySpecialJob {
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ data: { "job": "args" } })` getting automatically scheduled and invoked for you every hour.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "job": "args" })` getting automatically scheduled and invoked for you every hour.
 
 ### Fully specified example
-Additionally, both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`.
+Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
 ```css
 job mySpecialJob {
   executor: PgBoss,
+  entities: [Task],
   perform: {
     fn: import { foo } from "@ext/jobs/bar.js",
     executorOptions: {
@@ -568,7 +565,13 @@ job mySpecialJob {
 ####  `perform: dict` (required)
 
   - ##### `fn: fn` (required)
-  An `async` JavaScript function of work to be performed. It can optionally take a JSON value as an argument.
+  An `async` JavaScript function of work to be performed. It receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
+
+  ```js
+  export async function foo(args, context) {
+    // Can reference context.entities.Task, for example.
+  }
+  ```
   
   - ##### `executorOptions: dict` (optional)
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
@@ -583,14 +586,15 @@ job mySpecialJob {
   
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
-  
-  **Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
-  
+    
   - ##### `executorOptions: dict` (optional)
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
     See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+
+#### `entities: [Entity]` (optional)
+A list of entities you wish to use inside your Job (similar to Queries and Actions).
 
 ### JavaScript API
 
@@ -606,8 +610,6 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `executorOptions: JSON` (optional)
 
 Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })
@@ -673,7 +675,7 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ UsernameAndPassword ],
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
@@ -686,7 +688,7 @@ Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `methods: [AuthMethod]` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `EmailAndPassword`: Provides support for authentication with email address and a password.
+* `UsernameAndPassword`: Provides support for authentication with a username and password.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -696,13 +698,13 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#
 Path where a successfully authenticated user will be sent upon successful login/signup.
 Default value is "/".
 
-### Email and Password
+### Username and Password
 
-`EmailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
-This method requires that `userEntity` specified in `auth` contains `email: string` and `password: string` fields.
+`UsernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
+This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
-- `email`: non-empty
+- `username`: non-empty
 - `password`: non-empty, at least 8 characters, and contains a number
 
 #### High-level API
@@ -726,7 +728,7 @@ export const signUp = async (args, context) => {
     // Your custom code before sign-up.
     // ...
     const newUser = context.entities.User.create({
-        data: { email: 'some@email.com', password: 'this will be hashed!' }
+        data: { username: 'waspeteer', password: 'this will be hashed!' }
     })
 
     // Your custom code after sign-up.
@@ -744,7 +746,7 @@ You don't need to worry about hashing the password yourself! Even when you are u
 To disable/enable default validations, or add your own, you can do:
 ```js
 const newUser = context.entities.User.create({
-  data: { email: 'some@email.com', password: 'this will be hashed!' },
+  data: { username: 'waspeteer', password: 'this will be hashed!' },
   _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
   _waspCustomValidations: [
     {
@@ -757,7 +759,7 @@ const newUser = context.entities.User.create({
 ```
 
 :::info
-Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'email'` or `'password'` fields.
+Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'username'` or `'password'` fields.
 :::
 
 #### Specification
@@ -765,10 +767,10 @@ Validations always run on `create()`, but only when the field mentioned in `vali
 ### `login()`
 An action for logging in the user.
 ```js
-login(email, password)
+login(username, password)
 ```
-#### `email: string`
-Email of the user logging in.
+#### `username: string`
+Username of the user logging in.
 
 #### `password: string`
 Password of the user logging in.

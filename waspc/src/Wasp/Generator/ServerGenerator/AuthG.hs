@@ -49,11 +49,11 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
 genAuthMiddleware :: AS.Auth.Auth -> Generator FileDraft
 genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    -- TODO(martin): In prismaMiddleware.js, we assume that 'email' and 'password' are defined in user entity.
+    -- TODO(martin): In prismaMiddleware.js, we assume that 'username' and 'password' are defined in user entity.
     --   This was promised to us by AppSpec, which has validation checks for this.
     --   Names of these fields are currently hardcoded, and we are not in any way relyin on AppSpec directly here.
     --   In the future we might want to figure out a way to better encode these assumptions, either by
-    --   reusing the names for 'email' and 'password' fields by importing them from AppSpec, or smth similar
+    --   reusing the names for 'username' and 'password' fields by importing them from AppSpec, or smth similar
     --   in that direction.
     authMiddlewareRelToSrc = [relfile|core/auth/prismaMiddleware.js|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> authMiddlewareRelToSrc

@@ -1,6 +1,10 @@
 module Wasp.Analyzer.Parser.SourcePosition
   ( SourcePosition (..),
     calcNextPosition,
+    -- | TODO: Add types for source offsets and regions that use offsets. Name
+    -- ideas are @SourceLinearPosition@/@SourceLinearRegion@ and @SourceOffset@/
+    -- @SourceOffsetRegion@.
+    offsetToPosition,
   )
 where
 
@@ -21,3 +25,7 @@ calcNextPosition ('\n' : cs) (SourcePosition line _) = calcNextPosition cs $ Sou
 calcNextPosition (_ : cs) (SourcePosition line col) = calcNextPosition cs $ SourcePosition line (col + 1)
 
 type SourceFragment = String
+
+offsetToPosition :: String -> Int -> SourcePosition
+offsetToPosition source targetOffset =
+  calcNextPosition (take targetOffset source) (SourcePosition 1 1)

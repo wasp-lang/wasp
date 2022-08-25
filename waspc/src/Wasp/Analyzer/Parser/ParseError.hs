@@ -2,48 +2,80 @@
 
 module Wasp.Analyzer.Parser.ParseError
   ( ParseError (..),
+    parseErrorFromCSTParseError,
     getErrorMessageAndCtx,
   )
 where
 
-import Wasp.Analyzer.Parser.Ctx (Ctx, WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..))
-import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.Analyzer.Parser.Token (Token (..))
+import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CST
+import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), offsetToPosition)
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion, getRgnEnd, getRgnStart, offsetRegionToSourceRegion)
+import Wasp.Analyzer.Parser.Token (TokenKind)
+import Wasp.Analyzer.Parser.TokenSet (TokenSet)
+import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
 
 data ParseError
-  = -- | A lexical error representing an invalid character. It means that lexer
-    -- failed to construct/parse a token due to this unexpected character.
-    UnexpectedChar Char SourcePosition
-  | -- | In @ParseError token expectedTokens@, @token@ is the token where parse error
-    -- occured, while @expectedTokens@ is a list of tokens that would (any of them)
-    -- avoid that error if they were there instead of the @token@.
-    -- NOTE(martin): These @expectedTokens@ are represented via the names used for them
-    --   in the grammar defined in Parser.y, under section @%token@ (names are in the
-    --   first column), that have been a bit prettyfied (check Parser.y for details).
-    UnexpectedToken Token [String]
+  = -- | @UnexpectedToken region lexeme errorKind expectedKinds@ is an error that occurs
+    -- when one of @expectedKinds@ is expected, but the actual next token is
+    -- @errorKind@.
+    UnexpectedToken !SourceRegion String !TokenKind TokenSet
+  | -- | @UnexpectedEOF pos expectedKinds@ is an error that occurs when one of
+    -- @expectedKinds@ is expected, but the input is empty.
+    UnexpectedEOF !SourcePosition TokenSet
   | -- | Thrown if parser encounters a quoter that has different tags, e.g.
     -- {=json psl=}. Then the first String in QuoterDifferentTags will be "json"
     -- while the second one will be "psl".
+    --
+    -- TODO: This error is never actually used: the lexer will never produce a
+    -- {= and =} next to each other with different tags.
     QuoterDifferentTags (WithCtx String) (WithCtx String)
+  | -- | @TupleTooFewValues tupleRegion tupleSize@ occurs when a tuple contains
+    -- less than the required two values.
+    TupleTooFewValues !SourceRegion !Int
+  | -- | @MissingSyntax pos expectedSyntax@ occurs when a piece of syntax is not
+    -- found in the concrete parse tree. @expectedSyntax@ is a noun describing
+    -- what type of syntax was expected. For example, if the source code is
+    -- missing a comma after a dictionary entry, it would report @MissingSyntax
+    -- _ "comma"@.
+    MissingSyntax !SourcePosition String
   deriving (Eq, Show)
+
+-- | @parseErrorFromCSTParseError source cstParseError@ creates a "ParseError"
+-- that represents @cstParseError@, using @source@ to find the lexeme
+-- representing the token where the error was produced.
+parseErrorFromCSTParseError :: String -> CST.ParseError -> ParseError
+parseErrorFromCSTParseError source (CST.UnexpectedToken (CST.Region start end) errorKind expected) =
+  let rgn = offsetRegionToSourceRegion source (CST.Region start end)
+      lexeme = take (end - start) $ drop start source
+   in UnexpectedToken rgn lexeme errorKind expected
+parseErrorFromCSTParseError source (CST.UnexpectedEOF offset expected) =
+  let pos = offsetToPosition source offset
+   in UnexpectedEOF pos expected
 
 getErrorMessageAndCtx :: ParseError -> (String, Ctx)
 getErrorMessageAndCtx = \case
-  UnexpectedChar unexpectedChar pos ->
-    ( "Unexpected character: " ++ [unexpectedChar],
-      ctxFromPos pos
-    )
-  UnexpectedToken unexpectedToken expectedTokens ->
-    ( let unexpectedTokenMessage = "Unexpected token: " ++ tokenLexeme unexpectedToken
+  UnexpectedToken rgn lexeme _ expectedTokens ->
+    ( let unexpectedTokenMessage = "Unexpected token: " ++ lexeme
           expectedTokensMessage =
             "Expected one of the following tokens instead: "
-              ++ unwords expectedTokens
-       in unexpectedTokenMessage ++ if not (null expectedTokens) then "\n" ++ expectedTokensMessage else "",
-      let tokenStartPos@(SourcePosition sl sc) = tokenStartPosition unexpectedToken
-          tokenEndPos = SourcePosition sl (sc + length (tokenLexeme unexpectedToken) - 1)
-       in ctxFromRgn tokenStartPos tokenEndPos
+              ++ TokenSet.showTokenSet expectedTokens
+       in unexpectedTokenMessage ++ if not (TokenSet.null expectedTokens) then "\n" ++ expectedTokensMessage else "",
+      ctxFromRgn (getRgnStart rgn) (getRgnEnd rgn)
+    )
+  UnexpectedEOF pos expectedTokens ->
+    ( let unexpectedTokenMessage = "Unexpected end of file"
+          expectedTokensMessage =
+            "Expected one of the following tokens instead: "
+              ++ TokenSet.showTokenSet expectedTokens
+       in unexpectedTokenMessage ++ if not (TokenSet.null expectedTokens) then "\n" ++ expectedTokensMessage else "",
+      ctxFromPos pos
     )
   QuoterDifferentTags (WithCtx lctx ltag) (WithCtx rctx rtag) ->
     let ctx = ctxFromRgn (getRgnStart $ getCtxRgn lctx) (getRgnEnd $ getCtxRgn rctx)
      in ("Quoter tags don't match: {=" ++ ltag ++ " ... " ++ rtag ++ "=}", ctx)
+  TupleTooFewValues region actualLength ->
+    ( "Tuple only contains " ++ show actualLength ++ " values, but it must contain at least 2 values",
+      Ctx region
+    )
+  MissingSyntax pos expectedSyntax -> ("Missing expected " ++ expectedSyntax, ctxFromPos pos)
