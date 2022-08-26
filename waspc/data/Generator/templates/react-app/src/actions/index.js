@@ -12,40 +12,49 @@ export function useAction(actionFn, actionOptions) {
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {
-    const optimisticUpdatesConfig = makeOptimisticUpdatesConfig(actionOptions.optimisticUpdates)
-    options = makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig)
+    const optimisticUpdateConfigs = actionOptions.optimisticUpdates.map(translateToInternalConfig)
+    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs)
   }
 
   return useMutation(actionFn, options)
 }
 
-
-function makeOptimisticUpdatesConfig(optimisticUpdatesConfig) {
-  return optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-    getQuery: (item) => parseQueryKey(getQuery(item)),
+function translateToInternalConfig(optimisticUpdateConfig) {
+  const { getQuerySpecifier, ...rest } = optimisticUpdateConfig
+  return {
+    getQueryKey: (item) => querySpecifierToKey(getQuerySpecifier(item)),
     ...rest,
-  }))
+  }
 }
 
-function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
+/**
+ * This function implements the methods necessary for configuring optimistic
+ * updates using React Query, as described by their documentation:
+ * https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates
+ *
+ * @param {QueryClient} queryClient The QueryClient instance used by React
+ * Query.
+ * @param {object} optimisticUpdateConfigs A list containing information on performing optimistic updates.
+ * @returns An object containing 'onMutate' and 'onError' functions appropriate for the given config (check React Query's docs for details).
+ */
+function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs) {
   async function onMutate(item) {
-    const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-      queryKey: getQuery(item),
-      ...rest,
-    }))
+    const specificOptimisticUpdateConfigs = optimisticUpdateConfigs.map(
+      optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
+    )
 
-    const queryCancellations = queriesToUpdate.map(
+    const queryCancellations = specificOptimisticUpdateConfigs.map(
       ({ query }) => queryClient.cancelQueries(query)
     )
 
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
-    // However, awaiting cancellation probably doesn't take too much time.
+    // However, awaiting cancellation hasn't yet proven to be a performance bottleneck.
     await Promise.all(queryCancellations)
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    queriesToUpdate.forEach(({ queryKey, updateQuery }) => {
+    specificOptimisticUpdateConfigs.forEach(({ queryKey, updateQuery }) => {
       const previousDataForQuery = queryClient.getQueryData(queryKey)
       const updateFn = (old) => updateQuery(item, old)
       queryClient.setQueryData(queryKey, updateFn)
@@ -68,7 +77,26 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   }
 }
 
-function parseQueryKey(queryKey) {
-  const [queryFn, ...otherKeys] = queryKey
+/**
+ * Constructs the config needed to optimistically update a specific item. It
+ * uses a closure over the updated to construct an item-specific query key
+ * (e.g., when the query key depends on an ID)
+ * 
+ * @param {object} optimisticUpdateConfig  The general, "uninstantiated" optimistic
+ * update config that contains a function for constructing a query key.
+ * @param {*} item The item supposed to be optimisticallly updated.
+ * @returns A specific, "instantiated" optimistic update config which contains a
+ * fully-constructed query key
+ */
+function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item) {
+  const { getQueryKey, ...remainingConfig } = optimisticUpdateConfig
+  return {
+    queryKey: getQueryKey(item),
+    ...remainingConfig
+  }
+}
+
+function querySpecifierToKey(querySpecifier) {
+  const [queryFn, ...otherKeys] = querySpecifier
   return [queryFn.queryCacheKey, ...otherKeys]
 }

@@ -101,7 +101,7 @@ const Tasks = (props) => {
 const Task = (props) => {
   const action = useAction(updateTaskIsDone, {
     optimisticUpdates: [{
-      getQuery: () => [getTasks],
+      getQuerySpecifier: () => [getTasks],
       updateQuery: (updatedTask, oldTasks) => {
         if (oldTasks === undefined) {
           // cache is empty

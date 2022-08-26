@@ -14,12 +14,12 @@ const Todo = (props) => {
   const updateTaskIsDoneAction = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
-        getQuery: () => [getTask, { id: taskId }],
+        getQuerySpecifier: () => [getTask, { id: taskId }],
         // This query's cache should should never be emtpy
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask, isDone }),
       },
       {
-        getQuery: () => [getTasks],
+        getQuerySpecifier: () => [getTasks],
         updateQuery: (updatedTask, oldTasks) => {
           if (oldTasks === undefined) {
             // cache is empty
