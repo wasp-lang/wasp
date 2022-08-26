@@ -1,0 +1,9 @@
+(AST
+  (Decl@1:1-3:5 type=test name=PSL
+    (Quoter@1:10-3:5 tag=psl
+      {=
+        id Int @id
+      =}
+    )
+  )
+)

@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
+import addWaspSourceHeader from '../addWaspSourceHeader'
 
 import { errorMessage } from '../utils.js'
 
@@ -20,7 +21,7 @@ const SignupPage = () => {
     setSubmitError(null)
     try {
       await signup({ username, email, password })
-      await login(email, password)
+      await login(username, password)
       history.push('/')
     } catch (err) {
       setSubmitError(err)
@@ -51,4 +52,4 @@ const SignupPage = () => {
   )
 }
 
-export default SignupPage
+export default addWaspSourceHeader(SignupPage)

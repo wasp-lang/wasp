@@ -4,17 +4,17 @@ title: "Updating tasks"
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Todo app isn't done if you can't mark a task as done!
+The Todo app isn't done if you can't mark a task as done!
 
 For that, we will need to do two things:
-1. Implement Wasp action that updates the task.
+1. Implement a Wasp action that updates the task.
 2. Modify our React code so it calls that action.
 
 ## Action
 
 ### Wasp declaration
 
-We declare Wasp action:
+We declare a Wasp action:
 ```c title="main.wasp"
 // ...
 
@@ -26,7 +26,7 @@ action updateTask {
 
 ### JS implementation
 
-We define JS implementation of Wasp action in `ext/actions.js`:
+We define the JS implementation of the Wasp action in `ext/actions.js`:
 ```js title="ext/actions.js"
 // ...
 

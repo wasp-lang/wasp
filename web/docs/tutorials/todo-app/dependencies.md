@@ -6,9 +6,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 What is a Todo app without some clocks!? Well, still a Todo app, but certainly not as fun as one with the clocks!
 
-So, let's add a couple of clocks to our app, to help us track time while we perform our tasks (and to demonstrate `app.dependencies` feature).
+So, let's add a couple of clocks to our app, to help us track time while we perform our tasks (and to demonstrate the `app.dependencies` feature).
 
-For this, we will use `react-clock` library from NPM. We can add it to our project as a [dependency](language/features.md#dependencies) like this:
+For this, we will use the `react-clock` library from NPM. We can add it to our project as a [dependency](language/features.md#dependencies) like this:
 ```c {6-8} title="main.wasp"
 app TodoApp {
   title: "Todo app",
@@ -21,11 +21,11 @@ app TodoApp {
 }
 ```
 
-Run (if it is already running, stop it first and then run it again)
+Run
 ```shell-session
 wasp start
 ```
-to have Wasp download and install new dependency (that happens on start of `wasp start`).
+to have Wasp download and install the new dependency. If `wasp start` is already running, Wasp will detect the dependency change, and restart automatically.
 
 Next, let's create a new component `Clocks` where we can play with the clocks.
 ```jsx title="ext/Clocks.js"

@@ -2,13 +2,14 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import login from '@wasp/auth/login.js'
+import addWaspSourceHeader from '../addWaspSourceHeader'
 
 // TODO: A lot of duplication with the Sign up page, extract it into one component
 //   and then just use it in both LoginPage and SignupPage?
 
 const LoginPage = () => {
   const history = useHistory()
-  const [email, setEmail] = useState()
+  const [username, setUsername] = useState()
   const [password, setPassword] = useState()
   const [submitError, setSubmitError] = useState()
 
@@ -16,7 +17,7 @@ const LoginPage = () => {
     event.preventDefault()
     setSubmitError(null)
     try {
-      await login(email, password)
+      await login(username, password)
       history.push('/')
     } catch (err) {
       // TODO: If error is 401, inform user that either username or password is not right.
@@ -28,12 +29,12 @@ const LoginPage = () => {
   return (
     <div>
       { submitError && (
-          <p> { submitError.message || submitError } </p>
+      <p> { submitError.message || submitError } </p>
       ) }
 
       <form onSubmit={handleSubmit}>
-        <h2> Email </h2>
-        <input type='text' value={email} onChange={e => setEmail(e.target.value)} />
+        <h2> Username </h2>
+        <input type='text' value={username} onChange={e => setUsername(e.target.value)} />
 
         <h2> Password </h2>
         <input type='password' value={password} onChange={e => setPassword(e.target.value)} />
@@ -45,4 +46,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default addWaspSourceHeader(LoginPage)

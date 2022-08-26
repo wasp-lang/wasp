@@ -1,0 +1,7 @@
+(AST
+  (Decl@1:1-15 type=test name=Decl
+    (List@1:11-15
+      (Integer@1:13 value=1)
+    )
+  )
+)

@@ -16,6 +16,7 @@ import updateArticle from '@wasp/actions/updateArticle'
 import getArticle from '@wasp/queries/getArticle'
 
 import Navbar from '../../Navbar'
+import addWaspSourceHeader from '../../addWaspSourceHeader'
 
 const useStyles = makeStyles((theme) => ({
   /*
@@ -170,4 +171,4 @@ const ArticleEditor = (props) => {
   )
 }
 
-export default ArticleEditorPage
+export default addWaspSourceHeader(ArticleEditorPage)

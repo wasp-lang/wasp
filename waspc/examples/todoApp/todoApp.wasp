@@ -8,7 +8,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ UsernameAndPassword ],
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
@@ -25,7 +25,7 @@ app todoApp {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     tasks       Task[]
 psl=}
@@ -121,7 +121,8 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
-  }
+  },
+  entities: [Task]
 }
 
 job mySpecialScheduledJob {

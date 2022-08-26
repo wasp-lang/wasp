@@ -1,0 +1,4 @@
+test Imports {
+  module: import Page from "page.jsx",
+  field: import { Page } from "page.jsx"
+}

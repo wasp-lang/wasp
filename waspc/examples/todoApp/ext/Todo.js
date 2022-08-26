@@ -99,11 +99,11 @@ const Tasks = (props) => {
 
 const Task = (props) => {
   const handleTaskIsDoneChange = async (event) => {
-    const taskId = parseInt(event.target.id)
-    const newIsDoneVal = event.target.checked
+    const id = parseInt(event.target.id)
+    const isDone = event.target.checked
 
     try {
-      await updateTaskIsDone({ taskId, newIsDoneVal })
+      await updateTaskIsDone({ id, isDone })
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)
@@ -157,7 +157,7 @@ const NewTaskForm = (props) => {
       />
       <Button
         variant="contained" color="primary" type='submit'
-        >
+      >
         Create new task
       </Button>
     </form>

@@ -1,0 +1,12 @@
+(AST
+  (Decl@1:1-32 type=test name=Decl
+    (Dict@1:11-32
+      (DictEntry key=dict
+        (Dict@1:19-20)
+      )
+      (DictEntry key=list
+        (List@1:29-30)
+      )
+    )
+  )
+)

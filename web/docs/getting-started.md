@@ -12,8 +12,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ## 1. Requirements
 
 You need to have `node` (and `npm`) installed on your machine and available in `PATH`.
-- `node`: >=16.11.0 and <=16.15.0
-- `npm`: >= 8.0.0 and <= 8.5.5
+- `node`: 16.x.x
+- `npm`: 8.x.x
 
 You can check `node` and `npm` versions by running:
 ```shell-session
@@ -33,12 +33,12 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of node that you need, e.g.:
   ```shell-session
-  nvm install 16.15.0
+  nvm install 16
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  nvm use 16.15.0
+  nvm use 16
   ```
   to set the node version for current shell session.
 
@@ -57,11 +57,11 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
 Why does Wasp require this specific `node` range and doesn't support a newer version x.y.z?
 
-At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why official Node.js team recommends it for usage in production.
+At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why the official Node.js team recommends it for usage in production.
 Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
 Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
 
-Sometimes we will make an exception to that and additionaly limit the Node.js version or postpone switching to the latest LTS if there are certain issues with new Node.js version, in which case we will catch up once those are resolved on Node.js side or we find a workaround on Wasp side.
+Sometimes we will make an exception to that and additionally limit the Node.js version or postpone switching to the latest LTS if there are certain issues with new Node.js version, in which case we will catch up once those are resolved on Node.js side or we find a workaround on Wasp side.
 
 :::
 
@@ -100,7 +100,7 @@ In the meantime, the best way to start using Wasp on Windows is by using [WSL](h
   <TabItem value='source'>
 <div style={{borderLeft: 'solid 6px #bf9900', paddingLeft: '10px'}} >
 
-If installer is not working for you or your OS is not supported, you can try building Wasp from source.
+If the installer is not working for you or your OS is not supported, you can try building Wasp from source.
 
 To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [cabal](https://cabal.readthedocs.io/en/stable/getting-started.html) on your machine and then run `cabal install` from the `waspc/` dir.
 
