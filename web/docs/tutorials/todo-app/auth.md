@@ -22,7 +22,7 @@ First, let's define entity `User`:
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
 psl=}
 ```
@@ -41,9 +41,9 @@ app TodoApp {
   title: "Todo app",
 
   auth: {
-    // Expects entity User to have (email:String) and (password:String) fields.
+    // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
-    methods: [ EmailAndPassword ], // More methods coming soon!
+    methods: [ UsernameAndPassword ], // More methods coming soon!
     onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
   }
 }
@@ -185,7 +185,7 @@ First, let's define a one-to-many relation between User and Task (check the [pri
 // ...
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     tasks       Task[]
 psl=}
@@ -220,7 +220,7 @@ Next, let's update the queries and actions to forbid access to non-authenticated
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
-  if (!context.user) { throw new HttpError(403) }
+  if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.findMany(
     { where: { user: { id: context.user.id } } }
   )
@@ -231,7 +231,7 @@ export const getTasks = async (args, context) => {
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async ({ description }, context) => {
-  if (!context.user) { throw new HttpError(403) }
+  if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.create({
     data: {
       description,
@@ -241,7 +241,7 @@ export const createTask = async ({ description }, context) => {
 }
 
 export const updateTask = async ({ taskId, data }, context) => {
-  if (!context.user) { throw new HttpError(403) }
+  if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.updateMany({
     where: { id: taskId, user: { id: context.user.id } },
     data: { isDone: data.isDone }

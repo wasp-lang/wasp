@@ -3,13 +3,11 @@ module Wasp.LSP.Handlers
     didOpenHandler,
     didChangeHandler,
     didSaveHandler,
+    completionHandler,
   )
 where
 
-import Control.Lens ((+~), (^.))
-import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Except (throwE)
-import Data.Function ((&))
+import Control.Lens ((.~), (?~), (^.))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers, LspT)
@@ -17,11 +15,14 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
-import qualified Wasp.Analyzer
-import qualified Wasp.Analyzer.AnalyzeError as WE
-import Wasp.Analyzer.Parser (Ctx (Ctx))
-import Wasp.Analyzer.Parser.SourceRegion (getRgnEnd, getRgnStart)
-import Wasp.LSP.Core (ServerConfig, ServerError (ServerError), ServerM, Severity (..))
+import Wasp.Analyzer (analyze)
+import Wasp.Backend.ConcreteParser (parseCST)
+import qualified Wasp.Backend.Lexer as L
+import Wasp.LSP.Completion (getCompletionsAtPosition)
+import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
+import Wasp.LSP.ServerConfig (ServerConfig)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
+import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 
 -- LSP notification and request handlers
 
@@ -59,6 +60,12 @@ didSaveHandler :: Handlers ServerM
 didSaveHandler =
   LSP.notificationHandler LSP.STextDocumentDidSave $ diagnoseWaspFile . extractUri
 
+completionHandler :: Handlers ServerM
+completionHandler =
+  LSP.requestHandler LSP.STextDocumentCompletion $ \request respond -> do
+    completions <- getCompletionsAtPosition $ request ^. LSP.params . LSP.position
+    respond $ Right $ LSP.InL $ LSP.List completions
+
 -- | Does not directly handle a notification or event, but should be run when
 -- text document content changes.
 --
@@ -67,50 +74,41 @@ didSaveHandler =
 -- file in "Wasp.LSP.State.State".
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
-  src <- readVFSFile uri
-  let appSpecOrError = Wasp.Analyzer.analyze $ T.unpack src
-  diagnostics <- case appSpecOrError of
-    -- Valid wasp file, send no diagnostics
-    Right _ -> return $ LSP.List []
-    -- Report the error (for now, just one error per analyze is possible)
-    Left err ->
-      return $
-        LSP.List
-          [ waspErrorToLspDiagnostic err
-          ]
+  analyzeWaspFile uri
+  currentDiagnostics <- gets (^. latestDiagnostics)
   liftLSP $
     LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
-      LSP.PublishDiagnosticsParams uri Nothing diagnostics
+      LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
+
+analyzeWaspFile :: LSP.Uri -> ServerM ()
+analyzeWaspFile uri = do
+  srcString <- readAndStoreSourceString
+  let (concreteErrorMessages, concreteSyntax) = parseCST $ L.lex srcString
+  modify (cst ?~ concreteSyntax)
+  if not $ null concreteErrorMessages
+    then storeCSTErrors concreteErrorMessages
+    else runWaspAnalyzer srcString
   where
-    waspErrorToLspDiagnostic :: WE.AnalyzeError -> LSP.Diagnostic
-    waspErrorToLspDiagnostic err =
-      let errSrc = case err of
-            WE.ParseError _ -> "parse"
-            WE.TypeError _ -> "typecheck"
-            WE.EvaluationError _ -> "evaluate"
-          (errMsg, errCtx) = WE.getErrorMessageAndCtx err
-       in LSP.Diagnostic
-            { _range = waspCtxToLspRange errCtx,
-              _severity = Nothing,
-              _code = Nothing,
-              _source = Just errSrc,
-              _message = T.pack errMsg,
-              _tags = Nothing,
-              _relatedInformation = Nothing
-            }
+    readAndStoreSourceString = do
+      srcString <- T.unpack <$> readVFSFile uri
+      modify (currentWaspSource .~ srcString)
+      return srcString
 
-    waspCtxToLspRange :: Ctx -> LSP.Range
-    waspCtxToLspRange (Ctx region) =
-      LSP.Range
-        { _start = waspSourcePositionToLspPosition (getRgnStart region),
-          -- Increment end character by 1: Wasp uses an inclusive convention for
-          -- the end position, but LSP considers end position to not be part of
-          -- the range.
-          _end = waspSourcePositionToLspPosition (getRgnEnd region) & LSP.character +~ (1 :: LSP.UInt)
-        }
+    storeCSTErrors concreteErrorMessages = do
+      srcString <- gets (^. currentWaspSource)
+      newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) concreteErrorMessages
+      modify (latestDiagnostics .~ newDiagnostics)
 
-    waspSourcePositionToLspPosition (WE.SourcePosition l c) =
-      LSP.Position (fromIntegral $ l - 1) (fromIntegral $ c - 1)
+    runWaspAnalyzer srcString = do
+      let analyzeResult = analyze srcString
+      case analyzeResult of
+        Right _ -> do
+          modify (latestDiagnostics .~ [])
+        Left err -> do
+          let newDiagnostics =
+                [ waspErrorToDiagnostic err
+                ]
+          modify (latestDiagnostics .~ newDiagnostics)
 
 -- | Run a LSP function in the "ServerM" monad.
 liftLSP :: LspT ServerConfig IO a -> ServerM a
@@ -123,7 +121,7 @@ readVFSFile uri = do
   mVirtualFile <- liftLSP $ LSP.getVirtualFile $ LSP.toNormalizedUri uri
   case mVirtualFile of
     Just virtualFile -> return $ virtualFileText virtualFile
-    Nothing -> throwE $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
+    Nothing -> throwError $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
 
 -- | Get the "Uri" from an object that has a "TextDocument".
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri

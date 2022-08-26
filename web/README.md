@@ -28,7 +28,9 @@ To run this version of code and check that it works correctly, run `npm run serv
 
 ### Deployment
 
-We are deploying to GitHub pages, and that can easily be done with the following command:
+We are deploying to GitHub pages, and that can easily be done with the following command.
+
+First, ensure you are on the `release` branch. Next, run:
 
 ```
 $ GIT_USER=<Your GitHub username> USE_SSH=true npm run deploy

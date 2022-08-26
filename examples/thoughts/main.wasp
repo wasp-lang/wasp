@@ -3,7 +3,7 @@ app Thoughts {
   db: { system: PostgreSQL },
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ UsernameAndPassword ],
     onAuthFailedRedirectTo: "/login"
   },
   dependencies: [
@@ -74,7 +74,7 @@ psl=}
 
 entity User {=psl
     id          Int       @id @default(autoincrement())
-    email       String    @unique
+    username    String    @unique
     password    String
 
     thoughts    Thought[]

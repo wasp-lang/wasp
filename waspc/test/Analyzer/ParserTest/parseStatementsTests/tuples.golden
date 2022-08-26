@@ -1,0 +1,29 @@
+(AST
+  (Decl@1:1-20 type=test name=Pair
+    (Tuple@1:11-20
+      (Integer@1:12 value=1)
+      (String@1:15-19 value="foo")
+    )
+  )
+  (Decl@2:1-25 type=test name=Triple
+    (Tuple@2:13-25
+      (Integer@2:14 value=1)
+      (String@2:17-21 value="foo")
+      (Integer@2:24 value=2)
+    )
+  )
+  (Decl@3:1-34 type=test name=Quadruple
+    (Tuple@3:16-34
+      (Integer@3:17 value=1)
+      (String@3:20-24 value="foo")
+      (Integer@3:27 value=2)
+      (Bool@3:30-33 value=True)
+    )
+  )
+  (Decl@4:1-29 type=test name=TrailingComma
+    (Tuple@4:20-29
+      (Integer@4:21-22 value=42)
+      (Integer@4:25-27 value=314)
+    )
+  )
+)

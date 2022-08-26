@@ -2,9 +2,9 @@ import config from '../config.js'
 import { removeQueries } from '../operations/resources'
 import api, { setAuthToken, handleApiError } from '../api.js'
 
-export default async function login(email, password) {
+export default async function login(username, password) {
   try {
-    const args = { email, password }
+    const args = { username, password }
     const response = await api.post(config.apiUrl + '/auth/login', args)
 
     setAuthToken(response.data.token)

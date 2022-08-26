@@ -1,0 +1,11 @@
+test Decl {
+  string: "Hello Wasp =}",
+  escapedString: "Look, a \"",
+  integer: 42,
+  real: 3.14,
+  yes: true,
+  no: false,
+  ident: Wasp,
+  // This is a comment
+  innerDict: { innerDictReal: 2.17 }
+}

@@ -7,7 +7,7 @@ app trello {
 
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: [ UsernameAndPassword ],
     onAuthFailedRedirectTo: "/login"
   },
 
@@ -39,7 +39,7 @@ page Login {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     lists       List[]
     cards       Card[]
