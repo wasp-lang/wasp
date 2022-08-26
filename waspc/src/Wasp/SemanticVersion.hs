@@ -1,6 +1,7 @@
 module Wasp.SemanticVersion
   ( Version (..),
     Range (..),
+    ComparatorSet,
     isVersionInRange,
     lt,
     lte,
@@ -12,7 +13,6 @@ module Wasp.SemanticVersion
 where
 
 import Data.List (intercalate, nub)
-import Data.List.NonEmpty (NonEmpty, fromList)
 import qualified Data.List.NonEmpty as NE
 import Numeric.Natural
 import Text.Printf (printf)
@@ -46,29 +46,17 @@ instance Show Operator where
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
 
-data PrimitiveComparator = PrimitiveComparator Operator Version
-  deriving (Eq)
-
--- | We rely on this `show` implementation to produce valid semver representation of primitive comparator.
-instance Show PrimitiveComparator where
-  show (PrimitiveComparator op v) = show op ++ show v
-
-data SpecialComparator = BackwardsCompatibleWith Version
-  deriving (Eq)
-
--- | We rely on this `show` implementation to produce valid semver representation of special comparator.
-instance Show SpecialComparator where
-  show (BackwardsCompatibleWith v) = "^" ++ show v
-
-data Comparator = ComparatorP PrimitiveComparator | ComparatorS SpecialComparator
+data Comparator
+  = PrimitiveComparator Operator Version
+  | BackwardsCompatibleWith Version
   deriving (Eq)
 
 -- | We rely on this `show` implementation to produce valid semver representation of comparator.
 instance Show Comparator where
-  show (ComparatorP c) = show c
-  show (ComparatorS c) = show c
+  show (PrimitiveComparator op v) = show op ++ show v
+  show (BackwardsCompatibleWith v) = "^" ++ show v
 
-data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
 
 -- | We rely on this `show` implementation to produce valid semver representation of comparator set.
@@ -78,18 +66,6 @@ instance Show ComparatorSet where
 -- | We define concatenation of two comparator sets as a union of their comparators.
 instance Semigroup ComparatorSet where
   (ComparatorSet compsl) <> (ComparatorSet compsr) = ComparatorSet $ NE.nub $ compsl <> compsr
-
-data PrimitiveComparatorSet = PrimitiveComparatorSet (NonEmpty PrimitiveComparator)
-  deriving (Eq)
-
--- | We rely on this `show` implementation to produce valid semver representation of comparator set.
-instance Show PrimitiveComparatorSet where
-  show (PrimitiveComparatorSet comps) = unwords $ show <$> NE.toList comps
-
--- | We define concatenation of two comparator sets as a union of their comparators.
-instance Semigroup PrimitiveComparatorSet where
-  (PrimitiveComparatorSet compsl) <> (PrimitiveComparatorSet compsr) =
-    PrimitiveComparatorSet $ compsl <> compsr
 
 data Range = Range [ComparatorSet]
   deriving (Eq)
@@ -106,44 +82,26 @@ instance Monoid Range where
   mempty = Range []
 
 isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range compSets) =
-  any (doesVersionSatisfyComparatorSet version) compSets
+isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
 
 doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
-doesVersionSatisfyComparatorSet version comparatorSet =
-  doesVersionSatisfyPrimitiveComparatorSet version $
-    comparatorSetToPrimitiveComparatorSet comparatorSet
+doesVersionSatisfyComparatorSet version (ComparatorSet comps) =
+  all (doesVersionSatisfyComparator version) comps
 
-doesVersionSatisfyPrimitiveComparatorSet :: Version -> PrimitiveComparatorSet -> Bool
-doesVersionSatisfyPrimitiveComparatorSet version (PrimitiveComparatorSet comps) =
-  all (doesVersionSatisfyPrimitiveComparator version) comps
-
-doesVersionSatisfyPrimitiveComparator :: Version -> PrimitiveComparator -> Bool
-doesVersionSatisfyPrimitiveComparator version (PrimitiveComparator operator compVersion) =
+doesVersionSatisfyComparator :: Version -> Comparator -> Bool
+doesVersionSatisfyComparator version (BackwardsCompatibleWith refVersion) =
+  all
+    (doesVersionSatisfyComparator version)
+    [ PrimitiveComparator GreaterThanOrEqual refVersion,
+      PrimitiveComparator LessThan (nextBreakingChangeVersion refVersion)
+    ]
+doesVersionSatisfyComparator version (PrimitiveComparator operator compVersion) =
   case operator of
     Equal -> version == compVersion
     LessThan -> version < compVersion
     LessThanOrEqual -> version <= compVersion
     GreaterThan -> version > compVersion
     GreaterThanOrEqual -> version >= compVersion
-
-comparatorSetToPrimitiveComparatorSet :: ComparatorSet -> PrimitiveComparatorSet
-comparatorSetToPrimitiveComparatorSet (ComparatorSet comps) =
-  foldl1 (<>) $ comparatorToPrimitiveComparatorSet <$> comps
-
-comparatorToPrimitiveComparatorSet :: Comparator -> PrimitiveComparatorSet
-comparatorToPrimitiveComparatorSet (ComparatorP comp) =
-  PrimitiveComparatorSet $ fromList [comp]
-comparatorToPrimitiveComparatorSet (ComparatorS comp) =
-  specialComparatorToPrimitiveComparatorSet comp
-
-specialComparatorToPrimitiveComparatorSet :: SpecialComparator -> PrimitiveComparatorSet
-specialComparatorToPrimitiveComparatorSet (BackwardsCompatibleWith version) =
-  PrimitiveComparatorSet $
-    NE.fromList
-      [ PrimitiveComparator GreaterThanOrEqual version,
-        PrimitiveComparator LessThan (nextBreakingChangeVersion version)
-      ]
 
 nextBreakingChangeVersion :: Version -> Version
 nextBreakingChangeVersion version = case version of
@@ -169,7 +127,7 @@ eq :: Version -> ComparatorSet
 eq = mkPrimCompSet Equal
 
 backwardsCompatibleWith :: Version -> ComparatorSet
-backwardsCompatibleWith = ComparatorSet . pure . ComparatorS . BackwardsCompatibleWith
+backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith
 
 mkPrimCompSet :: Operator -> Version -> ComparatorSet
-mkPrimCompSet op = ComparatorSet . pure . ComparatorP . PrimitiveComparator op
+mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op
