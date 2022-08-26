@@ -43,7 +43,7 @@ import Wasp.Generator.ServerGenerator.Common
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import qualified Wasp.SemanticVersion as V
+import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = return $ genAllJobImports spec : (genJob <$> getJobs spec)
@@ -145,8 +145,8 @@ jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
-pgBossVersionRange :: V.Range
-pgBossVersionRange = V.Range [V.backwardsCompatibleWith (V.Version 7 2 1)]
+pgBossVersionRange :: SV.Range
+pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 2 1)]
 
 pgBossDependency :: AS.Dependency.Dependency
 pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionRange)
