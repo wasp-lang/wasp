@@ -28,7 +28,7 @@ module Wasp.Util
     fromMaybeM,
     orIfNothing,
     orIfNothingM,
-    projectNameToAppIdentifier,
+    kebabToCamelCase,
   )
 where
 
@@ -58,12 +58,12 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
 
-projectNameToAppIdentifier :: String -> String
-projectNameToAppIdentifier = concat . capitalizeWords . wordsBy (== '-')
+kebabToCamelCase :: String -> String
+kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (== '-')
   where
-    capitalizeWords :: [String] -> [String]
-    capitalizeWords [] = []
-    capitalizeWords (kebabHead : kebabTail) = kebabHead : map toUpperFirst kebabTail
+    capitalizeAllWordsExceptForTheFirstOne :: [String] -> [String]
+    capitalizeAllWordsExceptForTheFirstOne [] = []
+    capitalizeAllWordsExceptForTheFirstOne (kebabHead : kebabTail) = kebabHead : map toUpperFirst kebabTail
 
 -- | Applies given function to the first element of the list.
 --   If list is empty, returns empty list.

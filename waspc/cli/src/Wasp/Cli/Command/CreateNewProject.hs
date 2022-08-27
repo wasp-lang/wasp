@@ -18,31 +18,41 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
-import Wasp.Util (indent, projectNameToAppIdentifier)
+import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
 
-newtype ProjectName = ProjectName {_projectName :: String}
+data ProjectInfo = ProjectInfo
+  { _projectName :: String,
+    _appName :: String
+  }
 
-newtype AppIdentifier = AppIdentifier {_appIdentifier :: String}
+-- Returns either the ProjectInfo type that contains both the Project name
+-- and the App name (which might be the same), or an error describing why the name is invalid
+parseProjectInfo :: String -> Either String ProjectInfo
+parseProjectInfo name
+  | isValidWaspIdentifier appIdentifier = Right (ProjectInfo name appIdentifier)
+  | otherwise =
+      Left $
+        intercalate
+          "\n"
+          [ "The project's name must be a valid Wasp identifier:",
+            indent 2 "- It can start with a letter or an underscore.",
+            indent 2 "- It can contain only letters, numbers, dash, or underscores.",
+            indent 2 "- It can't be a Wasp keyword."
+          ]
+  where
+    appIdentifier = kebabToCamelCase name
 
 createNewProject :: String -> Command ()
-createNewProject name
-  | isValidWaspIdentifier appIdentifier = createNewProject' (ProjectName name) (AppIdentifier appIdentifier)
-  | otherwise =
+createNewProject name =
+  case parseProjectInfo name of
+    Right projectName -> createNewProject' projectName
+    Left parsedError ->
       throwError $
-        CommandError "Project creation failed" $
-          intercalate
-            "\n"
-            [ "The project's name must be a valid Wasp identifier:",
-              indent 2 "- It can start with a letter or an underscore.",
-              indent 2 "- It can contain only letters, numbers, or underscores.",
-              indent 2 "- It can't be a Wasp keyword."
-            ]
-  where
-    appIdentifier = projectNameToAppIdentifier name
+        CommandError "Project creation failed" parsedError
 
-createNewProject' :: ProjectName -> AppIdentifier -> Command ()
-createNewProject' (ProjectName projectName) (AppIdentifier appIdentifier) = do
+createNewProject' :: ProjectInfo -> Command ()
+createNewProject' (ProjectInfo projectName appName) = do
   absCwd <- liftIO getCurrentDirectory
   waspProjectDir <- case SP.parseAbsDir $ absCwd FP.</> projectName of
     Left err ->
@@ -110,7 +120,7 @@ createNewProject' (ProjectName projectName) (AppIdentifier appIdentifier) = do
 
     mainWaspFileContent =
       unlines
-        [ "app %s {" `printf` appIdentifier,
+        [ "app %s {" `printf` appName,
           "  title: \"%s\"" `printf` projectName,
           "}",
           "",

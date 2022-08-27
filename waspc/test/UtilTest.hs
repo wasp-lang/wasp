@@ -18,16 +18,20 @@ spec_camelToKebabCase = do
     camel ~> kebab = it (camel ++ " -> " ++ kebab) $ do
       camelToKebabCase camel `shouldBe` kebab
 
-spec_projectNameToAppIdentifier :: Spec
-spec_projectNameToAppIdentifier = do
+spec_kebabToCamelCase :: Spec
+spec_kebabToCamelCase = do
   "foobar" ~> "foobar"
   "s3" ~> "s3"
   "foo-bar-bar" ~> "fooBarBar"
   "todo-App" ~> "todoApp"
   "TODO-app" ~> "TODOApp"
+  "s3-folder" ~> "s3Folder"
+  "foo---bar-baz" ~> "fooBarBaz"
+  "-foo-" ~> "foo"
+  "" ~> ""
   where
     kebab ~> camel = it (kebab ++ " -> " ++ camel) $ do
-      projectNameToAppIdentifier kebab `shouldBe` camel
+      kebabToCamelCase kebab `shouldBe` camel
 
 spec_onFirst :: Spec
 spec_onFirst = do
