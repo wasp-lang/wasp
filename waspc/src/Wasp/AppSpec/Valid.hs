@@ -89,8 +89,9 @@ validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec =
       else case Auth.externalAuthAssociationEntity auth of
         Nothing -> [GenericValidationError "Expected an Entity referenced by app.auth.externalAuthAssociationEntity to exist when using a social login method."]
         Just externalAuthAssociationEntityRef ->
-          let userEntityName = fst $ AS.resolveRef spec (Auth.userEntity auth)
-              externalAuthAssociationEntity = snd $ AS.resolveRef spec externalAuthAssociationEntityRef
+          let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+              userEntityFields = Entity.getFields userEntity
+              (externalAuthAssociationEntityName, externalAuthAssociationEntity) = AS.resolveRef spec externalAuthAssociationEntityRef
               externalAuthAssociationEntityFields = Entity.getFields externalAuthAssociationEntity
            in concatMap
                 (validateField "app.auth.externalAuthAssociationEntity" externalAuthAssociationEntityFields)
@@ -99,6 +100,10 @@ validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec =
                   ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
                   ("userId", Entity.Field.FieldTypeScalar Entity.Field.Int, "Int")
                 ]
+                ++ concatMap
+                  (validateField "app.auth.userEntity" userEntityFields)
+                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthAssociationEntityName, externalAuthAssociationEntityName)
+                  ]
 
 validateField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
 validateField entityName entityFields (fieldName, fieldType, fieldTypeName) =
