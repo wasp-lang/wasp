@@ -80,11 +80,7 @@ genSignupForm auth =
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth
-  | AS.App.Auth.isExternalAuthEnabled auth =
-      sequence
-        [ genOAuthCodeExchange auth
-        ]
-        <++> genSocialLoginButtons auth
+  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginButtons auth
   | otherwise = return []
 
 genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
