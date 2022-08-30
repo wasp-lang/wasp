@@ -107,7 +107,7 @@ async function findAvailableUsername(potentialUsernames) {
   const availableUsernames = potentialUsernames.filter(username => !takenUsernames.includes(username))
 
   if (availableUsernames.length === 0) {
-    throw 'Unable to generate a unique username. Please contact Wasp.'
+    throw new Error('Unable to generate a unique username. Please contact Wasp.')
   }
 
   return availableUsernames[0]

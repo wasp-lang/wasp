@@ -981,8 +981,8 @@ If you require modifications to the above, you can add one or more of the follow
   ```js
   export function config() {
     return {
-      clientId: // look up from env or elsewhere,
-      clientSecret: // look up from env or elsewhere,
+      clientId, // look up from env or elsewhere,
+      clientSecret, // look up from env or elsewhere,
       scope: ['profile'] // must include at least 'profile'
     }
   }
@@ -996,7 +996,7 @@ If you require modifications to the above, you can add one or more of the follow
     return { username }
   }
   ```
-  - `generateAvailableUsername` takes an array of Strings, and an optional separator, and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for some Google user Jim Smith.
+  - `generateAvailableUsername` takes an array of Strings and an optional separator, and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
 
 #### UI helpers
 
