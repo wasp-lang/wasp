@@ -1069,19 +1069,23 @@ Your project will likely be using environment variables for configuration, typic
 
 When in production, you will typically define environment variables through mechanisms provided by your hosting provider.
 
-However, when in development, you might also need to supply certain environment variables, and to avoid doing it "manually", Wasp supports `.env` (dotenv) file where you can define environment variables that will be used during development (they will not be used during production).
+However, when in development, you might also need to supply certain environment variables, and to avoid doing it "manually", Wasp supports `.env` (dotenv) files where you can define environment variables that will be used during development (they will not be used during production).
 
-`.env` file has to be defined in the root of your Wasp project.
+Since environmental variables are usually different for server-side and client apps, in Wasp root directly you can create two files, `.env.server` for server-side of your Wasp project, and `.env.client` for client side (or web app) of Wasp project.
 
-`.env` file should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
+During complile, Wasp will use `.env.server` and `.env.client` files to create `.env` files and place them in server-side and web app directories.
 
-Variables are defined in `.env` in the form of `NAME=VALUE`, for example:
+`.env.server` and `.env.client` files have to be defined in the root of your Wasp project.
+
+`.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
+
+Variables are defined in `.env.server` or `env.client` files the same way as you would define your `.env` file in the form of `NAME=VALUE`, for example:
 ```
 DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
 ```
 
-Any env vars defined in the `.env` will be forwarded to the server-side of your Wasp project and therefore accessible in your nodejs code via `process.env`, for example:
+Any env vars defined in the `.env.server` / `.env.client` files will be forwarded to the server-side / web app of your Wasp project and therefore accessible in your nodejs code via `process.env`, for example:
 ```js
 console.log(process.env.DATABASE_URL)
 ```
