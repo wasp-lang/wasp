@@ -98,11 +98,14 @@ findDotEnvServer waspDir = toMaybeAbsFile waspDir dotEnvServer
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findDotEnvClient waspDir = toMaybeAbsFile waspDir dotEnvClient
 
-toMaybeAbsFile :: Path' Abs (Dir WaspProjectDir) -> Path' (SP.Rel WaspProjectDir) File' -> IO (Maybe (Path' Abs File'))
-toMaybeAbsFile waspDir dotEnvFile = do
-  let dotEnvAbsFp = waspDir SP.</> dotEnvFile
-  dotEnvFileExists <- doesFileExist $ SP.toFilePath dotEnvAbsFp
-  return $ if dotEnvFileExists then Just dotEnvAbsFp else Nothing
+findFileInWaspProjectDir
+  :: Path' Abs (Dir WaspProjectDir)
+  -> Path' (SP.Rel WaspProjectDir) File'
+  -> IO (Maybe (Path' Abs File'))
+findFileInWaspProjectDir waspDir file = do
+  let fileAbsFp = waspDir SP.</> file
+  fileExists <- doesFileExist $ SP.toFilePath fileAbsFp
+  return $ if fileExists then Just fileAbsFp else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->
