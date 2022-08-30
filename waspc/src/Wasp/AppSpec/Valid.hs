@@ -102,7 +102,7 @@ validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec =
                 ]
                 ++ concatMap
                   (validateField "app.auth.userEntity" userEntityFields)
-                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthAssociationEntityName, externalAuthAssociationEntityName)
+                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthAssociationEntityName, externalAuthAssociationEntityName ++ "[]")
                   ]
 
 validateField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
