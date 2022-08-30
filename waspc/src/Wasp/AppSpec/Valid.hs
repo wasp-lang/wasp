@@ -35,7 +35,7 @@ validateAppSpec spec =
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
-          validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
+          validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
 
@@ -80,20 +80,20 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
               ]
 
-validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
-validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
+validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
     if not $ Auth.isExternalAuthEnabled auth
       then []
-      else case Auth.socialLoginEntity auth of
-        Nothing -> [GenericValidationError "Expected an Entity referenced by app.auth.socialLoginEntity to exist when using a social login method."]
-        Just socialLoginEntityRef ->
+      else case Auth.externalAuthAssociationEntity auth of
+        Nothing -> [GenericValidationError "Expected an Entity referenced by app.auth.externalAuthAssociationEntity to exist when using a social login method."]
+        Just externalAuthAssociationEntityRef ->
           let userEntityName = fst $ AS.resolveRef spec (Auth.userEntity auth)
-              socialLoginEntity = snd $ AS.resolveRef spec socialLoginEntityRef
-              socialLoginEntityFields = Entity.getFields socialLoginEntity
+              externalAuthAssociationEntity = snd $ AS.resolveRef spec externalAuthAssociationEntityRef
+              externalAuthAssociationEntityFields = Entity.getFields externalAuthAssociationEntity
            in concatMap
-                (validateField "app.auth.socialLoginEntity" socialLoginEntityFields)
+                (validateField "app.auth.externalAuthAssociationEntity" externalAuthAssociationEntityFields)
                 [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                   ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                   ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),

@@ -53,7 +53,7 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                AS.Auth.socialLoginEntity = Nothing,
+                AS.Auth.externalAuthAssociationEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,

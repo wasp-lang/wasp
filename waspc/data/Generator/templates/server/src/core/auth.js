@@ -84,9 +84,9 @@ export async function generateAvailableDictionaryUsername() {
   return findAvailableUsername(potentialUsernames)
 }
 
-export async function generateAvailableUsername(strings, config) {
+export async function generateAvailableUsername(usernameSegments, config) {
   const separator = config?.separator || '-'
-  const baseUsername = strings.join(separator)
+  const baseUsername = usernameSegments.join(separator)
 
   const potentialUsernames = []
   for (let i = 0; i < 10; i++) {

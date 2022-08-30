@@ -15,27 +15,27 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findOrCreateUserBySocialLogin(provider, providerId, getUserFieldsAsync) {
-  // Attempt to find a User by an associated SocialLogin.
-  const socialLogin = await prisma.{= socialLoginEntityLower =}.findFirst({
+export async function findOrCreateUserByExternalAuthAssociation(provider, providerId, getUserFieldsAsync) {
+  // Attempt to find a User by an associated ExternalAuthAssociation.
+  const externalAuthAssociation = await prisma.{= externalAuthAssociationEntityLower =}.findFirst({
     where: { provider, providerId },
     include: { user: true }
   })
 
-  if (socialLogin) {
-    return socialLogin.user
+  if (externalAuthAssociation) {
+    return externalAuthAssociation.user
   }
 
-  // No SocialLogin linkage found. Create a new User using details from
-  // `getUserFieldsAsync()`. Additionally, associate the SocialLogin with the new User.
+  // No ExternalAuthAssociation linkage found. Create a new User using details from
+  // `getUserFieldsAsync()`. Additionally, associate the ExternalAuthAssociation with the new User.
   const userFields = await getUserFieldsAsync()
-  const userAndSocialLogin = {
+  const userAndExternalAuthAssociation = {
     ...userFields,
     password: uuidv4(),
-    socialLogins: {
+    externalAuthAssociations: {
       create: [{ provider, providerId }]
     }
   }
 
-  return await prisma.{= userEntityLower =}.create({ data: userAndSocialLogin })
+  return await prisma.{= userEntityLower =}.create({ data: userAndExternalAuthAssociation })
 }

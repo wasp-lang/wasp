@@ -156,14 +156,14 @@ genUtilsJs :: AS.Auth.Auth -> Generator FileDraft
 genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    socialLoginEntityName = maybe "undefined" AS.refName (AS.Auth.socialLoginEntity auth)
+    externalAuthAssociationEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthAssociationEntity auth)
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel utilsFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> utilsFileInSrcDir
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "socialLoginEntityLower" .= (Util.toLowerFirst socialLoginEntityName :: String),
+          "externalAuthAssociationEntityLower" .= (Util.toLowerFirst externalAuthAssociationEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]

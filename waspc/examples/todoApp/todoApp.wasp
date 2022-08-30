@@ -8,7 +8,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    socialLoginEntity: SocialLogin,
+    externalAuthAssociationEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
       google: {
@@ -31,11 +31,11 @@ app todoApp {
 }
 
 entity User {=psl
-    id            Int           @id @default(autoincrement())
-    username      String        @unique
-    password      String
-    tasks         Task[]
-    socialLogins  SocialLogin[]
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    tasks                     Task[]
+    externalAuthAssociations  SocialLogin[]
 psl=}
 
 entity SocialLogin {=psl

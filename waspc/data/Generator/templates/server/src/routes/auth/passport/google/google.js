@@ -3,7 +3,7 @@ import passport from 'passport'
 import GoogleStrategy from 'passport-google-oauth20'
 
 import waspServerConfig from '../../../../config.js'
-import { contextWithUserEntity, authConfig, findOrCreateUserBySocialLogin } from '../../utils.js'
+import { contextWithUserEntity, authConfig, findOrCreateUserByExternalAuthAssociation } from '../../utils.js'
 import { sign } from '../../../../core/auth.js'
 import { configFn, getUserFields } from './googleConfig.js'
 
@@ -67,7 +67,7 @@ router.get('/validateCodeForLogin',
 
     // Wrap call to getUserFields so we can invoke only if needed.
     const getUserFieldsAsync = async () => await getUserFields(contextWithUserEntity, { profile: googleProfile })
-    const user = await findOrCreateUserBySocialLogin('google', googleProfile.id, getUserFieldsAsync)
+    const user = await findOrCreateUserByExternalAuthAssociation('google', googleProfile.id, getUserFieldsAsync)
 
     const token = await sign(user.id)
     res.json({ token })
