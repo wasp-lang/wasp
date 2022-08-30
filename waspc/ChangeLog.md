@@ -3,7 +3,7 @@
 ## v0.6.0.0 (TBD)
 
 ### BREAKING CHANGES
-- The `EmailAndPassword` auth method has been renamed `UsernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
+- The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
       ```bash

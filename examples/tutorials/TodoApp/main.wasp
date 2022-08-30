@@ -3,7 +3,9 @@ app TodoApp {
 
   auth: {
     userEntity: User,
-    methods: [ UsernameAndPassword ],
+    methods: {
+      usernameAndPassword: {}
+    },
     onAuthFailedRedirectTo: "/login"
   },
 

@@ -169,7 +169,11 @@ If we try to apply the principles from above (less code, less detailed instructi
 ```css
 auth: {
     userEntity: User,
-    methods: [ UsernameAndPassword, LinkedIn, Google ],
+    socialLoginEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      google: {}
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/dashboard"
   }
