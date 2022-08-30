@@ -53,6 +53,7 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
+                AS.Auth.socialLoginEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
@@ -116,11 +117,11 @@ spec_AppSpecValid = do
         it "returns an error if app.auth is set and user entity is of invalid shape" $ do
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'string'."
+                           "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'String'."
                        ]
           ASV.validateAppSpec (makeSpec (Just validAppAuth) invalidUserEntity2)
             `shouldBe` [ ASV.GenericValidationError
-                           "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'string'."
+                           "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'String'."
                        ]
   where
     makeBasicPslField name typ =

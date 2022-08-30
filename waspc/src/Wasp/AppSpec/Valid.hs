@@ -35,6 +35,7 @@ validateAppSpec spec =
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
+          validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
 
@@ -50,23 +51,19 @@ validateExactlyOneAppExists spec =
 
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
-  if anyPageRequiresAuth && not (isAuthEnabled spec)
-    then
-      [ GenericValidationError
-          "Expected app.auth to be defined since there are Pages with authRequired set to true."
-      ]
-    else []
+  [ GenericValidationError
+      "Expected app.auth to be defined since there are Pages with authRequired set to true."
+    | anyPageRequiresAuth && not (isAuthEnabled spec)
+  ]
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
-  if isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
-    then
-      [ GenericValidationError
-          "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
-      ]
-    else []
+  [ GenericValidationError
+      "Expected app.db.system to be PostgreSQL since there are jobs with executor set to PgBoss."
+    | isPgBossJobExecutorUsed spec && not (isPostgresUsed spec)
+  ]
 
 validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -77,26 +74,42 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
       else
         let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
             userEntityFields = Entity.getFields userEntity
-            maybeUsernameField = find ((== "username") . Entity.Field.fieldName) userEntityFields
-            maybePasswordField = find ((== "password") . Entity.Field.fieldName) userEntityFields
-         in concat
-              [ case maybeUsernameField of
-                  Just usernameField
-                    | Entity.Field.fieldType usernameField == Entity.Field.FieldTypeScalar Entity.Field.String -> []
-                  _ ->
-                    [ GenericValidationError
-                        "Expected an Entity referenced by app.auth.userEntity to have field 'username' of type 'string'."
-                    ],
-                case maybePasswordField of
-                  Just passwordField
-                    | Entity.Field.fieldType passwordField == Entity.Field.FieldTypeScalar Entity.Field.String -> []
-                  _ ->
-                    [ GenericValidationError
-                        "Expected an Entity referenced by app.auth.userEntity to have field 'password' of type 'string'."
-                    ]
+         in concatMap
+              (validateField "app.auth.userEntity" userEntityFields)
+              [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
               ]
 
--- TODO: validateAuthSocialLoginEntityHasCorrectFieldsIfAnySocialLoginIsUsed
+validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
+validateAuthSocialLoginEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isExternalAuthEnabled auth
+      then []
+      else case Auth.socialLoginEntity auth of
+        Nothing -> [GenericValidationError "Expected an Entity referenced by app.auth.socialLoginEntity to exist when using a social login method."]
+        Just socialLoginEntityRef ->
+          let userEntityName = fst $ AS.resolveRef spec (Auth.userEntity auth)
+              socialLoginEntity = snd $ AS.resolveRef spec socialLoginEntityRef
+              socialLoginEntityFields = Entity.getFields socialLoginEntity
+           in concatMap
+                (validateField "app.auth.socialLoginEntity" socialLoginEntityFields)
+                [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                  ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                  ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
+                  ("userId", Entity.Field.FieldTypeScalar Entity.Field.Int, "Int")
+                ]
+
+validateField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
+validateField entityName entityFields (fieldName, fieldType, fieldTypeName) =
+  let maybeField = find ((== fieldName) . Entity.Field.fieldName) entityFields
+   in case maybeField of
+        Just providerField
+          | Entity.Field.fieldType providerField == fieldType -> []
+        _ ->
+          [ GenericValidationError $
+              "Expected an Entity referenced by " ++ entityName ++ " to have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
+          ]
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
