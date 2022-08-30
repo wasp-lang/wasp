@@ -93,10 +93,10 @@ findWaspFile waspDir = do
         && (length (SP.toFilePath path) > length (".wasp" :: String))
 
 findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvServer waspDir = toMaybeAbsFile waspDir dotEnvServer
+findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
 
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvClient waspDir = toMaybeAbsFile waspDir dotEnvClient
+findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
 
 findFileInWaspProjectDir
   :: Path' Abs (Dir WaspProjectDir)

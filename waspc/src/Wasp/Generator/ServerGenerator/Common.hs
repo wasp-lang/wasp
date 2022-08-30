@@ -23,10 +23,10 @@ import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Common (WaspProjectDir)
 
 data ServerRootDir
 
