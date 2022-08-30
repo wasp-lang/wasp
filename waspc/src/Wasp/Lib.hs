@@ -98,10 +98,10 @@ findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
 
-findFileInWaspProjectDir
-  :: Path' Abs (Dir WaspProjectDir)
-  -> Path' (SP.Rel WaspProjectDir) File'
-  -> IO (Maybe (Path' Abs File'))
+findFileInWaspProjectDir ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (SP.Rel WaspProjectDir) File' ->
+  IO (Maybe (Path' Abs File'))
 findFileInWaspProjectDir waspDir file = do
   let fileAbsFp = waspDir SP.</> file
   fileExists <- doesFileExist $ SP.toFilePath fileAbsFp
