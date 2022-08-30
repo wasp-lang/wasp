@@ -1025,9 +1025,9 @@ You can set the height of the button by setting a prop (e.g., `<Google height={2
 
 
 ### `externalAuthAssociationEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example Google, we require a `externalAuthAssociationEntity` specified in `auth` contains the following fields:
+Anytime an authentication method is used that relies on an external authorization provider, for example Google, we require a `externalAuthAssociationEntity` specified in `auth` contains at least the following highlighted fields:
 
-```css
+```css {4,11,16-21}
 ...
   auth: {
     userEntity: User,
