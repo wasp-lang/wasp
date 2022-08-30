@@ -136,11 +136,7 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportAuth auth
-  | AS.Auth.isExternalAuthEnabled auth =
-      sequence
-        [ genPassportJs auth
-        ]
-        <++> genGoogleAuth auth
+  | AS.Auth.isExternalAuthEnabled auth = (:) <$> genPassportJs auth <*> genGoogleAuth auth
   | otherwise = return []
 
 genPassportJs :: AS.Auth.Auth -> Generator FileDraft
