@@ -1085,7 +1085,7 @@ DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
 ```
 
-Any env vars defined in the `.env.server` / `.env.client` files will be forwarded to the server-side / web app of your Wasp project and therefore accessible in your nodejs code via `process.env`, for example:
+Any env vars defined in the `.env.server` / `.env.client` files will be forwarded to the server-side / web app of your Wasp project and therefore accessible in your javascript code via `process.env`, for example:
 ```js
 console.log(process.env.DATABASE_URL)
 ```
