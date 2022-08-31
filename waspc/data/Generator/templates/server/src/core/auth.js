@@ -70,7 +70,7 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
-export async function generateAvailableDictionaryUsername() {
+export function generateAvailableDictionaryUsername() {
   const adjectives = ['fuzzy', 'tall', 'short', 'nice', 'happy', 'quick', 'slow', 'good', 'new', 'old', 'first', 'last', 'old', 'young']
   const colors = ['red', 'green', 'blue', 'white', 'black', 'brown', 'purple', 'orange', 'yellow']
   const nouns = ['cat', 'dog', 'lion', 'rabbit', 'duck', 'pig', 'bee', 'goat', 'crab', 'fish', 'chicken', 'horse', 'llama', 'camel', 'sheep']
@@ -84,7 +84,7 @@ export async function generateAvailableDictionaryUsername() {
   return findAvailableUsername(potentialUsernames)
 }
 
-export async function generateAvailableUsername(usernameSegments, config) {
+export function generateAvailableUsername(usernameSegments, config) {
   const separator = config?.separator || '-'
   const baseUsername = usernameSegments.join(separator)
 
