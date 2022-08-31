@@ -1073,7 +1073,6 @@ However, when in development, you might also need to supply certain environment 
 
 Since environmental variables are usually different for server-side and client apps, in Wasp root directly you can create two files, `.env.server` for server-side of your Wasp project, and `.env.client` for client side (or web app) of Wasp project.
 
-During complile, Wasp will use `.env.server` and `.env.client` files to create `.env` files and place them in server-side and web app directories.
 
 `.env.server` and `.env.client` files have to be defined in the root of your Wasp project.
 
