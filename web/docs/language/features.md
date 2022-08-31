@@ -1078,7 +1078,7 @@ Since environmental variables are usually different for server-side and client a
 
 `.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
 
-Variables are defined in `.env.server` or `env.client` files the same way as you would define your `.env` file in the form of `NAME=VALUE`, for example:
+Variables are defined in `.env.server` or `env.client` files in the form of `NAME=VALUE`, for example:
 ```
 DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
