@@ -70,6 +70,8 @@ export const verifyPassword = async (hashedPassword, password) => {
   }
 }
 
+// Generates an unused username that looks similar to "quick-purple-sheep-91231". 
+// It generates several options and ensures it picks one that is not currently in use.
 export function generateAvailableDictionaryUsername() {
   const adjectives = ['fuzzy', 'tall', 'short', 'nice', 'happy', 'quick', 'slow', 'good', 'new', 'old', 'first', 'last', 'old', 'young']
   const colors = ['red', 'green', 'blue', 'white', 'black', 'brown', 'purple', 'orange', 'yellow']
@@ -84,6 +86,8 @@ export function generateAvailableDictionaryUsername() {
   return findAvailableUsername(potentialUsernames)
 }
 
+// Generates an unused username based on an array of username segments and a separator. 
+// It generates several options and ensures it picks one that is not currently in use.
 export function generateAvailableUsername(usernameSegments, config) {
   const separator = config?.separator || '-'
   const baseUsername = usernameSegments.join(separator)
@@ -97,6 +101,7 @@ export function generateAvailableUsername(usernameSegments, config) {
   return findAvailableUsername(potentialUsernames)
 }
 
+// Checks the database for an unused username from an array provided and returns first.
 async function findAvailableUsername(potentialUsernames) {
   const users = await prisma.{= userEntityLower =}.findMany({
     where: {

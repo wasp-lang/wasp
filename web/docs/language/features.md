@@ -987,7 +987,7 @@ If you require modifications to the above, you can add one or more of the follow
     }
   }
   ```
-- `getUserFieldsFn`: This function should return user fields. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
+- `getUserFieldsFn`: This function should return the user fields to use when creating a new user upon their first Google login. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
   ```js
   import { generateAvailableUsername } from '@wasp/core/auth.js'
 
