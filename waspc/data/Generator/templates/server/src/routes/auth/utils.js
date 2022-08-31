@@ -28,6 +28,7 @@ export async function findOrCreateUserByExternalAuthAssociation(provider, provid
 
   // No ExternalAuthAssociation linkage found. Create a new User using details from
   // `getUserFieldsAsync()`. Additionally, associate the ExternalAuthAssociation with the new User.
+  // NOTE: For now, we force a random (uuidv4) password string. In the future, we will allow password reset.
   const userFields = await getUserFieldsAsync()
   const userAndExternalAuthAssociation = {
     ...userFields,

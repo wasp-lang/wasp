@@ -675,10 +675,8 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
-    externalAuthAssociationEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
-      google: {}
+      usernameAndPassword: {}
     },
     onAuthFailedRedirectTo: "/someRoute"
   }
@@ -691,7 +689,7 @@ app MyApp {
 Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `externalAuthAssociationEntity: entity` (optional)
-Entity which associates a user with some external authentication provider.
+Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google).
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
@@ -952,13 +950,14 @@ import AuthError from '@wasp/core/AuthError.js'
 This method requires that `externalAuthAssociationEntity` specified in `auth` [described here](features#externalauthassociationentity).
 #### Default settings
 - Configuration:
-  - By default, we expect you to set two environment variables in order to use Google authentication:
+  - By default, Wasp expects you to set two environment variables in order to use Google authentication:
     - `GOOGLE_CLIENT_ID`
     - `GOOGLE_CLIENT_SECRET`
   - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
 - Sign in:
-  - When a user signs in for the first time, we will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js
+  - When a user signs in for the first time, Wasp will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
+    - Aside: If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then redirect them in your `onAuthSucceededRedirectTo` handler.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js These can be overriden as explained below.
 
 #### Overrides
 If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
@@ -980,6 +979,7 @@ If you require modifications to the above, you can add one or more of the follow
 - `configFn`: This function should return an object with the following shape:
   ```js
   export function config() {
+    // ...
     return {
       clientId, // look up from env or elsewhere,
       clientSecret, // look up from env or elsewhere,
@@ -996,7 +996,7 @@ If you require modifications to the above, you can add one or more of the follow
     return { username }
   }
   ```
-  - `generateAvailableUsername` takes an array of Strings and an optional separator, and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
+  - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
 
 #### UI helpers
 
@@ -1025,9 +1025,9 @@ You can set the height of the button by setting a prop (e.g., `<Google height={2
 
 
 ### `externalAuthAssociationEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example Google, we require a `externalAuthAssociationEntity` specified in `auth` contains at least the following highlighted fields:
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthAssociationEntity` specified in `auth` that contains at least the following highlighted fields:
 
-```css {4,11,16-21}
+```css {4,11,16-19,21}
 ...
   auth: {
     userEntity: User,
