@@ -1,7 +1,7 @@
 module Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
-    dbSchemaChecksumOnLastMigrateFileProjectRootDir,
+    dbSchemaChecksumLastDbCheckFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
@@ -20,9 +20,9 @@ data DbRootDir
 data DbTemplatesDir
 
 -- | This file represents the checksum of schema.prisma
--- at the point at which `prisma db migrate-dev` was last run. It is used
+-- at the point at which we last verified it matched the DB. It is used
 -- to help warn the user of instances when they may need to migrate.
-data DbSchemaChecksumOnLastMigrateFile
+data DbSchemaChecksumLastDbCheckFile
 
 -- | This file represents the checksum of schema.prisma
 -- at the point at which `prisma generate` was last run. It is used
@@ -49,11 +49,11 @@ dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRoo
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]
 
-dbSchemaChecksumOnLastMigrateFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumOnLastMigrateFile)
-dbSchemaChecksumOnLastMigrateFileInDbRootDir = [relfile|schema.prisma.wasp-migrate-checksum|]
+dbSchemaChecksumLastDbCheckFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumLastDbCheckFile)
+dbSchemaChecksumLastDbCheckFileInDbRootDir = [relfile|schema.prisma.wasp-last-db-check-checksum|]
 
-dbSchemaChecksumOnLastMigrateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastMigrateFile)
-dbSchemaChecksumOnLastMigrateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastMigrateFileInDbRootDir
+dbSchemaChecksumLastDbCheckFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumLastDbCheckFile)
+dbSchemaChecksumLastDbCheckFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumLastDbCheckFileInDbRootDir
 
 dbSchemaChecksumOnLastGenerateFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-generate-checksum|]

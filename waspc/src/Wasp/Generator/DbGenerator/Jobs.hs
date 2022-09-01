@@ -1,7 +1,6 @@
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
     migrateDiff,
-    migrateStatus,
     generatePrismaClient,
     runStudio,
   )
@@ -50,15 +49,6 @@ migrateDev projectDir maybeMigrationName = do
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
-
--- | Displays if any migrations are unapplied to db.
-migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
-migrateStatus projectDir = do
-  let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaMigrateStatusCmdArgs = ["migrate", "status", "--schema", SP.toFilePath schemaFile]
-
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateStatusCmdArgs J.Db
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
