@@ -1,10 +1,8 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
-    areAllMigrationsApplied,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
-    isDbMissing,
   )
 where
 
@@ -12,7 +10,6 @@ import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Catch (catch)
-import qualified Data.Text as T
 import qualified Path as P
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified StrongPath as SP
@@ -36,7 +33,6 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO
   ( printJobMessage,
     readJobMessagesAndPrintThemPrefixed,
-    readJobMessagesAndReturnTextOutput,
   )
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
@@ -106,51 +102,17 @@ generatePrismaClient genProjectRootDirAbs = do
       return $ Right ()
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
 
-areAllMigrationsApplied :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
-areAllMigrationsApplied genProjectRootDirAbs =
-  doesMigrateStatusContainText genProjectRootDirAbs "Database schema is up to date!"
-
-isDbMissing :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
-isDbMissing genProjectRootDirAbs =
-  doesMigrateStatusContainText genProjectRootDirAbs "P1003:"
-
--- | Checks `prisma migrate status` command stdout for presense of some text. Returns Nothing on error.
--- NOTE: Prisma does not return a proper exit code on errors here. This means we have to
--- search for some error indicator string in the output. This is not ideal and fragile, of course.
--- Ref: https://github.com/prisma/prisma/issues/12349
-doesMigrateStatusContainText :: Path' Abs (Dir ProjectRootDir) -> T.Text -> IO (Maybe Bool)
-doesMigrateStatusContainText genProjectRootDirAbs desiredTextOutput = do
-  -- TODO: What other error modes/strings does this miss?
-  let connectionErrorText = "Database connection error:"
-  chan <- newChan
-  (jobOutput, dbExitCode) <-
-    concurrently
-      (readJobMessagesAndReturnTextOutput chan)
-      (DbJobs.migrateStatus genProjectRootDirAbs chan)
-  case dbExitCode of
-    ExitSuccess -> do
-      if desiredTextOutput `isIn` jobOutput
-        then return $ Just True
-        else
-          if connectionErrorText `isIn` jobOutput
-            then return Nothing
-            else return $ Just False
-    ExitFailure _ -> return Nothing
-  where
-    needleText `isIn` haystackTextList = any (needleText `T.isInfixOf`) haystackTextList
-
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
--- different than the DB. Returns Nothing on error.
+-- different than the DB. Returns Nothing on error as we do not know the current state.
 doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 doesSchemaMatchDb genProjectRootDirAbs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
-      (readJobMessagesAndReturnTextOutput chan)
+      (readJobMessagesAndPrintThemPrefixed chan)
       (DbJobs.migrateDiff genProjectRootDirAbs chan)
   -- Schema in sync: 0, Error: 1, Schema differs: 2
   case dbExitCode of
-    ExitSuccess -> do
-      return $ Just True
+    ExitSuccess -> return $ Just True
     ExitFailure 2 -> return $ Just False
     ExitFailure _ -> return Nothing

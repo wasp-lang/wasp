@@ -128,22 +128,17 @@ warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
 
 warnIfDbDiffersFromSchemaOrMigrations :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbDiffersFromSchemaOrMigrations projectRootDir = do
-  isDbMissing <- DbOps.isDbMissing projectRootDir
-  case isDbMissing of
-    Nothing -> return Nothing -- Ignore Prisma command errors.
-    Just True -> return . Just $ GeneratorNeedsMigrationWarning "Your database does not exist, you should run `wasp db migrate-dev`."
-    Just False -> do
-      allMigrationsApplied <- DbOps.areAllMigrationsApplied projectRootDir
-      schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
-      case (allMigrationsApplied, schemaMatchesDb) of
-        (Just True, Just True) -> do
-          -- NOTE: This is an optimization, since we know migrations == db == schema.
-          -- Writing this file prevents future redundant Prisma checks.
-          DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
-          return Nothing
-        (Just False, _) -> return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations, you should run `wasp db migrate-dev`."
-        (_, Just False) -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, you should run `wasp db migrate-dev`."
-        _ -> return Nothing -- Something went wrong running Prisma commands, ignore.
+  schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
+  case schemaMatchesDb of
+    Just True -> do
+      -- NOTE: This is an optimization, since we know schema == db.
+      -- Writing this file prevents future redundant Prisma checks.
+      -- If we wanted to, we could also check that the migrations dir == db,
+      -- but schema check should handle all practical cases.
+      DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+      return Nothing
+    Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, you should run `wasp db migrate-dev`."
+    Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to connect to your database to ensure your project was in sync."
 
 genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient spec projectRootDir = do
