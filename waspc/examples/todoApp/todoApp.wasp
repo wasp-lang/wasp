@@ -8,13 +8,13 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    externalAuthAssociationEntity: SocialLogin,
+    // externalAuthAssociationEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
-      google: {
-        // configFn: import { config } from "@ext/auth/google.js",
-        // getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
-      }
+      // google: {
+      //   configFn: import { config } from "@ext/auth/google.js",
+      //   getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
+      // }
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
