@@ -16,8 +16,8 @@ export function configFn() {
   return { clientId, clientSecret, scope: ['profile'] }
 }
 
-// Default implementation if there is no `auth.methods.google.getUserFields`.
-export async function getUserFields(_context, _args) {
+// Default implementation if there is no `auth.methods.google.getUserFieldsFn`.
+export async function getUserFieldsFn(_context, _args) {
   const username = await generateAvailableDictionaryUsername()
   return { username }
 }

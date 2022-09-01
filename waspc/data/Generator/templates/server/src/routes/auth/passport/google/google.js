@@ -5,7 +5,7 @@ import GoogleStrategy from 'passport-google-oauth20'
 import waspServerConfig from '../../../../config.js'
 import { contextWithUserEntity, authConfig, findOrCreateUserByExternalAuthAssociation } from '../../utils.js'
 import { sign } from '../../../../core/auth.js'
-import { configFn, getUserFields } from './googleConfig.js'
+import { configFn, getUserFieldsFn } from './googleConfig.js'
 
 const config = ((config) => {
   if (!config?.clientId) {
@@ -65,8 +65,8 @@ router.get('/validateCodeForLogin',
       throw new Error("Google profile was missing required id property. This should not happen! Please contact Wasp.")
     }
 
-    // Wrap call to getUserFields so we can invoke only if needed.
-    const getUserFieldsAsync = async () => await getUserFields(contextWithUserEntity, { profile: googleProfile })
+    // Wrap call to getUserFieldsFn so we can invoke only if needed.
+    const getUserFieldsAsync = async () => await getUserFieldsFn(contextWithUserEntity, { profile: googleProfile })
     const user = await findOrCreateUserByExternalAuthAssociation('google', googleProfile.id, getUserFieldsAsync)
 
     const token = await sign(user.id)
