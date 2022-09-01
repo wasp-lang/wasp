@@ -6,7 +6,7 @@ waspMigrate/.wasp/out/db/migrations/no-date-foo/migration.sql
 waspMigrate/.wasp/out/db/package.json
 waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
-waspMigrate/.wasp/out/db/schema.prisma.wasp-migrate-checksum
+waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-check-checksum
 waspMigrate/.wasp/out/installedFullStackNpmDependencies.json
 waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
