@@ -99,8 +99,6 @@ test-suite waspls-test
     TestUtil
     Control.Syntax.TraverseTest
     Control.Monad.LoopsTest
-    Wasp.Backend.LexerTest
-    Wasp.Backend.ConcreteParserTest
 
 executable waspls
   import:           common-all, common-exe

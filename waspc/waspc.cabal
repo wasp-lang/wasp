@@ -320,6 +320,7 @@ test-suite waspc-test
   build-depends:
     , aeson
     , base
+    , Diff                  ^>= 0.4.1
     , deepseq
     , filepath
     , mtl
@@ -340,6 +341,7 @@ test-suite waspc-test
   other-modules:
       Analyzer.Evaluation.EvaluationErrorTest
       Analyzer.EvaluatorTest
+      Analyzer.Parser.ConcreteParserTest
       Analyzer.Parser.ParseErrorTest
       Analyzer.Parser.SourcePositionTest
       Analyzer.ParserTest
@@ -363,6 +365,7 @@ test-suite waspc-test
       Test.Util
       Util.FibTest
       UtilTest
+      Util.Diff
       SemanticVersionTest
       WaspignoreFileTest
       Paths_waspc

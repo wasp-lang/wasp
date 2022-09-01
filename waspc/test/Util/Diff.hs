@@ -1,11 +1,9 @@
-module TestUtil
+module Util.Diff
   ( printDiff,
     shouldBeWithDiff,
     Diffable (toLines),
   )
 where
-
--- TODO: Delete this file
 
 import Data.Algorithm.Diff (Diff, PolyDiff (Both, First, Second), getDiff)
 import Data.List (intercalate)
