@@ -16,8 +16,8 @@ import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
 import Wasp.Analyzer (analyze)
-import Wasp.Backend.ConcreteParser (parseCST)
-import qualified Wasp.Backend.Lexer as L
+import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
+import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ServerConfig (ServerConfig)

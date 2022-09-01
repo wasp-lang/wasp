@@ -44,13 +44,6 @@ library
     Wasp.LSP.Server
     Control.Monad.Loops
     Control.Syntax.Traverse
-    Wasp.Backend.Token
-    Wasp.Backend.Lexer
-    Wasp.Backend.TokenSet
-    Wasp.Backend.ParseError
-    Wasp.Backend.ConcreteSyntax
-    Wasp.Backend.ConcreteParser
-    Wasp.Backend.ConcreteParser.Internal
   other-modules:
     Paths_waspls
     Wasp.LSP.ServerState
@@ -61,8 +54,6 @@ library
     Wasp.LSP.Completion
     Wasp.LSP.Util
     Wasp.LSP.Syntax
-    Wasp.Backend.Lexer.Internal
-    Wasp.Backend.Lexer.Lexer
   hs-source-dirs:
     src
   build-tool-depends:

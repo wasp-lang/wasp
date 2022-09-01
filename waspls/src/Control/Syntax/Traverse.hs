@@ -73,7 +73,7 @@ import Data.Function ((&))
 import Data.List (unfoldr)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
-import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
+import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
 
 -- | An in-progress traversal through some tree @f@.
 data Traversal = Traversal
@@ -234,8 +234,8 @@ next :: Traversal -> Maybe Traversal
 next t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasRightSiblings up t of
-    Nothing -> Nothing
-    Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
+      Nothing -> Nothing
+      Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
   | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
@@ -244,8 +244,8 @@ previous :: Traversal -> Maybe Traversal
 previous t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasLeftSiblings up t of
-    Nothing -> Nothing
-    Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
+      Nothing -> Nothing
+      Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
   | otherwise = Nothing
   where
     rightMostSibling = untilM (not . hasRightSiblings) right

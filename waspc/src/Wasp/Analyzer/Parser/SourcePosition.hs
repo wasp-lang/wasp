@@ -1,6 +1,8 @@
 module Wasp.Analyzer.Parser.SourcePosition
   ( SourcePosition (..),
     calcNextPosition,
+    -- TODO: This todo here, this is the one I need to take into account!
+
     -- | TODO: Add types for source offsets and regions that use offsets. Name
     -- ideas are @SourceLinearPosition@/@SourceLinearRegion@ and @SourceOffset@/
     -- @SourceOffsetRegion@.

@@ -15,7 +15,7 @@ where
 import Control.Syntax.Traverse
 import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
-import qualified Wasp.Backend.ConcreteSyntax as S
+import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 
 -- | @lspPositionToOffset srcString position@ returns 0-based offset from the
 -- start of @srcString@ to the specified line and column.
@@ -37,7 +37,7 @@ toOffset targetOffset start = go $ bottom start
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset && not (S.syntaxKindIsTrivia (kindAt at)) =
-        at
+          at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next

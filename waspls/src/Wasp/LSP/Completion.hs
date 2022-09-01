@@ -9,8 +9,8 @@ import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
-import Wasp.Backend.ConcreteSyntax (SyntaxNode)
-import qualified Wasp.Backend.ConcreteSyntax as S
+import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxNode)
+import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
 import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
 import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, lspPositionToOffset, showNeighborhood, toOffset)
