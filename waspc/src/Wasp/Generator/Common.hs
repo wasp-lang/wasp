@@ -21,14 +21,14 @@ latestMajorNodeVersion :: SV.Version
 latestMajorNodeVersion = latestNodeLTSVersion
 
 nodeVersionRange :: SV.Range
-nodeVersionRange = SV.rangeFromVersion (SV.BackwardsCompatibleWith, latestNodeLTSVersion)
+nodeVersionRange = SV.Range [SV.backwardsCompatibleWith latestNodeLTSVersion]
 
 latestNodeLTSVersion :: SV.Version
 latestNodeLTSVersion = SV.Version 16 0 0
 
 -- | Range of npm versions that Wasp and generated projects work correctly with.
 npmVersionRange :: SV.Range
-npmVersionRange = SV.rangeFromVersion (SV.BackwardsCompatibleWith, latestLTSVersion)
+npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
   where
     latestLTSVersion = SV.Version 8 0 0 -- Goes with node 16 (but also higher versions too)
 
