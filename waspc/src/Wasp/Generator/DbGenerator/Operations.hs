@@ -20,7 +20,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
-    dbSchemaChecksumLastDbCheckFileProjectRootDir,
+    dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
   )
@@ -59,7 +59,7 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumLastDbCheckFileProjectRootDir)
+  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
