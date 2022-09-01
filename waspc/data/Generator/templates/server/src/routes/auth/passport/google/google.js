@@ -23,7 +23,7 @@ const config = ((config) => {
   }
 
   return config
-})(configFn())
+})(await configFn())
 
 passport.use('waspGoogleLoginStrategy', new GoogleStrategy({
   clientID: config.clientId,
