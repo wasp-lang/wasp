@@ -125,7 +125,7 @@ warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
   dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
   dbChecksumFileContents <- readFile dbSchemaChecksumFp
   if dbSchemaFileChecksum /= dbChecksumFileContents
-    then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, you should run `wasp db migrate-dev`."
+    then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
     else return Nothing
 
 warnIfSchemaDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
@@ -139,8 +139,11 @@ warnIfSchemaDiffersFromDb projectRootDir = do
       -- but a schema check should handle all most likely cases.
       DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumLastDbCheckFileProjectRootDir)
       return Nothing
-    Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, you should run `wasp db migrate-dev`."
-    Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to connect to your database to ensure your project was in sync."
+    Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
+    -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
+    -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.
+    -- In any case, migrating will either solve it (in the SQLite case), or allow Prisma to give them enough info to troubleshoot.
+    Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Please run `wasp db migrate-dev` to ensure the local project is fully initialized."
 
 genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient spec projectRootDir = do
