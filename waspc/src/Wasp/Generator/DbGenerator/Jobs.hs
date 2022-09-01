@@ -56,14 +56,14 @@ migrateDev projectDir maybeMigrationName = do
 migrateDiff :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateDiff projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
   let prismaMigrateDiffCmdArgs =
         [ "migrate",
           "diff",
           "--from-schema-datamodel",
-          SP.toFilePath schemaFile,
+          schemaFileFp,
           "--to-schema-datasource",
-          SP.toFilePath schemaFile,
+          schemaFileFp,
           "--exit-code"
         ]
 

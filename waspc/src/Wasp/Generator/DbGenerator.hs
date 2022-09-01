@@ -109,10 +109,12 @@ postWriteDbGeneratorActions spec dstDir = do
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration spec projectRootDir = do
   dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
-  case (dbSchemaChecksumFileExists, entitiesExist) of
-    (True, _) -> warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
-    (_, True) -> warnIfDbDiffersFromSchemaOrMigrations projectRootDir
-    _ -> return Nothing
+  if dbSchemaChecksumFileExists
+    then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
+    else
+      if entitiesExist
+        then warnIfSchemaDiffersFromDb projectRootDir
+        else return Nothing
   where
     dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumLastDbCheckFileProjectRootDir
@@ -126,8 +128,8 @@ warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
     then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, you should run `wasp db migrate-dev`."
     else return Nothing
 
-warnIfDbDiffersFromSchemaOrMigrations :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
-warnIfDbDiffersFromSchemaOrMigrations projectRootDir = do
+warnIfSchemaDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
+warnIfSchemaDiffersFromDb projectRootDir = do
   schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
   case schemaMatchesDb of
     Just True -> do
