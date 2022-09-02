@@ -11,7 +11,7 @@ where
 import Control.Lens (makeClassy)
 import Data.Default (Default (def))
 import qualified Language.LSP.Types as LSP
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxNode)
+import Wasp.Analyzer.Parser.CST (SyntaxNode)
 
 -- | LSP State preserved between handlers.
 --

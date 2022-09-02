@@ -15,8 +15,8 @@ import Data.Maybe (catMaybes)
 import Wasp.Analyzer.Parser.AST (AST, Expr, ExtImportName, Identifier, Stmt)
 import qualified Wasp.Analyzer.Parser.AST as AST
 import Wasp.Analyzer.Parser.AbstractParser.Monad
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
-import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
+import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
+import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))

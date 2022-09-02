@@ -238,8 +238,8 @@ import Control.Monad (unless)
 import Control.Monad.Except (ExceptT, MonadError (catchError, throwError), runExceptT)
 import Control.Monad.State.Strict (State, gets, modify, runState)
 import Data.Maybe (fromMaybe)
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
-import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
+import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
+import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError
 import Wasp.Analyzer.Parser.Token (Token (tokenKind, tokenWidth), TokenKind, tokenKindIsTrivia)
 import qualified Wasp.Analyzer.Parser.Token as T

@@ -14,7 +14,7 @@ where
 
 import Control.Monad.Except (Except, runExcept, throwError)
 import Control.Monad.State.Strict (StateT, evalStateT, gets, modify)
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind)
+import Wasp.Analyzer.Parser.CST (SyntaxKind)
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 
-module Wasp.Analyzer.Parser.ConcreteParser.CST
+module Wasp.Analyzer.Parser.CST
   ( -- * Concrete Syntax
 
     -- | This data structure for storing syntax information is inspired by the

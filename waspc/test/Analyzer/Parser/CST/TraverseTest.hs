@@ -1,11 +1,11 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module Analyzer.Parser.ConcreteParser.CST.TraverseTest where
+module Analyzer.Parser.CST.TraverseTest where
 
 import Test.Tasty.Hspec (Spec, it, shouldBe)
+import Wasp.Analyzer.Parser.CST (SyntaxKind (..), SyntaxNode)
+import Wasp.Analyzer.Parser.CST.Traverse
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind (..), SyntaxNode)
-import Wasp.Analyzer.Parser.ConcreteParser.CST.Traverse
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import qualified Wasp.Analyzer.Parser.Token as T
 

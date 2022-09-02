@@ -7,8 +7,8 @@ import Control.DeepSeq (deepseq)
 import Test.Tasty.Hspec (Spec, describe, it)
 import Test.Tasty.QuickCheck
 import Util.Diff
+import Wasp.Analyzer.Parser.CST
 import Wasp.Analyzer.Parser.ConcreteParser
-import Wasp.Analyzer.Parser.ConcreteParser.CST
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError (Region (..), errorRegion, showErrorMessage)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import qualified Wasp.Analyzer.Parser.Token as T

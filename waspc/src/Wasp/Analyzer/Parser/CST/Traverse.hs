@@ -1,4 +1,4 @@
-module Wasp.Analyzer.Parser.ConcreteParser.CST.Traverse
+module Wasp.Analyzer.Parser.CST.Traverse
   ( -- * Syntax tree traversal
 
     -- | Library for traversing around a concrete syntax trees. The main
@@ -72,7 +72,7 @@ import Data.Function ((&))
 import Data.List (unfoldr)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
+import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
 import Wasp.Util.Control.Monad (untilM)
 
 -- | An in-progress traversal through some tree @f@.

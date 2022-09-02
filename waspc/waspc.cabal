@@ -132,8 +132,8 @@ library
       Wasp.Analyzer.Parser.Ctx
       Wasp.Analyzer.Parser.ConcreteParser
       Wasp.Analyzer.Parser.ConcreteParser.ParseError
-      Wasp.Analyzer.Parser.ConcreteParser.CST
-      Wasp.Analyzer.Parser.ConcreteParser.CST.Traverse
+      Wasp.Analyzer.Parser.CST
+      Wasp.Analyzer.Parser.CST.Traverse
       Wasp.Analyzer.Parser.ConcreteParser.ParserLib
       Wasp.Analyzer.Parser.Lexer
       Wasp.Analyzer.Parser.Lexer.Lexer
@@ -343,7 +343,7 @@ test-suite waspc-test
       Analyzer.Evaluation.EvaluationErrorTest
       Analyzer.EvaluatorTest
       Analyzer.Parser.ConcreteParserTest
-      Analyzer.Parser.ConcreteParser.CST.TraverseTest
+      Analyzer.Parser.CST.TraverseTest
       Analyzer.Parser.ParseErrorTest
       Analyzer.Parser.SourcePositionTest
       Analyzer.ParserTest
