@@ -10,6 +10,7 @@ import qualified Language.LSP.Types as LSP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
+import Wasp.Analyzer.Parser.Ctx (getCtxRgn)
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import Wasp.LSP.ServerM (ServerM, logM)
@@ -17,7 +18,7 @@ import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
 concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> ServerM LSP.Diagnostic
 concreteParseErrorToDiagnostic src err =
-  let message = Text.pack $ CPE.showError src err -- TODO: This is where showError is used. So maybe that showError is specific here, for diagnostics? We should extract it here?
+  let message = Text.pack $ showConcreteParseError src err
       source = "parse"
       range = concreteErrorRange err
    in logM ("[concreteParseErroToDiagnostic] _range=" ++ show range)
@@ -40,6 +41,10 @@ concreteParseErrorToDiagnostic src err =
          in LSP.Range (concretePosToLSPPos startPos) (concretePosToLSPPos endPos)
     concretePosToLSPPos (SourcePosition l c) =
       LSP.Position (fromIntegral l - 1) (fromIntegral c - 1)
+    showConcreteParseError :: String -> CPE.ParseError -> String
+    showConcreteParseError source e =
+      let (msg, ctx) = CPE.getErrorMessageAndCtx source e
+       in "Parse error at " ++ show (getCtxRgn ctx) ++ ":\n  " ++ msg
 
 waspErrorToDiagnostic :: W.AnalyzeError -> LSP.Diagnostic
 waspErrorToDiagnostic err =

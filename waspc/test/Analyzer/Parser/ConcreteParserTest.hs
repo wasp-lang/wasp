@@ -9,7 +9,7 @@ import Test.Tasty.QuickCheck
 import Util.Diff
 import Wasp.Analyzer.Parser.CST
 import Wasp.Analyzer.Parser.ConcreteParser
-import Wasp.Analyzer.Parser.ConcreteParser.ParseError (errorSpan, showErrorMessage)
+import Wasp.Analyzer.Parser.ConcreteParser.ParseError (errorSpan, getErrorMessage)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import qualified Wasp.Analyzer.Parser.Token as T
@@ -271,4 +271,4 @@ instance Diffable SyntaxNode where
   toLines n = lines $ cstPrettyPrint n
 
 instance Diffable ParseError where
-  toLines err = ["At " ++ show (errorSpan err), "  " ++ showErrorMessage err]
+  toLines err = ["At " ++ show (errorSpan err), "  " ++ getErrorMessage err]
