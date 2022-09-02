@@ -23,6 +23,9 @@ import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import qualified Wasp.Analyzer.Parser.Token as T
 
+-- TODO: This file could be further improved by refactoring it to make it more readable.
+--   We covered this somewhat in the following GH issue: https://github.com/wasp-lang/wasp/issues/687 .
+
 -- In the below type definitions, "using" a syntax node means that its width
 -- is used to adjust the source position in the "ParseState".
 
