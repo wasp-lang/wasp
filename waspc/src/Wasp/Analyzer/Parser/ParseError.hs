@@ -9,8 +9,9 @@ where
 
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CST
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (..), ctxFromPos, ctxFromRgn, getCtxRgn)
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), offsetToPosition)
-import Wasp.Analyzer.Parser.SourceRegion (SourceRegion, getRgnEnd, getRgnStart, offsetRegionToSourceRegion)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
+import Wasp.Analyzer.Parser.SourceRegion (SourceRegion, getRgnEnd, getRgnStart, sourceSpanToRegion)
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import Wasp.Analyzer.Parser.Token (TokenKind)
 import Wasp.Analyzer.Parser.TokenSet (TokenSet)
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
@@ -45,12 +46,12 @@ data ParseError
 -- that represents @cstParseError@, using @source@ to find the lexeme
 -- representing the token where the error was produced.
 parseErrorFromCSTParseError :: String -> CST.ParseError -> ParseError
-parseErrorFromCSTParseError source (CST.UnexpectedToken (CST.Region start end) errorKind expected) =
-  let rgn = offsetRegionToSourceRegion source (CST.Region start end)
+parseErrorFromCSTParseError source (CST.UnexpectedToken (SourceSpan start end) errorKind expected) =
+  let rgn = sourceSpanToRegion source (SourceSpan start end)
       lexeme = take (end - start) $ drop start source
    in UnexpectedToken rgn lexeme errorKind expected
 parseErrorFromCSTParseError source (CST.UnexpectedEOF offset expected) =
-  let pos = offsetToPosition source offset
+  let pos = sourceOffsetToPosition source offset
    in UnexpectedEOF pos expected
 
 getErrorMessageAndCtx :: ParseError -> (String, Ctx)

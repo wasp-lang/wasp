@@ -142,8 +142,10 @@ library
       Wasp.Analyzer.Parser.PrettyPrinter
       Wasp.Analyzer.Parser.AbstractParser
       Wasp.Analyzer.Parser.AbstractParser.Monad
+      Wasp.Analyzer.Parser.SourceOffset
       Wasp.Analyzer.Parser.SourcePosition
       Wasp.Analyzer.Parser.SourceRegion
+      Wasp.Analyzer.Parser.SourceSpan
       Wasp.Analyzer.Parser.Token
       Wasp.Analyzer.Parser.TokenSet
       Wasp.Analyzer.StdTypeDefinitions

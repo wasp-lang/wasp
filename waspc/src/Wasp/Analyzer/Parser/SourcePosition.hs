@@ -1,18 +1,18 @@
 module Wasp.Analyzer.Parser.SourcePosition
   ( SourcePosition (..),
     calcNextPosition,
-    -- TODO: This todo here, this is the one I need to take into account!
-
-    -- | TODO: Add types for source offsets and regions that use offsets. Name
-    -- ideas are @SourceLinearPosition@/@SourceLinearRegion@ and @SourceOffset@/
-    -- @SourceOffsetRegion@.
-    offsetToPosition,
+    sourceOffsetToPosition,
   )
 where
 
+import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
+
 -- | The first character on the first line is at position @Position 1 1@
 -- @SourcePosition <line> <column>@
-data SourcePosition = SourcePosition Int Int deriving (Eq, Show)
+data SourcePosition = SourcePosition Int Int deriving (Eq)
+
+instance Show SourcePosition where
+  show (SourcePosition line column) = show line ++ ":" ++ show column
 
 -- | Scan the source fragment character by character and update position based on it.
 -- Important thing that this function does is ensure that newlines are correctly handled.
@@ -28,6 +28,6 @@ calcNextPosition (_ : cs) (SourcePosition line col) = calcNextPosition cs $ Sour
 
 type SourceFragment = String
 
-offsetToPosition :: String -> Int -> SourcePosition
-offsetToPosition source targetOffset =
+sourceOffsetToPosition :: String -> SourceOffset -> SourcePosition
+sourceOffsetToPosition source targetOffset =
   calcNextPosition (take targetOffset source) (SourcePosition 1 1)

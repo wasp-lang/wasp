@@ -10,7 +10,8 @@ import qualified Language.LSP.Types as LSP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
 import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), offsetToPosition)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import Wasp.LSP.ServerM (ServerM, logM)
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
@@ -32,10 +33,10 @@ concreteParseErrorToDiagnostic src err =
               }
           )
   where
-    concreteErrorRange e = case CPE.errorRegion e of
-      CPE.Region start end ->
-        let startPos = offsetToPosition src start
-            endPos = offsetToPosition src end
+    concreteErrorRange e = case CPE.errorSpan e of
+      SourceSpan startOffset endOffset ->
+        let startPos = sourceOffsetToPosition src startOffset
+            endPos = sourceOffsetToPosition src endOffset
          in LSP.Range (concretePosToLSPPos startPos) (concretePosToLSPPos endPos)
     concretePosToLSPPos (SourcePosition l c) =
       LSP.Position (fromIntegral l - 1) (fromIntegral c - 1)

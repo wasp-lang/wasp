@@ -9,8 +9,9 @@ import Test.Tasty.QuickCheck
 import Util.Diff
 import Wasp.Analyzer.Parser.CST
 import Wasp.Analyzer.Parser.ConcreteParser
-import Wasp.Analyzer.Parser.ConcreteParser.ParseError (Region (..), errorRegion, showErrorMessage)
+import Wasp.Analyzer.Parser.ConcreteParser.ParseError (errorSpan, showErrorMessage)
 import qualified Wasp.Analyzer.Parser.Lexer as L
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import qualified Wasp.Analyzer.Parser.Token as T
 import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
 
@@ -214,7 +215,7 @@ spec_ConcreteParser =
               token T.RCurly "}"
             ]
       let errors =
-            [ UnexpectedToken (Region 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
+            [ UnexpectedToken (SourceSpan 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
             ]
       let tree =
             node
@@ -270,4 +271,4 @@ instance Diffable SyntaxNode where
   toLines n = lines $ cstPrettyPrint n
 
 instance Diffable ParseError where
-  toLines err = ["At " ++ show (errorRegion err), "  " ++ showErrorMessage err]
+  toLines err = ["At " ++ show (errorSpan err), "  " ++ showErrorMessage err]

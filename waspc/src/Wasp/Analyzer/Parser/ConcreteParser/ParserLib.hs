@@ -241,6 +241,7 @@ import Data.Maybe (fromMaybe)
 import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (SyntaxNode, snodeChildren, snodeKind, snodeWidth))
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import Wasp.Analyzer.Parser.Token (Token (tokenKind, tokenWidth), TokenKind, tokenKindIsTrivia)
 import qualified Wasp.Analyzer.Parser.Token as T
 import Wasp.Analyzer.Parser.TokenSet (TokenSet)
@@ -402,7 +403,7 @@ parseEOF =
       throwError $
         ParseError $
           UnexpectedToken
-            (Region nextTokenOffset (nextTokenOffset + tokenWidth nextToken))
+            (SourceSpan nextTokenOffset (nextTokenOffset + tokenWidth nextToken))
             nextTokenKind
             TokenSet.fromEOF
       where
@@ -569,7 +570,7 @@ throwParseError Nothing eset = do
   throwError $ ParseError $ UnexpectedEOF offset eset
 throwParseError (Just actual) expectedTokens = do
   offset <- gets pstateNextTokenOffset
-  throwError $ ParseError $ UnexpectedToken (Region offset (offset + tokenWidth actual)) (tokenKind actual) expectedTokens
+  throwError $ ParseError $ UnexpectedToken (SourceSpan offset (offset + tokenWidth actual)) (tokenKind actual) expectedTokens
 
 -- | Make an error node. Error node should only be produced when catching and
 -- pushing errors to the state.
@@ -586,7 +587,7 @@ makeErrorNode (UnexpectedEOF _ _) _ =
       snodeWidth = 0,
       snodeChildren = []
     }
-makeErrorNode (UnexpectedToken (Region so eo) _ _) zeroWidth =
+makeErrorNode (UnexpectedToken (SourceSpan so eo) _ _) zeroWidth =
   SyntaxNode
     { snodeKind = S.Error,
       snodeWidth = if zeroWidth then 0 else eo - so,

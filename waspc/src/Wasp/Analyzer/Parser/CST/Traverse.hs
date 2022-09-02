@@ -73,6 +73,7 @@ import Data.List (unfoldr)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
 import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
+import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
 import Wasp.Util.Control.Monad (untilM)
 
 -- | An in-progress traversal through some tree @f@.
@@ -84,7 +85,7 @@ data Traversal = Traversal
 
 data TraversalLevel = TraversalLevel
   { tlCurrentNode :: !SyntaxNode,
-    tlCurrentOffset :: !Int,
+    tlCurrentOffset :: !SourceOffset,
     tlLeftSiblings :: [SyntaxNode],
     tlRightSiblings :: [SyntaxNode]
   }
@@ -116,7 +117,7 @@ fromSyntaxForest (t : ts) =
     }
 
 -- | Create a new "TraversalLevel" from a non-empty list of nodes.
-levelFromTraversableTree :: Int -> NonEmpty SyntaxNode -> TraversalLevel
+levelFromTraversableTree :: SourceOffset -> NonEmpty SyntaxNode -> TraversalLevel
 levelFromTraversableTree offset (node :| rSiblings) =
   TraversalLevel
     { tlCurrentNode = node,
@@ -259,11 +260,11 @@ widthAt :: Traversal -> Int
 widthAt t = snodeWidth $ nodeAt t
 
 -- | Get the offset of the start of the current node in the source text.
-offsetAt :: Traversal -> Int
+offsetAt :: Traversal -> SourceOffset
 offsetAt t = tlCurrentOffset (currentLevel t)
 
 -- | Get the offset of the end of the current node in the source text.
-offsetAfter :: Traversal -> Int
+offsetAfter :: Traversal -> SourceOffset
 offsetAfter t = offsetAt t + widthAt t
 
 -- | Get the "SyntaxKind" of the parent of the current position.
