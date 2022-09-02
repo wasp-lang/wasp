@@ -17,6 +17,7 @@ import Control.DeepSeq (NFData)
 import Data.Aeson (ToJSON)
 import Data.List (foldl', intercalate)
 import GHC.Generics (Generic)
+import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
 import Wasp.Analyzer.Parser.Token (TokenKind, tokenKindIsTrivia)
 
 -- | The kind of a "SyntaxNode".
@@ -74,7 +75,7 @@ instance ToJSON SyntaxNode
 cstPrettyPrint :: SyntaxNode -> String
 cstPrettyPrint node = go 0 "" node
   where
-    go :: Int -> String -> SyntaxNode -> String
+    go :: SourceOffset -> String -> SyntaxNode -> String
     go offset indent pnode =
       let nodeTxt = indent ++ show (snodeKind pnode) ++ "@" ++ show offset ++ ".." ++ show (offset + snodeWidth pnode)
           childrenTxt =
