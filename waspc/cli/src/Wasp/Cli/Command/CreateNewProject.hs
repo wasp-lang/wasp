@@ -29,24 +29,24 @@ data ProjectInfo = ProjectInfo
 -- Takes a project name String
 -- Returns either the ProjectInfo type that contains both the Project name
 -- and the App name (which might be the same), or an error describing why the name is invalid
-parseProjectNameIntoProjectInfo :: String -> Either String ProjectInfo
-parseProjectNameIntoProjectInfo name
-  | isValidWaspIdentifier appIdentifier = Right (ProjectInfo name appIdentifier)
+parseProjectInfo :: String -> Either String ProjectInfo
+parseProjectInfo name
+  | isValidWaspIdentifier appName = Right (ProjectInfo name appName)
   | otherwise =
       Left $
         intercalate
           "\n"
-          [ "The project's name is not of a valid format!",
+          [ "The project's name is not in the valid format!",
             indent 2 "- It can start with a letter or an underscore.",
-            indent 2 "- It can contain only letters, numbers, dash, or underscores.",
+            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
             indent 2 "- It can't be a Wasp keyword."
           ]
   where
-    appIdentifier = kebabToCamelCase name
+    appName = kebabToCamelCase name
 
 createNewProject :: String -> Command ()
 createNewProject name =
-  case parseProjectNameIntoProjectInfo name of
+  case parseProjectInfo name of
     Right projectInfo -> createNewProject' projectInfo
     Left parsedError ->
       throwError $

@@ -63,7 +63,7 @@ kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (==
   where
     capitalizeAllWordsExceptForTheFirstOne :: [String] -> [String]
     capitalizeAllWordsExceptForTheFirstOne [] = []
-    capitalizeAllWordsExceptForTheFirstOne (kebabHead : kebabTail) = kebabHead : map toUpperFirst kebabTail
+    capitalizeAllWordsExceptForTheFirstOne (firstWord : otherWords) = firstWord : map toUpperFirst otherWords
 
 -- | Applies given function to the first element of the list.
 --   If list is empty, returns empty list.

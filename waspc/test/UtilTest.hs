@@ -28,6 +28,8 @@ spec_kebabToCamelCase = do
   "s3-folder" ~> "s3Folder"
   "foo---bar-baz" ~> "fooBarBaz"
   "-foo-" ~> "foo"
+  "-" ~> ""
+  "--" ~> ""
   "" ~> ""
   where
     kebab ~> camel = it (kebab ++ " -> " ++ camel) $ do
