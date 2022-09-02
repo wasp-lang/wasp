@@ -46,10 +46,19 @@ data Region = Region !Int !Int deriving (Eq, Ord, Show, Generic)
 
 instance NFData Region
 
+-- TODO: Make this receive a proper SourceRegion instead of two SourcePositions.
+-- Also, move it to SourceRegion? Is it specific for it, or is it specific for diagnostics?
+showRegion :: SourcePosition -> SourcePosition -> String
+showRegion start@(SourcePosition sl sc) end@(SourcePosition el ec)
+  | start == end = show sl ++ ":" ++ show sc
+  | sl == el = show sl ++ ":" ++ show sc ++ "-" ++ show ec
+  | otherwise = show sl ++ ":" ++ show sc ++ "-" ++ show el ++ ":" ++ show ec
+
 errorRegion :: ParseError -> Region
 errorRegion (UnexpectedEOF o _) = Region o o
 errorRegion (UnexpectedToken rgn _ _) = rgn
 
+-- TODO: I believe this is showing error for the purposes of LSP diagnostics? Maybe move it there?
 showError :: String -> ParseError -> String
 showError source msg =
   let (Region so eo) = errorRegion msg
@@ -72,6 +81,7 @@ showExpecteds expecteds =
       eofStrs = if TokenSet.eofMember expecteds then ["<eof>"] else []
    in intercalate "," (kindStrs ++ eofStrs)
 
+-- TODO: This should probably go under TokenKind? Or is it specific for error reporting here?
 showTokenKind :: TokenKind -> String
 showTokenKind T.White = "<whitespace>"
 showTokenKind T.Newline = "\\n"
@@ -96,9 +106,3 @@ showTokenKind T.RQuote = "'=}'"
 showTokenKind T.Quoted = "<any>" -- Should be impossible, hard to prove though
 showTokenKind T.Identifier = "<identifier>"
 showTokenKind T.Error = "<error>"
-
-showRegion :: SourcePosition -> SourcePosition -> String
-showRegion start@(SourcePosition sl sc) end@(SourcePosition el ec)
-  | start == end = show sl ++ ":" ++ show sc
-  | sl == el = show sl ++ ":" ++ show sc ++ "-" ++ show ec
-  | otherwise = show sl ++ ":" ++ show sc ++ "-" ++ show el ++ ":" ++ show ec
