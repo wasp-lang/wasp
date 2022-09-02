@@ -12,10 +12,10 @@ module Wasp.LSP.Syntax
   )
 where
 
-import Control.Syntax.Traverse
 import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
+import Wasp.Analyzer.Parser.ConcreteParser.CST.Traverse
 
 -- | @lspPositionToOffset srcString position@ returns 0-based offset from the
 -- start of @srcString@ to the specified line and column.

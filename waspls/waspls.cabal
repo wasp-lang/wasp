@@ -1,5 +1,7 @@
 cabal-version:      2.4
 
+-- TODO: Would it be just all easier if I merged this into waspc cabal package?
+
 name:               waspls
 version:            0.1.0.0
 description:        Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspls#readme>
@@ -42,8 +44,6 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
-    Control.Monad.Loops
-    Control.Syntax.Traverse
   other-modules:
     Paths_waspls
     Wasp.LSP.ServerState
@@ -89,16 +89,12 @@ test-suite waspls-test
     , waspls
     , deepseq
     , containers            ^>= 0.6.5
-    , Diff                  ^>= 0.4.1
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
-    TestUtil
-    Control.Syntax.TraverseTest
-    Control.Monad.LoopsTest
 
 executable waspls
   import:           common-all, common-exe

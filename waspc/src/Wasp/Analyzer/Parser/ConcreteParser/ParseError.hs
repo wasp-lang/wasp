@@ -8,6 +8,7 @@ module Wasp.Analyzer.Parser.ConcreteParser.ParseError
     Region (..),
     errorRegion,
     showError,
+    showErrorMessage,
   )
 where
 

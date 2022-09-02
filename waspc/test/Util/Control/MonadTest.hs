@@ -1,9 +1,9 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-module Control.Monad.LoopsTest where
+module Util.Control.MonadTest where
 
-import Control.Monad.Loops
 import Test.Tasty.Hspec
+import Wasp.Util.Control.Monad
 
 data Identity a = Identity {runIdentity :: a} deriving (Functor)
 
