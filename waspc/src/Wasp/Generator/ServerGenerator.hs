@@ -246,6 +246,8 @@ genPatches spec = patchesRequiredByPassport spec
 patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
 patchesRequiredByPassport spec =
   return $
-    [C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|]) | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+    [ C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])
+      | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True
+    ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

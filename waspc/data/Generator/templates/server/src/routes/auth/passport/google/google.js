@@ -7,6 +7,7 @@ import { contextWithUserEntity, authConfig, findOrCreateUserByExternalAuthAssoci
 import { sign } from '../../../../core/auth.js'
 import { configFn, getUserFieldsFn } from './googleConfig.js'
 
+// Validates the provided config function returns all required data.
 const config = ((config) => {
   if (!config?.clientId) {
     throw new Error("auth.google.configFn must return an object with a clientId property.")
