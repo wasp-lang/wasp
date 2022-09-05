@@ -14,26 +14,28 @@ export default function OAuthCodeExchange(props) {
   const history = useHistory()
   // NOTE: Different auth methods will have different Wasp API server validation paths.
   // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
-  const pathToApiServerRouteHandlingOauthRedirect = props.pathToApiServerRouteHandlingOauthRedirect
+  const apiServerUrlHandlingOauthRedirect = constructOauthRedirectApiServerUrl(props.pathToApiServerRouteHandlingOauthRedirect)
 
   useEffect(() => {
-    exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandlingOauthRedirect)
-  }, [history, pathToApiServerRouteHandlingOauthRedirect])
+    exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthRedirect)
+  }, [history, apiServerUrlHandlingOauthRedirect])
 
   return (
     <p>Completing login process...</p>
   )
 }
 
-async function exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandlingOauthRedirect) {
+function constructOauthRedirectApiServerUrl(pathToApiServerRouteHandlingOauthRedirect) {
   // Take the redirect query params supplied by the external OAuth provider and
   // send them as-is to our backend, so Passport can finish the process.
   const queryParams = window.location.search
-  const apiServerUrlHandlingOauthRedirect = `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
+  return `${config.apiUrl}${pathToApiServerRouteHandlingOauthRedirect}${queryParams}`
+}
 
+async function exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthRedirect) {
   const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
 
-  if (token) {
+  if (token !== null) {
     setAuthToken(token)
     history.push('{= onAuthSucceededRedirectTo =}')
   } else {
@@ -45,8 +47,9 @@ async function exchangeCodeForJwtAndRedirect(history, pathToApiServerRouteHandli
 async function exchangeCodeForJwt(url) {
   try {
     const response = await api.get(url)
-    return response?.data?.token
+    return response?.data?.token || null
   } catch (e) {
     console.error(e)
+    return null
   }
 }

@@ -99,17 +99,17 @@ import qualified Wasp.AppSpec.JSON as AppSpec.JSON
 --
 -- __Calling @makeDeclType@ on record__
 -- @
--- >>> data User = User { name :: String, username :: Maybe String }
+-- >>> data User = User { name :: String, email :: Maybe String }
 -- >>> makeDeclType ''User   -- "IsDeclType User" instance is generated.
 -- >>> dtName $ declType @User
 -- "user"
 -- >>> dtBodyType $ declType @User
--- DictType [DictEntry "name" StringType, DictOptionalEntry "username" StringLiteral]
+-- DictType [DictEntry "name" StringType, DictOptionalEntry "email" StringLiteral]
 -- @
 --
 -- Such declaration type would be used in Wasp lang source somewhat like:
 -- @
--- user MyUser { name: "testUser", username: "testuser123" }
+-- user MyUser { name: "testUser", email: "testuser@wasp-lang.dev" }
 -- @
 --
 --

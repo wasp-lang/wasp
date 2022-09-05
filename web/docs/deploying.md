@@ -32,7 +32,7 @@ Below we will explain the required env vars and also provide detailed instructio
 Server uses following environment variables, so you need to ensure they are set on your hosting provider:
 - `PORT` -> The port number at which it will listen for requests (e.g. `3001`).
 - `DATABASE_URL` -> The URL of the Postgres database it should use (e.g. `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
-- `WASP_WEB_CLIENT_URL` -> The URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is used for CORS protection.
+- `WASP_WEB_CLIENT_URL` -> The URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is necessary for CORS.
 - `JWT_SECRET` -> You need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
 
 ### Deploying to Heroku

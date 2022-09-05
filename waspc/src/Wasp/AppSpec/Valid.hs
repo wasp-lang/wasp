@@ -93,17 +93,20 @@ validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec =
               userEntityFields = Entity.getFields userEntity
               (externalAuthAssociationEntityName, externalAuthAssociationEntity) = AS.resolveRef spec externalAuthAssociationEntityRef
               externalAuthAssociationEntityFields = Entity.getFields externalAuthAssociationEntity
-           in concatMap
-                (validateField "app.auth.externalAuthAssociationEntity" externalAuthAssociationEntityFields)
-                [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                  ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                  ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
-                  ("userId", Entity.Field.FieldTypeScalar Entity.Field.Int, "Int")
-                ]
-                ++ concatMap
+              externalAuthAssociationEntityValidationErrors =
+                concatMap
+                  (validateField "app.auth.externalAuthAssociationEntity" externalAuthAssociationEntityFields)
+                  [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                    ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                    ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
+                    ("userId", Entity.Field.FieldTypeScalar Entity.Field.Int, "Int")
+                  ]
+              userEntityValidationErrors =
+                concatMap
                   (validateField "app.auth.userEntity" userEntityFields)
                   [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthAssociationEntityName, externalAuthAssociationEntityName ++ "[]")
                   ]
+           in externalAuthAssociationEntityValidationErrors ++ userEntityValidationErrors
 
 validateField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
 validateField entityName entityFields (fieldName, fieldType, fieldTypeName) =

@@ -778,7 +778,7 @@ function Home() {
               <div className="col col--6">
                 <h3 className={styles.featureListTitle}>Alpha</h3>
                 <ul className={clsx(styles.featuresList, styles.featuresListDone)}>
-                  <li> full-stack auth (username & password) </li>
+                  <li> full-stack auth (username & password, Google) </li>
                   <li> pages & routing </li>
                   <li> blurs the line between client & server - define your server actions and queries and call them directly in your client code (RPC)! </li>
                   <li> smart caching of server actions and queries (automatic cache invalidation) </li>
