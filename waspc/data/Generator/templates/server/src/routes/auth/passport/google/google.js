@@ -66,8 +66,8 @@ router.get('/validateCodeForLogin',
     }
 
     // Wrap call to getUserFieldsFn so we can invoke only if needed.
-    const getUserFieldsAsync = async () => await getUserFieldsFn(contextWithUserEntity, { profile: googleProfile })
-    const user = await findOrCreateUserByExternalAuthAssociation('google', googleProfile.id, getUserFieldsAsync)
+    const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: googleProfile })
+    const user = await findOrCreateUserByExternalAuthAssociation('google', googleProfile.id, getUserFields)
 
     const token = await sign(user.id)
     res.json({ token })
