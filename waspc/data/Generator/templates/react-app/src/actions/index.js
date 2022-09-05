@@ -16,7 +16,7 @@ export function useAction(actionFn, actionOptions) {
     options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs)
   }
 
-  return useMutation(actionFn, options)
+  return useMutation(actionFn, options).mutateAsync
 }
 
 function translateToInternalConfig(optimisticUpdateConfig) {
