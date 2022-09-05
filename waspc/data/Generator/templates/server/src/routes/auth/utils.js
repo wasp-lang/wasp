@@ -16,8 +16,8 @@ export const authConfig = {
 }
 
 export async function findOrCreateUserByExternalAuthAssociation(provider, providerId, getUserFields) {
-  // Attempt to find a User by an associated ExternalAuthAssociation.
-  const externalAuthAssociation = await prisma.{= externalAuthAssociationEntityLower =}.findFirst({
+  // Attempt to find a User by an external auth association.
+  const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
     where: { provider, providerId },
     include: { user: true }
   })
@@ -26,8 +26,8 @@ export async function findOrCreateUserByExternalAuthAssociation(provider, provid
     return externalAuthAssociation.user
   }
 
-  // No ExternalAuthAssociation linkage found. Create a new User using details from
-  // `getUserFields()`. Additionally, associate the ExternalAuthAssociation with the new User.
+  // No external auth association linkage found. Create a new User using details from
+  // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
   // NOTE: For now, we force a random (uuidv4) password string. In the future, we will allow password reset.
   const userFields = await getUserFields()
   const userAndExternalAuthAssociation = {

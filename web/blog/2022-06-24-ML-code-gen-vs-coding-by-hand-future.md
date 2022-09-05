@@ -169,7 +169,7 @@ If we try to apply the principles from above (less code, less detailed instructi
 ```css
 auth: {
     userEntity: User,
-    externalAuthAssociationEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
       google: {}

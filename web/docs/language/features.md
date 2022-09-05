@@ -688,7 +688,7 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
-#### `externalAuthAssociationEntity: entity` (optional)
+#### `externalAuthEntity: entity` (optional)
 Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google).
 
 #### `methods: dict` (required)
@@ -947,7 +947,7 @@ import AuthError from '@wasp/core/AuthError.js'
 
 `google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or user entity field assignment, you can override the defaults.
 
-This method requires that `externalAuthAssociationEntity` specified in `auth` [described here](features#externalauthassociationentity).
+This method requires that `externalAuthEntity` specified in `auth` [described here](features#externalauthentity).
 #### Default settings
 - Configuration:
   - By default, Wasp expects you to set two environment variables in order to use Google authentication:
@@ -965,7 +965,7 @@ If you require modifications to the above, you can add one or more of the follow
 ```js
   auth: {
     userEntity: User,
-    externalAuthAssociationEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
     methods: {
       google: {
         configFn: import { config } from "@ext/auth/google.js",
@@ -1024,14 +1024,14 @@ export default Login
 You can set the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px.
 
 
-### `externalAuthAssociationEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthAssociationEntity` specified in `auth` that contains at least the following highlighted fields:
+### `externalAuthEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:
 
 ```css {4,11,16-19,21}
 ...
   auth: {
     userEntity: User,
-    externalAuthAssociationEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
 ...
 
 entity User {=psl

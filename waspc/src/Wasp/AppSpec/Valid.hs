@@ -35,7 +35,7 @@ validateAppSpec spec =
       concat
         [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
-          validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
+          validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
 
@@ -80,22 +80,22 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
               ]
 
-validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
-validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
+validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
   Nothing -> []
   Just auth ->
     if not $ Auth.isExternalAuthEnabled auth
       then []
-      else case Auth.externalAuthAssociationEntity auth of
-        Nothing -> [GenericValidationError "app.auth.externalAuthAssociationEntity must be specified when using a social login method."]
-        Just externalAuthAssociationEntityRef ->
+      else case Auth.externalAuthEntity auth of
+        Nothing -> [GenericValidationError "app.auth.externalAuthEntity must be specified when using a social login method."]
+        Just externalAuthEntityRef ->
           let (userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
               userEntityFields = Entity.getFields userEntity
-              (externalAuthAssociationEntityName, externalAuthAssociationEntity) = AS.resolveRef spec externalAuthAssociationEntityRef
-              externalAuthAssociationEntityFields = Entity.getFields externalAuthAssociationEntity
-              externalAuthAssociationEntityValidationErrors =
+              (externalAuthEntityName, externalAuthEntity) = AS.resolveRef spec externalAuthEntityRef
+              externalAuthEntityFields = Entity.getFields externalAuthEntity
+              externalAuthEntityValidationErrors =
                 concatMap
-                  (validateEntityHasField "app.auth.externalAuthAssociationEntity" externalAuthAssociationEntityFields)
+                  (validateEntityHasField "app.auth.externalAuthEntity" externalAuthEntityFields)
                   [ ("provider", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                     ("providerId", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                     ("user", Entity.Field.FieldTypeScalar (Entity.Field.UserType userEntityName), userEntityName),
@@ -104,9 +104,9 @@ validateExternalAuthAssociationEntityHasCorrectFieldsIfExternalAuthIsUsed spec =
               userEntityValidationErrors =
                 concatMap
                   (validateEntityHasField "app.auth.userEntity" userEntityFields)
-                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthAssociationEntityName, externalAuthAssociationEntityName ++ "[]")
+                  [ ("externalAuthAssociations", Entity.Field.FieldTypeComposite $ Entity.Field.List $ Entity.Field.UserType externalAuthEntityName, externalAuthEntityName ++ "[]")
                   ]
-           in externalAuthAssociationEntityValidationErrors ++ userEntityValidationErrors
+           in externalAuthEntityValidationErrors ++ userEntityValidationErrors
 
 validateEntityHasField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
 validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeName) =
