@@ -12,9 +12,7 @@ import StrongPath
     Path,
     Posix,
     Rel,
-    reldir,
     relfile,
-    (</>),
   )
 import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
