@@ -1,5 +1,5 @@
 ---
-title: Building a backbone for a full-stack web app with a single config file.
+title: Building a backbone for a full-stack web app with a single config file
 authors: [maksym36ua]
 tags: [wasp]
 ---
@@ -25,7 +25,7 @@ As a result – we’ll get a simple and fun pet project. You can find the compl
 ![Final result](../static/img/final-excuse-app.png)
 
 
-## There’s an issue with the 3-rd party library.
+## There’s an issue with the third party library.
 
 Setting up a backbone for the project is the most frustrating part of building any application. 
 
@@ -35,7 +35,7 @@ Ideally – use a framework that will create a project infrastructure quickly wi
 
 How it works: developer starts from a single config file that specifies the app architecture. Routes, CRUD API, auth, and so on. Then adds React/Node.js code for the specific business logic. Behind the scenes, Wasp compiler will produce the entire source code of the app - back-end, front-end, deployment template, database migrations and everything else you’ve used to have in any other full-stack app. 
 
-![Wasp architecture](../static/img/wasp-architecture.png)
+![Wasp architecture](../static/img/wasp-compilation.png)
 
 So let’s jump right in.
 
@@ -130,7 +130,7 @@ We’ve added Tailwind to make our UI more pretty and Axios for making API reque
 
 Also, we’ve declared a database entity called `Excuse`, queries, and action. The `Excuse` entity consists of the entity’s ID and the text. 
 
-`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info in the docs. So let’s proceed with queries/actions. 
+`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs](https://wasp-lang.dev/docs/tutorials/todo-app/listing-tasks#introducing-operations-queries-and-actions). So let’s proceed with queries/actions. 
 
 
 **2) Create two files: “actions.js” and “queries.js” in the `ext` folder.**
