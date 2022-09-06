@@ -203,10 +203,8 @@ export default () => <span> Hello World! </span>
   /* full-stack auth out-of-the-box */
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
-      google: {}
+      usernameAndPassword: {}
     }
     onAuthFailedRedirectTo: "/login"
   }
