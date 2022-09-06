@@ -10,11 +10,11 @@ DST=$PWD/${1:-wasp.tar.gz}
 
 TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t wasp-bin-package)"
 
-WASP_BINARY_PATH="$(cabal list-bin wasp-cli)"
+WASP_BINARY_PATH="$(cabal list-bin waspc:wasp-cli)"
 cp "$WASP_BINARY_PATH" "$TMP_DIR/wasp-bin"
 
 CABAL_PROJECT_ROOT_PATH="$(cabal list-bin wasp-cli | sed s/\\/dist-newstyle.*//)"
-cp -R "$CABAL_PROJECT_ROOT_PATH/data" "$TMP_DIR/data"
+cp -R "$CABAL_PROJECT_ROOT_PATH/waspc/data" "$TMP_DIR/data"
 
 cd "$TMP_DIR"
 tar -czf "$DST" *

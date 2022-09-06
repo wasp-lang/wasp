@@ -18,7 +18,6 @@ env:
 defaults:
   run:
     shell: bash
-    working-directory: waspc
 
 jobs:
   cancel:
@@ -69,6 +68,11 @@ jobs:
           ghc --version
           cabal --version
 
+      - name: Set up Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
       - name: Cache
         uses: actions/cache@v2
         with:
@@ -86,33 +90,44 @@ jobs:
           #   fails multiple times while others don't, its cache will likely get evicted,
           #   making it even slower to test and fix (uffff).
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspls/waspls.cabal') }}-${{ hashFiles('cabal.project') }}-${{ github.run_id }}
           restore-keys: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-
 
-      - name: Check Haskell code formatting
+      - name: "Check Haskell code formatting"
         if: matrix.os == 'ubuntu-latest'
-        run: ./run ormolu:check
+        uses: mrkkrp/ormolu-action@v5  # ormolu 4.0.0.
 
-      - name: Build external dependencies 
+      - name: "[waspc] Build external dependencies"
+        working-directory: waspc
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
       
-      - name: Build wasp code
+      - name: "[waspc] Build our code"
+        working-directory: waspc
         run: cabal build all
 
-      - name: Set up Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Run tests
+      - name: "[waspc] Run tests"
+        working-directory: waspc
         run: cabal test
 
-      - name: Create binary package (Unix)
+      - name: "[waspls] Build external dependencies"
+        working-directory: waspls
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
+      
+      - name: "[waspls] Build our code"
+        working-directory: waspls
+        run: cabal build all
+
+      - name: "[waspls] Run tests"
+        working-directory: waspls
+        run: cabal test
+
+      - name: Create binary packages (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+          ./waspc/tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+          ./waspls/tools/make_binary_package.sh "artifacts/waspls-$OS_NAME-x86_64.tar.gz" 
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
