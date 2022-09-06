@@ -15,13 +15,16 @@ import Data.Maybe (catMaybes)
 import Wasp.Analyzer.Parser.AST (AST, Expr, ExtImportName, Identifier, Stmt)
 import qualified Wasp.Analyzer.Parser.AST as AST
 import Wasp.Analyzer.Parser.AbstractParser.Monad
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
-import qualified Wasp.Analyzer.Parser.ConcreteParser.CST as S
+import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (SyntaxNode))
+import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.Ctx (Ctx (Ctx), WithCtx (WithCtx), ctxFromRgn)
 import Wasp.Analyzer.Parser.ParseError
 import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (SourcePosition))
 import Wasp.Analyzer.Parser.SourceRegion (SourceRegion (SourceRegion))
 import qualified Wasp.Analyzer.Parser.Token as T
+
+-- TODO: This file could be further improved by refactoring it to make it more readable.
+--   We covered this somewhat in the following GH issue: https://github.com/wasp-lang/wasp/issues/687 .
 
 -- In the below type definitions, "using" a syntax node means that its width
 -- is used to adjust the source position in the "ParseState".

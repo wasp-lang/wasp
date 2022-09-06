@@ -63,6 +63,7 @@ common common-all
       TemplateHaskell
       QuasiQuotes
       ScopedTypeVariables
+      LambdaCase
 
 common common-exe
   ghc-options:
@@ -132,7 +133,8 @@ library
       Wasp.Analyzer.Parser.Ctx
       Wasp.Analyzer.Parser.ConcreteParser
       Wasp.Analyzer.Parser.ConcreteParser.ParseError
-      Wasp.Analyzer.Parser.ConcreteParser.CST
+      Wasp.Analyzer.Parser.CST
+      Wasp.Analyzer.Parser.CST.Traverse
       Wasp.Analyzer.Parser.ConcreteParser.ParserLib
       Wasp.Analyzer.Parser.Lexer
       Wasp.Analyzer.Parser.Lexer.Lexer
@@ -141,8 +143,10 @@ library
       Wasp.Analyzer.Parser.PrettyPrinter
       Wasp.Analyzer.Parser.AbstractParser
       Wasp.Analyzer.Parser.AbstractParser.Monad
+      Wasp.Analyzer.Parser.SourceOffset
       Wasp.Analyzer.Parser.SourcePosition
       Wasp.Analyzer.Parser.SourceRegion
+      Wasp.Analyzer.Parser.SourceSpan
       Wasp.Analyzer.Parser.Token
       Wasp.Analyzer.Parser.TokenSet
       Wasp.Analyzer.StdTypeDefinitions
@@ -320,6 +324,7 @@ test-suite waspc-test
   build-depends:
     , aeson
     , base
+    , Diff                  ^>= 0.4.1
     , deepseq
     , filepath
     , mtl
@@ -340,6 +345,8 @@ test-suite waspc-test
   other-modules:
       Analyzer.Evaluation.EvaluationErrorTest
       Analyzer.EvaluatorTest
+      Analyzer.Parser.ConcreteParserTest
+      Analyzer.Parser.CST.TraverseTest
       Analyzer.Parser.ParseErrorTest
       Analyzer.Parser.SourcePositionTest
       Analyzer.ParserTest
@@ -362,7 +369,9 @@ test-suite waspc-test
       Psl.Parser.ModelTest
       Test.Util
       Util.FibTest
+      Util.Control.MonadTest
       UtilTest
+      Util.Diff
       SemanticVersionTest
       WaspignoreFileTest
       Paths_waspc

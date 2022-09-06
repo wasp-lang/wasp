@@ -1,13 +1,13 @@
 {-# LANGUAGE TypeFamilies #-}
 
-module Control.Syntax.TraverseTest where
+module Analyzer.Parser.CST.TraverseTest where
 
-import Control.Syntax.Traverse
 import Test.Tasty.Hspec (Spec, it, shouldBe)
-import Wasp.Backend.ConcreteParser (parseCST)
-import Wasp.Backend.ConcreteSyntax (SyntaxKind (..), SyntaxNode)
-import qualified Wasp.Backend.Lexer as L
-import qualified Wasp.Backend.Token as T
+import Wasp.Analyzer.Parser.CST (SyntaxKind (..), SyntaxNode)
+import Wasp.Analyzer.Parser.CST.Traverse
+import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
+import qualified Wasp.Analyzer.Parser.Lexer as L
+import qualified Wasp.Analyzer.Parser.Token as T
 
 example1 :: [SyntaxNode]
 example1 =

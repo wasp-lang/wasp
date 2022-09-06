@@ -1,18 +1,21 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
-module Wasp.Backend.ConcreteParserTest where
+module Analyzer.Parser.ConcreteParserTest where
 
 import Control.DeepSeq (deepseq)
 import Test.Tasty.Hspec (Spec, describe, it)
 import Test.Tasty.QuickCheck
-import TestUtil
-import Wasp.Backend.ConcreteParser
-import Wasp.Backend.ConcreteSyntax
-import qualified Wasp.Backend.Lexer as L
-import Wasp.Backend.ParseError
-import qualified Wasp.Backend.Token as T
-import qualified Wasp.Backend.TokenSet as TokenSet
+import Util.Diff
+import Wasp.Analyzer.Parser.CST
+import Wasp.Analyzer.Parser.ConcreteParser
+import Wasp.Analyzer.Parser.ConcreteParser.ParseError (errorSpan, getErrorMessage)
+import qualified Wasp.Analyzer.Parser.Lexer as L
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
+import qualified Wasp.Analyzer.Parser.Token as T
+import qualified Wasp.Analyzer.Parser.TokenSet as TokenSet
+
+-- TODO: Do we really need all these tests now that we have "e2e" tests for parser in test/Analyzer/ParserTest/?
 
 token :: T.TokenKind -> String -> T.Token
 token kind text = T.Token {T.tokenKind = kind, T.tokenWidth = length text}
@@ -212,7 +215,7 @@ spec_ConcreteParser =
               token T.RCurly "}"
             ]
       let errors =
-            [ UnexpectedToken (Region 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
+            [ UnexpectedToken (SourceSpan 38 39) T.RCurly $ TokenSet.fromList [T.LParen, T.LCurly, T.LSquare, T.KwImport, T.KwTrue, T.KwFalse, T.String, T.Double, T.Int, T.Identifier, T.LQuote]
             ]
       let tree =
             node
@@ -268,4 +271,4 @@ instance Diffable SyntaxNode where
   toLines n = lines $ cstPrettyPrint n
 
 instance Diffable ParseError where
-  toLines err = ["At " ++ show (errorRegion err), "  " ++ showErrorMessage err]
+  toLines err = ["At " ++ show (errorSpan err), "  " ++ getErrorMessage err]

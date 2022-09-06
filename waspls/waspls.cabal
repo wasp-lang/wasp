@@ -1,7 +1,6 @@
 cabal-version:      2.4
 
--- TODO: It make sense in the future to move this into "waspc" project as a
--- separate project, but for now it is separated.
+-- TODO: Would it be just all easier if I merged this into waspc cabal package?
 
 name:               waspls
 version:            0.1.0.0
@@ -25,7 +24,10 @@ common common-all
   default-language: Haskell2010
   ghc-options:
     -Wall
+    -- -optP-Wno-nonportable-include-path avoids warning caused by .../autogen/cabal_macros.h. on OSX.
     -optP-Wno-nonportable-include-path
+    -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
+    -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
     -fwrite-ide-info -hiedir=.hie
   default-extensions:
     OverloadedStrings
@@ -42,15 +44,6 @@ library
   import:           common-all
   exposed-modules:
     Wasp.LSP.Server
-    Control.Monad.Loops
-    Control.Syntax.Traverse
-    Wasp.Backend.Token
-    Wasp.Backend.Lexer
-    Wasp.Backend.TokenSet
-    Wasp.Backend.ParseError
-    Wasp.Backend.ConcreteSyntax
-    Wasp.Backend.ConcreteParser
-    Wasp.Backend.ConcreteParser.Internal
   other-modules:
     Paths_waspls
     Wasp.LSP.ServerState
@@ -61,8 +54,6 @@ library
     Wasp.LSP.Completion
     Wasp.LSP.Util
     Wasp.LSP.Syntax
-    Wasp.Backend.Lexer.Internal
-    Wasp.Backend.Lexer.Lexer
   hs-source-dirs:
     src
   build-tool-depends:
@@ -98,18 +89,12 @@ test-suite waspls-test
     , waspls
     , deepseq
     , containers            ^>= 0.6.5
-    , Diff                  ^>= 0.4.1
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
-    TestUtil
-    Control.Syntax.TraverseTest
-    Control.Monad.LoopsTest
-    Wasp.Backend.LexerTest
-    Wasp.Backend.ConcreteParserTest
 
 executable waspls
   import:           common-all, common-exe

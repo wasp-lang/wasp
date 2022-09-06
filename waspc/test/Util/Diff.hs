@@ -1,4 +1,4 @@
-module TestUtil
+module Util.Diff
   ( printDiff,
     shouldBeWithDiff,
     Diffable (toLines),
@@ -13,10 +13,10 @@ shouldBeWithDiff :: (Eq a, Diffable a) => a -> a -> Expectation
 shouldBeWithDiff actual expected
   | actual == expected = pure ()
   | otherwise =
-    expectationFailure $
-      "Actual is not expected\n"
-        ++ printDiff (getDiff (toLines expected) (toLines actual))
-        ++ "\ESC[31m"
+      expectationFailure $
+        "Actual is not expected\n"
+          ++ printDiff (getDiff (toLines expected) (toLines actual))
+          ++ "\ESC[31m"
 
 printDiff :: [Diff String] -> String
 printDiff diffs = intercalate "\n" $ map printDiffLine diffs

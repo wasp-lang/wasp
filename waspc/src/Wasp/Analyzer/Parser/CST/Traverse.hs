@@ -1,4 +1,4 @@
-module Control.Syntax.Traverse
+module Wasp.Analyzer.Parser.CST.Traverse
   ( -- * Syntax tree traversal
 
     -- | Library for traversing around a concrete syntax trees. The main
@@ -67,13 +67,14 @@ module Control.Syntax.Traverse
 where
 
 import Control.Monad ((>=>))
-import Control.Monad.Loops (untilM)
 import Data.Foldable (Foldable (foldl'))
 import Data.Function ((&))
 import Data.List (unfoldr)
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.Maybe (isJust)
-import Wasp.Backend.ConcreteSyntax (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
+import Wasp.Analyzer.Parser.CST (SyntaxKind, SyntaxNode (snodeChildren, snodeKind, snodeWidth))
+import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
+import Wasp.Util.Control.Monad (untilM)
 
 -- | An in-progress traversal through some tree @f@.
 data Traversal = Traversal
@@ -84,7 +85,7 @@ data Traversal = Traversal
 
 data TraversalLevel = TraversalLevel
   { tlCurrentNode :: !SyntaxNode,
-    tlCurrentOffset :: !Int,
+    tlCurrentOffset :: !SourceOffset,
     tlLeftSiblings :: [SyntaxNode],
     tlRightSiblings :: [SyntaxNode]
   }
@@ -116,7 +117,7 @@ fromSyntaxForest (t : ts) =
     }
 
 -- | Create a new "TraversalLevel" from a non-empty list of nodes.
-levelFromTraversableTree :: Int -> NonEmpty SyntaxNode -> TraversalLevel
+levelFromTraversableTree :: SourceOffset -> NonEmpty SyntaxNode -> TraversalLevel
 levelFromTraversableTree offset (node :| rSiblings) =
   TraversalLevel
     { tlCurrentNode = node,
@@ -234,8 +235,8 @@ next :: Traversal -> Maybe Traversal
 next t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasRightSiblings up t of
-    Nothing -> Nothing
-    Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
+      Nothing -> Nothing
+      Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
   | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
@@ -244,8 +245,8 @@ previous :: Traversal -> Maybe Traversal
 previous t
   | hasChildren t = untilM (not . hasChildren) down t
   | hasAncestors t = case untilM hasLeftSiblings up t of
-    Nothing -> Nothing
-    Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
+      Nothing -> Nothing
+      Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
   | otherwise = Nothing
   where
     rightMostSibling = untilM (not . hasRightSiblings) right
@@ -259,11 +260,11 @@ widthAt :: Traversal -> Int
 widthAt t = snodeWidth $ nodeAt t
 
 -- | Get the offset of the start of the current node in the source text.
-offsetAt :: Traversal -> Int
+offsetAt :: Traversal -> SourceOffset
 offsetAt t = tlCurrentOffset (currentLevel t)
 
 -- | Get the offset of the end of the current node in the source text.
-offsetAfter :: Traversal -> Int
+offsetAfter :: Traversal -> SourceOffset
 offsetAfter t = offsetAt t + widthAt t
 
 -- | Get the "SyntaxKind" of the parent of the current position.

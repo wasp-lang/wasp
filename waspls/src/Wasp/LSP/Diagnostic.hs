@@ -9,13 +9,16 @@ import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
 import qualified Wasp.Analyzer.AnalyzeError as W
 import qualified Wasp.Analyzer.Parser as W
-import qualified Wasp.Backend.ParseError as C
+import qualified Wasp.Analyzer.Parser.ConcreteParser.ParseError as CPE
+import Wasp.Analyzer.Parser.Ctx (getCtxRgn)
+import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
+import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
 import Wasp.LSP.ServerM (ServerM, logM)
 import Wasp.LSP.Util (waspSourceRegionToLspRange)
 
-concreteParseErrorToDiagnostic :: String -> C.ParseError -> ServerM LSP.Diagnostic
+concreteParseErrorToDiagnostic :: String -> CPE.ParseError -> ServerM LSP.Diagnostic
 concreteParseErrorToDiagnostic src err =
-  let message = Text.pack $ C.showError src err
+  let message = Text.pack $ showConcreteParseError src err
       source = "parse"
       range = concreteErrorRange err
    in logM ("[concreteParseErroToDiagnostic] _range=" ++ show range)
@@ -31,13 +34,17 @@ concreteParseErrorToDiagnostic src err =
               }
           )
   where
-    concreteErrorRange e = case C.errorRegion e of
-      C.Region start end ->
-        let startPos = C.offsetToSourcePos src start
-            endPos = C.offsetToSourcePos src end
+    concreteErrorRange e = case CPE.errorSpan e of
+      SourceSpan startOffset endOffset ->
+        let startPos = sourceOffsetToPosition src startOffset
+            endPos = sourceOffsetToPosition src endOffset
          in LSP.Range (concretePosToLSPPos startPos) (concretePosToLSPPos endPos)
-    concretePosToLSPPos (C.SourcePos l c) =
+    concretePosToLSPPos (SourcePosition l c) =
       LSP.Position (fromIntegral l - 1) (fromIntegral c - 1)
+    showConcreteParseError :: String -> CPE.ParseError -> String
+    showConcreteParseError source e =
+      let (msg, ctx) = CPE.getErrorMessageAndCtx source e
+       in "Parse error at " ++ show (getCtxRgn ctx) ++ ":\n  " ++ msg
 
 waspErrorToDiagnostic :: W.AnalyzeError -> LSP.Diagnostic
 waspErrorToDiagnostic err =
