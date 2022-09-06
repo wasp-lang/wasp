@@ -12,14 +12,13 @@ import StrongPath
     Path,
     Posix,
     Rel,
-    reldir,
     relfile,
-    (</>),
   )
 import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
@@ -90,7 +89,6 @@ npmDepsForWasp _spec =
             ("react-query", "^3.34.19"),
             ("react-router-dom", "^5.1.2"),
             ("react-scripts", "4.0.3"),
-            ("uuid", "^3.4.0"),
             -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
             -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
             ("react-error-overlay", "6.0.9")
@@ -113,14 +111,22 @@ genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
-    C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|]) :
-    publicIndexHtmlFd :
-    ( let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          processPublicTmpl path = C.mkTmplFdWithData (C.asTmplFile $ [reldir|public|] </> path) tmplData
-       in processPublicTmpl
-            <$> [ [relfile|manifest.json|]
-                ]
-    )
+    [ publicIndexHtmlFd,
+      genFaviconFd,
+      genManifestFd
+    ]
+      ++ genGoogleSigninImage
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
+    genGoogleSigninImage =
+      [ C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|])
+        | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
+      ]
+    genManifestFd =
+      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
+       in C.mkTmplFdWithData tmplFile tmplData
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =

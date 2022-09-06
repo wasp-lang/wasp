@@ -13,10 +13,12 @@ import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
@@ -25,7 +27,9 @@ import qualified Wasp.Generator.WebAppGenerator.Common as C
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
     _pagesToImport :: ![PageTemplateData],
-    _isAuthEnabled :: Bool
+    _isAuthEnabled :: Bool,
+    _isExternalAuthEnabled :: Bool,
+    _isGoogleAuthEnabled :: Bool
   }
 
 instance ToJSON RouterTemplateData where
@@ -33,7 +37,9 @@ instance ToJSON RouterTemplateData where
     object
       [ "routes" .= _routes routerTD,
         "pagesToImport" .= _pagesToImport routerTD,
-        "isAuthEnabled" .= _isAuthEnabled routerTD
+        "isAuthEnabled" .= _isAuthEnabled routerTD,
+        "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
+        "isGoogleAuthEnabled" .= _isGoogleAuthEnabled routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -78,11 +84,14 @@ createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = isAuthEnabled spec
+      _isAuthEnabled = isAuthEnabled spec,
+      _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
+      _isGoogleAuthEnabled = (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
+    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =

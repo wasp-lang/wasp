@@ -4,6 +4,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsForWasp,
+    areServerPatchesUsed,
   )
 where
 
@@ -30,6 +31,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -63,6 +65,7 @@ genServer spec =
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
+    <++> genPatches spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -115,8 +118,11 @@ npmDepsForWasp spec =
             ("jsonwebtoken", "^8.5.1"),
             ("secure-password", "^4.0.0"),
             ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("helmet", "^4.6.0"),
+            ("patch-package", "^6.4.7"),
+            ("uuid", "^8.3.2")
           ]
+          ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -220,3 +226,28 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
+depsRequiredByPassport spec =
+  AS.Dependency.fromList $
+    concat
+      [ [("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
+        [("passport-google-oauth20", "2.0.0") | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True]
+      ]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+areServerPatchesUsed :: AppSpec -> Generator Bool
+areServerPatchesUsed spec = not . null <$> genPatches spec
+
+genPatches :: AppSpec -> Generator [FileDraft]
+genPatches spec = patchesRequiredByPassport spec
+
+patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
+patchesRequiredByPassport spec =
+  return $
+    [ C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])
+      | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True
+    ]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec

@@ -28,6 +28,7 @@ data-files:
   Generator/templates/dockerignore
   Generator/templates/react-app/gitignore
   Generator/templates/react-app/npmrc
+  Generator/templates/server/patches/*.patch
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma

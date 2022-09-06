@@ -12,10 +12,13 @@ const config = {
     env,
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
+    frontendUrl: undefined,
   },
   development: {
+    frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
   },
   production: {
+    frontendUrl: process.env.WASP_WEB_CLIENT_URL,
   }
 }
 
