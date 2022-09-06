@@ -10,15 +10,16 @@ import api, { setAuthToken } from '../../api.js'
 // that contain information needed for the API server to authenticate with the provider.
 // This page forwards that information to the API server and in response get a JWT,
 // which it stores on the client, therefore completing the OAuth authentication process.
-export default function OAuthCodeExchange(props) {
+export default function OAuthCodeExchange({ pathToApiServerRouteHandlingOauthRedirect }) {
   const history = useHistory()
-  // NOTE: Different auth methods will have different Wasp API server validation paths.
-  // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
-  const apiServerUrlHandlingOauthRedirect = constructOauthRedirectApiServerUrl(props.pathToApiServerRouteHandlingOauthRedirect)
 
   useEffect(() => {
+    // NOTE: Different auth methods will have different Wasp API server validation paths.
+    // This helps us reuse one component for various methods (e.g., Google, Facebook, etc.).
+    const apiServerUrlHandlingOauthRedirect = constructOauthRedirectApiServerUrl(pathToApiServerRouteHandlingOauthRedirect)
+
     exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthRedirect)
-  }, [history, apiServerUrlHandlingOauthRedirect])
+  }, [history, pathToApiServerRouteHandlingOauthRedirect])
 
   return (
     <p>Completing login process...</p>
