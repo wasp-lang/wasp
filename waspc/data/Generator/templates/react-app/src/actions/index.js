@@ -58,16 +58,26 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs) {
 
       // Optimistically update to the new value
       const updateFn = (old) => updateQuery(item, old)
-      queryClient.setQueryData(queryKey, updateFn)
+      try {
+        queryClient.setQueryData(queryKey, updateFn)
+      } catch (e) {
+        console.error("The `updateQuery` function threw an exception, skipping optimistic update:")
+        console.error(e)
+      }
 
       // Remember the snapshotted value to restore in case of an error
       previousData.set(queryKey, previousDataForQuery)
     })
 
-    return previousData
+    return { previousData }
   }
 
   function onError(err, item, context) {
+    // All we do in case of an error is roll back all optimistic updates. We ensure
+    // not to do anything else because React Query rethrows the error. This allows
+    // the programmer to handle the error as they usually would (i.e., we want the
+    // error handling to work as it would if the programmer wasn't using optimistic
+    // updates).
     context.previousData.forEach(async (data, queryKey) => {
       await queryClient.cancelQueries(queryKey)
       queryClient.setQueryData(queryKey, data)

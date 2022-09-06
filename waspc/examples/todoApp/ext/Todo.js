@@ -60,7 +60,6 @@ const Footer = (props) => {
       await deleteCompletedTasks()
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -120,7 +119,6 @@ const Task = (props) => {
       await updateTaskIsDoneOptimistically({ id, isDone })
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -157,7 +155,6 @@ const NewTaskForm = (props) => {
       setDescription(defaultDescription)
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -184,7 +181,6 @@ const ToggleAllTasksButton = (props) => {
       await toggleAllTasks()
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 

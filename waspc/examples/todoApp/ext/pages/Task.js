@@ -41,7 +41,6 @@ const Todo = (props) => {
     try {
       updateTaskIsDoneOptimistically({ id: task.id, isDone: !task.isDone })
     } catch (err) {
-      window.alert("Error: " + err.message)
       console.log(err)
     }
   }
