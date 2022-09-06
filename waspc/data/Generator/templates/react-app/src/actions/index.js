@@ -9,7 +9,6 @@ export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
 
   let mutationFn = actionFn
-  // TODO(filip): Do we allow all react query options or should we consider a list of allowed options?
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {

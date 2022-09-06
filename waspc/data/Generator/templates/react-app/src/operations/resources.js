@@ -27,7 +27,7 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
 
 export function registerActionInProgress(optimisticUpdateTuples) {
   optimisticUpdateTuples.forEach(
-    ({ queryKey, updateQueryFn}) => updateHandlers.add(queryKey, updateQueryFn)
+    ({ queryKey, updateQueryFn }) => updateHandlers.add(queryKey, updateQueryFn)
   )
 }
 
