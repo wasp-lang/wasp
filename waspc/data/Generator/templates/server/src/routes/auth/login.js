@@ -11,8 +11,8 @@ export default handleRejection(async (req, res) => {
   const args = req.body || {}
   const context = {}
 
-  // Try to fetch user with the given email.
-  const user = await prisma.{= userEntityLower =}.findUnique({ where: { email: args.email.toLowerCase() } })
+  // Try to fetch user with the given username.
+  const user = await prisma.{= userEntityLower =}.findUnique({ where: { username: args.username.toLowerCase() } })
   if (!user) {
     return res.status(401).send()
   }
@@ -29,7 +29,7 @@ export default handleRejection(async (req, res) => {
       return res.status(401).send()
   }
 
-  // Email & password valid - generate token.
+  // Username & password valid - generate token.
   const token = await sign(user.id)
 
   // NOTE(matija): Possible option - instead of explicitly returning token here,

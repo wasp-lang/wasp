@@ -1,0 +1,4 @@
+test JSON {=json
+  "key": "value"
+json=}
+test JSON2 {=json [1, 2, 3] json=}

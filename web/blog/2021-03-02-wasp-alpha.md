@@ -64,12 +64,12 @@ page Main {
 
 auth { /* full-stack auth out-of-the-box */
   userEntity: User,
-  methods: [ EmailAndPassword ],
+  methods: [ UsernameAndPassword ],
 }
 
 entity User {=psl
   id          Int     @id @default(autoincrement())
-  email       String  @unique
+  username    String  @unique
   password    String
 psl=}
 ```
@@ -124,7 +124,7 @@ Also, Wasp wouldn't be tied to the specific technology but rather support multip
 **Wasp is currently in Alpha** and some features are still rough or missing, there are things we haven’t solved yet and others that will probably change as we progress, but **you can try it out and build and deploy web apps**!
 
 ### What Wasp currently supports:
- - ✅ full-stack auth (email & password)
+ - ✅ full-stack auth (username & password)
  - ✅ pages & routing
  - ✅ blurs the line between client & server - define your server actions and queries and call them directly in your client code (RPC)!
  - ✅ smart caching of server actions and queries (automatic cache invalidation)

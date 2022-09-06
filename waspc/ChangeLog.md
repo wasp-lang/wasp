@@ -1,5 +1,33 @@
 # Changelog
 
+## v0.6.0.0 (TBD)
+
+### BREAKING CHANGES
+- The `EmailAndPassword` auth method has been renamed `UsernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
+  - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
+    - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
+      ```bash
+      $ cd migrations
+      $ mkdir "migrations/`date -n +%Y%m%d%H%M%S`_some_name" && touch $_/migration.sql
+      ```
+      You can then add contents like the following:
+      ```sql
+        -- Drop the old index (NOTE: name may vary based on Prisma version)
+      DROP INDEX "User_email_key";
+
+      -- Alter the table to rename the column, thus preserving the data
+      ALTER TABLE "User"
+      RENAME COLUMN "email" TO "username";
+
+      -- Create a new index
+      CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+      ```
+      - NOTE: If you simply changed `email` to `username` in your .wasp file, Prisma will try to drop the table and recreate it, which is likely not what you want if you have data you want to preserve.
+    - If you would like to add a new `username` column and keep `email` as is, be sure to add a calculated value in the migration (perhaps a random string, or something based on the `email`). The `username` column should remain `NOT NULL` and `UNIQUE`.
+- Wasp Jobs callback function arguments have been updated to the following: `async function jobHandler(args, context)`. Jobs can now make use of entities, accessed via `context`, like Operations. Additionally, the data passed into the Job handler function are no longer wrapped in a `data` property, and are now instead accessed exactly as they are supplied via `args`.
+
+---
+
 ## v0.5.2.1 (2022/07/14)
 
 ### Bug fixes

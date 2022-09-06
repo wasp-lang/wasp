@@ -11,15 +11,15 @@ const Todo = (props) => {
   const taskId = parseInt(props.match.params.id)
   const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 
-  const updateTaskIsDoneAction = useAction(updateTaskIsDone, {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
-        getQuery: () => [getTask, { id: taskId }],
+        getQuerySpecifier: () => [getTask, { id: taskId }],
         // This query's cache should should never be emtpy
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask, isDone }),
       },
       {
-        getQuery: () => [getTasks],
+        getQuerySpecifier: () => [getTasks],
         updateQuery: (updatedTask, oldTasks) => {
           if (oldTasks === undefined) {
             // cache is empty
@@ -39,9 +39,8 @@ const Todo = (props) => {
 
   async function toggleIsDone() {
     try {
-      updateTaskIsDoneAction.mutateAsync({ id: task.id, isDone: !task.isDone })
+      updateTaskIsDoneOptimistically({ id: task.id, isDone: !task.isDone })
     } catch (err) {
-      window.alert("Error: " + err.message)
       console.log(err)
     }
   }

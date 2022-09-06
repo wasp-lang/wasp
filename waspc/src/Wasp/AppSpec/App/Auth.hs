@@ -18,4 +18,4 @@ data Auth = Auth
   }
   deriving (Show, Eq, Data)
 
-data AuthMethod = EmailAndPassword deriving (Show, Eq, Data)
+data AuthMethod = UsernameAndPassword deriving (Show, Eq, Data)

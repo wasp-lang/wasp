@@ -1,0 +1,38 @@
+app ItWaspsOnMyMachine {
+  title: "It Wasps On My Machine",
+
+  head: [
+    "<script src='https://cdn.tailwindcss.com'></script>"
+  ],
+
+  dependencies: [
+    ("axios", "^0.21.1")
+  ]
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@ext/MainPage.js"
+}
+
+entity Excuse {=psl
+    id          Int     @id @default(autoincrement())
+    text        String
+psl=}
+
+query getExcuse {
+  fn: import { getExcuse } from "@ext/queries.js",
+  entities: [Excuse]
+}
+
+query getAllSavedExcuses {
+  fn: import { getAllSavedExcuses } from "@ext/queries.js",
+  entities: [Excuse]
+}
+
+action saveExcuse {
+  fn: import { saveExcuse } from "@ext/actions.js",
+  entities: [Excuse]
+}
+
+

@@ -13,20 +13,20 @@ export function useAction(actionFn, actionOptions) {
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {
-    const optimisticUpdatesConfig = makeOptimisticUpdatesConfig(actionOptions.optimisticUpdates)
-    mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig)
-    options = makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig)
+    const optimisticUpdatesConfigs = actionOptions.optimisticUpdates.map(translateToInternalConfig)
+    mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfigs)
+    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdatesConfigs)
   }
 
-  return useMutation(mutationFn, options)
+  return useMutation(mutationFn, options).mutateAsync
 }
 
-
-function makeOptimisticUpdatesConfig(optimisticUpdatesConfig) {
-  return optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-    getQuery: (item) => parseQueryKey(getQuery(item)),
+function translateToInternalConfig(optimisticUpdateConfig) {
+  const { getQuerySpecifier, ...rest } = optimisticUpdateConfig
+  return {
+    getQueryKey: (item) => getRqQueryKeyFromSpecifier(getQuerySpecifier(item)),
     ...rest,
-  }))
+  }
 }
 
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
@@ -41,35 +41,58 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
   }
 }
 
-function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
+/**
+ * This function implements the methods necessary for configuring optimistic
+ * updates using React Query, as described by their documentation:
+ * https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates
+ *
+ * @param {QueryClient} queryClient The QueryClient instance used by React
+ * Query.
+ * @param {object} optimisticUpdateConfigs A list containing information on performing optimistic updates.
+ * @returns An object containing 'onMutate' and 'onError' functions appropriate for the given config (check React Query's docs for details).
+ */
+function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs) {
   async function onMutate(item) {
-    const queriesToUpdate = optimisticUpdatesConfig.map(({ getQuery, ...rest }) => ({
-      queryKey: getQuery(item),
-      ...rest,
-    }))
-
-    const queryCancellations = queriesToUpdate.map(
-      ({ query }) => queryClient.cancelQueries(query)
+    const specificOptimisticUpdateConfigs = optimisticUpdateConfigs.map(
+      optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
     )
 
+    // Cancel any outgoing refetches (so they don't overwrite our optimistic update).
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
-    // However, awaiting cancellation probably doesn't take too much time.
-    await Promise.all(queryCancellations)
+    // However, awaiting cancellation hasn't yet proven to be a performance bottleneck.
+    await Promise.all(specificOptimisticUpdateConfigs.map(
+      ({ query }) => queryClient.cancelQueries(query)
+    ))
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    queriesToUpdate.forEach(({ queryKey, updateQuery }) => {
+    specificOptimisticUpdateConfigs.forEach(({ queryKey, updateQuery }) => {
+      // Snapshot the previous value
       const previousDataForQuery = queryClient.getQueryData(queryKey)
+
+      // Optimistically update to the new value
       const updateFn = (old) => updateQuery(item, old)
-      queryClient.setQueryData(queryKey, updateFn)
+      try {
+        queryClient.setQueryData(queryKey, updateFn)
+      } catch (e) {
+        console.error("The `updateQuery` function threw an exception, skipping optimistic update:")
+        console.error(e)
+      }
+
+      // Remember the snapshotted value to restore in case of an error
       previousData.set(queryKey, previousDataForQuery)
     })
 
-    return previousData
+    return { previousData }
   }
 
   function onError(err, item, context) {
+    // All we do in case of an error is roll back all optimistic updates. We ensure
+    // not to do anything else because React Query rethrows the error. This allows
+    // the programmer to handle the error as they usually would (i.e., we want the
+    // error handling to work as it would if the programmer wasn't using optimistic
+    // updates).
     context.previousData.forEach(async (data, queryKey) => {
       await queryClient.cancelQueries(queryKey)
       queryClient.setQueryData(queryKey, data)
@@ -82,7 +105,26 @@ function makeOptimisticUpdateOptions(queryClient, optimisticUpdatesConfig) {
   }
 }
 
-function parseQueryKey(queryKey) {
-  const [queryFn, ...otherKeys] = queryKey
+/**
+ * Constructs the config needed to optimistically update a specific item. It
+ * uses a closure over the updated to construct an item-specific query key
+ * (e.g., when the query key depends on an ID)
+ * 
+ * @param {object} optimisticUpdateConfig  The general, "uninstantiated" optimistic
+ * update config that contains a function for constructing a query key.
+ * @param {*} item The item supposed to be optimisticallly updated.
+ * @returns A specific, "instantiated" optimistic update config which contains a
+ * fully-constructed query key
+ */
+function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item) {
+  const { getQueryKey, ...remainingConfig } = optimisticUpdateConfig
+  return {
+    queryKey: getQueryKey(item),
+    ...remainingConfig
+  }
+}
+
+function getRqQueryKeyFromSpecifier(querySpecifier) {
+  const [queryFn, ...otherKeys] = querySpecifier
   return [queryFn.queryCacheKey, ...otherKeys]
 }

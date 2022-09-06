@@ -6,6 +6,9 @@ import qualified Wasp.Analyzer.TypeChecker as T
 pos :: Int -> Int -> P.SourcePosition
 pos line column = P.SourcePosition line column
 
+rgn :: (Int, Int) -> (Int, Int) -> P.SourceRegion
+rgn (sl, sc) (el, ec) = P.SourceRegion (pos sl sc) (pos el ec)
+
 ctx :: (Int, Int) -> (Int, Int) -> P.Ctx
 ctx (a, b) (c, d) = P.ctxFromRgn (pos a b) (pos c d)
 

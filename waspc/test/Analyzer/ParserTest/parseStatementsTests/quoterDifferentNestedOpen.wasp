@@ -1,0 +1,1 @@
+test DifferentNestedOpen {=foo {=bar foo=}
