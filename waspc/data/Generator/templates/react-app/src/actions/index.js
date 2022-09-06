@@ -8,7 +8,6 @@ export { configureQueryClient } from '../queryClient'
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
 
-  // TODO(filip): Do we allow all react query options or should we consider a list of allowed options?
   let options = {}
 
   if (actionOptions?.optimisticUpdates) {
@@ -22,7 +21,7 @@ export function useAction(actionFn, actionOptions) {
 function translateToInternalConfig(optimisticUpdateConfig) {
   const { getQuerySpecifier, ...rest } = optimisticUpdateConfig
   return {
-    getQueryKey: (item) => querySpecifierToKey(getQuerySpecifier(item)),
+    getQueryKey: (item) => getRqQueryKeyFromSpecifier(getQuerySpecifier(item)),
     ...rest,
   }
 }
@@ -43,21 +42,25 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs) {
       optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
     )
 
-    const queryCancellations = specificOptimisticUpdateConfigs.map(
-      ({ query }) => queryClient.cancelQueries(query)
-    )
-
+    // Cancel any outgoing refetches (so they don't overwrite our optimistic update).
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
     // However, awaiting cancellation hasn't yet proven to be a performance bottleneck.
-    await Promise.all(queryCancellations)
+    await Promise.all(specificOptimisticUpdateConfigs.map(
+      ({ query }) => queryClient.cancelQueries(query)
+    ))
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
     specificOptimisticUpdateConfigs.forEach(({ queryKey, updateQuery }) => {
+      // Snapshot the previous value
       const previousDataForQuery = queryClient.getQueryData(queryKey)
+
+      // Optimistically update to the new value
       const updateFn = (old) => updateQuery(item, old)
       queryClient.setQueryData(queryKey, updateFn)
+
+      // Remember the snapshotted value to restore in case of an error
       previousData.set(queryKey, previousDataForQuery)
     })
 
@@ -96,7 +99,7 @@ function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item) 
   }
 }
 
-function querySpecifierToKey(querySpecifier) {
+function getRqQueryKeyFromSpecifier(querySpecifier) {
   const [queryFn, ...otherKeys] = querySpecifier
   return [queryFn.queryCacheKey, ...otherKeys]
 }

@@ -99,7 +99,7 @@ const Tasks = (props) => {
 }
 
 const Task = (props) => {
-  const performUpdateTaskIsDone = useAction(updateTaskIsDone, {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [{
       getQuerySpecifier: () => [getTasks],
       updateQuery: (updatedTask, oldTasks) => {
@@ -117,7 +117,7 @@ const Task = (props) => {
     const isDone = event.target.checked
 
     try {
-      await performUpdateTaskIsDone({ id, isDone })
+      await updateTaskIsDoneOptimistically({ id, isDone })
     } catch (err) {
       console.log(err)
       window.alert('Error:' + err.message)

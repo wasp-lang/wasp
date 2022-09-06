@@ -11,7 +11,7 @@ const Todo = (props) => {
   const taskId = parseInt(props.match.params.id)
   const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
 
-  const performUpdateTaskIsDone = useAction(updateTaskIsDone, {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
         getQuerySpecifier: () => [getTask, { id: taskId }],
@@ -39,7 +39,7 @@ const Todo = (props) => {
 
   async function toggleIsDone() {
     try {
-      performUpdateTaskIsDone({ id: task.id, isDone: !task.isDone })
+      updateTaskIsDoneOptimistically({ id: task.id, isDone: !task.isDone })
     } catch (err) {
       window.alert("Error: " + err.message)
       console.log(err)
