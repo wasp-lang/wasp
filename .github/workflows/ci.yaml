@@ -135,7 +135,7 @@ jobs:
         with:
           draft: true
           allowUpdates: true
-          artifacts: "waspc/artifacts/*"
+          artifacts: "artifacts/*"
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
