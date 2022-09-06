@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Cli.Command.Db
   ( runDbCommand,
     studio,

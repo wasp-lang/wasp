@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Wasp.Analyzer.Parser.ConcreteParser.ParseError
   ( -- * Parse error
@@ -47,5 +46,5 @@ getErrorMessage = \case
     expectedTokensErrorMessage :: TokenSet -> String
     expectedTokensErrorMessage tokens =
       let kindStrs = map showTokenKind $ TokenSet.toList tokens
-          eofStrs = if TokenSet.eofMember tokens then ["<eof>"] else []
+          eofStrs = ["<eof>" | TokenSet.eofMember tokens]
        in "expected one of the following tokens instead: " ++ intercalate "," (kindStrs ++ eofStrs)

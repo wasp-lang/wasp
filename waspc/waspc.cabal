@@ -63,6 +63,7 @@ common common-all
       TemplateHaskell
       QuasiQuotes
       ScopedTypeVariables
+      LambdaCase
 
 common common-exe
   ghc-options:

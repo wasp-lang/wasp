@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase #-}
 
 module Wasp.Analyzer.Parser.ConcreteParser.ParserLib
   ( -- * Internal parsing library
