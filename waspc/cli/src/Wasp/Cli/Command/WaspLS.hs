@@ -3,7 +3,6 @@ module Wasp.Cli.Command.WaspLS
   )
 where
 
-import Data.Version (showVersion)
 import qualified Options.Applicative as O
 import qualified Wasp.LSP.Server as LS
 
