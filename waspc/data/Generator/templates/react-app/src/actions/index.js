@@ -42,8 +42,8 @@ function translateToInternalConfig(optimisticUpdateConfig) {
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
   return function optimisticallyUpdateQueries(item) {
     const optimisticUpdateTuples = optimisticUpdatesConfig.map(
-      ({ getQuery, updateQuery }) => ({
-        queryKey: getQuery(item), 
+      ({ getQueryKey, updateQuery }) => ({
+        queryKey: getQueryKey(item), 
         updateQueryFn: (old) => updateQuery(item, old),
       })
     ) 
