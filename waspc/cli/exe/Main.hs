@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
@@ -43,6 +44,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
+        ("waspls" : _) -> Command.Call.WaspLS
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -62,6 +64,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Unknown _ -> printUsage
+    Command.Call.WaspLS -> runWaspLS
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -85,6 +88,7 @@ printUsage =
         title "  GENERAL",
         cmd "    new <project-name>    Creates new Wasp project.",
         cmd "    version               Prints current version of CLI.",
+        cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",

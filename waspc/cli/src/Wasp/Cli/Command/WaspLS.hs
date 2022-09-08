@@ -1,18 +1,15 @@
-module Main where
+module Wasp.Cli.Command.WaspLS
+  ( runWaspLS,
+  )
+where
 
-import Data.Version (showVersion)
 import qualified Options.Applicative as O
-import qualified Paths_waspls
-import qualified Wasp.LSP.Server as LSP
+import qualified Wasp.LSP.Server as LS
 
-main :: IO ()
-main = do
+runWaspLS :: IO ()
+runWaspLS = do
   args <- parseArgsOrPrintUsageAndExit
-  case command args of
-    PrintVersion -> printVersion
-    Serve -> LSP.serve $ optionsLogFile $ options args
-  where
-    printVersion = putStrLn $ showVersion Paths_waspls.version
+  LS.serve $ optionsLogFile $ options args
 
 parseArgsOrPrintUsageAndExit :: IO Args
 parseArgsOrPrintUsageAndExit =
@@ -22,28 +19,17 @@ parseArgsOrPrintUsageAndExit =
       (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
 
 data Args = Args
-  { command :: Command,
-    options :: Options
+  { options :: Options
   }
-
-data Command = PrintVersion | Serve
 
 data Options = Options
   { optionsLogFile :: Maybe FilePath,
     optionsUseStdio :: Bool
   }
 
+-- NOTE: Here we assume that first arg on command line is "waspls".
 parseArgs :: O.Parser Args
-parseArgs = Args <$> parseCommand <*> parseOptions
-
-parseCommand :: O.Parser Command
-parseCommand = O.hsubparser versionCommand O.<|> pure Serve
-  where
-    versionCommand =
-      O.command
-        "version"
-        (O.info (pure PrintVersion) (O.fullDesc <> O.progDesc "Display version and exit"))
-        <> O.metavar "version"
+parseArgs = Args <$> O.hsubparser (O.command "waspls" (O.info parseOptions (O.progDesc "Run Wasp Language Server")))
 
 parseOptions :: O.Parser Options
 parseOptions = Options <$> O.optional parseLogFile <*> parseStdio
