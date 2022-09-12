@@ -146,7 +146,7 @@ jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionRange :: SV.Range
-pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 2 1)]
+pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 0 0)]
 
 pgBossDependency :: AS.Dependency.Dependency
 pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionRange)

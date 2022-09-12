@@ -33,4 +33,4 @@ npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
     latestLTSVersion = SV.Version 8 0 0 -- Goes with node 16 (but also higher versions too)
 
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 3 15 2
+prismaVersion = SV.Version 4 3 1
