@@ -37,10 +37,22 @@ export function useAction(actionFn, actionOptions) {
  * @returns {Object} An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
-  const { getQuerySpecifier, ...rest } = publicOptimisticUpdateDefinition
+  const { getQuerySpecifier, updateQuery } = publicOptimisticUpdateDefinition
+
+  const definitionErrors = []
+  if (typeof (getQuerySpecifier) !== 'function') {
+    definitionErrors.push('`getQuerySpecifier` is not a function.')
+  }
+  if (typeof (updateQuery) !== 'function') {
+    definitionErrors.push('`updateQuery` is not a function.')
+  }
+  if (definitionErrors.length) {
+    throw new TypeError(`Invalid optimistic update definition: ${definitionErrors.join(', ')}.`)
+  }
+
   return {
     getQueryKey: (item) => getRqQueryKeyFromSpecifier(getQuerySpecifier(item)),
-    ...rest,
+    updateQuery,
   }
 }
 
