@@ -1,7 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { getSomeResource } from './serverSetup.js'
 
-const sleep = (ms) => new Promise(res => setTimeout(res, ms))
 
 export const createTask = async (task, context) => {
   if (!context.user) {
@@ -28,6 +27,7 @@ export const updateTaskIsDone = async ({ id, isDone }, context) => {
   }
 
   // Uncomment to test optimistic updates
+  // const sleep = (ms) => new Promise(res => setTimeout(res, ms))
   // await sleep(3000);
 
   const Task = context.entities.Task
