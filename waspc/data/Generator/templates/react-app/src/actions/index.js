@@ -16,10 +16,9 @@ export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
 
   let options = {}
-
   if (actionOptions?.optimisticUpdates) {
-    const optimisticUpdateConfigs = actionOptions.optimisticUpdates.map(translateToInternalConfig)
-    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs)
+    const optimisticUpdateDefinitions = actionOptions.optimisticUpdates.map(translateToInternalDefinition)
+    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
   }
 
   // NOTE: We decided to hide React Query's extra mutation features (e.g.,
@@ -29,8 +28,16 @@ export function useAction(actionFn, actionOptions) {
   return (args) => mutation.mutateAsync(args)
 }
 
-function translateToInternalConfig(optimisticUpdateConfig) {
-  const { getQuerySpecifier, ...rest } = optimisticUpdateConfig
+/**
+ * Translates/Desugars a public optimistic update definition object into a definition object our
+ * system uses internally.
+ * 
+ * @param publicOptimisticUpdateDefinition An optimistic update definition object that's a part of the public API:
+ * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * @returns An internally-used optimistic update definition object.
+ */
+function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
+  const { getQuerySpecifier, ...rest } = publicOptimisticUpdateDefinition
   return {
     getQueryKey: (item) => getRqQueryKeyFromSpecifier(getQuerySpecifier(item)),
     ...rest,
@@ -42,14 +49,15 @@ function translateToInternalConfig(optimisticUpdateConfig) {
  * updates using React Query, as described by their documentation:
  * https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates
  *
- * @param {Object} queryClient The QueryClient instance used by React
- * Query.
- * @param {Object} optimisticUpdateConfigs A list containing information on performing optimistic updates.
- * @returns An object containing 'onMutate' and 'onError' functions appropriate for the given config (check React Query's docs for details).
+ * @param {Object} queryClient The QueryClient instance used by React Query.
+ * @param {Object} optimisticUpdateDefinitions A list containing internal optimistic updates definition objects
+ * (i.e., a list where each object carries the instructions for performing particular optimistic update).
+ * @returns An object containing 'onMutate' and 'onError' functions corresponding to the given optimistic update
+ * definitions (check React Query's docs for details).
  */
-function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateConfigs) {
+function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
   async function onMutate(item) {
-    const specificOptimisticUpdateConfigs = optimisticUpdateConfigs.map(
+    const specificOptimisticUpdateConfigs = optimisticUpdateDefinitions.map(
       optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
     )
 
