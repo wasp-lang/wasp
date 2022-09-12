@@ -145,7 +145,7 @@ function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition
   const { getQueryKey, updateQuery } = optimisticUpdateDefinition
   return {
     queryKey: getQueryKey(item),
-    updateQuery: (old)  => updateQuery(item, old)
+    updateQuery: (old) => updateQuery(item, old)
   }
 }
 
