@@ -84,7 +84,7 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
 function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
   async function onMutate(item) {
     const optimisticUpdateDefinitionsForSpecificItem = optimisticUpdateDefinitions.map(
-      optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
+      optimisticUpdateDefinition => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item)
     )
 
     // Cancel any outgoing refetches (so they don't overwrite our optimistic update).
@@ -103,8 +103,7 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
 
       // Attempt to optimistically update the cache using the new value.
       try {
-        const updateFn = (old) => updateQuery(item, old)
-        queryClient.setQueryData(queryKey, updateFn)
+        queryClient.setQueryData(queryKey, updateQuery)
       } catch (e) {
         console.error("The `updateQuery` function threw an exception, skipping optimistic update:")
         console.error(e)
@@ -146,10 +145,10 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
  * @returns {Object} A specific, "instantiated" optimistic update config which contains a fully-constructed query key
  */
 function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item) {
-  const { getQueryKey, ...remainingConfig } = optimisticUpdateDefinition
+  const { getQueryKey, updateQuery } = optimisticUpdateDefinition
   return {
     queryKey: getQueryKey(item),
-    ...remainingConfig
+    updateQuery: (old)  => updateQuery(item, old)
   }
 }
 
