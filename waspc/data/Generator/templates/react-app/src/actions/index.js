@@ -58,9 +58,9 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   }
 }
 
-function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesConfig) {
+function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
   return function optimisticallyUpdateQueries(item) {
-    const optimisticUpdateTuples = optimisticUpdatesConfig.map(
+    const optimisticUpdateTuples = optimisticUpdateDefinitions.map(
       ({ getQueryKey, updateQuery }) => ({
         queryKey: getQueryKey(item), 
         updateQueryFn: (old) => updateQuery(item, old),
