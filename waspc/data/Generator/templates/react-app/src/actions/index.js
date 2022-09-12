@@ -130,9 +130,9 @@ function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, it
 /**
  * Translates a Wasp query specifier to a query cache key used by React Query.
  * 
- * @param {Array} querySpecifier A query specifier that's a part of the public API:
+ * @param {Object[]} querySpecifier A query specifier that's a part of the public API:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook
- * @returns {Array} A cache key React Query internally uses for addressing queries.
+ * @returns {Object[]} A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {
   const [queryFn, ...otherKeys] = querySpecifier
