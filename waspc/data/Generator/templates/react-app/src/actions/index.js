@@ -10,7 +10,7 @@ export { configureQueryClient } from '../queryClient'
  *
  * @param actionFn The Wasp Action you wish to enhance/decorate.
  * @param {Object} actionOptions An options object for enhancing/decorating the given Action.
- * @returns A decorated Action with added behavior but an unchanged API.
+ * @returns {Function} A decorated Action with added behavior but an unchanged API.
  */
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
@@ -32,9 +32,9 @@ export function useAction(actionFn, actionOptions) {
  * Translates/Desugars a public optimistic update definition object into a definition object our
  * system uses internally.
  * 
- * @param publicOptimisticUpdateDefinition An optimistic update definition object that's a part of the public API:
+ * @param {Object} publicOptimisticUpdateDefinition An optimistic update definition object that's a part of the public API:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
- * @returns An internally-used optimistic update definition object.
+ * @returns {Object} An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   const { getQuerySpecifier, ...rest } = publicOptimisticUpdateDefinition
@@ -52,7 +52,7 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
  * @param {Object} queryClient The QueryClient instance used by React Query.
  * @param {Object} optimisticUpdateDefinitions A list containing internal optimistic updates definition objects
  * (i.e., a list where each object carries the instructions for performing particular optimistic update).
- * @returns An object containing 'onMutate' and 'onError' functions corresponding to the given optimistic update
+ * @returns {Object} An object containing 'onMutate' and 'onError' functions corresponding to the given optimistic update
  * definitions (check React Query's docs for details).
  */
 function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
@@ -117,7 +117,7 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
  * @param {Object} optimisticUpdateDefinition The general, "uninstantiated" optimistic
  * update definition with a function for constructing the query key.
  * @param item The item triggering the Action/optimistic update (i.e., the argument passed to the Action).
- * @returns A specific, "instantiated" optimistic update config which contains a fully-constructed query key
+ * @returns {Object} A specific, "instantiated" optimistic update config which contains a fully-constructed query key
  */
 function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item) {
   const { getQueryKey, ...remainingConfig } = optimisticUpdateDefinition
@@ -130,9 +130,9 @@ function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, it
 /**
  * Translates a Wasp query specifier to a query cache key used by React Query.
  * 
- * @param querySpecifier A query specifier that's a part of the public API:
+ * @param {Array} querySpecifier A query specifier that's a part of the public API:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook
- * @returns A cache key React Query internally uses for addressing queries.
+ * @returns {Array} A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {
   const [queryFn, ...otherKeys] = querySpecifier
