@@ -27,7 +27,9 @@ export const updateTaskIsDone = async ({ id, isDone }, context) => {
     throw new HttpError(401)
   }
 
-  await sleep(3000);
+  // Uncomment to test optimistic updates
+  // await sleep(3000);
+
   const Task = context.entities.Task
   return Task.updateMany({
     where: { id, user: { id: context.user.id } },
