@@ -6,7 +6,7 @@ import {
 export { configureQueryClient } from '../queryClient'
 
 /**
- * An options object passed into the `useAction` hook and uses to enhance the
+ * An options object passed into the `useAction` hook and used to enhance the
  * action with extra options.
  *
  * @typedef {Object} ActionOptions
@@ -43,11 +43,12 @@ export { configureQueryClient } from '../queryClient'
  * A public query specifier used for addressing Wasp queries. See our docs for details:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
  * 
- * 
  * @typedef {any[]} QuerySpecifier
  */
 
 /**
+ * An internal (undocumented, private, desugared) way of defining optimistic updates.
+ * 
  * @typedef {Object} InternalOptimisticUpdateDefinition
  * @property {GetQuerySpecifier} querySpecifier
  * @property {UpdateQuery} updateQuery
@@ -73,7 +74,7 @@ export { configureQueryClient } from '../queryClient'
 
 /**
  * An array React Query uses to address queries. See their docs for details:
- * https://react-query-v3.tanstack.com/guides/query-keys#array-keys
+ * https://react-query-v3.tanstack.com/guides/query-keys#array-keys.
  * 
  * @typedef {any[]} QueryKey
  */
@@ -108,7 +109,7 @@ export function useAction(actionFn, actionOptions) {
  * 
  * @param {PublicOptimisticUpdateDefinition} publicOptimisticUpdateDefinition An optimistic update definition
  * object that's a part of the public API: https://wasp-lang.dev/docs/language/features#the-useaction-hook.
- * @returns {InternalOptimisticUpdateDefinition} An internally-used * optimistic update definition object.
+ * @returns {InternalOptimisticUpdateDefinition} An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   const { getQuerySpecifier, updateQuery } = publicOptimisticUpdateDefinition
@@ -155,7 +156,7 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
       ({ queryKey }) => queryClient.cancelQueries(queryKey)
     ))
 
-    // We're using a Map to to correctly serialize query keys that contain objects
+    // We're using a Map to to correctly serialize query keys that contain objects.
     const previousData = new Map()
     specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
@@ -217,7 +218,7 @@ function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition
  * Translates a Wasp query specifier to a query cache key used by React Query.
  * 
  * @param {QuerySpecifier} querySpecifier A query specifier that's a part of the public API:
- * https://wasp-lang.dev/docs/language/features#the-useaction-hook
+ * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
  * @returns {QueryKey} A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {
