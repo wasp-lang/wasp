@@ -6,11 +6,11 @@ import {
 export { configureQueryClient } from '../queryClient'
 
 /**
- * A hook for adding extra behavior to a Wasp action (e.g., optimistic updates).
+ * A hook for adding extra behavior to a Wasp Action (e.g., optimistic updates).
  *
- * @param actionFn The Wasp action you wish to enhance/decorate.
- * @param {Object} actionOptions An options object for enhancing/decorating the given action.
- * @returns A decorated action with added behavior but an unchanged API.
+ * @param actionFn The Wasp Action you wish to enhance/decorate.
+ * @param {Object} actionOptions An options object for enhancing/decorating the given Action.
+ * @returns A decorated Action with added behavior but an unchanged API.
  */
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
@@ -23,7 +23,7 @@ export function useAction(actionFn, actionOptions) {
 
   // NOTE: We decided to hide React Query's extra mutation features (e.g.,
   // isLoading, onSuccess and onError callbacks, synchronous mutate) and only
-  // expose a simple async function whose API matches the original action.
+  // expose a simple async function whose API matches the original Action.
   const mutation = useMutation(actionFn, options)
   return (args) => mutation.mutateAsync(args)
 }
