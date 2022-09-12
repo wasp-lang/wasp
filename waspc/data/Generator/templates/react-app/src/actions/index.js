@@ -40,10 +40,10 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   const { getQuerySpecifier, updateQuery } = publicOptimisticUpdateDefinition
 
   const definitionErrors = []
-  if (typeof (getQuerySpecifier) !== 'function') {
+  if (typeof getQuerySpecifier !== 'function') {
     definitionErrors.push('`getQuerySpecifier` is not a function.')
   }
-  if (typeof (updateQuery) !== 'function') {
+  if (typeof updateQuery !== 'function') {
     definitionErrors.push('`updateQuery` is not a function.')
   }
   if (definitionErrors.length) {
