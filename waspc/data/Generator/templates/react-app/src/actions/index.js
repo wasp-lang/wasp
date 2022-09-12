@@ -133,8 +133,17 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   }
 }
 
+/**
+ * Creates a function that performs an action while telling it about the
+ * optimistic updates it caused.
+ * 
+ * @param actionFn - The Wasp Action.
+ * @param {InternalOptimisticUpdateDefinition} optimisticUpdateDefinitions - The optimisitc updates the 
+ * action causes.
+ * @returns A 
+ */
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
-  return function optimisticallyUpdateQueries(item) {
+  return function performActionWithOptimisticUpdates(item) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
     )
