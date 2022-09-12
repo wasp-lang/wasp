@@ -101,6 +101,9 @@ generatePrismaClient genProjectRootDirAbs = do
 
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.
+-- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
+-- Nothing if the check itself failed (exe: if a connection to the DB could not be established).
+-- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
 doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 doesSchemaMatchDb genProjectRootDirAbs = do
   chan <- newChan

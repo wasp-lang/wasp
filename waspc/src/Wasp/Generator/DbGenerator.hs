@@ -87,7 +87,7 @@ postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorErrors <- maybeToList <$> genPrismaClient spec dstDir
   return (dbGeneratorWarnings, dbGeneratorErrors)
 
--- | Checks if user needs to run `wasp db migrate-dev` due to changes they made in schema.prisma, and if so, returns a warning.
+-- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.
 --
 -- This function makes following assumptions:
@@ -96,7 +96,7 @@ postWriteDbGeneratorActions spec dstDir = do
 --  - schema.prisma.wasp-last-db-concurrence-checksum contains the checksum of the schema.prisma as it was when we last ensured it matched the DB.
 --
 -- Given that, there are two cases in which we wish to warn the user to run `wasp db migrate-dev`:
--- (1) If schema.prisma.wasp-last-db-concurrence-checksum exists, but is not equal to checksum(schema.prisma), we know they made changes to schema.prisma and should migrate.
+-- (1) If schema.prisma.wasp-last-db-concurrence-checksum exists, but is not equal to checksum(schema.prisma), we know there were changes to schema.prisma and they should migrate.
 -- (2) If schema.prisma.wasp-last-db-concurrence-checksum does not exist, but the user has entities defined in schema.prisma (and thus, AppSpec).
 --     This could imply they have never migrated locally, or that they have but are simply missing their generated project dir.
 --     Common scenarios for the second warning include:
@@ -106,6 +106,10 @@ postWriteDbGeneratorActions spec dstDir = do
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
 --     in sync with the databse, we generate that file to avoid future checks.
+--
+--     NOTE: Because we currently only allow devs to migrate-dev, we only compare the schema to the DB since
+--     there are no likely scenarios where schema == db but schema != migrations dir. In the future, as we add more DB commands,
+--     we may wish to also compare the migrations dir to the DB as well.
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration spec projectRootDir = do
   dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
@@ -135,15 +139,14 @@ warnIfSchemaDiffersFromDb projectRootDir = do
   schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
   case schemaMatchesDb of
     Just True -> do
-      -- NOTE: This is an optimization, since we know schema == db.
-      -- Writing this file prevents future redundant Prisma checks.
+      -- NOTE: Since we know schema == db, writing this file prevents future redundant Prisma checks.
       DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
       return Nothing
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
     -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
     -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.
     -- In any case, migrating will either solve it (in the SQLite case), or allow Prisma to give them enough info to troubleshoot.
-    Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Please run `wasp db migrate-dev` to ensure the local project is fully initialized."
+    Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to verify your database is up to date. Running `wasp db migrate-dev` may fix this and will provide more info."
 
 genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
 genPrismaClient spec projectRootDir = do
