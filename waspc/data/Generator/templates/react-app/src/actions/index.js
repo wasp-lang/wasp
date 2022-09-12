@@ -8,9 +8,9 @@ export { configureQueryClient } from '../queryClient'
 /**
  * A hook for adding extra behavior to a Wasp action (e.g., optimistic updates).
  *
- * @param actionFn The Wasp action you wish to enhance.
- * @param {Object} actionOptions An options object for enhancing the given action.
- * @returns An enhanced function with an unchanged API.
+ * @param actionFn The Wasp action you wish to enhance/decorate.
+ * @param {Object} actionOptions An options object for enhancing/decorating the given action.
+ * @returns A decorated action with added behavior but an unchanged API.
  */
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
