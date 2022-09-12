@@ -5,15 +5,15 @@ import {
 } from '../operations/resources'
 
 export function createAction(actionRoute, entitiesUsed) {
-  async function internalAction(args, optimisticUpdateTuples) {
-    registerActionInProgress(optimisticUpdateTuples)
+  async function internalAction(args, specificOptimisticUpdateDefinitions) {
+    registerActionInProgress(specificOptimisticUpdateDefinitions)
     try {
       // The `return await` is not redundant here. If we removed the await, the
       // `finally` block would execute before the action finishes, prematurely
       // registering the action as done.
       return await callOperation(actionRoute, args)
     } finally {
-      await registerActionDone(entitiesUsed, optimisticUpdateTuples)
+      await registerActionDone(entitiesUsed, specificOptimisticUpdateDefinitions)
     }
   }
 

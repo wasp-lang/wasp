@@ -60,13 +60,10 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
 
 function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
   return function optimisticallyUpdateQueries(item) {
-    const optimisticUpdateTuples = optimisticUpdateDefinitions.map(
-      ({ getQueryKey, updateQuery }) => ({
-        queryKey: getQueryKey(item), 
-        updateQueryFn: (old) => updateQuery(item, old),
-      })
-    ) 
-    return actionFn.internal(item, optimisticUpdateTuples)
+    const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
+      generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
+    )
+    return actionFn.internal(item, specificOptimisticUpdateDefinitions)
   }
 }
 

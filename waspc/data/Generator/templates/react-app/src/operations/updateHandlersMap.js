@@ -5,15 +5,15 @@ export function makeUpdateHandlersMap(calculateHash) {
     return updateHandlers.get(queryKeyHash) || [];
   }
 
-  function add(queryKey, updateQueryFn) {
+  function add(queryKey, updateQuery) {
     const queryKeyHash = calculateHash(queryKey)
     const handlers = getHandlerTuples(queryKeyHash);
-    updateHandlers.set(queryKeyHash, [...handlers, { queryKey, updateQueryFn }])
+    updateHandlers.set(queryKeyHash, [...handlers, { queryKey, updateQuery }])
   }
 
   function getUpdateHandlers(queryKey) {
     const queryKeyHash = calculateHash(queryKey)
-    return getHandlerTuples(queryKeyHash).map(({ updateQueryFn }) => updateQueryFn)
+    return getHandlerTuples(queryKeyHash).map(({ updateQuery }) => updateQuery)
   }
 
   function remove(queryKeyToRemove) {

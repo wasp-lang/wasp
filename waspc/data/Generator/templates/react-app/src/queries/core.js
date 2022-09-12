@@ -1,14 +1,14 @@
 import { callOperation } from '../operations'
 import {
   addResourcesUsedByQuery,
-  getPendingUpdatesForQuery
+  getActiveOptimisticUpdates,
 } from '../operations/resources'
 
 export function createQuery(queryRoute, entitiesUsed) {
   async function query(queryKey, queryArgs) {
     const serverResult = await callOperation(queryRoute, queryArgs)
-    return getPendingUpdatesForQuery(queryKey).reduce(
-      (result, pendingUpdate) => pendingUpdate(result), 
+    return getActiveOptimisticUpdates(queryKey).reduce(
+      (result, update) => update(result), 
       serverResult,
     )
   }
