@@ -83,21 +83,21 @@ function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
  */
 function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
   async function onMutate(item) {
-    const optimisticUpdateDefinitionsForSpecificItem = optimisticUpdateDefinitions.map(
-      optimisticUpdateDefinition => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item)
+    const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
+      generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
     )
 
     // Cancel any outgoing refetches (so they don't overwrite our optimistic update).
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
     // However, awaiting cancellation hasn't yet proven to be a performance bottleneck.
-    await Promise.all(optimisticUpdateDefinitionsForSpecificItem.map(
-      ({ query }) => queryClient.cancelQueries(query)
+    await Promise.all(specificOptimisticUpdateDefinitions.map(
+      ({ queryKey }) => queryClient.cancelQueries(queryKey)
     ))
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    optimisticUpdateDefinitionsForSpecificItem.forEach(({ queryKey, updateQuery }) => {
+    specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
       const previousDataForQuery = queryClient.getQueryData(queryKey)
 
@@ -142,9 +142,9 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
  * @param {Object} optimisticUpdateDefinition The general, "uninstantiated" optimistic
  * update definition with a function for constructing the query key.
  * @param item The item triggering the Action/optimistic update (i.e., the argument passed to the Action).
- * @returns {Object} A specific, "instantiated" optimistic update config which contains a fully-constructed query key
+ * @returns {Object} A specific, "instantiated" optimistic update definition which contains a fully-constructed query key
  */
-function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item) {
+function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition, item) {
   const { getQueryKey, updateQuery } = optimisticUpdateDefinition
   return {
     queryKey: getQueryKey(item),
