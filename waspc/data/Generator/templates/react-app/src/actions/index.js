@@ -57,7 +57,7 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
  */
 function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
   async function onMutate(item) {
-    const specificOptimisticUpdateConfigs = optimisticUpdateDefinitions.map(
+    const optimisticUpdateDefinitionsForSpecificItem = optimisticUpdateDefinitions.map(
       optimisticUpdateConfig => getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item)
     )
 
@@ -65,13 +65,13 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
     // Theoretically, we can be a bit faster. Instead of awaiting the
     // cancellation of all queries, we could cancel and update them in parallel.
     // However, awaiting cancellation hasn't yet proven to be a performance bottleneck.
-    await Promise.all(specificOptimisticUpdateConfigs.map(
+    await Promise.all(optimisticUpdateDefinitionsForSpecificItem.map(
       ({ query }) => queryClient.cancelQueries(query)
     ))
 
     // We're using a Map to to correctly serialize query keys that contain objects
     const previousData = new Map()
-    specificOptimisticUpdateConfigs.forEach(({ queryKey, updateQuery }) => {
+    optimisticUpdateDefinitionsForSpecificItem.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
       const previousDataForQuery = queryClient.getQueryData(queryKey)
 
@@ -110,18 +110,17 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
 }
 
 /**
- * Constructs the config needed to optimistically update a specific item. It
- * uses a closure over the updated to construct an item-specific query key
- * (e.g., when the query key depends on an ID)
+ * Constructs the definition for optimistically updating a specific item. It
+ * uses a closure over the updated item to construct an item-specific query key
+ * (e.g., useful when the query key depends on an ID).
  *
- * @param {Object} optimisticUpdateConfig  The general, "uninstantiated" optimistic
- * update config that contains a function for constructing a query key.
- * @param item The item supposed to be optimisticallly updated.
- * @returns A specific, "instantiated" optimistic update config which contains a
- * fully-constructed query key
+ * @param {Object} optimisticUpdateDefinition The general, "uninstantiated" optimistic
+ * update definition with a function for constructing the query key.
+ * @param item The item triggering the Action/optimistic update (i.e., the argument passed to the Action).
+ * @returns A specific, "instantiated" optimistic update config which contains a fully-constructed query key
  */
-function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item) {
-  const { getQueryKey, ...remainingConfig } = optimisticUpdateConfig
+function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateDefinition, item) {
+  const { getQueryKey, ...remainingConfig } = optimisticUpdateDefinition
   return {
     queryKey: getQueryKey(item),
     ...remainingConfig
@@ -131,6 +130,8 @@ function getOptimisticUpdateConfigForSpecificItem(optimisticUpdateConfig, item) 
 /**
  * Translates a Wasp query specifier to a query cache key used by React Query.
  * 
+ * @param querySpecifier A query specifier that's a part of the public API:
+ * https://wasp-lang.dev/docs/language/features#the-useaction-hook
  * @returns A cache key React Query internally uses for addressing queries.
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {
