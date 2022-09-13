@@ -1,5 +1,5 @@
 ---
-title: Building a backbone for a full-stack web app with a single config file
+title: Building an app to find an excuse for our sloppy work
 authors: [maksym36ua]
 tags: [wasp]
 ---
@@ -9,6 +9,8 @@ import InBlogCta from './components/InBlogCta';
 We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! And will do it with a single config file that covers the full-stack app architecture plus several dozen lines of code. In the quickest possible way, so we can’t excuse ourselves from building it!
 
 ![Best excuse of all time](../static/img/compiling.png)
+
+Best excuse of all time! [Taken from here.](https://xkcd.com/303/)
 
 
 ## The requirements were unclear.
