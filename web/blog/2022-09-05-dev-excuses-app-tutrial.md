@@ -267,4 +267,6 @@ Now we can think of some additional improvements. For example:
 
 So, we’ve been able to build a full-stack application with a database and external API call in a couple of minutes. And now we have a box full of excuses for all our development needs. 
 
+![Box of excuses for the win!](../static/img/accessible-website-excuse.jpg)
+
 <InBlogCta />
