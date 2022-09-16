@@ -82,12 +82,11 @@ npmDepsForWasp _spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("axios", "^0.21.1"),
-            ("lodash", "^4.17.15"),
-            ("react", "^16.12.0"),
-            ("react-dom", "^16.12.0"),
-            ("react-query", "^3.34.19"),
-            ("react-router-dom", "^5.1.2"),
+          [ ("axios", "^0.27.2"),
+            ("react", "^17.0.2"),
+            ("react-dom", "^17.0.2"),
+            ("react-query", "^3.39.2"),
+            ("react-router-dom", "^5.3.3"),
             ("react-scripts", "4.0.3"),
             -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
             -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
