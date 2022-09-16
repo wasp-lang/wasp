@@ -1,6 +1,6 @@
 with-compiler: ghc-8.10.7
 
-packages: waspc/ waspls/
+packages: .
 
 package waspc
   -- This causes cabal to build modules (of local packages, which are waspc and waspls) on all cores,
@@ -8,12 +8,7 @@ package waspc
   -- NOTE: If this is enabled at the same time as cabal's parallelization on package-level,
   --   it can have counter-effect of increasing compilation time due to cabal and ghc fighting
   --   for common resource: cpu threads.
-  --   This is not a problem for us for now since we have only two packages in our project, with one of
-  --   them being significantly larger (waspc).
-  ghc-options: -j
-
-package waspls
-  -- Same as above
+  --   This is not a problem for us for now since we have only one package in our project.
   ghc-options: -j
 
 -- This causes cabal to build packages on all cores, instead of just one.

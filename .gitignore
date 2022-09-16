@@ -5,8 +5,5 @@
 # editor related
 .idea/
 
-# cabal related
-dist-newstyle/
-
 # macOS related
 .DS_Store
