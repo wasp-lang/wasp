@@ -283,6 +283,6 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
 
     designateLastElement :: [(String, String, String)] -> [(String, String, String, Bool)]
     designateLastElement [] = []
-    designateLastElement [(x1, x2, x3)] = [(x1, x2, x3, True)]
     designateLastElement l =
-      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l) ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
+      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
+        ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
