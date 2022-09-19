@@ -120,7 +120,7 @@ npmDepsForWasp spec =
             ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
-            -- NOTE: "secure-password" has a package.json override of "sodium-native".
+            -- NOTE: secure-password has a package.json override for sodium-native.
             ("secure-password", "^4.0.0"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
@@ -266,7 +266,9 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
   where
     overrides :: [(String, String, String)]
     overrides =
-      [ ("secure-password", "sodium-native", "3.3.0")
+      [ -- sodium-native > 3.3.0 broke deploying on Heroku.
+        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
+        ("secure-password", "sodium-native", "3.3.0")
       ]
 
     -- NOTE: We must designate the last element so the JSON template can omit the final comma.
