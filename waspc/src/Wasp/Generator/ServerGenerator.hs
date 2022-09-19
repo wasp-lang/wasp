@@ -9,6 +9,7 @@ module Wasp.Generator.ServerGenerator
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
 import Data.Maybe
   ( fromJust,
     fromMaybe,
@@ -98,11 +99,14 @@ genPackageJson spec waspDependencies = do
               "nodeVersionRange" .= show nodeVersionRange,
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
-                .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
+                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
-                   )
+                   ),
+              "overrides" .= getPackageJsonOverrides
             ]
       )
+  where
+    hasEntities = not . null $ AS.getDecls @AS.Entity.Entity spec
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
@@ -116,6 +120,7 @@ npmDepsForWasp spec =
             ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
+            -- NOTE: "secure-password" has a package.json override of "sodium-native".
             ("secure-password", "^4.0.0"),
             ("dotenv", "16.0.2"),
             ("helmet", "^6.0.0"),
@@ -252,3 +257,30 @@ patchesRequiredByPassport spec =
     ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+-- Allows us to make specific changes to dependencies of our dependencies.
+-- This is helpful if something broke in later versions, etc.
+-- Ref: https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
+getPackageJsonOverrides :: [Aeson.Value]
+getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
+  where
+    overrides :: [(String, String, String)]
+    overrides =
+      [ ("secure-password", "sodium-native", "3.3.0")
+      ]
+
+    -- NOTE: We must designate the last element so the JSON template can omit the final comma.
+    buildOverrideData :: (String, String, String, Bool) -> Aeson.Value
+    buildOverrideData (packageName, dependencyName, dependencyVersion, lastElement) =
+      object
+        [ "packageName" .= packageName,
+          "dependencyName" .= dependencyName,
+          "dependencyVersion" .= dependencyVersion,
+          "last" .= lastElement
+        ]
+
+    designateLastElement :: [(String, String, String)] -> [(String, String, String, Bool)]
+    designateLastElement [] = []
+    designateLastElement [(x1, x2, x3)] = [(x1, x2, x3, True)]
+    designateLastElement l =
+      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l) ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
