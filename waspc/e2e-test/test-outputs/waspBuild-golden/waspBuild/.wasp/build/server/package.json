@@ -28,6 +28,11 @@
   "nodemonConfig": {
     "delay": "1000"
   },
+  "overrides": {
+    "secure-password": {
+      "sodium-native": "3.3.0"
+    }
+  },
   "private": true,
   "scripts": {
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
