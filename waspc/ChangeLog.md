@@ -35,7 +35,7 @@ You can now offer your users the ability to sign in with Google! Enabling it is 
 Stay tuned, as more external auth methods will be added in the future. Let us know what you'd like to see support for next!
 
 ### Bug fixes
-- Works around a `sodium-native` bug (used by a Wasp dependency, `secure-password`) that prevented Heroku deployments by downgrading it from v3.4.1 to v3.3.0 via a `package.json` override. Ref: https://github.com/sodium-friends/sodium-native/issues/160
+- Works around a `sodium-native` bug (used by a Wasp dependency, `secure-password`) that caused signup/login runtime issues with Heroku deployments by downgrading it from v3.4.1 to v3.3.0 via a `package.json` override. Ref: https://github.com/sodium-friends/sodium-native/issues/160
 
 ---
 
