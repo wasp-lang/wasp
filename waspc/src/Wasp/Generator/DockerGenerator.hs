@@ -6,10 +6,12 @@ module Wasp.Generator.DockerGenerator
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel, relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.Valid (getDockerfileContents)
 import Wasp.Generator.Common (ProjectRootDir, latestMajorNodeVersion)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -32,7 +34,8 @@ genDockerfile spec = do
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
-              "usingServerPatches" .= usingServerPatches
+              "usingServerPatches" .= usingServerPatches,
+              "extDockerfile" .= fromMaybe "" (getDockerfileContents spec)
             ]
       )
 

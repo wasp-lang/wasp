@@ -20,7 +20,9 @@ app todoApp {
     onAuthSucceededRedirectTo: "/profile"
   },
   server: {
-    setupFn: import setup from "@ext/serverSetup.js"
+    setupFn: import setup from "@ext/serverSetup.js",
+    // TODO: Update this syntax for just referencing a file path.
+    dockerfile: import all from "@ext/Dockerfile"
   },
   client: {
     setupFn: import setup from "@ext/clientSetup.js"
