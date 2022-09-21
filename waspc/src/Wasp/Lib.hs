@@ -111,7 +111,5 @@ loadDockerfileContents waspDir = do
   let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
   dockerfileExists <- doesFileExist dockerfileAbsPath
   if dockerfileExists
-    then do
-      dockerfileContents <- T.IO.readFile dockerfileAbsPath
-      return $ Just dockerfileContents
+    then Just <$> T.IO.readFile dockerfileAbsPath
     else return Nothing
