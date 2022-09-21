@@ -8,6 +8,8 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
+import Data.Text (Text)
+import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
@@ -68,6 +70,7 @@ analyzeWaspProject waspDir options = do
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvFile <- findDotEnvFile waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
+          maybeDockerfileContents <- loadDockerfileContents waspDir
           return $
             Right
               AS.AppSpec
@@ -76,7 +79,8 @@ analyzeWaspProject waspDir options = do
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,
                   AS.dotEnvFile = maybeDotEnvFile,
-                  AS.isBuild = CompileOptions.isBuild options
+                  AS.isBuild = CompileOptions.isBuild options,
+                  AS.dockerfileContents = maybeDockerfileContents
                 }
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
@@ -101,3 +105,13 @@ findMigrationsDir waspDir = do
   let migrationsAbsPath = waspDir SP.</> dbMigrationsDirInWaspProjectDir
   migrationsExists <- doesDirectoryExist $ SP.fromAbsDir migrationsAbsPath
   return $ if migrationsExists then Just migrationsAbsPath else Nothing
+
+loadDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
+loadDockerfileContents waspDir = do
+  let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
+  dockerfileExists <- doesFileExist dockerfileAbsPath
+  if dockerfileExists
+    then do
+      dockerfileContents <- T.IO.readFile dockerfileAbsPath
+      return $ Just dockerfileContents
+    else return Nothing

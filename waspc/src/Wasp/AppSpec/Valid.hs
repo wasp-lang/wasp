@@ -5,15 +5,11 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
-    getDockerfileContents,
   )
 where
 
 import Data.List (find)
 import Data.Maybe (isJust)
-import Data.Text (Text)
-import Data.Text.Lazy (toStrict)
-import StrongPath (fromRelFile, fromRelFileP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App)
@@ -21,12 +17,9 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.App.Server as AS.Server
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
-import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
-import qualified Wasp.AppSpec.ExternalCode as AS.ExternalCode
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 
@@ -144,10 +137,3 @@ isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
 isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
-
-getDockerfileContents :: AppSpec -> Maybe Text
-getDockerfileContents spec = do
-  dockerfileExtImport <- AS.Server.dockerfile =<< AS.App.server (snd $ getApp spec)
-  let dockerfileExtImportPath = AS.ExtImport.path dockerfileExtImport
-  dockerfileExternalCodeFile <- find (\ecf -> fromRelFileP dockerfileExtImportPath == fromRelFile (AS.ExternalCode._pathInExtCodeDir ecf)) (AS.externalCodeFiles spec)
-  return . toStrict $ AS.ExternalCode._text dockerfileExternalCodeFile
