@@ -90,10 +90,12 @@ export { configureQueryClient } from '../queryClient'
 export function useAction(actionFn, actionOptions) {
   const queryClient = useQueryClient();
 
+  let mutationFn = actionFn
   let options = {}
   if (actionOptions?.optimisticUpdates) {
-    const optimisticUpdateDefinitions = actionOptions.optimisticUpdates.map(translateToInternalDefinition)
-    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
+    const optimisticUpdatesDefinitions = actionOptions.optimisticUpdates.map(translateToInternalDefinition)
+    mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesDefinitions)
+    options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdatesDefinitions)
   }
 
   // NOTE: We decided to hide React Query's extra mutation features (e.g.,
@@ -103,7 +105,7 @@ export function useAction(actionFn, actionOptions) {
   // yet (e.g., isLoading), to postpone the action vs mutation dilemma, and to
   // clearly separate our opinionated API from React Query's lower-level
   // advanced API (which users can also use)
-  const mutation = useMutation(actionFn, options)
+  const mutation = useMutation(mutationFn, options)
   return (args) => mutation.mutateAsync(args)
 }
 
@@ -132,6 +134,24 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
   return {
     getQueryKey: (item) => getRqQueryKeyFromSpecifier(getQuerySpecifier(item)),
     updateQuery,
+  }
+}
+
+/**
+ * Creates a function that performs an action while telling it about the
+ * optimistic updates it caused.
+ * 
+ * @param actionFn - The Wasp Action.
+ * @param {InternalOptimisticUpdateDefinition} optimisticUpdateDefinitions - The optimisitc updates the 
+ * action causes.
+ * @returns A 
+ */
+function makeOptimisticUpdateMutationFn(actionFn, optimisticUpdateDefinitions) {
+  return function performActionWithOptimisticUpdates(item) {
+    const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
+      generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
+    )
+    return actionFn.internal(item, specificOptimisticUpdateDefinitions)
   }
 }
 
