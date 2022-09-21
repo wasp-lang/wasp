@@ -99,6 +99,10 @@ export function useAction(actionFn, actionOptions) {
   // NOTE: We decided to hide React Query's extra mutation features (e.g.,
   // isLoading, onSuccess and onError callbacks, synchronous mutate) and only
   // expose a simple async function whose API matches the original Action.
+  // We did this to avoid cluttering the API with stuff we're not sure we need
+  // yet (e.g., isLoading), to postpone the action vs mutation dilemma, and to
+  // clearly separate our opinionated API from React Query's lower-level
+  // advanced API (which users can also use)
   const mutation = useMutation(actionFn, options)
   return (args) => mutation.mutateAsync(args)
 }
@@ -132,15 +136,18 @@ function translateToInternalDefinition(publicOptimisticUpdateDefinition) {
 }
 
 /**
- * This function implements the methods necessary for configuring optimistic
- * updates using React Query, as described by their documentation:
+ * Given a ReactQuery query client and our internal definition of optimistic
+ * updates, this function constructs an object describing those same optimistic
+ * updates in a format we can pass into React Query's useMutation hook. In other
+ * words, it translates our optimistic updates definition into React Query's
+ * optimistic updates definition. Check their docs for details:
  * https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates
- *
+ * 
  * @param {Object} queryClient The QueryClient instance used by React Query.
  * @param {InternalOptimisticUpdateDefinition} optimisticUpdateDefinitions A list containing internal optimistic updates definition objects
  * (i.e., a list where each object carries the instructions for performing particular optimistic update).
  * @returns {Object} An object containing 'onMutate' and 'onError' functions corresponding to the given optimistic update
- * definitions (check React Query's docs for details).
+ * definitions (check the docs linked above for details).
  */
 function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions) {
   async function onMutate(item) {
@@ -156,7 +163,7 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
       ({ queryKey }) => queryClient.cancelQueries(queryKey)
     ))
 
-    // We're using a Map to to correctly serialize query keys that contain objects.
+    // We're using a Map to correctly serialize query keys that contain objects.
     const previousData = new Map()
     specificOptimisticUpdateDefinitions.forEach(({ queryKey, updateQuery }) => {
       // Snapshot the currently cached value.
@@ -177,7 +184,7 @@ function makeRqOptimisticUpdateOptions(queryClient, optimisticUpdateDefinitions)
     return { previousData }
   }
 
-  function onError(err, item, context) {
+  function onError(_err, _item, context) {
     // All we do in case of an error is roll back all optimistic updates. We ensure
     // not to do anything else because React Query rethrows the error. This allows
     // the programmer to handle the error as they usually would (i.e., we want the

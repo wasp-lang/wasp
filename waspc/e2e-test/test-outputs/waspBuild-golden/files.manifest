@@ -32,6 +32,7 @@ waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/index.html
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/src/actions/core.js
+waspBuild/.wasp/build/web-app/src/actions/index.js
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css

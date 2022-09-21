@@ -393,7 +393,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 Actions are very similar to Queries. So similar, in fact, we will only list the differences:
 1. They can (and most often should) modify the server's state, while Queries are only allowed to read it.
 2. Actions don't need to be reactive so you can call them directly. Still, Wasp does provide a `useAction` React hook for adding extra behavior to the Action (e.g., optimistic updates).
-Read more about the [`useAction` hook](#the-useaction-hook) below
+Read more about the [`useAction` hook](#the-useaction-hook) below.
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
 
 Here's an implementation of a simple Action:

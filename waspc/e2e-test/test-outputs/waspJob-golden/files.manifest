@@ -34,6 +34,7 @@ waspJob/.wasp/out/web-app/public/favicon.ico
 waspJob/.wasp/out/web-app/public/index.html
 waspJob/.wasp/out/web-app/public/manifest.json
 waspJob/.wasp/out/web-app/src/actions/core.js
+waspJob/.wasp/out/web-app/src/actions/index.js
 waspJob/.wasp/out/web-app/src/api.js
 waspJob/.wasp/out/web-app/src/config.js
 waspJob/.wasp/out/web-app/src/ext-src/Main.css
