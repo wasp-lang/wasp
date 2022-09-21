@@ -308,6 +308,7 @@ library cli-lib
     , path
     , path-io
     , strong-path
+    , text
     , utf8-string
     , uuid
     , waspc
@@ -325,6 +326,7 @@ library cli-lib
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Deps
+    Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Telemetry

@@ -19,6 +19,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand, studio)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import Wasp.Cli.Command.Deps (deps)
+import Wasp.Cli.Command.Dockerfile (dockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -40,6 +41,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
+        ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
@@ -59,6 +61,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.Dockerfile -> runCommand dockerfile
     Command.Call.Info -> runCommand info
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
@@ -96,6 +99,7 @@ printUsage =
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
+        cmd "    dockerfile            Prints the Dockerfile content Wasp will generate on build.",
         cmd "    info                  Prints basic information about current Wasp project.",
         "",
         title "EXAMPLES",

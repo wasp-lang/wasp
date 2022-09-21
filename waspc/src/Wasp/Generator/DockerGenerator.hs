@@ -2,6 +2,7 @@
 
 module Wasp.Generator.DockerGenerator
   ( genDockerFiles,
+    genDockerfile,
   )
 where
 
