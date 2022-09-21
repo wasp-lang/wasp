@@ -30,7 +30,10 @@ genOperations spec =
   genQueries spec
     <++> genActions spec
     <++> Resources.genResources spec
-    <++> return [C.mkSrcTmplFd [relfile|operations/index.js|]]
+    <++> return
+      [ C.mkSrcTmplFd [relfile|operations/index.js|],
+        C.mkSrcTmplFd [relfile|operations/updateHandlersMap.js|]
+      ]
 
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =

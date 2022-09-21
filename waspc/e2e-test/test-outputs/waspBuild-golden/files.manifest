@@ -43,6 +43,7 @@ waspBuild/.wasp/build/web-app/src/index.js
 waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/operations/index.js
 waspBuild/.wasp/build/web-app/src/operations/resources.js
+waspBuild/.wasp/build/web-app/src/operations/updateHandlersMap.js
 waspBuild/.wasp/build/web-app/src/queries/core.js
 waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
