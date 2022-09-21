@@ -4,7 +4,7 @@ module Wasp.Lib
     ProjectRootDir,
     findWaspFile,
     analyzeWaspProject,
-    renderDockerfileTemplate,
+    compileAndRenderDockerfileTemplate,
   )
 where
 
@@ -123,8 +123,8 @@ loadDockerfileContents waspDir = do
     then Just <$> T.IO.readFile dockerfileAbsPath
     else return Nothing
 
-renderDockerfileTemplate :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
-renderDockerfileTemplate waspDir compileOptions = do
+compileAndRenderDockerfileTemplate :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
+compileAndRenderDockerfileTemplate waspDir compileOptions = do
   appSpecOrCompileErrors <- analyzeWaspProject waspDir compileOptions
   case appSpecOrCompileErrors of
     Left errors -> return $ Left errors

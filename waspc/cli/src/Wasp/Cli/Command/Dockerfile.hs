@@ -9,12 +9,12 @@ import qualified Data.Text.IO as T.IO
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
-import Wasp.Lib (renderDockerfileTemplate)
+import Wasp.Lib (compileAndRenderDockerfileTemplate)
 
 dockerfile :: Command ()
 dockerfile = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  dockerfileContentOrCompileErrors <- liftIO $ renderDockerfileTemplate waspProjectDir (defaultCompileOptions waspProjectDir)
+  dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfileTemplate waspProjectDir (defaultCompileOptions waspProjectDir)
   dockerfileContent <-
     either
       (throwError . CommandError "Displaying Dockerfile failed due to a compilation error in your Wasp project" . unwords)

@@ -99,7 +99,7 @@ printUsage =
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
-        cmd "    dockerfile            Prints the Dockerfile content Wasp will generate on build.",
+        cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd "    info                  Prints basic information about current Wasp project.",
         "",
         title "EXAMPLES",
