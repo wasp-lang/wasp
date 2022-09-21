@@ -475,9 +475,11 @@ The `useAction` hook accepts two arguments:
 - `actionOptions` (optional) - An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields: 
   - `optimisticUpdates` (optional) - An array of objects where each object defines an optimistic update to perform on the query cache. To define an optimistic update, you must specify the following properties:
     - `getQuerySpecifier` (required) - A function returning the query specifier (i.e., a value used to address the query you want to update). A query specifier is an array specifying the query function and arguments. For example, to optimistically update the query used with `useQuery(fetchFilteredTasks, {isDone: true }]`, your `getQuerySpecifier` function would have to return the array `[fetchFilteredTasks, { isDone: true}]`. Wasp will forward the argument you pass into the decorated Action to this function (i.e., you can use the properties of the added/change item to address the query).
-    - `updateQuery` (required) - The function used to perform the optimistic update. Wasp will call it with the following arguments:
+    - `updateQuery` (required) - The function used to perform the optimistic update. It should return the desired state of the cache. Wasp will call it with the following arguments:
       - `item` - The argument you pass into the decorated Action.
       - `oldData` - The currently cached value for the query identified by the specifier.
+
+**NOTE:** The `updateQuery` function must be a pure function to work correctly. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects. Also, make sure your implementation is valid regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
 
 Here's an example showing how to configure the Action from the previous example to perform an optimistic update: 
 ```jsx {3,9,10,11,12,13,14,15,16,27} title=pages/Task.js
@@ -519,6 +521,7 @@ const TaskPage = ({ id }) => {
 
 export default TaskPage 
 ```
+#### Advanced usage
 The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
 
 Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use _react-query_'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates).
