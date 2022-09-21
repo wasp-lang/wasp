@@ -64,7 +64,9 @@ page Main {
 
 auth { /* full-stack auth out-of-the-box */
   userEntity: User,
-  methods: [ UsernameAndPassword ],
+  methods: {
+    usernameAndPassword: {}
+  }
 }
 
 entity User {=psl

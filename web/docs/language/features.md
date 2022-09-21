@@ -592,11 +592,11 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 <details>
   <summary>pg-boss details</summary>
 
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/7.2.1/README.md).
+  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.0.0/README.md).
 
   When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
+  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
   ##### pg-boss considerations
   - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
@@ -697,12 +697,12 @@ job mySpecialJob {
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
 
 #### `schedule: dict` (optional)
   
   - ##### `cron: string` (required)
-  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#scheduling).
+  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#scheduling).
   
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
@@ -711,7 +711,7 @@ job mySpecialJob {
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
 
 #### `entities: [Entity]` (optional)
 A list of entities you wish to use inside your Job (similar to Queries and Actions).
@@ -758,9 +758,9 @@ There will also be namespaced, job executor-specific objects.
 
 - For pg-boss, you may access: `pgBoss`
   - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#resumeid)
+  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#getjobbyidid)
+  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#cancelid)
+  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#resumeid)
 
 ## Dependencies
 
@@ -795,7 +795,9 @@ app MyApp {
   // ...
   auth: {
     userEntity: User,
-    methods: [ UsernameAndPassword ],
+    methods: {
+      usernameAndPassword: {}
+    },
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
@@ -806,9 +808,13 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
-#### `methods: [AuthMethod]` (required)
+#### `externalAuthEntity: entity` (optional)
+Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google).
+
+#### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `UsernameAndPassword`: Provides support for authentication with a username and password.
+* `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
+* `google`: Provides support for login via Google accounts. See [here](#google) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -820,7 +826,7 @@ Default value is "/".
 
 ### Username and Password
 
-`UsernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
+`usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
 This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
@@ -1055,6 +1061,115 @@ import AuthError from '@wasp/core/AuthError.js'
       throw e
     }
   }
+```
+
+### Google
+
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or user entity field assignment, you can override the defaults.
+
+This method requires that `externalAuthEntity` specified in `auth` [described here](features#externalauthentity).
+#### Default settings
+- Configuration:
+  - By default, Wasp expects you to set two environment variables in order to use Google authentication:
+    - `GOOGLE_CLIENT_ID`
+    - `GOOGLE_CLIENT_SECRET`
+  - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
+- Sign in:
+  - When a user signs in for the first time, Wasp will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
+    - Aside: If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then redirect them in your `onAuthSucceededRedirectTo` handler.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js These can be overriden as explained below.
+
+#### Overrides
+If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
+
+```js
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {
+        configFn: import { config } from "@ext/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
+      }
+    },
+    ...
+  }
+```
+
+- `configFn`: This function should return an object with the following shape:
+  ```js
+  export function config() {
+    // ...
+    return {
+      clientId, // look up from env or elsewhere,
+      clientSecret, // look up from env or elsewhere,
+      scope: ['profile'] // must include at least 'profile'
+    }
+  }
+  ```
+- `getUserFieldsFn`: This function should return the user fields to use when creating a new user upon their first Google login. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
+  ```js
+  import { generateAvailableUsername } from '@wasp/core/auth.js'
+
+  export async function getUserFields(_context, args) {
+    const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
+    return { username }
+  }
+  ```
+  - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
+
+#### UI helpers
+
+To use the Google sign-in button or URL on your login page, do either of the following:
+
+```js
+...
+import { GoogleSignInButton, googleSignInUrl } from '@wasp/auth/buttons/Google'
+
+const Login = () => {
+  return (
+    <>
+      ...
+
+      <GoogleSignInButton/>
+      {/* or */}
+      <a href={googleSignInUrl}>Sign in with Google</a>
+    </>
+  )
+}
+
+export default Login
+```
+
+You can set the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px.
+
+
+### `externalAuthEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:
+
+```css {4,11,16-19,21}
+...
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+...
+
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
 ```
 
 ## Client configuration

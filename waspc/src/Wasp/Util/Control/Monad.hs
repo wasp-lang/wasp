@@ -1,6 +1,7 @@
 module Wasp.Util.Control.Monad
   ( foldMapM',
     foldM1,
+    untilM,
   )
 where
 
@@ -42,3 +43,10 @@ foldMapM' f = foldl' (\ms a -> ms >>= \s -> (s <>) <$> f a) $ pure mempty
 -- Right 10
 foldM1 :: (Monad m) => (a -> a -> m a) -> NonEmpty a -> m a
 foldM1 f (x :| xs) = foldM f x xs
+
+-- | Analogue of 'until'. @'untilM' p f b@ yields the result of applying @f@
+-- until @p@ is true.
+untilM :: Monad m => (a -> Bool) -> (a -> m a) -> a -> m a
+untilM predicate f base
+  | predicate base = return base
+  | otherwise = f base >>= untilM predicate f

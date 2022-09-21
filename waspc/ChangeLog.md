@@ -3,7 +3,7 @@
 ## v0.6.0.0 (TBD)
 
 ### BREAKING CHANGES
-- The `EmailAndPassword` auth method has been renamed `UsernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
+- The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
       ```bash
@@ -24,7 +24,18 @@
       ```
       - NOTE: If you simply changed `email` to `username` in your .wasp file, Prisma will try to drop the table and recreate it, which is likely not what you want if you have data you want to preserve.
     - If you would like to add a new `username` column and keep `email` as is, be sure to add a calculated value in the migration (perhaps a random string, or something based on the `email`). The `username` column should remain `NOT NULL` and `UNIQUE`.
+- `WASP_WEB_CLIENT_URL` is now a required environment variable to improve CORS security. It is set by default in development. In production, this should point to the URL where your frontend app is being hosted.
+- The generated Dockerfile has been updated from `node:14-alpine` to `node:16-alpine`.
 - Wasp Jobs callback function arguments have been updated to the following: `async function jobHandler(args, context)`. Jobs can now make use of entities, accessed via `context`, like Operations. Additionally, the data passed into the Job handler function are no longer wrapped in a `data` property, and are now instead accessed exactly as they are supplied via `args`.
+
+### [NEW FEATURE] Google is now a supported authentication method!
+
+You can now offer your users the ability to sign in with Google! Enabling it is just a few lines and offers a fast, easy, and secure way to get users into your app! We also have a comprehensive setup guide for creating a new app in the Google Developer Console.
+
+Stay tuned, as more external auth methods will be added in the future. Let us know what you'd like to see support for next!
+
+### Bug fixes
+- Works around a `sodium-native` bug (used by a Wasp dependency, `secure-password`) that caused signup/login runtime issues with Heroku deployments by downgrading it from v3.4.1 to v3.3.0 via a `package.json` override. Ref: https://github.com/sodium-friends/sodium-native/issues/160
 
 ---
 

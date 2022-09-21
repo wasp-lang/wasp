@@ -125,7 +125,11 @@ function HeroCodeExample() {
 
   auth: { /* full-stack auth out-of-the-box */
     userEntity: User,
-    methods: [ UsernameAndPassword ],
+    externalAuthEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      google: {}
+    }
   }
 }
 
@@ -199,7 +203,9 @@ export default () => <span> Hello World! </span>
   /* full-stack auth out-of-the-box */
   auth: {
     userEntity: User,
-    methods: [ UsernameAndPassword ], /* more methods coming soon */
+    methods: {
+      usernameAndPassword: {}
+    }
     onAuthFailedRedirectTo: "/login"
   }
 }
@@ -770,13 +776,14 @@ function Home() {
               <div className="col col--6">
                 <h3 className={styles.featureListTitle}>Alpha</h3>
                 <ul className={clsx(styles.featuresList, styles.featuresListDone)}>
-                  <li> full-stack auth (username & password) </li>
+                  <li> full-stack auth (username & password, Google) </li>
                   <li> pages & routing </li>
                   <li> blurs the line between client & server - define your server actions and queries and call them directly in your client code (RPC)! </li>
                   <li> smart caching of server actions and queries (automatic cache invalidation) </li>
                   <li> entity (data model) definition with Prisma.io </li>
                   <li> ACL on frontend </li>
                   <li> importing NPM dependencies </li>
+                  <li> background and scheduled jobs </li>
                 </ul>
               </div>
               <div className="col col--6">
@@ -784,7 +791,7 @@ function Home() {
                 <ul className={clsx(styles.featuresList, styles.featuresListComing)}>
                   <li> ACL on backend </li>
                   <li> one-click deployment </li>
-                  <li> more auth methods (Google, LinkedIn, ...) </li>
+                  <li> more auth methods (Facebook, LinkedIn, ...) </li>
                   <li> tighter integration of entities with other features </li>
                   <li> themes and layouts </li>
                   <li> support for explicitly defined server API </li>

@@ -366,6 +366,11 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 - Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
 
+#### Determining next version
+waspc is following typical SemVer versioning scheme, so major.minor.patch.
+There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
+So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
+
 ## Documentation
 External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 
 

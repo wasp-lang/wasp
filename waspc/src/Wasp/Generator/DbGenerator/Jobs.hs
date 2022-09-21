@@ -1,5 +1,6 @@
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
+    migrateDiff,
     generatePrismaClient,
     runStudio,
   )
@@ -48,6 +49,25 @@ migrateDev projectDir maybeMigrationName = do
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+
+-- | Diffs the Prisma schema file against the db.
+-- Because of the --exit-code flag, it changes the exit code behavior
+-- to signal if the diff is empty or not (Empty: 0, Error: 1, Not empty: 2)
+migrateDiff :: Path' Abs (Dir ProjectRootDir) -> J.Job
+migrateDiff projectDir = do
+  let serverDir = projectDir </> serverRootDirInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
+  let prismaMigrateDiffCmdArgs =
+        [ "migrate",
+          "diff",
+          "--from-schema-datamodel",
+          schemaFileFp,
+          "--to-schema-datasource",
+          schemaFileFp,
+          "--exit-code"
+        ]
+
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job

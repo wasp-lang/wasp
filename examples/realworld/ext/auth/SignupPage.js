@@ -9,10 +9,10 @@ import { errorMessage } from '../utils.js'
 
 const SignupPage = () => {
   const history = useHistory()
-  const [username, setUsername] = useState()
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
-  const [submitError, setSubmitError] = useState()
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitError, setSubmitError] = useState(null)
 
   // TODO: Do validation in form and show validation errors.
 
