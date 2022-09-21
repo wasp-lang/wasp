@@ -36,14 +36,16 @@ to propagate the schema change (we added User).
 ## Defining `app.auth`
 Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use entity `User` for it:
 
-```c {4-9} title="main.wasp"
+```c {4-11} title="main.wasp"
 app TodoApp {
   title: "Todo app",
 
   auth: {
     // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
-    methods: [ UsernameAndPassword ], // More methods coming soon!
+    methods: {
+      usernameAndPassword: {} // We also support Google, with more on the way!
+    }
     onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
   }
 }

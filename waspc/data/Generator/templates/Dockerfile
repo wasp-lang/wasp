@@ -1,5 +1,5 @@
 {{={= =}=}}
-FROM node:14-alpine AS node
+FROM node:{= nodeMajorVersion =}-alpine AS node
 
 
 FROM node AS base
@@ -11,6 +11,9 @@ FROM base AS server-builder
 RUN apk add --no-cache build-base libtool autoconf automake python3
 WORKDIR /app
 # Install npm packages, resulting in node_modules/.
+{=# usingServerPatches =}
+COPY server/patches ./server/patches
+{=/ usingServerPatches =}
 COPY server/package*.json ./server/
 RUN cd server && npm install
 {=# usingPrisma =}

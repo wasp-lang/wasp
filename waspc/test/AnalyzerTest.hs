@@ -42,7 +42,7 @@ spec_Analyzer = do
                 "  head: [\"foo\", \"bar\"],",
                 "  auth: {",
                 "    userEntity: User,",
-                "    methods: [UsernameAndPassword],",
+                "    methods: { usernameAndPassword: {} },",
                 "    onAuthFailedRedirectTo: \"/\",",
                 "  },",
                 "  dependencies: [",
@@ -114,7 +114,12 @@ spec_Analyzer = do
                       Just
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
-                            Auth.methods = [Auth.UsernameAndPassword],
+                            Auth.externalAuthEntity = Nothing,
+                            Auth.methods =
+                              Auth.AuthMethods
+                                { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
+                                  Auth.google = Nothing
+                                },
                             Auth.onAuthFailedRedirectTo = "/",
                             Auth.onAuthSucceededRedirectTo = Nothing
                           },

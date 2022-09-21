@@ -7,14 +7,16 @@ app trello {
 
   auth: {
     userEntity: User,
-    methods: [ UsernameAndPassword ],
+    methods: {
+      usernameAndPassword: {}
+    },
     onAuthFailedRedirectTo: "/login"
   },
 
   dependencies: [
     ("react-feather", "2.0.9"),
     ("classnames", "2.3.1"),
-    ("react-tiny-popover", "6.0.5"),
+    ("react-tiny-popover", "7.1.0"),
     ("react-beautiful-dnd", "13.1.0")
   ]
 }
