@@ -34,4 +34,4 @@ EXPOSE ${PORT}
 WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]
 
-{= extDockerfile =}
+{=& extDockerfile =}
