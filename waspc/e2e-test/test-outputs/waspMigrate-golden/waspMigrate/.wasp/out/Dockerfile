@@ -27,3 +27,5 @@ COPY db/ ./db/
 EXPOSE ${PORT}
 WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]
+
+
