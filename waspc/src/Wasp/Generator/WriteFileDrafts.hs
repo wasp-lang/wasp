@@ -15,12 +15,12 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
 import qualified Data.HashMap.Strict as Map
 import qualified Data.HashSet as Set
-import Data.List (sortBy)
+import Data.List (sortBy, nub)
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
 import System.IO.Error (isDoesNotExistError)
-import UnliftIO.Exception (catch, throwIO)
+import UnliftIO.Exception (catch, throwIO, throwString)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo, Writeable (getChecksum, getDstPath))
@@ -31,6 +31,10 @@ import Wasp.Util (Checksum)
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
 synchronizeFileDraftsWithDisk :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
+
+  -- If the destination file paths are not unique, throw error
+  checkIfUniqueDestPaths fileDrafts
+
   maybePathsToChecksums <- readChecksumFile dstDir
   case maybePathsToChecksums of
     -- If checksums file is missing/corrupted, we delete all of the generated code
@@ -59,6 +63,12 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 
 type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
+
+-- | Takes file drafts and verifies if the destination paths are unique or not
+checkIfUniqueDestPaths :: [FileDraft] -> IO ()
+checkIfUniqueDestPaths fileDrafts = do
+  let fileDestPaths = map (\fd -> (fd,) <$> getDstPath fd) fileDrafts
+  if length (nub fileDestPaths) == length fileDestPaths then (putStrLn "") else (throwString "Destination paths are not unique.")
 
 -- | This file stores all checksums for files and directories that were written to disk
 -- on the last project generation.
