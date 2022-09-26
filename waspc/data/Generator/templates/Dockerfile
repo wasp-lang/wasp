@@ -35,5 +35,5 @@ WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]
 
 
-# Custom, user-defined Dockerfile contents below.
+# Any user-defined Dockerfile contents will be appended below.
 {=& customDockerfile =}
