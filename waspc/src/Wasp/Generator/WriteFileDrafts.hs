@@ -63,7 +63,7 @@ type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 
 type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
 
--- | Takes file drafts and verifies if the destination paths are unique
+-- | Takes file drafts and verifies if the destination paths are unique.
 ensureDestPathsAreUnique :: [FileDraft] -> IO ()
 ensureDestPathsAreUnique fileDrafts = do
   let fileDestPaths = map (\fd -> (fd,) <$> getDstPath fd) fileDrafts
