@@ -65,8 +65,8 @@ type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDi
 
 -- | Takes file drafts and verifies if the destination paths are unique.
 ensureDestPathsAreUnique :: [FileDraft] -> IO ()
-ensureDestPathsAreUnique fileDrafts = do
-  let fileDestPaths = map (\fd -> (fd,) <$> getDstPath fd) fileDrafts
+ensureDestPathsAreUnique fileDrafts =
+  let fileDestPaths = map getDstPath fileDrafts
     in unless (length (nub fileDestPaths) == length fileDestPaths ) (error "FileDraft destination paths are not unique!")
 
 -- | This file stores all checksums for files and directories that were written to disk
