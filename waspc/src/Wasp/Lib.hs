@@ -85,7 +85,7 @@ analyzeWaspProject waspDir options = do
                   AS.isBuild = CompileOptions.isBuild options
                 }
 
--- | Checks the wasp directory for potential problems, and issues a warning if any are found.
+-- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 analyzeWaspDir :: Path' Abs (Dir WaspProjectDir) -> IO [GeneratorWarning]
 analyzeWaspDir waspDir = do
   maybeDotEnvFile <- findDotEnv waspDir
