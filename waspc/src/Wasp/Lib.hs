@@ -8,7 +8,7 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path')
+import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
@@ -22,6 +22,7 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Monad (GeneratorWarning (GenericGeneratorWarning))
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
@@ -43,7 +44,8 @@ compile waspDir outDir options = do
       case ASV.validateAppSpec appSpec of
         [] -> do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
+          allWarnings <- (generatorWarnings ++) <$> analyzeWaspDir waspDir
+          return (map show $ generatorWarningsFilter options allWarnings, map show generatorErrors)
         validationErrors -> do
           return ([], map show validationErrors)
 
@@ -83,6 +85,14 @@ analyzeWaspProject waspDir options = do
                   AS.isBuild = CompileOptions.isBuild options
                 }
 
+-- | Checks the wasp directory for potential problems, and issues a warning if any are found.
+analyzeWaspDir :: Path' Abs (Dir WaspProjectDir) -> IO [GeneratorWarning]
+analyzeWaspDir waspDir = do
+  maybeDotEnvFile <- findDotEnv waspDir
+  case maybeDotEnvFile of
+    Nothing -> return []
+    Just _ -> return [GenericGeneratorWarning "Wasp .env files should be named .env.server or .env.client, depending on their use."]
+
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
   files <- fst <$> Util.IO.listDirectory waspDir
@@ -97,6 +107,9 @@ findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
 
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
+
+findDotEnv :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnv waspDir = findFileInWaspProjectDir waspDir [relfile|.env|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
