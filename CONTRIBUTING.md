@@ -8,7 +8,7 @@ Wasp's compiler is built with Haskell and under the hood it generates a web appl
 
 ## Before you begin 
 
-- Check the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. And ideally, build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/pick-a-tutorial) page
+- Check out the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. Ideally, you'd also build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/pick-a-tutorial) page to really get a feel for it!
 - Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. More on this is below.
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. Also, we'll be glad to help you find the issue you'll enjoy working on, depending on your skill set!
 - Below you can find links to the good first issues. If you'd like to filter the issues on your own — please, use [this link](https://github.com/wasp-lang/wasp/issues)
