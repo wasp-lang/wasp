@@ -22,14 +22,8 @@ Then we need to create two queries in the `queries.js` file. First, one `getExcu
 import axios from 'axios';
 
 export const getExcuse = async () => {
-  return axios
-    .get('https://api.devexcus.es/')
-    .then(res => {
-      return res.data;
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  const response = await axios.get('https://api.devexcus.es/')
+  return response.data
 }
 
 export const getAllSavedExcuses = async (_args, context) => {
