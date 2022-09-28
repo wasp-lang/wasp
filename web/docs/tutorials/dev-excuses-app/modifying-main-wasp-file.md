@@ -99,4 +99,4 @@ action saveExcuse {
 }
 ```
 
-Perfect! We've set up all the infrastruction. Now let's add some logic. 
+Perfect! We've set up all the infrastructure. Now let's add some logic. 
