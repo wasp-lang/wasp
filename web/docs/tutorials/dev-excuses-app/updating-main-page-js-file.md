@@ -65,7 +65,7 @@ const Excuse = ({ excuse }) => {
 export default MainPage
 ```
 
-Our page consists of three components. `MainPage`, `ExcuseList` and `Excuse`. It may seem at first that this file is pretty complex. It’s not, so let’s look a bit closer. 
+Our page consists of three components: `MainPage`, `ExcuseList`, and `Excuse`. It may seem at first that this file is pretty complex, but let's take a closer look: 
 
 `Excuse` is just a div with an excuse text, `ExcuseList` checks if there are any excuses. If the list is empty – show a message `No saved excuses`. In other case – excuses will be displayed. 
 
