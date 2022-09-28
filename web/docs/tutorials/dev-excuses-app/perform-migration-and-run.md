@@ -4,7 +4,7 @@ title: Perform migration and run the app
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Before starting an app – we need to execute database migration because we changed the DB schema by adding new entities. If you’ve had something running in the terminal – stop it and run:
+Before we run our app we need to execute database migration because we changed the DB schema by adding new entities. If you’ve had something running in the terminal – stop it and run:
 
 ```
 wasp db migrate-dev
@@ -19,7 +19,7 @@ wasp start
      src={useBaseUrl('img/final-result.png')}
 />
 
-Now you can click the “Get excuse” button to receive an excuse. And save the ones you like into the DB with the “Save excuse” button. Our final project should look like this:
+Now you can click the “Get excuse” button to receive an excuse. You should also be able to save the ones you like with the “Save excuse” button. Our final project should look like this:
 
 <img alt="Final result"
      src={useBaseUrl('img/final-excuse-app.png')}
