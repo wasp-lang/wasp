@@ -99,4 +99,4 @@ action saveExcuse {
 }
 ```
 
-Perfect! We've set up all the infrastructure. Now let's add some logic. 
+Perfect! We've set up all the architecture of our app. Now let's add some logic. 
