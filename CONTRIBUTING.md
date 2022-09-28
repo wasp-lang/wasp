@@ -51,7 +51,7 @@ Or you can re-build your existing pet project with Wasp. That would be cool!
 
 ## Documentation
 
-It may sound like the simplest one, but it's super valuable! If you've found an issue or a broken link or any other problem on our [website](https://wasp-lang.dev/) - please, feel free to fix it :)
+It may sound like the simplest one, but it's super valuable! If you've found an issue, a broken link or if something was unclear on our [website](https://wasp-lang.dev/) - please, feel free to fix it :)
 
 [**Documentation issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation)
 
