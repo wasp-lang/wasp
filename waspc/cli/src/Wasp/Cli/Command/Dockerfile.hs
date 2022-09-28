@@ -1,5 +1,5 @@
 module Wasp.Cli.Command.Dockerfile
-  ( dockerfile,
+  ( printDockerfile,
   )
 where
 
@@ -11,8 +11,8 @@ import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
 import Wasp.Lib (compileAndRenderDockerfileTemplate)
 
-dockerfile :: Command ()
-dockerfile = do
+printDockerfile :: Command ()
+printDockerfile = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfileTemplate waspProjectDir (defaultCompileOptions waspProjectDir)
   dockerfileContent <-

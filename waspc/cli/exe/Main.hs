@@ -19,7 +19,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand, studio)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import Wasp.Cli.Command.Deps (deps)
-import Wasp.Cli.Command.Dockerfile (dockerfile)
+import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -61,7 +61,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
-    Command.Call.Dockerfile -> runCommand dockerfile
+    Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript

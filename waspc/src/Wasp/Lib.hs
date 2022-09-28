@@ -8,6 +8,7 @@ module Wasp.Lib
   )
 where
 
+import Control.Monad.Extra (whenMaybeM)
 import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
 import Data.List.NonEmpty (toList)
@@ -118,10 +119,7 @@ findMigrationsDir waspDir = do
 loadDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
 loadDockerfileContents waspDir = do
   let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
-  dockerfileExists <- doesFileExist dockerfileAbsPath
-  if dockerfileExists
-    then Just <$> T.IO.readFile dockerfileAbsPath
-    else return Nothing
+  whenMaybeM (doesFileExist dockerfileAbsPath) $ T.IO.readFile dockerfileAbsPath
 
 compileAndRenderDockerfileTemplate :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfileTemplate waspDir compileOptions = do
