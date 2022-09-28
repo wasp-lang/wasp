@@ -15,4 +15,4 @@ It's time to build something cool and check the capabilities of Wasp in action. 
      height="400px"
 />
 
-P.S: If you decide to build another app on your own - we'd love to see that! If it's simple enough, let's turn it into a tutorial! Please check our [contribution guide](contributing) for detailed instructions and reach us on Discord. 
+P.S: If you decided to build an app on your own - we'd love to see it! If it's simple enough, let's turn it into a tutorial! Please check our [contribution guide](contributing) for detailed instructions and reach us on Discord. 
