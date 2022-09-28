@@ -8,6 +8,7 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
+import Data.List.NonEmpty (NonEmpty, fromList, toList)
 import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
@@ -22,7 +23,6 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.Monad (GeneratorWarning (GenericGeneratorWarning))
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
@@ -37,61 +37,68 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  appSpecOrCompileErrors <- analyzeWaspProject waspDir options
+  (compileWarnings, appSpecOrCompileErrors) <- analyzeWaspProject waspDir options
+  print compileWarnings
   case appSpecOrCompileErrors of
-    Left compileErrors -> return ([], compileErrors)
+    Left compileErrors -> return (compileWarnings, toList compileErrors)
     Right appSpec ->
       case ASV.validateAppSpec appSpec of
         [] -> do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          allWarnings <- (generatorWarnings ++) <$> analyzeWaspDir waspDir
-          return (map show $ generatorWarningsFilter options allWarnings, map show generatorErrors)
+          let filteredGeneratorWarnings = map show $ generatorWarningsFilter options generatorWarnings
+          return (filteredGeneratorWarnings ++ compileWarnings, map show generatorErrors)
         validationErrors -> do
-          return ([], map show validationErrors)
+          return (compileWarnings, map show validationErrors)
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  IO (Either [CompileError] AS.AppSpec)
+  IO ([CompileWarning], Either (NonEmpty CompileError) AS.AppSpec)
 analyzeWaspProject waspDir options = do
+  warnings <- warnIfDotEnvPresent waspDir
   maybeWaspFilePath <- findWaspFile waspDir
   case maybeWaspFilePath of
-    Nothing -> return $ Left ["Couldn't find a single *.wasp file."]
+    Nothing -> return (warnings, Left $ fromList ["Couldn't find a single *.wasp file."])
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
-          return $
-            Left
-              [ showCompilerErrorForTerminal
-                  (waspFilePath, waspFileContent)
-                  (getErrorMessageAndCtx analyzeError)
-              ]
+          return
+            ( warnings,
+              Left $
+                fromList
+                  [ showCompilerErrorForTerminal
+                      (waspFilePath, waspFileContent)
+                      (getErrorMessageAndCtx analyzeError)
+                  ]
+            )
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvServerFile <- findDotEnvServer waspDir
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
-          return $
-            Right
-              AS.AppSpec
-                { AS.decls = decls,
-                  AS.externalCodeFiles = externalCodeFiles,
-                  AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
-                  AS.migrationsDir = maybeMigrationsDir,
-                  AS.dotEnvServerFile = maybeDotEnvServerFile,
-                  AS.dotEnvClientFile = maybeDotEnvClientFile,
-                  AS.isBuild = CompileOptions.isBuild options
-                }
+          return
+            ( warnings,
+              Right
+                AS.AppSpec
+                  { AS.decls = decls,
+                    AS.externalCodeFiles = externalCodeFiles,
+                    AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
+                    AS.migrationsDir = maybeMigrationsDir,
+                    AS.dotEnvServerFile = maybeDotEnvServerFile,
+                    AS.dotEnvClientFile = maybeDotEnvClientFile,
+                    AS.isBuild = CompileOptions.isBuild options
+                  }
+            )
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
-analyzeWaspDir :: Path' Abs (Dir WaspProjectDir) -> IO [GeneratorWarning]
-analyzeWaspDir waspDir = do
+warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
+warnIfDotEnvPresent waspDir = do
   maybeDotEnvFile <- findDotEnv waspDir
   case maybeDotEnvFile of
     Nothing -> return []
-    Just _ -> return [GenericGeneratorWarning "Wasp .env files should be named .env.server or .env.client, depending on their use."]
+    Just _ -> return ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
