@@ -22,7 +22,7 @@ Let's add the following code to the `main.wasp` file's `app` section:
   ]
 ```
 
-Then add Excuse entity to the bottom of the file. Also you'll need to define queries and an action.
+Next, we'll add an Excuse entity to the bottom of the file. You'll also need to define queries and an action that operates on nit.
 
 ```js title="main.wasp | Defining Excuse entity, queries and action"
 entity Excuse {=psl                                          
