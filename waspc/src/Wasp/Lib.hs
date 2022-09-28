@@ -38,7 +38,6 @@ compile ::
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
   (compileWarnings, appSpecOrCompileErrors) <- analyzeWaspProject waspDir options
-  print compileWarnings
   case appSpecOrCompileErrors of
     Left compileErrors -> return (compileWarnings, toList compileErrors)
     Right appSpec ->
