@@ -19,7 +19,7 @@ wasp start
      src={useBaseUrl('img/final-result.png')}
 />
 
-Now you can click the “Get excuse” button to receive an excuse. And save the ones you like into the DB with the “Save excuse” button. Our final project should look like this:
+Now you can click the “Get excuse” button to receive an excuse. You should also be able to save the ones you like with the “Save excuse” button. Our final project should look like this:
 
 <img alt="Final result"
      src={useBaseUrl('img/final-excuse-app.png')}
