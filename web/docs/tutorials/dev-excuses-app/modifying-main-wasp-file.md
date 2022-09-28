@@ -10,7 +10,7 @@ Also, we’ll declare a database entity called `Excuse`, queries, and action. Th
 
 `Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs section below](/docs/language/features#queries-and-actions-aka-operations). So let’s proceed. 
 
-Please, add this section to the `main.wasp` file's `app` section. 
+Let's add the following code to the `main.wasp` file's `app` section:
 
 ```js title="main.wasp | Adding dependencies"
   head: [
