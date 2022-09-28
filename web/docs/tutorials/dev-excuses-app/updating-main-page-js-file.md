@@ -69,5 +69,5 @@ Our page consists of three components. `MainPage`, `ExcuseList` and `Excuse`. It
 
 `Excuse` is just a div with an excuse text, `ExcuseList` checks if there are any excuses. If the list is empty – show a message `No saved excuses`. In other case – excuses will be displayed. 
 
-`MainPage` contains info about the current excuses and the list of already saved excuses. Two buttons click handlers `handleGetExcuse` and `handleSaveExcuse`. Plus, the markup itself with some Tailwind flavor. 
+`MainPage` contains info about the current excuses and the list of already saved excuses. Two button click handlers are `handleGetExcuse` and `handleSaveExcuse`. Plus, the markup itself with some Tailwind flavor. 
 
