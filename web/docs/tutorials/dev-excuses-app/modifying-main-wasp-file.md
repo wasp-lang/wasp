@@ -4,7 +4,7 @@ title: Modifying main.wasp file
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-First and foremost, we need to add some dependencies and introduce operations to our project. We’ll add Tailwind to make our UI more pretty and Axios for making API requests. 
+First and foremost, we need to add some dependencies and introduce operations to our project. We’ll add Tailwind to make our UI prettier and Axios for making API requests. 
 
 Also, we’ll declare a database entity called `Excuse`, queries, and action. The `Excuse` entity consists of the entity’s ID and the text. 
 
