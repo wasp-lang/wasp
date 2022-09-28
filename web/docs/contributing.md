@@ -12,6 +12,6 @@ Some side notes to make your journey easier:
 
 2. Wasp's compiler is built with Haskell. So you'll need to be somewhat familiar with this language if you'd like to contribute to the compiler itself. If you don't have Haskell knowledge (or any dev experience at all) - no problem. There are a lot of JS-related tasks and documentation updates as well!
 
-3. If there's something you'd like to bring to our attention, go to [docs Github repo](https://github.com/wasp-lang/wasp) and make an issue/PR!
+3. If there's something you'd like to bring to our attention, go to [docs GitHub repo](https://github.com/wasp-lang/wasp) and make an issue/PR!
 
 Happy hacking!
