@@ -9,7 +9,7 @@ import DiscordLink from '../../blog/components/DiscordLink';
 Make sure you've set up Wasp! Check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial. In case of any issues - please, ping us on <DiscordLink />. 
 :::
 
-We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! And will do it with a single config file that covers the full-stack app architecture plus several dozen lines of code. In the quickest possible way, so we can’t excuse ourselves from building it!
+We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! We will start with a single config file that outlines the full-stack architecture of our app plus several dozen lines of code for our specific business logic. There's no faster way to do it, so we can’t excuse ourselves from building it!
 
 We’ll use Michele Gerarduzzi’s [open-source project](https://github.com/michelegera/devexcuses-api). It provides a simple API and a solid number of predefined excuses. A perfect fit for our needs. Let’s define the requirements for the project: 
 
