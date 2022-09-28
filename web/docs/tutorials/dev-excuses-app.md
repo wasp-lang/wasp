@@ -14,7 +14,7 @@ We’ll build a web app to solve every developer's most common problem – findi
 We’ll use Michele Gerarduzzi’s [open-source project](https://github.com/michelegera/devexcuses-api). It provides a simple API and a solid number of predefined excuses. A perfect fit for our needs. Let’s define the requirements for the project: 
 
 - The app must be able to pull excuses data from a public API. 
-- Save the ones you liked (and your boss doesn't) to the database for future reference.
+- Users can save the excuses they like (and your boss doesn't) to the database for future reference.
 - Building an app shouldn’t take more than 15 minutes.
 - Use modern web dev technologies (NodeJS + React)
 
