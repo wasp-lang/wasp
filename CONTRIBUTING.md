@@ -35,7 +35,7 @@ Wasp is a language for developing full-stack web apps. This means there are plen
 
 ## Tutorials or Example apps
 
-Another great way to help is to create an app with Wasp! We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website. As well as the [Tutorials](https://wasp-lang.dev/docs/pick-a-tutorial) page. Both those sections can be improved and updated with your projects. 
+Another great way to help is to create an app with Wasp! We have an [Examples](https://wasp-lang.dev/docs/examples) section on our website, as well as the [Tutorials](https://wasp-lang.dev/docs/pick-a-tutorial) page. Both of them can be improved and updated with your projects. 
 
 All that's required is to create an app. And make a tutorial or a blog post to help other people reproduce your work. Some prominent examples are: [Waspello](https://wasp-lang.dev/blog/2021/12/02/waspello), [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau), [It Wasps on My Machine](https://wasp-lang.dev/blog/2022/09/05/dev-excuses-app-tutrial) and [To-Do app](https://wasp-lang.dev/docs/tutorials/todo-app).
 
