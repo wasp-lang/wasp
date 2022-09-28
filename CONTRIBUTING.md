@@ -25,7 +25,7 @@ Check the [**Wasp compiler README**](https://github.com/wasp-lang/wasp/blob/main
 
 [**Haskell-related issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Ahaskell) 
 
-Feel free to contact us via Discord to ask for an appropriate issue for yourself. Or create new issues directly to work on them.
+Feel free to contact us via Discord to ask for an appropriate issue for yourself, or just open a new one if you have something specific in mind and it isn't already there!
 
 ## Wasp as a web framework
 
