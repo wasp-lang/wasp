@@ -1,8 +1,8 @@
 # Contributing to Wasp
 
 Wasp's compiler is built with Haskell. As an output, you'll get a web application written in React and NodeJS. So there are three ways for you to contribute: 
-- [Haskell-related](#haskell-related)
-- [Web dev](#web-dev) (React, Node, HTML/CSS, database and so on)
+- [Wasp compiler/CLI/LSP internals](#wasp-compilerclilsp-internals) (Haskell)
+- [Wasp as a web framework](#wasp-as-a-web-framework) (React, Node, HTML/CSS, database and so on)
 - [Tutorials or Example apps](#tutorials-or-example-apps)
 - [Documentation](#documentation)
 
@@ -17,7 +17,7 @@ Let's jump right in!
 
 ---
 
-## Haskell-related
+## Wasp compiler/CLI/LSP internals
 
 Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because the Wasp compiler transpilers Wasp code into them.
 
@@ -31,7 +31,7 @@ Feel free to contact us via Discord to ask for an appropriate issue for yourself
 
 ---
 
-## Web dev
+## Wasp as a web framework
 
 Wasp is a language for developing full-stack web apps. This means there are plenty of tasks related to web development itself. 
 
