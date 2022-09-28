@@ -4,7 +4,7 @@ title: Updating MainPage.js file
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-This one is the most complex one, but it really comes down to mostly writing React. To make our life easier - let’s erase everything we had in the `MainPage.js` file and substitute it with our new UI markup.
+This is the most complex part, but it really comes down to mostly writing React. To make our life easier - let’s erase everything we had in the `MainPage.js` file and substitute it with our new UI markup.
 
 ```js title=".../ext/MainPage.js | Updating the UI"
 import React, { useState } from 'react'
