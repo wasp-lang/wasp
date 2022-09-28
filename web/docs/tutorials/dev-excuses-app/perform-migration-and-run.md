@@ -4,7 +4,7 @@ title: Perform migration and run the app
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Before starting an app – we need to execute database migration because we changed the DB schema by adding new entities. If you’ve had something running in the terminal – stop it and run:
+Before we run our app we need to execute database migration because we changed the DB schema by adding new entities. If you’ve had something running in the terminal – stop it and run:
 
 ```
 wasp db migrate-dev
