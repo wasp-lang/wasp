@@ -11,6 +11,7 @@ Wasp's compiler is built with Haskell. As an output, you'll get a web applicatio
 - Check the [**Getting Started**](https://wasp-lang.dev/docs) guide to get familiar with Wasp's fundamentals. And ideally, build an app from the [**Pick a Tutorial**](https://wasp-lang.dev/docs/pick-a-tutorial) page
 - Figure out what you'd like to help with. It can be code, documentation, tutorials, etc. More on this is below.
 - Join our Discord [![**Discord**](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX) for faster communication and feedback. Also, we'll be glad to help you find the issue you'll enjoy working on, depending on your skill set!
+- Below you can find links to the good first issues. If you'd like to filter the issues on your own — please, use [this link](https://github.com/wasp-lang/wasp/issues)
 
 Let's jump right in!
 
@@ -24,7 +25,7 @@ You don't have to be an expert in Haskell to contribute or understand the code s
 
 Check the [**Wasp compiler README**](https://github.com/wasp-lang/wasp/blob/main/waspc/README.md) for all the detailed instructions and guides.
 
-[**Haskell-related issues can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Ahaskell) 
+[**Haskell-related issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Ahaskell) 
 
 Feel free to contact us via Discord to ask for an appropriate issue for yourself. Or create new issues directly to work on them.
 
@@ -34,7 +35,7 @@ Feel free to contact us via Discord to ask for an appropriate issue for yourself
 
 Wasp is a language for developing full-stack web apps. This means there are plenty of tasks related to web development itself. 
 
-[**Web dev issues can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Awebdev)
+[**Web dev issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Awebdev)
 
 ---
 
@@ -52,7 +53,7 @@ Or you can re-build your existing pet project with Wasp. That would be cool!
 
 It's the simplest one — a perfect fit for people without coding skills. If you've found an issue or a broken link or any other problems on our [website](https://wasp-lang.dev/) - please, feel free to improve :)
 
-[**Documentation issues can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation)
+[**Documentation issues for beginners can be found here.**](https://github.com/wasp-lang/wasp/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22+label%3Adocumentation)
 
 
 Happy hacking!
