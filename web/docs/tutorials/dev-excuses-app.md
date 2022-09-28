@@ -3,9 +3,10 @@ title: Introduction
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import DiscordLink from '../../blog/components/DiscordLink';
 
 :::info
-Make sure you've set up Wasp! Check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial. In case of any issues - please, ping us on Discord [![Discord](https://img.shields.io/discord/686873244791210014?label=chat%20on%20discord)](https://discord.gg/rzdnErX). 
+Make sure you've set up Wasp! Check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial. In case of any issues - please, ping us on <DiscordLink />. 
 :::
 
 We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! And will do it with a single config file that covers the full-stack app architecture plus several dozen lines of code. In the quickest possible way, so we can’t excuse ourselves from building it!

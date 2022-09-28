@@ -8,7 +8,7 @@ First and foremost, we need to add some dependencies and introduce operations to
 
 Also, we’ll declare a database entity called `Excuse`, queries, and action. The `Excuse` entity consists of the entity’s ID and the text. 
 
-`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs section below](language/features#queries-and-actions-aka-operations). So let’s proceed. 
+`Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs section below](/docs/language/features#queries-and-actions-aka-operations). So let’s proceed. 
 
 Please, add this section to the `main.wasp` file's `app` section. 
 

@@ -19,7 +19,7 @@ Let's jump right in!
 
 ## Wasp compiler/CLI/LSP internals
 
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because the Wasp compiler transpilers Wasp code into them.
+Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
 
 While you will need to know some Haskell, you don't have to be an expert in Haskell to contribute or understand the code since we don't use complicated Haskell features much -> most of the code is relatively straightforward, and we are happy to help with the part that is not.
 
