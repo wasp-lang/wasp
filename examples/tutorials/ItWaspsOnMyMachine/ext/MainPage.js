@@ -3,7 +3,6 @@ import { useQuery } from '@wasp/queries'
 import getExcuse from '@wasp/queries/getExcuse'
 import getAllExcuses from '@wasp/queries/getAllExcuses'
 import saveExcuse from '@wasp/actions/saveExcuse'
-import './Main.css'
 
 const MainPage = () => {
   const [currentExcuse, setCurrentExcuse] = useState({ text: "" })

@@ -21,7 +21,7 @@ Starting the app:
 wasp start
 ```
 
-Now your default browser should open up with a simple predefined text message. That’s it! 🥳 For now – the codebase consists of only two files! `main.wasp` is the config file that defines the application’s functionality. And `MainPage.js` is the front-end. Everything else, like `Main.css` can be ignored.
+Now your default browser should open up with a simple predefined text message. That’s it! 🥳 For now – the codebase consists of only two files! `main.wasp` is the config file that defines the application’s functionality. And `MainPage.js` is the front-end. You can delete `Main.css`, we won't use that. And don't forget to remove `import './Main.css'` from `MainPage.js` file. 
 
 <img alt="Initial page"
      src={useBaseUrl('img/init-page.png')}
