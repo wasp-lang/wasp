@@ -8,11 +8,10 @@ module Wasp.Lib
   )
 where
 
+import Control.Arrow (left)
 import Control.Monad.Extra (whenMaybeM)
-import qualified Data.Aeson as Aeson
 import Data.List (find, isSuffixOf)
-import Data.List.NonEmpty (toList)
-import Data.Maybe (fromMaybe)
+import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, File', Path', relfile)
@@ -29,11 +28,7 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DockerGenerator (genDockerfile)
-import Wasp.Generator.FileDraft (FileDraft (..))
-import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
-import Wasp.Generator.Monad (runGenerator)
-import Wasp.Generator.Templates (compileAndRenderTemplate)
+import Wasp.Generator.DockerGenerator (compileAndRenderDockerfile)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -127,10 +122,5 @@ compileAndRenderDockerfileTemplate waspDir compileOptions = do
   case appSpecOrCompileErrors of
     Left errors -> return $ Left errors
     Right appSpec -> do
-      let (_, generatorResult) = runGenerator $ genDockerfile appSpec
-      case generatorResult of
-        Left generatorErrors -> return . Left $ map show (toList generatorErrors)
-        Right (FileDraftTemplateFd draft) -> do
-          content <- compileAndRenderTemplate (TmplFD._srcPathInTmplDir draft) (fromMaybe (Aeson.object []) (TmplFD._tmplData draft))
-          return $ Right content
-        Right _ -> error "Attempted to display Dockerfile, but it was not a Template FileDraft!"
+      dockerfileOrGeneratorErrors <- compileAndRenderDockerfile appSpec
+      return $ left (map show . NE.toList) dockerfileOrGeneratorErrors
