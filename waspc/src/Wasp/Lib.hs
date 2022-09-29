@@ -37,59 +37,57 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  (compileWarnings, appSpecOrCompileErrors) <- analyzeWaspProject waspDir options
-  case appSpecOrCompileErrors of
-    Left compileErrors -> return (compileWarnings, toList compileErrors)
+  (analyzerWarnings, appSpecOrAnalyzerErrors) <- analyzeWaspProject waspDir options
+  compilerWarningsAndErrors <- case appSpecOrAnalyzerErrors of
+    Left analyzerErrors -> return ([], toList analyzerErrors)
     Right appSpec ->
       case ASV.validateAppSpec appSpec of
         [] -> do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          let filteredGeneratorWarnings = map show $ generatorWarningsFilter options generatorWarnings
-          return (filteredGeneratorWarnings ++ compileWarnings, map show generatorErrors)
+          let filteredGeneratorWarnings = generatorWarningsFilter options generatorWarnings
+          return (map show filteredGeneratorWarnings, map show generatorErrors)
         validationErrors -> do
-          return (compileWarnings, map show validationErrors)
+          return ([], map show validationErrors)
+  return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO ([CompileWarning], Either (NonEmpty CompileError) AS.AppSpec)
 analyzeWaspProject waspDir options = do
-  warnings <- warnIfDotEnvPresent waspDir
   maybeWaspFilePath <- findWaspFile waspDir
-  case maybeWaspFilePath of
-    Nothing -> return (warnings, Left $ fromList ["Couldn't find a single *.wasp file."])
+  appSpecOrAnalyzerErrors <- case maybeWaspFilePath of
+    Nothing -> return $ Left $ fromList ["Couldn't find a single *.wasp file."]
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
-          return
-            ( warnings,
-              Left $
-                fromList
-                  [ showCompilerErrorForTerminal
-                      (waspFilePath, waspFileContent)
-                      (getErrorMessageAndCtx analyzeError)
-                  ]
-            )
+          return $
+            Left $
+              fromList
+                [ showCompilerErrorForTerminal
+                    (waspFilePath, waspFileContent)
+                    (getErrorMessageAndCtx analyzeError)
+                ]
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvServerFile <- findDotEnvServer waspDir
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
-          return
-            ( warnings,
-              Right
-                AS.AppSpec
-                  { AS.decls = decls,
-                    AS.externalCodeFiles = externalCodeFiles,
-                    AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
-                    AS.migrationsDir = maybeMigrationsDir,
-                    AS.dotEnvServerFile = maybeDotEnvServerFile,
-                    AS.dotEnvClientFile = maybeDotEnvClientFile,
-                    AS.isBuild = CompileOptions.isBuild options
-                  }
-            )
+          return $
+            Right
+              AS.AppSpec
+                { AS.decls = decls,
+                  AS.externalCodeFiles = externalCodeFiles,
+                  AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
+                  AS.migrationsDir = maybeMigrationsDir,
+                  AS.dotEnvServerFile = maybeDotEnvServerFile,
+                  AS.dotEnvClientFile = maybeDotEnvClientFile,
+                  AS.isBuild = CompileOptions.isBuild options
+                }
+  analyzerWarnings <- warnIfDotEnvPresent waspDir
+  return (analyzerWarnings, appSpecOrAnalyzerErrors)
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
