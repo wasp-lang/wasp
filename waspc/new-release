@@ -26,7 +26,7 @@ main = do
 makeNewRelease :: String -> IO ()
 makeNewRelease newVersion = do
     (ExitSuccess, branchName) <- shellStrict "git rev-parse --abbrev-ref HEAD" empty
-    when (T.strip branchName /= "main") $ error "You must run this script from the main branch!"
+    when (T.strip branchName /= "release") $ error "You must run this script from the release branch!"
 
     let cabalFileName = "waspc.cabal"
     oldCabalFileContents <- T.unpack <$> T.IO.readFile cabalFileName

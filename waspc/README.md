@@ -364,6 +364,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - Publish the draft release when ready.
+- Merge `release` back into `main` (`git merge release` while on the `main` branch), to keep things nice and clean -> this way in `main` we have the updated cabal version and can see that tag in the history.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
 
