@@ -27,16 +27,16 @@ module.exports = {
               label: 'Basics',
               collapsed: true,
               items: [
-                'tutorials/todo-app/creating-new-project',
-                'tutorials/todo-app/task-entity',
-                'tutorials/todo-app/listing-tasks',
-                'tutorials/todo-app/creating-tasks',
-                'tutorials/todo-app/updating-tasks'
+                'tutorials/todo-app/01-creating-new-project',
+                'tutorials/todo-app/02-task-entity',
+                'tutorials/todo-app/03-listing-tasks',
+                'tutorials/todo-app/04-creating-tasks',
+                'tutorials/todo-app/05-updating-tasks'
               ]
             },
-            'tutorials/todo-app/auth',
-            'tutorials/todo-app/dependencies',
-            'tutorials/todo-app/the-end'
+            'tutorials/todo-app/06-auth',
+            'tutorials/todo-app/07-dependencies',
+            'tutorials/todo-app/08-the-end'
           ]
         },
         {
@@ -45,11 +45,11 @@ module.exports = {
           collapsed: true,
           items: [
             'tutorials/dev-excuses-app',
-            'tutorials/dev-excuses-app/creating-the-project',
-            'tutorials/dev-excuses-app/modifying-main-wasp-file',
-            'tutorials/dev-excuses-app/adding-operations',
-            'tutorials/dev-excuses-app/updating-main-page-js-file',
-            'tutorials/dev-excuses-app/perform-migration-and-run',
+            'tutorials/dev-excuses-app/01-creating-the-project',
+            'tutorials/dev-excuses-app/02-modifying-main-wasp-file',
+            'tutorials/dev-excuses-app/03-adding-operations',
+            'tutorials/dev-excuses-app/04-updating-main-page-js-file',
+            'tutorials/dev-excuses-app/05-perform-migration-and-run',
           ]
         }
       ]

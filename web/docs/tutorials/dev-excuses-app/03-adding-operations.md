@@ -1,4 +1,5 @@
 ---
+id: 03-adding-operations
 title: Adding operations
 ---
 

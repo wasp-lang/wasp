@@ -1,4 +1,5 @@
 ---
+id: 06-auth
 title: "Authentication"
 ---
 

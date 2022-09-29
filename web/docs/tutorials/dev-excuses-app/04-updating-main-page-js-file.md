@@ -1,4 +1,5 @@
 ---
+id: 04-updating-main-page-js-file
 title: Updating MainPage.js file
 ---
 

@@ -1,4 +1,5 @@
 ---
+id: 02-modifying-main-wasp-file
 title: Modifying main.wasp file
 ---
 
