@@ -235,7 +235,14 @@
             "file",
             "web-app/src/actions/core.js"
         ],
-        "0891b7607b5503ada42386f73476a46f774a224d8b606f79ef37e451b229d399"
+        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/actions/index.js"
+        ],
+        "a9dbcffd4be75f7616cade56053e4060aac4ffd62b09195a4c84f4465a4dcaa7"
     ],
     [
         [
@@ -305,21 +312,28 @@
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "9bccf509e1a3e04e24444eacd69e0f093e590a9b85325bedb6f1d52ac85ead3c"
+        "4bbae164648c6442220dd1dfff76f11dce41dca85604e53f671db383fe1efd03"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/operations/updateHandlersMap.js"
+        ],
+        "07a9933a771853585fd2fc49c3dcb9f1cad947acb2168580c835fae25620fa9f"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.js"
         ],
-        "031c6d10898cb43f7f7e581422542585383b262d8a4f4d8738c695cca4b3fca1"
+        "705fcfe43f08cce6fbbc617a05cca5304c1398f311df19dfef6e52d421337215"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.js"
         ],
-        "965368ac8e979667445031addb947baf19055df0df24656c3af4d3abdd86952b"
+        "fcae00e6d2f60683509dcc06d37a0785e9e657ed11d0319859156feddbd547c0"
     ],
     [
         [
