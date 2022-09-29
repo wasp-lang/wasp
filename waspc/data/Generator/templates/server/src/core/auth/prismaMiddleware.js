@@ -2,7 +2,7 @@
 import { hashPassword } from '../auth.js'
 import AuthError from '../AuthError.js'
 
-const EMAIL_FIELD = 'email'
+const USERNAME_FIELD = 'username'
 const PASSWORD_FIELD = 'password'
 
 // Allows flexible validation of a user entity.
@@ -16,8 +16,8 @@ const registerUserEntityValidation = (prismaClient) => {
       if (['create', 'update', 'updateMany'].includes(params.action)) {
         validateUser(params.args.data, params.args, params.action)
       } else if (params.action === 'upsert') {
-        validateUser(params.args.create.data, params.args, 'create')
-        validateUser(params.args.update.data, params.args, 'update')
+        validateUser(params.args.create, params.args, 'create')
+        validateUser(params.args.update, params.args, 'update')
       }
 
       // Remove from downstream Prisma processing to avoid "Unknown arg" error
@@ -38,13 +38,13 @@ const registerPasswordHashing = (prismaClient) => {
           params.args.data[PASSWORD_FIELD] = await hashPassword(params.args.data[PASSWORD_FIELD])
         }
       } else if (params.action === 'upsert') {
-        if (params.args.create.data.hasOwnProperty(PASSWORD_FIELD)) {
-          params.args.create.data[PASSWORD_FIELD] =
-            await hashPassword(params.args.create.data[PASSWORD_FIELD])
+        if (params.args.create.hasOwnProperty(PASSWORD_FIELD)) {
+          params.args.create[PASSWORD_FIELD] =
+            await hashPassword(params.args.create[PASSWORD_FIELD])
         }
-        if (params.args.update.data.hasOwnProperty(PASSWORD_FIELD)) {
-          params.args.update.data[PASSWORD_FIELD] =
-            await hashPassword(params.args.update.data[PASSWORD_FIELD])
+        if (params.args.update.hasOwnProperty(PASSWORD_FIELD)) {
+          params.args.update[PASSWORD_FIELD] =
+            await hashPassword(params.args.update[PASSWORD_FIELD])
         }
       }
     }
@@ -63,7 +63,7 @@ const validateUser = (user, args, action) => {
   user = user || {}
 
   const defaultValidations = [
-    { validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email },
+    { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username },
     { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
     { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
     { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },

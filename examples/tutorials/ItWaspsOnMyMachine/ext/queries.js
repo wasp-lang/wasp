@@ -5,6 +5,6 @@ export const getExcuse = async () => {
   return response.data
 }
 
-export const getAllExcuses = async (_args, context) => {
+export const getAllSavedExcuses = async (_args, context) => {
   return context.entities.Excuse.findMany()
 }

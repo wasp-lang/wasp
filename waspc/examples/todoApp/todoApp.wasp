@@ -8,7 +8,14 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    // externalAuthEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      // google: {
+      //   configFn: import { config } from "@ext/auth/google.js",
+      //   getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
+      // }
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
   },
@@ -24,10 +31,21 @@ app todoApp {
 }
 
 entity User {=psl
-    id          Int     @id @default(autoincrement())
-    email       String  @unique
-    password    String
-    tasks       Task[]
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    tasks                     Task[]
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
 psl=}
 
 entity Task {=psl
@@ -37,7 +55,6 @@ entity Task {=psl
     user        User    @relation(fields: [userId], references: [id])
     userId      Int
 psl=}
-
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
@@ -121,7 +138,8 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
-  }
+  },
+  entities: [Task]
 }
 
 job mySpecialScheduledJob {
@@ -130,7 +148,7 @@ job mySpecialScheduledJob {
     fn: import { foo } from "@ext/jobs/bar.js"
   },
   schedule: {
-    cron: "*/2 * * * *",
+    cron: "0 * * * *",
     args: {=json { "foo": "bar" } json=},
     executorOptions: {
       pgBoss: {=json { "retryLimit": 2 } json=}

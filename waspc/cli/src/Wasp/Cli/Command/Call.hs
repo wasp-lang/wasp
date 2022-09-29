@@ -14,4 +14,5 @@ data Call
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands
+  | WaspLS
   | Unknown [String] -- all args

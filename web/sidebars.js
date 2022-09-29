@@ -69,6 +69,14 @@ module.exports = {
     'examples',
     {
       type: 'category',
+      label: 'Integrations',
+      collapsed: false,
+      items: [
+        'integrations/google'
+      ]
+    },
+    {
+      type: 'category',
       label: 'Other',
       collapsed: false,
       items: [

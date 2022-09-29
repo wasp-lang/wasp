@@ -43,7 +43,7 @@ const ThoughtListView = (props) => (
   <div className="thought-list-view">
     <div className="thought-list-view-tags">
       {props.thought.tags?.map(tag => (
-        <Tag name={tag.name} />
+        <Tag key={tag.id} name={tag.name} />
       ))}
     </div>
 

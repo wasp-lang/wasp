@@ -1,9 +1,16 @@
 import { callOperation } from '../operations'
-import { addResourcesUsedByQuery } from '../operations/resources'
+import {
+  addResourcesUsedByQuery,
+  getActiveOptimisticUpdates,
+} from '../operations/resources'
 
 export function createQuery(queryRoute, entitiesUsed) {
-  function query(args) {
-    return callOperation(queryRoute, args)
+  async function query(queryKey, queryArgs) {
+    const serverResult = await callOperation(queryRoute, queryArgs)
+    return getActiveOptimisticUpdates(queryKey).reduce(
+      (result, update) => update(result), 
+      serverResult,
+    )
   }
 
   query.queryCacheKey = queryRoute

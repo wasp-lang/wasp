@@ -76,6 +76,7 @@ If you don't like LYAH, consider other popular books for beginners (none of them
 3. [Programming in Haskell](https://www.amazon.com/Programming-Haskell-Graham-Hutton/dp/1316626229)
 
 Whatever book you go with, don’t get stuck for too long on concepts that are confusing to you, especially towards the end of the book. Some concepts will just need time to click; don’t expect to grasp it all on the first try. Whatever you do grasp from the first read will likely be more than enough to get going with your first projects in Haskell. You can always come back to those complex concepts later and understand them better. Also, don’t be shy to ask the community -> there are many Haskellers out there happy to support you in your learning!
+NOTE: When I say "don't get stuck", I don't mean you should skip the difficult concept after first hurdle. No, you should spend some hours experimenting, looking at it from different angles, playing with it, trying to crack it. But you shouldn't spend days trying to understand the same concept (e.g. function as a monad) and then feel defeated due to not grasping it 100%. Instead, if you put proper effort but stuff is not completely clicking, tap yourself on the back and move on for now.
 
 Once you take the first pass through the book, I recommend doing a project or two. You can come up with an idea yourself, or you can follow one of the books that guide you through it. 
 

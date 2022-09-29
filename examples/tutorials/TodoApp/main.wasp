@@ -3,7 +3,9 @@ app TodoApp {
 
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: {
+      usernameAndPassword: {}
+    },
     onAuthFailedRedirectTo: "/login"
   },
 
@@ -30,7 +32,7 @@ page LoginPage {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     tasks       Task[]
 psl=}

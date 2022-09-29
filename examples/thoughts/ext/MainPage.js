@@ -47,13 +47,6 @@ const Thought = (props) => {
   const history = useHistory()
   const formRef = useRef(null) // TODO: Why do I have this ref? I don't seem to use it anywhere?
 
-  const resetForm = () => {
-    setTextMd(defaultTextMd)
-    setTagNames(defaultTagNames)
-    setNewTagName(defaultNewTagName)
-    setInPreviewMode(defaultInPreviewMode)
-  }
-
   const setNewTagNameIfValid = (tagName) => {
     if (!tagName || /^[a-z](\.?[a-z0-9])*\.?$/.test(tagName)) {
       setNewTagName(tagName)
@@ -69,7 +62,6 @@ const Thought = (props) => {
       try {
         await createThought({ textMarkdown: textMd.trim(), tagNames })
         history.push('/thoughts') // TODO: Would be cool if this was type checked somehow or if string was coming from the Wasp API.
-        resetForm()
       } catch (err) {
         return window.alert('Error: ' + err.message)
       }

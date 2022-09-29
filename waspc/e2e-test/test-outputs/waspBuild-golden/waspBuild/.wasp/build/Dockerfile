@@ -1,4 +1,4 @@
-FROM node:14-alpine AS node
+FROM node:16-alpine AS node
 
 
 FROM node AS base

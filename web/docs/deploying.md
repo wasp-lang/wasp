@@ -30,9 +30,10 @@ Below we will explain the required env vars and also provide detailed instructio
 ### Env vars
 
 Server uses following environment variables, so you need to ensure they are set on your hosting provider:
-- `PORT` -> number of port at which it will listen for requests (e.g. `3001`).
-- `DATABASE_URL` -> url to the Postgres database that it should use (e.g. `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`)
-- `JWT_SECRET` -> you need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
+- `PORT` -> The port number at which it will listen for requests (e.g. `3001`).
+- `DATABASE_URL` -> The URL of the Postgres database it should use (e.g. `postgresql://mydbuser:mypass@localhost:5432/nameofmydb`).
+- `WASP_WEB_CLIENT_URL` -> The URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is necessary for CORS.
+- `JWT_SECRET` -> You need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
 
 ### Deploying to Heroku
 
@@ -53,10 +54,13 @@ heroku addons:create --app <app-name> heroku-postgresql:hobby-dev
 ```
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using external database, you will have to set it yourself.
 
-`PORT` env var will also be provided by Heroku, so the only thing left is to set `JWT_SECRET` env var:
+The `PORT` env var will also be provided by Heroku, so the only two left to set are the `JWT_SECRET` and `WASP_WEB_CLIENT_URL` env vars:
 ```
 heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_characters_long>
+heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
 ```
+
+NOTE: If you do not know what your frontend URL is yet, don't worry. You can set WASP_WEB_CLIENT_URL after you deploy your frontend.
 
 #### Deploy to a Heroku app
 Position yourself in `.wasp/build/` directory (reminder: which you created by running `wasp build` previously):
@@ -137,3 +141,5 @@ netlify deploy
 and carefully follow their instructions (i.e. do you want to create a new app or use existing one, team under which your app will reside, ..., final step to run `netlify deploy --prod`).
 
 That is it!
+
+NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variable in Heroku.

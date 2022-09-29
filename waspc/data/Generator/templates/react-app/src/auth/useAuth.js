@@ -11,7 +11,7 @@ async function getMe() {
 
     return response.data
   } catch (error) {
-    if (error.response?.status === 403) {
+    if (error.response?.status === 401) {
       return null
     } else {
       handleApiError(error)

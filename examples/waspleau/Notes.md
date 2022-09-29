@@ -40,9 +40,9 @@ You don't have any models defined in your schema.prisma, so nothing will be gene
 You can define a model like this:
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id        Int     @id @default(autoincrement())
+  username  String  @unique
+  name      String?
 }
 
 More information in our documentation:

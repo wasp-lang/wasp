@@ -8,7 +8,7 @@ app waspleau {
   db: { system: PostgreSQL },
 
   dependencies: [
-    ("axios", "^0.21.1")
+    ("axios", "^0.27.2")
   ]
 }
 
@@ -19,7 +19,8 @@ job github {
   },
   schedule: {
     cron: "*/10 * * * *"
-  }
+  },
+  entities: [Metric]
 }
 
 job loadTime {
@@ -33,7 +34,8 @@ job loadTime {
       "url": "https://wasp-lang.dev",
       "name": "wasp-lang.dev Load Time"
     } json=}
-  }
+  },
+  entities: [Metric]
 }
 
 entity Metric {=psl

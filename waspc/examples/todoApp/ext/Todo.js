@@ -11,6 +11,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Checkbox from '@material-ui/core/Checkbox'
 
 import { useQuery } from '@wasp/queries'
+import { useAction } from '@wasp/actions'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
@@ -59,7 +60,6 @@ const Footer = (props) => {
       await deleteCompletedTasks()
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -98,15 +98,27 @@ const Tasks = (props) => {
 }
 
 const Task = (props) => {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
+    optimisticUpdates: [{
+      getQuerySpecifier: () => [getTasks],
+      updateQuery: (updatedTask, oldTasks) => {
+        if (oldTasks === undefined) {
+          // cache is empty
+          return [updatedTask];
+        } else {
+          return oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
+        }
+      }
+    }]
+  });
   const handleTaskIsDoneChange = async (event) => {
     const id = parseInt(event.target.id)
     const isDone = event.target.checked
 
     try {
-      await updateTaskIsDone({ id, isDone })
+      await updateTaskIsDoneOptimistically({ id, isDone })
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -143,7 +155,6 @@ const NewTaskForm = (props) => {
       setDescription(defaultDescription)
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 
@@ -170,7 +181,6 @@ const ToggleAllTasksButton = (props) => {
       await toggleAllTasks()
     } catch (err) {
       console.log(err)
-      window.alert('Error:' + err.message)
     }
   }
 

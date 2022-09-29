@@ -10,6 +10,9 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 import {= importWhat =} from "{= importFrom =}"
 {=/ pagesToImport =}
 
+{=# isExternalAuthEnabled =}
+import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
+{=/ isExternalAuthEnabled =}
 
 const router = (
   <Router>
@@ -17,6 +20,16 @@ const router = (
       {=# routes =}
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
+
+      {=# isExternalAuthEnabled =}
+
+      {=# isGoogleAuthEnabled =}
+      <Route exact path="/auth/login/google">
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/google/validateCodeForLogin" />
+      </Route>
+      {=/ isGoogleAuthEnabled =}
+
+      {=/ isExternalAuthEnabled =}
     </div>
   </Router>
 )

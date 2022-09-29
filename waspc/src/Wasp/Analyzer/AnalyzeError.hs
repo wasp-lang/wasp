@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.AnalyzeError
   ( AnalyzeError (..),
     getErrorMessageAndCtx,

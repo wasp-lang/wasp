@@ -1,6 +1,8 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
+    doesSchemaMatchDb,
+    writeDbSchemaChecksumToFile,
   )
 where
 
@@ -18,8 +20,8 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
+    dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
-    dbSchemaChecksumOnLastMigrateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
@@ -57,7 +59,7 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
@@ -96,3 +98,21 @@ generatePrismaClient genProjectRootDirAbs = do
       writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
       return $ Right ()
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+
+-- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
+-- different than the DB. Returns Nothing on error as we do not know the current state.
+-- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
+-- Nothing if the check itself failed (exe: if a connection to the DB could not be established).
+-- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
+doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+doesSchemaMatchDb genProjectRootDirAbs = do
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.migrateDiff genProjectRootDirAbs chan)
+  -- Schema in sync: 0, Error: 1, Schema differs: 2
+  case dbExitCode of
+    ExitSuccess -> return $ Just True
+    ExitFailure 2 -> return $ Just False
+    ExitFailure _ -> return Nothing

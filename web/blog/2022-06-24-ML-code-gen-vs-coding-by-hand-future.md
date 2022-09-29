@@ -150,7 +150,7 @@ export const verifyPassword = async (hashedPassword, password) => {
 }
 ```
 
-And this is just a portion of the backend code (and for the email & password method only)! As you can see, we have quite a lot of flexibility here and get to do/specify things like:
+And this is just a portion of the backend code (and for the username & password method only)! As you can see, we have quite a lot of flexibility here and get to do/specify things like:
 
 - choose the implementation method for auth (e.g. session or JWT-based)
 - choose the exact npm packages we want to use for the token (if going with JWT) and password management
@@ -169,7 +169,11 @@ If we try to apply the principles from above (less code, less detailed instructi
 ```css
 auth: {
     userEntity: User,
-    methods: [ EmailAndPassword, LinkedIn, Google ],
+    externalAuthEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      google: {}
+    },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/dashboard"
   }

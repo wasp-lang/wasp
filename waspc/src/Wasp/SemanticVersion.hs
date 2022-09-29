@@ -1,17 +1,18 @@
 module Wasp.SemanticVersion
   ( Version (..),
-    Operator (..),
-    Comparator (..),
-    ComparatorSet (..),
     Range (..),
+    ComparatorSet,
     isVersionInRange,
-    rangeFromVersion,
-    rangeFromVersionsIntersection,
+    lt,
+    lte,
+    gt,
+    gte,
+    eq,
+    backwardsCompatibleWith,
   )
 where
 
-import Data.List (intercalate)
-import Data.List.NonEmpty (NonEmpty)
+import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Numeric.Natural
 import Text.Printf (printf)
@@ -25,58 +26,82 @@ data Version = Version
   }
   deriving (Eq, Ord)
 
--- | We rely on `show` here to produce valid semver representation of version.
+-- | We rely on this `show` implementation to produce valid semver representation of version.
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
 data Operator
   = Equal
+  | LessThan
   | LessThanOrEqual
-  | -- | TODO: BackwardsCompatibleWith (^) is actually, by semver spec, a special "range" which desugarizes into basic
-    -- comparators.
-    -- Same goes for other special ranges like Hyphen, v.x.x, ~, ... . They are all sugars that can be expressed with basic
-    -- comparators.
-    -- Although they call them special "ranges", since they all desugarize into comparator sets (no ||), we can also
-    -- more strictly treat them as special "comparator sets".
-    -- Therefore, we should remove ^ as an operator from here and instead extend ComparatorSet as:
-    -- data ComparatorSet = Regular (NonEmpty Comparator) | Special ComparatorSetSpecial
-    -- data ComparatorSetSpecial = BackwardsCompatibleWith Version | Hyphen Version Version | ...
-    BackwardsCompatibleWith
+  | GreaterThan
+  | GreaterThanOrEqual
   deriving (Eq)
 
--- | We rely on `show` here to produce valid semver representation of operator.
+-- | We rely on this `show` implementation to produce valid semver representation of version.
 instance Show Operator where
   show Equal = "="
+  show LessThan = "<"
   show LessThanOrEqual = "<="
-  show BackwardsCompatibleWith = "^"
+  show GreaterThan = ">"
+  show GreaterThanOrEqual = ">="
 
-data Comparator = Comparator Operator Version
+data Comparator
+  = PrimitiveComparator Operator Version
+  | BackwardsCompatibleWith Version
   deriving (Eq)
 
--- | We rely on `show` here to produce valid semver representation of comparator.
+-- | We rely on this `show` implementation to produce valid semver representation of comparator.
 instance Show Comparator where
-  show (Comparator op v) = show op ++ show v
+  show (PrimitiveComparator op v) = show op ++ show v
+  show (BackwardsCompatibleWith v) = "^" ++ show v
 
-data ComparatorSet = ComparatorSet (NonEmpty Comparator)
+data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
 
--- | We rely on `show` here to produce valid semver representation of comparator set.
+-- | We rely on this `show` implementation to produce valid semver representation of comparator set.
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
+
+-- | We define concatenation of two comparator sets as a union of their comparators.
+instance Semigroup ComparatorSet where
+  (ComparatorSet compsl) <> (ComparatorSet compsr) = ComparatorSet $ NE.nub $ compsl <> compsr
 
 data Range = Range [ComparatorSet]
   deriving (Eq)
 
--- | We rely on `show` here to produce valid semver representation of version range.
+-- | We rely on this `show` implementation to produce valid semver representation of version range.
 instance Show Range where
   show (Range compSets) = intercalate " || " $ show <$> compSets
 
--- | We define concatenation of two version ranges as union of their comparator sets.
+-- | We define concatenation of two version ranges as a union of their comparator sets.
 instance Semigroup Range where
-  (Range csets1) <> (Range csets2) = Range $ csets1 <> csets2
+  (Range csets1) <> (Range csets2) = Range $ nub $ csets1 <> csets2
 
 instance Monoid Range where
   mempty = Range []
+
+isVersionInRange :: Version -> Range -> Bool
+isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
+
+doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
+doesVersionSatisfyComparatorSet version (ComparatorSet comps) =
+  all (doesVersionSatisfyComparator version) comps
+
+doesVersionSatisfyComparator :: Version -> Comparator -> Bool
+doesVersionSatisfyComparator version (BackwardsCompatibleWith refVersion) =
+  all
+    (doesVersionSatisfyComparator version)
+    [ PrimitiveComparator GreaterThanOrEqual refVersion,
+      PrimitiveComparator LessThan (nextBreakingChangeVersion refVersion)
+    ]
+doesVersionSatisfyComparator version (PrimitiveComparator operator compVersion) =
+  case operator of
+    Equal -> version == compVersion
+    LessThan -> version < compVersion
+    LessThanOrEqual -> version <= compVersion
+    GreaterThan -> version > compVersion
+    GreaterThanOrEqual -> version >= compVersion
 
 nextBreakingChangeVersion :: Version -> Version
 nextBreakingChangeVersion version = case version of
@@ -84,21 +109,25 @@ nextBreakingChangeVersion version = case version of
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
 
-doesVersionSatisfyComparator :: Version -> Comparator -> Bool
-doesVersionSatisfyComparator version (Comparator operator compVersion) = case operator of
-  Equal -> version == compVersion
-  LessThanOrEqual -> version <= compVersion
-  BackwardsCompatibleWith -> version >= compVersion && version < nextBreakingChangeVersion compVersion
+-- Helper methods.
 
-doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
-doesVersionSatisfyComparatorSet version (ComparatorSet comps) = all (doesVersionSatisfyComparator version) comps
+lt :: Version -> ComparatorSet
+lt = mkPrimCompSet LessThan
 
-isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
+lte :: Version -> ComparatorSet
+lte = mkPrimCompSet LessThanOrEqual
 
-rangeFromVersion :: (Operator, Version) -> Range
-rangeFromVersion = Range . pure . ComparatorSet . pure . uncurry Comparator
+gt :: Version -> ComparatorSet
+gt = mkPrimCompSet GreaterThan
 
-rangeFromVersionsIntersection :: [(Operator, Version)] -> Range
-rangeFromVersionsIntersection [] = Range []
-rangeFromVersionsIntersection compPairs = Range $ pure $ ComparatorSet $ uncurry Comparator <$> NE.fromList compPairs
+gte :: Version -> ComparatorSet
+gte = mkPrimCompSet GreaterThanOrEqual
+
+eq :: Version -> ComparatorSet
+eq = mkPrimCompSet Equal
+
+backwardsCompatibleWith :: Version -> ComparatorSet
+backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith
+
+mkPrimCompSet :: Operator -> Version -> ComparatorSet
+mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op

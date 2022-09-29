@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.Type
   ( Type (..),
     DictEntryType (..),

@@ -7,7 +7,9 @@ app Conduit {
 
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    methods: {
+      usernameAndPassword: {}
+    },
     onAuthFailedRedirectTo: "/login"
   },
 
