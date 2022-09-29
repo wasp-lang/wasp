@@ -44,8 +44,7 @@ compile waspDir outDir options = do
       case ASV.validateAppSpec appSpec of
         [] -> do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          let filteredGeneratorWarnings = generatorWarningsFilter options generatorWarnings
-          return (map show filteredGeneratorWarnings, map show generatorErrors)
+          return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
         validationErrors -> do
           return ([], map show validationErrors)
   return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
