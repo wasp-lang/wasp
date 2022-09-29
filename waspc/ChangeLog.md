@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.x.x.x (TBD)
+
+### [NEW FEATURE] Dockerfile customization
+
+You can now customize the default Wasp Dockerfile by either extending/replacing our build stages or using your own custom logic. To make use of this feature, simply add a Dockerfile to the root of your project and it will be appended to the bottom of the existing Wasp Dockerfile.
+
 ## v0.6.0.0 (2022/09/29)
 
 ### BREAKING CHANGES
