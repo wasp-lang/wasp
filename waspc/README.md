@@ -17,7 +17,7 @@ If you would like to make your first contribution, here is a handy checklist we 
 
 
 ## Quick overview
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiler transpiles Wasp code into them.
+Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
 
 You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 

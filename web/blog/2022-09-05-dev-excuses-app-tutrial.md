@@ -149,14 +149,8 @@ export const saveExcuse = async (excuse, context) => {
 import axios from 'axios';
 
 export const getExcuse = async () => {
-  return axios
-    .get('https://api.devexcus.es/')
-    .then(res => {
-      return res.data;
-    })
-    .catch(error => {
-      console.error(error);
-    });
+  const response = await axios.get('https://api.devexcus.es/')
+  return response.data
 }
 
 export const getAllSavedExcuses = async (_args, context) => {
