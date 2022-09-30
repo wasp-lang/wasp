@@ -4,6 +4,7 @@ title: Perform migration and run the app
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import DiscordLink from '../../../blog/components/DiscordLink';
 
 Before we run our app, we need to execute a database migration. We changed the DB schema by adding new entities. By doing the migration, we sync the database schema with the entities we defined. If you’ve had something running in the terminal – stop it and run:
 
@@ -38,3 +39,6 @@ So, we’ve been able to build a full-stack application with a database and exte
 <img alt="Box of excuses for the win!"
      src={useBaseUrl('img/accessible-website-excuse.jpg')}
 />
+
+
+P.S: now you're familiar with Wasp and can build full-stack apps, horaay! 🎉 How did it go? Was it fun? Drop us a message at our <DiscordLink />. Now it's time to look at [Todo App in Wasp](/docs/tutorials/todo-app) if you haven't already. It will introduce some additional concepts so you'd be able to become a true Wasp overlord! 
