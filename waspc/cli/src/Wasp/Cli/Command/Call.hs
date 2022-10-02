@@ -11,6 +11,7 @@ data Call
   | Telemetry
   | Deps
   | Info
+  | Update
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands

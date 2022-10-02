@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Update (update)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
@@ -41,6 +42,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
         ["info"] -> Command.Call.Info
+        ["update"] -> Command.Call.Update
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -60,6 +62,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
     Command.Call.Info -> runCommand info
+    Command.Call.Update -> runCommand update
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
@@ -97,6 +100,7 @@ printUsage =
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd "    info                  Prints basic information about current Wasp project.",
+        cmd "    update                Update wasp.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",
