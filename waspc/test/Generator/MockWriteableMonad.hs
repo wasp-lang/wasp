@@ -15,11 +15,10 @@ import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, castDir, reldir, (</>))
+import StrongPath.Operations (castFile)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
-import StrongPath.Operations (castFile)
-import StrongPath (castDir)
 
 -- TODO: Instead of manually defining mock like this, consider using monad-mock package,
 --   it should do most of this automatically, now there is a lot of boilerplate.
