@@ -3,7 +3,7 @@ Waspello
 
 **Waspello** is a trello clone app made with Wasp.
 
-This app is deploted at [https://waspello.netlify.app/](https://waspello.netlify.app/).
+This app is deployed at [https://waspello.netlify.app/](https://waspello.netlify.app/).
 
 # Development
 
