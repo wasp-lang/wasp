@@ -18,6 +18,8 @@ import Fixtures (systemSPRoot)
 import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, (</>))
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
+import StrongPath.Operations (castFile)
+import StrongPath (castDir)
 
 -- TODO: Instead of manually defining mock like this, consider using monad-mock package,
 --   it should do most of this automatically, now there is a lot of boilerplate.
@@ -54,14 +56,14 @@ instance WriteableMonad MockWriteableMonad where
     modifyLogs (copyFile_addCall srcPath dstPath)
 
   getTemplateFileAbsPath path = MockWriteableMonad $ do
-    modifyLogs (getTemplateFileAbsPath_addCall path)
+    modifyLogs (getTemplateFileAbsPath_addCall (castFile path))
     (_, config) <- get
-    return $ getTemplateFileAbsPath_impl config path
+    return $ castFile $ getTemplateFileAbsPath_impl config (castFile path)
 
   compileAndRenderTemplate path json = MockWriteableMonad $ do
-    modifyLogs (compileAndRenderTemplate_addCall path json)
+    modifyLogs (compileAndRenderTemplate_addCall (castFile path) json)
     (_, config) <- get
-    return $ compileAndRenderTemplate_impl config path json
+    return $ compileAndRenderTemplate_impl config (castFile path) json
 
   doesFileExist path = MockWriteableMonad $ do
     (_, config) <- get
@@ -72,7 +74,7 @@ instance WriteableMonad MockWriteableMonad where
     return $ doesDirectoryExist_impl config path
 
   copyDirectoryRecursive srcPath dstPath = MockWriteableMonad $ do
-    modifyLogs (copyDirectoryRecursive_addCall srcPath dstPath)
+    modifyLogs (copyDirectoryRecursive_addCall (castDir srcPath) (castDir dstPath))
 
   throwIO = throwIO
 

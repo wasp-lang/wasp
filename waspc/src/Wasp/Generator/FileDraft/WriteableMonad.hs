@@ -8,7 +8,7 @@ import Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text.IO
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, Dir', File', Path', Rel)
+import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified StrongPath.Path as SP.Path
 import qualified System.Directory
 import System.IO.Error (isDoesNotExistError)
@@ -39,9 +39,9 @@ class (MonadIO m) => WriteableMonad m where
   -- It does not follow symbolic links and preserves permissions when possible.
   copyDirectoryRecursive ::
     -- | Src path.
-    Path' Abs Dir' ->
+    Path' Abs (Dir a) ->
     -- | Dst path.
-    Path' Abs Dir' ->
+    Path' Abs (Dir b) ->
     m ()
 
   doesFileExist :: FilePath -> m Bool
@@ -52,14 +52,14 @@ class (MonadIO m) => WriteableMonad m where
 
   getTemplateFileAbsPath ::
     -- | Template file path.
-    Path' (Rel Templates.TemplatesDir) File' ->
-    m (Path' Abs File')
+    Path' (Rel Templates.TemplatesDir) (File a) ->
+    m (Path' Abs (File a))
 
   getTemplatesDirAbsPath :: m (Path' Abs (Dir Templates.TemplatesDir))
 
   compileAndRenderTemplate ::
     -- | Template file path.
-    Path' (Rel Templates.TemplatesDir) File' ->
+    Path' (Rel Templates.TemplatesDir) (File a) ->
     -- | JSON to be provided as template data.
     Aeson.Value ->
     m Text
