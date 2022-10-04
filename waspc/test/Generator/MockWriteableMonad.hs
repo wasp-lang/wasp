@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Generator.MockWriteableMonad
   ( MockWriteableMonad,
@@ -17,6 +18,7 @@ import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
 import StrongPath (Abs, Dir, Dir', File', Path', Rel, castDir, reldir, (</>))
 import StrongPath.Operations (castFile)
+import StrongPath.Types (File)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -55,14 +57,14 @@ instance WriteableMonad MockWriteableMonad where
     modifyLogs (copyFile_addCall srcPath dstPath)
 
   getTemplateFileAbsPath path = MockWriteableMonad $ do
-    modifyLogs (getTemplateFileAbsPath_addCall (castFile path))
+    modifyLogs (getTemplateFileAbsPath_addCall $ castFile path)
     (_, config) <- get
-    return $ castFile $ getTemplateFileAbsPath_impl config (castFile path)
+    return $ getTemplateFileAbsPath_impl config path
 
   compileAndRenderTemplate path json = MockWriteableMonad $ do
     modifyLogs (compileAndRenderTemplate_addCall (castFile path) json)
     (_, config) <- get
-    return $ compileAndRenderTemplate_impl config (castFile path) json
+    return $ compileAndRenderTemplate_impl config path json
 
   doesFileExist path = MockWriteableMonad $ do
     (_, config) <- get
@@ -100,8 +102,8 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
   { getTemplatesDirAbsPath_impl :: Path' Abs (Dir TemplatesDir),
-    getTemplateFileAbsPath_impl :: Path' (Rel TemplatesDir) File' -> Path' Abs File',
-    compileAndRenderTemplate_impl :: Path' (Rel TemplatesDir) File' -> Aeson.Value -> Text,
+    getTemplateFileAbsPath_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Path' Abs (File a),
+    compileAndRenderTemplate_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool,
     doesDirectoryExist_impl :: FilePath -> Bool
   }
