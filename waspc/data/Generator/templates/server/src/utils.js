@@ -114,13 +114,13 @@ export const prismaErrorToHttpError = (e) => {
       case 'P2026':
         return new HttpError(405, 'Feature Not Allowed', {message: "The current database provider doesn't support a feature that the query used."})
       case 'P2027':
-        return new HttpError(500, 'Error', {message: "Multiple errors occurred on the database during query execution."})
+        return new HttpError(500, 'Error', {message: 'Multiple errors occurred on the database during query execution.'})
       case 'P2028':
-        return new HttpError(400, 'Transaction Error', {message: "Transaction API error."})
+        return new HttpError(400, 'Transaction Error', {message: 'Transaction API error.'})
       case 'P2030':
-        return new HttpError(500, 'Schema Error', {message: "Cannot find a fulltext index to use for the search, try adding a @@fulltext([Fields...]) to your schema."})
+        return new HttpError(500, 'Schema Error', {message: 'Cannot find a fulltext index to use for the search, try adding a @@fulltext([Fields...]) to your schema.'})
       case 'P2031':
-        return new HttpError(500, 'MongoDB Error', {message: "Prisma needs to perform transactions, which requires your MongoDB server to be run as a replica set. See details: https://pris.ly/d/mongodb-replica-set"})
+        return new HttpError(500, 'MongoDB Error', {message: 'Prisma needs to perform transactions, which requires your MongoDB server to be run as a replica set. See details: https://pris.ly/d/mongodb-replica-set'})
       case 'P2033':
         return new HttpError(400, 'Bad Type', {message: "A number used in the query does not fit into a 64 bit signed integer. Consider using BigInt as field type if you're trying to store large integers"})
       case 'P2034':
