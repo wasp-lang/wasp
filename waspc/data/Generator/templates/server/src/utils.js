@@ -26,16 +26,15 @@ export const isPrismaError = (e) => {
 
 export const prismaErrorToHttpError = (e) => {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
-    if (e.code === 'P2002') {
-      return new HttpError(422, 'Save failed', {
-        message: `A record with the same ${e.meta.target.join(', ')} already exists.`,
-        target: e.meta.target
-      })
-    } else {
-      // TODO(shayne): Go through https://www.prisma.io/docs/reference/api-reference/error-reference#error-codes
-      // and decide which are input errors (422) and which are not (500)
-      // See: https://github.com/wasp-lang/wasp/issues/384
-      return new HttpError(500)
+
+    switch (e.code) {
+      case 'P2002':
+        return new HttpError(422, 'Save failed', {
+          message: `A record with the same ${e.meta.target.join(', ')} already exists.`,
+          target: e.meta.target
+        })
+      default:
+        return new HttpError(500)
     }
   } else if (e instanceof Prisma.PrismaClientValidationError) {
     return new HttpError(422, 'Save failed')
