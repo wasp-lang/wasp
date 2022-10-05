@@ -124,7 +124,55 @@ export const prismaErrorToHttpError = (e) => {
       case 'P2033':
         return new HttpError(400, 'Bad Type', {message: "A number used in the query does not fit into a 64 bit signed integer. Consider using BigInt as field type if you're trying to store large integers"})
       case 'P2034':
-        return new HttpError(500, 'Error', {message: "Transaction failed due to a write conflict or a deadlock. Please retry your transaction"})
+        return new HttpError(500, 'Transaction Failed', {message: 'Transaction failed due to a write conflict or a deadlock. Please retry your transaction'})
+      case 'P3000':
+        return new HttpError(500, 'Error', {message: 'Failed to create database'})
+      case 'P3001':
+        return new HttpError(500, 'Error', {message: 'Migration possible with destructive changes and possible data loss'})
+      case 'P3002':
+        return new HttpError(500, 'Error', {message: 'The attempted migration was rolled back'})
+      case 'P3003':
+        return new HttpError(500, 'Error', {message: 'The format of migrations changed, the saved migrations are no longer valid. To solve this problem, please follow the steps at: https://pris.ly/d/migrate'})
+      case 'P3004':
+        return new HttpError(500, 'Error', {message: 'This database is a system database, it should not be altered with prisma migrate. Please connect to another database.'})
+      case 'P3005':
+        return new HttpError(500, 'Error', {message: 'The database schema is not empty. Read more about how to baseline an existing production database: https://pris.ly/d/migrate-baseline'})
+      case 'P3006':
+        return new HttpError(500, 'Migration Failed', {message: 'Migration failed to apply cleanly to the shadow database.'})
+      case 'P3007':
+        return new HttpError(500, 'Error', {message: 'Some of the requested preview features are not yet allowed in migration engine. Please remove them from your data model before using migrations.'})
+      case 'P3008':
+        return new HttpError(500, 'Error', {message: 'The migration is already recorded as applied in the database.'})
+      case 'P3009':
+        return new HttpError(500, 'Error', {message: 'Migrate found failed migrations in the target database, new migrations will not be applied. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve'})
+      case 'P3010':
+        return new HttpError(500, 'Migration Failed', {message: 'The name of the migration is too long. It must not be longer than 200 characters'})
+      case 'P3011':
+        return new HttpError(500, 'Error', {message: 'Migration cannot be rolled back because it was never applied to the database. Hint: did you pass in the whole migration name? (example: \"20201207184859_initial_migration\")'})
+      case 'P3012':
+        return new HttpError(500, 'Error', {message: 'Migration cannot be rolled back because it is not in a failed state.'})
+      case 'P3013':
+        return new HttpError(500, 'Error', {message: 'Datasource provider arrays are no longer supported in migrate. Please change your datasource to use a single provider. Read more at https://pris.ly/multi-provider-deprecation'})
+      case 'P3014':
+        return new HttpError(500, 'Error', {message: 'Prisma Migrate could not create the shadow database. Please make sure the database user has permission to create databases. More info: https://pris.ly/d/migrate-shadow.'})
+      case 'P3015':
+        return new HttpError(500, 'Missing File', {message: 'Could not find the migration file. Please delete the directory or restore the migration file.'})
+      case 'P3016':
+        return new HttpError(500, 'Error', {message: 'The fallback method for database resets failed, meaning Migrate could not clean up the database entirely.'})
+      case 'P3017':
+        return new HttpError(500, 'Missing Migration', {message: 'The migration could not be found. Please make sure that the migration exists, and that you included the whole name of the directory. (example: \"20201207184859_initial_migration\")'})
+      case 'P3018':
+        return new HttpError(500, 'Error', {message: 'A migration failed to apply. New migrations can not be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve'})
+      case 'P3019':
+        return new HttpError(500, 'Error', {message: 'The datasource provider specified in your schema does not match the one specified in the migration_lock.toml. Please remove your current migration directory and start a new migration history with prisma migrate dev. Read more: https://pris.ly/d/migrate-provider-switch'})
+      case 'P3020':
+        return new HttpError(500, 'Error', {message: 'The automatic creation of shadow databases is disabled on Azure SQL. Please set up a shadow database using the shadowDatabaseUrl datasource attribute. Read the docs page for more details: https://pris.ly/d/migrate-shadow'})
+      case 'P3021':
+        return new HttpError(500, 'Error', {message: 'Foreign keys cannot be created on this database. Learn more how to handle this: https://pris.ly/d/migrate-no-foreign-keys'})
+      case 'P3022':
+        return new HttpError(500, 'Error', {message: 'Direct execution of DDL (Data Definition Language) SQL statements is disabled on this database. Please read more here about how to handle this: https://pris.ly/d/migrate-no-direct-ddl'})
+      case 'P3022':
+        return new HttpError(500, 'Error', {message: 'Direct execution of DDL (Data Definition Language) SQL statements is disabled on this database. Please read more here about how to handle this: https://pris.ly/d/migrate-no-direct-ddl'})
       default:
         return new HttpError(500)
     }
