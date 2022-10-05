@@ -171,8 +171,12 @@ export const prismaErrorToHttpError = (e) => {
         return new HttpError(500, 'Error', {message: 'Foreign keys cannot be created on this database. Learn more how to handle this: https://pris.ly/d/migrate-no-foreign-keys'})
       case 'P3022':
         return new HttpError(500, 'Error', {message: 'Direct execution of DDL (Data Definition Language) SQL statements is disabled on this database. Please read more here about how to handle this: https://pris.ly/d/migrate-no-direct-ddl'})
-      case 'P3022':
-        return new HttpError(500, 'Error', {message: 'Direct execution of DDL (Data Definition Language) SQL statements is disabled on this database. Please read more here about how to handle this: https://pris.ly/d/migrate-no-direct-ddl'})
+      case 'P4000':
+        return new HttpError(500, 'Error', {message: 'Introspection operation failed to produce a schema file'})
+      case 'P4001':
+        return new HttpError(500, 'Error', {message: 'The introspected database was empty'})
+      case 'P4002':
+        return new HttpError(500, 'Error', {message: 'The schema of the introspected database was inconsistent'})
       default:
         return new HttpError(500)
     }
