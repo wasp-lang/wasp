@@ -65,6 +65,66 @@ export const prismaErrorToHttpError = (e) => {
           message: `A record with the same ${e.meta.target.join(', ')} already exists.`,
           target: e.meta.target
         })
+      case 'P2003':
+        return new HttpError(500, 'Bad Foreing Key', {message: 'Foreign key constraint failed.'})
+      case 'P2004':
+        return new HttpError(500, 'Database Error', {message: 'A constraint failed on the database.'})
+      case 'P2005':
+        return new HttpError(400, 'Bad Type', {message: "The value stored in the database for the field is invalid for the field's type"})
+      case 'P2006':
+        return new HttpError(400, 'Invalid Value', {message: 'The provided value for field is not valid'})
+      case 'P2007':
+        return new HttpError(500, 'Data Validation Error', {message: 'Data validation error'})
+      case 'P2008':
+        return new HttpError(400, 'Bad Query', {message: 'Failed to parse the query'})
+      case 'P2009':
+        return new HttpError(500, 'Bad Query', {message: 'Failed to validate the query'})
+      case 'P2010':
+        return new HttpError(400, 'Bad Query', {message: 'Raw query failed.'})
+      case 'P2011':
+        return new HttpError(400, 'Constraint Violation', {message: 'Null constraint violation.'})
+      case 'P2012':
+        return new HttpError(400, 'Missing Value', {message: 'Missing a required value.'})
+      case 'P2013':
+        return new HttpError(400, 'Missing Argument', {message: 'Missing the required argument.'})
+      case 'P2014':
+        return new HttpError(400, 'Bad Change', {message: 'The change you are trying to make would violate the required relation.'})
+      case 'P2015':
+        return new HttpError(404, 'Record Not Found', {message: 'A related record could not be found.'})
+      case 'P2016':
+        return new HttpError(500, 'Interpretation Error', {message: 'Query interpretation error.'})
+      case 'P2017':
+        return new HttpError(400, 'Bad Change', {message: 'The records for the relation models are not connected.'})
+      case 'P2018':
+        return new HttpError(404, 'Record Not Found', {message: 'The required connected records were not found.'})
+      case 'P2019':
+        return new HttpError(400, 'Input Error', {message: 'Input error.'})
+      case 'P2020':
+        return new HttpError(413, 'Value Out Of Range', {message: 'Value out of range for the type.'})
+      case 'P2021':
+        return new HttpError(404, 'Table Not Found', {message: 'The table does not exist in the current database.'})
+      case 'P2022':
+        return new HttpError(404, 'Column Not Found', {message: 'The column does not exist in the current database.'})
+      case 'P2023':
+        return new HttpError(400, 'Inconsistent Data', {message: 'Inconsistent column data.'})
+      case 'P2024':
+        return new HttpError(408, 'Request Timeout', {message: 'Timed out fetching a new connection from the connection pool.'})
+      case 'P2025':
+        return new HttpError(404, 'Record Not Found', {message: 'An operation failed because it depends on one or more records that were required but not found.'})
+      case 'P2026':
+        return new HttpError(405, 'Feature Not Allowed', {message: "The current database provider doesn't support a feature that the query used."})
+      case 'P2027':
+        return new HttpError(500, 'Error', {message: "Multiple errors occurred on the database during query execution."})
+      case 'P2028':
+        return new HttpError(400, 'Transaction Error', {message: "Transaction API error."})
+      case 'P2030':
+        return new HttpError(500, 'Schema Error', {message: "Cannot find a fulltext index to use for the search, try adding a @@fulltext([Fields...]) to your schema."})
+      case 'P2031':
+        return new HttpError(500, 'MongoDB Error', {message: "Prisma needs to perform transactions, which requires your MongoDB server to be run as a replica set. See details: https://pris.ly/d/mongodb-replica-set"})
+      case 'P2033':
+        return new HttpError(400, 'Bad Type', {message: "A number used in the query does not fit into a 64 bit signed integer. Consider using BigInt as field type if you're trying to store large integers"})
+      case 'P2034':
+        return new HttpError(500, 'Error', {message: "Transaction failed due to a write conflict or a deadlock. Please retry your transaction"})
       default:
         return new HttpError(500)
     }
