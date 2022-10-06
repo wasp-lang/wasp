@@ -8,7 +8,8 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path')
+import Data.List.NonEmpty (NonEmpty, fromList, toList)
+import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
@@ -36,9 +37,9 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  appSpecOrCompileErrors <- analyzeWaspProject waspDir options
-  case appSpecOrCompileErrors of
-    Left compileErrors -> return ([], compileErrors)
+  (analyzerWarnings, appSpecOrAnalyzerErrors) <- analyzeWaspProject waspDir options
+  compilerWarningsAndErrors <- case appSpecOrAnalyzerErrors of
+    Left analyzerErrors -> return ([], toList analyzerErrors)
     Right appSpec ->
       case ASV.validateAppSpec appSpec of
         [] -> do
@@ -46,25 +47,27 @@ compile waspDir outDir options = do
           return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
         validationErrors -> do
           return ([], map show validationErrors)
+  return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  IO (Either [CompileError] AS.AppSpec)
+  IO ([CompileWarning], Either (NonEmpty CompileError) AS.AppSpec)
 analyzeWaspProject waspDir options = do
   maybeWaspFilePath <- findWaspFile waspDir
-  case maybeWaspFilePath of
-    Nothing -> return $ Left ["Couldn't find a single *.wasp file."]
+  appSpecOrAnalyzerErrors <- case maybeWaspFilePath of
+    Nothing -> return $ Left $ fromList ["Couldn't find a single *.wasp file."]
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
           return $
-            Left
-              [ showCompilerErrorForTerminal
-                  (waspFilePath, waspFileContent)
-                  (getErrorMessageAndCtx analyzeError)
-              ]
+            Left $
+              fromList
+                [ showCompilerErrorForTerminal
+                    (waspFilePath, waspFileContent)
+                    (getErrorMessageAndCtx analyzeError)
+                ]
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
@@ -82,6 +85,16 @@ analyzeWaspProject waspDir options = do
                   AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options
                 }
+  analyzerWarnings <- warnIfDotEnvPresent waspDir
+  return (analyzerWarnings, appSpecOrAnalyzerErrors)
+
+-- | Checks the wasp directory for potential problems, and issues warnings if any are found.
+warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
+warnIfDotEnvPresent waspDir = do
+  maybeDotEnvFile <- findDotEnv waspDir
+  case maybeDotEnvFile of
+    Nothing -> return []
+    Just _ -> return ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
@@ -97,6 +110,9 @@ findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
 
 findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
+
+findDotEnv :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnv waspDir = findFileInWaspProjectDir waspDir [relfile|.env|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
