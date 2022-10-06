@@ -9,7 +9,9 @@ import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
+    File',
     Path,
+    Path',
     Posix,
     Rel,
     relfile,
@@ -48,6 +50,21 @@ genWebApp spec = do
     <++> genPublicDir spec
     <++> genSrcDir spec
     <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genDotEnv spec
+
+genDotEnv :: AppSpec -> Generator [FileDraft]
+genDotEnv spec = return $
+  case AS.dotEnvClientFile spec of
+    Just srcFilePath
+      | not $ AS.isBuild spec ->
+          [ createCopyFileDraft
+              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+              srcFilePath
+          ]
+    _ -> []
+
+dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
+dotEnvInWebAppRootDir = [relfile|.env|]
 
 genReadme :: Generator FileDraft
 genReadme = return $ C.mkTmplFd $ C.asTmplFile [relfile|README.md|]

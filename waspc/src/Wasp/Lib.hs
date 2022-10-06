@@ -8,7 +8,7 @@ module Wasp.Lib
 where
 
 import Data.List (find, isSuffixOf)
-import StrongPath (Abs, Dir, File', Path', relfile)
+import StrongPath (Abs, Dir, File', Path')
 import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
@@ -22,6 +22,8 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
+import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -66,7 +68,8 @@ analyzeWaspProject waspDir options = do
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
-          maybeDotEnvFile <- findDotEnvFile waspDir
+          maybeDotEnvServerFile <- findDotEnvServer waspDir
+          maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           return $
             Right
@@ -75,7 +78,8 @@ analyzeWaspProject waspDir options = do
                   AS.externalCodeFiles = externalCodeFiles,
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,
-                  AS.dotEnvFile = maybeDotEnvFile,
+                  AS.dotEnvServerFile = maybeDotEnvServerFile,
+                  AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options
                 }
 
@@ -88,11 +92,20 @@ findWaspFile waspDir = do
       ".wasp" `isSuffixOf` SP.toFilePath path
         && (length (SP.toFilePath path) > length (".wasp" :: String))
 
-findDotEnvFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvFile waspDir = do
-  let dotEnvAbsPath = waspDir SP.</> [relfile|.env|]
-  dotEnvExists <- doesFileExist (SP.toFilePath dotEnvAbsPath)
-  return $ if dotEnvExists then Just dotEnvAbsPath else Nothing
+findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
+
+findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
+
+findFileInWaspProjectDir ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (SP.Rel WaspProjectDir) File' ->
+  IO (Maybe (Path' Abs File'))
+findFileInWaspProjectDir waspDir file = do
+  let fileAbsFp = waspDir SP.</> file
+  fileExists <- doesFileExist $ SP.toFilePath fileAbsFp
+  return $ if fileExists then Just fileAbsFp else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->
