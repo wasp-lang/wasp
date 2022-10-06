@@ -12,7 +12,11 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "ignorePatterns": [
+      "src/*",
+      "!src/ext-src"
+    ]
   },
   "engineStrict": true,
   "engines": {
