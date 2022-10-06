@@ -28,10 +28,11 @@ module Wasp.Util
     fromMaybeM,
     orIfNothing,
     orIfNothingM,
+    kebabToCamelCase,
   )
 where
 
-import Control.Monad (liftM2)
+import Control.Applicative (liftA2)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as B
@@ -39,7 +40,7 @@ import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
 import Data.List (intercalate)
-import Data.List.Split (splitOn)
+import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
@@ -56,6 +57,13 @@ camelToKebabCase camel@(camelHead : camelTail) = kebabHead : kebabTail
         (\(a, b) -> (if isCamelHump (a, b) then ['-'] else []) ++ [toLower b])
         (zip camel camelTail)
     isCamelHump (a, b) = (not . isUpper) a && isUpper b
+
+kebabToCamelCase :: String -> String
+kebabToCamelCase = concat . capitalizeAllWordsExceptForTheFirstOne . wordsBy (== '-')
+  where
+    capitalizeAllWordsExceptForTheFirstOne :: [String] -> [String]
+    capitalizeAllWordsExceptForTheFirstOne [] = []
+    capitalizeAllWordsExceptForTheFirstOne (firstWord : otherWords) = firstWord : map toUpperFirst otherWords
 
 -- | Applies given function to the first element of the list.
 --   If list is empty, returns empty list.
@@ -155,13 +163,13 @@ insertAt theInsert idx host =
 
 infixr 5 <++>
 
-(<++>) :: Monad m => m [a] -> m [a] -> m [a]
-(<++>) = liftM2 (++)
+(<++>) :: Applicative f => f [a] -> f [a] -> f [a]
+(<++>) = liftA2 (++)
 
 infixr 5 <:>
 
-(<:>) :: Monad m => m a -> m [a] -> m [a]
-(<:>) = liftM2 (:)
+(<:>) :: Applicative f => f a -> f [a] -> f [a]
+(<:>) = liftA2 (:)
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y

@@ -106,15 +106,16 @@ NOTE: Reload page if blank.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
-5. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
+4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md.
+5. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
+6. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
-6. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
+7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
-7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
-8. Work with reviewer(s) to get the PR approved.
+8. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
+9. Work with reviewer(s) to get the PR approved.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
-9. Reviewer will merge the branch into `main`. Yay!
+10. Reviewer will merge the branch into `main`. Yay!
 
 NOTE: Why don't you use a cabal freeze file?
    In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead
@@ -363,8 +364,14 @@ If it happens just once every so it is probably nothing to worry about. If it ha
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - Publish the draft release when ready.
+- Merge `release` back into `main` (`git merge release` while on the `main` branch), to keep things nice and clean -> this way in `main` we have the updated cabal version and can see that tag in the history.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
+
+#### Determining next version
+waspc is following typical SemVer versioning scheme, so major.minor.patch.
+There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
+So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
 
 ## Documentation
 External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 

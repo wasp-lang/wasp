@@ -70,7 +70,6 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **query**
     - **route**
   - Enum types
-    - **AuthMethod**
     - **DbSystem**
     - **JobExecutor**
 

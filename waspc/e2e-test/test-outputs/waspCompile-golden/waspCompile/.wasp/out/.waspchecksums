@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "93bb104c26d9c0e06b947bd9b2be153e579f599590d3fa8876db2ca777ce5183"
+        "faae4a6f87557e624d9c7631ec6f3ed20e31115f2c177bfe19b3f52d163d86e9"
     ],
     [
         [
@@ -46,21 +46,21 @@
             "file",
             "server/package.json"
         ],
-        "9c3186abd79e11706fd56699054b653303dbae26b3b7037a2104377d697b7b22"
+        "484019a3c68c9b70f7c741d0b3277c244c9574c49440e9802a87bbe45d34f1c8"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "31bf8e67e2bc95b2558c649fdb51e6c7a6d373cbc8488141ab8652e8d69604ce"
+        "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
     ],
     [
         [
             "file",
             "server/src/config.js"
         ],
-        "beed84b80d5bbb90c6d02781cf03d7b1f7192b1e1eeda01becfefa57aa69dc50"
+        "d7f23a370f15869e6a3920552993c41d5e1a23d8e12a4a9d3a583d22b730a5d6"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "web-app/package.json"
         ],
-        "8d5e3c23f6fdfe422e307d0dee0e5503d1584fa47a4cff5ca4299e653a6b0fb6"
+        "b41135056c2f7ec5b9c48375a9cd8192d82b1acdfdb6d65b8da65975cb687ffc"
     ],
     [
         [
@@ -235,7 +235,14 @@
             "file",
             "web-app/src/actions/core.js"
         ],
-        "0891b7607b5503ada42386f73476a46f774a224d8b606f79ef37e451b229d399"
+        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/actions/index.js"
+        ],
+        "a9dbcffd4be75f7616cade56053e4060aac4ffd62b09195a4c84f4465a4dcaa7"
     ],
     [
         [
@@ -305,21 +312,28 @@
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "9bccf509e1a3e04e24444eacd69e0f093e590a9b85325bedb6f1d52ac85ead3c"
+        "4bbae164648c6442220dd1dfff76f11dce41dca85604e53f671db383fe1efd03"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/operations/updateHandlersMap.js"
+        ],
+        "07a9933a771853585fd2fc49c3dcb9f1cad947acb2168580c835fae25620fa9f"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.js"
         ],
-        "031c6d10898cb43f7f7e581422542585383b262d8a4f4d8738c695cca4b3fca1"
+        "705fcfe43f08cce6fbbc617a05cca5304c1398f311df19dfef6e52d421337215"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.js"
         ],
-        "965368ac8e979667445031addb947baf19055df0df24656c3af4d3abdd86952b"
+        "fcae00e6d2f60683509dcc06d37a0785e9e657ed11d0319859156feddbd547c0"
     ],
     [
         [
@@ -333,7 +347,7 @@
             "file",
             "web-app/src/router.js"
         ],
-        "959a870fd08b7bc2eabf397750256946e26960e08fb2887ec65ab5fc775aebfc"
+        "dd6f5f5c6981df1935c02437d7a6ae343841300c3f7e99b0ad6ca62e95071421"
     ],
     [
         [

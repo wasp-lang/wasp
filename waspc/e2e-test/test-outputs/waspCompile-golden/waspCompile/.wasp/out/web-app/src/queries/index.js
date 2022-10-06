@@ -12,7 +12,7 @@ export function useQuery(queryFn, queryFnArgs, options) {
   const queryKey = queryFnArgs !== undefined ? [queryFn.queryCacheKey, queryFnArgs] : [queryFn.queryCacheKey]
   return rqUseQuery({
     queryKey,
-    queryFn: () => queryFn(queryFnArgs),
+    queryFn: () => queryFn(queryKey, queryFnArgs),
     ...options
   })
 }

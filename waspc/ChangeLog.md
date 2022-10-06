@@ -1,9 +1,9 @@
 # Changelog
 
-## v0.6.0.0 (TBD)
+## v0.6.0.0 (2022/09/29)
 
 ### BREAKING CHANGES
-- The `EmailAndPassword` auth method has been renamed `UsernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
+- The `EmailAndPassword` auth method has been renamed `usernameAndPassword` to better reflect the current usage. Email validation will be addressed in the future.
   - This means the `auth.userEntity` model should now have field called `username` (instead of `email`, as before).
     - If you'd like to treat the old `email` field as `username`, you can create a migration file like so:
       ```bash
@@ -24,7 +24,36 @@
       ```
       - NOTE: If you simply changed `email` to `username` in your .wasp file, Prisma will try to drop the table and recreate it, which is likely not what you want if you have data you want to preserve.
     - If you would like to add a new `username` column and keep `email` as is, be sure to add a calculated value in the migration (perhaps a random string, or something based on the `email`). The `username` column should remain `NOT NULL` and `UNIQUE`.
+- `WASP_WEB_CLIENT_URL` is now a required environment variable to improve CORS security. It is set by default in development. In production, this should point to the URL where your frontend app is being hosted.
+- The generated Dockerfile has been updated from `node:14-alpine` to `node:16-alpine`.
 - Wasp Jobs callback function arguments have been updated to the following: `async function jobHandler(args, context)`. Jobs can now make use of entities, accessed via `context`, like Operations. Additionally, the data passed into the Job handler function are no longer wrapped in a `data` property, and are now instead accessed exactly as they are supplied via `args`.
+- React got updated to React 17.
+
+### [NEW FEATURE] Google is now a supported authentication method!
+
+You can now offer your users the ability to sign in with Google! Enabling it is just a few lines and offers a fast, easy, and secure way to get users into your app! We also have a comprehensive setup guide for creating a new app in the Google Developer Console.
+
+Stay tuned, as more external auth methods will be added in the future. Let us know what you'd like to see support for next!
+
+### [NEW FEATURE] Wasp Language Server
+
+Now, your installation of Wasp also brings Wasp language server with it! This means live error reporting in Wasp files in supported IDEs (currently only VSCode).
+
+Make sure to update your Wasp VSCode extension to get the benefits of Wasp Language Server.
+
+### [NEW FEATURE] Optimistic updates via useAction hook
+
+We added `useAction` hook to our JS API, which allows you to specify optimistic update details for an Action.
+This means that, if you have a good idea of how an Action will affect the state on the client, you can perform those changes immediatelly upon its call (instead of waiting for Action to finish), by modifying what specific Queries currently return.
+Once Action is actually done, related Queries will be unvalidated as usual and therefore fetch the real result, but in the meantime the changes you specified via optimistic updates will be visible.
+
+This is great for apps where there is a lot of interactivity and you want the UI to update instantly with your changes, even as they are still being saved to the server.
+
+Check out https://wasp-lang.dev/docs/language/features#the-useaction-hook for more details.
+
+### Bug fixes
+- Works around a `sodium-native` bug (used by a Wasp dependency, `secure-password`) that caused signup/login runtime issues with Heroku deployments by downgrading it from v3.4.1 to v3.3.0 via a `package.json` override. Ref: https://github.com/sodium-friends/sodium-native/issues/160
+- Improved warnings by Wasp to do database migration -> now there are less false positives.
 
 ---
 

@@ -1,12 +1,13 @@
-{{= {= =} =}}
 import { queryClientInitialized } from '../queryClient'
-
+import { makeUpdateHandlersMap } from './updateHandlersMap'
+import { hashQueryKey } from 'react-query'
 
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
 // that resource.
 const resourceToQueryCacheKeys = new Map()
 
+const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
@@ -24,24 +25,19 @@ export function addResourcesUsedByQuery(queryCacheKey, resources) {
   }
 }
 
-/**
- * @param {string} resource - Resource name.
- * @returns {string[]} Array of "query cache keys" of queries that use specified resource.
- */
-export function getQueriesUsingResource(resource) {
-  return Array.from(resourceToQueryCacheKeys.get(resource) || [])
-}
-/**
- * Invalidates all queries that are using specified resources.
- * @param {string[]} resources - Names of resources.
- */
-export async function invalidateQueriesUsing(resources) {
-  const queryClient = await queryClientInitialized
-
-  const queryCacheKeysToInvalidate = new Set(resources.flatMap(getQueriesUsingResource))
-  queryCacheKeysToInvalidate.forEach(queryCacheKey => 
-    queryClient.invalidateQueries(queryCacheKey)
+export function registerActionInProgress(optimisticUpdateTuples) {
+  optimisticUpdateTuples.forEach(
+    ({ queryKey, updateQuery }) => updateHandlers.add(queryKey, updateQuery)
   )
+}
+
+export async function registerActionDone(resources, optimisticUpdateTuples) {
+  optimisticUpdateTuples.forEach(({ queryKey }) => updateHandlers.remove(queryKey))
+  await invalidateQueriesUsing(resources)
+}
+
+export function getActiveOptimisticUpdates(queryKey) {
+  return updateHandlers.getUpdateHandlers(queryKey)
 }
 
 export async function removeQueries() {
@@ -58,4 +54,29 @@ export async function invalidateAndRemoveQueries() {
   // If we don't remove the queries after invalidating them, the old query data
   // remains in the cache, casuing a potential privacy issue.
   queryClient.removeQueries()
+}
+
+/**
+ * Invalidates all queries that are using specified resources.
+ * @param {string[]} resources - Names of resources.
+ */
+async function invalidateQueriesUsing(resources) {
+  const queryClient = await queryClientInitialized
+
+  const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
+  queryCacheKeysToInvalidate.forEach(
+    queryCacheKey => queryClient.invalidateQueries(queryCacheKey)
+  )
+}
+
+/**
+ * @param {string} resource - Resource name.
+ * @returns {string[]} Array of "query cache keys" of queries that use specified resource.
+ */
+function getQueriesUsingResource(resource) {
+  return Array.from(resourceToQueryCacheKeys.get(resource) || [])
+}
+
+function getQueriesUsingResources(resources) {
+  return Array.from(new Set(resources.flatMap(getQueriesUsingResource)))
 }

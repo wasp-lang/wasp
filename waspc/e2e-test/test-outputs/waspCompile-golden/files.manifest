@@ -32,6 +32,7 @@ waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/index.html
 waspCompile/.wasp/out/web-app/public/manifest.json
 waspCompile/.wasp/out/web-app/src/actions/core.js
+waspCompile/.wasp/out/web-app/src/actions/index.js
 waspCompile/.wasp/out/web-app/src/api.js
 waspCompile/.wasp/out/web-app/src/config.js
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
@@ -42,6 +43,7 @@ waspCompile/.wasp/out/web-app/src/index.js
 waspCompile/.wasp/out/web-app/src/logo.png
 waspCompile/.wasp/out/web-app/src/operations/index.js
 waspCompile/.wasp/out/web-app/src/operations/resources.js
+waspCompile/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspCompile/.wasp/out/web-app/src/queries/core.js
 waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js

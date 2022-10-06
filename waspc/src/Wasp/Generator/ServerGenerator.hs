@@ -4,10 +4,12 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsForWasp,
+    areServerPatchesUsed,
   )
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
 import Data.Maybe
   ( fromJust,
     fromMaybe,
@@ -30,6 +32,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -63,6 +66,7 @@ genServer spec =
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
+    <++> genPatches spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -95,33 +99,41 @@ genPackageJson spec waspDependencies = do
               "nodeVersionRange" .= show nodeVersionRange,
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
-                .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
+                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production node ./src/server.js"
-                   )
+                   ),
+              "overrides" .= getPackageJsonOverrides
             ]
       )
+  where
+    hasEntities = not . null $ AS.getDecls @AS.Entity.Entity spec
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("cookie-parser", "~1.4.4"),
+          [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("debug", "~2.6.9"),
-            ("express", "~4.16.1"),
-            ("morgan", "~1.9.1"),
+            ("debug", "~4.3.4"),
+            ("express", "~4.18.1"),
+            ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
+            -- NOTE: secure-password has a package.json override for sodium-native.
             ("secure-password", "^4.0.0"),
-            ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("dotenv", "16.0.2"),
+            ("helmet", "^6.0.0"),
+            ("patch-package", "^6.4.7"),
+            ("uuid", "^9.0.0"),
+            ("lodash", "^4.17.21")
           ]
+          ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
-          [ ("nodemon", "^2.0.4"),
-            ("standard", "^14.3.4"),
+          [ ("nodemon", "^2.0.19"),
+            ("standard", "^17.0.0"),
             ("prisma", show prismaVersion)
           ]
     }
@@ -220,3 +232,57 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
+depsRequiredByPassport spec =
+  AS.Dependency.fromList $
+    concat
+      [ [("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
+        [("passport-google-oauth20", "2.0.0") | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True]
+      ]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+areServerPatchesUsed :: AppSpec -> Generator Bool
+areServerPatchesUsed spec = not . null <$> genPatches spec
+
+genPatches :: AppSpec -> Generator [FileDraft]
+genPatches spec = patchesRequiredByPassport spec
+
+patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
+patchesRequiredByPassport spec =
+  return $
+    [ C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])
+      | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True
+    ]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+-- Allows us to make specific changes to dependencies of our dependencies.
+-- This is helpful if something broke in later versions, etc.
+-- Ref: https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
+getPackageJsonOverrides :: [Aeson.Value]
+getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
+  where
+    overrides :: [(String, String, String)]
+    overrides =
+      [ -- sodium-native > 3.3.0 broke deploying on Heroku.
+        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
+        ("secure-password", "sodium-native", "3.3.0")
+      ]
+
+    -- NOTE: We must designate the last element so the JSON template can omit the final comma.
+    buildOverrideData :: (String, String, String, Bool) -> Aeson.Value
+    buildOverrideData (packageName, dependencyName, dependencyVersion, lastElement) =
+      object
+        [ "packageName" .= packageName,
+          "dependencyName" .= dependencyName,
+          "dependencyVersion" .= dependencyVersion,
+          "last" .= lastElement
+        ]
+
+    designateLastElement :: [(String, String, String)] -> [(String, String, String, Bool)]
+    designateLastElement [] = []
+    designateLastElement l =
+      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
+        ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]

@@ -14,7 +14,7 @@ module Wasp.Analyzer.Parser.ConcreteParser
   )
 where
 
-import Wasp.Analyzer.Parser.ConcreteParser.CST (SyntaxKind (..), SyntaxNode (..))
+import Wasp.Analyzer.Parser.CST (SyntaxKind (..), SyntaxNode (..))
 import Wasp.Analyzer.Parser.ConcreteParser.ParseError
 import Wasp.Analyzer.Parser.ConcreteParser.ParserLib
 import Wasp.Analyzer.Parser.Token (Token)
