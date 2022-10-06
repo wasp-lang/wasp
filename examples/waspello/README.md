@@ -5,6 +5,8 @@ Waspello
 
 This app is deployed at [https://waspello.netlify.app/](https://waspello.netlify.app/).
 
+The backend is hosted on Heroku - [@matijaSos](https://github.com/matijaSos)
+
 # Development
 
 ### Database
