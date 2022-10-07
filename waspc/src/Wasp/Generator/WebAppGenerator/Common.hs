@@ -1,6 +1,7 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( webAppRootDirInProjectRootDir,
     webAppSrcDirInWebAppRootDir,
+    dotEnvClient,
     mkSrcTmplFd,
     mkTmplFd,
     mkTmplFdWithDst,
@@ -19,8 +20,9 @@ module Wasp.Generator.WebAppGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -61,6 +63,9 @@ webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
 -- | Path to the web app templates src/ directory, relative to the web app templates directory.
 srcDirInWebAppTemplatesDir :: Path' (Rel WebAppTemplatesDir) (Dir WebAppTemplatesSrcDir)
 srcDirInWebAppTemplatesDir = [reldir|src|]
+
+dotEnvClient :: Path' (SP.Rel WaspProjectDir) File'
+dotEnvClient = [relfile|.env.client|]
 
 mkSrcTmplFd :: Path' (Rel WebAppTemplatesSrcDir) File' -> FileDraft
 mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDst srcPath dstPath
