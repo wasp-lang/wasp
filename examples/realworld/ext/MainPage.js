@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import _ from 'lodash'
 
 import Container from '@material-ui/core/Container'
 import Grid from '@material-ui/core/Grid'
@@ -121,7 +120,7 @@ const Tags = () => {
 
   if (!tags) return null
 
-  const popularTags = _.take(_.sortBy(tags, [t => -1 * t.numArticles]), 10)
+  const popularTags = tags.sort((a, b) => parseInt(b.numArticles, 10) - parseInt(a.numArticles, 10)).slice(0, 10);
 
   return (
     <Paper className={classes.root}>

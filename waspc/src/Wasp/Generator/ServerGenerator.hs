@@ -126,7 +126,6 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash", "^4.17.21")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
