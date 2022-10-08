@@ -135,6 +135,12 @@
   font-size: 0.9rem;
 }
 
+@media only screen and (max-width: 600px) {
+  .in-blog-cta--link {display: block;}
+  .in-blog-cta--divider{display: none;}
+}
+
+
 @media screen and (max-width: 996px) {
   .row .col {
     padding-top: var(--ifm-col-spacing-vertical);
