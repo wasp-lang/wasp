@@ -124,10 +124,6 @@ npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
 where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.herokuapp.com`.
 
-:::note
-Url of the wasp backend in <url_to_wasp_backend> should not have a trailing `/`. Otherwise the API calls will become invalid, since it will have an extra `/` in it (e.g. `https://wasp-test.herokuapp.com//auth/me`).
-:::
-
 This will create `build/` directory, which you can deploy to any static hosting provider.
 Check instructions below for deploying to Netlify.
 
