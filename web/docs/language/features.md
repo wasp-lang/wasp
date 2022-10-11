@@ -909,7 +909,7 @@ Login is a regular action and can be used directly from the frontend.
 
 
 ### `signup()`
-An action for signing in in the user.
+An action for signing in the user. The user is automatically logged in.
 ```js
 signup(userFields)
 ```
