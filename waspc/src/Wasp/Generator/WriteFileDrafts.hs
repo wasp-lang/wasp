@@ -32,7 +32,7 @@ import Wasp.Util (Checksum)
 synchronizeFileDraftsWithDisk :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 
-  return $! assertDestPathsAreUnique fileDrafts
+  return $! assertDstPathsAreUnique fileDrafts
 
   maybePathsToChecksums <- readChecksumFile dstDir
   case maybePathsToChecksums of
@@ -64,12 +64,12 @@ type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
 
 -- | Takes file drafts and verifies if the destination paths are unique.
-assertDestPathsAreUnique :: [FileDraft] -> ()
-assertDestPathsAreUnique fileDrafts =
-  let fileDstPaths = map getDstPath fileDrafts
-      duplicateFdDestPaths = map head $ filter ((> 1) . length) (group . sort $ fileDstPaths)
-      errMessage = unlines $ "FileDraft destination paths are not unique! Duplicates include: " : map show duplicateFdDestPaths
-    in if null duplicateFdDestPaths then () else error errMessage
+assertDstPathsAreUnique :: [FileDraft] -> ()
+assertDstPathsAreUnique fileDrafts =
+  let fdDstPaths = map getDstPath fileDrafts
+      duplicateFdDstPaths = map head $ filter ((> 1) . length) (group . sort $ fdDstPaths)
+      errMessage = unlines $ "FileDraft destination paths are not unique! Duplicates include: " : map show duplicateFdDstPaths
+    in if null duplicateFdDstPaths then () else error errMessage
 
 -- | This file stores all checksums for files and directories that were written to disk
 -- on the last project generation.
