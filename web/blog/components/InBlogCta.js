@@ -8,7 +8,7 @@ const Divider = () => (
 )
 
 const InBlogCta = () => (
-    <p>
+    <p className='in-blog-cta-link-container'>
         <Link className='in-blog-cta--link' 
             to='https://e44cy1h4s0q.typeform.com/to/ycUzQa5A'>
             We are in Alpha (try it out)!
