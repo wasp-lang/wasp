@@ -11,6 +11,7 @@ where
 import Control.Arrow (left)
 import Control.Monad.Extra (whenMaybeM)
 import Data.List (find, isSuffixOf)
+import Data.List.NonEmpty (NonEmpty, fromList, toList)
 import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
@@ -29,6 +30,8 @@ import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
+import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
+import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -41,9 +44,9 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  appSpecOrCompileErrors <- analyzeWaspProject waspDir options
-  case appSpecOrCompileErrors of
-    Left compileErrors -> return ([], compileErrors)
+  (analyzerWarnings, appSpecOrAnalyzerErrors) <- analyzeWaspProject waspDir options
+  compilerWarningsAndErrors <- case appSpecOrAnalyzerErrors of
+    Left analyzerErrors -> return ([], toList analyzerErrors)
     Right appSpec ->
       case ASV.validateAppSpec appSpec of
         [] -> do
@@ -51,29 +54,32 @@ compile waspDir outDir options = do
           return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
         validationErrors -> do
           return ([], map show validationErrors)
+  return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
 
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  IO (Either [CompileError] AS.AppSpec)
+  IO ([CompileWarning], Either (NonEmpty CompileError) AS.AppSpec)
 analyzeWaspProject waspDir options = do
   maybeWaspFilePath <- findWaspFile waspDir
-  case maybeWaspFilePath of
-    Nothing -> return $ Left ["Couldn't find a single *.wasp file."]
+  appSpecOrAnalyzerErrors <- case maybeWaspFilePath of
+    Nothing -> return $ Left $ fromList ["Couldn't find a single *.wasp file."]
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
         Left analyzeError ->
           return $
-            Left
-              [ showCompilerErrorForTerminal
-                  (waspFilePath, waspFileContent)
-                  (getErrorMessageAndCtx analyzeError)
-              ]
+            Left $
+              fromList
+                [ showCompilerErrorForTerminal
+                    (waspFilePath, waspFileContent)
+                    (getErrorMessageAndCtx analyzeError)
+                ]
         Right decls -> do
           externalCodeFiles <-
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
-          maybeDotEnvFile <- findDotEnvFile waspDir
+          maybeDotEnvServerFile <- findDotEnvServer waspDir
+          maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
           return $
@@ -83,10 +89,21 @@ analyzeWaspProject waspDir options = do
                   AS.externalCodeFiles = externalCodeFiles,
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,
-                  AS.dotEnvFile = maybeDotEnvFile,
+                  AS.dotEnvServerFile = maybeDotEnvServerFile,
+                  AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options,
                   AS.userDockerfileContents = maybeUserDockerfileContents
                 }
+  analyzerWarnings <- warnIfDotEnvPresent waspDir
+  return (analyzerWarnings, appSpecOrAnalyzerErrors)
+
+-- | Checks the wasp directory for potential problems, and issues warnings if any are found.
+warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
+warnIfDotEnvPresent waspDir = do
+  maybeDotEnvFile <- findDotEnv waspDir
+  case maybeDotEnvFile of
+    Nothing -> return []
+    Just _ -> return ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
@@ -97,11 +114,23 @@ findWaspFile waspDir = do
       ".wasp" `isSuffixOf` SP.toFilePath path
         && (length (SP.toFilePath path) > length (".wasp" :: String))
 
-findDotEnvFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
-findDotEnvFile waspDir = do
-  let dotEnvAbsPath = waspDir SP.</> [relfile|.env|]
-  dotEnvExists <- doesFileExist (SP.toFilePath dotEnvAbsPath)
-  return $ if dotEnvExists then Just dotEnvAbsPath else Nothing
+findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
+
+findDotEnvClient :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnvClient waspDir = findFileInWaspProjectDir waspDir dotEnvClient
+
+findDotEnv :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findDotEnv waspDir = findFileInWaspProjectDir waspDir [relfile|.env|]
+
+findFileInWaspProjectDir ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (SP.Rel WaspProjectDir) File' ->
+  IO (Maybe (Path' Abs File'))
+findFileInWaspProjectDir waspDir file = do
+  let fileAbsFp = waspDir SP.</> file
+  fileExists <- doesFileExist $ SP.toFilePath fileAbsFp
+  return $ if fileExists then Just fileAbsFp else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -118,9 +147,9 @@ loadUserDockerfileContents waspDir = do
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
-  appSpecOrCompileErrors <- analyzeWaspProject waspDir compileOptions
-  case appSpecOrCompileErrors of
-    Left errors -> return $ Left errors
+  (_, appSpecOrAnalyzerErrors) <- analyzeWaspProject waspDir compileOptions
+  case appSpecOrAnalyzerErrors of
+    Left errors -> return . Left . toList $ errors
     Right appSpec -> do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . NE.toList) dockerfileOrGeneratorErrors
