@@ -73,7 +73,8 @@ compileIOWithOptions options waspProjectDir outDir = do
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
   CompileOptions
-    { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
+    { externalServerCodeDirPath = waspProjectDir </> Common.extServerCodeDirInWaspProjectDir,
+      externalClientCodeDirPath = waspProjectDir </> Common.extClientCodeDirInWaspProjectDir,
       isBuild = False,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id

@@ -39,7 +39,8 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
-  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extCodeDirInWaspProjectDir) eventFilter chan
+  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extClientCodeDirInWaspProjectDir) eventFilter chan
+  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extServerCodeDirInWaspProjectDir) eventFilter chan
   listenForEvents chan currentTime
   where
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()

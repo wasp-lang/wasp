@@ -1,6 +1,5 @@
 module Generator.WebAppGeneratorTest where
 
-import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
@@ -36,8 +35,8 @@ spec_WebAppGenerator = do
                       AS.App.head = Nothing
                     }
               ],
-            AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-            AS.externalCodeFiles = [],
+            AS.externalClientFiles = [],
+            AS.externalServerFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
             AS.dotEnvServerFile = Nothing,

@@ -3,7 +3,6 @@
 module AppSpec.ValidTest where
 
 import Data.Maybe (fromJust)
-import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
@@ -148,8 +147,8 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-          AS.externalCodeFiles = [],
+          AS.externalClientFiles = [],
+          AS.externalServerFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,

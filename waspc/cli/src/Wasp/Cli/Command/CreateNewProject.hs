@@ -6,10 +6,9 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
-import qualified System.Directory
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
@@ -17,7 +16,8 @@ import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
 import qualified Wasp.Cli.Common as Common
-import qualified Wasp.Data
+import qualified Wasp.Data as Data
+import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
 
@@ -33,14 +33,14 @@ parseProjectInfo :: String -> Either String ProjectInfo
 parseProjectInfo name
   | isValidWaspIdentifier appName = Right (ProjectInfo name appName)
   | otherwise =
-      Left $
-        intercalate
-          "\n"
-          [ "The project's name is not in the valid format!",
-            indent 2 "- It can start with a letter or an underscore.",
-            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-            indent 2 "- It can't be a Wasp keyword."
-          ]
+    Left $
+      intercalate
+        "\n"
+        [ "The project's name is not in the valid format!",
+          indent 2 "- It can start with a letter or an underscore.",
+          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+          indent 2 "- It can't be a Wasp keyword."
+        ]
   where
     appName = kebabToCamelCase name
 
@@ -72,26 +72,7 @@ createNewProject' (ProjectInfo projectName appName) = do
       (waspProjectDir </> Common.dotWaspRootFileInWaspProjectDir)
       "File marking the root of Wasp project."
 
-  let extCodeDir = waspProjectDir </> Common.extCodeDirInWaspProjectDir
-  liftIO $ do
-    createDirectorySP extCodeDir
-    dataDir <- Wasp.Data.getAbsDataDirPath
-
-    let copyTemplateFile' = copyTemplateFile dataDir extCodeDir
-
-    writeFileSP (extCodeDir </> waspignoreFileInExtCodeDir) waspignoreFileContent
-
-    copyTemplateFile'
-      [relfile|new/ext/MainPage.js|]
-      mainPageJsFileInExtCodeDir
-
-    copyTemplateFile'
-      [relfile|new/ext/Main.css|]
-      mainCssFileInExtCodeDir
-
-    copyTemplateFile'
-      [relfile|new/ext/waspLogo.png|]
-      waspLogoFileInExtCodeDir
+  liftIO $ initializeExternalCodeDirs waspProjectDir
 
   liftIO $ do
     putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
@@ -102,20 +83,6 @@ createNewProject' (ProjectInfo projectName appName) = do
     putStrLn ""
     putStrLn Command.Common.alphaWarningMessage
   where
-    copyTemplateFile ::
-      Path' Abs (Dir Wasp.Data.DataDir) ->
-      Path' Abs (Dir SourceExternalCodeDir) ->
-      Path' (Rel Common.CliTemplatesDir) File' ->
-      Path' (Rel SourceExternalCodeDir) File' ->
-      IO ()
-    copyTemplateFile dataDir extCodeDir srcTmplFile dstExtDirFile =
-      System.Directory.copyFile
-        (SP.fromAbsFile (dataDir </> cliTemplatesDirInDataDir </> srcTmplFile))
-        (SP.fromAbsFile (extCodeDir </> dstExtDirFile))
-
-    cliTemplatesDirInDataDir :: Path' (Rel Wasp.Data.DataDir) (Dir Common.CliTemplatesDir)
-    cliTemplatesDirInDataDir = [reldir|Cli/templates|]
-
     mainWaspFileInWaspProjectDir :: Path' (Rel Common.WaspProjectDir) File'
     mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
 
@@ -141,24 +108,35 @@ createNewProject' (ProjectInfo projectName appName) = do
           "/.env.client"
         ]
 
-    waspignoreFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
-    waspignoreFileInExtCodeDir = [relfile|.waspignore|]
+initializeExternalCodeDirs :: Path' Abs (Dir Common.WaspProjectDir) -> IO ()
+initializeExternalCodeDirs waspProjectDir = do
+  dataDir <- Data.getAbsDataDirPath
+  let copySkeletonDir' = copySkeletonDir dataDir waspProjectDir
+  copySkeletonDir' serverSkeletonDirInTemplatesDir Common.extServerCodeDirInWaspProjectDir
+  copySkeletonDir' clientSkeletonDirInTemplatesDir Common.extClientCodeDirInWaspProjectDir
 
-    waspignoreFileContent =
-      unlines
-        [ "# Ignore editor tmp files",
-          "**/*~",
-          "**/#*#"
-        ]
+copySkeletonDir ::
+  Path' Abs (Dir Data.DataDir) ->
+  Path' Abs (Dir Common.WaspProjectDir) ->
+  Path' (Rel Common.CliTemplatesDir) (Dir a) ->
+  Path' (Rel Common.WaspProjectDir) (Dir SourceExternalCodeDir) ->
+  IO ()
+copySkeletonDir dataDir waspProjectDir skeletonDirinTemplatesDir extCodeDirInWaspProjectDir = do
+  let skeletonAbs = dataDir </> cliTemplatesDirInDataDir </> skeletonDirinTemplatesDir
+  let extCodeDirAbs = waspProjectDir </> extCodeDirInWaspProjectDir
+  copyDirectoryRecursive skeletonAbs extCodeDirAbs
 
-    mainPageJsFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
-    mainPageJsFileInExtCodeDir = [relfile|MainPage.js|]
+writeFileSP :: Path' Abs (SP.File f) -> String -> IO ()
+writeFileSP = writeFile . SP.fromAbsFile
 
-    mainCssFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
-    mainCssFileInExtCodeDir = [relfile|Main.css|]
+createDirectorySP :: Path' Abs (Dir d) -> IO ()
+createDirectorySP = createDirectory . SP.fromAbsDir
 
-    waspLogoFileInExtCodeDir :: Path' (Rel SourceExternalCodeDir) File'
-    waspLogoFileInExtCodeDir = [relfile|waspLogo.png|]
+cliTemplatesDirInDataDir :: Path' (Rel Data.DataDir) (Dir Common.CliTemplatesDir)
+cliTemplatesDirInDataDir = [reldir|Cli/templates|]
 
-    writeFileSP = writeFile . SP.fromAbsFile
-    createDirectorySP = createDirectory . SP.fromAbsDir
+serverSkeletonDirInTemplatesDir :: Path' (Rel Common.CliTemplatesDir) Dir'
+serverSkeletonDirInTemplatesDir = [reldir|new/server|]
+
+clientSkeletonDirInTemplatesDir :: Path' (Rel Common.CliTemplatesDir) Dir'
+clientSkeletonDirInTemplatesDir = [reldir|new/client|]

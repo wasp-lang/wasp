@@ -50,7 +50,7 @@ genWebApp spec = do
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalClientFiles spec)
     <++> genDotEnv spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]

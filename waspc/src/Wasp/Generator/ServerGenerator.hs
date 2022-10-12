@@ -62,7 +62,7 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalServerFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors

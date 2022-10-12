@@ -14,6 +14,7 @@ import qualified StrongPath as SP
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
+import Wasp.AppSpec (AppSpec (externalClientFiles), Decl)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
@@ -49,6 +50,33 @@ compile waspDir outDir options = do
           return ([], map show validationErrors)
   return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
 
+-- analyzeWaspProject2 ::
+--   Path' Abs (Dir WaspProjectDir) ->
+--   CompileOptions ->
+--   IO (Either [CompileError] AppSpec)
+-- analyzeWaspProject2 waspDir options = do
+--     waspFilePath <- findWaspFilePath waspDir
+--     result <- analyzeWaspFileContent waspFilePath
+--     return $ createAppSpec waspDir options <$> result
+
+-- findWaspFilePath :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] (Path' Abs File'))
+-- findWaspFilePath waspDir = do
+--   maybeWaspFilePath <- findWaspFile waspDir
+--   case maybeWaspFilePath of
+--     Nothing -> return $ Left ["Couldn't find a single *.wasp file."]
+--     Just waspFilePath -> return $ return waspFilePath
+
+-- analyzeWaspFileContent :: Path' Abs File' -> IO (Either [CompileError] [Decl])
+-- analyzeWaspFileContent waspFilePath = do
+--   waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
+--   case Analyzer.analyze waspFileContent of
+--     Right decls -> return $ return decls
+--     Left analyzeError -> return $ Left
+--           [ showCompilerErrorForTerminal
+--               (waspFilePath, waspFileContent)
+--               (getErrorMessageAndCtx analyzeError)
+--           ]
+
 analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
@@ -60,6 +88,7 @@ analyzeWaspProject waspDir options = do
     Just waspFilePath -> do
       waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
       case Analyzer.analyze waspFileContent of
+        Right decls -> Right <$> createAppSpec waspDir options decls
         Left analyzeError ->
           return $
             Left $
@@ -68,25 +97,28 @@ analyzeWaspProject waspDir options = do
                     (waspFilePath, waspFileContent)
                     (getErrorMessageAndCtx analyzeError)
                 ]
-        Right decls -> do
-          externalCodeFiles <-
-            ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
-          maybeDotEnvServerFile <- findDotEnvServer waspDir
-          maybeDotEnvClientFile <- findDotEnvClient waspDir
-          maybeMigrationsDir <- findMigrationsDir waspDir
-          return $
-            Right
-              AS.AppSpec
-                { AS.decls = decls,
-                  AS.externalCodeFiles = externalCodeFiles,
-                  AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
-                  AS.migrationsDir = maybeMigrationsDir,
-                  AS.dotEnvServerFile = maybeDotEnvServerFile,
-                  AS.dotEnvClientFile = maybeDotEnvClientFile,
-                  AS.isBuild = CompileOptions.isBuild options
-                }
   analyzerWarnings <- warnIfDotEnvPresent waspDir
   return (analyzerWarnings, appSpecOrAnalyzerErrors)
+
+createAppSpec :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> [Decl] -> IO AS.AppSpec
+createAppSpec waspDir options decls = do
+  externalServerCodeFiles <-
+    ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
+  externalClientCodeFiles <-
+    ExternalCode.readFiles (CompileOptions.externalClientCodeDirPath options)
+  maybeDotEnvServerFile <- findDotEnvServer waspDir
+  maybeDotEnvClientFile <- findDotEnvClient waspDir
+  maybeMigrationsDir <- findMigrationsDir waspDir
+  return
+    AS.AppSpec
+      { AS.decls = decls,
+        AS.externalClientFiles = externalClientCodeFiles,
+        AS.externalServerFiles = externalServerCodeFiles,
+        AS.migrationsDir = maybeMigrationsDir,
+        AS.dotEnvServerFile = maybeDotEnvServerFile,
+        AS.dotEnvClientFile = maybeDotEnvClientFile,
+        AS.isBuild = CompileOptions.isBuild options
+      }
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
