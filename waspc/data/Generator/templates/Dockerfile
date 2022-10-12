@@ -36,4 +36,4 @@ ENTRYPOINT ["npm", "run", "start-production"]
 
 
 # Any user-defined Dockerfile contents will be appended below.
-{=& customDockerfile =}
+{=& userDockerfile =}

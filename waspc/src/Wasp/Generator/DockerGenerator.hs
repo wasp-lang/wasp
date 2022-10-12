@@ -39,7 +39,7 @@ genDockerfile spec = do
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
               "usingServerPatches" .= usingServerPatches,
-              "customDockerfile" .= fromMaybe "" (AS.dockerfileContents spec)
+              "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
 

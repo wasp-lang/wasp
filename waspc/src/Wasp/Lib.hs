@@ -4,7 +4,7 @@ module Wasp.Lib
     ProjectRootDir,
     findWaspFile,
     analyzeWaspProject,
-    compileAndRenderDockerfileTemplate,
+    compileAndRenderDockerfile,
   )
 where
 
@@ -28,7 +28,7 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DockerGenerator (compileAndRenderDockerfile)
+import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -75,7 +75,7 @@ analyzeWaspProject waspDir options = do
             ExternalCode.readFiles (CompileOptions.externalCodeDirPath options)
           maybeDotEnvFile <- findDotEnvFile waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
-          maybeDockerfileContents <- loadDockerfileContents waspDir
+          maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
           return $
             Right
               AS.AppSpec
@@ -85,7 +85,7 @@ analyzeWaspProject waspDir options = do
                   AS.migrationsDir = maybeMigrationsDir,
                   AS.dotEnvFile = maybeDotEnvFile,
                   AS.isBuild = CompileOptions.isBuild options,
-                  AS.dockerfileContents = maybeDockerfileContents
+                  AS.userDockerfileContents = maybeUserDockerfileContents
                 }
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
@@ -111,16 +111,16 @@ findMigrationsDir waspDir = do
   migrationsExists <- doesDirectoryExist $ SP.fromAbsDir migrationsAbsPath
   return $ if migrationsExists then Just migrationsAbsPath else Nothing
 
-loadDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
-loadDockerfileContents waspDir = do
+loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
+loadUserDockerfileContents waspDir = do
   let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
   whenMaybeM (doesFileExist dockerfileAbsPath) $ T.IO.readFile dockerfileAbsPath
 
-compileAndRenderDockerfileTemplate :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
-compileAndRenderDockerfileTemplate waspDir compileOptions = do
+compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
+compileAndRenderDockerfile waspDir compileOptions = do
   appSpecOrCompileErrors <- analyzeWaspProject waspDir compileOptions
   case appSpecOrCompileErrors of
     Left errors -> return $ Left errors
     Right appSpec -> do
-      dockerfileOrGeneratorErrors <- compileAndRenderDockerfile appSpec
+      dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . NE.toList) dockerfileOrGeneratorErrors

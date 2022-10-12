@@ -49,8 +49,8 @@ data AppSpec = AppSpec
     -- | If true, it means project is being compiled for production/deployment -> it is being "built".
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool,
-    -- | The contents of the optional Dockerfile found in the root of the wasp project source.
-    dockerfileContents :: Maybe Text
+    -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
+    userDockerfileContents :: Maybe Text
   }
 
 -- TODO: Make this return "Named" declarations?
