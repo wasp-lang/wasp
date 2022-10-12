@@ -12,7 +12,6 @@ import Control.Arrow (left)
 import Control.Monad.Extra (whenMaybeM)
 import Data.List (find, isSuffixOf)
 import Data.List.NonEmpty (NonEmpty, fromList, toList)
-import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, File', Path', relfile)
@@ -152,4 +151,4 @@ compileAndRenderDockerfile waspDir compileOptions = do
     Left errors -> return . Left . toList $ errors
     Right appSpec -> do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
-      return $ left (map show . NE.toList) dockerfileOrGeneratorErrors
+      return $ left (map show . toList) dockerfileOrGeneratorErrors
