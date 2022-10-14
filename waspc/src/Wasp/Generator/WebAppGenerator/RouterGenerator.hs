@@ -21,6 +21,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.Common (externalDevelopmentFolder)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 
@@ -134,9 +135,9 @@ createPageTemplateData page =
         AS.ExtImport.ExtImportModule _ -> pageName
         AS.ExtImport.ExtImportField identifier -> "{ " ++ mkNamedImportExpr identifier pageName ++ " }"
     }
-  where
+    where
     relPathToExtSrcDir :: FilePath
-    relPathToExtSrcDir = "./ext-src/"
+    relPathToExtSrcDir = "./" ++ externalDevelopmentFolder ++ "/"
 
     pageName :: String
     pageName = fst page
