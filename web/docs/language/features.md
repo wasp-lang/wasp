@@ -827,7 +827,7 @@ Default value is "/".
 ### Username and Password
 
 `usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
-This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields.
+This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields. `username`s are stored in a case-sensitive manner.
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
 - `username`: non-empty

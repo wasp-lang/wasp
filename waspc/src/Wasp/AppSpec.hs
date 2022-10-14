@@ -17,6 +17,7 @@ where
 
 import Data.List (find)
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path')
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
@@ -50,7 +51,9 @@ data AppSpec = AppSpec
     dotEnvClientFile :: Maybe (Path' Abs File'),
     -- | If true, it means project is being compiled for production/deployment -> it is being "built".
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
-    isBuild :: Bool
+    isBuild :: Bool,
+    -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
+    userDockerfileContents :: Maybe Text
   }
 
 -- TODO: Make this return "Named" declarations?
