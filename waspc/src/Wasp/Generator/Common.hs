@@ -4,6 +4,7 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
+    externalDevelopmentFolder,
   )
 where
 
@@ -34,3 +35,6 @@ npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
 
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 3 15 2
+
+externalDevelopmentFolder :: String
+externalDevelopmentFolder = "ext-src"

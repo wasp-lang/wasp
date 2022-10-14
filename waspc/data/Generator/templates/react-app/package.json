@@ -15,7 +15,7 @@
     "extends": "react-app",
     "ignorePatterns": [
       "src/*",
-      "!src/ext-src"
+      "!src/{=& externalDevelopmentFolder =}"
     ]
   },
   "engineStrict": true,
