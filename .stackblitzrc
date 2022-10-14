@@ -1,0 +1,3 @@
+{
+    "publisherStartCommand": "cd web && npm start"
+}
