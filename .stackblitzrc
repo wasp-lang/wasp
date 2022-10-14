@@ -1,4 +1,4 @@
 {
-    "publisherStartCommand": "cd web && npm i && npm run start",
+    "publisherStartCommand": "cd web && npm i && npm start",
     "startCommand": "cd web && npm i && npm start"
 }
