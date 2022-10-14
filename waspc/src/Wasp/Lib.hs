@@ -64,16 +64,16 @@ analyzeWaspProject waspDir options = runExceptT $ do
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
 warnIfDotEnvPresent waspDir = do
   maybeDotEnvFile <- findDotEnv waspDir
-  case maybeDotEnvFile of
-    Nothing -> return []
-    Just _ -> return ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
+  return $ case maybeDotEnvFile of
+    Nothing -> []
+    Just _ -> ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
 
 findWaspFilePath :: Path' Abs (Dir WaspProjectDir) -> IO (Either (NonEmpty CompileError) (Path' Abs File'))
 findWaspFilePath waspDir = do
   maybeWaspFilePath <- findWaspFile waspDir
-  case maybeWaspFilePath of
-    Nothing -> return $ Left $ fromList ["Couldn't find a single *.wasp file."]
-    Just waspFilePath -> return $ return waspFilePath
+  return $ case maybeWaspFilePath of
+    Nothing -> Left $ fromList ["Couldn't find a single *.wasp file."]
+    Just waspFilePath -> Right waspFilePath
 
 analyzeWaspFileContent :: Path' Abs File' -> IO (Either (NonEmpty CompileError) [Decl])
 analyzeWaspFileContent waspFilePath = do
