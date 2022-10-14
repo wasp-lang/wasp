@@ -1,5 +1,4 @@
 import { useQuery } from '../queries'
-import config from '../config.js'
 import api, { handleApiError } from '../api.js'
 
 export default function useAuth(queryFnArgs, config)  {

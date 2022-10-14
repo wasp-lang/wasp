@@ -1,5 +1,4 @@
 import api, { handleApiError } from '../api.js'
-import config from '../config.js'
 
 export async function callOperation(operationRoute, args) {
   try {

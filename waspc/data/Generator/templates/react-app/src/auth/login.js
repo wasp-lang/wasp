@@ -1,4 +1,3 @@
-import config from '../config.js'
 import { removeQueries } from '../operations/resources'
 import api, { setAuthToken, handleApiError } from '../api.js'
 
