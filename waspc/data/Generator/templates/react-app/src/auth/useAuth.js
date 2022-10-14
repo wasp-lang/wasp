@@ -7,7 +7,7 @@ export default function useAuth(queryFnArgs, config)  {
 }
 async function getMe() {
   try {
-    const response = await api.get(config.apiUrl + '/auth/me')
+    const response = await api.get('/auth/me')
 
     return response.data
   } catch (error) {
