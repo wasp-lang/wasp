@@ -7,6 +7,7 @@ module Wasp.Lib
   )
 where
 
+import Control.Monad.Except
 import Data.List (find, isSuffixOf)
 import Data.List.NonEmpty (NonEmpty, fromList, toList)
 import StrongPath (Abs, Dir, File', Path', relfile)
@@ -27,7 +28,6 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import qualified Wasp.Util.IO as Util.IO
-import Control.Monad.Except
 
 type CompileError = String
 
@@ -56,9 +56,9 @@ analyzeWaspProject ::
   CompileOptions ->
   IO (Either (NonEmpty CompileError) AppSpec)
 analyzeWaspProject waspDir options = runExceptT $ do
-    waspFilePath <- ExceptT $ findWaspFilePath waspDir
-    declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
-    liftIO $ createAppSpec waspDir options declarations
+  waspFilePath <- ExceptT $ findWaspFilePath waspDir
+  declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
+  liftIO $ createAppSpec waspDir options declarations
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
@@ -80,7 +80,9 @@ analyzeWaspFileContent waspFilePath = do
   waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
   return $ case Analyzer.analyze waspFileContent of
     Right decls -> Right decls
-    Left analyzeError -> Left $ fromList
+    Left analyzeError ->
+      Left $
+        fromList
           [ showCompilerErrorForTerminal
               (waspFilePath, waspFileContent)
               (getErrorMessageAndCtx analyzeError)
@@ -105,7 +107,6 @@ createAppSpec waspDir options decls = do
         AS.dotEnvClientFile = maybeDotEnvClientFile,
         AS.isBuild = CompileOptions.isBuild options
       }
-
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findWaspFile waspDir = do
