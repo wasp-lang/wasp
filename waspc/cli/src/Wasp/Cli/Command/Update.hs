@@ -3,21 +3,22 @@ module Wasp.Cli.Command.Update
   )
 where
 
+import Control.Monad (unless)
 import Control.Monad.IO.Class (liftIO)
-import System.Environment
+import System.Environment (getExecutablePath)
 import System.Exit (ExitCode (..), exitWith)
-import System.IO
-import System.Info
+import System.IO (IOMode(WriteMode), hIsWritable, withFile)
+import System.Info (arch, os)
+import System.Process (system)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Message as Msg
 
 update :: Command ()
 update = do
   cliSendMessageC $ Msg.Start "Updating wasp..."
   ensureWritability
-  status <- liftIO $ system "curl -sSL " <> archiveUrl <> " | tar xvzf - -C ~/.local/share/wasp"
+  status <- liftIO $ system $ "curl -sSL " <> archiveUrl <> " | tar xvzf - -C ~/.local/share/wasp"
   if status == ExitSuccess
     then cliSendMessageC $ Msg.Success "Wasp updated!"
     else do
@@ -34,7 +35,7 @@ ensureWritability = do
 failedOn :: String -> Command ()
 failedOn reason = do
   cliSendMessageC $ Msg.Success $ "Update failure: " <> reason
-  liftIO $ exitWith status
+  liftIO $ exitWith $ ExitFailure 1
 
 archiveUrl :: String
 archiveUrl = "https://github.com/wasp-lang/wasp/releases/latest/download/" <> archiveName
