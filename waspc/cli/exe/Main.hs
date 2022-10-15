@@ -94,7 +94,7 @@ printUsage =
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
         title "  COMPLETION",
         cmd "    completion            Prints help on bash completion.",
-        cmd "    completion:generate   Generate bash completion script."
+        cmd "    completion:generate   Generate bash completion script.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
