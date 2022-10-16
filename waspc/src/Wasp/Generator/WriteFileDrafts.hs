@@ -3,6 +3,7 @@
 module Wasp.Generator.WriteFileDrafts
   ( synchronizeFileDraftsWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
+    assertDstPathsAreUnique, -- Exported for testing.
     removeFromChecksumFile,
   )
 where

@@ -4,11 +4,11 @@ import Data.Bifunctor (Bifunctor (first))
 import Data.Maybe (fromJust)
 import Data.Text (pack)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe, shouldMatchList)
+import Test.Tasty.Hspec (Spec, describe, it, shouldBe, shouldThrow, shouldReturn, shouldMatchList, anyErrorCall)
 import Wasp.Generator.FileDraft (FileDraft (FileDraftTextFd), Writeable (getDstPath))
 import Wasp.Generator.FileDraft.TextFileDraft (TextFileDraft)
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.WriteFileDrafts (fileDraftsToWriteAndFilesToDelete)
+import Wasp.Generator.WriteFileDrafts (fileDraftsToWriteAndFilesToDelete, assertDstPathsAreUnique)
 import Wasp.Util (Checksum, checksumFromString, checksumFromText)
 
 genMockTextFileDrafts :: Int -> [TextFileDraft]
@@ -20,9 +20,23 @@ genMockTextFileDrafts n =
           }
    in take n (map genMockTextFileDraft [1 :: Int ..])
 
+-- Returns [FileDraft] with duplicated dest paths if isDuplicate is set.
+genMockFileDrafts :: Bool -> [FileDraft]
+genMockFileDrafts isDuplicate =  case isDuplicate of
+          True -> replicate 2 $ FileDraftTextFd $ head (genMockTextFileDrafts 1)
+          False -> map FileDraftTextFd $ (genMockTextFileDrafts 2)
+
 genFdsWithChecksums :: Int -> [(FileDraft, Checksum)]
 genFdsWithChecksums n =
   map (\fd -> (FileDraftTextFd fd, checksumFromText $ TextFD._content fd)) (genMockTextFileDrafts n)
+
+spec_WriteDuplicatedDstFileDrafts :: Spec
+spec_WriteDuplicatedDstFileDrafts = 
+  describe "fileDraftsWithDuplicatedDstPaths" $ do
+    it "should throw error since there are duplicated destination paths" $
+      (return $! assertDstPathsAreUnique (genMockFileDrafts True)) `shouldThrow` anyErrorCall
+    it "should not throw error because unique destination paths" $ do
+      (return $! assertDstPathsAreUnique (genMockFileDrafts False)) `shouldReturn`  ()
 
 spec_WriteFileDrafts :: Spec
 spec_WriteFileDrafts =
