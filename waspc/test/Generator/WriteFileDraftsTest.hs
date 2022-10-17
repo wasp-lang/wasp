@@ -20,12 +20,6 @@ genMockTextFileDrafts n =
           }
    in take n (map genMockTextFileDraft [1 :: Int ..])
 
--- Returns [FileDraft] with duplicated dest paths if isDuplicate is set.
-genMockFileDrafts :: Bool -> [FileDraft]
-genMockFileDrafts isDuplicate =  case isDuplicate of
-          True -> replicate 2 $ FileDraftTextFd $ head (genMockTextFileDrafts 1)
-          False -> map FileDraftTextFd $ (genMockTextFileDrafts 2)
-
 genFdsWithChecksums :: Int -> [(FileDraft, Checksum)]
 genFdsWithChecksums n =
   map (\fd -> (FileDraftTextFd fd, checksumFromText $ TextFD._content fd)) (genMockTextFileDrafts n)
@@ -34,9 +28,11 @@ spec_WriteDuplicatedDstFileDrafts :: Spec
 spec_WriteDuplicatedDstFileDrafts = 
   describe "fileDraftsWithDuplicatedDstPaths" $ do
     it "should throw error since there are duplicated destination paths" $
-      (return $! assertDstPathsAreUnique (genMockFileDrafts True)) `shouldThrow` anyErrorCall
-    it "should not throw error because unique destination paths" $ do
-      (return $! assertDstPathsAreUnique (genMockFileDrafts False)) `shouldReturn`  ()
+      let fileDrafts = replicate 2 $ FileDraftTextFd $ head (genMockTextFileDrafts 1)
+       in (return $! assertDstPathsAreUnique fileDrafts) `shouldThrow` anyErrorCall
+    it "should not throw error because unique destination paths" $
+      let fileDrafts = map FileDraftTextFd $ (genMockTextFileDrafts 2)
+       in (return $! assertDstPathsAreUnique fileDrafts) `shouldReturn` ()
 
 spec_WriteFileDrafts :: Spec
 spec_WriteFileDrafts =
