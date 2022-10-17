@@ -40,7 +40,9 @@ spec_WebAppGenerator = do
             AS.externalCodeFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
-            AS.dotEnvFile = Nothing
+            AS.dotEnvServerFile = Nothing,
+            AS.dotEnvClientFile = Nothing,
+            AS.userDockerfileContents = Nothing
           }
 
   describe "genWebApp" $ do

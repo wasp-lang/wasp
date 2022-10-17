@@ -32,6 +32,7 @@ waspBuild/.wasp/build/web-app/public/favicon.ico
 waspBuild/.wasp/build/web-app/public/index.html
 waspBuild/.wasp/build/web-app/public/manifest.json
 waspBuild/.wasp/build/web-app/src/actions/core.js
+waspBuild/.wasp/build/web-app/src/actions/index.js
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
@@ -42,6 +43,7 @@ waspBuild/.wasp/build/web-app/src/index.js
 waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/operations/index.js
 waspBuild/.wasp/build/web-app/src/operations/resources.js
+waspBuild/.wasp/build/web-app/src/operations/updateHandlersMap.js
 waspBuild/.wasp/build/web-app/src/queries/core.js
 waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
