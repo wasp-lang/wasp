@@ -3,6 +3,7 @@
 module Wasp.Generator.WriteFileDrafts
   ( synchronizeFileDraftsWithDisk,
     fileDraftsToWriteAndFilesToDelete, -- Exported for testing.
+    assertDstPathsAreUnique, -- Exported for testing.
     removeFromChecksumFile,
   )
 where
@@ -15,7 +16,7 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.Either (lefts, rights)
 import qualified Data.HashMap.Strict as Map
 import qualified Data.HashSet as Set
-import Data.List (sortBy)
+import Data.List (group, sort, sortBy)
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
@@ -31,6 +32,8 @@ import Wasp.Util (Checksum)
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
 synchronizeFileDraftsWithDisk :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
+  return $! assertDstPathsAreUnique fileDrafts
+
   maybePathsToChecksums <- readChecksumFile dstDir
   case maybePathsToChecksums of
     -- If checksums file is missing/corrupted, we delete all of the generated code
@@ -59,6 +62,14 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
 type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
 
 type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
+
+-- | Takes file drafts and verifies if the destination paths are unique.
+assertDstPathsAreUnique :: [FileDraft] -> ()
+assertDstPathsAreUnique fileDrafts =
+  let fdDstPaths = map getDstPath fileDrafts
+      duplicateFdDstPaths = map head $ filter ((> 1) . length) (group . sort $ fdDstPaths)
+      errMessage = unlines $ "FileDraft destination paths are not unique! Duplicates include: " : map show duplicateFdDstPaths
+   in if null duplicateFdDstPaths then () else error errMessage
 
 -- | This file stores all checksums for files and directories that were written to disk
 -- on the last project generation.
