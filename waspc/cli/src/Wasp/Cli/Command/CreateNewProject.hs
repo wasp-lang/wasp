@@ -54,8 +54,9 @@ parseProjectInfo name
 createAndPopulateWaspProjectDir :: ProjectInfo -> Command ()
 createAndPopulateWaspProjectDir projectInfo = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
-  liftIO $ initializeProjectFromSkeleton absWaspProjectDir
-  liftIO $ writeMainWaspFile absWaspProjectDir projectInfo
+  liftIO $ do
+    initializeProjectFromSkeleton absWaspProjectDir
+    writeMainWaspFile absWaspProjectDir projectInfo
 
 printInfoMessages :: ProjectInfo -> IO ()
 printInfoMessages (ProjectInfo projectName _) = do
