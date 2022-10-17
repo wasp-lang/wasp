@@ -106,7 +106,7 @@ const Task = (props) => {
           // cache is empty
           return [updatedTask];
         } else {
-          return oldTasks.map(task => task.id == updatedTask.id ? { ...task, ...updatedTask } : task)
+          return oldTasks.map(task => task.id === updatedTask.id ? { ...task, ...updatedTask } : task)
         }
       }
     }]
