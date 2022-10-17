@@ -121,6 +121,23 @@ wasp start # Serves the web app.
 
 That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
 
+<!-- <div style={{backgroundColor: 'rgba(84, 199, 236, 0.15)'}}> -->
+
+:::info For Visual Studio Code
+
+If you are using VSCode, install our [Wasp language extention](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp). 
+
+The extension has the following features tailored to meet your development needs:
+
+* Syntax highlighting for .wasp files
+* Snippets for .wasp files
+* Wasp language server
+* live reporting of compilation errors
+* autocompletion
+
+:::
+<!-- </div> -->
+
 ## 4. What next?
 
 **Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
