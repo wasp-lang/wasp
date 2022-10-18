@@ -27,7 +27,11 @@
     "npm": "^8.0.0"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": "react-app",
+    "ignorePatterns": [
+      "src/*",
+      "!src/ext-src"
+    ]
   },
   "name": "waspCompile",
   "private": true,
