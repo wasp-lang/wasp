@@ -53,7 +53,9 @@ data AppSpec = AppSpec
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
-    userDockerfileContents :: Maybe Text
+    userDockerfileContents :: Maybe Text,
+    -- | TODO: Clean this first pass support up.
+    tailwindSupport :: Maybe (Path' Abs File', Path' Abs File')
   }
 
 -- TODO: Make this return "Named" declarations?

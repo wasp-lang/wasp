@@ -1,3 +1,11 @@
+{{={= =}=}}
+
+{=# isTailwindUsed =}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+{=/ isTailwindUsed =}
+
 body {
   margin: 0;
   padding: 0;
