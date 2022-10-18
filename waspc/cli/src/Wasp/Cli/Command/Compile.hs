@@ -119,5 +119,7 @@ defaultCompileOptions waspProjectDir =
       externalSharedCodeDirPath = waspProjectDir </> Common.extSharedCodeDirInWaspProjectDir,
       isBuild = False,
       sendMessage = cliSendMessage,
-      generatorWarningsFilter = id
+      generatorWarningsFilter = id,
+      clientPort = Nothing,
+      serverPort = Nothing
     }

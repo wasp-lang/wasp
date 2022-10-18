@@ -5,6 +5,7 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
+import Data.List (find)
 import Data.Version (showVersion)
 import Main.Utf8 (withUtf8)
 import Paths_waspc (version)
@@ -33,7 +34,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
-        ["start"] -> Command.Call.Start
+        ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
@@ -53,7 +54,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New projectName -> runCommand $ createNewProject projectName
-    Command.Call.Start -> runCommand start
+    Command.Call.Start startArgs -> startCli startArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
@@ -122,6 +123,38 @@ dbCli args = case args of
   ["migrate-dev"] -> runDbCommand $ Command.Db.Migrate.migrateDev Nothing
   ["studio"] -> runDbCommand studio
   _ -> printDbUsage
+
+startCli :: [String] -> IO ()
+startCli args =
+  if argsAreValid args
+    then do
+      let argPairs = zip args (drop 1 args)
+      let maybeClientPort = ((read :: String -> Int) . snd) <$> find ((== "--web-client-port") . fst) argPairs
+      let maybeServerPort = ((read :: String -> Int) . snd) <$> find ((== "--api-server-port") . fst) argPairs
+      runCommand $ start maybeClientPort maybeServerPort
+    else printStartUsage
+
+argsAreValid :: [String] -> Bool
+argsAreValid [] = True
+argsAreValid (_ : []) = False
+argsAreValid (arg : _ : xs) = if elem arg ["--web-client-port", "--api-server-port"] then argsAreValid xs else False
+
+printStartUsage :: IO ()
+printStartUsage =
+  putStrLn $
+    unlines
+      [ title "USAGE",
+        "  wasp start [options]",
+        "",
+        title "OPTIONS",
+        cmd
+          ( " --web-client-port <port>   Port for web app (frontend).\n"
+              <> " --api-server-port <port>   Port for api server (backend).\n"
+          ),
+        "",
+        title "EXAMPLES",
+        "  wasp start --web-client-port 8000 --api-server-port 4000"
+      ]
 
 printDbUsage :: IO ()
 printDbUsage =

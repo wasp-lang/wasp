@@ -8,6 +8,7 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Maybe (isNothing)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
@@ -21,8 +22,9 @@ import qualified Wasp.Message as Msg
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
-start :: Command ()
-start = do
+-- start :: Maybe String -> Maybe String -> Command ()
+start :: Maybe Int -> Maybe Int -> Command ()
+start clientPort serverPort = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 

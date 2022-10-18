@@ -24,5 +24,9 @@ data CompileOptions = CompileOptions
     -- CLI commands will almost always compile before they execute to ensure the project is up to date.
     -- This filter function allows callers to ignore certain warnings where they do not make sense.
     -- For example, showing a compilation warning to run `db migrate-dev` when you are running that command.
-    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning]
+    generatorWarningsFilter :: [GeneratorWarning] -> [GeneratorWarning],
+    -- The user can specify client and server ports when running the command `wasp start`from the cli.
+    -- These will override any ports specified by existing .env files during compilation.
+    clientPort :: Maybe Int,
+    serverPort :: Maybe Int
   }

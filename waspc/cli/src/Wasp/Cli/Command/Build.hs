@@ -80,5 +80,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
               ( \case
                   GeneratorNeedsMigrationWarning _ -> False
                   _ -> True
-              )
+              ),
+          clientPort = Nothing,
+          serverPort = Nothing
         }
