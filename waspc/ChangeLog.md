@@ -3,7 +3,7 @@
 ## v0.x.x.x (TBD)
 
 ### BREAKING CHANGES
-- Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements, as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
+- Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
 
 ### [NEW FEATURE] Dockerfile customization
 
