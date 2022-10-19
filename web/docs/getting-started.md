@@ -142,5 +142,5 @@ The extension has the following features tailored to meet your development needs
 
 **Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
 
-Also, we would be excited to have you join our community on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you. 
+Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
 
