@@ -3,7 +3,6 @@
     "@prisma/client": "3.15.2",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
-    "debug": "~4.3.4",
     "dotenv": "16.0.2",
     "express": "~4.18.1",
     "helmet": "^6.0.0",
@@ -38,7 +37,6 @@
   "scripts": {
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
-    "debug": "DEBUG=server:* npm start",
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "nodemon -r dotenv/config ./src/server.js",
