@@ -249,4 +249,4 @@ depsRequiredByTailwind spec =
         ]
     else []
   where
-    isTailwindUsed = isJust $ AS.tailwindSupport spec
+    isTailwindUsed = isJust $ AS.tailwindConfigFiles spec

@@ -81,7 +81,7 @@ analyzeWaspProject waspDir options = do
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-          maybeTailwindSupport <- findTailwindFiles waspDir
+          maybeTailwindConfigFiles <- findTailwindConfigFiles waspDir
           return $
             Right
               AS.AppSpec
@@ -93,7 +93,7 @@ analyzeWaspProject waspDir options = do
                   AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options,
                   AS.userDockerfileContents = maybeUserDockerfileContents,
-                  AS.tailwindSupport = maybeTailwindSupport
+                  AS.tailwindConfigFiles = maybeTailwindConfigFiles
                 }
   analyzerWarnings <- warnIfDotEnvPresent waspDir
   return (analyzerWarnings, appSpecOrAnalyzerErrors)
@@ -146,12 +146,12 @@ loadUserDockerfileContents waspDir = do
   let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
   whenMaybeM (doesFileExist dockerfileAbsPath) $ T.IO.readFile dockerfileAbsPath
 
-findTailwindFiles :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File', Path' Abs File'))
-findTailwindFiles waspDir = do
+findTailwindConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File', Path' Abs File'))
+findTailwindConfigFiles waspDir = do
   let tailwindConfig = waspDir SP.</> [relfile|tailwind.config.js|]
   let postcssConfig = waspDir SP.</> [relfile|postcss.config.js|]
-  allFilesExist <- and <$> mapM (doesFileExist . SP.toFilePath) [tailwindConfig, postcssConfig]
-  if allFilesExist then return $ Just (tailwindConfig, postcssConfig) else return Nothing
+  configFilesExist <- and <$> mapM (doesFileExist . SP.toFilePath) [tailwindConfig, postcssConfig]
+  if configFilesExist then return $ Just (tailwindConfig, postcssConfig) else return Nothing
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
