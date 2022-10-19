@@ -105,10 +105,7 @@ npmDepsForWasp _spec =
             ("react-dom", "^17.0.2"),
             ("react-query", "^3.39.2"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "4.0.3"),
-            -- NOTE: We need to specify this exact version of `react-error-overlay` for use with
-            -- `react-scripts` v4 due to this issue: https://github.com/facebook/create-react-app/issues/11773
-            ("react-error-overlay", "6.0.9")
+            ("react-scripts", "5.0.1")
           ],
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
       -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
