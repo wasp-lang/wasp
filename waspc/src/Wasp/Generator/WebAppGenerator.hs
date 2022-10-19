@@ -217,14 +217,14 @@ genIndexCss spec =
             ]
       )
   where
-    isTailwindUsed = isJust $ AS.tailwindSupport spec
+    isTailwindUsed = isJust $ AS.tailwindConfigFiles spec
 
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
 
 genTailwindConfig :: AppSpec -> Generator [FileDraft]
 genTailwindConfig spec = do
-  case maybeTailwindSupport of
+  case maybeTailwindConfigFiles of
     Nothing -> return []
     Just (tailwindConfig, postcssConfig) ->
       return
@@ -236,7 +236,7 @@ genTailwindConfig spec = do
             postcssConfig
         ]
   where
-    maybeTailwindSupport = AS.tailwindSupport spec
+    maybeTailwindConfigFiles = AS.tailwindConfigFiles spec
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
