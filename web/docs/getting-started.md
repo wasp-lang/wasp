@@ -125,9 +125,9 @@ That's it :tada:! You have successfully created and served a new web app at <htt
 
 :::info For Visual Studio Code
 
-If you are using VSCode, install our [Wasp language extention](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp). 
+If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp). 
 
-The extension has the following features tailored to meet your development needs:
+The extension brings the following functionality:
 
 * Syntax highlighting for .wasp files
 * Snippets for .wasp files
