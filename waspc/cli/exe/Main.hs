@@ -92,6 +92,7 @@ printUsage =
         cmd "    new <project-name>    Creates new Wasp project.",
         cmd "    version               Prints current version of CLI.",
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
+        cmd "    completion            Prints help on bash completion.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
