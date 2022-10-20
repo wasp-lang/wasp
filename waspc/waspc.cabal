@@ -202,6 +202,7 @@ library
     Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.Common
+    Wasp.Generator.ConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs

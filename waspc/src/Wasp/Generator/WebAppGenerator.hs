@@ -17,7 +17,6 @@ import StrongPath
     relfile,
     (</>),
   )
-import qualified StrongPath as SP
 import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -26,8 +25,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.ConfigFiles as CF
 import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
+import qualified Wasp.Generator.ConfigFileGenerator as CFG
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
@@ -54,7 +53,7 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
-    <++> genConfigFiles spec
+    <++> CFG.genWebAppConfigFiles spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -120,7 +119,7 @@ npmDepsForWasp spec =
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if CF.isTailwindUsed spec
+  if CFG.isTailwindUsed spec
     then
       AS.Dependency.fromList
         [ ("tailwindcss", "^3.1.8"),
@@ -229,15 +228,6 @@ genIndexCss spec =
       (C.asWebAppFile [relfile|src/index.css|])
       ( Just $
           object
-            [ "isTailwindUsed" .= CF.isTailwindUsed spec
+            [ "isTailwindUsed" .= CFG.isTailwindUsed spec
             ]
       )
-
-genConfigFiles :: AppSpec -> Generator [FileDraft]
-genConfigFiles spec = do
-  return $ map createFd (AS.configFiles spec)
-  where
-    createFd filePath =
-      createCopyFileDraft
-        (C.webAppRootDirInProjectRootDir </> SP.basename filePath)
-        filePath
