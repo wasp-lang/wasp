@@ -7,4 +7,4 @@ Todo App:
 
 Real World App (clone of Medium):
  - source code: https://github.com/wasp-lang/wasp/tree/release/examples/realworld
- - hosted at: https://wasp-rwa.netlify.app/ .
+ - hosted at: https://wasp-rwa.netlify.app/
