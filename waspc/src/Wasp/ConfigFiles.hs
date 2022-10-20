@@ -7,7 +7,7 @@ where
 import Data.Map (fromList)
 import qualified Data.Map as Data
 import Data.Maybe (mapMaybe)
-import StrongPath (Abs, Dir, File', Path', Rel, basename, fromRelFile, relfile, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
@@ -17,12 +17,13 @@ data ConfigFile = ConfigFile
   { _pathInWaspDir :: Path' Abs File',
     _projectRootDirPath :: Path' (Rel ProjectRootDir) File'
   }
+  deriving (Show, Eq)
 
-configFileMappings :: Data.Map String (Path' (Rel ProjectRootDir) File')
+configFileMappings :: Data.Map (Path' (Rel WaspProjectDir) File') (Path' (Rel ProjectRootDir) File')
 configFileMappings =
   fromList
-    [ ("tailwind.config.js", webAppRootDirInProjectRootDir </> [relfile|tailwind.config.js|]),
-      ("postcss.config.js", webAppRootDirInProjectRootDir </> [relfile|postcss.config.js|])
+    [ ([relfile|tailwind.config.js|], webAppRootDirInProjectRootDir </> [relfile|tailwind.config.js|]),
+      ([relfile|postcss.config.js|], webAppRootDirInProjectRootDir </> [relfile|postcss.config.js|])
     ]
 
 -- | Discovers config files in the wasp project dir.
@@ -34,8 +35,7 @@ discoverConfigFiles waspDir = do
   where
     fileToMaybeConfigFile :: Path' (Rel WaspProjectDir) File' -> Maybe ConfigFile
     fileToMaybeConfigFile file = do
-      let filename = fromRelFile (basename file)
-      case Data.lookup filename configFileMappings of
+      case Data.lookup file configFileMappings of
         Nothing -> Nothing
         Just projectRootDirPath ->
           Just $ ConfigFile {_pathInWaspDir = waspDir </> file, _projectRootDirPath = projectRootDirPath}
