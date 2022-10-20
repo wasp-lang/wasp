@@ -6,7 +6,7 @@ where
 
 import Data.Map (fromList)
 import qualified Data.Map as Data
-import Data.Maybe (catMaybes)
+import Data.Maybe (mapMaybe)
 import StrongPath (Abs, Dir, File', Path', Rel, basename, fromRelFile, relfile, (</>))
 import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -30,17 +30,12 @@ configFileMappings =
 discoverConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO [ConfigFile]
 discoverConfigFiles waspDir = do
   files <- fst <$> Util.IO.listDirectory waspDir
-  let mappedConfigs = catMaybes $ map (fileToMaybeMapping waspDir) files
-  return $ map (\(pathInWaspDir, projectRootDirPath) -> ConfigFile {_pathInWaspDir = pathInWaspDir, _projectRootDirPath = projectRootDirPath}) mappedConfigs
-
-fileToMaybeMapping ::
-  Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
-  Maybe (Path' Abs File', Path' (Rel ProjectRootDir) File')
-fileToMaybeMapping waspDir file = do
-  let filename = fromRelFile (basename file)
-  case Data.lookup filename configFileMappings of
-    Nothing -> Nothing
-    Just projectRootDirPath -> do
-      let pathInWaspDir = waspDir </> file
-      Just (pathInWaspDir, projectRootDirPath)
+  return $ mapMaybe fileToMaybeConfigFile files
+  where
+    fileToMaybeConfigFile :: Path' (Rel WaspProjectDir) File' -> Maybe ConfigFile
+    fileToMaybeConfigFile file = do
+      let filename = fromRelFile (basename file)
+      case Data.lookup filename configFileMappings of
+        Nothing -> Nothing
+        Just projectRootDirPath ->
+          Just $ ConfigFile {_pathInWaspDir = waspDir </> file, _projectRootDirPath = projectRootDirPath}
