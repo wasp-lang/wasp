@@ -17,6 +17,7 @@ import StrongPath
     relfile,
     (</>),
   )
+import qualified StrongPath as SP
 import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -25,6 +26,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
+import qualified Wasp.ConfigFiles as CF
 import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -52,7 +54,7 @@ genWebApp spec = do
     <++> genSrcDir spec
     <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
     <++> genDotEnv spec
-    <++> genTailwindConfig spec
+    <++> genConfigFiles spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -115,6 +117,17 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           []
     }
+
+depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind spec =
+  if CF.isTailwindUsed spec
+    then
+      AS.Dependency.fromList
+        [ ("tailwindcss", "^3.1.8"),
+          ("postcss", "^8.4.18"),
+          ("autoprefixer", "10.4.12")
+        ]
+    else []
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -205,6 +218,9 @@ genIndexJs spec =
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
+relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
+
 genIndexCss :: AppSpec -> Generator FileDraft
 genIndexCss spec =
   return $
@@ -213,40 +229,15 @@ genIndexCss spec =
       (C.asWebAppFile [relfile|src/index.css|])
       ( Just $
           object
-            [ "isTailwindUsed" .= isTailwindUsed
+            [ "isTailwindUsed" .= CF.isTailwindUsed spec
             ]
       )
-  where
-    isTailwindUsed = isJust $ AS.tailwindConfigFiles spec
 
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
-
-genTailwindConfig :: AppSpec -> Generator [FileDraft]
-genTailwindConfig spec = do
-  case maybeTailwindConfigFiles of
-    Nothing -> return []
-    Just (tailwindConfig, postcssConfig) ->
-      return
-        [ createCopyFileDraft
-            (C.webAppRootDirInProjectRootDir </> [relfile|./tailwind.config.js|])
-            tailwindConfig,
-          createCopyFileDraft
-            (C.webAppRootDirInProjectRootDir </> [relfile|./postcss.config.js|])
-            postcssConfig
-        ]
+genConfigFiles :: AppSpec -> Generator [FileDraft]
+genConfigFiles spec = do
+  return $ map createFd (AS.configFiles spec)
   where
-    maybeTailwindConfigFiles = AS.tailwindConfigFiles spec
-
-depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredByTailwind spec =
-  if isTailwindUsed
-    then
-      AS.Dependency.fromList
-        [ ("tailwindcss", "^3.1.8"),
-          ("postcss", "^8.4.18"),
-          ("autoprefixer", "10.4.12")
-        ]
-    else []
-  where
-    isTailwindUsed = isJust $ AS.tailwindConfigFiles spec
+    createFd filePath =
+      createCopyFileDraft
+        (C.webAppRootDirInProjectRootDir </> SP.basename filePath)
+        filePath

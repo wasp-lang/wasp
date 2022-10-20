@@ -24,6 +24,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.ConfigFiles as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
@@ -81,7 +82,7 @@ analyzeWaspProject waspDir options = do
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-          maybeTailwindConfigFiles <- findTailwindConfigFiles waspDir
+          configFiles <- CF.discoverConfigFiles waspDir
           return $
             Right
               AS.AppSpec
@@ -93,7 +94,7 @@ analyzeWaspProject waspDir options = do
                   AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options,
                   AS.userDockerfileContents = maybeUserDockerfileContents,
-                  AS.tailwindConfigFiles = maybeTailwindConfigFiles
+                  AS.configFiles = configFiles
                 }
   analyzerWarnings <- warnIfDotEnvPresent waspDir
   return (analyzerWarnings, appSpecOrAnalyzerErrors)
@@ -145,13 +146,6 @@ loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
 loadUserDockerfileContents waspDir = do
   let dockerfileAbsPath = SP.toFilePath $ waspDir SP.</> [relfile|Dockerfile|]
   whenMaybeM (doesFileExist dockerfileAbsPath) $ T.IO.readFile dockerfileAbsPath
-
-findTailwindConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File', Path' Abs File'))
-findTailwindConfigFiles waspDir = do
-  let tailwindConfig = waspDir SP.</> [relfile|tailwind.config.js|]
-  let postcssConfig = waspDir SP.</> [relfile|postcss.config.js|]
-  configFilesExist <- and <$> mapM (doesFileExist . SP.toFilePath) [tailwindConfig, postcssConfig]
-  if configFilesExist then return $ Just (tailwindConfig, postcssConfig) else return Nothing
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do

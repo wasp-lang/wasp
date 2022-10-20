@@ -54,8 +54,8 @@ data AppSpec = AppSpec
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | The path to tailwind.config.js and postcss.config.js. Used to enable Tailwind support.
-    tailwindConfigFiles :: Maybe (Path' Abs File', Path' Abs File')
+    -- | A list of paths to any config files found (e.g., tailwind.config.js).
+    configFiles :: [Path' Abs File']
   }
 
 -- TODO: Make this return "Named" declarations?
