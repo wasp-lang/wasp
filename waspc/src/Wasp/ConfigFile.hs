@@ -31,7 +31,7 @@ postcssConfigFile = [relfile|postcss.config.js|]
 asProjectRootDirConfigFile :: Path' (Rel WaspProjectDir) File' -> Path' (Rel ProjectRootDir) File'
 asProjectRootDirConfigFile = (webAppRootDirInProjectRootDir </>) . castRel
 
--- | Discovers config files in the wasp project dir.
+-- | Discovers config files of interest in the wasp project dir.
 discoverConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO [ConfigFileRelocator]
 discoverConfigFiles waspDir = do
   files <- fst <$> Util.IO.listDirectory waspDir
@@ -43,7 +43,7 @@ discoverConfigFiles waspDir = do
       return $ ConfigFileRelocator {_pathInWaspDir = waspDir </> file, _projectRootDirPath = projectRootDirPath}
 
 -- | Establishes the mapping of what config files to copy and where from/to.
--- NOTE: In the future, we could allow devs to configure what files we look for and where we copy them to.
+-- NOTE: In the future, we could allow devs to configure what files we look for and where we copy them.
 configFileRelocationMap :: Data.Map (Path' (Rel WaspProjectDir) File') (Path' (Rel ProjectRootDir) File')
 configFileRelocationMap =
   fromList
