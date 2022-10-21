@@ -97,6 +97,11 @@ action deleteList {
     entities: [List, Card]
 }
 
+action createListCopy {
+    fn: import { createListCopy } from "@ext/actions.js",
+    entities: [List, Card]
+}
+
 // Cards
 
 action createCard {
