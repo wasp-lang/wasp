@@ -9,11 +9,10 @@ module Wasp.Generator.DbGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe, isNothing, maybeToList)
+import Data.Maybe (fromMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
-import System.Environment (lookupEnv)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -84,19 +83,9 @@ genMigrationsDir spec =
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
-  -- checkForDbEnvVars does not depend on generated code but was placed here due to convenience
-  dbEnvironmentError <- maybeToList <$> checkForDbEnvVars spec
   dbGeneratorWarnings <- maybeToList <$> warnIfDbNeedsMigration spec dstDir
   dbGeneratorErrors <- maybeToList <$> genPrismaClient spec dstDir
-  return (dbGeneratorWarnings, dbGeneratorErrors ++ dbEnvironmentError)
-
-checkForDbEnvVars :: AppSpec -> IO (Maybe GeneratorError)
-checkForDbEnvVars spec = do
-  let dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ getApp spec))
-  dbUrlVal <- lookupEnv "DATABASE_URL"
-  if dbSystem == AS.Db.PostgreSQL && isNothing dbUrlVal && AS.isBuild spec == False
-    then return $ Just $ GenericGeneratorError "You are using PostgreSQL as your database but the DATABASE_URL environment variable is not set.\n  Please refer to the instructions here: https://wasp-lang.dev/docs/language/features#postgresql ."
-    else return Nothing
+  return (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
 -- When doing this, it looks at schema.prisma in the generated project.
