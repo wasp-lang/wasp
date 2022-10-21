@@ -17,14 +17,14 @@ import Wasp.Generator.Monad (Generator)
 
 isTailwindUsed :: AppSpec -> Bool
 isTailwindUsed spec =
-  configFileExists spec CF.tailwindConfigInWaspDir
-    && configFileExists spec CF.postcssConfigInWaspDir
+  isConfigFile spec CF.tailwindConfigFile
+    && isConfigFile spec CF.postcssConfigFile
 
-configFileExists :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
-configFileExists spec configInWaspDir =
+isConfigFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
+isConfigFile spec file =
   isJust $
     find
-      (\f -> SP.fromRelFile configInWaspDir `isSuffixOf` SP.fromAbsFile (CF._pathInWaspDir f))
+      (\f -> SP.fromRelFile file `isSuffixOf` SP.fromAbsFile (CF._pathInWaspDir f))
       (AS.configFiles spec)
 
 genConfigFiles :: AppSpec -> Generator [FileDraft]
