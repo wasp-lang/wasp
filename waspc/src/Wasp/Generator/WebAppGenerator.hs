@@ -123,7 +123,7 @@ depsRequiredByTailwind spec =
       AS.Dependency.fromList
         [ ("tailwindcss", "^3.1.8"),
           ("postcss", "^8.4.18"),
-          ("autoprefixer", "10.4.12")
+          ("autoprefixer", "^10.4.12")
         ]
     else []
 

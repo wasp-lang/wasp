@@ -20,12 +20,12 @@ import Wasp.Generator.Monad (Generator)
 -- postcss config file in their wasp project dir.
 isTailwindUsed :: AppSpec -> Bool
 isTailwindUsed spec =
-  isConfigFile spec CF.tailwindConfigFile
-    && isConfigFile spec CF.postcssConfigFile
+  doesConfigFileExist spec CF.tailwindConfigFile
+    && doesConfigFileExist spec CF.postcssConfigFile
 
--- | Internal helper for determining if some wasp project file is a tracked config file in appspec.
-isConfigFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
-isConfigFile spec file =
+-- | Internal helper for determining if some wasp project file is a tracked config file in AppSpec.
+doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
+doesConfigFileExist spec file =
   isJust $
     find
       (\f -> SP.fromRelFile file `isSuffixOf` SP.fromAbsFile (CF._pathInWaspDir f))
