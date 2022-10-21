@@ -169,6 +169,7 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
 const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isInEditMode, setIsInEditMode] = useState(false);
 
   const handleListNameUpdated = async (listId, newName) => {
     try {
@@ -176,6 +177,11 @@ const List = ({ list, index, cards }) => {
     } catch (err) {
       window.alert('Error while updating list name: ' + err.message)
     }
+  }
+
+  const handleAddCard = async () => {
+    setIsInEditMode(true);
+    setIsPopoverOpen(false);
   }
 
   const handleDeleteList = async (listId) => {
@@ -208,7 +214,7 @@ const List = ({ list, index, cards }) => {
         </div>
         <div className='popover-content'>
           <ul className='popover-content-list'>
-            <li><button>Add card...</button></li>
+            <li><button onClick={() => handleAddCard()}>Add card...</button></li>
             <li><button>Copy list...</button></li>
             <li>
               <button onClick={() => handleDeleteList(list.id)}>
@@ -276,7 +282,12 @@ const List = ({ list, index, cards }) => {
             </Droppable>
 
             <div className='card-composer-container'>
-              <AddCard listId={list.id} newPos={calcNewDndItemPos(cards)} />
+              <AddCard
+                listId={list.id}
+                newPos={calcNewDndItemPos(cards)}
+                isInEditMode={isInEditMode}
+                setIsInEditMode={setIsInEditMode}
+              />
             </div>
           </div>
         </div>
@@ -376,8 +387,7 @@ const AddList = ({ newPos }) => {
   )
 }
 
-const AddCard = ({ listId, newPos }) => {
-  const [isInEditMode, setIsInEditMode] = useState(false)
+const AddCard = ({ listId, newPos, isInEditMode, setIsInEditMode }) => {
 
   const AddCardButton = () => {
     return (
