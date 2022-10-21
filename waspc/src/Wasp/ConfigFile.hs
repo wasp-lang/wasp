@@ -2,7 +2,7 @@ module Wasp.ConfigFile
   ( discoverConfigFiles,
     tailwindConfigFile,
     postcssConfigFile,
-    ConfigFile (..),
+    ConfigFileRelocator (..),
   )
 where
 
@@ -16,7 +16,7 @@ import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 import qualified Wasp.Util.IO as Util.IO
 
 -- | A type for establishing the mapping of where to copy config files from/to.
-data ConfigFile = ConfigFile
+data ConfigFileRelocator = ConfigFileRelocator
   { _pathInWaspDir :: Path' Abs File',
     _projectRootDirPath :: Path' (Rel ProjectRootDir) File'
   }
@@ -31,24 +31,22 @@ postcssConfigFile = [relfile|postcss.config.js|]
 asProjectRootDirConfigFile :: Path' (Rel WaspProjectDir) File' -> Path' (Rel ProjectRootDir) File'
 asProjectRootDirConfigFile = (webAppRootDirInProjectRootDir </>) . castRel
 
--- | Establishes the mapping of where to copy config files from/to.
+-- | Discovers config files in the wasp project dir.
+discoverConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO [ConfigFileRelocator]
+discoverConfigFiles waspDir = do
+  files <- fst <$> Util.IO.listDirectory waspDir
+  return $ mapMaybe fileToMaybeConfigFileRelocator files
+  where
+    fileToMaybeConfigFileRelocator :: Path' (Rel WaspProjectDir) File' -> Maybe ConfigFileRelocator
+    fileToMaybeConfigFileRelocator file = do
+      projectRootDirPath <- Data.lookup file configFileRelocationMap
+      return $ ConfigFileRelocator {_pathInWaspDir = waspDir </> file, _projectRootDirPath = projectRootDirPath}
+
+-- | Establishes the mapping of what config files to copy and where from/to.
 -- NOTE: In the future, we could allow devs to configure what files we look for and where we copy them to.
-configMapping :: Data.Map (Path' (Rel WaspProjectDir) File') (Path' (Rel ProjectRootDir) File')
-configMapping =
+configFileRelocationMap :: Data.Map (Path' (Rel WaspProjectDir) File') (Path' (Rel ProjectRootDir) File')
+configFileRelocationMap =
   fromList
     [ (tailwindConfigFile, asProjectRootDirConfigFile tailwindConfigFile),
       (postcssConfigFile, asProjectRootDirConfigFile postcssConfigFile)
     ]
-
--- | Discovers config files in the wasp project dir.
-discoverConfigFiles :: Path' Abs (Dir WaspProjectDir) -> IO [ConfigFile]
-discoverConfigFiles waspDir = do
-  files <- fst <$> Util.IO.listDirectory waspDir
-  return $ mapMaybe fileToMaybeConfigFile files
-  where
-    fileToMaybeConfigFile :: Path' (Rel WaspProjectDir) File' -> Maybe ConfigFile
-    fileToMaybeConfigFile file = do
-      case Data.lookup file configMapping of
-        Nothing -> Nothing
-        Just projectRootDirPath ->
-          Just $ ConfigFile {_pathInWaspDir = waspDir </> file, _projectRootDirPath = projectRootDirPath}

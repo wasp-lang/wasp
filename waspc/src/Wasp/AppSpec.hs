@@ -29,7 +29,7 @@ import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Common (DbMigrationsDir)
-import Wasp.ConfigFile (ConfigFile)
+import Wasp.ConfigFile (ConfigFileRelocator)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -55,8 +55,8 @@ data AppSpec = AppSpec
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to any config files found (e.g., tailwind.config.js).
-    configFiles :: [ConfigFile]
+    -- | A list of paths to any config files found (e.g., tailwind.config.js) and where to copy them.
+    configFiles :: [ConfigFileRelocator]
   }
 
 -- TODO: Make this return "Named" declarations?
