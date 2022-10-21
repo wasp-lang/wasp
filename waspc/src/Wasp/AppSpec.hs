@@ -29,7 +29,7 @@ import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Common (DbMigrationsDir)
-import Wasp.ConfigFiles (ConfigFile)
+import Wasp.ConfigFile (ConfigFile)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.

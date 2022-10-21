@@ -196,7 +196,7 @@ library
     Wasp.AppSpec.Util
     Wasp.Common
     Wasp.CompileOptions
-    Wasp.ConfigFiles
+    Wasp.ConfigFile
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode

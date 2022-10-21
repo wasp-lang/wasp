@@ -6,21 +6,29 @@ where
 
 import Data.List (find, isSuffixOf)
 import Data.Maybe (isJust)
+import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.ConfigFiles as CF
+import Wasp.Common (WaspProjectDir)
+import qualified Wasp.ConfigFile as CF
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 
 isTailwindUsed :: AppSpec -> Bool
-isTailwindUsed spec = configExists "tailwind.config.js" && configExists "postcss.config.js"
-  where
-    configFilePath configFilename = SP.toFilePath . CF._pathInWaspDir $ configFilename
-    configExists filename = isJust $ find (\f -> filename `isSuffixOf` configFilePath f) (AS.configFiles spec)
+isTailwindUsed spec =
+  configFileExists spec CF.tailwindConfigInWaspDir
+    && configFileExists spec CF.postcssConfigInWaspDir
+
+configFileExists :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
+configFileExists spec configInWaspDir =
+  isJust $
+    find
+      (\f -> SP.fromRelFile configInWaspDir `isSuffixOf` SP.fromAbsFile (CF._pathInWaspDir f))
+      (AS.configFiles spec)
 
 genConfigFiles :: AppSpec -> Generator [FileDraft]
-genConfigFiles spec = do
+genConfigFiles spec =
   return $ map createFd (AS.configFiles spec)
   where
     createFd configFile = createCopyFileDraft (CF._projectRootDirPath configFile) (CF._pathInWaspDir configFile)
