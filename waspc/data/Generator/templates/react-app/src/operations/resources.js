@@ -1,6 +1,6 @@
 import { queryClientInitialized } from '../queryClient'
 import { makeUpdateHandlersMap } from './updateHandlersMap'
-import { hashQueryKey } from 'react-query'
+import { hashQueryKey } from '@tanstack/react-query'
 
 // Map where key is resource name and value is Set
 // containing query ids of all the queries that use
@@ -50,6 +50,7 @@ export async function invalidateAndRemoveQueries() {
   // If we don't invalidate the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
+  // TODO come back here and test: https://tanstack.com/query/v3/docs/guides/migrating-to-react-query-4#consistent-behavior-for-cancelrefetch
   queryClient.invalidateQueries()
   // If we don't remove the queries after invalidating them, the old query data
   // remains in the cache, casuing a potential privacy issue.

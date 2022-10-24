@@ -1,7 +1,7 @@
 import { useQuery } from '../queries'
 import api, { handleApiError } from '../api.js'
 
-export default function useAuth(queryFnArgs, config)  {
+export default function useAuth(queryFnArgs, config) {
   return useQuery(getMe, queryFnArgs, config)
 }
 async function getMe() {
@@ -18,4 +18,4 @@ async function getMe() {
   }
 }
 
-getMe.queryCacheKey = 'auth/me'
+getMe.queryCacheKey = ['auth/me']
