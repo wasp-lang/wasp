@@ -10,7 +10,7 @@ const Hero = () => {
         </h1>
 
         <p className='mt-1.5 text-lg'>
-          Specify common features in Wasp DSL and write the rest in React, Node.js and Prisma.
+          Describe common features in Wasp DSL and write the rest in React, Node.js and Prisma.
         </p>
       </div>
 
