@@ -185,7 +185,6 @@ genSrcDir spec =
       copyTmplFile [relfile|utils.js|],
       genRouter spec,
       genIndexJs spec,
-      genIndexCss spec,
       genApi
     ]
     <++> genOperations spec
@@ -218,15 +217,3 @@ genIndexJs spec =
 
 relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
-
-genIndexCss :: AppSpec -> Generator FileDraft
-genIndexCss spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.css|])
-      (C.asWebAppFile [relfile|src/index.css|])
-      ( Just $
-          object
-            [ "isTailwindUsed" .= CFG.isTailwindUsed spec
-            ]
-      )

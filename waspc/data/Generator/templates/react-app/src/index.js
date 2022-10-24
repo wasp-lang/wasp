@@ -14,8 +14,6 @@ import * as serviceWorker from './serviceWorker'
 {=& clientSetupJsFnImportStatement =}
 {=/ doesClientSetupFnExist =}
 
-import './index.css'
-
 startApp()
 
 async function startApp() {

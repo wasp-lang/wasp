@@ -1,15 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import Button from '@material-ui/core/Button'
-import TextField from '@material-ui/core/TextField'
-import Paper from '@material-ui/core/Paper'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableRow from '@material-ui/core/TableRow'
-import Checkbox from '@material-ui/core/Checkbox'
-
 import { useQuery } from '@wasp/queries'
 import { useAction } from '@wasp/actions'
 import getTasks from '@wasp/queries/getTasks.js'
@@ -30,7 +21,7 @@ const Todo = (props) => {
   return (
     <div className='todos'>
       <div className='todos__container'>
-        <h1> Todos </h1>
+        <h1>Todos</h1>
 
         <div className='todos__toggleAndInput'>
           <ToggleAllTasksButton disabled={!isThereAnyTask()} />
@@ -70,13 +61,12 @@ const Footer = (props) => {
       </div>
 
       <div className='todos__footer__clearCompleted'>
-        <Button
-          className={numCompletedTasks > 0 ? '' : 'hidden'}
-          variant="contained" color="secondary"
+        <button
+          className={'btn btn-red ' + (numCompletedTasks > 0 ? '' : 'hidden')}
           onClick={handleDeleteCompletedTasks}
         >
           Delete completed
-        </Button>
+        </button>
       </div>
     </div>
   )
@@ -85,14 +75,11 @@ const Footer = (props) => {
 const Tasks = (props) => {
   return (
     <div>
-      <Paper>
-        <Table size="small">
-          <TableBody>
+        <table size="small">
+          <tbody>
             {props.tasks.map((task, idx) => <Task task={task} key={idx} />)}
-          </TableBody>
-        </Table>
-      </Paper>
-
+          </tbody>
+        </table>
     </div>
   )
 }
@@ -123,19 +110,20 @@ const Task = (props) => {
   }
 
   return (
-    <TableRow>
-      <TableCell>
-        <Checkbox
+    <tr>
+      <td>
+        <input
+          type="checkbox"
           id={String(props.task.id)}
           checked={props.task.isDone}
           onChange={handleTaskIsDoneChange}
           color="default"
         />
-      </TableCell>
-      <TableCell>
+      </td>
+      <td>
         <Link to={`/task/${props.task.id}`}> {props.task.description} </Link>
-      </TableCell>
-    </TableRow>
+      </td>
+    </tr>
   )
 }
 
@@ -159,18 +147,17 @@ const NewTaskForm = (props) => {
   }
 
   return (
-    <form onSubmit={handleNewTaskSubmit}>
-      <TextField
-        className="todos__newTaskForm__input"
+    <form onSubmit={handleNewTaskSubmit} className="content-start">
+      <input
+        type="text"
+        className=""
         placeholder="Enter task"
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
-      <Button
-        variant="contained" color="primary" type='submit'
-      >
+      <button className='btn btn-blue'>
         Create new task
-      </Button>
+      </button>
     </form>
   )
 }
@@ -185,13 +172,13 @@ const ToggleAllTasksButton = (props) => {
   }
 
   return (
-    <Button
-      variant="contained" color="primary"
+    <button
+      className='btn btn-blue'
       disabled={props.disabled}
       onClick={handleToggleAllTasks}
     >
       ✓
-    </Button>
+    </button>
   )
 }
 

@@ -1,7 +1,0 @@
-{{={= =}=}}
-
-{=# isTailwindUsed =}
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-{=/ isTailwindUsed =}

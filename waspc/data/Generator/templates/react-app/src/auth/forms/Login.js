@@ -24,7 +24,7 @@ const LoginForm = () => {
   }
   
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleLogin} className="login-form">
       <h2>Username</h2>
       <input
         type="text"
