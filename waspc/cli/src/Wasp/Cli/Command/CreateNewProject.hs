@@ -48,15 +48,14 @@ parseProjectInfo :: String -> Command ProjectInfo
 parseProjectInfo name
   | isValidWaspIdentifier appName = return $ ProjectInfo name appName
   | otherwise =
-    throwError $
-      CommandError "Project creation failed" $
-        intercalate
-          "\n"
-          [ "The project's name is not in the valid format!",
-            indent 2 "- It can start with a letter or an underscore.",
-            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-            indent 2 "- It can't be a Wasp keyword."
-          ]
+    throwProjectCreationError $
+      intercalate
+        "\n"
+        [ "The project's name is not in the valid format!",
+          indent 2 "- It can start with a letter or an underscore.",
+          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+          indent 2 "- It can't be a Wasp keyword."
+        ]
   where
     appName = kebabToCamelCase name
 
@@ -65,7 +64,7 @@ createWaspProjectDir projectInfo = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
   dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
   if dirExists
-    then throwError $ CommandError "Project creation failed" $ show absWaspProjectDir ++ " is an existing directory"
+    then throwProjectCreationError $ show absWaspProjectDir ++ " is an existing directory"
     else liftIO $ do
       initializeProjectFromSkeleton absWaspProjectDir
       writeMainWaspFile absWaspProjectDir projectInfo
@@ -76,10 +75,8 @@ getAbsoluteWaspProjectDir (ProjectInfo projectName _) = do
   case parseAbsDir $ absCwd FP.</> projectName of
     Right sp -> return sp
     Left err ->
-      throwError $
-        CommandError
-          "Project creation failed"
-          ("Failed to parse absolute path to wasp project dir: " ++ show err)
+      throwProjectCreationError $
+        "Failed to parse absolute path to wasp project dir: " ++ show err
 
 -- To avoid creating a new project manually, we copy the project directory skeleton from our templates.
 initializeProjectFromSkeleton :: Path' Abs (Dir Common.WaspProjectDir) -> IO ()
@@ -103,3 +100,6 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile a
           "  component: import Main from \"@ext/MainPage.js\"",
           "}"
         ]
+
+throwProjectCreationError :: String -> Command a
+throwProjectCreationError = throwError . CommandError "Project creation failed"
