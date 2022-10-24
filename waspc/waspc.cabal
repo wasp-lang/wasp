@@ -38,7 +38,6 @@ data-files:
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
-  Generator/templates/**/*.css
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
