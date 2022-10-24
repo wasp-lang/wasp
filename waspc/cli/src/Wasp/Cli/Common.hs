@@ -43,10 +43,10 @@ dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel Wasp.Generator.Common.ProjectRoo
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
 extServerCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extServerCodeDirInWaspProjectDir = [reldir|server|]
+extServerCodeDirInWaspProjectDir = [reldir|src/server|]
 
 extClientCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
-extClientCodeDirInWaspProjectDir = [reldir|client|]
+extClientCodeDirInWaspProjectDir = [reldir|src/client|]
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what
