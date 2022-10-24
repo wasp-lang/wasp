@@ -15,6 +15,9 @@ module.exports = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
+  stylesheets: [
+    'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap'
+  ],
   themeConfig: {
     announcementBar: {
       id: 'Beta_is_coming',
@@ -150,5 +153,18 @@ module.exports = {
   scripts: [
     '/scripts/posthog.js',
     '/js/fix-multiple-trailing-slashes.js'
-  ]
+  ],
+  plugins: [
+    async function myPlugin(context, options) {
+      return {
+        name: "docusaurus-tailwindcss",
+        configurePostCss(postcssOptions) {
+          // Appends TailwindCSS and AutoPrefixer.
+          postcssOptions.plugins.push(require("tailwindcss"));
+          postcssOptions.plugins.push(require("autoprefixer"));
+          return postcssOptions;
+        },
+      };
+    },
+  ],
 };

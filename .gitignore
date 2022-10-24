@@ -4,6 +4,8 @@
 
 # editor related
 .idea/
+*.swo
+*.swp
 
 # macOS related
 .DS_Store

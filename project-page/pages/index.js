@@ -1,18 +1,16 @@
-import React from 'react'
+import Head from 'next/head'
+import Image from 'next/image'
 import classNames from 'classnames'
 
-import Nav from '../components/Nav/index'
-import Hero from '../components/Hero'
-import Benefits from '../components/Benefits'
-import HowItWorks from '../components/HowItWorks'
-import ShowcaseGallery from '../components/ShowcaseGallery'
-import Newsletter from '../components/Newsletter'
-import Faq from '../components/Faq'
-import Footer from '../components/Footer'
+import Nav from 'components/Nav/index'
+import Hero from 'components/Hero'
+import Benefits from 'components/Benefits'
+import HowItWorks from 'components/HowItWorks'
+import ShowcaseGallery from 'components/ShowcaseGallery'
+import Faq from 'components/Faq'
+import Footer from 'components/Footer'
 
-import styles from './styles.module.css'
-import './index.css'
-import './preflight.css'
+import styles from '../styles/index.module.css'
 
 
 const Background = () => {
@@ -31,7 +29,7 @@ const LightsTwo = () => (
 
 const Index = () => {
   return (
-    <div className='twLandingPage'>
+    <>
       <Nav />
       <div className='min-h-screen'>
         <main>
@@ -45,14 +43,13 @@ const Index = () => {
 
             <HowItWorks />
             <ShowcaseGallery />
-            <Newsletter />
             <Faq />
 
           </div> {/* eof container */}
         </main>
       </div>
       <Footer />
-    </div>
+    </>
 
   )
 }
