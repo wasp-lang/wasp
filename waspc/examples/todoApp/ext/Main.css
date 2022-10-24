@@ -3,11 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+    body {
+        @apply m-2;
+    }
     a {
         @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
     }
     input[type='submit'] {
         @apply btn btn-blue;
+    }
+    form.auth-form input {
+        @apply my-2;
     }
     input[type='checkbox'] {
         @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
@@ -33,37 +39,4 @@
     .btn-blue:hover {
         @apply bg-blue-700;
     }
-}
-
-.todos {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.todos__container {
-    width: 450px;
-}
-
-.todos__toggleAndInput {
-    display: flex;
-    align-items: flex-end;
-    margin-bottom: 10px;
-}
-
-.todos__newTaskForm {
-    width: 100%;
-    margin-left: 10px;
-}
-
-.todos__footer {
-    width: 100%;
-    margin-top: 10px;
-
-    display: flex;
-    justify-content: space-between;
-}
-
-.todos__footer__filters .filter:not(:last-child) {
-    margin-right: 10px;
 }

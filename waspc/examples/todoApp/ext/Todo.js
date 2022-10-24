@@ -19,11 +19,11 @@ const Todo = (props) => {
   }
 
   return (
-    <div className='todos'>
-      <div className='todos__container'>
+    <div className='flex justify-center'>
+      <div className='w-3/6 shadow-md rounded p-6'>
         <h1>Todos</h1>
 
-        <div className='todos__toggleAndInput'>
+        <div className='flex justify-start'>
           <ToggleAllTasksButton disabled={!isThereAnyTask()} />
           <NewTaskForm />
         </div>
@@ -55,12 +55,12 @@ const Footer = (props) => {
   }
 
   return (
-    <div className='todos__footer'>
-      <div className='todos__footer__itemsLeft'>
+    <div className='flex justify-between'>
+      <div>
         {numUncompletedTasks} items left
       </div>
 
-      <div className='todos__footer__clearCompleted'>
+      <div>
         <button
           className={'btn btn-red ' + (numCompletedTasks > 0 ? '' : 'hidden')}
           onClick={handleDeleteCompletedTasks}
@@ -75,7 +75,7 @@ const Footer = (props) => {
 const Tasks = (props) => {
   return (
     <div>
-        <table size="small">
+        <table className='border-separate border-spacing-2'>
           <tbody>
             {props.tasks.map((task, idx) => <Task task={task} key={idx} />)}
           </tbody>
@@ -113,11 +113,11 @@ const Task = (props) => {
     <tr>
       <td>
         <input
-          type="checkbox"
+          type='checkbox'
           id={String(props.task.id)}
           checked={props.task.isDone}
           onChange={handleTaskIsDoneChange}
-          color="default"
+          color='default'
         />
       </td>
       <td>
@@ -147,11 +147,10 @@ const NewTaskForm = (props) => {
   }
 
   return (
-    <form onSubmit={handleNewTaskSubmit} className="content-start">
+    <form onSubmit={handleNewTaskSubmit} className='content-start'>
       <input
-        type="text"
-        className=""
-        placeholder="Enter task"
+        type='text'
+        placeholder='Enter task'
         value={description}
         onChange={e => setDescription(e.target.value)}
       />
