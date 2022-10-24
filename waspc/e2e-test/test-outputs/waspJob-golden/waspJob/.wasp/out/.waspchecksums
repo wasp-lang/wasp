@@ -303,16 +303,9 @@
     [
         [
             "file",
-            "web-app/src/index.css"
-        ],
-        "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
-    ],
-    [
-        [
-            "file",
             "web-app/src/index.js"
         ],
-        "d0aeef2633b26de4c5d7064acc7c4533212cee8d3b36e91a3a785930621d02e4"
+        "23dbf22d1b45bce81cc41831661a31384a2195ab68bab7e720717422dccf1d68"
     ],
     [
         [
