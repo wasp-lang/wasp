@@ -18,6 +18,12 @@ This is on our take on the situation and what we think things might look like in
 
 <!--truncate-->
 
+:::danger Trending post!
+
+This post was trending on HackerNews - you can see the discussion [here](https://news.ycombinator.com/item?id=32098144).
+
+:::
+
 ## Why (ML) code generation?
 
 In order to make development faster, we came up with IDE autocompletion - e.g. if you are using React and start typing `componentDid`, IDE will automatically offer to complete it to `componentDidMount()` or `componentDidLoad()`. Besides saving keystrokes, maybe even more valuable is being able to see what methods/properties are available to us within a current scope. IDE being aware of the project structure and code hierarchy also makes refactoring much easier.
