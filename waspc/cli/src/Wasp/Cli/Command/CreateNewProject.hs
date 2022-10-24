@@ -81,6 +81,7 @@ getAbsoluteWaspProjectDir (ProjectInfo projectName _) = do
           "Project creation failed"
           ("Failed to parse absolute path to wasp project dir: " ++ show err)
 
+-- To avoid creating a new project manually, we copy the project directory skeleton from our templates.
 initializeProjectFromSkeleton :: Path' Abs (Dir Common.WaspProjectDir) -> IO ()
 initializeProjectFromSkeleton absWaspProjectDir = do
   dataDir <- Data.getAbsDataDirPath

@@ -29,7 +29,7 @@ module Wasp.Util
     orIfNothing,
     orIfNothingM,
     kebabToCamelCase,
-    maybeToEither
+    maybeToEither,
   )
 where
 
