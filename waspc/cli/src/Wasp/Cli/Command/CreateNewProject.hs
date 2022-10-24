@@ -6,18 +6,18 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
-import StrongPath (Abs, Dir, Path, Path', System, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import Path.IO (copyDirRecur, doesDirExist)
+import StrongPath (Abs, Dir, Path, Path', System, fromAbsFile, parseAbsDir, reldir, relfile, (</>))
+import StrongPath.Path (toPathAbsDir)
 import System.Directory (getCurrentDirectory)
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Cli.Command.Common as Command.Common
-import Wasp.Cli.Common (WaspProjectDir)
-import qualified Wasp.Cli.Common as Common
+import Wasp.Common (WaspProjectDir)
+import qualified Wasp.Common as Common (WaspProjectDir)
 import qualified Wasp.Data as Data
-import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
 
@@ -29,8 +29,17 @@ data ProjectInfo = ProjectInfo
 createNewProject :: String -> Command ()
 createNewProject projectName = do
   projectInfo <- parseProjectInfo projectName
-  createAndPopulateWaspProjectDir projectInfo
-  liftIO $ printInfoMessages projectInfo
+  createWaspProjectDir projectInfo
+  liftIO printGettingStartedInstructions
+  where
+    printGettingStartedInstructions = do
+      putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
+      putStrLn "To run it, do:"
+      putStrLn ""
+      putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
+      putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
+      putStrLn ""
+      putStrLn Command.Common.alphaWarningMessage
 
 -- Takes a project name String
 -- Returns either the ProjectInfo type that contains both the Project name
@@ -51,27 +60,20 @@ parseProjectInfo name
   where
     appName = kebabToCamelCase name
 
-createAndPopulateWaspProjectDir :: ProjectInfo -> Command ()
-createAndPopulateWaspProjectDir projectInfo = do
+createWaspProjectDir :: ProjectInfo -> Command ()
+createWaspProjectDir projectInfo = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
-  liftIO $ do
-    initializeProjectFromSkeleton absWaspProjectDir
-    writeMainWaspFile absWaspProjectDir projectInfo
-
-printInfoMessages :: ProjectInfo -> IO ()
-printInfoMessages (ProjectInfo projectName _) = do
-  putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
-  putStrLn "To run it, do:"
-  putStrLn ""
-  putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
-  putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
-  putStrLn ""
-  putStrLn Command.Common.alphaWarningMessage
+  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
+  if dirExists
+    then throwError $ CommandError "Project creation failed" $ show absWaspProjectDir ++ " is an existing directory"
+    else liftIO $ do
+      initializeProjectFromSkeleton absWaspProjectDir
+      writeMainWaspFile absWaspProjectDir projectInfo
 
 getAbsoluteWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
 getAbsoluteWaspProjectDir (ProjectInfo projectName _) = do
   absCwd <- liftIO getCurrentDirectory
-  case SP.parseAbsDir $ absCwd FP.</> projectName of
+  case parseAbsDir $ absCwd FP.</> projectName of
     Right sp -> return sp
     Left err ->
       throwError $
@@ -83,12 +85,12 @@ initializeProjectFromSkeleton :: Path' Abs (Dir Common.WaspProjectDir) -> IO ()
 initializeProjectFromSkeleton absWaspProjectDir = do
   dataDir <- Data.getAbsDataDirPath
   let absSkeletonDir = dataDir </> [reldir|Cli/templates/new|]
-  copyDirectoryRecursive absSkeletonDir absWaspProjectDir
+  copyDirRecur (toPathAbsDir absSkeletonDir) (toPathAbsDir absWaspProjectDir)
 
 writeMainWaspFile :: Path System Abs (Dir WaspProjectDir) -> ProjectInfo -> IO ()
-writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile mainWaspFileAbsPath mainWaspFileContent
+writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile absMainWaspFile mainWaspFileContent
   where
-    mainWaspFileAbsPath = SP.fromAbsFile $ waspProjectDir </> [relfile|main.wasp|]
+    absMainWaspFile = fromAbsFile $ waspProjectDir </> [relfile|main.wasp|]
     mainWaspFileContent =
       unlines
         [ "app %s {" `printf` appName,

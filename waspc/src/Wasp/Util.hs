@@ -29,6 +29,7 @@ module Wasp.Util
     orIfNothing,
     orIfNothingM,
     kebabToCamelCase,
+    maybeToEither
   )
 where
 
@@ -211,3 +212,8 @@ orIfNothing = flip fromMaybe
 
 orIfNothingM :: (Monad m) => m (Maybe a) -> m a -> m a
 orIfNothingM = flip fromMaybeM
+
+maybeToEither :: a -> Maybe b -> Either a b
+maybeToEither leftValue = \case
+  Nothing -> Left leftValue
+  Just rightValue -> Right rightValue

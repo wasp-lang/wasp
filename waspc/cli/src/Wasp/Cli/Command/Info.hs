@@ -5,14 +5,14 @@ module Wasp.Cli.Command.Info
   )
 where
 
-import Control.Arrow (ArrowChoice (left))
-import Control.Monad.IO.Class (liftIO)
+import Control.Arrow
+import Control.Monad.Except
 import StrongPath (Abs, Dir, Path', fromAbsFile, fromRelFile, toFilePath)
 import StrongPath.Operations
 import System.Directory (doesFileExist, getFileSize)
 import qualified Wasp.Analyzer as Analyzer
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.Core.Decl as AS (Decl, takeDecls)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -26,30 +26,23 @@ import Wasp.Util.IO (listDirectoryDeep)
 import qualified Wasp.Util.Terminal as Term
 
 info :: Command ()
-info =
-  do
-    waspDir <- findWaspProjectRootDirFromCwd
-    compileInfo <- liftIO $ readCompileInformation waspDir
-    projectSize <- liftIO $ readDirectorySizeMB waspDir
-    declsOrError <- liftIO $ parseWaspFile waspDir
-    case declsOrError of
-      Left err -> cliSendMessageC $ Msg.Failure "Info failed" err
-      Right decls -> do
-        cliSendMessageC $
-          Msg.Info $
-            unlines
-              [ "",
-                title "Project information",
-                printInfo
-                  "Name"
-                  (fst $ head $ AS.takeDecls @AS.App.App decls),
-                printInfo
-                  "Last compile"
-                  compileInfo,
-                printInfo
-                  "Project size"
-                  projectSize
-              ]
+info = do
+  waspDir <- findWaspProjectRootDirFromCwd
+  compileInfo <- liftIO $ readCompileInformation waspDir
+  projectSize <- liftIO $ readDirectorySizeMB waspDir
+  declsOrError <- liftIO $ parseWaspFile waspDir
+  case declsOrError of
+    Left err -> cliSendMessageC $ Msg.Failure "Info failed" err
+    Right decls -> do
+      cliSendMessageC $
+        Msg.Info $
+          unlines
+            [ "",
+              title "Project information",
+              printInfo "Name" (fst $ head $ AS.takeDecls @AS.App.App decls),
+              printInfo "Last compile" compileInfo,
+              printInfo "Project size" projectSize
+            ]
 
 printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
@@ -70,17 +63,12 @@ readCompileInformation waspDir = do
     else return "No compile information found"
 
 parseWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String [AS.Decl])
-parseWaspFile waspDir = do
-  maybeWaspFile <- findWaspFile waspDir
-  case maybeWaspFile of
-    Nothing -> return (Left "Couldn't find a single *.wasp file.")
-    Just waspFile ->
-      do
-        waspStr <- readFile (toFilePath waspFile)
-        return $
-          left
-            ( ("Couldn't parse .wasp file:\n" <>)
-                . showCompilerErrorForTerminal (waspFile, waspStr)
-                . Analyzer.getErrorMessageAndCtx
-            )
-            $ Analyzer.analyze waspStr
+parseWaspFile waspDir = runExceptT $ do
+  waspFile <- ExceptT $ findWaspFile waspDir
+  waspStr <- liftIO $ readFile $ toFilePath waspFile
+  liftEither $ left (annotateErrorForCli waspFile waspStr) $ Analyzer.analyze waspStr
+  where
+    annotateErrorForCli waspFile waspStr =
+      ("Couldn't parse .wasp file:\n" ++)
+        . showCompilerErrorForTerminal (waspFile, waspStr)
+        . Analyzer.getErrorMessageAndCtx

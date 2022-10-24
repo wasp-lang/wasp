@@ -15,20 +15,20 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
-import Wasp.Lib (analyzeWaspProject)
+import Wasp.Lib (findAndAnalyzeWaspFile)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()
 deps = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  appSpecOrAnalyzerErrors <- liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
+  appSpecOrAnalyzerErrors <- liftIO $ findAndAnalyzeWaspFile waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
       (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords . toList)
       return
       appSpecOrAnalyzerErrors
 
-  liftIO . putStrLn $ depsMessage appSpec
+  liftIO $ putStrLn $ depsMessage appSpec
 
 depsMessage :: AppSpec -> String
 depsMessage appSpec =

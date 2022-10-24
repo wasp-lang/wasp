@@ -3,15 +3,15 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
-    analyzeWaspProject,
+    findAndAnalyzeWaspFile,
   )
 where
 
+import Control.Arrow
 import Control.Monad.Except
 import Data.List (find, isSuffixOf)
 import Data.List.NonEmpty (NonEmpty, fromList, toList)
-import StrongPath (Abs, Dir, File', Path', relfile)
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
@@ -27,6 +27,7 @@ import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
+import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -39,8 +40,8 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  appSpecOrAnalyzerErrors <- analyzeWaspProject waspDir options
-  analyzerWarnings <- warnIfDotEnvPresent waspDir
+  appSpecOrAnalyzerErrors <- findAndAnalyzeWaspFile waspDir options
+  compileWarnings <- warnIfDotEnvPresent waspDir
   compilerWarningsAndErrors <- case appSpecOrAnalyzerErrors of
     Left analyzerErrors -> return ([], toList analyzerErrors)
     Right appSpec ->
@@ -49,16 +50,16 @@ compile waspDir outDir options = do
           (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
           return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
         validationErrors -> return ([], map show validationErrors)
-  return $ (analyzerWarnings, []) <> compilerWarningsAndErrors
+  return $ (compileWarnings, []) <> compilerWarningsAndErrors
 
-analyzeWaspProject ::
+findAndAnalyzeWaspFile ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO (Either (NonEmpty CompileError) AppSpec)
-analyzeWaspProject waspDir options = runExceptT $ do
-  waspFilePath <- ExceptT $ findWaspFilePath waspDir
+findAndAnalyzeWaspFile waspDir options = runExceptT $ do
+  waspFilePath <- ExceptT $ left pure <$> findWaspFile waspDir
   declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
-  liftIO $ createAppSpec waspDir options declarations
+  liftIO $ constructAppSpec waspDir options declarations
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
@@ -68,16 +69,9 @@ warnIfDotEnvPresent waspDir = do
     Nothing -> []
     Just _ -> ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
 
-findWaspFilePath :: Path' Abs (Dir WaspProjectDir) -> IO (Either (NonEmpty CompileError) (Path' Abs File'))
-findWaspFilePath waspDir = do
-  maybeWaspFilePath <- findWaspFile waspDir
-  return $ case maybeWaspFilePath of
-    Nothing -> Left $ fromList ["Couldn't find a single *.wasp file."]
-    Just waspFilePath -> Right waspFilePath
-
 analyzeWaspFileContent :: Path' Abs File' -> IO (Either (NonEmpty CompileError) [Decl])
 analyzeWaspFileContent waspFilePath = do
-  waspFileContent <- readFile (SP.fromAbsFile waspFilePath)
+  waspFileContent <- readFile (fromAbsFile waspFilePath)
   return $ case Analyzer.analyze waspFileContent of
     Right decls -> Right decls
     Left analyzeError ->
@@ -88,8 +82,8 @@ analyzeWaspFileContent waspFilePath = do
               (getErrorMessageAndCtx analyzeError)
           ]
 
-createAppSpec :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> [Decl] -> IO AS.AppSpec
-createAppSpec waspDir options decls = do
+constructAppSpec :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> [Decl] -> IO AS.AppSpec
+constructAppSpec waspDir options decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
   externalClientCodeFiles <-
@@ -108,14 +102,14 @@ createAppSpec waspDir options decls = do
         AS.isBuild = CompileOptions.isBuild options
       }
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs File'))
 findWaspFile waspDir = do
   files <- fst <$> Util.IO.listDirectory waspDir
-  return $ (waspDir SP.</>) <$> find isWaspFile files
+  return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
-      ".wasp" `isSuffixOf` SP.toFilePath path
-        && (length (SP.toFilePath path) > length (".wasp" :: String))
+      ".wasp" `isSuffixOf` toFilePath path
+        && (length (toFilePath path) > length (".wasp" :: String))
 
 findDotEnvServer :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs File'))
 findDotEnvServer waspDir = findFileInWaspProjectDir waspDir dotEnvServer
@@ -128,17 +122,17 @@ findDotEnv waspDir = findFileInWaspProjectDir waspDir [relfile|.env|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (SP.Rel WaspProjectDir) File' ->
+  Path' (Rel WaspProjectDir) File' ->
   IO (Maybe (Path' Abs File'))
 findFileInWaspProjectDir waspDir file = do
-  let fileAbsFp = waspDir SP.</> file
-  fileExists <- doesFileExist $ SP.toFilePath fileAbsFp
+  let fileAbsFp = waspDir </> file
+  fileExists <- doesFileExist $ toFilePath fileAbsFp
   return $ if fileExists then Just fileAbsFp else Nothing
 
 findMigrationsDir ::
   Path' Abs (Dir WaspProjectDir) ->
   IO (Maybe (Path' Abs (Dir DbMigrationsDir)))
 findMigrationsDir waspDir = do
-  let migrationsAbsPath = waspDir SP.</> dbMigrationsDirInWaspProjectDir
-  migrationsExists <- doesDirectoryExist $ SP.fromAbsDir migrationsAbsPath
+  let migrationsAbsPath = waspDir </> dbMigrationsDirInWaspProjectDir
+  migrationsExists <- doesDirectoryExist $ fromAbsDir migrationsAbsPath
   return $ if migrationsExists then Just migrationsAbsPath else Nothing
