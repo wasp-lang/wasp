@@ -4,13 +4,18 @@ module Wasp.Lib
     ProjectRootDir,
     findWaspFile,
     analyzeProject,
+    compileAndRenderDockerfile,
   )
 where
 
 import Control.Arrow
 import Control.Monad.Except
+import Control.Monad.Extra (whenMaybeM)
 import Data.List (find, isSuffixOf)
+import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
+import Data.Text (Text)
+import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
@@ -24,6 +29,7 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import Wasp.Util (maybeToEither)
@@ -93,6 +99,7 @@ constructAppSpec waspDir options decls = do
   maybeDotEnvServerFile <- findDotEnvServer waspDir
   maybeDotEnvClientFile <- findDotEnvClient waspDir
   maybeMigrationsDir <- findMigrationsDir waspDir
+  maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
@@ -101,7 +108,8 @@ constructAppSpec waspDir options decls = do
             AS.migrationsDir = maybeMigrationsDir,
             AS.dotEnvServerFile = maybeDotEnvServerFile,
             AS.dotEnvClientFile = maybeDotEnvClientFile,
-            AS.isBuild = CompileOptions.isBuild options
+            AS.isBuild = CompileOptions.isBuild options,
+            AS.userDockerfileContents = maybeUserDockerfileContents
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
@@ -141,3 +149,17 @@ findMigrationsDir waspDir = do
   let migrationsAbsPath = waspDir </> dbMigrationsDirInWaspProjectDir
   migrationsExists <- doesDirectoryExist $ fromAbsDir migrationsAbsPath
   return $ if migrationsExists then Just migrationsAbsPath else Nothing
+
+loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
+loadUserDockerfileContents waspDir = do
+  let dockerfileAbsPath = toFilePath $ waspDir </> [relfile|Dockerfile|]
+  whenMaybeM (doesFileExist dockerfileAbsPath) $ T.IO.readFile dockerfileAbsPath
+
+compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
+compileAndRenderDockerfile waspDir compileOptions = do
+  appSpecOrAnalyzerErrors <- analyzeProject waspDir compileOptions
+  case appSpecOrAnalyzerErrors of
+    Left errors -> return $ Left errors
+    Right appSpec -> do
+      dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
+      return $ left (map show . toList) dockerfileOrGeneratorErrors

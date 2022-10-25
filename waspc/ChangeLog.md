@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.x.x.x (TBD)
+
+### BREAKING CHANGES
+- Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
+
+### [NEW FEATURE] Dockerfile customization
+
+You can now customize the default Wasp Dockerfile by either extending/replacing our build stages or using your own custom logic. To make use of this feature, simply add a Dockerfile to the root of your project and it will be appended to the bottom of the existing Wasp Dockerfile.
+
 ## v0.6.0.0 (2022/09/29)
 
 ### BREAKING CHANGES
