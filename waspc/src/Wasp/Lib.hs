@@ -3,21 +3,20 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
-    findAndAnalyzeWaspFile,
+    analyzeProject,
   )
 where
 
 import Control.Arrow
 import Control.Monad.Except
 import Data.List (find, isSuffixOf)
-import Data.List.NonEmpty (NonEmpty, fromList, toList)
+import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
-import Wasp.AppSpec (AppSpec (externalClientFiles), Decl)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.Valid as ASV
+import Wasp.AppSpec.Valid (validateAppSpec)
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
@@ -40,49 +39,52 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  appSpecOrAnalyzerErrors <- findAndAnalyzeWaspFile waspDir options
-  compileWarnings <- warnIfDotEnvPresent waspDir
-  compilerWarningsAndErrors <- case appSpecOrAnalyzerErrors of
-    Left analyzerErrors -> return ([], toList analyzerErrors)
-    Right appSpec ->
-      case ASV.validateAppSpec appSpec of
-        [] -> do
-          (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
-          return (map show $ generatorWarningsFilter options generatorWarnings, map show generatorErrors)
-        validationErrors -> return ([], map show validationErrors)
-  return $ (compileWarnings, []) <> compilerWarningsAndErrors
+  compileWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
+  appSpecOrCompileErrors <- analyzeProject waspDir options
+  compileWarningsAndErrors <- case appSpecOrCompileErrors of
+    Left analyzerErrors -> return (compileWarnings, analyzerErrors)
+    Right appSpec -> generateCode appSpec outDir options
+  return $ (compileWarnings, []) <> compileWarningsAndErrors
 
-findAndAnalyzeWaspFile ::
+analyzeProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
-  IO (Either (NonEmpty CompileError) AppSpec)
-findAndAnalyzeWaspFile waspDir options = runExceptT $ do
+  IO (Either [CompileError] AS.AppSpec)
+analyzeProject waspDir options = runExceptT $ do
   waspFilePath <- ExceptT $ left pure <$> findWaspFile waspDir
-  declarations <- ExceptT $ analyzeWaspFileContent waspFilePath
-  liftIO $ constructAppSpec waspDir options declarations
+  declarations <- ExceptT $ left pure <$> analyzeWaspFileContent waspFilePath
+  ExceptT $ constructAppSpec waspDir options declarations
+
+generateCode ::
+  AS.AppSpec ->
+  Path' Abs (Dir ProjectRootDir) ->
+  CompileOptions ->
+  IO ([CompileError], [CompileWarning])
+generateCode appSpec outDir options = do
+  (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
+  let filteredWarnings = generatorWarningsFilter options generatorWarnings
+  return (map show filteredWarnings, map show generatorErrors)
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
-warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO [CompileWarning]
-warnIfDotEnvPresent waspDir = do
-  maybeDotEnvFile <- findDotEnv waspDir
-  return $ case maybeDotEnvFile of
-    Nothing -> []
-    Just _ -> ["Wasp .env files should be named .env.server or .env.client, depending on their use."]
+warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe CompileWarning)
+warnIfDotEnvPresent waspDir = (warningMessage <$) <$> findDotEnv waspDir
+  where
+    warningMessage = "Wasp .env files should be named .env.server or .env.client, depending on their use."
 
-analyzeWaspFileContent :: Path' Abs File' -> IO (Either (NonEmpty CompileError) [Decl])
+analyzeWaspFileContent :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
   waspFileContent <- readFile (fromAbsFile waspFilePath)
-  return $ case Analyzer.analyze waspFileContent of
-    Right decls -> Right decls
-    Left analyzeError ->
-      Left $
-        fromList
-          [ showCompilerErrorForTerminal
-              (waspFilePath, waspFileContent)
-              (getErrorMessageAndCtx analyzeError)
-          ]
+  let declsOrAnalyzeError = Analyzer.analyze waspFileContent
+  return $
+    left
+      (showCompilerErrorForTerminal (waspFilePath, waspFileContent) . getErrorMessageAndCtx)
+      declsOrAnalyzeError
 
-constructAppSpec :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> [Decl] -> IO AS.AppSpec
+constructAppSpec ::
+  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
+  [AS.Decl] ->
+  IO (Either [CompileError] AS.AppSpec)
 constructAppSpec waspDir options decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
@@ -91,16 +93,19 @@ constructAppSpec waspDir options decls = do
   maybeDotEnvServerFile <- findDotEnvServer waspDir
   maybeDotEnvClientFile <- findDotEnvClient waspDir
   maybeMigrationsDir <- findMigrationsDir waspDir
-  return
-    AS.AppSpec
-      { AS.decls = decls,
-        AS.externalClientFiles = externalClientCodeFiles,
-        AS.externalServerFiles = externalServerCodeFiles,
-        AS.migrationsDir = maybeMigrationsDir,
-        AS.dotEnvServerFile = maybeDotEnvServerFile,
-        AS.dotEnvClientFile = maybeDotEnvClientFile,
-        AS.isBuild = CompileOptions.isBuild options
-      }
+  let appSpec =
+        AS.AppSpec
+          { AS.decls = decls,
+            AS.externalClientFiles = externalClientCodeFiles,
+            AS.externalServerFiles = externalServerCodeFiles,
+            AS.migrationsDir = maybeMigrationsDir,
+            AS.dotEnvServerFile = maybeDotEnvServerFile,
+            AS.dotEnvClientFile = maybeDotEnvClientFile,
+            AS.isBuild = CompileOptions.isBuild options
+          }
+  return $ case validateAppSpec appSpec of
+    [] -> Right appSpec
+    validationErrors -> Left $ map show validationErrors
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs File'))
 findWaspFile waspDir = do
