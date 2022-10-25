@@ -1,7 +1,7 @@
 import {
   useMutation,
   useQueryClient,
-} from 'react-query'
+} from '@tanstack/react-query'
 
 export { configureQueryClient } from '../queryClient'
 
@@ -250,5 +250,5 @@ function getOptimisticUpdateDefinitionForSpecificItem(optimisticUpdateDefinition
  */
 function getRqQueryKeyFromSpecifier(querySpecifier) {
   const [queryFn, ...otherKeys] = querySpecifier
-  return [queryFn.queryCacheKey, ...otherKeys]
+  return [...queryFn.queryCacheKey, ...otherKeys]
 }

@@ -13,7 +13,7 @@ export function createQuery(queryRoute, entitiesUsed) {
     )
   }
 
-  query.queryCacheKey = queryRoute
+  query.queryCacheKey = [queryRoute]
   addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 
   return query
