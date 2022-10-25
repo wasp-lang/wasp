@@ -9,6 +9,10 @@
 
 You can now customize the default Wasp Dockerfile by either extending/replacing our build stages or using your own custom logic. To make use of this feature, simply add a Dockerfile to the root of your project and it will be appended to the bottom of the existing Wasp Dockerfile.
 
+### [NEW FEATURE] Tailwind CSS support
+
+You can now use the Tailwind CSS framework in your project by simply adding two config files. Check out the Integrations section of our Docs for more!
+
 ## v0.6.0.0 (2022/09/29)
 
 ### BREAKING CHANGES
