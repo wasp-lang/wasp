@@ -16,6 +16,7 @@ COMMANDS
   GENERAL
     new <project-name>    Creates new Wasp project.
     version               Prints current version of CLI.
+    completion            Prints help on bash completion.
   IN PROJECT
     start                 Runs Wasp app in development mode, watching for file changes.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
@@ -49,7 +50,11 @@ Discord (chat): https://discord.gg/rzdnErX
    
    0.2.0.1
    ``` 
-   
+
+### Bash Completion
+
+To setup Bash completion, execute `wasp completion` and follow the instructions.
+
 ### In project
  - `wasp start` runs Wasp app in development mode. It opens a browser tab with your application running, and watches for any changes to .wasp or files in ext/ to automatically reflect in the browser. It also shows messages from web app, server and database on stdout/stderr.
  
