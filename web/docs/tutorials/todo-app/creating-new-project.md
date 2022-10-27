@@ -51,6 +51,9 @@ Let's start with the `main.wasp` file, which introduces 3 new concepts:
 
 ```c title="main.wasp"
 app TodoApp { // Main declaration, defines a new web app.
+  wasp: {
+    version: "^0.6.0.0"
+  },
   title: "Todo app" // Used as a browser tab title.
 }
 

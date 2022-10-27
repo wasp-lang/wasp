@@ -80,6 +80,10 @@ Now your default browser should open up with a simple predefined text message. T
 
 // Main declaration, defines a new web app.
 app ItWaspsOnMyMachine {
+  // Wasp compiler configuration
+  wasp: {
+    version: "^0.6.0.0"
+  },
 
   // Used as a browser tab title.                                  
   title: "It Wasps On My Machine",

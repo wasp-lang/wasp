@@ -9,6 +9,9 @@ It serves as a starting point and defines global properties of your app.
 
 ```css
 app todoApp {
+  wasp: {
+    version: "^0.6.0.0"
+  },
   title: "ToDo App",
   head: [  // optional
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
@@ -17,6 +20,11 @@ app todoApp {
 ```
 
 ### Fields
+
+#### `wasp: dict` (required)
+Wasp compiler configuration.
+Check [`app.wasp`](/docs/language/features#compiler-configuration) for more
+details.
 
 #### `title: string` (required)
 Title of your app. It will be displayed in the browser tab, next to the favicon.
@@ -1172,6 +1180,30 @@ entity SocialLogin {=psl
   @@unique([provider, providerId, userId])
 psl=}
 ```
+
+## Compiler configuration
+
+You can configure Wasp's compiler using the `wasp` field inside the `app`
+declaration.
+
+```c
+app MyApp {
+  wasp: {
+    version: "^0.6.0.0"
+  },
+  // ...
+}
+```
+
+`app.wasp` is a dictionary with the following fields:
+
+#### `version: string` (required)
+
+`version` declares the compatible Wasp versions for the app. It is specified
+in a SemVer format.
+
+**Note**: For now, `version` only supports the format `^0.major.minor.patch`. This
+will be extended in the future to support full Semantic Versioning.
 
 ## Client configuration
 
