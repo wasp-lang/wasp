@@ -20,6 +20,8 @@ import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
+import qualified Data.Version
+import qualified Paths_waspc
 
 data ProjectInfo = ProjectInfo
   { _projectName :: String,
@@ -122,6 +124,9 @@ createNewProject' (ProjectInfo projectName appName) = do
     mainWaspFileContent =
       unlines
         [ "app %s {" `printf` appName,
+          "  wasp: {",
+          "    version: \"^%s\"" `printf` Data.Version.showVersion Paths_waspc.version,
+          "  },",
           "  title: \"%s\"" `printf` projectName,
           "}",
           "",
