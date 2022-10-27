@@ -169,7 +169,7 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
 const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-  const [showHeaderTarget, setShowHeaderTarget] = useState(true);
+  const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
   const textAreaRef = useRef(null);
 
   const handleListNameUpdated = async (listId, newName) => {
@@ -178,7 +178,7 @@ const List = ({ list, index, cards }) => {
     } catch (err) {
       window.alert('Error while updating list name: ' + err.message)
     } finally {
-      setShowHeaderTarget(true)
+      setIsHeaderTargetShown(true)
     }
   }
 
@@ -191,8 +191,8 @@ const List = ({ list, index, cards }) => {
     setIsPopoverOpen(false)
   }
 
-  const handleHeadingClick = (e) => {
-    setShowHeaderTarget(false);
+  const handleHeadingClicked = (e) => {
+    setIsHeaderTargetShown(false);
     textAreaRef?.current?.focus();
   };
 
@@ -244,10 +244,10 @@ const List = ({ list, index, cards }) => {
         >
           <div className='list'>
             <div className='list-header'>
-            {showHeaderTarget ? (
+            {isHeaderTargetShown ? (
                 <div
                   class="list-header-target"
-                  onClick={(e) => handleHeadingClick(e)}
+                  onClick={(e) => handleHeadingClicked(e)}
                 ></div>
               ) : (
                 <></>
