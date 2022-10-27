@@ -17,11 +17,17 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import Text.Regex.TDFA ((=~))
+import qualified Wasp.SemanticVersion as SV
+import GHC.Natural (wordToNatural)
+import qualified Paths_waspc
+import qualified Data.Version as DV
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -33,7 +39,8 @@ validateAppSpec spec =
     Nothing ->
       -- NOTE: We check these only if App exists because they all rely on it existing.
       concat
-        [ validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+        [ validateWasp spec,
+          validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
@@ -48,6 +55,55 @@ validateExactlyOneAppExists spec =
       Just $
         GenericValidationError $
           "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
+
+validateWasp :: AppSpec -> [ValidationError]
+validateWasp spec = validateWaspVersion specWaspVersionStr
+  where
+    specWaspVersionStr = Wasp.version $ App.wasp (snd $ getApp spec)
+
+validateWaspVersion :: String -> [ValidationError]
+validateWaspVersion specWaspVersion = case versionMatches of
+  [] -> [GenericValidationError "Wasp version should be in the format ^0.major.minor.patch"]
+  versionDigitsStr -> validateVersionDigits versionDigitsStr
+  where
+    (_ :: String, _ :: String, _ :: String, versionMatches :: [String]) = specWaspVersion =~ versionRegex
+    versionRegex = "\\^0\\.([0-9]+).([0-9]+).([0-9]+)$" :: String
+
+    validateVersionDigits :: [String] -> [ValidationError]
+    validateVersionDigits versionDigits = validateCompatibility expectedSemVer currentWaspSemVer
+      where
+        expectedSemVer = wordsToSemVer $ map read versionDigits
+
+        wordsToSemVer :: [Word] -> SV.Version
+        wordsToSemVer (major : minor : patch : _) = SV.Version (wordToNatural major) (wordToNatural minor) (wordToNatural patch)
+        wordsToSemVer _ =
+          error $
+            "Expected version digits to match [major, minor, patch]. "
+            ++ "This should never happen as the version was already validated with regex."
+
+        validateCompatibility :: SV.Version -> SV.Version -> [ValidationError]
+        validateCompatibility compatibleVersion actualVersion =
+          if isCurrentWaspVersionCompatibleWithSpecVersion
+            then []
+            else
+              [ GenericValidationError $
+                  incompatibleVersionMessage actualVersion compatibleVersion
+              ]
+          where
+            isCurrentWaspVersionCompatibleWithSpecVersion =
+              SV.isVersionInRange actualVersion (SV.Range [SV.backwardsCompatibleWith compatibleVersion])
+
+        incompatibleVersionMessage :: SV.Version -> SV.Version -> String
+        incompatibleVersionMessage actualVersion expectedVersion =
+          unwords
+            [ "Your Wasp version does not match the app's requirements.",
+              "You are running Wasp 0." ++ show actualVersion ++ ".",
+              "This app requires Wasp ^0." ++ show expectedVersion ++ "."
+            ]
+
+        currentWaspSemVer = SV.Version (toEnum currentMajor) (toEnum currentMinor) (toEnum currentPatch)
+          where
+            DV.Version (_ : currentMajor : currentMinor : currentPatch : _) _ = Paths_waspc.version
 
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =

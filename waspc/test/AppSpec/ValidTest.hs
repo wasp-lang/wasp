@@ -3,12 +3,15 @@
 module AppSpec.ValidTest where
 
 import Data.Maybe (fromJust)
+import qualified Data.Version as DV
 import Fixtures (systemSPRoot)
+import qualified Paths_waspc
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
@@ -40,6 +43,50 @@ spec_AppSpecValid = do
           `shouldBe` [ ASV.GenericValidationError
                          "You have more than one 'app' declaration in your Wasp app. You have 2."
                      ]
+
+    describe "'waspVersion' validation" $ do
+      describe "should validate 'waspVersion' format" $ do
+        it "returns no error if waspVersion is compatible" $ do
+          ASV.validateAppSpec basicAppSpec `shouldBe` []
+
+        it "returns an error if 'waspVersion' has an incorrect format" $ do
+          let basicAppWithInvalidWaspVersionFormat = basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = "0.5.2"}}
+          let basicAppDeclWithInvalidWaspVersionFormat =
+                AS.Decl.makeDecl "TestApp" basicAppWithInvalidWaspVersionFormat
+
+          ASV.validateAppSpec
+            ( basicAppSpec
+                { AS.decls = [basicAppDeclWithInvalidWaspVersionFormat]
+                }
+            )
+            `shouldBe` [ ASV.GenericValidationError
+                           "Wasp version should be in the format ^0.major.minor.patch"
+                       ]
+
+        it "returns an error if 'waspVersion' is not compatible" $ do
+          let incompatibleWaspVersion = DV.makeVersion (alpha : nextMajor : remaining)
+                where
+                  nextMajor = major + 1
+                  DV.Version (alpha : major : remaining) _ = Paths_waspc.version
+
+          let basicAppWithIncompatibleWaspVersion =
+                basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = "^" ++ DV.showVersion incompatibleWaspVersion}}
+
+          let basicAppDeclWithIncompatibleWaspVersion =
+                AS.Decl.makeDecl "TestApp" basicAppWithIncompatibleWaspVersion
+
+          ASV.validateAppSpec
+            ( basicAppSpec
+                { AS.decls = [basicAppDeclWithIncompatibleWaspVersion]
+                }
+            )
+            `shouldBe` [ ASV.GenericValidationError $
+                           unwords
+                             [ "Your Wasp version does not match the app's requirements."
+                             , "You are running Wasp " ++ DV.showVersion Paths_waspc.version ++ "."
+                             , "This app requires Wasp ^" ++ DV.showVersion incompatibleWaspVersion ++ "."
+                             ]
+                       ]
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
@@ -134,7 +181,11 @@ spec_AppSpecValid = do
 
     basicApp =
       AS.App.App
-        { AS.App.title = "Test App",
+        { AS.App.wasp = AS.Wasp.Wasp
+          {
+            AS.Wasp.version = "^" ++ DV.showVersion Paths_waspc.version
+          },
+          AS.App.title = "Test App",
           AS.App.db = Nothing,
           AS.App.server = Nothing,
           AS.App.client = Nothing,
