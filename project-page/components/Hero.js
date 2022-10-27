@@ -31,8 +31,8 @@ const codeStringJs = 'const a = 27'
     <SectionContainer className='pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
         <div className='lg:col-span-6'>
-          <h1 className='text-4xl font-extrabold text-neutral-700'>
-            Develop full-stack web apps with less code.
+          <h1 className='text-4xl lg:text-5xl font-extrabold text-neutral-700'>
+            Develop full-stack web apps <span className='underline'>without boilerplate</span>.
           </h1>
 
           <p className='mt-1.5 sm:mt-5 text-xl text-neutral-500'>
