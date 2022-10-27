@@ -1,4 +1,7 @@
 app Thoughts {
+  wasp: {
+    version: "^0.6.0.0"
+  },
   title: "Thoughts",
   db: { system: PostgreSQL },
   auth: {

@@ -1,4 +1,8 @@
 app TodoApp {
+  wasp: {
+    version: "^0.6.0.0"
+  },
+
   title: "Todo app",
 
   auth: {
