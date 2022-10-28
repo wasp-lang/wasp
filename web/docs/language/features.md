@@ -10,7 +10,7 @@ It serves as a starting point and defines global properties of your app.
 ```css
 app todoApp {
   wasp: {
-    version: "^0.6.0.0"
+    version: "^0.6.0"
   },
   title: "ToDo App",
   head: [  // optional
@@ -1189,7 +1189,7 @@ declaration.
 ```c
 app MyApp {
   wasp: {
-    version: "^0.6.0.0"
+    version: "^0.6.0"
   },
   // ...
 }
