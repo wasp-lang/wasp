@@ -150,7 +150,7 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
   const [isInEditMode, setIsInEditMode] = useState(false);
-  const { posAfter } = useContext(PositionContext);
+  const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
 
   const handleListNameUpdated = async (listId, newName) => {
     try {
@@ -167,7 +167,7 @@ const List = ({ list, index, cards }) => {
 
   const handleCopyList = async (listId, idx) => {
     try {
-      await createListCopy({ listId, pos: posAfter(idx) });
+      await createListCopy({ listId, pos: getPosOfItemInsertedInAnotherListAfter(idx) });
     } catch (err) {
       window.alert('Error while copying list: ' + err.message)
     }
@@ -326,7 +326,7 @@ const Card = ({ card, index }) => {
 
 const AddList = () => {
   const [isInEditMode, setIsInEditMode] = useState(false)
-  const { nextPos } = useContext(PositionContext)
+  const { getPosOfNewItem } = useContext(PositionContext)
 
   const AddListButton = () => {
     return (
@@ -348,7 +348,7 @@ const AddList = () => {
       try {
         const listName = event.target.listName.value
         event.target.reset()
-        await createList({ name: listName, pos: nextPos() })
+        await createList({ name: listName, pos: getPosOfNewItem() })
       } catch (err) {
         window.alert('Error: ' + err.message)
       }
@@ -406,7 +406,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
 
   const AddCardInput = ({ listId }) => {
     const formRef = useRef(null)
-    const { nextPos } = useContext(PositionContext);
+    const { getPosOfNewItem } = useContext(PositionContext);
 
     const submitOnEnter = (e) => {
       if (e.keyCode === 13 /* && e.shiftKey == false */) {
@@ -423,7 +423,7 @@ const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
       try {
         const cardTitle = event.target.cardTitle.value
         event.target.reset()
-        await createCard({ title: cardTitle, pos: nextPos(), listId })
+        await createCard({ title: cardTitle, pos: getPosOfNewItem(), listId })
       } catch (err) {
         window.alert('Error: ' + err.message)
       }

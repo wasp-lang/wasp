@@ -35,20 +35,20 @@ export const calcNewPosOfDndItemInsertedInAnotherList = (items, destIdx) => {
 
 /**
  * @typedef {Object} PositionContextValue
- * @property {function(number): number} posBefore Get a new position after the item in the given index.
- * @property {function(number): number} posAfter Get a new position before the item in the given index.
- * @property {function(number, number): number} posFromTo Get a new position for an item moving from one index to another.
- * @property {function(): number} nextPos Get a new position for an item being inserted at the end of the list.
+ * @property {function(number): number} getPosOfNewItemInsertedinAnotherListBefore Get a new position after the item in the given index.
+ * @property {function(number): number} getPosOfItemInsertedInAnotherListAfter Get a new position before the item in the given index.
+ * @property {function(number, number): number} getPosOfItemMovedWithinList Get a new position for an item moving from one index to another.
+ * @property {function(): number} getPosOfNewItem Get a new position for an item being inserted at the end of the list.
  */
 
 /**
  * @type {import('react').Context<PositionContextValue>}
  */
 export const PositionContext = createContext({
-  posBefore: undefined,
-  posAfter: undefined,
-  posFromTo: undefined,
-  nextPos: undefined,
+  getPosOfNewItemInsertedinAnotherListBefore: undefined,
+  getPosOfItemInsertedInAnotherListAfter: undefined,
+  getPosOfItemMovedWithinList: undefined,
+  getPosOfNewItem: undefined,
 });
 
 export const PositionProvider = ({ items, children }) => {
@@ -56,10 +56,12 @@ export const PositionProvider = ({ items, children }) => {
    * @type {PositionContextValue}
    */
   const value = {
-    posAfter: (idx) => calcNewPosOfDndItemInsertedInAnotherList(items, idx + 1),
-    posBefore: (idx) => calcNewPosOfDndItemInsertedInAnotherList(items, idx),
-    nextPos: () => calcNewDndItemPos(items),
-    posFromTo: (srcIdx, destIdx) =>
+    getPosOfItemInsertedInAnotherListAfter: (idx) =>
+      calcNewPosOfDndItemInsertedInAnotherList(items, idx + 1),
+    getPosOfNewItemInsertedinAnotherListBefore: (idx) =>
+      calcNewPosOfDndItemInsertedInAnotherList(items, idx),
+    getPosOfNewItem: () => calcNewDndItemPos(items),
+    getPosOfItemMovedWithinList: (srcIdx, destIdx) =>
       calcNewPosOfDndItemMovedWithinList(items, srcIdx, destIdx),
   };
 
