@@ -12,6 +12,7 @@ We’ll build a web app to solve every developer's most common problem – findi
 
 Best excuse of all time! [Taken from here.](https://xkcd.com/303/)
 
+<!--truncate-->
 
 ## The requirements were unclear.
 
