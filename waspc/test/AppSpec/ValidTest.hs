@@ -60,14 +60,14 @@ spec_AppSpecValid = do
                 }
             )
             `shouldBe` [ ASV.GenericValidationError
-                           "Wasp version should be in the format ^0.major.minor.patch"
+                           "Wasp version should be in the format ^major.minor.patch"
                        ]
 
         it "returns an error if 'waspVersion' is not compatible" $ do
-          let incompatibleWaspVersion = DV.makeVersion (alpha : nextMajor : remaining)
+          let incompatibleWaspVersion = DV.makeVersion (nextMajor : remaining)
                 where
                   nextMajor = major + 1
-                  DV.Version (alpha : major : remaining) _ = Paths_waspc.version
+                  DV.Version (major : remaining) _ = Paths_waspc.version
 
           let basicAppWithIncompatibleWaspVersion =
                 basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = "^" ++ DV.showVersion incompatibleWaspVersion}}

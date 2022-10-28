@@ -25,9 +25,11 @@ import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Text.Regex.TDFA ((=~))
 import qualified Wasp.SemanticVersion as SV
-import GHC.Natural (wordToNatural)
+import GHC.Natural (naturalFromInteger)
 import qualified Paths_waspc
 import qualified Data.Version as DV
+import Control.Monad (unless)
+import Text.Read (readMaybe)
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -62,48 +64,40 @@ validateWasp spec = validateWaspVersion specWaspVersionStr
     specWaspVersionStr = Wasp.version $ App.wasp (snd $ getApp spec)
 
 validateWaspVersion :: String -> [ValidationError]
-validateWaspVersion specWaspVersion = case versionMatches of
-  [] -> [GenericValidationError "Wasp version should be in the format ^0.major.minor.patch"]
-  versionDigitsStr -> validateVersionDigits versionDigitsStr
+validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
+  specWaspVersion <- parseWaspVersion specWaspVersionStr
+  unless
+    ( SV.isVersionInRange currentWaspVersion $
+        SV.Range [SV.backwardsCompatibleWith specWaspVersion]
+    )
+    $ Left $ incompatibleVersionError currentWaspVersion specWaspVersion
   where
-    (_ :: String, _ :: String, _ :: String, versionMatches :: [String]) = specWaspVersion =~ versionRegex
-    versionRegex = "\\^0\\.([0-9]+).([0-9]+).([0-9]+)$" :: String
+    parseWaspVersion :: String -> Either ValidationError SV.Version
+    parseWaspVersion waspVersionStr = do
+      let (_ :: String, _ :: String, _ :: String, waspVersionDigits :: [String]) =
+            waspVersionStr =~ ("\\^([0-9]+).([0-9]+).([0-9]+)$" :: String)
+      case mapM readMaybe waspVersionDigits of
+        Just [major, minor, patch] -> Right $ SV.Version major minor patch
+        __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
 
-    validateVersionDigits :: [String] -> [ValidationError]
-    validateVersionDigits versionDigits = validateCompatibility expectedSemVer currentWaspSemVer
+    incompatibleVersionError :: SV.Version -> SV.Version -> ValidationError
+    incompatibleVersionError actualVersion expectedVersion =
+      GenericValidationError $
+        unwords
+          [ "Your Wasp version does not match the app's requirements.",
+            "You are running Wasp " ++ show actualVersion ++ ".",
+            "This app requires Wasp ^" ++ show expectedVersion ++ "."
+          ]
+
+    currentWaspVersion :: SV.Version
+    currentWaspVersion = SV.Version (intToNat major) (intToNat minor) (intToNat patch)
       where
-        expectedSemVer = wordsToSemVer $ map read versionDigits
+        DV.Version [major, minor, patch] _ = Paths_waspc.version
+        intToNat = naturalFromInteger . toInteger
 
-        wordsToSemVer :: [Word] -> SV.Version
-        wordsToSemVer (major : minor : patch : _) = SV.Version (wordToNatural major) (wordToNatural minor) (wordToNatural patch)
-        wordsToSemVer _ =
-          error $
-            "Expected version digits to match [major, minor, patch]. "
-            ++ "This should never happen as the version was already validated with regex."
-
-        validateCompatibility :: SV.Version -> SV.Version -> [ValidationError]
-        validateCompatibility compatibleVersion actualVersion =
-          if isCurrentWaspVersionCompatibleWithSpecVersion
-            then []
-            else
-              [ GenericValidationError $
-                  incompatibleVersionMessage actualVersion compatibleVersion
-              ]
-          where
-            isCurrentWaspVersionCompatibleWithSpecVersion =
-              SV.isVersionInRange actualVersion (SV.Range [SV.backwardsCompatibleWith compatibleVersion])
-
-        incompatibleVersionMessage :: SV.Version -> SV.Version -> String
-        incompatibleVersionMessage actualVersion expectedVersion =
-          unwords
-            [ "Your Wasp version does not match the app's requirements.",
-              "You are running Wasp 0." ++ show actualVersion ++ ".",
-              "This app requires Wasp ^0." ++ show expectedVersion ++ "."
-            ]
-
-        currentWaspSemVer = SV.Version (toEnum currentMajor) (toEnum currentMinor) (toEnum currentPatch)
-          where
-            DV.Version (_ : currentMajor : currentMinor : currentPatch : _) _ = Paths_waspc.version
+    eitherUnitToErrorList :: Either e () -> [e]
+    eitherUnitToErrorList (Left e) = [e]
+    eitherUnitToErrorList (Right ()) = []
 
 validateAppAuthIsSetIfAnyPageRequiresAuth :: AppSpec -> [ValidationError]
 validateAppAuthIsSetIfAnyPageRequiresAuth spec =
