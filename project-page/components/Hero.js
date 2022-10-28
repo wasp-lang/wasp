@@ -31,16 +31,16 @@ const codeStringJs = 'const a = 27'
     <SectionContainer className='pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
         <div className='lg:col-span-6'>
-          <h1 className='text-4xl lg:text-5xl font-extrabold text-neutral-700'>
+          <h1 className='text-4xl lg:text-5xl lg:leading-tight font-extrabold text-neutral-700'>
             Develop full-stack web apps <span className='underline'>without boilerplate</span>.
           </h1>
 
-          <p className='mt-1.5 sm:mt-5 text-xl text-neutral-500'>
+          <p className='mt-1.5 sm:mt-10 text-2xl text-neutral-500'>
             Describe common features in Wasp DSL and write the rest in React, Node.js and Prisma.
           </p>
         </div>
 
-        <div className='lg:col-span-6 text-sm mt-16 lg:mt-0 shadow-2xl'>
+        <div className='lg:col-span-6 text-sm mt-16 lg:mt-0 shadow-2xl rounded-md'>
           <SyntaxHighlighter
             language="javascript" 
             style={atomOneLight}

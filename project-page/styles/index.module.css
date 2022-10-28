@@ -7,7 +7,21 @@
   height: 912px;
   left: -354px;
   top: -28px;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(255, 214, 0, 0.2) 0%, rgba(255, 168, 0, 0) 100%);
+
+  width: 1200px;
+  height: 912px;
+
+  left: 0px;
+  top: 0px;
+
+  left: calc(50% - 1100px);
+  top: -10%;
+
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 168, 0, 0) 100%
+  );
   will-change: filter;
   mix-blend-mode: normal;
 }
