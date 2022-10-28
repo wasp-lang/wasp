@@ -83,7 +83,7 @@ code {
 /* Global stuff */
 
 textarea::placeholder {
-  color: #5e6c84;  
+  color: #5e6c84;
 }
 
 /* input:not([type=file]), textarea { */
@@ -224,11 +224,24 @@ button.open-add-list {
 .list-header {
   display: flex;
   align-items: center;
-
+  position: relative;
   padding: 6px 4px;
 }
 
+.list-header-target {
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
 .list-header-extras {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  z-index: 1;
 }
 
 .list-header-extras-menu {
@@ -416,7 +429,7 @@ textarea.card-composer-textarea {
 
 .board-header-text {
   color: #fff;
-  font-size: 18px; 
+  font-size: 18px;
   font-weight: 700;
 }
 
