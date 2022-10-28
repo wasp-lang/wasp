@@ -8,8 +8,14 @@ module Wasp.AppSpec.Valid
   )
 where
 
+import Control.Monad (unless)
 import Data.List (find)
 import Data.Maybe (isJust)
+import qualified Data.Version as DV
+import GHC.Natural (naturalFromInteger)
+import qualified Paths_waspc
+import Text.Read (readMaybe)
+import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.App (App)
@@ -23,13 +29,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Text.Regex.TDFA ((=~))
 import qualified Wasp.SemanticVersion as SV
-import GHC.Natural (naturalFromInteger)
-import qualified Paths_waspc
-import qualified Data.Version as DV
-import Control.Monad (unless)
-import Text.Read (readMaybe)
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)

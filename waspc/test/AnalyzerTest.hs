@@ -7,6 +7,8 @@ import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import Data.Version (showVersion)
+import qualified Paths_waspc
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Wasp.Analyzer
@@ -31,8 +33,6 @@ import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
 import qualified Wasp.Psl.Ast.Model as PslModel
-import Data.Version (showVersion)
-import qualified Paths_waspc
 
 spec_Analyzer :: Spec
 spec_Analyzer = do

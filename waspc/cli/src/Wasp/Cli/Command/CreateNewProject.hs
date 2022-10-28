@@ -6,6 +6,8 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import qualified Data.Version
+import qualified Paths_waspc
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
@@ -20,8 +22,6 @@ import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
-import qualified Data.Version
-import qualified Paths_waspc
 
 data ProjectInfo = ProjectInfo
   { _projectName :: String,

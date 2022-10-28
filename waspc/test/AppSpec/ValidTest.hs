@@ -82,9 +82,9 @@ spec_AppSpecValid = do
             )
             `shouldBe` [ ASV.GenericValidationError $
                            unwords
-                             [ "Your Wasp version does not match the app's requirements."
-                             , "You are running Wasp " ++ DV.showVersion Paths_waspc.version ++ "."
-                             , "This app requires Wasp ^" ++ DV.showVersion incompatibleWaspVersion ++ "."
+                             [ "Your Wasp version does not match the app's requirements.",
+                               "You are running Wasp " ++ DV.showVersion Paths_waspc.version ++ ".",
+                               "This app requires Wasp ^" ++ DV.showVersion incompatibleWaspVersion ++ "."
                              ]
                        ]
 
@@ -181,10 +181,10 @@ spec_AppSpecValid = do
 
     basicApp =
       AS.App.App
-        { AS.App.wasp = AS.Wasp.Wasp
-          {
-            AS.Wasp.version = "^" ++ DV.showVersion Paths_waspc.version
-          },
+        { AS.App.wasp =
+            AS.Wasp.Wasp
+              { AS.Wasp.version = "^" ++ DV.showVersion Paths_waspc.version
+              },
           AS.App.title = "Test App",
           AS.App.db = Nothing,
           AS.App.server = Nothing,
