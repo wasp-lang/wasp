@@ -167,7 +167,6 @@ const List = ({ list, index, cards }) => {
 
   const handleCopyList = async (listId, idx) => {
     try {
-      // pos is not easily calculated because
       await createListCopy({ listId, pos: posAfter(idx) });
     } catch (err) {
       window.alert('Error while copying list: ' + err.message)
