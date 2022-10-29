@@ -46,19 +46,21 @@ spec_AppSpecValid = do
 
     describe "'waspVersion' validation" $ do
       describe "should validate 'waspVersion' format" $ do
+        let basicAppWithVersionRange versionRange =
+              basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = versionRange}}
+
+        let basicAppSpecWithVersionRange versionRange =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $ basicAppWithVersionRange versionRange
+                    ]
+                }
+
         it "returns no error if waspVersion is compatible" $ do
           ASV.validateAppSpec basicAppSpec `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
-          let basicAppWithInvalidWaspVersionFormat = basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = "0.5.2"}}
-          let basicAppDeclWithInvalidWaspVersionFormat =
-                AS.Decl.makeDecl "TestApp" basicAppWithInvalidWaspVersionFormat
-
-          ASV.validateAppSpec
-            ( basicAppSpec
-                { AS.decls = [basicAppDeclWithInvalidWaspVersionFormat]
-                }
-            )
+          ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
             `shouldBe` [ ASV.GenericValidationError
                            "Wasp version should be in the format ^major.minor.patch"
                        ]
@@ -69,17 +71,7 @@ spec_AppSpecValid = do
                   nextMajor = major + 1
                   DV.Version (major : remaining) _ = Paths_waspc.version
 
-          let basicAppWithIncompatibleWaspVersion =
-                basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = "^" ++ DV.showVersion incompatibleWaspVersion}}
-
-          let basicAppDeclWithIncompatibleWaspVersion =
-                AS.Decl.makeDecl "TestApp" basicAppWithIncompatibleWaspVersion
-
-          ASV.validateAppSpec
-            ( basicAppSpec
-                { AS.decls = [basicAppDeclWithIncompatibleWaspVersion]
-                }
-            )
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ DV.showVersion incompatibleWaspVersion)
             `shouldBe` [ ASV.GenericValidationError $
                            unwords
                              [ "Your Wasp version does not match the app's requirements.",

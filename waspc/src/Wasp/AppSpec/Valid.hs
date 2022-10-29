@@ -65,28 +65,30 @@ validateWasp spec = validateWaspVersion specWaspVersionStr
 
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
-  specWaspVersion <- parseWaspVersion specWaspVersionStr
+  specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
   unless
-    ( SV.isVersionInRange currentWaspVersion $
-        SV.Range [SV.backwardsCompatibleWith specWaspVersion]
+    ( SV.isVersionInRange currentWaspVersion specWaspVersionRange
     )
-    $ Left $ incompatibleVersionError currentWaspVersion specWaspVersion
+    $ Left $ incompatibleVersionError currentWaspVersion specWaspVersionRange
   where
-    parseWaspVersion :: String -> Either ValidationError SV.Version
-    parseWaspVersion waspVersionStr = do
-      let (_ :: String, _ :: String, _ :: String, waspVersionDigits :: [String]) =
-            waspVersionStr =~ ("\\^([0-9]+).([0-9]+).([0-9]+)$" :: String)
-      case mapM readMaybe waspVersionDigits of
+    parseWaspVersionRange :: String -> Either ValidationError SV.Range
+    parseWaspVersionRange waspVersionRangeStr = do
+      let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
+            waspVersionRangeStr =~ ("\\^([0-9]+).([0-9]+).([0-9]+)$" :: String)
+
+      waspSpecVersion <- case mapM readMaybe waspVersionRangeDigits of
         Just [major, minor, patch] -> Right $ SV.Version major minor patch
         __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
 
-    incompatibleVersionError :: SV.Version -> SV.Version -> ValidationError
-    incompatibleVersionError actualVersion expectedVersion =
+      Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]
+
+    incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
+    incompatibleVersionError actualVersion expectedVersionRange =
       GenericValidationError $
         unwords
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
-            "This app requires Wasp ^" ++ show expectedVersion ++ "."
+            "This app requires Wasp " ++ show expectedVersionRange ++ "."
           ]
 
     currentWaspVersion :: SV.Version
