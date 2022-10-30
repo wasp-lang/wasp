@@ -32,10 +32,11 @@ const codeStringJs = 'const a = 27'
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
         <div className='lg:col-span-6'>
           <h1 className='text-4xl lg:text-5xl lg:leading-tight font-extrabold text-neutral-700'>
-            Develop full-stack web apps <span className='underline'>without boilerplate</span>.
+            Develop full-stack web apps&nbsp;
+            <span className='underline'>without boilerplate</span>.
           </h1>
 
-          <p className='mt-1.5 sm:mt-10 text-2xl text-neutral-500'>
+          <p className='mt-4 sm:mt-10 text-xl lg:text-2xl text-neutral-500'>
             Describe common features in Wasp DSL and write the rest in React, Node.js and Prisma.
           </p>
         </div>

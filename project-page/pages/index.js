@@ -1,11 +1,13 @@
 import Head from 'next/head'
 import Image from 'next/image'
-//import styles from '../styles/Home.module.css'
-import styles from '../styles/index.module.css'
-
 import classNames from 'classnames'
 
+import Nav from 'components/Nav/index'
 import Hero from 'components/Hero'
+
+import styles from '../styles/index.module.css'
+
+
 
 const Background = () => {
   return (
@@ -18,7 +20,7 @@ const Background = () => {
 const Index = () => {
   return (
     <>
-      {/* navbar goes here */}
+      <Nav />
       <div className='min-h-screen'>
         <main>
           <Background />
