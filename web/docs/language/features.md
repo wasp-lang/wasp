@@ -1202,7 +1202,7 @@ app MyApp {
 `version` declares the compatible Wasp versions for the app. It is specified
 in a SemVer format.
 
-**Note**: For now, `version` only supports the format `^0.major.minor.patch`. This
+**Note**: For now, `version` only supports the format `^x.y.z`. This
 will be extended in the future to support full Semantic Versioning.
 
 ## Client configuration
