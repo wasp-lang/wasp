@@ -59,9 +59,7 @@ validateExactlyOneAppExists spec =
           "You have more than one 'app' declaration in your Wasp app. You have " ++ show (length apps) ++ "."
 
 validateWasp :: AppSpec -> [ValidationError]
-validateWasp spec = validateWaspVersion specWaspVersionStr
-  where
-    specWaspVersionStr = Wasp.version $ App.wasp (snd $ getApp spec)
+validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
 
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
