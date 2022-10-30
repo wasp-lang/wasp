@@ -33,7 +33,7 @@ const codeStringJs = 'const a = 27'
         <div className='lg:col-span-6'>
           <h1 className='text-4xl lg:text-5xl lg:leading-tight font-extrabold text-neutral-700'>
             Develop full-stack web apps&nbsp;
-            <span className='underline'>without boilerplate</span>.
+            <span className='underline decoration-yellow-500'>without boilerplate</span>.
           </h1>
 
           <p className='mt-4 sm:mt-10 text-xl lg:text-2xl text-neutral-500'>

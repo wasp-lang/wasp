@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Star } from 'react-feather'
 
 const Nav = () => {
 
@@ -46,7 +47,7 @@ const Nav = () => {
                         p-5 px-1
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
-                        text-base font-medium
+                        text-sm font-medium
                       `}
                     >
                       Docs
@@ -58,7 +59,7 @@ const Nav = () => {
                         p-5 px-1
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
-                        text-base font-medium
+                        text-sm font-medium
                       `}
                     >
                       Blog
@@ -69,7 +70,27 @@ const Nav = () => {
               </div> {/* EOF left side */}
 
               <div className='flex items-center gap-2'> {/* Navbar right side */}
-                Right side of navbar
+                {/* GitHub button */}
+                <a href='/'
+                  className={`
+                    px-2.5 py-1 rounded
+                    hover:bg-neutral-200
+                    transition ease-out duration-200
+                    hidden lg:flex items-center space-x-2 text-xs
+                    group
+                  `}
+                >
+                  <div
+                    className={`
+                      flex h-3 w-3 items-center justify-center
+                      group-hover:h-4 group-hover:w-4
+                      group-hover:text-yellow-500
+                    `}
+                  >
+                    <Star strokeWidth={2} />
+                  </div>
+                  <span className='truncate'>Star us on GitHub</span>
+                </a>{/* EOF GitHub button */}
                 
               </div> {/* EOF right side */}
 
