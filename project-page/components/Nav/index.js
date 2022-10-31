@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Star } from 'react-feather'
+import { Star, Twitter } from 'react-feather'
+
+import { DiscordIcon } from './SocialIcons'
 
 const Nav = () => {
 
@@ -130,6 +132,9 @@ const Nav = () => {
 
               <div className='flex items-center gap-2'> {/* Navbar right side */}
                 <GitHubButton />
+                <a href='' className='hidden lg:flex'>
+                  <DiscordIcon />
+                </a>
               </div> {/* EOF right side */}
 
             </div>
