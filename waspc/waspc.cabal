@@ -179,6 +179,7 @@ library
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
+    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
@@ -201,6 +202,7 @@ library
     Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.Common
+    Wasp.Generator.ConfigFile
     Wasp.Generator.ConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Common

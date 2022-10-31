@@ -29,6 +29,7 @@ import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
@@ -82,7 +83,7 @@ analyzeWaspProject waspDir options = do
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
-          configFiles <- CF.discoverConfigFiles waspDir
+          configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
           return $
             Right
               AS.AppSpec

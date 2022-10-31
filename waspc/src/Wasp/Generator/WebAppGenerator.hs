@@ -26,7 +26,7 @@ import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
-import qualified Wasp.Generator.ConfigFileGenerator as CFG
+import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
@@ -118,7 +118,7 @@ npmDepsForWasp spec =
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
-  if CFG.isTailwindUsed spec
+  if G.CF.isTailwindUsed spec
     then
       AS.Dependency.fromList
         [ ("tailwindcss", "^3.1.8"),

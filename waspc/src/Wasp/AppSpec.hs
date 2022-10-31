@@ -12,14 +12,17 @@ module Wasp.AppSpec
     getRoutes,
     getJobs,
     resolveRef,
+    doesConfigFileExist,
   )
 where
 
-import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.List (find, isSuffixOf)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File', Path')
+import StrongPath (Abs, Dir, File', Path', Rel)
+import qualified StrongPath as SP
 import Wasp.AppSpec.Action (Action)
+import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -28,8 +31,7 @@ import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
-import Wasp.Common (DbMigrationsDir)
-import Wasp.ConfigFile (ConfigFileRelocator)
+import Wasp.Common (DbMigrationsDir, WaspProjectDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -93,3 +95,10 @@ resolveRef spec ref =
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
     $ find ((== refName ref) . fst) $ getDecls spec
+
+doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
+doesConfigFileExist spec file =
+  isJust $
+    find
+      (\f -> SP.fromRelFile file `isSuffixOf` SP.fromAbsFile (_pathInWaspDir f))
+      (configFiles spec)
