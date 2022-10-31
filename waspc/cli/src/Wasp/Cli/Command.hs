@@ -17,8 +17,7 @@ newtype Command a = Command {_runCommand :: ExceptT CommandError IO a}
 
 runCommand :: Command a -> IO ()
 runCommand cmd = do
-  errorOrResult <- runExceptT $ _runCommand cmd
-  case errorOrResult of
+  runExceptT (_runCommand cmd) >>= \case
     Left cmdError -> cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
     Right _ -> return ()
 
