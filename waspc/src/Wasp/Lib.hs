@@ -45,12 +45,12 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  compileWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
-  appSpecOrCompileErrors <- analyzeProject waspDir options
-  compileWarningsAndErrors <- case appSpecOrCompileErrors of
-    Left analyzerErrors -> return (compileWarnings, analyzerErrors)
-    Right appSpec -> generateCode appSpec outDir options
-  return $ (compileWarnings, []) <> compileWarningsAndErrors
+  compileWarningsAndErrors <-
+    analyzeProject waspDir options >>= \case 
+      Left analyzerErrors -> return ([], analyzerErrors)
+      Right appSpec -> generateCode appSpec outDir options
+  dotEnvWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
+  return $ (dotEnvWarnings, []) <> compileWarningsAndErrors
 
 analyzeProject ::
   Path' Abs (Dir WaspProjectDir) ->
