@@ -92,10 +92,9 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
           ]
 
     currentWaspVersion :: SV.Version
-    currentWaspVersion = SV.Version (intToNat major) (intToNat minor) (intToNat patch)
+    currentWaspVersion = SV.Version (toEnum major) (toEnum minor) (toEnum patch)
       where
         DV.Version [major, minor, patch] _ = Paths_waspc.version
-        intToNat = naturalFromInteger . toInteger
 
     eitherUnitToErrorList :: Either e () -> [e]
     eitherUnitToErrorList (Left e) = [e]
