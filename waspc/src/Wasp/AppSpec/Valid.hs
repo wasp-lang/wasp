@@ -71,6 +71,9 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
 
     parseWaspVersionRange :: String -> Either ValidationError SV.Range
     parseWaspVersionRange waspVersionRangeStr = do
+      -- Only ^x.y.z is allowed here because it was the easiest solution to start
+      -- with at the moment. In the future, we plan to allow any SemVer
+      -- definition.
       let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
             waspVersionRangeStr =~ ("\\`\\^([0-9]+)\\.([0-9]+)\\.([0-9]+)\\'" :: String)
 
