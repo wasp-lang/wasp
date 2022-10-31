@@ -69,6 +69,8 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     )
     $ Left $ incompatibleVersionError currentWaspVersion specWaspVersionRange
   where
+    -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
+
     parseWaspVersionRange :: String -> Either ValidationError SV.Range
     parseWaspVersionRange waspVersionRangeStr = do
       let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
