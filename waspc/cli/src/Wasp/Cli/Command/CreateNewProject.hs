@@ -6,8 +6,6 @@ where
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
-import qualified Data.Version
-import qualified Paths_waspc
 import StrongPath (Abs, Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectory, getCurrentDirectory)
@@ -22,6 +20,7 @@ import qualified Wasp.Cli.Common as Common
 import qualified Wasp.Data
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Version as WV
 
 data ProjectInfo = ProjectInfo
   { _projectName :: String,
@@ -125,7 +124,7 @@ createNewProject' (ProjectInfo projectName appName) = do
       unlines
         [ "app %s {" `printf` appName,
           "  wasp: {",
-          "    version: \"^%s\"" `printf` Data.Version.showVersion Paths_waspc.version,
+          "    version: \"^%s\"" `printf` show WV.waspVersion,
           "  },",
           "  title: \"%s\"" `printf` projectName,
           "}",

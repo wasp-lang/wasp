@@ -7,8 +7,6 @@ import qualified Data.Aeson as Aeson
 import Data.Either (isRight)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
-import Data.Version (showVersion)
-import qualified Paths_waspc
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Wasp.Analyzer
@@ -33,6 +31,7 @@ import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
 import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Version as WV
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -42,7 +41,7 @@ spec_Analyzer = do
             unlines
               [ "app Todo {",
                 "  wasp: {",
-                "    version: \"^" ++ showVersion Paths_waspc.version ++ "\",",
+                "    version: \"^" ++ show WV.waspVersion ++ "\",",
                 "  },",
                 "  title: \"Todo App\",",
                 "  head: [\"foo\", \"bar\"],",
@@ -114,7 +113,7 @@ spec_Analyzer = do
       let expectedApps =
             [ ( "Todo",
                 App.App
-                  { App.wasp = Wasp.Wasp {Wasp.version = "^" ++ showVersion Paths_waspc.version},
+                  { App.wasp = Wasp.Wasp {Wasp.version = "^" ++ show WV.waspVersion},
                     App.title = "Todo App",
                     App.head = Just ["foo", "bar"],
                     App.auth =

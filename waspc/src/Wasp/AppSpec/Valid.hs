@@ -62,10 +62,8 @@ validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
-  unless
-    ( SV.isVersionInRange WV.waspVersion specWaspVersionRange
-    )
-    $ Left $ incompatibleVersionError WV.waspVersion specWaspVersionRange
+  unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
+    Left $ incompatibleVersionError WV.waspVersion specWaspVersionRange
   where
     -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
 
