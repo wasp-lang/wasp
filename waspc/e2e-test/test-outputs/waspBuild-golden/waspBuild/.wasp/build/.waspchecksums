@@ -86,6 +86,13 @@
     [
         [
             "file",
+            "server/src/ext-src/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+    ],
+    [
+        [
+            "file",
             "server/src/jobs/core/Job.js"
         ],
         "e0e5d5e802a29032bfc8426097950722ac0dc7931d08641c1c2b02c262e6cdcc"
@@ -145,6 +152,13 @@
             "server/src/server.js"
         ],
         "3ee2212932180883fabe36bc22e18e2167a63cdbca8bde2dd595419ae2a34e95"
+    ],
+    [
+        [
+            "file",
+            "server/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -236,6 +250,13 @@
             "web-app/src/config.js"
         ],
         "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/ext-src/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -334,6 +355,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [

@@ -37,6 +37,7 @@ spec_WebAppGenerator = do
               ],
             AS.externalClientFiles = [],
             AS.externalServerFiles = [],
+            AS.externalSharedFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
             AS.dotEnvServerFile = Nothing,
