@@ -175,11 +175,11 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth
   | AS.Auth.isGoogleAuthEnabled auth =
-    sequence
-      [ copyTmplFile [relfile|routes/auth/passport/google/google.js|],
-        copyTmplFile [relfile|routes/auth/passport/google/googleDefaults.js|],
-        genGoogleConfigJs auth
-      ]
+      sequence
+        [ copyTmplFile [relfile|routes/auth/passport/google/google.js|],
+          copyTmplFile [relfile|routes/auth/passport/google/googleDefaults.js|],
+          genGoogleConfigJs auth
+        ]
   | otherwise = return []
   where
     copyTmplFile = return . C.mkSrcTmplFd

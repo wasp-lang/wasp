@@ -1,7 +1,7 @@
 module Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
-    extClientCodeDirInWebAppSrcDir
+    extClientCodeDirInWebAppSrcDir,
   )
 where
 

@@ -48,14 +48,14 @@ parseProjectInfo :: String -> Command ProjectInfo
 parseProjectInfo name
   | isValidWaspIdentifier appName = return $ ProjectInfo name appName
   | otherwise =
-    throwProjectCreationError $
-      intercalate
-        "\n"
-        [ "The project's name is not in the valid format!",
-          indent 2 "- It can start with a letter or an underscore.",
-          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-          indent 2 "- It can't be a Wasp keyword."
-        ]
+      throwProjectCreationError $
+        intercalate
+          "\n"
+          [ "The project's name is not in the valid format!",
+            indent 2 "- It can start with a letter or an underscore.",
+            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+            indent 2 "- It can't be a Wasp keyword."
+          ]
   where
     appName = kebabToCamelCase name
 

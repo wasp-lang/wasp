@@ -59,10 +59,10 @@ genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-        [ createCopyFileDraft
-            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-            srcFilePath
-        ]
+          [ createCopyFileDraft
+              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+              srcFilePath
+          ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
