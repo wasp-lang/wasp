@@ -46,7 +46,7 @@ compile ::
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
   compileWarningsAndErrors <-
-    analyzeProject waspDir options >>= \case 
+    analyzeProject waspDir options >>= \case
       Left analyzerErrors -> return ([], analyzerErrors)
       Right appSpec -> generateCode appSpec outDir options
   dotEnvWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
