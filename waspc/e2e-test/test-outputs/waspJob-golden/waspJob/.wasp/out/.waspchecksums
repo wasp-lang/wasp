@@ -86,30 +86,9 @@
     [
         [
             "file",
-            "server/src/ext-src/Main.css"
-        ],
-        "4c1268c55a99589564123ebe1ebbea76ac545b85f4d17eaea76e981db269dba7"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/MainPage.js"
-        ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
-    ],
-    [
-        [
-            "file",
             "server/src/ext-src/jobs/bar.js"
         ],
         "2e126f35b3a3e9a289e0dcfd8707fe903c6a053e0cf85899fb5f686d77dd3eb5"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
     ],
     [
         [
@@ -285,13 +264,6 @@
             "web-app/src/ext-src/MainPage.js"
         ],
         "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/ext-src/jobs/bar.js"
-        ],
-        "2e126f35b3a3e9a289e0dcfd8707fe903c6a053e0cf85899fb5f686d77dd3eb5"
     ],
     [
         [
