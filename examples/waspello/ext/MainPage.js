@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useContext } from 'react'
 import { Plus, X, MoreHorizontal } from 'react-feather'
 import { Popover } from 'react-tiny-popover'
 import classnames from 'classnames'
@@ -9,43 +9,21 @@ import getListsAndCards from '@wasp/queries/getListsAndCards'
 import createList from '@wasp/actions/createList'
 import updateList from '@wasp/actions/updateList'
 import deleteList from '@wasp/actions/deleteList'
+import createListCopy from '@wasp/actions/createListCopy'
 
 import createCard from '@wasp/actions/createCard'
 import updateCard from '@wasp/actions/updateCard'
 
 import UserPageLayout from './UserPageLayout'
 
-import waspLogo from './waspLogo.png'
 import './Main.css'
+import {
+  calcNewPosOfDndItemInsertedInAnotherList,
+  calcNewPosOfDndItemMovedWithinList,
+  PositionContext,
+  PositionProvider
+} from './PositionContext'
 
-
-const DND_ITEM_POS_SPACING = 2 ** 16
-
-// It is expected that each item has .pos property.
-const calcNewDndItemPos = (items) => {
-  if (!Array.isArray(items) || items.length === 0) return DND_ITEM_POS_SPACING - 1
-
-  return Math.max(...items.map(l => l.pos)) + DND_ITEM_POS_SPACING
-}
-
-// It is assummed that items are sorted by pos, ascending.
-const calcNewPosOfDndItemMovedWithinList = (items, srcIdx, destIdx) => {
-  if (srcIdx === destIdx) return items[srcIdx].pos
-  if (destIdx === 0) return (items[0].pos / 2)
-  if (destIdx === items.length - 1) return items[items.length - 1].pos + DND_ITEM_POS_SPACING
-
-  if (destIdx > srcIdx) return (items[destIdx].pos + items[destIdx + 1].pos) / 2
-  if (destIdx < srcIdx) return (items[destIdx - 1].pos + items[destIdx].pos) / 2
-}
-
-// It is assummed that items is sorted by pos, ascending.
-const calcNewPosOfDndItemInsertedInAnotherList = (items, destIdx) => {
-  if (items.length === 0) return DND_ITEM_POS_SPACING - 1
-  if (destIdx === 0) return (items[0].pos / 2)
-  if (destIdx === items.length) return items[items.length - 1].pos + DND_ITEM_POS_SPACING
-
-  return (items[destIdx - 1].pos + items[destIdx].pos) / 2
-}
 
 const createListIdToSortedCardsMap = (listsAndCards) => {
   const listIdToSortedCardsMap = {}
@@ -133,19 +111,21 @@ const MainPage = ({ user }) => {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="board" direction="horizontal" type="BOARD" >
           {(provided, snapshot) => (
-            <div id='board' className='u-fancy-scrollbar'
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              { listsSortedByPos && listIdToSortedCardsMap &&
-                <Lists
-                  lists={listsSortedByPos}
-                  listIdToCardsMap={listIdToSortedCardsMap}
-                /> 
-              }
-              {provided.placeholder}
-              <AddList newPos={calcNewDndItemPos(listsAndCards)} />
-            </div>
+            <PositionProvider items={listsSortedByPos}>
+              <div id='board' className='u-fancy-scrollbar'
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                { listsSortedByPos && listIdToSortedCardsMap &&
+                    <Lists
+                      lists={listsSortedByPos}
+                      listIdToCardsMap={listIdToSortedCardsMap}
+                    />
+                  }
+                {provided.placeholder}
+                <AddList />
+              </div>
+            </PositionProvider>
           )}
         </Droppable>
       </DragDropContext>
@@ -169,13 +149,35 @@ const Lists = ({ lists, listIdToCardsMap }) => {
 
 const List = ({ list, index, cards }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+  const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
+  const [isInEditMode, setIsInEditMode] = useState(false);
+  const { getPosOfItemInsertedInAnotherListAfter } = useContext(PositionContext);
+
+  const textAreaRef = useRef(null);
 
   const handleListNameUpdated = async (listId, newName) => {
     try {
       await updateList({ listId, data: { name: newName } })
     } catch (err) {
       window.alert('Error while updating list name: ' + err.message)
+    } finally {
+      setIsHeaderTargetShown(true)
     }
+  }
+
+  const handleAddCard = async () => {
+    setIsInEditMode(true);
+    setIsPopoverOpen(false);
+  }
+
+  const handleCopyList = async (listId, idx) => {
+    try {
+      await createListCopy({ listId, pos: getPosOfItemInsertedInAnotherListAfter(idx) });
+    } catch (err) {
+      window.alert('Error while copying list: ' + err.message)
+    }
+
+    setIsPopoverOpen(false);
   }
 
   const handleDeleteList = async (listId) => {
@@ -186,6 +188,11 @@ const List = ({ list, index, cards }) => {
     }
     setIsPopoverOpen(false)
   }
+
+  const handleHeadingClicked = (e) => {
+    setIsHeaderTargetShown(false);
+    textAreaRef?.current?.focus();
+  };
 
   const ListMenu = () => {
     return (
@@ -208,8 +215,16 @@ const List = ({ list, index, cards }) => {
         </div>
         <div className='popover-content'>
           <ul className='popover-content-list'>
-            <li><button>Add card...</button></li>
-            <li><button>Copy list...</button></li>
+            <li>
+              <button onClick={() => handleAddCard()}>
+                Add card...
+              </button>
+            </li>
+            <li>
+              <button onClick={() => handleCopyList(list.id, index)}>
+                Copy list...
+              </button>
+            </li>
             <li>
               <button onClick={() => handleDeleteList(list.id)}>
                 Delete this list
@@ -235,10 +250,19 @@ const List = ({ list, index, cards }) => {
         >
           <div className='list'>
             <div className='list-header'>
+            {isHeaderTargetShown ? (
+                <div
+                  class="list-header-target"
+                  onClick={(e) => handleHeadingClicked(e)}
+                ></div>
+              ) : (
+                <></>
+              )}
               <textarea
                 className='list-header-name mod-list-name'
                 onBlur={(e) => handleListNameUpdated(list.id, e.target.value)}
                 defaultValue={ list.name }
+                ref={textAreaRef}
               />
               <div className='list-header-extras'>
                 <Popover
@@ -276,7 +300,13 @@ const List = ({ list, index, cards }) => {
             </Droppable>
 
             <div className='card-composer-container'>
-              <AddCard listId={list.id} newPos={calcNewDndItemPos(cards)} />
+              <PositionProvider items={cards}>
+                <AddCard
+                  listId={list.id}
+                  isInEditMode={isInEditMode}
+                  setIsInEditMode={setIsInEditMode}
+                />
+              </PositionProvider>
             </div>
           </div>
         </div>
@@ -313,8 +343,9 @@ const Card = ({ card, index }) => {
   )
 }
 
-const AddList = ({ newPos }) => {
+const AddList = () => {
   const [isInEditMode, setIsInEditMode] = useState(false)
+  const { getPosOfNewItem } = useContext(PositionContext)
 
   const AddListButton = () => {
     return (
@@ -336,7 +367,7 @@ const AddList = ({ newPos }) => {
       try {
         const listName = event.target.listName.value
         event.target.reset()
-        await createList({ name: listName, pos: newPos })
+        await createList({ name: listName, pos: getPosOfNewItem() })
       } catch (err) {
         window.alert('Error: ' + err.message)
       }
@@ -376,8 +407,7 @@ const AddList = ({ newPos }) => {
   )
 }
 
-const AddCard = ({ listId, newPos }) => {
-  const [isInEditMode, setIsInEditMode] = useState(false)
+const AddCard = ({ listId, isInEditMode, setIsInEditMode }) => {
 
   const AddCardButton = () => {
     return (
@@ -395,6 +425,7 @@ const AddCard = ({ listId, newPos }) => {
 
   const AddCardInput = ({ listId }) => {
     const formRef = useRef(null)
+    const { getPosOfNewItem } = useContext(PositionContext);
 
     const submitOnEnter = (e) => {
       if (e.keyCode === 13 /* && e.shiftKey == false */) {
@@ -411,7 +442,7 @@ const AddCard = ({ listId, newPos }) => {
       try {
         const cardTitle = event.target.cardTitle.value
         event.target.reset()
-        await createCard({ title: cardTitle, pos: newPos, listId })
+        await createCard({ title: cardTitle, pos: getPosOfNewItem(), listId })
       } catch (err) {
         window.alert('Error: ' + err.message)
       }
