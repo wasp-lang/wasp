@@ -69,7 +69,7 @@ generateCode ::
 generateCode appSpec outDir options = do
   (generatorWarnings, generatorErrors) <- Generator.writeWebAppCode appSpec outDir (sendMessage options)
   let filteredWarnings = generatorWarningsFilter options generatorWarnings
-  return (map show filteredWarnings, map show generatorErrors)
+  return (show <$> filteredWarnings, show <$> generatorErrors)
 
 -- | Checks the wasp directory for potential problems, and issues warnings if any are found.
 warnIfDotEnvPresent :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe CompileWarning)
