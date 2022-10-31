@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "jsx": "preserve",
+    "target": "es2018",
+    "baseUrl": ".",
+    "paths": {
+      "@wasp/*": [
+        "../../.wasp/out/web-app/src/*"
+      ],
+      "*": [
+        "*",
+        "../../.wasp/out/web-app/node_modules/*",
+        "../../.wasp/out/web-app/node_modules/@types/*"
+      ]
+    }
+  }
+}
