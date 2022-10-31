@@ -86,6 +86,13 @@
     [
         [
             "file",
+            "server/src/ext-src/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/jobs/bar.js"
         ],
         "2e126f35b3a3e9a289e0dcfd8707fe903c6a053e0cf85899fb5f686d77dd3eb5"
@@ -159,6 +166,13 @@
             "server/src/server.js"
         ],
         "25cee89ea082bef40d13a6ba01718ecaa0933c92991c9d395dc8602215c61255"
+    ],
+    [
+        [
+            "file",
+            "server/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -250,6 +264,13 @@
             "web-app/src/config.js"
         ],
         "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/ext-src/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -348,6 +369,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
