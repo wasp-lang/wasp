@@ -37,10 +37,12 @@ import Wasp.Common (DbMigrationsDir)
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
-    -- | List of external code files (they are referenced/used by the declarations).
+    -- | List of external server code files (they are referenced/used in the declarations).
     externalServerFiles :: [ExternalCode.File],
-    -- | List of external code files (they are referenced/used by the declarations).
+    -- | List of external client code files (they are referenced/used in the declarations).
     externalClientFiles :: [ExternalCode.File],
+    -- | List of files with external code shared between the server and the client.
+    externalSharedFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Absolute path to the .env.server file in wasp project source. It contains env variables to be

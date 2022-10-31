@@ -75,6 +75,7 @@ defaultCompileOptions waspProjectDir =
   CompileOptions
     { externalServerCodeDirPath = waspProjectDir </> Common.extServerCodeDirInWaspProjectDir,
       externalClientCodeDirPath = waspProjectDir </> Common.extClientCodeDirInWaspProjectDir,
+      externalSharedCodeDirPath = waspProjectDir </> Common.extSharedCodeDirInWaspProjectDir,
       isBuild = False,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id

@@ -5,8 +5,9 @@ module Wasp.Cli.Common
     dotWaspDirInWaspProjectDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
-    extClientCodeDirInWaspProjectDir,
     extServerCodeDirInWaspProjectDir,
+    extClientCodeDirInWaspProjectDir,
+    extSharedCodeDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     buildDirInDotWaspDir,
     waspSays,
@@ -47,6 +48,9 @@ extServerCodeDirInWaspProjectDir = [reldir|src/server|]
 
 extClientCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 extClientCodeDirInWaspProjectDir = [reldir|src/client|]
+
+extSharedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
+extSharedCodeDirInWaspProjectDir = [reldir|src/shared|]
 
 waspSays :: String -> IO ()
 waspSays what = putStrLn $ Term.applyStyles [Term.Yellow] what

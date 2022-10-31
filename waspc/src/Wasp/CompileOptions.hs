@@ -14,6 +14,7 @@ import Wasp.Message (SendMessage)
 data CompileOptions = CompileOptions
   { externalServerCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
     externalClientCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
+    externalSharedCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
     isBuild :: !Bool,
     -- We give the compiler the ability to send messages. The code that
     -- invokes the compiler (such as the CLI) can then implement a way

@@ -22,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    relDirToPosix,
     reldir,
-    reldirP,
     relfile,
     (</>),
   )
@@ -47,7 +47,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
-import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
@@ -62,7 +62,8 @@ genServer spec =
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalServerFiles spec)
+    <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
+    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
@@ -73,10 +74,10 @@ genDotEnv spec = return $
   case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -206,13 +207,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
+extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
+extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =

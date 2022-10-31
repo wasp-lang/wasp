@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -14,10 +14,10 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    relDirToPosix,
     relfile,
     (</>),
   )
-import StrongPath.TH (reldirP)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -34,7 +34,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import qualified Wasp.Generator.WebAppGenerator.ExternalCodeGenerator as WebAppExternalCodeGenerator
+import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir, extClientCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -50,7 +50,8 @@ genWebApp spec = do
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir WebAppExternalCodeGenerator.generatorStrategy (AS.externalClientFiles spec)
+    <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
+    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
@@ -58,10 +59,10 @@ genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
@@ -199,9 +200,9 @@ genIndexJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.WebAppSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
+extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
+extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir

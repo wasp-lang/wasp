@@ -96,6 +96,8 @@ constructAppSpec waspDir options decls = do
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
   externalClientCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalClientCodeDirPath options)
+  externalSharedCodeFiles <-
+    ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeDotEnvServerFile <- findDotEnvServer waspDir
   maybeDotEnvClientFile <- findDotEnvClient waspDir
   maybeMigrationsDir <- findMigrationsDir waspDir
@@ -105,6 +107,7 @@ constructAppSpec waspDir options decls = do
           { AS.decls = decls,
             AS.externalClientFiles = externalClientCodeFiles,
             AS.externalServerFiles = externalServerCodeFiles,
+            AS.externalSharedFiles = externalSharedCodeFiles,
             AS.migrationsDir = maybeMigrationsDir,
             AS.dotEnvServerFile = maybeDotEnvServerFile,
             AS.dotEnvClientFile = maybeDotEnvClientFile,
