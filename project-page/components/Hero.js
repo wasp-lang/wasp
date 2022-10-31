@@ -36,8 +36,8 @@ const codeStringJs = 'const a = 27'
             <span className='underline decoration-yellow-500'>without boilerplate</span>.
           </h1>
 
-          <p className='mt-4 sm:mt-10 text-xl lg:text-2xl text-neutral-500'>
-            Describe common features in Wasp DSL and write the rest in React, Node.js and Prisma.
+          <p className='mt-4 sm:mt-10 text-xl lg:text-xl text-neutral-500'>
+            Describe common features via Wasp DSL and write the rest in React, Node.js and Prisma.
           </p>
         </div>
 

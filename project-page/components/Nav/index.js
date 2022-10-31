@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Star, Twitter } from 'react-feather'
 
-import { DiscordIcon } from './SocialIcons'
+import { DiscordIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
 
@@ -24,8 +24,20 @@ const Nav = () => {
     </div>
   )
 
+  const SocialIcon = ({ Icon, url }) => (
+    <a href={url} target='_blank'
+      className={`
+        hidden lg:flex hover:opacity-75 py-5
+        hover:text-yellow-500 hover:border-yellow-500
+        border-b-2 border-transparent
+      `}
+    >
+      <Icon />
+    </a>
+  )
+
   const GitHubButton = () => (
-    <a href='/'
+    <a href='https://github.com/wasp-lang/wasp' target='_blank'
       className={`
         px-2.5 py-1 rounded
         hover:bg-neutral-200
@@ -130,11 +142,16 @@ const Nav = () => {
                 </div> {/* EOF left items */}
               </div> {/* EOF left side */}
 
-              <div className='flex items-center gap-2'> {/* Navbar right side */}
+              <div className='flex items-center gap-2 space-x-2'> {/* Navbar right side */}
                 <GitHubButton />
-                <a href='' className='hidden lg:flex'>
-                  <DiscordIcon />
-                </a>
+                <SocialIcon
+                  Icon={ DiscordIcon } 
+                  url='https://discord.gg/rzdnErX'
+                />
+                <SocialIcon
+                  Icon={ TwitterIcon } 
+                  url='https://twitter.com/WaspLang'
+                />
               </div> {/* EOF right side */}
 
             </div>
