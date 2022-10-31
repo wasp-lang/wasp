@@ -31,6 +31,6 @@ waspJob = do
         cdIntoCurrentProject,
         setDbToPSQL,
         appendToWaspFile entityDecl,
-        createFile jobFile "./ext/jobs" "bar.js",
+        createFile jobFile "./src/server/jobs" "bar.js",
         waspCliCompile
       ]
