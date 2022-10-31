@@ -1,4 +1,8 @@
 app ItWaspsOnMyMachine {
+  wasp: {
+    version: "^0.6.0"
+  },
+
   title: "It Wasps On My Machine",
 
   head: [
