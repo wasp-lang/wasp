@@ -11,9 +11,6 @@ where
 import Control.Monad (unless)
 import Data.List (find)
 import Data.Maybe (isJust)
-import qualified Data.Version as DV
-import GHC.Natural (naturalFromInteger)
-import qualified Paths_waspc
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -30,6 +27,7 @@ import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Version as WV
 
 data ValidationError = GenericValidationError String
   deriving (Show, Eq)
@@ -65,9 +63,9 @@ validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
   unless
-    ( SV.isVersionInRange currentWaspVersion specWaspVersionRange
+    ( SV.isVersionInRange WV.waspVersion specWaspVersionRange
     )
-    $ Left $ incompatibleVersionError currentWaspVersion specWaspVersionRange
+    $ Left $ incompatibleVersionError WV.waspVersion specWaspVersionRange
   where
     -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
 
@@ -90,11 +88,6 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
             "You are running Wasp " ++ show actualVersion ++ ".",
             "This app requires Wasp " ++ show expectedVersionRange ++ "."
           ]
-
-    currentWaspVersion :: SV.Version
-    currentWaspVersion = SV.Version (toEnum major) (toEnum minor) (toEnum patch)
-      where
-        DV.Version [major, minor, patch] _ = Paths_waspc.version
 
     eitherUnitToErrorList :: Either e () -> [e]
     eitherUnitToErrorList (Left e) = [e]

@@ -3,9 +3,7 @@
 module AppSpec.ValidTest where
 
 import Data.Maybe (fromJust)
-import qualified Data.Version as DV
 import Fixtures (systemSPRoot)
-import qualified Paths_waspc
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
@@ -19,6 +17,8 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
+import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Version as WV
 
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
@@ -66,17 +66,14 @@ spec_AppSpecValid = do
                        ]
 
         it "returns an error if 'waspVersion' is not compatible" $ do
-          let incompatibleWaspVersion = DV.makeVersion (nextMajor : remaining)
-                where
-                  nextMajor = major + 1
-                  DV.Version (major : remaining) _ = Paths_waspc.version
+          let incompatibleWaspVersion = WV.waspVersion {SV.major = SV.major WV.waspVersion + 1}
 
-          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ DV.showVersion incompatibleWaspVersion)
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
             `shouldBe` [ ASV.GenericValidationError $
                            unwords
                              [ "Your Wasp version does not match the app's requirements.",
-                               "You are running Wasp " ++ DV.showVersion Paths_waspc.version ++ ".",
-                               "This app requires Wasp ^" ++ DV.showVersion incompatibleWaspVersion ++ "."
+                               "You are running Wasp " ++ show WV.waspVersion ++ ".",
+                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ "."
                              ]
                        ]
 
@@ -175,7 +172,7 @@ spec_AppSpecValid = do
       AS.App.App
         { AS.App.wasp =
             AS.Wasp.Wasp
-              { AS.Wasp.version = "^" ++ DV.showVersion Paths_waspc.version
+              { AS.Wasp.version = "^" ++ show WV.waspVersion
               },
           AS.App.title = "Test App",
           AS.App.db = Nothing,

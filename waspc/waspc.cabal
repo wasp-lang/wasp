@@ -260,6 +260,7 @@ library
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Message
+    Wasp.Version
 
 library waspls
   import: common-all
