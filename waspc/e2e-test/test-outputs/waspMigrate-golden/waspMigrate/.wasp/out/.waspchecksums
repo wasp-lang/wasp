@@ -86,9 +86,9 @@
     [
         [
             "file",
-            "server/src/ext-src/.gitkeep"
+            "server/src/ext-src/jsconfig.json"
         ],
-        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+        "e98029fbee40f31740206da4db736fb3214e51c6c909179cbaff73f472f0d1dc"
     ],
     [
         [
@@ -156,9 +156,9 @@
     [
         [
             "file",
-            "server/src/shared/.gitkeep"
+            "server/src/shared/jsconfig.json"
         ],
-        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+        "69dbe2db7fa67e2aea51af091f03d064a883ba91444784d1ed96018505e961c6"
     ],
     [
         [
@@ -254,13 +254,6 @@
     [
         [
             "file",
-            "web-app/src/ext-src/.gitkeep"
-        ],
-        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
-    ],
-    [
-        [
-            "file",
             "web-app/src/ext-src/Main.css"
         ],
         "4c1268c55a99589564123ebe1ebbea76ac545b85f4d17eaea76e981db269dba7"
@@ -271,6 +264,13 @@
             "web-app/src/ext-src/MainPage.js"
         ],
         "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/ext-src/jsconfig.json"
+        ],
+        "aadd91757ac44c9b83beb6536ee877d76ee8a11513ecc870ad972beb768ae3b6"
     ],
     [
         [
@@ -359,9 +359,9 @@
     [
         [
             "file",
-            "web-app/src/shared/.gitkeep"
+            "web-app/src/shared/jsconfig.json"
         ],
-        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+        "69dbe2db7fa67e2aea51af091f03d064a883ba91444784d1ed96018505e961c6"
     ],
     [
         [

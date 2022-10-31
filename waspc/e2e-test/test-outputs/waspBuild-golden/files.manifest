@@ -11,7 +11,7 @@ waspBuild/.wasp/build/server/src/config.js
 waspBuild/.wasp/build/server/src/core/AuthError.js
 waspBuild/.wasp/build/server/src/core/HttpError.js
 waspBuild/.wasp/build/server/src/dbClient.js
-waspBuild/.wasp/build/server/src/ext-src/.gitkeep
+waspBuild/.wasp/build/server/src/ext-src/jsconfig.json
 waspBuild/.wasp/build/server/src/jobs/core/Job.js
 waspBuild/.wasp/build/server/src/jobs/core/SubmittedJob.js
 waspBuild/.wasp/build/server/src/jobs/core/allJobs.js
@@ -21,7 +21,7 @@ waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.js
-waspBuild/.wasp/build/server/src/shared/.gitkeep
+waspBuild/.wasp/build/server/src/shared/jsconfig.json
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/web-app/.npmrc
 waspBuild/.wasp/build/web-app/README.md
@@ -34,9 +34,9 @@ waspBuild/.wasp/build/web-app/src/actions/core.js
 waspBuild/.wasp/build/web-app/src/actions/index.js
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
-waspBuild/.wasp/build/web-app/src/ext-src/.gitkeep
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
 waspBuild/.wasp/build/web-app/src/ext-src/MainPage.js
+waspBuild/.wasp/build/web-app/src/ext-src/jsconfig.json
 waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.png
 waspBuild/.wasp/build/web-app/src/index.css
 waspBuild/.wasp/build/web-app/src/index.js
@@ -49,14 +49,14 @@ waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
 waspBuild/.wasp/build/web-app/src/router.js
 waspBuild/.wasp/build/web-app/src/serviceWorker.js
-waspBuild/.wasp/build/web-app/src/shared/.gitkeep
+waspBuild/.wasp/build/web-app/src/shared/jsconfig.json
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasproot
 waspBuild/main.wasp
 waspBuild/src/.waspignore
-waspBuild/src/client/.gitkeep
 waspBuild/src/client/Main.css
 waspBuild/src/client/MainPage.js
+waspBuild/src/client/jsconfig.json
 waspBuild/src/client/waspLogo.png
-waspBuild/src/server/.gitkeep
-waspBuild/src/shared/.gitkeep
+waspBuild/src/server/jsconfig.json
+waspBuild/src/shared/jsconfig.json

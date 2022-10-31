@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "allowJs": true,
+    "target": "es2018",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "*",
+        "../../.wasp/out/server/node_modules/*",
+        "../../.wasp/out/server/node_modules/@types/*"
+      ]
+    }
+  }
+}
