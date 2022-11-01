@@ -1,4 +1,3 @@
-import debug from 'debug'
 import http from 'http'
 
 import app from './app.js'
@@ -7,8 +6,6 @@ import config from './config.js'
 
 
 const startServer = async () => {
-
-  const debugLog = debug('server:server')
 
   const port = normalizePort(config.port)
   app.set('port', port)
@@ -37,7 +34,7 @@ const startServer = async () => {
   server.on('listening', () => {
     const addr = server.address()
     const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port
-    debugLog('Listening on ' + bind)
+    console.log('Server listening on ' + bind)
   })
 }
 

@@ -115,7 +115,6 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("debug", "~4.3.4"),
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
