@@ -88,6 +88,7 @@ analyzeWaspProject waspDir options = do
             Right
               AS.AppSpec
                 { AS.decls = decls,
+                  AS.waspProjectDir = waspDir,
                   AS.externalCodeFiles = externalCodeFiles,
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,

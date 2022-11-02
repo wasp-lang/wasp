@@ -13,14 +13,14 @@ module Wasp.AppSpec
     getJobs,
     resolveRef,
     doesConfigFileExist,
+    asAbsWaspProjectDirFile,
   )
 where
 
-import Data.List (find, isSuffixOf)
+import Data.List (find)
 import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File', Path', Rel)
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
@@ -40,6 +40,8 @@ import Wasp.Common (DbMigrationsDir, WaspProjectDir)
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
+    -- | Absolute path to the directory containing the wasp project.
+    waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     -- | List of external code files (they are referenced/used by the declarations).
     externalCodeFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
@@ -98,7 +100,7 @@ resolveRef spec ref =
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =
-  isJust $
-    find
-      (\f -> SP.fromRelFile file `isSuffixOf` SP.fromAbsFile (_pathInWaspDir f))
-      (configFiles spec)
+  isJust $ find ((==) file . _pathInWaspProjectDir) (configFiles spec)
+
+asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
+asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file

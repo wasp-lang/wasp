@@ -6,7 +6,7 @@ where
 
 import qualified Data.Map as Data
 import Data.Maybe (mapMaybe)
-import StrongPath (Abs, Dir, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -25,6 +25,6 @@ discoverConfigFiles waspDir configFileRelocationMap = do
       projectRootDirPath <- Data.lookup file configFileRelocationMap
       return $
         ConfigFileRelocator
-          { _pathInWaspDir = waspDir </> file,
+          { _pathInWaspProjectDir = file,
             _pathInProjectRootDir = projectRootDirPath
           }

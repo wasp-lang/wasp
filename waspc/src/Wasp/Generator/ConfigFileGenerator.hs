@@ -15,4 +15,6 @@ genConfigFiles spec =
   return $ makeCopyFileDraftForConfigFile <$> AS.configFiles spec
   where
     makeCopyFileDraftForConfigFile cf =
-      createCopyFileDraft (AS.CF._pathInProjectRootDir cf) (AS.CF._pathInWaspDir cf)
+      createCopyFileDraft
+        (AS.CF._pathInProjectRootDir cf)
+        (AS.asAbsWaspProjectDirFile spec (AS.CF._pathInWaspProjectDir cf))
