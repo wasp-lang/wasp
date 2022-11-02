@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Tailwind
 
-To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.js` and `postcss.config.js`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding Tailwind CSS directives to your `Main.css` file and `className`s React components.
+To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.js` and `postcss.config.js`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) to your CSS files and `className`s to your React components.
 
 ### New project tree overview
 ```bash title="tree ." {3,7-8}
@@ -62,34 +62,6 @@ module.exports = {
 <h1 className="text-3xl font-bold underline">
   Hello world!
 </h1>
-```
-
-### Customizing default Login/Signup Forms
-The default authentication components have `form` classes associated for both login (`login-form`) and signup (`signup-form`). Additionally, they both share a common class (`auth-form`). These can be customized via Tailwind base layer directives, like so:
-
-```css title="./ext/Main.css" {5-21}
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  form.auth-form input[type='submit'] {
-    @apply btn btn-blue;
-  }
-  form.auth-form input {
-    @apply my-2;
-  }
-}
-
-@layer components {
-  .btn {
-    @apply font-bold py-2 px-4;
-  }
-  .btn-blue {
-    @apply bg-blue-500 text-white;
-  }
-}
-
 ```
 
 ### Adding Tailwind plugins
