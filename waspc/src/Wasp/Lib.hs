@@ -5,6 +5,8 @@ module Wasp.Lib
     findWaspFile,
     analyzeWaspProject,
     compileAndRenderDockerfile,
+    CompileError,
+    CompileWarning,
   )
 where
 

@@ -1,4 +1,7 @@
 app todoApp {
+  wasp: {
+    version: "^0.6.0"
+  },
   title: "ToDo App",
   // head: [],
   dependencies: [
