@@ -119,7 +119,7 @@ If you wish to deploy an app leveraging Jobs that use pg-boss as the executor to
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
 
 :::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will assume in these instructions that Docker is not installed (or is not running) and you will use a remote Fly.io builder.
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will force the use of a remote Fly.io builder.
 
 Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
 :::
@@ -127,7 +127,7 @@ Additionally, `fly` is a symlink for `flyctl` on most systems and they can be us
 Make sure you are logged in with `flyctl` CLI. You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
 
 #### Set up a Fly.io app (only once per Wasp app)
-Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app. Position yourself in .wasp/build/ directory (reminder: which you created by running wasp build previously):
+Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app. Position yourself in .wasp/build/ directory (reminder: which you created by running `wasp build` previously):
 
 ```bash
 cd .wasp/build
@@ -136,12 +136,17 @@ cd .wasp/build
 assuming you were at the root of your Wasp project at that moment. Run the launch command, to setup a new app and create a `fly.toml` file:
 
 ```bash
-flyctl launch
+flyctl launch --remote-only
 ```
 
 This will ask a series of questions, including what region to deploy in and if you would like a database.
 - Say **yes to "Would you like to set up a Postgresql database now?", and select Development**, and Fly.io will set a `DATABASE_URL` for you.
 - Say **no to "Would you like to deploy now?"**. We still need to set a few environment variables.
+
+Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
+```bash
+cp fly.toml ../../
+```
 
 Next, let's add a few more environment variables:
 ```bash
@@ -156,7 +161,7 @@ NOTE: If you do not know what your frontend URL is yet, don't worry. You can set
 While still in the .wasp/build/ directory, run:
 
 ```bash
-flyctl deploy
+flyctl deploy --remote-only --config ../../fly.toml
 ```
 
 This will build and deploy your Wasp app on Fly.io to `https://<app-name>.fly.dev`!
@@ -165,14 +170,15 @@ Additionally, some useful commands include:
 
 ```bash
 flyctl logs
-flyctl secrets
+flyctl secrets list
 flyctl ssh console
 ```
 
 #### Redeploying after Wasp builds
-When you rebuild your Wasp app (with `wasp build`), it will remove your .wasp/build/ directory. In there, you will have a `fly.toml` from any prior Fly.io deployments. While we will improve this process in the future, in the meantime, you have two options:
-1. Backup the `fly.toml` file before running `wasp build`, and copy it back after.
-2. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file.
+When you rebuild your Wasp app (with `wasp build`), it will remove your .wasp/build/ directory. In there, you may have a `fly.toml` from any prior Fly.io deployments. While we will improve this process in the future, in the meantime, you have a few options:
+1. Copy the `fly.toml` file to a versioned directory, like your Wasp project dir. From there, you can reference it in `flyctl deploy --config <path>` commands, like above.
+1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after. When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
 ## Deploying web client (frontend)
 Position yourself in `.wasp/build/web-app` directory (reminder: which you created by running `wasp build` previously):
