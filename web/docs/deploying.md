@@ -37,7 +37,10 @@ Server uses following environment variables, so you need to ensure they are set 
 
 ### Deploying to Heroku
 
-Heroku is completely free under certain limits, so it is ideal for getting started with deploying a Wasp app.
+:::note
+Heroku used to offer free apps under certain limits. However, starting in November 2022, they are removing support for their free tier. https://blog.heroku.com/next-chapter
+:::
+
 You will need Heroku account, `heroku` CLI and `docker` CLI installed to follow these instructions.
 
 Make sure you are logged in with `heroku` CLI. You can check if you are logged in with `heroku whoami`, and if you are not, you can log in with `heroku login`.
@@ -60,7 +63,7 @@ heroku config:set --app <app-name> JWT_SECRET=<random_string_at_least_32_charact
 heroku config:set --app <app-name> WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
 ```
 
-NOTE: If you do not know what your frontend URL is yet, don't worry. You can set WASP_WEB_CLIENT_URL after you deploy your frontend.
+NOTE: If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
 
 #### Deploy to a Heroku app
 Position yourself in `.wasp/build/` directory (reminder: which you created by running `wasp build` previously):
@@ -110,6 +113,66 @@ heroku logs --tail --app <app-name>
 If you wish to deploy an app leveraging Jobs that use pg-boss as the executor to Heroku, you need to set an additional environment variable called `PG_BOSS_NEW_OPTIONS` to `{"connectionString":"<REGULAR_HEROKU_DATABASE_URL>","ssl":{"rejectUnauthorized":false}}`. This is because pg-boss uses the `pg` extension, which does not seem to connect to Heroku over SSL by default, which Heroku requires. Additionally, Heroku uses a self-signed cert, so we must handle that as well.
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 :::
+
+### Deploying to Fly.io
+
+Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
+
+:::note
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will assume in these instructions that Docker is not installed (or is not running) and you will use a remote Fly.io builder.
+
+Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
+:::
+
+Make sure you are logged in with `flyctl` CLI. You can check if you are logged in with `flyctl auth whoami`, and if you are not, you can log in with `flyctl auth login`.
+
+#### Set up a Fly.io app (only once per Wasp app)
+Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app. Position yourself in .wasp/build/ directory (reminder: which you created by running wasp build previously):
+
+```bash
+cd .wasp/build
+```
+
+assuming you were at the root of your Wasp project at that moment. Run the launch command, to setup a new app and create a `fly.toml` file:
+
+```bash
+flyctl launch
+```
+
+This will ask a series of questions, including what region to deploy in and if you would like a database.
+- Say **yes to "Would you like to set up a Postgresql database now?", and select Development**, and Fly.io will set a `DATABASE_URL` for you.
+- Say **no to "Would you like to deploy now?"**. We still need to set a few environment variables.
+
+Next, let's add a few more environment variables:
+```bash
+flyctl secrets set PORT=8080
+flyctl secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
+flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
+```
+
+NOTE: If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
+
+#### Deploy to a Fly.io app
+While still in the .wasp/build/ directory, run:
+
+```bash
+flyctl deploy
+```
+
+This will build and deploy your Wasp app on Fly.io to `https://<app-name>.fly.dev`!
+
+Additionally, some useful commands include:
+
+```bash
+flyctl logs
+flyctl secrets
+flyctl ssh console
+```
+
+#### Redeploying after Wasp builds
+When you rebuild your Wasp app (with `wasp build`), it will remove your .wasp/build/ directory. In there, you will have a `fly.toml` from any prior Fly.io deployments. While we will improve this process in the future, in the meantime, you have two options:
+1. Backup the `fly.toml` file before running `wasp build`, and copy it back after.
+2. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file.
 
 ## Deploying web client (frontend)
 Position yourself in `.wasp/build/web-app` directory (reminder: which you created by running `wasp build` previously):
