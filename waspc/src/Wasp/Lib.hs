@@ -3,7 +3,7 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
-    analyzeProject,
+    analyzeWaspProject,
     compileAndRenderDockerfile,
     CompileError,
     CompileWarning,
@@ -48,17 +48,17 @@ compile ::
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
   compileWarningsAndErrors <-
-    analyzeProject waspDir options >>= \case
+    analyzeWaspProject waspDir options >>= \case
       Left analyzerErrors -> return ([], analyzerErrors)
       Right appSpec -> generateCode appSpec outDir options
   dotEnvWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
   return $ (dotEnvWarnings, []) <> compileWarningsAndErrors
 
-analyzeProject ::
+analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec)
-analyzeProject waspDir options = runExceptT $ do
+analyzeWaspProject waspDir options = runExceptT $ do
   waspFilePath <- ExceptT $ left pure <$> findWaspFile waspDir
   declarations <- ExceptT $ left pure <$> analyzeWaspFileContent waspFilePath
   ExceptT $ constructAppSpec waspDir options declarations
@@ -162,7 +162,7 @@ loadUserDockerfileContents waspDir = do
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
-  appSpecOrAnalyzerErrors <- analyzeProject waspDir compileOptions
+  appSpecOrAnalyzerErrors <- analyzeWaspProject waspDir compileOptions
   case appSpecOrAnalyzerErrors of
     Left errors -> return $ Left errors
     Right appSpec -> do

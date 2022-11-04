@@ -189,6 +189,7 @@ spec_AppSpecValid = do
         { AS.decls = [basicAppDecl],
           AS.externalClientFiles = [],
           AS.externalServerFiles = [],
+          AS.externalSharedFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,

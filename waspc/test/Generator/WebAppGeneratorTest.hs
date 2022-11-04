@@ -14,6 +14,7 @@ import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.Monad (runGenerator)
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import qualified Wasp.AppSpec.App.Wasp as AS.App
 
 -- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
 -- over generator functions and then do property testing on them, that would be cool.
@@ -26,7 +27,11 @@ spec_WebAppGenerator = do
               [ AS.Decl.makeDecl
                   "TestApp"
                   AS.App.App
-                    { AS.App.title = "Test App",
+                    {
+                      AS.App.title = "Test App",
+                      AS.App.wasp = AS.App.Wasp {
+                        AS.App.version = "0.6.0.0"
+                      },
                       AS.App.db = Nothing,
                       AS.App.server = Nothing,
                       AS.App.client = Nothing,
