@@ -42,7 +42,7 @@ spec_WebAppGenerator = do
                       AS.App.head = Nothing
                     }
               ],
-            AS.waspProjectDir = systemSPRoot,
+            AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
             AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
             AS.externalCodeFiles = [],
             AS.isBuild = False,
