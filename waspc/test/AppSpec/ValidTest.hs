@@ -188,13 +188,15 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
+          AS.waspProjectDir = systemSPRoot,
           AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
           AS.externalCodeFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,
           AS.dotEnvClientFile = Nothing,
-          AS.userDockerfileContents = Nothing
+          AS.userDockerfileContents = Nothing,
+          AS.configFiles = []
         }
 
     basicPage =
