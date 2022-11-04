@@ -3,6 +3,7 @@
 module AppSpec.ValidTest where
 
 import Data.Maybe (fromJust)
+import StrongPath (parseAbsDir)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
@@ -18,7 +19,6 @@ import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
-import StrongPath (parseAbsDir)
 
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
