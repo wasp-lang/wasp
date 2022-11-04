@@ -38,7 +38,6 @@ waspBuild/.wasp/build/web-app/src/ext-src/.gitkeep
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
 waspBuild/.wasp/build/web-app/src/ext-src/MainPage.js
 waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.png
-waspBuild/.wasp/build/web-app/src/index.css
 waspBuild/.wasp/build/web-app/src/index.js
 waspBuild/.wasp/build/web-app/src/logo.png
 waspBuild/.wasp/build/web-app/src/operations/index.js

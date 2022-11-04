@@ -47,7 +47,8 @@ spec_WebAppGenerator = do
             AS.migrationsDir = Nothing,
             AS.dotEnvServerFile = Nothing,
             AS.dotEnvClientFile = Nothing,
-            AS.userDockerfileContents = Nothing
+            AS.userDockerfileContents = Nothing,
+            AS.configFiles = []
           }
 
   describe "genWebApp" $ do
@@ -72,7 +73,6 @@ spec_WebAppGenerator = do
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
-                      "index.css",
                       "index.js",
                       "router.js",
                       "serviceWorker.js"

@@ -27,10 +27,12 @@ import Wasp.AppSpec.Valid (validateAppSpec)
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
@@ -104,9 +106,11 @@ constructAppSpec waspDir options decls = do
   maybeDotEnvClientFile <- findDotEnvClient waspDir
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
+  configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
+            AS.waspProjectDir = waspDir,
             AS.externalClientFiles = externalClientCodeFiles,
             AS.externalServerFiles = externalServerCodeFiles,
             AS.externalSharedFiles = externalSharedCodeFiles,
@@ -114,7 +118,8 @@ constructAppSpec waspDir options decls = do
             AS.dotEnvServerFile = maybeDotEnvServerFile,
             AS.dotEnvClientFile = maybeDotEnvClientFile,
             AS.isBuild = CompileOptions.isBuild options,
-            AS.userDockerfileContents = maybeUserDockerfileContents
+            AS.userDockerfileContents = maybeUserDockerfileContents,
+            AS.configFiles = configFiles
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
