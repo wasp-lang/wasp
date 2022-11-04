@@ -12,14 +12,17 @@ module Wasp.AppSpec
     getRoutes,
     getJobs,
     resolveRef,
+    doesConfigFileExist,
+    asAbsWaspProjectDirFile,
   )
 where
 
 import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File', Path')
+import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
+import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
@@ -28,7 +31,7 @@ import Wasp.AppSpec.Job (Job)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
-import Wasp.Common (DbMigrationsDir)
+import Wasp.Common (DbMigrationsDir, WaspProjectDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -37,6 +40,8 @@ import Wasp.Common (DbMigrationsDir)
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.
     decls :: [Decl],
+    -- | Absolute path to the directory containing the wasp project.
+    waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     -- | List of external code files (they are referenced/used by the declarations).
     externalCodeFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
@@ -53,7 +58,9 @@ data AppSpec = AppSpec
     -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
-    userDockerfileContents :: Maybe Text
+    userDockerfileContents :: Maybe Text,
+    -- | A list of paths to any config files found (e.g., tailwind.config.js) and where to copy them.
+    configFiles :: [ConfigFileRelocator]
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -90,3 +97,10 @@ resolveRef spec ref =
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
     $ find ((== refName ref) . fst) $ getDecls spec
+
+doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
+doesConfigFileExist spec file =
+  isJust $ find ((==) file . _pathInWaspProjectDir) (configFiles spec)
+
+asAbsWaspProjectDirFile :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Path' Abs File'
+asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
