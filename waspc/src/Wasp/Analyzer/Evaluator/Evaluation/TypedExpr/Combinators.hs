@@ -164,15 +164,15 @@ extImport = evaluation' . withCtx $ \ctx -> \case
     --   figure out that is better (it sounds/feels like it could be).
     case stripImportPrefix extImportPath of
       Just relFileFP -> case SP.parseRelFileP relFileFP of
-        Left err -> mkError ctx $ show err
+        Left err -> mkParseError ctx $ show err
         Right relFileSP -> pure $ AppSpec.ExtImport.ExtImport name relFileSP
       Nothing ->
-        mkError
+        mkParseError
           ctx
           $ "Path in external import must start with \"" ++ serverPrefix ++ "\"" ++ " or \"" ++ clientPrefix ++ "\"!"
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
-    mkError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg
+    mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg
     stripImportPrefix importPath = stripPrefix serverPrefix importPath <|> stripPrefix clientPrefix importPath
     serverPrefix = "@server/"
     clientPrefix = "@client/"
