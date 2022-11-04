@@ -1,4 +1,7 @@
 app waspCompile {
+  wasp: {
+    version: "^0.6.0"
+  },
   title: "waspCompile"
 }
 

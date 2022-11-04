@@ -1,10 +1,12 @@
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
+import { sayHi } from '../shared/util.js'
 
 let someResource = undefined
 
 export const getSomeResource = () => someResource
 
 const setup = async () => {
+  sayHi()
   await new Promise(resolve => setTimeout(resolve, 2000))
   someResource = 'This resource is now set up.'
   console.log('Custom server setup done!')

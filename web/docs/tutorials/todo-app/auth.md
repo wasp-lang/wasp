@@ -38,6 +38,10 @@ Next, we want to tell Wasp that we want full-stack [authentication](language/fea
 
 ```c {4-11} title="main.wasp"
 app TodoApp {
+  wasp: {
+    version: "^0.6.0"
+  },
+  
   title: "Todo app",
 
   auth: {

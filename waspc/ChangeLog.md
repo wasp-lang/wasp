@@ -4,6 +4,7 @@
 
 ### BREAKING CHANGES
 - Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
+- Updates required Node LTS version from version 16 to version 18. This Node ecosystem change happened on 2022-10-25: https://github.com/nodejs/Release
 
 ### [NEW FEATURE] Dockerfile customization
 

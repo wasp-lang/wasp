@@ -20,6 +20,7 @@ import qualified Wasp.Common as Common (WaspProjectDir)
 import qualified Wasp.Data as Data
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.Terminal as Term
+import qualified Wasp.Version as WV
 
 data ProjectInfo = ProjectInfo
   { _projectName :: String,
@@ -92,12 +93,15 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile a
     mainWaspFileContent =
       unlines
         [ "app %s {" `printf` appName,
+          "  wasp: {",
+          "    version: \"^%s\"" `printf` show WV.waspVersion,
+          "  },",
           "  title: \"%s\"" `printf` projectName,
           "}",
           "",
           "route RootRoute { path: \"/\", to: MainPage }",
           "page MainPage {",
-          "  component: import Main from \"@ext/MainPage.js\"",
+          "  component: import Main from \"@client/MainPage.js\"",
           "}"
         ]
 

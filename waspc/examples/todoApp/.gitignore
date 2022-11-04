@@ -1,4 +1,3 @@
 /.wasp/
-.env
-.env.server
-.env.client
+/.env.server
+/.env.client
