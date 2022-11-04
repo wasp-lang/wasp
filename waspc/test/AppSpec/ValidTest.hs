@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
+import StrongPath (parseAbsDir)
 
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
@@ -187,6 +188,7 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
+          AS.waspProjectDir = fromJust $ parseAbsDir "/wasp-project",
           AS.externalClientFiles = [],
           AS.externalServerFiles = [],
           AS.externalSharedFiles = [],
@@ -194,7 +196,8 @@ spec_AppSpecValid = do
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,
           AS.dotEnvClientFile = Nothing,
-          AS.userDockerfileContents = Nothing
+          AS.userDockerfileContents = Nothing,
+          AS.configFiles = []
         }
 
     basicPage =
