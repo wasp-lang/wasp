@@ -10,8 +10,6 @@ import {
 import * as serviceWorker from './serviceWorker'
 
 
-import './index.css'
-
 startApp()
 
 async function startApp() {

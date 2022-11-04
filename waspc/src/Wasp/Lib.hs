@@ -5,6 +5,8 @@ module Wasp.Lib
     findWaspFile,
     analyzeWaspProject,
     compileAndRenderDockerfile,
+    CompileError,
+    CompileWarning,
   )
 where
 
@@ -24,10 +26,12 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
@@ -81,17 +85,20 @@ analyzeWaspProject waspDir options = do
           maybeDotEnvClientFile <- findDotEnvClient waspDir
           maybeMigrationsDir <- findMigrationsDir waspDir
           maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
+          configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
           return $
             Right
               AS.AppSpec
                 { AS.decls = decls,
+                  AS.waspProjectDir = waspDir,
                   AS.externalCodeFiles = externalCodeFiles,
                   AS.externalCodeDirPath = CompileOptions.externalCodeDirPath options,
                   AS.migrationsDir = maybeMigrationsDir,
                   AS.dotEnvServerFile = maybeDotEnvServerFile,
                   AS.dotEnvClientFile = maybeDotEnvClientFile,
                   AS.isBuild = CompileOptions.isBuild options,
-                  AS.userDockerfileContents = maybeUserDockerfileContents
+                  AS.userDockerfileContents = maybeUserDockerfileContents,
+                  AS.configFiles = configFiles
                 }
   analyzerWarnings <- warnIfDotEnvPresent waspDir
   return (analyzerWarnings, appSpecOrAnalyzerErrors)

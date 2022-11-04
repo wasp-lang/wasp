@@ -19,6 +19,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Dependency as Dependency
 import qualified Wasp.AppSpec.App.Server as Server
+import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.Entity as Entity
@@ -30,6 +31,7 @@ import qualified Wasp.AppSpec.Query as Query
 import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
 import qualified Wasp.Psl.Ast.Model as PslModel
+import qualified Wasp.Version as WV
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -38,6 +40,9 @@ spec_Analyzer = do
       let source =
             unlines
               [ "app Todo {",
+                "  wasp: {",
+                "    version: \"^" ++ show WV.waspVersion ++ "\",",
+                "  },",
                 "  title: \"Todo App\",",
                 "  head: [\"foo\", \"bar\"],",
                 "  auth: {",
@@ -108,7 +113,8 @@ spec_Analyzer = do
       let expectedApps =
             [ ( "Todo",
                 App.App
-                  { App.title = "Todo App",
+                  { App.wasp = Wasp.Wasp {Wasp.version = "^" ++ show WV.waspVersion},
+                    App.title = "Todo App",
                     App.head = Just ["foo", "bar"],
                     App.auth =
                       Just

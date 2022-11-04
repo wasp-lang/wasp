@@ -9,9 +9,9 @@ import addWaspSourceHeader from '../addWaspSourceHeader'
 
 const LoginPage = () => {
   const history = useHistory()
-  const [username, setUsername] = useState()
-  const [password, setPassword] = useState()
-  const [submitError, setSubmitError] = useState()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitError, setSubmitError] = useState(null)
 
   const handleSubmit = async (event) => {
     event.preventDefault()

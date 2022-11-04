@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.6.0.0
+version:        0.6.0
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -38,7 +38,6 @@ data-files:
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
-  Generator/templates/**/*.css
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
@@ -180,6 +179,8 @@ library
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
+    Wasp.AppSpec.App.Wasp
+    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
@@ -196,11 +197,14 @@ library
     Wasp.AppSpec.Util
     Wasp.Common
     Wasp.CompileOptions
+    Wasp.ConfigFile
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.Common
+    Wasp.Generator.ConfigFile
+    Wasp.Generator.ConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
@@ -259,6 +263,7 @@ library
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
     Wasp.Message
+    Wasp.Version
 
 library waspls
   import: common-all

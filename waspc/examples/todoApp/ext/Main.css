@@ -1,64 +1,42 @@
-div {
-    color: green;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply m-2;
+    }
+    a {
+        @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+    }
+    input[type='submit'] {
+        @apply btn btn-blue;
+    }
+    form.auth-form input {
+        @apply my-2;
+    }
+    input[type='checkbox'] {
+        @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
+    }
+    h1 {
+        @apply text-2xl;
+    }
+    h2 {
+        @apply text-xl;
+    }
 }
 
-button.selected {
-    border: 1px solid black;
-}
-
-.hidden {
-    visibility: hidden;
-}
-
-.todos {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.todos h1 {
-    text-align: center;
-}
-
-.todos__container {
-    width: 450px;
-}
-
-.todos__toggleAndInput {
-    display: flex;
-    align-items: flex-end;
-    margin-bottom: 10px;
-}
-
-.todos__toggleButton {
-    height: 40px;
-    margin-bottom: 8px;
-    margin-left: 20px;
-
-    background-color: white;
-    border: none;
-    display: inline-block;
-    font-size: 24px !important;
-    cursor: pointer;
-}
-
-.todos__newTaskForm {
-    width: 100%;
-    margin-left: 10px;
-}
-
-.todos__newTaskForm__input {
-  margin: 0 26px !important;
-}
-
-.todos__footer {
-    width: 100%;
-    margin-top: 10px;
-
-    display: flex;
-    justify-content: space-between;
-}
-
-.todos__footer__filters .filter:not(:last-child) {
-    margin-right: 10px;
+@layer components {
+    .btn {
+        @apply font-bold py-2 px-4;
+    }
+    .btn-blue {
+        @apply bg-blue-500 text-white;
+    }
+    .btn-red {
+        @apply bg-red-500 text-white;
+    }
+    .btn-blue:hover {
+        @apply bg-blue-700;
+    }
 }

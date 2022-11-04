@@ -4,10 +4,16 @@
 
 ### BREAKING CHANGES
 - Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
+- Removes default `index.css` file that provided basic `body` defaults. Now, there is no default CSS applied.
+- Updates required Node LTS version from version 16 to version 18. This Node ecosystem change happened on 2022-10-25: https://github.com/nodejs/Release
 
 ### [NEW FEATURE] Dockerfile customization
 
 You can now customize the default Wasp Dockerfile by either extending/replacing our build stages or using your own custom logic. To make use of this feature, simply add a Dockerfile to the root of your project and it will be appended to the bottom of the existing Wasp Dockerfile.
+
+### [NEW FEATURE] Tailwind CSS support
+
+You can now use the Tailwind CSS framework in your project by simply adding two config files. Check out the Integrations section of our Docs for more!
 
 ## v0.6.0.0 (2022/09/29)
 
