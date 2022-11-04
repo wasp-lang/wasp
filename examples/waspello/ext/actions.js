@@ -74,3 +74,46 @@ export const updateCard = async ({ cardId, data }, context) => {
     }
   })
 }
+
+export const createListCopy = async ({ listId, pos }, context) => {
+  if (!context.user) {
+    throw new HttpError(403);
+  }
+
+  // Check if user owns the list.
+  const list = await context.entities.List.findFirst({
+    where: { id: listId, user: { id: context.user.id } },
+  });
+
+  if (!list) {
+    throw new HttpError(403);
+  }
+
+  // Create a new list.
+  const newList = await context.entities.List.create({
+    data: {
+      name: list.name + " (copy)",
+      pos: pos,
+      user: { connect: { id: context.user.id } },
+    },
+  });
+
+  // Create copies of all the cards in the list.
+  const cards = await context.entities.Card.findMany({
+    where: { listId: list.id },
+  });
+  await Promise.all(
+    cards.map((card) =>
+      context.entities.Card.create({
+        data: {
+          title: card.title,
+          pos: card.pos,
+          list: { connect: { id: newList.id } },
+          author: { connect: { id: context.user.id } },
+        },
+      })
+    )
+  );
+
+  return newList;
+};

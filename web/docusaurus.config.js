@@ -93,7 +93,7 @@ module.exports = {
             },
             {
               label: 'Contact',
-              href: 'docs/contact'
+              to: 'docs/contact'
             }
           ],
         },

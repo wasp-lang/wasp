@@ -3,9 +3,10 @@ module Wasp.Cli.Command.Watch
   )
 where
 
-import Control.Concurrent (threadDelay)
+import Control.Concurrent (MVar, threadDelay)
 import Control.Concurrent.Async (race)
 import Control.Concurrent.Chan (Chan, newChan, readChan)
+import Control.Concurrent.MVar (tryPutMVar, tryTakeMVar)
 import Control.Monad (unless)
 import Data.List (isSuffixOf)
 import Data.Time.Clock (UTCTime, getCurrentTime)
@@ -13,20 +14,13 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified System.FSNotify as FSN
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.Compile (compileIO)
+import Wasp.Cli.Command.Compile (compileIO, printCompilationResult)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
+import Wasp.Lib (CompileError, CompileWarning)
 import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
 
--- TODO: Another possible problem: on re-generation, wasp re-generates a lot of files, even those that should not
---   be generated again, since it is not smart enough yet to know which files do not need to be regenerated.
---   This can trigger `npm start` processes to reload multiple times, once for each file!
---   `nodemon` specifically has --delay option which says how long it should wait before restarting,
---   and it's default value is 1 second, so it will restart only once if all file changes happen in one second interval.
---   We could play in the future with increasing this delay. Nodemon can also be manually restarted with `rs` so
---   that could also be useful -> if we could do only manual restarting and not have it restart on its own, we could
---   have tigther control over it. But do we need nodemon at all then hm :)?
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
 --   be ready for the case when there is no .gitignore, that could be possible.
@@ -34,14 +28,22 @@ import qualified Wasp.Message as Msg
 -- | Forever listens for any file changes in waspProjectDir, and if there is a change,
 --   compiles Wasp source files in waspProjectDir and regenerates files in outDir.
 --   It will defer recompilation until no new change was detected in the last second.
-watch :: Path' Abs (Dir Common.WaspProjectDir) -> Path' Abs (Dir Wasp.Lib.ProjectRootDir) -> IO ()
-watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
+--   It also takes 'ongoingCompilationResultMVar' MVar, into which it stores the result
+--   (warnings, errors) of the latest (re)compile whenever it happens. If there is already
+--   something in the MVar, it will get overwritten.
+watch ::
+  Path' Abs (Dir Common.WaspProjectDir) ->
+  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  MVar ([CompileWarning], [CompileError]) ->
+  IO ()
+watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
-  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extClientCodeDirInWaspProjectDir) eventFilter chan
-  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extServerCodeDirInWaspProjectDir) eventFilter chan
-  _ <- FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> Common.extSharedCodeDirInWaspProjectDir) eventFilter chan
+  let watchProjectSubdirTree path = FSN.watchDirChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
+  _ <- watchProjectSubdirTree Common.extClientCodeDirInWaspProjectDir
+  _ <- watchProjectSubdirTree Common.extServerCodeDirInWaspProjectDir
+  _ <- watchProjectSubdirTree Common.extSharedCodeDirInWaspProjectDir
   listenForEvents chan currentTime
   where
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
@@ -54,8 +56,21 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
           -- Recompile, but only after a 1s period of no new events.
           waitUntilNoNewEvents chan lastCompileTime 1
           currentTime <- getCurrentTime
-          recompile
+          (warnings, errors) <- recompile
+          updateOngoingCompilationResultMVar (warnings, errors)
           listenForEvents chan currentTime
+
+    updateOngoingCompilationResultMVar :: ([CompileWarning], [CompileError]) -> IO ()
+    updateOngoingCompilationResultMVar (warnings, errors) =
+      -- Here we first ensure that MVar is empty, by taking from it if there is anything in it,
+      -- and then we put into it the new compilation result.
+      -- This is not atomic so in theory somebody could interject and put their own value
+      -- just before we put the new value, but there is nobody else putting stuff into it
+      -- at this moment so it will always be ok. We still use `tryPut` to avoid blocking in such
+      -- case, even if only theoretical.
+      tryTakeMVar ongoingCompilationResultMVar
+        >> tryPutMVar ongoingCompilationResultMVar (warnings, errors)
+        >> return ()
 
     -- Blocks until no new events are recieved for a duration of `secondsToDelay`.
     -- Consumes any new events during an active timer window and then restarts wait.
@@ -65,7 +80,7 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
     waitUntilNoNewEvents chan lastCompileTime secondsToDelay = do
       eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
       case eventOrDelay of
-        Left event -> do
+        Left event ->
           unless (isStaleEvent event lastCompileTime) $
             -- We have a new event, restart waiting process.
             waitUntilNoNewEvents chan lastCompileTime secondsToDelay
@@ -73,20 +88,27 @@ watch waspProjectDir outDir = FSN.withManager $ \mgr -> do
 
     isStaleEvent :: FSN.Event -> UTCTime -> Bool
     isStaleEvent event lastCompileTime = FSN.eventTime event < lastCompileTime
-
     threadDelaySeconds :: Int -> IO ()
     threadDelaySeconds =
       let microsecondsInASecond = 1000000
        in threadDelay . (* microsecondsInASecond)
 
-    recompile :: IO ()
+    recompile :: IO ([CompileWarning], [CompileError])
     recompile = do
       cliSendMessage $ Msg.Start "Recompiling on file change..."
-      compilationResult <- compileIO waspProjectDir outDir
-      case compilationResult of
-        Left err -> cliSendMessage $ Msg.Failure "Recompilation on file change failed" err
-        Right () -> cliSendMessage $ Msg.Success "Recompilation on file change succeeded."
-      return ()
+      (warnings, errors) <- compileIO waspProjectDir outDir
+
+      printCompilationResult (warnings, errors)
+      if null errors
+        then
+          cliSendMessage $
+            Msg.Success "Recompilation on file change succeeded."
+        else
+          cliSendMessage $
+            Msg.Failure "Recompilation on file change failed." $
+              show (length errors) ++ " errors found"
+
+      return (warnings, errors)
 
     -- TODO: This is a hardcoded approach to ignoring most of the common tmp files that editors
     --   create next to the source code. Bad thing here is that users can't modify this,

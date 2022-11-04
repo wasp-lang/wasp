@@ -12,8 +12,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ## 1. Requirements
 
 You need to have `node` (and `npm`) installed on your machine and available in `PATH`.
-- `node`: 16.x.x
-- `npm`: 8.x.x
+- `node`: ^18.12.0
+- `npm`: ^8.19.2
 
 You can check `node` and `npm` versions by running:
 ```shell-session
@@ -33,12 +33,12 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of node that you need, e.g.:
   ```shell-session
-  nvm install 16
+  nvm install 18
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  nvm use 16
+  nvm use 18
   ```
   to set the node version for current shell session.
 

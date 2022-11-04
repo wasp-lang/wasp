@@ -1,4 +1,8 @@
 app trello {
+  wasp: {
+    version: "^0.6.0"
+  },
+
   title: "trello",
 
   db: {
@@ -94,6 +98,11 @@ action updateList {
 
 action deleteList {
     fn: import { deleteList } from "@ext/actions.js",
+    entities: [List, Card]
+}
+
+action createListCopy {
+    fn: import { createListCopy } from "@ext/actions.js",
     entities: [List, Card]
 }
 
