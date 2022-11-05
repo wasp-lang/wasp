@@ -861,28 +861,35 @@ If you require more control in your authentication flow, you can achieve that in
 The code of your custom sign-up action would look like this (your user entity being `User` in this instance):
 ```js
 export const signUp = async (args, context) => {
-    // Your custom code before sign-up.
-    // ...
-    const newUser = context.entities.User.create({
-        data: { username: 'waspeteer', password: 'this will be hashed!' }
-    })
+  // Your custom code before sign-up.
+  // ...
 
-    // Your custom code after sign-up.
-    // ...
-    return newUser
+  const newUser = context.entities.User.create({
+    data: { 
+      username: args.username, 
+      password: args.password // password hashed automatically by Wasp! 🐝
+    } 
+  })
+
+  // Your custom code after sign-up.
+  // ...
+  return newUser
 }
 ```
 
 :::info
-You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp put middleware in place that takes care of hashing it before storing it to the database. An additional middleware also performs field validation.
+You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp's middleware takes care of hashing it before storing it in the database. An additional middleware also performs field validation.
 :::
 
 ##### Customizing user entity validations
 
-To disable/enable default validations, or add your own, you can do:
+To disable/enable default validations, or add your own, you can modify your custom signUp function like so:
 ```js
 const newUser = context.entities.User.create({
-  data: { username: 'waspeteer', password: 'this will be hashed!' },
+  data: { 
+    username: args.username, 
+    password: args.password // password hashed automatically by Wasp! 🐝
+  },
   _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
   _waspCustomValidations: [
     {
