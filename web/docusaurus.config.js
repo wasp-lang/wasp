@@ -16,6 +16,12 @@ module.exports = {
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   themeConfig: {
+    announcementBar: {
+      id: 'Beta_is_coming',
+      content: '<strong>We are releasing Beta on Nov 27! 🚀 Sign up <a href="#signup">here</a> to get notified. 🔔</strong>',
+      backgroundColor: '#ffcc00',
+      isCloseable: false,
+    },
     navbar: {
       title: '.wasp (alpha)',
       logo: {
