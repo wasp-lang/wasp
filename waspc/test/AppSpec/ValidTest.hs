@@ -192,6 +192,7 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
+          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
           AS.externalCodeFiles = [],
           AS.isBuild = False,
@@ -199,7 +200,6 @@ spec_AppSpecValid = do
           AS.dotEnvServerFile = Nothing,
           AS.dotEnvClientFile = Nothing,
           AS.userDockerfileContents = Nothing,
-          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.configFiles = []
         }
 
