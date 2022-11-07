@@ -3,7 +3,7 @@
 module AppSpec.ValidTest where
 
 import Data.Maybe (fromJust)
-import StrongPath (parseAbsDir)
+import Fixtures (systemSPRoot)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
@@ -70,10 +70,14 @@ spec_AppSpecValid = do
 
           ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
             `shouldBe` [ ASV.GenericValidationError $
-                           unwords
+                           unlines
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
-                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ "."
+                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
+                               "To install specific version of Wasp, do:",
+                               "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+                               "where x.y.z is your desired version.",
+                               "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
                              ]
                        ]
 
@@ -188,7 +192,7 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.waspProjectDir = fromJust $ parseAbsDir "/wasp-project",
+          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalClientFiles = [],
           AS.externalServerFiles = [],
           AS.externalSharedFiles = [],

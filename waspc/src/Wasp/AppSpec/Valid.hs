@@ -30,7 +30,10 @@ import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
 data ValidationError = GenericValidationError String
-  deriving (Show, Eq)
+  deriving (Eq)
+
+instance Show ValidationError where
+  show (GenericValidationError e) = e
 
 validateAppSpec :: AppSpec -> [ValidationError]
 validateAppSpec spec =
@@ -84,10 +87,14 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =
       GenericValidationError $
-        unwords
+        unlines
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
-            "This app requires Wasp " ++ show expectedVersionRange ++ "."
+            "This app requires Wasp " ++ show expectedVersionRange ++ ".",
+            "To install specific version of Wasp, do:",
+            "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+            "where x.y.z is your desired version.",
+            "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
           ]
 
     eitherUnitToErrorList :: Either e () -> [e]

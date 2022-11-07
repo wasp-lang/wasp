@@ -227,7 +227,9 @@ library
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.Job
+    Wasp.Generator.Job.Common
     Wasp.Generator.Job.IO
+    Wasp.Generator.Job.IO.PrefixedWriter
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
