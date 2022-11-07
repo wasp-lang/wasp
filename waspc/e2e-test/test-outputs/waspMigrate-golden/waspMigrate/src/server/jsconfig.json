@@ -1,17 +1,26 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "allowJs": true,
-    "target": "es2018",
-    "baseUrl": ".",
+    // The following settings enable IDE support in user-provided source files. 
+    // Editing them might break features like import autocompletion and
+    // definition lookup. Don't change them unless you know what you're doing.
+    //
+    // The relative path to the generated web app's root directory. This must be
+    // set to define the "paths" option.
+    "baseUrl": "../../.wasp/out/server/",
     "paths": {
+      // Resolve all "@wasp" imports to the generated source code
       "@wasp/*": [
-        "../../.wasp/out/server/src/*"
+        "src/*"
       ],
+      // Resolve all non-relative imports to the correct node module. Source:
+      // https://www.typescriptlang.org/docs/handbook/module-resolution.html#path-mapping
       "*": [
-        "*",
-        "../../.wasp/out/server/node_modules/*",
-        "../../.wasp/out/server/node_modules/@types/*"
+        // Start by looking for the definiton inside the node modules root
+        // directory...
+        "node_modules/*",
+        // ... If that fails, Try to find it inside definitely-typed type
+        // definitions.
+        "node_modules/@types/*"
       ]
     }
   }
