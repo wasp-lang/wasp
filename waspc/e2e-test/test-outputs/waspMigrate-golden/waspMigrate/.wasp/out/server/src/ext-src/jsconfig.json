@@ -8,7 +8,7 @@
     // set to define the "paths" option.
     "baseUrl": "../../.wasp/out/server/",
     "paths": {
-      // Resolve all "@wasp" imports to the generated source code
+      // Resolve all "@wasp" imports to the generated source code.
       "@wasp/*": [
         "src/*"
       ],

@@ -8,7 +8,7 @@
     // set to define the "paths" option.
     "baseUrl": "../../.wasp/out/web-app/",
     "paths": {
-      // Resolve all "@wasp" imports to the generated source code
+      // Resolve all "@wasp" imports to the generated source code.
       "@wasp/*": [
         "src/*"
       ],
@@ -18,7 +18,7 @@
         // Start by looking for the definiton inside the node modules root
         // directory...
         "node_modules/*",
-        // ... If that fails, Try to find it inside definitely-typed type
+        // ... If that fails, try to find it inside definitely-typed type
         // definitions.
         "node_modules/@types/*"
       ]
