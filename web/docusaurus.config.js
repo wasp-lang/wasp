@@ -114,10 +114,6 @@ module.exports = {
       //   it searches only in v1 docs if you are searching from v1 docs.
       //   We should enable it if we start doing versioning.
       // contextualSearch: true
-    },
-    gtag: {
-      trackingID: 'G-3ZEDH3BVGE',
-      anonymizeIP: true,
     }
   },
   presets: [
