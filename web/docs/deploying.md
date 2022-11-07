@@ -35,7 +35,7 @@ Server uses following environment variables, so you need to ensure they are set 
 - `WASP_WEB_CLIENT_URL` -> The URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is necessary for CORS.
 - `JWT_SECRET` -> You need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
 
-### Deploying to Fly.io (recommended)
+### Deploying to Fly.io (free, recommended)
 
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
 
@@ -101,10 +101,12 @@ When you rebuild your Wasp app (with `wasp build`), it will remove your .wasp/bu
 1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after. When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
 1. Run `flyctl config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
-### Deploying to Heroku (deprecated)
+### Deploying to Heroku (non-free)
 
 :::note
-Heroku used to offer free apps under certain limits. However, starting in November 2022, they are removing support for their free tier. https://blog.heroku.com/next-chapter As such, we recommend using an alternative provider like Fly.io for your first apps.
+Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
+
+As such, we recommend using an alternative provider like [Fly.io](#deploying-to-flyio-free-recommended) for your first apps.
 :::
 
 You will need Heroku account, `heroku` CLI and `docker` CLI installed to follow these instructions.
@@ -191,7 +193,7 @@ Run
 ```
 npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
-where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.herokuapp.com`.
+where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.fly.dev`.
 
 This will create `build/` directory, which you can deploy to any static hosting provider.
 Check instructions below for deploying to Netlify.
