@@ -70,10 +70,14 @@ spec_AppSpecValid = do
 
           ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
             `shouldBe` [ ASV.GenericValidationError $
-                           unwords
+                           unlines
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
-                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ "."
+                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
+                               "To install specific version of Wasp, do:",
+                               "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+                               "where x.y.z is your desired version.",
+                               "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
                              ]
                        ]
 
@@ -188,13 +192,15 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
+          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
           AS.externalCodeFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,
           AS.dotEnvClientFile = Nothing,
-          AS.userDockerfileContents = Nothing
+          AS.userDockerfileContents = Nothing,
+          AS.configFiles = []
         }
 
     basicPage =
