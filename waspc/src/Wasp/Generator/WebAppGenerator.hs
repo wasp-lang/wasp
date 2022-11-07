@@ -26,6 +26,7 @@ import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
@@ -97,7 +98,7 @@ genNpmrc =
       Nothing
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
-npmDepsForWasp _spec =
+npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
@@ -107,13 +108,25 @@ npmDepsForWasp _spec =
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
             ("react-scripts", "5.0.1")
-          ],
+          ]
+          ++ depsRequiredByTailwind spec,
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
       -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
       N.waspDevDependencies =
         AS.Dependency.fromList
           []
     }
+
+depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByTailwind spec =
+  if G.CF.isTailwindUsed spec
+    then
+      AS.Dependency.fromList
+        [ ("tailwindcss", "^3.1.8"),
+          ("postcss", "^8.4.18"),
+          ("autoprefixer", "^10.4.12")
+        ]
+    else []
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -166,8 +179,7 @@ genPublicIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|index.css|],
-      copyTmplFile [relfile|logo.png|],
+    [ copyTmplFile [relfile|logo.png|],
       copyTmplFile [relfile|serviceWorker.js|],
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],

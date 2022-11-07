@@ -3,7 +3,7 @@ module Wasp.Lib
     Generator.start,
     ProjectRootDir,
     findWaspFile,
-    analyzeProject,
+    analyzeWaspProject,
     compileAndRenderDockerfile,
     CompileError,
     CompileWarning,
@@ -27,10 +27,12 @@ import Wasp.AppSpec.Valid (validateAppSpec)
 import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
+import qualified Wasp.ConfigFile as CF
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.ConfigFile as G.CF
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
@@ -48,17 +50,17 @@ compile ::
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
   compileWarningsAndErrors <-
-    analyzeProject waspDir options >>= \case
+    analyzeWaspProject waspDir options >>= \case
       Left analyzerErrors -> return ([], analyzerErrors)
       Right appSpec -> generateCode appSpec outDir options
   dotEnvWarnings <- maybeToList <$> warnIfDotEnvPresent waspDir
   return $ (dotEnvWarnings, []) <> compileWarningsAndErrors
 
-analyzeProject ::
+analyzeWaspProject ::
   Path' Abs (Dir WaspProjectDir) ->
   CompileOptions ->
   IO (Either [CompileError] AS.AppSpec)
-analyzeProject waspDir options = runExceptT $ do
+analyzeWaspProject waspDir options = runExceptT $ do
   waspFilePath <- ExceptT $ left pure <$> findWaspFile waspDir
   declarations <- ExceptT $ left pure <$> analyzeWaspFileContent waspFilePath
   ExceptT $ constructAppSpec waspDir options declarations
@@ -104,9 +106,11 @@ constructAppSpec waspDir options decls = do
   maybeDotEnvClientFile <- findDotEnvClient waspDir
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
+  configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let appSpec =
         AS.AppSpec
           { AS.decls = decls,
+            AS.waspProjectDir = waspDir,
             AS.externalClientFiles = externalClientCodeFiles,
             AS.externalServerFiles = externalServerCodeFiles,
             AS.externalSharedFiles = externalSharedCodeFiles,
@@ -114,7 +118,8 @@ constructAppSpec waspDir options decls = do
             AS.dotEnvServerFile = maybeDotEnvServerFile,
             AS.dotEnvClientFile = maybeDotEnvClientFile,
             AS.isBuild = CompileOptions.isBuild options,
-            AS.userDockerfileContents = maybeUserDockerfileContents
+            AS.userDockerfileContents = maybeUserDockerfileContents,
+            AS.configFiles = configFiles
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
@@ -162,7 +167,7 @@ loadUserDockerfileContents waspDir = do
 
 compileAndRenderDockerfile :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> IO (Either [CompileError] Text)
 compileAndRenderDockerfile waspDir compileOptions = do
-  appSpecOrAnalyzerErrors <- analyzeProject waspDir compileOptions
+  appSpecOrAnalyzerErrors <- analyzeWaspProject waspDir compileOptions
   case appSpecOrAnalyzerErrors of
     Left errors -> return $ Left errors
     Right appSpec -> do

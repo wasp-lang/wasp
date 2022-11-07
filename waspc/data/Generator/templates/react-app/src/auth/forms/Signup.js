@@ -30,7 +30,7 @@ const SignupForm = () => {
   }
   
   return (
-    <form onSubmit={handleSignup}>
+    <form onSubmit={handleSignup} className='signup-form auth-form'>
       <h2>Username</h2>
       <input
         type="text"

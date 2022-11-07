@@ -14,6 +14,7 @@ import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.ConfigFileGenerator (genConfigFiles)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -52,6 +53,7 @@ genApp spec =
     <++> genServer spec
     <++> genDb spec
     <++> genDockerFiles spec
+    <++> genConfigFiles spec
 
 -- | Writes .waspinfo, which contains some basic metadata about how/when wasp generated the code.
 writeDotWaspInfo :: Path' Abs (Dir ProjectRootDir) -> IO ()

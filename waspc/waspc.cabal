@@ -38,7 +38,6 @@ data-files:
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
-  Generator/templates/**/*.css
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
@@ -48,7 +47,6 @@ data-files:
   Cli/templates/new/.gitignore
   Cli/templates/new/.wasproot
   Cli/templates/new/src/.waspignore
-
 data-dir: data/
 
 source-repository head
@@ -186,6 +184,7 @@ library
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
+    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Ref
     Wasp.AppSpec.Entity
@@ -202,11 +201,14 @@ library
     Wasp.AppSpec.Util
     Wasp.Common
     Wasp.CompileOptions
+    Wasp.ConfigFile
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
     Wasp.Generator
     Wasp.Generator.Common
+    Wasp.Generator.ConfigFile
+    Wasp.Generator.ConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
@@ -223,7 +225,9 @@ library
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.Job
+    Wasp.Generator.Job.Common
     Wasp.Generator.Job.IO
+    Wasp.Generator.Job.IO.PrefixedWriter
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
