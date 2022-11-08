@@ -144,6 +144,23 @@ const Nav = () => {
 
               <div className='flex items-center gap-2 space-x-2'> {/* Navbar right side */}
                 <GitHubButton />
+
+                <Link href='/docs'>
+                  <a>
+                    <button
+                      className={`
+                        hidden lg:block text-xs
+                        px-2.5 py-1 rounded
+                        bg-yellow-500 text-white
+                        hover:bg-yellow-400
+                        transition ease-out duration-200
+                      `}
+                    >
+                      Get started
+                    </button>
+                  </a>
+                </Link>
+
                 <SocialIcon
                   Icon={ DiscordIcon } 
                   url='https://discord.gg/rzdnErX'
