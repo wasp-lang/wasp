@@ -100,19 +100,43 @@ const codeStringJs = 'const a = 27'
 
           <ActionButtons />
 
+          <div className='flex flex-col gap-4'>
+            <small className='text-neutral-500 text-xs'>works with</small>
+
+            <div className='flex'>
+              <img
+                className='h-8 md:h-10 pr-5 md:pr-10'
+                src='/react-logo-gray.svg'
+                alt='React'
+              />
+              <img
+                className='h-8 md:h-10 pr-5 md:pr-10'
+                src='/nodejs-logo-gray.svg'
+                alt='Node'
+              />
+              <img
+                className='h-8 md:h-10 pr-5 md:pr-10'
+                src='/prisma-logo-gray.svg'
+                alt='Prisma'
+              />
+            </div>
+          </div>
+
         </div>
 
-        <div className='lg:col-span-6 text-sm mt-16 lg:mt-0 shadow-2xl rounded-md'>
-          <SyntaxHighlighter
-            language="javascript" 
-            style={atomOneLight}
-            customStyle={{
-              borderRadius: '10px',
-              paddingLeft: '15px',
-            }}
-          >
-            {codeString}
-          </SyntaxHighlighter>
+        <div className='lg:col-span-6 lg:mt-0 mt-16'>
+          <div className='text-sm shadow-2xl rounded-md'>
+            <SyntaxHighlighter
+              language="javascript" 
+              style={atomOneLight}
+              customStyle={{
+                borderRadius: '10px',
+                paddingLeft: '15px',
+              }}
+            >
+              {codeString}
+            </SyntaxHighlighter>
+          </div>
         </div>
 
       </div>
