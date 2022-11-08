@@ -4,9 +4,9 @@ import classNames from 'classnames'
 
 import Nav from 'components/Nav/index'
 import Hero from 'components/Hero'
+import Benefits from 'components/Benefits'
 
 import styles from '../styles/index.module.css'
-
 
 
 const Background = () => {
@@ -27,6 +27,7 @@ const Index = () => {
           <div> {/* container */}
 
             <Hero />
+            <Benefits />
 
           </div> {/* eof container */}
         </main>
