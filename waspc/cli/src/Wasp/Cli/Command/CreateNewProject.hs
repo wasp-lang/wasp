@@ -28,12 +28,13 @@ data ProjectInfo = ProjectInfo
   }
 
 createNewProject :: String -> Command ()
-createNewProject projectName = do
-  projectInfo <- parseProjectInfo projectName
+createNewProject projectNameCandidate = do
+  projectInfo <- parseProjectInfo projectNameCandidate
   createWaspProjectDir projectInfo
-  liftIO printGettingStartedInstructions
+  liftIO $ printGettingStartedInstructions $ _projectName projectInfo
   where
-    printGettingStartedInstructions = do
+    printGettingStartedInstructions :: String -> IO ()
+    printGettingStartedInstructions projectName = do
       putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
       putStrLn "To run it, do:"
       putStrLn ""
