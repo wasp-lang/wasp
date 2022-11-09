@@ -40,7 +40,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
   currentTime <- getCurrentTime
   chan <- newChan
   _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
-  let watchProjectSubdirTree path = FSN.watchDirChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
+  let watchProjectSubdirTree path = FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
   _ <- watchProjectSubdirTree Common.extClientCodeDirInWaspProjectDir
   _ <- watchProjectSubdirTree Common.extServerCodeDirInWaspProjectDir
   _ <- watchProjectSubdirTree Common.extSharedCodeDirInWaspProjectDir
