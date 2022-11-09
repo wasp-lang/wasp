@@ -128,6 +128,7 @@ const Tags = () => {
       <Typography variant="subtitle1" className={classes.title}>Popular tags</Typography>
         { popularTags.map(tag => (
           <Chip
+            key={tag.name}
             className={classes.chip}
             label={`${tag.name} (${tag.numArticles})`}
           />

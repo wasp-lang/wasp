@@ -35,39 +35,39 @@ app Conduit {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 
 route LogInRoute { path: "/login", to: LogInPage }
 page LogInPage {
-  component: import LogIn from "@ext/auth/LoginPage.js"
+  component: import LogIn from "@client/auth/LoginPage.js"
 }
 
 route RegisterRoute { path: "/register", to: SignUpPage }
 page SignUpPage {
-  component: import SignUp from "@ext/auth/SignupPage.js"
+  component: import SignUp from "@client/auth/SignupPage.js"
 }
 
 route UserSettingsRoute { path: "/settings", to: UserSettingsPage }
 page UserSettingsPage {
   authRequired: true,
-  component: import UserSettings from "@ext/user/components/UserSettingsPage.js"
+  component: import UserSettings from "@client/user/components/UserSettingsPage.js"
 }
 
 route UserProfileRoute { path: "/@:username", to: UserProfilePage }
 page UserProfilePage {
-  component: import UserProfile from "@ext/user/components/UserProfilePage.js"
+  component: import UserProfile from "@client/user/components/UserProfilePage.js"
 }
 
 route ArticleEditorRoute { path: "/editor/:articleSlug?", to: ArticleEditorPage }
 page ArticleEditorPage {
   authRequired: true,
-  component: import ArticleEditor from "@ext/article/components/ArticleEditorPage.js"
+  component: import ArticleEditor from "@client/article/components/ArticleEditorPage.js"
 }
 
 route ArticleViewRoute { path: "/article/:articleSlug", to: ArticleViewPage }
 page ArticleViewPage {
-  component: import ArticleView from "@ext/article/components/ArticleViewPage.js"
+  component: import ArticleView from "@client/article/components/ArticleViewPage.js"
 }
 
 // ----------------- Entities ------------------ //
@@ -123,84 +123,84 @@ psl=}
 // ----------------- User operations ------------------ //
 
 query getUser {
-  fn: import { getUser } from "@ext/user/queries.js",
+  fn: import { getUser } from "@server/user/queries.js",
   entities: [User]
 }
 
 action updateUser {
-  fn: import { updateUser } from "@ext/user/actions.js",
+  fn: import { updateUser } from "@server/user/actions.js",
   entities: [User]
 }
 
 action followUser {
-  fn: import { followUser } from "@ext/user/actions.js",
+  fn: import { followUser } from "@server/user/actions.js",
   entities: [User]
 }
 
 // ----------------- Article operations ------------------ //
 
 query getArticlesByUser {
-  fn: import { getArticlesByUser } from "@ext/article/queries.js",
+  fn: import { getArticlesByUser } from "@server/article/queries.js",
   entities: [Article]
 }
 
 query getFavoritedArticles {
-  fn: import { getFavoritedArticles } from "@ext/article/queries.js",
+  fn: import { getFavoritedArticles } from "@server/article/queries.js",
   entities: [Article]
 }
 
 query getFollowedArticles {
-  fn: import { getFollowedArticles } from "@ext/article/queries.js",
+  fn: import { getFollowedArticles } from "@server/article/queries.js",
   entities: [Article, User]
 }
 
 query getAllArticles {
-  fn: import { getAllArticles } from "@ext/article/queries.js",
+  fn: import { getAllArticles } from "@server/article/queries.js",
   entities: [Article]
 }
 
 query getArticle {
-  fn: import { getArticle } from "@ext/article/queries.js",
+  fn: import { getArticle } from "@server/article/queries.js",
   entities: [Article]
 }
 
 query getArticleComments {
-  fn: import { getArticleComments } from "@ext/article/queries.js",
+  fn: import { getArticleComments } from "@server/article/queries.js",
   entities: [Comment]
 }
 
 action createArticle {
-  fn: import { createArticle } from "@ext/article/actions.js",
+  fn: import { createArticle } from "@server/article/actions.js",
   entities: [Article]
 }
 
 action updateArticle {
-  fn: import { updateArticle } from "@ext/article/actions.js",
+  fn: import { updateArticle } from "@server/article/actions.js",
   entities: [Article]
 }
 
 action deleteArticle {
-  fn: import { deleteArticle } from "@ext/article/actions.js",
+  fn: import { deleteArticle } from "@server/article/actions.js",
   entities: [Article]
 }
 
 action setArticleFavorited {
-  fn: import { setArticleFavorited } from "@ext/article/actions.js",
+  fn: import { setArticleFavorited } from "@server/article/actions.js",
   entities: [Article]
 }
 
 action createComment {
-  fn: import { createComment } from "@ext/article/actions.js",
+  fn: import { createComment } from "@server/article/actions.js",
   entities: [Comment]
 }
 
 action deleteComment {
-  fn: import { deleteComment } from "@ext/article/actions.js",
+  fn: import { deleteComment } from "@server/article/actions.js",
   entities: [Comment]
 }
 
 query getTags {
-  fn: import { getTags } from "@ext/article/queries.js",
+  fn: import { getTags } from "@server/article/queries.js",
   entities: [ArticleTag, Article]
 }
 

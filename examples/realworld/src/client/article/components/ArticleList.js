@@ -75,10 +75,9 @@ const Article = (props) => {
         <Button component={ Link } to={`/article/${article.slug}`} size="small" color="primary">
           Read more
         </Button>
-
         <span className={classes.tags}>
-          { article.tags.map(t => (
-            <Chip className={classes.chip} label={t.name}/>
+          { article.tags.map(tag => (
+            <Chip key={tag.name} className={classes.chip} label={tag.name}/>
           ))}
         </span>
       </CardActions>
