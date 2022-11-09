@@ -28,17 +28,17 @@ app trello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@ext/MainPage.js"
+    component: import Main from "@client/MainPage.js"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@ext/SignupPage"
+    component: import Signup from "@client/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@ext/LoginPage"
+    component: import Login from "@client/LoginPage"
 }
 
 // Entities
@@ -80,41 +80,41 @@ psl=}
 // ------------------- Queries and actions
 
 query getListsAndCards {
-    fn: import { getListsAndCards } from "@ext/queries.js",
+    fn: import { getListsAndCards } from "@server/queries.js",
     entities: [List, Card]
 }
 
 // Lists
 
 action createList {
-    fn: import { createList } from "@ext/actions.js",
+    fn: import { createList } from "@server/actions.js",
     entities: [List]
 }
 
 action updateList {
-    fn: import { updateList } from "@ext/actions.js",
+    fn: import { updateList } from "@server/actions.js",
     entities: [List]
 }
 
 action deleteList {
-    fn: import { deleteList } from "@ext/actions.js",
+    fn: import { deleteList } from "@server/actions.js",
     entities: [List, Card]
 }
 
 action createListCopy {
-    fn: import { createListCopy } from "@ext/actions.js",
+    fn: import { createListCopy } from "@server/actions.js",
     entities: [List, Card]
 }
 
 // Cards
 
 action createCard {
-    fn: import { createCard } from "@ext/actions.js",
+    fn: import { createCard } from "@server/actions.js",
     entities: [Card]
 }
 
 action updateCard {
-    fn: import { updateCard } from "@ext/actions.js",
+    fn: import { updateCard } from "@server/actions.js",
     entities: [Card]
 }
 
