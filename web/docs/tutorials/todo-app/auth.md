@@ -10,7 +10,7 @@ Let's define a Todo list (luckily we have an app for that now ;)) to get this do
 - [ ] Add Wasp entity `User`.
 - [ ] Add `auth` Wasp declaration.
 - [ ] Add `Login` and `Signup` pages
-- [ ] Modify `ext/MainPage.js` so that it requires authentication.
+- [ ] Modify `src/client/MainPage.js` so that it requires authentication.
 - [ ] Add Prisma relation between `User` and `Task` entities.
 - [ ] Modify our queries and actions so that they work only with the tasks belonging to the authenticated user.
 - [ ] Add logout button.
@@ -79,18 +79,18 @@ When we defined `app.auth` we got login and signup forms generated for us, but n
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@ext/SignupPage"
+  component: import Signup from "@client/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@ext/LoginPage"
+  component: import Login from "@client/LoginPage"
 }
 ```
 
 Great, Wasp now knows how to route these and where to find the pages. Now to the React code of the pages:
 
-```jsx title="ext/LoginPage.js"
+```jsx title="src/client/LoginPage.js"
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -113,7 +113,7 @@ export default LoginPage
 
 The Signup page is very similar to the login one:
 
-```jsx title="ext/SignupPage.js"
+```jsx title="src/client/SignupPage.js"
 import React from 'react'
 import { Link } from 'react-router-dom'
 
@@ -145,7 +145,7 @@ There is a specific Wasp feature that allows us to achieve this in a simple way:
 // ...
 page MainPage {
   authRequired: true,
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 ```
 
@@ -154,7 +154,7 @@ If an unauthenticated user tries to access route `/` where our page `MainPage` i
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 
-```jsx {1} title="ext/MainPage.js"
+```jsx {1} title="src/client/MainPage.js"
 const MainPage = ({ user }) => {
     // do something with user
 }
@@ -222,7 +222,7 @@ However, for this tutorial, for the sake of simplicity, we will stick with this.
 ## Updating operations to forbid access to non-authenticated users
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged in user's tasks:
-```js {1,4,6} title="ext/queries.js"
+```js {1,4,6} title="@server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -233,7 +233,7 @@ export const getTasks = async (args, context) => {
 }
 ```
 
-```js {1,4,8,14,15,16} title="ext/actions.js"
+```js {1,4,8,14,15,16} title="@server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async ({ description }, context) => {
@@ -281,7 +281,7 @@ You will see that each user has its own tasks, just as we specified in our code!
 ## Logout button
 
 Last, but not the least, let's add logout functionality:
-```jsx {2,10} title="MainPage.js"
+```jsx {2,10} title="src/client/MainPage.js"
 // ...
 import logout from '@wasp/auth/logout.js'
 //...
