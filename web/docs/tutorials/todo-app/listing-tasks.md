@@ -59,7 +59,7 @@ Queries and actions are NodeJS functions that are executed on the server. Theref
 
 ## Invoking the query from React
 
-We've just said that the queries we write are executed on the server, but Wasp will generate client-side querie functions (taking care of the network and cache invalidation in the background). Let's finally use the query we've just created, `getTasks`, in our React component to list the tasks:
+We've just said that the queries we write are executed on the server, but Wasp will generate client-side query functions (taking care of the network and cache invalidation in the background). Let's finally use the query we've just created, `getTasks`, in our React component to list the tasks:
 
 ```jsx {3-4,7-16,19-32} title="src/client/MainPage.js"
 import React from 'react'

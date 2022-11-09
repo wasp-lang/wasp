@@ -992,7 +992,7 @@ import useAuth from '@wasp/auth/useAuth.js'
 ```
 
 ##### Example of usage:
-```js title="client/pages/MainPage.js"
+```js title="src/client/pages/MainPage.js"
 import React from 'react'
 
 import { Link } from 'react-router-dom'
