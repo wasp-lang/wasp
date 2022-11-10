@@ -62,10 +62,10 @@ flyctl launch --remote-only
 
 This will ask a series of questions, including what region to deploy in and if you would like a database.
 - Say **yes to "Would you like to set up a Postgresql database now?", and select Development**, and Fly.io will set a `DATABASE_URL` for you.
-- Say **no to "Would you like to deploy now?"**. We still need to set a few environment variables.
+- Say **no to "Would you like to deploy now?"**, as well as any additional questions. We still need to set a few environment variables.
 
 :::note 
-If your first attempt fails for whatever reason, then you should run `flyctl apps destroy <your-apps-name>` before trying again, or your db won't initiate on the next attempt, and/or you will run into more errors on the free plan. 
+If your attempts to initiate a new app fail for whatever reason, then you can run `flyctl apps destroy <your-apps-name>` before trying again.
 
 When your db is deployed correctly, you will be able to view it in the [Fly.io dashboard](https://fly.io/dashboard):
 <img width="662" alt="image" src="https://user-images.githubusercontent.com/70215737/201068630-d100db2c-ade5-4874-a29f-6e1890dba2fc.png">
