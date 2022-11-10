@@ -10,6 +10,28 @@ const Lang = () => (
   </>
 )
 
+const Benefit = ({ Icon, title, description }) => (
+  <div className='mb-10 md:mb-0 space-y-4'>
+    <div className='flex items-center'>
+      <div
+        className={`
+          inline-flex h-8 w-8 rounded-md
+          items-center justify-center
+          text-yellow-500 bg-neutral-700
+        `}
+      >
+        <Icon size={20} />
+      </div>
+      <dt className='ml-4'>
+        { title }
+      </dt>
+    </div>
+    <p className=''>
+      { description }
+    </p>
+  </div>
+)
+
 const Benefits = () => {
   return (
     <SectionContainer className='space-y-16'>
@@ -25,29 +47,43 @@ const Benefits = () => {
         </div>
       </div>
 
-      <dl className='grid grid-cols-1 lg:grid-cols-4'>
+      <dl className='grid grid-cols-1 lg:grid-cols-4 md:gap-16'>
 
-        <div className='mb-10 md:mb-0 space-y-4'>
-          <div className='flex items-center'>
-            <div
-              className={`
-                inline-flex h-8 w-8 rounded-md
-                items-center justify-center
-                text-yellow-500 bg-neutral-700
-              `}
-            >
-              <Terminal size={20} />
-            </div>
-            <dt className='ml-4'>
-              Benefit name
-            </dt>
-          </div>
-          <p className=''>
-            This is benefit description.
-            It has multiple lines and explains several things about
-            this benefit.
-          </p>
-        </div>
+        <Benefit
+          Icon={Terminal}
+          title='Some benefit'
+          description={`
+            This benefit is really cool. This is the sentence that describes it
+            really well and has multiple lines.
+          `}
+        />
+
+        <Benefit
+          Icon={Terminal}
+          title='Some benefit'
+          description={`
+            This benefit is really cool. This is the sentence that describes it
+            really well and has multiple lines.
+          `}
+        />
+
+        <Benefit
+          Icon={Terminal}
+          title='Some benefit'
+          description={`
+            This benefit is really cool. This is the sentence that describes it
+            really well and has multiple lines.
+          `}
+        />
+
+        <Benefit
+          Icon={Terminal}
+          title='Some benefit'
+          description={`
+            This benefit is really cool. This is the sentence that describes it
+            really well and has multiple lines.
+          `}
+        />
         
       </dl>
 
