@@ -50,7 +50,7 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **number** (`12`, `14.5`)
     - **declaration reference** (name of existing declaration: `TaskPage`, `updateTask`)
     - **ServerImport** (external server import) (`import Foo from "@server/bar.js"`, `import { Smth } from "@server/a/b.js"`)
-      - The path start with "@server". The rest is relative to the `src/server` directory.
+      - The path has to start with "@server". The rest is relative to the `src/server` directory.
       - import has to be a default import `import Foo` or a single named import `import { Foo }`.
     - **ClientImport** (external client import) (`import Foo from "@client/bar.js"`, `import { Smth } from "@client/a/b.js"`)
       - The path has to start with "@client". The rest is relative to the `src/client` directory.
