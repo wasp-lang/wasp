@@ -222,7 +222,7 @@ However, for this tutorial, for the sake of simplicity, we will stick with this.
 ## Updating operations to forbid access to non-authenticated users
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged in user's tasks:
-```js {1,4,6} title="@server/queries.js"
+```js {1,4,6} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -233,7 +233,7 @@ export const getTasks = async (args, context) => {
 }
 ```
 
-```js {1,4,8,14,15,16} title="@server/actions.js"
+```js {1,4,8,14,15,16} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async ({ description }, context) => {

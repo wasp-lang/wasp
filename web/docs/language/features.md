@@ -22,7 +22,7 @@ app todoApp {
 ### Fields
 
 #### `wasp: dict` (required)
-Wasp compiler configuration. It is a dictionary a single field:
+Wasp compiler configuration. It is a dictionary with a single field:
 -  `version: string` (required) - version declares the compatible Wasp versions for the app. It should contain a valid [SemVer range](https://github.com/npm/node-semver#ranges).
 
 :::info
@@ -372,12 +372,12 @@ To use an Entity in your Query, add it to the query declaration in Wasp:
 ```c {4,9} title="main.wasp"
 
 query fetchAllTasks {
-  fn: import { getAllTasks } from "@src/server/queries.js",
+  fn: import { getAllTasks } from "@server/queries.js",
   entities: [Task]
 }
 
 query fetchFilteredTasks {
-  fn: import { getFilteredTasks } from "@src/server/queries.js",
+  fn: import { getFilteredTasks } from "@server/queries.js",
   entities: [Task]
 }
 ```

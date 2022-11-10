@@ -92,7 +92,7 @@ export default MainPage
 As we can see, this is simply a functional React component which uses the CSS and Wasp logo files sitting next to it in the `src/client` dir.
 
 This is all the code we need!
-Wasp quitely takes care of everything else needed to define, build, and run a web app.
+Wasp quietly takes care of everything else needed to define, build, and run a web app.
 
 :::tip
 `wasp start` automatically picks up the changes you make and restarts the app, so keep it running.
@@ -101,7 +101,7 @@ Wasp quitely takes care of everything else needed to define, build, and run a we
 ## Cleaning up
 
 Let's make our first changes!
-To prepare the clean slate for building the TodoApp, the files `Main.css` and `waspLogo.png` from the `src/client/` folder (`src/shared` and `src/server` are already clean). The `jsconfig.json` files are necessary for IDE support, so it's important to keep it. Now that `src/client` contains only `jsconfig.json` and `MainPage.js` let's start by making the `MainPage` component much simpler:
+To prepare the clean slate for building the TodoApp, the files `Main.css` and `waspLogo.png` from the `src/client/` folder (`src/shared` and `src/server` are already clean). The `jsconfig.json` files are necessary for IDE support, so it's important to keep them. Now that `src/client` contains only `jsconfig.json` and `MainPage.js` let's start by making the `MainPage` component much simpler:
 
 ```jsx title="src/client/MainPage.js"
 import React from 'react'
