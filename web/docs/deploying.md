@@ -65,10 +65,17 @@ This will ask a series of questions, including what region to deploy in and if y
 - Say **no to "Would you like to deploy now?"**, as well as any additional questions. We still need to set a few environment variables.
 
 :::note 
-If your attempts to initiate a new app fail for whatever reason, then you can run `flyctl apps destroy <your-apps-name>` before trying again.
+If your attempts to initiate a new app fail for whatever reason, then you can run `flyctl apps destroy <app-name>` before trying again.
 
-When your db is deployed correctly, you will be able to view it in the [Fly.io dashboard](https://fly.io/dashboard):
-<img width="662" alt="image" src="https://user-images.githubusercontent.com/70215737/201068630-d100db2c-ade5-4874-a29f-6e1890dba2fc.png">
+<details>
+  <summary>
+    What does it look like when your DB is deployed correctly?
+  </summary>
+  <div>
+    <p>When your DB is deployed correctly, you will be able to view it in the <a href="https://fly.io/dashboard">Fly.io dashboard</a>:</p>
+    <img width="662" alt="image" src="https://user-images.githubusercontent.com/70215737/201068630-d100db2c-ade5-4874-a29f-6e1890dba2fc.png" />
+  </div>
+</details>
 :::
   
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
