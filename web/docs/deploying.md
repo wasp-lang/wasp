@@ -54,7 +54,7 @@ Unless you already have a Fly.io app that you want to deploy to, let's create a 
 cd .wasp/build
 ```
 
-assuming you were at the root of your Wasp project at that moment. Run the launch command, to setup a new app and create a `fly.toml` file:
+Now from within the `build` directory, run the launch command to set up a new app and create a `fly.toml` file:
 
 ```bash
 flyctl launch --remote-only
@@ -64,6 +64,13 @@ This will ask a series of questions, including what region to deploy in and if y
 - Say **yes to "Would you like to set up a Postgresql database now?", and select Development**, and Fly.io will set a `DATABASE_URL` for you.
 - Say **no to "Would you like to deploy now?"**. We still need to set a few environment variables.
 
+:::note 
+If your first attempt fails for whatever reason, then you should run `flyctl apps destroy <your-apps-name>` before trying again, or your db won't initiate on the next attempt, and/or you will run into more errors on the free plan. 
+
+When your db is deployed correctly, you will be able to view it in the [Fly.io dashboard](https://fly.io/dashboard):
+<img width="662" alt="image" src="https://user-images.githubusercontent.com/70215737/201068630-d100db2c-ade5-4874-a29f-6e1890dba2fc.png">
+:::
+  
 Next, let's copy the `fly.toml` file up to our Wasp project dir for safekeeping.
 ```bash
 cp fly.toml ../../
@@ -78,6 +85,8 @@ flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
 
 NOTE: If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
 
+If you want to make sure you've added your secrets correctly, run `flyctl secrets list` in the terminal. Note that you will see hashed versions of your secrets to protect your sensitive data.
+
 #### Deploy to a Fly.io app
 While still in the .wasp/build/ directory, run:
 
@@ -85,7 +94,9 @@ While still in the .wasp/build/ directory, run:
 flyctl deploy --remote-only --config ../../fly.toml
 ```
 
-This will build and deploy your Wasp app on Fly.io to `https://<app-name>.fly.dev`!
+This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev`! 🤘🎸
+
+Now, if you haven't, you can deploy your frontend -- [we suggest using Netlify](#deploying-web-client-frontend) for this -- and add the client url by running `flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_frontend>`
 
 Additionally, some useful commands include:
 
