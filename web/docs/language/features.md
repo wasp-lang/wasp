@@ -1236,7 +1236,7 @@ function. Wasp exposes a `configureQueryClient` hook that lets you configure
 _react-query_'s `QueryClient` object:
 
 
-```js title="ext/myClientSetupCode.js"
+```js title="src/client/myClientSetupCode.js"
 import { configureQueryClient } from '@wasp/queries'
 
 export default async function mySetupFunction() {

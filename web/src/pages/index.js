@@ -136,7 +136,7 @@ function HeroCodeExample() {
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   /* import your React code */
-  component: import Main from "@ext/Main.js"
+  component: import Main from "@client/Main.js"
 }
 `
   return (
@@ -168,7 +168,7 @@ app todoApp {
 /* routing */
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/Main" /* import your React code */
+  component: import Main from "@client/Main" /* import your React code */
 }
 `
 
@@ -184,7 +184,7 @@ export default () => <span> Hello World! </span>
           </CodeBlockWithTitle>
 
           <CodeBlockWithTitle
-            title="ext/Main.js | External React code, imported above"
+            title="src/client/Main.js | External React code, imported above"
             language="jsx">
             { createAppMainComponentCode }
           </CodeBlockWithTitle>
@@ -221,7 +221,7 @@ psl=}
 
 page MainPage {
   authRequired: true, /* available only to logged in users */
-  component: import Main from "@ext/Main"
+  component: import Main from "@client/Main"
 }
 `
 
@@ -240,7 +240,7 @@ export default ({ user }) => {
           <CodeBlockWithTitle title="todoApp.wasp" language="css">
             { exampleCode }
           </CodeBlockWithTitle>
-          <CodeBlockWithTitle title="ext/Main.js | Checking if user is logged in" language="jsx">
+          <CodeBlockWithTitle title="src/client/Main.js | Checking if user is logged in" language="jsx">
             { mainUsingAuthCode }
           </CodeBlockWithTitle>
 
@@ -262,7 +262,7 @@ entity Task {=psl
 psl=}
 
 query getTasks {
-  fn: import { getTasks } from "@ext/queries.js", /* import Node.js function */
+  fn: import { getTasks } from "@server/queries.js", /* import Node.js function */
   /* A list of entities this query uses - useful for automatic invalidation and refetching */
   entities: [Task]
 }
@@ -291,12 +291,12 @@ export default () => {
             { defineEntityWaspCode }
           </CodeBlockWithTitle>
           <CodeBlockWithTitle
-            title="ext/queries.js | Node.js function imported in a query above"
+            title="src/server/queries.js | Node.js function imported in a query above"
             language="jsx"
           >
             { getTasksQueryCode }
           </CodeBlockWithTitle>
-          <CodeBlockWithTitle title="ext/Todo.js | Invoking query from React code" language="jsx">
+          <CodeBlockWithTitle title="@client/Todo.js | Invoking query from React code" language="jsx">
             { todoUsingGetTasksCode }
           </CodeBlockWithTitle>
 
