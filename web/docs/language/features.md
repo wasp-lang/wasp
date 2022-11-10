@@ -147,7 +147,7 @@ page HomePage {
 }
 ```
 
-```jsx title="client/pages/OtherPage.js"
+```jsx title="src/client/pages/OtherPage.js"
 import React from 'react'
 import { Link } from "react-router-dom"
 
@@ -450,7 +450,7 @@ action updateTaskIsDone {
 ```
 
 And here is how you might use it:
-```js {4,18} title=client/pages/Task.js
+```js {4,18} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
 import fetchTask from '@wasp/queries/fetchTask'
