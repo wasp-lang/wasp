@@ -60,9 +60,15 @@ With all the common web app features (setup, auth, CRUD API) being taken care of
 
 ## Start quickly, but also scale without worries
 
+:::note
+Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
+
+As such, we have updated our Deployment docs with new recommendations: https://wasp-lang.dev/docs/deploying
+:::
+
 Since Wasp compiler generates a full-stack React & Node.js app under the hood, there aren’t any technical limitations to scaling Julian’s app as it grows and gets more users in the future. By running `wasp build` inside a project folder, developers gets both frontend files and a Dockerfile for the backend, which can then be deployed as any regular web app to the platform of your choice.
 
-Wasp provides [step-by step instructions](/docs/deploying) on how to do it with Netlify and Heroku for free (since Heroku is canceling their free plan, we'll publish guides for other providers soon), but we plan to add even more examples and more integrated deployment experience in the coming releases!
+Wasp provides [step-by step instructions](/docs/deploying) on how to do it with Netlify and Fly.io for free, but we plan to add even more examples and more integrated deployment experience in the coming releases!
 
 > Deploying the wasp app was incredibly easy - I didn’t have time to stand up full infrastructure in the 2 day hackathon and don’t have an infra/devops background, but I had something running on Netlify within an hour. Other projects at the hackathon struggled to do this, and putting access in the hands of the judges certainly helped get us 1st place.
 >

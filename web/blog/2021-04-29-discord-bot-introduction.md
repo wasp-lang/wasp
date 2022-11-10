@@ -212,6 +212,12 @@ and if you assign yourself a `Guest` role on the Discord server and then type `!
 
 ### Deploying the bot
 
+:::note
+Heroku used to offer free apps under certain limits. However, as of November 28, 2022, they ended support for their free tier. https://blog.heroku.com/next-chapter
+
+As such, we have updated our Deployment docs with new recommendations: https://wasp-lang.dev/docs/deploying
+:::
+
 While there are many ways to deploy the Discord bot, I will shortly describe how we did it via Heroku.
 
 We created a Heroku app `wasp-discord-bot` and set up the "Automatic deploys" feature on Heroku to automatically deploy every push to the `production` branch (our bot is on Github).
