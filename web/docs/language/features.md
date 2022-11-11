@@ -631,7 +631,7 @@ job mySpecialJob {
 }
 ```
 
-Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-extimport-optional) (or any other NodeJS code), you can submit work to be done:
+Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
 ```js
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
-import CodeBlock from '@theme/CodeBlock';
 import CodeBlockWithTitle from '../components/CodeBlockWithTitle'
 import EmailSignupForm from '../components/EmailSignupForm/index.js'
 import Link from '@docusaurus/Link';
