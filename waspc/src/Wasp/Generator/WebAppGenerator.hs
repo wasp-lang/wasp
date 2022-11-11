@@ -139,23 +139,15 @@ genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
   return $
-    [ publicIndexHtmlFd,
-      genFaviconFd,
-      genManifestFd
-    ]
-      ++ genGoogleSigninImage
+    publicIndexHtmlFd : genGoogleSigninImage
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genGoogleSigninImage =
       [ C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|])
         | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
       ]
-    genManifestFd =
-      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
-       in C.mkTmplFdWithData tmplFile tmplData
 
+-- TODO: Handle missing favicon.ico case.
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =
   return $
