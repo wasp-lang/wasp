@@ -492,7 +492,7 @@ The `useAction` hook accepts two arguments:
 **NOTE:** The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects. Also, make sure you only update the query caches affected by your action causing the optimistic update (Wasp cannot yet verify this). Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
 
 Here's an example showing how to configure the Action from the previous example to perform an optimistic update: 
-```jsx {3,9,10,11,12,13,14,15,16,27} title=client/pages/Task.js
+```jsx {3,9,10,11,12,13,14,15,16,27} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
 import { useAction } from '@wasp/actions'
