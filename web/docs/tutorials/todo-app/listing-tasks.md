@@ -29,7 +29,8 @@ Add the following code to `main.wasp`:
 
 query getTasks {
   // We specify that JS implementation of the query (which is an async JS function)
-  // can be found in `@server/queries.js` as the named export `getTasks`.
+  // can be found in `src/server/queries.js` as the named export `getTasks`.
+  // Use '@server' to reference files inside the src/server folder.
   fn: import { getTasks } from "@server/queries.js",
   // We tell Wasp that this query is doing something with entity `Task`. With that, Wasp will
   // automatically refresh the results of this query when tasks change.

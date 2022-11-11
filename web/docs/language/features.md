@@ -631,7 +631,7 @@ job mySpecialJob {
 }
 ```
 
-Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-extimport-optional) (or any other NodeJS code), you can submit work to be done:
+Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
 ```js
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 
@@ -1236,7 +1236,7 @@ function. Wasp exposes a `configureQueryClient` hook that lets you configure
 _react-query_'s `QueryClient` object:
 
 
-```js title="ext/myClientSetupCode.js"
+```js title="src/client/myClientSetupCode.js"
 import { configureQueryClient } from '@wasp/queries'
 
 export default async function mySetupFunction() {
