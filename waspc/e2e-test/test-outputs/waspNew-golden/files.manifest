@@ -1,9 +1,9 @@
 waspNew/.wasproot
 waspNew/main.wasp
 waspNew/src/.waspignore
-waspNew/src/client/.gitkeep
 waspNew/src/client/Main.css
 waspNew/src/client/MainPage.js
+waspNew/src/client/jsconfig.json
 waspNew/src/client/waspLogo.png
-waspNew/src/server/.gitkeep
-waspNew/src/shared/.gitkeep
+waspNew/src/server/jsconfig.json
+waspNew/src/shared/jsconfig.json
