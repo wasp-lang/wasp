@@ -135,6 +135,7 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
+-- TODO: Handle user supplied src/client/public/index.html.
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec

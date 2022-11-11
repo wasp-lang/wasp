@@ -38,4 +38,5 @@ genFile strategy file
     dstPathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir $ EC.filePathInExtCodeDir file
 
     extension = FP.takeExtension $ SP.toFilePath $ EC.filePathInExtCodeDir file
+    -- TODO: Make sure to only do this for client.
     isPublicDirFile = "public/" `isPrefixOf` SP.toFilePath (EC.filePathInExtCodeDir file)
