@@ -8,7 +8,7 @@
 - Updates required Node LTS version from version 16 to version 18. This Node ecosystem change happened on 2022-10-25: https://github.com/nodejs/Release
 
 #### Significant changes to Wasp project structure
-This was the file tree of a newly generated in the previous version of Wasp
+This was the file tree of a newly generated project in the previous version of Wasp
 (i.e., this was what you used to get by running `wasp new project`):
 ```
 .
