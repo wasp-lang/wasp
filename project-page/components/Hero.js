@@ -81,7 +81,7 @@ page MainPage {
 const codeStringJs = 'const a = 27'
 
   return (
-    <SectionContainer className='pt-24'>
+    <SectionContainer className='pb-5 pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
 
         <div className='lg:col-span-6 space-y-12'>

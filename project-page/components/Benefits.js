@@ -1,6 +1,9 @@
+import classNames from 'classnames'
 import { Terminal, Layers, Coffee, Code } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
+
+import styles from '../styles/index.module.css'
 
 const Lang = () => (
   <>
@@ -48,7 +51,6 @@ const Benefits = () => {
       </div>
 
       <dl className='grid grid-cols-1 lg:grid-cols-3 md:gap-16 lg:gap-x-8 xl:gap-x-24'>
-
         <Benefit
           Icon={Layers}
           title='Truly full-stack'
@@ -69,19 +71,32 @@ const Benefits = () => {
 
         <Benefit
           Icon={Code}
-          title='No boilerplate'
+          title='Less boilerplate'
           description={`
-            The language aspect allows us to greatly improve developer experience. E.g.,
+            The language approach allows us to greatly improve developer experience. E.g.,
             full-stack auth takes only 5 lines of code.
           `}
         />
-
-        
       </dl>
-
     </SectionContainer>
-
   )
 }
 
-export default Benefits
+const BenefitsWithSkewedBorder = () => (
+  <div className='relative'>
+    <div className={classNames(styles.sectionSkewedContainer)}>
+      <div
+        className={classNames(
+          styles.sectionSkewed,
+          'border-t border-b border-yellow-500/25 bg-neutral-100/50'
+        )}
+      >
+      </div>
+    </div>
+    <div className='relative'>
+      <Benefits />
+    </div>
+  </div>
+)
+
+export default BenefitsWithSkewedBorder
