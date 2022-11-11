@@ -43,6 +43,12 @@ data-files:
   Cli/templates/**/*.css
   Cli/templates/**/*.js
   Cli/templates/**/*.png
+  Cli/templates/new/.gitignore
+  Cli/templates/new/.wasproot
+  Cli/templates/new/src/.waspignore
+  Cli/templates/new/src/client/.gitkeep
+  Cli/templates/new/src/server/.gitkeep
+  Cli/templates/new/src/shared/.gitkeep
 data-dir: data/
 
 source-repository head

@@ -86,23 +86,9 @@
     [
         [
             "file",
-            "server/src/ext-src/Main.css"
+            "server/src/ext-src/.gitkeep"
         ],
-        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/MainPage.js"
-        ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -166,6 +152,13 @@
             "server/src/server.js"
         ],
         "e19bdae598265cbe2457ff1e2d8524aa821666482cb7d21644e290a68daf94a5"
+    ],
+    [
+        [
+            "file",
+            "server/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [
@@ -261,6 +254,13 @@
     [
         [
             "file",
+            "web-app/src/ext-src/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
+    ],
+    [
+        [
+            "file",
             "web-app/src/ext-src/Main.css"
         ],
         "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
@@ -348,6 +348,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/shared/.gitkeep"
+        ],
+        "3c93961ee5013ddc0149b57c9eb7b469aea5f3cb197429bded0d20498a267b06"
     ],
     [
         [

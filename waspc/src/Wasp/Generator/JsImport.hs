@@ -10,7 +10,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 
 getJsImportDetailsForExtFnImport ::
   -- | Path to generated external code directory, relative to the directory in which file doing the importing is.
-  Path Posix (Rel (Dir a)) (Dir GeneratedExternalCodeDir) ->
+  Path Posix (Rel a) (Dir GeneratedExternalCodeDir) ->
   AS.ExtImport.ExtImport ->
   -- | (importIdentifier, importStmt)
   --   - importIdentifier -> Identifier via which you can access ext js function after you import it with importStmt.

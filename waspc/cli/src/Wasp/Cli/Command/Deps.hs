@@ -5,7 +5,6 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List.NonEmpty (toList)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.Cli.Command (Command, CommandError (..))
@@ -21,14 +20,14 @@ import qualified Wasp.Util.Terminal as Term
 deps :: Command ()
 deps = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  (_, appSpecOrAnalyzerErrors) <- liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
+  appSpecOrAnalyzerErrors <- liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
     either
-      (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords . toList)
+      (throwError . CommandError "Determining dependencies failed due to a compilation error in your Wasp project" . unwords)
       return
       appSpecOrAnalyzerErrors
 
-  liftIO . putStrLn $ depsMessage appSpec
+  liftIO $ putStrLn $ depsMessage appSpec
 
 depsMessage :: AppSpec -> String
 depsMessage appSpec =
