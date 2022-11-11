@@ -45,7 +45,25 @@ You wouldn’t want the server to delay sending its HTTP response until those ar
 
 The typical solution here is to use a job queue of some kind. They are not impossible to set up, of course, but there is a fair amount of boilerplate involved, some operational expertise/overhead required, and moving from one system to another when you outgrow it is usually a challenge. These are the exact areas where we feel Wasp can provide real value, so we are happy to introduce Wasp Jobs to help out with this!
 
-<ImgWithCaption alt="@ext/workers/github.js" source="img/jobs-snippet1.png" caption="@ext/workers/github.js"/>
+```js title=src/server/workers/github.js
+import axios from 'axios'
+import { upsertMetric } from './utils.js'
+
+export async function workerFunction() {
+  const response = await axios.get('https://api.github.com/repos/wasp-lang/wasp')
+
+  const metrics = [
+    { name: 'Wasp GitHub Stars', value: response.data.stargazers_count },
+    { name: 'Wasp GitHub Language', value: response.data.language },
+    { name: 'Wasp GitHub Forks', value: response.data.forks },
+    { name: 'Wasp GitHub Open Issues', value: response.data.open_issues },
+  ]
+
+  await Promise.all(metrics.map(upsertMetric))
+
+  return metrics
+}
+```
 
 Wasp allows you to write a regular async JavaScript function (like the one above that gathers GitHub metrics and stores them in the DB) and have it run within the context of a job queue system, which we call an executor. You can manually submit work to be done on the server, or specify a cron schedule to have your job automatically invoked. And, best of all, as we add more job executors in the future, you can change where it runs on a single line in your .wasp file.
 
@@ -72,11 +90,51 @@ However, we will also continue to expand the number of job execution runtimes we
 
 If you are a regular reader of this blog (thank you, you deserve a raise! 😊), you may recall we created an example app of a metrics dashboard called [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau) that used workers in the background to make periodic HTTP calls for data. In that example, we didn’t yet have access to recurring jobs in Wasp, so we used Bull for scheduled jobs instead. To set up our queue-related logic we had to have this huge `setupFn` wiring it all up; but now, we can remove all that code and simply use jobs instead! Here is what the new DSL looks like:
 
-<ImgWithCaption alt="@ext/main.wasp" source="img/jobs-snippet2.png" caption="@ext/main.wasp"/>
+```js title=main.wasp
+// A cron job for fetching GitHub stats
+job getGithubStats {
+  executor: PgBoss,
+  perform: {
+    fn: import { workerFunction } from "@server/workers/github.js"
+  },
+  schedule: {
+    cron: "*/10 * * * *"
+  }
+}
+
+// A cron job to measure how long a webpage takes to load
+job calcPageLoadTime {
+  executor: PgBoss,
+  perform: {
+    fn: import { workerFunction } from "@server/workers/loadTime.js"
+  },
+  schedule: {
+    cron: "*/5 * * * *",
+    args: {=json {
+      "url": "https://wasp-lang.dev",
+      "name": "wasp-lang.dev Load Time"
+    } json=}
+  }
+}
+```
 
 And here is an example of how you can reference and invoke jobs on the server. *Note: We did not even need to do this step since jobs with a schedule are automatically configured to run at the desired time.*
+```js title=src/server/serverSetup.js
+/**
+* These Jobs are automatically scheduled by Wasp.
+* However, let's kick them off on server setup to ensure we have data right away.
+*/
+import { github } from '@wasp/jobs/getGithubStats.js'
+import { loadTime } from '@wasp/jobs/calcPageLoadTime.js'
 
-<ImgWithCaption alt="@ext/serverSetup.js" source="img/jobs-snippet3.png" caption="@ext/serverSetup.js"/>
+export default async function () {
+  await github.submit()
+  await loadTime.submit({
+    url: "https://wasp-lang.dev",
+    name: "wasp-lang.dev Load Time"
+  })
+}
+```
 
 And voila, it is really that simple. Wasp takes care of setting up pg-boss and hooking up all your job callbacks, leaving you to focus on what matters- your own code. Here is a visual of what is happening behind the scenes:
 

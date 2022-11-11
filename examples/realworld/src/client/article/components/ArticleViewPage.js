@@ -112,7 +112,7 @@ const ArticleViewPage = (props) => {
         <Grid item xs={8}>
           <div className={classes.tags}>
             <span>Tags:</span>
-            { article.tags.map(tag => <Chip label={tag.name} />) }
+            { article.tags.map(tag => <Chip key={tag.name} label={tag.name} />) }
           </div>
 
           { isMyArticle && (

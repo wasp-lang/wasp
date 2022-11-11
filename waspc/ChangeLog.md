@@ -7,6 +7,110 @@
 - Removes default `index.css` file that provided basic `body` defaults. Now, there is no default CSS applied.
 - Updates required Node LTS version from version 16 to version 18. This Node ecosystem change happened on 2022-10-25: https://github.com/nodejs/Release
 
+#### Significant changes to Wasp project structure
+This was the file tree of a newly generated project in the previous version of Wasp
+(i.e., this was what you used to get by running `wasp new project`):
+```
+.
+├── ext
+│   ├── Main.css
+│   ├── MainPage.js
+│   ├── .waspignore
+│   └── waspLogo.png
+├── .gitignore
+├── main.wasp
+└── .wasproot
+```
+This is the file tree of a newly generated project in the newest release of Wasp (i.e., this is what you will
+get by running `wasp new project` from this point onwards):
+```
+.
+├── .gitignore
+├── main.wasp
+├── src
+│   ├── client
+│   │   ├── jsconfig.json
+│   │   ├── Main.css
+│   │   ├── MainPage.js
+│   │   └── waspLogo.png
+│   ├── server
+│   │   └── jsconfig.json
+│   ├── shared
+│   │   └── jsconfig.json
+│   └── .waspignore
+└── .wasproot
+```
+Main differences:
+- All server-side code must be located inside the `src/server` directory.  Wasp
+declarations must import this code with `import foo from "@server/foo.js"`
+(instead of `import foo from "@ext/foo.js"`)
+- All client-side code must be located inside the `src/client` directory.  Wasp
+declarations must import this code with `import foo from "@client/bar.js"`
+(instead of `import bar from "@ext/bar.js"`)
+- All shared code (i.e., used on both the client and the server) must be
+located inside the `src/shared` and imported where needed through a relative import.
+- Each of these subdirectories (i.e., `src/server`, `src/client`, and
+`src/shared`) comes with a pregenerated `jsconfig.json` file. This file helps
+with IDE support (e.g., jumping to definitions, previewing types, etc.) and you
+shouldn't delete it. 
+
+The new structure is fully reflected in [our docs](https://wasp-lang.dev/docs/language/overview), but we'll also
+provide a quick guide for migrating existing projects.
+
+##### Migrating an existing Wasp project to the new structure
+
+You can easily migrate your old Wasp project to the new structure by following a
+series of steps. Assuming you have a project called `foo` inside the
+directory `foo`, you should:
+  1. Install the latest version of Wasp
+  2. Rename your project's root directory to something like `foo_old`
+  3. Create a new project by running `wasp new foo`
+  4. Copy all server-side code from `foo_old/ext` to `foo/src/server`
+  5. Copy all client-side code from `foo_old/ext` to `foo/src/client`
+  6. Copy all shared code (if any) from `foo_old/ext` to `foo/src/shared` and
+  adapt imports in files that reference it:
+     - For example, `import bar from './bar.js'` becomes `import bar from "../shared/bar.js"`
+  7. Copy all lines you might have added to `foo_old/.gitignore` into
+  `foo/.gitignore`
+  8. Finally, copy `foo_old/main.wasp` to `foo/main.wasp` and correct external
+  imports:
+      - Queries, Actions, Jobs, and the Server setup function must import their code from `@server`
+      - Pages and the Client setup function must import their code from `@client`
+
+     For example, if you previously had something like:
+     ```js
+     page LoginPage {
+       // This previously resolved to ext/LoginPage.js
+       component: import Login from "@ext/LoginPage.js"
+     }
+     
+     // ...
+     
+     query getTasks {
+       // This previously resolved to ext/queries.js
+       fn: import { getTasks } from "@ext/queries.js",
+     }
+     ```
+
+     You should change it to:
+
+     ```js
+     page LoginPage {
+       // This resolves to src/client/LoginPage.js
+       component: import Login from "@client/LoginPage.js"
+     }
+     
+     // ...
+     
+     query getTasks {
+       // This resolves to src/server/queries.js
+       fn: import { getTasks } from "@server/queries.js",
+     }
+     ```
+     Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
+     
+That's it! You should now have a fully working Wasp project in the `foo` directory.
+
 ### [NEW FEATURE] Dockerfile customization
 
 You can now customize the default Wasp Dockerfile by either extending/replacing our build stages or using your own custom logic. To make use of this feature, simply add a Dockerfile to the root of your project and it will be appended to the bottom of the existing Wasp Dockerfile.
