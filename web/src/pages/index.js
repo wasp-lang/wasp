@@ -295,7 +295,7 @@ export default () => {
           >
             { getTasksQueryCode }
           </CodeBlockWithTitle>
-          <CodeBlockWithTitle title="@client/Todo.js | Invoking query from React code" language="jsx">
+          <CodeBlockWithTitle title="src/client/Todo.js | Invoking query from React code" language="jsx">
             { todoUsingGetTasksCode }
           </CodeBlockWithTitle>
 
