@@ -1,4 +1,4 @@
-import { Terminal } from 'react-feather'
+import { Terminal, Layers, Coffee, Code } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
 
@@ -47,43 +47,35 @@ const Benefits = () => {
         </div>
       </div>
 
-      <dl className='grid grid-cols-1 lg:grid-cols-4 md:gap-16'>
+      <dl className='grid grid-cols-1 lg:grid-cols-3 md:gap-16 lg:gap-x-8 xl:gap-x-24'>
 
         <Benefit
-          Icon={Terminal}
-          title='Some benefit'
+          Icon={Layers}
+          title='Truly full-stack'
           description={`
-            This benefit is really cool. This is the sentence that describes it
-            really well and has multiple lines.
+            When we say full-stack, we really mean it. Wasp has you covered from front-end,
+            back-end and database to deployment. Zero config required to get started.
           `}
         />
 
         <Benefit
-          Icon={Terminal}
-          title='Some benefit'
+          Icon={Coffee}
+          title='The wheel can relax'
           description={`
-            This benefit is really cool. This is the sentence that describes it
-            really well and has multiple lines.
+            No reinventing the wheel here. Write your code in React & Node.js as you are used to,
+            along with your favourite NPM packages.
           `}
         />
 
         <Benefit
-          Icon={Terminal}
-          title='Some benefit'
+          Icon={Code}
+          title='No boilerplate'
           description={`
-            This benefit is really cool. This is the sentence that describes it
-            really well and has multiple lines.
+            The language aspect allows us to greatly improve developer experience. E.g.,
+            full-stack auth takes only 5 lines of code.
           `}
         />
 
-        <Benefit
-          Icon={Terminal}
-          title='Some benefit'
-          description={`
-            This benefit is really cool. This is the sentence that describes it
-            really well and has multiple lines.
-          `}
-        />
         
       </dl>
 
