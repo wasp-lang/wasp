@@ -94,7 +94,8 @@ const Nav = () => {
   return (
     <>
       <div className='sticky top-0 z-50'>
-        <nav className='border-b'>
+        <div className='bg-[#f5f4f0] absolute top-0 h-full w-full opacity-80'></div>
+        <nav className='border-b backdrop-blur-sm'>
           <div className='
               relative mx-auto 
               flex justify-between
