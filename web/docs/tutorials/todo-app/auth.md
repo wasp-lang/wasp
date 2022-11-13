@@ -49,7 +49,7 @@ app TodoApp {
     userEntity: User,
     methods: {
       usernameAndPassword: {} // We also support Google, with more on the way!
-    }
+    },
     onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
   }
 }
