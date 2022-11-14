@@ -62,7 +62,7 @@ const Benefits = () => {
 
         <Benefit
           Icon={Coffee}
-          title='The wheel can relax'
+          title='The wheel can take a break'
           description={`
             No reinventing the wheel here. Write your code in React & Node.js as you are used to,
             along with your favourite NPM packages.
@@ -73,8 +73,8 @@ const Benefits = () => {
           Icon={Code}
           title='Less boilerplate'
           description={`
-            The language approach allows us to greatly improve developer experience. E.g.,
-            full-stack auth takes only 5 lines of code.
+            The language approach allows us to immensely improve developer experience.
+            E.g., full-stack auth takes only 5 lines of code.
           `}
         />
       </dl>
