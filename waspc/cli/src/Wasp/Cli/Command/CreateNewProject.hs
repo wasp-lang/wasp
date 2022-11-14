@@ -102,7 +102,7 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile a
           "",
           "route RootRoute { path: \"/\", to: MainPage }",
           "page MainPage {",
-          "  component: import Main from \"@client/MainPage.js\"",
+          "  component: import Main from \"@client/MainPage.tsx\"",
           "}"
         ]
 
