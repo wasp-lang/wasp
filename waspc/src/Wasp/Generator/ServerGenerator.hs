@@ -56,7 +56,7 @@ import Wasp.Util ((<++>))
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
-    [ genReadme,
+    [ genFileCopy [relfile|README.md|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -68,6 +68,7 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+  where genFileCopy = return . C.mkTmplFd 
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -82,9 +83,6 @@ genDotEnv spec = return $
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
-
-genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd (C.asTmplFile [relfile|README.md|])
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -126,7 +124,10 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash", "^4.17.21")
+            ("lodash", "^4.17.21"),
+            -- todo make optional
+            -- todo types for node
+            ("typescript", "^4.8.4")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
@@ -157,10 +158,10 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|core/AuthError.js|],
-      copyTmplFile [relfile|core/HttpError.js|],
+    [ genFileCopy [relfile|app.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|core/AuthError.js|],
+      genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec
@@ -170,7 +171,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

@@ -43,7 +43,8 @@ import Wasp.Util ((<++>))
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
   sequence
-    [ genReadme,
+    [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
@@ -54,23 +55,21 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
+  where genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
-
-genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd $ C.asTmplFile [relfile|README.md|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -107,7 +106,12 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1")
+            ("react-scripts", "5.0.1"),
+            -- todo make optional
+            ("typescript", "^4.8.4"),
+            ("@types/jest", "^29.2.2"),
+            ("@types/react", "^18.0.25"),
+            ("@types/react-dom", "^18.0.8")
           ]
           ++ depsRequiredByTailwind spec,
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
