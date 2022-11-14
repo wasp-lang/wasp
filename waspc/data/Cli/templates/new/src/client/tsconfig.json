@@ -1,5 +1,15 @@
 {
   "compilerOptions": {
+    // JSX support
+    "jsx": "preserve",
+    // Enables default imports in typescript
+    "esModuleInterop": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
     // The following settings enable IDE support in user-provided source files.
     // Editing them might break features like import autocompletion and
     // definition lookup. Don't change them unless you know what you're doing.
