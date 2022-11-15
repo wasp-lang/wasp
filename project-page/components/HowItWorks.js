@@ -28,7 +28,9 @@ const TextLink = ({ url, label }) => (
     <div className='group flex gap-1 items-center'>
       <span>{label}</span>
       <div className='transition-all group-hover:ml-0.5'>
-        <ArrowRight size={14} />
+        <span className='text-yellow-600'>
+          <ArrowRight size={14} strokeWidth={2} />
+        </span>
       </div>
     </div>
   </a>

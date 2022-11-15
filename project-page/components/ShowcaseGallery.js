@@ -1,8 +1,39 @@
+import Image from 'next/image'
 import SectionContainer from './Layouts/SectionContainer'
+
+const ShowcaseItem = ({ url, thumb, title, description }) => (
+  <div>
+    <a href={url}>
+      <div className='group inline-block min-w-full'>
+        <div className='flex flex-col space-y-3 pb-8'>
+
+          <div
+            className={`
+              border-neutral-300 relative mb-4 h-60 w-full overflow-auto
+              rounded-lg border shadow-lg
+            `}
+          >
+            <Image 
+              layout='fill'
+              src={thumb}
+              objectFit='cover'
+              className=''
+            />
+          </div>
+
+          <h3 className='text-xl'>{title}</h3>
+          <p className='text-base'>{description}</p>
+
+        </div>
+      </div>
+    </a>
+  </div>
+  
+)
 
 const ShowcaseGallery = () => {
   return (
-    <SectionContainer className=''>
+    <SectionContainer className='space-y-16'>
       <div className='grid grid-cols-12'>
         <div className='col-span-12 text-center'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
@@ -12,6 +43,35 @@ const ShowcaseGallery = () => {
             See what others are building with Wasp.
           </p>
         </div>
+      </div>
+
+      <div
+        className={`
+          mx-auto grid max-w-lg gap-8
+          lg:max-w-none lg:grid-cols-3 lg:gap-12
+        `}
+      >
+        <ShowcaseItem
+          url='/'
+          thumb='/wasp-compilation-diagram.png'
+          title='First showcase post'
+          description='Check out how we made this first showcase post.'
+        />
+
+        <ShowcaseItem
+          url='/'
+          thumb='/wasp-compilation-diagram.png'
+          title='Second showcase post'
+          description='Check out how we made this second showcase post.'
+        />
+
+        <ShowcaseItem
+          url='/'
+          thumb='/wasp-compilation-diagram.png'
+          title='Third showcase post'
+          description='Check out how we made this third showcase post.'
+        />
+
       </div>
 
 
