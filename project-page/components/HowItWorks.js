@@ -1,20 +1,32 @@
+import { ArrowRight } from 'react-feather'
+
 import SectionContainer from './Layouts/SectionContainer'
 
-const Feature = ({ title, description }) => (
+const Feature = ({ title, description, url }) => (
   <div className='col-span-12 md:col-span-6'>
     <div className='lg:mt-5'>
       <dt>
-        <h4 className='mb-4'>{ title }</h4>
+        <h4 className='mb-4'>
+          <span className='bg-yellow-500/25 px-2 py-1 rounded'>{ title }</span>
+        </h4>
         <p className='text-neutral-500'>
           { description }
         </p>
-        <a href='/' className='mt-3 block cursor-pointer text-sm text-neutral-500'>
-          <span>Learn more</span>
-        </a>
+        <TextLink url={url} label='Learn more' />
       </dt>
     </div>
   </div>
+)
 
+const TextLink = ({ url, label }) => (
+  <a href={url} className='mt-3 block cursor-pointer text-sm text-neutral-500 hover:text-neutral-400'>
+    <div className='group flex gap-1 items-center'>
+      <span>{label}</span>
+      <div className='transition-all group-hover:ml-0.5'>
+        <ArrowRight size={14} />
+      </div>
+    </div>
+  </a>
 )
 
 const HowItWorks = () => {
@@ -38,21 +50,25 @@ const HowItWorks = () => {
 
               <Feature 
                 title='Typescript support'
+                url='/'
                 description="JS or TS - mix'n'match as you wish."
               />
 
               <Feature 
                 title='Wasp CLI'
+                url='/'
                 description='All the handy commands at your fingertips.'
               />
 
               <Feature 
                 title='LSP for VS Code'
+                url='/'
                 description='Syntax highligthing, go-to-definition, etc. work out-of-the-box.'
               />
 
               <Feature 
                 title='Deploy anywhere'
+                url='/'
                 description='See our deployment guide for more details.'
               />
 
