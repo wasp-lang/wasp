@@ -18,6 +18,12 @@ const Background = () => {
   )
 }
 
+const LightsTwo = () => (
+  <div className='absolute top-[1800px] lg:top-[1000px] left-0 w-full h-full overflow-hidden pointer-events-none'>
+    <span className={classNames(styles.lightsTwo, "opacity-100")} />
+  </div>
+)
+
 const Index = () => {
   return (
     <>
@@ -29,6 +35,9 @@ const Index = () => {
 
             <Hero />
             <Benefits />
+
+            <LightsTwo />
+
             <HowItWorks />
 
           </div> {/* eof container */}

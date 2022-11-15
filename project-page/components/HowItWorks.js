@@ -43,7 +43,7 @@ const HowItWorks = () => {
 
               <Feature 
                 title='Wasp CLI'
-                description='All handy commands at the tip of your fingers.'
+                description='All the handy commands at your fingertips.'
               />
 
               <Feature 
