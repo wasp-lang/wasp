@@ -9,7 +9,7 @@ const Feature = ({ title, description, url }) => (
         <h4 className='mb-4'>
           <span className='bg-yellow-500/25 px-2 py-1 rounded'>{ title }</span>
         </h4>
-        <p className='text-neutral-500'>
+        <p className='text-neutral-600'>
           { description }
         </p>
         <TextLink url={url} label='Learn more' />
@@ -19,7 +19,12 @@ const Feature = ({ title, description, url }) => (
 )
 
 const TextLink = ({ url, label }) => (
-  <a href={url} className='mt-3 block cursor-pointer text-sm text-neutral-500 hover:text-neutral-400'>
+  <a href={url}
+    className={`
+      mt-3 block cursor-pointer text-sm
+      text-neutral-600 hover:text-neutral-500
+    `}
+  >
     <div className='group flex gap-1 items-center'>
       <span>{label}</span>
       <div className='transition-all group-hover:ml-0.5'>
@@ -31,14 +36,14 @@ const TextLink = ({ url, label }) => (
 
 const HowItWorks = () => {
   return (
-    <SectionContainer>
+    <SectionContainer className='lg:pb-8'>
       <div className='grid grid-cols-12'>
 
         <div className='col-span-12 lg:col-span-4'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
              What's under the hood? 🚕
           </h2>
-          <p className='text-neutral-500'>
+          <p className='text-neutral-700'>
             Given <code>.wasp</code> and <code>.js(x)/.css/...</code>, source files,
             Wasp compiler generates the full source of your web app in
             the target stack - front-end, back-end and deployment.

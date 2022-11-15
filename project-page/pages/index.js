@@ -6,6 +6,7 @@ import Nav from 'components/Nav/index'
 import Hero from 'components/Hero'
 import Benefits from 'components/Benefits'
 import HowItWorks from 'components/HowItWorks'
+import ShowcaseGallery from 'components/ShowcaseGallery'
 
 import styles from '../styles/index.module.css'
 
@@ -39,6 +40,7 @@ const Index = () => {
             <LightsTwo />
 
             <HowItWorks />
+            <ShowcaseGallery />
 
           </div> {/* eof container */}
         </main>
