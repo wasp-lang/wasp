@@ -1,13 +1,30 @@
 import SectionContainer from './Layouts/SectionContainer'
 
+const Feature = ({ title, description }) => (
+  <div className='col-span-12 md:col-span-6'>
+    <div className='lg:mt-5'>
+      <dt>
+        <h4 className='mb-4'>{ title }</h4>
+        <p className='text-neutral-500'>
+          { description }
+        </p>
+        <a href='/' className='mt-3 block cursor-pointer text-sm text-neutral-500'>
+          <span>Learn more</span>
+        </a>
+      </dt>
+    </div>
+  </div>
+
+)
+
 const HowItWorks = () => {
   return (
     <SectionContainer>
       <div className='grid grid-cols-12'>
 
-        <div className='col-span-12 lg:col-span-5'>
+        <div className='col-span-12 lg:col-span-4'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
-            Under the hood 🚕
+             What's under the hood? 🚕
           </h2>
           <p className='text-neutral-500'>
             Given <code>.wasp</code> and <code>.js(x)/.css/...</code>, source files,
@@ -19,54 +36,32 @@ const HowItWorks = () => {
           <div className='py-8'>
             <dl className='grid grid-cols-12 gap-y-4 md:gap-8'>
 
-              <div className='col-span-12 md:col-span-6'>
-                <div className='lg:mt-5'>
-                  <dt>
-                    <h4 className='mb-4'>Typescript support</h4>
-                    <p className='text-neutral-500'>
-                      This is some description of our cool Typescript support.
-                    </p>
-                    <a href='/' className='mt-3 block cursor-pointer text-sm text-neutral-500'>
-                      <span>Learn more</span>
-                    </a>
-                  </dt>
-                </div>
-              </div>
+              <Feature 
+                title='Typescript support'
+                description="JS or TS - mix'n'match as you wish."
+              />
 
-              <div className='col-span-12 md:col-span-6'>
-                <div className='lg:mt-5'>
-                  <dt>
-                    <h4 className='mb-4'>Awesome CLI</h4>
-                    <p className='text-neutral-500'>
-                      Our CLI is super helpful and you will feel amazing using it.
-                    </p>
-                    <a href='/' className='mt-3 block cursor-pointer text-sm text-neutral-500'>
-                      <span>Learn more</span>
-                    </a>
-                  </dt>
-                </div>
-              </div>
+              <Feature 
+                title='Wasp CLI'
+                description='All handy commands at the tip of your fingers.'
+              />
 
-              <div className='col-span-12 md:col-span-6'>
-                <div className='lg:mt-5'>
-                  <dt>
-                    <h4 className='mb-4'>Custom made LSP</h4>
-                    <p className='text-neutral-500'>
-                      Our LSP is here, enjoy it VS Code.
-                    </p>
-                    <a href='/' className='mt-3 block cursor-pointer text-sm text-neutral-500'>
-                      <span>Learn more</span>
-                    </a>
-                  </dt>
-                </div>
-              </div>
+              <Feature 
+                title='LSP for VS Code'
+                description='Syntax highligthing, go-to-definition, etc. work out-of-the-box.'
+              />
+
+              <Feature 
+                title='Deploy anywhere'
+                description='See our deployment guide for more details.'
+              />
 
             </dl>
 
           </div> {/* EOF Features */}
         </div>
 
-        <div className='col-span-12 lg:col-span-7 xl:col-span-6 xl:col-start-7'>
+        <div className='col-span-12 lg:col-span-7 xl:col-span-7 xl:col-start-6'>
           <img
             className=''
             src='/wasp-compilation-diagram.png'
