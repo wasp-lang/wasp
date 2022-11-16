@@ -1,6 +1,12 @@
 import Image from 'next/image'
 import SectionContainer from './Layouts/SectionContainer'
 
+const Tag = ({ text, color }) => (
+  <span className={`text-sm ${color}`}>
+    {text}
+  </span>
+)
+
 const ShowcaseItem = ({ url, thumb, title, description }) => (
   <div>
     <a href={url}>
@@ -22,6 +28,11 @@ const ShowcaseItem = ({ url, thumb, title, description }) => (
           </div>
 
           <h3 className='text-xl'>{title}</h3>
+
+          <div className='flex space-x-2'>
+            <Tag text='hackathon' color='text-yellow-500' />
+          </div>
+
           <p className='text-base'>{description}</p>
 
         </div>
@@ -53,8 +64,8 @@ const ShowcaseGallery = () => {
       >
         <ShowcaseItem
           url='/'
-          thumb='/wasp-compilation-diagram.png'
-          title='First showcase post'
+          thumb='/showcase/farnance-dashboard.png'
+          title='Farnance: SaaS marketplace for farmers'
           description='Check out how we made this first showcase post.'
         />
 
