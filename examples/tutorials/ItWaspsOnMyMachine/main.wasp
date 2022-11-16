@@ -16,7 +16,7 @@ app ItWaspsOnMyMachine {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 
 entity Excuse {=psl
@@ -25,17 +25,17 @@ entity Excuse {=psl
 psl=}
 
 query getExcuse {
-  fn: import { getExcuse } from "@ext/queries.js",
+  fn: import { getExcuse } from "@client/queries.js",
   entities: [Excuse]
 }
 
 query getAllSavedExcuses {
-  fn: import { getAllSavedExcuses } from "@ext/queries.js",
+  fn: import { getAllSavedExcuses } from "@server/queries.js",
   entities: [Excuse]
 }
 
 action saveExcuse {
-  fn: import { saveExcuse } from "@ext/actions.js",
+  fn: import { saveExcuse } from "@server/actions.js",
   entities: [Excuse]
 }
 

@@ -16,9 +16,7 @@ waspMigrate/.wasp/out/server/src/config.js
 waspMigrate/.wasp/out/server/src/core/AuthError.js
 waspMigrate/.wasp/out/server/src/core/HttpError.js
 waspMigrate/.wasp/out/server/src/dbClient.js
-waspMigrate/.wasp/out/server/src/ext-src/Main.css
-waspMigrate/.wasp/out/server/src/ext-src/MainPage.js
-waspMigrate/.wasp/out/server/src/ext-src/waspLogo.png
+waspMigrate/.wasp/out/server/src/ext-src/jsconfig.json
 waspMigrate/.wasp/out/server/src/jobs/core/Job.js
 waspMigrate/.wasp/out/server/src/jobs/core/SubmittedJob.js
 waspMigrate/.wasp/out/server/src/jobs/core/allJobs.js
@@ -28,6 +26,7 @@ waspMigrate/.wasp/out/server/src/jobs/core/simpleJob.js
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.js
+waspMigrate/.wasp/out/server/src/shared/jsconfig.json
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
@@ -42,6 +41,7 @@ waspMigrate/.wasp/out/web-app/src/api.js
 waspMigrate/.wasp/out/web-app/src/config.js
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
 waspMigrate/.wasp/out/web-app/src/ext-src/MainPage.js
+waspMigrate/.wasp/out/web-app/src/ext-src/jsconfig.json
 waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspMigrate/.wasp/out/web-app/src/index.js
 waspMigrate/.wasp/out/web-app/src/logo.png
@@ -53,12 +53,16 @@ waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.js
 waspMigrate/.wasp/out/web-app/src/serviceWorker.js
+waspMigrate/.wasp/out/web-app/src/shared/jsconfig.json
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasproot
-waspMigrate/ext/.waspignore
-waspMigrate/ext/Main.css
-waspMigrate/ext/MainPage.js
-waspMigrate/ext/waspLogo.png
 waspMigrate/main.wasp
 waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql
+waspMigrate/src/.waspignore
+waspMigrate/src/client/Main.css
+waspMigrate/src/client/MainPage.js
+waspMigrate/src/client/jsconfig.json
+waspMigrate/src/client/waspLogo.png
+waspMigrate/src/server/jsconfig.json
+waspMigrate/src/shared/jsconfig.json

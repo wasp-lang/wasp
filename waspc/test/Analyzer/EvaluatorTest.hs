@@ -199,7 +199,7 @@ spec_Evaluator = do
         let typeDefs = TD.addDeclType @Special $ TD.empty
         let source =
               [ "special Test {",
-                "  imps: [import { field } from \"@ext/main.js\", import main from \"@ext/main.js\"],",
+                "  imps: [import { field } from \"@server/main.js\", import main from \"@server/main.js\"],",
                 "  json: {=json { \"key\": 1 } json=}",
                 "}"
               ]

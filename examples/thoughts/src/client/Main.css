@@ -1,0 +1,26 @@
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+      sans-serif;
+  }
+
+button.plain {
+    border: none;
+    outline: none;
+    padding: 0;
+    color: inherit;
+    background: none;
+    font: inherit;
+    text-decoration: underline;
+}
+button.plain:hover {
+    cursor: pointer;
+}

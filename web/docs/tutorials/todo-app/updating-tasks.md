@@ -19,15 +19,15 @@ We declare a Wasp action:
 // ...
 
 action updateTask {
-  fn: import { updateTask } from "@ext/actions.js",
+  fn: import { updateTask } from "@server/actions.js",
   entities: [Task]
 }
 ```
 
 ### JS implementation
 
-We define the JS implementation of the Wasp action in `ext/actions.js`:
-```js title="ext/actions.js"
+We define the JS implementation of the Wasp action in `src/server/actions.js`:
+```js title="src/server/actions.js"
 // ...
 
 export const updateTask = async (args, context) => {
@@ -43,7 +43,7 @@ export const updateTask = async (args, context) => {
 ## React logic
 
 And we update the React component:
-```jsx {2,7-16,23} title="ext/MainPage.js"
+```jsx {2,7-16,23} title="src/client/MainPage.js"
 // ...
 import updateTask from '@wasp/actions/updateTask'
 

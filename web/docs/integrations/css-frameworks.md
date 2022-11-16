@@ -11,13 +11,19 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.js` and `postcss.config.js`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) to your CSS files and `className`s to your React components.
 
 ### New project tree overview
-```bash title="tree ." {3,7-8}
+```bash title="tree ." {6,13-14}
 .
-├── ext
-│   ├── Main.css
-│   ├── MainPage.js
-│   └── waspLogo.png
 ├── main.wasp
+├── src
+│   ├── client
+│   │   ├── jsconfig.json
+│   │   ├── Main.css
+│   │   ├── MainPage.js
+│   │   └── waspLogo.png
+│   ├── server
+│   │   └── jsconfig.json
+│   └── shared
+│       └── jsconfig.json
 ├── postcss.config.js
 └── tailwind.config.js
 ```
@@ -48,8 +54,8 @@ module.exports = {
 }
 ```
 
-#### 3) Update `./ext/Main.css`
-```css title="./ext/Main.css" {1-3}
+#### 3) Update `./src/client/Main.css`
+```css title="./src/client//Main.css" {1-3}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,7 +64,7 @@ module.exports = {
 ```
 
 #### 4) Start using Tailwind 🥳
-```html title="./ext/MainPage.js"
+```html title="./src/client/MainPage.js"
 <h1 className="text-3xl font-bold underline">
   Hello world!
 </h1>

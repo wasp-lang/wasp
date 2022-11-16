@@ -54,10 +54,10 @@ spec_Analyzer = do
                 "    (\"redux\", \"^4.0.5\")",
                 "  ],",
                 "  server: {",
-                "    setupFn: import { setupServer } from \"@ext/bar.js\"",
+                "    setupFn: import { setupServer } from \"@server/bar.js\"",
                 "  },",
                 "  client: {",
-                "    setupFn: import { setupClient } from \"@ext/baz.js\"",
+                "    setupFn: import { setupClient } from \"@client/baz.js\"",
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL",
@@ -69,23 +69,23 @@ spec_Analyzer = do
                 "psl=}",
                 "",
                 "page HomePage {",
-                "  component: import Home from \"@ext/pages/Main\"",
+                "  component: import Home from \"@client/pages/Main\"",
                 "}",
                 "",
                 "page ProfilePage {",
-                "  component: import { profilePage } from \"@ext/pages/Profile\",",
+                "  component: import { profilePage } from \"@client/pages/Profile\",",
                 "  authRequired: true",
                 "}",
                 "",
                 "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
                 "query getUsers {",
-                "  fn: import { getAllUsers } from \"@ext/foo.js\",",
+                "  fn: import { getAllUsers } from \"@server/foo.js\",",
                 "  entities: [User]",
                 "}",
                 "",
                 "action updateUser {",
-                "  fn: import { updateUser } from \"@ext/foo.js\",",
+                "  fn: import { updateUser } from \"@server/foo.js\",",
                 "  entities: [User],",
                 "  auth: true",
                 "}",
@@ -93,7 +93,7 @@ spec_Analyzer = do
                 "job BackgroundJob {",
                 "  executor: PgBoss,",
                 "  perform: {",
-                "    fn: import { backgroundJob } from \"@ext/jobs/baz.js\",",
+                "    fn: import { backgroundJob } from \"@server/jobs/baz.js\",",
                 "    executorOptions: {",
                 "      pgBoss: {=json { \"retryLimit\": 1 } json=}",
                 "    }",
@@ -291,7 +291,7 @@ spec_Analyzer = do
       let source =
             unlines
               [ "route HomeRoute { path: \"/\",  to: HomePage }",
-                "page HomePage { component: import Home from \"@ext/HomePage.js\" }"
+                "page HomePage { component: import Home from \"@client/HomePage.js\" }"
               ]
       isRight (analyze source) `shouldBe` True
 

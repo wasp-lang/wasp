@@ -42,11 +42,13 @@ data AppSpec = AppSpec
     decls :: [Decl],
     -- | Absolute path to the directory containing the wasp project.
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
-    -- | List of external code files (they are referenced/used by the declarations).
-    externalCodeFiles :: [ExternalCode.File],
+    -- | List of external server code files (they are referenced/used in the declarations).
+    externalServerFiles :: [ExternalCode.File],
+    -- | List of external client code files (they are referenced/used in the declarations).
+    externalClientFiles :: [ExternalCode.File],
+    -- | List of files with external code shared between the server and the client.
+    externalSharedFiles :: [ExternalCode.File],
     -- | Absolute path to the directory in wasp project source that contains external code files.
-    externalCodeDirPath :: !(Path' Abs (Dir ExternalCode.SourceExternalCodeDir)),
-    -- | Absolute path to the directory in wasp project source that contains database migrations.
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Absolute path to the .env.server file in wasp project source. It contains env variables to be
     -- provided to the server only during the development.

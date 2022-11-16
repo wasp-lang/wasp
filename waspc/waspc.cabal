@@ -42,7 +42,11 @@ data-files:
   Cli/bash-completion
   Cli/templates/**/*.css
   Cli/templates/**/*.js
+  Cli/templates/**/*.json
   Cli/templates/**/*.png
+  Cli/templates/new/.gitignore
+  Cli/templates/new/.wasproot
+  Cli/templates/new/src/.waspignore
 data-dir: data/
 
 source-repository head

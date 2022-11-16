@@ -193,8 +193,9 @@ spec_AppSpecValid = do
       AS.AppSpec
         { AS.decls = [basicAppDecl],
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
-          AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-          AS.externalCodeFiles = [],
+          AS.externalClientFiles = [],
+          AS.externalServerFiles = [],
+          AS.externalSharedFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
           AS.dotEnvServerFile = Nothing,

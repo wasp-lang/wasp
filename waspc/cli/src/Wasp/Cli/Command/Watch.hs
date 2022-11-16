@@ -39,18 +39,11 @@ watch ::
 watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do
   currentTime <- getCurrentTime
   chan <- newChan
-  _ <-
-    FSN.watchDirChan
-      mgr
-      (SP.fromAbsDir waspProjectDir)
-      eventFilter
-      chan
-  _ <-
-    FSN.watchTreeChan
-      mgr
-      (SP.fromAbsDir $ waspProjectDir </> Common.extCodeDirInWaspProjectDir)
-      eventFilter
-      chan
+  _ <- FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
+  let watchProjectSubdirTree path = FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> path) eventFilter chan
+  _ <- watchProjectSubdirTree Common.extClientCodeDirInWaspProjectDir
+  _ <- watchProjectSubdirTree Common.extServerCodeDirInWaspProjectDir
+  _ <- watchProjectSubdirTree Common.extSharedCodeDirInWaspProjectDir
   listenForEvents chan currentTime
   where
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
@@ -87,7 +80,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
     waitUntilNoNewEvents chan lastCompileTime secondsToDelay = do
       eventOrDelay <- race (readChan chan) (threadDelaySeconds secondsToDelay)
       case eventOrDelay of
-        Left event -> do
+        Left event ->
           unless (isStaleEvent event lastCompileTime) $
             -- We have a new event, restart waiting process.
             waitUntilNoNewEvents chan lastCompileTime secondsToDelay

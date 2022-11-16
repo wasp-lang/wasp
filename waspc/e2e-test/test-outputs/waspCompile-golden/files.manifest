@@ -11,9 +11,7 @@ waspCompile/.wasp/out/server/src/config.js
 waspCompile/.wasp/out/server/src/core/AuthError.js
 waspCompile/.wasp/out/server/src/core/HttpError.js
 waspCompile/.wasp/out/server/src/dbClient.js
-waspCompile/.wasp/out/server/src/ext-src/Main.css
-waspCompile/.wasp/out/server/src/ext-src/MainPage.js
-waspCompile/.wasp/out/server/src/ext-src/waspLogo.png
+waspCompile/.wasp/out/server/src/ext-src/jsconfig.json
 waspCompile/.wasp/out/server/src/jobs/core/Job.js
 waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js
 waspCompile/.wasp/out/server/src/jobs/core/allJobs.js
@@ -23,6 +21,7 @@ waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.js
+waspCompile/.wasp/out/server/src/shared/jsconfig.json
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/web-app/.npmrc
 waspCompile/.wasp/out/web-app/README.md
@@ -37,6 +36,7 @@ waspCompile/.wasp/out/web-app/src/api.js
 waspCompile/.wasp/out/web-app/src/config.js
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
 waspCompile/.wasp/out/web-app/src/ext-src/MainPage.js
+waspCompile/.wasp/out/web-app/src/ext-src/jsconfig.json
 waspCompile/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspCompile/.wasp/out/web-app/src/index.js
 waspCompile/.wasp/out/web-app/src/logo.png
@@ -48,10 +48,14 @@ waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.js
 waspCompile/.wasp/out/web-app/src/serviceWorker.js
+waspCompile/.wasp/out/web-app/src/shared/jsconfig.json
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasproot
-waspCompile/ext/.waspignore
-waspCompile/ext/Main.css
-waspCompile/ext/MainPage.js
-waspCompile/ext/waspLogo.png
 waspCompile/main.wasp
+waspCompile/src/.waspignore
+waspCompile/src/client/Main.css
+waspCompile/src/client/MainPage.js
+waspCompile/src/client/jsconfig.json
+waspCompile/src/client/waspLogo.png
+waspCompile/src/server/jsconfig.json
+waspCompile/src/shared/jsconfig.json

@@ -69,7 +69,9 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
   where
     options =
       CompileOptions
-        { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
+        { externalClientCodeDirPath = waspProjectDir </> Common.extClientCodeDirInWaspProjectDir,
+          externalServerCodeDirPath = waspProjectDir </> Common.extServerCodeDirInWaspProjectDir,
+          externalSharedCodeDirPath = waspProjectDir </> Common.extSharedCodeDirInWaspProjectDir,
           isBuild = True,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

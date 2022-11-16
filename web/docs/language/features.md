@@ -22,9 +22,12 @@ app todoApp {
 ### Fields
 
 #### `wasp: dict` (required)
-Wasp compiler configuration.
-Check [`app.wasp`](/docs/language/features#compiler-configuration) for more
-details.
+Wasp compiler configuration. It is a dictionary with a single field:
+-  `version: string` (required) - version declares the compatible Wasp versions for the app. It should contain a valid [SemVer range](https://github.com/npm/node-semver#ranges).
+
+:::info
+For now, the version field only supports caret ranges (i.e., `^x.y.z`). Support for the full specification will come in a future version of Wasp
+:::
 
 #### `title: string` (required)
 Title of your app. It will be displayed in the browser tab, next to the favicon.
@@ -58,7 +61,7 @@ Check [`app.dependencies`](/docs/language/features#dependencies) for more detail
 
 ```css
 page MainPage {
-  component: import Main from "@ext/pages/Main",
+  component: import Main from "@client/pages/Main",
   authRequired: false  // optional
 }
 ```
@@ -67,9 +70,8 @@ Normally you will also want to associate `page` with a `route`, otherwise it won
 
 ### Fields
 
-#### `component: ExtImport` (required)
+#### `component: ClientImport` (required)
 Import statement of the React element that implements the page component.
-See importing external code for details.
 
 #### `authRequired: bool` (optional)
 Can be specified only if [`app.auth`](/docs/language/features#authentication--authorization) is defined.
@@ -115,7 +117,7 @@ started:
 // ...
 route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
-  component: import Task from "@ext/pages/Task"
+  component: import Task from "@client/pages/Task"
 }
 ```
 
@@ -141,11 +143,11 @@ Navigation can be performed from the React code via `<Link/>` component, also us
 // ...
 route HomeRoute { path: "/home", to: HomePage }
 page HomePage {
-  component: import Home from "@ext/pages/Home"
+  component: import Home from "@client/pages/Home"
 }
 ```
 
-```jsx title="pages/OtherPage.js"
+```jsx title="src/client/pages/OtherPage.js"
 import React from 'react'
 import { Link } from "react-router-dom"
 
@@ -217,7 +219,7 @@ Take a look at [the examples of usage](#using-the-query) to see how to pass this
 3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
 
 Here's an example of two simple Queries:
-```js title="ext/queries.js"
+```js title="src/server/queries.js"
 // our "database"
 const tasks = [
   { id: 1, description: "Buy some eggs", isDone: true },
@@ -241,7 +243,7 @@ export const getFilteredTasks = async (args) => {
 #### Declaring a Query in Wasp
 After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `query` declaration, which supports the following fields:
-- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation.
+- `fn: ServerImport` (required) - The import statement of the Query's NodeJs implementation.
 - `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
 
@@ -254,11 +256,11 @@ With that in mind, this is how you might declare the Queries that use the implem
 // its implementation. We're changing the name to emphasize the difference.
 
 query fetchAllTasks {
-  fn: import { getAllTasks } from "@ext/queries.js"
+  fn: import { getAllTasks } from "@server/queries.js"
 }
 
 query fetchFilteredTasks {
-  fn: import { getFilteredTasks } from "@ext/queries.js"
+  fn: import { getFilteredTasks } from "@server/queries.js"
 }
 ```
 
@@ -349,7 +351,7 @@ For security reasons, all exceptions thrown in the Query's NodeJS implementation
 Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your NodeJS Query function:
-```js title=ext/queries.js
+```js title=src/server/queries.js
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -370,18 +372,18 @@ To use an Entity in your Query, add it to the query declaration in Wasp:
 ```c {4,9} title="main.wasp"
 
 query fetchAllTasks {
-  fn: import { getAllTasks } from "@ext/queries.js",
+  fn: import { getAllTasks } from "@server/queries.js",
   entities: [Task]
 }
 
 query fetchFilteredTasks {
-  fn: import { getFilteredTasks } from "@ext/queries.js",
+  fn: import { getFilteredTasks } from "@server/queries.js",
   entities: [Task]
 }
 ```
 
 Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
-```js title="ext/queries.js"
+```js title="src/server/queries.js"
 export const getAllTasks = async (args, context) => {
   return context.entities.Task.findMany({})
 }
@@ -406,7 +408,7 @@ Read more about the [`useAction` hook](#the-useaction-hook) below.
 
 Here's an implementation of a simple Action:
 
-```js title=actions.js
+```js title=src/server/actions.js
 export const sayHi = async () => {
   console.log('The client said Hi!')
 }
@@ -417,7 +419,7 @@ Its corresponding declaration in Wasp:
 // ...
 
 action sayHi {
-  fn: import { sayHi } from "@ext/actions.js"
+  fn: import { sayHi } from "@server/actions.js"
 }
 ```
 And an example of how to import and call the declared Action:
@@ -431,7 +433,7 @@ sayHi()
 ```
 
 Here's an example on how you might define a less contrived Action.
-```js title=actions.js
+```js title=src/server/actions.js
 // ...
 export const updateTaskIsDone = ({ id, isDone }, context) => {
     return context.entities.Task.update({
@@ -442,13 +444,13 @@ export const updateTaskIsDone = ({ id, isDone }, context) => {
 ```
 ```c title=main.wasp
 action updateTaskIsDone {
-  fn: import { updateTaskIsDone } from "@ext/actions.js",
+  fn: import { updateTaskIsDone } from "@server/actions.js",
   entities: [Task]
 }
 ```
 
 And here is how you might use it:
-```js {4,18} title=pages/Task.js
+```js {4,18} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
 import fetchTask from '@wasp/queries/fetchTask'
@@ -490,7 +492,7 @@ The `useAction` hook accepts two arguments:
 **NOTE:** The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects. Also, make sure you only update the query caches affected by your action causing the optimistic update (Wasp cannot yet verify this). Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
 
 Here's an example showing how to configure the Action from the previous example to perform an optimistic update: 
-```jsx {3,9,10,11,12,13,14,15,16,27} title=pages/Task.js
+```jsx {3,9,10,11,12,13,14,15,16,27} title=src/client/pages/Task.js
 import React from 'react'
 import { useQuery } from '@wasp/queries'
 import { useAction } from '@wasp/actions'
@@ -624,12 +626,12 @@ To declare a `job` in Wasp, simply add a declaration with a reference to an `asy
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js"
+    fn: import { foo } from "@server/jobs/bar.js"
   }
 }
 ```
 
-Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-extimport-optional) (or any other NodeJS code), you can submit work to be done:
+Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
 ```js
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 
@@ -651,7 +653,7 @@ If you have work that needs to be done on some recurring basis, you can add a `s
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js"
+    fn: import { foo } from "@server/jobs/bar.js"
   },
   schedule: {
     cron: "0 * * * *",
@@ -670,7 +672,7 @@ job mySpecialJob {
   executor: PgBoss,
   entities: [Task],
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js",
+    fn: import { foo } from "@server/jobs/bar.js",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -692,8 +694,8 @@ job mySpecialJob {
 
 ####  `perform: dict` (required)
 
-  - ##### `fn: fn` (required)
-  An `async` JavaScript function of work to be performed. It receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
+  - ##### `fn: ServerImport` (required)
+  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
 
   ```js
   export async function foo(args, context) {
@@ -958,7 +960,7 @@ const SignOut = () => {
 #### Reset password
 Coming soon.
 
-### Updating user's password
+### Updating a user's password
 If you need to update user's password, you can do it safely via Prisma client, e.g. within an action:
 ```js
 export const updatePassword = async (args, context) => {
@@ -975,14 +977,13 @@ in your `.wasp` file, Wasp already set a middleware on Prisma that makes sure wh
 is created or updated on the user entity, it is also hashed before it is stored to the database.
 
 
-### Accessing currently logged in user
+### Accessing the currently logged in user
 When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
 With that, we can further implement access control and decide which content is private and which public.
 
-#### On client
-On client, Wasp provides `useAuth` React hook to be used within the functional components.
-`useAuth` is actually a thin wrapper over Wasp's `useQuery` hook and returns data in the exactly same
-format.
+#### On the client
+On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
+This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
 
 ### `useAuth()`
 #### `import statement`:
@@ -991,7 +992,7 @@ import useAuth from '@wasp/auth/useAuth.js'
 ```
 
 ##### Example of usage:
-```js title="ext/pages/MainPage.js"
+```js title="src/client/pages/MainPage.js"
 import React from 'react'
 
 import { Link } from 'react-router-dom'
@@ -1022,14 +1023,12 @@ const Main = () => {
 export default Main
 ```
 
-#### On server
+#### On the server
 
-When authentication is enabled, all the operations (actions and queries) will have `user` object
-present in the `context` argument. `context.user` will contain all the fields from the user entity
-except for the password.
+When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
 
 ##### Example of usage:
-```js title="ext/actions.js"
+```js title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (task, context) => {
@@ -1098,8 +1097,8 @@ If you require modifications to the above, you can add one or more of the follow
     externalAuthEntity: SocialLogin,
     methods: {
       google: {
-        configFn: import { config } from "@ext/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@ext/auth/google.js"
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       }
     },
     ...
@@ -1107,7 +1106,7 @@ If you require modifications to the above, you can add one or more of the follow
 ```
 
 - `configFn`: This function should return an object with the following shape:
-  ```js
+  ```js title=src/server/auth/google.js
   export function config() {
     // ...
     return {
@@ -1116,10 +1115,14 @@ If you require modifications to the above, you can add one or more of the follow
       scope: ['profile'] // must include at least 'profile'
     }
   }
+
+  // ...
   ```
 - `getUserFieldsFn`: This function should return the user fields to use when creating a new user upon their first Google login. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
-  ```js
+  ```js title=src/server/auth/google.js
   import { generateAvailableUsername } from '@wasp/core/auth.js'
+
+  // ...
 
   export async function getUserFields(_context, args) {
     const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
@@ -1182,30 +1185,6 @@ entity SocialLogin {=psl
 psl=}
 ```
 
-## Compiler configuration
-
-You can configure Wasp's compiler using the `wasp` field inside the `app`
-declaration.
-
-```c
-app MyApp {
-  wasp: {
-    version: "^0.6.0"
-  },
-  // ...
-}
-```
-
-`app.wasp` is a dictionary with the following fields:
-
-#### `version: string` (required)
-
-`version` declares the compatible Wasp versions for the app. It is specified
-in a SemVer format.
-
-**Note**: For now, `version` only supports the format `^x.y.z`. This
-will be extended in the future to support full Semantic Versioning.
-
 ## Client configuration
 
 You can configure the client using the `client` field inside the `app`
@@ -1216,14 +1195,14 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    setupFn: import mySetupFunction from "@ext/myClientSetupCode.js"
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
   }
 }
 ```
 
 `app.client` is a dictionary with the following fields:
 
-#### `setupFn: ExtImport` (optional)
+#### `setupFn: ClientImport` (optional)
 
 `setupFn` declares a JavaScript function that Wasp executes on the client
 before everything else. It is expected to be asynchronous, and
@@ -1235,7 +1214,7 @@ client-side periodic jobs).
 
 Here's a dummy example of such a function:
 
-```js title="ext/myClientSetupCode.js"
+```js title="src/client/myClientSetupCode.js"
 export default async function mySetupFunction() {
   let count = 1;
   setInterval(
@@ -1257,7 +1236,7 @@ function. Wasp exposes a `configureQueryClient` hook that lets you configure
 _react-query_'s `QueryClient` object:
 
 
-```js title="ext/myClientSetupCode.js"
+```js title="src/client/myClientSetupCode.js"
 import { configureQueryClient } from '@wasp/queries'
 
 export default async function mySetupFunction() {
@@ -1286,14 +1265,14 @@ app MyApp {
   title: "My app",
   // ...
   server: {
-    setupFn: import mySetupFunction from "@ext/myServerSetupCode.js"
+    setupFn: import mySetupFunction from "@server/myServerSetupCode.js"
   }
 }
 ```
 
 `app.server` is a dictionary with following fields:
 
-#### `setupFn: ExtImport` (optional)
+#### `setupFn: ServerImport` (optional)
 
 `setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before server continues with its setup and starts serving any requests.
 
@@ -1305,7 +1284,7 @@ In case you want to store some values for later use, or to be accessed by the Op
 
 Dummy example of such function and its usage:
 
-```js title="ext/myServerSetupCode.js"
+```js title="src/server/myServerSetupCode.js"
 let someResource = undefined
 
 const mySetupFunction = async () => {
@@ -1320,7 +1299,7 @@ export const getSomeResource = () => someResource
 export default mySetupFunction
 ```
 
-```js title="ext/queries.js"
+```js title="src/server/queries.js"
 import { getSomeResource } from './myServerSetupCode.js'
 
 ...
