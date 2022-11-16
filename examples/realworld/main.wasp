@@ -83,8 +83,8 @@ entity User {=psl
     articles          Article[]
     comments          Comment[]
     favoriteArticles  Article[] @relation("FavoritedArticles")
-    followedBy        User[]    @relation("FollowedUser", references: [id])
-    following         User[]    @relation("FollowedUser", references: [id])
+    followedBy        User[]    @relation("FollowedUser")
+    following         User[]    @relation("FollowedUser")
 psl=}
 
 entity Article {=psl
