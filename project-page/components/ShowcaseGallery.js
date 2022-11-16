@@ -34,13 +34,13 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
             />
           </div>
 
-          <h3 className='text-xl'>{title}</h3>
+          <h3 className='text-neutral-700 text-xl'>{title}</h3>
 
           <div className='flex space-x-2'>
             {children}
           </div>
 
-          <p className='text-base'>{description}</p>
+          <p className='text-neutral-500 text-base'>{description}</p>
 
         </div>
       </div>
