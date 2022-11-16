@@ -21,6 +21,8 @@ import Navbar from './Navbar'
 import ArticleListPaginated from './article/components/ArticleListPaginated'
 import addWaspSourceHeader from './addWaspSourceHeader'
 
+import './style.css'
+
 const MainPage = () => {
   const { data: me } = useAuth()
 
