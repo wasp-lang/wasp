@@ -15,7 +15,7 @@ In the future, the plan is to have Wasp take care of it completely: you would de
 
 If you want to deploy your App completely **free** of charge, continue reading below for guides on using Fly.io as your backend (server) provider and Netlify for your frontend (client).
 
-If you prefer to host client and server on **one platform**, and don't mind paying for extra features and easier scalability, we suggest following the guide on using [Railway as your provider](#deploying-to-railway-freemium-all-in-one-solution).
+If you prefer to host client and server on **one platform**, and don't mind paying a very small fee for extra features, we suggest following the guide on using [Railway as your provider](#deploying-to-railway-freemium-all-in-one-solution).
 
 ## Generating deployable code
 
@@ -276,7 +276,7 @@ NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variab
 
 ## Deploying to Railway ("freemium", all-in-one solution)
 
-Railway makes it easy to deploy your entire app -- database, server, and client -- on one platform. You can use the platform for free for a limited time (~21 days) per month.
+Railway makes it easy to deploy your entire app -- database, server, and client -- on one platform. You can use the platform for free for a limited time (~21 days) per month. Upgrading to the `Developer` plan will only cost you a few dollays per month per service.
 
 To get started, follow these steps:
 

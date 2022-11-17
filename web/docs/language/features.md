@@ -7,7 +7,7 @@ title: Features
 There can be only one declaration of `app` type per Wasp project.
 It serves as a starting point and defines global properties of your app.
 
-```css
+```c
 app todoApp {
   title: "ToDo App",
   head: [  // optional
@@ -48,7 +48,7 @@ Check [`app.dependencies`](/docs/language/features#dependencies) for more detail
 
 `page` declaration is the top-level layout abstraction. Your app can have multiple pages.
 
-```css
+```c
 page MainPage {
   component: import Main from "@ext/pages/Main",
   authRequired: false  // optional
@@ -612,7 +612,7 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 
 To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
-```css title="main.wasp"
+```c title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -639,7 +639,7 @@ And that is it! Your job will be executed by the job executor (pg-boss, in this 
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
-```css  {6-9} title="main.wasp"
+```c  {6-9} title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
@@ -657,7 +657,7 @@ In this example, you do _not_ need to invoke anything in JavaScript. You can ima
 ### Fully specified example
 Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
-```css
+```c
 job mySpecialJob {
   executor: PgBoss,
   entities: [Task],
@@ -789,10 +789,10 @@ In the future, we will add support for picking any version you like, but we have
 
 Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring `auth` field of the `app` declaration:
 
-```css
+```c
 app MyApp {
   title: "My app",
-  // ...
+  //...
   auth: {
     userEntity: User,
     methods: {
@@ -1065,9 +1065,24 @@ import AuthError from '@wasp/core/AuthError.js'
 
 ### Google
 
-`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings. If you require custom configuration setup or user entity field assignment, you can override the defaults.
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings: 
 
-This method requires that `externalAuthEntity` specified in `auth` [described here](features#externalauthentity).
+```js
+  //...
+
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {}
+    },
+    //...
+  }
+```
+This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity).
+
+If you require custom configuration setup or user entity field assignment, you can [override the defaults](#overrides).
+
 #### Default settings
 - Configuration:
   - By default, Wasp expects you to set two environment variables in order to use Google authentication:
@@ -1076,8 +1091,12 @@ This method requires that `externalAuthEntity` specified in `auth` [described he
   - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
 - Sign in:
   - When a user signs in for the first time, Wasp will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
-    - Aside: If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then redirect them in your `onAuthSucceededRedirectTo` handler.
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js These can be overriden as explained below.
+  :::note Changing Random Username
+    If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate -- e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage`.
+
+    Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their Google account, as described in **Overrides** below 
+  :::
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefacults.js These can be overriden as explained below.
 
 #### Overrides
 If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
