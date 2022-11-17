@@ -1,5 +1,5 @@
 ---
-title: Feature Release Announcement - Tailwind CSS support
+title: Feature Announcement - Tailwind CSS support
 authors: [shayneczyzewski]
 image: /img/tailwind-2.png
 tags: [webdev, wasp, feature, css]
