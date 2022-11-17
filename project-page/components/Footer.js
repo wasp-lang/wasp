@@ -73,8 +73,14 @@ const Segment = ({ title, links }) => (
     <ul className='mt-4 space-y-2'>
       {links.map((l, idx) => {
         return (
-          <li>
-            <a href={l.url} className='text-sm text-neutral-500'>
+          <li key={idx}>
+            <a
+              href={l.url}
+              className={`
+                text-sm text-neutral-500 hover:text-neutral-400
+                transition-colors
+              `}
+            >
               {l.text}
             </a>
           </li>
@@ -112,12 +118,9 @@ const Footer = () => {
             </p>
 
             <form className='mt-4 sm:flex sm:max-w-md'>
-              <label for='email-address' class='sr-only'>
-                Email address
-              </label>
               <input
                 type="email" name="email-address" id="email-address"
-                required autocomplete='email'
+                required autoComplete='email'
                 placeholder='you@awesomedev.com'
                 className={`
                   text-sm w-full
@@ -125,6 +128,7 @@ const Footer = () => {
                   placeholder:text-neutral-400
                   border border-yellow-500
                   px-4 py-2 rounded-md bg-transparent
+                  focus:outline-none focus:ring-2 focus:ring-yellow-400
                 `}
               />
               <div className='rounded-md mt-3 sm:mt-0 sm:ml-3'>
@@ -134,6 +138,8 @@ const Footer = () => {
                     text-sm border border-transparent rounded-md
                     bg-yellow-500 text-white
                     px-4 py-2
+                    hover:bg-yellow-400
+                    transition ease-out duration-200
                   `}
                 >
                   Subscribe
