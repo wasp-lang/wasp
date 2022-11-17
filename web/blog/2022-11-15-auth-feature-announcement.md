@@ -1,5 +1,5 @@
 ---
-title: Feature Release Announcement - New auth method (Google)
+title: Feature Announcement - New auth method (Google)
 authors: [shayneczyzewski]
 image: /img/auth-hero.png
 tags: [webdev, wasp, feature, auth]
@@ -79,7 +79,7 @@ app authExample {
 
 ### Step 3 - Get Google credentials and add environment variables
 
-Follow the Google setup guide [here](https://wasp-lang.dev/docs/integrations/google) and add the environment variables to your `.env` file.
+Follow the Google setup guide [here](https://wasp-lang.dev/docs/integrations/google) and add the environment variables to your `.env.server` file.
 
 ### Step 4 - Make use of the Google login button in your `Login` page component
 
