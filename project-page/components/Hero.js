@@ -87,7 +87,13 @@ const codeStringJs = 'const a = 27'
         <div className='lg:col-span-6 space-y-12'>
           {/* Hero title and subtitle */}
           <div>
-            <h1 className='text-4xl lg:text-5xl lg:leading-tight font-extrabold text-neutral-700'>
+            <h1
+              className={`
+                text-4xl lg:text-5xl lg:leading-tight
+                font-extrabold text-neutral-700
+                dark:text-yellow-500
+              `}
+            >
               Develop full-stack web apps&nbsp;
               <span className='underline decoration-yellow-500'>without boilerplate</span>.
             </h1>

@@ -115,6 +115,7 @@
   }
 }
 
+/*
 @media (prefers-color-scheme: dark) {
   .card,
   .footer {
@@ -127,3 +128,4 @@
     filter: invert(1);
   }
 }
+*/
