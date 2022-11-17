@@ -7,6 +7,7 @@ import Hero from 'components/Hero'
 import Benefits from 'components/Benefits'
 import HowItWorks from 'components/HowItWorks'
 import ShowcaseGallery from 'components/ShowcaseGallery'
+import Footer from 'components/Footer'
 
 import styles from '../styles/index.module.css'
 
@@ -45,7 +46,7 @@ const Index = () => {
           </div> {/* eof container */}
         </main>
       </div>
-      {/* footer goes here */}
+      <Footer />
     </>
 
   )
