@@ -1,3 +1,6 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
 import SectionContainer from './Layouts/SectionContainer'
 
 const docs = [
@@ -44,6 +47,25 @@ const company = [
     url: '/'
   }
 ]
+
+// TODO(matija): duplication, I already have Logo in Nav/index.js
+const Logo = () => (
+  <div className='flex flex-shrink-0 items-center'>
+    <Link href='/' as='/'>
+      <a>
+        <Image
+          src='/wasp-logo.png'
+          width={35}
+          height={35}
+          alt='Wasp Logo'
+        />
+      </a>
+    </Link>
+    <span className='ml-3 font-semibold text-lg text-neutral-700'>
+      Wasp
+    </span>
+  </div>
+)
 
 const Segment = ({ title, links }) => (
   <div>
@@ -117,11 +139,15 @@ const Footer = () => {
                   Subscribe
                 </button>
               </div>
-
             </form>
 
           </div>
-
+        </div>
+        <div className='pt-8 mt-8'>
+          <Logo />
+          <p className='mt-4 text-xs text-neutral-400'>
+            © Wasp, Inc. All rights reserved.
+          </p>
         </div>
       </SectionContainer>
     </footer>

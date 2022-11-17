@@ -18,7 +18,7 @@ const Nav = () => {
           />
         </a>
       </Link>
-      <span className='ml-3 font-semibold text-lg'>
+      <span className='ml-3 font-semibold text-lg text-neutral-700'>
         Wasp <sup className='text-base text-yellow-500'>βeta</sup>
       </span>
     </div>
