@@ -4,6 +4,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Removes blue tap box over Button/Link on mobile.
+ * Issue on Tailwind's repo: https://github.com/tailwindlabs/tailwindcss/discussions/2984
+ */
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
 html,
 body {
   padding: 0;

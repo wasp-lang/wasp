@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import SectionContainer from './Layouts/SectionContainer'
+import DarkModeToggle from './DarkModeToggle'
 
 const docs = [
   {
@@ -151,9 +152,12 @@ const Footer = () => {
         </div>
         <div className='pt-8 mt-8'>
           <Logo />
-          <p className='mt-4 text-xs text-neutral-400'>
-            © Wasp, Inc. All rights reserved.
-          </p>
+          <div className='flex justify-between'>
+            <p className='mt-4 text-xs text-neutral-400'>
+              © Wasp, Inc. All rights reserved.
+            </p>
+            <DarkModeToggle />
+          </div>
         </div>
       </SectionContainer>
     </footer>
