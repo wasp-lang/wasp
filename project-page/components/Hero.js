@@ -78,8 +78,6 @@ page MainPage {
   component: import Main from "@ext/Main.js"
 }`
 
-const codeStringJs = 'const a = 27'
-
   return (
     <SectionContainer className='pb-5 pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
@@ -131,19 +129,35 @@ const codeStringJs = 'const a = 27'
         </div>
 
         <div className='lg:col-span-6 lg:mt-0 mt-16'>
-          <div className='text-sm shadow-2xl rounded-md'>
-            <SyntaxHighlighter
-              language="javascript" 
-              style={atomOneLight}
-              customStyle={{
-                borderRadius: '10px',
-                paddingLeft: '15px',
-              }}
-            >
-              {codeString}
-            </SyntaxHighlighter>
-          </div>
-        </div>
+          <div className='relative flex flex-col items-center justify-center'>
+
+            <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
+              <span className='text-sm text-neutral-500'>todoApp.wasp</span>
+              <div className='flex'>
+                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
+                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
+                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
+              </div>
+
+            </div>
+
+            <div className='w-full text-sm shadow-2xl rounded-b-md'>
+              <SyntaxHighlighter
+                language="javascript" 
+                style={atomOneLight}
+                customStyle={{
+                  borderBottomLeftRadius: '10px',
+                  borderBottomRightRadius: '10px',
+                  paddingLeft: '15px',
+                }}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+            </div> {/* EOF code block wrapper */}
+
+          </div> {/* EOF wrapper of header + code */}
+
+        </div> {/* EOF col-span-6 */}
 
       </div>
     </SectionContainer>
