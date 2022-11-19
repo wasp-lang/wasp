@@ -63,11 +63,9 @@ const PHBadge = () => (
     target="_blank"
   >
     <img
+      className='w-32 md:w-[180px]'
       src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=277135&theme=light&period=daily"
       alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt" 
-      style={{ width: '180px', height: '54px' }} 
-      width="250"
-      height="54"
     />
   </a>
 )
@@ -178,9 +176,13 @@ page MainPage {
 
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
         <PHBadge />
-        <div className='h-11 border border-l-neutral-400/50'></div>
+        <div
+          className={`
+            h-11 border border-transparent border-l-neutral-400/50
+          `}
+        />
         <img
-          className='w-[180px]'
+          className='w-32 md:w-[180px]'
           src='/yc-logo.png'
           alt='YC'
         />
