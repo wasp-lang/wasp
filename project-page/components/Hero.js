@@ -57,6 +57,21 @@ const ActionButtons = () => (
   </div>
 )
 
+const PHBadge = () => (
+  <a
+    href="https://www.producthunt.com/posts/wasp-lang-alpha?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-wasp&#0045;lang&#0045;alpha"
+    target="_blank"
+  >
+    <img
+      src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=277135&theme=light&period=daily"
+      alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt" 
+      style={{ width: '180px', height: '54px' }} 
+      width="250"
+      height="54"
+    />
+  </a>
+)
+
 const Hero = () => {
   const codeString =
 `app todoApp {
@@ -133,10 +148,10 @@ page MainPage {
 
             <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
               <span className='text-sm text-neutral-500'>todoApp.wasp</span>
-              <div className='flex'>
-                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
-                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
-                <div className='bg-yellow-500 mr-2 h-2 w-2 rounded-full' />
+              <div className='flex space-x-2'>
+                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
               </div>
 
             </div>
@@ -160,6 +175,17 @@ page MainPage {
         </div> {/* EOF col-span-6 */}
 
       </div>
+
+      <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
+        <PHBadge />
+        <div className='h-11 border border-l-neutral-400/50'></div>
+        <img
+          className='w-[180px]'
+          src='/yc-logo.png'
+          alt='YC'
+        />
+      </div>
+
     </SectionContainer>
   )
 
