@@ -1,11 +1,18 @@
-import { ChevronDown } from 'react-feather'
+import { useState } from 'react'
+import { ChevronDown, ChevronRight } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
 
 const faqs = [
   {
-    question: 'How is Wasp different from Next.js?',
-    answer: 'Next.js is front-end solution only, focused on static websites.'
+    question: 'How is Wasp different from Next.js / Nuxt.js / Gatsby?',
+    answer: <p>
+      Next.js is front-end solution only, focused on static websites. This is some
+      longer text so I can see how it behaves.<br/>
+
+      Maybe I should put here component so I have freedom in formatting, putting URLs, etc?
+      This is some test <a href="/">url</a>
+    </p>
   },
   {
     question: 'How is Wasp different from Ruby on Rails, Django, etc?',
@@ -14,18 +21,40 @@ const faqs = [
   {
     question: 'How hard is it to learn Wasp?',
     answer: 'Well, it is actually really easy!'
+  },
+  {
+    question: 'Do you support only React currently?',
+    answer: 'Well, it is actually really easy!'
   }
 ]
 
 const FaqItem = ({ key, faq }) => {
+
+  const [isExpanded, setIsExpanded] = useState(false)
   
   return (
-    <dt key={key} className='py-6 text-base text-neutral-700'>
-      <button className='text-left w-full flex items-center justify-between'>
-        <span>{faq.question}</span>
-        <ChevronDown size={20} className='ml-6 text-yellow-500' />
-      </button>
-    </dt>
+    <div className='py-6'>
+      <dt key={key} className='text-base text-neutral-700'>
+        <button
+          className='text-left w-full flex items-center justify-between'
+          onClick={() => { setIsExpanded(!isExpanded) }}
+        >
+          <span>{faq.question}</span>
+          <div className='ml-6 text-yellow-500'>
+            {isExpanded ? (
+              <ChevronDown size={20} />
+            ) : (
+              <ChevronRight size={20} />
+            )}
+          </div>
+        </button>
+      </dt>
+      {isExpanded && (
+        <dd className='mt-2 text-neutral-500'>
+          {faq.answer}
+        </dd>
+      )}
+    </div>
   )
 }
 
