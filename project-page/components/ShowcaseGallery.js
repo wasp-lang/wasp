@@ -18,7 +18,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
   <div>
     <a href={url}>
       <div className='group inline-block min-w-full'>
-        <div className='flex flex-col space-y-3 pb-8'>
+        <div className='flex flex-col space-y-3 pb-8 md:pb-0'>
 
           <div
             className={`
