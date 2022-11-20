@@ -12,25 +12,30 @@ import Data.Maybe (isNothing)
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
-import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Compile (compile, compileWithOptions, defaultCompileOptions, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
+import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Lib (CompileError, CompileWarning)
 import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
--- start :: Maybe String -> Maybe String -> Command ()
 start :: Maybe Int -> Maybe Int -> Command ()
-start clientPort serverPort = do
+start maybeClientPort maybeServerPort = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
-  warnings <- compile
+  warnings <-
+    if isNothing maybeClientPort && isNothing maybeServerPort
+      then compile
+      else do
+        waspProjectDir <- findWaspProjectRootDirFromCwd
+        compileWithOptions $ (defaultCompileOptions waspProjectDir) {clientPort = maybeClientPort, serverPort = maybeServerPort}
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
