@@ -81,7 +81,7 @@ const Faq = () => {
 
       <dl className='mt-6 max-w-3xl mx-auto divide-y divide-neutral-300'>
         {faqs.map((faq, idx) => (
-          <FaqItem keyP={idx} faq={faq} />
+          <FaqItem keyP={idx} key={idx} faq={faq} />
         ))}
       </dl>
 
