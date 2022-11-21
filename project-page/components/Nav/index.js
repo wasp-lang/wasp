@@ -25,7 +25,7 @@ const Nav = () => {
   )
 
   const SocialIcon = ({ Icon, url }) => (
-    <a href={url} target='_blank'
+    <a href={url} target='_blank' rel='noreferrer'
       className={`
         hidden lg:flex hover:opacity-75 py-5
         hover:text-yellow-500 hover:border-yellow-500
@@ -37,7 +37,7 @@ const Nav = () => {
   )
 
   const GitHubButton = () => (
-    <a href='https://github.com/wasp-lang/wasp' target='_blank'
+    <a href='https://github.com/wasp-lang/wasp' target='_blank' rel='noreferrer'
       className={`
         px-2.5 py-1 rounded
         hover:bg-neutral-200

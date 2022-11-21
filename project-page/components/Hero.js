@@ -61,6 +61,7 @@ const PHBadge = () => (
   <a
     href="https://www.producthunt.com/posts/wasp-lang-alpha?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-wasp&#0045;lang&#0045;alpha"
     target="_blank"
+    rel="noreferrer"
   >
     <img
       className='w-32 md:w-[180px]'

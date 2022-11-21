@@ -43,7 +43,7 @@ const HowItWorks = () => {
 
         <div className='col-span-12 lg:col-span-4'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
-             What's under the hood? 🚕
+             What&apos;s under the hood? 🚕
           </h2>
           <p className='text-neutral-700'>
             Given <code>.wasp</code> and <code>.js(x)/.css/...</code>, source files,

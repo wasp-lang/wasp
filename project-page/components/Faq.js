@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Link from 'next/link'
 import { ChevronDown, ChevronRight } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
@@ -11,7 +12,7 @@ const faqs = [
       longer text so I can see how it behaves.<br/>
 
       Maybe I should put here component so I have freedom in formatting, putting URLs, etc?
-      This is some test <a href="/">url</a>
+      This is some test <Link href='/'><a>url</a></Link>
     </p>
   },
   {
@@ -28,13 +29,13 @@ const faqs = [
   }
 ]
 
-const FaqItem = ({ key, faq }) => {
+const FaqItem = ({ keyP, faq }) => {
 
   const [isExpanded, setIsExpanded] = useState(false)
   
   return (
     <div className='py-6'>
-      <dt key={key} className='text-base text-neutral-700'>
+      <dt key={keyP} className='text-base text-neutral-700'>
         <button
           className='text-left w-full flex items-center justify-between'
           onClick={() => { setIsExpanded(!isExpanded) }}
@@ -80,7 +81,7 @@ const Faq = () => {
 
       <dl className='mt-6 max-w-3xl mx-auto divide-y divide-neutral-300'>
         {faqs.map((faq, idx) => (
-          <FaqItem key={idx} faq={faq} />
+          <FaqItem keyP={idx} faq={faq} />
         ))}
       </dl>
 

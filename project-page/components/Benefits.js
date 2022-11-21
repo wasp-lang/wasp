@@ -45,7 +45,7 @@ const Benefits = () => {
             a <Lang />.
           </h2>
           <p className='text-neutral-500'>
-            Don't worry, it takes less than 30 minutes to learn.
+            Don&apos;t worry, it takes less than 30 minutes to learn.
           </p>
         </div>
       </div>
