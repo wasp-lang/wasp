@@ -70,7 +70,7 @@ const Faq = () => {
             For anything not covered here, join&nbsp;
             <a 
               href='https://discord.gg/rzdnErX'
-              className='underline decoration-2 decoration-yellow-500'
+              className='underline decoration-2 decoration-yellow-500 font-medium'
             >
               our Discord
             </a>!
