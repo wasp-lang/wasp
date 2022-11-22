@@ -63,7 +63,8 @@ makeNewRelease newVersion = do
 
   putStrLn $
     unlines
-      [ "This will release wasp version " ++ versionFromCabalFile ++ ".",
+      [ "",
+        "This will release wasp version " ++ versionFromCabalFile ++ ".",
         "tag " ++ tag ++ " will be created and pushed, triggering CI to create new release on Github.",
         "Are you sure you want to proceed? [Y/N]:"
       ]
