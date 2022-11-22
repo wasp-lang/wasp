@@ -325,13 +325,16 @@ Now go back to your terminal and execute the following commands:
   Select `server` when prompted with `Select Service`. Press enter.
   Railway will now locate the Dockerfile and deploy your server 👍
 
+  When deployment is finished, you will see: `Deployment live at <url_to_wasp_backend>`
+  Copy this URL 📜. We need it for step 5!
+
   4. Next, change into your app's frontend build directory `.wasp/build/web-app`:
   ```shell
   cd web-app
   ```
-  5. Create the production build:
+  5. Create the production build, adding the URL from step 3:
   ```shell
-  npm install && npm run build
+  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
   ```
   6. Change into the `.wasp/build/web-app/build` directory and deploy:
   ```shell
