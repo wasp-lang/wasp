@@ -373,13 +373,14 @@ waspc is following typical SemVer versioning scheme, so major.minor.patch.
 There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
 So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
 
-#### Release candidates
-Making a "Release Candidate" release is useful when you want to test the release without it being published to the users.
-A way to do this is to call `new-release` with version that ends with `-rc`, so smth e.g. `./new-release 0.7.0-rc`.
-You will likely be doing this from the `main` branch.
-Once draft release is created on Github, you should mark it in their UI as pre-release and publish it.
-This will automatically remove the checkmark from "latest release", which is exactly what we want.
-Now, you can install it on your machine by using the `-v` flag of wasp installer, but users wan't be getting it as a latest version.
+#### Test releases (e.g. Release Candidate)
+Making a test release, especially "Release Candidate" release is useful when you want to test the release without it being published to the normal users.
+If doing this, steps are the following:
+1. You can do it from whatever branch you want, probably you will be doing it from `main`.
+2. You will want to use a version name that indicates you are doing test, probably you will want to add `-rc` at the end.
+   So for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
+3. Once draft release is created on Github, you should mark it in their UI as pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. This is the crucial step that differentiates test release from the proper release.
+4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way user's don't get in touch with it, but we can install and use it normally.
 
 
 ## Documentation
