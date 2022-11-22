@@ -17,7 +17,9 @@ const WaspSourceHeader = (props) => {
 
   return (
     <div style={divStyle}>
-      <span style={{ marginRight: "5px" }}><img alt="Wasp" src={waspLogo} height={30} /></span>
+      <span style={{ marginRight: "5px" }}>
+        <img alt="Wasp" src={waspLogo} className='h-8' />
+      </span>
       <span>
         This is an example <a href="https://wasp-lang.dev" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>Wasp</a> application{props.name && ` called ${props.name}`}.
         To see the source, please visit our <a href="https://github.com/wasp-lang/wasp/tree/main/examples" target="_blank" rel="noreferrer" style={{ color: "#fc0" }}>GitHub repo</a>.

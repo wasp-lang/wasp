@@ -1,9 +1,9 @@
-app trello {
+app waspello {
   wasp: {
     version: "^0.8.0"
   },
 
-  title: "trello",
+  title: "Waspello",
 
   db: {
     system: PostgreSQL
@@ -11,8 +11,10 @@ app trello {
 
   auth: {
     userEntity: User,
+    externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {}
+      usernameAndPassword: {},
+      google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
@@ -49,6 +51,17 @@ entity User {=psl
     password    String
     lists       List[]
     cards       Card[]
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
 psl=}
 
 entity List {=psl
