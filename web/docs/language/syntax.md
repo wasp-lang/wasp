@@ -41,7 +41,7 @@ All the other types in Wasp language (primitive types (`string`, `number`), comp
 ## Complete list of Wasp types
 Wasp's type system can be divided into two main categories of types: **fundamental types** and **domain types**.
 
-While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular lanuages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
+While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular languages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
 
 - Fundamental types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/Type.hs))
   - Primitive types
