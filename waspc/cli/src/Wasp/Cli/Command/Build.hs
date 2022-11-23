@@ -14,8 +14,7 @@ import System.Directory
   )
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
-  ( alphaWarningMessage,
-    findWaspProjectRootDirFromCwd,
+  ( findWaspProjectRootDirFromCwd,
   )
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -56,7 +55,6 @@ build = do
     then do
       cliSendMessageC $
         Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
-      cliSendMessageC $ Msg.Warning "Wasp is in alpha" alphaWarningMessage
     else
       throwError $
         CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
