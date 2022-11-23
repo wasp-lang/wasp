@@ -33,6 +33,7 @@ data-files:
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
   Generator/templates/**/*.toml
+  Generator/templates/**/*.ts
   Generator/templates/**/*.json
   Generator/templates/**/*.ico
   Generator/templates/**/*.html
@@ -41,9 +42,10 @@ data-files:
   Generator/templates/**/*.png
   Cli/bash-completion
   Cli/templates/**/*.css
-  Cli/templates/**/*.js
   Cli/templates/**/*.json
   Cli/templates/**/*.png
+  Cli/templates/**/*.ts
+  Cli/templates/**/*.tsx
   Cli/templates/new/.gitignore
   Cli/templates/new/.wasproot
   Cli/templates/new/src/.waspignore
