@@ -125,8 +125,8 @@ npmDepsForWasp spec =
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
             ("lodash", "^4.17.21"),
-            -- todo make optional
-            -- todo types for node
+            -- TODO: make optional
+            -- TODO: types for node
             ("typescript", "^4.8.4")
           ]
           ++ depsRequiredByPassport spec
