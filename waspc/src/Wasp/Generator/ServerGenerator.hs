@@ -57,6 +57,7 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -124,10 +125,7 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash", "^4.17.21"),
-            -- TODO: make optional
-            -- TODO: types for node
-            ("typescript", "^4.8.4")
+            ("lodash", "^4.17.21")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
@@ -135,7 +133,11 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             ("standard", "^17.0.0"),
-            ("prisma", show prismaVersion)
+            ("prisma", show prismaVersion),
+            -- TODO: types for node
+            -- TODO: make optional 
+            ("typescript", "^4.8.4"),
+            ("ts-node", "^10.9.1")
           ]
     }
 
@@ -195,8 +197,8 @@ genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.js|])
-      (C.asServerFile [relfile|src/server.js|])
+      (C.asTmplFile [relfile|src/server.ts|])
+      (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
