@@ -249,6 +249,10 @@ Run
 ```
 npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
+:::info NO SLASH
+Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
+✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
+:::
 
 where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.fly.dev`.
 
@@ -277,6 +281,10 @@ NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variab
 ## Deploying to Railway ("freemium", all-in-one solution)
 
 Railway makes it easy to deploy your entire app -- database, server, and client -- on one platform. You can use the platform for free for a limited time (~21 days) per month.
+
+:::danger 🛑
+  Due to Railway's current proxy configuration, Google Auth will not currently work. If you're using Google Auth in your Wasp App, you can still deploy your back-end to Railway, but we suggest you [deploy your front-end to Netlify](#deploying-to-netlify)
+:::
 
 To get started, follow these steps:
 
@@ -336,6 +344,11 @@ Now go back to your terminal and execute the following commands:
   ```shell
   npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
   ```
+  :::info NO SLASH
+  Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
+  ✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
+  :::
+
   6. Change into the `.wasp/build/web-app/build` directory and deploy:
   ```shell
   cd build && railway up
