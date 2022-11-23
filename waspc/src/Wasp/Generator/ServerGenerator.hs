@@ -100,7 +100,7 @@ genPackageJson spec waspDependencies = do
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production node ./src/server.js"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
@@ -137,7 +137,7 @@ npmDepsForWasp spec =
             -- TODO: types for node
             -- TODO: make optional 
             ("typescript", "^4.8.4"),
-            ("ts-node", "^10.9.1")
+            ("@types/node", "^18.11.9")
           ]
     }
 

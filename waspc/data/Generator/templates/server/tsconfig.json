@@ -5,7 +5,8 @@
     "target": "es6",
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "allowJs": true
   },
   "ts-node": {
     "esm": true
