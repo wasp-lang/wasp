@@ -45,7 +45,7 @@ export type QuerySpecifier = any[]
  * A hook for adding extra behavior to a Wasp Action (e.g., optimistic updates).
  *
  * @param actionFn The Wasp Action you wish to enhance/decorate.
- * @param {ActionOptions} actionOptions An options object for enhancing/decorating the given Action.
+ * @param actionOptions An options object for enhancing/decorating the given Action.
  * @returns A decorated Action with added behavior but an unchanged API.
  */
 export function useAction<ActionInput, CacheItem = any>(
@@ -106,12 +106,13 @@ type InternalAction<Input, Output> = Action<Input, Output> & {
 }
 
 /**
- * Translates/Desugars a public optimistic update definition object into a definition object our
- * system uses internally.
+ * Translates/Desugars a public optimistic update definition object into a
+ * definition object our system uses internally.
  * 
- * @param {OptimisticUpdateDefinition} publicOptimisticUpdateDefinition An optimistic update definition
- * object that's a part of the public API: https://wasp-lang.dev/docs/language/features#the-useaction-hook.
- * @returns {InternalOptimisticUpdateDefinition} An internally-used optimistic update definition object.
+ * @param publicOptimisticUpdateDefinition An optimistic update definition
+ * object that's a part of the public API:
+ * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
+ * @returns An internally-used optimistic update definition object.
  */
 function translateToInternalDefinition<Item, CacheItem>(
   publicOptimisticUpdateDefinition: OptimisticUpdateDefinition<Item, CacheItem>
@@ -139,8 +140,8 @@ function translateToInternalDefinition<Item, CacheItem>(
  * Creates a function that performs an action while telling it about the
  * optimistic updates it caused.
  * 
- * @param actionFn - The Wasp Action.
- * @param optimisticUpdateDefinitions - The optimisitc updates the action causes.
+ * @param actionFn The Wasp Action.
+ * @param optimisticUpdateDefinitions The optimisitc updates the action causes.
  * @returns An decorated action which performs optimistic updates.
  */
 function makeOptimisticUpdateMutationFn<Input, Output, CacheItem>(
