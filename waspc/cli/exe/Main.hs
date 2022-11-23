@@ -5,9 +5,7 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
-import Data.Version (showVersion)
 import Main.Utf8 (withUtf8)
-import Paths_waspc (version)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
@@ -27,6 +25,7 @@ import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
+import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -113,7 +112,16 @@ printUsage =
       ]
 
 printVersion :: IO ()
-printVersion = putStrLn $ showVersion version
+printVersion = do
+  putStrLn $
+    unlines
+      [ show waspVersion,
+        "",
+        "If you wish to install/switch to different version of Wasp, do:",
+        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+        "where x.y.z is the desired version.",
+        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, include the latest one."
+      ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
