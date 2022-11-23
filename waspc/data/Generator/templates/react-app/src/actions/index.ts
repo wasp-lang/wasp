@@ -2,23 +2,23 @@ import {
   QueryClient,
   QueryKey,
   useMutation,
+  UseMutationOptions,
   useQueryClient,
 } from '@tanstack/react-query'
-
-export { configureQueryClient } from '../queryClient'
+import { Action } from './core';
 
 /**
  * An options object passed into the `useAction` hook and used to enhance the
  * action with extra options.
  *
-*/
+ */
 export type ActionOptions<ActionInput, CacheItem> = {
   optimisticUpdates: OptimisticUpdateDefinition<ActionInput, CacheItem>[];
 }
 
 /**
  * A documented (public) way to define optimistic updates.
-*/
+ */
 export type OptimisticUpdateDefinition<ActionInput, CacheItem> = {
   getQuerySpecifier: GetQuerySpecifier<ActionInput>;
   updateQuery: UpdateQuery<ActionInput, CacheItem>;
@@ -26,19 +26,19 @@ export type OptimisticUpdateDefinition<ActionInput, CacheItem> = {
 
 /**
  * A function that takes an item and returns a Wasp Query specifier.
-*/
+ */
 export type GetQuerySpecifier<Item> = (item: Item) => QuerySpecifier
 
 /**
  * A function that takes an item and the previous state of the cache, and returns
  * the desired (new) state of the cache.
-*/
+ */
 export type UpdateQuery<ActionInput, CacheItem> = (item: ActionInput, oldData: CacheItem[]) => CacheItem[]
 
 /**
  * A public query specifier used for addressing Wasp queries. See our docs for details:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
-*/
+ */
 export type QuerySpecifier = any[]
 
 /**
@@ -47,19 +47,18 @@ export type QuerySpecifier = any[]
  * @param actionFn The Wasp Action you wish to enhance/decorate.
  * @param {ActionOptions} actionOptions An options object for enhancing/decorating the given Action.
  * @returns A decorated Action with added behavior but an unchanged API.
-*/
+ */
 export function useAction<ActionInput, CacheItem = any>(
   actionFn: (item: ActionInput) => Promise<void>,
   actionOptions: ActionOptions<ActionInput, CacheItem>
 ): typeof actionFn {
   const queryClient = useQueryClient();
-  const internalAction = actionFn as InternalAction<ActionInput, any>
 
   let mutationFn = actionFn
   let options = {}
   if (actionOptions?.optimisticUpdates) {
     const optimisticUpdatesDefinitions = actionOptions.optimisticUpdates.map(translateToInternalDefinition)
-    mutationFn = makeOptimisticUpdateMutationFn(internalAction, optimisticUpdatesDefinitions)
+    mutationFn = makeOptimisticUpdateMutationFn(actionFn, optimisticUpdatesDefinitions)
     options = makeRqOptimisticUpdateOptions(queryClient, optimisticUpdatesDefinitions)
   }
 
@@ -76,7 +75,7 @@ export function useAction<ActionInput, CacheItem = any>(
 
 /**
  * An internal (undocumented, private, desugared) way of defining optimistic updates.
-*/
+ */
 type InternalOptimisticUpdateDefinition<ActionInput, CacheItem> = {
   getQueryKey: (item: ActionInput) => QueryKey,
   updateQuery: UpdateQuery<ActionInput, CacheItem>;
@@ -87,7 +86,7 @@ type InternalOptimisticUpdateDefinition<ActionInput, CacheItem> = {
  * An UpdateQuery function "instantiated" with a specific item. It only takes
  * the current state of the cache and returns the desired (new) state of the
  * cache.
-*/
+ */
 type SpecificUpdateQuery<Item> = (oldData: Item[]) => Item[]
 
 /**
@@ -98,9 +97,6 @@ type SpecificOptimisticUpdateDefinition<Item> = {
   queryKey: QueryKey;
   updateQuery: SpecificUpdateQuery<Item>;
 }
-
-type Action<Input, Output> = (arg: Input) => Promise<Output>
-
 
 type InternalAction<Input, Output> = Action<Input, Output> & {
   internal<CacheItem extends unknown>(
@@ -144,19 +140,18 @@ function translateToInternalDefinition<Item, CacheItem>(
  * optimistic updates it caused.
  * 
  * @param actionFn - The Wasp Action.
- * @param optimisticUpdateDefinitions - The optimisitc updates the 
- * action causes.
- * @returns A 
+ * @param optimisticUpdateDefinitions - The optimisitc updates the action causes.
+ * @returns An decorated action which performs optimistic updates.
  */
-function makeOptimisticUpdateMutationFn<ActionInput, CacheItem>(
-  actionFn: InternalAction<ActionInput, any>,
-  optimisticUpdateDefinitions: InternalOptimisticUpdateDefinition<ActionInput, CacheItem>[]
-) {
+function makeOptimisticUpdateMutationFn<Input, Output, CacheItem>(
+  actionFn: Action<Input, Output>,
+  optimisticUpdateDefinitions: InternalOptimisticUpdateDefinition<Input, CacheItem>[]
+): typeof actionFn {
   return function performActionWithOptimisticUpdates(item) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
     )
-    return actionFn.internal(item, specificOptimisticUpdateDefinitions)
+    return (actionFn as InternalAction<Input, Output>).internal(item, specificOptimisticUpdateDefinitions)
   }
 }
 
@@ -175,11 +170,11 @@ function makeOptimisticUpdateMutationFn<ActionInput, CacheItem>(
  * @returns An object containing 'onMutate' and 'onError' functions
  * corresponding to the given optimistic update definitions (check the docs
  * linked above for details).
-*/
+ */
 function makeRqOptimisticUpdateOptions<ActionInput, CacheItem>(
   queryClient: QueryClient,
   optimisticUpdateDefinitions: InternalOptimisticUpdateDefinition<ActionInput, CacheItem>[]
-) {
+): Pick<UseMutationOptions, "onMutate" | "onError"> {
   async function onMutate(item) {
     const specificOptimisticUpdateDefinitions = optimisticUpdateDefinitions.map(
       generalDefinition => getOptimisticUpdateDefinitionForSpecificItem(generalDefinition, item)
@@ -243,7 +238,7 @@ function makeRqOptimisticUpdateOptions<ActionInput, CacheItem>(
  * argument passed to the Action).
  * @returns A specific optimistic update definition which corresponds to the
  * provided definition and closes over the provided item.
-*/
+ */
 function getOptimisticUpdateDefinitionForSpecificItem<ActionInput, CacheItem>(
   optimisticUpdateDefinition: InternalOptimisticUpdateDefinition<ActionInput, CacheItem>, item: ActionInput
 ): SpecificOptimisticUpdateDefinition<CacheItem> {
@@ -260,7 +255,7 @@ function getOptimisticUpdateDefinitionForSpecificItem<ActionInput, CacheItem>(
  * @param querySpecifier A query specifier that's a part of the public API:
  * https://wasp-lang.dev/docs/language/features#the-useaction-hook.
  * @returns A cache key React Query internally uses for addressing queries.
-*/
+ */
 function getRqQueryKeyFromSpecifier(querySpecifier: QuerySpecifier): QueryKey {
   const [queryFn, ...otherKeys] = querySpecifier
   return [...queryFn.queryCacheKey, ...otherKeys]
