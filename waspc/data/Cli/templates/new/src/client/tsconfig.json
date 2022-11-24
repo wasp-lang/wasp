@@ -2,7 +2,7 @@
   "compilerOptions": {
     // JSX support
     "jsx": "preserve",
-    // Enables default imports in typescript
+    // Enable default imports in TypeScript.
     "esModuleInterop": true,
     "lib": [
       "dom",
