@@ -57,6 +57,8 @@ genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|nodemon.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -68,7 +70,8 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
-  where genFileCopy = return . C.mkTmplFd 
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -99,7 +102,7 @@ genPackageJson spec waspDependencies = do
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production node ./src/server.js"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
@@ -132,7 +135,11 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             ("standard", "^17.0.0"),
-            ("prisma", show prismaVersion)
+            ("prisma", show prismaVersion),
+            -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly.
+            ("typescript", "^4.8.4"),
+            ("@types/node", "^18.11.9")
           ]
     }
 
@@ -192,8 +199,8 @@ genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.js|])
-      (C.asServerFile [relfile|src/server.js|])
+      (C.asTmplFile [relfile|src/server.ts|])
+      (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,

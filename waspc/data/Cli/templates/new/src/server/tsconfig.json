@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    // Enable default imports in TypeScript.
+    "esModuleInterop": true,
+    "allowJs": true,
     // The following settings enable IDE support in user-provided source files. 
     // Editing them might break features like import autocompletion and
     // definition lookup. Don't change them unless you know what you're doing.
@@ -18,10 +21,12 @@
         // Start by looking for the definiton inside the node modules root
         // directory...
         "node_modules/*",
-        // ... If that fails, Try to find it inside definitely-typed type
+        // ... If that fails, try to find it inside definitely-typed type
         // definitions.
         "node_modules/@types/*"
       ]
-    }
+    },
+    // Correctly resolve types: https://www.typescriptlang.org/tsconfig#typeRoots
+    "typeRoots": ["../../.wasp/out/server/node_modules/@types"]
   }
 }

@@ -29,7 +29,7 @@ const startServer = async () => {
 
   server.listen(port)
 
-  server.on('error', (error) => {
+  server.on('error', (error: NodeJS.ErrnoException) => {
     if (error.syscall !== 'listen') throw error
     const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port
     // handle specific listen errors with friendly messages
