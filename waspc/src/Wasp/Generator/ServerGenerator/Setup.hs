@@ -12,4 +12,4 @@ import qualified Wasp.Generator.ServerGenerator.Common as Common
 installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> J.Job
 installNpmDependencies projectDir = do
   let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir "npm" ["install"] J.Server
+  runNodeCommandAsJob serverDir "npm" ["install", "--loglevel", "info"] J.Server
