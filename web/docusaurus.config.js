@@ -17,7 +17,7 @@ module.exports = {
   favicon: 'img/favicon.ico',
   themeConfig: {
     navbar: {
-      title: '.wasp (alpha)',
+      title: '.wasp (beta)',
       logo: {
         alt: 'Wasp logo',
         src: 'img/wasp-logo-eqpar-circle.png',
