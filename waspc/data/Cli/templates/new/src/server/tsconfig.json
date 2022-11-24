@@ -21,7 +21,7 @@
         // Start by looking for the definiton inside the node modules root
         // directory...
         "node_modules/*",
-        // ... If that fails, Try to find it inside definitely-typed type
+        // ... If that fails, try to find it inside definitely-typed type
         // definitions.
         "node_modules/@types/*"
       ]
