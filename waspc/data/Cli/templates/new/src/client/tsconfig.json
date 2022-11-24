@@ -32,6 +32,8 @@
         // definitions.
         "node_modules/@types/*"
       ]
-    }
+    },
+    // Correctly resolve types: https://www.typescriptlang.org/tsconfig#typeRoots
+    "typeRoots": ["../../.wasp/out/web-app/node_modules/@types"]
   }
 }
