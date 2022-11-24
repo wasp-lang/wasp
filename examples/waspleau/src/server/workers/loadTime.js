@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { upsertMetric } from './utils.js'
+import { upsertData } from './utils.js'
 
 export async function workerFunction(args, context) {
   console.log('loadTime.js workerFunction', args, context)
@@ -8,9 +8,9 @@ export async function workerFunction(args, context) {
   await axios.get(args.url)
   const end = Date.now()
 
-  const metrics = [{ name: args.name, value: `${end - start}ms` }]
+  const data = [{ name: args.name, value: `${end - start}ms` }]
 
-  await Promise.all(metrics.map(upsertMetric(context)))
+  await Promise.all(data.map(upsertData(context)))
 
-  return metrics
+  return data
 }

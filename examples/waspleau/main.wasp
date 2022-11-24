@@ -1,6 +1,6 @@
 app waspleau {
   wasp: {
-    version: "^0.6.0"
+    version: "^0.7.0"
   },
 
   title: "Waspleau",
@@ -24,7 +24,7 @@ job github {
   schedule: {
     cron: "*/10 * * * *"
   },
-  entities: [Metric]
+  entities: [Datum]
 }
 
 job loadTime {
@@ -39,10 +39,10 @@ job loadTime {
       "name": "wasp-lang.dev Load Time"
     } json=}
   },
-  entities: [Metric]
+  entities: [Datum]
 }
 
-entity Metric {=psl
+entity Datum {=psl
     id          Int       @id @default(autoincrement())
     name        String    @unique
     value       String
@@ -56,5 +56,5 @@ page MainPage {
 
 query dashboard {
   fn: import { refreshDashboardData } from "@server/dashboard.js",
-  entities: [Metric]
+  entities: [Datum]
 }
