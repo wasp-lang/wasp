@@ -2,8 +2,9 @@ waspNew/.wasproot
 waspNew/main.wasp
 waspNew/src/.waspignore
 waspNew/src/client/Main.css
-waspNew/src/client/MainPage.js
-waspNew/src/client/jsconfig.json
+waspNew/src/client/MainPage.tsx
+waspNew/src/client/react-app-env.d.ts
+waspNew/src/client/tsconfig.json
 waspNew/src/client/waspLogo.png
-waspNew/src/server/jsconfig.json
-waspNew/src/shared/jsconfig.json
+waspNew/src/server/tsconfig.json
+waspNew/src/shared/tsconfig.json

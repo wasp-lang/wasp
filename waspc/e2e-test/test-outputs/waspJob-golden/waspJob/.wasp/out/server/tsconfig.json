@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    // Enable default imports in TypeScript.
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist",
+    "allowJs": true,
+    // Enable source map for debugging
+    "sourceMap": true
+  }
+}
