@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "esModuleInterop": true,
+    "allowJs": true,
     // The following settings enable IDE support in user-provided source files. 
     // Editing them might break features like import autocompletion and
     // definition lookup. Don't change them unless you know what you're doing.
@@ -22,6 +24,7 @@
         // definitions.
         "node_modules/@types/*"
       ]
-    }
+    },
+    "typeRoots": ["../../.wasp/out/server/node_modules/@types"]
   }
 }
