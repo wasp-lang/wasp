@@ -70,7 +70,8 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
-  where genFileCopy = return . C.mkTmplFd 
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -136,7 +137,7 @@ npmDepsForWasp spec =
             ("standard", "^17.0.0"),
             ("prisma", show prismaVersion),
             -- TODO: Allow users to choose whether they want to use TypeScript
-            -- in their projects and install these dependencies accordingly. 
+            -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
             ("@types/node", "^18.11.9")
           ]
