@@ -40,15 +40,18 @@ genQueries spec =
   mapM (genQuery spec) (AS.getQueries spec)
     <++> return
       [ C.mkSrcTmplFd [relfile|queries/index.js|],
-        C.mkSrcTmplFd [relfile|queries/core.js|]
+        C.mkSrcTmplFd [relfile|queries/index.d.ts|],
+        C.mkSrcTmplFd [relfile|queries/core.js|],
+        C.mkSrcTmplFd [relfile|queries/core.d.ts|]
       ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   mapM (genAction spec) (AS.getActions spec)
     <++> return
-      [ C.mkSrcTmplFd [relfile|actions/index.js|],
-        C.mkSrcTmplFd [relfile|actions/core.js|]
+      [ C.mkSrcTmplFd [relfile|actions/index.ts|],
+        C.mkSrcTmplFd [relfile|actions/core.js|],
+        C.mkSrcTmplFd [relfile|actions/core.d.ts|]
       ]
 
 genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
