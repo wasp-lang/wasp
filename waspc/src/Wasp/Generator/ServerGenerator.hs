@@ -135,8 +135,8 @@ npmDepsForWasp spec =
           [ ("nodemon", "^2.0.19"),
             ("standard", "^17.0.0"),
             ("prisma", show prismaVersion),
-            -- TODO: types for node
-            -- TODO: make optional 
+            -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly. 
             ("typescript", "^4.8.4"),
             ("@types/node", "^18.11.9")
           ]

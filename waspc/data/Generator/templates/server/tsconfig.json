@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    // Enable default imports in TypeScript.
     "esModuleInterop": true,
-    "target": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
-    "sourceMap": true,
     "outDir": "dist",
-    "allowJs": true
+    "allowJs": true,
+    // Enable source map for debugging
+    "sourceMap": true
   }
 }

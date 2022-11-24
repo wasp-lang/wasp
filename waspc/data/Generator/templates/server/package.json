@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "start": "NODE_PATH=dist node dist/server.js",
     "build-and-start": "npm run build && npm run start",
-    "start-nodemon": "nodemon -r dotenv/config --exec 'npm run build-and-start || exit 1'",
+    "watch": "nodemon -r dotenv/config --exec 'npm run build-and-start || exit 1'",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "start-production": "{=& startProductionScript =}",

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    // Enable default imports in TypeScript.
     "esModuleInterop": true,
     "allowJs": true,
     // The following settings enable IDE support in user-provided source files. 
@@ -25,6 +26,7 @@
         "node_modules/@types/*"
       ]
     },
+    // Correctly resolve types: https://www.typescriptlang.org/tsconfig#typeRoots
     "typeRoots": ["../../.wasp/out/server/node_modules/@types"]
   }
 }

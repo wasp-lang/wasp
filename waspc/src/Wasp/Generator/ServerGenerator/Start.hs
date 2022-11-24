@@ -12,4 +12,4 @@ import qualified Wasp.Generator.ServerGenerator.Common as Common
 startServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
 startServer projectDir = do
   let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
-  runNodeCommandAsJob serverDir "npm" ["run", "start-nodemon"] J.Server
+  runNodeCommandAsJob serverDir "npm" ["run", "watch"] J.Server
