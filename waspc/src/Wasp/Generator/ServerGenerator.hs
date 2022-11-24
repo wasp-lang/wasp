@@ -58,6 +58,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|nodemon.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
