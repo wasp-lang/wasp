@@ -55,7 +55,8 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
-  where genFileCopy = return . C.mkTmplFd
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -106,19 +107,20 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1"),
-            -- todo make optional
-            ("typescript", "^4.8.4"),
-            ("@types/jest", "^29.2.2"),
-            ("@types/react", "^18.0.25"),
-            ("@types/react-dom", "^18.0.8")
+            ("react-scripts", "5.0.1")
           ]
           ++ depsRequiredByTailwind spec,
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
       -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
       N.waspDevDependencies =
         AS.Dependency.fromList
-          []
+          [ -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly.
+            ("typescript", "^4.8.4"),
+            ("@types/react", "^18.0.25"),
+            ("@types/react-dom", "^18.0.8"),
+            ("@types/react-router-dom", "^5.3.3")
+          ]
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
