@@ -1,5 +1,5 @@
 export const refreshDashboardData = async (_args, context) => {
-  return context.entities.Metric.findMany({
+  return context.entities.Datum.findMany({
     orderBy: [
       {
         name: 'asc',

@@ -2,10 +2,9 @@
 title: Deploying
 ---
 
-:::danger
-While you can deploy Wasp projects, Wasp is still in alpha and not yet production-ready.
-
-It might have critical security issues or other types of issues, and therefore we don't recommend deploying to production yet.
+:::info
+Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly a bit bigger changes in the future.
+If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
 Right now, deploying of Wasp project is done by generating the code and then deploying generated code "manually", as explained below.

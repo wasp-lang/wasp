@@ -44,9 +44,16 @@
     [
         [
             "file",
+            "server/nodemon.json"
+        ],
+        "5d0e1103bbe7c29a7b3137a57345f8eeb4ccd8a2128d636cc1b2bd81cf348a86"
+    ],
+    [
+        [
+            "file",
             "server/package.json"
         ],
-        "15dfb8bf4e0dd58b9964cbcab2f02b0c977a802c88c4140861755f969d5697f9"
+        "597461e990d47093b89e2cdd239c6e9bc6bedef29b9cdf51b357ff3ee5217de2"
     ],
     [
         [
@@ -86,13 +93,6 @@
     [
         [
             "file",
-            "server/src/ext-src/jsconfig.json"
-        ],
-        "4130060d02d39d5fdc11bdb288cfe08d36dc89be29ade017b16db6477e63c47a"
-    ],
-    [
-        [
-            "file",
             "server/src/jobs/core/Job.js"
         ],
         "e0e5d5e802a29032bfc8426097950722ac0dc7931d08641c1c2b02c262e6cdcc"
@@ -123,7 +123,7 @@
             "file",
             "server/src/jobs/core/pgBoss/pgBossJob.js"
         ],
-        "532ed0f34a2011cff2a9c43b712a513ba505e77d896455d6c7f36add6f88741d"
+        "ff6040d051c916eb080a2f2c37fd5135f588782387faeae51115d1a7abd1ad8b"
     ],
     [
         [
@@ -149,16 +149,9 @@
     [
         [
             "file",
-            "server/src/server.js"
+            "server/src/server.ts"
         ],
-        "e19bdae598265cbe2457ff1e2d8524aa821666482cb7d21644e290a68daf94a5"
-    ],
-    [
-        [
-            "file",
-            "server/src/shared/jsconfig.json"
-        ],
-        "6972bc64315755788fd02be62c44ea8ffb60dd874b863fca2878f6160ab4b0e2"
+        "c6114654819216004f0ef4a8771a0c1213c655cfd41760fbd835077c53a6b6ba"
     ],
     [
         [
@@ -166,6 +159,13 @@
             "server/src/utils.js"
         ],
         "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
+    ],
+    [
+        [
+            "file",
+            "server/tsconfig.json"
+        ],
+        "3038f152754646d2c46de78e099e9e6129bfb2541e4dccd37a05a5632ab4d838"
     ],
     [
         [
@@ -200,7 +200,7 @@
             "file",
             "web-app/package.json"
         ],
-        "f2fa10158fbdff6cea6339d1620515d9c10d56c5db43f9b061c4e74e83e405b0"
+        "a5532eb64f2d21f643eb96e66807acc54345782c228995cfd0dff7bebc9fcf80"
     ],
     [
         [
@@ -226,6 +226,13 @@
     [
         [
             "file",
+            "web-app/src/actions/core.d.ts"
+        ],
+        "c18e166c8f43bd3a6a8d78f8fc2f51fe82e956cd71b3464c59076f8dec660b24"
+    ],
+    [
+        [
+            "file",
             "web-app/src/actions/core.js"
         ],
         "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
@@ -233,9 +240,9 @@
     [
         [
             "file",
-            "web-app/src/actions/index.js"
+            "web-app/src/actions/index.ts"
         ],
-        "7da2524a6920c46aada7e60e29fbe24d0e45e4bfcf7bf3044d16d11ab89a965e"
+        "bc520b1d83577c6640472dd5c110228a3617b050d3a4d091495ec065c57011bc"
     ],
     [
         [
@@ -261,16 +268,16 @@
     [
         [
             "file",
-            "web-app/src/ext-src/MainPage.js"
+            "web-app/src/ext-src/MainPage.tsx"
         ],
         "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
     ],
     [
         [
             "file",
-            "web-app/src/ext-src/jsconfig.json"
+            "web-app/src/ext-src/react-app-env.d.ts"
         ],
-        "06804c81fa3b227c1b3a04e950f8db9ed85bf41d042b90e8e8332856016e113f"
+        "c9e89cb25e83121c0c451125de7a0b0569161e2bf18f83bc5f69836403910744"
     ],
     [
         [
@@ -317,9 +324,23 @@
     [
         [
             "file",
+            "web-app/src/queries/core.d.ts"
+        ],
+        "f0b289140e92738451be386ca73a2fd1c84e9951eb2f1b9c6c09dfa3079d0c74"
+    ],
+    [
+        [
+            "file",
             "web-app/src/queries/core.js"
         ],
         "2daf5b414722204281d65e954ce862a6fc586e8907b202800694909d23957c5e"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/index.d.ts"
+        ],
+        "3eb32c063fc77fa5aa3f3b3a12c51ca8a52fc3cd0de21f4e9463a56cc374003c"
     ],
     [
         [
@@ -340,7 +361,7 @@
             "file",
             "web-app/src/router.js"
         ],
-        "dd6f5f5c6981df1935c02437d7a6ae343841300c3f7e99b0ad6ca62e95071421"
+        "65a91308a13f2c8444e3ad7372c1fca85a194b85e8f8f7d11613f78fcfe7af6f"
     ],
     [
         [
@@ -352,15 +373,15 @@
     [
         [
             "file",
-            "web-app/src/shared/jsconfig.json"
+            "web-app/src/utils.js"
         ],
-        "6972bc64315755788fd02be62c44ea8ffb60dd874b863fca2878f6160ab4b0e2"
+        "0ae6e53a050dbc6b7166aedfd5b076c2cab524c4d6aff884dc6902b178148815"
     ],
     [
         [
             "file",
-            "web-app/src/utils.js"
+            "web-app/tsconfig.json"
         ],
-        "0ae6e53a050dbc6b7166aedfd5b076c2cab524c4d6aff884dc6902b178148815"
+        "0612639442958ae18a96d651a6c385fba1a682f04d09e293efd380006fc4df99"
     ]
 ]

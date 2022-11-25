@@ -1,11 +1,11 @@
 app waspNew {
   wasp: {
-    version: "^0.6.0"
+    version: "^0.7.0"
   },
   title: "waspNew"
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage"
 }

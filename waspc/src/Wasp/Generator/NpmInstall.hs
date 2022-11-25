@@ -27,12 +27,12 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- | Run npm install if needed
 -- Redundant npm installs can be avoided if the dependencies specified
 -- by the user and wasp have not changed since the last time this ran.
-
+--
 -- It only does this if the dependencies described in the user wasp file are
 -- different from the dependencies that we just installed. To this end, this
 -- code keeps track of the dependencies installed with a metadata file, which
 -- it updates after each install.
-
+--
 -- NOTE: we assume that the dependencies in package.json are the same as the
 -- ones we derive from the AppSpec. We derive them the same way but it does
 -- involve different code paths.

@@ -43,7 +43,8 @@ import Wasp.Util ((<++>))
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
   sequence
-    [ genReadme,
+    [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
@@ -54,6 +55,8 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -68,9 +71,6 @@ genDotEnv spec = return $
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
-
-genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd $ C.asTmplFile [relfile|README.md|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -114,7 +114,13 @@ npmDepsForWasp spec =
       -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
       N.waspDevDependencies =
         AS.Dependency.fromList
-          []
+          [ -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly.
+            ("typescript", "^4.8.4"),
+            ("@types/react", "^18.0.25"),
+            ("@types/react-dom", "^18.0.8"),
+            ("@types/react-router-dom", "^5.3.3")
+          ]
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]

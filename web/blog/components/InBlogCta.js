@@ -11,7 +11,7 @@ const InBlogCta = () => (
     <p className='in-blog-cta-link-container'>
         <Link className='in-blog-cta--link' 
             to='https://e44cy1h4s0q.typeform.com/to/ycUzQa5A'>
-            We are in Alpha (try it out)!
+            We are in Beta (try it out)!
         </Link>
         <Divider />
         <Link className='in-blog-cta--link' to='https://discord.gg/rzdnErX'>

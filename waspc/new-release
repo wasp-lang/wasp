@@ -8,11 +8,12 @@
 -}
 {-# LANGUAGE OverloadedStrings #-}
 
-import Control.Monad (when)
+import Control.Arrow (second)
+import Control.Monad (unless, when)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.Environment (getArgs)
-import System.Exit (ExitCode (..))
+import System.Exit (ExitCode (..), die)
 import qualified Text.Regex.TDFA as TR
 import Turtle (empty, shell, shellStrict)
 
@@ -24,53 +25,74 @@ main = do
 
 makeNewRelease :: String -> IO ()
 makeNewRelease newVersion = do
-  (ExitSuccess, branchName) <- shellStrict "git rev-parse --abbrev-ref HEAD" empty
-  when (T.strip branchName /= "release") $ error "You must run this script from the release branch!"
+  (ExitSuccess, branchName) <- second T.strip <$> shellStrict "git rev-parse --abbrev-ref HEAD" empty
+  case branchName of
+    "release" -> return ()
+    _ -> do
+      putStrLn ""
+      putStrLn $ "Are you sure you want to publish new release directly from the '" ++ T.unpack branchName ++ "' branch?"
+      putStrLn "Such release will likely be out of sync with published documentation, examples and similar."
+      putStrLn "Don't do this if you want to publish latest release, instead do it from the 'release' branch."
+      putStrLn "If you instead want to publish a release candidate, or re-publish old release, or smth like that, then please continue by typing the current branch and release version as a confirmation that you know what you are doing."
+      putStrLn "Branch you are on right now: "
+      branchName' <- getLine
+      putStrLn "Repeat the release version: "
+      newVersion' <- getLine
+      when (newVersion' /= newVersion) $ error "You typed incorrect release version."
+      when (branchName' /= T.unpack branchName) $ error "You typed incorrect branch name."
 
   let cabalFileName = "waspc.cabal"
-  oldCabalFileContents <- T.unpack <$> T.IO.readFile cabalFileName
+  versionFromCabalFile <- getVersionFromCabalFile . T.unpack <$> T.IO.readFile cabalFileName
+  when (versionFromCabalFile /= newVersion) $ do
+    putStrLn "\n"
+    putStrLn $ "Version from " ++ cabalFileName ++ " file (" ++ versionFromCabalFile ++ ") does not match the release version (" ++ newVersion ++ ")."
+    putStrLn "If you are doing a regular release, you will want these to match, so abort this script and go update the version in cabal file first."
+    putStrLn "Or maybe you know what you are doing and want to continue? [Y/N]:"
+    confirmation <- getLine
+    when (confirmation /= "Y") $ die "Aborting"
 
-  (newCabalFileContents, oldVersion) <- updateCabalFile oldCabalFileContents newVersion
+  unlessM isWorkingTreeClean $ do
+    putStrLn "\n"
+    putStrLn "Your working tree is not clean! Run 'git status' to check it out."
+    putStrLn "Only commited changes will become part of the release, so make sure you commited everything you wanted."
+    putStrLn "Do you want to continue regardless? [Y/N]:"
+    confirmation <- getLine
+    when (confirmation /= "Y") $ die "Aborting"
+
   let tag = "v" ++ newVersion
-
-  when (newVersion == oldVersion) $ error "Version you provided is the current version!"
 
   putStrLn $
     unlines
-      [ "This will update wasp version from " ++ oldVersion ++ " to " ++ newVersion,
-        cabalFileName ++ " will be updated, and this change will be commited and pushed.",
-        "Also, tag " ++ tag ++ " will be created and pushed, triggering CI to"
-          ++ " create new release on Github.",
-        "Are you sure you want to proceed (y/n)?"
+      [ "",
+        "This will release wasp version " ++ versionFromCabalFile ++ ".",
+        "tag " ++ tag ++ " will be created and pushed, triggering CI to create new release on Github.",
+        "Are you sure you want to proceed? [Y/N]:"
       ]
   confirmation <- getLine
-  when (confirmation /= "y") $ error "Aborting"
-
-  T.IO.writeFile cabalFileName $ T.pack newCabalFileContents
-
-  -- TODO: Print what I am doing for each step.
-
-  putStrLn $ "\nCreating new commit with updated " ++ cabalFileName ++ " and pushing it.\n"
-  ExitSuccess <- shell (T.pack $ "git add " ++ cabalFileName) empty
-  ExitSuccess <- shell (T.pack $ "git commit -m \"Updated wasp version to " ++ newVersion ++ ".\"") empty
-  gitPushExitCode <- shell "git push" empty
-  case gitPushExitCode of
-    ExitSuccess -> return ()
-    ExitFailure _ -> do
-      ExitSuccess <- shell "git reset --hard HEAD~1" empty
-      error "Failed to do `git push`, reverted changes."
+  when (confirmation /= "Y") $ die "Aborting"
 
   putStrLn $ "\nCreating tag " ++ tag ++ " and pushing it.\n"
   ExitSuccess <- shell (T.pack $ "git tag " ++ tag) empty
   ExitSuccess <- shell (T.pack $ "git push origin " ++ tag) empty
 
+  putStrLn $ "Success! Check out Actions on Github to see how your new release is being built. Once it is built, draft release on Github will be created, with binaries attached. Then it is up to you to manually publish it from draft to proper release."
   return ()
 
-updateCabalFile :: String -> String -> IO (String, String) -- Returns (updated cabal file contents, old version)
-updateCabalFile cabalFileContents newVersion = do
+getVersionFromCabalFile :: String -> String -- Returns version currently written in the cabal file.
+getVersionFromCabalFile cabalFileContents = do
   let (beforeMatch, match, afterMatch, submatches) =
-        cabalFileContents TR.=~ ("^(version: *)([0-9]+\\.[0-9]+\\.[0-9]+)" :: String) :: (String, String, String, [String])
-  when (null match) $ error "Couldn't locate version in cabal file!?"
-  let [matchBeforeVersion, oldVersion] = submatches
-  let newContents = beforeMatch ++ matchBeforeVersion ++ newVersion ++ afterMatch
-  return (newContents, oldVersion)
+        cabalFileContents TR.=~ ("^(version: *)(.+)$" :: String) :: (String, String, String, [String])
+      match' = trim match
+   in if (null match')
+        then error "Couldn't locate version in cabal file!?"
+        else submatches !! 1
+
+isWorkingTreeClean :: IO Bool
+isWorkingTreeClean = do
+  (exitCode, _) <- shellStrict "git status | grep 'nothing to commit, working tree clean'" empty
+  return $ exitCode == ExitSuccess
+
+unlessM ma perform = ma >>= (`unless` perform)
+
+trim :: String -> String
+trim = T.unpack . T.strip . T.pack

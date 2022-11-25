@@ -14,7 +14,6 @@ import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command, CommandError (..))
-import qualified Wasp.Cli.Command.Common as Command.Common
 import Wasp.Common (WaspProjectDir)
 import qualified Wasp.Common as Common (WaspProjectDir)
 import qualified Wasp.Data as Data
@@ -40,8 +39,6 @@ createNewProject projectNameCandidate = do
       putStrLn ""
       putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
-      putStrLn ""
-      putStrLn Command.Common.alphaWarningMessage
 
 -- Takes a project name String
 -- Returns either the ProjectInfo type that contains both the Project name
@@ -102,7 +99,7 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile a
           "",
           "route RootRoute { path: \"/\", to: MainPage }",
           "page MainPage {",
-          "  component: import Main from \"@client/MainPage.js\"",
+          "  component: import Main from \"@client/MainPage\"",
           "}"
         ]
 

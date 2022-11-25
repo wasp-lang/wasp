@@ -347,24 +347,24 @@ If commit is tagged with tag starting with `v`, github draft release is created 
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
-We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will update the version in waspc.cabal, commit it, push it, and will also create appropriate tag and push it, therefore triggering CI to create new release on Github.
+We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 ### Typical Release Process
-- Update ChangeLog.md with release notes and open an PR for feedback.
-- After approval, squash and merge PR for ChangeLog.md into `main`.
+- Update ChangeLog.md with release notes, update version in waspc.cabal, and open a PR for feedback.
+- After approval, squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).
 - Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
 - Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
 - Make sure you are on `release` and then run `./new-release 0.x.y.z`.
-  - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
+  - This will do some checks, tag it with new release version, and push it.
 - Wait for CI to finish & succeed for the new tag.
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - Publish the draft release when ready.
-- Merge `release` back into `main` (`git merge release` while on the `main` branch), to keep things nice and clean -> this way in `main` we have the updated cabal version and can see that tag in the history.
+- Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
 - Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
 
@@ -372,6 +372,16 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 waspc is following typical SemVer versioning scheme, so major.minor.patch.
 There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
 So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
+
+#### Test releases (e.g. Release Candidate)
+Making a test release, especially "Release Candidate" release is useful when you want to test the release without it being published to the normal users.
+If doing this, steps are the following:
+1. You can do it from whatever branch you want, probably you will be doing it from `main`.
+2. You will want to use a version name that indicates you are doing test, probably you will want to add `-rc` at the end.
+   So for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
+3. Once draft release is created on Github, you should mark it in their UI as pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. This is the crucial step that differentiates test release from the proper release.
+4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way user's don't get in touch with it, but we can install and use it normally.
+
 
 ## Documentation
 External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 

@@ -1,5 +1,5 @@
 module Wasp.Generator.ExternalCodeGenerator.Js
-  ( generateJsFile,
+  ( genSourceFile,
     resolveJsFileWaspImportsForExtCodeDir,
   )
 where
@@ -17,8 +17,8 @@ import qualified Wasp.Generator.ExternalCodeGenerator.Common as C
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 
-generateJsFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
-generateJsFile strategy file = return $ FD.createTextFileDraft dstPath text'
+genSourceFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FD.FileDraft
+genSourceFile strategy file = return $ FD.createTextFileDraft dstPath text'
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
 
