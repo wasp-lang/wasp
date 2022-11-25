@@ -3,6 +3,7 @@
   "name": "server",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "npx tsc",
     "start": "NODE_PATH=dist node dist/server.js",

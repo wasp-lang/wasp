@@ -2,7 +2,7 @@
   "compilerOptions": {
     // Enable default imports in TypeScript.
     "esModuleInterop": true,
-    "module": "commonjs",
+    "module": "esnext",
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true,
