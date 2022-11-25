@@ -38,7 +38,7 @@ waspJob/.wasp/out/web-app/src/actions/index.ts
 waspJob/.wasp/out/web-app/src/api.js
 waspJob/.wasp/out/web-app/src/config.js
 waspJob/.wasp/out/web-app/src/ext-src/Main.css
-waspJob/.wasp/out/web-app/src/ext-src/MainPage.tsx
+waspJob/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspJob/.wasp/out/web-app/src/ext-src/react-app-env.d.ts
 waspJob/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspJob/.wasp/out/web-app/src/index.js
@@ -59,7 +59,7 @@ waspJob/.wasproot
 waspJob/main.wasp
 waspJob/src/.waspignore
 waspJob/src/client/Main.css
-waspJob/src/client/MainPage.tsx
+waspJob/src/client/MainPage.jsx
 waspJob/src/client/react-app-env.d.ts
 waspJob/src/client/tsconfig.json
 waspJob/src/client/waspLogo.png

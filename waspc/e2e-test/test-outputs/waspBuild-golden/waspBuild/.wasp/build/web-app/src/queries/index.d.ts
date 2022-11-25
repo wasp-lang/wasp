@@ -1,8 +1,8 @@
 import { UseQueryResult } from "@tanstack/react-query";
-import { OutputHTMLAttributes } from "react";
-import { Query } from "./core";
 
-export function useQuery<Input, Output>(
+export type Query<Input, Output> = (args: Input) => Promise<Output>
+
+export function useQuery<Input, Output, Error = unknown>(
     queryFn: Query<Input, Output>,
     queryFnArgs?: Input, options?: any
-): UseQueryResult<Output, any>
+): UseQueryResult<Output, Error>

@@ -1,10 +1,16 @@
+// =============================== IMPORTANT =================================
+//
+// This file is only used for Wasp IDE support. You can change it to configure
+// your IDE checks, but none of these options will affect the TypeScript
+// compiler. Proper TS compiler configuration in Wasp is coming soon :)
 {
   "compilerOptions": {
-    // Enable default imports in TypeScript.
+    // Allows default imports.
     "esModuleInterop": true,
     "allowJs": true,
-    // The following settings enable IDE support in user-provided source files. 
-    // Editing them might break features like import autocompletion and
+    "strict": true,
+    // Wasp needs the following settings enable IDE support in your source
+    // files. Editing them might break features like import autocompletion and
     // definition lookup. Don't change them unless you know what you're doing.
     //
     // The relative path to the generated web app's root directory. This must be
@@ -27,6 +33,16 @@
       ]
     },
     // Correctly resolve types: https://www.typescriptlang.org/tsconfig#typeRoots
-    "typeRoots": ["../../.wasp/out/server/node_modules/@types"]
-  }
+    "typeRoots": [
+      "../../.wasp/out/server/node_modules/@types"
+    ],
+    // Since this TS config is used only for IDE support and not for
+    // compilation, the following directory doesn't exist. We need to specify
+    // it to prevent this error:
+    // https://stackoverflow.com/questions/42609768/typescript-error-cannot-write-file-because-it-would-overwrite-input-file
+    "outDir": "phantom",
+  },
+  "exclude": [
+    "phantom"
+  ],
 }

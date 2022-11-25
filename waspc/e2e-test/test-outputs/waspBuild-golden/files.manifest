@@ -36,7 +36,7 @@ waspBuild/.wasp/build/web-app/src/actions/index.ts
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
-waspBuild/.wasp/build/web-app/src/ext-src/MainPage.tsx
+waspBuild/.wasp/build/web-app/src/ext-src/MainPage.jsx
 waspBuild/.wasp/build/web-app/src/ext-src/react-app-env.d.ts
 waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.png
 waspBuild/.wasp/build/web-app/src/index.js
@@ -57,7 +57,7 @@ waspBuild/.wasproot
 waspBuild/main.wasp
 waspBuild/src/.waspignore
 waspBuild/src/client/Main.css
-waspBuild/src/client/MainPage.tsx
+waspBuild/src/client/MainPage.jsx
 waspBuild/src/client/react-app-env.d.ts
 waspBuild/src/client/tsconfig.json
 waspBuild/src/client/waspLogo.png

@@ -15,6 +15,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@tsconfig/node18": "^1.0.1",
     "@types/node": "^18.11.9",
     "nodemon": "^2.0.19",
     "prisma": "4.5.0",
@@ -43,9 +44,10 @@
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "postinstall": "patch-package",
     "standard": "standard",
-    "start": "NODE_PATH=dist node dist/server.js",
+    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
     "start-production": "NODE_ENV=production npm run start",
-    "watch": "nodemon -r dotenv/config --exec 'npm run build-and-start || exit 1'"
+    "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
+  "type": "module",
   "version": "0.0.0"
 }
