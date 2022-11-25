@@ -78,10 +78,10 @@ genDotEnv spec = return $
   case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -139,7 +139,10 @@ npmDepsForWasp spec =
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
-            ("@types/node", "^18.11.9")
+            ("@types/node", "^18.11.9"),
+            -- TODO: Try to reduce this duplication (our code already specifies
+            -- Node LTS version elsewhere).
+            ("@tsconfig/node18", "^1.0.1")
           ]
     }
 

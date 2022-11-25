@@ -63,10 +63,10 @@ genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
@@ -119,7 +119,10 @@ npmDepsForWasp spec =
             ("typescript", "^4.8.4"),
             ("@types/react", "^18.0.25"),
             ("@types/react-dom", "^18.0.8"),
-            ("@types/react-router-dom", "^5.3.3")
+            ("@types/react-router-dom", "^5.3.3"),
+            -- TODO: What happens when react app changes its version? We should
+            -- investigate.
+            ("@tsconfig/create-react-app", "^1.0.3")
           ]
     }
 
