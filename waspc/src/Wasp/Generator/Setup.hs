@@ -13,6 +13,7 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord, isNpmInstallNeeded)
 import qualified Wasp.Message as Msg
+import qualified Wasp.Util.Terminal as Term
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec dstDir sendMessage = do
@@ -23,7 +24,7 @@ runSetup spec dstDir sendMessage = do
       case maybeFullStackDeps of
         Nothing -> return ([], [])
         Just fullStackDeps -> do
-          sendMessage $ Msg.Start "Starting npm install... (this may take a couple of minutes the very first time)"
+          sendMessage $ Msg.Start "Starting npm install..."
           (Left (npmInstallWarnings, npmInstallErrors)) <-
             installNpmDependenciesWithInstallRecord fullStackDeps dstDir
               `race` reportInstallationProgress reportInstallationProgressMessages
@@ -40,15 +41,15 @@ runSetup spec dstDir sendMessage = do
     reportInstallationProgress :: [String] -> IO ()
     reportInstallationProgress messages = do
       threadDelay $ secToMicroSec 5
-      putStrLn $ "\n\n  ..." ++ head messages
+      putStrLn $ Term.applyStyles [Term.Yellow] $ "\n\n  ..." ++ head messages
       threadDelay $ secToMicroSec 5
       reportInstallationProgress $ if hasLessThan2Elems messages then messages else drop 1 messages
 
     reportInstallationProgressMessages =
       [ "Still installing npm dependencies!",
+        "Installation going great - we will get there soon!",
         "Installation is taking a bit longer, but we will get there!",
         "Yup, still not done installing.",
-        "Installation going great - we will get there soon!",
         "We are getting closer and closer, soon it will all be installed!",
         "You still waiting for installation to finish? You should! We got too far to give up now!",
         "You waited so patiently, wait just a bit more (for installation to finish)..."
