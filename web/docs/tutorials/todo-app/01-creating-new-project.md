@@ -37,13 +37,27 @@ Let's inspect Wasp project that we just created:
 ```bash
 TodoApp/
 ├── main.wasp # Here goes our Wasp code.
-├── ext/      # Here goes our (external) JS/CSS/HTML/... code.
-│   └── MainPage.js
-│   └── Main.css
-│   └── waspLogo.png
+├── src/      # Here goes our (external) JS/CSS/HTML/... code.
+│   ├──client/
+│   │   └── MainPage.js
+│   │   └── Main.css
+│   │   └── waspLogo.png
+│   │   └── tsconfig.json
+│   ├──server/
+│   │   └── tsconfig.json
+│   └──shared/
+|       └── tsconfig.json
+├── .env.server
+├── .env.client
 ├── .gitignore
 └── .wasproot
 ```
+
+:::note Typescript Support
+We've introduced Typescript support in Beta version 0.7.0, but you are free to use js/jsx or ts/tsx syntax as you see fit.
+
+For this tutorial, we will simply use vanilla Javascript and JSX syntax 🍦
+:::
 
 Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [app](language/features.md#app),
@@ -59,14 +73,14 @@ route RootRoute { path: "/", to: MainPage } // Render page MainPage on url `/` (
 
 page MainPage {
   // We specify that ReactJS implementation of our page can be
-  // found in `ext/MainPage.js` as a default export (uses standard
+  // found in `client/MainPage.js` as a default export (uses standard
   // js import syntax).
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 ```
 
 And now to that React component we referenced in the `page MainPage { ... }` declaration in `main.wasp`:
-```jsx title="ext/MainPage.js"
+```jsx title="client/MainPage.js"
 import React from 'react'
 import waspLogo from './waspLogo.png'
 import './Main.css'
@@ -88,9 +102,9 @@ Wasp in the background takes care of everything else needed to define, build and
 ## Cleaning up
 
 Let's make our first changes!
-To prepare the clean slate for building the TodoApp, delete all the files from `ext/` dir except for `MainPage.js`, and let's also make `MainPage` component much simpler:
+To prepare the clean slate for building the TodoApp, delete all the files from `client/` dir except for `MainPage.js`, and let's also make `MainPage` component much simpler:
 
-```jsx title="ext/MainPage.js"
+```jsx title="client/MainPage.js"
 import React from 'react'
 
 const MainPage = () => {

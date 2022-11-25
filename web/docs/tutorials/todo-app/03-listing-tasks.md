@@ -21,7 +21,7 @@ To list tasks, we will need two things:
 ## Wasp query
 
 Let's implement `getTasks` [query](language/features.md#query).
-It consists of a declaration in Wasp and implementation in JS (in `ext/` directory).
+It consists of a declaration in Wasp and implementation in JS (in `src/server/` directory).
 
 ### Wasp declaration
 Add the following code to `main.wasp`:
@@ -30,8 +30,8 @@ Add the following code to `main.wasp`:
 
 query getTasks {
   // We specify that JS implementation of the query (which is an async JS function)
-  // can be found in `ext/queries.js` as named export `getTasks`.
-  fn: import { getTasks } from "@ext/queries.js",
+  // can be found in `server/queries.js` as named export `getTasks`.
+  fn: import { getTasks } from "@server/queries.js",
   // We tell Wasp that this query is doing something with entity `Task`. With that, Wasp will
   // automatically refresh the results of this query when tasks change.
   entities: [Task]
@@ -39,9 +39,9 @@ query getTasks {
 ```
 
 ### JS implementation
-Next, create a new file `ext/queries.js` and define the JS function that we just imported in the `query` declaration above:
+Next, create a new file `server/queries.js` and define the JS function that we just imported in the `query` declaration above:
 
-```js title="ext/queries.js"
+```js title="server/queries.js"
 export const getTasks = async (args, context) => {
   return context.entities.Task.findMany({})
 }
@@ -62,7 +62,7 @@ Queries and actions are NodeJS functions that are executed on the server.
 
 Finally, let's use the query we just created, `getTasks`, in our React component to list the tasks:
 
-```jsx {3-4,7-16,19-32} title="ext/MainPage.js"
+```jsx {3-4,7-16,19-32} title="client/MainPage.js"
 import React from 'react'
 
 import getTasks from '@wasp/queries/getTasks'

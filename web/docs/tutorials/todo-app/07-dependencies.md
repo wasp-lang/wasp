@@ -12,6 +12,9 @@ So, let's add a couple of clocks to our app, to help us track time while we perf
 For this, we will use the `react-clock` library from NPM. We can add it to our project as a [dependency](language/features.md#dependencies) like this:
 ```c {6-8} title="main.wasp"
 app TodoApp {
+  wasp: {
+    version: "^0.7.0"
+  }
   title: "Todo app",
 
   // ...
@@ -29,7 +32,7 @@ wasp start
 to have Wasp download and install the new dependency. If `wasp start` is already running, Wasp will detect the dependency change, and restart automatically.
 
 Next, let's create a new component `Clocks` where we can play with the clocks.
-```jsx title="ext/Clocks.js"
+```jsx title="client/Clocks.js"
 import React, { useEffect, useState } from 'react'
 import Clock from 'react-clock'
 import 'react-clock/dist/Clock.css'
@@ -52,7 +55,7 @@ export default () => {
 ```
 
 And let's import it in our main React component.
-```jsx {2,11} title="ext/MainPage.js"
+```jsx {2,11} title="client/MainPage.js"
 // ...
 import Clocks from './Clocks'
 
@@ -71,6 +74,6 @@ const MainPage = () => {
 }
 // ...
 ```
-As you can see, importing other files from `/ext` is completely normal, just use the relative path.
+As you can see, importing other files from `/client` is completely normal, just use the relative path.
 
 That is it! We added a dependency and used it in our project.

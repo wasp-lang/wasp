@@ -824,6 +824,10 @@ Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/06-au
 Path where a successfully authenticated user will be sent upon successful login/signup.
 Default value is "/".
 
+:::note 
+Automatic redirect on successful login only works when using the Wasp provided [`Signup` and `Login` forms](#high-level-api)
+:::
+
 ### Username and Password
 
 `usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
@@ -902,6 +906,10 @@ An action for logging in the user.
 ```js
 login(username, password)
 ```
+:::info
+When using the exposed `login()` function, make sure to implement your own redirect on successful login logic
+:::
+
 #### `username: string`
 Username of the user logging in.
 
@@ -916,7 +924,7 @@ Login is a regular action and can be used directly from the frontend.
 
 
 ### `signup()`
-An action for signing in in the user.
+An action for registering the user account.
 ```js
 signup(userFields)
 ```

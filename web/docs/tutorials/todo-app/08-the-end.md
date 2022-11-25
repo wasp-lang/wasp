@@ -16,6 +16,13 @@ You can check out the whole code of the app that we just built [here](https://gi
 
 If you are interested in what is Wasp actually generating in the background, you can check the `.wasp/out/` directory in your project.
 
+## Tailwind CSS Support
+
+We introduced Tailwind CSS support in our Beta version 0.7.0! 🎨
+
+If you want to style your app with sweet tailwind css classes, all you have to do is add a couple config files to your app. Check out [this guide](https://www.wasp-lang.dev/blog/2022/11/16/tailwind-feature-announcement)
+) to learn more!
+
 ## Where next?
 
 Well, you could check [the "Language" section](language/overview.md) of the docs for more details on specific parts of Wasp.  

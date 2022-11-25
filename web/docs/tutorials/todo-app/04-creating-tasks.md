@@ -19,7 +19,7 @@ First we declare the action in Wasp:
 // ...
 
 action createTask {
-  fn: import { createTask } from "@ext/actions.js",
+  fn: import { createTask } from "@server/actions.js",
   entities: [Task]
 }
 ```
@@ -27,7 +27,7 @@ action createTask {
 ### JS implementation
 
 Next, we define a JS function for that action:
-```js title="ext/actions.js"
+```js title="server/actions.js"
 export const createTask = async (args, context) => {
   return context.entities.Task.create({
     data: { description: args.description }
@@ -35,13 +35,9 @@ export const createTask = async (args, context) => {
 }
 ```
 
-:::tip
-We put the JS function in a new file `ext/actions.js`, but we could have put it anywhere we wanted! There are no limitations here, as long as the import statement in the Wasp file is correct and it is inside the `ext/` dir.
-:::
-
 ## React form
 
-```jsx {5,12,39-61} title="ext/MainPage.js"
+```jsx {5,12,39-61} title="client/MainPage.js"
 import React from 'react'
 
 import { useQuery } from '@wasp/queries'
