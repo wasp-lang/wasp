@@ -23,7 +23,7 @@ module.exports = {
       isCloseable: false,
     },
     navbar: {
-      title: '.wasp (alpha)',
+      title: '.wasp (beta)',
       logo: {
         alt: 'Wasp logo',
         src: 'img/wasp-logo-eqpar-circle.png',
@@ -99,7 +99,7 @@ module.exports = {
             },
             {
               label: 'Contact',
-              href: 'docs/contact'
+              to: 'docs/contact'
             }
           ],
         },

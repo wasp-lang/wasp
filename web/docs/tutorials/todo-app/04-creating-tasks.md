@@ -6,8 +6,8 @@ title: "Creating tasks"
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 To enable the creation of new tasks, we will need two things:
-1. a Wasp action that creates a new task.
-2. a React form that calls that action with the new task's data.
+1. A Wasp action that creates a new task.
+2. A React form that calls that action with the new task's data.
 
 ## Action
 Creating an action is very similar to creating a query.
@@ -27,7 +27,7 @@ action createTask {
 ### JS implementation
 
 Next, we define a JS function for that action:
-```js title="server/actions.js"
+```js title="src/server/actions.js"
 export const createTask = async (args, context) => {
   return context.entities.Task.create({
     data: { description: args.description }
@@ -35,9 +35,13 @@ export const createTask = async (args, context) => {
 }
 ```
 
+:::tip
+We put the JS function in a new file `src/server/actions.js`, but we could have put it anywhere we wanted! There are no limitations here, as long as the import statement in the Wasp file is correct and the source file is inside the `src/server` folder.
+:::
+
 ## React form
 
-```jsx {5,12,39-61} title="client/MainPage.js"
+```jsx {5,12,39-61} title="src/client/MainPage.js"
 import React from 'react'
 
 import { useQuery } from '@wasp/queries'

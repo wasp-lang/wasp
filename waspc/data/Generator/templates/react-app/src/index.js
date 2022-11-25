@@ -1,7 +1,7 @@
 {{={= =}=}}
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { QueryClientProvider } from 'react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 
 import router from './router'
 import { 
@@ -13,8 +13,6 @@ import * as serviceWorker from './serviceWorker'
 {=# doesClientSetupFnExist =}
 {=& clientSetupJsFnImportStatement =}
 {=/ doesClientSetupFnExist =}
-
-import './index.css'
 
 startApp()
 

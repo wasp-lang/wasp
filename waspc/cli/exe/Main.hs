@@ -5,9 +5,7 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
-import Data.Version (showVersion)
 import Main.Utf8 (withUtf8)
-import Paths_waspc (version)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
@@ -19,6 +17,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand, studio)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import Wasp.Cli.Command.Deps (deps)
+import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -26,6 +25,7 @@ import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
+import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -40,6 +40,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
         ["deps"] -> Command.Call.Deps
+        ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
@@ -59,6 +60,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
+    Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
@@ -89,6 +91,7 @@ printUsage =
         cmd "    new <project-name>    Creates new Wasp project.",
         cmd "    version               Prints current version of CLI.",
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
+        cmd "    completion            Prints help on bash completion.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
@@ -96,6 +99,7 @@ printUsage =
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
+        cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd "    info                  Prints basic information about current Wasp project.",
         "",
         title "EXAMPLES",
@@ -108,7 +112,16 @@ printUsage =
       ]
 
 printVersion :: IO ()
-printVersion = putStrLn $ showVersion version
+printVersion = do
+  putStrLn $
+    unlines
+      [ show waspVersion,
+        "",
+        "If you wish to install/switch to different version of Wasp, do:",
+        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+        "where x.y.z is the desired version.",
+        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, include the latest one."
+      ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

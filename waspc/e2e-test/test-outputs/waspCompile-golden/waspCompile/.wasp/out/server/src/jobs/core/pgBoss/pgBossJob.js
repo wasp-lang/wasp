@@ -55,7 +55,7 @@ class PgBossJob extends Job {
    * @param {object} jobArgs - The job arguments supplied by the user for their perform callback.
    * @param {object} jobOptions - pg-boss specific options for `boss.send()`, which can override their defaultJobOptions.
    */
-  async submit(jobArgs, jobOptions) {
+  async submit(jobArgs, jobOptions = {}) {
     const boss = await pgBossStarted
     const jobId = await boss.send(this.jobName, jobArgs,
       { ...this.#defaultJobOptions, ...(this.#startAfter && { startAfter: this.#startAfter }), ...jobOptions })

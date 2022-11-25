@@ -27,8 +27,8 @@ action updateTask {
 
 ### JS implementation
 
-We define the JS implementation of the Wasp action in `server/actions.js`:
-```js title="server/actions.js"
+We define the JS implementation of the Wasp action in `src/server/actions.js`:
+```js title="src/server/actions.js"
 // ...
 
 export const updateTask = async (args, context) => {
@@ -44,7 +44,7 @@ export const updateTask = async (args, context) => {
 ## React logic
 
 And we update the React component:
-```jsx {2,7-16,23} title="client/MainPage.js"
+```jsx {2,7-16,23} title="src/client/MainPage.js"
 // ...
 import updateTask from '@wasp/actions/updateTask'
 

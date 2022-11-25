@@ -1,4 +1,4 @@
-FROM node:16-alpine AS node
+FROM node:18-alpine AS node
 
 
 FROM node AS base
@@ -25,3 +25,7 @@ COPY db/ ./db/
 EXPOSE ${PORT}
 WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]
+
+
+# Any user-defined Dockerfile contents will be appended below.
+

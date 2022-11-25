@@ -28,7 +28,6 @@ If you want to style your app with sweet tailwind css classes, all you have to d
 Well, you could check [the "Language" section](language/overview.md) of the docs for more details on specific parts of Wasp.  
 Or, you could try to build something on your own with Wasp!  
 
-You are likely to find that some feature that you want is missing, since Wasp is still in Alpha.
-In that case, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add next.  
+If you find some features you would like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next.  
 Even better, if you would like to contribute or help building the feature, let us know!
 You can find more details on contributing [here](contributing.md).

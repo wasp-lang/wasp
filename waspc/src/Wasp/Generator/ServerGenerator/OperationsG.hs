@@ -11,7 +11,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, relDirToPosix, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -23,6 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -70,9 +71,9 @@ operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) Fi
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
 operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 
--- | TODO: Make this not hardcoded!
 relPosixPathFromOperationFileToExtSrcDir :: Path Posix (Rel Dir') (Dir GeneratedExternalCodeDir)
-relPosixPathFromOperationFileToExtSrcDir = [reldirP|../ext-src/|]
+relPosixPathFromOperationFileToExtSrcDir =
+  [reldirP|../|] </> fromJust (relDirToPosix extServerCodeDirInServerSrcDir)
 
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =

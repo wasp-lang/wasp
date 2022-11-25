@@ -32,7 +32,7 @@ wasp start
 to have Wasp download and install the new dependency. If `wasp start` is already running, Wasp will detect the dependency change, and restart automatically.
 
 Next, let's create a new component `Clocks` where we can play with the clocks.
-```jsx title="client/Clocks.js"
+```jsx title="src/client/Clocks.js"
 import React, { useEffect, useState } from 'react'
 import Clock from 'react-clock'
 import 'react-clock/dist/Clock.css'
@@ -55,7 +55,7 @@ export default () => {
 ```
 
 And let's import it in our main React component.
-```jsx {2,11} title="client/MainPage.js"
+```jsx {2,11} title="src/client/MainPage.js"
 // ...
 import Clocks from './Clocks'
 
@@ -74,6 +74,6 @@ const MainPage = () => {
 }
 // ...
 ```
-As you can see, importing other files from `/client` is completely normal, just use the relative path.
+As you can see, importing other files from `src/client` is completely normal, just use the relative path. The same goes for all files under `src/server`. You can't (and shouldn't) import files from `src/client` into `src/server` and vice versa. If you want to share code between the two runtimes, you can use a relative import to import anything from `src/shared` into both the client code and the server code.
 
 That is it! We added a dependency and used it in our project.
