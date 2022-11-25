@@ -1,7 +1,7 @@
 ---
 title: 'Alpha Testing Program: post-mortem'
 authors: [matijasos]
-image: /img/farnance/farnance-hero-shot.png
+image: /img/atp/welcome-to-atp-notion.png
 tags: [webdev, wasp, startups, github]
 ---
 
