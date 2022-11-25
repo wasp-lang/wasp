@@ -20,6 +20,7 @@
     "react-scripts": "5.0.1"
   },
   "devDependencies": {
+    "@tsconfig/create-react-app": "^1.0.3",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
     "@types/react-router-dom": "^5.3.3",

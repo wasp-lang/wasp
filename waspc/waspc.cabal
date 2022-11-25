@@ -43,9 +43,9 @@ data-files:
   Cli/bash-completion
   Cli/templates/**/*.css
   Cli/templates/**/*.json
+  Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/**/*.tsx
   Cli/templates/new/.gitignore
   Cli/templates/new/.wasproot
   Cli/templates/new/src/.waspignore

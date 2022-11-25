@@ -36,7 +36,7 @@ waspCompile/.wasp/out/web-app/src/actions/index.ts
 waspCompile/.wasp/out/web-app/src/api.js
 waspCompile/.wasp/out/web-app/src/config.js
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
-waspCompile/.wasp/out/web-app/src/ext-src/MainPage.tsx
+waspCompile/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspCompile/.wasp/out/web-app/src/ext-src/react-app-env.d.ts
 waspCompile/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspCompile/.wasp/out/web-app/src/index.js
@@ -57,7 +57,7 @@ waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/src/.waspignore
 waspCompile/src/client/Main.css
-waspCompile/src/client/MainPage.tsx
+waspCompile/src/client/MainPage.jsx
 waspCompile/src/client/react-app-env.d.ts
 waspCompile/src/client/tsconfig.json
 waspCompile/src/client/waspLogo.png

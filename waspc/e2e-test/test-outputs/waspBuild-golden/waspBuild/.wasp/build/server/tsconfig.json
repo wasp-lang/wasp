@@ -1,12 +1,20 @@
 {
+  "extends": "@tsconfig/node18/tsconfig.json",
   "compilerOptions": {
+    // Overriding this until we implement more complete TypeScript support.
+    "strict": false,
+    // Overriding this because we want to use top-level await 
+    "module": "esnext",
+    // Enable source map for debugging
+    "sourceMap": true,
+    
+    // The remaining settings should match node18/tsconfig.json, but I kept
+    // them here to be explicit.
+
     // Enable default imports in TypeScript.
     "esModuleInterop": true,
-    "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "dist",
-    "allowJs": true,
-    // Enable source map for debugging
-    "sourceMap": true
+    "allowJs": true
   }
 }
