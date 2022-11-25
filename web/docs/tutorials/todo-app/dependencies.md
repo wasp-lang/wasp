@@ -9,12 +9,10 @@ What is a Todo app without some clocks!? Well, still a Todo app, but certainly n
 So, let's add a couple of clocks to our app, to help us track time while we perform our tasks (and to demonstrate the `app.dependencies` feature).
 
 For this, we will use the `react-clock` library from NPM. We can add it to our project as a [dependency](language/features.md#dependencies) like this:
-```c {6-8} title="main.wasp"
+```c {4-6} title="main.wasp"
 app TodoApp {
-  title: "Todo app",
-
   // ...
-  
+
   dependencies: [
     ("react-clock", "3.0.0")
   ]
