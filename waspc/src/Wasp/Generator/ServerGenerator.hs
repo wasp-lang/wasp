@@ -37,7 +37,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -51,6 +51,7 @@ import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInS
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -140,9 +141,7 @@ npmDepsForWasp spec =
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
             ("@types/node", "^18.11.9"),
-            -- TODO: Try to reduce this duplication (our code already specifies
-            -- Node LTS version elsewhere).
-            ("@tsconfig/node18", "^1.0.1")
+            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
     }
 
