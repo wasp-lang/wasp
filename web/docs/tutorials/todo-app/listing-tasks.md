@@ -81,15 +81,17 @@ const MainPage = () => {
   )
 }
 
-const Task = (props) => (
-  <div>
-    <input
-      type='checkbox' id={props.task.id}
-      checked={props.task.isDone} readonly
-    />
-    {props.task.description}
-  </div>
-)
+const Task = (props) => {
+  return (
+    <div>
+      <input
+        type='checkbox' id={props.task.id}
+        checked={props.task.isDone} readonly
+      />
+      {props.task.description}
+    </div>
+  )
+}
 
 const TasksList = (props) => {
   if (!props.tasks?.length) return 'No tasks'
