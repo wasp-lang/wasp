@@ -17,12 +17,12 @@ import qualified Wasp.Util.Terminal as Term
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 runSetup spec dstDir sendMessage = do
-  ensureNpmInstall spec dstDir sendMessage >>= \case
+  runNpmInstallIfNeeded spec dstDir sendMessage >>= \case
     npmInstallResults@(_, []) -> (npmInstallResults <>) <$> setUpDatabase spec dstDir sendMessage
     npmInstallResults -> return npmInstallResults
 
-ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-ensureNpmInstall spec dstDir sendMessage = do
+runNpmInstallIfNeeded :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+runNpmInstallIfNeeded spec dstDir sendMessage = do
   isNpmInstallNeeded spec dstDir >>= \case
     Left errorMessage -> return ([], [GenericGeneratorError errorMessage])
     Right maybeFullStackDeps -> case maybeFullStackDeps of
