@@ -52,7 +52,7 @@ Query function parameters:
 - `context`: `object`, additional stuff provided by Wasp.
 
 
-Since we declared in `main.wasp` that our query uses entity `Task`, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the entity `Task` as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since we declared in `main.wasp` that our query uses entity `Task`, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and actions are NodeJS functions that are executed on the server. Therefore, we put them in the `src/server` folder.
