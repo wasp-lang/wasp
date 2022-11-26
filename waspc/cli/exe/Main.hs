@@ -108,7 +108,8 @@ printUsage =
         "  wasp db migrate-dev",
         "",
         Term.applyStyles [Term.Green] "Docs:" ++ " https://wasp-lang.dev/docs",
-        Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX"
+        Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
+        Term.applyStyles [Term.Cyan] "Newsletter:" ++ " https://wasp-lang.dev/#signup"
       ]
 
 printVersion :: IO ()
