@@ -41,15 +41,15 @@ spec_ParseCSTExpression = do
     parseCSTExpression [token T.KwFalse "false"]
       `shouldBeWithDiff` ([], [node BoolFalse 5 []])
   it "Parses external imports" $ do
-    parseCSTExpression [token T.KwImport "import", token T.Identifier "main", token T.KwFrom "from", token T.String "\"@ext/main.js\""]
+    parseCSTExpression [token T.KwImport "import", token T.Identifier "main", token T.KwFrom "from", token T.String "\"@server/main.js\""]
       `shouldBeWithDiff` ( [],
                            [ node
                                ExtImport
-                               28
+                               31
                                [ node (Token T.KwImport) 6 [],
                                  node ExtImportModule 4 [],
                                  node (Token T.KwFrom) 4 [],
-                                 node ExtImportPath 14 []
+                                 node ExtImportPath 17 []
                                ]
                            ]
                          )

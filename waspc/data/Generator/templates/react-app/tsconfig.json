@@ -1,0 +1,10 @@
+{
+  "extends": "@tsconfig/create-react-app/tsconfig.json",
+  "compilerOptions": {
+    // Overriding this until we implement more complete TypeScript support.
+    "strict": false,
+  },
+  "include": [
+    "src"
+  ]
+}

@@ -1,11 +1,13 @@
 module Wasp.Generator.NpmInstall
-  ( ensureNpmInstall,
+  ( isNpmInstallNeeded,
+    installNpmDependenciesWithInstallRecord,
   )
 where
 
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy as B
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
@@ -15,7 +17,7 @@ import System.Exit (ExitCode (..))
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printPrefixedJobMessage)
+import Wasp.Generator.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator as SG
@@ -23,15 +25,16 @@ import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import Wasp.Generator.WebAppGenerator as WG
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 
--- | Run npm install if needed
+-- | Figure out if npm install is needed.
+--
 -- Redundant npm installs can be avoided if the dependencies specified
 -- by the user and wasp have not changed since the last time this ran.
-
--- It only does this if the dependencies described in the user wasp file are
+--
+-- Npm instal is needed only if the dependencies described in the user wasp file are
 -- different from the dependencies that we just installed. To this end, this
 -- code keeps track of the dependencies installed with a metadata file, which
 -- it updates after each install.
-
+--
 -- NOTE: we assume that the dependencies in package.json are the same as the
 -- ones we derive from the AppSpec. We derive them the same way but it does
 -- involve different code paths.
@@ -41,16 +44,18 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- previous run. This would be more decoupled from the rest of the system.
 -- Npm conflict handling could be ignored in that case, because it would work
 -- from the record of what's in package.json.
-ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-ensureNpmInstall spec dstDir = do
+isNpmInstallNeeded :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Either String (Maybe N.NpmDepsForFullStack))
+isNpmInstallNeeded spec dstDir = do
   let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
   case errorOrNpmDepsForFullStack of
-    Left message -> return ([], [GenericGeneratorError ("npm install failed: " ++ message)])
+    Left message -> return $ Left $ "determining npm deps to install failed: " ++ message
     Right npmDepsForFullStack -> do
-      needed <- isNpmInstallDifferent npmDepsForFullStack dstDir
-      if needed
-        then installNpmDependenciesWithInstallRecord npmDepsForFullStack dstDir
-        else return ([], [])
+      isInstallNeeded <- isNpmInstallDifferent npmDepsForFullStack dstDir
+      return $
+        Right $
+          if isInstallNeeded
+            then Just npmDepsForFullStack
+            else Nothing
 
 -- Run npm install for desired AppSpec dependencies, recording what we installed
 -- Installation may fail, in which the installation record is removed.
@@ -101,25 +106,27 @@ loadInstalledFullStackNpmDependencies dstDir = do
 installNpmDependencies :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 installNpmDependencies projectDir = do
   chan <- newChan
-  let runSetupJobs = concurrently (ServerSetup.installNpmDependencies projectDir chan) (WebAppSetup.installNpmDependencies projectDir chan)
+  let runSetupJobs =
+        ServerSetup.installNpmDependencies projectDir chan
+          `concurrently` WebAppSetup.installNpmDependencies projectDir chan
   (_, result) <- concurrently (handleJobMessages chan) runSetupJobs
   case result of
     (ExitSuccess, ExitSuccess) -> return $ Right ()
     exitCodes -> return $ Left $ setupFailedMessage exitCodes
   where
-    handleJobMessages = go Nothing (False, False)
+    handleJobMessages = runPrefixedWriter . go (False, False)
       where
-        go :: Maybe J.JobMessage -> (Bool, Bool) -> Chan J.JobMessage -> IO ()
-        go _ (True, True) _ = return ()
-        go prevJobMsg (isWebAppDone, isServerDone) chan = do
-          jobMsg <- readChan chan
+        go :: (Bool, Bool) -> Chan J.JobMessage -> PrefixedWriter ()
+        go (True, True) _ = return ()
+        go (isWebAppDone, isServerDone) chan = do
+          jobMsg <- liftIO $ readChan chan
           case J._data jobMsg of
             J.JobOutput {} ->
-              printPrefixedJobMessage prevJobMsg jobMsg
-                >> go (Just jobMsg) (isWebAppDone, isServerDone) chan
+              printJobMessagePrefixed jobMsg
+                >> go (isWebAppDone, isServerDone) chan
             J.JobExit {} -> case J._jobType jobMsg of
-              J.WebApp -> go (Just jobMsg) (True, isServerDone) chan
-              J.Server -> go (Just jobMsg) (isWebAppDone, True) chan
+              J.WebApp -> go (True, isServerDone) chan
+              J.Server -> go (isWebAppDone, True) chan
               J.Db -> error "This should never happen. No db job should be active."
 
     setupFailedMessage (serverExitCode, webAppExitCode) =

@@ -1,11 +1,12 @@
 module Generator.WebAppGeneratorTest where
 
-import Fixtures (systemSPRoot)
+import Fixtures
 import qualified StrongPath as SP
 import System.FilePath ((</>))
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -15,6 +16,7 @@ import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.Monad (runGenerator)
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import qualified Wasp.Version as WV
 
 -- TODO(martin): We could maybe define Arbitrary instance for AppSpec, define properties
 -- over generator functions and then do property testing on them, that would be cool.
@@ -27,7 +29,11 @@ spec_WebAppGenerator = do
               [ AS.Decl.makeDecl
                   "TestApp"
                   AS.App.App
-                    { AS.App.title = "Test App",
+                    { AS.App.wasp =
+                        AS.Wasp.Wasp
+                          { AS.Wasp.version = "^" ++ show WV.waspVersion
+                          },
+                      AS.App.title = "Test App",
                       AS.App.db = Nothing,
                       AS.App.server = Nothing,
                       AS.App.client = Nothing,
@@ -36,11 +42,16 @@ spec_WebAppGenerator = do
                       AS.App.head = Nothing
                     }
               ],
-            AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-            AS.externalCodeFiles = [],
+            AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
+            AS.externalClientFiles = [],
+            AS.externalServerFiles = [],
+            AS.externalSharedFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
-            AS.dotEnvFile = Nothing
+            AS.dotEnvServerFile = Nothing,
+            AS.dotEnvClientFile = Nothing,
+            AS.userDockerfileContents = Nothing,
+            AS.configFiles = []
           }
 
   describe "genWebApp" $ do
@@ -65,7 +76,6 @@ spec_WebAppGenerator = do
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
-                      "index.css",
                       "index.js",
                       "router.js",
                       "serviceWorker.js"

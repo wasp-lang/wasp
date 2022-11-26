@@ -9,7 +9,7 @@ import qualified Wasp.LSP.Server as LS
 runWaspLS :: IO ()
 runWaspLS = do
   args <- parseArgsOrPrintUsageAndExit
-  LS.serve $ optionsLogFile $ options args
+  LS.serve $ _optionsLogFile $ options args
 
 parseArgsOrPrintUsageAndExit :: IO Args
 parseArgsOrPrintUsageAndExit =
@@ -23,8 +23,8 @@ data Args = Args
   }
 
 data Options = Options
-  { optionsLogFile :: Maybe FilePath,
-    optionsUseStdio :: Bool
+  { _optionsLogFile :: Maybe FilePath,
+    _optionsUseStdio :: Bool
   }
 
 -- NOTE: Here we assume that first arg on command line is "waspls".

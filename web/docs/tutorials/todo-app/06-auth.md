@@ -11,7 +11,7 @@ Let's define a Todo list (luckily we have an app for that now ;)) to get this do
 - [ ] Add Wasp entity `User`.
 - [ ] Add `auth` Wasp declaration.
 - [ ] Add `Login` and `Signup` pages
-- [ ] Modify `ext/MainPage.js` so that it requires authentication.
+- [ ] Modify `src/client/MainPage.jsx` so that it requires authentication.
 - [ ] Add Prisma relation between `User` and `Task` entities.
 - [ ] Modify our queries and actions so that they work only with the tasks belonging to the authenticated user.
 - [ ] Add logout button.
@@ -37,17 +37,22 @@ to propagate the schema change (we added User).
 ## Defining `app.auth`
 Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use entity `User` for it:
 
-```c {4-11} title="main.wasp"
+```c {7-16} title="main.wasp"
 app TodoApp {
+  wasp: {
+    version: "^0.7.0"
+  },
   title: "Todo app",
 
   auth: {
     // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
     methods: {
-      usernameAndPassword: {} // We also support Google, with more on the way!
-    }
-    onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
+      // We also support Google, with more on the way!
+      usernameAndPassword: {}
+    },
+    // We'll see how this is used a bit later
+    onAuthFailedRedirectTo: "/login"
   }
 }
 ```
@@ -64,8 +69,8 @@ during signup, check out the [lower-level auth API](/docs/language/features#lowe
 Ok, that was easy!
 
 To recap, so far we have defined:
-- `User` entity.
-- `app.auth` field, thanks to which Wasp gives us plenty of auth functionality.
+- The `User` entity.
+- The `app.auth` field, thanks to which Wasp gives us plenty of auth-related functionality.
 
 ## Adding Login and Signup pages
 
@@ -76,19 +81,18 @@ When we defined `app.auth` we got login and signup forms generated for us, but n
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@ext/SignupPage"
+  component: import Signup from "@client/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@ext/LoginPage"
+  component: import Login from "@client/LoginPage"
 }
 ```
 
 Great, Wasp now knows how to route these and where to find the pages. Now to the React code of the pages:
 
-```jsx title="ext/LoginPage.js"
-import React from 'react'
+```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
@@ -110,8 +114,7 @@ export default LoginPage
 
 The Signup page is very similar to the login one:
 
-```jsx title="ext/SignupPage.js"
-import React from 'react'
+```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
@@ -142,7 +145,7 @@ There is a specific Wasp feature that allows us to achieve this in a simple way:
 // ...
 page MainPage {
   authRequired: true,
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage"
 }
 ```
 
@@ -151,21 +154,20 @@ If an unauthenticated user tries to access route `/` where our page `MainPage` i
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 
-```jsx {1} title="ext/MainPage.js"
+```jsx {1} title="src/client/MainPage.jsx"
 const MainPage = ({ user }) => {
-    // do something with user
+    // Do something with the user
 }
 ```
 
 Ok, time to try out how this works!
 
-Now, we can again run
+Now, we can start the app again (if it's not still running):
 ```shell-session
 wasp start
 ```
 
-Try going to `/` in our web app. It will now redirect you to `/login`, where you'll be asked to authenticate.
-Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
+Try going to the main page (`/`) of our web app. It will now redirect you to `/login`, where you'll be asked to authenticate. Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
 
 Let's now see how things look in the database! Run:
 ```shell-session
@@ -219,7 +221,7 @@ However, for this tutorial, for the sake of simplicity, we will stick with this.
 ## Updating operations to forbid access to non-authenticated users
 
 Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged in user's tasks:
-```js {1,4,6} title="ext/queries.js"
+```js {1,4,6} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -230,24 +232,24 @@ export const getTasks = async (args, context) => {
 }
 ```
 
-```js {1,4,8,14,15,16} title="ext/actions.js"
+```js {1,4,8,14,15,16} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
-export const createTask = async ({ description }, context) => {
+export const createTask = async (args, context) => {
   if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.create({
     data: {
-      description,
+      description: args.description,
       user: { connect: { id: context.user.id } }
     }
   })
 }
 
-export const updateTask = async ({ taskId, data }, context) => {
+export const updateTask = async (args, context) => {
   if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.updateMany({
-    where: { id: taskId, user: { id: context.user.id } },
-    data: { isDone: data.isDone }
+    where: { id: args.taskId, user: { id: context.user.id } },
+    data: { isDone: args.data.isDone }
   })
 }
 ```
@@ -258,7 +260,7 @@ Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTa
 
 Right, that should be it!
 
-Run
+Run (or just continue running):
 ```shell-session
 wasp start
 ```
@@ -278,7 +280,7 @@ You will see that each user has its own tasks, just as we specified in our code!
 ## Logout button
 
 Last, but not the least, let's add logout functionality:
-```jsx {2,10} title="MainPage.js"
+```jsx {2,10} title="src/client/MainPage.jsx"
 // ...
 import logout from '@wasp/auth/logout.js'
 //...

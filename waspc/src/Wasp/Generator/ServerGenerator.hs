@@ -22,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    relDirToPosix,
     reldir,
-    reldirP,
     relfile,
     (</>),
   )
@@ -37,7 +37,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -47,30 +47,36 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
-import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
-    [ genReadme,
+    [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|nodemon.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
+    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
-  case AS.dotEnvFile spec of
+  case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
           [ createCopyFileDraft
@@ -81,9 +87,6 @@ genDotEnv spec = return $
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
-
-genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd (C.asTmplFile [relfile|README.md|])
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -100,7 +103,7 @@ genPackageJson spec waspDependencies = do
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production node ./src/server.js"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
@@ -115,7 +118,6 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("debug", "~4.3.4"),
             ("express", "~4.18.1"),
             ("morgan", "~1.10.0"),
             ("@prisma/client", show prismaVersion),
@@ -134,7 +136,12 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
             ("standard", "^17.0.0"),
-            ("prisma", show prismaVersion)
+            ("prisma", show prismaVersion),
+            -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly.
+            ("typescript", "^4.8.4"),
+            ("@types/node", "^18.11.9"),
+            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
     }
 
@@ -157,10 +164,10 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|core/AuthError.js|],
-      copyTmplFile [relfile|core/HttpError.js|],
+    [ genFileCopy [relfile|app.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|core/AuthError.js|],
+      genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec
@@ -170,7 +177,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -194,8 +201,8 @@ genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.js|])
-      (C.asServerFile [relfile|src/server.js|])
+      (C.asTmplFile [relfile|src/server.ts|])
+      (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
@@ -206,13 +213,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
+extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
+extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =

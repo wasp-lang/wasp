@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply m-2;
+    }
+    a {
+        @apply underline text-blue-600 hover:text-blue-800 visited:text-purple-600;
+    }
+    input[type='submit'] {
+        @apply btn btn-blue;
+    }
+    form.auth-form input {
+        @apply my-2;
+    }
+    input[type='checkbox'] {
+        @apply appearance-none h-4 w-4 border border-gray-300 rounded-sm bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer;
+    }
+    h1 {
+        @apply text-2xl;
+    }
+    h2 {
+        @apply text-xl;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply font-bold py-2 px-4;
+    }
+    .btn-blue {
+        @apply bg-blue-500 text-white;
+    }
+    .btn-red {
+        @apply bg-red-500 text-white;
+    }
+    .btn-blue:hover {
+        @apply bg-blue-700;
+    }
+}

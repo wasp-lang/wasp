@@ -1,9 +1,12 @@
 app waspBuild {
   db: { system: PostgreSQL },
+  wasp: {
+    version: "^0.7.0"
+  },
   title: "waspBuild"
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage"
 }

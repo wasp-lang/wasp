@@ -1,3 +1,4 @@
 /.wasp/
-/.env
+/.env.server
+/.env.client
 .DS_Store
