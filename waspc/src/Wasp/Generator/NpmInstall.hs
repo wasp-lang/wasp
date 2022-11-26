@@ -1,5 +1,6 @@
 module Wasp.Generator.NpmInstall
-  ( ensureNpmInstall,
+  ( isNpmInstallNeeded,
+    installNpmDependenciesWithInstallRecord,
   )
 where
 
@@ -24,11 +25,12 @@ import qualified Wasp.Generator.ServerGenerator.Setup as ServerSetup
 import Wasp.Generator.WebAppGenerator as WG
 import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 
--- | Run npm install if needed
+-- | Figure out if npm install is needed.
+--
 -- Redundant npm installs can be avoided if the dependencies specified
 -- by the user and wasp have not changed since the last time this ran.
 --
--- It only does this if the dependencies described in the user wasp file are
+-- Npm instal is needed only if the dependencies described in the user wasp file are
 -- different from the dependencies that we just installed. To this end, this
 -- code keeps track of the dependencies installed with a metadata file, which
 -- it updates after each install.
@@ -42,16 +44,18 @@ import qualified Wasp.Generator.WebAppGenerator.Setup as WebAppSetup
 -- previous run. This would be more decoupled from the rest of the system.
 -- Npm conflict handling could be ignored in that case, because it would work
 -- from the record of what's in package.json.
-ensureNpmInstall :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
-ensureNpmInstall spec dstDir = do
+isNpmInstallNeeded :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Either String (Maybe N.NpmDepsForFullStack))
+isNpmInstallNeeded spec dstDir = do
   let errorOrNpmDepsForFullStack = N.buildNpmDepsForFullStack spec (SG.npmDepsForWasp spec) (WG.npmDepsForWasp spec)
   case errorOrNpmDepsForFullStack of
-    Left message -> return ([], [GenericGeneratorError ("npm install failed: " ++ message)])
+    Left message -> return $ Left $ "determining npm deps to install failed: " ++ message
     Right npmDepsForFullStack -> do
-      needed <- isNpmInstallDifferent npmDepsForFullStack dstDir
-      if needed
-        then installNpmDependenciesWithInstallRecord npmDepsForFullStack dstDir
-        else return ([], [])
+      isInstallNeeded <- isNpmInstallDifferent npmDepsForFullStack dstDir
+      return $
+        Right $
+          if isInstallNeeded
+            then Just npmDepsForFullStack
+            else Nothing
 
 -- Run npm install for desired AppSpec dependencies, recording what we installed
 -- Installation may fail, in which the installation record is removed.

@@ -13,7 +13,7 @@ const MainPage = () => {
         <h2 className="welcome-title"> Welcome to Wasp - you just started a new app! </h2>
         <h3 className="welcome-subtitle">
           This is page <code>MainPage</code> located at route <code>/</code>.
-          Open <code>ext/MainPage.js</code> to edit it.
+          Open <code>src/client/MainPage.jsx</code> to edit it.
         </h3>
 
         <div className="buttons">

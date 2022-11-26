@@ -36,21 +36,22 @@ to propagate the schema change (we added User).
 ## Defining `app.auth`
 Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use entity `User` for it:
 
-```c {4-11} title="main.wasp"
+```c {7-16} title="main.wasp"
 app TodoApp {
   wasp: {
-    version: "^0.6.0"
+    version: "^0.7.0"
   },
-  
   title: "Todo app",
 
   auth: {
     // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
     methods: {
-      usernameAndPassword: {} // We also support Google, with more on the way!
+      // We also support Google, with more on the way!
+      usernameAndPassword: {}
     },
-    onAuthFailedRedirectTo: "/login" // We'll see how this is used a bit later
+    // We'll see how this is used a bit later
+    onAuthFailedRedirectTo: "/login"
   }
 }
 ```
@@ -236,21 +237,21 @@ export const getTasks = async (args, context) => {
 ```js {1,4,8,14,15,16} title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
-export const createTask = async ({ description }, context) => {
+export const createTask = async (args, context) => {
   if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.create({
     data: {
-      description,
+      description: args.description,
       user: { connect: { id: context.user.id } }
     }
   })
 }
 
-export const updateTask = async ({ taskId, data }, context) => {
+export const updateTask = async (args, context) => {
   if (!context.user) { throw new HttpError(401) }
   return context.entities.Task.updateMany({
-    where: { id: taskId, user: { id: context.user.id } },
-    data: { isDone: data.isDone }
+    where: { id: args.taskId, user: { id: context.user.id } },
+    data: { isDone: args.data.isDone }
   })
 }
 ```

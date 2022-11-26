@@ -1387,7 +1387,7 @@ docker run \
 The password you provide via `POSTGRES_PASSWORD` is relevant only for the first time when you run that docker command, when database is set up for the first time. Consequent runs will ignore the value of `POSTGRES_PASSWORD` and will just use the password that was initially set. This is just how postgres docker works.
 :::
 
-The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
+The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
 ```
 DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
 ```

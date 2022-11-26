@@ -41,7 +41,7 @@ waspMigrate/.wasp/out/web-app/src/actions/index.ts
 waspMigrate/.wasp/out/web-app/src/api.js
 waspMigrate/.wasp/out/web-app/src/config.js
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
-waspMigrate/.wasp/out/web-app/src/ext-src/MainPage.tsx
+waspMigrate/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/web-app/src/ext-src/react-app-env.d.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspMigrate/.wasp/out/web-app/src/index.js
@@ -64,7 +64,7 @@ waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql
 waspMigrate/src/.waspignore
 waspMigrate/src/client/Main.css
-waspMigrate/src/client/MainPage.tsx
+waspMigrate/src/client/MainPage.jsx
 waspMigrate/src/client/react-app-env.d.ts
 waspMigrate/src/client/tsconfig.json
 waspMigrate/src/client/waspLogo.png
