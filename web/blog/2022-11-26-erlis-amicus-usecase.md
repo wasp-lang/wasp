@@ -16,17 +16,17 @@ import ImgWithCaption from './components/ImgWithCaption'
 ![amicus hero shot](../static/img/amicus-usecase/amicus-hero-shot.png)
 
 
-[Erlis Kllogjri](https://github.com/ErlisK) is an engineer based in San Francisco with a broad experience ranging from mechanical engineering and C/C++ microcontroller programming to Python and web app development. In his free time Erlis enjoys working on side projects and that is also how Amicus started out.
+[Erlis Kllogjri](https://github.com/ErlisK) is an engineer based in San Francisco with broad experience ranging from mechanical engineering and C/C++ microcontroller programming to Python and web app development. In his free time, Erlis enjoys working on side projects, which is also how Amicus started out.
 
-Amicus is a SaaS for legal teams - think about it as “Asana for lawyers”, but with features and workflows tailored to the domain of law.
+Amicus is a SaaS for legal teams - think about it as "Asana for lawyers", but with features and workflows tailored to the domain of law.
 
-Read on to learn how long it took Erlis to develop the first version of his SaaS with Wasp, how he got first paying customers and what features he plans to add next!
+Read on to learn how long it took Erlis to develop the first version of his SaaS with Wasp, how he got his first paying customers, and what features he plans to add next!
 
 <!--truncate-->
 
 ## Looking for a full-stack “all-in-one” solution, with React & Node.js
 
-Erlis first learned about Wasp on HackerNews and it immediately caught his attention, particularly the configuration language part. One of the companies he worked at in the past had their own internal DSL in the hardware domain and he understood how helpful it can be for moving fast and avoiding boilerplate.
+Erlis first learned about Wasp on HackerNews and it immediately caught his attention, particularly the configuration language part. One of the companies he worked at in the past had its own internal DSL in the hardware domain, and he understood how helpful it could be for moving fast and avoiding boilerplate.
 
 Erlis also had previous experience in web development, especially on the front-end side in React and Javascript, so that made Wasp a logical choice.
 
@@ -36,9 +36,9 @@ Erlis also had previous experience in web development, especially on the front-e
 
 ## Building Amicus v1.0 and getting first customers!
 
-The idea for Amicus came from his brother who is employed at a law firm - talking about their process and challenges in executing them, Erlis thought it would be an interesting side project, especially given there is a real problem to solve.
+The idea for Amicus came from his brother, who is employed at a law firm - talking about their process and challenges in executing them, Erlis thought it would be an interesting side project, especially given there is a real problem to solve.
 
-Soon, first version of Amicus was live! It was made in a true lean startup fashion, starting with the essential features and immediately being tested with users.
+Soon, the first version of Amicus was live! It was made in a true lean startup fashion, starting with the essential features and immediately being tested with users.
 
 <ImgWithCaption
     alt="Amicus's dashboard"
@@ -46,13 +46,13 @@ Soon, first version of Amicus was live! It was made in a true lean startup fashi
     caption="Amicus's dashboard, using Material-UI"
 />
 
-Erlis used Material-UI as an UI library since it came with one of the example apps built in Wasp (Beta introduced Tailwind support!). Users could track their clients, active legal matters and there was even integrated billing with Stripe! Amicus also made an extensive use of Wasp’s [Async Jobs](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement) feature to regularly update invoices, send reminder emails and clear out old data from the database.
+Erlis used Material-UI as a UI library since it came with one of the example apps built in Wasp (Beta introduced Tailwind support!). Users could track their clients, active legal matters and there was even integrated billing with Stripe! Amicus also extensively used Wasp’s [Async Jobs](https://wasp-lang.dev/blog/2022/06/15/jobs-feature-announcement) feature to regularly update invoices, send reminder emails and clear out old data from the database.
 
-After few iterations with the legal team who were Amicus’ test user (e.g. adding support for different types of users via roles), they were ready to get onboarded and become paying customers! More than 20 people from a single company are using Amicus every day for their work, which also makes it an amazing source of continuous feedback for the further development.
+After a few iterations with the legal team who were Amicus' test user (e.g. adding support for different types of users via roles), they were ready to get onboarded and become paying customers! More than 20 people from a single company are using Amicus daily for their work, making it an amazing source of continuous feedback for further development.
 
-Erlis enjoyed the most how fast he could progress and ship features with Wasp on a weekly basis. Having both front-end, back-end and database set and fully configured to work together from the beginning, he could focus on developing features rather than spend time figuring out the intricacies of the specific stack.
+Erlis enjoyed the most how fast he could progress and ship features with Wasp on a weekly basis. Having both front-end, back-end, and database set and fully configured to work together from the beginning, he could focus on developing features rather than spend time figuring out the intricacies of the specific stack.
 
-> If it weren’t for Wasp, Amicus would probably have never been finished. I estimate it saved me 100+ hours from the start and I’m still amazed that I did all this work as a team-of-one. Being able to quickly change existing features and add the new ones is the biggest advantage of Wasp for me.
+> If it weren't for Wasp, Amicus would probably have never been finished. I estimate it saved me 100+ hours from the start and I'm still amazed that I did all this work as a team-of-one. Being able to quickly change existing features and add the new ones is the biggest advantage of Wasp for me.
 >
 > — Erlis Kllogjri - Amicus
 
@@ -66,9 +66,9 @@ Some of the most imminent ones are:
 - usage logging and analytics
 - transactional emails for notifications
 
-Since under the hood Wasp is generating code in today’s mainstream, production-tested technologies such as React, Node.js and PostgreSQL (through Prisma), there aren’t any technical limitations to scaling Amicus as it grows and attracts more users.
+Since under the hood Wasp is generating code in today's mainstream, production-tested technologies such as React, Node.js and PostgreSQL (through Prisma), there aren't any technical limitations to scaling Amicus as it grows and attracts more users.
 
-Also, given that `wasp build` CLI command generates a ready Docker image for the back-end (and static files for the front-end), deployment options are unlimited. Since Heroku is shutting down their free plan we added guides on how deploy your project for free on [Fly.io](http://Fly.io) and Railway (freemium).
+Also, given that the `wasp build` CLI command generates a ready Docker image for the back-end (and static files for the front-end), deployment options are unlimited. Since Heroku is shutting down its free plan, we added guides on how to deploy your project for free on [Fly.io](http://Fly.io) and Railway (freemium).
 
 > I was using Wasp while still in Alpha and was impressed how well everything worked, especially given how much stuff I get. I had just a few minor issues and the team responded super quickly on Discord and helped me resolve it.
 >
