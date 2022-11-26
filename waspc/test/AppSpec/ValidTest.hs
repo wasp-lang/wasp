@@ -9,6 +9,7 @@ import Test.Tasty.Hspec
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Entity as AS.Entity
@@ -16,6 +17,8 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.Psl.Ast.Model as PslM
+import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Version as WV
 
 spec_AppSpecValid :: Spec
 spec_AppSpecValid = do
@@ -40,6 +43,43 @@ spec_AppSpecValid = do
           `shouldBe` [ ASV.GenericValidationError
                          "You have more than one 'app' declaration in your Wasp app. You have 2."
                      ]
+
+    describe "'waspVersion' validation" $ do
+      describe "should validate 'waspVersion' format" $ do
+        let basicAppWithVersionRange versionRange =
+              basicApp {AS.App.wasp = AS.Wasp.Wasp {AS.Wasp.version = versionRange}}
+
+        let basicAppSpecWithVersionRange versionRange =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $ basicAppWithVersionRange versionRange
+                    ]
+                }
+
+        it "returns no error if waspVersion is compatible" $ do
+          ASV.validateAppSpec basicAppSpec `shouldBe` []
+
+        it "returns an error if 'waspVersion' has an incorrect format" $ do
+          ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
+            `shouldBe` [ ASV.GenericValidationError
+                           "Wasp version should be in the format ^major.minor.patch"
+                       ]
+
+        it "returns an error if 'waspVersion' is not compatible" $ do
+          let incompatibleWaspVersion = WV.waspVersion {SV.major = SV.major WV.waspVersion + 1}
+
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show incompatibleWaspVersion)
+            `shouldBe` [ ASV.GenericValidationError $
+                           unlines
+                             [ "Your Wasp version does not match the app's requirements.",
+                               "You are running Wasp " ++ show WV.waspVersion ++ ".",
+                               "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
+                               "To install specific version of Wasp, do:",
+                               "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+                               "where x.y.z is your desired version.",
+                               "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
+                             ]
+                       ]
 
     describe "auth-related validation" $ do
       let userEntityName = "User"
@@ -134,7 +174,11 @@ spec_AppSpecValid = do
 
     basicApp =
       AS.App.App
-        { AS.App.title = "Test App",
+        { AS.App.wasp =
+            AS.Wasp.Wasp
+              { AS.Wasp.version = "^" ++ show WV.waspVersion
+              },
+          AS.App.title = "Test App",
           AS.App.db = Nothing,
           AS.App.server = Nothing,
           AS.App.client = Nothing,
@@ -148,11 +192,16 @@ spec_AppSpecValid = do
     basicAppSpec =
       AS.AppSpec
         { AS.decls = [basicAppDecl],
-          AS.externalCodeDirPath = systemSPRoot SP.</> [SP.reldir|test/src|],
-          AS.externalCodeFiles = [],
+          AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
+          AS.externalClientFiles = [],
+          AS.externalServerFiles = [],
+          AS.externalSharedFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
-          AS.dotEnvFile = Nothing
+          AS.dotEnvServerFile = Nothing,
+          AS.dotEnvClientFile = Nothing,
+          AS.userDockerfileContents = Nothing,
+          AS.configFiles = []
         }
 
     basicPage =

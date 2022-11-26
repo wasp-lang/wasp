@@ -12,8 +12,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ## 1. Requirements
 
 You need to have `node` (and `npm`) installed on your machine and available in `PATH`.
-- `node`: 16.x.x
-- `npm`: 8.x.x
+- `node`: ^18.12.0
+- `npm`: ^8.19.2
 
 You can check `node` and `npm` versions by running:
 ```shell-session
@@ -33,12 +33,12 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
   Then, install a version of node that you need, e.g.:
   ```shell-session
-  nvm install 16
+  nvm install 18
   ```
 
   Finally, whenever you need to ensure specific version of node is used, run e.g.
   ```shell-session
-  nvm use 16
+  nvm use 18
   ```
   to set the node version for current shell session.
 
@@ -121,10 +121,26 @@ wasp start # Serves the web app.
 
 That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
 
+
+
+:::info For Visual Studio Code
+
+If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp). 
+
+The extension brings the following functionality:
+
+* Syntax highlighting for .wasp files
+* Snippets for .wasp files
+* Wasp language server
+* live reporting of compilation errors
+* autocompletion
+
+:::
+
+
 ## 4. What next?
 
 **Check out the 🤓 [Pick a Tutorial page](pick-a-tutorial.md) 🤓. Choose an app that you'd like to build and it will take you through all the core features of Wasp!**
 
-You can also:
-- Join the community on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
-- If you are using Visual Studio Code, install our <a href="https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp">Wasp language extension</a>!
+Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
+

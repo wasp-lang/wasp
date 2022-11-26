@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Generator.MockWriteableMonad
   ( MockWriteableMonad,
@@ -15,7 +16,9 @@ import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, castDir, reldir, (</>))
+import StrongPath.Operations (castFile)
+import StrongPath.Types (File)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -54,12 +57,12 @@ instance WriteableMonad MockWriteableMonad where
     modifyLogs (copyFile_addCall srcPath dstPath)
 
   getTemplateFileAbsPath path = MockWriteableMonad $ do
-    modifyLogs (getTemplateFileAbsPath_addCall path)
+    modifyLogs (getTemplateFileAbsPath_addCall $ castFile path)
     (_, config) <- get
     return $ getTemplateFileAbsPath_impl config path
 
   compileAndRenderTemplate path json = MockWriteableMonad $ do
-    modifyLogs (compileAndRenderTemplate_addCall path json)
+    modifyLogs (compileAndRenderTemplate_addCall (castFile path) json)
     (_, config) <- get
     return $ compileAndRenderTemplate_impl config path json
 
@@ -72,7 +75,7 @@ instance WriteableMonad MockWriteableMonad where
     return $ doesDirectoryExist_impl config path
 
   copyDirectoryRecursive srcPath dstPath = MockWriteableMonad $ do
-    modifyLogs (copyDirectoryRecursive_addCall srcPath dstPath)
+    modifyLogs (copyDirectoryRecursive_addCall (castDir srcPath) (castDir dstPath))
 
   throwIO = throwIO
 
@@ -99,8 +102,8 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
   { getTemplatesDirAbsPath_impl :: Path' Abs (Dir TemplatesDir),
-    getTemplateFileAbsPath_impl :: Path' (Rel TemplatesDir) File' -> Path' Abs File',
-    compileAndRenderTemplate_impl :: Path' (Rel TemplatesDir) File' -> Aeson.Value -> Text,
+    getTemplateFileAbsPath_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Path' Abs (File a),
+    compileAndRenderTemplate_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool,
     doesDirectoryExist_impl :: FilePath -> Bool
   }

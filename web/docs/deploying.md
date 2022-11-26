@@ -3,10 +3,9 @@ title: Deploying
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::danger
-While you can deploy Wasp projects, Wasp is still in alpha and not yet production-ready.
-
-It might have critical security issues or other types of issues, and therefore we don't recommend deploying to production yet.
+:::info
+Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly a bit bigger changes in the future.
+If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
 Right now, deploying of Wasp project is done by generating the code and then deploying generated code "manually", as explained below.
@@ -393,6 +392,17 @@ Next, copy the server's domain, move over to the client's `Variables` tab and ad
 
 And now you should be deployed! 🐝 🚂 🚀
 
-#### Updates & Redeploying
+## Customizing the Dockerfile
+By default, Wasp will generate a multi-stage Dockerfile that is capable of building an image with your Wasp-generated server code and running it, along with any pending migrations, as in the deployment scenario above. If you need to customize this Dockerfile, you may do so by adding a Dockerfile to your project root directory. If present, Wasp will append the contents of this file to the _bottom_ of our default Dockerfile.
 
+Since the last definition in a Dockerfile wins, you can override or continue from any existing build stages. You could also choose not to use any of our build stages and have your own custom Dockerfile used as-is. A few notes are in order:
+- if you override an intermediate build stage, no later build stages will be used unless you reproduce them below
+- the contents of the Dockerfile are dynamic, based on the features you use, and may change in future releases as well, so please verify the contents have not changed from time to time
+- be sure to supply an `ENTRYPOINT` in your final build stage or it will not have any effect
+
+To see what your project's (potentially combined) Dockerfile will look like, run: `wasp dockerfile`
+
+Here are the official docker docs on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/). Please join our Discord if you have any questions, or if the customization hook provided here is not sufficient for your needs!
+
+#### Updates & Redeploying
 When you make updates and need to redeploy, just follow [steps 3-7](#deploy-to-services) above. Remember, you can connect or disconnect your app to any project in your Railway account by using `railway link` or `railway unlink` from within the app's directory.

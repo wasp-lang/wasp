@@ -43,6 +43,7 @@ import Wasp.Generator.ServerGenerator.Common
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
@@ -107,9 +108,8 @@ genAllJobImports spec =
         [ "name" .= jobName
         ]
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
+relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir)
+relPosixPathFromJobFileToExtSrcDir = [reldirP|../|] SP.</> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 genJobExecutors :: Generator [FileDraft]
 genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds

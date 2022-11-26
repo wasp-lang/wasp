@@ -4,7 +4,7 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -28,6 +28,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -209,9 +210,8 @@ genGoogleConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
     maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGoogleAuthDirToExtSrcDir <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
--- | TODO: Make this not hardcoded!
 relPosixPathFromGoogleAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromGoogleAuthDirToExtSrcDir = [reldirP|../../../../ext-src|]
+relPosixPathFromGoogleAuthDirToExtSrcDir = [reldirP|../../../../|] </> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

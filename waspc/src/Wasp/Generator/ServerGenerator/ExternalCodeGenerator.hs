@@ -1,6 +1,7 @@
 module Wasp.Generator.ServerGenerator.ExternalCodeGenerator
-  ( extCodeDirInServerSrcDir,
-    generatorStrategy,
+  ( extServerCodeGeneratorStrategy,
+    extServerCodeDirInServerSrcDir,
+    extSharedCodeGeneratorStrategy,
   )
 where
 
@@ -10,12 +11,24 @@ import Wasp.Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrateg
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
--- | Relative path to directory where external code will be generated.
-extCodeDirInServerSrcDir :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
-extCodeDirInServerSrcDir = [reldir|ext-src|]
+extServerCodeGeneratorStrategy :: ExternalCodeGeneratorStrategy
+extServerCodeGeneratorStrategy = mkExtCodeGeneratorStrategy extServerCodeDirInServerSrcDir
 
-generatorStrategy :: ExternalCodeGeneratorStrategy
-generatorStrategy =
+extSharedCodeGeneratorStrategy :: ExternalCodeGeneratorStrategy
+extSharedCodeGeneratorStrategy = mkExtCodeGeneratorStrategy extSharedCodeDirInServerSrcDir
+
+-- | Relative path to the directory where external server code will be generated.
+-- Relative to the server src dir.
+extServerCodeDirInServerSrcDir :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
+extServerCodeDirInServerSrcDir = [reldir|ext-src|]
+
+-- | Relative path to the directory where external shared code will be generated.
+-- Relative to the server src dir.
+extSharedCodeDirInServerSrcDir :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
+extSharedCodeDirInServerSrcDir = [reldir|shared|]
+
+mkExtCodeGeneratorStrategy :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir) -> ExternalCodeGeneratorStrategy
+mkExtCodeGeneratorStrategy extCodeDirInServerSrcDir =
   ExternalCodeGeneratorStrategy
     { _resolveJsFileWaspImports = resolveJsFileWaspImportsForExtCodeDir (SP.castRel extCodeDirInServerSrcDir),
       _extCodeDirInProjectRootDir =

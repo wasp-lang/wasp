@@ -81,6 +81,10 @@ Now your default browser should open up with a simple predefined text message. T
 
 // Main declaration, defines a new web app.
 app ItWaspsOnMyMachine {
+  // Wasp compiler configuration
+  wasp: {
+    version: "^0.6.0"
+  },
 
   // Used as a browser tab title.                                  
   title: "It Wasps On My Machine",
@@ -99,9 +103,9 @@ app ItWaspsOnMyMachine {
 // Render page MainPage on url `/` (default url).
 route RootRoute { path: "/", to: MainPage }                 
 
-// ReactJS implementation of our page located in `ext/MainPage.js` as a default export
+// ReactJS implementation of our page located in `src/client/MainPage.js` as a default export.
 page MainPage {                                             
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 
 // Prisma database entity
@@ -112,19 +116,19 @@ psl=}
 
 // Query declaration to get a new excuse
 query getExcuse {                                           
-  fn: import { getExcuse } from "@ext/queries.js",
+  fn: import { getExcuse } from "@server/queries.js",
   entities: [Excuse]
 }
 
 // Query declaration to get all excuses
 query getAllSavedExcuses {                                  
-  fn: import { getAllSavedExcuses } from "@ext/queries.js",
+  fn: import { getAllSavedExcuses } from "@server/queries.js",
   entities: [Excuse]
 }
 
 // Action to save current excuse
 action saveExcuse {                                         
-  fn: import { saveExcuse } from "@ext/actions.js",
+  fn: import { saveExcuse } from "@server/actions.js",
   entities: [Excuse]
 }
 ```
@@ -136,9 +140,9 @@ Also, we’ve declared a database entity called `Excuse`, queries, and action. T
 `Queries` are here when we need to fetch/read something, while `actions` are here when we need to change/update data. Both query and action declaration consists of two lines – a reference to the file that contains implementation and a data model to operate on. You can find more info [in the docs](https://wasp-lang.dev/docs/tutorials/todo-app/listing-tasks#introducing-operations-queries-and-actions). So let’s proceed with queries/actions. 
 
 
-**2) Create two files: “actions.js” and “queries.js” in the `ext` folder.**
+**2) Create two files: “actions.js” and “queries.js” in the `src/server` folder.**
 
-```js title=".../ext/actions.js | Defining an action"
+```js title="src/server/actions.js | Defining an action"
 export const saveExcuse = async (excuse, context) => {
   return context.entities.Excuse.create({
     data: { text: excuse.text }
@@ -146,7 +150,7 @@ export const saveExcuse = async (excuse, context) => {
 }
 ```
 
-```js title=".../ext/queries.js | Defining queries"
+```js title="src/server/queries.js | Defining queries"
 import axios from 'axios';
 
 export const getExcuse = async () => {
@@ -166,7 +170,7 @@ That’s it! We finished our back-end. 🎉 Now, let’s use those queries/actio
 
 **3) Let’s erase everything we had in the `MainPage.js` file and substitute it with our new UI.**
 
-```js title=".../ext/MainPage.js | Updating the UI"
+```js title="src/client/MainPage.js | Updating the UI"
 import React, { useState } from 'react'
 import { useQuery } from '@wasp/queries'
 import getExcuse from '@wasp/queries/getExcuse'

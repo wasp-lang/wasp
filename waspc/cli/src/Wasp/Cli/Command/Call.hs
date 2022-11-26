@@ -10,6 +10,7 @@ data Call
   | Version
   | Telemetry
   | Deps
+  | Dockerfile
   | Info
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
