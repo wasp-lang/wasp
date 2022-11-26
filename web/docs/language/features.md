@@ -1103,7 +1103,7 @@ If you require custom configuration setup or user entity field assignment, you c
 
     Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their Google account, as described in **Overrides** below 
   :::
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefacults.js These can be overriden as explained below.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js . These can be overriden as explained below.
 
 #### Overrides
 If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
