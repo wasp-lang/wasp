@@ -10,13 +10,15 @@ const MainPage = () => {
 
   return (
     <div>
-      <Clocks />
       <NewTaskForm />
 
       {tasks && <TasksList tasks={tasks} />}
 
+      <div> <Clocks /> </div>
+
       {isFetching && 'Fetching...'}
       {error && 'Error: ' + error}
+
       <button onClick={logout}> Logout </button>
     </div>
   )
@@ -75,3 +77,4 @@ const NewTaskForm = (props) => {
 }
 
 export default MainPage
+
