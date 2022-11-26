@@ -249,6 +249,10 @@ Run
 ```
 npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
 ```
+:::info NO SLASH
+Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
+✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
+:::
 
 where <url_to_wasp_backend> is url of the wasp backend that you previously deployed, e.g. `https://wasp-test.fly.dev`.
 
@@ -277,6 +281,10 @@ NOTE: Make sure you set this URL as the `WASP_WEB_CLIENT_URL` environment variab
 ## Deploying to Railway ("freemium", all-in-one solution)
 
 Railway makes it easy to deploy your entire app -- database, server, and client -- on one platform. You can use the platform for free for a limited time (~21 days) per month. Upgrading to the `Developer` plan will only cost you a few dollays per month per service.
+
+:::danger 🛑
+  Due to Railway's current proxy configuration, Google Auth will not currently work. If you're using Google Auth in your Wasp App, you can still deploy your back-end to Railway, but we suggest you [deploy your front-end to Netlify](#deploying-to-netlify)
+:::
 
 To get started, follow these steps:
 
@@ -325,14 +333,22 @@ Now go back to your terminal and execute the following commands:
   Select `server` when prompted with `Select Service`. Press enter.
   Railway will now locate the Dockerfile and deploy your server 👍
 
+  When deployment is finished, you will see: `Deployment live at <url_to_wasp_backend>`
+  Copy this URL 📜. We need it for step 5!
+
   4. Next, change into your app's frontend build directory `.wasp/build/web-app`:
   ```shell
   cd web-app
   ```
-  5. Create the production build:
+  5. Create the production build, adding the URL from step 3:
   ```shell
-  npm install && npm run build
+  npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
   ```
+  :::info NO SLASH
+  Make sure your API URL does <strong>not</strong> have a trailing "/" on the end of it:<br/>
+  ✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
+  :::
+
   6. Change into the `.wasp/build/web-app/build` directory and deploy:
   ```shell
   cd build && railway up
