@@ -252,7 +252,7 @@ const List = ({ list, index, cards }) => {
             <div className='list-header'>
             {isHeaderTargetShown ? (
                 <div
-                  class="list-header-target"
+                  className="list-header-target"
                   onClick={(e) => handleHeadingClicked(e)}
                 ></div>
               ) : (
