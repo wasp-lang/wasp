@@ -21,8 +21,8 @@
   },
   "devDependencies": {
     "@tsconfig/create-react-app": "^1.0.3",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.8",
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.3",
     "typescript": "^4.8.4"
   },
