@@ -4,7 +4,7 @@ title: "Dependencies"
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-What is a Todo app without some clocks!? Well, still a Todo app, but certainly not as fun as one with the clocks!
+What is a Todo app without some clocks!? Well, still a Todo app, but certainly not as fun as one with clocks!
 
 So, let's add a couple of clocks to our app, to help us track time while we perform our tasks (and to demonstrate the `app.dependencies` feature).
 
@@ -26,12 +26,12 @@ wasp start
 to have Wasp download and install the new dependency. If `wasp start` is already running, Wasp will detect the dependency change, and restart automatically.
 
 Next, let's create a new component `Clocks` where we can play with the clocks.
-```jsx title="src/client/Clocks.js"
-import React, { useEffect, useState } from 'react'
+```jsx title="src/client/Clocks.jsx"
+import { useEffect, useState } from 'react'
 import Clock from 'react-clock'
 import 'react-clock/dist/Clock.css'
 
-export default () => {
+const Clocks = () => {
   const [time, setTime] = useState(new Date())
   
   useEffect(() => {
@@ -46,10 +46,12 @@ export default () => {
     </div>
   )
 }
+
+export default Clocks
 ```
 
 And let's import it in our main React component.
-```jsx {2,11} title="src/client/MainPage.js"
+```jsx {2,11} title="src/client/MainPage.jsx"
 // ...
 import Clocks from './Clocks'
 
@@ -68,6 +70,6 @@ const MainPage = () => {
 }
 // ...
 ```
-As you can see, importing other files from `src/client` is completely normal, just use the relative path. The same goes for all files under `src/server`. You can't (and shouldn't) import files from `src/client` into `src/server` and vice versa. If you want to share code between the two runtimes, you can use a relative import to import anything from `src/shared` into both the client code and the server code.
+As you can see, importing other files from `src/client` is completely normal, just use the relative path. The same goes for all files under `src/server`. You can't (and shouldn't) import files from `src/client` into `src/server` and vice versa. If you want to share code between the two runtimes, you can use a relative import to import anything from `src/shared` into both the client code and the server code. The `src/shared` is especially handy for full-stack type definitions when using TypeScript.
 
 That is it! We added a dependency and used it in our project.

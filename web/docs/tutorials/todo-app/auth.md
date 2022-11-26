@@ -68,8 +68,8 @@ during signup, check out the [lower-level auth API](/docs/language/features#lowe
 Ok, that was easy!
 
 To recap, so far we have defined:
-- `User` entity.
-- `app.auth` field, thanks to which Wasp gives us plenty of auth functionality.
+- The `User` entity.
+- The `app.auth` field, thanks to which Wasp gives us plenty of auth-related functionality.
 
 ## Adding Login and Signup pages
 
@@ -91,8 +91,7 @@ page LoginPage {
 
 Great, Wasp now knows how to route these and where to find the pages. Now to the React code of the pages:
 
-```jsx title="src/client/LoginPage.js"
-import React from 'react'
+```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
@@ -114,8 +113,7 @@ export default LoginPage
 
 The Signup page is very similar to the login one:
 
-```jsx title="src/client/SignupPage.js"
-import React from 'react'
+```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
 
 import SignupForm from '@wasp/auth/forms/Signup'
@@ -155,21 +153,20 @@ If an unauthenticated user tries to access route `/` where our page `MainPage` i
 
 Also, when `authRequired` is set to `true`, the React component of a page (specified by `component` property within `page`) will be provided `user` object as a prop. It can be accessed like this:
 
-```jsx {1} title="src/client/MainPage.js"
+```jsx {1} title="src/client/MainPage.jsx"
 const MainPage = ({ user }) => {
-    // do something with user
+    // Do something with the user
 }
 ```
 
 Ok, time to try out how this works!
 
-Now, we can again run
+Now, we can start the app again (if it's not still running):
 ```shell-session
 wasp start
 ```
 
-Try going to `/` in our web app. It will now redirect you to `/login`, where you'll be asked to authenticate.
-Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
+Try going to the main page (`/`) of our web app. It will now redirect you to `/login`, where you'll be asked to authenticate. Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
 
 Let's now see how things look in the database! Run:
 ```shell-session
@@ -262,7 +259,7 @@ Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTa
 
 Right, that should be it!
 
-Run
+Run (or just continue running):
 ```shell-session
 wasp start
 ```

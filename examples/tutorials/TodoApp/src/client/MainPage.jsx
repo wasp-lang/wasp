@@ -1,10 +1,8 @@
-import React from 'react'
-
-import logout from '@wasp/auth/logout.js'
 import { useQuery } from '@wasp/queries'
 import getTasks from '@wasp/queries/getTasks'
 import createTask from '@wasp/actions/createTask'
 import updateTask from '@wasp/actions/updateTask'
+import logout from '@wasp/auth/logout'
 import Clocks from './Clocks'
 
 const MainPage = () => {
@@ -12,15 +10,13 @@ const MainPage = () => {
 
   return (
     <div>
+      <Clocks />
       <NewTaskForm />
 
       {tasks && <TasksList tasks={tasks} />}
 
-      <div> <Clocks /> </div>
-
       {isFetching && 'Fetching...'}
       {error && 'Error: ' + error}
-
       <button onClick={logout}> Logout </button>
     </div>
   )
@@ -37,7 +33,6 @@ const Task = (props) => {
       window.alert('Error while updating task: ' + error.message)
     }
   }
-
   return (
     <div>
       <input
@@ -55,7 +50,7 @@ const TasksList = (props) => {
   return props.tasks.map((task, idx) => <Task task={task} key={idx} />)
 }
 
-const NewTaskForm = () => {
+const NewTaskForm = (props) => {
   const handleSubmit = async (event) => {
     event.preventDefault()
     try {
