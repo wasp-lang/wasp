@@ -10,7 +10,7 @@ Let's define a Todo list (luckily we have an app for that now ;)) to get this do
 - [ ] Add Wasp entity `User`.
 - [ ] Add `auth` Wasp declaration.
 - [ ] Add `Login` and `Signup` pages
-- [ ] Modify `src/client/MainPage.js` so that it requires authentication.
+- [ ] Modify `src/client/MainPage.jsx` so that it requires authentication.
 - [ ] Add Prisma relation between `User` and `Task` entities.
 - [ ] Modify our queries and actions so that they work only with the tasks belonging to the authenticated user.
 - [ ] Add logout button.
@@ -144,7 +144,7 @@ There is a specific Wasp feature that allows us to achieve this in a simple way:
 // ...
 page MainPage {
   authRequired: true,
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage"
 }
 ```
 
@@ -279,7 +279,7 @@ You will see that each user has its own tasks, just as we specified in our code!
 ## Logout button
 
 Last, but not the least, let's add logout functionality:
-```jsx {2,10} title="src/client/MainPage.js"
+```jsx {2,10} title="src/client/MainPage.jsx"
 // ...
 import logout from '@wasp/auth/logout.js'
 //...
