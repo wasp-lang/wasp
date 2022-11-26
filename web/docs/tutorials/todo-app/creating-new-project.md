@@ -128,7 +128,7 @@ are already clean). Wasp needs the `tsconfig.json` and `react-app-env.d.ts` for
 IDE support, so it's important to keep them.
 
 Now that `src/client` contains only `tsconfig.json`, `react-app-env.d.ts`, and
-`MainPage.js` let's start by making the `MainPage` component much simpler:
+`MainPage.jsx` let's start by making the `MainPage` component much simpler:
 
 ```jsx title="src/client/MainPage.js"
 const MainPage = () => {
