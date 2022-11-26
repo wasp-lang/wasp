@@ -130,7 +130,7 @@ IDE support, so it's important to keep them.
 Now that `src/client` contains only `tsconfig.json`, `react-app-env.d.ts`, and
 `MainPage.jsx` let's start by making the `MainPage` component much simpler:
 
-```jsx title="src/client/MainPage.js"
+```jsx title="src/client/MainPage.jsx"
 const MainPage = () => {
   return <div> Hello world! </div>
 }
