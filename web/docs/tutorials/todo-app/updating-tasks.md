@@ -19,7 +19,7 @@ We declare a Wasp action:
 // ...
 
 action updateTask {
-  fn: import { updateTask } from "@server/actions.js",
+  fn: import { updateTask } from "@server/actions",
   entities: [Task]
 }
 ```
@@ -43,7 +43,7 @@ export const updateTask = async (args, context) => {
 ## React logic
 
 And we update the React component:
-```jsx {2,7-16,23} title="src/client/MainPage.js"
+```jsx {2,7-16,23} title="src/client/MainPage.jsx"
 // ...
 import updateTask from '@wasp/actions/updateTask'
 

@@ -21,7 +21,7 @@ app TodoApp {
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
@@ -50,16 +50,16 @@ entity Task {=psl
 psl=}
 
 query getTasks {
-  fn: import { getTasks } from "@server/queries.js",
+  fn: import { getTasks } from "@server/queries",
   entities: [Task]
 }
 
 action createTask {
-  fn: import { createTask } from "@server/actions.js",
+  fn: import { createTask } from "@server/actions",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@server/actions.js",
+  fn: import { updateTask } from "@server/actions",
   entities: [Task]
 }

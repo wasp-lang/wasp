@@ -14,7 +14,7 @@ Queries are here when we need to fetch/read something, while actions are here wh
 We will start with writing a query, since we are just listing tasks and not modifying anything for now.
 
 To list tasks, we will need two things:
-1. Wasp query that fetches all the tasks from the database.
+1. A Wasp query that fetches all the tasks from the database.
 2. React logic that calls our query and displays its results.
 
 ## Wasp query
@@ -31,7 +31,7 @@ query getTasks {
   // We specify that JS implementation of the query (which is an async JS function)
   // can be found in `src/server/queries.js` as the named export `getTasks`.
   // Use '@server' to reference files inside the src/server folder.
-  fn: import { getTasks } from "@server/queries.js",
+  fn: import { getTasks } from "@server/queries",
   // We tell Wasp that this query is doing something with entity `Task`. With that, Wasp will
   // automatically refresh the results of this query when tasks change.
   entities: [Task]
@@ -52,7 +52,7 @@ Query function parameters:
 - `context`: `object`, additional stuff provided by Wasp.
 
 
-Since we declared in `main.wasp` that our query uses entity Task, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for entity Task as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since we declared in `main.wasp` that our query uses entity `Task`, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and actions are NodeJS functions that are executed on the server. Therefore, we put them in the `src/server` folder.
@@ -62,9 +62,7 @@ Queries and actions are NodeJS functions that are executed on the server. Theref
 
 We've just said that the queries we write are executed on the server, but Wasp will generate client-side query functions (taking care of the network and cache invalidation in the background). Let's finally use the query we've just created, `getTasks`, in our React component to list the tasks:
 
-```jsx {3-4,7-16,19-32} title="src/client/MainPage.js"
-import React from 'react'
-
+```jsx {1-2,5-14,17-32} title="src/client/MainPage.jsx"
 import getTasks from '@wasp/queries/getTasks'
 import { useQuery } from '@wasp/queries'
 
@@ -105,7 +103,7 @@ Most of this is just regular React, the only exception being two special `@wasp`
  - `import getTasks from '@wasp/queries/getTasks'` - Gives us our freshly defined Wasp query.
  - `import { useQuery } from '@wasp/queries'` - Gives us Wasp's [useQuery](language/features.md#the-usequery-hook) React hook which is actually just a thin wrapper over [react-query](https://github.com/tannerlinsley/react-query)'s [useQuery](https://react-query.tanstack.com/docs/guides/queries) hook, behaving very similarly while offering some extra integration with Wasp.
 
-While we could call query directly as `getTasks()`, calling it as `useQuery(getTasks)` gives us reactivity- the React component gets re-rendered if the result of the query changes.
+While we could directly call the query with `getTasks()`, calling it with `useQuery(getTasks)` gives us reactivity - the React component gets re-rendered if the result of the query changes.
 
 With these changes, you should be seeing the text "No tasks" on the screen:
 

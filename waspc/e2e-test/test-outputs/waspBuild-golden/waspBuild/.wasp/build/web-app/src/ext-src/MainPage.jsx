@@ -1,4 +1,3 @@
-import React from 'react'
 import waspLogo from './waspLogo.png'
 import './Main.css'
 

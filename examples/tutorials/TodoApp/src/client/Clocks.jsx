@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Clock from 'react-clock'
 import 'react-clock/dist/Clock.css'
 
