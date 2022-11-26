@@ -1,9 +1,7 @@
 ---
 title: 'Wasp Beta Launch Week announcement'
 authors: [matijasos]
-
-image: /img/atp/welcome-to-atp-notion.png
-
+image: /img/beta-ann/beta-banner.png
 tags: [webdev, wasp, startups, github]
 ---
 
