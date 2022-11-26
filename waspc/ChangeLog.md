@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.x.x.x (TBD)
+## v0.7.0 - Beta Release!
 
 ### BREAKING CHANGES
 - Updates Create React App from version 4.0.3 to 5.0.1. This brings many improvements as well as downstream library updates. It also has a list of possible breaking changes: https://github.com/facebook/create-react-app/blob/main/CHANGELOG.md
@@ -30,30 +30,32 @@ get by running `wasp new project` from this point onwards):
 ├── main.wasp
 ├── src
 │   ├── client
-│   │   ├── jsconfig.json
 │   │   ├── Main.css
-│   │   ├── MainPage.js
+│   │   ├── MainPage.jsx
+│   │   ├── react-app-env.d.ts
+│   │   ├── tsconfig.json
 │   │   └── waspLogo.png
 │   ├── server
-│   │   └── jsconfig.json
+│   │   └── tsconfig.json
 │   ├── shared
-│   │   └── jsconfig.json
+│   │   └── tsconfig.json
 │   └── .waspignore
 └── .wasproot
 ```
+
 Main differences:
 - All server-side code must be located inside the `src/server` directory.  Wasp
-declarations must import this code with `import foo from "@server/foo.js"`
+declarations must import this code with `import foo from "@server/foo"`
 (instead of `import foo from "@ext/foo.js"`)
 - All client-side code must be located inside the `src/client` directory.  Wasp
-declarations must import this code with `import foo from "@client/bar.js"`
+declarations must import this code with `import foo from "@client/bar"`
 (instead of `import bar from "@ext/bar.js"`)
 - All shared code (i.e., used on both the client and the server) must be
 located inside the `src/shared` and imported where needed through a relative import.
 - Each of these subdirectories (i.e., `src/server`, `src/client`, and
-`src/shared`) comes with a pregenerated `jsconfig.json` file. This file helps
+`src/shared`) comes with a pregenerated `tsconfig.json` file. This file helps
 with IDE support (e.g., jumping to definitions, previewing types, etc.) and you
-shouldn't delete it. 
+shouldn't delete it. The same goes for `react-app-env.d.ts`
 
 The new structure is fully reflected in [our docs](https://wasp-lang.dev/docs/language/overview), but we'll also
 provide a quick guide for migrating existing projects.
@@ -98,19 +100,25 @@ directory `foo`, you should:
      ```js
      page LoginPage {
        // This resolves to src/client/LoginPage.js
-       component: import Login from "@client/LoginPage.js"
+       component: import Login from "@client/LoginPage"
      }
      
      // ...
      
      query getTasks {
        // This resolves to src/server/queries.js
-       fn: import { getTasks } from "@server/queries.js",
+       fn: import { getTasks } from "@server/queries",
      }
      ```
      Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
      
 That's it! You should now have a fully working Wasp project in the `foo` directory.
+
+### [NEW FEATURE] TypeScript support
+
+Wasp now allows you to write TS and TSX files. Some (but not all) Wasp features
+come with type definitions. Except more type definitions and even better
+integration with TypeScript in future versions!
 
 ### [NEW FEATURE] Dockerfile customization
 
