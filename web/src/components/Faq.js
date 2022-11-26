@@ -20,6 +20,7 @@ const faqs = [
       also need some kind of a server/backend if you'll need to run more complex operations.
     </p>
   },
+  /*
   {
     question: 'How is Wasp different from Ruby on Rails, Django, etc?',
     answer: <p>
@@ -36,6 +37,7 @@ const faqs = [
       you under the hood.
     </p>
   },
+  */
   {
     question: 'How hard is it to learn Wasp?',
     answer: <p>
