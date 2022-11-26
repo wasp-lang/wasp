@@ -17,3 +17,4 @@ export const updateTask = async (args, context) => {
     data: { isDone: args.data.isDone }
   })
 }
+
