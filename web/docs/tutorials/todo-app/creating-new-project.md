@@ -55,6 +55,12 @@ By _your code_, we mean _"the code you write"_ (as opposed to the code generated
 - `src/client` - Contains the code executed on the client (i.e., JS in the browser) 
 - `src/shared` - Contains the code you want to use on both the client and the server (e.g., utility functions) 
 
+:::note Typescript Support
+We've introduced Typescript support in Beta version 0.7.0, but you are free to use js/jsx or ts/tsx syntax as you see fit.
+
+For this tutorial, we will simply use vanilla Javascript and JSX syntax 🍦
+:::
+
 Let's start with the `main.wasp` file, which introduces 3 new concepts:
 [app](language/features.md#app),
 [page](language/features.md#page) and
