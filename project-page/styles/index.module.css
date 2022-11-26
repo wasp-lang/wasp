@@ -1,0 +1,103 @@
+
+.sectionSkewed {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  transform-origin: 100% 0;
+  transform: skewY(-2deg);
+  overflow: hidden;
+}
+
+.sectionSkewedContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.leftLights::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 1223px;
+  height: 912px;
+
+  width: 1200px;
+  height: 912px;
+
+  left: calc(50% - 1100px);
+  top: -10%;
+
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 168, 0, 0) 100%
+  );
+  will-change: filter;
+  mix-blend-mode: normal;
+}
+
+.lightsTwo::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 1223px;
+  height: 912px;
+
+  width: 1200px;
+  height: 912px;
+
+  left: calc(50%);
+  top: 0px;
+
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 168, 0, 0) 100%
+  );
+  will-change: filter;
+  mix-blend-mode: normal;
+}
+
+/*
+.leftLights::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 25%;
+  height: 900px;
+  left: -12.5%;
+  top: calc(50% - 900px / 2 + 151px);
+  opacity: 0.2;
+  background: linear-gradient(180deg, #77b8ff 0%, rgba(42, 138, 246, 0.4) 100%);
+  filter: blur(125px);
+  transform: rotate(-15deg);
+  border-bottom-left-radius: 25% 25%;
+  border-bottom-right-radius: 25% 25%;
+  border-top-left-radius: 100% 100%;
+  border-top-right-radius: 100% 100%;
+  z-index: 200;
+  will-change: filter;
+  mix-blend-mode: normal;
+}
+
+.leftLights::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 40%;
+  height: 422px;
+  left: 0px;
+  top: calc(50% - 422px / 2 + 298px);
+  opacity: 0.5;
+  background: linear-gradient(
+    180deg,
+    rgba(29, 92, 162, 0.2) 0%,
+    rgba(42, 138, 246, 0.4) 100%
+  );
+  filter: blur(125px);
+  will-change: filter;
+  mix-blend-mode: normal;
+}
+*/

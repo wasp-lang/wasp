@@ -1,7 +1,6 @@
 ---
 title: How to get started with Haskell in 2022 (the straightforward way) 
 authors: [martinsos]
-image: /img/filip-headshot-min.jpeg
 tags: [webdev, haskell, language]
 ---
 
@@ -12,11 +11,11 @@ import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 
-Haskell is a unique and beautiful language that is worth learning, if for nothing else, then just for the concepts it introduces. They will expand your view on programming.
+Haskell is a unique and beautiful language that is worth learning, if for nothing else, then just for the concepts it introduces and their potential to expand your view on programming.
 
-I have been programming in Haskell on and off since 2011 and professionally for the past 2 years, building a [compiler](https://github.com/wasp-lang/wasp). While in that time Haskell has become much more beginner-friendly, I keep seeing beginners who are overwhelmed by numerous popular options for build tools, installers, introductory educational resources, and similar. [Haskell’s homepage](https://www.haskell.org/) getting a call from the previous decade to give them their UX back also doesn’t help. 
+I have been programming in Haskell on and off since 2011 and professionally for the past 2 years, building a [compiler](https://github.com/wasp-lang/wasp). While in that time Haskell has become much more beginner-friendly, I keep seeing beginners who are overwhelmed by numerous popular options for build tools, installers, introductory educational resources, and similar. [Haskell’s homepage](https://www.haskell.org/) getting a call from the previous decade to give them their UX back :D also doesn’t help!
 
-That is why I decided to write this opinionated and practical post that will tell you exactly **how to get started with Haskell in 2022 in the most standard / common way.** Instead of worrying about decisions that you are not equipped to make at the moment (like “what is the best build tool Ifd??”), you can focus on enjoying learning Haskell :)!
+That is why I decided to write this opinionated and practical post that will tell you exactly how to get started with Haskell in 2022 in the most standard / common way. Instead of worrying about decisions that you are not equipped to make at the moment (e.g. “what is the best build tool?”), you can focus on enjoying learning Haskell :)!
 
 <!--truncate-->
 
@@ -76,13 +75,15 @@ If you don't like LYAH, consider other popular books for beginners (none of them
 3. [Programming in Haskell](https://www.amazon.com/Programming-Haskell-Graham-Hutton/dp/1316626229)
 
 Whatever book you go with, don’t get stuck for too long on concepts that are confusing to you, especially towards the end of the book. Some concepts will just need time to click; don’t expect to grasp it all on the first try. Whatever you do grasp from the first read will likely be more than enough to get going with your first projects in Haskell. You can always come back to those complex concepts later and understand them better. Also, don’t be shy to ask the community -> there are many Haskellers out there happy to support you in your learning!
-NOTE: When I say "don't get stuck", I don't mean you should skip the difficult concept after first hurdle. No, you should spend some hours experimenting, looking at it from different angles, playing with it, trying to crack it. But you shouldn't spend days trying to understand the same concept (e.g. function as a monad) and then feel defeated due to not grasping it 100%. Instead, if you put proper effort but stuff is not completely clicking, tap yourself on the back and move on for now.
+:::note
+When I say "don't get stuck", I don't mean you should skip the difficult concept after the first hurdle. No, you should spend some hours experimenting, looking at it from different angles, playing with it, trying to crack it. But you shouldn't spend days trying to understand the same concept (e.g. function as a monad) and then feel defeated due to not grasping it 100%. Instead, if you put proper effort but stuff is not completely clicking, tap yourself on the back and move on for now.
+:::
 
 Once you take the first pass through the book, I recommend doing a project or two. You can come up with an idea yourself, or you can follow one of the books that guide you through it. 
 
 For example:
 
-1. [Learn Haskell by building a blog generator](https://lhbg-book.link/) -> free, starts from 0 knowledge, and could even be used as the very first resource
+1. [Learn Haskell by building a blog generator](https://lhbg-book.link/) -> free, starts from 0 knowledge, and could even be used as the very first resource, instead of e.g. LYAH.
 2. [The Simple Haskell Handbook](https://marcosampellegrini.com/simple-haskell-book) -> not free, expects you to know the basics of Haskell already
 
 Once you have more experience with projects, I would recommend re-reading your beginner book of choice. This time, you can skip the parts you already know and focus on what was confusing before. You will likely have a much easier time grasping those harder concepts.

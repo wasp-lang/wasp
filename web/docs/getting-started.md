@@ -53,17 +53,17 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   </div>
 </details>
 
-:::info
+<details>
+  <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
+    Why this version of node?
+  </summary>
+  <div>
+    At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why the official Node.js team recommends it for usage in production.
+    Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
+    Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
+  </div>
+</details>
 
-Why does Wasp require this specific `node` range and doesn't support a newer version x.y.z?
-
-At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why the official Node.js team recommends it for usage in production.
-Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
-Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
-
-Sometimes we will make an exception to that and additionally limit the Node.js version or postpone switching to the latest LTS if there are certain issues with new Node.js version, in which case we will catch up once those are resolved on Node.js side or we find a workaround on Wasp side.
-
-:::
 
 ## 2. Installation
 
@@ -140,7 +140,7 @@ The extension brings the following functionality:
 
 ## 4. What next?
 
-**Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
+**Check out the 🤓 [Pick a Tutorial page](pick-a-tutorial.md) 🤓. Choose an app that you'd like to build and it will take you through all the core features of Wasp!**
 
 Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
 
