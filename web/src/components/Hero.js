@@ -93,7 +93,7 @@ page MainPage {
     <SectionContainer className='pb-5 pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
 
-        <div className='lg:col-span-6 space-y-12'>
+        <div className='lg:col-span-6 space-y-12 z-10'>
           {/* Hero title and subtitle */}
           <div>
             <h1
