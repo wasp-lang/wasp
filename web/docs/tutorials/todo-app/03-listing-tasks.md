@@ -32,12 +32,17 @@ query getTasks {
   // We specify that JS implementation of the query (which is an async JS function)
   // can be found in `src/server/queries.js` as the named export `getTasks`.
   // Use '@server' to reference files inside the src/server folder.
-  fn: import { getTasks } from "@server/queries",
+  fn: import { getTasks } from "@server/queries.js",
   // We tell Wasp that this query is doing something with entity `Task`. With that, Wasp will
   // automatically refresh the results of this query when tasks change.
   entities: [Task]
 }
 ```
+:::danger
+Even if you use TypeScript and have the file `queries.ts`, you will still need to import it using the `.js` extension. Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
+
+Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
+:::
 
 ### JS implementation
 Next, create a new file `src/server/queries.js` and define the JS we've just used in the `query` declaration above:

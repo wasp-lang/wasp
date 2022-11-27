@@ -50,16 +50,16 @@ entity Task {=psl
 psl=}
 
 query getTasks {
-  fn: import { getTasks } from "@server/queries",
+  fn: import { getTasks } from "@server/queries.js",
   entities: [Task]
 }
 
 action createTask {
-  fn: import { createTask } from "@server/actions",
+  fn: import { createTask } from "@server/actions.js",
   entities: [Task]
 }
 
 action updateTask {
-  fn: import { updateTask } from "@server/actions",
+  fn: import { updateTask } from "@server/actions.js",
   entities: [Task]
 }

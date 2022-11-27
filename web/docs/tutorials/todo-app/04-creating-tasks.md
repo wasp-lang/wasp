@@ -19,7 +19,7 @@ First we declare the action in Wasp:
 // ...
 
 action createTask {
-  fn: import { createTask } from "@server/actions",
+  fn: import { createTask } from "@server/actions.js",
   entities: [Task]
 }
 ```
