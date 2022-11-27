@@ -144,3 +144,4 @@ The extension brings the following functionality:
 
 Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
 
+Finally, to stay up to date with updates in Wasp, you can **subscribe to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
