@@ -76,7 +76,7 @@ entity User {=psl
 psl=}
 ```
 
-Check [here](https://github.com/wasp-lang/wasp/blob/main/examples/tutorials/TodoApp/main.wasp) for the complete example.
+Check [here](https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoApp/main.wasp) for the complete example.
 
 ## Why a language (DSL), aren’t frameworks solving this already?
 
