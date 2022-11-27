@@ -20,9 +20,10 @@ module.exports = {
   ],
   themeConfig: {
     announcementBar: {
-      id: 'Beta_is_coming',
-      content: '<strong>We are releasing Beta on Nov 27! 🚀 Sign up <a href="#signup">here</a> to get notified. 🔔</strong>',
-      backgroundColor: '#ffcc00',
+      id: 'Beta_is_here',
+      content: 'Wasp Beta is live on Product Hunt 🚀 <strong><a href="https://www.producthunt.com/posts/wasp-lang-beta">Support us now!</a></strong>',
+      backgroundColor: '#ff6154',
+      textColor: '#fff',
       isCloseable: false,
     },
     navbar: {
