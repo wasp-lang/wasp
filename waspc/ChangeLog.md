@@ -107,7 +107,7 @@ directory `foo`, you should:
      
      query getTasks {
        // This resolves to src/server/queries.js
-       fn: import { getTasks } from "@server/queries",
+       fn: import { getTasks } from "@server/queries.js",
      }
      ```
      Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
