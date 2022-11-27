@@ -94,6 +94,10 @@ With Wasp for Windows, we are almost there: Wasp is successfully compiling and r
 
 In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 
+:::caution
+  If you are using WSL2, make sure that your Wasp project is not on Windows file system, but instead on Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
+:::
+
 </div>
   </TabItem>
 
