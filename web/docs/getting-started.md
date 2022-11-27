@@ -140,7 +140,7 @@ The extension brings the following functionality:
 
 ## 4. What next?
 
-**Check out the 🤓 [Pick a Tutorial page](pick-a-tutorial.md) 🤓. Choose an app that you'd like to build and it will take you through all the core features of Wasp!**
+**Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
 
 Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
 
