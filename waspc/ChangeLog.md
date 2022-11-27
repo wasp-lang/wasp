@@ -45,10 +45,10 @@ get by running `wasp new project` from this point onwards):
 
 Main differences:
 - All server-side code must be located inside the `src/server` directory.  Wasp
-declarations must import this code with `import foo from "@server/foo"`
+declarations must import this code with `import foo from "@server/foo.js"`
 (instead of `import foo from "@ext/foo.js"`)
 - All client-side code must be located inside the `src/client` directory.  Wasp
-declarations must import this code with `import foo from "@client/bar"`
+declarations must import this code with `import foo from "@client/bar.js"`
 (instead of `import bar from "@ext/bar.js"`)
 - All shared code (i.e., used on both the client and the server) must be
 located inside the `src/shared` and imported where needed through a relative import.
