@@ -22,7 +22,7 @@ This tutorial will take you step by step through the most important features of 
 
 If you get stuck at any point (or just want to chat), reach out to us on [Discord](https://discord.gg/rzdnErX) and we will help you!
 
-You can check out the complete code of the app we are about to build with Wasp [here](https://github.com/wasp-lang/wasp/tree/main/examples/tutorials/TodoApp).
+You can check out the complete code of the app we are about to build with Wasp [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 :::tip
 If you are interested at any moment in what is Wasp actually generating in the background, take a look at `.wasp/out/` directory in your project.

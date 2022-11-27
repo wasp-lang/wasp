@@ -18,7 +18,7 @@ We’ll use Michele Gerarduzzi’s [open-source project](https://github.com/mich
 - Building an app shouldn’t take more than 15 minutes.
 - Use modern web dev technologies (NodeJS + React)
 
-As a result – we’ll get a simple and fun pet project. You can find the complete codebase [here](https://github.com/wasp-lang/wasp/tree/main/examples/tutorials/ItWaspsOnMyMachine). 
+As a result – we’ll get a simple and fun pet project. You can find the complete codebase [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/ItWaspsOnMyMachine). 
 
 <img alt="Final result"
      src={useBaseUrl('img/dev-excuses-live-preview.gif')}

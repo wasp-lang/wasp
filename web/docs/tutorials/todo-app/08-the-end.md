@@ -12,7 +12,7 @@ We did it! For all those that followed the instructions closely and created "Bui
      style={{ border: '1px solid black' }}
 />
 
-You can check out the whole code of the app that we just built [here](https://github.com/wasp-lang/wasp/tree/main/examples/tutorials/TodoApp).
+You can check out the whole code of the app that we just built [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 If you are interested in what is Wasp actually generating in the background, you can check the `.wasp/out/` directory in your project.
 
