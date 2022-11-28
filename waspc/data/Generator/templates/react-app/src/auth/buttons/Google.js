@@ -2,6 +2,8 @@ import config from '../../config.js'
 
 export const googleSignInUrl = `${config.apiUrl}/auth/external/google/login`
 
+// Note: Using `style` instead of `height` to work with Tailwind,
+// which sets `height: auto` for `img`.
 export function GoogleSignInButton(props) {
   return (
     <a {...props.a} href={googleSignInUrl}>
