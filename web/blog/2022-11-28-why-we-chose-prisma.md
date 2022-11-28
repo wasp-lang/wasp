@@ -1,5 +1,5 @@
 ---
-title: 'Why we chose Prisma'
+title: 'Why we chose Prisma as a database layer for Wasp'
 authors: [martinsos]
 image: /img/why-we-chose-prisma/wasp-loves-prisma.png
 tags: [webdev, wasp, prisma]
