@@ -1,10 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from '@docusaurus/Link'
 import { Star, Twitter } from 'react-feather'
 
+import Announcement from './Announcement'
+import Transition from '../../lib/Transition'
 import { DiscordIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
+
+  const [open, setOpen] = useState(false)
 
   const Logo = () => (
     <div className='flex flex-shrink-0 items-center'>
@@ -57,8 +61,11 @@ const Nav = () => {
     </a>
   )
 
-  const HamburgerButton = () => (
-    <div className='absolute inset-y-0 left-0 px-2 flex items-center lg:hidden'>
+  const HamburgerButton = ({ toggleFlyOut }) => (
+    <div
+      className='absolute inset-y-0 left-0 px-2 flex items-center lg:hidden'
+      onClick={() => toggleFlyOut()}
+    >
       <button
         className={`
           inline-flex items-center p-2
@@ -91,6 +98,7 @@ const Nav = () => {
 
   return (
     <>
+      <Announcement />
       <div className='sticky top-0 z-50'>
         <div className='bg-[#f5f4f0] absolute top-0 h-full w-full opacity-80'></div>
         <nav className='border-b backdrop-blur-sm'>
@@ -101,7 +109,7 @@ const Nav = () => {
               lg:container lg:px-16 xl:px-20
             '
           >
-            <HamburgerButton />
+            <HamburgerButton toggleFlyOut={() => setOpen(true)} />
             <div className='
                 flex flex-1
                 items-center justify-center
@@ -200,10 +208,131 @@ const Nav = () => {
                   url='https://twitter.com/WaspLang'
                 />
               </div> {/* EOF right side */}
+            </div>
+          </div>
+
+          {/* Mobile Nav Menu */}
+          <Transition
+            appear={true}
+            show={open}
+            enter="transition ease-out duration-200"
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-150"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1"
+          >
+            <div
+              className={`
+                fixed -inset-y-0 z-50 h-screen w-screen transform overflow-y-scroll bg-white p-4 md:p-8
+              `}
+            >
+              <div className='absolute right-4 top-4 items-center justify-between'>
+                <div className="-mr-2">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className={`
+                      text-neutral-700 inline-flex items-center justify-center rounded-md
+                      bg-white p-2 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset
+                    `}
+                  >
+                    <span className="sr-only">Close menu</span>
+                    <svg
+                      className="h-6 w-6"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div className='mt-6 mb-12'>
+                {/* Docs */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="/docs">
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      Docs
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Docs */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="/blog">
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      Blog
+                    </span>
+                  </Link>
+                </div>
+
+                {/* FAQ */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="#faq" onClick={() => setOpen(false)}>
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      FAQ
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Join the list */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="#signup" onClick={() => setOpen(false)}>
+                    <span
+                      className={`
+                        text-neutral-700 block pl-3 pr-4 text-base font-medium
+                        px-2 py-1 rounded bg-yellow-500/25 hover:bg-yellow-500/10
+                    `}>
+                      📬 Join the list
+                    </span>
+                  </Link>
+                </div>
+
+                {/* GitHub */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="https://github.com/wasp-lang/wasp">
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      ⭐️ GitHub
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Discord */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="https://discord.gg/rzdnErX">
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      👾 Discord
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Twitter */}
+                <div className='space-y-1 pt-2 pb-4'>
+                  <Link to="https://twitter.com/WaspLang">
+                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
+                      🐦 Twitter
+                    </span>
+                  </Link>
+                </div>
+
+              </div>
+
 
             </div>
+          </Transition>
 
-          </div>
+
+
         </nav>
 
 

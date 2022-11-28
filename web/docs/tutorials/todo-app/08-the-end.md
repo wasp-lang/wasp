@@ -12,7 +12,7 @@ We did it! For all those that followed the instructions closely and created "Bui
      style={{ border: '1px solid black' }}
 />
 
-You can check out the whole code of the app that we just built [here](https://github.com/wasp-lang/wasp/tree/main/examples/tutorials/TodoApp).
+You can check out the whole code of the app that we just built [here](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp).
 
 If you are interested in what is Wasp actually generating in the background, you can check the `.wasp/out/` directory in your project.
 
@@ -30,3 +30,5 @@ Or, you could use Wasp to build something of your own!
 If you notice that some of the features you'd like to have are missing, or have any other kind of feedback, please write to us on [Discord](https://discord.gg/rzdnErX) or create an issue on [Github](https://github.com/wasp-lang/wasp), so we can learn which features to add/improve next.  
 Even better, if you would like to contribute or help building the feature, let us know!
 You can find more details on contributing [here](contributing.md).
+
+Oh, and do **subscribe to our newsletter: https://wasp-lang.dev/#signup ** ! We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

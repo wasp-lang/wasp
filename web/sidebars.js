@@ -8,7 +8,6 @@ module.exports = {
         'getting-started',
         'about',
         'how-it-works',
-        'pick-a-tutorial'
       ]
     },
     {
@@ -39,19 +38,6 @@ module.exports = {
             'tutorials/todo-app/08-the-end'
           ]
         },
-        {
-          type: 'category',
-          label: 'Dev Excuses app',
-          collapsed: true,
-          items: [
-            'tutorials/dev-excuses-app',
-            'tutorials/dev-excuses-app/01-creating-the-project',
-            'tutorials/dev-excuses-app/02-modifying-main-wasp-file',
-            'tutorials/dev-excuses-app/03-adding-operations',
-            'tutorials/dev-excuses-app/04-updating-main-page-js-file',
-            'tutorials/dev-excuses-app/05-perform-migration-and-run',
-          ]
-        }
       ]
     },
     {

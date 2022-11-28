@@ -56,7 +56,7 @@ const ActionButtons = () => (
 
 const PHBadge = () => (
   <a
-    href="https://www.producthunt.com/posts/wasp-lang-alpha?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-wasp&#0045;lang&#0045;alpha"
+    href="https://www.producthunt.com/posts/wasp-lang-beta"
     target="_blank"
     rel="noreferrer"
   >
@@ -93,7 +93,7 @@ page MainPage {
     <SectionContainer className='pb-5 pt-24'>
       <div className='lg:grid lg:grid-cols-12 lg:gap-16'>
 
-        <div className='lg:col-span-6 space-y-12'>
+        <div className='lg:col-span-6 space-y-12 z-10'>
           {/* Hero title and subtitle */}
           <div>
             <h1

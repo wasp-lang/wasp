@@ -94,6 +94,10 @@ With Wasp for Windows, we are almost there: Wasp is successfully compiling and r
 
 In the meantime, the best way to start using Wasp on Windows is by using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10). Once you set up Ubuntu on WSL, just follow Linux instructions for installing Wasp. If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX) - we have some community members using WSL that might be able to help you.
 
+:::caution
+  If you are using WSL2, make sure that your Wasp project is not on Windows file system, but instead on Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
+:::
+
 </div>
   </TabItem>
 
@@ -140,7 +144,8 @@ The extension brings the following functionality:
 
 ## 4. What next?
 
-**Check out the 🤓 [Pick a Tutorial page](pick-a-tutorial.md) 🤓. Choose an app that you'd like to build and it will take you through all the core features of Wasp!**
+**Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
 
 Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
 
+Finally, to stay up to date with updates in Wasp, you can **subscribe to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
