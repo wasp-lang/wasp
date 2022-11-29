@@ -127,8 +127,8 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  ["migrate-dev", migrationName] -> runDbCommand $ Command.Db.Migrate.migrateDev (Just migrationName)
   ["migrate-dev"] -> runDbCommand $ Command.Db.Migrate.migrateDev Nothing
+  "migrate-dev" : migrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev $ Just migrateArgs
   ["studio"] -> runDbCommand studio
   _ -> printDbUsage
 
@@ -141,15 +141,19 @@ printDbUsage =
         "",
         title "COMMANDS",
         cmd
-          ( "  migrate-dev [migration-name]   Ensures dev database corresponds to the current state of schema(entities):\n"
-              <> "                                 - Generates a new migration if there are changes in the schema.\n"
-              <> "                                 - Applies any pending migrations to the database either using the supplied migration name or asking for one.\n"
+          ( "  migrate-dev     Ensures dev database corresponds to the current state of schema(entities):\n"
+              <> "                  - Generates a new migration if there are changes in the schema.\n"
+              <> "                  - Applies any pending migrations to the database either using the supplied migration name or asking for one.\n"
+              <> "\nOPTIONS:\n"
+              <> " --name [migration-name]\n"
+              <> " --create-only\n"
           ),
-        cmd "  studio                         GUI for inspecting your database.",
+        cmd "  studio          GUI for inspecting your database.",
         "",
         title "EXAMPLES",
         "  wasp db migrate-dev",
-        "  wasp db migrate-dev \"Added User entity\"",
+        "  wasp db migrate-dev --name \"Added User entity\"",
+        "  wasp db migrate-dev --create-only",
         "  wasp db studio"
       ]
 

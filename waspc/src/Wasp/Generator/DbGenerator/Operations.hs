@@ -43,23 +43,54 @@ printJobMsgsUntilExitReceived chan = do
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
-migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> Maybe String -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs maybeMigrationName = do
+migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> Maybe [String] -> IO (Either String ())
+migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs maybeMigrateArgs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
       (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev genProjectRootDirAbs maybeMigrationName chan)
+      (DbJobs.migrateDev genProjectRootDirAbs (asArgs migrateArgs) chan)
   case dbExitCode of
-    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs writeLastConcurrenceChecksum
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
+  where
+    migrateArgs = parseMigrateArgs maybeMigrateArgs
+    -- Only write the last concurrence checksum if we actually perform a migration.
+    writeLastConcurrenceChecksum = not $ _createOnlyMigration migrateArgs
 
-finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+data MigrateArgs = MigrateArgs
+  { _migrationName :: Maybe String,
+    _createOnlyMigration :: Bool
+  }
+  deriving (Show, Eq)
+
+emptyMigrateArgs :: MigrateArgs
+emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _createOnlyMigration = False}
+
+asArgs :: MigrateArgs -> [String]
+asArgs migrateArgs = do
+  concat . concat $
+    [ [["--create-only"] | _createOnlyMigration migrateArgs],
+      [["--name", name] | Just name <- [_migrationName migrateArgs]]
+    ]
+
+parseMigrateArgs :: Maybe [String] -> MigrateArgs
+parseMigrateArgs Nothing = emptyMigrateArgs
+parseMigrateArgs (Just migrateArgs) = do
+  go migrateArgs emptyMigrateArgs
+  where
+    go :: [String] -> MigrateArgs -> MigrateArgs
+    go ("--create-only" : _) mArgs = mArgs {_createOnlyMigration = True}
+    go ("--name" : name : _) mArgs = mArgs {_migrationName = Just name}
+    go _ mArgs = mArgs
+
+finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Bool -> IO (Either String ())
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs writeLastConcurrenceChecksum = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+  when writeLastConcurrenceChecksum $
+    writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir

@@ -24,12 +24,10 @@ prismaInServerNodeModules = serverRootDirInProjectRootDir </> [SP.relfile|./node
 absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
 absPrismaExecutableFp projectDir = SP.toFilePath $ projectDir </> prismaInServerNodeModules
 
-migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
-migrateDev projectDir maybeMigrationName = do
+migrateDev :: Path' Abs (Dir ProjectRootDir) -> [String] -> J.Job
+migrateDev projectDir migrateArgs = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-
-  let optionalMigrationArgs = maybe [] (\name -> ["--name", name]) maybeMigrationName
 
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
@@ -40,7 +38,7 @@ migrateDev projectDir maybeMigrationName = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
+  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
