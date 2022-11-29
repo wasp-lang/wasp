@@ -1188,7 +1188,7 @@ const Login = () => {
 export default Login
 ```
 
-You can change properties of the image or link by setting a scoped property (either `a` or `img`). For example, to change the height of the button (which defaults to 40px) set a `style` prop on the `img`, like so: `<GoogleSignInButton img={{ style: { height: 30 } }} />`. It uses `style` instead of `height` by default to be compatible with Tailwind, which sets `height: auto` for `img`.
+You can adjust the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px. NOTE: Under the covers it uses `style` instead of `height` to be compatible with Tailwind, which sets `height: auto` for `img` in the Tailwind `base` directive. If you need more customization, you can create your own custom component using the `googleSignInUrl`.
 
 ### `externalAuthEntity`
 Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:
