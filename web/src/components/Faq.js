@@ -46,8 +46,8 @@ const faqs = [
       Since the majority of your coding will still be done in the tools you're familiar with (currently
       React & Node.js), it's really a marginal change to what you're used to.
       <br/><br/>
-      The reason is for that is that Wasp is a really simple configuration language, without any
-      loops or variables - you can think of it as of a JSON that is easier to read and is a bit smarter.
+      The reason for that is that Wasp is a really simple configuration language, without any
+      loops or variables - you can think of it as a JSON that is easier to read and is a bit smarter.
       <br/><br/>
       Still, although simple (and we plan to keep it that way), it's a real language so you get all the
       IDE goodies with it - syntax highlighting, auto-completion, live error reporting, ...
