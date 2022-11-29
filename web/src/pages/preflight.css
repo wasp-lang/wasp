@@ -50,7 +50,7 @@ body {
 3. Ensure horizontal rules are visible by default.
 */
 
-hr {
+.twLandingPage hr {
   height: 0; /* 1 */
   color: inherit; /* 2 */
   border-top-width: 1px; /* 3 */
@@ -91,8 +91,8 @@ Reset links to optimize for opt-in styling instead of opt-out.
 Add the correct font weight in Edge and Safari.
 */
 
-b,
-strong {
+.twLandingPage b,
+.twLandingPage strong {
   font-weight: bolder;
 }
 
@@ -101,10 +101,10 @@ strong {
 2. Correct the odd `em` font sizing in all browsers.
 */
 
-code,
-kbd,
-samp,
-pre {
+.twLandingPage code,
+.twLandingPage kbd,
+.twLandingPage samp,
+.twLandingPage pre {
   font-family: theme('fontFamily.mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace); /* 1 */
   font-size: 1em; /* 2 */
 }
@@ -113,7 +113,7 @@ pre {
 Add the correct font size in all browsers.
 */
 
-small {
+.twLandingPage small {
   font-size: 80%;
 }
 
@@ -121,19 +121,19 @@ small {
 Prevent `sub` and `sup` elements from affecting the line height in all browsers.
 */
 
-sub,
-sup {
+.twLandingPage sub,
+.twLandingPage sup {
   font-size: 75%;
   line-height: 0;
   position: relative;
   vertical-align: baseline;
 }
 
-sub {
+.twLandingPage sub {
   bottom: -0.25em;
 }
 
-sup {
+.twLandingPage sup {
   top: -0.5em;
 }
 
@@ -143,7 +143,7 @@ sup {
 3. Remove gaps between table borders by default.
 */
 
-table {
+.twLandingPage table {
   text-indent: 0; /* 1 */
   border-color: inherit; /* 2 */
   border-collapse: collapse; /* 3 */
@@ -155,11 +155,11 @@ table {
 3. Remove default padding in all browsers.
 */
 
-button,
-input,
-optgroup,
-select,
-textarea {
+.twLandingPage button,
+.twLandingPage input,
+.twLandingPage optgroup,
+.twLandingPage select,
+.twLandingPage textarea {
   font-family: inherit; /* 1 */
   font-size: 100%; /* 1 */
   font-weight: inherit; /* 1 */
@@ -173,8 +173,8 @@ textarea {
 Remove the inheritance of text transform in Edge and Firefox.
 */
 
-button,
-select {
+.twLandingPage button,
+.twLandingPage select {
   text-transform: none;
 }
 
@@ -183,10 +183,10 @@ select {
 2. Remove default button styles.
 */
 
-button,
-[type='button'],
-[type='reset'],
-[type='submit'] {
+.twLandingPage button,
+.twLandingPage [type='button'],
+.twLandingPage [type='reset'],
+.twLandingPage [type='submit'] {
   -webkit-appearance: button; /* 1 */
   background-color: transparent; /* 2 */
   background-image: none; /* 2 */
@@ -257,7 +257,7 @@ Remove the inner padding in Chrome and Safari on macOS.
 Add the correct display in Chrome and Safari.
 */
 
-summary {
+.twLandingPage summary {
   display: list-item;
 }
 
@@ -266,33 +266,33 @@ Removes the default spacing and border for appropriate elements.
 */
 
 .twLandingPage blockquote,
-dl,
-dd,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-hr,
+.twLandingPage dl,
+.twLandingPage dd,
+.twLandingPage h1,
+.twLandingPage h2,
+.twLandingPage h3,
+.twLandingPage h4,
+.twLandingPage h5,
+.twLandingPage h6,
+.twLandingPage hr,
 .twLandingPage figure,
 .twLandingPage p,
 pre {
   margin: 0;
 }
 
-fieldset {
+.twLandingPage fieldset {
   margin: 0;
   padding: 0;
 }
 
-legend {
+.twLandingPage legend {
   padding: 0;
 }
 
-ol,
+.twLandingPage ol,
 .twLandingPage ul,
-menu {
+.twLandingPage menu {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -302,7 +302,7 @@ menu {
 Prevent resizing textareas horizontally by default.
 */
 
-textarea {
+.twLandingPage textarea {
   resize: vertical;
 }
 
@@ -340,13 +340,13 @@ Make sure disabled buttons don't get the pointer cursor.
 */
 
 .twLandingPage img,
-svg,
-video,
-canvas,
-audio,
-iframe,
-embed,
-object {
+.twLandingPage svg,
+.twLandingPage video,
+.twLandingPage canvas,
+.twLandingPage audio,
+.twLandingPage iframe,
+.twLandingPage embed,
+.twLandingPage object {
   display: block; /* 1 */
   vertical-align: middle; /* 2 */
 }
@@ -355,8 +355,8 @@ object {
 Constrain images and videos to the parent width and preserve their intrinsic aspect ratio. (https://github.com/mozdevs/cssremedy/issues/14)
 */
 
-img,
-video {
+.twLandingPage img,
+.twLandingPage video {
   max-width: 100%;
   height: auto;
 }
