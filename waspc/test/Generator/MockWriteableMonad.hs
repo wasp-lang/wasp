@@ -39,7 +39,7 @@ defaultMockConfig =
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
 getMockLogs mock config = fst $ execState (unMockWriteableMonad mock) (emptyLogs, config)
   where
-    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] []
+    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] []
 
 instance WriteableMonad MockWriteableMonad where
   writeFileFromText dstPath text = MockWriteableMonad $ do
@@ -77,6 +77,9 @@ instance WriteableMonad MockWriteableMonad where
   copyDirectoryRecursive srcPath dstPath = MockWriteableMonad $ do
     modifyLogs (copyDirectoryRecursive_addCall (castDir srcPath) (castDir dstPath))
 
+  removeDirectoryRecursive dir = MockWriteableMonad $ do
+    modifyLogs (removeDirectoryRecursive_addCall (castDir dir))
+
   throwIO = throwIO
 
 instance MonadIO MockWriteableMonad where
@@ -97,7 +100,8 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     copyFile_calls :: [(FilePath, FilePath)],
     getTemplateFileAbsPath_calls :: [Path' (Rel TemplatesDir) File'],
     compileAndRenderTemplate_calls :: [(Path' (Rel TemplatesDir) File', Aeson.Value)],
-    copyDirectoryRecursive_calls :: [(Path' Abs Dir', Path' Abs Dir')]
+    copyDirectoryRecursive_calls :: [(Path' Abs Dir', Path' Abs Dir')],
+    removeDirectoryRecursive_calls :: [Path' Abs Dir']
   }
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
@@ -134,6 +138,10 @@ createDirectoryIfMissing_addCall createParents path logs =
 copyDirectoryRecursive_addCall :: Path' Abs Dir' -> Path' Abs Dir' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 copyDirectoryRecursive_addCall srcPath dstPath logs =
   logs {copyDirectoryRecursive_calls = (srcPath, dstPath) : copyDirectoryRecursive_calls logs}
+
+removeDirectoryRecursive_addCall :: Path' Abs Dir' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+removeDirectoryRecursive_addCall dir logs =
+  logs {removeDirectoryRecursive_calls = dir : removeDirectoryRecursive_calls logs}
 
 compileAndRenderTemplate_addCall ::
   Path' (Rel TemplatesDir) File' ->

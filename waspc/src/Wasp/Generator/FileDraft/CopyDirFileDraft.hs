@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft.WriteableMonad
   ( WriteableMonad
       ( copyDirectoryRecursive,
         createDirectoryIfMissing,
-        removeDirRecur
+        removeDirectoryRecursive
       ),
     doesDirectoryExist,
   )
@@ -43,7 +43,7 @@ instance Writeable CopyDirFileDraft where
   write projectRootAbsPath draft = do
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
-    when dstDirExists $ removeDirRecur dstPathAbsDir
+    when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
     when srcDirExists $ do
       createDirectoryIfMissing True (SP.fromAbsDir dstPathAbsDir)
       copyDirectoryRecursive srcPathAbsDir dstPathAbsDir

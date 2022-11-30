@@ -411,6 +411,7 @@ test-suite waspc-test
     ErrorTest
     FilePath.ExtraTest
     Fixtures
+    Generator.DbGeneratorTest
     Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest

@@ -4,6 +4,10 @@ module Wasp.Generator.DbGenerator.Operations
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     removeDbSchemaChecksumFile,
+    parseMigrateArgs,
+    emptyMigrateArgs,
+    asArgs,
+    MigrateArgs (..),
   )
 where
 
@@ -87,8 +91,8 @@ parseMigrateArgs (Just migrateArgs) = do
   go migrateArgs emptyMigrateArgs
   where
     go :: [String] -> MigrateArgs -> MigrateArgs
-    go ("--create-only" : _) mArgs = mArgs {_createOnlyMigration = True}
-    go ("--name" : name : _) mArgs = mArgs {_migrationName = Just name}
+    go ("--create-only" : rest) mArgs = go rest mArgs {_createOnlyMigration = True}
+    go ("--name" : name : rest) mArgs = go rest mArgs {_migrationName = Just name}
     go _ mArgs = mArgs
 
 finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> LastConcurenceChecksumMod -> IO (Either String ())
