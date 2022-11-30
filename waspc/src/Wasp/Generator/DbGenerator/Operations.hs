@@ -96,13 +96,15 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs lastCo
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  case lastConcurrenceChecksumMod of
-    Write -> writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
-    Remove -> removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
-    Ignore -> return ()
+  applyLastConcurrenceChecksumMod
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
+    applyLastConcurrenceChecksumMod =
+      case lastConcurrenceChecksumMod of
+        Write -> writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        Remove -> removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        Ignore -> return ()
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
