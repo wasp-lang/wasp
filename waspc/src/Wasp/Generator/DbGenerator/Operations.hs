@@ -3,6 +3,7 @@ module Wasp.Generator.DbGenerator.Operations
     generatePrismaClient,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
+    removeDbSchemaChecksumFile,
   )
 where
 
@@ -13,7 +14,7 @@ import Control.Monad.Catch (catch)
 import qualified Path as P
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -51,18 +52,24 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAb
       (printJobMsgsUntilExitReceived chan)
       (DbJobs.migrateDev genProjectRootDirAbs (asArgs migrateArgs) chan)
   case dbExitCode of
-    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs writeLastConcurrenceChecksum
+    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs (getLastConcurenceChecksumMod migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
   where
     migrateArgs = parseMigrateArgs maybeMigrateArgs
-    -- Only write the last concurrence checksum if we actually perform a migration.
-    writeLastConcurrenceChecksum = not $ _createOnlyMigration migrateArgs
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,
     _createOnlyMigration :: Bool
   }
   deriving (Show, Eq)
+
+data LastConcurenceChecksumMod = Write | Remove | Ignore
+
+-- When we do a create-only migration, we need to remove the lastConcurrenceChecksum so they know to migrate.
+-- When we migrate, we need to write it to indicate the local code and DB are in sync.
+getLastConcurenceChecksumMod :: MigrateArgs -> LastConcurenceChecksumMod
+getLastConcurenceChecksumMod migrateArgs =
+  if _createOnlyMigration migrateArgs then Remove else Write
 
 emptyMigrateArgs :: MigrateArgs
 emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _createOnlyMigration = False}
@@ -84,13 +91,15 @@ parseMigrateArgs (Just migrateArgs) = do
     go ("--name" : name : _) mArgs = mArgs {_migrationName = Just name}
     go _ mArgs = mArgs
 
-finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Bool -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs writeLastConcurrenceChecksum = do
+finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> LastConcurenceChecksumMod -> IO (Either String ())
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs lastConcurrenceChecksumMod = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  when writeLastConcurrenceChecksum $
-    writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+  case lastConcurrenceChecksumMod of
+    Write -> writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+    Remove -> removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+    Ignore -> return ()
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
@@ -116,6 +125,11 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
   where
     dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
+
+removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
+removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir =
+  let dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
+   in removeFile dbSchemaChecksumFp
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient genProjectRootDirAbs = do
