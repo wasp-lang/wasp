@@ -4,6 +4,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { Terminal } from 'react-feather'
 
+import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
 
 const StartIcon = () => (
@@ -169,6 +170,22 @@ page MainPage {
 
         </div> {/* EOF col-span-6 */}
 
+      </div>
+
+      <div className='hidden md:flex md:mt-28 items-center justify-center'>
+        <div className='flex flex-col items-center gap-2'>
+          <InstallCmd />
+          <Link to='https://github.com/wasp-lang/wasp/blob/main/waspc/README.md#setup'>
+            <small
+              className={`
+                text-neutral-500 text-xs
+                hover:text-neutral-400
+              `}
+            >
+              or <span className='underline decoration-neutral-500'>compile from the source</span>
+            </small>
+          </Link>
+        </div>
       </div>
 
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
