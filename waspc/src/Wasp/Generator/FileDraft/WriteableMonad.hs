@@ -44,6 +44,10 @@ class (MonadIO m) => WriteableMonad m where
     Path' Abs (Dir b) ->
     m ()
 
+  -- |  Removes an existing directory dir together with its contents and sub-directories.
+  -- Within this directory, symbolic links are removed without affecting their targets.
+  removeDirRecur :: Path' Abs (Dir b) -> m ()
+
   doesFileExist :: FilePath -> m Bool
 
   doesDirectoryExist :: FilePath -> m Bool
@@ -84,6 +88,8 @@ instance WriteableMonad IO where
 
   copyDirectoryRecursive src dst = do
     PathIO.copyDirRecur (SP.Path.toPathAbsDir src) (SP.Path.toPathAbsDir dst)
+
+  removeDirRecur dir = PathIO.removeDirRecur (SP.Path.toPathAbsDir dir)
 
   doesFileExist = System.Directory.doesFileExist
   doesDirectoryExist = System.Directory.doesDirectoryExist
