@@ -1,15 +1,15 @@
 module Generator.DbGeneratorTest where
 
 import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
-import Wasp.Generator.DbGenerator.Operations
+import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
     asArgs,
     emptyMigrateArgs,
     parseMigrateArgs,
   )
 
-spec_Operations :: Spec
-spec_Operations =
+spec_Common :: Spec
+spec_Common =
   describe "parseMigrateArgs" $ do
     it "should parse input options strings correcly" $ do
       parseMigrateArgs Nothing `shouldBe` emptyMigrateArgs

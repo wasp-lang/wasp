@@ -6,6 +6,12 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
+    parseMigrateArgs,
+    emptyMigrateArgs,
+    asArgs,
+    getOnLastDbConcurrenceChecksumAction,
+    MigrateArgs (..),
+    OnLastDbConcurrenceChecksumAction (..),
   )
 where
 
@@ -60,3 +66,42 @@ dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-gene
 
 dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
+
+data MigrateArgs = MigrateArgs
+  { _migrationName :: Maybe String,
+    _createOnlyMigration :: Bool
+  }
+  deriving (Show, Eq)
+
+emptyMigrateArgs :: MigrateArgs
+emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _createOnlyMigration = False}
+
+asArgs :: MigrateArgs -> [String]
+asArgs migrateArgs = do
+  concat . concat $
+    [ [["--create-only"] | _createOnlyMigration migrateArgs],
+      [["--name", name] | Just name <- [_migrationName migrateArgs]]
+    ]
+
+parseMigrateArgs :: Maybe [String] -> MigrateArgs
+parseMigrateArgs Nothing = emptyMigrateArgs
+parseMigrateArgs (Just migrateArgs) = do
+  go migrateArgs emptyMigrateArgs
+  where
+    go :: [String] -> MigrateArgs -> MigrateArgs
+    go ("--create-only" : rest) mArgs = go rest mArgs {_createOnlyMigration = True}
+    go ("--name" : name : rest) mArgs = go rest mArgs {_migrationName = Just name}
+    go _ mArgs = mArgs
+
+data OnLastDbConcurrenceChecksumAction
+  = WriteOnLastDbConcurrenceChecksum
+  | RemoveOnLastDbConcurrenceChecksum
+  | IgnoreOnLastDbConcurrenceChecksum
+
+-- When we do a create-only migration, we need to remove the DbSchemaChecksumOnLastDbConcurrenceFile so they know to migrate.
+-- When we migrate, we need to write it to indicate the local code and DB are in sync.
+getOnLastDbConcurrenceChecksumAction :: MigrateArgs -> OnLastDbConcurrenceChecksumAction
+getOnLastDbConcurrenceChecksumAction migrateArgs =
+  if _createOnlyMigration migrateArgs
+    then RemoveOnLastDbConcurrenceChecksum
+    else WriteOnLastDbConcurrenceChecksum

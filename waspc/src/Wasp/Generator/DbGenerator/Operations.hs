@@ -4,10 +4,6 @@ module Wasp.Generator.DbGenerator.Operations
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     removeDbSchemaChecksumFile,
-    parseMigrateArgs,
-    emptyMigrateArgs,
-    asArgs,
-    MigrateArgs (..),
   )
 where
 
@@ -23,11 +19,15 @@ import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
+  ( OnLastDbConcurrenceChecksumAction (..),
+    asArgs,
+    dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
+    getOnLastDbConcurrenceChecksumAction,
+    parseMigrateArgs,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -56,59 +56,27 @@ migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAb
       (printJobMsgsUntilExitReceived chan)
       (DbJobs.migrateDev genProjectRootDirAbs (asArgs migrateArgs) chan)
   case dbExitCode of
-    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs (getLastConcurenceChecksumMod migrateArgs)
+    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumAction migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
   where
     migrateArgs = parseMigrateArgs maybeMigrateArgs
 
-data MigrateArgs = MigrateArgs
-  { _migrationName :: Maybe String,
-    _createOnlyMigration :: Bool
-  }
-  deriving (Show, Eq)
-
-data LastConcurenceChecksumMod = Write | Remove | Ignore
-
--- When we do a create-only migration, we need to remove the lastConcurrenceChecksum so they know to migrate.
--- When we migrate, we need to write it to indicate the local code and DB are in sync.
-getLastConcurenceChecksumMod :: MigrateArgs -> LastConcurenceChecksumMod
-getLastConcurenceChecksumMod migrateArgs =
-  if _createOnlyMigration migrateArgs then Remove else Write
-
-emptyMigrateArgs :: MigrateArgs
-emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _createOnlyMigration = False}
-
-asArgs :: MigrateArgs -> [String]
-asArgs migrateArgs = do
-  concat . concat $
-    [ [["--create-only"] | _createOnlyMigration migrateArgs],
-      [["--name", name] | Just name <- [_migrationName migrateArgs]]
-    ]
-
-parseMigrateArgs :: Maybe [String] -> MigrateArgs
-parseMigrateArgs Nothing = emptyMigrateArgs
-parseMigrateArgs (Just migrateArgs) = do
-  go migrateArgs emptyMigrateArgs
-  where
-    go :: [String] -> MigrateArgs -> MigrateArgs
-    go ("--create-only" : rest) mArgs = go rest mArgs {_createOnlyMigration = True}
-    go ("--name" : name : rest) mArgs = go rest mArgs {_migrationName = Just name}
-    go _ mArgs = mArgs
-
-finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> LastConcurenceChecksumMod -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs lastConcurrenceChecksumMod = do
+finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> OnLastDbConcurrenceChecksumAction -> IO (Either String ())
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs lastDbConcurrenceChecksumAction = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  applyLastConcurrenceChecksumMod
+  applyLastDbConcurrenceChecksumAction
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
-    applyLastConcurrenceChecksumMod =
-      case lastConcurrenceChecksumMod of
-        Write -> writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
-        Remove -> removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
-        Ignore -> return ()
+    applyLastDbConcurrenceChecksumAction =
+      case lastDbConcurrenceChecksumAction of
+        WriteOnLastDbConcurrenceChecksum ->
+          writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        RemoveOnLastDbConcurrenceChecksum ->
+          removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        IgnoreOnLastDbConcurrenceChecksum -> return ()
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
