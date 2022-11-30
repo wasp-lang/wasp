@@ -38,6 +38,25 @@ const Nav = () => {
     </a>
   )
 
+  const WaspGhStarsExactCount = () => (
+    <>
+      {/* NOTE(matija): If I put width to 100 or less, the badge gets cut off in half. */}
+      <iframe
+        src="https://ghbtns.com/github-btn.html?user=wasp-lang&repo=wasp&type=star&count=true" 
+        frameBorder="0"
+        scrolling="0"
+        width="101px"
+        height="20px"
+      >
+      </iframe>
+    </>
+  )
+
+  // NOTE(matija): this one does not show the exact count, but e.g. 2k.
+  const WaspGhStarsShield = () => (
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wasp-lang/wasp?style=social" />
+  )
+
   const GitHubButton = () => (
     <a href='https://github.com/wasp-lang/wasp' target='_blank' rel='noreferrer'
       className={`
@@ -182,7 +201,12 @@ const Nav = () => {
               </div> {/* EOF left side */}
 
               <div className='flex items-center gap-2 space-x-2'> {/* Navbar right side */}
-                <GitHubButton />
+                {/* GH stars badge */}
+                <span className='hidden lg:inline'>
+                  <Link to='https://github.com/wasp-lang/wasp' className='flex items-center'>
+                    <WaspGhStarsExactCount />
+                  </Link>
+                </span>
 
                 <Link to='/docs'>
                   <button
@@ -301,8 +325,11 @@ const Nav = () => {
                 {/* GitHub */}
                 <div className='space-y-1 pt-2 pb-4'>
                   <Link to="https://github.com/wasp-lang/wasp">
-                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
-                      ⭐️ GitHub
+                    <span className='flex items-center'>
+                      <span className="text-neutral-700 pl-3 pr-4 text-base font-medium">
+                        ⭐️ GitHub
+                      </span>
+                      <WaspGhStarsExactCount />
                     </span>
                   </Link>
                 </div>

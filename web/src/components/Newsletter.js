@@ -18,7 +18,7 @@ const Newsletter = () => {
           >
             <div className='xl:w-0 xl:flex-1'>
               <h2 className='text-2xl font-extrabold text-neutral-700'>
-                Stay up to date
+                Stay up to date 📬
               </h2>
               <p className='mt-3 text-lg text-neutral-500 leading-6'>
                 Be the first to know when we ship new features and updates!

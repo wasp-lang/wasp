@@ -131,7 +131,7 @@ const Footer = () => {
             <p className='mt-4 text-xs text-neutral-400'>
               © Wasp, Inc. All rights reserved.
             </p>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
           </div>
         </div>
       </SectionContainer>
