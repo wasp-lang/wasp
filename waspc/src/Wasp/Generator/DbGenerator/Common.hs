@@ -69,17 +69,17 @@ dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </>
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,
-    _createOnlyMigration :: Bool
+    _isCreateOnlyMigration :: Bool
   }
   deriving (Show, Eq)
 
 emptyMigrateArgs :: MigrateArgs
-emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _createOnlyMigration = False}
+emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
 
 asArgs :: MigrateArgs -> [String]
 asArgs migrateArgs = do
   concat . concat $
-    [ [["--create-only"] | _createOnlyMigration migrateArgs],
+    [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
       [["--name", name] | Just name <- [_migrationName migrateArgs]]
     ]
 
@@ -89,7 +89,7 @@ parseMigrateArgs (Just migrateArgs) = do
   go migrateArgs emptyMigrateArgs
   where
     go :: [String] -> MigrateArgs -> MigrateArgs
-    go ("--create-only" : rest) mArgs = go rest mArgs {_createOnlyMigration = True}
+    go ("--create-only" : rest) mArgs = go rest mArgs {_isCreateOnlyMigration = True}
     go ("--name" : name : rest) mArgs = go rest mArgs {_migrationName = Just name}
     go _ mArgs = mArgs
 
@@ -102,6 +102,6 @@ data OnLastDbConcurrenceChecksumAction
 -- When we migrate, we need to write it to indicate the local code and DB are in sync.
 getOnLastDbConcurrenceChecksumAction :: MigrateArgs -> OnLastDbConcurrenceChecksumAction
 getOnLastDbConcurrenceChecksumAction migrateArgs =
-  if _createOnlyMigration migrateArgs
+  if _isCreateOnlyMigration migrateArgs
     then RemoveOnLastDbConcurrenceChecksum
     else WriteOnLastDbConcurrenceChecksum
