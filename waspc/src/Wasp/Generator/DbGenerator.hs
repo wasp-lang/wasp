@@ -105,11 +105,7 @@ postWriteDbGeneratorActions spec dstDir = do
 --     In either of those scenarios, validate against DB itself to avoid redundant warnings.
 --
 --     NOTE: As one final optimization, if they do not have a schema.prisma.wasp-last-db-concurrence-checksum but the schema is
---     in sync with the databse, we generate that file to avoid future checks.
---
---     NOTE: Because we currently only allow devs to migrate-dev, we only compare the schema to the DB since
---     there are no likely scenarios where schema == db but schema != migrations dir. In the future, as we add more DB commands,
---     we may wish to also compare the migrations dir to the DB as well.
+--     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration spec projectRootDir = do
   dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
@@ -117,7 +113,7 @@ warnIfDbNeedsMigration spec projectRootDir = do
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnIfSchemaDiffersFromDb projectRootDir
+        then warnLocalStateDiffersFromDb projectRootDir
         else return Nothing
   where
     dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
@@ -132,16 +128,19 @@ warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
     then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
     else return Nothing
 
-warnIfSchemaDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
-warnIfSchemaDiffersFromDb projectRootDir = do
-  -- NOTE: If we wanted to, we could also check that the migrations dir == db,
-  -- but a schema check should handle all most likely cases.
+warnLocalStateDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
+warnLocalStateDiffersFromDb projectRootDir = do
   schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
   case schemaMatchesDb of
     Just True -> do
-      -- NOTE: Since we know schema == db, writing this file prevents future redundant Prisma checks.
-      DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
-      return Nothing
+      migrationsAllApplied <- DbOps.areAllMigrationsAppliedToDb projectRootDir
+      if migrationsAllApplied == Just True
+        then do
+          -- NOTE: Since we know schema == db and all migrations are applied,
+          -- writing this file prevents future redundant Prisma checks.
+          DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+          return Nothing
+        else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev`"
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
     -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
     -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.

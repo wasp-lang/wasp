@@ -4,6 +4,7 @@ module Wasp.Generator.DbGenerator.Operations
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     removeDbSchemaChecksumFile,
+    areAllMigrationsAppliedToDb,
   )
 where
 
@@ -134,4 +135,19 @@ doesSchemaMatchDb genProjectRootDirAbs = do
   case dbExitCode of
     ExitSuccess -> return $ Just True
     ExitFailure 2 -> return $ Just False
+    ExitFailure _ -> return Nothing
+
+-- | Checks `prisma migrate status` exit code to determine if migrations dir
+-- matches the DB. Returns Nothing on error as we do not know the current state.
+-- Returns Just True if all migrations are applied. Due to the fact the command
+-- returns an error on connection or unapplied migrations, Just False is never returned.
+areAllMigrationsAppliedToDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+areAllMigrationsAppliedToDb genProjectRootDirAbs = do
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.migrateStatus genProjectRootDirAbs chan)
+  case dbExitCode of
+    ExitSuccess -> return $ Just True
     ExitFailure _ -> return Nothing

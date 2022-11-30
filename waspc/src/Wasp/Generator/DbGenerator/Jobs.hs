@@ -3,6 +3,7 @@ module Wasp.Generator.DbGenerator.Jobs
     migrateDiff,
     generatePrismaClient,
     runStudio,
+    migrateStatus,
   )
 where
 
@@ -63,6 +64,24 @@ migrateDiff projectDir = do
           "--to-schema-datasource",
           schemaFileFp,
           "--exit-code"
+        ]
+
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
+
+-- | Checks to see if all migrations are applied to the DB.
+-- An exit code of 0 means we successfully verified all migrations are applied.
+-- An exit code of 1 could mean either: (a) there was a DB connection error,
+-- or (b) there are pending migrations to apply.
+-- Therefore, this should be checked **after** a command that ensures connectivity.
+migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
+migrateStatus projectDir = do
+  let serverDir = projectDir </> serverRootDirInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
+  let prismaMigrateDiffCmdArgs =
+        [ "migrate",
+          "status",
+          "--schema",
+          schemaFileFp
         ]
 
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
