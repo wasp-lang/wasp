@@ -1,3 +1,4 @@
 *.wasp linguist-language=JavaScript
+*.haskell linguist-detectable=false
 
 /examples/* linguist-documentation
