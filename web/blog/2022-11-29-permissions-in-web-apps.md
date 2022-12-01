@@ -2,7 +2,7 @@
 title: 'Permissions (access control) in web apps'
 authors: [martinsos]
 image: /img/permissions-in-web-apps/auth-spidermen.jpg
-tags: [webdev, wasp, startups, github]
+tags: [webdev, wasp]
 ---
 
 import Link from '@docusaurus/Link';
