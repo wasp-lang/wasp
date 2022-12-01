@@ -113,7 +113,7 @@ warnIfDbNeedsMigration spec projectRootDir = do
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
       if entitiesExist
-        then warnLocalStateDiffersFromDb projectRootDir
+        then warnProjectDiffersFromDb projectRootDir
         else return Nothing
   where
     dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
@@ -128,8 +128,10 @@ warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
     then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
     else return Nothing
 
-warnLocalStateDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
-warnLocalStateDiffersFromDb projectRootDir = do
+-- | Checks if the project's Prisma schema file and migrations dir matches the DB state.
+-- Issues a warning if it cannot connect, or if either check fails.
+warnProjectDiffersFromDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
+warnProjectDiffersFromDb projectRootDir = do
   schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
   case schemaMatchesDb of
     Just True -> do
@@ -137,7 +139,7 @@ warnLocalStateDiffersFromDb projectRootDir = do
       if allMigrationsAppliedToDb == Just True
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
-          -- writing this file prevents future redundant Prisma checks.
+          -- we can write this file to prevent future redundant Prisma checks.
           DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
           return Nothing
         else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
