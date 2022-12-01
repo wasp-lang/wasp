@@ -29,7 +29,7 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>It's Beta Launch Week 🚀</span>
+          <span>It's Beta Launch Week <span className='underline'>Day 5</span>! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>

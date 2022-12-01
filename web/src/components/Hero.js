@@ -175,14 +175,14 @@ page MainPage {
       <div className='hidden md:flex md:mt-28 items-center justify-center'>
         <div className='flex flex-col items-center gap-2'>
           <InstallCmd />
-          <Link to='https://github.com/wasp-lang/wasp/blob/main/waspc/README.md#setup'>
+          <Link to='/docs'>
             <small
               className={`
                 text-neutral-500 text-xs
                 hover:text-neutral-400
               `}
             >
-              or <span className='underline decoration-neutral-500'>compile from the source</span>
+              or <span className='underline decoration-neutral-500'>check the detailed instructions</span>
             </small>
           </Link>
         </div>
