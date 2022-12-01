@@ -141,6 +141,7 @@ doesSchemaMatchDb genProjectRootDirAbs = do
 -- matches the DB. Returns Nothing on error as we do not know the current state.
 -- Returns Just True if all migrations are applied. Due to the fact the command
 -- returns an error on connection or unapplied migrations, Just False is never returned.
+-- It is recommended to call this after some check that confirms DB connectivity, like `doesSchemaMatchDb`.
 areAllMigrationsAppliedToDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
 areAllMigrationsAppliedToDb genProjectRootDirAbs = do
   chan <- newChan

@@ -133,14 +133,14 @@ warnLocalStateDiffersFromDb projectRootDir = do
   schemaMatchesDb <- DbOps.doesSchemaMatchDb projectRootDir
   case schemaMatchesDb of
     Just True -> do
-      migrationsAllApplied <- DbOps.areAllMigrationsAppliedToDb projectRootDir
-      if migrationsAllApplied == Just True
+      allMigrationsAppliedToDb <- DbOps.areAllMigrationsAppliedToDb projectRootDir
+      if allMigrationsAppliedToDb == Just True
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
           -- writing this file prevents future redundant Prisma checks.
           DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
           return Nothing
-        else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev`"
+        else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
     -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
     -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.
