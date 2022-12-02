@@ -202,11 +202,15 @@ const Nav = () => {
 
               <div className='flex items-center gap-2 space-x-2'> {/* Navbar right side */}
                 {/* GH stars badge */}
+                {/*
                 <span className='hidden lg:inline'>
                   <Link to='https://github.com/wasp-lang/wasp' className='flex items-center'>
                     <WaspGhStarsExactCount />
                   </Link>
                 </span>
+                */}
+
+                <GitHubButton />
 
                 <Link to='/docs'>
                   <button
