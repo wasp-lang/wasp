@@ -6,7 +6,9 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    history.push('/blog/2022/11/26/wasp-beta-launch-week')
+    //history.push('/blog/2022/11/26/wasp-beta-launch-week')
+
+    window.open('https://betathon.wasp-lang.dev/')
   }
 
   return (
@@ -29,11 +31,11 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>It's Beta Launch Week <span className='underline'>Day 5</span>! 🚀</span>
+          <span>Beta Launch Week Day 6: <span className='underline'>Hackathon!</span> 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
-          <span>See what's new</span>
+          <span>See more</span>
           <ChevronRight size={14} />
         </span>
 
