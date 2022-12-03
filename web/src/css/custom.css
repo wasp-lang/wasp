@@ -38,6 +38,7 @@
   --ifm-h3-font-size: 1.3rem;
 
   /* Infima overrides */
+  --ifm-container-width-xl: 1280px;
   --ifm-font-family-base: 'Inter';
   --ifm-color-primary: #BF9900; /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;

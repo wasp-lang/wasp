@@ -29,6 +29,7 @@ const Nav = () => {
   const SocialIcon = ({ Icon, url }) => (
     <a href={url} target='_blank' rel='noreferrer'
       className={`
+        text-neutral-700
         hidden lg:flex hover:opacity-75 py-5
         hover:text-yellow-500 hover:border-yellow-500
         border-b-2 border-transparent
@@ -71,12 +72,13 @@ const Nav = () => {
         className={`
           flex h-3 w-3 items-center justify-center
           group-hover:h-4 group-hover:w-4
+          text-neutral-700
           group-hover:text-yellow-500
         `}
       >
         <Star strokeWidth={2} />
       </div>
-      <span className='truncate'>Star us on GitHub</span>
+      <span className='truncate text-neutral-700'>Star us on GitHub</span>
     </a>
   )
 
@@ -145,6 +147,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-solid border-b-2 border-transparent
                         text-sm font-semibold
@@ -159,6 +162,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
                         text-sm font-semibold
@@ -173,6 +177,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
                         text-sm font-medium
@@ -191,7 +196,12 @@ const Nav = () => {
                         text-sm font-medium
                       `}
                     >
-                      <span className='px-2 py-1 rounded bg-yellow-500/25 hover:bg-yellow-500/10'>
+                      <span
+                        className={`
+                          text-neutral-700
+                          px-2 py-1 rounded bg-yellow-500/25 hover:bg-yellow-500/10
+                        `}
+                      >
                         📬 Join the list
                       </span>
                     </span>

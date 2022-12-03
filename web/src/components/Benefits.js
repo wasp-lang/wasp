@@ -26,11 +26,11 @@ const Benefit = ({ Icon, title, description }) => (
       >
         <Icon size={20} />
       </div>
-      <dt className='ml-4'>
+      <dt className='ml-4 text-neutral-700'>
         { title }
       </dt>
     </div>
-    <p className=''>
+    <p className='text-neutral-700'>
       { description }
     </p>
   </div>

@@ -44,6 +44,7 @@ const ActionButtons = () => (
           px-3 py-2 rounded
           border border-neutral-500
           text-sm leading-4
+          text-neutral-700
           hover:text-neutral-400 hover:border-neutral-400
           transition ease-out duration-200
         `}

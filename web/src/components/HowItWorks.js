@@ -9,7 +9,9 @@ const Feature = ({ title, description, url }) => (
     <div className='lg:mt-5'>
       <dt>
         <h4 className='mb-4'>
-          <span className='bg-yellow-500/25 px-2 py-1 rounded'>{ title }</span>
+          <span className='text-neutral-700 bg-yellow-500/25 px-2 py-1 rounded'>
+            { title }
+          </span>
         </h4>
         <p className='text-neutral-600'>
           { description }
