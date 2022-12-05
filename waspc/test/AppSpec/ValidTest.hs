@@ -97,7 +97,8 @@ spec_AppSpecValid = do
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.usernameAndPasswordConfig,
-                      AS.Auth.google = Nothing
+                      AS.Auth.google = Nothing,
+                      As.Auth.github = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
                 AS.Auth.onAuthSucceededRedirectTo = Nothing

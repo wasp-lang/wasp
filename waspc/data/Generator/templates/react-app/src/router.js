@@ -29,6 +29,12 @@ const router = (
       </Route>
       {=/ isGoogleAuthEnabled =}
 
+      {=# isGithubAuthEnabled =}
+      <Route exact path="/auth/login/github">
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/github/validateCodeForLogin" />
+      </Route>
+      {=/ isGithubAuthEnabled =}
+
       {=/ isExternalAuthEnabled =}
     </div>
   </Router>

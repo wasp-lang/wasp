@@ -85,7 +85,11 @@ genExternalAuth auth
 
 genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialLoginButtons auth =
-  return [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth]
+  return $
+    concat
+      [ [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth],
+        [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Github.js|]) | AS.App.Auth.isGithubAuthEnabled auth]
+      ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =

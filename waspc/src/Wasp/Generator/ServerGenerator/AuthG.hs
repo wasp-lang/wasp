@@ -137,7 +137,10 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportAuth auth
-  | AS.Auth.isExternalAuthEnabled auth = (:) <$> genPassportJs auth <*> genGoogleAuth auth
+  | AS.Auth.isExternalAuthEnabled auth =
+      sequence [genPassportJs auth]
+        <++> genGoogleAuth auth
+        <++> genGithubAuth auth
   | otherwise = return []
 
 genPassportJs :: AS.Auth.Auth -> Generator FileDraft
@@ -147,7 +150,8 @@ genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
     tmplData =
       object
-        [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth
+        [ "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+          "isGithubAuthEnabled" .= AS.Auth.isGithubAuthEnabled auth
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
@@ -212,6 +216,47 @@ genGoogleConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
 relPosixPathFromGoogleAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
 relPosixPathFromGoogleAuthDirToExtSrcDir = [reldirP|../../../../|] </> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
+
+genGithubAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genGithubAuth auth
+  | AS.Auth.isGithubAuthEnabled auth =
+      sequence
+        [ copyTmplFile [relfile|routes/auth/passport/github/github.js|],
+          copyTmplFile [relfile|routes/auth/passport/github/githubDefaults.js|],
+          genGithubConfigJs auth
+        ]
+  | otherwise = return []
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
+
+genGithubConfigJs :: AS.Auth.Auth -> Generator FileDraft
+genGithubConfigJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel githubConfigFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> githubConfigFileInSrcDir
+    tmplData =
+      object
+        [ "doesConfigFnExist" .= isJust maybeConfigFn,
+          "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,
+          "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
+          "doesOnSignInFnExist" .= isJust maybeGetUserFieldsFn,
+          "getUserFieldsFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
+          "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
+        ]
+
+    githubConfigFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    githubConfigFileInSrcDir = [relfile|routes/auth/passport/github/githubConfig.js|]
+
+    maybeConfigFn = AS.Auth.configFn =<< AS.Auth.github (AS.Auth.methods auth)
+    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGithubAuthDirToExtSrcDir <$> maybeConfigFn
+    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
+
+    maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< AS.Auth.github (AS.Auth.methods auth)
+    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromGithubAuthDirToExtSrcDir <$> maybeGetUserFieldsFn
+    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
+
+relPosixPathFromGithubAuthDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+relPosixPathFromGithubAuthDirToExtSrcDir = [reldirP|../../../../|] </> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

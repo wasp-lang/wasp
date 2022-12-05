@@ -153,12 +153,17 @@ genPublicDir spec = do
       genManifestFd
     ]
       ++ genGoogleSigninImage
+      ++ genGithubSigninImage
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genGoogleSigninImage =
       [ C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_google_signin_dark_normal_web@2x.png|])
         | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
+      ]
+    genGithubSigninImage =
+      [ C.mkTmplFd (C.asTmplFile [relfile|public/images/btn_github_signin_dark_normal_web@2x.png|])
+        | (AS.App.Auth.isGithubAuthEnabled <$> maybeAuth) == Just True
       ]
     genManifestFd =
       let tmplData = object ["appName" .= (fst (getApp spec) :: String)]

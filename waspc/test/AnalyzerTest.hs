@@ -124,7 +124,8 @@ spec_Analyzer = do
                             Auth.methods =
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
-                                  Auth.google = Nothing
+                                  Auth.google = Nothing,
+                                  Auth.github = Nothing
                                 },
                             Auth.onAuthFailedRedirectTo = "/",
                             Auth.onAuthSucceededRedirectTo = Nothing
