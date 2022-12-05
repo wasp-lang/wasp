@@ -1,22 +1,24 @@
 {{={= =}=}}
 import express from 'express'
+import { initRouter } from './generic/provider.js'
 
-{=# isGoogleAuthEnabled =}
-import googleAuth from './google/google.js'
-{=/ isGoogleAuthEnabled =}
-
-{=# isGithubAuthEnabled =}
-import githubAuth from './github/github.js'
-{=/ isGithubAuthEnabled =}
+const providerMap = new Map();
+{=# providers =}
+{=# isEnabled =}
+providerMap.set('{= name =}', '{= npmPackage =}')
+{=/ isEnabled =}
+{=/ providers =}
 
 const router = express.Router()
 
-{=# isGoogleAuthEnabled =}
-router.use('/google', googleAuth)
-{=/ isGoogleAuthEnabled =}
+async function initProviders(providers) {
+  for (let [providerName, npmPackageName] of providers) {
+    const { config, getUserFieldsFn } = await import(`./${providerName}/${providerName}.js`)
+    const ProviderStrategy = await import(npmPackageName)
+    router.use(`/${providerName}`, initRouter(providerName, ProviderStrategy.default, config, getUserFieldsFn))
+  }
+}
 
-{=# isGithubAuthEnabled =}
-router.use('/github', githubAuth)
-{=/ isGithubAuthEnabled =}
+await initProviders(providerMap)
 
 export default router

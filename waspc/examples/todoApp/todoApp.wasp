@@ -13,10 +13,12 @@ app todoApp {
     externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
+      // TODO: fix user-defined fn
       // google: {
       //   configFn: import { config } from "@server/auth/google.js",
       //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       // },
+      google: {},
       github: {}
     },
     onAuthFailedRedirectTo: "/login",
