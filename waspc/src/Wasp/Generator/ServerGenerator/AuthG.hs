@@ -5,12 +5,16 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -20,9 +24,12 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -189,23 +196,47 @@ genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth
   | AS.Auth.isGoogleAuthEnabled auth =
       sequence
-        [ copyTmplFile [relfile|routes/auth/passport/google/google.js|],
-          copyTmplFile [relfile|routes/auth/passport/google/googleDefaults.js|]
+        [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/google.js|],
+          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/googleDefaults.js|],
+          return $ C.mkSrcTmplFdWithData [relfile|routes/auth/passport/google/googleConfig.js|] (Just tmplData)
         ]
   | otherwise = return []
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    tmplData = getTmplDataForAuthMethod auth AS.Auth.google
 
 genGithubAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGithubAuth auth
   | AS.Auth.isGithubAuthEnabled auth =
       sequence
-        [ copyTmplFile [relfile|routes/auth/passport/github/github.js|],
-          copyTmplFile [relfile|routes/auth/passport/github/githubDefaults.js|]
+        [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/github.js|],
+          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/githubDefaults.js|],
+          return $ C.mkSrcTmplFdWithData [relfile|routes/auth/passport/github/githubConfig.js|] (Just tmplData)
         ]
   | otherwise = return []
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    tmplData = getTmplDataForAuthMethod auth AS.Auth.github
+
+getTmplDataForAuthMethod :: AS.Auth.Auth -> (AS.Auth.AuthMethods -> Maybe AS.Auth.SocialLoginConfig) -> Aeson.Value
+getTmplDataForAuthMethod auth authMethod =
+  object
+    [ "doesConfigFnExist" .= isJust maybeConfigFn,
+      "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,
+      "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
+      "doesGetUserFieldsFnExist" .= isJust maybeGetUserFieldsFn,
+      "getUserFieldsFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
+      "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
+    ]
+  where
+    maybeConfigFn = AS.Auth.configFn =<< authMethod (AS.Auth.methods auth)
+    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeConfigFn
+    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
+
+    maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< authMethod (AS.Auth.methods auth)
+    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeGetUserFieldsFn
+    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
+
+    relPosixPathFromAuthMethodDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
+    relPosixPathFromAuthMethodDirToExtSrcDir = [reldirP|../../../../|] </> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

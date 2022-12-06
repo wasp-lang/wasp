@@ -1,5 +1,5 @@
-import { configFn } from './githubDefaults.js' // TODO: template
-export { getUserFieldsFn } from './githubDefaults.js' // TODO: template
+import { configFn } from './githubConfig.js'
+export { getUserFieldsFn } from './githubConfig.js'
 
 // Validates the provided config function returns all required data.
 export const config = ((config) => {

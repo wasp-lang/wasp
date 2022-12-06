@@ -1,5 +1,5 @@
-import { configFn } from './googleDefaults.js' // TODO: template
-export { getUserFieldsFn } from './googleDefaults.js' // TODO: template
+import { configFn } from './googleConfig.js'
+export { getUserFieldsFn } from './googleConfig.js'
 
 // Validates the provided config function returns all required data.
 export const config = ((config) => {

@@ -13,13 +13,14 @@ app todoApp {
     externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
-      // TODO: fix user-defined fn
-      // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
-      google: {},
-      github: {}
+      google: {
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      },
+      github: {
+        configFn: import { config } from "@server/auth/github.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+      }
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
