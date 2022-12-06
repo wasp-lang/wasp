@@ -5,7 +5,6 @@ module Wasp.Generator.ServerGenerator.Common
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
-    mkSrcTmplFdWithData,
     dotEnvServer,
     srcDirInServerTemplatesDir,
     asTmplFile,
@@ -77,10 +76,7 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     tmplData
 
 mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
-mkSrcTmplFd pathInTemplatesSrcDir = mkSrcTmplFdWithData pathInTemplatesSrcDir Nothing
-
-mkSrcTmplFdWithData :: Path' (Rel ServerTemplatesSrcDir) File' -> Maybe Aeson.Value -> FileDraft
-mkSrcTmplFdWithData pathInTemplatesSrcDir tmplData = mkTmplFdWithDstAndData srcPath dstPath tmplData
+mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
     dstPath =

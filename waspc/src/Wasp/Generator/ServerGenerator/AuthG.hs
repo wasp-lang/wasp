@@ -197,27 +197,46 @@ genGoogleAuth auth
   | AS.Auth.isGoogleAuthEnabled auth =
       sequence
         [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/google.js|],
-          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/googleDefaults.js|],
-          return $ C.mkSrcTmplFdWithData [relfile|routes/auth/passport/google/googleConfig.js|] (Just tmplData)
+          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
+          return $
+            mkAuthConfigFd
+              [relfile|routes/auth/passport/generic/config.js|]
+              [relfile|routes/auth/passport/google/config.js|]
+              (Just configTmplData)
         ]
   | otherwise = return []
   where
-    tmplData = getTmplDataForAuthMethod auth AS.Auth.google
+    configTmplData = getTmplDataForAuthMethodConfig auth AS.Auth.google
 
 genGithubAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGithubAuth auth
   | AS.Auth.isGithubAuthEnabled auth =
       sequence
         [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/github.js|],
-          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/githubDefaults.js|],
-          return $ C.mkSrcTmplFdWithData [relfile|routes/auth/passport/github/githubConfig.js|] (Just tmplData)
+          return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
+          return $
+            mkAuthConfigFd
+              [relfile|routes/auth/passport/generic/config.js|]
+              [relfile|routes/auth/passport/github/config.js|]
+              (Just configTmplData)
         ]
   | otherwise = return []
   where
-    tmplData = getTmplDataForAuthMethod auth AS.Auth.github
+    configTmplData = getTmplDataForAuthMethodConfig auth AS.Auth.github
 
-getTmplDataForAuthMethod :: AS.Auth.Auth -> (AS.Auth.AuthMethods -> Maybe AS.Auth.SocialLoginConfig) -> Aeson.Value
-getTmplDataForAuthMethod auth authMethod =
+mkAuthConfigFd ::
+  Path' (Rel C.ServerTemplatesSrcDir) File' ->
+  Path' (Rel C.ServerSrcDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkAuthConfigFd pathInTemplatesSrcDir pathInGenProjectSrcDir tmplData =
+  C.mkTmplFdWithDstAndData srcPath dstPath tmplData
+  where
+    srcPath = C.srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
+    dstPath = C.serverSrcDirInServerRootDir </> pathInGenProjectSrcDir
+
+getTmplDataForAuthMethodConfig :: AS.Auth.Auth -> (AS.Auth.AuthMethods -> Maybe AS.Auth.SocialLoginConfig) -> Aeson.Value
+getTmplDataForAuthMethodConfig auth authMethod =
   object
     [ "doesConfigFnExist" .= isJust maybeConfigFn,
       "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,

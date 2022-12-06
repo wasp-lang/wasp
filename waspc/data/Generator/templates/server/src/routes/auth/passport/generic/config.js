@@ -5,7 +5,7 @@
 export { {= configFnIdentifier =} as configFn }
 {=/ doesConfigFnExist =}
 {=^ doesConfigFnExist =}
-export { configFn } from './githubDefaults.js'
+export { configFn } from './defaults.js'
 {=/ doesConfigFnExist =}
 
 {=# doesGetUserFieldsFnExist =}
@@ -13,5 +13,5 @@ export { configFn } from './githubDefaults.js'
 export { {= getUserFieldsFnIdentifier =} as getUserFieldsFn }
 {=/ doesGetUserFieldsFnExist =}
 {=^ doesGetUserFieldsFnExist =}
-export { getUserFieldsFn } from './githubDefaults.js'
+export { getUserFieldsFn } from './defaults.js'
 {=/ doesGetUserFieldsFnExist =}

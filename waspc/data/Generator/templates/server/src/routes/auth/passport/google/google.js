@@ -1,5 +1,5 @@
-import { configFn } from './googleConfig.js'
-export { getUserFieldsFn } from './googleConfig.js'
+import { configFn } from './config.js'
+export { getUserFieldsFn } from './config.js'
 
 // Validates the provided config function returns all required data.
 export const config = ((config) => {
