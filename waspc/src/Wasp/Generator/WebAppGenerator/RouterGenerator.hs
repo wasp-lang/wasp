@@ -30,8 +30,7 @@ data RouterTemplateData = RouterTemplateData
     _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
-    _isGoogleAuthEnabled :: Bool,
-    _isGithubAuthEnabled :: Bool
+    _externalAuthProviders :: ![ExternalProviderTemplateData]
   }
 
 instance ToJSON RouterTemplateData where
@@ -41,8 +40,7 @@ instance ToJSON RouterTemplateData where
         "pagesToImport" .= _pagesToImport routerTD,
         "isAuthEnabled" .= _isAuthEnabled routerTD,
         "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
-        "isGoogleAuthEnabled" .= _isGoogleAuthEnabled routerTD,
-        "isGithubAuthEnabled" .= _isGithubAuthEnabled routerTD
+        "externalAuthProviders" .= _externalAuthProviders routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -70,6 +68,19 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
+data ExternalProviderTemplateData = ExternalProviderTemplateData
+  { _authProviderName :: !String,
+    _authProviderEnabled :: Bool
+  }
+  deriving (Show, Eq)
+
+instance ToJSON ExternalProviderTemplateData where
+  toJSON externalProviderTD =
+    object
+      [ "authProviderName" .= _authProviderName externalProviderTD,
+        "authProviderEnabled" .= _authProviderEnabled externalProviderTD
+      ]
+
 genRouter :: AppSpec -> Generator FileDraft
 genRouter spec = do
   return $
@@ -89,13 +100,25 @@ createRouterTemplateData spec =
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _isGoogleAuthEnabled = (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True,
-      _isGithubAuthEnabled = (AS.App.Auth.isGithubAuthEnabled <$> maybeAuth) == Just True
+      _externalAuthProviders = externalAuthProviders
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
+    externalAuthProviders =
+      map
+        (createExternalProviderTemplateData maybeAuth)
+        [ (AS.App.Auth.isGoogleAuthEnabled, "google"),
+          (AS.App.Auth.isGithubAuthEnabled, "github")
+        ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+createExternalProviderTemplateData :: Maybe AS.App.Auth.Auth -> (AS.App.Auth.Auth -> Bool, String) -> ExternalProviderTemplateData
+createExternalProviderTemplateData maybeAuth (method, name) =
+  ExternalProviderTemplateData
+    { _authProviderName = name,
+      _authProviderEnabled = (method <$> maybeAuth) == Just True
+    }
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =

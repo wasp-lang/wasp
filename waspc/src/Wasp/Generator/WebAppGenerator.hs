@@ -147,28 +147,32 @@ genGitignore =
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
   publicIndexHtmlFd <- genPublicIndexHtml spec
-  return $
+  return
     [ publicIndexHtmlFd,
       genFaviconFd,
       genManifestFd
     ]
-      ++ genGoogleSigninImage
-      ++ genGithubSigninImage
+    <++> genSocialLoginIcons maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genGoogleSigninImage =
-      [ C.mkTmplFd (C.asTmplFile [relfile|public/images/google-logo-icon.png|])
-        | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
-      ]
-    genGithubSigninImage =
-      [ C.mkTmplFd (C.asTmplFile [relfile|public/images/github-logo-icon.png|])
-        | (AS.App.Auth.isGithubAuthEnabled <$> maybeAuth) == Just True
-      ]
     genManifestFd =
       let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           tmplFile = C.asTmplFile [relfile|public/manifest.json|]
        in C.mkTmplFdWithData tmplFile tmplData
+
+genSocialLoginIcons :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
+genSocialLoginIcons maybeAuth =
+  return $
+    [ C.mkTmplFd (C.asTmplFile fp)
+      | (isEnabled, fp) <- socialIcons,
+        (isEnabled <$> maybeAuth) == Just True
+    ]
+  where
+    socialIcons =
+      [ (AS.App.Auth.isGoogleAuthEnabled, [relfile|public/images/google-logo-icon.png|]),
+        (AS.App.Auth.isGithubAuthEnabled, [relfile|public/images/github-logo-icon.png|])
+      ]
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =

@@ -22,9 +22,8 @@ export function initRouter(providerName, ProviderStrategy, config, getUserFields
     callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${providerName}`,
     passReqToCallback: true
   }
-  const passportConfig = { ...config, ...requiredConfig }
   passport.use(passportStrategyName,
-    new ProviderStrategy(passportConfig, addProviderProfileToRequest))
+    new ProviderStrategy({ ...config, ...requiredConfig }, addProviderProfileToRequest))
 
   // Constructs a provider OAuth URL and redirects browser to start sign in flow.
   router.get('/login', passport.authenticate(passportStrategyName, { session: false }))
