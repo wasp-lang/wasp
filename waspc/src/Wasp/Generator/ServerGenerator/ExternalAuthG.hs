@@ -31,6 +31,7 @@ import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Util ((<++>))
 
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -54,15 +55,21 @@ genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
     tmplData =
       object
         [ "providers"
-            .= [ buildProviderData "google" (App.Dependency.name googlePassportDependency) (AS.Auth.isGoogleAuthEnabled auth),
-                 buildProviderData "github" (App.Dependency.name gitHubPassportDependency) (AS.Auth.isGitHubAuthEnabled auth)
+            .= [ buildProviderData
+                   (_slug googleAuthInfo)
+                   (App.Dependency.name googlePassportDependency)
+                   (AS.Auth.isGoogleAuthEnabled auth),
+                 buildProviderData
+                   (_slug gitHubAuthInfo)
+                   (App.Dependency.name gitHubPassportDependency)
+                   (AS.Auth.isGitHubAuthEnabled auth)
                ]
         ]
 
     buildProviderData :: String -> String -> Bool -> Aeson.Value
-    buildProviderData name npmPackage isEnabled =
+    buildProviderData slug npmPackage isEnabled =
       object
-        [ "name" .= name,
+        [ "slug" .= slug,
           "npmPackage" .= npmPackage,
           "isEnabled" .= isEnabled
         ]

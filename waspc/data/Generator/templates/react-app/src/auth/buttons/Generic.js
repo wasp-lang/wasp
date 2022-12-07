@@ -3,7 +3,7 @@
 import config from '../../config.js'
 
 export const signInUrl = `${config.apiUrl}{= signInPath =}`
-export const logoUrl = '{= iconPath =}'
+export const logoUrl = '/images/{= iconName =}'
 
 const containerStyle = {
   height: 40,

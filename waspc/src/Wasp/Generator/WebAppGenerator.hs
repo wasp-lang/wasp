@@ -15,6 +15,7 @@ import StrongPath
     Posix,
     Rel,
     relDirToPosix,
+    reldir,
     relfile,
     (</>),
   )
@@ -35,7 +36,12 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir, extClientCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
+  ( extClientCodeDirInWebAppSrcDir,
+    extClientCodeGeneratorStrategy,
+    extSharedCodeGeneratorStrategy,
+  )
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -170,8 +176,8 @@ genSocialLoginIcons maybeAuth =
     ]
   where
     socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [relfile|public/images/google-logo-icon.png|]),
-        (AS.App.Auth.isGitHubAuthEnabled, [relfile|public/images/github-logo-icon.png|])
+      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> _logoFileName googleAuthInfo),
+        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
       ]
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft

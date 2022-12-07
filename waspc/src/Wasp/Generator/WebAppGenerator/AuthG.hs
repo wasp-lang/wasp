@@ -106,8 +106,8 @@ genSocialLoginButtons auth =
       where
         tmplData =
           object
-            [ "signInPath" .= ExternalAuthG._serverLoginUrl externalAuthInfo,
-              "iconPath" .= ExternalAuthG._logoUrl externalAuthInfo,
+            [ "signInPath" .= ExternalAuthG.serverLoginUrl externalAuthInfo,
+              "iconName" .= SP.toFilePath (ExternalAuthG._logoFileName externalAuthInfo),
               "displayName" .= ExternalAuthG._displayName externalAuthInfo
             ]
 

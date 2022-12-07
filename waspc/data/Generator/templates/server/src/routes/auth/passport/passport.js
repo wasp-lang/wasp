@@ -5,7 +5,7 @@ import { initRouter } from './generic/provider.js'
 const providerMap = new Map();
 {=# providers =}
 {=# isEnabled =}
-providerMap.set('{= name =}', '{= npmPackage =}')
+providerMap.set('{= slug =}', '{= npmPackage =}')
 {=/ isEnabled =}
 {=/ providers =}
 

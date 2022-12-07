@@ -23,7 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 
 data RouterTemplateData = RouterTemplateData
@@ -122,8 +122,8 @@ createExternalAuthProviderTemplateData ::
   ExternalAuthProviderTemplateData
 createExternalAuthProviderTemplateData maybeAuth (method, externalAuthInfo) =
   ExternalAuthProviderTemplateData
-    { _authFrontendUrl = _frontendLoginUrl externalAuthInfo,
-      _authServerOauthRedirectUrl = _serverOauthRedirectHandlerUrl externalAuthInfo,
+    { _authFrontendUrl = frontendLoginUrl externalAuthInfo,
+      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl externalAuthInfo,
       _authProviderEnabled = (method <$> maybeAuth) == Just True
     }
 
