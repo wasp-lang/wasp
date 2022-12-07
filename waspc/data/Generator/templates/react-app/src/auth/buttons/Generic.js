@@ -2,15 +2,17 @@
 
 import config from '../../config.js'
 
-export const githubSignInUrl = `${config.apiUrl}{= signInPath =}`
+export const signInUrl = `${config.apiUrl}{= signInPath =}`
+export const logoUrl = '{= iconPath =}'
 
 const containerStyle = {
   height: 40,
+  width: 225,
   border: '1px solid darkgray',
-  'border-radius': 5,
+  borderRadius: 5,
   padding: 5,
   margin: '5px 0px',
-  'background-color': 'white'
+  backgroundColor: 'white'
 }
 
 const linkStyle = {
@@ -19,17 +21,17 @@ const linkStyle = {
 }
 
 const logoStyle = {
-  'max-width': '100%',
-  'max-height': '100%',
+  maxWidth: '100%',
+  maxHeight: '100%',
   display: 'inline-block',
-  'margin-right': 10
+  marginRight: 10
 }
 
-export function {= displayName =}SignInButton() {
+export function SignInButton() {
   return (
     <div style={containerStyle}>
-      <a href={githubSignInUrl} style={linkStyle}>
-        <img alt="{= displayName =} Icon" src="{= iconPath =}" style={logoStyle} />
+      <a href={signInUrl} style={linkStyle}>
+        <img alt="{= displayName =} Icon" src={logoUrl} style={logoStyle} />
         <span>Log in with {= displayName =}</span>
       </a>
     </div>
