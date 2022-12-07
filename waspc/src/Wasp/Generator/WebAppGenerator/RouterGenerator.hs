@@ -109,7 +109,7 @@ createRouterTemplateData spec =
       map
         (createExternalProviderTemplateData maybeAuth)
         [ (AS.App.Auth.isGoogleAuthEnabled, "google"),
-          (AS.App.Auth.isGithubAuthEnabled, "github")
+          (AS.App.Auth.isGitHubAuthEnabled, "github")
         ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
 

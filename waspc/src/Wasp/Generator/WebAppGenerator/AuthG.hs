@@ -88,11 +88,11 @@ genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialLoginButtons auth =
   return $
     concat
-      [ [githubButton | AS.App.Auth.isGithubAuthEnabled auth],
+      [ [gitHubButton | AS.App.Auth.isGitHubAuthEnabled auth],
         [googleButton | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    githubButton = mkButtonFd "/auth/external/github/login" "/images/github-logo-icon.png" "GitHub" [relfile|GitHub.js|]
+    gitHubButton = mkButtonFd "/auth/external/github/login" "/images/github-logo-icon.png" "GitHub" [relfile|GitHub.js|]
     googleButton = mkButtonFd "/auth/external/google/login" "/images/google-logo-icon.png" "Google" [relfile|Google.js|]
 
     mkButtonFd :: String -> String -> String -> Path' Rel' File' -> FileDraft

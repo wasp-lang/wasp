@@ -1,6 +1,6 @@
 import { generateAvailableDictionaryUsername } from '../../../../core/auth.js'
 
-// Default implementation if there is no `auth.methods.github.configFn`.
+// Default implementation if there is no `auth.methods.gitHub.configFn`.
 export function configFn() {
   const clientID = process.env['GITHUB_CLIENT_ID']
   const clientSecret = process.env['GITHUB_CLIENT_SECRET']
@@ -16,7 +16,7 @@ export function configFn() {
   return { clientID, clientSecret, scope: [] }
 }
 
-// Default implementation if there is no `auth.methods.github.getUserFieldsFn`.
+// Default implementation if there is no `auth.methods.gitHub.getUserFieldsFn`.
 export async function getUserFieldsFn(_context, _args) {
   const username = await generateAvailableDictionaryUsername()
   return { username }

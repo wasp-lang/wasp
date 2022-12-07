@@ -144,7 +144,7 @@ genPassportAuth auth
           copyTmplFile [relfile|routes/auth/passport/generic/provider.js|]
         ]
         <++> genGoogleAuth auth
-        <++> genGithubAuth auth
+        <++> genGitHubAuth auth
   | otherwise = return []
   where
     copyTmplFile = return . C.mkSrcTmplFd
@@ -158,7 +158,7 @@ genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
       object
         [ "providers"
             .= [ buildProviderData "google" "passport-google-oauth20" (AS.Auth.isGoogleAuthEnabled auth),
-                 buildProviderData "github" "passport-github2" (AS.Auth.isGithubAuthEnabled auth)
+                 buildProviderData "github" "passport-github2" (AS.Auth.isGitHubAuthEnabled auth)
                ]
         ]
 
@@ -208,9 +208,9 @@ genGoogleAuth auth
   where
     configTmplData = getTmplDataForAuthMethodConfig auth AS.Auth.google
 
-genGithubAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genGithubAuth auth
-  | AS.Auth.isGithubAuthEnabled auth =
+genGitHubAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genGitHubAuth auth
+  | AS.Auth.isGitHubAuthEnabled auth =
       sequence
         [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/github.js|],
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
@@ -222,7 +222,7 @@ genGithubAuth auth
         ]
   | otherwise = return []
   where
-    configTmplData = getTmplDataForAuthMethodConfig auth AS.Auth.github
+    configTmplData = getTmplDataForAuthMethodConfig auth AS.Auth.gitHub
 
 mkAuthConfigFd ::
   Path' (Rel C.ServerTemplatesSrcDir) File' ->
@@ -235,7 +235,7 @@ mkAuthConfigFd pathInTemplatesSrcDir pathInGenProjectSrcDir tmplData =
     srcPath = C.srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
     dstPath = C.serverSrcDirInServerRootDir </> pathInGenProjectSrcDir
 
-getTmplDataForAuthMethodConfig :: AS.Auth.Auth -> (AS.Auth.AuthMethods -> Maybe AS.Auth.SocialLoginConfig) -> Aeson.Value
+getTmplDataForAuthMethodConfig :: AS.Auth.Auth -> (AS.Auth.AuthMethods -> Maybe AS.Auth.ExternalAuthConfig) -> Aeson.Value
 getTmplDataForAuthMethodConfig auth authMethod =
   object
     [ "doesConfigFnExist" .= isJust maybeConfigFn,

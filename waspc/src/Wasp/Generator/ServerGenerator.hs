@@ -245,7 +245,7 @@ depsRequiredByPassport spec =
     concat
       [ [("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
         [("passport-google-oauth20", "2.0.0") | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True],
-        [("passport-github2", "0.1.12") | (AS.App.Auth.isGithubAuthEnabled <$> maybeAuth) == Just True]
+        [("passport-github2", "0.1.12") | (AS.App.Auth.isGitHubAuthEnabled <$> maybeAuth) == Just True]
       ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

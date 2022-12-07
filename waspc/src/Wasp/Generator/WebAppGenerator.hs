@@ -171,7 +171,7 @@ genSocialLoginIcons maybeAuth =
   where
     socialIcons =
       [ (AS.App.Auth.isGoogleAuthEnabled, [relfile|public/images/google-logo-icon.png|]),
-        (AS.App.Auth.isGithubAuthEnabled, [relfile|public/images/github-logo-icon.png|])
+        (AS.App.Auth.isGitHubAuthEnabled, [relfile|public/images/github-logo-icon.png|])
       ]
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft
