@@ -1,6 +1,8 @@
+{{={= =}=}}
+
 import config from '../../config.js'
 
-export const githubSignInUrl = `${config.apiUrl}/auth/external/github/login`
+export const githubSignInUrl = `${config.apiUrl}{= signInPath =}`
 
 const containerStyle = {
   height: 40,
@@ -23,12 +25,12 @@ const logoStyle = {
   'margin-right': 10
 }
 
-export function GitHubSignInButton() {
+export function {= displayName =}SignInButton() {
   return (
     <div style={containerStyle}>
       <a href={githubSignInUrl} style={linkStyle}>
-        <img alt="GitHub" src="/images/github-logo-icon.png" style={logoStyle} />
-        <span>Log in with GitHub</span>
+        <img alt="{= displayName =} Icon" src="{= iconPath =}" style={logoStyle} />
+        <span>Log in with {= displayName =}</span>
       </a>
     </div>
   )

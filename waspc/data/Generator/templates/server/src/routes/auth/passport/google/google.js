@@ -3,8 +3,8 @@ export { getUserFieldsFn } from './config.js'
 
 // Validates the provided config function returns all required data.
 export const config = ((config) => {
-  if (!config?.clientId) {
-    throw new Error("auth.google.configFn must return an object with a clientId property.")
+  if (!config?.clientID) {
+    throw new Error("auth.google.configFn must return an object with a clientID property.")
   }
 
   if (!config?.clientSecret) {

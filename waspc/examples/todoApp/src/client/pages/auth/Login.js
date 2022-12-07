@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
 import { GoogleSignInButton } from '@wasp/auth/buttons/Google'
-import { GitHubSignInButton } from '@wasp/auth/buttons/Github'
+import { GitHubSignInButton } from '@wasp/auth/buttons/GitHub'
 
 const Login = () => {
   return (

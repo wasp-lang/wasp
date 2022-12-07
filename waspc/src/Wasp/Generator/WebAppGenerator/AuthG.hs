@@ -7,6 +7,7 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -87,9 +88,26 @@ genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialLoginButtons auth =
   return $
     concat
-      [ [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth],
-        [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Github.js|]) | AS.App.Auth.isGithubAuthEnabled auth]
+      [ [githubButton | AS.App.Auth.isGithubAuthEnabled auth],
+        [googleButton | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
+  where
+    githubButton = mkButtonFd "/auth/external/github/login" "/images/github-logo-icon.png" "GitHub" [relfile|GitHub.js|]
+    googleButton = mkButtonFd "/auth/external/google/login" "/images/google-logo-icon.png" "Google" [relfile|Google.js|]
+
+    mkButtonFd :: String -> String -> String -> Path' Rel' File' -> FileDraft
+    mkButtonFd signInPath iconPath displayName buttonFp =
+      mkTmplFdWithDstAndData
+        [relfile|src/auth/buttons/Generic.js|]
+        (SP.castRel $ [reldir|src/auth/buttons|] SP.</> buttonFp)
+        (Just tmplData)
+      where
+        tmplData =
+          object
+            [ "signInPath" .= (signInPath :: String),
+              "iconPath" .= (iconPath :: String),
+              "displayName" .= (displayName :: String)
+            ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =

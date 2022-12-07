@@ -18,13 +18,13 @@ export function initRouter(providerName, ProviderStrategy, config, getUserFields
   const router = express.Router()
   const passportStrategyName = `wasp${providerName}LoginStrategy`
 
-  passport.use(passportStrategyName, new ProviderStrategy({
-    clientID: config.clientId,
-    clientSecret: config.clientSecret,
+  const requiredConfig = {
     callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${providerName}`,
-    scope: config.scope,
     passReqToCallback: true
-  }, addProviderProfileToRequest))
+  }
+  const passportConfig = { ...config, ...requiredConfig }
+  passport.use(passportStrategyName,
+    new ProviderStrategy(passportConfig, addProviderProfileToRequest))
 
   // Constructs a provider OAuth URL and redirects browser to start sign in flow.
   router.get('/login', passport.authenticate(passportStrategyName, { session: false }))
