@@ -16,6 +16,8 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
+import qualified Wasp.Generator.WebAppGenerator.ExternalAuthG as ExternalAuthG
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -92,11 +94,11 @@ genSocialLoginButtons auth =
         [googleButton | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubButton = mkButtonFd "/auth/external/github/login" "/images/github-logo-icon.png" "GitHub" [relfile|GitHub.js|]
-    googleButton = mkButtonFd "/auth/external/google/login" "/images/google-logo-icon.png" "Google" [relfile|Google.js|]
+    gitHubButton = mkButtonFd gitHubAuthInfo [relfile|GitHub.js|]
+    googleButton = mkButtonFd googleAuthInfo [relfile|Google.js|]
 
-    mkButtonFd :: String -> String -> String -> Path' Rel' File' -> FileDraft
-    mkButtonFd signInPath iconPath displayName buttonFp =
+    mkButtonFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
+    mkButtonFd externalAuthInfo buttonFp =
       mkTmplFdWithDstAndData
         [relfile|src/auth/buttons/Generic.js|]
         (SP.castRel $ [reldir|src/auth/buttons|] SP.</> buttonFp)
@@ -104,9 +106,9 @@ genSocialLoginButtons auth =
       where
         tmplData =
           object
-            [ "signInPath" .= (signInPath :: String),
-              "iconPath" .= (iconPath :: String),
-              "displayName" .= (displayName :: String)
+            [ "signInPath" .= ExternalAuthG._serverLoginUrl externalAuthInfo,
+              "iconPath" .= ExternalAuthG._logoUrl externalAuthInfo,
+              "displayName" .= ExternalAuthG._displayName externalAuthInfo
             ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft

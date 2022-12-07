@@ -32,7 +32,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -47,6 +46,7 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
@@ -238,17 +238,6 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
-depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
-depsRequiredByPassport spec =
-  AS.Dependency.fromList $
-    concat
-      [ [("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
-        [("passport-google-oauth20", "2.0.0") | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True],
-        [("passport-github2", "0.1.12") | (AS.App.Auth.isGitHubAuthEnabled <$> maybeAuth) == Just True]
-      ]
-  where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
 
 areServerPatchesUsed :: AppSpec -> Generator Bool
 areServerPatchesUsed spec = not . null <$> genPatches spec

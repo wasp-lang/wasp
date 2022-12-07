@@ -24,8 +24,8 @@ const router = (
       {=# isExternalAuthEnabled =}
       {=# externalAuthProviders =}
       {=# authProviderEnabled =}
-      <Route exact path="/auth/login/{= authProviderName =}">
-        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/{= authProviderName =}/validateCodeForLogin" />
+      <Route exact path="{= authFrontendUrl =}">
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
       </Route>
       {=/ authProviderEnabled =}
       {=/ externalAuthProviders =}

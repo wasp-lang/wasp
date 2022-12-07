@@ -23,6 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 
 data RouterTemplateData = RouterTemplateData
@@ -30,7 +31,7 @@ data RouterTemplateData = RouterTemplateData
     _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
-    _externalAuthProviders :: ![ExternalProviderTemplateData]
+    _externalAuthProviders :: ![ExternalAuthProviderTemplateData]
   }
 
 instance ToJSON RouterTemplateData where
@@ -68,16 +69,18 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
-data ExternalProviderTemplateData = ExternalProviderTemplateData
-  { _authProviderName :: !String,
+data ExternalAuthProviderTemplateData = ExternalAuthProviderTemplateData
+  { _authFrontendUrl :: !String,
+    _authServerOauthRedirectUrl :: !String,
     _authProviderEnabled :: Bool
   }
   deriving (Show, Eq)
 
-instance ToJSON ExternalProviderTemplateData where
+instance ToJSON ExternalAuthProviderTemplateData where
   toJSON externalProviderTD =
     object
-      [ "authProviderName" .= _authProviderName externalProviderTD,
+      [ "authFrontendUrl" .= _authFrontendUrl externalProviderTD,
+        "authServerOauthRedirectUrl" .= _authServerOauthRedirectUrl externalProviderTD,
         "authProviderEnabled" .= _authProviderEnabled externalProviderTD
       ]
 
@@ -107,16 +110,20 @@ createRouterTemplateData spec =
     pages = map createPageTemplateData $ AS.getPages spec
     externalAuthProviders =
       map
-        (createExternalProviderTemplateData maybeAuth)
-        [ (AS.App.Auth.isGoogleAuthEnabled, "google"),
-          (AS.App.Auth.isGitHubAuthEnabled, "github")
+        (createExternalAuthProviderTemplateData maybeAuth)
+        [ (AS.App.Auth.isGoogleAuthEnabled, googleAuthInfo),
+          (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthInfo)
         ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
-createExternalProviderTemplateData :: Maybe AS.App.Auth.Auth -> (AS.App.Auth.Auth -> Bool, String) -> ExternalProviderTemplateData
-createExternalProviderTemplateData maybeAuth (method, name) =
-  ExternalProviderTemplateData
-    { _authProviderName = name,
+createExternalAuthProviderTemplateData ::
+  Maybe AS.App.Auth.Auth ->
+  (AS.App.Auth.Auth -> Bool, ExternalAuthInfo) ->
+  ExternalAuthProviderTemplateData
+createExternalAuthProviderTemplateData maybeAuth (method, externalAuthInfo) =
+  ExternalAuthProviderTemplateData
+    { _authFrontendUrl = _frontendLoginUrl externalAuthInfo,
+      _authServerOauthRedirectUrl = _serverOauthRedirectHandlerUrl externalAuthInfo,
       _authProviderEnabled = (method <$> maybeAuth) == Just True
     }
 
