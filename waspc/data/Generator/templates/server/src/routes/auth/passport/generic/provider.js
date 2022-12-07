@@ -10,20 +10,22 @@ import { sign } from '../../../../core/auth.js'
 // We add the provider profile to the request for downstream use.
 async function addProviderProfileToRequest(req, _accessToken, _refreshToken, providerProfile, done) {
   req.wasp = { ...req.wasp, providerProfile }
-
   done(null, {})
 }
 
 export function initRouter(providerName, ProviderStrategy, config, getUserFieldsFn) {
-  const router = express.Router()
+  // Configure and use Passport.js strategy.
   const passportStrategyName = `wasp${providerName}LoginStrategy`
-
   const requiredConfig = {
     callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${providerName}`,
     passReqToCallback: true
   }
-  passport.use(passportStrategyName,
-    new ProviderStrategy({ ...config, ...requiredConfig }, addProviderProfileToRequest))
+  const passportStrategy = new ProviderStrategy({ ...config, ...requiredConfig }, addProviderProfileToRequest)
+
+  passport.use(passportStrategyName, passportStrategy)
+
+  // Create a new router to use the Passport.js strategy.
+  const router = express.Router()
 
   // Constructs a provider OAuth URL and redirects browser to start sign in flow.
   router.get('/login', passport.authenticate(passportStrategyName, { session: false }))
@@ -48,6 +50,8 @@ export function initRouter(providerName, ProviderStrategy, config, getUserFields
 
       // Wrap call to getUserFieldsFn so we can invoke only if needed.
       const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile })
+      // TODO: In the future we could make this configurable, possibly associating an external account
+      // with the currently logged in account, or by some DB lookup.
       const user = await findOrCreateUserByExternalAuthAssociation(providerName, providerProfile.id, getUserFields)
 
       const token = await sign(user.id)
