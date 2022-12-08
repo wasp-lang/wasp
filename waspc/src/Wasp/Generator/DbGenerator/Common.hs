@@ -89,8 +89,8 @@ parseMigrateArgs (Just migrateArgs) = do
   go migrateArgs emptyMigrateArgs
   where
     go :: [String] -> MigrateArgs -> MigrateArgs
-    go ("--create-only" : rest) mArgs = go rest mArgs {_isCreateOnlyMigration = True}
-    go ("--name" : name : rest) mArgs = go rest mArgs {_migrationName = Just name}
+    go ("--create-only" : rest) mArgs = go rest $ mArgs {_isCreateOnlyMigration = True}
+    go ("--name" : name : rest) mArgs = go rest $ mArgs {_migrationName = Just name}
     go _ mArgs = mArgs
 
 data OnLastDbConcurrenceChecksumAction
