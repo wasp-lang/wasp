@@ -4,7 +4,7 @@ import { Star, Twitter } from 'react-feather'
 
 import Announcement from './Announcement'
 import Transition from '../../lib/Transition'
-import { DiscordIcon, TwitterIcon } from './SocialIcons'
+import { GitHubIcon, DiscordIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
 
@@ -235,6 +235,11 @@ const Nav = () => {
                     Get started
                   </button>
                 </Link>
+
+                <SocialIcon
+                  Icon={ GitHubIcon } 
+                  url='https://github.com/wasp-lang/wasp'
+                />
 
                 <SocialIcon
                   Icon={ DiscordIcon } 
