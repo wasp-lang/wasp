@@ -127,8 +127,7 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
-  ["migrate-dev"] -> runDbCommand $ Command.Db.Migrate.migrateDev Nothing
-  "migrate-dev" : migrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev $ Just migrateArgs
+  "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["studio"] -> runDbCommand studio
   _ -> printDbUsage
 

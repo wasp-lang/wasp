@@ -448,6 +448,7 @@ test-suite cli-test
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
+    DbMigrateTest
     TerminalTest
     Paths_waspc
 

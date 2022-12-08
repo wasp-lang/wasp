@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Db.Migrate
   ( migrateDev,
+    parseMigrateArgs,
   )
 where
 
@@ -15,14 +16,15 @@ import Wasp.Cli.Command.Common
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
 import qualified Wasp.Common
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Wasp.Message as Msg
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
 -- The migrate function takes care of copying migrations from the generated project back to the source code.
-migrateDev :: Maybe [String] -> Command ()
-migrateDev maybeMigrateArgs = do
+migrateDev :: [String] -> Command ()
+migrateDev optionalMigrateArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
   let genProjectRootDir =
         waspProjectDir
@@ -33,9 +35,26 @@ migrateDev maybeMigrateArgs = do
         waspProjectDir
           </> Wasp.Common.dbMigrationsDirInWaspProjectDir
 
-  cliSendMessageC $ Msg.Start "Performing migration..."
-  migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir maybeMigrateArgs
-  case migrateResult of
-    Left migrateError ->
-      throwError $ CommandError "Migrate dev failed" migrateError
-    Right () -> cliSendMessageC $ Msg.Success "Migration done."
+  let parsedMigrateArgs = parseMigrateArgs optionalMigrateArgs
+  case parsedMigrateArgs of
+    Left parseError ->
+      throwError $ CommandError "Migrate dev failed" parseError
+    Right migrateArgs -> do
+      cliSendMessageC $ Msg.Start "Performing migration..."
+      migrateResult <- liftIO $ DbOps.migrateDevAndCopyToSource waspDbMigrationsDir genProjectRootDir migrateArgs
+      case migrateResult of
+        Left migrateError ->
+          throwError $ CommandError "Migrate dev failed" migrateError
+        Right () -> cliSendMessageC $ Msg.Success "Migration done."
+
+-- | Basic parsing of db-migrate args. In the future, we could use a smarter parser
+-- for this (and all other CLI arg parsing).
+parseMigrateArgs :: [String] -> Either String MigrateArgs
+parseMigrateArgs migrateArgs = do
+  go migrateArgs defaultMigrateArgs
+  where
+    go :: [String] -> MigrateArgs -> Either String MigrateArgs
+    go [] mArgs = Right mArgs
+    go ("--create-only" : rest) mArgs = go rest $ mArgs {_isCreateOnlyMigration = True}
+    go ("--name" : name : rest) mArgs = go rest $ mArgs {_migrationName = Just name}
+    go unknown _ = Left $ "Unknown migrate arg(s): " ++ unwords unknown

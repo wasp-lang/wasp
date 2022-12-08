@@ -6,9 +6,7 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
-    parseMigrateArgs,
-    emptyMigrateArgs,
-    asArgs,
+    defaultMigrateArgs,
     getOnLastDbConcurrenceChecksumAction,
     MigrateArgs (..),
     OnLastDbConcurrenceChecksumAction (..),
@@ -73,25 +71,8 @@ data MigrateArgs = MigrateArgs
   }
   deriving (Show, Eq)
 
-emptyMigrateArgs :: MigrateArgs
-emptyMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
-
-asArgs :: MigrateArgs -> [String]
-asArgs migrateArgs = do
-  concat . concat $
-    [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
-      [["--name", name] | Just name <- [_migrationName migrateArgs]]
-    ]
-
-parseMigrateArgs :: Maybe [String] -> MigrateArgs
-parseMigrateArgs Nothing = emptyMigrateArgs
-parseMigrateArgs (Just migrateArgs) = do
-  go migrateArgs emptyMigrateArgs
-  where
-    go :: [String] -> MigrateArgs -> MigrateArgs
-    go ("--create-only" : rest) mArgs = go rest $ mArgs {_isCreateOnlyMigration = True}
-    go ("--name" : name : rest) mArgs = go rest $ mArgs {_migrationName = Just name}
-    go _ mArgs = mArgs
+defaultMigrateArgs :: MigrateArgs
+defaultMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
 
 data OnLastDbConcurrenceChecksumAction
   = WriteOnLastDbConcurrenceChecksum

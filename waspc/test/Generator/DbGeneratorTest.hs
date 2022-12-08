@@ -1,35 +1,21 @@
 module Generator.DbGeneratorTest where
 
-import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
+import Test.Tasty.Hspec (Spec, it, shouldBe)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
-    asArgs,
-    emptyMigrateArgs,
-    parseMigrateArgs,
+    defaultMigrateArgs,
   )
+import Wasp.Generator.DbGenerator.Jobs (asArgs)
 
-spec_Common :: Spec
-spec_Common =
-  describe "parseMigrateArgs" $ do
-    it "should parse input options strings correcly" $ do
-      parseMigrateArgs Nothing `shouldBe` emptyMigrateArgs
-      parseMigrateArgs (Just ["--create-only"])
-        `shouldBe` (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
-      parseMigrateArgs (Just ["--name", "something"])
-        `shouldBe` (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
-      parseMigrateArgs (Just ["--name", "something else longer"])
-        `shouldBe` (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
-      parseMigrateArgs (Just ["--name", "something", "--create-only"])
-        `shouldBe` (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
-      parseMigrateArgs (Just ["--create-only", "--name", "something"])
-        `shouldBe` (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
-    it "should produce expected args" $ do
-      asArgs emptyMigrateArgs `shouldBe` []
-      asArgs (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
-        `shouldBe` ["--create-only"]
-      asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
-        `shouldBe` ["--name", "something"]
-      asArgs (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
-        `shouldBe` ["--name", "something else longer"]
-      asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
-        `shouldBe` ["--create-only", "--name", "something"]
+spec_Jobs :: Spec
+spec_Jobs =
+  it "should produce expected args" $ do
+    asArgs defaultMigrateArgs `shouldBe` []
+    asArgs (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
+      `shouldBe` ["--create-only"]
+    asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
+      `shouldBe` ["--name", "something"]
+    asArgs (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
+      `shouldBe` ["--name", "something else longer"]
+    asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
+      `shouldBe` ["--create-only", "--name", "something"]

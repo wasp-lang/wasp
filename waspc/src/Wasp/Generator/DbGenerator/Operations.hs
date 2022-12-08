@@ -20,15 +20,14 @@ import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( OnLastDbConcurrenceChecksumAction (..),
-    asArgs,
+  ( MigrateArgs,
+    OnLastDbConcurrenceChecksumAction (..),
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
     getOnLastDbConcurrenceChecksumAction,
-    parseMigrateArgs,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -49,18 +48,16 @@ printJobMsgsUntilExitReceived chan = do
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
-migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> Maybe [String] -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs maybeMigrateArgs = do
+migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> IO (Either String ())
+migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs migrateArgs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
       (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev genProjectRootDirAbs (asArgs migrateArgs) chan)
+      (DbJobs.migrateDev genProjectRootDirAbs migrateArgs chan)
   case dbExitCode of
     ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumAction migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
-  where
-    migrateArgs = parseMigrateArgs maybeMigrateArgs
 
 finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> OnLastDbConcurrenceChecksumAction -> IO (Either String ())
 finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs lastDbConcurrenceChecksumAction = do
