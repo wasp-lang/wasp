@@ -21,7 +21,7 @@ module.exports = {
   themeConfig: {
     announcementBar: {
       id: 'Beta_is_here',
-      content: 'Beta Launch Week day 6: <a href="https://betathon.wasp-lang.dev/">Hackathon!</a> 🚀',
+      content: 'Wasp Hackathon #1 is underway! 🚀 <a href="https://betathon.wasp-lang.dev/">Join now</a>',
       backgroundColor: '#eab307',
       textColor: '#fff',
       isCloseable: false,

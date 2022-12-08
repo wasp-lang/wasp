@@ -31,11 +31,11 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Beta Launch Week Day 6: <span className='underline'>Hackathon!</span> 🚀</span>
+          <span>Wasp Hackathon #1 is under way! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
-          <span>See more</span>
+          <span>Join now</span>
           <ChevronRight size={14} />
         </span>
 
