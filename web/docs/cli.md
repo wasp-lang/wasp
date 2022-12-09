@@ -16,6 +16,7 @@ COMMANDS
   GENERAL
     new <project-name>    Creates new Wasp project.
     version               Prints current version of CLI.
+    waspls                Run Wasp Language Server. Add --help to get more info.
     completion            Prints help on bash completion.
   IN PROJECT
     start                 Runs Wasp app in development mode, watching for file changes.
@@ -24,6 +25,7 @@ COMMANDS
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
+    dockerfile            Prints the contents of the Wasp generated Dockerfile.
     info                  Prints basic information about current Wasp project.
 
 EXAMPLES
@@ -33,7 +35,7 @@ EXAMPLES
 
 Docs: https://wasp-lang.dev/docs
 Discord (chat): https://discord.gg/rzdnErX
-
+Newsletter: https://wasp-lang.dev/#signup
 ```
 
 ## Commands
@@ -88,5 +90,6 @@ To setup Bash completion, execute `wasp completion` and follow the instructions.
 Wasp has a set of commands for working with the database. They all start with `db` and mostly call prisma commands in the background.
 
  - `wasp db migrate-dev` ensures dev database corresponds to the current state of schema (entities): it generates a new migration if there are changes in the schema and it applies any pending migration to the database.
+   - Supports a `--name foo` option for providing a migration name, as well as `--create-only` for creating an empty migration but not applying it.
    
  - `wasp db studio` opens the GUI for inspecting your database.
