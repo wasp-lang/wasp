@@ -7,9 +7,9 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
     defaultMigrateArgs,
-    getOnLastDbConcurrenceChecksumAction,
+    getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
-    OnLastDbConcurrenceChecksumAction (..),
+    RefreshOnLastDbConcurrenceChecksumFile (..),
   )
 where
 
@@ -74,15 +74,16 @@ data MigrateArgs = MigrateArgs
 defaultMigrateArgs :: MigrateArgs
 defaultMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
 
-data OnLastDbConcurrenceChecksumAction
-  = WriteOnLastDbConcurrenceChecksum
-  | RemoveOnLastDbConcurrenceChecksum
-  | IgnoreOnLastDbConcurrenceChecksum
+-- | This type tells us what we need to do with the DbSchemaChecksumOnLastDbConcurrenceFile.
+data RefreshOnLastDbConcurrenceChecksumFile
+  = WriteOnLastDbConcurrenceChecksumFile
+  | RemoveOnLastDbConcurrenceChecksumFile
+  | IgnoreOnLastDbConcurrenceChecksumFile
 
--- When we do a create-only migration, we need to remove the DbSchemaChecksumOnLastDbConcurrenceFile so they know to migrate.
--- When we migrate, we need to write it to indicate the local code and DB are in sync.
-getOnLastDbConcurrenceChecksumAction :: MigrateArgs -> OnLastDbConcurrenceChecksumAction
-getOnLastDbConcurrenceChecksumAction migrateArgs =
+getOnLastDbConcurrenceChecksumFileRefreshAction :: MigrateArgs -> RefreshOnLastDbConcurrenceChecksumFile
+getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs =
+  -- Since a create-only migration allows users to write any SQL, we remove the file to force
+  -- revalidation with the DB. If it is a regular migration, we write it since they will be in sync.
   if _isCreateOnlyMigration migrateArgs
-    then RemoveOnLastDbConcurrenceChecksum
-    else WriteOnLastDbConcurrenceChecksum
+    then RemoveOnLastDbConcurrenceChecksumFile
+    else WriteOnLastDbConcurrenceChecksumFile
