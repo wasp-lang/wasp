@@ -1,5 +1,10 @@
 # Changelog
 
+## vTBD
+
+### BREAKING CHANGES
+- The CLI command for applying a migration with a name has changed from `wasp db migrate-dev foo` to `wasp db migrate-dev --name foo`. This allowed us to add more flags, like `--create-only`.
+
 ## v0.7.0 - Beta Release!
 
 ### BREAKING CHANGES
