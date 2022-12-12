@@ -87,6 +87,8 @@ const Hero = () => {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
+  /* Only logged in users can access this. */
+  authRequired: true,
   /* import your React code */
   component: import Main from "@ext/Main.js"
 }`
