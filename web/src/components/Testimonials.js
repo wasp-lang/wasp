@@ -164,7 +164,7 @@ const Testimonials = () => {
   }
 
   return (
-    <SectionContainer className='space-y-16' id='showcases'>
+    <SectionContainer className='space-y-16' id='testimonials'>
       <div className='grid grid-cols-12'>
         <div className='col-span-12 text-center'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
