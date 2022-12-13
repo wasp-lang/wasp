@@ -411,6 +411,7 @@ test-suite waspc-test
     ErrorTest
     FilePath.ExtraTest
     Fixtures
+    Generator.DbGeneratorTest
     Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
@@ -447,6 +448,7 @@ test-suite cli-test
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
+    DbMigrateTest
     TerminalTest
     Paths_waspc
 

@@ -15,7 +15,14 @@ import StrongPath
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft.Writeable
-import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive, createDirectoryIfMissing), doesDirectoryExist)
+import Wasp.Generator.FileDraft.WriteableMonad
+  ( WriteableMonad
+      ( copyDirectoryRecursive,
+        createDirectoryIfMissing,
+        removeDirectoryRecursive
+      ),
+    doesDirectoryExist,
+  )
 import Wasp.Util (checksumFromByteString, checksumFromChecksums)
 import Wasp.Util.IO (listDirectoryDeep)
 
@@ -35,6 +42,8 @@ data CopyDirFileDraft = CopyDirFileDraft
 instance Writeable CopyDirFileDraft where
   write projectRootAbsPath draft = do
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
+    dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
+    when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
     when srcDirExists $ do
       createDirectoryIfMissing True (SP.fromAbsDir dstPathAbsDir)
       copyDirectoryRecursive srcPathAbsDir dstPathAbsDir

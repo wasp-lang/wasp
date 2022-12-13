@@ -98,7 +98,7 @@ waspCliMigrate migrationName =
    in return $
         combineShellCommands
           [ -- Migrate using a migration name to avoid Prisma asking via CLI.
-            "wasp-cli db migrate-dev " ++ migrationName,
+            "wasp-cli db migrate-dev --name " ++ migrationName,
             -- Rename both migrations to remove the date-specific portion of the directory to something static.
             "mv " ++ (waspMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (waspMigrationsDir </> ("no-date-" ++ migrationName)),
             "mv " ++ (generatedMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (generatedMigrationsDir </> ("no-date-" ++ migrationName))

@@ -6,6 +6,10 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
+    defaultMigrateArgs,
+    getOnLastDbConcurrenceChecksumFileRefreshAction,
+    MigrateArgs (..),
+    RefreshOnLastDbConcurrenceChecksumFile (..),
   )
 where
 
@@ -60,3 +64,26 @@ dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-gene
 
 dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
+
+data MigrateArgs = MigrateArgs
+  { _migrationName :: Maybe String,
+    _isCreateOnlyMigration :: Bool
+  }
+  deriving (Show, Eq)
+
+defaultMigrateArgs :: MigrateArgs
+defaultMigrateArgs = MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = False}
+
+-- | This type tells us what we need to do with the DbSchemaChecksumOnLastDbConcurrenceFile.
+data RefreshOnLastDbConcurrenceChecksumFile
+  = WriteOnLastDbConcurrenceChecksumFile
+  | RemoveOnLastDbConcurrenceChecksumFile
+  | IgnoreOnLastDbConcurrenceChecksumFile
+
+getOnLastDbConcurrenceChecksumFileRefreshAction :: MigrateArgs -> RefreshOnLastDbConcurrenceChecksumFile
+getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs =
+  -- Since a create-only migration allows users to write any SQL, we remove the file to force
+  -- revalidation with the DB. If it is a regular migration, we write it since they will be in sync.
+  if _isCreateOnlyMigration migrateArgs
+    then RemoveOnLastDbConcurrenceChecksumFile
+    else WriteOnLastDbConcurrenceChecksumFile
