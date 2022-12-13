@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-          # TODO: Right now, actions/cache updates cache only if cache was not fetched.
+          # TODO: Right now, actions/cache updates cache only if cache was not fe
           #   This is not ideal for us, because we would ideally update cache even if it
           #   was fetched, because we want to cache any newly installed packages.
           #   This was working normally on Travis and Appveyor.
@@ -103,6 +103,10 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
+
+      - name: On MacOS, skip e2e tests with Docker since it is not installed
+        if: matrix.os == 'macos-latest'
+        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run tests
         run: cabal test
