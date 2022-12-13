@@ -9,7 +9,9 @@ const Feature = ({ title, description, url }) => (
     <div className='lg:mt-5'>
       <dt>
         <h4 className='mb-4'>
-          <span className='bg-yellow-500/25 px-2 py-1 rounded'>{ title }</span>
+          <span className='text-neutral-700 bg-yellow-500/25 px-2 py-1 rounded'>
+            { title }
+          </span>
         </h4>
         <p className='text-neutral-600'>
           { description }
@@ -61,7 +63,7 @@ const HowItWorks = () => {
 
               <Feature 
                 title='Typescript support'
-                url='/'
+                url='/blog/2022/11/29/typescript-feature-announcement'
                 description="JS or TS - mix'n'match as you wish."
               />
 
@@ -73,7 +75,7 @@ const HowItWorks = () => {
 
               <Feature 
                 title='LSP for VS Code'
-                url=''
+                url='/blog/2022/12/01/beta-ide-improvements'
                 description='Syntax highligthing, go-to-definition, etc. work out-of-the-box.'
               />
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.1
+
+### Bug fixes
+- Fixed a bug that was causing Wasp to forget about compiling backend code before running it in production
+
 ## v0.7.0 - Beta Release!
 
 ### BREAKING CHANGES

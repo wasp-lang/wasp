@@ -1,10 +1,14 @@
 import React from 'react'
+import { useHistory } from '@docusaurus/router'
 import { ChevronRight, X } from 'react-feather'
 
 const Announcement = () => {
+  let history = useHistory()
 
   const handleLink = () => {
-    window.open('https://www.producthunt.com/posts/wasp-lang-beta')
+    //history.push('/blog/2022/11/26/wasp-beta-launch-week')
+
+    window.open('https://betathon.wasp-lang.dev/')
   }
 
   return (
@@ -15,7 +19,7 @@ const Announcement = () => {
         cursor-pointer flex-row
         space-x-3
         text-white
-        bg-[#ff6154]
+        bg-yellow-500
       `}
     >
       <div
@@ -27,11 +31,11 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Wasp Beta is live on Product Hunt 🚀</span>
+          <span>Wasp Hackathon #1 is under way! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
-          <span>Support us now!</span>
+          <span>Join now</span>
           <ChevronRight size={14} />
         </span>
 

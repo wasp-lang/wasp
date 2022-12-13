@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'
 import Benefits from '../components/Benefits'
+import Testimonials from '../components/Testimonials'
 import HowItWorks from '../components/HowItWorks'
 import ShowcaseGallery from '../components/ShowcaseGallery'
 import Newsletter from '../components/Newsletter'
@@ -40,6 +41,7 @@ const Index = () => {
 
             <Hero />
             <Benefits />
+            <Testimonials />
 
             <LightsTwo />
 

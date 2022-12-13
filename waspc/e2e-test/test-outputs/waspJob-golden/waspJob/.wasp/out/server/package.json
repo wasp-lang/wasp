@@ -45,7 +45,7 @@
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "start-production": "NODE_ENV=production npm run start",
+    "start-production": "NODE_ENV=production npm run build-and-start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",
