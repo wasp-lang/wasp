@@ -63,7 +63,7 @@ const HowItWorks = () => {
 
               <Feature 
                 title='Typescript support'
-                url='/'
+                url='/blog/2022/11/29/typescript-feature-announcement'
                 description="JS or TS - mix'n'match as you wish."
               />
 
@@ -75,7 +75,7 @@ const HowItWorks = () => {
 
               <Feature 
                 title='LSP for VS Code'
-                url=''
+                url='/blog/2022/12/01/beta-ide-improvements'
                 description='Syntax highligthing, go-to-definition, etc. work out-of-the-box.'
               />
 
