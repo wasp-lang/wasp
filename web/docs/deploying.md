@@ -332,8 +332,7 @@ Now go back to your terminal and execute the following commands:
   Select `server` when prompted with `Select Service`. Press enter.
   Railway will now locate the Dockerfile and deploy your server 👍
 
-  When deployment is finished, you will see: `Deployment live at <url_to_wasp_backend>`
-  Copy this URL 📜. We need it for step 5!
+  When deployment is finished, you might see: `Deployment live at <url_to_wasp_backend>`. If not, go now to your [Railway dashboard](https://railway.app/dashboard) and in the server instance's `Settings` tab, click `Generate Domain`. Copy the new URL as we will need it for step 5! 📜
 
   4. Next, change into your app's frontend build directory `.wasp/build/web-app`:
   ```shell
@@ -348,13 +347,19 @@ Now go back to your terminal and execute the following commands:
   ✅ https://backend.example.com <br/>❌ https://backend.example.com/ 
   :::
 
-  6. Change into the `.wasp/build/web-app/build` directory and deploy:
+  6. Change into the `.wasp/build/web-app/build` directory:
   ```shell
-  cd build && railway up
+  cd build 
   ```
-  This time select `client` when prompted with `Select Service`. 
-
-  7. Your apps are deployed 🧙‍♂️. Now it's time to add environment variables, so open the project in the browser
+  7. Next, we want to link this specific frontend directory to our project as well:
+  ```shell
+  railway link 
+  ```
+  8. Deploy the client and select `client` when prompted with `Select Service`:
+  ```shell
+  railway up
+  ```
+  9. Your apps are deployed 🧙‍♂️. Now it's time to add environment variables, so open the project in the browser
   ```shell
   railway open
   ```
@@ -392,6 +397,9 @@ Next, copy the server's domain, move over to the client's `Variables` tab and ad
 
 And now you should be deployed! 🐝 🚂 🚀
 
+#### Updates & Redeploying
+When you make updates and need to redeploy, just follow [steps 3-7](#deploy-to-services) above. Remember, you can connect or disconnect your app to any project in your Railway account by using `railway link` or `railway unlink` from within the app's directory.
+
 ## Customizing the Dockerfile
 By default, Wasp will generate a multi-stage Dockerfile that is capable of building an image with your Wasp-generated server code and running it, along with any pending migrations, as in the deployment scenario above. If you need to customize this Dockerfile, you may do so by adding a Dockerfile to your project root directory. If present, Wasp will append the contents of this file to the _bottom_ of our default Dockerfile.
 
@@ -403,6 +411,3 @@ Since the last definition in a Dockerfile wins, you can override or continue fro
 To see what your project's (potentially combined) Dockerfile will look like, run: `wasp dockerfile`
 
 Here are the official docker docs on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/). Please join our Discord if you have any questions, or if the customization hook provided here is not sufficient for your needs!
-
-#### Updates & Redeploying
-When you make updates and need to redeploy, just follow [steps 3-7](#deploy-to-services) above. Remember, you can connect or disconnect your app to any project in your Railway account by using `railway link` or `railway unlink` from within the app's directory.
