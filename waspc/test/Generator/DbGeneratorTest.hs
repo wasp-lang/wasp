@@ -5,17 +5,17 @@ import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
     defaultMigrateArgs,
   )
-import Wasp.Generator.DbGenerator.Jobs (asArgs)
+import Wasp.Generator.DbGenerator.Jobs (asPrismaCliArgs)
 
 spec_Jobs :: Spec
 spec_Jobs =
   it "should produce expected args" $ do
-    asArgs defaultMigrateArgs `shouldBe` []
-    asArgs (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
+    asPrismaCliArgs defaultMigrateArgs `shouldBe` []
+    asPrismaCliArgs (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
       `shouldBe` ["--create-only"]
-    asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
+    asPrismaCliArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
       `shouldBe` ["--name", "something"]
-    asArgs (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
+    asPrismaCliArgs (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
       `shouldBe` ["--name", "something else longer"]
-    asArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
+    asPrismaCliArgs (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
       `shouldBe` ["--create-only", "--name", "something"]

@@ -4,7 +4,7 @@ module Wasp.Generator.DbGenerator.Jobs
     generatePrismaClient,
     runStudio,
     migrateStatus,
-    asArgs,
+    asPrismaCliArgs,
   )
 where
 
@@ -40,7 +40,7 @@ migrateDev projectDir migrateArgs = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asArgs migrateArgs
+  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asPrismaCliArgs migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
@@ -50,8 +50,8 @@ migrateDev projectDir migrateArgs = do
 
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
-asArgs :: MigrateArgs -> [String]
-asArgs migrateArgs = do
+asPrismaCliArgs :: MigrateArgs -> [String]
+asPrismaCliArgs migrateArgs = do
   concat . concat $
     [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
       [["--name", name] | Just name <- [_migrationName migrateArgs]]
