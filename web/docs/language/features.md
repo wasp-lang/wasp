@@ -1188,8 +1188,7 @@ const Login = () => {
 export default Login
 ```
 
-You can set the height of the button by setting a prop (e.g., `<Google height={25}/>`), which defaults to 40px.
-
+You can adjust the height of the button by setting a `height` prop (e.g., `<GoogleSignInButton height={25}/>`), which defaults to 40px. NOTE: Under the covers it uses `img.style` instead of `img.height` to be compatible with Tailwind, which sets `height: auto` for `img` in the Tailwind `base` directive. If you need more customization, you can create your own custom component using the `googleSignInUrl`.
 
 ### `externalAuthEntity`
 Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:
