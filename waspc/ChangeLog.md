@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.2
+
+### Bug fixes
+- Fixed Dockerfile generated with `wasp build` -> Prisma would break due to unsupported version of openssl.
+  https://github.com/wasp-lang/wasp/issues/877
+
 ## v0.7.1
 
 ### Bug fixes
