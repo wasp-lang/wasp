@@ -3,6 +3,7 @@ module Tests.WaspBuildTest (waspBuild) where
 import GoldenTest (GoldenTest, makeGoldenTest)
 import ShellCommands
   ( cdIntoCurrentProject,
+    dockerBuild,
     setDbToPSQL,
     waspCliBuild,
     waspCliNew,
@@ -15,5 +16,6 @@ waspBuild =
       [ waspCliNew,
         cdIntoCurrentProject,
         setDbToPSQL,
-        waspCliBuild
+        waspCliBuild,
+        dockerBuild
       ]
