@@ -1,5 +1,7 @@
 <p align=center>
-  <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
+
+ <img height="160px" src="https://user-images.githubusercontent.com/120444777/207278539-e5f75d26-fdc5-4fdc-a136-732fa5021ffc.gif"/>
+
 </p>
 <p align=center>
   A programming language that understands what a web app is.
