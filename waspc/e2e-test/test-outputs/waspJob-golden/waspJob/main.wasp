@@ -1,7 +1,7 @@
 app waspJob {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.7.1"
+    version: "^0.7.2"
   },
   title: "waspJob"
 }
