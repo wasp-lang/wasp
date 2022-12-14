@@ -10,7 +10,7 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
+    // externalAuthEntity: SocialLogin,
     methods: {
       usernameAndPassword: {},
       // google: {
