@@ -4,14 +4,18 @@ module Wasp.Generator.WebAppGenerator.ExternalAuthG
     frontendLoginUrl,
     serverLoginUrl,
     serverOauthRedirectHandlerUrl,
+    templateFilePathInPassportDir,
     ExternalAuthInfo (..),
   )
 where
 
-import StrongPath (File', Path', Rel', relfile)
+import StrongPath (File', Path', Rel, Rel', relfile, (</>))
+import qualified StrongPath as SP
+import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 
 data ExternalAuthInfo = ExternalAuthInfo
-  { _logoFileName :: Path' Rel' File',
+  { _passportTemplateFilePath :: Path' (Rel ServerTemplatesSrcDir) File',
+    _logoFileName :: Path' Rel' File',
     _displayName :: String,
     _slug :: String
   }
@@ -19,7 +23,8 @@ data ExternalAuthInfo = ExternalAuthInfo
 googleAuthInfo :: ExternalAuthInfo
 googleAuthInfo =
   ExternalAuthInfo
-    { _logoFileName = [relfile|google-logo-icon.png|],
+    { _passportTemplateFilePath = [relfile|routes/auth/passport/google/google.js|],
+      _logoFileName = [relfile|google-logo-icon.png|],
       _displayName = "Google",
       _slug = "google"
     }
@@ -27,7 +32,8 @@ googleAuthInfo =
 gitHubAuthInfo :: ExternalAuthInfo
 gitHubAuthInfo =
   ExternalAuthInfo
-    { _logoFileName = [relfile|github-logo-icon.png|],
+    { _passportTemplateFilePath = [relfile|routes/auth/passport/github/github.js|],
+      _logoFileName = [relfile|github-logo-icon.png|],
       _displayName = "GitHub",
       _slug = "github"
     }
@@ -40,3 +46,8 @@ serverLoginUrl eai = "/auth/external/" ++ _slug eai ++ "/login"
 
 serverOauthRedirectHandlerUrl :: ExternalAuthInfo -> String
 serverOauthRedirectHandlerUrl eai = "/auth/external/" ++ _slug eai ++ "/validateCodeForLogin"
+
+templateFilePathInPassportDir :: ExternalAuthInfo -> Path' Rel' File'
+templateFilePathInPassportDir eai =
+  (SP.basename . SP.parent $ _passportTemplateFilePath eai)
+    </> SP.basename (_passportTemplateFilePath eai)

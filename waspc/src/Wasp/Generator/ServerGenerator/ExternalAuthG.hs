@@ -14,6 +14,7 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    Rel',
     reldirP,
     relfile,
     (</>),
@@ -31,7 +32,7 @@ import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
 import Wasp.Util ((<++>))
 
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -58,20 +59,23 @@ genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
             .= [ buildProviderData
                    (_slug googleAuthInfo)
                    (App.Dependency.name googlePassportDependency)
-                   (AS.Auth.isGoogleAuthEnabled auth),
+                   (AS.Auth.isGoogleAuthEnabled auth)
+                   (templateFilePathInPassportDir googleAuthInfo),
                  buildProviderData
                    (_slug gitHubAuthInfo)
                    (App.Dependency.name gitHubPassportDependency)
                    (AS.Auth.isGitHubAuthEnabled auth)
+                   (templateFilePathInPassportDir gitHubAuthInfo)
                ]
         ]
 
-    buildProviderData :: String -> String -> Bool -> Aeson.Value
-    buildProviderData slug npmPackage isEnabled =
+    buildProviderData :: String -> String -> Bool -> Path' Rel' File' -> Aeson.Value
+    buildProviderData slug npmPackage isEnabled passportTemplateFP =
       object
         [ "slug" .= slug,
           "npmPackage" .= npmPackage,
-          "isEnabled" .= isEnabled
+          "isEnabled" .= isEnabled,
+          "passportImportPath" .= ("./" ++ SP.toFilePath passportTemplateFP)
         ]
 
     passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
@@ -81,7 +85,7 @@ genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth
   | AS.Auth.isGoogleAuthEnabled auth =
       sequence
-        [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/google.js|],
+        [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath googleAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
           return $
             mkAuthConfigFd
@@ -97,7 +101,7 @@ genGitHubAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGitHubAuth auth
   | AS.Auth.isGitHubAuthEnabled auth =
       sequence
-        [ return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/github.js|],
+        [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath gitHubAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
           return $
             mkAuthConfigFd
