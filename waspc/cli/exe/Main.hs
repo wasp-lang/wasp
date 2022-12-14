@@ -118,9 +118,12 @@ printVersion = do
     unlines
       [ show waspVersion,
         "",
-        "If you wish to install/switch to different version of Wasp, do:",
+        "If you wish to install/switch to the latest version of Wasp, do:",
+        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
+        "or do",
         "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
-        "where x.y.z is the desired version.",
+        "if you want specific x.y.z version of Wasp.",
+        "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, include the latest one."
       ]
 
