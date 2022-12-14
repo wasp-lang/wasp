@@ -354,7 +354,7 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 
 ### Typical Release Process
 - Update ChangeLog.md with release notes, update version in waspc.cabal, and open a PR for feedback.
-- After approval, squash and merge mentioned PR into `main`.
+- After approval and after all the checks (CI) passed, squash and merge mentioned PR into `main`.
 - Update your local repository state to have all remote changes (`git fetch`).
 - Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
 - Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
