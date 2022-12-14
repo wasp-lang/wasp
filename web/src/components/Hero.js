@@ -4,6 +4,7 @@ import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 import { Terminal } from 'react-feather'
 
+import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
 
 const StartIcon = () => (
@@ -43,6 +44,7 @@ const ActionButtons = () => (
           px-3 py-2 rounded
           border border-neutral-500
           text-sm leading-4
+          text-neutral-700
           hover:text-neutral-400 hover:border-neutral-400
           transition ease-out duration-200
         `}
@@ -85,6 +87,8 @@ const Hero = () => {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
+  /* Only logged in users can access this. */
+  authRequired: true,
   /* import your React code */
   component: import Main from "@ext/Main.js"
 }`
@@ -169,6 +173,22 @@ page MainPage {
 
         </div> {/* EOF col-span-6 */}
 
+      </div>
+
+      <div className='hidden md:flex md:mt-28 items-center justify-center'>
+        <div className='flex flex-col items-center gap-2'>
+          <InstallCmd />
+          <Link to='/docs'>
+            <small
+              className={`
+                text-neutral-500 text-xs
+                hover:text-neutral-400
+              `}
+            >
+              or <span className='underline decoration-neutral-500'>check the detailed instructions</span>
+            </small>
+          </Link>
+        </div>
       </div>
 
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>

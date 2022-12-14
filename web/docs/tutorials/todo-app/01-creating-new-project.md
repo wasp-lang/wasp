@@ -58,7 +58,7 @@ By _your code_, we mean _"the code you write"_ (as opposed to the code generated
 - `src/shared` - Contains the code you want to use on both the client and the server (e.g., runtime-independent utility functions) 
 
 You may be wondering what about the rest of the generated files (`tsconfig.json`
-and `reat-app-env.d.ts`? Your IDE needs them to improve your development
+and `react-app-env.d.ts`? Your IDE needs them to improve your development
 experience (i.e., autocompletion, intellisense, etc.), so it's best to leave
 them alone (for now).
 

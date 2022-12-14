@@ -16,6 +16,8 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 This is the story of our journey along with the tips on leveraging Hacktoberfest to get your repo buzzing! 🐝🐝
 
+<!--truncate-->
+
 ## How it went: the stats
 
 Let's take a quick look at the charts below (data obtained from [OSS Insight](https://ossinsight.io/analyze/wasp-lang/wasp) platform) 👇

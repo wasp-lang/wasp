@@ -4,7 +4,7 @@ import { Star, Twitter } from 'react-feather'
 
 import Announcement from './Announcement'
 import Transition from '../../lib/Transition'
-import { DiscordIcon, TwitterIcon } from './SocialIcons'
+import { GitHubIcon, DiscordIcon, TwitterIcon } from './SocialIcons'
 
 const Nav = () => {
 
@@ -29,6 +29,7 @@ const Nav = () => {
   const SocialIcon = ({ Icon, url }) => (
     <a href={url} target='_blank' rel='noreferrer'
       className={`
+        text-neutral-700
         hidden lg:flex hover:opacity-75 py-5
         hover:text-yellow-500 hover:border-yellow-500
         border-b-2 border-transparent
@@ -36,6 +37,25 @@ const Nav = () => {
     >
       <Icon />
     </a>
+  )
+
+  const WaspGhStarsExactCount = () => (
+    <>
+      {/* NOTE(matija): If I put width to 100 or less, the badge gets cut off in half. */}
+      <iframe
+        src="https://ghbtns.com/github-btn.html?user=wasp-lang&repo=wasp&type=star&count=true" 
+        frameBorder="0"
+        scrolling="0"
+        width="101px"
+        height="20px"
+      >
+      </iframe>
+    </>
+  )
+
+  // NOTE(matija): this one does not show the exact count, but e.g. 2k.
+  const WaspGhStarsShield = () => (
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/wasp-lang/wasp?style=social" />
   )
 
   const GitHubButton = () => (
@@ -52,12 +72,13 @@ const Nav = () => {
         className={`
           flex h-3 w-3 items-center justify-center
           group-hover:h-4 group-hover:w-4
+          text-neutral-700
           group-hover:text-yellow-500
         `}
       >
         <Star strokeWidth={2} />
       </div>
-      <span className='truncate'>Star us on GitHub</span>
+      <span className='truncate text-neutral-700'>Star us on GitHub</span>
     </a>
   )
 
@@ -126,6 +147,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-solid border-b-2 border-transparent
                         text-sm font-semibold
@@ -140,6 +162,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
                         text-sm font-semibold
@@ -154,6 +177,7 @@ const Nav = () => {
                     <span
                       className={`
                         py-5 px-1
+                        text-neutral-700
                         hover:text-yellow-500 hover:border-yellow-500
                         border-b-2 border-transparent
                         text-sm font-medium
@@ -172,7 +196,12 @@ const Nav = () => {
                         text-sm font-medium
                       `}
                     >
-                      <span className='px-2 py-1 rounded bg-yellow-500/25 hover:bg-yellow-500/10'>
+                      <span
+                        className={`
+                          text-neutral-700
+                          px-2 py-1 rounded bg-yellow-500/25 hover:bg-yellow-500/10
+                        `}
+                      >
                         📬 Join the list
                       </span>
                     </span>
@@ -182,6 +211,15 @@ const Nav = () => {
               </div> {/* EOF left side */}
 
               <div className='flex items-center gap-2 space-x-2'> {/* Navbar right side */}
+                {/* GH stars badge */}
+                {/*
+                <span className='hidden lg:inline'>
+                  <Link to='https://github.com/wasp-lang/wasp' className='flex items-center'>
+                    <WaspGhStarsExactCount />
+                  </Link>
+                </span>
+                */}
+
                 <GitHubButton />
 
                 <Link to='/docs'>
@@ -197,6 +235,11 @@ const Nav = () => {
                     Get started
                   </button>
                 </Link>
+
+                <SocialIcon
+                  Icon={ GitHubIcon } 
+                  url='https://github.com/wasp-lang/wasp'
+                />
 
                 <SocialIcon
                   Icon={ DiscordIcon } 
@@ -301,8 +344,11 @@ const Nav = () => {
                 {/* GitHub */}
                 <div className='space-y-1 pt-2 pb-4'>
                   <Link to="https://github.com/wasp-lang/wasp">
-                    <span className="text-neutral-700 block pl-3 pr-4 text-base font-medium">
-                      ⭐️ GitHub
+                    <span className='flex items-center'>
+                      <span className="text-neutral-700 pl-3 pr-4 text-base font-medium">
+                        ⭐️ GitHub
+                      </span>
+                      <WaspGhStarsExactCount />
                     </span>
                   </Link>
                 </div>

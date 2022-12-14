@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.7.3
+
+### MINOR CLI BREAKING CHANGE
+- The CLI command for applying a migration with a name has changed from `wasp db migrate-dev foo` to `wasp db migrate-dev --name foo`. This allowed us to add more flags, like `--create-only`.
+
+## v0.7.2
+
+### Bug fixes
+- Fixed Dockerfile generated with `wasp build` -> Prisma would break due to unsupported version of openssl.
+  https://github.com/wasp-lang/wasp/issues/877
+
+## v0.7.1
+
+### Bug fixes
+- Fixed a bug that was causing Wasp to forget about compiling backend code before running it in production
+
 ## v0.7.0 - Beta Release!
 
 ### BREAKING CHANGES

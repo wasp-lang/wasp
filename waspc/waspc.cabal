@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.7.0
+version:        0.7.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -413,6 +413,7 @@ test-suite waspc-test
     ErrorTest
     FilePath.ExtraTest
     Fixtures
+    Generator.DbGeneratorTest
     Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
@@ -449,6 +450,7 @@ test-suite cli-test
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
   other-modules:
+    DbMigrateTest
     TerminalTest
     Paths_waspc
 

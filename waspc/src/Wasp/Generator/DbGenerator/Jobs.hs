@@ -3,6 +3,8 @@ module Wasp.Generator.DbGenerator.Jobs
     migrateDiff,
     generatePrismaClient,
     runStudio,
+    migrateStatus,
+    asPrismaCliArgs,
   )
 where
 
@@ -10,7 +12,7 @@ import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
@@ -24,12 +26,10 @@ prismaInServerNodeModules = serverRootDirInProjectRootDir </> [SP.relfile|./node
 absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
 absPrismaExecutableFp projectDir = SP.toFilePath $ projectDir </> prismaInServerNodeModules
 
-migrateDev :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
-migrateDev projectDir maybeMigrationName = do
+migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
+migrateDev projectDir migrateArgs = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
   let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-
-  let optionalMigrationArgs = maybe [] (\name -> ["--name", name]) maybeMigrationName
 
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
@@ -40,7 +40,7 @@ migrateDev projectDir maybeMigrationName = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ optionalMigrationArgs
+  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asPrismaCliArgs migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
@@ -49,6 +49,13 @@ migrateDev projectDir maybeMigrationName = do
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
   runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+
+asPrismaCliArgs :: MigrateArgs -> [String]
+asPrismaCliArgs migrateArgs = do
+  concat . concat $
+    [ [["--create-only"] | _isCreateOnlyMigration migrateArgs],
+      [["--name", name] | Just name <- [_migrationName migrateArgs]]
+    ]
 
 -- | Diffs the Prisma schema file against the db.
 -- Because of the --exit-code flag, it changes the exit code behavior
@@ -65,6 +72,24 @@ migrateDiff projectDir = do
           "--to-schema-datasource",
           schemaFileFp,
           "--exit-code"
+        ]
+
+  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
+
+-- | Checks to see if all migrations are applied to the DB.
+-- An exit code of 0 means we successfully verified all migrations are applied.
+-- An exit code of 1 could mean either: (a) there was a DB connection error,
+-- or (b) there are pending migrations to apply.
+-- Therefore, this should be checked **after** a command that ensures connectivity.
+migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
+migrateStatus projectDir = do
+  let serverDir = projectDir </> serverRootDirInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
+  let prismaMigrateDiffCmdArgs =
+        [ "migrate",
+          "status",
+          "--schema",
+          schemaFileFp
         ]
 
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db

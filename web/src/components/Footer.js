@@ -112,7 +112,7 @@ const Footer = () => {
 
           {/* newsletter part */}
           <div className='xl:col-span-1'>
-            <h3 className='text-base'>Stay up to date</h3>
+            <h3 className='text-base text-neutral-700'>Stay up to date</h3>
             <p className='mt-4 text-sm text-neutral-500'>
               Join our mailing list and be the first to know when
               we ship new features and updates!
@@ -131,7 +131,7 @@ const Footer = () => {
             <p className='mt-4 text-xs text-neutral-400'>
               © Wasp, Inc. All rights reserved.
             </p>
-            <DarkModeToggle />
+            {/* <DarkModeToggle /> */}
           </div>
         </div>
       </SectionContainer>

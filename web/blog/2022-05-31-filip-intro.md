@@ -34,7 +34,7 @@ Welcome to the team, Filip - we can't wait to see what you build!
 - I’ve designed and implemented my own Turing-complete functional programming
   language that compiles to JavaScript.
 - I wasted nearly 30 hours customizing my setup to maximize productivity and
-  probably ended up in a less productive state
+  probably ended up in a less productive state.
 
 #### Which statement was the lie above? Any interesting stories to share?
 
