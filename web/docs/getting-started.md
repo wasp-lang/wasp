@@ -8,6 +8,9 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
+:::tip Try Wasp Without Installing 🤔?
+  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
+:::
 
 ## 1. Requirements
 
