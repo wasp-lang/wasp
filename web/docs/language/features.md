@@ -1105,7 +1105,7 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
-This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
+This method also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 
 If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
 
