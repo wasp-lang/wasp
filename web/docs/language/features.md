@@ -705,7 +705,7 @@ job mySpecialJob {
 ####  `perform: dict` (required)
 
   - ##### `fn: ServerImport` (required)
-  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which should be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
+  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
 
   ```js
   export async function foo(args, context) {
