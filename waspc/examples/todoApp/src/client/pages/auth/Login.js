@@ -2,8 +2,8 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-// import { SignInButton as GoogleSignInButton } from '@wasp/auth/buttons/Google'
-// import { SignInButton as GitHubSignInButton } from '@wasp/auth/buttons/GitHub'
+// import { SignInButton as GoogleSignInButton } from '@wasp/auth/helpers/Google'
+// import { SignInButton as GitHubSignInButton } from '@wasp/auth/helpers/GitHub'
 
 const Login = () => {
   return (

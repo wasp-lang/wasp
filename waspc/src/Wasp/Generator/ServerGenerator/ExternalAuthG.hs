@@ -89,8 +89,8 @@ genGoogleAuth auth
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
           return $
             mkAuthConfigFd
-              [relfile|routes/auth/passport/generic/config.js|]
-              [relfile|routes/auth/passport/google/config.js|]
+              [relfile|routes/auth/passport/generic/configMapping.js|]
+              [relfile|routes/auth/passport/google/configMapping.js|]
               (Just configTmplData)
         ]
   | otherwise = return []
@@ -105,8 +105,8 @@ genGitHubAuth auth
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
           return $
             mkAuthConfigFd
-              [relfile|routes/auth/passport/generic/config.js|]
-              [relfile|routes/auth/passport/github/config.js|]
+              [relfile|routes/auth/passport/generic/configMapping.js|]
+              [relfile|routes/auth/passport/github/configMapping.js|]
               (Just configTmplData)
         ]
   | otherwise = return []

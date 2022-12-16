@@ -23,7 +23,7 @@ data ExternalAuthInfo = ExternalAuthInfo
 googleAuthInfo :: ExternalAuthInfo
 googleAuthInfo =
   ExternalAuthInfo
-    { _passportTemplateFilePath = [relfile|routes/auth/passport/google/google.js|],
+    { _passportTemplateFilePath = [relfile|routes/auth/passport/google/config.js|],
       _logoFileName = [relfile|google-logo-icon.png|],
       _displayName = "Google",
       _slug = "google"
@@ -32,7 +32,7 @@ googleAuthInfo =
 gitHubAuthInfo :: ExternalAuthInfo
 gitHubAuthInfo =
   ExternalAuthInfo
-    { _passportTemplateFilePath = [relfile|routes/auth/passport/github/github.js|],
+    { _passportTemplateFilePath = [relfile|routes/auth/passport/github/config.js|],
       _logoFileName = [relfile|github-logo-icon.png|],
       _displayName = "GitHub",
       _slug = "github"
