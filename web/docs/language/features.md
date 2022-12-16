@@ -1173,7 +1173,7 @@ To use the Google sign-in button, logo or URL on your login page, do either of t
 
 ```js
 ...
-import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/buttons/Google'
+import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/helpers/Google'
 
 const Login = () => {
   return (

@@ -83,25 +83,25 @@ genSignupForm auth =
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth
-  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginButtons auth
+  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginHelpers auth
   | otherwise = return []
 
-genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
-genSocialLoginButtons auth =
+genSocialLoginHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genSocialLoginHelpers auth =
   return $
     concat
-      [ [gitHubButton | AS.App.Auth.isGitHubAuthEnabled auth],
-        [googleButton | AS.App.Auth.isGoogleAuthEnabled auth]
+      [ [gitHubHelpers | AS.App.Auth.isGitHubAuthEnabled auth],
+        [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubButton = mkButtonFd gitHubAuthInfo [relfile|GitHub.js|]
-    googleButton = mkButtonFd googleAuthInfo [relfile|Google.js|]
+    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
+    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
 
-    mkButtonFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
-    mkButtonFd externalAuthInfo buttonFp =
+    mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
+    mkHelpersFd externalAuthInfo helpersFp =
       mkTmplFdWithDstAndData
-        [relfile|src/auth/buttons/Generic.js|]
-        (SP.castRel $ [reldir|src/auth/buttons|] SP.</> buttonFp)
+        [relfile|src/auth/helpers/Generic.js|]
+        (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
         (Just tmplData)
       where
         tmplData =
