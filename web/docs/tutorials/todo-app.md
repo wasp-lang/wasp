@@ -5,7 +5,7 @@ title: Introduction
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 :::tip Skip the Tutorial & See Wasp in Action 👹?
-It's possible because we've set up an in-browser dev enviornment for you on Gitpod.
+It's possible because we've set up an in-browser dev environment for you on Gitpod.
 You will be able to see and edit the finished ToDo app with no setup required. 
 <p align="center">
      <a href="https://gitpod.io/#https://github.com/wasp-lang/gitpod-template">
