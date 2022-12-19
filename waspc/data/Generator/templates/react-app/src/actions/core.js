@@ -1,4 +1,4 @@
-import { callOperation } from '../operations'
+import { callAction } from '../operations'
 import {
   registerActionInProgress,
   registerActionDone,
@@ -11,7 +11,7 @@ export function createAction(actionRoute, entitiesUsed) {
       // The `return await` is not redundant here. If we removed the await, the
       // `finally` block would execute before the action finishes, prematurely
       // registering the action as done.
-      return await callOperation(actionRoute, args)
+      return await callAction(actionRoute, args)
     } finally {
       await registerActionDone(entitiesUsed, specificOptimisticUpdateDefinitions)
     }

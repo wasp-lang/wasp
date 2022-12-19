@@ -110,12 +110,15 @@ genOperationsRouter spec
                          )
                    ),
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
-              "isUsingAuth" .= isAuthEnabledForOperation operation
+              "isUsingAuth" .= isAuthEnabledForOperation operation,
+              "isQuery" .= isQuery operation
             ]
 
     isAuthEnabledGlobally = isAuthEnabled spec
     isAuthEnabledForOperation operation = fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     isAuthSpecifiedForOperation operation = isJust $ AS.Operation.getAuth operation
+    isQuery (AS.Operation.QueryOp _ _) = True
+    isQuery (AS.Operation.ActionOp _ _) = False
 
 operationRouteInOperationsRouter :: AS.Operation.Operation -> String
 operationRouteInOperationsRouter = U.camelToKebabCase . AS.Operation.getName
