@@ -13,6 +13,9 @@
 ### GitHub added as a social login
 We have added GitHub as another social login option. It is as easy to use as Google, and only requires adding `gitHub` to your `app.auth.methods` plus two environment variables (`GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`)! Check out the docs for more.
 
+### Bug fixes
+- Again fixed Dockerfile generated with `wasp build` (after fixing it only half-way last time :facepalm) -> Prisma would break due to unsupported version of openssl.
+
 ## v0.7.2
 
 ### Bug fixes

@@ -583,7 +583,13 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 ## Jobs
 
-If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will persist between server restarts, can be retried if they fail, and they can even be delayed until the future (or have a recurring schedule)! Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
+If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will:
+  * persist between server restarts
+  * can be retried if they fail
+  * can be delayed until the future
+  * can have a recurring schedule! 
+  
+Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
 
 ### Job Executors
 
@@ -597,7 +603,8 @@ Currently, Wasp supports only one type of job executor, which is `PgBoss`, but i
 
 We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
-Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details for more information.
+:::info 
+Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
 
 <details>
   <summary>pg-boss details</summary>
@@ -617,6 +624,7 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 
 </details>
+:::
 
 ### Basic job definition and usage
 
@@ -626,7 +634,7 @@ To declare a `job` in Wasp, simply add a declaration with a reference to an `asy
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/jobs/bar.js"
+    fn: import { foo } from "@server/workers/bar.js"
   }
 }
 ```
@@ -643,7 +651,9 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`.
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`. 
+
+Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function. 
 
 ### Recurring jobs
 
@@ -653,7 +663,7 @@ If you have work that needs to be done on some recurring basis, you can add a `s
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@server/jobs/bar.js"
+    fn: import { foo } from "@server/workers/bar.js"
   },
   schedule: {
     cron: "0 * * * *",
@@ -662,7 +672,7 @@ job mySpecialJob {
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ "job": "args" })` getting automatically scheduled and invoked for you every hour.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
 ### Fully specified example
 Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
@@ -670,9 +680,8 @@ Both `perform` and `schedule` accept `executorOptions`, which we pass directly t
 ```c
 job mySpecialJob {
   executor: PgBoss,
-  entities: [Task],
   perform: {
-    fn: import { foo } from "@server/jobs/bar.js",
+    fn: import { foo } from "@server/workers/bar.js",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -683,7 +692,8 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 0 } json=}
     }
-  }
+  },
+  entities: [Task],
 }
 ```
 
@@ -695,7 +705,7 @@ job mySpecialJob {
 ####  `perform: dict` (required)
 
   - ##### `fn: ServerImport` (required)
-  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a JSON value as the first argument and context containing any declared entities as the second. Here is a sample signature:
+  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
 
   ```js
   export async function foo(args, context) {
@@ -713,6 +723,8 @@ job mySpecialJob {
   
   - ##### `cron: string` (required)
   A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#scheduling).
+  
+  _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
   
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
