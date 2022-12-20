@@ -23,6 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 
 data RouterTemplateData = RouterTemplateData
@@ -30,7 +31,7 @@ data RouterTemplateData = RouterTemplateData
     _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
-    _isGoogleAuthEnabled :: Bool
+    _externalAuthProviders :: ![ExternalAuthProviderTemplateData]
   }
 
 instance ToJSON RouterTemplateData where
@@ -40,7 +41,7 @@ instance ToJSON RouterTemplateData where
         "pagesToImport" .= _pagesToImport routerTD,
         "isAuthEnabled" .= _isAuthEnabled routerTD,
         "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
-        "isGoogleAuthEnabled" .= _isGoogleAuthEnabled routerTD
+        "externalAuthProviders" .= _externalAuthProviders routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -68,6 +69,21 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
+data ExternalAuthProviderTemplateData = ExternalAuthProviderTemplateData
+  { _authFrontendUrl :: !String,
+    _authServerOauthRedirectUrl :: !String,
+    _authProviderEnabled :: Bool
+  }
+  deriving (Show, Eq)
+
+instance ToJSON ExternalAuthProviderTemplateData where
+  toJSON externalProviderTD =
+    object
+      [ "authFrontendUrl" .= _authFrontendUrl externalProviderTD,
+        "authServerOauthRedirectUrl" .= _authServerOauthRedirectUrl externalProviderTD,
+        "authProviderEnabled" .= _authProviderEnabled externalProviderTD
+      ]
+
 genRouter :: AppSpec -> Generator FileDraft
 genRouter spec = do
   return $
@@ -87,12 +103,29 @@ createRouterTemplateData spec =
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _isGoogleAuthEnabled = (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True
+      _externalAuthProviders = externalAuthProviders
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
+    externalAuthProviders =
+      map
+        (createExternalAuthProviderTemplateData maybeAuth)
+        [ (AS.App.Auth.isGoogleAuthEnabled, googleAuthInfo),
+          (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthInfo)
+        ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+createExternalAuthProviderTemplateData ::
+  Maybe AS.App.Auth.Auth ->
+  (AS.App.Auth.Auth -> Bool, ExternalAuthInfo) ->
+  ExternalAuthProviderTemplateData
+createExternalAuthProviderTemplateData maybeAuth (method, externalAuthInfo) =
+  ExternalAuthProviderTemplateData
+    { _authFrontendUrl = frontendLoginUrl externalAuthInfo,
+      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl externalAuthInfo,
+      _authProviderEnabled = (method <$> maybeAuth) == Just True
+    }
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =

@@ -4,11 +4,12 @@
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
-    GoogleConfig (..),
+    ExternalAuthConfig (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
-    isGoogleAuthEnabled,
     isExternalAuthEnabled,
+    isGoogleAuthEnabled,
+    isGitHubAuthEnabled,
   )
 where
 
@@ -29,7 +30,8 @@ data Auth = Auth
 
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
-    google :: Maybe GoogleConfig
+    google :: Maybe ExternalAuthConfig,
+    gitHub :: Maybe ExternalAuthConfig
   }
   deriving (Show, Eq, Data)
 
@@ -39,7 +41,7 @@ data UsernameAndPasswordConfig = UsernameAndPasswordConfig
   }
   deriving (Show, Eq, Data)
 
-data GoogleConfig = GoogleConfig
+data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
     getUserFieldsFn :: Maybe ExtImport
   }
@@ -51,8 +53,11 @@ usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
 
+isExternalAuthEnabled :: Auth -> Bool
+isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled, isGitHubAuthEnabled]
+
 isGoogleAuthEnabled :: Auth -> Bool
 isGoogleAuthEnabled = isJust . google . methods
 
-isExternalAuthEnabled :: Auth -> Bool
-isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled]
+isGitHubAuthEnabled :: Auth -> Bool
+isGitHubAuthEnabled = isJust . gitHub . methods

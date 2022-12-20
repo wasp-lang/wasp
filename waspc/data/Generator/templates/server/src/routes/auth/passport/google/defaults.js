@@ -2,10 +2,10 @@ import { generateAvailableDictionaryUsername } from '../../../../core/auth.js'
 
 // Default implementation if there is no `auth.methods.google.configFn`.
 export function configFn() {
-  const clientId = process.env['GOOGLE_CLIENT_ID']
+  const clientID = process.env['GOOGLE_CLIENT_ID']
   const clientSecret = process.env['GOOGLE_CLIENT_SECRET']
 
-  if (!clientId) {
+  if (!clientID) {
     throw new Error("Missing GOOGLE_CLIENT_ID environment variable.")
   }
 
@@ -13,7 +13,7 @@ export function configFn() {
     throw new Error("Missing GOOGLE_CLIENT_SECRET environment variable.")
   }
 
-  return { clientId, clientSecret, scope: ['profile'] }
+  return { clientID, clientSecret, scope: ['profile'] }
 }
 
 // Default implementation if there is no `auth.methods.google.getUserFieldsFn`.

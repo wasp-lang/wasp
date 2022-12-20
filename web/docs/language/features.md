@@ -831,12 +831,13 @@ app MyApp {
 Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `externalAuthEntity: entity` (optional)
-Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google).
+Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google) and [GitHub](#github).
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
 * `google`: Provides support for login via Google accounts. See [here](#google) for more.
+* `gitHub`: Provides support for login via GitHub accounts. See [here](#github) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -1115,11 +1116,12 @@ import AuthError from '@wasp/core/AuthError.js'
     //...
   }
 ```
-This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity).
 
-If you require custom configuration setup or user entity field assignment, you can [override the defaults](#overrides).
+This method also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 
-#### Default settings
+If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
+
+#### Google Default settings
 - Configuration:
   - By default, Wasp expects you to set two environment variables in order to use Google authentication:
     - `GOOGLE_CLIENT_ID`
@@ -1132,9 +1134,9 @@ If you require custom configuration setup or user entity field assignment, you c
 
     Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their Google account, as described in **Overrides** below 
   :::
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/googleDefaults.js . These can be overriden as explained below.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/defaults.js . These can be overriden as explained below.
 
-#### Overrides
+#### Google Overrides
 If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
 
 ```js
@@ -1156,9 +1158,9 @@ If you require modifications to the above, you can add one or more of the follow
   export function config() {
     // ...
     return {
-      clientId, // look up from env or elsewhere,
+      clientID, // look up from env or elsewhere,
       clientSecret, // look up from env or elsewhere,
-      scope: ['profile'] // must include at least 'profile'
+      scope: ['profile'] // must include at least 'profile' for Google
     }
   }
 
@@ -1177,13 +1179,13 @@ If you require modifications to the above, you can add one or more of the follow
   ```
   - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
 
-#### UI helpers
+#### Google UI helpers
 
-To use the Google sign-in button or URL on your login page, do either of the following:
+To use the Google sign-in button, logo or URL on your login page, do either of the following:
 
 ```js
 ...
-import { GoogleSignInButton, googleSignInUrl } from '@wasp/auth/buttons/Google'
+import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/helpers/Google'
 
 const Login = () => {
   return (
@@ -1200,7 +1202,39 @@ const Login = () => {
 export default Login
 ```
 
-You can adjust the height of the button by setting a `height` prop (e.g., `<GoogleSignInButton height={25}/>`), which defaults to 40px. NOTE: Under the covers it uses `img.style` instead of `img.height` to be compatible with Tailwind, which sets `height: auto` for `img` in the Tailwind `base` directive. If you need more customization, you can create your own custom component using the `googleSignInUrl`.
+If you need more customization than what the buttons provide, you can create your own custom component using the `googleSignInUrl`.
+
+### GitHub
+
+`gitHub` authentication makes it possible to use GitHub's OAuth 2.0 service to sign GitHub users into your app. To enable it, add `gitHub: {}` to your `auth.methods` dictionary to use it with default settings: 
+
+```js
+  //...
+
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      gitHub: {}
+    },
+    //...
+  }
+```
+
+This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
+
+If you require custom configuration setup or user entity field assignment, you can override the defaults. Please check out that section for [Google overrides](features#google-overrides), as the information is the same.
+
+#### GitHub Default settings
+- Configuration:
+  - By default, Wasp expects you to set two environment variables in order to use GitHub authentication:
+    - `GITHUB_CLIENT_ID`
+    - `GITHUB_CLIENT_SECRET`
+  - These can be obtained in your GitHub project dashboard. See [here](/docs/integrations/github#github-auth) for more.
+- The same sign-in logic applies as for Google. Please see [that section](features#google-default-settings) for more.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/github/defaults.js
+
+NOTE: The same UI helpers apply as for Google. Please [see here](features#google-ui-helpers) for more.
 
 ### `externalAuthEntity`
 Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:

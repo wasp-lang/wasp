@@ -7,6 +7,7 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -15,6 +16,8 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
+import qualified Wasp.Generator.WebAppGenerator.ExternalAuthG as ExternalAuthG
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -80,12 +83,33 @@ genSignupForm auth =
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth
-  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginButtons auth
+  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginHelpers auth
   | otherwise = return []
 
-genSocialLoginButtons :: AS.Auth.Auth -> Generator [FileDraft]
-genSocialLoginButtons auth =
-  return [C.mkTmplFd (C.asTmplFile [relfile|src/auth/buttons/Google.js|]) | AS.App.Auth.isGoogleAuthEnabled auth]
+genSocialLoginHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genSocialLoginHelpers auth =
+  return $
+    concat
+      [ [gitHubHelpers | AS.App.Auth.isGitHubAuthEnabled auth],
+        [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
+      ]
+  where
+    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
+    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
+
+    mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
+    mkHelpersFd externalAuthInfo helpersFp =
+      mkTmplFdWithDstAndData
+        [relfile|src/auth/helpers/Generic.js|]
+        (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
+        (Just tmplData)
+      where
+        tmplData =
+          object
+            [ "signInPath" .= ExternalAuthG.serverLoginUrl externalAuthInfo,
+              "iconName" .= SP.toFilePath (ExternalAuthG._logoFileName externalAuthInfo),
+              "displayName" .= ExternalAuthG._displayName externalAuthInfo
+            ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =

@@ -237,6 +237,7 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
+    Wasp.Generator.ServerGenerator.ExternalAuthG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
@@ -249,6 +250,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.ExternalAuthG
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG

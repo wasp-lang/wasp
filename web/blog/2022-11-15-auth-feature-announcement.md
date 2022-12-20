@@ -87,7 +87,7 @@ Follow the Google setup guide [here](https://wasp-lang.dev/docs/integrations/goo
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-import { GoogleSignInButton } from '@wasp/auth/buttons/Google'
+import { SignInButton as GoogleSignInButton } from '@wasp/auth/helpers/Google'
 import LoginForm from '@wasp/auth/forms/Login'
 
 const Login = () => {
