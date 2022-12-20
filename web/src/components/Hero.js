@@ -2,7 +2,7 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { Terminal } from 'react-feather'
+import { Terminal, ArrowUpRight } from 'react-feather'
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
@@ -90,7 +90,7 @@ page MainPage {
   /* Only logged in users can access this. */
   authRequired: true,
   /* import your React code */
-  component: import Main from "@ext/Main.js"
+  component: import Main from "@client/Main.js"
 }`
 
   return (
@@ -145,16 +145,27 @@ page MainPage {
         <div className='lg:col-span-6 lg:mt-0 mt-16'>
           <div className='relative flex flex-col items-center justify-center'>
 
+            {/* Editor header bar */}
             <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
-              <span className='text-sm text-neutral-500'>todoApp.wasp</span>
+              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/tutorials/TodoApp/main.wasp'>
+                <span
+                  className={`
+                    text-sm text-neutral-500 flex items-center space-x-1 hover:text-neutral-400
+                    transition ease-out duration-200
+                  `}
+                >
+                  <span>todoApp.wasp</span>
+                  <ArrowUpRight size={14} />
+                </span>
+              </Link>
               <div className='flex space-x-2'>
                 <div className='bg-yellow-500 h-2 w-2 rounded-full' />
                 <div className='bg-yellow-500 h-2 w-2 rounded-full' />
                 <div className='bg-yellow-500 h-2 w-2 rounded-full' />
               </div>
-
             </div>
 
+            {/* Editor body */}
             <div className='w-full text-sm shadow-2xl rounded-b-md'>
               <SyntaxHighlighter
                 language="javascript" 
