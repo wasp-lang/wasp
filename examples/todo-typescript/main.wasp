@@ -49,7 +49,8 @@ page SignupPage {
 
 query getTasks {
   // We specify the JS implementation of our query (which is an async JS function)
-  // which can be found in `server/queries.js` as a named export `getTasks`.
+  // Even if you use TS and have a queries.ts file, you will still need to import it using the .js extension. 
+  // see here for more info: https://wasp-lang.dev/docs/tutorials/todo-app/03-listing-tasks#wasp-declaration
   fn: import { getTasks } from "@server/queries.js",
   // We tell Wasp that this query is doing something with the `Task` entity. With that, Wasp will
   // automatically refresh the results of this query when tasks change.
