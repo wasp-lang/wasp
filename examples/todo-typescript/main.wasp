@@ -1,4 +1,4 @@
-app VideoTodoNotifier {
+app TodoTypescript {
   wasp: {
     version: "^0.7.3"
   },
