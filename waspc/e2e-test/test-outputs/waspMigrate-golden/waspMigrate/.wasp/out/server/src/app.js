@@ -35,8 +35,11 @@ app.use((err, req, res, next) => {
     return res.status(err.statusCode).json({ message: err.message, data: err.data })
   }
 
-  console.error(err);
-  return res.status(500).json({message: "An internal server error occurred."})
+  // This will be handled by the default Express error handler, which in prod will
+  // return a status in the 5xx range and set the message based on the status code.
+  // Note: In dev, you will get the stacktrace of the error.
+  // Ref: https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
+  return next(err)
 })
 
 export default app
