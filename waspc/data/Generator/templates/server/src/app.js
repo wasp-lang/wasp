@@ -35,7 +35,7 @@ app.use((err, req, res, next) => {
     return res.status(err.statusCode).json({ message: err.message, data: err.data })
   }
 
-  // This will be handled by the built-in Express error handler, which in prod will
+  // This will be handled by the default Express error handler, which in prod will
   // return a status in the 5xx range and set the message based on the status code.
   // Note: In dev, you will get the stacktrace of the error.
   // Ref: https://expressjs.com/en/guide/error-handling.html#the-default-error-handler
