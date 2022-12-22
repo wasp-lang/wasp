@@ -29,6 +29,7 @@ jobs:
         uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
+          node-version: '18'
 
   build:
     name: Build Wasp
@@ -90,8 +91,8 @@ jobs:
           #   fails multiple times while others don't, its cache will likely get evicted,
           #   making it even slower to test and fix (uffff).
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-          restore-keys: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-
+          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
       - name: Check Haskell code formatting
         if: matrix.os == 'ubuntu-20.04'
