@@ -59,11 +59,11 @@ jobs:
           git config --global core.eol lf
 
       - name: Checkout the repo
-        uses: actions/checkout@v2.6.0
+        uses: actions/checkout@v2
 
       - name: Set up Haskell
         id: setup-haskell-cabal
-        uses: haskell/actions/setup@v1.1.4
+        uses: haskell/actions/setup@v1.1
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
@@ -74,7 +74,7 @@ jobs:
           cabal --version
 
       - name: Cache
-        uses: actions/cache@v2.1.7
+        uses: actions/cache@v2
         with:
           path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           # TODO: Right now, actions/cache updates cache only if cache was not fe
