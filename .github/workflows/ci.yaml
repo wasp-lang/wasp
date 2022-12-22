@@ -23,13 +23,12 @@ defaults:
 jobs:
   cancel:
     name: Cancel redundant actions already in progress
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Cancel actions in progress of same workflow and same branch
         uses: styfle/cancel-workflow-action@0.9.0
         with:
           access_token: ${{ github.token }}
-          node-version: '18'
 
   build:
     name: Build Wasp
