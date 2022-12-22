@@ -98,8 +98,8 @@ In the meantime, the best way to start using Wasp on Windows is by using [WSL](h
   If you are using WSL2, make sure that your Wasp project is not on Windows file system, but instead on Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
 :::
 
-:::info note
-Users on WSL (Ubuntu users generally) need to use the latest LTE to run Wasp. Jammy Jellyfish (22.04) is the latest Ubuntu LTE. [This article](https://www.layerstack.com/resources/tutorials/How-to-upgrade-from-Ubuntu-20.04-Ubuntu-22.04) will guide you on how to upgrade to Jammy Jellyfish (22.04)
+:::info
+  Getting Glibc errors? [Check here](https://github.com/wasp-lang/wasp/issues/867)
 :::
 
 </div>
