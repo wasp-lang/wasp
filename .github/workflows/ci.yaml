@@ -63,7 +63,7 @@ jobs:
 
       - name: Set up Haskell
         id: setup-haskell-cabal
-        uses: haskell/actions/setup@v1.1
+        uses: haskell/actions/setup@v1
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
