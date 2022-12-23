@@ -52,7 +52,6 @@ const Index = () => {
         <main>
           <Background />
           <div>
-            {' '}
             {/* container */}
             <Hero />
             <Benefits />
@@ -63,7 +62,7 @@ const Index = () => {
             <ShowcaseGallery />
             <Newsletter />
             <Faq />
-          </div>{' '}
+          </div>
           {/* eof container */}
         </main>
       </div>
