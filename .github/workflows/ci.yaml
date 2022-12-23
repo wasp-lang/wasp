@@ -41,8 +41,11 @@ jobs:
           - "3.6.2.0"
         os:
           # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
-          # users and other services. Can return to `ubuntu-latest` when
-          # enough time has elapsed. Still looking into musl static binaries.
+          # users and other services. The strategy here is to pick a slightly older LTS
+          # version of Ubuntu to build on so glibc is not too new. glibc has great backward
+          # compatibility though, so older builds will run on new OSs (but not vice versa).
+          # We can return to `ubuntu-latest` when enough time has elapsed.
+          # Still looking into musl static binaries.
           # Ref: https://github.com/wasp-lang/wasp/issues/650
           - ubuntu-20.04
           - macos-latest
