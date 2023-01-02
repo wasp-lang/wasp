@@ -26,6 +26,14 @@ const testimonials = [
     source: PH
   },
   {
+    text: "The simplification of the main.wasp file is 👍. And it feels like a very light weight version of a few larger frameworks.",
+    url: 'https://twitter.com/tskaggs/status/1602513968207101954',
+    name: 'Tim ✌️',
+    handle: '@tskaggs',
+    img: 'img/lp/tm/tskaggs.png',
+    source: TWITTER
+  },
+  {
     text: "@WaspLang has been in the back of my mind for months now. It left an impression, and I’m really not easy to impress. That’s gotta mean something… #programming #webdevelopment #FullStack",
     url: 'https://twitter.com/AttilaTheDev/status/1583530646047117317',
     name: 'Attila Vago',
@@ -37,7 +45,7 @@ const testimonials = [
     text: "If it weren't for Wasp, my app Amicus would probably have never been finished. I estimate it saved me 100+ hours from the start and I'm still amazed that I did all this work as a team-of-one. Being able to quickly change existing features and add the new ones is the biggest advantage of Wasp for me. Wasp is my favorite producthunt find!",
     url: 'https://www.producthunt.com/posts/wasp-lang-beta?comment=2048472',
     name: 'Erlis Kllogjri',
-    handle: 'erlis_kllogjri',
+    handle: '@erlis_kllogjri',
     img: 'img/lp/tm/erlis.jpg',
     source: PH
   },

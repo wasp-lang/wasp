@@ -19,6 +19,7 @@ module.exports = {
     'https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap'
   ],
   themeConfig: {
+    /*
     announcementBar: {
       id: 'Beta_is_here',
       content: 'Wasp Hackathon #1 is underway! 🚀 <a href="https://betathon.wasp-lang.dev/">Join now</a>',
@@ -26,6 +27,7 @@ module.exports = {
       textColor: '#fff',
       isCloseable: false,
     },
+    */
     navbar: {
       title: '.wasp (beta)',
       logo: {
