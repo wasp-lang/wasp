@@ -3,7 +3,6 @@
 ## v0.8.0
 
 ### BREAKING CHANGES
-- The CLI command for applying a migration with a name has changed from `wasp db migrate-dev foo` to `wasp db migrate-dev --name foo`. This allowed us to add more flags, like `--create-only`.
 - Social auth had several breaking changes as we added a new provider (GitHub).
   - Buttons and sign in URLs now have a different, standardized import name for each provider.
     - Google exe: `import { SignInButton as GoogleSignInButton, signInUrl, logoUrl } from '@wasp/auth/buttons/Google'`
@@ -12,6 +11,11 @@
 
 ### GitHub added as a social login
 We have added GitHub as another social login option. It is as easy to use as Google, and only requires adding `gitHub` to your `app.auth.methods` plus two environment variables (`GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`)! Check out the docs for more.
+
+## v0.7.3
+
+### MINOR CLI BREAKING CHANGE
+- The CLI command for applying a migration with a name has changed from `wasp db migrate-dev foo` to `wasp db migrate-dev --name foo`. This allowed us to add more flags, like `--create-only`.
 
 ### Bug fixes
 - Again fixed Dockerfile generated with `wasp build` (after fixing it only half-way last time :facepalm) -> Prisma would break due to unsupported version of openssl.
