@@ -21,6 +21,7 @@ import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Update (update)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
@@ -42,6 +43,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ["update"] -> Command.Call.Update
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -62,6 +64,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
+    Command.Call.Update -> runCommand update
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.GenerateBashCompletionScript -> runCommand generateBashCompletionScript
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
@@ -101,6 +104,7 @@ printUsage =
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd "    info                  Prints basic information about current Wasp project.",
+        cmd "    update                Update wasp.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",

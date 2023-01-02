@@ -323,6 +323,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
+    , process ^>=1.6.13.2
     , strong-path
     , text
     , utf8-string
@@ -349,6 +350,7 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
+    Wasp.Cli.Command.Update
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common
