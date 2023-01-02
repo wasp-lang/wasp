@@ -58,6 +58,7 @@ module.exports = {
       label: 'Integrations',
       collapsed: false,
       items: [
+        'integrations/github',
         'integrations/google',
         'integrations/css-frameworks'
       ]
