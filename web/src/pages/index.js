@@ -1,22 +1,22 @@
-import React from 'react';
-import classNames from 'classnames';
+import React from 'react'
+import classNames from 'classnames'
 
-import Head from '@docusaurus/Head';
-import Nav from '../components/Nav/index';
-import Hero from '../components/Hero';
-import Benefits from '../components/Benefits';
-import Testimonials from '../components/Testimonials';
-import ExampleWaspApps from '../components/ExampleWaspApps';
-import HowItWorks from '../components/HowItWorks';
-import ShowcaseGallery from '../components/ShowcaseGallery';
-import Newsletter from '../components/Newsletter';
-import Faq from '../components/Faq';
-import Footer from '../components/Footer';
+import Head from '@docusaurus/Head'
+import Nav from '../components/Nav/index'
+import Hero from '../components/Hero'
+import Benefits from '../components/Benefits'
+import Testimonials from '../components/Testimonials'
+import ExampleWaspApps from '../components/ExampleWaspApps'
+import HowItWorks from '../components/HowItWorks'
+import ShowcaseGallery from '../components/ShowcaseGallery'
+import Newsletter from '../components/Newsletter'
+import Faq from '../components/Faq'
+import Footer from '../components/Footer'
 
-import waspLogo from '../../static/img/wasp-logo.png';
-import styles from './styles.module.css';
-import './index.css';
-import './preflight.css';
+import waspLogo from '../../static/img/wasp-logo.png'
+import styles from './styles.module.css'
+import './index.css'
+import './preflight.css'
 
 const Background = () => {
   return (
