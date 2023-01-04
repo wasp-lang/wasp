@@ -1,7 +1,7 @@
 contact_links:
-  - name: Discussions - Feature Suggestions
+  - name: Feature Request / Feedback @ Github Discussions
     url: https://github.com/wasp-lang/wasp/discussions/categories/feature-suggestions-feedback
     about: Please open new or comment on existing feature suggestions / requests here!
-  - name: Wasp Discord server
+  - name: Join live chat @ Wasp Discord server
     url: https://discord.com/invite/rzdnErX
     about: Join our Discord server to chat live with other Waspeteers (including Wasp Team)!
