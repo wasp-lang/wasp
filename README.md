@@ -99,6 +99,7 @@ Even if you don't plan to submit any code, just joining the discussion on discor
 You can also:
  - :star: Star this repo to show your interest/support.
  - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
+ - :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
 
 # Careers
 
