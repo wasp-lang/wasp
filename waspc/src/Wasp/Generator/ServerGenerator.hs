@@ -173,6 +173,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
+    <++> genTypesDir spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -235,6 +236,23 @@ genRoutesDir spec =
               ]
         )
     ]
+
+genTypesDir :: AppSpec -> Generator [FileDraft]
+genTypesDir spec = return [indexFileDraft]
+  where
+    indexFileDraft =
+      C.mkTmplFdWithDstAndData
+        (C.asTmplFile [relfile|src/types/index.ts|])
+        (C.asServerFile [relfile|src/types/index.ts|])
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust userEntityName,
+                "userEntityName" .= fromMaybe "" userEntityName
+              ]
+        )
+    allEntities = map (C.buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

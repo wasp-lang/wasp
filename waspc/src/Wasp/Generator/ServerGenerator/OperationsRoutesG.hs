@@ -43,7 +43,7 @@ genQueryRoute :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQueryRoute spec (queryName, query) = genOperationRoute spec op tmplFile
   where
     op = AS.Operation.QueryOp queryName query
-    tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/routes/operations/_query.ts|]
 
 genOperationRoute :: AppSpec -> AS.Operation.Operation -> Path' (Rel C.ServerTemplatesDir) File' -> Generator FileDraft
 genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -65,9 +65,10 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           baseTmplData
 
     operationImportPath =
-      SP.fromRelFileP $
-        relPosixPathFromOperationsRoutesDirToSrcDir
-          </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+      C.toESModulesImportPath $
+        SP.fromRelFileP $
+          relPosixPathFromOperationsRoutesDirToSrcDir
+            </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
 data OperationsRoutesDir
 

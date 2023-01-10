@@ -42,7 +42,7 @@ genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
-    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
     tmplData = operationTmplData operation
 
@@ -59,7 +59,7 @@ queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir queryName =
   [reldir|queries|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ queryName ++ ".js")
+    </> fromJust (SP.parseRelFile $ queryName ++ ".ts")
 
 actionFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir actionName =
@@ -80,15 +80,9 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= maybe [] (map (buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
     ]
   where
     (importIdentifier, importStmt) =
       getJsImportDetailsForExtFnImport relPosixPathFromOperationFileToExtSrcDir $
         AS.Operation.getFn operation
-    buildEntityData :: String -> Aeson.Value
-    buildEntityData entityName =
-      object
-        [ "name" .= entityName,
-          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
-        ]

@@ -12,6 +12,8 @@ module Wasp.Generator.ServerGenerator.Common
     asServerFile,
     asServerSrcFile,
     entityNameToPrismaIdentifier,
+    buildEntityData,
+    toESModulesImportPath,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -19,6 +21,7 @@ module Wasp.Generator.ServerGenerator.Common
   )
 where
 
+import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
@@ -99,3 +102,14 @@ dotEnvServer = [relfile|.env.server|]
 -- client SDK identifiers. Useful when creating `context.entities` JS objects in Wasp templates.
 entityNameToPrismaIdentifier :: String -> String
 entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
+
+buildEntityData :: String -> Aeson.Value
+buildEntityData name =
+  object
+    [ "name" .= name,
+      "prismaIdentifier" .= entityNameToPrismaIdentifier name
+    ]
+
+-- https://github.com/wasp-lang/wasp/issues/812#issuecomment-1335579353
+toESModulesImportPath :: FilePath -> FilePath
+toESModulesImportPath = (++ ".js") . reverse . drop 3 . reverse
