@@ -1,8 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
-import {
-  AuthenticatedQuery,
-  Task
-} from '@wasp/types'
+import { Task } from '@wasp/entities'
+import { AuthenticatedQuery } from '@wasp/types'
 
 export const getTasks: AuthenticatedQuery<[Task], Task[]> = async (args, context) => {
   if (!context.user) {

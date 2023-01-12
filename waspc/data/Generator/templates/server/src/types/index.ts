@@ -1,51 +1,53 @@
 {{={= =}=}}
 import prisma from '../dbClient.js'
-import {
+import { 
+    WaspEntity,
     {=# entities =}
     {= name =},
     {=/ entities =}
-} from '@prisma/client'
+ } from '../entities'
 
-export {
-    {=# entities =}
-    {= name =},
-    {=/ entities =}
-} from '@prisma/client'
+export type Query<Entities extends WaspEntity[], Result = unknown> = Operation<Entities, Result>
+
+export type Action<Entities extends WaspEntity[], Result = unknown> = Operation<Entities, Result>
 
 {=# isAuthEnabled =}
-export type {= userEntityName =}View = Omit<{= userEntityName =}, 'password'>
+export type AuthenticatedQuery<Entities extends WaspEntity[], Result = unknown> = 
+  AuthenticatedOperation<Entities, Result>
+
+export type AuthenticatedAction<Entities extends WaspEntity[], Result = unknown> = 
+  AuthenticatedOperation<Entities, Result>
+
+type AuthenticatedOperation<Entities extends WaspEntity[], Result = unknown> = (
+  args: any,
+  context: {
+      user: {= userViewName =},
+      entities: EntityMap<Entities>,
+  },
+) => Promise<Result>
+
+type {= userViewName =} = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
 
-type DelegateFor<EntityName> =
-    {=# entities =}
-    EntityName extends "{= name =}" ? typeof prisma.{= prismaIdentifier =} :
-    {=/ entities =}
-    never
+type Operation<Entities extends WaspEntity[], Result = unknown> = (
+  args: any,
+  context: {
+      entities: EntityMap<Entities>,
+  },
+) => Promise<Result>
 
-type NameOf<Entity> =
-    {=# entities =}
-    Entity extends {= name =} ? "{= name =}" :
-    {=/ entities =}
-    never
+type DelegateFor<EntityName extends string> =
+  {=# entities =}
+  EntityName extends "{= name =}" ? typeof prisma.{= prismaIdentifier =} :
+  {=/ entities =}
+  never
 
-type EntityMap<Entities extends unknown[]> = {
-    [EntityName in NameOf<Entities[number]>]: DelegateFor<EntityName>
+type NameOf<Entity extends WaspEntity> =
+  {=# entities =}
+  Entity extends {= name =} ? "{= name =}" :
+  {=/ entities =}
+  never
+
+type EntityMap<Entities extends WaspEntity[]> = {
+  [EntityName in NameOf<Entities[number]>]: DelegateFor<EntityName>
 }
-
-export type Query<Entities extends unknown[], R = unknown> = (
-    args: any,
-    context: {
-        entities: EntityMap<Entities>,
-    },
-) => Promise<R>
-
-
-{=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends unknown[], R = unknown> = (
-    args: any,
-    context: {
-        user: {= userEntityName =}View,
-        entities: EntityMap<Entities>,
-    },
-) => Promise<R>
-{=/ isAuthEnabled =}

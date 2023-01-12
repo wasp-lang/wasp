@@ -173,7 +173,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
-    <++> genTypesDir spec
+    <++> genTypesAndEntitiesDirs spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -237,22 +237,29 @@ genRoutesDir spec =
         )
     ]
 
-genTypesDir :: AppSpec -> Generator [FileDraft]
-genTypesDir spec = return [indexFileDraft]
+genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
+genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDraft]
   where
-    indexFileDraft =
+    entitiesIndexFileDraft =
       C.mkTmplFdWithDstAndData
-        (C.asTmplFile [relfile|src/types/index.ts|])
-        (C.asServerFile [relfile|src/types/index.ts|])
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    typesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/types/index.ts|]
+        [relfile|src/types/index.ts|]
         ( Just $
             object
               [ "entities" .= allEntities,
                 "isAuthEnabled" .= isJust userEntityName,
-                "userEntityName" .= fromMaybe "" userEntityName
+                "userEntityName" .= fromMaybe "" userEntityName,
+                "userViewName" .= fromMaybe "" userViewName
               ]
         )
     allEntities = map (C.buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
+    userViewName = (++ "View") <$> userEntityName
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
