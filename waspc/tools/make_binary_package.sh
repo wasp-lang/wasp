@@ -16,8 +16,8 @@ cp "$WASP_BINARY_PATH" "$TMP_DIR/wasp-bin"
 CABAL_PROJECT_ROOT_PATH="$(cabal list-bin wasp-cli | sed s/\\/dist-newstyle.*//)"
 cp -R "$CABAL_PROJECT_ROOT_PATH/data" "$TMP_DIR/data"
 
-mkdir -p "$TMP_DIR/data/packages/deploy"
-cp -R "packages/deploy" "$TMP_DIR/data/packages/deploy"
+mkdir "$TMP_DIR/data/packages"
+cp -R "packages/deploy" "$TMP_DIR/data/packages"
 
 cd "$TMP_DIR"
 tar -czf "$DST" *
