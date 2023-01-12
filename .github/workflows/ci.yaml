@@ -140,7 +140,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifact
-          path: artifacts/wasp-linux-x86_64.tar.gz
+          path: waspc/artifacts/wasp-linux-x86_64.tar.gz
           retention-days: 1
           if-no-files-found: error
 
