@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - release
+      - shayne-deploy-packaged # TODO: remove after testing
   pull_request: { }
   create: { tags: [v*] }
   schedule:
@@ -125,7 +126,7 @@ jobs:
           npm install
           npm run build
 
-      # TEMP: modified if, undo
+      # TODO: modified if, revert after testing
       - name: Create binary package (Unix)
         if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
@@ -133,7 +134,7 @@ jobs:
           mkdir artifacts
           ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
 
-      # TEMP: remove after testing
+      # TODO: remove after testing
       - name: 'TEMP Upload Artifact'
         if: (matrix.os == 'ubuntu-20.04')
         uses: actions/upload-artifact@v3
