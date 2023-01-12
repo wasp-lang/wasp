@@ -119,12 +119,13 @@ jobs:
       - name: Run tests
         run: cabal test
 
-      - name: Build deploy package and move into data dir
+      - name: Build deploy package
         if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
           cd packages/deploy
           npm install
           npm run build
+          rm -rf ./node_modules
 
       # TODO: modified if, revert after testing
       - name: Create binary package (Unix)
