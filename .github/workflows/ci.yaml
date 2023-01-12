@@ -118,15 +118,28 @@ jobs:
       - name: Run tests
         run: cabal test
 
-      - name: List current directory
-        run: ls
+      - name: Build deploy package and move into data dir
+        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        run: |
+          cd packages/deploy
+          npm install
+          npm run build
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
           ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+
+      - name: 'TEMP Upload Artifact'
+        if: (matrix.os == 'ubuntu-20.04')
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: artifacts/wasp-linux-x86_64.tar.gz
+          retention-days: 1
+          if-no-files-found: error
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
