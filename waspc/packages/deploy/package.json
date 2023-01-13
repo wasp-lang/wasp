@@ -7,8 +7,7 @@
   "bin": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsc",
-    "prepublish": "npx tsc"
+    "build": "npx tsc"
   },
   "dependencies": {
     "commander": "^9.4.1",

@@ -16,6 +16,7 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand, studio)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
@@ -46,6 +47,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
+        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -67,6 +69,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
+    Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.

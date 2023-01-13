@@ -8,6 +8,8 @@ import { cdToClientDir, cdToServerDir } from '../helpers/helpers.js'
 export async function setup(baseName: string, region: string, options: IGlobalOptions) {
   echo`Setting up your Wasp app with Fly.io!`
 
+  // TODO: build if missing
+
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
   const deploymentInfo = new DeploymentInfo(baseName, region, options, tomlFiles)
 

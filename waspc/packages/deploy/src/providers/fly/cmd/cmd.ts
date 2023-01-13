@@ -8,6 +8,8 @@ import { ICmdOptions, SERVER_CONTEXT_OPTION, CLIENT_CONTEXT_OPTION } from './ICm
 export async function cmd(flyctlArgs: [string], options: ICmdOptions) {
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
 
+  // TODO: build if missing
+
   echo`Running ${options.context} command: flyctl ${flyctlArgs.join(' ')}`
 
   if (options.context === SERVER_CONTEXT_OPTION) {
