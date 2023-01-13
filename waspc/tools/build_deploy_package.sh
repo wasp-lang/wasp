@@ -9,3 +9,7 @@ cd "$dir/../packages/deploy"
 npm install
 npm run build
 rm -rf ./node_modules
+
+cd "$dir/.."
+rm -rf ./data/packages
+cp -R ./packages ./data

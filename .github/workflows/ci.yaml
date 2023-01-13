@@ -101,6 +101,11 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
+      # TODO: add github.ref check
+      - name: Build deploy package
+        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        run: ./tools/build_deploy_package.sh
+
       - name: Build external dependencies 
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
       
@@ -118,11 +123,6 @@ jobs:
 
       - name: Run tests
         run: cabal test
-
-      # TODO: add github.ref check
-      - name: Build deploy package
-        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
-        run: ./tools/build_deploy_package.sh
 
       # TODO: modified if, revert after testing
       - name: Create binary package (Unix)
