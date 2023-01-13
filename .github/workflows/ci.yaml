@@ -119,13 +119,10 @@ jobs:
       - name: Run tests
         run: cabal test
 
+      # TODO: add github.ref check
       - name: Build deploy package
         if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
-        run: |
-          cd packages/deploy
-          npm install
-          npm run build
-          rm -rf ./node_modules
+        run: ./tools/build_deploy_package.sh
 
       # TODO: modified if, revert after testing
       - name: Create binary package (Unix)

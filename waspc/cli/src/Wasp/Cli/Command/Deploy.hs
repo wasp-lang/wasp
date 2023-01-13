@@ -16,6 +16,7 @@ import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
+  -- TODO: use getAbsDataDirPath instead
   waspDataDir <- liftIO $ getEnv "waspc_datadir"
   let deployPackageDir = waspDataDir ++ "/packages/deploy"
   -- TODO: check for node_modules existence first
