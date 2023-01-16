@@ -39,10 +39,10 @@ genOperations spec =
     <++> genActions spec
 
 genQueries :: AppSpec -> Generator [FileDraft]
-genQueries spec = mapM genQuery (AS.getQueries spec)
+genQueries = mapM genQuery . AS.getQueries
 
 genActions :: AppSpec -> Generator [FileDraft]
-genActions spec = mapM genAction (AS.getActions spec)
+genActions = mapM genAction . AS.getActions
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec = genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally
