@@ -5,13 +5,13 @@
 export { {= configFnIdentifier =} as configFn }
 {=/ doesConfigFnExist =}
 {=^ doesConfigFnExist =}
-export { configFn } from './googleDefaults.js'
+export { configFn } from './defaults.js'
 {=/ doesConfigFnExist =}
 
-{=# doesOnSignInFnExist =}
+{=# doesGetUserFieldsFnExist =}
 {=& getUserFieldsFnImportStatement =}
 export { {= getUserFieldsFnIdentifier =} as getUserFieldsFn }
-{=/ doesOnSignInFnExist =}
-{=^ doesOnSignInFnExist =}
-export { getUserFieldsFn } from './googleDefaults.js'
-{=/ doesOnSignInFnExist =}
+{=/ doesGetUserFieldsFnExist =}
+{=^ doesGetUserFieldsFnExist =}
+export { getUserFieldsFn } from './defaults.js'
+{=/ doesGetUserFieldsFnExist =}

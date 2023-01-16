@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Cancel actions in progress of same workflow and same branch
-        uses: styfle/cancel-workflow-action@0.9.0
+        uses: styfle/cancel-workflow-action@0.11.0
         with:
           access_token: ${{ github.token }}
 
@@ -40,7 +40,14 @@ jobs:
         cabal:
           - "3.6.2.0"
         os:
-          - ubuntu-latest
+          # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
+          # users and other services. The strategy here is to pick a slightly older LTS
+          # version of Ubuntu to build on so glibc is not too new. glibc has great backward
+          # compatibility though, so older builds will run on new OSs (but not vice versa).
+          # We can return to `ubuntu-latest` when enough time has elapsed.
+          # Still looking into musl static binaries.
+          # Ref: https://github.com/wasp-lang/wasp/issues/650
+          - ubuntu-20.04
           - macos-latest
           - windows-latest
 
@@ -55,11 +62,11 @@ jobs:
           git config --global core.eol lf
 
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Haskell
         id: setup-haskell-cabal
-        uses: haskell/actions/setup@v1
+        uses: haskell/actions/setup@v2
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: ${{ matrix.cabal }}
@@ -70,7 +77,7 @@ jobs:
           cabal --version
 
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
           # TODO: Right now, actions/cache updates cache only if cache was not fe
@@ -86,11 +93,11 @@ jobs:
           #   fails multiple times while others don't, its cache will likely get evicted,
           #   making it even slower to test and fix (uffff).
           #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-          restore-keys: wasp-build-${{ runner.os }}-${{ matrix.ghc }}-
+          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
       - name: Check Haskell code formatting
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
       - name: Build external dependencies 
@@ -100,7 +107,7 @@ jobs:
         run: cabal build all
 
       - name: Set up Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
 
@@ -112,7 +119,7 @@ jobs:
         run: cabal test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
@@ -120,7 +127,7 @@ jobs:
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         with:
           draft: true
           allowUpdates: true

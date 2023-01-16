@@ -48,7 +48,7 @@ app TodoApp {
     // Expects entity User to have (username:String) and (password:String) fields.
     userEntity: User,
     methods: {
-      // We also support Google, with more on the way!
+      // We also support Google and GitHub, with more on the way!
       usernameAndPassword: {}
     },
     // We'll see how this is used a bit later

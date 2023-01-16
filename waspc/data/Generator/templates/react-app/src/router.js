@@ -22,13 +22,13 @@ const router = (
       {=/ routes =}
 
       {=# isExternalAuthEnabled =}
-
-      {=# isGoogleAuthEnabled =}
-      <Route exact path="/auth/login/google">
-        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/google/validateCodeForLogin" />
+      {=# externalAuthProviders =}
+      {=# authProviderEnabled =}
+      <Route exact path="{= authFrontendUrl =}">
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
       </Route>
-      {=/ isGoogleAuthEnabled =}
-
+      {=/ authProviderEnabled =}
+      {=/ externalAuthProviders =}
       {=/ isExternalAuthEnabled =}
     </div>
   </Router>

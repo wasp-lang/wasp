@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.8.0
+
+### BREAKING CHANGES
+- Social auth had several breaking changes as we added a new provider (GitHub).
+  - Buttons and sign in URLs now have a different, standardized import name for each provider.
+    - Google exe: `import { SignInButton as GoogleSignInButton, signInUrl, logoUrl } from '@wasp/auth/buttons/Google'`
+  - Buttons themselves have been restyled to make them more uniform, and no longer take an optional `height` parameter.
+  - Social config object now use a `clientID` property instead of `clientId`.
+
+### GitHub added as a social login
+We have added GitHub as another social login option. It is as easy to use as Google, and only requires adding `gitHub` to your `app.auth.methods` plus two environment variables (`GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`)! Check out the docs for more.
+
 ## v0.7.3
 
 ### MINOR CLI BREAKING CHANGE

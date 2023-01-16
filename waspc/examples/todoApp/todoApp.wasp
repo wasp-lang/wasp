@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.7.0"
+    version: "^0.8.0"
   },
   title: "ToDo App",
   // head: [],
@@ -16,6 +16,10 @@ app todoApp {
       // google: {
       //   configFn: import { config } from "@server/auth/google.js",
       //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      // },
+      // gitHub: {
+      //   configFn: import { config } from "@server/auth/github.js",
+      //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       // }
     },
     onAuthFailedRedirectTo: "/login",
