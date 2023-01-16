@@ -1,5 +1,5 @@
 import './Main.css';
-import React, { useEffect, FormEventHandler } from 'react';
+import React, { useEffect, FormEventHandler, FormEvent } from 'react';
 import logout from '@wasp/auth/logout.js';
 import useAuth from '@wasp/auth/useAuth.js';
 import { useQuery } from '@wasp/queries'; // Wasp uses a thin wrapper around react-query
@@ -49,7 +49,7 @@ function Todo({ id, isDone, description }: Task) {
   return (
     <li>
       <input type='checkbox' id={id.toString()} checked={isDone} onChange={handleIsDoneChange} />
-      <span>{description}</span>{' '}
+      <span>{description}</span>
     </li>
   );
 };
@@ -66,7 +66,7 @@ function TasksList({tasks}: { tasks: Task[] }) {
 };
 
 function NewTaskForm() {
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     
     try {
