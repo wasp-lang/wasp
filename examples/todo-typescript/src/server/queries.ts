@@ -1,7 +1,7 @@
 import HttpError from '@wasp/core/HttpError.js';
 import { Context, Task } from './serverTypes'
 
-export const getTasks = async (args: null, context: Context): Promise<Task[]> => {
+export async function getTasks(args: unknown, context: Context): Promise<Task[]> {
   if (!context.user) {
     throw new HttpError(401);
   }

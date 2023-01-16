@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import LoginForm from '@wasp/auth/forms/Login';
 
-const LoginPage = () => {
+export function LoginPage() {
   return (
     <main>
       <h1>Login</h1>
@@ -15,5 +14,3 @@ const LoginPage = () => {
     </main>
   );
 };
-
-export default LoginPage;

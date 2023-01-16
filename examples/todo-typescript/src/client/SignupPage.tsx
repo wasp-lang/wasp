@@ -1,8 +1,7 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import SignupForm from '@wasp/auth/forms/Signup';
 
-const SignupPage = () => {
+export function SignupPage() {
   return (
     <main>
       <h1>Sign Up</h1>
@@ -15,5 +14,3 @@ const SignupPage = () => {
     </main>
   );
 };
-
-export default SignupPage;

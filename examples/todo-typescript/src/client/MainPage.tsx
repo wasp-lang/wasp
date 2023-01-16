@@ -1,5 +1,5 @@
 import './Main.css';
-import React from 'react';
+import React, { useEffect, FormEventHandler } from 'react';
 import logout from '@wasp/auth/logout.js';
 import useAuth from '@wasp/auth/useAuth.js';
 import { useQuery } from '@wasp/queries'; // Wasp uses a thin wrapper around react-query
@@ -9,11 +9,11 @@ import updateTask from '@wasp/actions/updateTask';
 import waspLogo from './waspLogo.png';
 import { Task } from './types'
 
-const MainPage = () => {
+export function MainPage() {
   const { data: user } = useAuth();
-  const { data: tasks, isLoading, error } = useQuery(getTasks);
+  const { data: tasks, isLoading, error } = useQuery<unknown, Task[]>(getTasks);
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log(user);
   }, [user]);
 
@@ -34,42 +34,38 @@ const MainPage = () => {
   );
 };
 
-const Todo = ({task, number}: {task: Task, number: number}) => { 
-  const handleIsDoneChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+function Todo({ id, isDone, description }: Task) {
+  const handleIsDoneChange = async (event: FormEventHandler<HTMLInputElement>) => {
     try {
       await updateTask({
-        taskId: task.id,
+        taskId: id,
         isDone: event.currentTarget.checked,
       });
     } catch (err: any) {
-      window.alert('Error while updating task: ' + err?.message);
+      window.alert('Error while updating task ' + err?.message);
     }
   };
 
   return (
-    <div>
-      <span>
-        {number + 1}
-        {''}
-      </span>
-      <input type='checkbox' id={task.id.toString()} checked={task.isDone} onChange={handleIsDoneChange} />
-      <span>{task.description}</span>{' '}
-    </div>
+    <li>
+      <input type='checkbox' id={id.toString()} checked={isDone} onChange={handleIsDoneChange} />
+      <span>{description}</span>{' '}
+    </li>
   );
 };
 
-const TasksList = ({tasks}: { tasks: Task[] }) => {
+function TasksList({tasks}: { tasks: Task[] }) {
   if (tasks.length === 0) return <p>No tasks yet.</p>;
   return (
-    <div className='tasklist'>
+    <ol className='tasklist'>
       {tasks.map((tsk, idx) => (
-        <Todo task={tsk} number={idx} key={idx} />
+        <Todo {...tsk} key={idx} />
       ))}
-    </div>
+    </ol>
   );
 };
 
-const NewTaskForm = () => {
+function NewTaskForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     
@@ -90,5 +86,3 @@ const NewTaskForm = () => {
     </form>
   );
 };
-
-export default MainPage;

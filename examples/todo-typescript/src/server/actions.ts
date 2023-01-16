@@ -1,9 +1,9 @@
 import HttpError from '@wasp/core/HttpError.js';
 import { Context, Task } from './serverTypes'
 
-type createArgs = { description: Task['description'] };
+type CreateArgs = { description: Task['description'] };
 
-export const createTask = async ({ description }: createArgs, context: Context) => {
+export async function createTask({ description }: CreateArgs, context: Context) {
   if (!context.user) {
     throw new HttpError(401);
   }
@@ -16,9 +16,9 @@ export const createTask = async ({ description }: createArgs, context: Context) 
   });
 };
 
-type updateArgs = { taskId: Task['id']; isDone: Task['isDone'] };
+type UpdateArgs = { taskId: Task['id']; isDone: Task['isDone'] };
 
-export const updateTask = async ({ taskId, isDone }: updateArgs, context: Context) => {
+export async function updateTask({ taskId, isDone }: UpdateArgs, context: Context) {
   if (!context.user) {
     throw new HttpError(401);
   }

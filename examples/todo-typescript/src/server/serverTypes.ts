@@ -1,6 +1,6 @@
-import { Task as TaskType, User, Prisma } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 
-export type Task = TaskType;
+export { Task } from '@prisma/client';
 
 export type Context = {
   user: User;
