@@ -7,10 +7,13 @@ module Wasp.Lib
     compileAndRenderDockerfile,
     CompileError,
     CompileWarning,
+    deploy,
   )
 where
 
 import Control.Arrow
+import Control.Concurrent (newChan)
+import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except
 import Control.Monad.Extra (whenMaybeM)
 import Data.List (find, isSuffixOf)
@@ -18,7 +21,7 @@ import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
-import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
@@ -28,15 +31,19 @@ import Wasp.Common (DbMigrationsDir, WaspProjectDir, dbMigrationsDirInWaspProjec
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.ConfigFile as CF
+import qualified Wasp.Data as Data
 import Wasp.Error (showCompilerErrorForTerminal)
 import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.ConfigFile as G.CF
+import Wasp.Generator.DbGenerator.Operations (printJobMsgsUntilExitReceived)
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
+import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
-import Wasp.Util (maybeToEither)
+import Wasp.Util (maybeToEither, unlessM)
 import qualified Wasp.Util.IO as Util.IO
 
 type CompileError = String
@@ -173,3 +180,19 @@ compileAndRenderDockerfile waspDir compileOptions = do
     Right appSpec -> do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . toList) dockerfileOrGeneratorErrors
+
+-- TODO: return errors if they occur
+deploy :: Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
+deploy waspDir cmdArgs = do
+  waspDataDir <- Data.getAbsDataDirPath
+  putStrLn $ toFilePath waspDataDir
+  let deployDir = waspDataDir </> [reldir|packages/deploy|]
+  unlessM (doesDirectoryExist $ toFilePath $ deployDir </> [reldir|node_modules|]) $
+    runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "npm" ["install"] J.Server
+  let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-dir", toFilePath waspDir]
+  putStrLn $ join deployScriptArgs
+  runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "node" deployScriptArgs J.Server
+  where
+    runCommandAndPrintOutput job = do
+      chan <- newChan
+      void $ concurrently (printJobMsgsUntilExitReceived chan) (job chan)

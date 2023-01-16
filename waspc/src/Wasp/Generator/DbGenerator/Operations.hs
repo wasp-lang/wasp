@@ -5,6 +5,7 @@ module Wasp.Generator.DbGenerator.Operations
     writeDbSchemaChecksumToFile,
     removeDbSchemaChecksumFile,
     areAllMigrationsAppliedToDb,
+    printJobMsgsUntilExitReceived,
   )
 where
 

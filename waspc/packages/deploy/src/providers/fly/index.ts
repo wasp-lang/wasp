@@ -14,6 +14,7 @@ export function addFlyCommand(program: Command) {
     .addCommand(makeCreateFlyDbCommand())
     .addCommand(makeFlyDeployCommand())
     .addCommand(makeExecuteFlyCommand())
+    .allowUnknownOption()
 
   // Add global options and hooks to all commands.
   fly.commands.forEach((cmd) => {
