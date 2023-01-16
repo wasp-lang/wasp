@@ -25,6 +25,7 @@ module Wasp.Util
     checksumFromFilePath,
     checksumFromChecksums,
     ifM,
+    unlessM,
     fromMaybeM,
     orIfNothing,
     orIfNothingM,
@@ -174,6 +175,9 @@ infixr 5 <:>
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
+
+unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM b f = ifM b (pure ()) f
 
 type Checksum = Hex
 
