@@ -56,6 +56,16 @@ export function getAppNameFromToml(path: string): string {
   return data.app
 }
 
+export function getInferredBasenameFromServerToml(paths: ITomlFilePaths) {
+  const serverName = getAppNameFromToml(paths.serverTomlPath)
+  return serverName.replace('-server', '')
+}
+
+export function getInferredBasenameFromClientToml(paths: ITomlFilePaths) {
+  const clientName = getAppNameFromToml(paths.clientTomlPath)
+  return clientName.replace('-client', '')
+}
+
 export function replaceLineInLocalToml(searchValue: string | RegExp, replaceValue: string) {
   const content = fs.readFileSync('fly.toml', 'utf8')
   const updatedContent = content.replace(searchValue, replaceValue)

@@ -22,8 +22,7 @@ export async function deploy(options: IGlobalOptions) {
   if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
     echo`${tomlFiles.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run the "setup" command first?`
   } else {
-    const serverName = tomlHelpers.getAppNameFromToml(tomlFiles.serverTomlPath)
-    const inferredBaseName = serverName.replace('-server', '')
+    const inferredBaseName = tomlHelpers.getInferredBasenameFromServerToml(tomlFiles)
     const deploymentInfo = new DeploymentInfo(inferredBaseName, undefined, options, tomlFiles)
     await buildWasp()
     await deployServer(deploymentInfo)
@@ -32,8 +31,7 @@ export async function deploy(options: IGlobalOptions) {
   if (!tomlHelpers.clientTomlExistsInProject(tomlFiles)) {
     echo`${tomlFiles.clientTomlPath} missing. Skipping client deploy. Perhaps you need to run the "setup" command first?`
   } else {
-    const clientName = tomlHelpers.getAppNameFromToml(tomlFiles.clientTomlPath)
-    const inferredBaseName = clientName.replace('-client', '')
+    const inferredBaseName = tomlHelpers.getInferredBasenameFromClientToml(tomlFiles)
     const deploymentInfo = new DeploymentInfo(inferredBaseName, undefined, options, tomlFiles)
     await buildWasp()
     await deployClient(deploymentInfo)

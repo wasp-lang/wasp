@@ -3,6 +3,7 @@ import { exit } from 'process'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { DeploymentInfo } from '../DeploymentInfo.js'
 import { ICreateDbOptions } from './ICreateDbOptions.js'
+import { getInferredBasenameFromServerToml } from '../helpers/tomlFileHelpers.js'
 
 export async function createDb(region: string, options: ICreateDbOptions) {
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
@@ -12,8 +13,7 @@ export async function createDb(region: string, options: ICreateDbOptions) {
     exit(1)
   }
 
-  const serverName = tomlHelpers.getAppNameFromToml(tomlFiles.serverTomlPath)
-  const inferredBaseName = serverName.replace('-server', '')
+  const inferredBaseName = getInferredBasenameFromServerToml(tomlFiles)
   const deploymentInfo = new DeploymentInfo(inferredBaseName, region, options, tomlFiles)
 
   // Creates a DB, waits for it to come up, then links it to the app.
