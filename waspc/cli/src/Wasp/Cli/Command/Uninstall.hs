@@ -17,7 +17,6 @@ import System.Directory
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
-import Wasp.Version (waspVersion)
 
 -- Types
 data HomeDir
@@ -28,12 +27,11 @@ data HomeDir
 -- {home}/.local/bin/wasp
 uninstall :: Command ()
 uninstall = do
-  let version = show waspVersion
   cliSendMessageC $
-    Msg.Info $ "Uninstalling Wasp CLI " ++ version ++ " ..."
+    Msg.Info $ "Uninstalling Wasp CLI ..."
 
   homeDir <- liftIO getHomeDir
-  let waspDir = getWaspBinariesDir homeDir version
+  let waspDir = getWaspBinariesDir homeDir
       waspBin = getWaspScript homeDir
 
   -- Deleting dir with Wasp binaries
@@ -46,16 +44,15 @@ uninstall = do
   when doesWaspScriptExist $ do
     liftIO $ removeFile $ SP.fromAbsFile waspBin
 
-  cliSendMessageC $ Msg.Success $ "Uninstalled Wasp CLI " ++ version
+  cliSendMessageC $ Msg.Success "Uninstalled Wasp CLI"
 
 getHomeDir :: IO (SP.Path' SP.Abs (SP.Dir HomeDir))
 getHomeDir = fromJust . SP.parseAbsDir <$> getHomeDirectory
 
-getWaspBinariesDir :: SP.Path' SP.Abs (SP.Dir HomeDir) -> String -> SP.Path' SP.Abs (SP.Dir String)
-getWaspBinariesDir homeDir version =
+getWaspBinariesDir :: SP.Path' SP.Abs (SP.Dir HomeDir) -> SP.Path' SP.Abs (SP.Dir String)
+getWaspBinariesDir homeDir =
   homeDir
     SP.</> [SP.reldir|.local/share/wasp-lang|]
-    SP.</> fromJust (SP.parseRelDir version)
 
 getWaspScript :: SP.Path' SP.Abs (SP.Dir HomeDir) -> SP.Path' SP.Abs (SP.File String)
 getWaspScript homeDir =
