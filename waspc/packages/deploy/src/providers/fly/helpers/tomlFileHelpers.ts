@@ -16,27 +16,27 @@ export function getTomlFileInfo(options: IGlobalOptions): ITomlFilePaths {
   }
 }
 
-export function serverTomlExists(paths: ITomlFilePaths): boolean {
+export function serverTomlExistsInProject(paths: ITomlFilePaths): boolean {
   return fs.existsSync(paths.serverTomlPath)
 }
 
-export function copyLocalTomlAsServerToml(paths: ITomlFilePaths) {
+export function copyLocalServerTomlToProject(paths: ITomlFilePaths) {
   fs.copyFileSync('fly.toml', paths.serverTomlPath)
 }
 
-export function copyServerTomlLocally(paths: ITomlFilePaths) {
+export function copyProjectServerTomlLocally(paths: ITomlFilePaths) {
   fs.copyFileSync(paths.serverTomlPath, 'fly.toml')
 }
 
-export function clientTomlExists(paths: ITomlFilePaths): boolean {
+export function clientTomlExistsInProject(paths: ITomlFilePaths): boolean {
   return fs.existsSync(paths.clientTomlPath)
 }
 
-export function copyLocalTomlAsClientToml(paths: ITomlFilePaths) {
+export function copyLocalClientTomlToProject(paths: ITomlFilePaths) {
   fs.copyFileSync('fly.toml', paths.clientTomlPath)
 }
 
-export function copyClientTomlLocally(paths: ITomlFilePaths) {
+export function copyProjectClientTomlLocally(paths: ITomlFilePaths) {
   fs.copyFileSync(paths.clientTomlPath, 'fly.toml')
 }
 

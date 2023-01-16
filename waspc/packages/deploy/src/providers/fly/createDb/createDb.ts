@@ -1,18 +1,18 @@
 import { $, echo, question } from 'zx'
 import { exit } from 'process'
-import { getTomlFileInfo, serverTomlExists, getAppNameFromToml } from '../helpers/tomlFileHelpers.js'
+import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { DeploymentInfo } from '../DeploymentInfo.js'
 import { ICreateDbOptions } from './ICreateDbOptions.js'
 
 export async function createDb(region: string, options: ICreateDbOptions) {
-  const tomlFiles = getTomlFileInfo(options)
+  const tomlFiles = tomlHelpers.getTomlFileInfo(options)
 
-  if (!serverTomlExists(tomlFiles)) {
+  if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
     echo`${tomlFiles.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run the "setup" command first?`
     exit(1)
   }
 
-  const serverName = getAppNameFromToml(tomlFiles.serverTomlPath)
+  const serverName = tomlHelpers.getAppNameFromToml(tomlFiles.serverTomlPath)
   const inferredBaseName = serverName.replace('-server', '')
   const deploymentInfo = new DeploymentInfo(inferredBaseName, region, options, tomlFiles)
 
@@ -22,4 +22,6 @@ export async function createDb(region: string, options: ICreateDbOptions) {
   await $`flyctl postgres attach ${deploymentInfo.dbName()} -a ${deploymentInfo.serverName()}`
 
   await question('Please take note of your database credentials above. Press any key to continue.')
+
+  echo`Don't forget to deploy your app by running the "deploy" command.`
 }

@@ -20,11 +20,11 @@ export function buildDirExists(waspDir: string): boolean {
   return fs.existsSync(path.join(waspDir, '.wasp', 'build'))
 }
 
-export function cdToServerDir(waspDir: string) {
+export function cdToServerBuildDir(waspDir: string) {
   cd(path.join(waspDir, '.wasp', 'build'))
 }
 
-export function cdToClientDir(waspDir: string) {
+export function cdToClientBuildDir(waspDir: string) {
   cd(path.join(waspDir, '.wasp', 'build', 'web-app'))
 }
 

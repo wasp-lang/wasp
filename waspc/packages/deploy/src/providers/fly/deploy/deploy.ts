@@ -1,6 +1,6 @@
 import { exit } from 'process'
 import { $, cd, echo, fs } from 'zx'
-import { cdToClientDir, cdToServerDir, lazyInit } from '../helpers/helpers.js'
+import { cdToClientBuildDir, cdToServerBuildDir, lazyInit } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { IGlobalOptions } from '../IGlobalOptions.js'
 import { IDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
@@ -19,7 +19,7 @@ export async function deploy(options: IGlobalOptions) {
 
   // NOTE: Below, it would be nice if we could store the client, server, and DB names somewhere.
   // For now we just rely on the suffix naming convention and infer from toml files.
-  if (!tomlHelpers.serverTomlExists(tomlFiles)) {
+  if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
     echo`${tomlFiles.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run the "setup" command first?`
   } else {
     const serverName = tomlHelpers.getAppNameFromToml(tomlFiles.serverTomlPath)
@@ -29,7 +29,7 @@ export async function deploy(options: IGlobalOptions) {
     await deployServer(deploymentInfo)
   }
 
-  if (!tomlHelpers.clientTomlExists(tomlFiles)) {
+  if (!tomlHelpers.clientTomlExistsInProject(tomlFiles)) {
     echo`${tomlFiles.clientTomlPath} missing. Skipping client deploy. Perhaps you need to run the "setup" command first?`
   } else {
     const clientName = tomlHelpers.getAppNameFromToml(tomlFiles.clientTomlPath)
@@ -43,8 +43,8 @@ export async function deploy(options: IGlobalOptions) {
 async function deployServer(deploymentInfo: IDeploymentInfo) {
   echo`Deploying your server now...`
 
-  cdToServerDir(deploymentInfo.options.waspDir)
-  tomlHelpers.copyServerTomlLocally(deploymentInfo.tomlFiles)
+  cdToServerBuildDir(deploymentInfo.options.waspDir)
+  tomlHelpers.copyProjectServerTomlLocally(deploymentInfo.tomlFiles)
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.
   try {
@@ -61,7 +61,7 @@ async function deployServer(deploymentInfo: IDeploymentInfo) {
 
   await $`flyctl deploy --remote-only`
 
-  tomlHelpers.copyLocalTomlAsServerToml(deploymentInfo.tomlFiles)
+  tomlHelpers.copyLocalServerTomlToProject(deploymentInfo.tomlFiles)
 
   echo`Server has been deployed!`
 }
@@ -69,8 +69,8 @@ async function deployServer(deploymentInfo: IDeploymentInfo) {
 async function deployClient(deploymentInfo: IDeploymentInfo) {
   echo`Deploying your client now...`
 
-  cdToClientDir(deploymentInfo.options.waspDir)
-  tomlHelpers.copyClientTomlLocally(deploymentInfo.tomlFiles)
+  cdToClientBuildDir(deploymentInfo.options.waspDir)
+  tomlHelpers.copyProjectClientTomlLocally(deploymentInfo.tomlFiles)
 
   echo`Building web client for production...`
   await $`npm install`
@@ -89,7 +89,7 @@ async function deployClient(deploymentInfo: IDeploymentInfo) {
 
   await $`flyctl deploy --remote-only`
 
-  tomlHelpers.copyLocalTomlAsClientToml(deploymentInfo.tomlFiles)
+  tomlHelpers.copyLocalClientTomlToProject(deploymentInfo.tomlFiles)
 
   echo`Client has been deployed! Your Wasp app is accessible at: ${deploymentInfo.clientUrl()}`
 }
