@@ -1,43 +1,60 @@
-import { $, echo } from 'zx'
-import { cdToClientDir, cdToServerDir } from '../helpers/helpers.js'
+import { $, echo, cd } from 'zx'
+import { buildDirExists, cdToClientDir, cdToServerDir, lazyInit } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { ICmdOptions, SERVER_CONTEXT_OPTION, CLIENT_CONTEXT_OPTION } from './ICmdOptions.js'
 
 // Runs a command by copying down the toml files, executing it, and copying it back up (just in case).
 // If the toml file does not exist, some commands will not run with additional args.
 export async function cmd(flyctlArgs: [string], options: ICmdOptions) {
-  const tomlFiles = tomlHelpers.getTomlFileInfo(options)
-
-  // TODO: build if missing
-
   echo`Running ${options.context} command: flyctl ${flyctlArgs.join(' ')}`
 
+  const buildWaspIfMissing = lazyInit(async () => {
+    if (!buildDirExists(options.waspDir)) {
+      cd(options.waspDir)
+      await $`wasp build`
+    }
+  })
+
   if (options.context === SERVER_CONTEXT_OPTION) {
-    cdToServerDir(options.waspDir)
-    tomlHelpers.deleteLocalToml()
-    if (tomlHelpers.serverTomlExists(tomlFiles)) {
-      tomlHelpers.copyServerTomlLocally(tomlFiles)
-    }
-
-    runFlyctlCommand(flyctlArgs)
-
-    if (tomlHelpers.localTomlExists()) {
-      tomlHelpers.copyLocalTomlAsServerToml(tomlFiles)
-    }
+    await buildWaspIfMissing()
+    await runServerFlyctlCommand(flyctlArgs, options)
   }
 
   if (options.context === CLIENT_CONTEXT_OPTION) {
-    cdToClientDir(options.waspDir)
-    tomlHelpers.deleteLocalToml()
-    if (tomlHelpers.serverTomlExists(tomlFiles)) {
-      tomlHelpers.copyClientTomlLocally(tomlFiles)
-    }
+    await buildWaspIfMissing()
+    await runClientFlyctlCommand(flyctlArgs, options)
+  }
+}
 
-    runFlyctlCommand(flyctlArgs)
+async function runServerFlyctlCommand(flyctlArgs: [string], options: ICmdOptions) {
+  const tomlFiles = tomlHelpers.getTomlFileInfo(options)
 
-    if (tomlHelpers.localTomlExists()) {
-      tomlHelpers.copyLocalTomlAsClientToml(tomlFiles)
-    }
+  cdToServerDir(options.waspDir)
+  tomlHelpers.deleteLocalToml()
+  if (tomlHelpers.serverTomlExists(tomlFiles)) {
+    tomlHelpers.copyServerTomlLocally(tomlFiles)
+  }
+
+  await runFlyctlCommand(flyctlArgs)
+
+  if (tomlHelpers.localTomlExists()) {
+    tomlHelpers.copyLocalTomlAsServerToml(tomlFiles)
+  }
+}
+
+async function runClientFlyctlCommand(flyctlArgs: [string], options: ICmdOptions) {
+  const tomlFiles = tomlHelpers.getTomlFileInfo(options)
+
+  cdToClientDir(options.waspDir)
+  tomlHelpers.deleteLocalToml()
+  if (tomlHelpers.serverTomlExists(tomlFiles)) {
+    tomlHelpers.copyClientTomlLocally(tomlFiles)
+  }
+
+  await runFlyctlCommand(flyctlArgs)
+
+  if (tomlHelpers.localTomlExists()) {
+    tomlHelpers.copyLocalTomlAsClientToml(tomlFiles)
   }
 }
 

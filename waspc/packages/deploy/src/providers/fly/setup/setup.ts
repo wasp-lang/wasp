@@ -1,9 +1,9 @@
-import { $, echo } from 'zx'
+import { $, echo, cd } from 'zx'
 import crypto from 'crypto'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { DeploymentInfo, IDeploymentInfo } from '../DeploymentInfo.js'
 import { IGlobalOptions } from '../IGlobalOptions.js'
-import { cdToClientDir, cdToServerDir } from '../helpers/helpers.js'
+import { buildDirExists, cdToClientDir, cdToServerDir, lazyInit } from '../helpers/helpers.js'
 
 // TOOD: write better "next steps" messages.
 // i.e. after setup, run create-db, then run deploy.
@@ -11,7 +11,12 @@ import { cdToClientDir, cdToServerDir } from '../helpers/helpers.js'
 export async function setup(baseName: string, region: string, options: IGlobalOptions) {
   echo`Setting up your Wasp app with Fly.io!`
 
-  // TODO: build if missing
+  const buildWaspIfMissing = lazyInit(async () => {
+    if (!buildDirExists(options.waspDir)) {
+      cd(options.waspDir)
+      await $`wasp build`
+    }
+  })
 
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
   const deploymentInfo = new DeploymentInfo(baseName, region, options, tomlFiles)
@@ -19,12 +24,14 @@ export async function setup(baseName: string, region: string, options: IGlobalOp
   if (tomlHelpers.serverTomlExists(tomlFiles)) {
     echo`${tomlFiles.serverTomlPath} exists. Skipping server setup.`
   } else {
+    await buildWaspIfMissing()
     await setupServer(deploymentInfo)
   }
 
   if (tomlHelpers.clientTomlExists(tomlFiles)) {
     echo`${tomlFiles.clientTomlPath} exists. Skipping client setup.`
   } else {
+    await buildWaspIfMissing()
     await setupClient(deploymentInfo)
   }
 }

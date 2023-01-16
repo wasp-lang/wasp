@@ -16,6 +16,10 @@ export function ensureWaspDirLooksRight(thisCommand: Command) {
   }
 }
 
+export function buildDirExists(waspDir: string): boolean {
+  return fs.existsSync(path.join(waspDir, '.wasp', 'build'))
+}
+
 export function cdToServerDir(waspDir: string) {
   cd(path.join(waspDir, '.wasp', 'build'))
 }
