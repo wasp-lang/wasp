@@ -336,6 +336,7 @@ library cli-lib
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
+    Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
