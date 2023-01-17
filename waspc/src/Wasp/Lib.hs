@@ -37,9 +37,9 @@ import qualified Wasp.ExternalCode as ExternalCode
 import qualified Wasp.Generator as Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.ConfigFile as G.CF
-import Wasp.Generator.DbGenerator.Operations (printJobMsgsUntilExitReceived)
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import qualified Wasp.Generator.Job as J
+import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived)
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
@@ -185,12 +185,10 @@ compileAndRenderDockerfile waspDir compileOptions = do
 deploy :: Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
 deploy waspDir cmdArgs = do
   waspDataDir <- Data.getAbsDataDirPath
-  putStrLn $ toFilePath waspDataDir
   let deployDir = waspDataDir </> [reldir|packages/deploy|]
   unlessM (doesDirectoryExist $ toFilePath $ deployDir </> [reldir|node_modules|]) $
     runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "npm" ["install"] J.Server
   let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-dir", toFilePath waspDir]
-  putStrLn $ join deployScriptArgs
   runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "node" deployScriptArgs J.Server
   where
     runCommandAndPrintOutput job = do
