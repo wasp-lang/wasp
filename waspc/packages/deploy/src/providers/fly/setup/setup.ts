@@ -5,9 +5,6 @@ import { DeploymentInfo, IDeploymentInfo } from '../DeploymentInfo.js'
 import { IGlobalOptions } from '../IGlobalOptions.js'
 import { buildDirExists, cdToClientBuildDir, cdToServerBuildDir, lazyInit } from '../helpers/helpers.js'
 
-// TOOD: write better "next steps" messages.
-// i.e. after setup, run create-db, then run deploy.
-
 export async function setup(baseName: string, region: string, options: IGlobalOptions) {
   echo`Setting up your Wasp app with Fly.io!`
 

@@ -2,7 +2,7 @@
   "author": "Wasp Team",
   "license": "MIT",
   "name": "wasp-deploy",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "bin": "dist/index.js",
   "type": "module",

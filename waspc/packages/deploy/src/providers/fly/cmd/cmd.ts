@@ -1,11 +1,11 @@
 import { $, echo, cd } from 'zx'
-import { ClientCommonOps, ICommonOps, ServerCommonOps } from '../helpers/CommonOps.js'
+import { ClientCommonOps, ICommonOps, ServerCommonOps } from '../helpers/ICommonOps.js'
 import { buildDirExists } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { ICmdOptions, SERVER_CONTEXT_OPTION } from './ICmdOptions.js'
 
 // Runs a command by copying down the project toml files, executing it, and copying it back up (just in case).
-// If the toml file does not exist, some commands will not run with additional args.
+// If the toml file does not exist, some commands will not run with additional args (e.g. -a <appname>).
 export async function cmd(flyctlArgs: [string], options: ICmdOptions) {
   echo`Running ${options.context} command: flyctl ${flyctlArgs.join(' ')}`
 

@@ -2,10 +2,10 @@ import { exit } from 'process'
 import { $, cd, echo, fs } from 'zx'
 import { cdToClientBuildDir, cdToServerBuildDir, lazyInit } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
-import { IGlobalOptions } from '../IGlobalOptions.js'
+import { IDeployOptions } from './IDeployOptions.js'
 import { IDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
 
-export async function deploy(options: IGlobalOptions) {
+export async function deploy(options: IDeployOptions) {
   echo`Deploying your Wasp app to Fly.io!`
 
   const buildWasp = lazyInit(async () => {

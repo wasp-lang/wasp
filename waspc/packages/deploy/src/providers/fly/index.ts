@@ -29,7 +29,7 @@ export function addFlyCommand(program: Command) {
 function makeFlySetupCommand(): Command {
   const setup = new Command('setup')
   setup.description('Set up a new app on Fly.io (this does not deploy it)')
-    .argument('<basename>', 'base app name to use on Fly.io')
+    .argument('<basename>', 'base app name to use on Fly.io (must be unique)')
     .argument('<region>', 'deployment region to use on Fly.io')
     .hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[1]))
     .action(setupFn)
@@ -39,7 +39,7 @@ function makeFlySetupCommand(): Command {
 function makeFlyDeployCommand(): Command {
   const deploy = new Command('deploy')
   deploy.description('(Re-)Deploy existing app to Fly.io')
-    .option('--skip-build', 'do not run wasp build before executing')
+    .option('--skip-build', 'do not run `wasp build` before deploying')
     .action(deployFn)
   return deploy
 }
