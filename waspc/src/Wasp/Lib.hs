@@ -181,7 +181,6 @@ compileAndRenderDockerfile waspDir compileOptions = do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . toList) dockerfileOrGeneratorErrors
 
--- TODO: return errors if they occur
 deploy :: Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
 deploy waspDir cmdArgs = do
   waspDataDir <- Data.getAbsDataDirPath

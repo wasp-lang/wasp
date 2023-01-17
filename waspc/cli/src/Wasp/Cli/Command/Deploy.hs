@@ -8,7 +8,6 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import qualified Wasp.Lib as Lib
 
--- TODO: send deploy telemetry event
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
