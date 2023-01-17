@@ -1,15 +1,16 @@
-import { $, echo, question } from 'zx'
+import { $, question } from 'zx'
 import { exit } from 'process'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { DeploymentInfo } from '../DeploymentInfo.js'
 import { ICreateDbOptions } from './ICreateDbOptions.js'
 import { getInferredBasenameFromServerToml } from '../helpers/tomlFileHelpers.js'
+import { waspSays } from '../helpers/helpers.js'
 
 export async function createDb(region: string, options: ICreateDbOptions) {
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
 
   if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
-    echo`${tomlFiles.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run the "setup" command first?`
+    waspSays(`${tomlFiles.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run the "setup" command first?`)
     exit(1)
   }
 
@@ -23,5 +24,5 @@ export async function createDb(region: string, options: ICreateDbOptions) {
 
   await question('Please take note of your database credentials above. Press any key to continue.')
 
-  echo`Don't forget to deploy your app by running the "deploy" command.`
+  waspSays(`Don't forget to deploy your app by running the "deploy" command.`)
 }

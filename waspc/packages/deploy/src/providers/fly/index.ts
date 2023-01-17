@@ -53,6 +53,7 @@ function makeExecuteFlyCommand(): Command {
     .argument('<cmd...>', 'flyctl command to run in server/client context')
     .addOption(context)
     .action(cmdFn)
+    .allowUnknownOption()
   return cmd
 }
 

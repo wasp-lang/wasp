@@ -1,12 +1,12 @@
-import { $, echo, cd } from 'zx'
+import { $, cd } from 'zx'
 import crypto from 'crypto'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { DeploymentInfo, IDeploymentInfo } from '../DeploymentInfo.js'
 import { IGlobalOptions } from '../IGlobalOptions.js'
-import { buildDirExists, cdToClientBuildDir, cdToServerBuildDir, lazyInit } from '../helpers/helpers.js'
+import { buildDirExists, cdToClientBuildDir, cdToServerBuildDir, lazyInit, waspSays } from '../helpers/helpers.js'
 
 export async function setup(baseName: string, region: string, options: IGlobalOptions) {
-  echo`Setting up your Wasp app with Fly.io!`
+  waspSays(`Setting up your Wasp app with Fly.io!`)
 
   const buildWaspIfMissing = lazyInit(async () => {
     if (!buildDirExists(options.waspDir)) {
@@ -19,24 +19,24 @@ export async function setup(baseName: string, region: string, options: IGlobalOp
   const deploymentInfo = new DeploymentInfo(baseName, region, options, tomlFiles)
 
   if (tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
-    echo`${tomlFiles.serverTomlPath} exists. Skipping server setup.`
+    waspSays(`${tomlFiles.serverTomlPath} exists. Skipping server setup.`)
   } else {
     await buildWaspIfMissing()
     await setupServer(deploymentInfo)
   }
 
   if (tomlHelpers.clientTomlExistsInProject(tomlFiles)) {
-    echo`${tomlFiles.clientTomlPath} exists. Skipping client setup.`
+    waspSays(`${tomlFiles.clientTomlPath} exists. Skipping client setup.`)
   } else {
     await buildWaspIfMissing()
     await setupClient(deploymentInfo)
   }
 
-  echo`Don't forget to create your database by running the "create-db" command.`
+  waspSays(`Don't forget to create your database by running the "create-db" command.`)
 }
 
 async function setupServer(deploymentInfo: IDeploymentInfo) {
-  echo`Setting up server app with name ${deploymentInfo.serverName()}`
+  waspSays(`Setting up server app with name ${deploymentInfo.serverName()}`)
 
   cdToServerBuildDir(deploymentInfo.options.waspDir)
   tomlHelpers.deleteLocalToml()
@@ -49,11 +49,11 @@ async function setupServer(deploymentInfo: IDeploymentInfo) {
   const randomString = crypto.randomBytes(32).toString('hex')
   await $`flyctl secrets set JWT_SECRET=${randomString} PORT=8080 WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl()}`
 
-  echo`Server setup complete!`
+  waspSays(`Server setup complete!`)
 }
 
 async function setupClient(deploymentInfo: IDeploymentInfo) {
-  echo`Setting up client app with name ${deploymentInfo.clientName()}`
+  waspSays(`Setting up client app with name ${deploymentInfo.clientName()}`)
 
   cdToClientBuildDir(deploymentInfo.options.waspDir)
   tomlHelpers.deleteLocalToml()
@@ -66,5 +66,5 @@ async function setupClient(deploymentInfo: IDeploymentInfo) {
 
   tomlHelpers.copyLocalClientTomlToProject(deploymentInfo.tomlFiles)
 
-  echo`Client setup complete!`
+  waspSays(`Client setup complete!`)
 }

@@ -1,6 +1,6 @@
 import { exit } from 'process'
-import { $, echo, question } from 'zx'
-import { isYes } from './helpers.js'
+import { $, question } from 'zx'
+import { isYes, waspSays } from './helpers.js'
 
 export async function flyctlExists(): Promise<boolean> {
   try {
@@ -28,11 +28,11 @@ export async function ensureUserLoggedIn() {
       try {
         await $`flyctl auth login`
       } catch {
-        echo`It seems there was a problem logging in. Please run "flyctl auth login" and try again.`
+        waspSays(`It seems there was a problem logging in. Please run "flyctl auth login" and try again.`)
         exit(1)
       }
     } else {
-      echo`Ok, exiting.`
+      waspSays(`Ok, exiting.`)
       exit(1)
     }
   }
@@ -40,8 +40,8 @@ export async function ensureUserLoggedIn() {
 
 export async function ensureFlyReady() {
   if (!await flyctlExists()) {
-    echo`The Fly.io CLI is not available on this system.`
-    echo`Please install the flyctl here: https://fly.io/docs/hands-on/install-flyctl`
+    waspSays(`The Fly.io CLI is not available on this system.`)
+    waspSays(`Please install the flyctl here: https://fly.io/docs/hands-on/install-flyctl`)
     exit(1)
   }
   await ensureUserLoggedIn()
@@ -52,11 +52,11 @@ export async function ensureRegionIsValid(region: string) {
     const proc = await $`flyctl platform regions -j`
     const regions = JSON.parse(proc.stdout)
     if (!regions.find((r: { Code: string, Name: string }) => r.Code === region)) {
-      echo`Invalid region ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`
+      waspSays(`Invalid region ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`)
       exit(1)
     }
   } catch {
     // Ignore any errors while checking. Commands requiring a valid region will still fail if invalid, just not as nicely.
-    echo`Unable to validate region before calling flyctl.`
+    waspSays(`Unable to validate region before calling flyctl.`)
   }
 }
