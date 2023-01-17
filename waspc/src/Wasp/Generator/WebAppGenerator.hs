@@ -31,7 +31,7 @@ import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
@@ -236,7 +236,7 @@ genIndexJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = genJsImport . mkImportStatementFromRelPath extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 

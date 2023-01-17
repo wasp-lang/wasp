@@ -34,7 +34,7 @@ import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerRootDir,
@@ -71,7 +71,7 @@ genJob (jobName, job) =
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-    (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+    (jobPerformFnName, jobPerformFnImportStatement) = genJsImport $ mkImportStatementFromRelPath relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object

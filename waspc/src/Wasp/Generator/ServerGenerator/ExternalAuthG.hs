@@ -28,7 +28,7 @@ import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
@@ -136,11 +136,11 @@ getTmplDataForAuthMethodConfig auth authMethod =
     ]
   where
     maybeConfigFn = AS.Auth.configFn =<< authMethod (AS.Auth.methods auth)
-    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeConfigFn
+    maybeConfigFnImportDetails = genJsImport . mkImportStatementFromRelPath relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeConfigFn
     (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< authMethod (AS.Auth.methods auth)
-    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeGetUserFieldsFn
+    maybeOnSignInFnImportDetails = genJsImport . mkImportStatementFromRelPath relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
     relPosixPathFromAuthMethodDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)

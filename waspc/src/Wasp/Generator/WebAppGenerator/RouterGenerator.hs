@@ -20,6 +20,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementWithAlias)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
@@ -57,16 +58,14 @@ instance ToJSON RouteTemplateData where
       ]
 
 data PageTemplateData = PageTemplateData
-  { _importWhat :: !String,
-    _importFrom :: !String
+  { _importStmt :: !String
   }
   deriving (Show, Eq)
 
 instance ToJSON PageTemplateData where
   toJSON pageTD =
     object
-      [ "importWhat" .= _importWhat pageTD,
-        "importFrom" .= _importFrom pageTD
+      [ "importStatement" .= _importStmt pageTD
       ]
 
 data ExternalAuthProviderTemplateData = ExternalAuthProviderTemplateData
@@ -163,21 +162,19 @@ determineRouteTargetComponent spec (_, route) =
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
-    { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
-      _importWhat = case AS.ExtImport.name pageComponent of
-        AS.ExtImport.ExtImportModule _ -> pageName
-        AS.ExtImport.ExtImportField identifier -> "{ " ++ mkNamedImportExpr identifier pageName ++ " }"
+    { _importStmt = importStmt
     }
   where
     relPathToExtSrcDir = "./" FP.</> SP.toFilePath extClientCodeDirInWebAppSrcDir
 
-    pageName :: String
-    pageName = fst page
-
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
 
-mkNamedImportExpr :: String -> String -> String
-mkNamedImportExpr identifier alias
-  | identifier == alias = identifier
-  | otherwise = identifier ++ " as " ++ alias
+    importPath :: String
+    importPath = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent)
+
+    importAlias :: String
+    importAlias = fst page
+
+    importStmt :: String
+    (_, importStmt) = genJsImport $ mkImportStatementWithAlias (AS.ExtImport.name pageComponent) importPath importAlias

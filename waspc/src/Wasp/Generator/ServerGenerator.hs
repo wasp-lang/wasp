@@ -40,7 +40,7 @@ import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersi
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
@@ -213,7 +213,7 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = genJsImport . mkImportStatementFromRelPath extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 

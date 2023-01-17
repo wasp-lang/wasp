@@ -16,10 +16,12 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatement)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
@@ -52,8 +54,8 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
 
     baseTmplData =
       object
-        [ "operationImportPath" .= (operationImportPath :: FilePath),
-          "operationName" .= (AS.Operation.getName operation :: String)
+        [ "operationName" .= (operationImportIdentifier :: String),
+          "operationImportStmt" .= (operationImportStmt :: String)
         ]
 
     tmplData = case AS.App.auth (snd $ getApp spec) of
@@ -68,6 +70,10 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
       SP.fromRelFileP $
         relPosixPathFromOperationsRoutesDirToSrcDir
           </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+
+    operationName = AS.Operation.getName operation
+
+    (operationImportIdentifier, operationImportStmt) = genJsImport $ mkImportStatement (AS.ExtImport.ExtImportModule operationName) operationImportPath
 
 data OperationsRoutesDir
 
@@ -101,14 +107,16 @@ genOperationsRouter spec
         ]
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
+          importPath =
+            ( "./"
+                ++ SP.fromRelFileP
+                  ( fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation
+                  )
+            )
+          (importIdentifier, importStmt) = genJsImport $ mkImportStatement (AS.ExtImport.ExtImportModule operationName) importPath
        in object
-            [ "importIdentifier" .= operationName,
-              "importPath"
-                .= ( "./"
-                       ++ SP.fromRelFileP
-                         ( fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation
-                         )
-                   ),
+            [ "importIdentifier" .= importIdentifier,
+              "importStatement" .= importStmt,
               "routePath" .= ("/" ++ operationRouteInOperationsRouter operation),
               "isUsingAuth" .= isAuthEnabledForOperation operation
             ]

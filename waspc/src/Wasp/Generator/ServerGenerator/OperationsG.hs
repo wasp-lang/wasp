@@ -20,7 +20,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
+import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
@@ -84,8 +84,9 @@ operationTmplData operation =
     ]
   where
     (importIdentifier, importStmt) =
-      getJsImportDetailsForExtFnImport relPosixPathFromOperationFileToExtSrcDir $
-        AS.Operation.getFn operation
+      genJsImport $
+        mkImportStatementFromRelPath relPosixPathFromOperationFileToExtSrcDir $
+          AS.Operation.getFn operation
     buildEntityData :: String -> Aeson.Value
     buildEntityData entityName =
       object
