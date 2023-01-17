@@ -49,6 +49,8 @@ export function lazyInit<Type>(fn: () => Promise<Type>) {
   return () => prom = (prom || fn())
 }
 
+// For some reason, the colors from the chalk package wouldn't
+// show up when run as a subprocess by the Wasp CLI. This works.
 export function waspSays(str: string) {
   console.log("🚀 \x1b[33m " + str + " \x1b[0m")
 }
