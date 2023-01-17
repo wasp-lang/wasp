@@ -3,7 +3,6 @@ import { exit } from 'process'
 import { cd } from 'zx'
 import fs from 'fs'
 import path from 'node:path'
-import chalk from 'chalk'
 
 export function isYes(str: string): boolean {
   return str.trim().toLowerCase().startsWith('y')
@@ -51,5 +50,5 @@ export function lazyInit<Type>(fn: () => Promise<Type>) {
 }
 
 export function waspSays(str: string) {
-  console.log("🐝 " + chalk.yellow(str))
+  console.log("🚀 \x1b[33m " + str + " \x1b[0m")
 }
