@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - release
-      - shayne-deploy-packaged # TODO: remove after testing
   pull_request: { }
   create: { tags: [v*] }
   schedule:
@@ -101,9 +100,8 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
-      # TODO: add github.ref check
-      - name: Build deploy package
-        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+      - name: Build deploy TS package
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: ./tools/build_deploy_package.sh
 
       - name: Build external dependencies 
@@ -124,23 +122,12 @@ jobs:
       - name: Run tests
         run: cabal test
 
-      # TODO: modified if, revert after testing
       - name: Create binary package (Unix)
-        if: (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
           ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
-
-      # TODO: remove after testing
-      - name: 'TEMP Upload Artifact'
-        if: (matrix.os == 'ubuntu-20.04')
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: waspc/artifacts/wasp-linux-x86_64.tar.gz
-          retention-days: 1
-          if-no-files-found: error
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
