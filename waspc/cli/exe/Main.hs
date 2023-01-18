@@ -100,6 +100,7 @@ printUsage =
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd "    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        cmd "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",

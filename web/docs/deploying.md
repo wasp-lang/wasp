@@ -8,7 +8,50 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
-Right now, deploying of Wasp project is done by generating the code and then deploying generated code "manually", as explained below.
+# Automated
+
+## Wasp CLI
+
+Using the Wasp CLI, you can easily deploy your app to [Fly.io](https://fly.io) (which will be within their [free allowances](https://fly.io/docs/about/pricing/#free-allowances) if this is your only app) with just three commands:
+
+```sh
+wasp deploy fly setup my-wasp-app mia
+wasp deploy fly create-db mia
+wasp deploy fly deploy
+```
+
+In the above commands, we used an app basename of `my-wasp-app` and deployed it to the Miami, Florida (US) region (called `mia`). The basename is used to create all three app tiers, so you will have three components in your Fly dashboard:
+
+- `my-wasp-app-client`
+- `my-wasp-app-server`
+- `my-wasp-app-db`
+
+:::caution
+Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
+:::
+
+The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/).
+
+### Commands
+
+`setup` will create your client and server apps on Fly, and add some secrets, but does _not_ deploy them. We need a database first, which we create with `create-db`, and it is automatically linked to your server.
+
+:::note
+We only run the `setup` and `create-db` steps once.
+
+You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled. If you want to maintain multiple apps, you can add the `--toml-dir <abs-path>` option during `setup` to point to different directories, like "dev" or "staging".
+:::
+
+Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
+
+If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
+```
+wasp deploy fly cmd secrets list --context server
+```
+
+# Manual
+
+In addition to the CLI, you can deploy a Wasp project by generating the code and then deploying generated code "manually", as explained below.
 
 In the future, the plan is to have Wasp take care of it completely: you would declaratively define your deployment in .wasp and then just call `wasp deploy` ([github issue](https://github.com/wasp-lang/wasp/issues/169)).
 

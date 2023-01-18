@@ -23,6 +23,7 @@ COMMANDS
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
     clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
+    deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
@@ -70,7 +71,9 @@ To setup Bash completion, execute `wasp completion` and follow the instructions.
    ```
  
  - `wasp build` generates full web app code, ready for deployment. Use when deploying or ejecting. Generated code goes in the .wasp/build folder.
-  
+
+ - `wasp deploy` makes it easy to get your app hosted on the web. Currently, Wasp offers support for [Fly.io](https://fly.io). Want another hosting provider? Let us know in Discord or make a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/release/waspc/packages/deploy)!
+
  - `wasp telemetry` prints [telemetry](https://wasp-lang.dev/docs/telemetry) status.
    
    ```
