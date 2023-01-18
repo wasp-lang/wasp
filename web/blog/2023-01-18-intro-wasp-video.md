@@ -7,7 +7,7 @@ tags: [fullstack, webdev, startups, tutorial]
 
 ### Attention YouTube tutorial lovers! 📢
 
-We just released a concise video introduction to building a full-stack app with Wasp. At just 10 minutes in length, you can get a quick, guided overview on building with Wasp and its most important features.
+We just released a concise video introduction to building a full-stack app with Wasp. At 12 minutes in length, you can get a quick, guided overview on building with Wasp and its most important features.
 
 The video itself compliments our written [ToDo App Tutorial](https://wasp-lang.dev/docs/tutorials/todo-app), which is a great place to start if you’re new to Wasp.
 
