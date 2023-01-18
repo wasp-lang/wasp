@@ -204,6 +204,18 @@ Tip: to make it easy to run the `run` script from any place in your wasp codebas
 alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ```
 
+### Packages
+Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/build_deploy_package.sh`.
+
+ During normal local development you can treat `packages/deploy` as a regular TS project and develop against it in a standalone manner. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
+
+#### Deploy
+To run the deploy package as a standalone TS project, cd into `packages/deploy` and run:
+```sh
+npm install
+npm run build
+node dist/index.js fly ...
+```
 
 ## Tests
 For tests we are using [**Tasty**](https://documentup.com/feuerbach/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
