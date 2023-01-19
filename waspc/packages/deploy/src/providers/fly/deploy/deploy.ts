@@ -1,6 +1,6 @@
 import { exit } from 'process'
 import { $, cd, fs } from 'zx'
-import { cdToClientBuildDir, cdToServerBuildDir, lazyInit, waspSays } from '../helpers/helpers.js'
+import { cdToClientBuildDir, cdToServerBuildDir, displayWaspRocketImage, lazyInit, waspSays } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { IDeployOptions } from './IDeployOptions.js'
 import { IDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
@@ -89,5 +89,6 @@ async function deployClient(deploymentInfo: IDeploymentInfo) {
 
   tomlHelpers.copyLocalClientTomlToProject(deploymentInfo.tomlFiles)
 
+  displayWaspRocketImage()
   waspSays(`Client has been deployed! Your Wasp app is accessible at: ${deploymentInfo.clientUrl()}`)
 }

@@ -54,3 +54,20 @@ export function lazyInit<Type>(fn: () => Promise<Type>) {
 export function waspSays(str: string) {
   console.log("🚀 \x1b[33m " + str + " \x1b[0m")
 }
+
+export function displayWaspRocketImage() {
+  // Escaping backslashes makes it look weird here, but it works in console.
+  const asciiArt = `
+  Credits: Modified version of ascii art bee by sjw, rocket by unknown.
+
+                    __
+                   // \\
+                   \\\\_/ //
+             _    -(||)(')
+            \\ \\____///_____
+   #########[==__DEPLOYED__}
+            /_/
+
+  `
+  console.log(asciiArt)
+}
