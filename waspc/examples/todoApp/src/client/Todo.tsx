@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
@@ -9,13 +9,27 @@ import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
 import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
 
-const Todo = (props) => {
-  const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
+// Copied from Prisma
+type Task = {
+  id: number
+  description: string
+  isDone: boolean
+  userId: number
+}
 
-  const isThereAnyTask = () => tasks?.length > 0
+type GetTasksError = { message: string }
 
-  const TasksError = (props) => {
-    return 'Error during fetching tasks: ' + (tasksError?.message || '')
+type NonEmptyArray<T> = [T, ...T[]]
+
+function areThereAnyTasks(tasks: Task[] | undefined): tasks is NonEmptyArray<Task> {
+  return !!(tasks && tasks.length > 0)
+}
+
+const Todo = () => {
+  const { data: tasks, isError, error: tasksError } = useQuery<{}, Task[], GetTasksError>(getTasks)
+
+  const TasksError = () => {
+    return <div>{'Error during fetching tasks: ' + (tasksError?.message || '')}</div>
   }
 
   return (
@@ -24,13 +38,13 @@ const Todo = (props) => {
         <h1>Todos</h1>
 
         <div className='flex justify-start'>
-          <ToggleAllTasksButton disabled={!isThereAnyTask()} />
+          <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
           <NewTaskForm />
         </div>
 
         {isError && <TasksError />}
 
-        {isThereAnyTask() && (
+        {areThereAnyTasks(tasks) && (
           <>
             <Tasks tasks={tasks} />
 
@@ -42,9 +56,9 @@ const Todo = (props) => {
   )
 }
 
-const Footer = (props) => {
-  const numCompletedTasks = props.tasks.filter(t => t.isDone).length
-  const numUncompletedTasks = props.tasks.filter(t => !t.isDone).length
+const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
+  const numCompletedTasks = tasks.filter(t => t.isDone).length
+  const numUncompletedTasks = tasks.filter(t => !t.isDone).length
 
   const handleDeleteCompletedTasks = async () => {
     try {
@@ -72,33 +86,35 @@ const Footer = (props) => {
   )
 }
 
-const Tasks = (props) => {
+const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
   return (
     <div>
-        <table className='border-separate border-spacing-2'>
-          <tbody>
-            {props.tasks.map((task, idx) => <Task task={task} key={idx} />)}
-          </tbody>
-        </table>
+      <table className='border-separate border-spacing-2'>
+        <tbody>
+          {tasks.map((task, idx) => <Task task={task} key={idx} />)}
+        </tbody>
+      </table>
     </div>
   )
 }
 
-const Task = (props) => {
-  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
+type UpdateTaskIsDonePayload = Pick<Task, "id" | "isDone">
+
+const Task = ({ task }: { task: Task }) => {
+  const updateTaskIsDoneOptimistically = useAction<UpdateTaskIsDonePayload, void, Task[]>(updateTaskIsDone, {
     optimisticUpdates: [{
       getQuerySpecifier: () => [getTasks],
       updateQuery: (updatedTask, oldTasks) => {
         if (oldTasks === undefined) {
           // cache is empty
-          return [updatedTask];
+          return [{ ...task, ...updatedTask }];
         } else {
           return oldTasks.map(task => task.id === updatedTask.id ? { ...task, ...updatedTask } : task)
         }
       }
     }]
   });
-  const handleTaskIsDoneChange = async (event) => {
+  const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
     const id = parseInt(event.target.id)
     const isDone = event.target.checked
 
@@ -114,29 +130,29 @@ const Task = (props) => {
       <td>
         <input
           type='checkbox'
-          id={String(props.task.id)}
-          checked={props.task.isDone}
+          id={String(task.id)}
+          checked={task.isDone}
           onChange={handleTaskIsDoneChange}
           color='default'
         />
       </td>
       <td>
-        <Link to={`/task/${props.task.id}`}> {props.task.description} </Link>
+        <Link to={`/task/${task.id}`}> {task.description} </Link>
       </td>
     </tr>
   )
 }
 
-const NewTaskForm = (props) => {
+const NewTaskForm = () => {
   const defaultDescription = ''
   const [description, setDescription] = useState(defaultDescription)
 
-  const createNewTask = async (description) => {
+  const createNewTask = async (description: Task['description']) => {
     const task = { isDone: false, description }
     await createTask(task)
   }
 
-  const handleNewTaskSubmit = async (event) => {
+  const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault()
     try {
       await createNewTask(description)
@@ -161,7 +177,7 @@ const NewTaskForm = (props) => {
   )
 }
 
-const ToggleAllTasksButton = (props) => {
+const ToggleAllTasksButton = ({ disabled }: { disabled: boolean }) => {
   const handleToggleAllTasks = async () => {
     try {
       await toggleAllTasks()
@@ -173,7 +189,7 @@ const ToggleAllTasksButton = (props) => {
   return (
     <button
       className='btn btn-blue'
-      disabled={props.disabled}
+      disabled={disabled}
       onClick={handleToggleAllTasks}
     >
       ✓
