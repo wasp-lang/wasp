@@ -1,7 +1,7 @@
 import React from 'react'
 
 import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo.js'
+import Todo from '../Todo'
 import '../Main.css'
 
 const Main = () => {
