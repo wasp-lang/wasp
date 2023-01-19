@@ -16,9 +16,9 @@ import ImgWithCaption from './components/ImgWithCaption'
 ![amicus hero shot](../static/img/amicus-usecase/amicus-hero-shot.png)
 
 
-[Erlis Kllogjri](https://github.com/ErlisK) is an engineer based in San Francisco with broad experience ranging from mechanical engineering and C/C++ microcontroller programming to Python and web app development. In his free time, Erlis enjoys working on side projects, which is also how Amicus started out.
+[Erlis Kllogjri](https://github.com/ErlisK) is an engineer based in San Francisco with broad experience ranging from mechanical engineering and C/C++ microcontroller programming to Python and web app development. In his free time, Erlis enjoys working on side projects, which is also how [Amicus](https://www.amicus.work/) started out.
 
-Amicus is a SaaS for legal teams - think about it as "Asana for lawyers", but with features and workflows tailored to the domain of law.
+[Amicus](https://www.amicus.work/) is a SaaS for legal teams - think about it as "Asana for lawyers", but with features and workflows tailored to the domain of law.
 
 Read on to learn how long it took Erlis to develop the first version of his SaaS with Wasp, how he got his first paying customers, and what features he plans to add next!
 
