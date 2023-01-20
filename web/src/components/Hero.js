@@ -186,6 +186,7 @@ page MainPage {
 
       </div>
 
+      {/* Bash install cmd */}
       <div className='hidden md:flex md:mt-28 items-center justify-center'>
         <div className='flex flex-col items-center gap-2'>
           <InstallCmd />
@@ -202,6 +203,26 @@ page MainPage {
         </div>
       </div>
 
+
+      <div className='flex justify-center mt-20'>
+        <div className='w-full lg:w-2/3 xl:w-3/5'>
+          <div
+            className="relative w-full rounded-md shadow-lg"
+            style={{ padding: '56.25% 0 0 0' }}
+          >
+            <iframe
+              title="Demo video showcasing Wasp"
+              className="absolute h-full w-full rounded-md"
+              src="https://www.youtube-nocookie.com/embed/R8uOu6ZEr5s?playlist=R8uOu6ZEr5s&autoplay=0&loop=1&controls=1&modestbranding=1&rel=0&disablekb=1&mute=0&muted=0&allowfullscreen"
+              style={{ top: 0, left: 0 }}
+              frameBorder="0"
+              allow="autoplay; modestbranding; encrypted-media"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* PH & YC badges */}
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
         <PHBadge />
         <div
