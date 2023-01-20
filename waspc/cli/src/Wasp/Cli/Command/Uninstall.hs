@@ -3,68 +3,61 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Exception (SomeException, try)
 import Control.Monad (when)
-import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromJust)
-import qualified StrongPath as SP
-import System.Directory
-  ( doesDirectoryExist,
-    doesFileExist,
-    getHomeDirectory,
-    removeDirectoryRecursive,
-    removeFile,
-  )
-import Wasp.Cli.Command (Command, CommandError (..))
+import StrongPath (Dir', File', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
+import System.Exit (die)
+import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Telemetry.Common (getWaspCacheDirPath)
+import Wasp.Cli.Command.Utils.File (deleteDirectoryIfExists, deleteFileIfExists, getUserCacheDirPath)
+import Wasp.Cli.Command.Utils.User (HomeDir, getHomeDir)
 import qualified Wasp.Message as Msg
-
--- Types
-data HomeDir
 
 -- | Removes Wasp CLI from the system.
 -- It removes the follwing:
 -- {home}/.local/share/wasp-lang
 -- {home}/.local/bin/wasp
+-- {home}/.cache/wasp
 uninstall :: Command ()
 uninstall = do
-  cliSendMessageC $
-    Msg.Info "Uninstalling Wasp CLI ..."
+  cliSendMessageC $ Msg.Info "Uninstalling Wasp ..."
 
-  uninstallResult <- liftIO (try removeWaspFiles :: IO (Either SomeException ()))
-  either
-    (throwError . CommandError "Unable to uninstall" . show)
-    pure
-    uninstallResult
+  liftIO removeWaspFiles
 
-  cliSendMessageC $ Msg.Success "Uninstalled Wasp CLI"
+  cliSendMessageC $ Msg.Success "Uninstalled Wasp"
 
 removeWaspFiles :: IO ()
 removeWaspFiles = do
   homeDir <- getHomeDir
-  let waspDir = getWaspBinariesDir homeDir
-      waspBin = getWaspScript homeDir
+  userCacheDir <- getUserCacheDirPath
 
-  -- Deleting dir with Wasp binaries
-  doesWaspDirExist <- liftIO $ doesDirectoryExist $ SP.fromAbsDir waspDir
-  when doesWaspDirExist $ do
-    removeDirectoryRecursive $ SP.toFilePath waspDir
+  let waspInstallationDir' = fromAbsDir $ homeDir </> waspInstallationDir
+      waspBinFile' = fromAbsFile $ homeDir </> waspBinFile
+      waspCacheDir = fromAbsDir $ getWaspCacheDirPath userCacheDir
 
-  -- Deleting the script referencing Wasp binary
-  doesWaspScriptExist <- liftIO $ doesFileExist $ SP.fromAbsFile waspBin
-  when doesWaspScriptExist $ do
-    removeFile $ SP.fromAbsFile waspBin
+  putStr $
+    unlines
+      [ "We will remove the following directories:",
+        "  " ++ waspInstallationDir',
+        "  " ++ waspCacheDir,
+        "",
+        "We will also remove the following files:",
+        "  " ++ waspBinFile',
+        "",
+        "Are you sure you want to continue? [y/N]"
+      ]
 
-getHomeDir :: IO (SP.Path' SP.Abs (SP.Dir HomeDir))
-getHomeDir = fromJust . SP.parseAbsDir <$> getHomeDirectory
+  answer <- getLine
 
-getWaspBinariesDir :: SP.Path' SP.Abs (SP.Dir HomeDir) -> SP.Path' SP.Abs (SP.Dir String)
-getWaspBinariesDir homeDir =
-  homeDir
-    SP.</> [SP.reldir|.local/share/wasp-lang|]
+  when (answer /= "y") $ die "Aborted."
 
-getWaspScript :: SP.Path' SP.Abs (SP.Dir HomeDir) -> SP.Path' SP.Abs (SP.File String)
-getWaspScript homeDir =
-  homeDir
-    SP.</> [SP.relfile|.local/bin/wasp|]
+  deleteDirectoryIfExists waspInstallationDir'
+  deleteFileIfExists waspBinFile'
+  deleteDirectoryIfExists waspCacheDir
+  where
+    waspInstallationDir :: Path' (Rel HomeDir) Dir'
+    waspInstallationDir = [reldir|.local/share/wasp-lang|]
+
+    waspBinFile :: Path' (Rel HomeDir) File'
+    waspBinFile = [relfile|.local/bin/wasp|]
