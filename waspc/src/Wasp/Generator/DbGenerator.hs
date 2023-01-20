@@ -10,8 +10,9 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
+import StrongPath.TH (reldir)
 import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
@@ -21,13 +22,17 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
+  ( DbRootDir,
+    clientDbSchemaFileInProjectRootDir,
+    dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
-    dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
+    serverDbSchemaFileInProjectRootDir,
+    serverRootDirFromDbRootDir,
+    webAppRootDirFromDbRootDir,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
@@ -43,42 +48,33 @@ import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
-  genPrismaSchema spec <:> (maybeToList <$> genMigrationsDir spec)
+  genServerPrismaSchema spec
+    <:> genClientPrismaSchema spec
+    <:> (maybeToList <$> genMigrationsDir spec)
 
-genPrismaSchema :: AppSpec -> Generator FileDraft
-genPrismaSchema spec = do
-  (datasourceProvider, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
-    AS.Db.SQLite ->
-      if AS.isBuild spec
-        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
-        else return ("sqlite", "\"file:./dev.db\"")
-
-  let templateData =
-        object
-          [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
-            "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String)
-          ]
-
-  return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
+genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
+genPrismaClient spec projectRootDir = do
+  ifM wasCurrentSchemaAlreadyGenerated (return Nothing) generatePrismaClientIfEntitiesExist
   where
-    dstPath = dbSchemaFileInProjectRootDir
-    tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
-    dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+    wasCurrentSchemaAlreadyGenerated :: IO Bool
+    wasCurrentSchemaAlreadyGenerated = do
+      let dbSchemaFp = SP.fromAbsFile $ projectRootDir SP.</> serverDbSchemaFileInProjectRootDir
+      let dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
-    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
-    entityToPslModelSchema (entityName, entity) =
-      Psl.Generator.Model.generateModel $
-        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
+      dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
+      if dbSchemaChecksumFileExists
+        then do
+          dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
+          dbChecksumFileContents <- readFile dbSchemaChecksumFp
+          return $ dbSchemaFileChecksum == dbChecksumFileContents
+        else return False
 
-genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
-genMigrationsDir spec =
-  return $
-    AS.migrationsDir spec >>= \waspMigrationsDir ->
-      Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
-  where
-    genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
+    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientIfEntitiesExist = do
+      let entitiesExist = not . null $ getEntities spec
+      if entitiesExist
+        then either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
+        else return Nothing
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
@@ -116,7 +112,7 @@ warnIfDbNeedsMigration spec projectRootDir = do
         then warnProjectDiffersFromDb projectRootDir
         else return Nothing
   where
-    dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
+    dbSchemaFp = SP.fromAbsFile $ projectRootDir </> serverDbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
     entitiesExist = not . null $ getEntities spec
 
@@ -149,26 +145,50 @@ warnProjectDiffersFromDb projectRootDir = do
     -- In any case, migrating will either solve it (in the SQLite case), or allow Prisma to give them enough info to troubleshoot.
     Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to verify your database is up to date. Running `wasp db migrate-dev` may fix this and will provide more info."
 
-genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
-genPrismaClient spec projectRootDir = do
-  ifM wasCurrentSchemaAlreadyGenerated (return Nothing) generatePrismaClientIfEntitiesExist
+genClientPrismaSchema :: AppSpec -> Generator FileDraft
+genClientPrismaSchema =
+  genPrismaSchema webAppRootDirFromDbRootDir clientDbSchemaFileInProjectRootDir
+
+genServerPrismaSchema :: AppSpec -> Generator FileDraft
+genServerPrismaSchema =
+  genPrismaSchema serverRootDirFromDbRootDir serverDbSchemaFileInProjectRootDir
+
+genPrismaSchema ::
+  Path' (Rel DbRootDir) (Dir a) ->
+  Path' (Rel ProjectRootDir) File' ->
+  AppSpec ->
+  Generator FileDraft
+genPrismaSchema moduleRootDir destinationFile spec = do
+  (datasourceProvider, datasourceUrl) <- case dbSystem of
+    AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
+    AS.Db.SQLite ->
+      if AS.isBuild spec
+        then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
+        else return ("sqlite", "\"file:./dev.db\"")
+
+  let templateData =
+        object
+          [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
+            "datasourceProvider" .= (datasourceProvider :: String),
+            "datasourceUrl" .= (datasourceUrl :: String),
+            "clientOutputDir" .= SP.fromRelDir clientOutputDir
+          ]
+
+  return $ createTemplateFileDraft destinationFile tmplSrcPath (Just templateData)
   where
-    wasCurrentSchemaAlreadyGenerated :: IO Bool
-    wasCurrentSchemaAlreadyGenerated = do
-      let dbSchemaFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaFileInProjectRootDir
-      let dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
+    tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
+    dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
+    clientOutputDir = moduleRootDir </> [reldir|node_modules/.prisma/client|]
 
-      dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
-      if dbSchemaChecksumFileExists
-        then do
-          dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-          dbChecksumFileContents <- readFile dbSchemaChecksumFp
-          return $ dbSchemaFileChecksum == dbChecksumFileContents
-        else return False
+    entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
+    entityToPslModelSchema (entityName, entity) =
+      Psl.Generator.Model.generateModel $
+        Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
-    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientIfEntitiesExist = do
-      let entitiesExist = not . null $ getEntities spec
-      if entitiesExist
-        then either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
-        else return Nothing
+genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
+genMigrationsDir spec =
+  return $
+    AS.migrationsDir spec >>= \waspMigrationsDir ->
+      Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
+  where
+    genProjectMigrationsDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir

@@ -36,7 +36,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common (buildEntityData, latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -79,10 +79,10 @@ genDotEnv spec = return $
   case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
@@ -257,7 +257,7 @@ genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDra
                 "userViewName" .= fromMaybe "" userViewName
               ]
         )
-    allEntities = map (C.buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
     userViewName = (++ "View") <$> userEntityName
 

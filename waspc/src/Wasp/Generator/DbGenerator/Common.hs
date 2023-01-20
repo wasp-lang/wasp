@@ -4,19 +4,23 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
-    dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
     defaultMigrateArgs,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
+    DbRootDir,
+    serverRootDirFromDbRootDir,
+    webAppRootDirFromDbRootDir,
+    serverDbSchemaFileInProjectRootDir,
+    clientDbSchemaFileInProjectRootDir
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.ServerGenerator.Common (ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
 
 data DbRootDir
@@ -33,6 +37,12 @@ data DbSchemaChecksumOnLastDbConcurrenceFile
 -- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile
 
+serverRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
+serverRootDirFromDbRootDir = [reldir|../server|]
+
+webAppRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
+webAppRootDirFromDbRootDir = [reldir|../web-app|]
+
 dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
 dbRootDirInProjectRootDir = [reldir|db|]
 
@@ -42,13 +52,17 @@ dbTemplatesDirInTemplatesDir = [reldir|db|]
 dbSchemaFileInDbTemplatesDir :: Path' (Rel DbTemplatesDir) File'
 dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 
-dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
--- Generated schema file will be in the same relative location as the
--- template file within templates dir.
-dbSchemaFileInDbRootDir = SP.castRel dbSchemaFileInDbTemplatesDir
+clientDbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
+clientDbSchemaFileInDbRootDir = [relfile|schema.client.prisma|]
 
-dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
+serverDbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
+serverDbSchemaFileInDbRootDir = [relfile|schema.server.prisma|]
+
+clientDbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
+clientDbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> clientDbSchemaFileInDbRootDir
+
+serverDbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
+serverDbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> serverDbSchemaFileInDbRootDir
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

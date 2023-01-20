@@ -26,8 +26,8 @@ import Wasp.Generator.DbGenerator.Common
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
-    dbSchemaFileInProjectRootDir,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
+    serverDbSchemaFileInProjectRootDir,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -79,10 +79,9 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLast
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
 copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs =
-  do
-    copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
-      `catch` (\e -> return $ Left $ show (e :: P.PathException))
-      `catch` (\e -> return $ Left $ show (e :: IOError))
+  copyDirectoryRecursive genProjectMigrationsDir waspMigrationsDir >> return (Right ())
+    `catch` (\e -> return $ Left $ show (e :: P.PathException))
+    `catch` (\e -> return $ Left $ show (e :: IOError))
   where
     waspMigrationsDir = SP.castDir dbMigrationsDirInWaspProjectDirAbs
     genProjectMigrationsDir = SP.castDir $ genProjectRootDirAbs SP.</> dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
@@ -95,7 +94,7 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
     checksum <- hexToString <$> checksumFromFilePath dbSchemaFp
     writeFile dbSchemaChecksumFp checksum
   where
-    dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaFileInProjectRootDir
+    dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> serverDbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
 
 removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
@@ -107,9 +106,9 @@ generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient genProjectRootDirAbs = do
   chan <- newChan
   (_, dbExitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient genProjectRootDirAbs chan)
+    readJobMessagesAndPrintThemPrefixed chan
+      `concurrently` DbJobs.generatePrismaClientForServer genProjectRootDirAbs chan
+      `concurrently` DbJobs.generatePrismaClientForClient genProjectRootDirAbs chan
   case dbExitCode of
     ExitSuccess -> do
       writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)

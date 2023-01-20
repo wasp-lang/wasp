@@ -1,7 +1,8 @@
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
     migrateDiff,
-    generatePrismaClient,
+    generatePrismaClientForClient,
+    generatePrismaClientForServer,
     runStudio,
     migrateStatus,
     asPrismaCliArgs,
@@ -10,26 +11,18 @@ where
 
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import qualified StrongPath as SP
+import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), clientDbSchemaFileInProjectRootDir, serverDbSchemaFileInProjectRootDir)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 
--- | NOTE: The expectation is that `npm install` was already executed
--- such that we can use the locally installed package.
--- This assumption is ok since it happens during compilation now.
-prismaInServerNodeModules :: Path' (Rel ProjectRootDir) File'
-prismaInServerNodeModules = serverRootDirInProjectRootDir </> [SP.relfile|./node_modules/.bin/prisma|]
-
-absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
-absPrismaExecutableFp projectDir = SP.toFilePath $ projectDir </> prismaInServerNodeModules
-
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectDir migrateArgs = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+  let schemaFile = projectDir </> serverDbSchemaFileInProjectRootDir
 
   -- NOTE(matija): We are running this command from server's root dir since that is where
   -- Prisma packages (cli and client) are currently installed.
@@ -63,7 +56,7 @@ asPrismaCliArgs migrateArgs = do
 migrateDiff :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateDiff projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> serverDbSchemaFileInProjectRootDir
   let prismaMigrateDiffCmdArgs =
         [ "migrate",
           "diff",
@@ -84,7 +77,7 @@ migrateDiff projectDir = do
 migrateStatus :: Path' Abs (Dir ProjectRootDir) -> J.Job
 migrateStatus projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFileFp = SP.toFilePath $ projectDir </> dbSchemaFileInProjectRootDir
+  let schemaFileFp = SP.toFilePath $ projectDir </> serverDbSchemaFileInProjectRootDir
   let prismaMigrateDiffCmdArgs =
         [ "migrate",
           "status",
@@ -98,15 +91,30 @@ migrateStatus projectDir = do
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
 runStudio projectDir = do
   let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+  let schemaFile = projectDir </> serverDbSchemaFileInProjectRootDir
   let prismaStudioCmdArgs = ["studio", "--schema", SP.toFilePath schemaFile]
 
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmdArgs J.Db
 
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
-generatePrismaClient projectDir = do
-  let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]
+generatePrismaClientForServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
+generatePrismaClientForServer projectDir =
+  generatePrismaClient projectDir serverDbSchemaFileInProjectRootDir
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaGenerateCmdArgs J.Db
+generatePrismaClientForClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
+generatePrismaClientForClient projectDir =
+  generatePrismaClient projectDir clientDbSchemaFileInProjectRootDir
+
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> J.Job
+generatePrismaClient projectDir dbSchemaFile =
+  runNodeCommandAsJob projectDir prismaExecutable prismaGenerateCmdArgs J.Db
+  where
+    prismaExecutable = absPrismaExecutableFp projectDir
+    prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]
+    schemaFile = projectDir </> dbSchemaFile
+
+-- | NOTE: The expectation is that `npm install` was already executed
+-- such that we can use the locally installed package.
+-- This assumption is ok since it happens during compilation now.
+absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
+absPrismaExecutableFp projectDir =
+  SP.fromAbsFile $ projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]
