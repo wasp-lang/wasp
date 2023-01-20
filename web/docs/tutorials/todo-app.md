@@ -4,9 +4,10 @@ title: Introduction
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::tip Skip the Tutorial & See Wasp in Action 👹?
-It's possible because we've set up an in-browser dev environment for you on Gitpod.
-You will be able to see and edit the finished ToDo app with no setup required. 
+:::tip See Wasp in Action
+Prefer Videos? We have a YouTube tutorial which walks you through building this Todo App step by step. Check it out [here](https://youtu.be/R8uOu6ZEr5s).
+
+We've also set up an in-browser dev environment for you on Gitpod, which allows you to see and edit the finished ToDo app with no setup required. 
 <p align="center">
      <a href="https://gitpod.io/#https://github.com/wasp-lang/gitpod-template">
           <img src="https://gitpod.io/button/open-in-gitpod.svg" />
