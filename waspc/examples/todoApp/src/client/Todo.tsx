@@ -8,14 +8,7 @@ import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
 import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
-
-// Copied from Prisma
-type Task = {
-  id: number
-  description: string
-  isDone: boolean
-  userId: number
-}
+import { Task } from '@wasp/entities'
 
 type GetTasksError = { message: string }
 
@@ -91,7 +84,7 @@ const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
     <div>
       <table className='border-separate border-spacing-2'>
         <tbody>
-          {tasks.map((task, idx) => <Task task={task} key={idx} />)}
+          {tasks.map((task, idx) => <TaskView task={task} key={idx} />)}
         </tbody>
       </table>
     </div>
@@ -100,7 +93,7 @@ const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
 
 type UpdateTaskIsDonePayload = Pick<Task, "id" | "isDone">
 
-const Task = ({ task }: { task: Task }) => {
+const TaskView = ({ task }: { task: Task }) => {
   const updateTaskIsDoneOptimistically = useAction<UpdateTaskIsDonePayload, void, Task[]>(updateTaskIsDone, {
     optimisticUpdates: [{
       getQuerySpecifier: () => [getTasks],

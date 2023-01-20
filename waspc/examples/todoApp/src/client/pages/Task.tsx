@@ -6,21 +6,22 @@ import { useAction } from '@wasp/actions'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
 import getTask from '@wasp/queries/getTask.js'
 import getTasks from '@wasp/queries/getTasks.js'
+import { Task } from '@wasp/entities'
 
-const Todo = (props) => {
+const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
-  const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
+  const { data: task, isFetching, error } = useQuery<unknown, Task, Task | Task[]>(getTask, { id: taskId })
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
       {
         getQuerySpecifier: () => [getTask, { id: taskId }],
         // This query's cache should should never be emtpy
-        updateQuery: ({ isDone }, oldTask) => ({ ...oldTask, isDone }),
+        updateQuery: ({ isDone }: Pick<Task, "id" | "isDone">, oldTask: Task) => ({ ...oldTask, isDone }),
       },
       {
         getQuerySpecifier: () => [getTasks],
-        updateQuery: (updatedTask, oldTasks) => {
+        updateQuery: (updatedTask: Task, oldTasks: Task[]) => {
           if (oldTasks === undefined) {
             // cache is empty
             return [updatedTask]

@@ -1,6 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { Task } from '@wasp/entities'
-import { AuthenticatedQuery } from '@wasp/types'
+import { AuthenticatedQuery, Query } from '@wasp/types'
 
 export const getTasks: AuthenticatedQuery<[Task], Task[]> = async (args, context) => {
   if (!context.user) {
@@ -19,7 +19,7 @@ export const getTasks: AuthenticatedQuery<[Task], Task[]> = async (args, context
   return tasks
 }
 
-export const getNumTasks: AuthenticatedQuery<[Task], number> = async (args, context) => {
+export const getNumTasks: Query<[Task], number> = async (args, context) => {
   return context.entities.Task.count()
 }
 
