@@ -55,9 +55,9 @@ removeWaspFiles = do
   deleteDirectoryIfExists waspInstallationDir'
   deleteFileIfExists waspBinFile'
   deleteDirectoryIfExists waspCacheDir
-  where
-    waspInstallationDir :: Path' (Rel HomeDir) Dir'
-    waspInstallationDir = [reldir|.local/share/wasp-lang|]
 
-    waspBinFile :: Path' (Rel HomeDir) File'
-    waspBinFile = [relfile|.local/bin/wasp|]
+waspInstallationDir :: Path' (Rel HomeDir) Dir'
+waspInstallationDir = [reldir|.local/share/wasp-lang|]
+
+waspBinFile :: Path' (Rel HomeDir) File'
+waspBinFile = [relfile|.local/bin/wasp|]
