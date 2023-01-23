@@ -6,12 +6,12 @@ import {
 } from '../entities'
 
 import {
-  {=^ allUseAuth =}
+  {=# shouldImportNonAuthenticatedOperation =}
   Action,
-  {=/ allUseAuth =}
-  {=# someUseAuth =}
+  {=/ shouldImportNonAuthenticatedOperation =}
+  {=# shouldImportAuthenticatedOperation =}
   AuthenticatedAction,
-  {=/ someUseAuth =}
+  {=/ shouldImportAuthenticatedOperation =}
 } from '../types'
 
 {=# operations =}

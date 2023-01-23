@@ -83,8 +83,8 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
     tmplData =
       object
         [ "operations" .= map operationTypeData operations,
-          "allUseAuth" .= all usesAuth operations,
-          "someUseAuth" .= any usesAuth operations,
+          "shouldImportAuthenticatedOperation" .= any usesAuth operations,
+          "shouldImportNonAuthenticatedOperation" .= not (all usesAuth operations),
           "allEntities" .= nub (concatMap entityNames operations)
         ]
     operationTypeData operation =
