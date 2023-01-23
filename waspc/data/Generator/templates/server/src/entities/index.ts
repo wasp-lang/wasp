@@ -1,13 +1,13 @@
 {{={= =}=}}
 import {
   {=# entities =}
-  {= name =},
+  type {= name =},
   {=/ entities =}
 } from "@prisma/client"
   
 export {
   {=# entities =}
-  {= name =},
+  type {= name =},
   {=/ entities =}
 } from "@prisma/client"
 
