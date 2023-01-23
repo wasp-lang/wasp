@@ -26,9 +26,9 @@ type AuthenticatedOperation<Entities extends WaspEntity[], Result> = (
   },
 ) => Promise<Result>
 
-// TODO: This type must match the logic in core/auth.js (we remove the
-// password field from the object there, so we need to do the same here).
-// Ideally, these two things would live in the same place:
+// TODO: This type must match the logic in core/auth.js (if we remove the
+// password field from the object there, we must do the same here). Ideally,
+// these two things would live in the same place:
 // https://github.com/wasp-lang/wasp/issues/965
 type {= userViewName =} = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
