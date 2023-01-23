@@ -59,7 +59,7 @@ queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir queryName =
   [reldir|queries|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ queryName ++ ".ts")
+    </> fromJust (SP.parseRelFile $ queryName ++ ".js")
 
 actionFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir actionName =
