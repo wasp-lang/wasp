@@ -120,4 +120,4 @@ buildEntityData name =
 toESModulesImportPath :: FilePath -> FilePath
 toESModulesImportPath = changeExtensionTo "js"
   where
-    changeExtensionTo ext = (++ '.':ext) . fst . splitExtension
+    changeExtensionTo ext = (++ '.' : ext) . fst . splitExtension
