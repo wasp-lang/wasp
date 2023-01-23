@@ -12,6 +12,7 @@ waspCompile/.wasp/out/server/src/config.js
 waspCompile/.wasp/out/server/src/core/AuthError.js
 waspCompile/.wasp/out/server/src/core/HttpError.js
 waspCompile/.wasp/out/server/src/dbClient.js
+waspCompile/.wasp/out/server/src/entities/index.ts
 waspCompile/.wasp/out/server/src/jobs/core/Job.js
 waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js
 waspCompile/.wasp/out/server/src/jobs/core/allJobs.js
@@ -21,6 +22,7 @@ waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
+waspCompile/.wasp/out/server/src/types/index.ts
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/server/tsconfig.json
 waspCompile/.wasp/out/web-app/.npmrc
