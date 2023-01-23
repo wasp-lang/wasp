@@ -12,6 +12,7 @@ waspBuild/.wasp/build/server/src/config.js
 waspBuild/.wasp/build/server/src/core/AuthError.js
 waspBuild/.wasp/build/server/src/core/HttpError.js
 waspBuild/.wasp/build/server/src/dbClient.js
+waspBuild/.wasp/build/server/src/entities/index.ts
 waspBuild/.wasp/build/server/src/jobs/core/Job.js
 waspBuild/.wasp/build/server/src/jobs/core/SubmittedJob.js
 waspBuild/.wasp/build/server/src/jobs/core/allJobs.js
@@ -21,6 +22,7 @@ waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
+waspBuild/.wasp/build/server/src/types/index.ts
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/server/tsconfig.json
 waspBuild/.wasp/build/web-app/.npmrc

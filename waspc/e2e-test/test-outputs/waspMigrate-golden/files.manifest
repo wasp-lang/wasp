@@ -17,6 +17,7 @@ waspMigrate/.wasp/out/server/src/config.js
 waspMigrate/.wasp/out/server/src/core/AuthError.js
 waspMigrate/.wasp/out/server/src/core/HttpError.js
 waspMigrate/.wasp/out/server/src/dbClient.js
+waspMigrate/.wasp/out/server/src/entities/index.ts
 waspMigrate/.wasp/out/server/src/jobs/core/Job.js
 waspMigrate/.wasp/out/server/src/jobs/core/SubmittedJob.js
 waspMigrate/.wasp/out/server/src/jobs/core/allJobs.js
@@ -26,6 +27,7 @@ waspMigrate/.wasp/out/server/src/jobs/core/simpleJob.js
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
+waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.npmrc
