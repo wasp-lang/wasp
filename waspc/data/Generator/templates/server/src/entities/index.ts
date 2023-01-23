@@ -3,13 +3,13 @@ import {
   {=# entities =}
   {= name =},
   {=/ entities =}
-} from '@prisma/client'
+} from "@prisma/client"
   
 export {
   {=# entities =}
   {= name =},
   {=/ entities =}
-} from '@prisma/client'
+} from "@prisma/client"
 
 export type WaspEntity = 
   {=# entities =}

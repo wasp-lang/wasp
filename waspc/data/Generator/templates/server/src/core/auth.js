@@ -44,6 +44,10 @@ const auth = handleRejection(async (req, res, next) => {
       return res.status(401).send()
     }
 
+    // TODO: This logic must match the type in core/auth.js (we remove the
+    // password field from the object there, so we need to do the same here).
+    // Ideally, these two things would live in the same place:
+    // https://github.com/wasp-lang/wasp/issues/965
     const { password, ...userView } = user
 
     req.user = userView

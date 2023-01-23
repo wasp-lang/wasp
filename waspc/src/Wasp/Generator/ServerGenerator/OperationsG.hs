@@ -42,7 +42,7 @@ genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
-    tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
     tmplData = operationTmplData operation
 
