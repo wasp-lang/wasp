@@ -67,7 +67,7 @@ genJob (jobName, job) =
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-    (jobPerformFnName, jobPerformFnImportStatement) = getServerJsImport [reldirP|../|] ((J.fn . J.perform) job)
+    (jobPerformFnName, jobPerformFnImportStatement) = getServerJsImport [reldirP|../|] $ (J.fn . J.perform) job
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object

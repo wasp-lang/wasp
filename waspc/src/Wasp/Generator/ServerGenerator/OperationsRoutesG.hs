@@ -104,7 +104,7 @@ genOperationsRouter spec
         ]
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
-          importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ [reldir|.|] </> operationRouteFileInOperationsRoutesDir operation
+          importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ operationRouteFileInOperationsRoutesDir operation
           (importIdentifier, importStmt) = getJsImport importPath $ JsImportModule operationName
        in object
             [ "importIdentifier" .= importIdentifier,
