@@ -207,6 +207,7 @@ library
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
+    Wasp.JsImport
     Wasp.Generator
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile

@@ -18,7 +18,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (JsImportDefinition (UserJsImportDefinition), JsImportScope (WebApp), getImportStatementData)
+import Wasp.Generator.JsImport (getClientJsImportWithAlias)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
@@ -169,4 +169,4 @@ createPageTemplateData page =
     importAlias = fst page
 
     importStmt :: String
-    (_, importStmt) = getImportStatementData $ UserJsImportDefinition WebApp [reldirP|.|] pageComponent (Just importAlias)
+    (_, importStmt) = getClientJsImportWithAlias [reldirP|./|] pageComponent $ Just importAlias
