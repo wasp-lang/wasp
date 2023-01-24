@@ -1,7 +1,7 @@
 module Wasp.Generator.JsImport
   ( getServerJsImport,
     getClientJsImport,
-    getInternalJsImport,
+    getJsImportFromPath,
     getImportStatementData,
     JsImportDefinition (..),
     JsImportScope (..),
@@ -19,17 +19,34 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInW
 -- | Generates import statements from server ext-src.
 getServerJsImport :: RelPathToRoot -> EI.ExtImport -> JsImportTemplateData
 getServerJsImport relPathToRoot extImport =
-  getImportStatementData (UserJsImportDefinition Server relPathToRoot extImport Nothing)
+  getImportStatementData
+    UserJsImportDefinition
+      { _scope = Server,
+        _relPathToRoot = relPathToRoot,
+        _extImport = extImport,
+        _userImportAlias = Nothing
+      }
 
 -- | Generates import statements from client ext-src.
 getClientJsImport :: RelPathToRoot -> EI.ExtImport -> JsImportTemplateData
 getClientJsImport relPathToRoot extImport =
-  getImportStatementData (UserJsImportDefinition WebApp relPathToRoot extImport Nothing)
+  getImportStatementData
+    UserJsImportDefinition
+      { _scope = WebApp,
+        _relPathToRoot = relPathToRoot,
+        _extImport = extImport,
+        _userImportAlias = Nothing
+      }
 
--- | Generates import statements based on custom path
-getInternalJsImport :: EI.ExtImportName -> Path Posix (Rel Dir') File' -> JsImportTemplateData
-getInternalJsImport importName importPath =
-  getImportStatementData (InternaJslImportDefinition importName importPath Nothing)
+-- | Generates import statements based on path to file.
+getJsImportFromPath :: Path Posix (Rel Dir') File' -> EI.ExtImportName -> JsImportTemplateData
+getJsImportFromPath importPath importName =
+  getImportStatementData
+    InternaJslImportDefinition
+      { _importName = importName,
+        _importPath = importPath,
+        _internalImportAlias = Nothing
+      }
 
 -- Info which is needed to output import statements in generated code
 data JsImportDefinition

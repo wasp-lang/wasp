@@ -21,7 +21,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getInternalJsImport)
+import Wasp.Generator.JsImport (getJsImportFromPath)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
@@ -70,7 +70,7 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
 
     operationName = AS.Operation.getName operation
 
-    (operationImportIdentifier, operationImportStmt) = getInternalJsImport (AS.ExtImport.ExtImportModule operationName) operationImportPath
+    (operationImportIdentifier, operationImportStmt) = getJsImportFromPath operationImportPath $ AS.ExtImport.ExtImportModule operationName
 
 data OperationsRoutesDir
 
@@ -105,7 +105,7 @@ genOperationsRouter spec
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
           importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ [reldir|.|] </> operationRouteFileInOperationsRoutesDir operation
-          (importIdentifier, importStmt) = getInternalJsImport (AS.ExtImport.ExtImportModule operationName) importPath
+          (importIdentifier, importStmt) = getJsImportFromPath importPath $ AS.ExtImport.ExtImportModule operationName
        in object
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,
