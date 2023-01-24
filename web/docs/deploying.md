@@ -12,7 +12,7 @@ If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzd
 
 ## Wasp CLI
 
-Using the Wasp CLI, you can easily deploy your app to [Fly.io](https://fly.io) (which will be within their [free allowances](https://fly.io/docs/about/pricing/#free-allowances) if this is your only app) with just three commands:
+Using the Wasp CLI, you can easily deploy your app to [Fly.io](https://fly.io) with just three commands:
 
 ```sh
 wasp deploy fly setup my-wasp-app mia
@@ -28,6 +28,10 @@ In the above commands, we used an app basename of `my-wasp-app` and deployed it 
 
 :::caution
 Your app name must be unique across all of Fly or deployment will fail. Additionally, please do not CTRL-C or exit your terminal as these commands run.
+:::
+
+:::note
+Fly has  [free allowances](https://fly.io/docs/about/pricing/#free-allowances) for up to 3 VMs. If you already have some apps deployed on their free Hobby Plan, you will need to add your credit card info before proceeding.
 :::
 
 The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/).

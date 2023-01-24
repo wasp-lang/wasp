@@ -50,7 +50,8 @@ async function setupServer(deploymentInfo: IDeploymentInfo) {
   const randomString = crypto.randomBytes(32).toString('hex')
   await $`flyctl secrets set JWT_SECRET=${randomString} PORT=8080 WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`
 
-  waspSays('\nServer setup complete!')
+  console.log('') // `flyctl secrets` does not produce it's own newline.
+  waspSays('Server setup complete!')
 }
 
 async function setupClient(deploymentInfo: IDeploymentInfo) {
