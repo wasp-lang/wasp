@@ -44,6 +44,10 @@ const auth = handleRejection(async (req, res, next) => {
       return res.status(401).send()
     }
 
+    // TODO: This logic must match the type in types/index.ts (if we remove the
+    // password field from the object here, we must to do the same there).
+    // Ideally, these two things would live in the same place:
+    // https://github.com/wasp-lang/wasp/issues/965
     const { password, ...userView } = user
 
     req.user = userView
