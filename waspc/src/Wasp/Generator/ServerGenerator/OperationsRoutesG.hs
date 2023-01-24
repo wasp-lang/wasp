@@ -65,9 +65,10 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           baseTmplData
 
     operationImportPath =
-      SP.fromRelFileP $
-        relPosixPathFromOperationsRoutesDirToSrcDir
-          </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+      C.toESModulesImportPath $
+        SP.fromRelFileP $
+          relPosixPathFromOperationsRoutesDirToSrcDir
+            </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
 data OperationsRoutesDir
 

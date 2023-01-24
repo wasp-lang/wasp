@@ -80,15 +80,9 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= maybe [] (map (buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
     ]
   where
     (importIdentifier, importStmt) =
       getJsImportDetailsForExtFnImport relPosixPathFromOperationFileToExtSrcDir $
         AS.Operation.getFn operation
-    buildEntityData :: String -> Aeson.Value
-    buildEntityData entityName =
-      object
-        [ "name" .= entityName,
-          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
-        ]
