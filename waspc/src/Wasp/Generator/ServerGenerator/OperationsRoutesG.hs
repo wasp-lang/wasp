@@ -66,11 +66,19 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
           baseTmplData
 
-    operationImportPath = SP.castRel $ relPosixPathFromOperationsRoutesDirToSrcDir </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+    operationImportPath =
+      relPosixPathFromOperationsRoutesDirToSrcDir
+        </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+
+    operationEsImportPath =
+      fromJust $
+        SP.parseRelFileP $
+          C.toESModulesImportPath $
+            SP.fromRelFileP operationImportPath
 
     operationName = AS.Operation.getName operation
 
-    (operationImportIdentifier, operationImportStmt) = getJsImport operationImportPath $ JsImportModule operationName
+    (operationImportIdentifier, operationImportStmt) = getJsImport operationEsImportPath $ JsImportModule operationName
 
 data OperationsRoutesDir
 

@@ -58,6 +58,13 @@
     [
         [
             "file",
+            "server/src/actions/types.ts"
+        ],
+        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
+    ],
+    [
+        [
+            "file",
             "server/src/app.js"
         ],
         "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
@@ -89,6 +96,13 @@
             "server/src/dbClient.js"
         ],
         "20c67ca197da3de2d37528ceaff2e40af910be8177f346c6d5c2b2f983810c43"
+    ],
+    [
+        [
+            "file",
+            "server/src/entities/index.ts"
+        ],
+        "d9a8968d93bb382e1473765db426fb37b0cbe4a6dc4a158140065e3e657a8ac6"
     ],
     [
         [
@@ -149,6 +163,13 @@
     [
         [
             "file",
+            "server/src/queries/types.ts"
+        ],
+        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/index.js"
         ],
         "7fb59b1d6c05570ca1d42d5dbf5868160844165f04e1c75e4be7c372965063fb"
@@ -166,6 +187,13 @@
             "server/src/server.ts"
         ],
         "3680f7afaf38fb9e32cb3bc9c64641224e2d2867bdc912730114cbf9360bf9f0"
+    ],
+    [
+        [
+            "file",
+            "server/src/types/index.ts"
+        ],
+        "5e097ef2cf636d2b481c303987aaabeb5276900a6dcbd0fd6fa031c95616058b"
     ],
     [
         [

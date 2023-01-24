@@ -1,6 +1,12 @@
 import HttpError from '@wasp/core/HttpError.js'
+import { Task } from '@wasp/entities'
+import {
+  GetNumTasks,
+  GetTask,
+  GetTasks
+} from '@wasp/queries/types'
 
-export const getTasks = async (args, context) => {
+export const getTasks: GetTasks<Task[]> = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -17,11 +23,11 @@ export const getTasks = async (args, context) => {
   return tasks
 }
 
-export const getNumTasks = async (args, context) => {
+export const getNumTasks: GetNumTasks<number> = async (args, context) => {
   return context.entities.Task.count()
 }
 
-export const getTask = async ({ id }, context) => {
+export const getTask: GetTask<Task> = async ({ id }, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
