@@ -13,7 +13,7 @@ const examples = [
     authorImg: 'https://avatars.githubusercontent.com/u/55102317',
     repoName: "waspello-example-app",
     repoUrl: "https://github.com/wasp-lang/wasp/tree/main/examples/waspello",
-    //demoUrl: "https://waspello.netlify.app/",
+    demoUrl: "https://waspello-demo.netlify.app/",
     // todo: try in GitPod/Replit url
   },
   {
@@ -122,9 +122,12 @@ const ExampleCard = (props) => (
       <div className='mt-3 flex items-center gap-2'>
 
         <SeeTheCodeButton repoUrl={props.repoUrl} />
-        {props.demoUrl && (
-          <DemoButton demoUrl={props.demoUrl} />
-        )}
+        {/* Demo apps are not mobile-friendly yet so hiding them on mobile for now. */}
+        <span className='hidden md:block'>
+          {props.demoUrl && (
+            <DemoButton demoUrl={props.demoUrl} />
+          )}
+        </span>
 
       </div>
     </div>

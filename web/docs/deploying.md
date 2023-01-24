@@ -3,6 +3,8 @@ title: Deploying
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
+import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
+
 :::info
 Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly a bit bigger changes in the future.
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
@@ -90,6 +92,8 @@ Server uses following environment variables, so you need to ensure they are set 
 - `WASP_WEB_CLIENT_URL` -> The URL of where the frontend app is running (e.g. `https://<app-name>.netlify.app`), which is necessary for CORS.
 - `JWT_SECRET` -> You need this if you are using Wasp's `auth` feature. Set it to a random string (password), at least 32 characters long.
 
+<AddExternalAuthEnvVarsReminder />
+
 ### Deploying to Fly.io (free, recommended)
 
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
@@ -146,7 +150,13 @@ Next, let's add a few more environment variables:
 flyctl secrets set PORT=8080
 flyctl secrets set JWT_SECRET=<random_string_at_least_32_characters_long>
 flyctl secrets set WASP_WEB_CLIENT_URL=<url_of_where_frontend_will_be_deployed>
+
+# If you are using an external auth method (Google or GitHub), make sure to add their vars too!
+# flyctl secrets set GOOGLE_CLIENT_ID=<google_client_id>
+# flyctl secrets set GOOGLE_CLIENT_SECRET=<google_client_secret>
 ```
+
+<AddExternalAuthEnvVarsReminder />
 
 NOTE: If you do not know what your frontend URL is yet, don't worry. You can set `WASP_WEB_CLIENT_URL` after you deploy your frontend.
 
@@ -203,8 +213,13 @@ heroku create <app-name>
 Unless you have external Postgres database that you want to use, let's create new database on Heroku and attach it to our app:
 
 ```
-heroku addons:create --app <app-name> heroku-postgresql:hobby-dev
+heroku addons:create --app <app-name> heroku-postgresql:mini
 ```
+:::caution
+
+Heroku does not offer a free plan anymore and `mini` is their cheapest database instance - it costs $5/mo.
+
+:::
 
 Heroku will also set `DATABASE_URL` env var for us at this point. If you are using external database, you will have to set it yourself.
 
@@ -422,6 +437,8 @@ Go to the server instance's `Settings` tab, and click `Generate Domain`. Do the 
 The Postgres database is already initialized with a domain, so click on the Postgres instance, go to the **Connect** tab and copy the `Postgres Connection URL`. 
 
 Go back to your `server` instance and navigate to its `Variables` tab. Now add the copied Postgres URL as `DATABASE_URL`, as well as the client's domain as `WASP_WEB_CLIENT_URL`.
+
+<AddExternalAuthEnvVarsReminder />
  
 Next, copy the server's domain, move over to the client's `Variables` tab and add the generated server domain as a new variable called `REACT_APP_API_URL`. 
 

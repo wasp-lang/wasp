@@ -5,6 +5,54 @@
 ### `wasp deploy` CLI command added
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
 
+### Import Wasp entity types on the backend
+You can now import and use the types of Wasp entities in your backend code:
+```typescript
+import { Task } from '@wasp/entities/Task'
+
+const getTasks = (args, context): Task[] => {
+    const tasks: Task[] = // ...
+    // ...
+}
+```
+
+### TypeScript support for Queries and Actions
+Wasp now includes generic type constructors for typing Queries and Actions.
+This features works hand-in-hand with Wasp entity types described in the
+previous chapter:
+```typescript
+import { Query } from '@wasp/queries'
+import { Task } from '@wasp/entities/task'
+
+const getTasks: Query<[Task]> = (args, context) => {
+  // The compiler knows the types of  'args' and 'context'
+  // inside the function's body.
+}
+```
+
+### Automatically generated types for Queries and Actions
+Building on the features described in the previous two chapters, Wasp can now
+automatically generate appropriate types for your operations. This reduces
+duplication and eliminates possible errors (i.e., no way to specify incorrect
+entities). Assuming your `.wasp` file looks like this:
+```css
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  entities: [Task]
+}
+```
+You'll get the following feature:
+```typescript
+import { Task } from '@wasp/entities'
+import { GetTasks} from '@wasp/queries'
+
+// The type argument specifies the Query's return type
+const getTasks: GetTasks<Task[]> = (args, context) => {
+  // The function knows the types of  'args' and 'context'
+  // It also knows it must return a value of type Task[].
+}
+```
+
 ## v0.8.0
 
 ### BREAKING CHANGES
@@ -122,9 +170,9 @@ directory `foo`, you should:
        // This previously resolved to ext/LoginPage.js
        component: import Login from "@ext/LoginPage.js"
      }
-     
+
      // ...
-     
+
      query getTasks {
        // This previously resolved to ext/queries.js
        fn: import { getTasks } from "@ext/queries.js",
@@ -138,16 +186,16 @@ directory `foo`, you should:
        // This resolves to src/client/LoginPage.js
        component: import Login from "@client/LoginPage"
      }
-     
+
      // ...
-     
+
      query getTasks {
        // This resolves to src/server/queries.js
        fn: import { getTasks } from "@server/queries.js",
      }
      ```
      Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
-     
+
 That's it! You should now have a fully working Wasp project in the `foo` directory.
 
 ### [NEW FEATURE] TypeScript support

@@ -796,7 +796,7 @@ app MyApp {
     ("redux", "^4.0.5"),
     ("react-redux", "^7.1.3")
   ]
-)
+}
 ```
 
 You will need to re-run `wasp start` after adding a dependency for Wasp to pick it up.
@@ -811,18 +811,23 @@ In the future, we will add support for picking any version you like, but we have
 
 Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring `auth` field of the `app` declaration:
 
-```c
+```c 
 app MyApp {
   title: "My app",
   //...
   auth: {
     userEntity: User,
+    externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {}
+      usernameAndPassword: {},
+      google: {},
+      gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
+
+//...
 ```
 
 `app.auth` is a dictionary with following fields:
@@ -831,7 +836,7 @@ app MyApp {
 Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `externalAuthEntity: entity` (optional)
-Entity which associates a user with some external authentication provider. We currently offer support for [Google](#google) and [GitHub](#github).
+Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20---google-github) for more info.
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
@@ -854,11 +859,35 @@ Automatic redirect on successful login only works when using the Wasp provided [
 ### Username and Password
 
 `usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
-This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields. `username`s are stored in a case-sensitive manner.
+This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields:
+
+```c 
+app MyApp {
+  title: "My app",
+  //...
+
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  }
+}
+
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+psl=}
+```
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
 - `username`: non-empty
 - `password`: non-empty, at least 8 characters, and contains a number
+
+Note that `username`s are stored in a case-sensitive manner.
 
 #### High-level API
 
@@ -988,7 +1017,7 @@ const SignOut = () => {
 #### Reset password
 Coming soon.
 
-### Updating a user's password
+#### Updating a user's password
 If you need to update user's password, you can do it safely via Prisma client, e.g. within an action:
 ```js
 export const updatePassword = async (args, context) => {
@@ -1100,28 +1129,74 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
-### Google
+### Social Login Providers (OAuth 2.0) - Google, GitHub
+Wasp currently supports the following Social Login providers (with more to come) :
+- [GitHub](features#github)
+- [Google](features#google)
 
-`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings: 
+The following is a quick example of how your `.wasp` file might look like when implementing social login. Make sure to read the specific sections for furter requirements (env variables) and override options:
 
-```js
+```c title="main.wasp"
+app MyApp {
+  title: "My app",
   //...
 
   auth: {
+    // both userEntity and externalAuthEntity are required
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      google: {}
+      google: {},
+      gitHub: {}
     },
-    //...
+  }
+}
+
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+// Different social login providers can use the same externalAuthEntity
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+```
+
+Be sure to include an `externalAuthEntity` in your `auth` declaration, as [described here](features#externalauthentity). Note that the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
+
+:::info
+Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default, so make sure to include it them your `userEntity` declaration even if you're only using a Social Login provider.
+
+If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
+:::
+
+
+#### Google
+
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings: 
+
+```c {6}
+  auth: {
+    // both userEntity and externalAuthEntity are required
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {},
+    },
   }
 ```
 
-This method also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-
-If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
-
-#### Google Default settings
+##### Google Default settings
 - Configuration:
   - By default, Wasp expects you to set two environment variables in order to use Google authentication:
     - `GOOGLE_CLIENT_ID`
@@ -1136,7 +1211,7 @@ If you require custom configuration setup or user entity field assignment, you c
   :::
 - Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/defaults.js . These can be overriden as explained below.
 
-#### Google Overrides
+##### Google Overrides
 If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
 
 ```js
@@ -1179,7 +1254,7 @@ If you require modifications to the above, you can add one or more of the follow
   ```
   - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
 
-#### Google UI helpers
+##### Google UI helpers
 
 To use the Google sign-in button, logo or URL on your login page, do either of the following:
 
@@ -1204,11 +1279,11 @@ export default Login
 
 If you need more customization than what the buttons provide, you can create your own custom component using the `googleSignInUrl`.
 
-### GitHub
+#### GitHub
 
 `gitHub` authentication makes it possible to use GitHub's OAuth 2.0 service to sign GitHub users into your app. To enable it, add `gitHub: {}` to your `auth.methods` dictionary to use it with default settings: 
 
-```js
+```c {7}
   //...
 
   auth: {
@@ -1225,7 +1300,7 @@ This method requires also requires that `externalAuthEntity` be specified in `au
 
 If you require custom configuration setup or user entity field assignment, you can override the defaults. Please check out that section for [Google overrides](features#google-overrides), as the information is the same.
 
-#### GitHub Default settings
+##### GitHub Default settings
 - Configuration:
   - By default, Wasp expects you to set two environment variables in order to use GitHub authentication:
     - `GITHUB_CLIENT_ID`
@@ -1236,10 +1311,10 @@ If you require custom configuration setup or user entity field assignment, you c
 
 NOTE: The same UI helpers apply as for Google. Please [see here](features#google-ui-helpers) for more.
 
-### `externalAuthEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth` that contains at least the following highlighted fields:
+#### `externalAuthEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains at least the following highlighted fields:
 
-```css {4,11,16-19,21}
+```c {4,11,16-19,21}
 ...
   auth: {
     userEntity: User,
