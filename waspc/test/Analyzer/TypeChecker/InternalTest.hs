@@ -68,34 +68,28 @@ spec_Internal = do
         wctx7 = WithCtx ctx7
 
     describe "unify" $ do
-      it "Doesn't affect 2 expressions of the same type" $ do
+      it "Correctly unifies two expressions of the same type" $ do
         property $ \(a, b) ->
           let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
               actual = unify ctx1 initial
-           in actual == Right (initial, NumberType)
-      it "Unifies two same-typed dictionaries to their original type" $ do
+           in actual == Right NumberType
+      it "Correctly unigies two dictionaries of the same type" $ do
         let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
         let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
         let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ
         let texprs = a :| [b]
         unify ctx1 texprs
-          `shouldBe` Right (texprs, typ)
+          `shouldBe` Right typ
       it "Unifies an empty dict and a dict with one property" $ do
         let a = wctx2 $ Dict [] (DictType H.empty)
         let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] (DictType $ H.singleton "a" $ DictRequired BoolType)
         let expectedType = DictType $ H.singleton "a" $ DictOptional BoolType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expectedType :| [expectedType])
-      it "Is idempotent when unifying an empty dict and a singleton dict" $ do
-        let a = wctx2 $ Dict [] (DictType H.empty)
-        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
-        unify ctx1 (a :| [b]) `shouldBe` (unify ctx1 (a :| [b]) >>= unify ctx1 . fst)
+        unify ctx1 (a :| [b]) `shouldBe` Right expectedType
       it "Unifies an empty list with any other list" $ do
         let a = wctx2 $ List [] EmptyListType
         let b = wctx3 $ List [wctx4 $ StringLiteral "a"] (ListType StringType)
         let expected = ListType StringType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expected :| [expected])
+        unify ctx1 (a :| [b]) `shouldBe` Right expected
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
