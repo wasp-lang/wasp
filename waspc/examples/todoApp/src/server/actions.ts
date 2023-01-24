@@ -2,8 +2,14 @@ import HttpError from '@wasp/core/HttpError.js'
 import { Task } from '@wasp/entities/'
 import { AuthenticatedAction } from '@wasp/types'
 import { getSomeResource } from './serverSetup.js'
+import {
+  CreateTask,
+  DeleteCompletedTasks,
+  ToggleAllTasks,
+  UpdateTaskIsDone
+} from '@wasp/actions/types'
 
-export const createTask: AuthenticatedAction<[Task]> = async (task, context) => {
+export const createTask: CreateTask = async (task, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -22,7 +28,7 @@ export const createTask: AuthenticatedAction<[Task]> = async (task, context) => 
   })
 }
 
-export const updateTaskIsDone: AuthenticatedAction<[Task]> = async ({ id, isDone }, context) => {
+export const updateTaskIsDone: UpdateTaskIsDone = async ({ id, isDone }, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -38,7 +44,7 @@ export const updateTaskIsDone: AuthenticatedAction<[Task]> = async ({ id, isDone
   })
 }
 
-export const deleteCompletedTasks: AuthenticatedAction<[Task]> = async (args, context) => {
+export const deleteCompletedTasks: DeleteCompletedTasks = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -49,7 +55,7 @@ export const deleteCompletedTasks: AuthenticatedAction<[Task]> = async (args, co
   })
 }
 
-export const toggleAllTasks: AuthenticatedAction<[Task]> = async (args, context) => {
+export const toggleAllTasks: ToggleAllTasks = async (args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }

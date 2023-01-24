@@ -58,6 +58,13 @@
     [
         [
             "file",
+            "server/src/actions/types.ts"
+        ],
+        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
+    ],
+    [
+        [
+            "file",
             "server/src/app.js"
         ],
         "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
@@ -138,6 +145,13 @@
             "server/src/jobs/core/simpleJob.js"
         ],
         "36fe173d9f5128859196bfd3a661983df2d95eb34d165a469b840982b06cf59b"
+    ],
+    [
+        [
+            "file",
+            "server/src/queries/types.ts"
+        ],
+        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
     ],
     [
         [

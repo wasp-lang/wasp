@@ -7,6 +7,7 @@ waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
 waspCompile/.wasp/out/server/package.json
+waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/config.js
 waspCompile/.wasp/out/server/src/core/AuthError.js
@@ -19,6 +20,7 @@ waspCompile/.wasp/out/server/src/jobs/core/allJobs.js
 waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
+waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts

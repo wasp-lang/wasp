@@ -7,6 +7,7 @@ waspBuild/.wasp/build/server/.npmrc
 waspBuild/.wasp/build/server/README.md
 waspBuild/.wasp/build/server/nodemon.json
 waspBuild/.wasp/build/server/package.json
+waspBuild/.wasp/build/server/src/actions/types.ts
 waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/config.js
 waspBuild/.wasp/build/server/src/core/AuthError.js
@@ -19,6 +20,7 @@ waspBuild/.wasp/build/server/src/jobs/core/allJobs.js
 waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBoss.js
 waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBossJob.js
 waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
+waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
