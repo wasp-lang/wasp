@@ -27,6 +27,29 @@ const getTasks: Query<[Task]> = (args, context) => {
 }
 ```
 
+### Automatically generated types for Queries and Actions
+Building on the features described in the previous two chapters, Wasp can now
+automatically generate appropriate types for your operations. This reduces
+duplication and eliminates possible errors (i.e., no way to specify incorrect
+entities). Assuming your `.wasp` file looks like this:
+```css
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  entities: [Task]
+}
+```
+You'll get the following feature:
+```typescript
+import { Task } from '@wasp/entities'
+import { GetTasks} from '@wasp/queries'
+
+// The type argument specifies the Query's return type
+const getTasks: GetTasks<Task[]> = (args, context) => {
+  // The function knows the types of  'args' and 'context'
+  // It also knows it must return a value of type Task[].
+}
+```
+
 ## v0.8.0
 
 ### BREAKING CHANGES
