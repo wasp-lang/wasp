@@ -1,7 +1,7 @@
 import toml from 'toml'
 import fs from 'fs'
 import path from 'node:path'
-import { IGlobalOptions } from '../IGlobalOptions.js'
+import { IGlobalOptions } from '../GlobalOptions.js'
 
 export interface ITomlFilePaths {
   serverTomlPath: string

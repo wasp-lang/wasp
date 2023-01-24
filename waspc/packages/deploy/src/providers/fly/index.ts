@@ -5,18 +5,24 @@ import { createDb as createDbFn } from './createDb/createDb.js'
 import { cmd as cmdFn } from './cmd/cmd.js'
 import { ensureWaspDirLooksRight, ensureDirsAreAbsolute } from './helpers/helpers.js'
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js'
-import { CLIENT_CONTEXT_OPTION, SERVER_CONTEXT_OPTION } from './cmd/ICmdOptions.js'
+import { CLIENT_CONTEXT_OPTION, SERVER_CONTEXT_OPTION } from './cmd/CmdOptions.js'
+
+export const flySetupCommand = makeFlySetupCommand()
+export const createFlyDbCommand = makeCreateFlyDbCommand()
+export const flyDeployCommand = makeFlyDeployCommand()
+export const executeFlyCommand = makeExecuteFlyCommand()
 
 export function addFlyCommand(program: Command) {
   const fly = program.command('fly')
   fly.description('Setup and deploy Wasp apps on Fly.io')
-    .addCommand(makeFlySetupCommand())
-    .addCommand(makeCreateFlyDbCommand())
-    .addCommand(makeFlyDeployCommand())
-    .addCommand(makeExecuteFlyCommand())
+    .addCommand(flySetupCommand)
+    .addCommand(createFlyDbCommand)
+    .addCommand(flyDeployCommand)
+    .addCommand(executeFlyCommand)
     .allowUnknownOption()
 
   // Add global options and hooks to all commands.
+  // Add these hooks before any command-specific ones so they run first.
   fly.commands.forEach((cmd) => {
     cmd.requiredOption('--wasp-dir <dir>', 'path to Wasp project')
       .option('--toml-dir <dir>', 'path to where fly.toml files should live')
@@ -24,6 +30,10 @@ export function addFlyCommand(program: Command) {
       .hook('preAction', ensureDirsAreAbsolute)
       .hook('preAction', ensureWaspDirLooksRight)
   })
+
+  // Add command-specific hooks.
+  flySetupCommand.hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[1]))
+  createFlyDbCommand.hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[0]))
 }
 
 function makeFlySetupCommand(): Command {
@@ -31,7 +41,6 @@ function makeFlySetupCommand(): Command {
   setup.description('Set up a new app on Fly.io (this does not deploy it)')
     .argument('<basename>', 'base app name to use on Fly.io (must be unique)')
     .argument('<region>', 'deployment region to use on Fly.io')
-    .hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[1]))
     .action(setupFn)
   return setup
 }
@@ -64,7 +73,6 @@ function makeCreateFlyDbCommand(): Command {
     .option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
     .option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
     .option('--volume-size <volumeSize>', 'flyctl postgres create option', '1')
-    .hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[0]))
     .action(createDbFn)
   return createDb
 }

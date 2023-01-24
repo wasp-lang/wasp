@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { exit } from 'process'
-import { cd } from 'zx'
+import { $, cd, ProcessOutput, Shell } from 'zx'
 import fs from 'fs'
 import path from 'node:path'
 
@@ -10,8 +10,8 @@ export function isYes(str: string): boolean {
 
 export function ensureWaspDirLooksRight(thisCommand: Command) {
   if (!fs.existsSync(path.join(thisCommand.opts().waspDir, '.wasproot'))) {
-    waspSays(`The supplied Wasp directory does not appear to be a valid Wasp project.`)
-    waspSays(`Please double check your path.`)
+    waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.')
+    waspSays('Please double check your path.')
     exit(1)
   }
 }
@@ -30,12 +30,12 @@ export function cdToClientBuildDir(waspDir: string) {
 
 export function ensureDirsAreAbsolute(thisCommand: Command) {
   if (thisCommand.opts().waspDir && !path.isAbsolute(thisCommand.opts().waspDir)) {
-    waspSays(`The Wasp dir path must be absolute.`)
+    waspSays('The Wasp dir path must be absolute.')
     exit(1)
   }
 
   if (thisCommand.opts().tomlDir && !path.isAbsolute(thisCommand.opts().tomlDir)) {
-    waspSays(`The toml dir path must be absolute.`)
+    waspSays('The toml dir path must be absolute.')
     exit(1)
   }
 }
@@ -70,4 +70,20 @@ export function displayWaspRocketImage() {
 
   `
   console.log(asciiArt)
+}
+
+export function getCommandHelp(command: Command): string {
+  return trimUsage(command.helpInformation())
+}
+
+function trimUsage(usage: string): string {
+  return usage.split(/[\r\n]+/)[0].replace('Usage: ', '').replace(' [options]', '')
+}
+
+export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Promise<ProcessOutput> {
+  const verboseSetting = $.verbose
+  $.verbose = false
+  const proc = await cmd($)
+  $.verbose = verboseSetting
+  return proc
 }
