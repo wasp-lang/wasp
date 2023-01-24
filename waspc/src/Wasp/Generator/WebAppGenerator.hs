@@ -6,16 +6,13 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
-  ( Dir,
-    File',
-    Path,
+  ( File',
     Path',
-    Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -29,17 +26,15 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
+import Wasp.Generator.JsImport (getClientJsImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeDirInWebAppSrcDir,
-    extClientCodeGeneratorStrategy,
+  ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
@@ -236,9 +231,6 @@ genIndexJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = genJsImport . mkImportStatementFromRelPath extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getClientJsImport [reldirP|.|] <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
-
-extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
-extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir

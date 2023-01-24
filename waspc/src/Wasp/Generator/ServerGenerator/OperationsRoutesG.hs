@@ -21,7 +21,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (genJsImport, mkImportStatement)
+import Wasp.Generator.JsImport (getInternalJsImport)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
@@ -66,14 +66,11 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
           baseTmplData
 
-    operationImportPath =
-      SP.fromRelFileP $
-        relPosixPathFromOperationsRoutesDirToSrcDir
-          </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
+    operationImportPath = SP.castRel $ relPosixPathFromOperationsRoutesDirToSrcDir </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
     operationName = AS.Operation.getName operation
 
-    (operationImportIdentifier, operationImportStmt) = genJsImport $ mkImportStatement (AS.ExtImport.ExtImportModule operationName) operationImportPath
+    (operationImportIdentifier, operationImportStmt) = getInternalJsImport (AS.ExtImport.ExtImportModule operationName) operationImportPath
 
 data OperationsRoutesDir
 
@@ -107,13 +104,8 @@ genOperationsRouter spec
         ]
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
-          importPath =
-            ( "./"
-                ++ SP.fromRelFileP
-                  ( fromJust $ SP.relFileToPosix $ operationRouteFileInOperationsRoutesDir operation
-                  )
-            )
-          (importIdentifier, importStmt) = genJsImport $ mkImportStatement (AS.ExtImport.ExtImportModule operationName) importPath
+          importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ [reldir|.|] </> operationRouteFileInOperationsRoutesDir operation
+          (importIdentifier, importStmt) = getInternalJsImport (AS.ExtImport.ExtImportModule operationName) importPath
        in object
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,

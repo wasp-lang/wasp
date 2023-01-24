@@ -8,9 +8,7 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import StrongPath (reldir, relfile, (</>))
-import qualified StrongPath as SP
-import qualified System.FilePath as FP
+import StrongPath (reldir, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -20,12 +18,11 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (genJsImport, mkImportStatementWithAlias)
+import Wasp.Generator.JsImport (JsImportDefinition (UserJsImportDefinition), JsImportScope (WebApp), getImportStatementData)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -165,16 +162,11 @@ createPageTemplateData page =
     { _importStmt = importStmt
     }
   where
-    relPathToExtSrcDir = "./" FP.</> SP.toFilePath extClientCodeDirInWebAppSrcDir
-
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
-
-    importPath :: String
-    importPath = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent)
 
     importAlias :: String
     importAlias = fst page
 
     importStmt :: String
-    (_, importStmt) = genJsImport $ mkImportStatementWithAlias (AS.ExtImport.name pageComponent) importPath importAlias
+    (_, importStmt) = getImportStatementData $ UserJsImportDefinition WebApp [reldirP|.|] pageComponent (Just importAlias)

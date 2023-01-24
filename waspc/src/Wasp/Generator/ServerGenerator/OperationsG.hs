@@ -11,19 +11,17 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, relDirToPosix, reldir, reldirP, relfile, (</>))
+import StrongPath (File', Path', Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
+import Wasp.Generator.JsImport (getServerJsImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -71,10 +69,6 @@ operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) Fi
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
 operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 
-relPosixPathFromOperationFileToExtSrcDir :: Path Posix (Rel Dir') (Dir GeneratedExternalCodeDir)
-relPosixPathFromOperationFileToExtSrcDir =
-  [reldirP|../|] </> fromJust (relDirToPosix extServerCodeDirInServerSrcDir)
-
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
@@ -84,9 +78,7 @@ operationTmplData operation =
     ]
   where
     (importIdentifier, importStmt) =
-      genJsImport $
-        mkImportStatementFromRelPath relPosixPathFromOperationFileToExtSrcDir $
-          AS.Operation.getFn operation
+      getServerJsImport [reldirP|../|] (AS.Operation.getFn operation)
     buildEntityData :: String -> Aeson.Value
     buildEntityData entityName =
       object

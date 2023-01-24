@@ -16,7 +16,6 @@ import StrongPath
     File',
     Path,
     Path',
-    Posix,
     Rel,
     parseRelFile,
     reldir,
@@ -32,18 +31,15 @@ import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (genJsImport, mkImportStatementFromRelPath)
+import Wasp.Generator.JsImport (getServerJsImport)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common
   ( ServerRootDir,
-    ServerSrcDir,
     ServerTemplatesDir,
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
@@ -71,7 +67,7 @@ genJob (jobName, job) =
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-    (jobPerformFnName, jobPerformFnImportStatement) = genJsImport $ mkImportStatementFromRelPath relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+    (jobPerformFnName, jobPerformFnImportStatement) = getServerJsImport [reldirP|../|] ((J.fn . J.perform) job)
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object
@@ -107,9 +103,6 @@ genAllJobImports spec =
       object
         [ "name" .= jobName
         ]
-
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../|] SP.</> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 genJobExecutors :: Generator [FileDraft]
 genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
