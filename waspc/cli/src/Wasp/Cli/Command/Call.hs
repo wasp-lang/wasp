@@ -10,8 +10,10 @@ data Call
   | Version
   | Telemetry
   | Deps
+  | Dockerfile
   | Info
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands
+  | WaspLS
   | Unknown [String] -- all args

@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -18,6 +17,7 @@ module Wasp.Analyzer.Evaluator.Evaluation.TypedExpr.Combinators
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Arrow (left)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
@@ -156,24 +156,26 @@ tuple4 eval1 eval2 eval3 eval4 = evaluation $ \(typeDefs, bindings) -> withCtx $
 -- | An evaluation that expects an "ExtImport".
 extImport :: TypedExprEvaluation AppSpec.ExtImport.ExtImport
 extImport = evaluation' . withCtx $ \ctx -> \case
-  TypedAST.ExtImport name extFileFP ->
+  TypedAST.ExtImport name extImportPath ->
     -- NOTE(martin): This parsing here could instead be done in Parser.
     --   I don't have a very good reason for doing it here instead of Parser, except
     --   for being somewhat simpler to implement.
     --   So we might want to move it to Parser at some point in the future, if we
     --   figure out that is better (it sounds/feels like it could be).
-    case stripPrefix extPrefix extFileFP of
+    case stripImportPrefix extImportPath of
       Just relFileFP -> case SP.parseRelFileP relFileFP of
-        Left err -> Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError $ show err
+        Left err -> mkParseError ctx $ show err
         Right relFileSP -> pure $ AppSpec.ExtImport.ExtImport name relFileSP
       Nothing ->
-        Left $
-          ER.mkEvaluationError ctx $
-            ER.ParseError $
-              ER.EvaluationParseError $ "Path in external import must start with \"" ++ extPrefix ++ "\"!"
+        mkParseError
+          ctx
+          $ "Path in external import must start with \"" ++ serverPrefix ++ "\"" ++ " or \"" ++ clientPrefix ++ "\"!"
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.ExtImportType (TypedAST.exprType expr)
   where
-    extPrefix = "@ext/"
+    mkParseError ctx msg = Left $ ER.mkEvaluationError ctx $ ER.ParseError $ ER.EvaluationParseError msg
+    stripImportPrefix importPath = stripPrefix serverPrefix importPath <|> stripPrefix clientPrefix importPath
+    serverPrefix = "@server/"
+    clientPrefix = "@client/"
 
 -- | An evaluation that expects a "JSON".
 json :: TypedExprEvaluation AppSpec.JSON.JSON

@@ -1,0 +1,6 @@
+  // This is some // comment
+/* comment
+  span//ning
+multi/*ple lines */
+test /* *hi* */ Decl 42  // One more comment
+// And here is final comment

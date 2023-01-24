@@ -13,19 +13,25 @@ import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
+import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
     _pagesToImport :: ![PageTemplateData],
-    _isAuthEnabled :: Bool
+    _isAuthEnabled :: Bool,
+    _isExternalAuthEnabled :: Bool,
+    _externalAuthProviders :: ![ExternalAuthProviderTemplateData]
   }
 
 instance ToJSON RouterTemplateData where
@@ -33,7 +39,9 @@ instance ToJSON RouterTemplateData where
     object
       [ "routes" .= _routes routerTD,
         "pagesToImport" .= _pagesToImport routerTD,
-        "isAuthEnabled" .= _isAuthEnabled routerTD
+        "isAuthEnabled" .= _isAuthEnabled routerTD,
+        "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
+        "externalAuthProviders" .= _externalAuthProviders routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -61,6 +69,21 @@ instance ToJSON PageTemplateData where
         "importFrom" .= _importFrom pageTD
       ]
 
+data ExternalAuthProviderTemplateData = ExternalAuthProviderTemplateData
+  { _authFrontendUrl :: !String,
+    _authServerOauthRedirectUrl :: !String,
+    _authProviderEnabled :: Bool
+  }
+  deriving (Show, Eq)
+
+instance ToJSON ExternalAuthProviderTemplateData where
+  toJSON externalProviderTD =
+    object
+      [ "authFrontendUrl" .= _authFrontendUrl externalProviderTD,
+        "authServerOauthRedirectUrl" .= _authServerOauthRedirectUrl externalProviderTD,
+        "authProviderEnabled" .= _authProviderEnabled externalProviderTD
+      ]
+
 genRouter :: AppSpec -> Generator FileDraft
 genRouter spec = do
   return $
@@ -78,11 +101,31 @@ createRouterTemplateData spec =
   RouterTemplateData
     { _routes = routes,
       _pagesToImport = pages,
-      _isAuthEnabled = isAuthEnabled spec
+      _isAuthEnabled = isAuthEnabled spec,
+      _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
+      _externalAuthProviders = externalAuthProviders
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
     pages = map createPageTemplateData $ AS.getPages spec
+    externalAuthProviders =
+      map
+        (createExternalAuthProviderTemplateData maybeAuth)
+        [ (AS.App.Auth.isGoogleAuthEnabled, googleAuthInfo),
+          (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthInfo)
+        ]
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+createExternalAuthProviderTemplateData ::
+  Maybe AS.App.Auth.Auth ->
+  (AS.App.Auth.Auth -> Bool, ExternalAuthInfo) ->
+  ExternalAuthProviderTemplateData
+createExternalAuthProviderTemplateData maybeAuth (method, externalAuthInfo) =
+  ExternalAuthProviderTemplateData
+    { _authFrontendUrl = frontendLoginUrl externalAuthInfo,
+      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl externalAuthInfo,
+      _authProviderEnabled = (method <$> maybeAuth) == Just True
+    }
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =
@@ -126,8 +169,7 @@ createPageTemplateData page =
         AS.ExtImport.ExtImportField identifier -> "{ " ++ mkNamedImportExpr identifier pageName ++ " }"
     }
   where
-    relPathToExtSrcDir :: FilePath
-    relPathToExtSrcDir = "./ext-src/"
+    relPathToExtSrcDir = "./" FP.</> SP.toFilePath extClientCodeDirInWebAppSrcDir
 
     pageName :: String
     pageName = fst page

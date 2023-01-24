@@ -13,11 +13,11 @@ If you would like to make your first contribution, here is a handy checklist we 
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediatelly propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find smth for you together.
-- [ ] Make a PR and have it accepted! Check [Typical workflow](#typical-development-workflow) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
+- [ ] Make a PR targeting `main` and have it accepted! Check [Typical workflow](#typical-development-workflow) and [Branching and merging strategy](#branching-and-merging-strategy) for guidance, and consult [Codebase overview](#codebase-overview) for more details on how Wasp compiler works internally.
 
 
 ## Quick overview
-Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiler transpiles Wasp code into them.
+Wasp compiler is implemented in Haskell, but you will also see a lot of Javascript and other web technologies because Wasp compiles it's own code into them.
 
 You don't have to be expert in Haskell to contribute or understand the code, since we don't use complicated Haskell features much -> most of the code is relatively simple and straight-forward, and we are happy to help with the part that is not.
 
@@ -106,15 +106,16 @@ NOTE: Reload page if blank.
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`) (together with tests if that makes sense: see "Tests").
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat.
-4. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
-5. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
+4. If you did a bug fix, added new feature or did a breaking change, add short info about it to Changelog.md. Also, bump version in waspc.cabal and ChangeLog.md if needed -> check the version of latest release when doing it. If you are not sure how to decide which version to go with, check later in this file instructions on it.
+5. Once close to done, run `cabal test` to confirm that the project's tests are passing (both new and old).
+6. If needed, confirm that `examples/todoApp/` is working correctly by running `cabal build` first, to build the wasp executable, and then by running that executable with `cabal run wasp-cli start` from the `examples/todoApp/` dir -> this will run the web app in development mode with the current version of your Wasp code.
    Manually inspect that app behaves ok: In the future we will add automatic integration tests, but for now testing is manual.
-6. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
+7. Squash all the commits into a single commit (or a few in case it makes more sense) and create a PR. 
    Keep an eye on CI tests -> they should all be passing, if not, look into it.
-7. If your PR changes how users(Waspers) use Wasp, make sure to also create a PR that will update the documentation, which is in a [separate repo](https://wasp-lang.dev/docs/tutorials/getting-started).
-8. Work with reviewer(s) to get the PR approved.
+8. If your PR changes how users(Waspers) use Wasp, make sure to also update the documentation, which is in this same repo, but under `/web/docs`.
+9. Work with reviewer(s) to get the PR approved.
    Keep adding "fix" commits until PR is approved, then again squash them all into one commit.
-9. Reviewer will merge the branch into `main`. Yay!
+10. Reviewer will merge the branch into `main`. Yay!
 
 NOTE: Why don't you use a cabal freeze file?
    In order to better support a wider range of developer operating systems, we have decided against using a cabal freeze file and instead
@@ -205,7 +206,7 @@ alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 
 
 ## Tests
-For tests we are using [**Tasty**](https://documentup.com/feuerbach/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
+For tests we are using [**Tasty**](https://github.com/UnkindPartition/tasty) testing framework. Tasty let's us combine different types of tests into a single test suite.
 
 In Tasty, there is a main test file that is run when test suite is run. In that file we need to manually compose test tree out of tests that we wrote. We organize tests in test groups, which are then recursively grouped resulting in a test tree.
 Cool thing is that we can organize tests this way however we want and also mix different type of tests (hspec, quickcheck, and whatever else we want).
@@ -242,6 +243,20 @@ To run individual unit test, you can do `cabal test waspc-test --test-options "-
 To run cli tests only, you can do `cabal test cli-test` (or `./run test:cli`).
 
 To run end-to-end tests only, you can do `cabal test e2e-test` (or `/run test:e2e`).
+
+### End-to-end (e2e) tests
+
+Besides unit tests, we have e2e tests that run `waspc` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+
+This means that when you make a change in your code that modifies the generated code, e2e tests will fail while showing a diff between the new generated code and the previous (golden) one.
+This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them. If you notice something unexpected or weird, you have an opportunity to fix it.
+Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass. Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
+Easiest way to do this is to go to `e2e-test/test-outputs/` dir, delete all the directories ending with `-golden/`, and then re-run e2e tests -> since there are no golden outputs, the new outputs will be used as new golden outputs and that is it. After that you commit that to git and you are done.
+
+Instead of doing this manually, you can also use convenient command from the `./run` script:
+```
+./run test:e2e:accept-all
+```
 
 ## Code analysis
 
@@ -302,6 +317,25 @@ NOTE: When you run it for the first time it might take a while (~10 minutes) for
 ## Commit message conventions
 We use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.2/) convention when creating commits.
 
+## Branching and merging strategy
+This repo contains both the source code that makes up a Wasp release (under `waspc`), as well as our website containing documentation and blog posts (under `web`). In order to facilitate the development of Wasp code while still allowing for website updates or hotfixes of the current release, we have decided on the following minimal branching strategy.
+
+All Wasp development should be done on feature branches. They form the basis of PRs that will target one of the two following branches:
+
+- `main`: this branch contains all the actively developed new features and corresponding documentation updates. Some of these things may not yet be released, but anything merged into `main` should be in a release-ready state.
+  - This is the default branch to target for any Wasp feature branches.
+- `release`: this branch contains the source code of current/latest Wasp release, as well as the documentation and blog posts currently published and therefore visible on the website.
+  - When doing a full release, which means making a new release based on what we have currently on `main`, we do the following:
+    1. Update `main` branch by merging `release` into it. There might be conflicts but they shouldn't be too hard to fix. Once `main` is updated, you can create a new waspc release from it, as well as deploy the website from it.
+    2. Update `release` branch to this new `main` by merging `main` into it. There will be no conflicts since we already resolved all of them in the previous step.
+
+How do I know where I want to target my PR, to `release` or `main`?
+  - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, ... .
+  - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
+  - TLDR;
+    - `release` is for changes to the already published stuff (the present).
+    - `main` is for changes to the to-be-published stuff (the future).
+
 ## Deployment / CI
 We use Github Actions for CI.
 
@@ -313,22 +347,41 @@ If commit is tagged with tag starting with `v`, github draft release is created 
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
 
-We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will update the version in waspc.cabal, commit it, push it, and will also create appropriate tag and push it, therefore triggering CI to create new release on Github.
+We also wrote a `new-release` script which you can use to help you with creating new release: you need to provide it with new version (`./new-release 0.3.0`) and it will check that everything is all right, create appropriate tag and push it, therefore triggering CI to create new release on Github.
 
 NOTE: If building of your commit is suddenly taking much longer time, it might be connected with cache on Github Actions.
 If it happens just once every so it is probably nothing to worry about. If it happens consistently, we should look into it.
 
 ### Typical Release Process
-- Update ChangeLog.md with release notes and open an PR for feedback.
-- After approval, squash and merge PR for ChangeLog.md into `main`.
-- Make sure you are on `main` and up to date locally :D and then run `./new-release 0.x.y.z`.
-  - This will automatically create a new commit for updating the version in waspc.cabal, tag it, and push it all.
+- ChangeLog.md and version in waspc.cabal should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing ChangeLog.md a bit even if all the data is already there. Also check that ChangeLog has correction version of wasp specified.
+- If you modified ChangeLog.md or waspc.cabal, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
+- Update your local repository state to have all remote changes (`git fetch`).
+- Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
+- Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
+- Make sure you are on `release` and then run `./new-release 0.x.y.z`.
+  - This will do some checks, tag it with new release version, and push it.
 - Wait for CI to finish & succeed for the new tag.
   - This will automatically create a new draft release.
 - Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - Publish the draft release when ready.
-- Publish new [docs](/web#deployment).
+- Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
+- Publish new [docs](/web#deployment) from the `release` branch as well.
 - Announce new release in Discord.
+
+#### Determining next version
+waspc is following typical SemVer versioning scheme, so major.minor.patch.
+There is one slightly peculiar thing though: waspc, besides being a wasp compiler and CLI, also contains wasp language server (waspls) inside it, under the subcommand `wasp waspls`.
+So how do changes to waspls affect the version of waspc, since they are packaged together as one exe? We have decided, for practical reasons, to have them affect the patch number, possibly maybe minor, but not major.
+
+#### Test releases (e.g. Release Candidate)
+Making a test release, especially "Release Candidate" release is useful when you want to test the release without it being published to the normal users.
+If doing this, steps are the following:
+1. You can do it from whatever branch you want, probably you will be doing it from `main`.
+2. You will want to use a version name that indicates you are doing test, probably you will want to add `-rc` at the end.
+   So for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
+3. Once draft release is created on Github, you should mark it in their UI as pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. This is the crucial step that differentiates test release from the proper release.
+4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way user's don't get in touch with it, but we can install and use it normally.
+
 
 ## Documentation
 External documentation, for users of Wasp, is hosted at https://wasp-lang.dev/docs, and its source is available at [web/docs](/web/docs), next to the website and blog. 

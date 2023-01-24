@@ -1,7 +1,7 @@
 module Wasp.Generator.ServerGenerator.JobGenerator
   ( genJobs,
     genJobExecutors,
-    pgBossVersionBounds,
+    pgBossVersionRange,
     pgBossDependency,
     depsRequiredByJobs,
   )
@@ -26,6 +26,7 @@ import StrongPath
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getJobs)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
@@ -42,6 +43,7 @@ import Wasp.Generator.ServerGenerator.Common
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
@@ -62,7 +64,8 @@ genJob (jobName, job) =
             -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
-            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job))
+            "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job)),
+            "entities" .= maybe [] (map (buildEntityData . AS.refName)) (J.entities job)
           ]
     )
   where
@@ -77,6 +80,13 @@ genJob (jobName, job) =
           "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+    buildEntityData :: String -> Aeson.Value
+    buildEntityData entityName =
+      object
+        [ "name" .= entityName,
+          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
+        ]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded
 -- even if they are not referenced by user code. This ensures schedules are started, etc.
@@ -98,9 +108,8 @@ genAllJobImports spec =
         [ "name" .= jobName
         ]
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel (Dir ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../ext-src|]
+relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir)
+relPosixPathFromJobFileToExtSrcDir = [reldirP|../|] SP.</> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 genJobExecutors :: Generator [FileDraft]
 genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds
@@ -136,11 +145,11 @@ jobsDirInServerRootDir = SP.castRel jobsDirInServerTemplatesDir
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
-pgBossVersionBounds :: SV.VersionBounds
-pgBossVersionBounds = SV.BackwardsCompatibleWith (SV.Version 7 2 1)
+pgBossVersionRange :: SV.Range
+pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 0 0)]
 
 pgBossDependency :: AS.Dependency.Dependency
-pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionBounds)
+pgBossDependency = AS.Dependency.make ("pg-boss", show pgBossVersionRange)
 
 depsRequiredByJobs :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]

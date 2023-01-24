@@ -24,12 +24,12 @@ import qualified Wasp.Analyzer.TypeDefinitions.TH.Common as THC
 -- __Example__
 --
 -- @
--- >>> data AuthMethod = OAuth2 | EmailAndPassword deriving Generic
+-- >>> data AuthMethod = OAuth2 | UsernameAndPassword deriving Generic
 -- >>> makeEnumType ''AuthMethod  -- "IsEnumType AuthMethod" instance is generated.
 -- >>> etName $ enumType @AuthMethod
 -- "authMethod"
 -- >>> etVariants $ enumType @AuthMethod
--- ["OAuth2", "EmailAndPassword"]
+-- ["OAuth2", "UsernameAndPassword"]
 -- @
 makeEnumType :: Name -> Q [Dec]
 makeEnumType typeName = do

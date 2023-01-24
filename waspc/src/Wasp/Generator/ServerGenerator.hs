@@ -4,10 +4,12 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsForWasp,
+    areServerPatchesUsed,
   )
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
 import Data.Maybe
   ( fromJust,
     fromMaybe,
@@ -20,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
+    relDirToPosix,
     reldir,
-    reldirP,
     relfile,
     (</>),
   )
@@ -34,7 +36,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (nodeVersion, nodeVersionBounds, npmVersionBounds, prismaVersionBounds)
+import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -44,31 +46,37 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
-import qualified Wasp.Generator.ServerGenerator.ExternalCodeGenerator as ServerExternalCodeGenerator
+import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified Wasp.SemanticVersion as SV
+import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
   sequence
-    [ genReadme,
+    [ genFileCopy [relfile|README.md|],
+      genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|nodemon.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
-      genNvmrc,
       genGitignore
     ]
     <++> genSrcDir spec
-    <++> genExternalCodeDir ServerExternalCodeGenerator.generatorStrategy (AS.externalCodeFiles spec)
+    <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
+    <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
     <++> genJobs spec
     <++> genJobExecutors
+    <++> genPatches spec
+  where
+    genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
-  case AS.dotEnvFile spec of
+  case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
           [ createCopyFileDraft
@@ -79,9 +87,6 @@ genDotEnv spec = return $
 
 dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
-
-genReadme :: Generator FileDraft
-genReadme = return $ C.mkTmplFd (C.asTmplFile [relfile|README.md|])
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
@@ -94,37 +99,49 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionBounds" .= show nodeVersionBounds,
-              "npmVersionBounds" .= show npmVersionBounds,
+              "nodeVersionRange" .= show nodeVersionRange,
+              "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
-                .= ( (if not (null $ AS.getDecls @AS.Entity.Entity spec) then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production node ./src/server.js"
-                   )
+                .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
+                       ++ "NODE_ENV=production npm run build-and-start"
+                   ),
+              "overrides" .= getPackageJsonOverrides
             ]
       )
+  where
+    hasEntities = not . null $ AS.getDecls @AS.Entity.Entity spec
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
   N.NpmDepsForWasp
     { N.waspDependencies =
         AS.Dependency.fromList
-          [ ("cookie-parser", "~1.4.4"),
+          [ ("cookie-parser", "~1.4.6"),
             ("cors", "^2.8.5"),
-            ("debug", "~2.6.9"),
-            ("express", "~4.16.1"),
-            ("morgan", "~1.9.1"),
-            ("@prisma/client", show prismaVersionBounds),
+            ("express", "~4.18.1"),
+            ("morgan", "~1.10.0"),
+            ("@prisma/client", show prismaVersion),
             ("jsonwebtoken", "^8.5.1"),
+            -- NOTE: secure-password has a package.json override for sodium-native.
             ("secure-password", "^4.0.0"),
-            ("dotenv", "8.2.0"),
-            ("helmet", "^4.6.0")
+            ("dotenv", "16.0.2"),
+            ("helmet", "^6.0.0"),
+            ("patch-package", "^6.4.7"),
+            ("uuid", "^9.0.0"),
+            ("lodash", "^4.17.21")
           ]
+          ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
-          [ ("nodemon", "^2.0.4"),
-            ("standard", "^14.3.4"),
-            ("prisma", show prismaVersionBounds)
+          [ ("nodemon", "^2.0.19"),
+            ("standard", "^17.0.0"),
+            ("prisma", show prismaVersion),
+            -- TODO: Allow users to choose whether they want to use TypeScript
+            -- in their projects and install these dependencies accordingly.
+            ("typescript", "^4.8.4"),
+            ("@types/node", "^18.11.9"),
+            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
     }
 
@@ -135,19 +152,6 @@ genNpmrc =
       (C.asTmplFile [relfile|npmrc|])
       (C.asServerFile [relfile|.npmrc|])
       Nothing
-
-genNvmrc :: Generator FileDraft
-genNvmrc =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|nvmrc|])
-      (C.asServerFile [relfile|.nvmrc|])
-      -- We want to specify only the major version here. If we specified the
-      -- entire version string (i.e., 16.0.0), our project would work only with
-      -- that exact version, which we don't want. Unfortunately, the nvmrc file
-      -- format doesn't allow semver compatibility strings (e.g., ^16.0.0) so
-      -- listing the major version was the next best thing.
-      (Just (object ["nodeVersion" .= show (SV.major nodeVersion)]))
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -160,10 +164,10 @@ genGitignore =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|app.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|core/AuthError.js|],
-      copyTmplFile [relfile|core/HttpError.js|],
+    [ genFileCopy [relfile|app.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|core/AuthError.js|],
+      genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
       genServerJs spec
@@ -173,7 +177,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genDbClient :: AppSpec -> Generator FileDraft
 genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -197,8 +201,8 @@ genServerJs :: AppSpec -> Generator FileDraft
 genServerJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/server.js|])
-      (C.asServerFile [relfile|src/server.js|])
+      (C.asTmplFile [relfile|src/server.ts|])
+      (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
             [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
@@ -209,13 +213,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromSrcDirToExtSrcDir <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
     (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
--- | TODO: Make this not hardcoded!
-relPosixPathFromSrcDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-relPosixPathFromSrcDirToExtSrcDir = [reldirP|./ext-src|]
+extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
+extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -235,3 +238,47 @@ genRoutesDir spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+areServerPatchesUsed :: AppSpec -> Generator Bool
+areServerPatchesUsed spec = not . null <$> genPatches spec
+
+genPatches :: AppSpec -> Generator [FileDraft]
+genPatches spec = patchesRequiredByPassport spec
+
+patchesRequiredByPassport :: AppSpec -> Generator [FileDraft]
+patchesRequiredByPassport spec =
+  return $
+    [ C.mkTmplFd (C.asTmplFile [relfile|patches/oauth+0.9.15.patch|])
+      | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True
+    ]
+  where
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+
+-- Allows us to make specific changes to dependencies of our dependencies.
+-- This is helpful if something broke in later versions, etc.
+-- Ref: https://docs.npmjs.com/cli/v8/configuring-npm/package-json#overrides
+getPackageJsonOverrides :: [Aeson.Value]
+getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
+  where
+    overrides :: [(String, String, String)]
+    overrides =
+      [ -- sodium-native > 3.3.0 broke deploying on Heroku.
+        -- Ref: https://github.com/sodium-friends/sodium-native/issues/160
+        ("secure-password", "sodium-native", "3.3.0")
+      ]
+
+    -- NOTE: We must designate the last element so the JSON template can omit the final comma.
+    buildOverrideData :: (String, String, String, Bool) -> Aeson.Value
+    buildOverrideData (packageName, dependencyName, dependencyVersion, lastElement) =
+      object
+        [ "packageName" .= packageName,
+          "dependencyName" .= dependencyName,
+          "dependencyVersion" .= dependencyVersion,
+          "last" .= lastElement
+        ]
+
+    designateLastElement :: [(String, String, String)] -> [(String, String, String, Bool)]
+    designateLastElement [] = []
+    designateLastElement l =
+      map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
+        ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]

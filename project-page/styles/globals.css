@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Removes blue tap box over Button/Link on mobile.
+ * Issue on Tailwind's repo: https://github.com/tailwindlabs/tailwindcss/discussions/2984
+ */
+@layer base {
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  /*
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  */
+
+  /*
+  font-family: Inter;
+  */
+
+  /* Fading out dots */
+  /*
+  background: linear-gradient(180deg,hsla(0,0%,100%,0) 0,#fff 300px),
+              fixed 0 0 /20px 20px radial-gradient(#d1d1d1 1px,transparent 0),
+              fixed 10px 10px /20px 20px radial-gradient(#d1d1d1 1px,transparent 0)
+  */
+
+  /** Honeycomb pattern
+   *
+  background:
+    radial-gradient(circle farthest-side at 0% 50%,#fb1 23.5%,rgba(240,166,17,0) 0)21px 30px,
+    radial-gradient(circle farthest-side at 0% 50%,#B71 24%,rgba(240,166,17,0) 0)19px 30px,
+    linear-gradient(#fb1 14%,rgba(240,166,17,0) 0, rgba(240,166,17,0) 85%,#fb1 0)0 0,
+    linear-gradient(150deg,#fb1 24%,#B71 0,#B71 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#B71 0,#B71 76%,#fb1 0)0 0,
+    linear-gradient(30deg,#fb1 24%,#B71 0,#B71 26%,rgba(240,166,17,0) 0,rgba(240,166,17,0) 74%,#B71 0,#B71 76%,#fb1 0)0 0,
+    linear-gradient(90deg,#B71 2%,#fb1 0,#fb1 98%,#B71 0%)0 0 #fb1;
+  background-size: 40px 60px;
+  */
+
+  background-color: #f5f5f5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/*
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    color: white;
+    background: black;
+  }
+}
+*/

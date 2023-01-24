@@ -8,13 +8,13 @@ import { errorMessage } from '../../utils.js'
 const LoginForm = () => {
   const history = useHistory()
 
-  const [emailFieldVal, setEmailFieldVal] = useState('')
+  const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      await login(emailFieldVal, passwordFieldVal)
+      await login(usernameFieldVal, passwordFieldVal)
       // Redirect to configured page, defaults to /.
       history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
@@ -24,12 +24,12 @@ const LoginForm = () => {
   }
   
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Email</h2>
+    <form onSubmit={handleLogin} className="login-form auth-form">
+      <h2>Username</h2>
       <input
         type="text"
-        value={emailFieldVal}
-        onChange={e => setEmailFieldVal(e.target.value)}
+        value={usernameFieldVal}
+        onChange={e => setUsernameFieldVal(e.target.value)}
       />
       <h2>Password</h2>
       <input

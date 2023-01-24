@@ -9,16 +9,16 @@ import { errorMessage } from '../../utils.js'
 const SignupForm = () => {
   const history = useHistory()
 
-  const [emailFieldVal, setEmailFieldVal] = useState('')
+  const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
   const handleSignup = async (event) => {
     event.preventDefault()
     try {
-      await signup({ email: emailFieldVal, password: passwordFieldVal })
-      await login (emailFieldVal, passwordFieldVal)
+      await signup({ username: usernameFieldVal, password: passwordFieldVal })
+      await login (usernameFieldVal, passwordFieldVal)
 
-      setEmailFieldVal('')
+      setUsernameFieldVal('')
       setPasswordFieldVal('')
 
       // Redirect to configured page, defaults to /.
@@ -30,12 +30,12 @@ const SignupForm = () => {
   }
   
   return (
-    <form onSubmit={handleSignup}>
-      <h2>Email</h2>
+    <form onSubmit={handleSignup} className='signup-form auth-form'>
+      <h2>Username</h2>
       <input
         type="text"
-        value={emailFieldVal}
-        onChange={e => setEmailFieldVal(e.target.value)}
+        value={usernameFieldVal}
+        onChange={e => setUsernameFieldVal(e.target.value)}
       />
       <h2>Password</h2>
       <input

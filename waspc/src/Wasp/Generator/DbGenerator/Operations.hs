@@ -1,6 +1,10 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
     generatePrismaClient,
+    doesSchemaMatchDb,
+    writeDbSchemaChecksumToFile,
+    removeDbSchemaChecksumFile,
+    areAllMigrationsAppliedToDb,
   )
 where
 
@@ -11,16 +15,19 @@ import Control.Monad.Catch (catch)
 import qualified Path as P
 import StrongPath (Abs, Dir, File', Path', Rel)
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
+  ( MigrateArgs,
+    RefreshOnLastDbConcurrenceChecksumFile (..),
+    dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
+    dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
-    dbSchemaChecksumOnLastMigrateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
+    getOnLastDbConcurrenceChecksumFileRefreshAction,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -41,26 +48,33 @@ printJobMsgsUntilExitReceived chan = do
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
-migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> Maybe String -> IO (Either String ())
-migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs maybeMigrationName = do
+migrateDevAndCopyToSource :: Path' Abs (Dir DbMigrationsDir) -> Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> IO (Either String ())
+migrateDevAndCopyToSource dbMigrationsDirInWaspProjectDirAbs genProjectRootDirAbs migrateArgs = do
   chan <- newChan
   (_, dbExitCode) <-
     concurrently
       (printJobMsgsUntilExitReceived chan)
-      (DbJobs.migrateDev genProjectRootDirAbs maybeMigrationName chan)
+      (DbJobs.migrateDev genProjectRootDirAbs migrateArgs chan)
   case dbExitCode of
-    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
+    ExitSuccess -> finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs (getOnLastDbConcurrenceChecksumFileRefreshAction migrateArgs)
     ExitFailure code -> return $ Left $ "Migrate (dev) failed with exit code: " ++ show code
 
-finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
-finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs = do
+finalizeMigration :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> RefreshOnLastDbConcurrenceChecksumFile -> IO (Either String ())
+finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLastDbConcurrenceChecksumFileRefreshAction = do
   -- NOTE: We are updating a managed CopyDirFileDraft outside the normal generation process, so we must invalidate the checksum entry for it.
   Generator.WriteFileDrafts.removeFromChecksumFile genProjectRootDirAbs [Right $ SP.castDir dbMigrationsDirInProjectRootDir]
   res <- copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs
-  writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastMigrateFileProjectRootDir)
+  applyOnLastDbConcurrenceChecksumFileRefreshAction
   return res
   where
     dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
+    applyOnLastDbConcurrenceChecksumFileRefreshAction =
+      case onLastDbConcurrenceChecksumFileRefreshAction of
+        WriteOnLastDbConcurrenceChecksumFile ->
+          writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        RemoveOnLastDbConcurrenceChecksumFile ->
+          removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+        IgnoreOnLastDbConcurrenceChecksumFile -> return ()
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
 copyMigrationsBackToSource :: Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> IO (Either String ())
@@ -84,6 +98,11 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
     dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaFileInProjectRootDir
     dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
 
+removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
+removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir =
+  let dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
+   in removeFile dbSchemaChecksumFp
+
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient genProjectRootDirAbs = do
   chan <- newChan
@@ -96,3 +115,37 @@ generatePrismaClient genProjectRootDirAbs = do
       writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
       return $ Right ()
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+
+-- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
+-- different than the DB. Returns Nothing on error as we do not know the current state.
+-- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
+-- Nothing if the check itself failed (exe: if a connection to the DB could not be established).
+-- NOTE: Here we only compare the schema to the DB, and not the migrations dir.
+doesSchemaMatchDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+doesSchemaMatchDb genProjectRootDirAbs = do
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.migrateDiff genProjectRootDirAbs chan)
+  -- Schema in sync: 0, Error: 1, Schema differs: 2
+  case dbExitCode of
+    ExitSuccess -> return $ Just True
+    ExitFailure 2 -> return $ Just False
+    ExitFailure _ -> return Nothing
+
+-- | Checks `prisma migrate status` exit code to determine if migrations dir
+-- matches the DB. Returns Nothing on error as we do not know the current state.
+-- Returns Just True if all migrations are applied. Due to the fact the command
+-- returns an error on connection or unapplied migrations, Just False is never returned.
+-- It is recommended to call this after some check that confirms DB connectivity, like `doesSchemaMatchDb`.
+areAllMigrationsAppliedToDb :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe Bool)
+areAllMigrationsAppliedToDb genProjectRootDirAbs = do
+  chan <- newChan
+  (_, dbExitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.migrateStatus genProjectRootDirAbs chan)
+  case dbExitCode of
+    ExitSuccess -> return $ Just True
+    ExitFailure _ -> return Nothing

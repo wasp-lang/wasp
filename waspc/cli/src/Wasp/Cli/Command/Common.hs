@@ -1,7 +1,6 @@
 module Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
     findWaspProjectRoot,
-    alphaWarningMessage,
   )
 where
 
@@ -46,8 +45,3 @@ findWaspProjectRootDirFromCwd :: Command (Path' Abs (Dir WaspProjectDir))
 findWaspProjectRootDirFromCwd = do
   absCurrentDir <- liftIO getCurrentDirectory
   findWaspProjectRoot (fromJust $ SP.parseAbsDir absCurrentDir)
-
-alphaWarningMessage :: String
-alphaWarningMessage =
-  "Wasp is still in Alpha, therefore not yet production ready "
-    ++ "and might change significantly in the future versions."

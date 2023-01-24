@@ -14,9 +14,10 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "engineStrict": true,
   "engines": {
-      "node": "{= nodeVersionBounds =}",
-      "npm": "{= npmVersionBounds =}"
+      "node": "{=& nodeVersionRange =}",
+      "npm": "{=& npmVersionRange =}"
   },
   "browserslist": {
     "production": [

@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Generator.MockWriteableMonad
   ( MockWriteableMonad,
@@ -15,7 +16,9 @@ import qualified Data.Aeson as Aeson
 import Data.Bifunctor (first)
 import Data.Text (Text, pack)
 import Fixtures (systemSPRoot)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, castDir, reldir, (</>))
+import StrongPath.Operations (castFile)
+import StrongPath.Types (File)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -36,7 +39,7 @@ defaultMockConfig =
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
 getMockLogs mock config = fst $ execState (unMockWriteableMonad mock) (emptyLogs, config)
   where
-    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] []
+    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] []
 
 instance WriteableMonad MockWriteableMonad where
   writeFileFromText dstPath text = MockWriteableMonad $ do
@@ -54,12 +57,12 @@ instance WriteableMonad MockWriteableMonad where
     modifyLogs (copyFile_addCall srcPath dstPath)
 
   getTemplateFileAbsPath path = MockWriteableMonad $ do
-    modifyLogs (getTemplateFileAbsPath_addCall path)
+    modifyLogs (getTemplateFileAbsPath_addCall $ castFile path)
     (_, config) <- get
     return $ getTemplateFileAbsPath_impl config path
 
   compileAndRenderTemplate path json = MockWriteableMonad $ do
-    modifyLogs (compileAndRenderTemplate_addCall path json)
+    modifyLogs (compileAndRenderTemplate_addCall (castFile path) json)
     (_, config) <- get
     return $ compileAndRenderTemplate_impl config path json
 
@@ -72,7 +75,10 @@ instance WriteableMonad MockWriteableMonad where
     return $ doesDirectoryExist_impl config path
 
   copyDirectoryRecursive srcPath dstPath = MockWriteableMonad $ do
-    modifyLogs (copyDirectoryRecursive_addCall srcPath dstPath)
+    modifyLogs (copyDirectoryRecursive_addCall (castDir srcPath) (castDir dstPath))
+
+  removeDirectoryRecursive dir = MockWriteableMonad $ do
+    modifyLogs (removeDirectoryRecursive_addCall (castDir dir))
 
   throwIO = throwIO
 
@@ -94,13 +100,14 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     copyFile_calls :: [(FilePath, FilePath)],
     getTemplateFileAbsPath_calls :: [Path' (Rel TemplatesDir) File'],
     compileAndRenderTemplate_calls :: [(Path' (Rel TemplatesDir) File', Aeson.Value)],
-    copyDirectoryRecursive_calls :: [(Path' Abs Dir', Path' Abs Dir')]
+    copyDirectoryRecursive_calls :: [(Path' Abs Dir', Path' Abs Dir')],
+    removeDirectoryRecursive_calls :: [Path' Abs Dir']
   }
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
   { getTemplatesDirAbsPath_impl :: Path' Abs (Dir TemplatesDir),
-    getTemplateFileAbsPath_impl :: Path' (Rel TemplatesDir) File' -> Path' Abs File',
-    compileAndRenderTemplate_impl :: Path' (Rel TemplatesDir) File' -> Aeson.Value -> Text,
+    getTemplateFileAbsPath_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Path' Abs (File a),
+    compileAndRenderTemplate_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool,
     doesDirectoryExist_impl :: FilePath -> Bool
   }
@@ -131,6 +138,10 @@ createDirectoryIfMissing_addCall createParents path logs =
 copyDirectoryRecursive_addCall :: Path' Abs Dir' -> Path' Abs Dir' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 copyDirectoryRecursive_addCall srcPath dstPath logs =
   logs {copyDirectoryRecursive_calls = (srcPath, dstPath) : copyDirectoryRecursive_calls logs}
+
+removeDirectoryRecursive_addCall :: Path' Abs Dir' -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+removeDirectoryRecursive_addCall dir logs =
+  logs {removeDirectoryRecursive_calls = dir : removeDirectoryRecursive_calls logs}
 
 compileAndRenderTemplate_addCall ::
   Path' (Rel TemplatesDir) File' ->

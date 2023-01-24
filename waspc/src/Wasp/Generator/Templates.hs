@@ -8,7 +8,7 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import qualified Text.Mustache as Mustache
 import Text.Mustache.Render (SubstitutionError (..))
@@ -26,7 +26,7 @@ getTemplatesDirAbsPath = (</> templatesDirPathInDataDir) <$> Wasp.Data.getAbsDat
 
 -- | Takes template file path relative to templates root directory and returns
 --   its absolute path.
-getTemplateFileAbsPath :: Path' (Rel TemplatesDir) File' -> IO (Path' Abs File')
+getTemplateFileAbsPath :: Path' (Rel TemplatesDir) (File a) -> IO (Path' Abs (File a))
 getTemplateFileAbsPath relTmplFilePath = (</> relTmplFilePath) <$> getTemplatesDirAbsPath
 
 templatesDirPathInDataDir :: Path' (Rel Wasp.Data.DataDir) (Dir TemplatesDir)
@@ -34,7 +34,7 @@ templatesDirPathInDataDir = [reldir|Generator/templates|]
 
 compileAndRenderTemplate ::
   -- | Path to the template file.
-  Path' (Rel TemplatesDir) File' ->
+  Path' (Rel TemplatesDir) (File a) ->
   -- | JSON to be provided as template data.
   Aeson.Value ->
   IO Text
@@ -44,7 +44,7 @@ compileAndRenderTemplate relTmplPath tmplData = do
 
 compileMustacheTemplate ::
   -- | Path to the template file.
-  Path' (Rel TemplatesDir) File' ->
+  Path' (Rel TemplatesDir) (File a) ->
   IO Mustache.Template
 compileMustacheTemplate relTmplPath = do
   templatesDirAbsPath <- getTemplatesDirAbsPath

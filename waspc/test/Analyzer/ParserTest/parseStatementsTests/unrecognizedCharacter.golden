@@ -1,0 +1,3 @@
+Parse error at 1:11:
+  Unexpected token: ^
+  Expected one of the following tokens instead: '(','[','{','import','true','false',<string>,<number>,<number>,'{=',<identifier>

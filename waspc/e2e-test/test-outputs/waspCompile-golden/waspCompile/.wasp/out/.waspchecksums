@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "93bb104c26d9c0e06b947bd9b2be153e579f599590d3fa8876db2ca777ce5183"
+        "576e1a40a9d7e838cdbe23a504c9a8d4d53d8614e2bcd2d01838fa63541674b6"
     ],
     [
         [
@@ -37,13 +37,6 @@
     [
         [
             "file",
-            "server/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
-    ],
-    [
-        [
-            "file",
             "server/README.md"
         ],
         "e14514b8b152dd2160a217d8fc66a710c8607c4ed1441a2148a0770701818249"
@@ -51,23 +44,30 @@
     [
         [
             "file",
+            "server/nodemon.json"
+        ],
+        "5d0e1103bbe7c29a7b3137a57345f8eeb4ccd8a2128d636cc1b2bd81cf348a86"
+    ],
+    [
+        [
+            "file",
             "server/package.json"
         ],
-        "54d8353286dae688a59458973227cfc1fae57549f49f318ddd46a1abdd716da2"
+        "a25c784008e936018cc8f5fe0a35fdd6dfc86d7762fcad40bed04e6af294b87f"
     ],
     [
         [
             "file",
             "server/src/app.js"
         ],
-        "31bf8e67e2bc95b2558c649fdb51e6c7a6d373cbc8488141ab8652e8d69604ce"
+        "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
     ],
     [
         [
             "file",
             "server/src/config.js"
         ],
-        "beed84b80d5bbb90c6d02781cf03d7b1f7192b1e1eeda01becfefa57aa69dc50"
+        "d7f23a370f15869e6a3920552993c41d5e1a23d8e12a4a9d3a583d22b730a5d6"
     ],
     [
         [
@@ -89,27 +89,6 @@
             "server/src/dbClient.js"
         ],
         "20c67ca197da3de2d37528ceaff2e40af910be8177f346c6d5c2b2f983810c43"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/Main.css"
-        ],
-        "4c1268c55a99589564123ebe1ebbea76ac545b85f4d17eaea76e981db269dba7"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/MainPage.js"
-        ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
-    ],
-    [
-        [
-            "file",
-            "server/src/ext-src/waspLogo.png"
-        ],
-        "0f05a89eb945d6d7326110e88776e402833b356202b06d0a8bf652e118d3fd2f"
     ],
     [
         [
@@ -144,7 +123,7 @@
             "file",
             "server/src/jobs/core/pgBoss/pgBossJob.js"
         ],
-        "6a58878b76d5086454bc721dc779d0589eab6096913272910f390dc502a34708"
+        "ff6040d051c916eb080a2f2c37fd5135f588782387faeae51115d1a7abd1ad8b"
     ],
     [
         [
@@ -170,9 +149,9 @@
     [
         [
             "file",
-            "server/src/server.js"
+            "server/src/server.ts"
         ],
-        "3ee2212932180883fabe36bc22e18e2167a63cdbca8bde2dd595419ae2a34e95"
+        "c6114654819216004f0ef4a8771a0c1213c655cfd41760fbd835077c53a6b6ba"
     ],
     [
         [
@@ -180,6 +159,13 @@
             "server/src/utils.js"
         ],
         "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
+    ],
+    [
+        [
+            "file",
+            "server/tsconfig.json"
+        ],
+        "547a8c399ce385366cd05c46c5a3fa4ef48a5f60bb64bf322190546d1de1c622"
     ],
     [
         [
@@ -194,13 +180,6 @@
             "web-app/.npmrc"
         ],
         "7151cf397def0c2cb0ab65643701d27d335a72c90f775675b5f826bc7005818a"
-    ],
-    [
-        [
-            "file",
-            "web-app/.nvmrc"
-        ],
-        "e6c21e8d260fe71882debdb339d2402a2ca7648529bc2303f48649bce0380017"
     ],
     [
         [
@@ -221,14 +200,14 @@
             "file",
             "web-app/package.json"
         ],
-        "15d10baf06d0f313d6575e3bde2d853b67a63d9257b57588e6b0d465140a9d10"
+        "56ead359017cdbb350a4e609af2fa75a0411642cfb1734a6e8d6e53991bd54b3"
     ],
     [
         [
             "file",
             "web-app/public/favicon.ico"
         ],
-        "5f9369fa4d5ccf174c10f8d4e1e3b813a51867a3216e9aee4786e4862fa1c2d2"
+        "1481f03584b46b63182c1f8d26e61a95ce4d8fae032b2b4f3fe5e00ab7e96c23"
     ],
     [
         [
@@ -247,6 +226,27 @@
     [
         [
             "file",
+            "web-app/src/actions/core.d.ts"
+        ],
+        "d649b4823ede60119858b868dac9b122da4a3185391e6b9242ff7f6dc5c25d31"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/actions/core.js"
+        ],
+        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/actions/index.ts"
+        ],
+        "d6710101a02f23b53972e72d374747047e4251c0177fd5c626c0cffd060cd4a2"
+    ],
+    [
+        [
+            "file",
             "web-app/src/api.js"
         ],
         "bcdb1fdc97fd622fbc882e4a16a7137e849748d6776b960121df6ccab577a3a9"
@@ -256,21 +256,28 @@
             "file",
             "web-app/src/config.js"
         ],
-        "eb7c31d827c95bcc713db70602e9641bbaa6053c38565661751d231815c6c464"
+        "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
     ],
     [
         [
             "file",
             "web-app/src/ext-src/Main.css"
         ],
-        "4c1268c55a99589564123ebe1ebbea76ac545b85f4d17eaea76e981db269dba7"
+        "1583ce49887ea575e563dab0c7ad6d2e2e3e6a351ed7c2f80c310641b1456417"
     ],
     [
         [
             "file",
-            "web-app/src/ext-src/MainPage.js"
+            "web-app/src/ext-src/MainPage.jsx"
         ],
-        "c9ed9b5271f648715373095f43d60a2ab3e47f159c6dd6f3337ed22e5b73e80c"
+        "7244c106359f088fdcc0d4a76ee63277f1cea63cbe7aac5e5c39a17df693b1e2"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/ext-src/react-app-env.d.ts"
+        ],
+        "c9e89cb25e83121c0c451125de7a0b0569161e2bf18f83bc5f69836403910744"
     ],
     [
         [
@@ -282,16 +289,9 @@
     [
         [
             "file",
-            "web-app/src/index.css"
-        ],
-        "bb204362186be1de0e33214124e91375f701d1e2546fbe06cb0ecabc2a362085"
-    ],
-    [
-        [
-            "file",
             "web-app/src/index.js"
         ],
-        "a477184a6e6e7cb33e056febc8a4a1e1132ecc697763855fa2af07cf02c79908"
+        "e7627d838b78383b5c95312fb205b15978dcd66aad16327e000b7e71810a066b"
     ],
     [
         [
@@ -305,35 +305,63 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "4eea48fce8a16a41ee86925955c197752d91e8e067d47bcc795c32b450d1c81a"
+        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
     ],
     [
         [
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "4772a216b647ace3eedace9b02897922725b58131031d21be59187b1652ccade"
+        "d815397e45efe773908b48de42f21ee22481396c318b21ea215ad6343d3f4170"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/operations/updateHandlersMap.js"
+        ],
+        "07a9933a771853585fd2fc49c3dcb9f1cad947acb2168580c835fae25620fa9f"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/core.d.ts"
+        ],
+        "f0b289140e92738451be386ca73a2fd1c84e9951eb2f1b9c6c09dfa3079d0c74"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/core.js"
+        ],
+        "2daf5b414722204281d65e954ce862a6fc586e8907b202800694909d23957c5e"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/queries/index.d.ts"
+        ],
+        "efc70de9916a60e19e0c86aaf955b0be0c999ba5c30139c3b6b98bcc4d382091"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.js"
         ],
-        "39a659c6ed82cbbc38b834b607e049646e0d70e104d01317830f225629a5f14c"
+        "8379699fa710f43d5be2b96f3a5c7c551a8d3d9db3ef0fea964502da00f36ffc"
     ],
     [
         [
             "file",
             "web-app/src/queryClient.js"
         ],
-        "f53c6e82b0e1b13dd2c2fff423460c88cd1c331e154867edeb7cd5f98c3586e4"
+        "1739d8618286b4a2aa536bd3fcb754514c828ec896b69c7074e22f66c07e7b03"
     ],
     [
         [
             "file",
             "web-app/src/router.js"
         ],
-        "959a870fd08b7bc2eabf397750256946e26960e08fb2887ec65ab5fc775aebfc"
+        "65a91308a13f2c8444e3ad7372c1fca85a194b85e8f8f7d11613f78fcfe7af6f"
     ],
     [
         [
@@ -348,5 +376,12 @@
             "web-app/src/utils.js"
         ],
         "0ae6e53a050dbc6b7166aedfd5b076c2cab524c4d6aff884dc6902b178148815"
+    ],
+    [
+        [
+            "file",
+            "web-app/tsconfig.json"
+        ],
+        "7ba6350177394b6aaa336b3d13d7b7d9119bb6ddc35d594fe48458e313957a1f"
     ]
 ]

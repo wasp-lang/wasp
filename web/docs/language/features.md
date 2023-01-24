@@ -7,8 +7,11 @@ title: Features
 There can be only one declaration of `app` type per Wasp project.
 It serves as a starting point and defines global properties of your app.
 
-```css
+```c
 app todoApp {
+  wasp: {
+    version: "^0.6.0"
+  },
   title: "ToDo App",
   head: [  // optional
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
@@ -17,6 +20,14 @@ app todoApp {
 ```
 
 ### Fields
+
+#### `wasp: dict` (required)
+Wasp compiler configuration. It is a dictionary with a single field:
+-  `version: string` (required) - version declares the compatible Wasp versions for the app. It should contain a valid [SemVer range](https://github.com/npm/node-semver#ranges).
+
+:::info
+For now, the version field only supports caret ranges (i.e., `^x.y.z`). Support for the full specification will come in a future version of Wasp
+:::
 
 #### `title: string` (required)
 Title of your app. It will be displayed in the browser tab, next to the favicon.
@@ -48,9 +59,9 @@ Check [`app.dependencies`](/docs/language/features#dependencies) for more detail
 
 `page` declaration is the top-level layout abstraction. Your app can have multiple pages.
 
-```css
+```c
 page MainPage {
-  component: import Main from "@ext/pages/Main",
+  component: import Main from "@client/pages/Main",
   authRequired: false  // optional
 }
 ```
@@ -59,9 +70,8 @@ Normally you will also want to associate `page` with a `route`, otherwise it won
 
 ### Fields
 
-#### `component: ExtImport` (required)
+#### `component: ClientImport` (required)
 Import statement of the React element that implements the page component.
-See importing external code for details.
 
 #### `authRequired: bool` (optional)
 Can be specified only if [`app.auth`](/docs/language/features#authentication--authorization) is defined.
@@ -70,7 +80,7 @@ If set to `true`, only authenticated users will be able to access this page. Una
 
 If `authRequired` is set to `true`, the React component of a page (specified by `component` property) will be provided `user` object as a prop.
 
-Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#updating-main-page-to-check-if-user-is-authenticated) for an example of usage.
+Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/06-auth#updating-main-page-to-check-if-user-is-authenticated) for an example of usage.
 
 ## Route
 
@@ -107,7 +117,7 @@ started:
 // ...
 route TaskRoute { path: "/task/:id", to: TaskPage }
 page TaskPage {
-  component: import Task from "@ext/pages/Task"
+  component: import Task from "@client/pages/Task"
 }
 ```
 
@@ -133,11 +143,11 @@ Navigation can be performed from the React code via `<Link/>` component, also us
 // ...
 route HomeRoute { path: "/home", to: HomePage }
 page HomePage {
-  component: import Home from "@ext/pages/Home"
+  component: import Home from "@client/pages/Home"
 }
 ```
 
-```jsx title="pages/OtherPage.js"
+```jsx title="src/client/pages/OtherPage.js"
 import React from 'react'
 import { Link } from "react-router-dom"
 
@@ -209,7 +219,7 @@ Take a look at [the examples of usage](#using-the-query) to see how to pass this
 3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
 
 Here's an example of two simple Queries:
-```js title="ext/queries.js"
+```js title="src/server/queries.js"
 // our "database"
 const tasks = [
   { id: 1, description: "Buy some eggs", isDone: true },
@@ -233,24 +243,24 @@ export const getFilteredTasks = async (args) => {
 #### Declaring a Query in Wasp
 After implementing your Queries in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `query` declaration, which supports the following fields:
-- `fn: ExtImport` (required) - The import statement of the Query's NodeJs implementation.
+- `fn: ServerImport` (required) - The import statement of the Query's NodeJs implementation.
 - `entities: [Entity]` (optional) - A list of entities you wish to use inside your Query.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-queries).
 
 Wasp Queries and their implementations don't need to (but can) have the same name, so we will keep the names different to avoid confusion.
 With that in mind, this is how you might declare the Queries that use the implementations from the previous step:
-```c title="main.wasp"
+```c title="pages/main.wasp"
 // ...
 
 // Again, it most likely makes sense to name the Wasp Query after
 // its implementation. We're changing the name to emphasize the difference.
 
 query fetchAllTasks {
-  fn: import { getAllTasks } from "@ext/queries.js"
+  fn: import { getAllTasks } from "@server/queries.js"
 }
 
 query fetchFilteredTasks {
-  fn: import { getFilteredTasks } from "@ext/queries.js"
+  fn: import { getFilteredTasks } from "@server/queries.js"
 }
 ```
 
@@ -284,8 +294,12 @@ This hook comes bundled with Wasp and is a thin wrapper around the `useQuery` ho
 
 Wasp's `useQuery` hook accepts three arguments:
 - `queryFn` (required): A Wasp query declared in the previous step or, in other words, the client-side query function generated by Wasp based on a `query` declaration.
-- `queryFnArgs` (optional): The arguments object (payload) you wish to pass into the query. The query's NodeJS implementation will receive this object as its first positional argument.
-- `config` (optional): A _react-query_ `config` object.
+- `queryFnArgs` (optional): The arguments object (payload) you wish to pass into the Query. The Query's NodeJS implementation will receive this object as its first positional argument.
+- `options` (optional): A _react-query_ `options` object. Use this to change
+  [the default
+  behaviour](https://react-query.tanstack.com/guides/important-defaults) for
+  this particular query. If you want to change the global defaults, you can do
+  so in the [client setup function](#overriding-default-behaviour-for-queries).
 
 Wasp's `useQuery` hook behaves mostly the same as [_react-query_'s `useQuery` hook](https://react-query.tanstack.com/docs/api#usequery), the only difference being in not having to supply the key (Wasp does this automatically under the hood).
 
@@ -296,8 +310,6 @@ import { useQuery } from '@wasp/queries'
 
 import fetchAllTasks from '@wasp/queries/fetchAllTasks'
 import fetchFilteredTasks from '@wasp/queries/fetchFilteredTasks'
-
-
 
 const MainPage = () => {
   const {
@@ -312,11 +324,24 @@ const MainPage = () => {
 
   return (
     <div>
-        <p>All tasks: { JSON.stringify(allTasks || error1) }</p>
-        <p>Finished tasks: { JSON.stringify(doneTasks || error2) }</p>
+        <h2>All Tasks</h2>
+        {allTasks ? allTasks.map(task => <Task key={task.id} {...task}/>) : error1}
+
+        <h2>Finished Tasks</h2>
+        {doneTasks ? doneTasks.map(task => <Task key={task.id} {...task}/>) : error2}
     </div>
   )
 }
+
+const Task = ({ description, isDone }) => {
+  return (
+    <div>
+        <p><strong>Description: </strong>{ description }</p>
+        <p><strong>Is done: </strong>{ isDone ? 'Yes' : 'No' }</p>
+    </div>
+  )
+}
+
 
 export default MainPage
 ```
@@ -326,7 +351,7 @@ For security reasons, all exceptions thrown in the Query's NodeJS implementation
 Hiding error details by default helps against accidentally leaking possibly sensitive information over the network.
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your NodeJS Query function:
-```js title=ext/queries.js
+```js title=src/server/queries.js
 import HttpError from '@wasp/core/HttpError.js'
 
 export const getTasks = async (args, context) => {
@@ -347,20 +372,18 @@ To use an Entity in your Query, add it to the query declaration in Wasp:
 ```c {4,9} title="main.wasp"
 
 query fetchAllTasks {
-  fn: import { getAllTasks } from "@ext/queries.js",
+  fn: import { getAllTasks } from "@server/queries.js",
   entities: [Task]
 }
 
 query fetchFilteredTasks {
-  fn: import { getFilteredTasks } from "@ext/queries.js",
+  fn: import { getFilteredTasks } from "@server/queries.js",
   entities: [Task]
 }
 ```
 
 Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
-```js title="ext/queries.js"
-// ...
-
+```js title="src/server/queries.js"
 export const getAllTasks = async (args, context) => {
   return context.entities.Task.findMany({})
 }
@@ -379,12 +402,13 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 Actions are very similar to Queries. So similar, in fact, we will only list the differences:
 1. They can (and most often should) modify the server's state, while Queries are only allowed to read it.
-2. Since Actions don't need to be reactive, Wasp doesn't provide a React hook for them (like `useQuery` for Queries) - you just call them directly.
+2. Actions don't need to be reactive so you can call them directly. Still, Wasp does provide a `useAction` React hook for adding extra behavior to the Action (e.g., optimistic updates).
+Read more about the [`useAction` hook](#the-useaction-hook) below.
 3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference is in the declaration's name.
 
 Here's an implementation of a simple Action:
 
-```js title=actions.js
+```js title=src/server/actions.js
 export const sayHi = async () => {
   console.log('The client said Hi!')
 }
@@ -395,7 +419,7 @@ Its corresponding declaration in Wasp:
 // ...
 
 action sayHi {
-  fn: import { sayHi } from "@ext/actions.js"
+  fn: import { sayHi } from "@server/actions.js"
 }
 ```
 And an example of how to import and call the declared Action:
@@ -408,8 +432,116 @@ import sayHi from '@wasp/actions/sayHi'
 sayHi()
 ```
 
+Here's an example on how you might define a less contrived Action.
+```js title=src/server/actions.js
+// ...
+export const updateTaskIsDone = ({ id, isDone }, context) => {
+    return context.entities.Task.update({
+        where: { id },
+        data: { isDone }
+    })
+}
+```
+```c title=main.wasp
+action updateTaskIsDone {
+  fn: import { updateTaskIsDone } from "@server/actions.js",
+  entities: [Task]
+}
+```
 
-More differences and Action/Query specific features will come in future versions of Wasp.
+And here is how you might use it:
+```js {4,18} title=src/client/pages/Task.js
+import React from 'react'
+import { useQuery } from '@wasp/queries'
+import fetchTask from '@wasp/queries/fetchTask'
+import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
+
+const TaskPage = ({ id }) => {
+  const { data: task } = useQuery(fetchTask, { id })
+
+  if (!task) {
+    return <h1>"Loading"</h1>
+  }
+
+  const { description, isDone } = task
+  return (
+    <div>
+      <p><strong>Description: </strong>{description}</p>
+      <p><strong>Is done: </strong>{isDone ? 'Yes' : 'No'}</p>
+      <button onClick={() => updateTaskIsDone({ id, isDone: !isDone })}>
+        Mark as {task.isDone ? 'undone' : 'done'}
+      </button>
+    </div>
+  )
+}
+```
+
+#### The `useAction` hook
+When using Actions in components, you can enhance them with the help of the `useAction` hook. This hook comes bundled with Wasp and decorates Wasp Actions.
+In other words, the hook returns a function whose API matches the original Action while also doing something extra under the hood (depending on how you configure it).
+
+The `useAction` hook accepts two arguments:
+- `actionFn` (required) - The Wasp Action (i.e., the client-side query function generated by Wasp based on a query declaration) you wish to enhance.
+- `actionOptions` (optional) - An object configuring the extra features you want to add to the given Action. While this argument is technically optional, there is no point in using the `useAction` hook without providing it (it would be the same as using the Action directly). The Action options object supports the following fields: 
+  - `optimisticUpdates` (optional) - An array of objects where each object defines an [optimistic update](https://stackoverflow.com/a/33009713) to perform on the query cache. To define an optimistic update, you must specify the following properties:
+    - `getQuerySpecifier` (required) - A function returning the query specifier (i.e., a value used to address the query you want to update). A query specifier is an array specifying the query function and arguments. For example, to optimistically update the query used with `useQuery(fetchFilteredTasks, {isDone: true }]`, your `getQuerySpecifier` function would have to return the array `[fetchFilteredTasks, { isDone: true}]`. Wasp will forward the argument you pass into the decorated Action to this function (i.e., you can use the properties of the added/change item to address the query).
+    - `updateQuery` (required) - The function used to perform the optimistic update. It should return the desired state of the cache. Wasp will call it with the following arguments:
+      - `item` - The argument you pass into the decorated Action.
+      - `oldData` - The currently cached value for the query identified by the specifier.
+
+**NOTE:** The `updateQuery` function must be a pure function. It must return the desired cache value identified by the `getQuerySpecifier` function and _must not_ perform any side effects. Also, make sure you only update the query caches affected by your action causing the optimistic update (Wasp cannot yet verify this). Finally, your implementation of the `updateQuery` function should work correctly regardless of the state of `oldData` (e.g., don't rely on array positioning). If you need to do something else during your optimistic update, you can directly use _react-query_'s lower-level API (read more about it [here](#advanced-usage)).
+
+Here's an example showing how to configure the Action from the previous example to perform an optimistic update: 
+```jsx {3,9,10,11,12,13,14,15,16,27} title=src/client/pages/Task.js
+import React from 'react'
+import { useQuery } from '@wasp/queries'
+import { useAction } from '@wasp/actions'
+import fetchTask from '@wasp/queries/fetchTask'
+import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
+
+const TaskPage = ({ id }) => {
+  const { data: task } = useQuery(fetchTask, { id })
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
+    optimisticUpdates: [
+      {
+        getQuerySpecifier: ({ id }) => [fetchTask, { id }],
+        updateQuery: ({ isDone }, oldData) => ({ ...oldData, isDone })
+      }
+    ]
+  })
+
+  if (!task) {
+    return <h1>"Loading"</h1>
+  }
+
+  const { description, isDone } = task
+  return (
+    <div>
+      <p><strong>Description: </strong>{description}</p>
+      <p><strong>Is done: </strong>{isDone ? 'Yes' : 'No'}</p>
+      <button onClick={() => updateTaskIsDoneOptimistically({ id, isDone: !isDone })}>
+        Mark as {task.isDone ? 'undone' : 'done'}
+      </button>
+      <div>
+        <Link to="/">Back to main page</Link>
+      </div>
+    </div>
+  )
+}
+
+export default TaskPage 
+```
+#### Advanced usage
+The `useAction` hook currently only supports specifying optimistic updates. You can expect more features in future versions of Wasp.
+
+Wasp's optimistic update API is deliberately small and focuses exclusively on updating Query caches (as that's the most common use case). You might need an API that offers more options or a higher level of control. If that's the case, instead of using Wasp's `useAction` hook, you can use _react-query_'s `useMutation` hook and directly work with [their low-level API](https://tanstack.com/query/v4/docs/guides/optimistic-updates?from=reactQueryV3&original=https://react-query-v3.tanstack.com/guides/optimistic-updates).
+
+If you decide to use _react-query_'s API directly, you will need access to the Query's cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on a Query:
+```js
+import { fetchTasks } from '@wasp/queries'
+
+const queryKey = fetchTasks.queryCacheKey
+```
 
 ### Cache Invalidation
 One of the trickiest parts of managing a web app's state is making sure the data returned by the queries is up to date.
@@ -425,6 +557,8 @@ Wasp will therefore invalidate it, making `getTasks` refetch data from the serve
 In practice, this means that Wasp keeps the queries "fresh" without requiring you to think about cache invalidation.
 
 On the other hand, this kind of automatic cache invalidation can become wasteful (some updates might not be necessary) and will only work for Entities. If that's an issue, you can use the mechanisms provided by _react-query_ for now, and expect more direct support in Wasp for handling those use cases in a nice, elegant way.
+
+If you wish to optimistically set cache values after perfomring an action, you can do so using [optimistic updates](https://stackoverflow.com/a/33009713). Configure them using Wasp's [useAction hook](#the-useaction-hook). This is currently the only manual cache invalidation mechanism Wasps supports natively. For everything else, you can always rely on _react-query_.
 
 ### Prisma Error Helpers
 In your Operations, you may wish to handle general Prisma errors with HTTP-friendly responses. We have exposed two helper functions, `isPrismaError`, and `prismaErrorToHttpError`, for this purpose. As of now, we convert two specific Prisma errors (which we will continue to expand), with the rest being `500`. See the [source here](https://github.com/wasp-lang/wasp/blob/main/waspc/e2e-test/test-outputs/waspMigrate-golden/waspMigrate/.wasp/out/server/src/utils.js).
@@ -449,7 +583,13 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 ## Jobs
 
-If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will persist between server restarts, can be retried if they fail, and they can even be delayed until the future (or have a recurring schedule)! Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
+If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will:
+  * persist between server restarts
+  * can be retried if they fail
+  * can be delayed until the future
+  * can have a recurring schedule! 
+  
+Some examples where you may want to use a `job` on the server include sending an email, making an HTTP request to some external API, or doing some nightly calculations.
 
 ### Job Executors
 
@@ -463,16 +603,17 @@ Currently, Wasp supports only one type of job executor, which is `PgBoss`, but i
 
 We have selected [pg-boss](https://github.com/timgit/pg-boss/) as our first job executor to handle the low-volume, basic job queue workloads many web applications have. By using PostgreSQL (and [SKIP LOCKED](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/)) as its storage and synchronization mechanism, it allows us to provide many job queue pros without any additional infrastructure or complex management.
 
-Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details for more information.
+:::info 
+Keep in mind that pg-boss jobs run alongside your other server-side code, so they are not appropriate for CPU-heavy workloads. Additionally, some care is required if you modify scheduled jobs. Please see pg-boss details below for more information.
 
 <details>
   <summary>pg-boss details</summary>
 
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/7.2.1/README.md).
+  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.0.0/README.md).
 
   When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
+  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
   ##### pg-boss considerations
   - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
@@ -483,21 +624,22 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 - https://devcenter.heroku.com/articles/connecting-heroku-postgres#connecting-in-node-js
 
 </details>
+:::
 
 ### Basic job definition and usage
 
 To declare a `job` in Wasp, simply add a declaration with a reference to an `async` function, like the following:
 
-```css title="main.wasp"
+```c title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js"
+    fn: import { foo } from "@server/workers/bar.js"
   }
 }
 ```
 
-Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-extimport-optional) (or any other NodeJS code), you can submit work to be done:
+Then, in your [Operations](/docs/language/features#queries-and-actions-aka-operations) or [setupFn](/docs/language/features#setupfn-serverimport-optional) (or any other NodeJS code), you can submit work to be done:
 ```js
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 
@@ -509,19 +651,19 @@ console.log(await submittedJob.pgBoss.details())
 await mySpecialJob.delay(10).submit({ job: "args" })
 ```
 
-And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ data: { job: "args" } })`.
+And that is it! Your job will be executed by the job executor (pg-boss, in this case) as if you called `foo({ job: "args" })`. 
 
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+Note that in our example, `foo` takes an argument, but this does not always have to be the case. It all depends on how you've implemented your worker function. 
 
 ### Recurring jobs
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
-```css  {6-9} title="main.wasp"
+```c  {6-9} title="main.wasp"
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js"
+    fn: import { foo } from "@server/workers/bar.js"
   },
   schedule: {
     cron: "0 * * * *",
@@ -530,18 +672,16 @@ job mySpecialJob {
 }
 ```
 
-In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ data: { "job": "args" } })` getting automatically scheduled and invoked for you every hour.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
+In this example, you do _not_ need to invoke anything in JavaScript. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
 ### Fully specified example
-Additionally, both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`.
+Both `perform` and `schedule` accept `executorOptions`, which we pass directly to the named job executor when you submit jobs. In this example, the scheduled job will have a `retryLimit` set to 0, as `schedule` overrides any similar property from `perform`. Lastly, we add an entity to pass in via the context argument to `perform.fn`.
 
-```css
+```c
 job mySpecialJob {
   executor: PgBoss,
   perform: {
-    fn: import { foo } from "@ext/jobs/bar.js",
+    fn: import { foo } from "@server/workers/bar.js",
     executorOptions: {
       pgBoss: {=json { "retryLimit": 1 } json=}
     }
@@ -552,7 +692,8 @@ job mySpecialJob {
     executorOptions: {
       pgBoss: {=json { "retryLimit": 0 } json=}
     }
-  }
+  },
+  entities: [Task],
 }
 ```
 
@@ -563,30 +704,39 @@ job mySpecialJob {
 
 ####  `perform: dict` (required)
 
-  - ##### `fn: fn` (required)
-  An `async` JavaScript function of work to be performed. It can optionally take a JSON value as an argument.
+  - ##### `fn: ServerImport` (required)
+  An `async` JavaScript function of work to be performed. Since Wasp executes jobs on the server, you must import it from `@server`. The function receives a first argument which may be passed when the job is called, as well as the context containing any declared entities as the second (this is passed automatically by Wasp). Here is a sample signature:
+
+  ```js
+  export async function foo(args, context) {
+    // Can reference context.entities.Task, for example.
+  }
+  ```
   
   - ##### `executorOptions: dict` (optional)
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
 
 #### `schedule: dict` (optional)
   
   - ##### `cron: string` (required)
-  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#scheduling).
+  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#scheduling).
+  
+  _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
   
   - ##### `args: JSON` (optional)
   The arguments to pass to the `perform.fn` function when invoked.
-  
-  **Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
-  
+    
   - ##### `executorOptions: dict` (optional)
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
+
+#### `entities: [Entity]` (optional)
+A list of entities you wish to use inside your Job (similar to Queries and Actions).
 
 ### JavaScript API
 
@@ -602,8 +752,6 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 - ###### `executorOptions: JSON` (optional)
 
 Submits a `job` to be executed by an executor, optionally passing in a JSON job argument your job handler function will receive, and executor-specific submit options.
-
-**Note**: pg-boss wraps job arguments into a larger object and exposes it under the property `data`.
 
 ```js
 const submittedJob = await mySpecialJob.submit({ job: "args" })
@@ -632,9 +780,9 @@ There will also be namespaced, job executor-specific objects.
 
 - For pg-boss, you may access: `pgBoss`
   - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/7.2.1/docs/readme.md#resumeid)
+  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#getjobbyidid)
+  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#cancelid)
+  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#resumeid)
 
 ## Dependencies
 
@@ -648,7 +796,7 @@ app MyApp {
     ("redux", "^4.0.5"),
     ("react-redux", "^7.1.3")
   ]
-)
+}
 ```
 
 You will need to re-run `wasp start` after adding a dependency for Wasp to pick it up.
@@ -663,16 +811,23 @@ In the future, we will add support for picking any version you like, but we have
 
 Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring `auth` field of the `app` declaration:
 
-```css
+```c 
 app MyApp {
   title: "My app",
-  // ...
+  //...
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    externalAuthEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      google: {},
+      gitHub: {},
+    },
     onAuthFailedRedirectTo: "/someRoute"
   }
 }
+
+//...
 ```
 
 `app.auth` is a dictionary with following fields:
@@ -680,35 +835,70 @@ app MyApp {
 #### `userEntity: entity` (required)
 Entity which represents the user (sometimes also referred to as *Principal*).
 
-#### `methods: [AuthMethod]` (required)
+#### `externalAuthEntity: entity` (optional)
+Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20---google-github) for more info.
+
+#### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `EmailAndPassword`: Provides support for authentication with email address and a password.
+* `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
+* `google`: Provides support for login via Google accounts. See [here](#google) for more.
+* `gitHub`: Provides support for login via GitHub accounts. See [here](#github) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
-Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/auth#updating-main-page-to-check-if-user-is-authenticated) to see an example of usage.
+Check out this [section of our Todo app tutorial](/docs/tutorials/todo-app/06-auth#updating-main-page-to-check-if-user-is-authenticated) to see an example of usage.
 
 #### `onAuthSucceededRedirectTo: String` (optional)
 Path where a successfully authenticated user will be sent upon successful login/signup.
 Default value is "/".
 
-### Email and Password
+:::note 
+Automatic redirect on successful login only works when using the Wasp provided [`Signup` and `Login` forms](#high-level-api)
+:::
 
-`EmailAndPassword` authentication method makes it possible to signup/login into the app by using email address and a password.
-This method requires that `userEntity` specified in `auth` contains `email: string` and `password: string` fields.
+### Username and Password
+
+`usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
+This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields:
+
+```c 
+app MyApp {
+  title: "My app",
+  //...
+
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  }
+}
+
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+psl=}
+```
 
 We provide basic validations out of the box, which you can customize as shown below. Default validations are:
-- `email`: non-empty
+- `username`: non-empty
 - `password`: non-empty, at least 8 characters, and contains a number
+
+Note that `username`s are stored in a case-sensitive manner.
 
 #### High-level API
 
 The quickest way to get started is by using the following API generated by Wasp:
 - Signup and Login forms at `@wasp/auth/forms/Signup` and `@wasp/auth/forms/Login` routes
+  - For styling, these default authentication components have form classes associated for both login (`login-form`) and signup (`signup-form`). Additionally, they both share a common class (`auth-form`).
 - `logout` function
 - `useAuth()` React hook
+**NOTE:** If the signup is successful, the Signup form will automatically log in the user.
 
-Check our [Todo app tutorial](/docs/tutorials/todo-app/auth) to see how it works. See below for detailed specification of each of these methods.
+Check our [Todo app tutorial](/docs/tutorials/todo-app/06-auth) to see how it works. See below for detailed specification of each of these methods.
 
 #### Lower-level API
 
@@ -719,28 +909,35 @@ If you require more control in your authentication flow, you can achieve that in
 The code of your custom sign-up action would look like this (your user entity being `User` in this instance):
 ```js
 export const signUp = async (args, context) => {
-    // Your custom code before sign-up.
-    // ...
-    const newUser = context.entities.User.create({
-        data: { email: 'some@email.com', password: 'this will be hashed!' }
-    })
+  // Your custom code before sign-up.
+  // ...
 
-    // Your custom code after sign-up.
-    // ...
-    return newUser
+  const newUser = context.entities.User.create({
+    data: { 
+      username: args.username, 
+      password: args.password // password hashed automatically by Wasp! 🐝
+    } 
+  })
+
+  // Your custom code after sign-up.
+  // ...
+  return newUser
 }
 ```
 
 :::info
-You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp put middleware in place that takes care of hashing it before storing it to the database. An additional middleware also performs field validation.
+You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp's middleware takes care of hashing it before storing it in the database. An additional middleware also performs field validation.
 :::
 
 ##### Customizing user entity validations
 
-To disable/enable default validations, or add your own, you can do:
+To disable/enable default validations, or add your own, you can modify your custom signUp function like so:
 ```js
 const newUser = context.entities.User.create({
-  data: { email: 'some@email.com', password: 'this will be hashed!' },
+  data: { 
+    username: args.username, 
+    password: args.password // password hashed automatically by Wasp! 🐝
+  },
   _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
   _waspCustomValidations: [
     {
@@ -753,7 +950,7 @@ const newUser = context.entities.User.create({
 ```
 
 :::info
-Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'email'` or `'password'` fields.
+Validations always run on `create()`, but only when the field mentioned in `validates` is present for `update()`. The validation process stops on the first `validator` to return false. If enabled, default validations run first and validate basic properties of both the `'username'` or `'password'` fields.
 :::
 
 #### Specification
@@ -761,10 +958,14 @@ Validations always run on `create()`, but only when the field mentioned in `vali
 ### `login()`
 An action for logging in the user.
 ```js
-login(email, password)
+login(username, password)
 ```
-#### `email: string`
-Email of the user logging in.
+:::info
+When using the exposed `login()` function, make sure to implement your own redirect on successful login logic
+:::
+
+#### `username: string`
+Username of the user logging in.
 
 #### `password: string`
 Password of the user logging in.
@@ -777,7 +978,7 @@ Login is a regular action and can be used directly from the frontend.
 
 
 ### `signup()`
-An action for signing in in the user.
+An action for signing up the user. This action does not log in the user, you still need to call `login()`.
 ```js
 signup(userFields)
 ```
@@ -816,7 +1017,7 @@ const SignOut = () => {
 #### Reset password
 Coming soon.
 
-### Updating user's password
+#### Updating a user's password
 If you need to update user's password, you can do it safely via Prisma client, e.g. within an action:
 ```js
 export const updatePassword = async (args, context) => {
@@ -833,14 +1034,13 @@ in your `.wasp` file, Wasp already set a middleware on Prisma that makes sure wh
 is created or updated on the user entity, it is also hashed before it is stored to the database.
 
 
-### Accessing currently logged in user
+### Accessing the currently logged in user
 When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
 With that, we can further implement access control and decide which content is private and which public.
 
-#### On client
-On client, Wasp provides `useAuth` React hook to be used within the functional components.
-`useAuth` is actually a thin wrapper over Wasp's `useQuery` hook and returns data in the exactly same
-format.
+#### On the client
+On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
+This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
 
 ### `useAuth()`
 #### `import statement`:
@@ -849,7 +1049,7 @@ import useAuth from '@wasp/auth/useAuth.js'
 ```
 
 ##### Example of usage:
-```js title="ext/MainPage.js"
+```js title="src/client/pages/MainPage.js"
 import React from 'react'
 
 import { Link } from 'react-router-dom'
@@ -880,14 +1080,12 @@ const Main = () => {
 export default Main
 ```
 
-#### On server
+#### On the server
 
-When authentication is enabled, all the operations (actions and queries) will have `user` object
-present in the `context` argument. `context.user` will contain all the fields from the user entity
-except for the password.
+When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
 
 ##### Example of usage:
-```js title="ext/actions.js"
+```js title="src/server/actions.js"
 import HttpError from '@wasp/core/HttpError.js'
 
 export const createTask = async (task, context) => {
@@ -931,6 +1129,216 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
+### Social Login Providers (OAuth 2.0) - Google, GitHub
+Wasp currently supports the following Social Login providers (with more to come) :
+- [GitHub](features#github)
+- [Google](features#google)
+
+The following is a quick example of how your `.wasp` file might look like when implementing social login. Make sure to read the specific sections for furter requirements (env variables) and override options:
+
+```c title="main.wasp"
+app MyApp {
+  title: "My app",
+  //...
+
+  auth: {
+    // both userEntity and externalAuthEntity are required
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {},
+      gitHub: {}
+    },
+  }
+}
+
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+// Different social login providers can use the same externalAuthEntity
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+```
+
+Be sure to include an `externalAuthEntity` in your `auth` declaration, as [described here](features#externalauthentity). Note that the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
+
+:::info
+Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default, so make sure to include it them your `userEntity` declaration even if you're only using a Social Login provider.
+
+If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
+:::
+
+
+#### Google
+
+`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings: 
+
+```c {6}
+  auth: {
+    // both userEntity and externalAuthEntity are required
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {},
+    },
+  }
+```
+
+##### Google Default settings
+- Configuration:
+  - By default, Wasp expects you to set two environment variables in order to use Google authentication:
+    - `GOOGLE_CLIENT_ID`
+    - `GOOGLE_CLIENT_SECRET`
+  - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
+- Sign in:
+  - When a user signs in for the first time, Wasp will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
+  :::note Changing Random Username
+    If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate -- e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage`.
+
+    Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their Google account, as described in **Overrides** below 
+  :::
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/defaults.js . These can be overriden as explained below.
+
+##### Google Overrides
+If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
+
+```js
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      }
+    },
+    ...
+  }
+```
+
+- `configFn`: This function should return an object with the following shape:
+  ```js title=src/server/auth/google.js
+  export function config() {
+    // ...
+    return {
+      clientID, // look up from env or elsewhere,
+      clientSecret, // look up from env or elsewhere,
+      scope: ['profile'] // must include at least 'profile' for Google
+    }
+  }
+
+  // ...
+  ```
+- `getUserFieldsFn`: This function should return the user fields to use when creating a new user upon their first Google login. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
+  ```js title=src/server/auth/google.js
+  import { generateAvailableUsername } from '@wasp/core/auth.js'
+
+  // ...
+
+  export async function getUserFields(_context, args) {
+    const username = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
+    return { username }
+  }
+  ```
+  - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
+
+##### Google UI helpers
+
+To use the Google sign-in button, logo or URL on your login page, do either of the following:
+
+```js
+...
+import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/helpers/Google'
+
+const Login = () => {
+  return (
+    <>
+      ...
+
+      <GoogleSignInButton/>
+      {/* or */}
+      <a href={googleSignInUrl}>Sign in with Google</a>
+    </>
+  )
+}
+
+export default Login
+```
+
+If you need more customization than what the buttons provide, you can create your own custom component using the `googleSignInUrl`.
+
+#### GitHub
+
+`gitHub` authentication makes it possible to use GitHub's OAuth 2.0 service to sign GitHub users into your app. To enable it, add `gitHub: {}` to your `auth.methods` dictionary to use it with default settings: 
+
+```c {7}
+  //...
+
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      gitHub: {}
+    },
+    //...
+  }
+```
+
+This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
+
+If you require custom configuration setup or user entity field assignment, you can override the defaults. Please check out that section for [Google overrides](features#google-overrides), as the information is the same.
+
+##### GitHub Default settings
+- Configuration:
+  - By default, Wasp expects you to set two environment variables in order to use GitHub authentication:
+    - `GITHUB_CLIENT_ID`
+    - `GITHUB_CLIENT_SECRET`
+  - These can be obtained in your GitHub project dashboard. See [here](/docs/integrations/github#github-auth) for more.
+- The same sign-in logic applies as for Google. Please see [that section](features#google-default-settings) for more.
+- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/github/defaults.js
+
+NOTE: The same UI helpers apply as for Google. Please [see here](features#google-ui-helpers) for more.
+
+#### `externalAuthEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains at least the following highlighted fields:
+
+```c {4,11,16-19,21}
+...
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+...
+
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    username                  String        @unique
+    password                  String
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+```
+
 ## Client configuration
 
 You can configure the client using the `client` field inside the `app`
@@ -941,14 +1349,14 @@ app MyApp {
   title: "My app",
   // ...
   client: {
-    setupFn: import mySetupFunction from "@ext/myClientSetupCode.js"
+    setupFn: import mySetupFunction from "@client/myClientSetupCode.js"
   }
 }
 ```
 
 `app.client` is a dictionary with the following fields:
 
-#### `setupFn: ExtImport` (optional)
+#### `setupFn: ClientImport` (optional)
 
 `setupFn` declares a JavaScript function that Wasp executes on the client
 before everything else. It is expected to be asynchronous, and
@@ -960,8 +1368,8 @@ client-side periodic jobs).
 
 Here's a dummy example of such a function:
 
-```js title="ext/myClientSetupCode.js"
-async function mySetupFunction() {
+```js title="src/client/myClientSetupCode.js"
+export default async function mySetupFunction() {
   let count = 1;
   setInterval(
     () => console.log(`You have been online for ${count++} hours.`),
@@ -969,6 +1377,38 @@ async function mySetupFunction() {
   )
 }
 ```
+
+##### Overriding default behaviour for Queries
+As mentioned, our `useQuery` hook uses _react-query_'s hook of the same name.
+Since _react-query_ comes configured with aggressive but sane default options,
+you most likely won't have to change those defaults for all Queries (you can
+change them for a single Query using the `options` object, as described
+[here](#the-usequery-hook)).
+
+Still, if you do need the global defaults, you can do so inside client setup
+function. Wasp exposes a `configureQueryClient` hook that lets you configure
+_react-query_'s `QueryClient` object:
+
+
+```js title="src/client/myClientSetupCode.js"
+import { configureQueryClient } from '@wasp/queries'
+
+export default async function mySetupFunction() {
+  // ... some setup
+  configureQueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+      }
+    }
+  })
+  // ... some more setup
+}
+```
+
+Make sure to pass in an object expected by the `QueryClient`'s construcor, as
+explained in
+[_react-query_'s docs](https://react-query.tanstack.com/reference/QueryClient).
 
 ## Server configuration
 
@@ -979,14 +1419,14 @@ app MyApp {
   title: "My app",
   // ...
   server: {
-    setupFn: import mySetupFunction from "@ext/myServerSetupCode.js"
+    setupFn: import mySetupFunction from "@server/myServerSetupCode.js"
   }
 }
 ```
 
 `app.server` is a dictionary with following fields:
 
-#### `setupFn: ExtImport` (optional)
+#### `setupFn: ServerImport` (optional)
 
 `setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before server continues with its setup and starts serving any requests.
 
@@ -998,7 +1438,7 @@ In case you want to store some values for later use, or to be accessed by the Op
 
 Dummy example of such function and its usage:
 
-```js title="ext/myServerSetupCode.js"
+```js title="src/server/myServerSetupCode.js"
 let someResource = undefined
 
 const mySetupFunction = async () => {
@@ -1013,7 +1453,7 @@ export const getSomeResource = () => someResource
 export default mySetupFunction
 ```
 
-```js title="ext/queries.js"
+```js title="src/server/queries.js"
 import { getSomeResource } from './myServerSetupCode.js'
 
 ...
@@ -1031,19 +1471,22 @@ Your project will likely be using environment variables for configuration, typic
 
 When in production, you will typically define environment variables through mechanisms provided by your hosting provider.
 
-However, when in development, you might also need to supply certain environment variables, and to avoid doing it "manually", Wasp supports `.env` (dotenv) file where you can define environment variables that will be used during development (they will not be used during production).
+However, when in development, you might also need to supply certain environment variables, and to avoid doing it "manually", Wasp supports `.env` (dotenv) files where you can define environment variables that will be used during development (they will not be used during production).
 
-`.env` file has to be defined in the root of your Wasp project.
+Since environmental variables are usually different for server-side and client apps, in Wasp root directly you can create two files, `.env.server` for server-side of your Wasp project, and `.env.client` for client side (or web app) of Wasp project.
 
-`.env` file should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
 
-Variables are defined in `.env` in the form of `NAME=VALUE`, for example:
+`.env.server` and `.env.client` files have to be defined in the root of your Wasp project.
+
+`.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
+
+Variables are defined in `.env.server` or `env.client` files in the form of `NAME=VALUE`, for example:
 ```
 DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
 ```
 
-Any env vars defined in the `.env` will be forwarded to the server-side of your Wasp project and therefore accessible in your nodejs code via `process.env`, for example:
+Any env vars defined in the `.env.server` / `.env.client` files will be forwarded to the server-side / web app of your Wasp project and therefore accessible in your javascript code via `process.env`, for example:
 ```js
 console.log(process.env.DATABASE_URL)
 ```
@@ -1074,22 +1517,26 @@ Default database is `SQLite`, since it is great for getting started with a new p
 Check below for more details on how to migrate from SQLite to PostgreSQL.
 
 ### PostgreSQL
-When using `PostgreSQL` (`db: { system: PostgreSQL }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
 
-One of the easiest ways to do this is by spinning up postgres docker container when you need it with the shell command
+One of the easiest ways to run a PostgreSQL database on your own is by spinning up [postgres docker](https://hub.docker.com/_/postgres) container when you need it with the following shell command:
 ```
 docker run \
   --rm \
   --publish 5432:5432 \
-  -v postgresql-data:/var/lib/postgresql/data \
-  --env POSTGRES_PASSWORD=devpass \
+  -v my-app-data:/var/lib/postgresql/data \
+  --env POSTGRES_PASSWORD=devpass1234 \
   postgres
 ```
-and adding the line
+
+:::note
+The password you provide via `POSTGRES_PASSWORD` is relevant only for the first time when you run that docker command, when database is set up for the first time. Consequent runs will ignore the value of `POSTGRES_PASSWORD` and will just use the password that was initially set. This is just how postgres docker works.
+:::
+
+The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
 ```
-DATABASE_URL=postgresql://postgres:devpass@localhost:5432/postgres
+DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
 ```
-to the `.env` file in the root directory of your Wasp project.
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.

@@ -14,6 +14,7 @@ module ShellCommands
     waspCliCompile,
     waspCliMigrate,
     waspCliBuild,
+    dockerBuild,
   )
 where
 
@@ -97,7 +98,7 @@ waspCliMigrate migrationName =
    in return $
         combineShellCommands
           [ -- Migrate using a migration name to avoid Prisma asking via CLI.
-            "wasp-cli db migrate-dev " ++ migrationName,
+            "wasp-cli db migrate-dev --name " ++ migrationName,
             -- Rename both migrations to remove the date-specific portion of the directory to something static.
             "mv " ++ (waspMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (waspMigrationsDir </> ("no-date-" ++ migrationName)),
             "mv " ++ (generatedMigrationsDir </> ("*" ++ migrationName)) ++ " " ++ (generatedMigrationsDir </> ("no-date-" ++ migrationName))
@@ -105,3 +106,8 @@ waspCliMigrate migrationName =
 
 waspCliBuild :: ShellCommandBuilder ShellCommand
 waspCliBuild = return "wasp-cli build"
+
+dockerBuild :: ShellCommandBuilder ShellCommand
+dockerBuild =
+  return
+    "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ] && cd .wasp/build && docker build . && cd ../.. || true"

@@ -7,7 +7,7 @@ module.exports = {
       items: [
         'getting-started',
         'about',
-        'how-it-works'
+        'how-it-works',
       ]
     },
     {
@@ -26,18 +26,18 @@ module.exports = {
               label: 'Basics',
               collapsed: true,
               items: [
-                'tutorials/todo-app/creating-new-project',
-                'tutorials/todo-app/task-entity',
-                'tutorials/todo-app/listing-tasks',
-                'tutorials/todo-app/creating-tasks',
-                'tutorials/todo-app/updating-tasks'
+                'tutorials/todo-app/01-creating-new-project',
+                'tutorials/todo-app/02-task-entity',
+                'tutorials/todo-app/03-listing-tasks',
+                'tutorials/todo-app/04-creating-tasks',
+                'tutorials/todo-app/05-updating-tasks'
               ]
             },
-            'tutorials/todo-app/auth',
-            'tutorials/todo-app/dependencies',
-            'tutorials/todo-app/the-end'
+            'tutorials/todo-app/06-auth',
+            'tutorials/todo-app/07-dependencies',
+            'tutorials/todo-app/08-the-end'
           ]
-        }
+        },
       ]
     },
     {
@@ -53,6 +53,16 @@ module.exports = {
     'cli',
     'deploying',
     'examples',
+    {
+      type: 'category',
+      label: 'Integrations',
+      collapsed: false,
+      items: [
+        'integrations/github',
+        'integrations/google',
+        'integrations/css-frameworks'
+      ]
+    },
     {
       type: 'category',
       label: 'Other',

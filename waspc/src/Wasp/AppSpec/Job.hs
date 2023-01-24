@@ -15,13 +15,16 @@ where
 
 import Data.Data (Data)
 import Wasp.AppSpec.Core.Decl (IsDecl)
+import Wasp.AppSpec.Core.Ref (Ref)
+import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.JSON (JSON (..))
 
 data Job = Job
   { executor :: JobExecutor,
     perform :: Perform,
-    schedule :: Maybe Schedule
+    schedule :: Maybe Schedule,
+    entities :: Maybe [Ref Entity]
   }
   deriving (Show, Eq, Data)
 

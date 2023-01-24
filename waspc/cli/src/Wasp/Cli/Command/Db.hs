@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Cli.Command.Db
   ( runDbCommand,
     studio,
@@ -32,7 +30,7 @@ makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
   -- Ensure code is generated and npm dependencies are installed.
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  compileWithOptions $ compileOptions waspProjectDir
+  _ <- compileWithOptions $ compileOptions waspProjectDir
   cmd
   where
     compileOptions waspProjectDir =

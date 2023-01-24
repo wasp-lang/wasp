@@ -1,31 +1,36 @@
 app waspleau {
+  wasp: {
+    version: "^0.8.0"
+  },
+
   title: "Waspleau",
 
   server: {
-    setupFn: import serverSetup from "@ext/serverSetup.js"
+    setupFn: import serverSetup from "@server/serverSetup.js"
   },
 
   db: { system: PostgreSQL },
 
   dependencies: [
-    ("axios", "^0.21.1")
+    ("axios", "^0.27.2")
   ]
 }
 
 job github {
   executor: PgBoss,
   perform: {
-    fn: import { workerFunction } from "@ext/workers/github.js"
+    fn: import { workerFunction } from "@server/workers/github.js"
   },
   schedule: {
     cron: "*/10 * * * *"
-  }
+  },
+  entities: [Datum]
 }
 
 job loadTime {
   executor: PgBoss,
   perform: {
-    fn: import { workerFunction } from "@ext/workers/loadTime.js"
+    fn: import { workerFunction } from "@server/workers/loadTime.js"
   },
   schedule: {
     cron: "*/5 * * * *",
@@ -33,10 +38,11 @@ job loadTime {
       "url": "https://wasp-lang.dev",
       "name": "wasp-lang.dev Load Time"
     } json=}
-  }
+  },
+  entities: [Datum]
 }
 
-entity Metric {=psl
+entity Datum {=psl
     id          Int       @id @default(autoincrement())
     name        String    @unique
     value       String
@@ -45,10 +51,10 @@ psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/MainPage.js"
+  component: import Main from "@client/MainPage.js"
 }
 
 query dashboard {
-  fn: import { refreshDashboardData } from "@ext/dashboard.js",
-  entities: [Metric]
+  fn: import { refreshDashboardData } from "@server/dashboard.js",
+  entities: [Datum]
 }

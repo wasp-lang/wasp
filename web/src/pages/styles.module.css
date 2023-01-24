@@ -1,221 +1,60 @@
-/* stylelint-disable docusaurus/copyright-header */
-
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
-.heroBanner {
-  padding: 4.5rem 0 0 0;
-  text-align: left;
+.sectionSkewed {
   position: relative;
-  overflow: hidden;
-
-  min-height: 70vh;
-}
-
-.startButtonAndVersion {
-  display: inline-flex;
-
-  flex-direction: column;
-
-  align-items: flex-start;
-  /*justify-content: flex-start;*/
-}
-
-.startCliCmd {
-  display: inline-flex;
-  background: #2a2d3e;
-  padding: 0.75rem 1rem;
-
-  align-items: center;
-  color: #bf9900;
-
-  height: 64px;
-
-  border-radius: var(--ifm-button-border-radius);
-}
-
-.startCliCmd code {
-  background: none;
-  //color: #bfc7d5;
-  color: #fff;
-  font-size: 1rem;
-
-  white-space: nowrap;
-}
-
-.startCliCmd > span::before {
-  content: "$ ";
-}
-
-.tryWaspRow {
-  margin-bottom: 0rem; /* 6 */
-}
-
-.tryWaspContainer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  margin-bottom: 0.5rem;
-}
-
-.usingWindows {
-  margin-bottom: 1rem;
-}
-
-.tryWaspContainer div:not(:last-child) {
-  margin-right: 1rem;
-}
-
-.socialProofSection {
-  padding: 3rem 0;
-}
-
-.socialProof {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.socialProof > *:not(:last-child) {
-  margin-right: 1.5rem;
-}
-
-.ycLogo {
-  max-width: 4rem;
-  margin-right: 0.8rem;
-}
-
-.backedByYC {
-  display: flex;
-  align-items: center
-}
-
-.waspVersion {
-  align-self: center;
-  text-decoration: underline;
-
-}
-
-.startButtonAndVersion > *:not(:first-child) {
-  margin-top: 0.8rem;
-}
-
-.features {
-  display: flex;
-  align-items: center;
-  padding: 2rem 0;
+  height: 100%;
   width: 100%;
+  top: 0;
+  left: 0;
+  transform-origin: 100% 0;
+  transform: skewY(-2deg);
+  overflow: hidden;
 }
 
-.featureImage {
-  height: 200px;
-  width: 200px;
+.sectionSkewedContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
 }
 
-.featureListTitle {
-  font-weight: 600;
-  text-align: center;
+.leftLights::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 1223px;
+  height: 912px;
+
+  width: 1200px;
+  height: 912px;
+
+  left: calc(50% - 1100px);
+  top: -10%;
+
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 168, 0, 0) 100%
+  );
+  will-change: filter;
+  mix-blend-mode: normal;
 }
 
-.featuresList {
-  list-style-type: none;
+.lightsTwo::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  width: 1223px;
+  height: 912px;
+
+  width: 1200px;
+  height: 912px;
+
+  left: calc(50%);
+  top: 0px;
+
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgba(255, 214, 0, 0.2) 0%, 
+    rgba(255, 168, 0, 0) 100%
+  );
+  will-change: filter;
+  mix-blend-mode: normal;
 }
-
-.featuresList li {
-  padding-left: 1rem;
-  text-indent: -0.2rem;
-}
-
-.featuresList li:not(:last-child) {
-  margin-bottom: 0.5rem;
-}
-
-.featuresListComing li::before {
-  margin-right: 0.5rem;
-  content: "⏳ ";
-}
-
-.featuresListDone li::before {
-  margin-right: 0.5rem;
-  content: "✅ ";
-}
-
-.responsiveCentered {
-  text-align: center;
-}
-
-.featuresAndRoadmap {
-  margin-bottom: 2rem;
-}
-
-.visibleOnMobileOnly {
-  display: none;
-}
-.visibleOnDesktopOnly {
-  display: block;
-}
-
-/* NOTE(matija): it is important that this element is last! That way it overrides
- * the properties from above, otherwise it would get overriden since the properties above
- * are general. */
-
-/* TODO(matija): there is probably a better way of doing this, I don't like being dependent on
- * the property order.*/
-@media screen and (max-width: 966px) {
-  .heroBanner {
-    padding: 2rem;
-  }
-
-  .visibleOnMobileOnly {
-    display: block;
-  }
-  .visibleOnDesktopOnly {
-    display: none;
-  }
-
-  .tryWaspContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .tryWaspContainer > *:not(:last-child) {
-    margin-right: 0;
-    margin-bottom: 1rem;
-  }
-
-  .startButtonAndVersion {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .startButtonAndVersion > *:not(:first-child) {
-    /* NOTE(matija): this is here to counter margin-left from above, the general case. Terrible, I know. */  
-    margin-left: 0;
-    margin-top: 1rem;
-  }
-
-  .socialProof {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  .socialProof > *:not(:last-child) {
-    margin-right: 0;
-    margin-bottom: 2rem;
-  }
-
-  .heroButton {
-    width: 100%;
-  }
-
-  .startCliCmd code {
-    font-size: 0.7rem;
-  }
-
-}
-/* style={{ width: '300px', height: '60px', lineHeight: '40px', fontSize: '25px', margin: '40px 0px 0px 70px' }} */

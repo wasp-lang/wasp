@@ -8,10 +8,12 @@ import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
 import Wasp.AppSpec.App.Dependency (Dependency)
 import Wasp.AppSpec.App.Server (Server)
+import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 
 data App = App
-  { title :: String,
+  { wasp :: Wasp,
+    title :: String,
     head :: Maybe [String],
     auth :: Maybe Auth,
     server :: Maybe Server,

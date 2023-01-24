@@ -16,7 +16,7 @@ app MyApp {
 route RootRoute { path: "/", to: DashboardPage }
 
 page DashboardPage {
-  component: import Dashboard from "@ext/Dashboard.js"
+  component: import Dashboard from "@client/Dashboard.js"
 }
 ```
 
@@ -41,7 +41,7 @@ All the other types in Wasp language (primitive types (`string`, `number`), comp
 ## Complete list of Wasp types
 Wasp's type system can be divided into two main categories of types: **fundamental types** and **domain types**.
 
-While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular lanuages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
+While fundamental types are here to be basic building blocks of a language, and are very similar to what you would see in other popular languages, domain types are what makes Wasp special, as they model the concepts of a web app like `page`, `route` and similar.
 
 - Fundamental types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/Type.hs))
   - Primitive types
@@ -49,8 +49,11 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **bool** (`true`, `false`)
     - **number** (`12`, `14.5`)
     - **declaration reference** (name of existing declaration: `TaskPage`, `updateTask`)
-    - **ExtImport** (external import) (`import Foo from "@ext/bar.js"`, `import { Smth } from "@ext/a/b.js"`)
-      - path has to be relative and start with "@ext". It is considered to be relative to the `ext/` directory.
+    - **ServerImport** (external server import) (`import Foo from "@server/bar.js"`, `import { Smth } from "@server/a/b.js"`)
+      - The path has to start with "@server". The rest is relative to the `src/server` directory.
+      - import has to be a default import `import Foo` or a single named import `import { Foo }`.
+    - **ClientImport** (external client import) (`import Foo from "@client/bar.js"`, `import { Smth } from "@client/a/b.js"`)
+      - The path has to start with "@client". The rest is relative to the `src/client` directory.
       - import has to be a default import `import Foo` or a single named import `import { Foo }`.
     - **json** (`{=json { a: 5, b: ["hi"] } json=}`)
     - **psl** (Prisma Schema Language) (`{=psl <psl data model syntax> psl=}`)
@@ -70,7 +73,6 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **query**
     - **route**
   - Enum types
-    - **AuthMethod**
     - **DbSystem**
     - **JobExecutor**
 

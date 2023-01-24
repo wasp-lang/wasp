@@ -1,5 +1,9 @@
-app trello {
-  title: "trello",
+app waspello {
+  wasp: {
+    version: "^0.8.0"
+  },
+
+  title: "Waspello",
 
   db: {
     system: PostgreSQL
@@ -7,14 +11,18 @@ app trello {
 
   auth: {
     userEntity: User,
-    methods: [ EmailAndPassword ],
+    externalAuthEntity: SocialLogin,
+    methods: {
+      usernameAndPassword: {},
+      google: {}
+    },
     onAuthFailedRedirectTo: "/login"
   },
 
   dependencies: [
     ("react-feather", "2.0.9"),
     ("classnames", "2.3.1"),
-    ("react-tiny-popover", "6.0.5"),
+    ("react-tiny-popover", "7.1.0"),
     ("react-beautiful-dnd", "13.1.0")
   ]
 }
@@ -22,27 +30,38 @@ app trello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@ext/MainPage.js"
+    component: import Main from "@client/MainPage.js"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@ext/SignupPage"
+    component: import Signup from "@client/SignupPage"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@ext/LoginPage"
+    component: import Login from "@client/LoginPage"
 }
 
 // Entities
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    email       String  @unique
+    username    String  @unique
     password    String
     lists       List[]
     cards       Card[]
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
 psl=}
 
 entity List {=psl
@@ -74,36 +93,41 @@ psl=}
 // ------------------- Queries and actions
 
 query getListsAndCards {
-    fn: import { getListsAndCards } from "@ext/queries.js",
+    fn: import { getListsAndCards } from "@server/queries.js",
     entities: [List, Card]
 }
 
 // Lists
 
 action createList {
-    fn: import { createList } from "@ext/actions.js",
+    fn: import { createList } from "@server/actions.js",
     entities: [List]
 }
 
 action updateList {
-    fn: import { updateList } from "@ext/actions.js",
+    fn: import { updateList } from "@server/actions.js",
     entities: [List]
 }
 
 action deleteList {
-    fn: import { deleteList } from "@ext/actions.js",
+    fn: import { deleteList } from "@server/actions.js",
+    entities: [List, Card]
+}
+
+action createListCopy {
+    fn: import { createListCopy } from "@server/actions.js",
     entities: [List, Card]
 }
 
 // Cards
 
 action createCard {
-    fn: import { createCard } from "@ext/actions.js",
+    fn: import { createCard } from "@server/actions.js",
     entities: [Card]
 }
 
 action updateCard {
-    fn: import { updateCard } from "@ext/actions.js",
+    fn: import { updateCard } from "@server/actions.js",
     entities: [Card]
 }
 

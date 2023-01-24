@@ -1,12 +1,18 @@
 module Wasp.Analyzer.Parser.SourcePosition
   ( SourcePosition (..),
     calcNextPosition,
+    sourceOffsetToPosition,
   )
 where
 
+import Wasp.Analyzer.Parser.SourceOffset (SourceOffset)
+
 -- | The first character on the first line is at position @Position 1 1@
 -- @SourcePosition <line> <column>@
-data SourcePosition = SourcePosition Int Int deriving (Eq, Show)
+data SourcePosition = SourcePosition Int Int deriving (Eq)
+
+instance Show SourcePosition where
+  show (SourcePosition line column) = show line ++ ":" ++ show column
 
 -- | Scan the source fragment character by character and update position based on it.
 -- Important thing that this function does is ensure that newlines are correctly handled.
@@ -21,3 +27,7 @@ calcNextPosition ('\n' : cs) (SourcePosition line _) = calcNextPosition cs $ Sou
 calcNextPosition (_ : cs) (SourcePosition line col) = calcNextPosition cs $ SourcePosition line (col + 1)
 
 type SourceFragment = String
+
+sourceOffsetToPosition :: String -> SourceOffset -> SourcePosition
+sourceOffsetToPosition source targetOffset =
+  calcNextPosition (take targetOffset source) (SourcePosition 1 1)

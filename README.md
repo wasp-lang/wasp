@@ -29,13 +29,13 @@ Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. 
 
 While describing high-level features with Wasp, you still write the rest of your logic in your favorite technologies (currently React, NodeJS, Prisma).
 
-NOTE: Wasp is in alpha and is therefore likely to change a lot, have bugs and miss important features.
 
 ```js
 // file: main.wasp
 
 app TodoApp {
-  title: "Todo App"
+  title: "Todo App",
+  wasp: { version: "^0.7.0" }
 }
 
 route RootRoute { path: "/", to: MainPage }
@@ -82,10 +82,9 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 
 # Project status
 
-Currently, Wasp is in alpha and has enough features so that you can develop a basic web app in it!
-You might find that it misses flexibility in some places or that some bigger features are missing, but the basics are there and we are now adding on top of them.
-In the case you get stuck, you can take the generated code and continue with it.
-As Wasp grows further, it should allow the development of web apps of increasing complexity, without the need to eject!
+Currently, Wasp is in beta, with most features flushed out and working well.
+However, there is still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
+As Wasp grows further, it should allow the development of web apps of increasing complexity!
 
 While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
 
@@ -100,6 +99,7 @@ Even if you don't plan to submit any code, just joining the discussion on discor
 You can also:
  - :star: Star this repo to show your interest/support.
  - :mailbox: Stay updated by subscribing to our [email list](https://wasp-lang.dev#signup).
+ - :speech_balloon: Join the discussion at https://github.com/wasp-lang/wasp/discussions .
 
 # Careers
 

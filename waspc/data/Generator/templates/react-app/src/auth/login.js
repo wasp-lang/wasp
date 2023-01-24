@@ -1,11 +1,10 @@
-import config from '../config.js'
 import { removeQueries } from '../operations/resources'
 import api, { setAuthToken, handleApiError } from '../api.js'
 
-export default async function login(email, password) {
+export default async function login(username, password) {
   try {
-    const args = { email, password }
-    const response = await api.post(config.apiUrl + '/auth/login', args)
+    const args = { username, password }
+    const response = await api.post('/auth/login', args)
 
     setAuthToken(response.data.token)
     // This isn't really neccessary because we remove all private queries after
@@ -18,7 +17,7 @@ export default async function login(email, password) {
     // TODO(filip): We are currently removing all the queries, but we should
     // remove only non-public, user-dependent queries - public queries are
     // expected not to change in respect to the currently logged in user.
-    removeQueries()
+    await removeQueries()
   } catch (error) {
     handleApiError(error)
   }

@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Cli.Command.Build
   ( build,
   )
@@ -16,18 +14,25 @@ import System.Directory
   )
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
-  ( alphaWarningMessage,
-    findWaspProjectRootDirFromCwd,
+  ( findWaspProjectRootDirFromCwd,
   )
-import Wasp.Cli.Command.Compile (compileIOWithOptions)
+import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import Wasp.Lib (CompileError, CompileWarning)
 import qualified Wasp.Lib
 import qualified Wasp.Message as Msg
 
+-- | Builds Wasp project that the current working directory is part of.
+-- Does all the steps, from analysis to generation, and at the end writes generated code
+-- to the disk, to the .wasp/build dir.
+-- At the end, prints a report on how building went (by printing warnings, errors,
+-- success/failure message, further steps, ...).
+-- Finally, throws if there was a compile/build error.
+-- Very similar to 'compile'.
 build :: Command ()
 build = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
@@ -43,21 +48,28 @@ build = do
     cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/build directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
-  buildResult <- liftIO $ buildIO waspProjectDir buildDir
-  case buildResult of
-    Left compileError -> throwError $ CommandError "Build failed" compileError
-    Right () -> cliSendMessageC $ Msg.Success "Code has been successfully built! Check it out in .wasp/build directory."
-  cliSendMessageC $ Msg.Warning "Build warning" alphaWarningMessage
+  (warnings, errors) <- liftIO $ buildIO waspProjectDir buildDir
+
+  liftIO $ printCompilationResult (warnings, errors)
+  if null errors
+    then do
+      cliSendMessageC $
+        Msg.Success "Your wasp project has been successfully built! Check it out in the .wasp/build directory."
+    else
+      throwError $
+        CommandError "Building of wasp project failed" $ show (length errors) ++ " errors found"
 
 buildIO ::
   Path' Abs (Dir Common.WaspProjectDir) ->
   Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
-  IO (Either String ())
+  IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
-        { externalCodeDirPath = waspProjectDir </> Common.extCodeDirInWaspProjectDir,
+        { externalClientCodeDirPath = waspProjectDir </> Common.extClientCodeDirInWaspProjectDir,
+          externalServerCodeDirPath = waspProjectDir </> Common.extServerCodeDirInWaspProjectDir,
+          externalSharedCodeDirPath = waspProjectDir </> Common.extSharedCodeDirInWaspProjectDir,
           isBuild = True,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

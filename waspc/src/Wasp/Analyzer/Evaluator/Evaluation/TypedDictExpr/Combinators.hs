@@ -1,5 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
-
 module Wasp.Analyzer.Evaluator.Evaluation.TypedDictExpr.Combinators
   ( dict,
     field,

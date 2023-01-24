@@ -1,19 +1,21 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { QueryClientProvider } from 'react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 
 import router from './router'
-import { queryClient } from './queryClient'
+import { 
+  initializeQueryClient,
+  queryClientInitialized,
+} from './queryClient'
 import * as serviceWorker from './serviceWorker'
 
-
-import './index.css'
 
 startApp()
 
 async function startApp() {
+  initializeQueryClient()
 
-  render()
+  await render()
 
   // If you want your app to work offline and load faster, you can change
   // unregister() to register() below. Note this comes with some pitfalls.
@@ -21,7 +23,8 @@ async function startApp() {
   serviceWorker.unregister()
 }
 
-function render() {
+async function render() {
+  const queryClient = await queryClientInitialized
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       { router }

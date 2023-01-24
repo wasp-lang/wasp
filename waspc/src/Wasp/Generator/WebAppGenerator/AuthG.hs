@@ -7,13 +7,17 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
+import qualified Wasp.Generator.WebAppGenerator.ExternalAuthG as ExternalAuthG
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -63,20 +67,57 @@ genAuthForms auth =
     [ genLoginForm auth,
       genSignupForm auth
     ]
+    <++> genExternalAuth auth
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
-  -- TODO: Logic that says "/" is a default redirect on success is duplicated here and in the function below.
-  --   We should remove that duplication.
   compileTmplToSamePath
     [relfile|auth/forms/Login.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)]
+    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
+
+genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genExternalAuth auth
+  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginHelpers auth
+  | otherwise = return []
+
+genSocialLoginHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genSocialLoginHelpers auth =
+  return $
+    concat
+      [ [gitHubHelpers | AS.App.Auth.isGitHubAuthEnabled auth],
+        [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
+      ]
+  where
+    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
+    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
+
+    mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
+    mkHelpersFd externalAuthInfo helpersFp =
+      mkTmplFdWithDstAndData
+        [relfile|src/auth/helpers/Generic.js|]
+        (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
+        (Just tmplData)
+      where
+        tmplData =
+          object
+            [ "signInPath" .= ExternalAuthG.serverLoginUrl externalAuthInfo,
+              "iconName" .= SP.toFilePath (ExternalAuthG._logoFileName externalAuthInfo),
+              "displayName" .= ExternalAuthG._displayName externalAuthInfo
+            ]
+
+genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
+genOAuthCodeExchange auth =
+  compileTmplToSamePath
+    [relfile|auth/pages/OAuthCodeExchange.js|]
+    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+      "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+    ]
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
@@ -88,3 +129,6 @@ compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
   where
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile tmplFileInTmplSrcDir
     templateData = object keyValuePairs
+
+getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
+getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
