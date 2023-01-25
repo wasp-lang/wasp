@@ -6,10 +6,10 @@ module Wasp.Cli.Command.Telemetry.Common
   )
 where
 
-import StrongPath (Abs, Dir, Path', reldir)
+import StrongPath (Abs, Dir, Path', reldir, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
-import Wasp.Cli.Command.Utils.File (UserCacheDir, getUserCacheDirPath)
+import Wasp.Cli.Command.FileSystem (UserCacheDir, getUserCacheDirPath)
 
 data TelemetryCacheDir
 
@@ -22,7 +22,7 @@ ensureTelemetryCacheDirExists = do
   return telemetryCacheDirPath
 
 getTelemetryCacheDirPath :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir TelemetryCacheDir)
-getTelemetryCacheDirPath userCacheDirPath = getWaspCacheDirPath userCacheDirPath SP.</> [reldir|telemetry|]
+getTelemetryCacheDirPath userCacheDirPath = getWaspCacheDirPath userCacheDirPath </> [reldir|telemetry|]
 
 getWaspCacheDirPath :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir TelemetryCacheDir)
-getWaspCacheDirPath userCacheDirPath = userCacheDirPath SP.</> [reldir|wasp|]
+getWaspCacheDirPath userCacheDirPath = userCacheDirPath </> [reldir|wasp|]

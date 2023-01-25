@@ -332,8 +332,7 @@ library cli-lib
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
-    Wasp.Cli.Command.Utils.User
-    Wasp.Cli.Command.Utils.File
+    Wasp.Cli.Command.FileSystem
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
