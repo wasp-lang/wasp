@@ -3,17 +3,15 @@ import crypto from 'crypto'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
 import { GlobalOptions } from '../GlobalOptions.js'
-import { buildDirExists, cdToClientBuildDir, cdToServerBuildDir, lazyInit, getCommandHelp, waspSays } from '../helpers/helpers.js'
+import { cdToClientBuildDir, cdToServerBuildDir, lazyInit, getCommandHelp, waspSays } from '../helpers/helpers.js'
 import { createFlyDbCommand } from '../index.js'
 
 export async function setup(baseName: string, region: string, options: GlobalOptions) {
   waspSays('Setting up your Wasp app with Fly.io!')
 
-  const buildWaspIfMissing = lazyInit(async () => {
-    if (!buildDirExists(options.waspDir)) {
-      cd(options.waspDir)
-      await $`${options.waspExe} build`
-    }
+  const buildWasp = lazyInit(async () => {
+    cd(options.waspDir)
+    await $`${options.waspExe} build`
   })
 
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
@@ -22,14 +20,14 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
   if (tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
     waspSays(`${tomlFiles.serverTomlPath} exists. Skipping server setup.`)
   } else {
-    await buildWaspIfMissing()
+    await buildWasp()
     await setupServer(deploymentInfo)
   }
 
   if (tomlHelpers.clientTomlExistsInProject(tomlFiles)) {
     waspSays(`${tomlFiles.clientTomlPath} exists. Skipping client setup.`)
   } else {
-    await buildWaspIfMissing()
+    await buildWasp()
     await setupClient(deploymentInfo)
   }
 

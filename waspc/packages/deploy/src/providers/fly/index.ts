@@ -23,6 +23,8 @@ export function addFlyCommand(program: Command) {
 
   // Add global options and hooks to all commands.
   // Add these hooks before any command-specific ones so they run first.
+  // NOTE: When we add another provider, consider pulling `--wasp-exe` and `--wasp-dir`
+  // up as a global option that every provider can use (if possible).
   fly.commands.forEach((cmd) => {
     cmd.requiredOption('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)', 'wasp')
       .requiredOption('--wasp-dir <dir>', 'absolute path to Wasp project dir')
