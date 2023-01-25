@@ -75,7 +75,8 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
-            [ "userEntityUpper" .= (userEntityName :: String)
+            [ "userEntityUpper" .= (userEntityName :: String),
+              "isPasswordRequired" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -142,7 +143,8 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "isPasswordRequired" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

@@ -58,16 +58,25 @@ export const registerAuthMiddleware = (prismaClient) => {
   registerUserEntityValidation(prismaClient)
   registerPasswordHashing(prismaClient)
 }
+{=# isPasswordRequired =}
+
+const passwordValidations = [
+  { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username },
+  { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
+  { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
+  { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
+]
+{=/ isPasswordRequired =}
 
 const validateUser = (user, args, action) => {
   user = user || {}
 
-  const defaultValidations = [
-    { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username },
-    { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-    { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-    { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-  ]
+  {=# isPasswordRequired =}
+  const defaultValidations = [...passwordValidations]
+  {=/ isPasswordRequired =}
+  {=^ isPasswordRequired =}
+  const defaultValidations = []
+  {=/ isPasswordRequired =}
 
   const validations = [
     ...(args._waspSkipDefaultValidations ? [] : defaultValidations),

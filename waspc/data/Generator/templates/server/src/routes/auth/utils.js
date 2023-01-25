@@ -1,6 +1,7 @@
 {{={= =}=}}
-
+{=# isPasswordRequired =}
 import { v4 as uuidv4 } from 'uuid'
+{=/ isPasswordRequired =}
 
 import prisma from '../../dbClient.js'
 
@@ -32,7 +33,9 @@ export async function findOrCreateUserByExternalAuthAssociation(provider, provid
   const userFields = await getUserFields()
   const userAndExternalAuthAssociation = {
     ...userFields,
+    {=# isPasswordRequired =}
     password: uuidv4(),
+    {=/ isPasswordRequired =}
     externalAuthAssociations: {
       create: [{ provider, providerId }]
     }
