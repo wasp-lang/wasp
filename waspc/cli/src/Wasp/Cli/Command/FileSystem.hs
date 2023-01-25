@@ -3,15 +3,15 @@ module Wasp.Cli.Command.FileSystem
     deleteDirectoryIfExists,
     getUserCacheDirPath,
     getHomeDir,
-    waspInstallationDir,
-    waspBinFile,
+    waspInstallationDirInHomeDir,
+    waspExecutableInHomeDir,
     UserCacheDir,
   )
 where
 
 import Control.Monad (when)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, relfile)
+import StrongPath (Abs, Dir, Dir', File, File', Path, Path', Rel, reldir, relfile)
 import qualified StrongPath as SP
 import System.Directory
 import qualified System.Directory as SD
@@ -20,15 +20,17 @@ data UserCacheDir
 
 data HomeDir
 
-deleteDirectoryIfExists :: FilePath -> IO ()
+deleteDirectoryIfExists :: Path a b (Dir c) -> IO ()
 deleteDirectoryIfExists dirPath = do
-  doesDirExist <- SD.doesDirectoryExist dirPath
-  when doesDirExist $ SD.removeDirectoryRecursive dirPath
+  let dirPathStr = SP.toFilePath dirPath
+  exists <- SD.doesDirectoryExist dirPathStr
+  when exists $ SD.removeDirectoryRecursive dirPathStr
 
-deleteFileIfExists :: FilePath -> IO ()
-deleteFileIfExists dirPath = do
-  doesDirExist <- SD.doesFileExist dirPath
-  when doesDirExist $ SD.removeFile dirPath
+deleteFileIfExists :: Path a b (File c) -> IO ()
+deleteFileIfExists filePath = do
+  let filePathStr = SP.toFilePath filePath
+  exists <- SD.doesFileExist filePathStr
+  when exists $ SD.removeFile filePathStr
 
 getUserCacheDirPath :: IO (Path' Abs (Dir UserCacheDir))
 getUserCacheDirPath = SD.getXdgDirectory SD.XdgCache "" >>= SP.parseAbsDir
@@ -36,8 +38,8 @@ getUserCacheDirPath = SD.getXdgDirectory SD.XdgCache "" >>= SP.parseAbsDir
 getHomeDir :: IO (Path' Abs (Dir HomeDir))
 getHomeDir = fromJust . SP.parseAbsDir <$> getHomeDirectory
 
-waspInstallationDir :: Path' (Rel HomeDir) Dir'
-waspInstallationDir = [reldir|.local/share/wasp-lang|]
+waspInstallationDirInHomeDir :: Path' (Rel HomeDir) Dir'
+waspInstallationDirInHomeDir = [reldir|.local/share/wasp-lang|]
 
-waspBinFile :: Path' (Rel HomeDir) File'
-waspBinFile = [relfile|.local/bin/wasp|]
+waspExecutableInHomeDir :: Path' (Rel HomeDir) File'
+waspExecutableInHomeDir = [relfile|.local/bin/wasp|]
