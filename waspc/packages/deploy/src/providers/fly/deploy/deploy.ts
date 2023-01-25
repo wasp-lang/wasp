@@ -2,18 +2,18 @@ import { exit } from 'process'
 import { $, cd, fs } from 'zx'
 import { cdToClientBuildDir, cdToServerBuildDir, displayWaspRocketImage, lazyInit, getCommandHelp, waspSays } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
-import { IDeployOptions } from './DeployOptions.js'
-import { createDeploymentInfo, IDeploymentInfo } from '../DeploymentInfo.js'
+import { DeployOptions } from './DeployOptions.js'
+import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
 import { flySetupCommand } from '../index.js'
 import { doesSecretExist } from '../helpers/flyctlHelpers.js'
 
-export async function deploy(options: IDeployOptions) {
+export async function deploy(options: DeployOptions) {
   waspSays('Deploying your Wasp app to Fly.io!')
 
   const buildWasp = lazyInit(async () => {
     if (!options.skipBuild) {
       cd(options.waspDir)
-      await $`wasp build`
+      await $`${options.waspExe} build`
     }
   })
 
@@ -40,7 +40,7 @@ export async function deploy(options: IDeployOptions) {
   }
 }
 
-async function deployServer(deploymentInfo: IDeploymentInfo) {
+async function deployServer(deploymentInfo: DeploymentInfo) {
   waspSays('Deploying your server now...')
 
   cdToServerBuildDir(deploymentInfo.options.waspDir)
@@ -66,7 +66,7 @@ async function deployServer(deploymentInfo: IDeploymentInfo) {
   waspSays('Server has been deployed!')
 }
 
-async function deployClient(deploymentInfo: IDeploymentInfo) {
+async function deployClient(deploymentInfo: DeploymentInfo) {
   waspSays('Deploying your client now...')
 
   cdToClientBuildDir(deploymentInfo.options.waspDir)

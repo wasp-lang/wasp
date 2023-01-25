@@ -1,6 +1,6 @@
-import { IGlobalOptions } from '../GlobalOptions.js'
+import { GlobalOptions } from '../GlobalOptions.js'
 
-export interface ICreateDbOptions extends IGlobalOptions {
+export interface CreateDbOptions extends GlobalOptions {
   vmSize: string
   initialClusterSize: string
   volumeSize: string

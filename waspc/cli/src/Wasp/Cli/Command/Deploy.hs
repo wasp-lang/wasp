@@ -4,6 +4,7 @@ module Wasp.Cli.Command.Deploy
 where
 
 import Control.Monad.IO.Class (liftIO)
+import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import qualified Wasp.Lib as Lib
@@ -11,4 +12,8 @@ import qualified Wasp.Lib as Lib
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  liftIO $ Lib.deploy waspProjectDir cmdArgs
+  liftIO $ do
+    -- `getExecutablePath` has some caveats: https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html
+    -- Once we upgrade to GHC 9.4 we should change to `executablePath`, but this should be ok for our purposes.
+    waspExePath <- getExecutablePath
+    Lib.deploy waspExePath waspProjectDir cmdArgs

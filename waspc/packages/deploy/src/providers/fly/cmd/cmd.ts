@@ -1,22 +1,22 @@
 import { $, cd } from 'zx'
-import { ClientCommonOps, ICommonOps, ServerCommonOps } from '../helpers/CommonOps.js'
+import { ClientCommonOps, CommonOps, ServerCommonOps } from '../helpers/CommonOps.js'
 import { buildDirExists, getCommandHelp, waspSays } from '../helpers/helpers.js'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { executeFlyCommand } from '../index.js'
-import { ICmdOptions, SERVER_CONTEXT_OPTION } from './CmdOptions.js'
+import { CmdOptions, SERVER_CONTEXT_OPTION } from './CmdOptions.js'
 
 // Runs a command by copying down the project toml files, executing it, and copying it back up (just in case).
 // If the toml file does not exist, some commands will not run with additional args (e.g. -a <appname>).
-export async function cmd(flyctlArgs: string[], options: ICmdOptions) {
+export async function cmd(flyctlArgs: string[], options: CmdOptions) {
   waspSays(`Running ${options.context} command: flyctl ${flyctlArgs.join(' ')}`)
 
   if (!buildDirExists(options.waspDir)) {
     cd(options.waspDir)
-    await $`wasp build`
+    await $`${options.waspExe} build`
   }
 
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
-  let commonOps: ICommonOps
+  let commonOps: CommonOps
 
   if (options.context === SERVER_CONTEXT_OPTION) {
     commonOps = new ServerCommonOps(options.waspDir, tomlFiles)
@@ -27,7 +27,7 @@ export async function cmd(flyctlArgs: string[], options: ICmdOptions) {
   await runFlyctlCommand(commonOps, flyctlArgs)
 }
 
-async function runFlyctlCommand(commonOps: ICommonOps, flyctlArgs: string[]) {
+async function runFlyctlCommand(commonOps: CommonOps, flyctlArgs: string[]) {
   commonOps.cdToBuildDir()
   tomlHelpers.deleteLocalToml()
   if (commonOps.tomlExistsInProject()) {

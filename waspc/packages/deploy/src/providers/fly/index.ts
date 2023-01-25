@@ -24,8 +24,9 @@ export function addFlyCommand(program: Command) {
   // Add global options and hooks to all commands.
   // Add these hooks before any command-specific ones so they run first.
   fly.commands.forEach((cmd) => {
-    cmd.requiredOption('--wasp-dir <dir>', 'path to Wasp project')
-      .option('--toml-dir <dir>', 'path to where fly.toml files should live')
+    cmd.requiredOption('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)', 'wasp')
+      .requiredOption('--wasp-dir <dir>', 'absolute path to Wasp project dir')
+      .option('--toml-dir <dir>', 'absolute path to dir where fly.toml files live')
       .hook('preAction', ensureFlyReady)
       .hook('preAction', ensureDirsAreAbsolute)
       .hook('preAction', ensureWaspDirLooksRight)

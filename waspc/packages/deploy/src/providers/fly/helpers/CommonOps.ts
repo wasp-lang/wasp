@@ -1,9 +1,9 @@
 import { cdToClientBuildDir, cdToServerBuildDir } from "./helpers.js"
 import * as tomlHelpers from "./tomlFileHelpers.js"
 
-export interface ICommonOps {
+export interface CommonOps {
   waspDir: string
-  paths: tomlHelpers.ITomlFilePaths
+  paths: tomlHelpers.TomlFilePaths
 
   cdToBuildDir: () => void
   tomlExistsInProject: () => boolean
@@ -11,11 +11,11 @@ export interface ICommonOps {
   copyProjectTomlLocally: () => void
 }
 
-export class ClientCommonOps implements ICommonOps {
+export class ClientCommonOps implements CommonOps {
   waspDir: string
-  paths: tomlHelpers.ITomlFilePaths
+  paths: tomlHelpers.TomlFilePaths
 
-  constructor(waspDir: string, paths: tomlHelpers.ITomlFilePaths) {
+  constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
     this.waspDir = waspDir
     this.paths = paths
   }
@@ -26,11 +26,11 @@ export class ClientCommonOps implements ICommonOps {
   copyProjectTomlLocally = () => tomlHelpers.copyProjectClientTomlLocally(this.paths)
 }
 
-export class ServerCommonOps implements ICommonOps {
+export class ServerCommonOps implements CommonOps {
   waspDir: string
-  paths: tomlHelpers.ITomlFilePaths
+  paths: tomlHelpers.TomlFilePaths
 
-  constructor(waspDir: string, paths: tomlHelpers.ITomlFilePaths) {
+  constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
     this.waspDir = waspDir
     this.paths = paths
   }

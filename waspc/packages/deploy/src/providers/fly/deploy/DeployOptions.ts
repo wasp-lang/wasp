@@ -1,5 +1,5 @@
-import { IGlobalOptions } from '../GlobalOptions.js'
+import { GlobalOptions } from '../GlobalOptions.js'
 
-export interface IDeployOptions extends IGlobalOptions {
+export interface DeployOptions extends GlobalOptions {
   skipBuild?: boolean
 }

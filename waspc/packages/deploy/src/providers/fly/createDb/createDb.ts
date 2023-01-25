@@ -2,12 +2,12 @@ import { $, question } from 'zx'
 import { exit } from 'process'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
 import { createDeploymentInfo } from '../DeploymentInfo.js'
-import { ICreateDbOptions } from './CreateDbOptions.js'
+import { CreateDbOptions } from './CreateDbOptions.js'
 import { getInferredBasenameFromServerToml } from '../helpers/tomlFileHelpers.js'
 import { getCommandHelp, waspSays } from '../helpers/helpers.js'
 import { flyDeployCommand, flySetupCommand } from '../index.js'
 
-export async function createDb(region: string, options: ICreateDbOptions) {
+export async function createDb(region: string, options: CreateDbOptions) {
   const tomlFiles = tomlHelpers.getTomlFileInfo(options)
 
   if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {

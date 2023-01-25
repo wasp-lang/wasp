@@ -1,14 +1,14 @@
 import toml from 'toml'
 import fs from 'fs'
 import path from 'node:path'
-import { IGlobalOptions } from '../GlobalOptions.js'
+import { GlobalOptions } from '../GlobalOptions.js'
 
-export interface ITomlFilePaths {
+export interface TomlFilePaths {
   serverTomlPath: string
   clientTomlPath: string
 }
 
-export function getTomlFileInfo(options: IGlobalOptions): ITomlFilePaths {
+export function getTomlFileInfo(options: GlobalOptions): TomlFilePaths {
   const baseDir = options.tomlDir || options.waspDir
   return {
     serverTomlPath: path.join(baseDir, 'fly-server.toml'),
@@ -16,27 +16,27 @@ export function getTomlFileInfo(options: IGlobalOptions): ITomlFilePaths {
   }
 }
 
-export function serverTomlExistsInProject(paths: ITomlFilePaths): boolean {
+export function serverTomlExistsInProject(paths: TomlFilePaths): boolean {
   return fs.existsSync(paths.serverTomlPath)
 }
 
-export function copyLocalServerTomlToProject(paths: ITomlFilePaths) {
+export function copyLocalServerTomlToProject(paths: TomlFilePaths) {
   fs.copyFileSync('fly.toml', paths.serverTomlPath)
 }
 
-export function copyProjectServerTomlLocally(paths: ITomlFilePaths) {
+export function copyProjectServerTomlLocally(paths: TomlFilePaths) {
   fs.copyFileSync(paths.serverTomlPath, 'fly.toml')
 }
 
-export function clientTomlExistsInProject(paths: ITomlFilePaths): boolean {
+export function clientTomlExistsInProject(paths: TomlFilePaths): boolean {
   return fs.existsSync(paths.clientTomlPath)
 }
 
-export function copyLocalClientTomlToProject(paths: ITomlFilePaths) {
+export function copyLocalClientTomlToProject(paths: TomlFilePaths) {
   fs.copyFileSync('fly.toml', paths.clientTomlPath)
 }
 
-export function copyProjectClientTomlLocally(paths: ITomlFilePaths) {
+export function copyProjectClientTomlLocally(paths: TomlFilePaths) {
   fs.copyFileSync(paths.clientTomlPath, 'fly.toml')
 }
 
@@ -56,12 +56,12 @@ export function getAppNameFromToml(path: string): string {
   return data.app
 }
 
-export function getInferredBasenameFromServerToml(paths: ITomlFilePaths) {
+export function getInferredBasenameFromServerToml(paths: TomlFilePaths) {
   const serverName = getAppNameFromToml(paths.serverTomlPath)
   return serverName.replace('-server', '')
 }
 
-export function getInferredBasenameFromClientToml(paths: ITomlFilePaths) {
+export function getInferredBasenameFromClientToml(paths: TomlFilePaths) {
   const clientName = getAppNameFromToml(paths.clientTomlPath)
   return clientName.replace('-client', '')
 }

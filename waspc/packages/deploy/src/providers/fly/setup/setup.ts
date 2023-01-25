@@ -1,18 +1,18 @@
 import { $, cd } from 'zx'
 import crypto from 'crypto'
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js'
-import { createDeploymentInfo, IDeploymentInfo } from '../DeploymentInfo.js'
-import { IGlobalOptions } from '../GlobalOptions.js'
+import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js'
+import { GlobalOptions } from '../GlobalOptions.js'
 import { buildDirExists, cdToClientBuildDir, cdToServerBuildDir, lazyInit, getCommandHelp, waspSays } from '../helpers/helpers.js'
 import { createFlyDbCommand } from '../index.js'
 
-export async function setup(baseName: string, region: string, options: IGlobalOptions) {
+export async function setup(baseName: string, region: string, options: GlobalOptions) {
   waspSays('Setting up your Wasp app with Fly.io!')
 
   const buildWaspIfMissing = lazyInit(async () => {
     if (!buildDirExists(options.waspDir)) {
       cd(options.waspDir)
-      await $`wasp build`
+      await $`${options.waspExe} build`
     }
   })
 
@@ -36,7 +36,7 @@ export async function setup(baseName: string, region: string, options: IGlobalOp
   waspSays(`Don't forget to create your database by running "${getCommandHelp(createFlyDbCommand)}".`)
 }
 
-async function setupServer(deploymentInfo: IDeploymentInfo) {
+async function setupServer(deploymentInfo: DeploymentInfo) {
   waspSays(`Setting up server app with name ${deploymentInfo.serverName}`)
 
   cdToServerBuildDir(deploymentInfo.options.waspDir)
@@ -54,7 +54,7 @@ async function setupServer(deploymentInfo: IDeploymentInfo) {
   waspSays('Server setup complete!')
 }
 
-async function setupClient(deploymentInfo: IDeploymentInfo) {
+async function setupClient(deploymentInfo: DeploymentInfo) {
   waspSays(`Setting up client app with name ${deploymentInfo.clientName}`)
 
   cdToClientBuildDir(deploymentInfo.options.waspDir)

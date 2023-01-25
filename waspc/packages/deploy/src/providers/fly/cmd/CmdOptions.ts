@@ -1,6 +1,6 @@
-import { IGlobalOptions } from '../GlobalOptions.js'
+import { GlobalOptions } from '../GlobalOptions.js'
 
-export interface ICmdOptions extends IGlobalOptions {
+export interface CmdOptions extends GlobalOptions {
   context: string
 }
 

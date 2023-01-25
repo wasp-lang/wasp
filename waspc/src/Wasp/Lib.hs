@@ -181,13 +181,13 @@ compileAndRenderDockerfile waspDir compileOptions = do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . toList) dockerfileOrGeneratorErrors
 
-deploy :: Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
-deploy waspDir cmdArgs = do
+deploy :: FilePath -> Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
+deploy waspExe waspDir cmdArgs = do
   waspDataDir <- Data.getAbsDataDirPath
   let deployDir = waspDataDir </> [reldir|packages/deploy|]
   unlessM (doesDirectoryExist . toFilePath $ deployDir </> [reldir|node_modules|]) $
     runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "npm" ["install"] J.Server
-  let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-dir", toFilePath waspDir]
+  let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-exe", waspExe, "--wasp-dir", toFilePath waspDir]
   runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "node" deployScriptArgs J.Server
   where
     runCommandAndPrintOutput job = do
