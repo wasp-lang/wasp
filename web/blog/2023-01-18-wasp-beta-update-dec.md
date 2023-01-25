@@ -1,7 +1,7 @@
 ---
 title: 'Wasp Beta December 2022'
 authors: [matijasos]
-image: /img/beta/wasp-beta-banner.png
+image: /img/update-dec-23/banner.png
 tags: [webdev, wasp, startups, github]
 ---
 
