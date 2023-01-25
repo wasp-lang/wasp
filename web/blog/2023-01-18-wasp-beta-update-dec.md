@@ -17,6 +17,8 @@ import ImgWithCaption from './components/ImgWithCaption'
     source="img/update-dec-23/banner.png"
 />
 
+*Want to stay in the loop? → [Join our newsletter!](/#signup)*
+
 Hey Wasp tribe 🐝 ,
 
 Happy New Year! I know you're probably already sick of hearing it, but hopefully we're the last ones to congratulate you 🔫 👈 (that's pistol fingers emoji in case you were wondering).
@@ -134,3 +136,7 @@ Thanks for reading and see you in a month!
 
 Buzzity buzz, you got that pizzazz 🐝 🐝,  
 Matija, Martin and the Wasp team
+
+
+*Want to stay in the loop? → [Join our newsletter!](/#signup)*
+
