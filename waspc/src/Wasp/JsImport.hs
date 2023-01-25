@@ -5,6 +5,7 @@ module Wasp.JsImport
     JsImportName (..),
     JsImportData,
     JsImportAlias,
+    JsImportPath,
     getJsImportData,
   )
 where
@@ -45,14 +46,14 @@ type JsImportStatement = String
 
 type JsImportData = (JsImportIdentifier, JsImportStatement)
 
-getJsImportData :: JsImport -> JsImportData
-getJsImportData (JsImport importName importPath importAlias) =
+getJsImportData :: JsImportPath -> JsImportName -> Maybe JsImportAlias -> JsImportData
+getJsImportData importPath importName importAlias =
   (importIdentifier, importStatement)
   where
     (importIdentifier, importWhat) = getFirstPartOfJsImport importName importAlias
     importStatement = getImportStatement importWhat importPath
 
-getImportStatement :: JsImportWhat -> Path Posix (Rel Dir') File' -> JsImportStatement
+getImportStatement :: JsImportWhat -> JsImportPath -> JsImportStatement
 getImportStatement importWhat importPath =
   "import " ++ importWhat ++ " from '" ++ normalizedPath ++ "'"
   where
