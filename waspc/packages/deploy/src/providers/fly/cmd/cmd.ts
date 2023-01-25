@@ -11,6 +11,7 @@ export async function cmd(flyctlArgs: string[], options: CmdOptions) {
   waspSays(`Running ${options.context} command: flyctl ${flyctlArgs.join(' ')}`)
 
   if (!buildDirExists(options.waspDir)) {
+    waspSays('Building your Wasp app...')
     cd(options.waspDir)
     await $`${options.waspExe} build`
   }

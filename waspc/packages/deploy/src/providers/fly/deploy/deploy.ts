@@ -12,6 +12,7 @@ export async function deploy(options: DeployOptions) {
 
   const buildWasp = lazyInit(async () => {
     if (!options.skipBuild) {
+      waspSays('Building your Wasp app...')
       cd(options.waspDir)
       await $`${options.waspExe} build`
     }

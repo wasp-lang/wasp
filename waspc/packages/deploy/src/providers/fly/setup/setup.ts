@@ -10,6 +10,7 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
   waspSays('Setting up your Wasp app with Fly.io!')
 
   const buildWasp = lazyInit(async () => {
+    waspSays('Building your Wasp app...')
     cd(options.waspDir)
     await $`${options.waspExe} build`
   })
