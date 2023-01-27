@@ -5,7 +5,7 @@ import { createDb as createDbFn } from './createDb/createDb.js';
 import { cmd as cmdFn } from './cmd/cmd.js';
 import { ensureWaspDirLooksRight, ensureDirsAreAbsolute } from './helpers/helpers.js';
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
-import { CLIENT_CONTEXT_OPTION, SERVER_CONTEXT_OPTION } from './cmd/CmdOptions.js';
+import { ContextOption } from './helpers/CommonOps.js';
 
 export const flySetupCommand = makeFlySetupCommand();
 
@@ -63,7 +63,7 @@ function makeExecuteFlyCommand(): Command {
 		.argument('<cmd...>', 'flyctl command to run in server/client context')
 		.addOption(
 			new Option('--context <context>', 'client or server context')
-				.choices([SERVER_CONTEXT_OPTION, CLIENT_CONTEXT_OPTION])
+				.choices(Object.values(ContextOption))
 				.makeOptionMandatory(),
 		)
 		.action(cmdFn)

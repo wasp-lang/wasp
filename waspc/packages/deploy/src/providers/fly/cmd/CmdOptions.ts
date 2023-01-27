@@ -1,9 +1,6 @@
 import { GlobalOptions } from '../GlobalOptions.js';
+import { ContextOption } from '../helpers/CommonOps.js';
 
 export interface CmdOptions extends GlobalOptions {
-  context: string;
+	context: ContextOption;
 }
-
-export const SERVER_CONTEXT_OPTION = 'server';
-
-export const CLIENT_CONTEXT_OPTION = 'client';

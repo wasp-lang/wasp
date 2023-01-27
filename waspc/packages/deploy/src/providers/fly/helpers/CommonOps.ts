@@ -40,3 +40,16 @@ export class ServerCommonOps implements CommonOps {
 	copyLocalTomlToProject = () => tomlHelpers.copyLocalServerTomlToProject(this.paths);
 	copyProjectTomlLocally = () => tomlHelpers.copyProjectServerTomlLocally(this.paths);
 }
+
+export enum ContextOption {
+	Client = 'client',
+	Server = 'server',
+}
+
+export function getCommonOps(context: ContextOption, waspDir: string, paths: tomlHelpers.TomlFilePaths): CommonOps {
+	const commonOps: Record<ContextOption, CommonOps> = {
+		[ContextOption.Client]: new ClientCommonOps(waspDir, paths),
+		[ContextOption.Server]: new ServerCommonOps(waspDir, paths),
+	};
+	return commonOps[context];
+}
