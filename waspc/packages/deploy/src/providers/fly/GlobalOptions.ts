@@ -1,5 +1,5 @@
 export interface GlobalOptions {
-  waspExe: string
-  waspDir: string
-  tomlDir?: string
+	waspExe: string;
+	waspDir: string;
+	tomlDir?: string;
 }

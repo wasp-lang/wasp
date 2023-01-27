@@ -1,42 +1,42 @@
-import { cdToClientBuildDir, cdToServerBuildDir } from "./helpers.js"
-import * as tomlHelpers from "./tomlFileHelpers.js"
+import { cdToClientBuildDir, cdToServerBuildDir } from './helpers.js';
+import * as tomlHelpers from './tomlFileHelpers.js';
 
 export interface CommonOps {
-  waspDir: string
-  paths: tomlHelpers.TomlFilePaths
+	waspDir: string;
+	paths: tomlHelpers.TomlFilePaths;
 
-  cdToBuildDir: () => void
-  tomlExistsInProject: () => boolean
-  copyLocalTomlToProject: () => void
-  copyProjectTomlLocally: () => void
+	cdToBuildDir: () => void;
+	tomlExistsInProject: () => boolean;
+	copyLocalTomlToProject: () => void;
+	copyProjectTomlLocally: () => void;
 }
 
 export class ClientCommonOps implements CommonOps {
-  waspDir: string
-  paths: tomlHelpers.TomlFilePaths
+	waspDir: string;
+	paths: tomlHelpers.TomlFilePaths;
 
-  constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
-    this.waspDir = waspDir
-    this.paths = paths
-  }
+	constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
+		this.waspDir = waspDir;
+		this.paths = paths;
+	}
 
-  cdToBuildDir = () => cdToClientBuildDir(this.waspDir)
-  tomlExistsInProject = () => tomlHelpers.clientTomlExistsInProject(this.paths)
-  copyLocalTomlToProject = () => tomlHelpers.copyLocalClientTomlToProject(this.paths)
-  copyProjectTomlLocally = () => tomlHelpers.copyProjectClientTomlLocally(this.paths)
+	cdToBuildDir = () => cdToClientBuildDir(this.waspDir);
+	tomlExistsInProject = () => tomlHelpers.clientTomlExistsInProject(this.paths);
+	copyLocalTomlToProject = () => tomlHelpers.copyLocalClientTomlToProject(this.paths);
+	copyProjectTomlLocally = () => tomlHelpers.copyProjectClientTomlLocally(this.paths);
 }
 
 export class ServerCommonOps implements CommonOps {
-  waspDir: string
-  paths: tomlHelpers.TomlFilePaths
+	waspDir: string;
+	paths: tomlHelpers.TomlFilePaths;
 
-  constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
-    this.waspDir = waspDir
-    this.paths = paths
-  }
+	constructor(waspDir: string, paths: tomlHelpers.TomlFilePaths) {
+		this.waspDir = waspDir;
+		this.paths = paths;
+	}
 
-  cdToBuildDir = () => cdToServerBuildDir(this.waspDir)
-  tomlExistsInProject = () => tomlHelpers.serverTomlExistsInProject(this.paths)
-  copyLocalTomlToProject = () => tomlHelpers.copyLocalServerTomlToProject(this.paths)
-  copyProjectTomlLocally = () => tomlHelpers.copyProjectServerTomlLocally(this.paths)
+	cdToBuildDir = () => cdToServerBuildDir(this.waspDir);
+	tomlExistsInProject = () => tomlHelpers.serverTomlExistsInProject(this.paths);
+	copyLocalTomlToProject = () => tomlHelpers.copyLocalServerTomlToProject(this.paths);
+	copyProjectTomlLocally = () => tomlHelpers.copyProjectServerTomlLocally(this.paths);
 }
