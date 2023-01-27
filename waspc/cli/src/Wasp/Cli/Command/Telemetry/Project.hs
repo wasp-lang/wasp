@@ -14,7 +14,7 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8 as ByteStringUTF8
-import Data.List (intersect)
+import Data.List (intercalate, intersect)
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Time as T
 import Data.Version (showVersion)
@@ -137,7 +137,7 @@ data ProjectTelemetryData = ProjectTelemetryData
     _waspVersion :: String,
     _os :: String,
     _isBuild :: Bool,
-    _deployCmd :: String,
+    _deployCmdArgs :: String,
     _context :: String
   }
   deriving (Show)
@@ -152,16 +152,16 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
       _isBuild = case cmdCall of
         Command.Call.Build -> True
         _ -> False,
-      _deployCmd = case cmdCall of
-        Command.Call.Deploy deployCmd -> unwords . sanitizeDeployArgs $ deployCmd
+      _deployCmdArgs = case cmdCall of
+        Command.Call.Deploy deployCmdArgs -> intercalate ";" $ extractKeyDeployArgs deployCmdArgs
         _ -> "",
       _context = context
     }
 
 -- We don't really want or need to see all the things users
 -- pass to the deploy script. Let's only track what we need.
-sanitizeDeployArgs :: [String] -> [String]
-sanitizeDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
+extractKeyDeployArgs :: [String] -> [String]
+extractKeyDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
 
 sendTelemetryData :: ProjectTelemetryData -> IO ()
 sendTelemetryData telemetryData = do
@@ -179,7 +179,7 @@ sendTelemetryData telemetryData = do
                   "wasp_version" .= _waspVersion telemetryData,
                   "os" .= _os telemetryData,
                   "is_build" .= _isBuild telemetryData,
-                  "deploy_cmd" .= _deployCmd telemetryData,
+                  "deploy_cmd_args" .= _deployCmdArgs telemetryData,
                   "context" .= _context telemetryData
                 ]
           ]
