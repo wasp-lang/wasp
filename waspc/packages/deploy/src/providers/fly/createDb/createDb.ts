@@ -7,8 +7,8 @@ import { getInferredBasenameFromServerToml } from '../helpers/tomlFileHelpers.js
 import { getCommandHelp, waspSays } from '../helpers/helpers.js';
 import { flyDeployCommand, flySetupCommand } from '../index.js';
 
-export async function createDb(region: string, options: CreateDbOptions) {
-	const tomlFiles = tomlHelpers.getTomlFileInfo(options);
+export async function createDb(region: string, options: CreateDbOptions): Promise<void> {
+	const tomlFiles = tomlHelpers.getTomlFilePaths(options);
 
 	if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
 		waspSays(`${tomlFiles.serverTomlPath} missing. Skipping DB creation. Perhaps you need to run "${getCommandHelp(flySetupCommand)}" first?`);

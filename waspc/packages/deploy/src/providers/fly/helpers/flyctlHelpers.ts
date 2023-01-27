@@ -20,7 +20,7 @@ export async function isUserLoggedIn(): Promise<boolean> {
 	}
 }
 
-export async function ensureUserLoggedIn() {
+export async function ensureUserLoggedIn(): Promise<void> {
 	const userLoggedIn = await isUserLoggedIn();
 	if (!userLoggedIn) {
 		const answer = await question('flyctl is not logged into Fly.io. Would you like to log in now? ');
@@ -38,7 +38,7 @@ export async function ensureUserLoggedIn() {
 	}
 }
 
-export async function ensureFlyReady() {
+export async function ensureFlyReady(): Promise<void> {
 	const doesFlyctlExist = await flyctlExists();
 	if (!doesFlyctlExist) {
 		waspSays('The Fly.io CLI is not available on this system.');
@@ -48,7 +48,7 @@ export async function ensureFlyReady() {
 	await ensureUserLoggedIn();
 }
 
-export async function ensureRegionIsValid(region: string) {
+export async function ensureRegionIsValid(region: string): Promise<void> {
 	try {
 		const proc = await silence(($hh) => $hh`flyctl platform regions -j`);
 		const regions = JSON.parse(proc.stdout);

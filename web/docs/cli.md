@@ -72,7 +72,7 @@ To setup Bash completion, execute `wasp completion` and follow the instructions.
  
  - `wasp build` generates full web app code, ready for deployment. Use when deploying or ejecting. Generated code goes in the .wasp/build folder.
 
- - `wasp deploy` makes it easy to get your app hosted on the web. Currently, Wasp offers support for [Fly.io](https://fly.io). Want another hosting provider? Let us know in Discord or make a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/release/waspc/packages/deploy)!
+ - `wasp deploy` makes it easy to get your app hosted on the web. Currently, Wasp offers support for [Fly.io](https://fly.io). Want another hosting provider? Let us know in Discord or make a PR by updating [this TypeScript app](https://github.com/wasp-lang/wasp/tree/main/waspc/packages/deploy)!
 
  - `wasp telemetry` prints [telemetry](https://wasp-lang.dev/docs/telemetry) status.
    

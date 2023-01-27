@@ -181,13 +181,19 @@ compileAndRenderDockerfile waspDir compileOptions = do
       dockerfileOrGeneratorErrors <- DockerGenerator.compileAndRenderDockerfile appSpec
       return $ left (map show . toList) dockerfileOrGeneratorErrors
 
+-- | This will run our TS deploy project by passing all args from the Wasp CLI straight through.
+-- The TS project is compiled to JS in CI and included in the data dir for the release archive.
+-- If the project was not yet built locally (i.e. after they just installed a Wasp version), we do so.
 deploy :: FilePath -> Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
 deploy waspExe waspDir cmdArgs = do
   waspDataDir <- Data.getAbsDataDirPath
   let deployDir = waspDataDir </> [reldir|packages/deploy|]
-  unlessM (doesDirectoryExist . toFilePath $ deployDir </> [reldir|node_modules|]) $
+  let nodeModulesDirExists = doesDirectoryExist . toFilePath $ deployDir </> [reldir|node_modules|]
+  unlessM nodeModulesDirExists $
     runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "npm" ["install"] J.Server
   let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-exe", waspExe, "--wasp-dir", toFilePath waspDir]
+  -- NOTE: Here we are lying by saying we are running in the J.Server context.
+  -- TODO: Consider adding a new context for these types of things, like J.Other or J.External.
   runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "node" deployScriptArgs J.Server
   where
     runCommandAndPrintOutput job = do

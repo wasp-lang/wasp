@@ -8,7 +8,7 @@ export function isYes(str: string): boolean {
 	return str.trim().toLowerCase().startsWith('y');
 }
 
-export function ensureWaspDirLooksRight(thisCommand: Command) {
+export function ensureWaspDirLooksRight(thisCommand: Command): void {
 	if (!fs.existsSync(path.join(thisCommand.opts().waspDir, '.wasproot'))) {
 		waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.');
 		waspSays('Please double check your path.');
@@ -20,15 +20,15 @@ export function buildDirExists(waspDir: string): boolean {
 	return fs.existsSync(path.join(waspDir, '.wasp', 'build'));
 }
 
-export function cdToServerBuildDir(waspDir: string) {
+export function cdToServerBuildDir(waspDir: string): void {
 	cd(path.join(waspDir, '.wasp', 'build'));
 }
 
-export function cdToClientBuildDir(waspDir: string) {
+export function cdToClientBuildDir(waspDir: string): void {
 	cd(path.join(waspDir, '.wasp', 'build', 'web-app'));
 }
 
-export function ensureDirsAreAbsolute(thisCommand: Command) {
+export function ensureDirsInCmdAreAbsolute(thisCommand: Command): void {
 	if (thisCommand.opts().waspDir && !path.isAbsolute(thisCommand.opts().waspDir)) {
 		waspSays('The Wasp dir path must be absolute.');
 		exit(1);
@@ -40,22 +40,27 @@ export function ensureDirsAreAbsolute(thisCommand: Command) {
 	}
 }
 
-// Promises are eager and start running right when created.
-// This lets us create a promise that will won't execute right away.
-// Additionally, like a normal promise, it can still be awaited many times
-// but only runs to completion once.
-export function lazyInit<Type>(fn: () => Promise<Type>) {
-	let prom: Promise<Type> | undefined = undefined;
-	return () => prom = (prom || fn());
+// eslint-disable-next-line
+export function makeIdempotent<F extends () => any>(
+	fn: F,
+): () => ReturnType<F> {
+	let result: { value: ReturnType<F> } | null = null;
+
+	return function idempotentFn() {
+		if (!result) {
+			result = { value: fn() };
+		}
+		return result.value;
+	};
 }
 
 // For some reason, the colors from the chalk package wouldn't
 // show up when run as a subprocess by the Wasp CLI. This works.
-export function waspSays(str: string) {
+export function waspSays(str: string): void {
 	console.log('🚀 \x1b[33m ' + str + ' \x1b[0m');
 }
 
-export function displayWaspRocketImage() {
+export function displayWaspRocketImage(): void {
 	// Escaping backslashes makes it look weird here, but it works in console.
 	const asciiArt = `
 	Credits: Modified version of ascii art bee by sjw, rocket by unknown.

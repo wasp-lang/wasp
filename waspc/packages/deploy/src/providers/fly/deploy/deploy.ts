@@ -1,16 +1,16 @@
 import { exit } from 'process';
 import { $, cd, fs } from 'zx';
-import { cdToClientBuildDir, cdToServerBuildDir, displayWaspRocketImage, lazyInit, getCommandHelp, waspSays } from '../helpers/helpers.js';
+import { cdToClientBuildDir, cdToServerBuildDir, displayWaspRocketImage, makeIdempotent, getCommandHelp, waspSays } from '../helpers/helpers.js';
 import * as tomlHelpers from '../helpers/tomlFileHelpers.js';
 import { DeployOptions } from './DeployOptions.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { flySetupCommand } from '../index.js';
 import { doesSecretExist } from '../helpers/flyctlHelpers.js';
 
-export async function deploy(options: DeployOptions) {
+export async function deploy(options: DeployOptions): Promise<void> {
 	waspSays('Deploying your Wasp app to Fly.io!');
 
-	const buildWasp = lazyInit(async () => {
+	const buildWasp = makeIdempotent(async () => {
 		if (!options.skipBuild) {
 			waspSays('Building your Wasp app...');
 			cd(options.waspDir);
@@ -18,7 +18,7 @@ export async function deploy(options: DeployOptions) {
 		}
 	});
 
-	const tomlFiles = tomlHelpers.getTomlFileInfo(options);
+	const tomlFiles = tomlHelpers.getTomlFilePaths(options);
 
 	// NOTE: Below, it would be nice if we could store the client, server, and DB names somewhere.
 	// For now we just rely on the suffix naming convention and infer from toml files.

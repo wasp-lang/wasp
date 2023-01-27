@@ -69,12 +69,15 @@ module.exports = {
       "error",
       "always"
     ],
-    "@typescript-eslint/member-delimiter-style": ["error", {
-      "multiline": {
-        "delimiter": "semi",
-        "requireLast": true
+    "@typescript-eslint/member-delimiter-style": [
+      "error",
+      {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        }
       }
-    }
-    ]
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "error"
   }
 }
