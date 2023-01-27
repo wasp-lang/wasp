@@ -100,9 +100,9 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
-      - name: Build deploy TS package
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
-        run: ./tools/build_deploy_package.sh
+      - name: Compile deploy TS package and move it into the Cabal data dir
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/install_deploy_package_to_data_dir.sh
 
       - name: Build external dependencies 
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies 

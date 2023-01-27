@@ -205,7 +205,7 @@ alias wrun="/home/martin/git/wasp-lang/wasp/waspc/run"
 ```
 
 ### Packages
-Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/build_deploy_package.sh`.
+Wasp bundles some TypeScript packages into the installation artifact (eg: deployment scripts), which end up in the installed version's `waspc_datadir`. To do so in CI, it runs `./tools/install_deploy_package_to_data_dir.sh`.
 
  During normal local development you can treat `packages/deploy` as a regular TS project and develop against it in a standalone manner. However, if you want to test it as part of the Wasp CLI, you can make use of this same script locally. Just manually invoke it before you run something like `cabal run wasp-cli deploy fly ...` in a wasp project so the local data directory is up to date.
 

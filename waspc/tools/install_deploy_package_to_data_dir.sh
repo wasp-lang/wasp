@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
-# Builds the waspc/packages/deploy package locally and in CI.
+# Helper to compile the waspc/packages/deploy package locally and in CI.
+# It will then move it into the Cabal data dir (and thus, the installer archive in CI releases).
 
 # Gets the directory of where this script lives.
 dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
