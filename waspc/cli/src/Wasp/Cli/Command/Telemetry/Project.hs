@@ -5,6 +5,8 @@ module Wasp.Cli.Command.Telemetry.Project
     considerSendingData,
     readProjectTelemetryFile,
     getTimeOfLastTelemetryDataSent,
+    -- NOTE: for testing only
+    checkIfEnvValueIsTruthy,
   )
 where
 
@@ -14,6 +16,8 @@ import Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8 as ByteStringUTF8
+import Data.Char (toLower)
+import Data.Functor ((<&>))
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Time as T
 import Data.Version (showVersion)
@@ -69,7 +73,24 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
           }
 
 getTelemetryContext :: IO String
-getTelemetryContext = fromMaybe "" <$> ENV.lookupEnv "WASP_TELEMETRY_CONTEXT"
+getTelemetryContext =
+  unwords . filter (not . null)
+    <$> sequence
+      [ fromMaybe "" <$> ENV.lookupEnv "WASP_TELEMETRY_CONTEXT",
+        checkIfOnCi <&> \case True -> "CI"; False -> ""
+      ]
+  where
+    -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
+    checkIfOnCi :: IO Bool
+    checkIfOnCi =
+      any checkIfEnvValueIsTruthy <$> mapM ENV.lookupEnv ["CI", "BUILD_ID", "CI_BUILD_ID"]
+
+checkIfEnvValueIsTruthy :: Maybe String -> Bool
+checkIfEnvValueIsTruthy Nothing = False
+checkIfEnvValueIsTruthy (Just v)
+  | null v = False
+  | (toLower <$> v) == "false" = False
+  | otherwise = True
 
 -- * Project hash.
 
