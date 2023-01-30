@@ -9,7 +9,7 @@ module Wasp.Util.IO
 where
 
 import Control.Monad (filterM, when)
-import StrongPath (Abs, Dir, Dir', File, Path, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
+import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.FilePath as FilePath
@@ -63,13 +63,13 @@ listDirectory absDirPath = do
       filterM (SD.doesDirectoryExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelDir
 
-deleteDirectoryIfExists :: Path a b (Dir c) -> IO ()
+deleteDirectoryIfExists :: Path' r (Dir d) -> IO ()
 deleteDirectoryIfExists dirPath = do
   let dirPathStr = SP.toFilePath dirPath
   exists <- SD.doesDirectoryExist dirPathStr
   when exists $ SD.removeDirectoryRecursive dirPathStr
 
-deleteFileIfExists :: Path a b (File c) -> IO ()
+deleteFileIfExists :: Path' r (File f) -> IO ()
 deleteFileIfExists filePath = do
   let filePathStr = SP.toFilePath filePath
   exists <- SD.doesFileExist filePathStr
