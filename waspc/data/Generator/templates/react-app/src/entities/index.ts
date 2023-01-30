@@ -15,3 +15,4 @@ export type WaspEntity =
   {=# entities =}
   | {= name =}
   {=/ entities =}
+  | never
