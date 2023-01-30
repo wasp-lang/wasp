@@ -29,7 +29,12 @@ import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (buildEntityData, nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common
+  ( makeJsonWithEntityNameAndPrismaIdentifier,
+    nodeVersionRange,
+    npmVersionRange,
+    prismaVersion,
+  )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -106,7 +111,7 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
-    allEntities = map (buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 genNpmrc :: Generator FileDraft
 genNpmrc =

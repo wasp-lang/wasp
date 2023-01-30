@@ -20,8 +20,8 @@ import qualified Wasp.AppSpec.Action as AS.Action
 import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
-import Wasp.Generator.Common (buildEntityData)
 import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.Generator.Common (makeJsonWithEntityNameAndPrismaIdentifier)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -131,7 +131,11 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= maybe [] (map (buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      "entities"
+        .= maybe
+          []
+          (map (makeJsonWithEntityNameAndPrismaIdentifier . AS.refName))
+          (AS.Operation.getEntities operation)
     ]
   where
     (importIdentifier, importStmt) =

@@ -4,7 +4,7 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
-    buildEntityData,
+    makeJsonWithEntityNameAndPrismaIdentifier,
     entityNameToPrismaIdentifier,
   )
 where
@@ -40,8 +40,8 @@ npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 4 5 0
 
-buildEntityData :: String -> Aeson.Value
-buildEntityData name =
+makeJsonWithEntityNameAndPrismaIdentifier :: String -> Aeson.Value
+makeJsonWithEntityNameAndPrismaIdentifier name =
   object
     [ "name" .= name,
       "prismaIdentifier" .= entityNameToPrismaIdentifier name

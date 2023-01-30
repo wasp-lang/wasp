@@ -36,7 +36,13 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (buildEntityData, latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common
+  ( latestMajorNodeVersion,
+    makeJsonWithEntityNameAndPrismaIdentifier,
+    nodeVersionRange,
+    npmVersionRange,
+    prismaVersion,
+  )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
@@ -257,7 +263,7 @@ genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDra
                 "userViewName" .= fromMaybe "" userViewName
               ]
         )
-    allEntities = map (buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
     userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
     -- We might want to move this to a more global location in the future, but
     -- it is currently used only in these two files.
