@@ -4,14 +4,15 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
-    buildEntityData
+    buildEntityData,
+    entityNameToPrismaIdentifier,
   )
 where
 
-import qualified Wasp.SemanticVersion as SV
+import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
-import Data.Aeson (object, KeyValue ((.=)))
 import Data.Char (toLower)
+import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir

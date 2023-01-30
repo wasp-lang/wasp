@@ -22,6 +22,7 @@ where
 import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
+import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
@@ -92,6 +93,13 @@ srcDirInServerTemplatesDir = [reldir|src|]
 dotEnvServer :: Path' (SP.Rel WaspProjectDir) File'
 dotEnvServer = [relfile|.env.server|]
 
--- https://github.com/wasp-lang/wasp/issues/812#issuecomment-1335579353
+-- Converts the real name of the source file (i.e., name on disk) into a name
+-- that can be used in an ESNext import.
+-- Specifically, when using the ESNext module system, all source files must be
+-- imported with a '.js' extension (even if they are '.ts' files).
+--
+-- Details: https://github.com/wasp-lang/wasp/issues/812#issuecomment-1335579353
 toESModulesImportPath :: FilePath -> FilePath
-toESModulesImportPath = (++ ".js") . reverse . drop 3 . reverse
+toESModulesImportPath = changeExtensionTo "js"
+  where
+    changeExtensionTo ext = (++ '.' : ext) . fst . splitExtension
