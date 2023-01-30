@@ -3,9 +3,35 @@ import { setup as setupFn } from './setup/setup.js';
 import { deploy as deployFn } from './deploy/deploy.js';
 import { createDb as createDbFn } from './createDb/createDb.js';
 import { cmd as cmdFn } from './cmd/cmd.js';
+import { launch as launchFn } from './launch/launch.js';
 import { ensureWaspDirLooksRight, ensureDirsInCmdAreAbsolute } from './helpers/helpers.js';
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
 import { ContextOption } from './helpers/CommonOps.js';
+
+// Helpers for adding shared arguments and options.
+declare module 'commander' {
+	interface Command {
+		addBasenameArgument(): this;
+		addRegionArgument(): this;
+		addDbOptions(): this;
+	}
+}
+
+Command.prototype.addBasenameArgument = function (): Command {
+	return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
+};
+
+Command.prototype.addRegionArgument = function (): Command {
+	return this.argument('<region>', 'deployment region to use on Fly.io');
+};
+
+Command.prototype.addDbOptions = function (): Command {
+	return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
+		.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
+		.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
+};
+
+const flyLaunchCommand = makeFlyLaunchCommand();
 
 export const flySetupCommand = makeFlySetupCommand();
 
@@ -17,7 +43,8 @@ export const executeFlyCommand = makeExecuteFlyCommand();
 
 export function addFlyCommand(program: Command): void {
 	const fly = program.command('fly')
-		.description('Setup and deploy Wasp apps on Fly.io')
+		.description('Create and deploy Wasp apps on Fly.io')
+		.addCommand(flyLaunchCommand)
 		.addCommand(flySetupCommand)
 		.addCommand(createFlyDbCommand)
 		.addCommand(flyDeployCommand)
@@ -38,15 +65,25 @@ export function addFlyCommand(program: Command): void {
 	});
 
 	// Add command-specific hooks.
+	flyLaunchCommand.hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[1]));
 	flySetupCommand.hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[1]));
 	createFlyDbCommand.hook('preAction', (_thisCommand, actionCommand) => ensureRegionIsValid(actionCommand.args[0]));
+}
+
+function makeFlyLaunchCommand(): Command {
+	return new Command('launch')
+		.description('Launch a new app on Fly.io (calls setup, create-db, and deploy)')
+		.addBasenameArgument()
+		.addRegionArgument()
+		.addDbOptions()
+		.action(launchFn);
 }
 
 function makeFlySetupCommand(): Command {
 	return new Command('setup')
 		.description('Set up a new app on Fly.io (this does not deploy it)')
-		.argument('<basename>', 'base app name to use on Fly.io (must be unique)')
-		.argument('<region>', 'deployment region to use on Fly.io')
+		.addBasenameArgument()
+		.addRegionArgument()
 		.action(setupFn);
 }
 
@@ -73,9 +110,7 @@ function makeExecuteFlyCommand(): Command {
 function makeCreateFlyDbCommand(): Command {
 	return new Command('create-db')
 		.description('Creates a Postgres DB and attaches it to the server app')
-		.argument('<region>', 'deployment region to use on Fly.io')
-		.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
-		.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
-		.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1')
+		.addRegionArgument()
+		.addDbOptions()
 		.action(createDbFn);
 }

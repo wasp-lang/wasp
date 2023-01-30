@@ -8,6 +8,8 @@ import { getCommandHelp, waspSays } from '../helpers/helpers.js';
 import { flyDeployCommand, flySetupCommand } from '../index.js';
 
 export async function createDb(region: string, options: CreateDbOptions): Promise<void> {
+	waspSays('Creating your DB on Fly.io!');
+
 	const tomlFiles = tomlHelpers.getTomlFilePaths(options);
 
 	if (!tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
@@ -30,7 +32,7 @@ export async function createDb(region: string, options: CreateDbOptions): Promis
 	await $`flyctl postgres create ${createArgs}`;
 	await $`flyctl postgres attach ${deploymentInfo.dbName} -a ${deploymentInfo.serverName}`;
 
-	await question('Please take note of your database credentials above. Press any key to continue.');
+	await question('Please take note of your database credentials above, as they will not be available in plaintext again. Press any key to continue.');
 
 	waspSays(`Don't forget to deploy your app by running "${getCommandHelp(flyDeployCommand)}".`);
 }

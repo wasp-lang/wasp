@@ -63,17 +63,17 @@ export function waspSays(str: string): void {
 export function displayWaspRocketImage(): void {
 	// Escaping backslashes makes it look weird here, but it works in console.
 	const asciiArt = `
-	Credits: Modified version of ascii art bee by sjw, rocket by unknown.
+  Credits: Modified version of ascii art bee by sjw, rocket by unknown.
 
-										__
-									 // \\
-									 \\\\_/ //
-						 _    -(||)(')
-						\\ \\____///_____
-	 #########[==__DEPLOYED__}
-						/_/
+                    __
+                   // \\
+                   \\\\_/ //
+             _    -(||)(')
+            \\ \\____///_____
+   #########[==__DEPLOYED__}
+            /_/
 
-	`;
+  `;
 	console.log(asciiArt);
 }
 

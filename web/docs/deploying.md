@@ -14,9 +14,13 @@ If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzd
 
 ## Wasp CLI
 
-Using the Wasp CLI, you can easily deploy your app to [Fly.io](https://fly.io) with just three commands:
+Using the Wasp CLI, you can easily deploy a new app to [Fly.io](https://fly.io) with just a single command:
+```shell
+wasp deploy fly launch my-wasp-app mia
+```
 
-```sh
+Under the covers, this runs the equivalent of the following commands:
+```shell
 wasp deploy fly setup my-wasp-app mia
 wasp deploy fly create-db mia
 wasp deploy fly deploy
@@ -51,7 +55,7 @@ You may notice after running `setup` you have a `fly-server.toml` and `fly-clien
 Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
 
 If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
-```
+```shell
 wasp deploy fly cmd secrets list --context server
 ```
 
