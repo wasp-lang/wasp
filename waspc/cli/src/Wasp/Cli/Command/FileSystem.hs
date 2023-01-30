@@ -1,45 +1,40 @@
 module Wasp.Cli.Command.FileSystem
-  ( deleteFileIfExists,
-    deleteDirectoryIfExists,
-    getUserCacheDirPath,
+  ( getUserCacheDir,
+    getWaspCacheDir,
     getHomeDir,
     waspInstallationDirInHomeDir,
     waspExecutableInHomeDir,
     UserCacheDir,
+    WaspCacheDir,
   )
 where
 
-import Control.Monad (when)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Dir', File, File', Path, Path', Rel, reldir, relfile)
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory
 import qualified System.Directory as SD
 
+data UserHomeDir
+
 data UserCacheDir
 
-data HomeDir
+data WaspCacheDir
 
-deleteDirectoryIfExists :: Path a b (Dir c) -> IO ()
-deleteDirectoryIfExists dirPath = do
-  let dirPathStr = SP.toFilePath dirPath
-  exists <- SD.doesDirectoryExist dirPathStr
-  when exists $ SD.removeDirectoryRecursive dirPathStr
-
-deleteFileIfExists :: Path a b (File c) -> IO ()
-deleteFileIfExists filePath = do
-  let filePathStr = SP.toFilePath filePath
-  exists <- SD.doesFileExist filePathStr
-  when exists $ SD.removeFile filePathStr
-
-getUserCacheDirPath :: IO (Path' Abs (Dir UserCacheDir))
-getUserCacheDirPath = SD.getXdgDirectory SD.XdgCache "" >>= SP.parseAbsDir
-
-getHomeDir :: IO (Path' Abs (Dir HomeDir))
+getHomeDir :: IO (Path' Abs (Dir UserHomeDir))
 getHomeDir = fromJust . SP.parseAbsDir <$> getHomeDirectory
 
-waspInstallationDirInHomeDir :: Path' (Rel HomeDir) Dir'
+getWaspCacheDir :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir WaspCacheDir)
+getWaspCacheDir userCacheDirPath = userCacheDirPath </> [reldir|wasp|]
+
+getUserCacheDir :: IO (Path' Abs (Dir UserCacheDir))
+getUserCacheDir = SD.getXdgDirectory SD.XdgCache "" >>= SP.parseAbsDir
+
+-- NOTE: these paths are based on the installer script and if you change them there
+-- you need to change them here as well (and vice versa).
+-- Task to improve this: https://github.com/wasp-lang/wasp/issues/980
+waspInstallationDirInHomeDir :: Path' (Rel UserHomeDir) Dir'
 waspInstallationDirInHomeDir = [reldir|.local/share/wasp-lang|]
 
-waspExecutableInHomeDir :: Path' (Rel HomeDir) File'
+waspExecutableInHomeDir :: Path' (Rel UserHomeDir) File'
 waspExecutableInHomeDir = [relfile|.local/bin/wasp|]

@@ -1,28 +1,27 @@
 module Wasp.Cli.Command.Telemetry.Common
   ( TelemetryCacheDir,
     ensureTelemetryCacheDirExists,
-    getTelemetryCacheDirPath,
-    getWaspCacheDirPath,
   )
 where
 
 import StrongPath (Abs, Dir, Path', reldir, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
-import Wasp.Cli.Command.FileSystem (UserCacheDir, getUserCacheDirPath)
+import Wasp.Cli.Command.FileSystem
+  ( UserCacheDir,
+    getUserCacheDir,
+    getWaspCacheDir,
+  )
 
 data TelemetryCacheDir
 
+getTelemetryCacheDir :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir TelemetryCacheDir)
+getTelemetryCacheDir userCacheDirPath = getWaspCacheDir userCacheDirPath </> [reldir|telemetry|]
+
 ensureTelemetryCacheDirExists :: IO (Path' Abs (Dir TelemetryCacheDir))
 ensureTelemetryCacheDirExists = do
-  userCacheDirPath <- getUserCacheDirPath
+  userCacheDirPath <- getUserCacheDir
   SD.createDirectoryIfMissing False $ SP.fromAbsDir userCacheDirPath
-  let telemetryCacheDirPath = getTelemetryCacheDirPath userCacheDirPath
-  SD.createDirectoryIfMissing True $ SP.fromAbsDir telemetryCacheDirPath
-  return telemetryCacheDirPath
-
-getTelemetryCacheDirPath :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir TelemetryCacheDir)
-getTelemetryCacheDirPath userCacheDirPath = getWaspCacheDirPath userCacheDirPath </> [reldir|telemetry|]
-
-getWaspCacheDirPath :: Path' Abs (Dir UserCacheDir) -> Path' Abs (Dir TelemetryCacheDir)
-getWaspCacheDirPath userCacheDirPath = userCacheDirPath </> [reldir|wasp|]
+  let telemetryCacheDir = getTelemetryCacheDir userCacheDirPath
+  SD.createDirectoryIfMissing True $ SP.fromAbsDir telemetryCacheDir
+  return telemetryCacheDir
