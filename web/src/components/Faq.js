@@ -13,7 +13,7 @@ const faqs = [
       <br/><br/>
       The main difference between Wasp and the solutions listed above is that Wasp is a trully full-stack
       framework, meaning it brings both back-end and database next to front-end. You can think of it as
-      Ruby on Rails, but made for JS (React & Node.js) and full-stack.
+      Ruby on Rails, but made for JS/TS (React & Node.js) and full-stack.
       <br/><br/>
       Next.js, Gatsby and others started out as frontend frameworks for static sites. Although some of them
       now offer an option to use serverless functions, you still have to bring your own database and you'll
@@ -22,19 +22,18 @@ const faqs = [
   },
   /*
   {
-    question: 'How is Wasp different from Ruby on Rails, Django, etc?',
+    question: 'How is Wasp different from Ruby on Rails (RoR), Django, etc?',
     answer: <p>
-      <strong>TL;DR</strong> - These are backend frameworks, while Wasp covers full-stack, which makes it easier to sync and
-      reuse data models across the stack.
-      <br/><br/>
-      Back in the day when the whole UI was server-side rendered, Rails and Django were actually full-stack
-      frameworks. But, with the advent of SPAs and frontend frameworks such as React, they are today mostly
-      used as API servers, aka backend frameworks.
-      <br/><br/>
-      Wasp is a full-stack framework, which means it covers both frontend, backend and database at the same
-      time. That allows us to make it super easy to work with and sync data models across the entire
-      stack. You don't even have to define and deal with any kind of CRUD API - Wasp will do that for
-      you under the hood.
+      While RoR and Django are full-stack frameworks, they are embedded into their host languages (ruby, python).
+      However, there are degrees to "full-stackiness", and we could say that they were more full-stack in the past,
+      when most of the logic for web apps was present on the server.
+      These days, with advent of SPAs and frontend frameworks as React, much of that logic moved to
+      the client (browser), therefore in Javascript, which makes frameworks like RoR and Django less
+      full-stackish, as their integration with it is not as natural for them.
+
+      On the other hand, Wasp was made for JS specifically, plus it is not embedded in a specific host language,
+      not even JS, but has additonal pre-processing step that makes it more detached from specific language,
+      laying grounds for spanning multiple languages and technologies in the future.
     </p>
   },
   */
