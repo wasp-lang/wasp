@@ -38,7 +38,7 @@ import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common
   ( latestMajorNodeVersion,
-    makeJsonWithEntityNameAndPrismaIdentifier,
+    makeJsonWithEntityData,
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
@@ -263,7 +263,7 @@ genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDra
                 "userViewName" .= fromMaybe "" userViewName
               ]
         )
-    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
     -- We might want to move this to a more global location in the future, but
     -- it is currently used only in these two files.

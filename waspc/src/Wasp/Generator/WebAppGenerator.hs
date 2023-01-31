@@ -30,7 +30,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
-  ( makeJsonWithEntityNameAndPrismaIdentifier,
+  ( makeJsonWithEntityData,
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
@@ -111,7 +111,7 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
-    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
