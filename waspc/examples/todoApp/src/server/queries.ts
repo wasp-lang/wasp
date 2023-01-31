@@ -1,7 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { Task } from '@wasp/entities'
 import {
-  GetFoo,
   GetNumTasks,
   GetTask,
   GetTasks
@@ -22,15 +21,6 @@ export const getTasks: GetTasks<Task[]> = async (args, context) => {
     }
   )
   return tasks
-}
-
-export const getFoo: GetFoo<number> = async (args, context) => {
-  if (!context.user) {
-    throw new HttpError(401)
-  }
-  const x = await context.entities.Foo.count()
-  const y = await context.entities.Task.count()
-  return x + y
 }
 
 export const getNumTasks: GetNumTasks<number> = async (args, context) => {
