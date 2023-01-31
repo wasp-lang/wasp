@@ -13,7 +13,7 @@ module Wasp.Generator.DbGenerator.Common
     serverRootDirFromDbRootDir,
     webAppRootDirFromDbRootDir,
     serverDbSchemaFileInProjectRootDir,
-    clientDbSchemaFileInProjectRootDir
+    clientDbSchemaFileInProjectRootDir,
   )
 where
 

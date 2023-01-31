@@ -86,15 +86,15 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
         [ "operations" .= map operationTypeData operations,
           "shouldImportAuthenticatedOperation" .= any usesAuth operations,
           "shouldImportNonAuthenticatedOperation" .= not (all usesAuth operations),
-          "allEntities" .= nub (concatMap entityNames operations)
+          "allEntities" .= nub (concatMap getEntities operations)
         ]
     operationTypeData operation =
       object
         [ "typeName" .= toUpperFirst (getName operation),
-          "entities" .= entityNames operation,
+          "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
-    entityNames = maybe [] (map AS.refName) . AS.Operation.getEntities
+    getEntities = map makeJsonWithEntityNameAndPrismaIdentifier . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
 -- | Analogous to genQuery.

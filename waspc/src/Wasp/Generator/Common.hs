@@ -44,6 +44,7 @@ makeJsonWithEntityNameAndPrismaIdentifier :: String -> Aeson.Value
 makeJsonWithEntityNameAndPrismaIdentifier name =
   object
     [ "name" .= name,
+      "internalTypeName" .= ('_' : name),
       "prismaIdentifier" .= entityNameToPrismaIdentifier name
     ]
 

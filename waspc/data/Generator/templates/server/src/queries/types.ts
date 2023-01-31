@@ -3,7 +3,7 @@
           types, consider whether it makes sense to address this in the future. =}
 import {
   {=# allEntities =}
-  {= . =},
+  {= internalTypeName =},
   {=/ allEntities =}
 } from '../entities'
 
@@ -26,7 +26,7 @@ export type {= typeName =}<Output = unknown> =
   {=/ usesAuth =}
     [
     {=# entities =}
-      {=.=},
+      {= internalTypeName =},
     {=/ entities =}
     ],
     Output

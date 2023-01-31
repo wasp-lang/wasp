@@ -1,24 +1,22 @@
 {{={= =}=}}
 import prisma from "../dbClient.js"
 import { 
-  type WaspEntity,
-  {=# entities =}
-  type {= name =},
-  {=/ entities =}
+  type _Entity,
+  type {= userEntityName =}
  } from "../entities"
 
-export type Query<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Query<Entities extends _Entity[] = [], Result = unknown> = Operation<Entities, Result>
 
-export type Action<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Action<Entities extends _Entity[] = [], Result = unknown> = Operation<Entities, Result>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends WaspEntity[] = [], Result = unknown> = 
+export type AuthenticatedQuery<Entities extends _Entity[] = [], Result = unknown> = 
   AuthenticatedOperation<Entities, Result>
 
-export type AuthenticatedAction<Entities extends WaspEntity[] = [], Result = unknown> = 
+export type AuthenticatedAction<Entities extends _Entity[] = [], Result = unknown> = 
   AuthenticatedOperation<Entities, Result>
 
-type AuthenticatedOperation<Entities extends WaspEntity[], Result> = (
+type AuthenticatedOperation<Entities extends _Entity[], Result> = (
   args: any,
   context: {
       user: {= userViewName =},
@@ -33,25 +31,19 @@ type AuthenticatedOperation<Entities extends WaspEntity[], Result> = (
 type {= userViewName =} = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
 
-type Operation<Entities extends WaspEntity[], Result> = (
+type Operation<Entities extends _Entity[], Result> = (
   args: any,
   context: {
       entities: EntityMap<Entities>,
   },
 ) => Promise<Result>
 
-type PrismaDelegateFor<EntityName extends string> =
-  {=# entities =}
-  EntityName extends "{= name =}" ? typeof prisma.{= prismaIdentifier =} :
-  {=/ entities =}
-  never
+type EntityMap<Entities extends _Entity[]> = {
+  [EntityName in Entities[number]["_waspEntityName"]]: PrismaDelegate[EntityName]
+}
 
-type WaspNameFor<Entity extends WaspEntity> =
+type PrismaDelegate = {
   {=# entities =}
-  Entity extends {= name =} ? "{= name =}" :
+  "{= name =}": typeof prisma.{= prismaIdentifier =},
   {=/ entities =}
-  never
-
-type EntityMap<Entities extends WaspEntity[]> = {
-  [EntityName in WaspNameFor<Entities[number]>]: PrismaDelegateFor<EntityName>
 }
