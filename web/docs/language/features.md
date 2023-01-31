@@ -844,8 +844,8 @@ Entity which associates a user with some external authentication provider. We cu
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
-* `google`: Provides support for login via Google accounts. See [here](#google) for more.
-* `gitHub`: Provides support for login via GitHub accounts. See [here](#github) for more.
+* `google`: Provides support for login via Google accounts. See [here](#social-login-providers-oauth-20) for more.
+* `gitHub`: Provides support for login via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
