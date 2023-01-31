@@ -235,6 +235,7 @@ library
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.ServerGenerator
+    Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
@@ -249,6 +250,7 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.WebAppGenerator
+    Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalAuthG

@@ -22,9 +22,9 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getServerJsImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -127,4 +127,4 @@ operationTmplData operation =
       "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
     ]
   where
-    (importIdentifier, importStmt) = getServerJsImport [reldirP|../|] (AS.Operation.getFn operation)
+    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier [reldirP|../|] (AS.Operation.getFn operation)

@@ -18,11 +18,11 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getClientJsImportWithAlias)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
+import Wasp.Generator.WebAppGenerator.JsImport (getJsImportStmtAndIdentifierWithAlias)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -162,11 +162,11 @@ createPageTemplateData page =
     { _importStmt = importStmt
     }
   where
+    importStmt :: String
+    (importStmt, _) = getJsImportStmtAndIdentifierWithAlias [reldirP|./|] pageComponent $ Just importAlias
+
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
 
     importAlias :: String
     importAlias = fst page
-
-    importStmt :: String
-    (_, importStmt) = getClientJsImportWithAlias [reldirP|./|] pageComponent $ Just importAlias
