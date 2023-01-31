@@ -13,7 +13,7 @@ import Wasp.JsImport
 
 -- | Generates JS import statement based on generated external code dir (web)
 getJsImportStmtAndIdentifier :: RelDirToExternalCodeDir -> EI.ExtImport -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier relPathToRoot extImport = getJsImportStmtAndIdentifierWithAlias relPathToRoot extImport Nothing
+getJsImportStmtAndIdentifier relDirToExternalCodeDir extImport = getJsImportStmtAndIdentifierWithAlias relDirToExternalCodeDir extImport Nothing
 
 getJsImportStmtAndIdentifierWithAlias ::
   RelDirToExternalCodeDir ->

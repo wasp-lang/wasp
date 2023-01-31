@@ -44,7 +44,7 @@ data JsImportName
 type JsImportIdentifier = String
 
 -- | Represents the left side of the import statement e.g. { Name } or { Name as Alias } or NameForDefault
-type JsImportWhat = String
+type JsImportClause = String
 
 type JsImportStatement = String
 
@@ -69,16 +69,16 @@ getJsImportStmtAndIdentifier importPath importName maybeImportAlias =
     -- First part of import statement based on type of import and alias
     -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
     -- e.g. for import Name from "file.js" it returns ("Name", "Name")
-    jsImportIdentifierAndWhat :: (JsImportIdentifier, JsImportWhat)
+    jsImportIdentifierAndWhat :: (JsImportIdentifier, JsImportClause)
     jsImportIdentifierAndWhat = case importName of
       JsImportModule defaultImport -> getForDefault defaultImport maybeImportAlias
       JsImportField namedImport -> getForNamed namedImport maybeImportAlias
       where
-        getForDefault :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportWhat)
+        getForDefault :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
         getForDefault identifier Nothing = (identifier, identifier)
         getForDefault _ (Just importAlias) = (importAlias, importAlias)
 
-        getForNamed :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportWhat)
+        getForNamed :: JsImportIdentifier -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
         getForNamed identifier Nothing = (identifier, "{ " ++ identifier ++ " }")
         getForNamed identifier (Just importAlias) = (importAlias, "{ " ++ resolvedIdentifier ++ " }")
           where

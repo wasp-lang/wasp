@@ -69,7 +69,7 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
       relPosixPathFromOperationsRoutesDirToSrcDir
         </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
-    operationEsImportPath =
+    operationESModulesImportPath =
       fromJust $
         SP.parseRelFileP $
           C.toESModulesImportPath $
@@ -77,7 +77,7 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
 
     operationName = AS.Operation.getName operation
 
-    (operationImportIdentifier, operationImportStmt) = getJsImportIdentiiferAndStmtFromAnyPath operationEsImportPath $ JsImportModule operationName
+    (operationImportIdentifier, operationImportStmt) = getJsImportIdentiiferAndStmtFromAnyPath operationESModulesImportPath $ JsImportModule operationName
 
 data OperationsRoutesDir
 

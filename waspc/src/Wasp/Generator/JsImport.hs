@@ -25,11 +25,11 @@ mkJsImportStmtAndIdentifierGetterFromExtSrcDir ::
     Maybe JsImportAlias ->
     (JsImportStatement, JsImportIdentifier)
   )
-mkJsImportStmtAndIdentifierGetterFromExtSrcDir rootDir relPathToRoot extImport importAlias = getJsImportStmtAndIdentifier importPath importName importAlias
+mkJsImportStmtAndIdentifierGetterFromExtSrcDir rootDir relDirToExternalCodeDir extImport importAlias = getJsImportStmtAndIdentifier importPath importName importAlias
   where
     userDefinedPath = SP.castRel $ EI.path extImport
     importName = extImportNameToJsImportName $ EI.name extImport
-    importPath = SP.castRel $ relPathToRoot </> rootDir </> userDefinedPath
+    importPath = SP.castRel $ relDirToExternalCodeDir </> rootDir </> userDefinedPath
 
 extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
