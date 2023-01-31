@@ -43,6 +43,7 @@ data JsImportName
 
 type JsImportIdentifier = String
 
+-- | Represents the left side of the import statement e.g. { Name } or { Name as Alias } or NameForDefault
 type JsImportWhat = String
 
 type JsImportStatement = String
@@ -54,24 +55,22 @@ getJsImportIdentiiferAndStmtFromAnyPath :: JsImportPath -> JsImportName -> (JsIm
 getJsImportIdentiiferAndStmtFromAnyPath importPath importName = getJsImportStmtAndIdentifier importPath importName Nothing
 
 getJsImportStmtAndIdentifier :: JsImportPath -> JsImportName -> Maybe JsImportAlias -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier importPath importName importAlias =
+getJsImportStmtAndIdentifier importPath importName maybeImportAlias =
   (importStatement, importIdentifier)
   where
-    (importIdentifier, importWhat) = getFirstPartOfJsImport importName importAlias
-    importStatement = getImportStatement importWhat importPath
+    (importIdentifier, importWhat) = jsImportIdentifierAndWhat
 
-    getImportStatement :: JsImportWhat -> JsImportPath -> JsImportStatement
-    getImportStatement importWhat importPath =
-      "import " ++ importWhat ++ " from '" ++ normalizedPath ++ "'"
+    importStatement :: JsImportStatement
+    importStatement = "import " ++ importWhat ++ " from '" ++ normalizedPath ++ "'"
       where
         filePath = SP.fromRelFileP importPath
         normalizedPath = if ".." `isPrefixOf` filePath then filePath else "./" ++ filePath
 
-    -- Returns first part of import statement based on type of import and alias
+    -- First part of import statement based on type of import and alias
     -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
     -- e.g. for import Name from "file.js" it returns ("Name", "Name")
-    getFirstPartOfJsImport :: JsImportName -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportWhat)
-    getFirstPartOfJsImport importName maybeImportAlias = case importName of
+    jsImportIdentifierAndWhat :: (JsImportIdentifier, JsImportWhat)
+    jsImportIdentifierAndWhat = case importName of
       JsImportModule defaultImport -> getForDefault defaultImport maybeImportAlias
       JsImportField namedImport -> getForNamed namedImport maybeImportAlias
       where
