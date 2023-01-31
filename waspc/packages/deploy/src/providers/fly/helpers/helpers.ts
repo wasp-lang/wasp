@@ -3,38 +3,51 @@ import { exit } from 'process';
 import { $, cd, ProcessOutput, Shell } from 'zx';
 import fs from 'fs';
 import path from 'node:path';
+import { Mutex } from 'async-mutex';
 
 export function isYes(str: string): boolean {
 	return str.trim().toLowerCase().startsWith('y');
 }
 
 export function ensureWaspDirLooksRight(thisCommand: Command): void {
-	if (!fs.existsSync(path.join(thisCommand.opts().waspDir, '.wasproot'))) {
-		waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.');
-		waspSays('Please double check your path.');
-		exit(1);
+	const dirContainsWasproot = fs.existsSync(path.join(thisCommand.opts().waspProjectDir, '.wasproot'));
+	if (dirContainsWasproot) {
+		return;
 	}
+
+	waspSays('The supplied Wasp directory does not appear to be a valid Wasp project.');
+	waspSays('Please double check your path.');
+	exit(1);
 }
 
-export function buildDirExists(waspDir: string): boolean {
-	return fs.existsSync(path.join(waspDir, '.wasp', 'build'));
+export function buildDirExists(waspProjectDir: string): boolean {
+	const waspBuildDir = getWaspBuildDir(waspProjectDir);
+	return fs.existsSync(waspBuildDir);
 }
 
-export function cdToServerBuildDir(waspDir: string): void {
-	cd(path.join(waspDir, '.wasp', 'build'));
+export function cdToServerBuildDir(waspProjectDir: string): void {
+	const waspBuildDir = getWaspBuildDir(waspProjectDir);
+	cd(waspBuildDir);
 }
 
-export function cdToClientBuildDir(waspDir: string): void {
-	cd(path.join(waspDir, '.wasp', 'build', 'web-app'));
+export function cdToClientBuildDir(waspProjectDir: string): void {
+	const waspBuildDir = getWaspBuildDir(waspProjectDir);
+	cd(path.join(waspBuildDir, 'web-app'));
+}
+
+function getWaspBuildDir(waspProjectDir: string) {
+	return path.join(waspProjectDir, '.wasp', 'build');
 }
 
 export function ensureDirsInCmdAreAbsolute(thisCommand: Command): void {
-	if (thisCommand.opts().waspDir && !path.isAbsolute(thisCommand.opts().waspDir)) {
+	const waspProjectDirPath = thisCommand.opts().waspProjectDir;
+	if (waspProjectDirPath && !path.isAbsolute(waspProjectDirPath)) {
 		waspSays('The Wasp dir path must be absolute.');
 		exit(1);
 	}
 
-	if (thisCommand.opts().tomlDir && !path.isAbsolute(thisCommand.opts().tomlDir)) {
+	const flyTomlDirPath = thisCommand.opts().flyTomlDir;
+	if (flyTomlDirPath && !path.isAbsolute(flyTomlDirPath)) {
 		waspSays('The toml dir path must be absolute.');
 		exit(1);
 	}
@@ -63,7 +76,6 @@ export function waspSays(str: string): void {
 export function displayWaspRocketImage(): void {
 	// Escaping backslashes makes it look weird here, but it works in console.
 	const asciiArt = `
-  Credits: Modified version of ascii art bee by sjw, rocket by unknown.
 
                     __
                    // \\
@@ -85,10 +97,17 @@ function trimUsage(usage: string): string {
 	return usage.split(/[\r\n]+/)[0].replace('Usage: ', '').replace(' [options]', '');
 }
 
+const mutex = new Mutex();
+
 export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Promise<ProcessOutput> {
-	const verboseSetting = $.verbose;
-	$.verbose = false;
-	const proc = await cmd($);
-	$.verbose = verboseSetting;
-	return proc;
+	const release = await mutex.acquire();
+	try {
+		const verboseSetting = $.verbose;
+		$.verbose = false;
+		const proc = await cmd($);
+		$.verbose = verboseSetting;
+		return proc;
+	} finally {
+		release();
+	}
 }

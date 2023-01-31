@@ -9,7 +9,7 @@ export interface TomlFilePaths {
 }
 
 export function getTomlFilePaths(options: GlobalOptions): TomlFilePaths {
-	const baseDir = options.tomlDir || options.waspDir;
+	const baseDir = options.flyTomlDir || options.waspProjectDir;
 	return {
 		serverTomlPath: path.join(baseDir, 'fly-server.toml'),
 		clientTomlPath: path.join(baseDir, 'fly-client.toml'),

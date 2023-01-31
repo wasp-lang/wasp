@@ -5,7 +5,7 @@ export type DeploymentInfo = Readonly<{
 	baseName: string;
 	region?: string;
 	options: GlobalOptions;
-	tomlFiles: TomlFilePaths;
+	tomlFilePaths: TomlFilePaths;
 	clientName: string;
 	clientUrl: string;
 	serverName: string;
@@ -17,13 +17,13 @@ export function createDeploymentInfo(
 	baseName: string,
 	region: string | undefined,
 	options: GlobalOptions,
-	tomlFiles: TomlFilePaths,
+	tomlFilePaths: TomlFilePaths,
 ): DeploymentInfo {
 	return {
 		baseName,
 		region,
 		options,
-		tomlFiles,
+		tomlFilePaths,
 		clientName: `${baseName}-client`,
 		clientUrl: `https://${baseName}-client.fly.dev`,
 		serverName: `${baseName}-server`,

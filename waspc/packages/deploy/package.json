@@ -10,6 +10,7 @@
     "build": "npx tsc"
   },
   "dependencies": {
+    "async-mutex": "^0.4.0",
     "commander": "^9.4.1",
     "toml": "^3.0.0",
     "zx": "^7.1.1"

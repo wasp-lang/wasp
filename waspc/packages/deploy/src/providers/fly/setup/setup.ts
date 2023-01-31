@@ -1,6 +1,14 @@
 import { $, cd } from 'zx';
 import crypto from 'crypto';
-import * as tomlHelpers from '../helpers/tomlFileHelpers.js';
+import {
+	clientTomlExistsInProject,
+	copyLocalClientTomlToProject,
+	copyLocalServerTomlToProject,
+	deleteLocalToml,
+	getTomlFilePaths,
+	replaceLineInLocalToml,
+	serverTomlExistsInProject,
+} from '../helpers/tomlFileHelpers.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { GlobalOptions } from '../GlobalOptions.js';
 import { cdToClientBuildDir, cdToServerBuildDir, makeIdempotent, getCommandHelp, waspSays } from '../helpers/helpers.js';
@@ -11,22 +19,22 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
 
 	const buildWasp = makeIdempotent(async () => {
 		waspSays('Building your Wasp app...');
-		cd(options.waspDir);
+		cd(options.waspProjectDir);
 		await $`${options.waspExe} build`;
 	});
 
-	const tomlFiles = tomlHelpers.getTomlFilePaths(options);
-	const deploymentInfo = createDeploymentInfo(baseName, region, options, tomlFiles);
+	const tomlFilePaths = getTomlFilePaths(options);
+	const deploymentInfo = createDeploymentInfo(baseName, region, options, tomlFilePaths);
 
-	if (tomlHelpers.serverTomlExistsInProject(tomlFiles)) {
-		waspSays(`${tomlFiles.serverTomlPath} exists. Skipping server setup.`);
+	if (serverTomlExistsInProject(tomlFilePaths)) {
+		waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
 	} else {
 		await buildWasp();
 		await setUpServer(deploymentInfo);
 	}
 
-	if (tomlHelpers.clientTomlExistsInProject(tomlFiles)) {
-		waspSays(`${tomlFiles.clientTomlPath} exists. Skipping client setup.`);
+	if (clientTomlExistsInProject(tomlFilePaths)) {
+		waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
 	} else {
 		await buildWasp();
 		await setupClient(deploymentInfo);
@@ -38,13 +46,13 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
 async function setUpServer(deploymentInfo: DeploymentInfo) {
 	waspSays(`Setting up server app with name ${deploymentInfo.serverName}`);
 
-	cdToServerBuildDir(deploymentInfo.options.waspDir);
-	tomlHelpers.deleteLocalToml();
+	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
+	deleteLocalToml();
 
 	// This creates the fly.toml file, but does not attempt to deploy.
 	await $`flyctl launch --no-deploy --name ${deploymentInfo.serverName} --region ${deploymentInfo.region}`;
 
-	tomlHelpers.copyLocalServerTomlToProject(deploymentInfo.tomlFiles);
+	copyLocalServerTomlToProject(deploymentInfo.tomlFilePaths);
 
 	const randomString = crypto.randomBytes(32).toString('hex');
 	await $`flyctl secrets set JWT_SECRET=${randomString} PORT=8080 WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`;
@@ -56,16 +64,16 @@ async function setUpServer(deploymentInfo: DeploymentInfo) {
 async function setupClient(deploymentInfo: DeploymentInfo) {
 	waspSays(`Setting up client app with name ${deploymentInfo.clientName}`);
 
-	cdToClientBuildDir(deploymentInfo.options.waspDir);
-	tomlHelpers.deleteLocalToml();
+	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
+	deleteLocalToml();
 
 	// This creates the fly.toml file, but does not attempt to deploy.
 	await $`flyctl launch --no-deploy --name ${deploymentInfo.clientName} --region ${deploymentInfo.region}`;
 
 	// goStatic listens on port 8043 by default, but the default fly.toml assumes port 8080.
-	tomlHelpers.replaceLineInLocalToml(/internal_port = 8080/g, 'internal_port = 8043');
+	replaceLineInLocalToml(/internal_port = 8080/g, 'internal_port = 8043');
 
-	tomlHelpers.copyLocalClientTomlToProject(deploymentInfo.tomlFiles);
+	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
 
 	waspSays('Client setup complete!');
 }

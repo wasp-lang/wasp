@@ -191,7 +191,7 @@ deploy waspExe waspDir cmdArgs = do
   let nodeModulesDirExists = doesDirectoryExist . toFilePath $ deployDir </> [reldir|node_modules|]
   unlessM nodeModulesDirExists $
     runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "npm" ["install"] J.Server
-  let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-exe", waspExe, "--wasp-dir", toFilePath waspDir]
+  let deployScriptArgs = ["dist/index.js"] ++ cmdArgs ++ ["--wasp-exe", waspExe, "--wasp-project-dir", toFilePath waspDir]
   -- NOTE: Here we are lying by saying we are running in the J.Server context.
   -- TODO: Consider adding a new context for these types of things, like J.Other or J.External.
   runCommandAndPrintOutput $ runNodeCommandAsJob deployDir "node" deployScriptArgs J.Server

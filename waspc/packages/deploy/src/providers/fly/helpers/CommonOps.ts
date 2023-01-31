@@ -1,9 +1,17 @@
 import { cdToClientBuildDir, cdToServerBuildDir } from './helpers.js';
-import * as tomlHelpers from './tomlFileHelpers.js';
+import {
+	clientTomlExistsInProject,
+	copyLocalClientTomlToProject,
+	copyLocalServerTomlToProject,
+	copyProjectClientTomlLocally,
+	copyProjectServerTomlLocally,
+	serverTomlExistsInProject,
+	TomlFilePaths,
+} from './tomlFileHelpers.js';
 
 export type CommonOps = Readonly<{
-	waspDir: string;
-	paths: tomlHelpers.TomlFilePaths;
+	waspProjectDir: string;
+	paths: TomlFilePaths;
 	cdToBuildDir: () => void;
 	tomlExistsInProject: () => boolean;
 	copyLocalTomlToProject: () => void;
@@ -11,30 +19,30 @@ export type CommonOps = Readonly<{
 }>;
 
 export function createClientCommonOps(
-	waspDir: string,
-	paths: tomlHelpers.TomlFilePaths,
+	waspProjectDir: string,
+	paths: TomlFilePaths,
 ): CommonOps {
 	return {
-		waspDir,
+		waspProjectDir,
 		paths,
-		cdToBuildDir: () => cdToClientBuildDir(waspDir),
-		tomlExistsInProject: () => tomlHelpers.clientTomlExistsInProject(paths),
-		copyLocalTomlToProject: () => tomlHelpers.copyLocalClientTomlToProject(paths),
-		copyProjectTomlLocally: () => tomlHelpers.copyProjectClientTomlLocally(paths),
+		cdToBuildDir: () => cdToClientBuildDir(waspProjectDir),
+		tomlExistsInProject: () => clientTomlExistsInProject(paths),
+		copyLocalTomlToProject: () => copyLocalClientTomlToProject(paths),
+		copyProjectTomlLocally: () => copyProjectClientTomlLocally(paths),
 	};
 }
 
 export function createServerCommonOps(
-	waspDir: string,
-	paths: tomlHelpers.TomlFilePaths,
+	waspProjectDir: string,
+	paths: TomlFilePaths,
 ): CommonOps {
 	return {
-		waspDir,
+		waspProjectDir,
 		paths,
-		cdToBuildDir: () => cdToServerBuildDir(waspDir),
-		tomlExistsInProject: () => tomlHelpers.serverTomlExistsInProject(paths),
-		copyLocalTomlToProject: () => tomlHelpers.copyLocalServerTomlToProject(paths),
-		copyProjectTomlLocally: () => tomlHelpers.copyProjectServerTomlLocally(paths),
+		cdToBuildDir: () => cdToServerBuildDir(waspProjectDir),
+		tomlExistsInProject: () => serverTomlExistsInProject(paths),
+		copyLocalTomlToProject: () => copyLocalServerTomlToProject(paths),
+		copyProjectTomlLocally: () => copyProjectServerTomlLocally(paths),
 	};
 }
 
@@ -43,10 +51,10 @@ export enum ContextOption {
 	Server = 'server',
 }
 
-export function getCommonOps(context: ContextOption, waspDir: string, paths: tomlHelpers.TomlFilePaths): CommonOps {
+export function getCommonOps(context: ContextOption, waspProjectDir: string, paths: TomlFilePaths): CommonOps {
 	const commonOps: Record<ContextOption, CommonOps> = {
-		[ContextOption.Client]: createClientCommonOps(waspDir, paths),
-		[ContextOption.Server]: createServerCommonOps(waspDir, paths),
+		[ContextOption.Client]: createClientCommonOps(waspProjectDir, paths),
+		[ContextOption.Server]: createServerCommonOps(waspProjectDir, paths),
 	};
 	return commonOps[context];
 }
