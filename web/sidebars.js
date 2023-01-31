@@ -40,12 +40,12 @@ module.exports = {
         },
       ]
     },
+    'examples',
     { 
       type: 'category',
       label: 'Guides',
       collapsed: false,
       items: [
-        'examples',
         {
           type: 'category',
           label: 'Auth Providers',
