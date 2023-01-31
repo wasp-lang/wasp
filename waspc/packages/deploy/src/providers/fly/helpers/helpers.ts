@@ -40,13 +40,13 @@ function getWaspBuildDir(waspProjectDir: string) {
 }
 
 export function ensureDirsInCmdAreAbsolute(thisCommand: Command): void {
-	const waspProjectDirPath = thisCommand.opts().waspProjectDir;
+	const waspProjectDirPath: string | undefined = thisCommand.opts().waspProjectDir;
 	if (waspProjectDirPath && !path.isAbsolute(waspProjectDirPath)) {
 		waspSays('The Wasp dir path must be absolute.');
 		exit(1);
 	}
 
-	const flyTomlDirPath = thisCommand.opts().flyTomlDir;
+	const flyTomlDirPath: string | undefined = thisCommand.opts().flyTomlDir;
 	if (flyTomlDirPath && !path.isAbsolute(flyTomlDirPath)) {
 		waspSays('The toml dir path must be absolute.');
 		exit(1);
