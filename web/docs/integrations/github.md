@@ -1,10 +1,10 @@
 ---
-title: GitHub Integrations
+title: GitHub
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# GitHub Integrations
+# GitHub
 
 To implement GitHub Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
 ```c title="main.wasp"
@@ -45,7 +45,7 @@ entity SocialLogin {=psl
 psl=}
 ```
 
-For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20---google-github) section of the docs.
+For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20) section of the docs.
 
 
 You'll also need to add these environment variables to your `.env.server` file at the root of your project:
@@ -59,7 +59,7 @@ We will cover how to get these values in the next section.
 
 ## GitHub Auth
 
-To use GitHub as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20---google-github)), you'll first need to create a GitHub OAuth App and provide Wasp with your client key and secret. Here is how to do so:
+To use GitHub as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20)), you'll first need to create a GitHub OAuth App and provide Wasp with your client key and secret. Here is how to do so:
 
 1. Log into your GitHub account and navigate to: https://github.com/settings/developers
 2. Select "New OAuth App"

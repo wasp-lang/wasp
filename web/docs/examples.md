@@ -15,7 +15,7 @@ The full list of examples can be found [here](https://github.com/wasp-lang/wasp/
  - in-browser dev environment: [GitPod](https://gitpod.io/#https://github.com/wasp-lang/gitpod-template)
 
 ## Waspello (Trello Clone)
- - **Features**: Auth ([Google](language/features#social-login-providers-oauth-20---google-github), [username/password](language/features#authentication--authorization)), [Optimistic Updates](language/features#the-useaction-hook), [Tailwind CSS integration](integrations/css-frameworks)
+ - **Features**: Auth ([Google](language/features#social-login-providers-oauth-20), [username/password](language/features#authentication--authorization)), [Optimistic Updates](language/features#the-useaction-hook), [Tailwind CSS integration](integrations/css-frameworks)
  - Source code: [GitHub](https://github.com/wasp-lang/wasp/tree/main/examples/waspello)
  - Hosted at [https://waspello-demo.netlify.app](https://waspello-demo.netlify.app/login)
  <p align='center'>

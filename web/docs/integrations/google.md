@@ -1,10 +1,10 @@
 ---
-title: Google Integrations
+title: Google
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# Google Integrations
+# Google
 
 To implement Google Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
 ```c title="main.wasp"
@@ -45,7 +45,7 @@ entity SocialLogin {=psl
 psl=}
 ```
 
-For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20---google-github) section of the docs.
+For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20) section of the docs.
 
 
 You'll also need to add these environment variables to your `.env.server` file at the root of your project:
@@ -58,7 +58,7 @@ We will cover how to get these values in the next section.
 
 ## Google Auth
 
-To use Google as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20---google-github)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
+To use Google as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
