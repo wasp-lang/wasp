@@ -39,7 +39,7 @@ type Operation<Entities extends _Entity[], Result> = (
 ) => Promise<Result>
 
 type EntityMap<Entities extends _Entity[]> = {
-  [EntityName in Entities[number]["_waspEntityName"]]: PrismaDelegate[EntityName]
+  [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
 }
 
 type PrismaDelegate = {
