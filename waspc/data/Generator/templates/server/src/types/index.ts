@@ -19,8 +19,8 @@ export type AuthenticatedAction<Entities extends _Entity[] = [], Result = unknow
 type AuthenticatedOperation<Entities extends _Entity[], Result> = (
   args: any,
   context: {
-      user: {= userViewName =},
-      entities: EntityMap<Entities>,
+    user: {= userViewName =},
+    entities: Expand<EntityMap<Entities>>,
   },
 ) => Promise<Result>
 
@@ -34,7 +34,7 @@ type {= userViewName =} = Omit<{= userEntityName =}, 'password'>
 type Operation<Entities extends _Entity[], Result> = (
   args: any,
   context: {
-      entities: EntityMap<Entities>,
+    entities: Expand<EntityMap<Entities>>,
   },
 ) => Promise<Result>
 
@@ -47,3 +47,10 @@ type PrismaDelegate = {
   "{= name =}": typeof prisma.{= prismaIdentifier =},
   {=/ entities =}
 }
+
+// This is a helper type used exclusively for DX purposes. It's a No-op for the
+// compiler, but expands the type's representatoin in IDEs (i.e., inlines all
+// type constructors) to make it more readable for the user.
+//
+// Check this SO answer for details: https://stackoverflow.com/a/57683652
+type Expand<T extends object> = T extends infer O ? { [K in keyof O]: O[K] } : never;
