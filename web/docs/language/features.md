@@ -1136,8 +1136,8 @@ import AuthError from '@wasp/core/AuthError.js'
 Wasp allows you to easily add social login providers to your app. 
 
 The following is a list of links to guides that will help you get started with the currently supported providers:
-- [Google](/docs/integrations/google)
 - [GitHub](/docs/integrations/github)
+- [Google](/docs/integrations/google)
 
 When using Social Login Providers, Wasp gives you the following options:
 - Default settings to get you started quickly
@@ -1260,12 +1260,14 @@ If you need more customization than what the buttons provide, you can create you
 
 When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`.
 
-If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity indicating the account setup is incomplete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate
-  - e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage`.
+If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your `User` entity indicating the account setup is incomplete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate
+  - e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
 Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their provider account. Below is an example of how to do this by using:
   - the `getUserFieldsFn` function to configure the user's `username` or `displayName` from their provider account
-  - the `configFn` function to customize the configuration of the Provider's settings
+
+We also show you how to customize the configuration of the Provider's settings using:  
+  - the `configFn` function
 
 ```c title=main.wasp {9,10,13,14,26}
 app Example {
