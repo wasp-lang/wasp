@@ -7,7 +7,8 @@ module Wasp.JsImport
     JsImportPath,
     JsImportIdentifier,
     JsImportStatement,
-    getJsImportIdentiiferAndStmtFromAnyPath,
+    getJsImport,
+    applyJsImportAlias,
     getJsImportStmtAndIdentifier,
   )
 where
@@ -21,10 +22,10 @@ import qualified StrongPath as SP
 --   in generated code. It doesn't fully support all JS import types (like multiple imports)
 --   but this is enough for our current use case.
 data JsImport = JsImport
-  { -- | What is being imported.
-    _name :: JsImportName,
-    -- | Path from which we are importing.
+  { -- | Path from which we are importing.
     _path :: JsImportPath,
+    -- | What is being imported.
+    _name :: JsImportName,
     -- | Alias for the imported name
     _importAlias :: Maybe JsImportAlias
   }
@@ -48,20 +49,20 @@ type JsImportClause = String
 
 type JsImportStatement = String
 
--- | Generates JS import statement based on any path
---   and without using an import alias since that's the
---   most common use case.
-getJsImportIdentiiferAndStmtFromAnyPath :: JsImportPath -> JsImportName -> (JsImportStatement, JsImportIdentifier)
-getJsImportIdentiiferAndStmtFromAnyPath importPath importName = getJsImportStmtAndIdentifier importPath importName Nothing
+getJsImport :: JsImportPath -> JsImportName -> JsImport
+getJsImport importPath importName = JsImport importPath importName Nothing
 
-getJsImportStmtAndIdentifier :: JsImportPath -> JsImportName -> Maybe JsImportAlias -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier importPath importName maybeImportAlias =
+applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
+applyJsImportAlias importAlias (JsImport importPath importName _) = JsImport importPath importName importAlias
+
+getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
+getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
   (importStatement, importIdentifier)
   where
-    (importIdentifier, importWhat) = jsImportIdentifierAndWhat
+    (importIdentifier, importClause) = jsImportIdentifierAndClause
 
     importStatement :: JsImportStatement
-    importStatement = "import " ++ importWhat ++ " from '" ++ normalizedPath ++ "'"
+    importStatement = "import " ++ importClause ++ " from '" ++ normalizedPath ++ "'"
       where
         filePath = SP.fromRelFileP importPath
         normalizedPath = if ".." `isPrefixOf` filePath then filePath else "./" ++ filePath
@@ -69,8 +70,8 @@ getJsImportStmtAndIdentifier importPath importName maybeImportAlias =
     -- First part of import statement based on type of import and alias
     -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
     -- e.g. for import Name from "file.js" it returns ("Name", "Name")
-    jsImportIdentifierAndWhat :: (JsImportIdentifier, JsImportClause)
-    jsImportIdentifierAndWhat = case importName of
+    jsImportIdentifierAndClause :: (JsImportIdentifier, JsImportClause)
+    jsImportIdentifierAndClause = case importName of
       JsImportModule defaultImport -> getForDefault defaultImport maybeImportAlias
       JsImportField namedImport -> getForNamed namedImport maybeImportAlias
       where
