@@ -454,6 +454,7 @@ test-suite cli-test
     DbMigrateTest
     TerminalTest
     Paths_waspc
+    Wasp.Cli.Command.Telemetry.ProjectTest
 
 test-suite e2e-test
   import: common-all, common-exe
