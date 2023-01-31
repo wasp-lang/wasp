@@ -7,7 +7,7 @@ where
 
 import Language.Haskell.TH
 import Wasp.Analyzer.TypeDefinitions (EnumType (..), IsEnumType (..))
-import qualified Wasp.Analyzer.TypeDefinitions.TH.Common as THC 
+import qualified Wasp.Analyzer.TypeDefinitions.TH.Common as THC
 
 -- | @makeEnumType ''Type@ writes an @IsEnumType@ instance for @Type@. A type
 -- error is raised if @Type@ does not fit the criteria described below.

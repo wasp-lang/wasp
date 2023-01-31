@@ -105,6 +105,6 @@ spec_TypeChecker = do
         let expected =
               Right $
                 TypedAST
-                  [ wctx1 $ Decl "Bedrooms" (wctx2 $ List [] (ListType StringType)) (DeclType "rooms")
+                  [ wctx1 $ Decl "Bedrooms" (wctx2 $ List [] EmptyListType) (DeclType "rooms")
                   ]
         actual `shouldBe` expected

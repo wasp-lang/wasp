@@ -67,6 +67,45 @@ spec_Internal = do
         wctx6 = WithCtx ctx6
         wctx7 = WithCtx ctx7
 
+    describe "check" $ do
+      describe "Correctly type checks an AST" $ do
+        it "When a declaration is used before its definition" $ do
+          let typeDefs =
+                TD.TypeDefinitions
+                  { TD.declTypes =
+                      H.fromList
+                        [ ("person", TD.DeclType "person" (DictType $ H.singleton "favoritePet" (DictRequired $ DeclType "pet")) undefined),
+                          ("pet", TD.DeclType "pet" (DictType H.empty) undefined)
+                        ],
+                    TD.enumTypes = H.empty
+                  }
+          let ast =
+                P.AST
+                  [ wctx1 $ P.Decl "person" "John" $ wctx2 $ P.Dict [("favoritePet", wctx3 $ P.Var "Riu")],
+                    wctx4 $ P.Decl "pet" "Riu" $ wctx5 $ P.Dict []
+                  ]
+          let actual = run typeDefs $ check ast
+          let expected =
+                Right $
+                  TypedAST
+                    [ wctx1 $
+                        Decl
+                          "John"
+                          ( wctx2 $
+                              Dict
+                                [("favoritePet", wctx3 $ Var "Riu" (DeclType "pet"))]
+                                (DictType $ H.singleton "favoritePet" (DictRequired $ DeclType "pet"))
+                          )
+                          (DeclType "person"),
+                      wctx4 $
+                        Decl
+                          "Riu"
+                          (wctx5 $ Dict [] (DictType H.empty))
+                          (DeclType "pet")
+                    ]
+
+          actual `shouldBe` expected
+
     describe "unify" $ do
       it "Correctly unifies two expressions of the same type" $ do
         property $ \(a, b) ->
@@ -240,28 +279,30 @@ spec_Internal = do
                     StringType
                     ReasonUncoercable
         actual `shouldBe` Left expectedError
-      it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
-        let ast = wctx1 $ P.Decl "maybeString" "App" $ wctx2 $ P.Dict [("val", wctx3 $ P.StringLiteral "Wasp")]
-        let typeDefs =
-              TD.TypeDefinitions
-                { TD.declTypes =
-                    H.singleton "maybeString" $
-                      TD.DeclType
-                        "maybeString"
-                        (DictType $ H.singleton "val" (DictOptional StringType))
-                        undefined,
-                  TD.enumTypes = H.empty
-                }
-        let actual = run typeDefs $ checkStmt ast
-        let expected =
-              Right $
-                wctx1 $
-                  Decl
-                    "App"
-                    ( wctx2 $
-                        Dict
-                          [("val", wctx3 $ StringLiteral "Wasp")]
+
+      describe "A declaration statement with a body of type T satisfies a declaration type definition with a body of type S, when T is subtype of S." $ do
+        it "When S is a dict with an optional field, and T is a dict with a required field" $ do
+          let ast = wctx1 $ P.Decl "typeWithOptional" "Foo" $ wctx2 $ P.Dict [("val", wctx3 $ P.StringLiteral "Bar")]
+          let typeDefs =
+                TD.TypeDefinitions
+                  { TD.declTypes =
+                      H.singleton "typeWithOptional" $
+                        TD.DeclType
+                          "typeWithOptional"
                           (DictType $ H.singleton "val" (DictOptional StringType))
-                    )
-                    (DeclType "maybeString")
-        actual `shouldBe` expected
+                          undefined,
+                    TD.enumTypes = H.empty
+                  }
+          let actual = run typeDefs $ checkStmt ast
+          let expected =
+                Right $
+                  wctx1 $
+                    Decl
+                      "Foo"
+                      ( wctx2 $
+                          Dict
+                            [("val", wctx3 $ StringLiteral "Bar")]
+                            (DictType $ H.singleton "val" (DictRequired StringType))
+                      )
+                      (DeclType "typeWithOptional")
+          actual `shouldBe` expected
