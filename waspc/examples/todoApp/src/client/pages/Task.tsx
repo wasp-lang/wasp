@@ -10,7 +10,7 @@ import { Task } from '@wasp/entities'
 
 const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
-  const { data: task, isFetching, error } = useQuery<unknown, Task, Task | Task[]>(getTask, { id: taskId })
+  const { data: task, isFetching, error } = useQuery<unknown, Task, Task>(getTask, { id: taskId })
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [

@@ -105,16 +105,20 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClient genProjectRootDirAbs = do
   chan <- newChan
-  (_, dbExitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan
-      `concurrently` DbJobs.generatePrismaClientForServer genProjectRootDirAbs chan
-      `concurrently` DbJobs.generatePrismaClientForClient genProjectRootDirAbs chan
-  case dbExitCode of
-    ExitSuccess -> do
+  (_, serverExitCode) <-
+    concurrently (readJobMessagesAndPrintThemPrefixed chan) (DbJobs.generatePrismaClientForServer genProjectRootDirAbs chan)
+  clientExitCode <- DbJobs.generatePrismaClientForClient genProjectRootDirAbs chan
+  case (serverExitCode, clientExitCode) of
+    (ExitSuccess, ExitSuccess) -> do
       writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
       return $ Right ()
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
-
+    (ExitFailure code, ExitSuccess) -> return $ Left $ getGenearateErrorForServer code
+    (ExitSuccess, ExitFailure code) -> return $ Left $ getGenerateErrorForClient code
+    (ExitFailure serverCode, ExitFailure clientCode) -> 
+      return $ Left $ unlines [getGenearateErrorForServer serverCode, getGenerateErrorForClient clientCode]
+  where
+    getGenearateErrorForServer code = "Prisma client generation failed for server with exit code: " ++ show code
+    getGenerateErrorForClient code = "Prisma client generation failed for client with exit code: " ++ show code
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.
 -- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
