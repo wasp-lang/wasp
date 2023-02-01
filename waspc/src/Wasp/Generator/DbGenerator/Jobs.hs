@@ -112,9 +112,12 @@ generatePrismaClient projectDir dbSchemaFile =
     prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]
     schemaFile = projectDir </> dbSchemaFile
 
+absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
+absPrismaExecutableFp = SP.fromAbsFile . getPrismaExecutablePath
+
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
 -- This assumption is ok since it happens during compilation now.
-absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
-absPrismaExecutableFp projectDir =
-  SP.fromAbsFile $ projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]
+getPrismaExecutablePath :: Path' Abs (Dir ProjectRootDir) -> Path' Abs File'
+getPrismaExecutablePath projectDir =
+  projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]
