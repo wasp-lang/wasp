@@ -8,14 +8,14 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (fromAbsDir, fromAbsFile, (</>))
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.FileSystem
+import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
     getWaspCacheDir,
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
-import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
 import Wasp.Util.IO (deleteDirectoryIfExists, deleteFileIfExists)
 

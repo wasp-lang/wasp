@@ -7,7 +7,7 @@ where
 import StrongPath (Abs, Dir, Path', reldir, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
-import Wasp.Cli.Command.FileSystem
+import Wasp.Cli.FileSystem
   ( UserCacheDir,
     getUserCacheDir,
     getWaspCacheDir,

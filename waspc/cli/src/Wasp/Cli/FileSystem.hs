@@ -1,4 +1,4 @@
-module Wasp.Cli.Command.FileSystem
+module Wasp.Cli.FileSystem
   ( getUserCacheDir,
     getWaspCacheDir,
     getHomeDir,
