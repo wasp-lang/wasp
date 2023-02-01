@@ -7,7 +7,6 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  {=! TODO(matija): this shouldn't be hardcoded, generator should provide this path. =}
   output = "{= clientOutputDir =}"
 }
 
