@@ -95,7 +95,7 @@ printUsage =
         cmd "    version               Prints current version of CLI.",
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd "    completion            Prints help on bash completion.",
-        cmd "    uninstall             Removes this Wasp version from your system.",
+        cmd "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",

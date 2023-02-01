@@ -22,7 +22,7 @@ import Wasp.Util.IO (deleteDirectoryIfExists, deleteFileIfExists)
 -- | Removes Wasp from the system.
 uninstall :: Command ()
 uninstall = do
-  cliSendMessageC $ Msg.Info "Uninstalling Wasp ..."
+  cliSendMessageC $ Msg.Start "Uninstalling Wasp ..."
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Uninstalled Wasp"
 
