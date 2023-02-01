@@ -48,8 +48,9 @@ makeJsonWithEntityNameAndPrismaIdentifier name =
     ]
 
 -- | Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
--- converts it into a corresponding Prisma identifier (like `prisma.someTask`).
--- This is what Prisma implicitly does when translating `model` declarations to
--- client SDK identifiers. Useful when creating `context.entities` JS objects in Wasp templates.
+-- converts it into a corresponding Prisma identifier (e.g., `someTask` used in
+-- `prisma.someTask`).  This is what Prisma implicitly does when translating
+-- `model` declarations to client SDK identifiers. Useful when creating
+-- `context.entities` JS objects in Wasp templates.
 entityNameToPrismaIdentifier :: String -> String
 entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
