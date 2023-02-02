@@ -1,7 +1,5 @@
 module Generator.JsImportTest where
 
--- Test making JsImport from ExtImport and a relative path to external code dir
-
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import Wasp.AppSpec.ExtImport
