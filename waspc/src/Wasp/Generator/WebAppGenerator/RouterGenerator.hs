@@ -22,7 +22,7 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
-import Wasp.Generator.WebAppGenerator.JsImport (getJsImport)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
@@ -164,7 +164,7 @@ createPageTemplateData page =
     }
   where
     importStmt :: String
-    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ getJsImport [reldirP|./|] pageComponent
+    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport [reldirP|./|] pageComponent
 
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page

@@ -3,7 +3,8 @@ module Wasp.Generator.ServerGenerator.JsImport where
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.JsImport (RelDirToExternalCodeDir, mkJsImportGetterFromExtSrcDir)
+import Wasp.Generator.JsImport (RelDirToExternalCodeDir)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
 import Wasp.JsImport
   ( JsImport,
@@ -12,19 +13,16 @@ import Wasp.JsImport
   )
 import qualified Wasp.JsImport as JI
 
--- | Wrapper function to avoid needing to import getJsImportStmtAndIdentifier from Wasp.JsImport
---  in most cases.
 getJsImportStmtAndIdentifier ::
   RelDirToExternalCodeDir ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier relDirToExternalCodeDir = JI.getJsImportStmtAndIdentifier . getJsImport relDirToExternalCodeDir
+getJsImportStmtAndIdentifier relDirToExternalCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport relDirToExternalCodeDir
 
--- | Generates a JsImport from an ExtImport and relative to server ext code dir.
-getJsImport ::
+extImportToJsImport ::
   RelDirToExternalCodeDir ->
   EI.ExtImport ->
   JsImport
-getJsImport = mkJsImportGetterFromExtSrcDir serverExtDir
+extImportToJsImport = GJI.extImportToJsImport serverExtDir
   where
     serverExtDir = fromJust (SP.relDirToPosix . SP.castRel $ extServerCodeDirInServerSrcDir)

@@ -7,7 +7,7 @@ module Wasp.JsImport
     JsImportPath,
     JsImportIdentifier,
     JsImportStatement,
-    getJsImport,
+    makeJsImport,
     applyJsImportAlias,
     getJsImportStmtAndIdentifier,
   )
@@ -19,12 +19,13 @@ import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified StrongPath as SP
 
 -- | Represents a JS import data type that can be used to generate import statements
---   in generated code. It doesn't fully support all JS import types (like multiple imports)
+--   in generated code. It doesn't fully support all types of JS imports (multiple imports)
 --   but this is enough for our current use case.
 data JsImport = JsImport
   { -- | Path from which we are importing.
     _path :: JsImportPath,
-    -- | What is being imported.
+    -- | What is being imported. NOTE: We don't currenly support multiple names in one statement,
+    --   that's why it's "name" and not "names".
     _name :: JsImportName,
     -- | Alias for the imported name
     _importAlias :: Maybe JsImportAlias
@@ -44,16 +45,17 @@ data JsImportName
 
 type JsImportIdentifier = String
 
--- | Represents the left side of the import statement e.g. { Name } or { Name as Alias } or NameForDefault
+-- | Represents the left side of the import statement e.g. @{ Name }@ or @{ Name as Alias }@ or @NameForDefault@
 type JsImportClause = String
 
+-- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
-getJsImport :: JsImportPath -> JsImportName -> JsImport
-getJsImport importPath importName = JsImport importPath importName Nothing
+makeJsImport :: JsImportPath -> JsImportName -> JsImport
+makeJsImport importPath importName = JsImport importPath importName Nothing
 
 applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
-applyJsImportAlias importAlias (JsImport importPath importName _) = JsImport importPath importName importAlias
+applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
