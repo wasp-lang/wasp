@@ -1,8 +1,7 @@
 module Wasp.Generator.DbGenerator.Jobs
   ( migrateDev,
     migrateDiff,
-    generatePrismaClientForClient,
-    generatePrismaClientForServer,
+    generatePrismaClient,
     runStudio,
     migrateStatus,
     asPrismaCliArgs,
@@ -14,7 +13,8 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), clientDbSchemaFileInProjectRootDir, serverDbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), serverDbSchemaFileInProjectRootDir)
+import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
@@ -96,17 +96,9 @@ runStudio projectDir = do
 
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmdArgs J.Db
 
-generatePrismaClientForServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
-generatePrismaClientForServer projectDir =
-  generatePrismaClient projectDir serverDbSchemaFileInProjectRootDir
-
-generatePrismaClientForClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
-generatePrismaClientForClient projectDir =
-  generatePrismaClient projectDir clientDbSchemaFileInProjectRootDir
-
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> J.Job
-generatePrismaClient projectDir dbSchemaFile =
-  runNodeCommandAsJob projectDir prismaExecutable prismaGenerateCmdArgs J.Db
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> JobType -> J.Job
+generatePrismaClient projectDir dbSchemaFile jobType =
+  runNodeCommandAsJob projectDir prismaExecutable prismaGenerateCmdArgs jobType
   where
     prismaExecutable = absPrismaExecutableFp projectDir
     prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]

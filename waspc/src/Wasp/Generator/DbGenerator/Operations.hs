@@ -1,6 +1,6 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
-    generatePrismaClient,
+    generatePrismaClients,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     removeDbSchemaChecksumFile,
@@ -22,10 +22,10 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
+    clientDbSchemaFileInProjectRootDir,
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
-    dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     serverDbSchemaFileInProjectRootDir,
   )
@@ -102,23 +102,31 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
   let dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
    in removeFile dbSchemaChecksumFp
 
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClient genProjectRootDirAbs = do
+generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+generatePrismaClients genProjectRootDirAbs =
+  generatePrismaClientForServer genProjectRootDirAbs >> generatePrismaClientForClient genProjectRootDirAbs
+
+generatePrismaClientForServer :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+generatePrismaClientForServer = generatePrismaClient serverDbSchemaFileInProjectRootDir J.Server
+
+generatePrismaClientForClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+generatePrismaClientForClient = generatePrismaClient clientDbSchemaFileInProjectRootDir J.WebApp
+
+generatePrismaClient ::
+  Path' (Rel ProjectRootDir) File' ->
+  J.JobType ->
+  Path' Abs (Dir ProjectRootDir) ->
+  IO (Either String ())
+generatePrismaClient schema jobType genProjectRootDirAbs = do
   chan <- newChan
-  (_, serverExitCode) <-
-    concurrently (readJobMessagesAndPrintThemPrefixed chan) (DbJobs.generatePrismaClientForServer genProjectRootDirAbs chan)
-  clientExitCode <- DbJobs.generatePrismaClientForClient genProjectRootDirAbs chan
-  case (serverExitCode, clientExitCode) of
-    (ExitSuccess, ExitSuccess) -> do
-      writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
-      return $ Right ()
-    (ExitFailure code, ExitSuccess) -> return $ Left $ getGenearateErrorForServer code
-    (ExitSuccess, ExitFailure code) -> return $ Left $ getGenerateErrorForClient code
-    (ExitFailure serverCode, ExitFailure clientCode) -> 
-      return $ Left $ unlines [getGenearateErrorForServer serverCode, getGenerateErrorForClient clientCode]
-  where
-    getGenearateErrorForServer code = "Prisma client generation failed for server with exit code: " ++ show code
-    getGenerateErrorForClient code = "Prisma client generation failed for client with exit code: " ++ show code
+  (_, exitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.generatePrismaClient genProjectRootDirAbs schema jobType chan)
+  case exitCode of
+    ExitSuccess -> return $ Right ()
+    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.
 -- Returns Just True if schema.prisma is the same as DB, Just False if it is different, and
