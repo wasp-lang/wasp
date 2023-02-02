@@ -1,9 +1,7 @@
 ---
 title: 'Convincing developers to try a new web framework - the effects of launching beta'
 authors: [matijasos]
-
-image: /img/update-dec-23/banner.png
-
+image: /img/beta-launch-review/beta-feedback.png
 tags: [webdev, wasp, startups, github]
 ---
 
@@ -15,9 +13,15 @@ import WaspIntro from './_wasp-intro.md';
 import ImgWithCaption from './components/ImgWithCaption'
 
 
-*Want to stay in the loop? → [Join our newsletter!](/#signup)*
+<ImgWithCaption
+    alt="Alpha feedback"
+    source="img/beta-launch-review/alpha-feedback.png"
+    caption="How it started: feedback on Wasp Alpha, 3 years ago"
+/>
 
 We are developing an OSS web framework in a form of a config language (DSL) that works with React & Node.js. Getting developers to use a new tool (especially a web framework) is [a pretty hard thing to do](/blog/2022/09/29/journey-to-1000-gh-stars). We wished there were more stories of how today's mainstream tools got adopted that we could learn from, so that motivated us to document our own.
+
+*Want to stay in the loop? → [Join our newsletter!](/#signup)*
 
 <!--truncate-->
 
