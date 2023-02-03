@@ -25,6 +25,8 @@ So far Wasp didn’t have much beyond basic syntax highlighting in VSCode, but n
     3. integration with the above-mentioned language server
 3. Support for popular **IDEs to fully support Javascript and Typescript files** in the Wasp project.
 
+<!--truncate-->
+
 <ImgWithCaption
     alt=""
     source="img/beta-ide-improvements/wls-demo.gif"
