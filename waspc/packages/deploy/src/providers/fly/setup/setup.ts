@@ -10,11 +10,11 @@ import {
 	serverTomlExistsInProject,
 } from '../helpers/tomlFileHelpers.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
-import { GlobalOptions } from '../GlobalOptions.js';
+import { CommonOptions } from '../CommonOptions.js';
 import { cdToClientBuildDir, cdToServerBuildDir, makeIdempotent, getCommandHelp, waspSays } from '../helpers/helpers.js';
 import { createFlyDbCommand } from '../index.js';
 
-export async function setup(baseName: string, region: string, options: GlobalOptions): Promise<void> {
+export async function setup(baseName: string, region: string, options: CommonOptions): Promise<void> {
 	waspSays('Setting up your Wasp app with Fly.io!');
 
 	const buildWasp = makeIdempotent(async () => {
@@ -30,7 +30,7 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
 		waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
 	} else {
 		await buildWasp();
-		await setUpServer(deploymentInfo);
+		await setupServer(deploymentInfo);
 	}
 
 	if (clientTomlExistsInProject(tomlFilePaths)) {
@@ -43,7 +43,7 @@ export async function setup(baseName: string, region: string, options: GlobalOpt
 	waspSays(`Don't forget to create your database by running "${getCommandHelp(createFlyDbCommand)}".`);
 }
 
-async function setUpServer(deploymentInfo: DeploymentInfo) {
+async function setupServer(deploymentInfo: DeploymentInfo) {
 	waspSays(`Setting up server app with name ${deploymentInfo.serverName}`);
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);

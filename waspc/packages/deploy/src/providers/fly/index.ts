@@ -8,28 +8,19 @@ import { ensureWaspDirLooksRight, ensureDirsInCmdAreAbsolute } from './helpers/h
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
 import { ContextOption } from './helpers/CommonOps.js';
 
-// Helpers for adding shared arguments and options.
-declare module 'commander' {
-	interface Command {
-		addBasenameArgument(): this;
-		addRegionArgument(): this;
-		addDbOptions(): this;
+class FlyCommand extends Command {
+	addBasenameArgument(): this {
+		return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
+	}
+	addRegionArgument(): this {
+		return this.argument('<region>', 'deployment region to use on Fly.io');
+	}
+	addDbOptions(): this {
+		return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
+			.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
+			.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
 	}
 }
-
-Command.prototype.addBasenameArgument = function (): Command {
-	return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
-};
-
-Command.prototype.addRegionArgument = function (): Command {
-	return this.argument('<region>', 'deployment region to use on Fly.io');
-};
-
-Command.prototype.addDbOptions = function (): Command {
-	return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
-		.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
-		.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
-};
 
 const flyLaunchCommand = makeFlyLaunchCommand();
 
@@ -71,7 +62,7 @@ export function addFlyCommand(program: Command): void {
 }
 
 function makeFlyLaunchCommand(): Command {
-	return new Command('launch')
+	return new FlyCommand('launch')
 		.description('Launch a new app on Fly.io (calls setup, create-db, and deploy)')
 		.addBasenameArgument()
 		.addRegionArgument()
@@ -80,7 +71,7 @@ function makeFlyLaunchCommand(): Command {
 }
 
 function makeFlySetupCommand(): Command {
-	return new Command('setup')
+	return new FlyCommand('setup')
 		.description('Set up a new app on Fly.io (this does not deploy it)')
 		.addBasenameArgument()
 		.addRegionArgument()
@@ -88,14 +79,16 @@ function makeFlySetupCommand(): Command {
 }
 
 function makeFlyDeployCommand(): Command {
-	return new Command('deploy')
+	return new FlyCommand('deploy')
 		.description('(Re-)Deploy existing app to Fly.io')
 		.option('--skip-build', 'do not run `wasp build` before deploying')
+		.option('--skip-client', 'do not deploy the web client')
+		.option('--skip-server', 'do not deploy the server')
 		.action(deployFn);
 }
 
 function makeExecuteFlyCommand(): Command {
-	return new Command('cmd')
+	return new FlyCommand('cmd')
 		.description('Run arbitrary flyctl commands for server or client')
 		.argument('<cmd...>', 'flyctl command to run in server/client context')
 		.addOption(
@@ -108,7 +101,7 @@ function makeExecuteFlyCommand(): Command {
 }
 
 function makeCreateFlyDbCommand(): Command {
-	return new Command('create-db')
+	return new FlyCommand('create-db')
 		.description('Creates a Postgres DB and attaches it to the server app')
 		.addRegionArgument()
 		.addDbOptions()

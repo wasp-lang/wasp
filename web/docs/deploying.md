@@ -40,7 +40,7 @@ Your app name must be unique across all of Fly or deployment will fail. Addition
 Fly has  [free allowances](https://fly.io/docs/about/pricing/#free-allowances) for up to 3 VMs. If you already have some apps deployed on their free Hobby Plan, you will need to add your credit card info before proceeding.
 :::
 
-The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/).
+The list of available Fly regions can be found [here](https://fly.io/docs/reference/regions/). You can also run `wasp deploy fly cmd platform regions --context server`.
 
 ### Commands
 
@@ -58,6 +58,13 @@ If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for y
 ```shell
 wasp deploy fly cmd secrets list --context server
 ```
+
+:::note
+If you are deploying an app that requires any other environment variables (like social auth secrets), you will want to set your environment variables up like so:
+```
+wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
+```
+:::
 
 # Manual
 

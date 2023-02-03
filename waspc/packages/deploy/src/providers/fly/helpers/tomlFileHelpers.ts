@@ -1,14 +1,14 @@
 import toml from 'toml';
 import fs from 'fs';
 import path from 'node:path';
-import { GlobalOptions } from '../GlobalOptions.js';
+import { CommonOptions } from '../CommonOptions.js';
 
 export interface TomlFilePaths {
 	serverTomlPath: string;
 	clientTomlPath: string;
 }
 
-export function getTomlFilePaths(options: GlobalOptions): TomlFilePaths {
+export function getTomlFilePaths(options: CommonOptions): TomlFilePaths {
 	const baseDir = options.flyTomlDir || options.waspProjectDir;
 	return {
 		serverTomlPath: path.join(baseDir, 'fly-server.toml'),

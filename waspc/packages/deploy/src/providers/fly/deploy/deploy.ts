@@ -43,7 +43,10 @@ export async function deploy(options: DeployOptions): Promise<void> {
 	// For now we just rely on the suffix naming convention and infer from toml files.
 	if (!serverTomlExistsInProject(tomlFilePaths)) {
 		waspSays(`${tomlFilePaths.serverTomlPath} missing. Skipping server deploy. Perhaps you need to run "${getCommandHelp(flySetupCommand)}" first?`);
-	} else {
+	} else if (options.skipServer) {
+		waspSays('Skipping server deploy due to CLI option.');
+	}
+	else {
 		const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
@@ -52,6 +55,8 @@ export async function deploy(options: DeployOptions): Promise<void> {
 
 	if (!clientTomlExistsInProject(tomlFilePaths)) {
 		waspSays(`${tomlFilePaths.clientTomlPath} missing. Skipping client deploy. Perhaps you need to run "${getCommandHelp(flySetupCommand)}" first?`);
+	} else if (options.skipClient) {
+		waspSays('Skipping client deploy due to CLI option.');
 	} else {
 		const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);

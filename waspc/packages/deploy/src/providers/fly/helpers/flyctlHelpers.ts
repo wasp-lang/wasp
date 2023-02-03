@@ -1,6 +1,7 @@
 import { exit } from 'process';
 import { $, question } from 'zx';
-import { silence, isYes, waspSays } from './helpers.js';
+import { executeFlyCommand } from '../index.js';
+import { silence, isYes, waspSays, getCommandHelp } from './helpers.js';
 
 export async function flyctlExists(): Promise<boolean> {
 	try {
@@ -56,6 +57,7 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
 		const validRegion = await regionExists(region);
 		if (!validRegion) {
 			waspSays(`Invalid region code ${region}. Please specify a valid 3 character region id: https://fly.io/docs/reference/regions`);
+			waspSays(`You can also run "${getCommandHelp(executeFlyCommand).replace('<cmd...>', 'platform regions --context server')}".`);
 			exit(1);
 		}
 	} catch (e) {
@@ -68,11 +70,11 @@ export async function ensureRegionIsValid(region: string): Promise<void> {
 async function regionExists(regionCode: string): Promise<boolean> {
 	const proc = await silence(($hh) => $hh`flyctl platform regions -j`);
 	const regions: { Code: string; Name: string }[] = JSON.parse(proc.stdout);
-	return !!regions.find((r: { Code: string; Name: string }) => r.Code === regionCode);
+	return regions.some(r => r.Code === regionCode);
 }
 
 export async function secretExists(secretName: string): Promise<boolean> {
 	const proc = await $`flyctl secrets list -j`;
-	const secrets: { Name: string; Digest: string; CreatedAt: string }[] = JSON.parse(proc.stdout);
-	return !!secrets.find((s) => s.Name === secretName);
+	const secrets: { Name: string }[] = JSON.parse(proc.stdout);
+	return secrets.some(s => s.Name === secretName);
 }

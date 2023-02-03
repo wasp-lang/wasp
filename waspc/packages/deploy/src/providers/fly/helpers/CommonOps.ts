@@ -18,7 +18,20 @@ export type CommonOps = Readonly<{
 	copyProjectTomlLocally: () => void;
 }>;
 
-export function createClientCommonOps(
+export enum ContextOption {
+	Client = 'client',
+	Server = 'server',
+}
+
+export function getCommonOps(context: ContextOption, waspProjectDir: string, paths: TomlFilePaths): CommonOps {
+	const commonOps: Record<ContextOption, CommonOps> = {
+		[ContextOption.Client]: createClientCommonOps(waspProjectDir, paths),
+		[ContextOption.Server]: createServerCommonOps(waspProjectDir, paths),
+	};
+	return commonOps[context];
+}
+
+function createClientCommonOps(
 	waspProjectDir: string,
 	paths: TomlFilePaths,
 ): CommonOps {
@@ -32,7 +45,7 @@ export function createClientCommonOps(
 	};
 }
 
-export function createServerCommonOps(
+function createServerCommonOps(
 	waspProjectDir: string,
 	paths: TomlFilePaths,
 ): CommonOps {
@@ -44,17 +57,4 @@ export function createServerCommonOps(
 		copyLocalTomlToProject: () => copyLocalServerTomlToProject(paths),
 		copyProjectTomlLocally: () => copyProjectServerTomlLocally(paths),
 	};
-}
-
-export enum ContextOption {
-	Client = 'client',
-	Server = 'server',
-}
-
-export function getCommonOps(context: ContextOption, waspProjectDir: string, paths: TomlFilePaths): CommonOps {
-	const commonOps: Record<ContextOption, CommonOps> = {
-		[ContextOption.Client]: createClientCommonOps(waspProjectDir, paths),
-		[ContextOption.Server]: createServerCommonOps(waspProjectDir, paths),
-	};
-	return commonOps[context];
 }

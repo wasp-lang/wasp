@@ -3,7 +3,6 @@ import { exit } from 'process';
 import { $, cd, ProcessOutput, Shell } from 'zx';
 import fs from 'fs';
 import path from 'node:path';
-import { Mutex } from 'async-mutex';
 
 export function isYes(str: string): boolean {
 	return str.trim().toLowerCase().startsWith('y');
@@ -97,17 +96,16 @@ function trimUsage(usage: string): string {
 	return usage.split(/[\r\n]+/)[0].replace('Usage: ', '').replace(' [options]', '');
 }
 
-const mutex = new Mutex();
-
+// There is a theoretical race condition here since we are modifying a global `$`
+// property, that when we yield to the `await cmd($)` call that some other calls to
+// `$` could use a different verbosity setting. Additionally, calling `silence` multiple
+// times concurrently could change the setting incorrectly.
+// However, our pattern of awaiting for both `$` and `silence` calls without any random
+// callbacks using either means this interleaving should not ever happen.
 export async function silence(cmd: ($hh: Shell) => Promise<ProcessOutput>): Promise<ProcessOutput> {
-	const release = await mutex.acquire();
-	try {
-		const verboseSetting = $.verbose;
-		$.verbose = false;
-		const proc = await cmd($);
-		$.verbose = verboseSetting;
-		return proc;
-	} finally {
-		release();
-	}
+	const verboseSetting = $.verbose;
+	$.verbose = false;
+	const proc = await cmd($);
+	$.verbose = verboseSetting;
+	return proc;
 }
