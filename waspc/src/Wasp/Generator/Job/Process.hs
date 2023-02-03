@@ -3,6 +3,7 @@
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
+    runNodeCommandAsJobWithEnv,
     parseNodeVersion,
   )
 where
@@ -95,20 +96,18 @@ runProcessAsJob process jobType chan =
       return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob fromDir command args jobType chan = do
-  errorOrNodeVersion <- getNodeVersion
-  case errorOrNodeVersion of
+runNodeCommandAsJob = runNodeCommandAsJobWithEnv Nothing
+
+runNodeCommandAsJobWithEnv :: Maybe [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithEnv envVars fromDir command args jobType chan =
+  getNodeVersion >>= \case
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
       if SV.isVersionInRange nodeVersion C.nodeVersionRange
-        then do
-          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
-          runProcessAsJob process jobType chan
-        else
-          exitWithError
-            (ExitFailure 1)
-            (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
+        then runProcessAsJob nodeCommandProcess jobType chan
+        else exitWithError (ExitFailure 1) (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
   where
+    nodeCommandProcess = (P.proc command args) {P.env = envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
     exitWithError exitCode errorMsg = do
       writeChan chan $
         J.JobMessage

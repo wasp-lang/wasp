@@ -10,10 +10,8 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, maybeToList)
-import StrongPath (Abs, Dir, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File, Path', (</>))
 import qualified StrongPath as SP
-import StrongPath.TH (reldir)
-import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,17 +20,15 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( DbRootDir,
-    clientDbSchemaFileInProjectRootDir,
+  ( DbSchemaChecksumOnLastDbConcurrenceFile,
+    PrismaDbSchema,
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
+    dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
-    serverDbSchemaFileInProjectRootDir,
-    serverRootDirFromDbRootDir,
-    webAppRootDirFromDbRootDir,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
@@ -45,27 +41,18 @@ import Wasp.Generator.Monad
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
+import Wasp.Util.IO (doesFileExist, readFile)
+import Prelude hiding (readFile)
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
-  genServerPrismaSchema spec
-    <:> genClientPrismaSchema spec
+  genPrismaSchema spec
     <:> (maybeToList <$> genMigrationsDir spec)
 
-genClientPrismaSchema :: AppSpec -> Generator FileDraft
-genClientPrismaSchema =
-  genPrismaSchema webAppRootDirFromDbRootDir clientDbSchemaFileInProjectRootDir
-
-genServerPrismaSchema :: AppSpec -> Generator FileDraft
-genServerPrismaSchema =
-  genPrismaSchema serverRootDirFromDbRootDir serverDbSchemaFileInProjectRootDir
-
 genPrismaSchema ::
-  Path' (Rel DbRootDir) (Dir a) ->
-  Path' (Rel ProjectRootDir) File' ->
   AppSpec ->
   Generator FileDraft
-genPrismaSchema moduleRootDir destinationFile spec = do
+genPrismaSchema spec = do
   (datasourceProvider, datasourceUrl) <- case dbSystem of
     AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
     AS.Db.SQLite ->
@@ -77,15 +64,13 @@ genPrismaSchema moduleRootDir destinationFile spec = do
         object
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
             "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String),
-            "clientOutputDir" .= SP.fromRelDir clientOutputDir
+            "datasourceUrl" .= (datasourceUrl :: String)
           ]
 
-  return $ createTemplateFileDraft destinationFile tmplSrcPath (Just templateData)
+  return $ createTemplateFileDraft dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
-    clientOutputDir = moduleRootDir </> [reldir|node_modules/.prisma/client|]
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
@@ -136,11 +121,14 @@ warnIfDbNeedsMigration spec projectRootDir = do
         then warnProjectDiffersFromDb projectRootDir
         else return Nothing
   where
-    dbSchemaFp = SP.fromAbsFile $ projectRootDir </> serverDbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
+    dbSchemaFp = projectRootDir </> dbSchemaFileInProjectRootDir
+    dbSchemaChecksumFp = projectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
     entitiesExist = not . null $ getEntities spec
 
-warnIfSchemaDiffersFromChecksum :: FilePath -> FilePath -> IO (Maybe GeneratorWarning)
+warnIfSchemaDiffersFromChecksum ::
+  Path' Abs (File PrismaDbSchema) ->
+  Path' Abs (File DbSchemaChecksumOnLastDbConcurrenceFile) ->
+  IO (Maybe GeneratorWarning)
 warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
   dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
   dbChecksumFileContents <- readFile dbSchemaChecksumFp
@@ -175,8 +163,8 @@ genPrismaClient spec projectRootDir = do
   where
     wasCurrentSchemaAlreadyGenerated :: IO Bool
     wasCurrentSchemaAlreadyGenerated = do
-      let dbSchemaFp = SP.fromAbsFile $ projectRootDir SP.</> serverDbSchemaFileInProjectRootDir
-      let dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
+      let dbSchemaFp = projectRootDir SP.</> dbSchemaFileInProjectRootDir
+      let dbSchemaChecksumFp = projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
       dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
       if dbSchemaChecksumFileExists

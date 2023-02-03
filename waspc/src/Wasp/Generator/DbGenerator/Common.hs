@@ -10,10 +10,11 @@ module Wasp.Generator.DbGenerator.Common
     MigrateArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
     DbRootDir,
+    DbSchemaChecksumOnLastDbConcurrenceFile,
+    PrismaDbSchema,
     serverRootDirFromDbRootDir,
     webAppRootDirFromDbRootDir,
-    serverDbSchemaFileInProjectRootDir,
-    clientDbSchemaFileInProjectRootDir,
+    dbSchemaFileInProjectRootDir,
   )
 where
 
@@ -37,6 +38,8 @@ data DbSchemaChecksumOnLastDbConcurrenceFile
 -- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile
 
+data PrismaDbSchema
+
 serverRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
 serverRootDirFromDbRootDir = [reldir|../server|]
 
@@ -52,17 +55,11 @@ dbTemplatesDirInTemplatesDir = [reldir|db|]
 dbSchemaFileInDbTemplatesDir :: Path' (Rel DbTemplatesDir) File'
 dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 
-clientDbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
-clientDbSchemaFileInDbRootDir = [relfile|schema.client.prisma|]
+dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
+dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-serverDbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) File'
-serverDbSchemaFileInDbRootDir = [relfile|schema.server.prisma|]
-
-clientDbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-clientDbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> clientDbSchemaFileInDbRootDir
-
-serverDbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-serverDbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> serverDbSchemaFileInDbRootDir
+dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
+dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

@@ -46,6 +46,8 @@ import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
+import StrongPath (File, Path')
+import qualified StrongPath as SP
 import Text.Printf (printf)
 
 camelToKebabCase :: String -> String
@@ -186,8 +188,8 @@ checksumFromText = bytestringToHex . SHA256.hash . TextEncoding.encodeUtf8
 checksumFromByteString :: BSU.ByteString -> Checksum
 checksumFromByteString = bytestringToHex . SHA256.hash
 
-checksumFromFilePath :: FilePath -> IO Checksum
-checksumFromFilePath file = checksumFromByteString <$> B.readFile file
+checksumFromFilePath :: Path' r (File f) -> IO Checksum
+checksumFromFilePath = fmap checksumFromByteString . B.readFile . SP.toFilePath
 
 checksumFromChecksums :: [Checksum] -> Checksum
 checksumFromChecksums = checksumFromString . concatMap (\(Hex s) -> s)

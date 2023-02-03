@@ -5,6 +5,9 @@ module Wasp.Util.IO
     listDirectory,
     deleteDirectoryIfExists,
     deleteFileIfExists,
+    doesFileExist,
+    readFile,
+    removeFile,
   )
 where
 
@@ -15,6 +18,8 @@ import qualified System.Directory as SD
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
+import Prelude hiding (readFile)
+import qualified Prelude as P
 
 -- TODO: write tests.
 
@@ -74,3 +79,12 @@ deleteFileIfExists filePath = do
   let filePathStr = SP.toFilePath filePath
   exists <- SD.doesFileExist filePathStr
   when exists $ SD.removeFile filePathStr
+
+doesFileExist :: Path' r (File f) -> IO Bool
+doesFileExist = SD.doesFileExist . SP.toFilePath
+
+readFile :: Path' r (File f) -> IO String
+readFile = P.readFile . SP.toFilePath
+
+removeFile :: Path' r (File f) -> IO ()
+removeFile = SD.removeFile . SP.toFilePath
