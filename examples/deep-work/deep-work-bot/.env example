@@ -1,0 +1,5 @@
+DATABASE_URL=""
+DISCORD_TOKEN="" // Discord bot token can be obtained from https://discord.com/developers/applications
+CHANNEL_ID=""
+ROLE_ID=""
+APP_URL="<URL-OF-DEPLOYED-DASHBOARD-APP"

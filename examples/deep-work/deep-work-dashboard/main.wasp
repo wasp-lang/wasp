@@ -1,0 +1,72 @@
+app DeepWork {
+  wasp: {
+    version: "^0.8.0"
+  },
+
+  title: "DeepWork",
+
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+
+  db: {
+    system: PostgreSQL
+  },
+
+  dependencies: [
+    ("recharts", "2.2.0")
+  ]
+}
+
+entity Work {=psl
+  id          Int     @id @default(autoincrement())
+  username    String
+  timeStarted DateTime 
+  minutes     String
+  user        User    @relation(fields: [userId], references: [userId])
+  userId      String
+psl=}
+
+entity User {=psl 
+  id          Int     @id @default(autoincrement())
+  userId      String? @unique
+  username    String  @unique
+  password    String  
+  work        Work[]
+psl=}
+
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  authRequired: true,
+  component: import Main from "@client/MainPage"
+}
+
+route LoginRoute { path: "/Login", to: LoginPage }
+page LoginPage {
+  component: import Main from "@client/LoginPage"
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import Main from "@client/SignupPage"
+}
+
+query getTotalWork {
+  fn: import { getTotalWork } from "@server/queries.js",
+  entities: [Work]
+}
+
+query getWorkByYear {
+  fn: import { getWorkByYear } from "@server/queries.js",
+  entities: [Work]
+}
+
+query getTotalHours {
+  fn: import { getTotalHours } from "@server/queries.js",
+  entities: [Work]
+}
