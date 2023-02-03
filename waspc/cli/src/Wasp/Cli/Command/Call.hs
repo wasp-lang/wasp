@@ -4,6 +4,7 @@ data Call
   = New String -- project name
   | Start
   | Clean
+  | Uninstall
   | Compile
   | Db [String] -- db args
   | Build

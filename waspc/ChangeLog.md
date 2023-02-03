@@ -53,6 +53,13 @@ const getTasks: GetTasks<Task[]> = (args, context) => {
 }
 ```
 
+### Uninstall command
+If you want to uninstall Wasp from your system, you can now do so with:
+```bash
+wasp uninstall
+```
+It will remove all of the Wasp binaries and data from your system.
+
 ## v0.8.0
 
 ### BREAKING CHANGES

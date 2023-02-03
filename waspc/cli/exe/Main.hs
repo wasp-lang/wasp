@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
@@ -37,6 +38,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
+        ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
@@ -59,6 +61,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
@@ -95,6 +98,7 @@ printUsage =
         cmd "    version               Prints current version of CLI.",
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd "    completion            Prints help on bash completion.",
+        cmd "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
