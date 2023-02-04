@@ -5,24 +5,24 @@ import {
   {=# entities =}
   type {= name =},
   {=/ entities =}
- } from "../entities"
+} from "../entities"
 
-export type Query<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Query<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
 
-export type Action<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Action<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends WaspEntity[] = [], Result = unknown> = 
-  AuthenticatedOperation<Entities, Result>
+export type AuthenticatedQuery<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = 
+  AuthenticatedOperation<Entities, Input, Result>
 
-export type AuthenticatedAction<Entities extends WaspEntity[] = [], Result = unknown> = 
-  AuthenticatedOperation<Entities, Result>
+export type AuthenticatedAction<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = 
+  AuthenticatedOperation<Entities, Input, Result>
 
-type AuthenticatedOperation<Entities extends WaspEntity[], Result> = (
-  args: any,
+type AuthenticatedOperation<Entities extends WaspEntity[], Input, Result> = (
+  args: Input,
   context: {
-      user: {= userViewName =},
-      entities: EntityMap<Entities>,
+    user: {= userViewName =},
+    entities: EntityMap<Entities>,
   },
 ) => Promise<Result>
 
@@ -33,10 +33,10 @@ type AuthenticatedOperation<Entities extends WaspEntity[], Result> = (
 type {= userViewName =} = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
 
-type Operation<Entities extends WaspEntity[], Result> = (
-  args: any,
+type Operation<Entities extends WaspEntity[], Input, Result> = (
+  args: Input,
   context: {
-      entities: EntityMap<Entities>,
+    entities: EntityMap<Entities>,
   },
 ) => Promise<Result>
 
