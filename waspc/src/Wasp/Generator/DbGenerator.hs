@@ -148,7 +148,7 @@ warnProjectDiffersFromDb projectRootDir = do
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
           -- we can write this file to prevent future redundant Prisma checks.
-          DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+          DbOps.writeDbSchemaChecksumToFile projectRootDir dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
           return Nothing
         else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
