@@ -38,17 +38,33 @@ function getWaspBuildDir(waspProjectDir: string) {
 	return path.join(waspProjectDir, '.wasp', 'build');
 }
 
-export function ensureDirsInCmdAreAbsolute(thisCommand: Command): void {
+export function ensureDirsInCmdAreAbsoluteAndPresent(thisCommand: Command): void {
 	const waspProjectDirPath: string | undefined = thisCommand.opts().waspProjectDir;
-	if (waspProjectDirPath && !path.isAbsolute(waspProjectDirPath)) {
-		waspSays('The Wasp dir path must be absolute.');
-		exit(1);
+	if (waspProjectDirPath) {
+		if (!path.isAbsolute(waspProjectDirPath)) {
+			waspSays('The Wasp dir path must be absolute.');
+			exit(1);
+		}
+
+		const waspProjectDirExists = fs.existsSync(waspProjectDirPath);
+		if (!waspProjectDirExists) {
+			waspSays('The Wasp dir path does not exist.');
+			exit(1);
+		}
 	}
 
 	const flyTomlDirPath: string | undefined = thisCommand.opts().flyTomlDir;
-	if (flyTomlDirPath && !path.isAbsolute(flyTomlDirPath)) {
-		waspSays('The toml dir path must be absolute.');
-		exit(1);
+	if (flyTomlDirPath) {
+		if (!path.isAbsolute(flyTomlDirPath)) {
+			waspSays('The toml dir path must be absolute.');
+			exit(1);
+		}
+
+		const flyTomlDirExists = fs.existsSync(flyTomlDirPath);
+		if (!flyTomlDirExists) {
+			waspSays('The toml dir path does not exist.');
+			exit(1);
+		}
 	}
 }
 

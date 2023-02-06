@@ -4,7 +4,7 @@ import { deploy as deployFn } from './deploy/deploy.js';
 import { createDb as createDbFn } from './createDb/createDb.js';
 import { cmd as cmdFn } from './cmd/cmd.js';
 import { launch as launchFn } from './launch/launch.js';
-import { ensureWaspDirLooksRight, ensureDirsInCmdAreAbsolute } from './helpers/helpers.js';
+import { ensureWaspDirLooksRight, ensureDirsInCmdAreAbsoluteAndPresent } from './helpers/helpers.js';
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
 import { ContextOption } from './helpers/CommonOps.js';
 
@@ -49,9 +49,9 @@ export function addFlyCommand(program: Command): void {
 	fly.commands.forEach((cmd) => {
 		cmd.requiredOption('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)', 'wasp')
 			.requiredOption('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
-			.option('--toml-dir <dir>', 'absolute path to dir where fly.toml files live')
+			.option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
 			.hook('preAction', ensureFlyReady)
-			.hook('preAction', ensureDirsInCmdAreAbsolute)
+			.hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)
 			.hook('preAction', ensureWaspDirLooksRight);
 	});
 

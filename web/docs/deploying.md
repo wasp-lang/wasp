@@ -49,7 +49,7 @@ The list of available Fly regions can be found [here](https://fly.io/docs/refere
 :::note
 We only run the `setup` and `create-db` steps once.
 
-You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled. If you want to maintain multiple apps, you can add the `--toml-dir <abs-path>` option during `setup` to point to different directories, like "dev" or "staging".
+You may notice after running `setup` you have a `fly-server.toml` and `fly-client.toml` in your Wasp project directory. Those are meant to be version controlled. If you want to maintain multiple apps, you can add the `--fly-toml-dir <abs-path>` option to point to different directories, like "dev" or "staging".
 :::
 
 Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
