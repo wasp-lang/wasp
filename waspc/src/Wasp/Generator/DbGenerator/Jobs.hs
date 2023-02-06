@@ -103,8 +103,9 @@ runStudio projectDir =
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel DbRootDir) (Dir a) -> JobType -> J.Job
 generatePrismaClient projectDir moduleDir jobType =
-  runNodeCommandAsJobWithExtraEnv envVars projectDir prismaExecutable prismaGenerateCmdArgs jobType
+  runNodeCommandAsJobWithExtraEnv envVars serverRootDir prismaExecutable prismaGenerateCmdArgs jobType
   where
+    serverRootDir = projectDir </> serverRootDirInProjectRootDir
     envVars = [(prismaClientOutputDirEnvVar, clientOutputDir)]
     clientOutputDir = SP.fromRelDir $ moduleDir </> [reldir|node_modules/.prisma/client|]
     prismaExecutable = absPrismaExecutableFp projectDir
