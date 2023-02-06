@@ -7,7 +7,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  output = env("PRISMA_CLIENT_OUTPUT_DIR")
+  output = env("{= prismaClientOutputDirEnvVar =}")
 }
 
 {=# modelSchemas =}

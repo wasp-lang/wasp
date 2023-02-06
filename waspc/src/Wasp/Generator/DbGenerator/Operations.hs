@@ -7,6 +7,7 @@ module Wasp.Generator.DbGenerator.Operations
   )
 where
 
+import Control.Applicative (liftA2)
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
@@ -105,14 +106,10 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClients genProjectRootDirAbs =
-  generatePrismaClientForServer genProjectRootDirAbs >> generatePrismaClientForClient genProjectRootDirAbs
-
-generatePrismaClientForServer :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClientForServer = generatePrismaClient serverRootDirFromDbRootDir J.Server
-
-generatePrismaClientForClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClientForClient = generatePrismaClient webAppRootDirFromDbRootDir J.WebApp
+generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForClient
+  where
+    generatePrismaClientForServer = generatePrismaClient serverRootDirFromDbRootDir J.Server
+    generatePrismaClientForClient = generatePrismaClient webAppRootDirFromDbRootDir J.WebApp
 
 generatePrismaClient ::
   Path' (Rel DbRootDir) (Dir a) ->

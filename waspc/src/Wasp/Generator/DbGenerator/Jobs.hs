@@ -13,10 +13,15 @@ import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (DbRootDir, MigrateArgs (..), dbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common
+  ( DbRootDir,
+    MigrateArgs (..),
+    dbSchemaFileInProjectRootDir,
+    prismaClientOutputDirEnvVar,
+  )
 import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithEnv)
+import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
@@ -41,7 +46,7 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  runNodeCommandAsJob serverDir "script" scriptArgs J.Db
+  runNodeCommandAsJobWithExtraEnv [(prismaClientOutputDirEnvVar, "todo-what-to-do")] serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
@@ -98,9 +103,9 @@ runStudio projectDir =
 
 generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel DbRootDir) (Dir a) -> JobType -> J.Job
 generatePrismaClient projectDir moduleDir jobType =
-  runNodeCommandAsJobWithEnv envVars projectDir prismaExecutable prismaGenerateCmdArgs jobType
+  runNodeCommandAsJobWithExtraEnv envVars projectDir prismaExecutable prismaGenerateCmdArgs jobType
   where
-    envVars = Just [("PRISMA_CLIENT_OUTPUT_DIR", clientOutputDir)]
+    envVars = [(prismaClientOutputDirEnvVar, clientOutputDir)]
     clientOutputDir = SP.fromRelDir $ moduleDir </> [reldir|node_modules/.prisma/client|]
     prismaExecutable = absPrismaExecutableFp projectDir
     prismaGenerateCmdArgs = ["generate", "--schema", schemaFile]

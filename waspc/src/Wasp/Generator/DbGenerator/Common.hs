@@ -11,10 +11,12 @@ module Wasp.Generator.DbGenerator.Common
     RefreshOnLastDbConcurrenceChecksumFile (..),
     DbRootDir,
     DbSchemaChecksumOnLastDbConcurrenceFile,
+    DbSchemaChecksumOnLastGenerateFile,
     PrismaDbSchema,
     serverRootDirFromDbRootDir,
     webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
+    prismaClientOutputDirEnvVar,
   )
 where
 
@@ -75,6 +77,9 @@ dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-gene
 
 dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
+
+prismaClientOutputDirEnvVar :: String
+prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,
