@@ -27,7 +27,7 @@ export const getNumTasks: GetNumTasks = async (_args, context) => {
   return context.entities.Task.count()
 }
 
-export const getTask: GetTask<Pick<Task, 'id'>> = async ({ id }, context) => {
+export const getTask: GetTask<Pick<Task, 'id'>> = async (where, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -35,7 +35,7 @@ export const getTask: GetTask<Pick<Task, 'id'>> = async ({ id }, context) => {
   const Task = context.entities.Task
   // NOTE(matija): we can't call findUnique() with the specific user, so we have to fetch user first
   // and then manually check.
-  const task = await Task.findUnique({ where: { id }, include: { user: true } })
+  const task = await Task.findUnique({ where, include: { user: true } })
   if (!task) {
     throw new HttpError(404)
   }
