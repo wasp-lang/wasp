@@ -2,6 +2,9 @@
 title: Features
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## App
 
 There can be only one declaration of `app` type per Wasp project.
@@ -809,7 +812,7 @@ In the future, we will add support for picking any version you like, but we have
 
 ## Authentication & Authorization
 
-Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring `auth` field of the `app` declaration:
+Wasp provides authentication and authorization support out-of-the-box. Enabling it for your app is optional and can be done by configuring the `auth` field of the `app` declaration:
 
 ```c 
 app MyApp {
@@ -836,13 +839,13 @@ app MyApp {
 Entity which represents the user (sometimes also referred to as *Principal*).
 
 #### `externalAuthEntity: entity` (optional)
-Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20---google-github) for more info.
+Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20) for more info.
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
 * `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
-* `google`: Provides support for login via Google accounts. See [here](#google) for more.
-* `gitHub`: Provides support for login via GitHub accounts. See [here](#github) for more.
+* `google`: Provides support for login via Google accounts. See [here](#social-login-providers-oauth-20) for more.
+* `gitHub`: Provides support for login via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -1129,30 +1132,82 @@ import AuthError from '@wasp/core/AuthError.js'
   }
 ```
 
-### Social Login Providers (OAuth 2.0) - Google, GitHub
-Wasp currently supports the following Social Login providers (with more to come) :
-- [GitHub](features#github)
-- [Google](features#google)
+## Social Login Providers (OAuth 2.0)
+Wasp allows you to easily add social login providers to your app. 
 
-The following is a quick example of how your `.wasp` file might look like when implementing social login. Make sure to read the specific sections for furter requirements (env variables) and override options:
+The following is a list of links to guides that will help you get started with the currently supported providers:
+- [GitHub](/docs/integrations/github)
+- [Google](/docs/integrations/google)
 
-```c title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
+When using Social Login Providers, Wasp gives you the following options:
+- Default settings to get you started quickly
+- UI Helpers to make it easy to add social login buttons and actions
+- Override settings to customize the behavior of the providers
 
+### Default Settings
+
+
+<Tabs>
+<TabItem value="google" label="Google" default>
+
+```c  
   auth: {
-    // both userEntity and externalAuthEntity are required
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
       google: {},
-      gitHub: {}
     },
   }
-}
+```
+    
+<p>Add <code>google: &#123;&#125;</code> to your <code>auth.methods</code> dictionary to use it with default settings</p>
+<p>By default, Wasp expects you to set two environment variables in order to use Google authentication:</p>
+<ul>
+  <li><code>GOOGLE_CLIENT_ID</code></li>
+  <li><code>GOOGLE_CLIENT_SECRET</code></li>
+</ul>
+<p>These can be obtained in your Google Cloud Console project dashboard. See <a href="/docs/integrations/google">here</a> for a detailed guide.</p>
 
-// Wasp requires the userEntity to have at least the following fields
+</TabItem>
+<TabItem value="gitHub" label="GitHub">
+
+```c
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      gitHub: {},
+    },
+  }
+```
+
+<p>Add <code>gitHub: &#123;&#125;</code> to your <code>auth.methods</code> dictionary to use it with default settings</p>
+<p>By default, Wasp expects you to set two environment variables in order to use GitHub authentication:</p>
+<ul>
+  <li><code>GITHUB_CLIENT_ID</code></li>
+  <li><code>GITHUB_CLIENT_SECRET</code></li>
+</ul>
+<p>These can be obtained in your GitHub project dashboard. See <a href="/docs/integrations/github">here</a> for a detailed guide.</p>
+
+</TabItem>
+</Tabs>
+
+When a user signs in for the first time, Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default (e.g. `username: nice-blue-horse-14357`), so make sure to include these in your `userEntity` declaration even if you're only using a Social Login provider. If you'd like to change this behavior, these values can be overridden as described below.
+
+:::tip Overriding Defaults
+It is also posslbe to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
+:::
+
+#### `externalAuthEntity`
+Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains the following configuration:
+
+```c {4,14}
+...
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+...
+
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     username                  String        @unique
@@ -1160,7 +1215,6 @@ entity User {=psl
     externalAuthAssociations  SocialLogin[]
 psl=}
 
-// Different social login providers can use the same externalAuthEntity
 entity SocialLogin {=psl
   id          Int       @id @default(autoincrement())
   provider    String
@@ -1171,50 +1225,54 @@ entity SocialLogin {=psl
   @@unique([provider, providerId, userId])
 psl=}
 ```
-
-Be sure to include an `externalAuthEntity` in your `auth` declaration, as [described here](features#externalauthentity). Note that the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-
-:::info
-Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default, so make sure to include it them your `userEntity` declaration even if you're only using a Social Login provider.
-
-If you require custom configuration setup or user entity field assignment, you can [override the defaults](features#google-overrides).
+:::note
+the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 :::
+### UI helpers
 
+Wasp provides sign-in buttons, logos and URLs for your login page:
 
-#### Google
+```jsx
+...
+import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/helpers/Google'
+import { SignInButton as GitHubSignInButton, signInUrl as gitHubSignInUrl, logoUrl as gitHubLogoUrl } from '@wasp/auth/helpers/GitHub'
 
-`google` authentication makes it possible to use Google's OAuth 2.0 service to sign Google users into your app. To enable it, add `google: {}` to your `auth.methods` dictionary to use it with default settings: 
+const Login = () => {
+  return (
+    <>
+      ...
 
-```c {6}
-  auth: {
-    // both userEntity and externalAuthEntity are required
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      google: {},
-    },
-  }
+      <GoogleSignInButton/>
+      <GitHubSignInButton/>
+      {/* or */}
+      <a href={googleSignInUrl}>Sign in with Google</a>
+      <a href={gitHubSignInUrl}>Sign in with GitHub</a>
+    </>
+  )
+}
+
+export default Login
 ```
 
-##### Google Default settings
-- Configuration:
-  - By default, Wasp expects you to set two environment variables in order to use Google authentication:
-    - `GOOGLE_CLIENT_ID`
-    - `GOOGLE_CLIENT_SECRET`
-  - These can be obtained in your Google Cloud Console project dashboard. See [here](/docs/integrations/google#google-auth) for more.
-- Sign in:
-  - When a user signs in for the first time, Wasp will create a new User account and link it to their Google account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, like "nice-blue-horse-27160".
-  :::note Changing Random Username
-    If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your User entity which indicates if the account setup is complete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate -- e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage`.
+If you need more customization than what the buttons provide, you can create your own custom components using the `signInUrl`s.
 
-    Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their Google account, as described in **Overrides** below 
-  :::
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/defaults.js . These can be overriden as explained below.
+### Overrides
 
-##### Google Overrides
-If you require modifications to the above, you can add one or more of the following to your `auth.methods.google` dictionary:
+When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`.
 
-```js
+If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your `User` entity indicating the account setup is incomplete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate
+  - e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage` where they can edit the `username` property.
+
+Alternatively, you could add a `displayName` property to your User entity and assign it using the details of their provider account. Below is an example of how to do this by using:
+  - the `getUserFieldsFn` function to configure the user's `username` or `displayName` from their provider account
+
+We also show you how to customize the configuration of the Provider's settings using:  
+  - the `configFn` function
+
+```c title=main.wasp {9,10,13,14,26}
+app Example {
+  //...
+
   auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
@@ -1222,26 +1280,73 @@ If you require modifications to the above, you can add one or more of the follow
       google: {
         configFn: import { config } from "@server/auth/google.js",
         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      },
+      gitHub: {
+        configFn: import { config } from "@server/auth/github.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       }
     },
-    ...
+
+   //...
   }
+}
+
+entity User {=psl
+    id          Int     @id @default(autoincrement())
+    username    String  @unique
+    password    String
+    displayName String?
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+//...
+
 ```
 
-- `configFn`: This function should return an object with the following shape:
-  ```js title=src/server/auth/google.js
-  export function config() {
-    // ...
-    return {
-      clientID, // look up from env or elsewhere,
-      clientSecret, // look up from env or elsewhere,
-      scope: ['profile'] // must include at least 'profile' for Google
-    }
-  }
 
+#### `configFn` 
+
+This function should return an object with the following shape:
+<Tabs>
+<TabItem value="google" label="Google" default>
+
+```js title=src/server/auth/google.js
+export function config() {
   // ...
-  ```
-- `getUserFieldsFn`: This function should return the user fields to use when creating a new user upon their first Google login. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
+  return {
+    clientID, // look up from env or elsewhere,
+    clientSecret, // look up from env or elsewhere,
+    scope: ['profile'] // must include at least 'profile' for Google
+  }
+}
+
+// ...
+```
+
+<p>Here is a link to the <a href="https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/google/defaults.js">default implementations</a> as a reference</p>
+</TabItem>
+<TabItem value="github" label="GitHub">
+
+```js title=src/server/auth/github.js
+export function config() {
+  // ...
+  return {
+    clientID, // look up from env or elsewhere,
+    clientSecret, // look up from env or elsewhere,
+    scope: [] // default is an empty array for GitHub
+  }
+}
+
+// ...
+```
+
+<p>Here is a link to the <a href="https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/github/defaults.js">default implementations</a> as a reference</p>
+</TabItem>
+</Tabs>
+
+#### `getUserFieldsFn`
+
+This function should return the user fields to use when creating a new user upon their first time logging in with a Social Auth Provider. The context contains a User entity for DB access, and the args are what the OAuth provider responds with. Here is how you could generate a username based on the Google display name. In your model, you could choose to add more attributes and set additional information.
   ```js title=src/server/auth/google.js
   import { generateAvailableUsername } from '@wasp/core/auth.js'
 
@@ -1252,92 +1357,22 @@ If you require modifications to the above, you can add one or more of the follow
     return { username }
   }
   ```
-  - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
 
-##### Google UI helpers
+  Or you could set the optional `displayName` property on the `User` entity instead:
+  ```js title=src/server/auth/google.js
+  import { generateAvailableDictionaryUsername, generateAvailableUsername } from '@wasp/core/auth.js'
 
-To use the Google sign-in button, logo or URL on your login page, do either of the following:
+  // ...
 
-```js
-...
-import { SignInButton as GoogleSignInButton, signInUrl as googleSignInUrl, logoUrl as googleLogoUrl } from '@wasp/auth/helpers/Google'
-
-const Login = () => {
-  return (
-    <>
-      ...
-
-      <GoogleSignInButton/>
-      {/* or */}
-      <a href={googleSignInUrl}>Sign in with Google</a>
-    </>
-  )
-}
-
-export default Login
-```
-
-If you need more customization than what the buttons provide, you can create your own custom component using the `googleSignInUrl`.
-
-#### GitHub
-
-`gitHub` authentication makes it possible to use GitHub's OAuth 2.0 service to sign GitHub users into your app. To enable it, add `gitHub: {}` to your `auth.methods` dictionary to use it with default settings: 
-
-```c {7}
-  //...
-
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      gitHub: {}
-    },
-    //...
+  export async function getUserFields(_context, args) {
+    const username = await generateAvailableDictionaryUsername()
+    const displayName = await generateAvailableUsername(args.profile.displayName.split(' '), { separator: '.' })
+    return { username, displayName }
   }
-```
+  ```
+  - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
+  - `generateAvailableDictionaryUsername` generates a random dictionary phrase that is not yet in the database. For example, `nice-blue-horse-27160`.
 
-This method requires also requires that `externalAuthEntity` be specified in `auth` as [described here](features#externalauthentity). NOTE: The same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
-
-If you require custom configuration setup or user entity field assignment, you can override the defaults. Please check out that section for [Google overrides](features#google-overrides), as the information is the same.
-
-##### GitHub Default settings
-- Configuration:
-  - By default, Wasp expects you to set two environment variables in order to use GitHub authentication:
-    - `GITHUB_CLIENT_ID`
-    - `GITHUB_CLIENT_SECRET`
-  - These can be obtained in your GitHub project dashboard. See [here](/docs/integrations/github#github-auth) for more.
-- The same sign-in logic applies as for Google. Please see [that section](features#google-default-settings) for more.
-- Here is a link to the default implementations: https://github.com/wasp-lang/wasp/blob/release/waspc/data/Generator/templates/server/src/routes/auth/passport/github/defaults.js
-
-NOTE: The same UI helpers apply as for Google. Please [see here](features#google-ui-helpers) for more.
-
-#### `externalAuthEntity`
-Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains at least the following highlighted fields:
-
-```c {4,11,16-19,21}
-...
-  auth: {
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-...
-
-entity User {=psl
-    id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
-    externalAuthAssociations  SocialLogin[]
-psl=}
-
-entity SocialLogin {=psl
-  id          Int       @id @default(autoincrement())
-  provider    String
-  providerId  String
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  createdAt   DateTime  @default(now())
-  @@unique([provider, providerId, userId])
-psl=}
-```
 
 ## Client configuration
 
