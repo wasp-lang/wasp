@@ -27,7 +27,7 @@ data JsImport = JsImport
     -- | What is being imported. NOTE: We don't currenly support multiple names in one statement,
     --   that's why it's "name" and not "names".
     _name :: JsImportName,
-    -- | Alias for the imported name
+    -- | Alias for the imported name.
     _importAlias :: Maybe JsImportAlias
   }
   deriving (Show, Eq, Data)

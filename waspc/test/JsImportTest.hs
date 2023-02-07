@@ -9,45 +9,43 @@ spec_JsImportTest :: Spec
 spec_JsImportTest = do
   describe "makeJsImport" $ do
     it "makes JsImport with default import from a path" $ do
-      makeJsImport pathToJsFile (JsImportModule "test")
+      makeJsImport testJsFileImportPath (JsImportModule "test")
         `shouldBe` JsImport
-          { _path = pathToJsFile,
+          { _path = testJsFileImportPath,
             _name = JsImportModule "test",
             _importAlias = Nothing
           }
   describe "applyJsImportAlias" $ do
     it "applies alias to JsImport" $ do
-      applyJsImportAlias
-        (Just "alias")
-        (makeJsImport pathToJsFile (JsImportModule "test"))
-        `shouldBe` JsImport
-          { _path = pathToJsFile,
-            _name = JsImportModule "test",
-            _importAlias = Just "alias"
-          }
-  describe "generateJsImportStatement" $ do
-    it "generates import statement for default import" $ do
-      getJsImportStmtAndIdentifier
-        (makeJsImport pathToJsFile (JsImportModule "test"))
-        `shouldBe` ("import test from './ext-src/folder/test.js'", "test")
-    it "generates import statement for default import with alias" $ do
-      getJsImportStmtAndIdentifier
-        ( applyJsImportAlias
-            (Just "alias")
-            (makeJsImport pathToJsFile (JsImportModule "test"))
-        )
-        `shouldBe` ("import alias from './ext-src/folder/test.js'", "alias")
-    it "generates import statement for named import" $ do
-      getJsImportStmtAndIdentifier
-        (makeJsImport pathToJsFile (JsImportField "test"))
-        `shouldBe` ("import { test } from './ext-src/folder/test.js'", "test")
-    it "generates import statement for named import with alias" $ do
-      getJsImportStmtAndIdentifier
-        ( applyJsImportAlias
-            (Just "alias")
-            (makeJsImport pathToJsFile (JsImportField "test"))
-        )
-        `shouldBe` ("import { test as alias } from './ext-src/folder/test.js'", "alias")
+      let jsImport = makeJsImport testJsFileImportPath (JsImportModule "test")
+      applyJsImportAlias (Just "alias") jsImport
+        `shouldBe` jsImport {_importAlias = Just "alias"}
+  describe "getJsImportStmtAndIdentifier" $ do
+    describe "generates import statement and identifier from" $ do
+      it "default import" $ do
+        getJsImportStmtAndIdentifier
+          (makeJsImport testJsFileImportPath (JsImportModule "test"))
+          `shouldBe` ("import test from '" ++ generatedImportPathForTestJsFile ++ "'", "test")
+      it "default import with alias" $ do
+        getJsImportStmtAndIdentifier
+          ( applyJsImportAlias
+              (Just "alias")
+              (makeJsImport testJsFileImportPath (JsImportModule "test"))
+          )
+          `shouldBe` ("import alias from '" ++ generatedImportPathForTestJsFile ++ "'", "alias")
+      it "named import" $ do
+        getJsImportStmtAndIdentifier
+          (makeJsImport testJsFileImportPath (JsImportField "test"))
+          `shouldBe` ("import { test } from '" ++ generatedImportPathForTestJsFile ++ "'", "test")
+      it "named import with alias" $ do
+        getJsImportStmtAndIdentifier
+          ( applyJsImportAlias
+              (Just "alias")
+              (makeJsImport testJsFileImportPath (JsImportField "test"))
+          )
+          `shouldBe` ("import { test as alias } from '" ++ generatedImportPathForTestJsFile ++ "'", "alias")
   where
-    pathToJsFile :: Path Posix (Rel Dir') File'
-    pathToJsFile = [SP.reldirP|ext-src|] </> [SP.relfileP|folder/test.js|]
+    testJsFileImportPath :: Path Posix (Rel Dir') File'
+    testJsFileImportPath = [SP.reldirP|ext-src|] </> [SP.relfileP|folder/test.js|]
+
+    generatedImportPathForTestJsFile = "./ext-src/folder/test.js"

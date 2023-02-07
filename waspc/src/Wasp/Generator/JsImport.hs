@@ -1,6 +1,6 @@
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
-    RelDirToExternalCodeDir,
+    PathFromImportLocationToExtCodeDir,
   )
 where
 
@@ -14,20 +14,20 @@ import Wasp.JsImport
     makeJsImport,
   )
 
-type RelDirToExternalCodeDir = Path Posix (Rel GeneratedExternalCodeDir) Dir'
+type PathFromImportLocationToExtCodeDir = Path Posix (Rel GeneratedExternalCodeDir) Dir'
 
 extImportToJsImport ::
   -- | Path to directory with external code, relative to generated code source dir (server or web app).
   Path Posix (Rel ()) (Dir GeneratedExternalCodeDir) ->
-  RelDirToExternalCodeDir ->
+  PathFromImportLocationToExtCodeDir ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport pathToExternalCodeDir relDirToExternalCodeDir extImport = makeJsImport importPath importName
+extImportToJsImport pathToExternalCodeDir pathFromImportLocationToExtCodeDir extImport = makeJsImport importPath importName
   where
     userDefinedPath = SP.castRel $ EI.path extImport
     importName = extImportNameToJsImportName $ EI.name extImport
-    importPath = SP.castRel $ relDirToExternalCodeDir </> pathToExternalCodeDir </> userDefinedPath
+    importPath = SP.castRel $ pathFromImportLocationToExtCodeDir </> pathToExternalCodeDir </> userDefinedPath
 
-extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
-extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
-extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
+    extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
+    extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
+    extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
