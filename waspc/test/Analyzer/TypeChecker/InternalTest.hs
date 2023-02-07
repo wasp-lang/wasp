@@ -1,6 +1,7 @@
 module Analyzer.TypeChecker.InternalTest where
 
 import Analyzer.TestUtil (ctx, fromWithCtx)
+import Data.Either (isLeft)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -67,6 +68,76 @@ spec_Internal = do
         wctx6 = WithCtx ctx6
         wctx7 = WithCtx ctx7
 
+    describe "checkIsSubTypeOf" $ do
+      describe "for lists" $ do
+        let emptyListExpr = wctx1 $ List [] EmptyListType
+        it "should confirm that an empty list is a subtype of any list" $ do
+          checkIsSubTypeOf emptyListExpr EmptyListType `shouldBe` Right ()
+          checkIsSubTypeOf emptyListExpr (ListType StringType) `shouldBe` Right ()
+          checkIsSubTypeOf emptyListExpr (ListType $ DictType H.empty) `shouldBe` Right ()
+        it "should confirm that an empty list is NOT a subtype of a non-list type" $ do
+          isLeft (checkIsSubTypeOf emptyListExpr NumberType) `shouldBe` True
+          isLeft (checkIsSubTypeOf emptyListExpr (DictType H.empty)) `shouldBe` True
+        it "should confirm that a non-empty list is NOT a subtype of an empty list" $ do
+          let integerListExpr = wctx1 $ List [wctx2 $ IntegerLiteral 5] (ListType NumberType)
+          isLeft (checkIsSubTypeOf integerListExpr EmptyListType) `shouldBe` True
+        it "should confirm that a list with elements of type T1 is a subtype of list with elements of type T2 when T1 is a subtype of T2" $ do
+          let listOfEmptyLists = wctx1 $ List [wctx2 $ List [] EmptyListType] (ListType EmptyListType)
+          checkIsSubTypeOf listOfEmptyLists (ListType $ ListType StringType) `shouldBe` Right ()
+
+      describe "for dictionaries" $ do
+        let d1Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictRequired NumberType)]
+        let d1Expr = wctx1 $ Dict [("a", wctx2 $ BoolLiteral True), ("b", wctx3 $ IntegerLiteral 2)] d1Type
+
+        describe "should confirm that a dict expr D1 is subtype of dict type D2 when" $ do
+          it "D2 is type of D1" $ do
+            checkIsSubTypeOf d1Expr d1Type `shouldBe` Right ()
+          it "D1 contains all fields specified by D2 (and only those), where D2 has some optional fields" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
+            checkIsSubTypeOf d1Expr d2Type `shouldBe` Right ()
+          it "D1 contains all required fields specified by D2 (and only those), where D2 has some optional fields" $ do
+            let d2Type =
+                  DictType $
+                    H.fromList
+                      [ ("a", DictRequired BoolType),
+                        ("b", DictRequired NumberType),
+                        ("c", DictOptional NumberType)
+                      ]
+            checkIsSubTypeOf d1Expr d2Type `shouldBe` Right ()
+          it "D2 has a field of type T1 and D1 has a field of type T2, where T1 is a subtype of T2" $ do
+            let d1Type' = DictType $ H.fromList [("a", DictRequired EmptyListType)]
+            let d1Expr' = wctx1 $ Dict [("a", wctx2 $ List [] EmptyListType)] d1Type'
+            let d2Type' = DictType $ H.fromList [("a", DictRequired $ ListType StringType)]
+            checkIsSubTypeOf d1Expr' d2Type' `shouldBe` Right ()
+
+        describe "should confirm that a dict expr D1 is NOT a subtype of dict type D2 when" $ do
+          it "D1 contains a field not specified by D2" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType)]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+          it "D1 does contain a field specified by D2 but has different type" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional BoolType)]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+          it "D1 does not contain a required field specified by D2" $ do
+            let d2Type =
+                  DictType $
+                    H.fromList
+                      [ ("a", DictRequired BoolType),
+                        ("b", DictOptional NumberType),
+                        ("c", DictRequired NumberType)
+                      ]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+
+      it "should fail for non-related types" $ do
+        isLeft (checkIsSubTypeOf (wctx1 $ IntegerLiteral 5) StringType) `shouldBe` True
+        isLeft (checkIsSubTypeOf (wctx1 $ StringLiteral "a") EmptyListType) `shouldBe` True
+        isLeft (checkIsSubTypeOf (wctx1 $ List [wctx2 $ IntegerLiteral 5] (ListType NumberType)) BoolType) `shouldBe` True
+        isLeft
+          ( checkIsSubTypeOf
+              (wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 5)] (DictType H.empty))
+              (ListType StringType)
+          )
+          `shouldBe` True
+
     describe "check" $ do
       describe "Correctly type checks an AST" $ do
         it "When a declaration is used before its definition" $ do
@@ -112,7 +183,7 @@ spec_Internal = do
           let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
               actual = unify ctx1 initial
            in actual == Right NumberType
-      it "Correctly unigies two dictionaries of the same type" $ do
+      it "Correctly unifies two dictionaries of the same type" $ do
         let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
         let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
         let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ

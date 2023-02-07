@@ -29,6 +29,7 @@ module Wasp.Analyzer.TypeChecker.Internal
     inferExprType,
     unify,
     unifyTypes,
+    checkIsSubTypeOf,
   )
 where
 
