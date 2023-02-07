@@ -21,6 +21,7 @@ module Wasp.Generator.DbGenerator.Common
     webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
     prismaClientOutputDirEnvVar,
+    databaseUrlEnvVar,
   )
 where
 
@@ -92,6 +93,9 @@ dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </>
 
 prismaClientOutputDirEnvVar :: String
 prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
+
+databaseUrlEnvVar :: String
+databaseUrlEnvVar = "DATABASE_URL"
 
 prismaClientOutputDirInModuleDir :: Path' (Rel d) (Dir ServerRootDir)
 prismaClientOutputDirInModuleDir = [reldir|node_modules/.prisma/client|]

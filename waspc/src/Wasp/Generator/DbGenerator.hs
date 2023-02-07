@@ -21,6 +21,7 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumOnLastDbConcurrenceFile,
     PrismaDbSchema,
+    databaseUrlEnvVar,
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
@@ -53,8 +54,8 @@ genPrismaSchema ::
   AppSpec ->
   Generator FileDraft
 genPrismaSchema spec = do
-  (datasourceProvider, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
+  (datasourceProvider :: String, datasourceUrl) <- case dbSystem of
+    AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVar) 
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
@@ -63,15 +64,16 @@ genPrismaSchema spec = do
   let templateData =
         object
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
-            "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String),
-            "prismaClientOutputDirEnvVar" .= prismaClientOutputDirEnvVar
+            "datasourceProvider" .= datasourceProvider,
+            "datasourceUrl" .= datasourceUrl,
+            "prismaClientOutputDir" .= makeEnvVarField prismaClientOutputDirEnvVar
           ]
 
   return $ createTemplateFileDraft dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
     dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
+    makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
@@ -153,7 +155,7 @@ warnProjectDiffersFromDb projectRootDir = do
         else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
     -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
-    -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.
+    -- Or it could mean their databaseUrlEnvVar is wrong, or database is down, or any other number of causes.
     -- In any case, migrating will either solve it (in the SQLite case), or allow Prisma to give them enough info to troubleshoot.
     Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to verify your database is up to date. Running `wasp db migrate-dev` may fix this and will provide more info."
 
