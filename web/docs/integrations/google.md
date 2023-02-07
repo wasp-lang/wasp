@@ -47,7 +47,7 @@ psl=}
 
 For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20) section of the docs.
 
-If you're adding a new entity to your `.wasp` file for the first time, make sure to create the table for it in your database:
+If you're adding a new entity to your `.wasp` file, make sure you migrate your database schema:
 ```shell
 wasp db migrate-dev
 ```

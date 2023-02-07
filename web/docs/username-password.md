@@ -48,7 +48,7 @@ You'll also need to add these environment variables to your `.env.server` file a
 JWT_SECRET=random-string-at-least-32-characters-long.
 ```
 
-With `auth` now defined, Wasp offers a number of great features out of the box:
+With `auth` now defined, Wasp offers a number of handy features out of the box:
 - [Login and Signup forms](docs/language/features#high-level-api) located at `@wasp/auth/forms/Login` and `@wasp/auth/forms/Signup` paths, ready to be styled and used.
 - The `logout()` action.
 - The `useAuth()` hook to access the logged-in user client-side.
