@@ -1,5 +1,5 @@
 ---
-title: GitHub Integrations
+title: GitHub
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -65,7 +65,7 @@ We will cover how to get these values in the next section.
 
 ## GitHub Auth
 
-To use GitHub as an authentication method (covered [here](/docs/language/features#github)), you'll first need to create a GitHub OAuth App and provide Wasp with your client key and secret. Here is how to do so:
+To use GitHub as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20)), you'll first need to create a GitHub OAuth App and provide Wasp with your client key and secret. Here is how to do so:
 
 1. Log into your GitHub account and navigate to: https://github.com/settings/developers
 2. Select "New OAuth App"
@@ -80,4 +80,7 @@ To use GitHub as an authentication method (covered [here](/docs/language/feature
   - Once you know on which URL your API server will be deployed, you can create a new app with that URL instead.
       - For example: `https://someotherhost.com/auth/login/github`
 4. Hit "Register application"
-5. Copy your Client ID and Client secret, and expose them as environment variables named `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` wherever your app is running
+5. Copy your Client ID and Client secret, and paste them into your environment variables named `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET`in your `.env.server` file.
+6. Now when youre user logs in with GitHub, you can access the logged in user on the client via the `useAuth()` hook, and on the server via the `context.user` object as described [here](/docs/language/features#accessing-the-currently-logged-in-user)!
+
+

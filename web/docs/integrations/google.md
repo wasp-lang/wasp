@@ -1,5 +1,5 @@
 ---
-title: Google Integrations
+title: Google
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -64,7 +64,7 @@ We will cover how to get these values in the next section.
 
 ## Google Auth
 
-To use Google as an authentication method (covered [here](/docs/language/features#google)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
+To use Google as an authentication method (covered [here](/docs/language/features#social-login-providers-oauth-20)), you'll first need to create a Google project and provide Wasp with your client key and secret. Here is how to do so:
 
 1. Create a Google Cloud Platform account if you do not already have one: https://cloud.google.com/
 2. Create and configure a new Google project here: https://console.cloud.google.com/home/dashboard
@@ -120,4 +120,5 @@ To use Google as an authentication method (covered [here](/docs/language/feature
 
     ![Google Console Screenshot 14](../../static/img/integrations-google-14.jpg)
 
-5. Copy your Client ID and Client secret, and expose them as environment variables named `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` wherever your app is running
+5. Copy your Client ID and Client secret, and expose them as environment variables named `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in your `.env.server` file.
+6. Now when your user logs in with Google, you can access the logged in user on the client via the `useAuth()` hook, and on the server via the `context.user` object as described [here](/docs/language/features#accessing-the-currently-logged-in-user)!
