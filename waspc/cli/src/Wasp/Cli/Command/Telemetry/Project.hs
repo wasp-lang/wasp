@@ -18,6 +18,7 @@ import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import qualified Data.ByteString.UTF8 as ByteStringUTF8
 import Data.Char (toLower)
 import Data.Functor ((<&>))
+import Data.List (intercalate, intersect)
 import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Time as T
 import Data.Version (showVersion)
@@ -41,6 +42,7 @@ considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
 
   let relevantLastCheckIn = case cmdCall of
         Command.Call.Build -> _lastCheckInBuild projectCache
+        Command.Call.Deploy _ -> _lastCheckInDeploy projectCache
         _ -> _lastCheckIn projectCache
 
   shouldSendData <- case relevantLastCheckIn of
@@ -106,7 +108,8 @@ getWaspProjectPathHash = ProjectHash . take 16 . sha256 . SP.toFilePath <$> find
 
 data ProjectTelemetryCache = ProjectTelemetryCache
   { _lastCheckIn :: Maybe T.UTCTime, -- Last time when CLI was called for this project, any command.
-    _lastCheckInBuild :: Maybe T.UTCTime -- Last time when CLI was called for this project, with Build command.
+    _lastCheckInBuild :: Maybe T.UTCTime, -- Last time when CLI was called for this project, with Build command.
+    _lastCheckInDeploy :: Maybe T.UTCTime -- Last time when CLI was called for this project, with Deploy command.
   }
   deriving (Generic, Show)
 
@@ -115,7 +118,7 @@ instance Aeson.ToJSON ProjectTelemetryCache
 instance Aeson.FromJSON ProjectTelemetryCache
 
 initialCache :: ProjectTelemetryCache
-initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild = Nothing}
+initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild = Nothing, _lastCheckInDeploy = Nothing}
 
 -- * Project telemetry cache file.
 
@@ -155,6 +158,7 @@ data ProjectTelemetryData = ProjectTelemetryData
     _waspVersion :: String,
     _os :: String,
     _isBuild :: Bool,
+    _deployCmdArgs :: String,
     _context :: String
   }
   deriving (Show)
@@ -169,8 +173,16 @@ getProjectTelemetryData userSignature projectHash cmdCall context =
       _isBuild = case cmdCall of
         Command.Call.Build -> True
         _ -> False,
+      _deployCmdArgs = case cmdCall of
+        Command.Call.Deploy deployCmdArgs -> intercalate ";" $ extractKeyDeployArgs deployCmdArgs
+        _ -> "",
       _context = context
     }
+
+-- We don't really want or need to see all the things users
+-- pass to the deploy script. Let's only track what we need.
+extractKeyDeployArgs :: [String] -> [String]
+extractKeyDeployArgs = intersect ["fly", "setup", "create-db", "deploy", "cmd"]
 
 sendTelemetryData :: ProjectTelemetryData -> IO ()
 sendTelemetryData telemetryData = do
@@ -188,6 +200,7 @@ sendTelemetryData telemetryData = do
                   "wasp_version" .= _waspVersion telemetryData,
                   "os" .= _os telemetryData,
                   "is_build" .= _isBuild telemetryData,
+                  "deploy_cmd_args" .= _deployCmdArgs telemetryData,
                   "context" .= _context telemetryData
                 ]
           ]
