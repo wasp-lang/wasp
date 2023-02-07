@@ -4,11 +4,7 @@ module.exports = {
       type: 'category',
       label: 'Introduction',
       collapsed: false,
-      items: [
-        'getting-started',
-        'about',
-        'how-it-works',
-      ]
+      items: ['getting-started', 'about', 'how-it-works'],
     },
     {
       type: 'category',
@@ -30,58 +26,44 @@ module.exports = {
                 'tutorials/todo-app/02-task-entity',
                 'tutorials/todo-app/03-listing-tasks',
                 'tutorials/todo-app/04-creating-tasks',
-                'tutorials/todo-app/05-updating-tasks'
-              ]
+                'tutorials/todo-app/05-updating-tasks',
+              ],
             },
             'tutorials/todo-app/06-auth',
             'tutorials/todo-app/07-dependencies',
-            'tutorials/todo-app/08-the-end'
-          ]
+            'tutorials/todo-app/08-the-end',
+          ],
         },
-      ]
+      ],
     },
     'examples',
-    { 
+    {
       type: 'category',
       label: 'Guides',
       collapsed: false,
       items: [
         {
           type: 'category',
-          label: 'Auth Providers',
+          label: 'Authentication',
           collapsed: false,
-          items: [
-            'integrations/github',
-            'integrations/google',
-          ]
+          items: ['integrations/github', 'integrations/google', 'username-password'],
         },
         'integrations/css-frameworks',
         'deploying',
-        
       ],
-
     },
     {
       type: 'category',
       label: 'Language',
       collapsed: false,
-      items: [
-        'language/overview',
-        'language/syntax',
-        'language/features'
-      ]
+      items: ['language/overview', 'language/syntax', 'language/features'],
     },
     'cli',
     {
       type: 'category',
       label: 'Other',
       collapsed: true,
-      items: [
-        'contributing',
-        'vision',
-        'telemetry',
-        'contact'
-      ]
-    }
-  ]
-}
+      items: ['contributing', 'vision', 'telemetry', 'contact'],
+    },
+  ],
+};
