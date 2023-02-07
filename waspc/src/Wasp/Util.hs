@@ -4,6 +4,7 @@ module Wasp.Util
   ( Checksum,
     camelToKebabCase,
     checksumFromString,
+    getEnvVarDefinition,
     checksumFromText,
     checksumFromByteString,
     onFirst,
@@ -217,3 +218,6 @@ orIfNothingM = flip fromMaybeM
 
 maybeToEither :: a -> Maybe b -> Either a b
 maybeToEither leftValue = maybe (Left leftValue) Right
+
+getEnvVarDefinition :: (String, String) -> String
+getEnvVarDefinition (name, value) = concat [name, "=", value]

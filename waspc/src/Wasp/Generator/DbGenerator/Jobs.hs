@@ -8,16 +8,15 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, reldir, (</>))
+import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( DbRootDir,
-    MigrateArgs (..),
+  ( MigrateArgs (..),
     dbSchemaFileInProjectRootDir,
-    prismaClientOutputDirEnvVar,
+    serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
@@ -46,7 +45,7 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  runNodeCommandAsJobWithExtraEnv [(prismaClientOutputDirEnvVar, "todo-what-to-do")] serverDir "script" scriptArgs J.Db
+  runNodeCommandAsJobWithExtraEnv [serverPrismaClientOutputDirEnv] serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
@@ -72,6 +71,8 @@ migrateDiff projectDir = do
           "--exit-code"
         ]
 
+  -- TODO: Prisma migrate will generate a client whether we want it or not. Therefore, I passed
+  -- in the server's client location. We should probably generate one for the web app as well.
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
 
 -- | Checks to see if all migrations are applied to the DB.
@@ -101,13 +102,12 @@ runStudio projectDir =
     schemaFile = projectDir </> dbSchemaFileInProjectRootDir
     prismaStudioCmdArgs = ["studio", "--schema", SP.toFilePath schemaFile]
 
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel DbRootDir) (Dir a) -> JobType -> J.Job
-generatePrismaClient projectDir moduleDir jobType =
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> (String, String) -> JobType -> J.Job
+generatePrismaClient projectDir prismaClientOutputDirEnv jobType =
   runNodeCommandAsJobWithExtraEnv envVars serverRootDir prismaExecutable prismaGenerateCmdArgs jobType
   where
+    envVars = [prismaClientOutputDirEnv]
     serverRootDir = projectDir </> serverRootDirInProjectRootDir
-    envVars = [(prismaClientOutputDirEnvVar, clientOutputDir)]
-    clientOutputDir = SP.fromRelDir $ moduleDir </> [reldir|node_modules/.prisma/client|]
     prismaExecutable = absPrismaExecutableFp projectDir
     prismaGenerateCmdArgs = ["generate", "--schema", schemaFile]
     schemaFile = SP.fromAbsFile $ projectDir </> dbSchemaFileInProjectRootDir

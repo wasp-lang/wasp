@@ -19,8 +19,7 @@ import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( DbRootDir,
-    MigrateArgs,
+  ( MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
@@ -28,8 +27,8 @@ import Wasp.Generator.DbGenerator.Common
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInProjectRootDir,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
-    serverRootDirFromDbRootDir,
-    webAppRootDirFromDbRootDir,
+    serverPrismaClientOutputDirEnv,
+    webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -106,13 +105,13 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForClient
+generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp
   where
-    generatePrismaClientForServer = generatePrismaClient serverRootDirFromDbRootDir J.Server
-    generatePrismaClientForClient = generatePrismaClient webAppRootDirFromDbRootDir J.WebApp
+    generatePrismaClientForServer = generatePrismaClient serverPrismaClientOutputDirEnv J.Server
+    generatePrismaClientForWebApp = generatePrismaClient webAppPrismaClientOutputDirEnv J.WebApp
 
 generatePrismaClient ::
-  Path' (Rel DbRootDir) (Dir a) ->
+  (String, String) ->
   J.JobType ->
   Path' Abs (Dir ProjectRootDir) ->
   IO (Either String ())
