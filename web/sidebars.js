@@ -40,6 +40,26 @@ module.exports = {
         },
       ]
     },
+    'examples',
+    { 
+      type: 'category',
+      label: 'Guides',
+      collapsed: false,
+      items: [
+        {
+          type: 'category',
+          label: 'Authentication',
+          collapsed: false,
+          items: [
+            'integrations/github',
+            'integrations/google',
+            'username-password'
+          ]
+        },
+        'integrations/css-frameworks',
+        'deploying',
+      ],
+    },
     {
       type: 'category',
       label: 'Language',
@@ -51,22 +71,10 @@ module.exports = {
       ]
     },
     'cli',
-    'deploying',
-    'examples',
-    {
-      type: 'category',
-      label: 'Integrations',
-      collapsed: false,
-      items: [
-        'integrations/github',
-        'integrations/google',
-        'integrations/css-frameworks'
-      ]
-    },
     {
       type: 'category',
       label: 'Other',
-      collapsed: false,
+      collapsed: true,
       items: [
         'contributing',
         'vision',

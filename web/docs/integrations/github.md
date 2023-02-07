@@ -4,7 +4,64 @@ title: GitHub Integrations
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# GitHub Integrations
+# GitHub
+
+To implement GitHub Auth, you'll need to add the Auth object with the following configuration to your `main.wasp` file:
+```c title="main.wasp"
+app Example {
+  wasp: {
+    version: "^0.8.0"
+  },
+
+  title: "Example",
+
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      gitHub: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+}
+
+//...
+
+entity User {=psl
+    id          Int     @id @default(autoincrement())
+    username    String  @unique
+    password    String
+    externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+```
+
+For more info on the specific fields, check out this [Auth](../language/features#social-login-providers-oauth-20) section of the docs.
+
+If you're adding a new entity to your `.wasp` file for the first time, make sure to create the table for it in your database:
+```shell
+wasp db migrate-dev
+```
+
+You'll also need to add these environment variables to your `.env.server` file at the root of your project:
+
+```bash title=".env.server"
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+JWT_SECRET=random-string-at-least-32-characters-long.
+```
+We will cover how to get these values in the next section.
+
 
 ## GitHub Auth
 

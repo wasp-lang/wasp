@@ -861,7 +861,7 @@ Automatic redirect on successful login only works when using the Wasp provided [
 `usernameAndPassword` authentication method makes it possible to signup/login into the app by using a username and password.
 This method requires that `userEntity` specified in `auth` contains `username: string` and `password: string` fields:
 
-```c 
+```c title="main.wasp"
 app MyApp {
   title: "My app",
   //...
@@ -907,7 +907,7 @@ If you require more control in your authentication flow, you can achieve that in
 - If you want to execute custom code on the server during sign up, create your own sign up action which invokes Prisma client as `context.entities.[USER_ENTITY].create()` function, along with your custom code.
 
 The code of your custom sign-up action would look like this (your user entity being `User` in this instance):
-```js
+```js title="src/server/auth/signup.js"
 export const signUp = async (args, context) => {
   // Your custom code before sign-up.
   // ...
@@ -932,21 +932,26 @@ You don't need to worry about hashing the password yourself! Even when you are u
 ##### Customizing user entity validations
 
 To disable/enable default validations, or add your own, you can modify your custom signUp function like so:
-```js
-const newUser = context.entities.User.create({
-  data: { 
-    username: args.username, 
-    password: args.password // password hashed automatically by Wasp! 🐝
-  },
-  _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
-  _waspCustomValidations: [
-    {
-      validates: 'password',
-      message: 'password must contain an uppercase letter',
-      validator: password => /[A-Z]/.test(password)
+```js title="src/server/auth/signup.js"
+export const signUp = async (args, context) => {
+
+  const newUser = context.entities.User.create({
+    data: { 
+      username: args.username, 
+      password: args.password // password hashed automatically by Wasp! 🐝
     },
-  ]
-})
+    _waspSkipDefaultValidations: false, // can be omitted if false (default), or explicitly set to true
+    _waspCustomValidations: [
+      {
+        validates: 'password',
+        message: 'password must contain an uppercase letter',
+        validator: password => /[A-Z]/.test(password)
+      },
+    ]
+  })
+
+  return newUser
+}
 ```
 
 :::info
@@ -1040,7 +1045,7 @@ With that, we can further implement access control and decide which content is p
 
 #### On the client
 On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
-This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
+This hook is actually a thin wrapper over Wasp's [`useQuery` hook](#the-usequery-hook) and returns data in the same format.
 
 ### `useAuth()`
 #### `import statement`:
@@ -1056,7 +1061,6 @@ import { Link } from 'react-router-dom'
 import useAuth from '@wasp/auth/useAuth.js'
 import logout from '@wasp/auth/logout.js'
 import Todo from '../Todo.js'
-import '../Main.css'
 
 const Main = () => {
   const { data: user } = useAuth()
@@ -1072,7 +1076,7 @@ const Main = () => {
       <>
         <button onClick={logout}>Logout</button>
         <Todo />
-      < />
+      </>
     )
   }
 }
