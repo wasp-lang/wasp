@@ -11,14 +11,19 @@ import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (File, File', Path', Rel, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, latestMajorNodeVersion)
+import Wasp.Generator.Common
+  ( ProjectRootDir,
+    ServerRootDir,
+    latestMajorNodeVersion,
+  )
 import Wasp.Generator.DbGenerator.Common
-  ( dbSchemaFileFromModuleDir,
+  ( PrismaDbSchema,
+    dbSchemaFileFromModuleDir,
     serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
@@ -36,6 +41,7 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
   usingServerPatches <- areServerPatchesUsed spec
+  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromModuleDir
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel ProjectRootDir) File')
@@ -44,7 +50,7 @@ genDockerfile spec = do
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
               "serverPrismaClientOutputDirEnv" .= getEnvVarDefinition serverPrismaClientOutputDirEnv,
-              "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromModuleDir,
+              "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
               "usingServerPatches" .= usingServerPatches,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)

@@ -19,7 +19,8 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( DbSchemaChecksumOnLastDbConcurrenceFile,
+  ( DbSchemaChecksumFile,
+    DbSchemaChecksumOnLastDbConcurrenceFile,
     PrismaDbSchema,
     databaseUrlEnvVar,
     dbMigrationsDirInDbRootDir,
@@ -178,7 +179,11 @@ genPrismaClients spec projectRootDir =
     generateClientsOrWrapError =
       either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
 
-checksumFileExistsAndMatchesSchema :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO Bool
+checksumFileExistsAndMatchesSchema ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO Bool
 checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
   ifM
     (IOUtil.doesFileExist checksumFileAbs)
@@ -188,7 +193,7 @@ checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
     dbSchemaFileAbs = projectRootDir </> dbSchemaFileInProjectRootDir
     checksumFileAbs = projectRootDir </> dbSchemaChecksumInProjectDir
 
-checksumFileMatchesSchema :: Path' Abs (File PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
+checksumFileMatchesSchema :: DbSchemaChecksumFile f => Path' Abs (File PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
 checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
   dbChecksumFileContents <- IOUtil.readFile dbSchemaChecksumFileAbs
   schemaFileHasChecksum dbSchemaFileAbs dbChecksumFileContents

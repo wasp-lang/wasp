@@ -1,5 +1,9 @@
 module Wasp.Generator.Common
   ( ProjectRootDir,
+    ServerRootDir,
+    WebAppRootDir,
+    ModuleRootDir,
+    DbRootDir,
     latestMajorNodeVersion,
     nodeVersionRange,
     npmVersionRange,
@@ -16,6 +20,20 @@ import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
+
+class ModuleRootDir d
+
+data ServerRootDir
+
+instance ModuleRootDir ServerRootDir
+
+data WebAppRootDir
+
+instance ModuleRootDir WebAppRootDir
+
+data DbRootDir
+
+instance ModuleRootDir DbRootDir
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.

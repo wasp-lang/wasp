@@ -13,7 +13,6 @@ module Wasp.Generator.DbGenerator.Common
     getOnLastDbConcurrenceChecksumFileRefreshAction,
     MigrateArgs (..),
     RefreshOnLastDbConcurrenceChecksumFile (..),
-    DbRootDir,
     DbSchemaChecksumOnLastDbConcurrenceFile,
     DbSchemaChecksumOnLastGenerateFile,
     PrismaDbSchema,
@@ -22,32 +21,36 @@ module Wasp.Generator.DbGenerator.Common
     dbSchemaFileInProjectRootDir,
     prismaClientOutputDirEnvVar,
     databaseUrlEnvVar,
+    DbSchemaChecksumFile,
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (DbMigrationsDir)
-import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.ServerGenerator.Common (ServerRootDir)
+import Wasp.Generator.Common (DbRootDir, ProjectRootDir, ServerRootDir, ModuleRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data DbRootDir
 
 data DbTemplatesDir
 
 -- | This file represents the Prisma db schema.
 data PrismaDbSchema
 
+class DbSchemaChecksumFile f
+
 -- | This file represents the checksum of the Prisma db schema at the point
 -- at which we last interacted with the DB to ensure they matched.
 -- It is used to help warn the user of instances when they may need to migrate.
 data DbSchemaChecksumOnLastDbConcurrenceFile
 
+instance DbSchemaChecksumFile DbSchemaChecksumOnLastDbConcurrenceFile
+
 -- | This file represents the checksum of the Prisma db schema
 -- at the point at which `prisma generate` was last run. It is used
 -- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile
+
+instance DbSchemaChecksumFile DbSchemaChecksumOnLastGenerateFile
 
 serverRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
 serverRootDirFromDbRootDir = [reldir|../server|]
@@ -67,10 +70,10 @@ dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
 dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-dbRootDirFromModuleDir :: Path' (Rel d) (Dir DbRootDir)
+dbRootDirFromModuleDir :: ModuleRootDir d => Path' (Rel d) (Dir DbRootDir)
 dbRootDirFromModuleDir = [reldir|../db|]
 
-dbSchemaFileFromModuleDir :: Path' (Rel d) (File PrismaDbSchema)
+dbSchemaFileFromModuleDir :: ModuleRootDir d => Path' (Rel d) (File PrismaDbSchema)
 dbSchemaFileFromModuleDir = dbRootDirFromModuleDir </> dbSchemaFileInDbRootDir
 
 dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
@@ -97,7 +100,7 @@ prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
 databaseUrlEnvVar :: String
 databaseUrlEnvVar = "DATABASE_URL"
 
-prismaClientOutputDirInModuleDir :: Path' (Rel d) (Dir ServerRootDir)
+prismaClientOutputDirInModuleDir :: ModuleRootDir d => Path' (Rel d) (Dir ServerRootDir)
 prismaClientOutputDirInModuleDir = [reldir|node_modules/.prisma/client|]
 
 serverPrismaClientOutputDirEnv :: (String, String)
@@ -106,7 +109,7 @@ serverPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv serverRootDirFro
 webAppPrismaClientOutputDirEnv :: (String, String)
 webAppPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv webAppRootDirFromDbRootDir
 
-modulePrismaClientOutputDirEnv :: Path' (Rel DbRootDir) (Dir d) -> (String, String)
+modulePrismaClientOutputDirEnv :: ModuleRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
 modulePrismaClientOutputDirEnv moduleRootDirFromDbRootDir =
   (prismaClientOutputDirEnvVar, SP.fromRelDir $ moduleRootDirFromDbRootDir </> prismaClientOutputDirInModuleDir)
 

@@ -18,7 +18,7 @@ import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
-import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)

@@ -21,7 +21,7 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (makeJsonWithEntityNameAndPrismaIdentifier)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityNameAndPrismaIdentifier)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -74,7 +74,7 @@ genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile
 
 genOperationTypesFile ::
   Path' (Rel C.ServerTemplatesDir) File' ->
-  Path' (Rel C.ServerRootDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
