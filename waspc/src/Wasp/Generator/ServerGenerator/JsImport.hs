@@ -25,4 +25,4 @@ extImportToJsImport ::
   JsImport
 extImportToJsImport = GJI.extImportToJsImport serverExtDir
   where
-    serverExtDir = fromJust (SP.relDirToPosix . SP.castRel $ extServerCodeDirInServerSrcDir)
+    serverExtDir = fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)

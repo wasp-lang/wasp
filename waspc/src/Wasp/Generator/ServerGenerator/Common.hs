@@ -28,7 +28,7 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedCodeSourceDir, ProjectRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -39,6 +39,8 @@ data ServerSrcDir
 data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
+
+instance GeneratedCodeSourceDir ServerSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel

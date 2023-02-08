@@ -4,6 +4,7 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
+    GeneratedCodeSourceDir,
   )
 where
 
@@ -11,6 +12,9 @@ import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
+
+-- | Used as a constraint to specify root directories with generated code (e.g. web app src dir or server src dir).
+class GeneratedCodeSourceDir d
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.
