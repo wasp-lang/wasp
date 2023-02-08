@@ -53,6 +53,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
+import qualified Wasp.Generator.Shared as S
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -60,6 +61,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|nodemon.json|],
+      genSharedFileCopy [relfile|validators.js|] [relfile|shared/validators.js|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -73,6 +75,7 @@ genServer spec =
     <++> genPatches spec
   where
     genFileCopy = return . C.mkTmplFd
+    genSharedFileCopy src = return . S.mkTmplFdWithDst src .  (</>) C.serverSrcDirInProjectRootDir
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $

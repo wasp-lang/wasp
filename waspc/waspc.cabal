@@ -274,6 +274,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Message
     Wasp.Version
+    Wasp.Generator.Shared
 
 library waspls
   import: common-all

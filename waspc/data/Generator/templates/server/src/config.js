@@ -1,5 +1,6 @@
 {{={= =}=}}
 import _ from 'lodash'
+import { isValidAbsoluteURL } from './shared/validators.js';
 
 const env = process.env.NODE_ENV || 'development'
 
@@ -7,6 +8,12 @@ const env = process.env.NODE_ENV || 'development'
 //   - Use dotenv library to consume env vars from a file.
 //   - Use convict library to define schema and validate env vars.
 //  https://codingsans.com/blog/node-config-best-practices
+
+if (process.env.WASP_WEB_CLIENT_URL && !isValidAbsoluteURL(process.env.WASP_WEB_CLIENT_URL)) {
+  throw 'Environment variable WASP_WEB_CLIENT_URL is not a valid absolute URL';
+}
+
+const frontendUrl = process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000'
 
 const config = {
   all: {
@@ -21,7 +28,7 @@ const config = {
     {=/ isAuthEnabled =}
   },
   development: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
+    frontendUrl,
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: 'DEVJWTSECRET'

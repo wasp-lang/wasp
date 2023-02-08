@@ -6,8 +6,9 @@
   {=& depsChunk =},
   {=& devDepsChunk =},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "validate-env": "node ./scripts/validate-env.mjs",
+    "start": "npm run validate-env && react-scripts start",
+    "build": "npm run validate-env && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

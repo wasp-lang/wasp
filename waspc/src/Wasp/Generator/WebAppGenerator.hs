@@ -36,6 +36,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import qualified Wasp.Generator.Shared as S
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeDirInWebAppSrcDir,
@@ -51,6 +52,8 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
+      genSharedFileCopy [relfile|validators.js|] [relfile|scripts/validators.mjs|],
+      genFileCopy [relfile|scripts/validate-env.mjs|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
@@ -63,6 +66,7 @@ genWebApp spec = do
     <++> genDotEnv spec
   where
     genFileCopy = return . C.mkTmplFd
+    genSharedFileCopy src = return . S.mkTmplFdWithDst src . (</>) C.webAppRootDirInProjectRootDir
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
