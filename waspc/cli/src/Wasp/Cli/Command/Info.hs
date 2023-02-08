@@ -53,15 +53,16 @@ readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> allFile
     allFileSizes = IOUtil.listDirectoryDeep path >>= mapM (getFileSize . fromRelFile)
 
 readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
-readCompileInformation waspDir = do
-  let dotWaspInfoFile =
-        waspDir </> Cli.Common.dotWaspDirInWaspProjectDir
-          </> Cli.Common.generatedCodeDirInDotWaspDir
-          </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
-  dotWaspInfoFileExists <- IOUtil.doesFileExist dotWaspInfoFile
-  if dotWaspInfoFileExists
-    then do IOUtil.readFile dotWaspInfoFile
-    else return "No compile information found"
+readCompileInformation waspDir =
+  ifM
+    (IOUtil.doesFileExist dotWaspInfoFile)
+    (IOUtil.readFile dotWaspInfoFile)
+    (return "No compile information found")
+  where
+    dotWaspInfoFile =
+      waspDir </> Cli.Common.dotWaspDirInWaspProjectDir
+        </> Cli.Common.generatedCodeDirInDotWaspDir
+        </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
 
 parseWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String [AS.Decl])
 parseWaspFile waspDir = runExceptT $ do
