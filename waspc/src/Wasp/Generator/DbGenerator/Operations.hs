@@ -115,12 +115,12 @@ generatePrismaClient ::
   J.JobType ->
   Path' Abs (Dir ProjectRootDir) ->
   IO (Either String ())
-generatePrismaClient moduleRootDir jobType genProjectRootDirAbs = do
+generatePrismaClient prismaClientOutputDirEnv jobType genProjectRootDirAbs = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient genProjectRootDirAbs moduleRootDir jobType chan)
+      (DbJobs.generatePrismaClient genProjectRootDirAbs prismaClientOutputDirEnv jobType chan)
   case exitCode of
     ExitSuccess -> do
       writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumOnLastGenerateFileProjectRootDir
