@@ -11,7 +11,7 @@ import StrongPath (Abs, Dir, File', Path', relfile)
 import qualified StrongPath as SP
 import qualified System.Environment as ENV
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
-import Wasp.Util (checksumFromString, hexToString, orIfNothingM)
+import Wasp.Util (checksumFromString, hexToString, ifM, orIfNothingM)
 import qualified Wasp.Util.IO as IOUtil
 
 -- Random, non-identifyable UUID used to represent user in analytics.
@@ -21,17 +21,20 @@ obtainUserSignature :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 obtainUserSignature telemetryCacheDirPath =
   getUserSignatureFromEnv `orIfNothingM` readOrCreateUserSignatureFile telemetryCacheDirPath
 
+-- implement readOrCreateUserSignatureFile with ifM
 readOrCreateUserSignatureFile :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
-readOrCreateUserSignatureFile telemetryCacheDirPath = do
-  let userSignatureFile = getUserSignatureFilePath telemetryCacheDirPath
-  fileExists <- IOUtil.doesFileExist userSignatureFile
+readOrCreateUserSignatureFile telemetryCacheDirPath =
   UserSignature
-    <$> if fileExists
-      then IOUtil.readFile userSignatureFile
-      else do
-        userSignature <- show <$> UUID.nextRandom
-        IOUtil.writeFile userSignatureFile userSignature
-        return userSignature
+    <$> ifM
+      (IOUtil.doesFileExist userSignatureFile)
+      (IOUtil.readFile userSignatureFile)
+      createUserSignatureFile
+  where
+    userSignatureFile = getUserSignatureFilePath telemetryCacheDirPath
+    createUserSignatureFile = do
+      userSignature <- show <$> UUID.nextRandom
+      IOUtil.writeFile userSignatureFile userSignature
+      return userSignature
 
 getUserSignatureFilePath :: Path' Abs (Dir TelemetryCacheDir) -> Path' Abs File'
 getUserSignatureFilePath telemetryCacheDir = telemetryCacheDir SP.</> [relfile|signature|]
