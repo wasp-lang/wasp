@@ -21,7 +21,6 @@ obtainUserSignature :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 obtainUserSignature telemetryCacheDirPath =
   getUserSignatureFromEnv `orIfNothingM` readOrCreateUserSignatureFile telemetryCacheDirPath
 
--- implement readOrCreateUserSignatureFile with ifM
 readOrCreateUserSignatureFile :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 readOrCreateUserSignatureFile telemetryCacheDirPath =
   UserSignature
