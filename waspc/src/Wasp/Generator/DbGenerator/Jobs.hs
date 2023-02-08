@@ -45,6 +45,8 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
+  -- TODO: Prisma migrate will generate a client whether we want it or not. Therefore, I passed
+  -- in the server's client location. We should probably generate one for the web app as well.
   runNodeCommandAsJobWithExtraEnv [serverPrismaClientOutputDirEnv] serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
@@ -71,8 +73,6 @@ migrateDiff projectDir = do
           "--exit-code"
         ]
 
-  -- TODO: Prisma migrate will generate a client whether we want it or not. Therefore, I passed
-  -- in the server's client location. We should probably generate one for the web app as well.
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaMigrateDiffCmdArgs J.Db
 
 -- | Checks to see if all migrations are applied to the DB.
@@ -112,12 +112,11 @@ generatePrismaClient projectDir prismaClientOutputDirEnv jobType =
     prismaGenerateCmdArgs = ["generate", "--schema", schemaFile]
     schemaFile = SP.fromAbsFile $ projectDir </> dbSchemaFileInProjectRootDir
 
-absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
-absPrismaExecutableFp = SP.fromAbsFile . getPrismaExecutablePath
-
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
 -- This assumption is ok since it happens during compilation now.
-getPrismaExecutablePath :: Path' Abs (Dir ProjectRootDir) -> Path' Abs File'
-getPrismaExecutablePath projectDir =
-  projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]
+absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
+absPrismaExecutableFp projectDir = SP.fromAbsFile prismaExecutableAbs
+  where
+    prismaExecutableAbs :: Path' Abs File'
+    prismaExecutableAbs = projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]

@@ -36,15 +36,15 @@ data DbRootDir
 
 data DbTemplatesDir
 
--- | This file represents the Prisma db schema (schema.prisma)
+-- | This file represents the Prisma db schema.
 data PrismaDbSchema
 
--- | This file represents the checksum of schema.prisma at the point
+-- | This file represents the checksum of the Prisma db schema at the point
 -- at which we last interacted with the DB to ensure they matched.
 -- It is used to help warn the user of instances when they may need to migrate.
 data DbSchemaChecksumOnLastDbConcurrenceFile
 
--- | This file represents the checksum of schema.prisma
+-- | This file represents the checksum of the Prisma db schema
 -- at the point at which `prisma generate` was last run. It is used
 -- to know if we need to regenerate schema.prisma during web app generation or not.
 data DbSchemaChecksumOnLastGenerateFile

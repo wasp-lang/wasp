@@ -42,8 +42,7 @@ import Wasp.Generator.Monad
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
-import Wasp.Util.IO (doesFileExist, readFile)
-import Prelude hiding (readFile)
+import qualified Wasp.Util.IO as IOUtil
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
@@ -55,7 +54,7 @@ genPrismaSchema ::
   Generator FileDraft
 genPrismaSchema spec = do
   (datasourceProvider :: String, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVar) 
+    AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVar)
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
@@ -116,7 +115,7 @@ postWriteDbGeneratorActions spec dstDir = do
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration spec projectRootDir = do
-  dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
+  dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
   if dbSchemaChecksumFileExists
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
@@ -182,7 +181,7 @@ genPrismaClients spec projectRootDir =
 checksumFileExistsAndMatchesSchema :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO Bool
 checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
   ifM
-    (doesFileExist checksumFileAbs)
+    (IOUtil.doesFileExist checksumFileAbs)
     (checksumFileMatchesSchema dbSchemaFileAbs checksumFileAbs)
     (return False)
   where
@@ -191,7 +190,7 @@ checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
 
 checksumFileMatchesSchema :: Path' Abs (File PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
 checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
-  dbChecksumFileContents <- readFile dbSchemaChecksumFileAbs
+  dbChecksumFileContents <- IOUtil.readFile dbSchemaChecksumFileAbs
   schemaFileHasChecksum dbSchemaFileAbs dbChecksumFileContents
   where
     schemaFileHasChecksum :: Path' Abs (File PrismaDbSchema) -> String -> IO Bool

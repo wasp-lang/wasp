@@ -37,7 +37,7 @@ import qualified Wasp.Generator.DockerGenerator as DockerGenerator
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import Wasp.Util (maybeToEither)
-import qualified Wasp.Util.IO as Util.IO
+import qualified Wasp.Util.IO as IOUtil
 
 type CompileError = String
 
@@ -83,7 +83,7 @@ warnIfDotEnvPresent waspDir = (warningMessage <$) <$> findDotEnv waspDir
 
 analyzeWaspFileContent :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
-  waspFileContent <- readFile (fromAbsFile waspFilePath)
+  waspFileContent <- IOUtil.readFile waspFilePath
   let declsOrAnalyzeError = Analyzer.analyze waspFileContent
   return $
     left
@@ -127,7 +127,7 @@ constructAppSpec waspDir options decls = do
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs File'))
 findWaspFile waspDir = do
-  files <- fst <$> Util.IO.listDirectory waspDir
+  files <- fst <$> IOUtil.listDirectory waspDir
   return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
