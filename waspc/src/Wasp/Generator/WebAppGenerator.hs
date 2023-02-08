@@ -132,6 +132,9 @@ npmDepsForWasp spec =
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
             ("react-scripts", "5.0.1"),
+            -- The web app only needs @prisma/client (we're using the server's
+            -- CLI to generate what's necessary, check the description in
+            -- https://github.com/wasp-lang/wasp/pull/962/ for details).
             ("@prisma/client", show prismaVersion)
           ]
           ++ depsRequiredByTailwind spec,
