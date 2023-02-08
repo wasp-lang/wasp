@@ -22,6 +22,7 @@ import Wasp.Common (WaspProjectDir)
 import Wasp.Error (showCompilerErrorForTerminal)
 import Wasp.Lib (findWaspFile)
 import qualified Wasp.Message as Msg
+import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 

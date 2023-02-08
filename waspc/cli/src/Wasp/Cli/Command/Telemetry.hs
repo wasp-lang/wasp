@@ -40,7 +40,7 @@ telemetry = do
 
     maybeProjectHash <- (Just <$> TlmProject.getWaspProjectPathHash) `catchError` const (return Nothing)
     for_ maybeProjectHash $ \projectHash -> do
-      maybeProjectCache <- liftIO $ TlmProject.readProjectTelemetryFile telemetryCacheDirPath projectHash
+      maybeProjectCache <- liftIO $ TlmProject.readProjectTelemetryCache telemetryCacheDirPath projectHash
       for_ maybeProjectCache $ \projectCache -> do
         let maybeTimeOfLastSending = TlmProject.getTimeOfLastTelemetryDataSent projectCache
         for_ maybeTimeOfLastSending $ \timeOfLastSending -> do

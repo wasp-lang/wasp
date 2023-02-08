@@ -3,7 +3,7 @@
 module Wasp.Cli.Command.Telemetry.Project
   ( getWaspProjectPathHash,
     considerSendingData,
-    readProjectTelemetryFile,
+    readProjectTelemetryCache,
     getTimeOfLastTelemetryDataSent,
     -- NOTE: for testing only
     checkIfEnvValueIsTruthy,
@@ -33,6 +33,7 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Telemetry.Common (TelemetryCacheDir)
 import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
+import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 
 considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
@@ -122,17 +123,19 @@ initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild 
 getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
 getTimeOfLastTelemetryDataSent cache = maximum [_lastCheckIn cache, _lastCheckInBuild cache]
 
-readProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
-readProjectTelemetryFile telemetryCacheDirPath projectHash = do
-  fileExists <- IOUtil.doesFileExist filePathFP
-  if fileExists then readCacheFile else return Nothing
+readProjectTelemetryCache :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
+readProjectTelemetryCache telemetryCacheDirPath projectHash =
+  ifM
+    (IOUtil.doesFileExist projectTelemetryFile)
+    parseProjectTelemetryFile
+    (return Nothing)
   where
-    filePathFP = getProjectTelemetryFilePath telemetryCacheDirPath projectHash
-    readCacheFile = Aeson.decode . ByteStringLazyUTF8.fromString <$> IOUtil.readFile filePathFP
+    projectTelemetryFile = getProjectTelemetryFilePath telemetryCacheDirPath projectHash
+    parseProjectTelemetryFile = Aeson.decode . ByteStringLazyUTF8.fromString <$> IOUtil.readFile projectTelemetryFile
 
 readOrCreateProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
 readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
-  maybeProjectTelemetryCache <- readProjectTelemetryFile telemetryCacheDirPath projectHash
+  maybeProjectTelemetryCache <- readProjectTelemetryCache telemetryCacheDirPath projectHash
   case maybeProjectTelemetryCache of
     Just cache -> return cache
     Nothing -> writeProjectTelemetryFile telemetryCacheDirPath projectHash initialCache >> return initialCache
