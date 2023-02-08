@@ -23,14 +23,14 @@ obtainUserSignature telemetryCacheDirPath =
 
 readOrCreateUserSignatureFile :: Path' Abs (Dir TelemetryCacheDir) -> IO UserSignature
 readOrCreateUserSignatureFile telemetryCacheDirPath = do
-  let filePath = getUserSignatureFilePath telemetryCacheDirPath
-  fileExists <- IOUtil.doesFileExist filePath
+  let userSignatureFile = getUserSignatureFilePath telemetryCacheDirPath
+  fileExists <- IOUtil.doesFileExist userSignatureFile
   UserSignature
     <$> if fileExists
-      then IOUtil.readFile filePath
+      then IOUtil.readFile userSignatureFile
       else do
         userSignature <- show <$> UUID.nextRandom
-        writeFile (SP.fromAbsFile filePath) userSignature
+        IOUtil.writeFile userSignatureFile userSignature
         return userSignature
 
 getUserSignatureFilePath :: Path' Abs (Dir TelemetryCacheDir) -> Path' Abs File'

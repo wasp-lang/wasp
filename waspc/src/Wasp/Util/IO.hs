@@ -7,6 +7,7 @@ module Wasp.Util.IO
     deleteFileIfExists,
     doesFileExist,
     readFile,
+    writeFile,
     removeFile,
   )
 where
@@ -18,7 +19,7 @@ import qualified System.Directory as SD
 import qualified System.FilePath as FilePath
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Prelude hiding (readFile)
+import Prelude hiding (readFile, writeFile)
 import qualified Prelude as P
 
 -- TODO: write tests.
@@ -85,6 +86,9 @@ doesFileExist = SD.doesFileExist . SP.toFilePath
 
 readFile :: Path' r (File f) -> IO String
 readFile = P.readFile . SP.toFilePath
+
+writeFile :: Path' r (File f) -> String -> IO ()
+writeFile = P.writeFile . SP.toFilePath
 
 removeFile :: Path' r (File f) -> IO ()
 removeFile = SD.removeFile . SP.toFilePath

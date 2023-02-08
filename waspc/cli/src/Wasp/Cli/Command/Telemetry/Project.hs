@@ -139,9 +139,9 @@ readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
 
 writeProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> ProjectTelemetryCache -> IO ()
 writeProjectTelemetryFile telemetryCacheDirPath projectHash cache = do
-  writeFile filePathFP (ByteStringLazyUTF8.toString $ Aeson.encode cache)
+  IOUtil.writeFile projectTelemetryFile (ByteStringLazyUTF8.toString $ Aeson.encode cache)
   where
-    filePathFP = SP.fromAbsFile $ getProjectTelemetryFilePath telemetryCacheDirPath projectHash
+    projectTelemetryFile = getProjectTelemetryFilePath telemetryCacheDirPath projectHash
 
 getProjectTelemetryFilePath :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> Path' Abs File'
 getProjectTelemetryFilePath telemetryCacheDir (ProjectHash projectHash) =

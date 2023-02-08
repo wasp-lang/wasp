@@ -10,8 +10,8 @@ where
 import Control.Applicative (liftA2)
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad (when)
 import Control.Monad.Catch (catch)
+import Control.Monad.Extra (whenM)
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
@@ -40,6 +40,7 @@ import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefix
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (doesFileExist, removeFile)
+import qualified Wasp.Util.IO as IOUtil
 
 printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
 printJobMsgsUntilExitReceived chan = do
@@ -91,13 +92,12 @@ copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirA
 -- | This function assumes the DB schema has been generated, as it will attempt to read it from the generated code.
 writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO ()
 writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = do
-  dbSchemaExists <- doesFileExist dbSchemaFp
-  when dbSchemaExists $ do
-    checksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-    writeFile dbSchemaChecksumFp checksum
+  whenM (doesFileExist dbSchemaFile) $ do
+    checksum <- hexToString <$> checksumFromFilePath dbSchemaFile
+    IOUtil.writeFile dbSchemaChecksumFile checksum
   where
-    dbSchemaFp = genProjectRootDirAbs </> dbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
+    dbSchemaFile = genProjectRootDirAbs </> dbSchemaFileInProjectRootDir
+    dbSchemaChecksumFile = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO ()
 removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = removeFile dbSchemaChecksumFp

@@ -7,7 +7,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Path.IO (copyDirRecur, doesDirExist)
-import StrongPath (Abs, Dir, Path, Path', System, fromAbsFile, parseAbsDir, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (getCurrentDirectory)
 import qualified System.FilePath as FP
@@ -18,6 +18,7 @@ import Wasp.Common (WaspProjectDir)
 import qualified Wasp.Common as Common (WaspProjectDir)
 import qualified Wasp.Data as Data
 import Wasp.Util (indent, kebabToCamelCase)
+import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 import qualified Wasp.Version as WV
 
@@ -85,9 +86,9 @@ initializeProjectFromSkeleton absWaspProjectDir = do
   copyDirRecur (toPathAbsDir absSkeletonDir) (toPathAbsDir absWaspProjectDir)
 
 writeMainWaspFile :: Path System Abs (Dir WaspProjectDir) -> ProjectInfo -> IO ()
-writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = writeFile absMainWaspFile mainWaspFileContent
+writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = IOUtil.writeFile absMainWaspFile mainWaspFileContent
   where
-    absMainWaspFile = fromAbsFile $ waspProjectDir </> [relfile|main.wasp|]
+    absMainWaspFile = waspProjectDir </> [relfile|main.wasp|]
     mainWaspFileContent =
       unlines
         [ "app %s {" `printf` appName,
