@@ -19,7 +19,8 @@ import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( MigrateArgs,
+  ( DbSchemaChecksumFile,
+    MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
@@ -90,7 +91,11 @@ copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirA
     genProjectMigrationsDir = genProjectRootDirAbs </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
 -- | This function assumes the DB schema has been generated, as it will attempt to read it from the generated code.
-writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO ()
+writeDbSchemaChecksumToFile ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO ()
 writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = do
   whenM (doesFileExist dbSchemaFile) $ do
     checksum <- hexToString <$> checksumFromFilePath dbSchemaFile
@@ -99,7 +104,11 @@ writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDi
     dbSchemaFile = genProjectRootDirAbs </> dbSchemaFileInProjectRootDir
     dbSchemaChecksumFile = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
-removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) (File f) -> IO ()
+removeDbSchemaChecksumFile ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO ()
 removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = removeFile dbSchemaChecksumFp
   where
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
