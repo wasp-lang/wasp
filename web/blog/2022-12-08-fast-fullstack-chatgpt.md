@@ -16,6 +16,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 <iframe width="100%" height="400" src="https://www.youtube.com/embed/HjUpqfEonow" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
 </div>
 
+<!--truncate-->
 ---
 
 There’s a lot of hype around ChatGPT at the moment, and for good reason. It’s amazing. But there’s also some very valid criticism: that it’s simply taking the grunt work out of programming by writing boilerplate for us, which we as developers have to maintain! 

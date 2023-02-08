@@ -17,6 +17,7 @@ In this post, I’ll give you a quick run-down of:
 - how we promoted it
 - the community response
 
+<!--truncate-->
 
 ## …and the Winners Are:
 
