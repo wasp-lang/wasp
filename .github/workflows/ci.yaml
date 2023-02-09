@@ -104,16 +104,16 @@ jobs:
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/install_deploy_package_to_data_dir.sh
 
-      - name: Build external dependencies 
-        run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
-      
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+
       - name: Build wasp code
         run: cabal build all
 
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18.12'
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'
@@ -127,7 +127,7 @@ jobs:
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
