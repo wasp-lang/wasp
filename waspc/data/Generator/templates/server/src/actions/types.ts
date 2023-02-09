@@ -17,7 +17,7 @@ import {
 } from '../types'
 
 {=# operations =}
-export type {= typeName =}<Input = unknown, Output = unknown> = 
+export type {= typeName =}<Input = never, Output = unknown> = 
   {=# usesAuth =}
   AuthenticatedAction<
   {=/ usesAuth =}

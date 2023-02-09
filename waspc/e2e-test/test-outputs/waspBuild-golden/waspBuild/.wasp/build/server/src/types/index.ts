@@ -3,9 +3,9 @@ import {
   type WaspEntity,
 } from "../entities"
 
-export type Query<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
+export type Query<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = Operation<Entities, Input, Result>
 
-export type Action<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
+export type Action<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = Operation<Entities, Input, Result>
 
 
 type Operation<Entities extends WaspEntity[], Input, Result> = (

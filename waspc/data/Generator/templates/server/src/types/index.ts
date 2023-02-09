@@ -7,15 +7,15 @@ import {
   {=/ entities =}
 } from "../entities"
 
-export type Query<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
+export type Query<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = Operation<Entities, Input, Result>
 
-export type Action<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = Operation<Entities, Input, Result>
+export type Action<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = Operation<Entities, Input, Result>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = 
+export type AuthenticatedQuery<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = 
   AuthenticatedOperation<Entities, Input, Result>
 
-export type AuthenticatedAction<Entities extends WaspEntity[] = [], Input = unknown, Result = unknown> = 
+export type AuthenticatedAction<Entities extends WaspEntity[] = [], Input = never, Result = unknown> = 
   AuthenticatedOperation<Entities, Input, Result>
 
 type AuthenticatedOperation<Entities extends WaspEntity[], Input, Result> = (
