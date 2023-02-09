@@ -1,13 +1,14 @@
-module Wasp.Generator.Shared (
-  mkTmplFdWithDst,
-  SharedTemplatesDir,
-) where
+module Wasp.Generator.Shared
+  ( mkTmplFdWithDst,
+    SharedTemplatesDir,
+  )
+where
 
-import StrongPath (File', Path', Rel, Dir, reldir, (</>))
-import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import qualified Data.Aeson as Aeson
-import Wasp.Generator.Templates (TemplatesDir)
+import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Templates (TemplatesDir)
 
 data SharedTemplatesDir
 

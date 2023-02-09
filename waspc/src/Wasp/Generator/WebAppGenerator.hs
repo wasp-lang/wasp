@@ -34,9 +34,9 @@ import Wasp.Generator.FileDraft
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import qualified Wasp.Generator.Shared as S
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import qualified Wasp.Generator.Shared as S
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeDirInWebAppSrcDir,
@@ -248,8 +248,7 @@ extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWeb
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return
-    [
-      C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       genSharedTmplToWebAppRootDirCopy [relfile|validators.js|] [relfile|scripts/validators.mjs|]
     ]
 

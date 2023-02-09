@@ -51,9 +51,9 @@ import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInS
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import qualified Wasp.Generator.Shared as S
 import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
-import qualified Wasp.Generator.Shared as S
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -315,8 +315,7 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
 genValidators :: Generator [FileDraft]
 genValidators =
   return
-    [
-      genSharedTmplToServerSrcDirCopy [relfile|validators.js|] [relfile|validators/validators.js|]
+    [ genSharedTmplToServerSrcDirCopy [relfile|validators.js|] [relfile|validators/validators.js|]
     ]
 
 genSharedTmplToServerSrcDirCopy :: Path' (Rel S.SharedTemplatesDir) File' -> Path' (Rel C.ServerSrcDir) File' -> FileDraft
