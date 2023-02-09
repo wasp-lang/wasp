@@ -1,6 +1,7 @@
 {{={= =}=}}
 import _ from 'lodash'
-import { isValidAbsoluteURL } from './shared/validators.js';
+{=! NOTE: validators are copied from shared templates =}
+import { isValidAbsoluteURL } from './validators/validators.js';
 
 const env = process.env.NODE_ENV || 'development'
 

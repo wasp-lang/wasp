@@ -52,8 +52,6 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
-      genSharedFileCopy [relfile|validators.js|] [relfile|scripts/validators.mjs|],
-      genFileCopy [relfile|scripts/validate-env.mjs|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
@@ -64,9 +62,9 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
+    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
-    genSharedFileCopy src = return . S.mkTmplFdWithDst src . (</>) C.webAppRootDirInProjectRootDir
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -246,3 +244,14 @@ genIndexJs spec =
 
 extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
 extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir
+
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
+  return
+    [
+      C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      genSharedTmplToWebAppRootDirCopy [relfile|validators.js|] [relfile|scripts/validators.mjs|]
+    ]
+
+genSharedTmplToWebAppRootDirCopy :: Path' (Rel S.SharedTemplatesDir) File' -> Path' (Rel C.WebAppRootDir) File' -> FileDraft
+genSharedTmplToWebAppRootDirCopy src = S.mkTmplFdWithDst src . (</>) C.webAppRootDirInProjectRootDir

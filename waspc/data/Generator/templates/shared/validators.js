@@ -12,8 +12,8 @@ export function isValidAbsoluteURL(rawUrl) {
     if (urlParts.length < 2) {
         return false;
     }
-    const protocol = urlParts[0];
 
+    const protocol = urlParts[0];
     // Invalid protocol specified
     if (protocol !== "http:" && protocol !== "https:") {
         return false;

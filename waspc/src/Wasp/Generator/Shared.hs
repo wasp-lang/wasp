@@ -1,5 +1,6 @@
 module Wasp.Generator.Shared (
   mkTmplFdWithDst,
+  SharedTemplatesDir,
 ) where
 
 import StrongPath (File', Path', Rel, Dir, reldir, (</>))

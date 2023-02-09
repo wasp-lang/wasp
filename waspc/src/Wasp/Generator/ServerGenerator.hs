@@ -61,7 +61,6 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|nodemon.json|],
-      genSharedFileCopy [relfile|validators.js|] [relfile|shared/validators.js|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore
@@ -73,9 +72,9 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+    <++> genValidators
   where
     genFileCopy = return . C.mkTmplFd
-    genSharedFileCopy src = return . S.mkTmplFdWithDst src .  (</>) C.serverSrcDirInProjectRootDir
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 genDotEnv spec = return $
@@ -312,3 +311,13 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
     designateLastElement l =
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
+
+genValidators :: Generator [FileDraft]
+genValidators =
+  return
+    [
+      genSharedTmplToServerSrcDirCopy [relfile|validators.js|] [relfile|validators/validators.js|]
+    ]
+
+genSharedTmplToServerSrcDirCopy :: Path' (Rel S.SharedTemplatesDir) File' -> Path' (Rel C.ServerSrcDir) File' -> FileDraft
+genSharedTmplToServerSrcDirCopy src = S.mkTmplFdWithDst src . (</>) C.serverSrcDirInProjectRootDir
