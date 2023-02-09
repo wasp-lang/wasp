@@ -86,10 +86,10 @@ genDotEnv spec = return $
   case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
@@ -245,17 +245,27 @@ genRoutesDir spec =
     ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
-genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDraft]
+genTypesAndEntitiesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      typesIndexFileDraft
+    ]
   where
     entitiesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
+    taggedEntitiesFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/_types/taggedEntities.ts|]
+        [relfile|src/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
-        [relfile|src/types/index.ts|]
-        [relfile|src/types/index.ts|]
+        [relfile|src/_types/index.ts|]
+        [relfile|src/_types/index.ts|]
         ( Just $
             object
               [ "entities" .= allEntities,

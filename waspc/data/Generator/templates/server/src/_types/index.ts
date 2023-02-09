@@ -1,9 +1,9 @@
 {{={= =}=}}
 import prisma from "../dbClient.js"
-import { 
-  type _Entity,
-  type {= userEntityName =}
- } from "../entities"
+import { type {= userEntityName =} } from "../entities"
+import { type _Entity } from "./taggedEntities"
+
+export * from "./taggedEntities"
 
 export type Query<Entities extends _Entity[] = [], Result = unknown> = Operation<Entities, Result>
 
