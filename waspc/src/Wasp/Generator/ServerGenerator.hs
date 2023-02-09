@@ -37,7 +37,8 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common
-  ( latestMajorNodeVersion,
+  ( ServerRootDir,
+    latestMajorNodeVersion,
     makeJsonWithEntityData,
     nodeVersionRange,
     npmVersionRange,
@@ -91,7 +92,7 @@ genDotEnv spec = return $
           ]
     _ -> []
 
-dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
+dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft

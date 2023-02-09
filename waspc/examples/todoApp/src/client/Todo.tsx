@@ -2,7 +2,7 @@ import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
-import { useAction } from '@wasp/actions'
+import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
@@ -94,7 +94,7 @@ const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
 type UpdateTaskIsDonePayload = Pick<Task, "id" | "isDone">
 
 const TaskView = ({ task }: { task: Task }) => {
-  const updateTaskIsDoneOptimistically = useAction<UpdateTaskIsDonePayload, void, Task[]>(updateTaskIsDone, {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [{
       getQuerySpecifier: () => [getTasks],
       updateQuery: (updatedTask, oldTasks) => {
@@ -105,7 +105,7 @@ const TaskView = ({ task }: { task: Task }) => {
           return oldTasks.map(task => task.id === updatedTask.id ? { ...task, ...updatedTask } : task)
         }
       }
-    }]
+    } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, Task[]>]
   });
   const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
     const id = parseInt(event.target.id)

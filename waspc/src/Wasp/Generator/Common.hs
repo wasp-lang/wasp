@@ -1,5 +1,9 @@
 module Wasp.Generator.Common
   ( ProjectRootDir,
+    ServerRootDir,
+    WebAppRootDir,
+    ModuleRootDir,
+    DbRootDir,
     latestMajorNodeVersion,
     nodeVersionRange,
     npmVersionRange,
@@ -16,6 +20,20 @@ import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
+
+class ModuleRootDir d
+
+data ServerRootDir
+
+instance ModuleRootDir ServerRootDir
+
+data WebAppRootDir
+
+instance ModuleRootDir WebAppRootDir
+
+data DbRootDir
+
+instance ModuleRootDir DbRootDir
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.
@@ -49,8 +67,9 @@ makeJsonWithEntityData name =
     ]
 
 -- | Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
--- converts it into a corresponding Prisma identifier (like `prisma.someTask`).
--- This is what Prisma implicitly does when translating `model` declarations to
--- client SDK identifiers. Useful when creating `context.entities` JS objects in Wasp templates.
+-- converts it into a corresponding Prisma identifier (e.g., `someTask` used in
+-- `prisma.someTask`).  This is what Prisma implicitly does when translating
+-- `model` declarations to client SDK identifiers. Useful when creating
+-- `context.entities` JS objects in Wasp templates.
 entityNameToPrismaIdentifier :: String -> String
 entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName

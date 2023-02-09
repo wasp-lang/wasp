@@ -12,7 +12,6 @@ module Wasp.Generator.ServerGenerator.Common
     asServerFile,
     asServerSrcFile,
     toESModulesImportPath,
-    ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
@@ -24,11 +23,9 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir, ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data ServerRootDir
 
 data ServerSrcDir
 

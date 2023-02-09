@@ -1,33 +1,35 @@
 module Wasp.Generator.DbGenerator.Operations
   ( migrateDevAndCopyToSource,
-    generatePrismaClient,
+    generatePrismaClients,
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
-    removeDbSchemaChecksumFile,
     areAllMigrationsAppliedToDb,
   )
 where
 
+import Control.Applicative (liftA2)
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad (when)
 import Control.Monad.Catch (catch)
+import Control.Monad.Extra (whenM)
 import qualified Path as P
-import StrongPath (Abs, Dir, File', Path', Rel)
+import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
-import System.Directory (doesFileExist, removeFile)
 import System.Exit (ExitCode (..))
 import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( MigrateArgs,
+  ( DbSchemaChecksumFile,
+    MigrateArgs,
     RefreshOnLastDbConcurrenceChecksumFile (..),
     dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
+    dbSchemaFileInProjectRootDir,
     getOnLastDbConcurrenceChecksumFileRefreshAction,
-    serverDbSchemaFileInProjectRootDir,
+    serverPrismaClientOutputDirEnv,
+    webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
 import Wasp.Generator.FileDraft.WriteableMonad
@@ -38,6 +40,8 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
+import Wasp.Util.IO (doesFileExist, removeFile)
+import qualified Wasp.Util.IO as IOUtil
 
 printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
 printJobMsgsUntilExitReceived chan = do
@@ -67,13 +71,13 @@ finalizeMigration genProjectRootDirAbs dbMigrationsDirInWaspProjectDirAbs onLast
   applyOnLastDbConcurrenceChecksumFileRefreshAction
   return res
   where
-    dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
+    dbMigrationsDirInProjectRootDir = dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
     applyOnLastDbConcurrenceChecksumFileRefreshAction =
       case onLastDbConcurrenceChecksumFileRefreshAction of
         WriteOnLastDbConcurrenceChecksumFile ->
-          writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+          writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
         RemoveOnLastDbConcurrenceChecksumFile ->
-          removeDbSchemaChecksumFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+          removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
         IgnoreOnLastDbConcurrenceChecksumFile -> return ()
 
 -- | Copies the DB migrations from the generated project dir back up to theh wasp project dir
@@ -83,35 +87,52 @@ copyMigrationsBackToSource genProjectRootDirAbs dbMigrationsDirInWaspProjectDirA
     `catch` (\e -> return $ Left $ show (e :: P.PathException))
     `catch` (\e -> return $ Left $ show (e :: IOError))
   where
-    waspMigrationsDir = SP.castDir dbMigrationsDirInWaspProjectDirAbs
-    genProjectMigrationsDir = SP.castDir $ genProjectRootDirAbs SP.</> dbRootDirInProjectRootDir SP.</> dbMigrationsDirInDbRootDir
+    waspMigrationsDir = dbMigrationsDirInWaspProjectDirAbs
+    genProjectMigrationsDir = genProjectRootDirAbs </> dbRootDirInProjectRootDir </> dbMigrationsDirInDbRootDir
 
 -- | This function assumes the DB schema has been generated, as it will attempt to read it from the generated code.
-writeDbSchemaChecksumToFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
+writeDbSchemaChecksumToFile ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO ()
 writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = do
-  dbSchemaExists <- doesFileExist dbSchemaFp
-  when dbSchemaExists $ do
-    checksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-    writeFile dbSchemaChecksumFp checksum
+  whenM (doesFileExist dbSchemaFile) $ do
+    checksum <- hexToString <$> checksumFromFilePath dbSchemaFile
+    IOUtil.writeFile dbSchemaChecksumFile checksum
   where
-    dbSchemaFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> serverDbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
+    dbSchemaFile = genProjectRootDirAbs </> dbSchemaFileInProjectRootDir
+    dbSchemaChecksumFile = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
-removeDbSchemaChecksumFile :: Path' Abs (Dir ProjectRootDir) -> Path' (Rel ProjectRootDir) File' -> IO ()
-removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir =
-  let dbSchemaChecksumFp = SP.fromAbsFile $ genProjectRootDirAbs SP.</> dbSchemaChecksumInProjectRootDir
-   in removeFile dbSchemaChecksumFp
+removeDbSchemaChecksumFile ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO ()
+removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = removeFile dbSchemaChecksumFp
+  where
+    dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClient genProjectRootDirAbs = do
+generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp
+  where
+    generatePrismaClientForServer = generatePrismaClient serverPrismaClientOutputDirEnv J.Server
+    generatePrismaClientForWebApp = generatePrismaClient webAppPrismaClientOutputDirEnv J.WebApp
+
+generatePrismaClient ::
+  (String, String) ->
+  J.JobType ->
+  Path' Abs (Dir ProjectRootDir) ->
+  IO (Either String ())
+generatePrismaClient prismaClientOutputDirEnv jobType genProjectRootDirAbs = do
   chan <- newChan
-  (_, dbExitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan
-      `concurrently` DbJobs.generatePrismaClientForServer genProjectRootDirAbs chan
-      `concurrently` DbJobs.generatePrismaClientForClient genProjectRootDirAbs chan
-  case dbExitCode of
+  (_, exitCode) <-
+    concurrently
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (DbJobs.generatePrismaClient genProjectRootDirAbs prismaClientOutputDirEnv jobType chan)
+  case exitCode of
     ExitSuccess -> do
-      writeDbSchemaChecksumToFile genProjectRootDirAbs (SP.castFile dbSchemaChecksumOnLastGenerateFileProjectRootDir)
+      writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumOnLastGenerateFileProjectRootDir
       return $ Right ()
     ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
 
