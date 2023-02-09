@@ -268,9 +268,6 @@ genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDra
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
--- We might want to move this to a more global location in the future, but
--- it is currently used only in these two files.
-
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
