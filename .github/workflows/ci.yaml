@@ -118,7 +118,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18.12'
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'
