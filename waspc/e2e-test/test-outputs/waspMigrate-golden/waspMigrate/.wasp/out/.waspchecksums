@@ -46,7 +46,7 @@
             "file",
             "server/nodemon.json"
         ],
-        "5d0e1103bbe7c29a7b3137a57345f8eeb4ccd8a2128d636cc1b2bd81cf348a86"
+        "c4c69994805c8e0d993bd39fec9e52478b5e656bae565fa1c19ef378901a7139"
     ],
     [
         [
@@ -74,7 +74,7 @@
             "file",
             "server/src/config.js"
         ],
-        "d7f23a370f15869e6a3920552993c41d5e1a23d8e12a4a9d3a583d22b730a5d6"
+        "eb306b3c6f57d225bc96e39bd1822afe73d4a8d07c75ad8314d38396cce22d56"
     ],
     [
         [
@@ -191,6 +191,13 @@
     [
         [
             "file",
+            "server/src/validators/validators.js"
+        ],
+        "051e29e55923d8abdf16231f747aece397fc24d3f1474faeb5f67bca3ecc881a"
+    ],
+    [
+        [
+            "file",
             "server/tsconfig.json"
         ],
         "547a8c399ce385366cd05c46c5a3fa4ef48a5f60bb64bf322190546d1de1c622"
@@ -228,7 +235,7 @@
             "file",
             "web-app/package.json"
         ],
-        "15dac783a05b96e341b491a40368f4cfed4784967ca6a7980583b33d080986fa"
+        "b1e668876a70926912ff6145a42a15ce8187774eb30544d97351e8468bea5208"
     ],
     [
         [
@@ -250,6 +257,20 @@
             "web-app/public/manifest.json"
         ],
         "c91b7ea515a4889c4abfd355500c8260210602093a94c0beee302450272c3737"
+    ],
+    [
+        [
+            "file",
+            "web-app/scripts/validate-env.mjs"
+        ],
+        "ff6ed20e0282daa82bba1dcb71e0ec24bead991aba954eb20e179bfcc77dd872"
+    ],
+    [
+        [
+            "file",
+            "web-app/scripts/validators.mjs"
+        ],
+        "051e29e55923d8abdf16231f747aece397fc24d3f1474faeb5f67bca3ecc881a"
     ],
     [
         [
@@ -284,7 +305,7 @@
             "file",
             "web-app/src/config.js"
         ],
-        "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+        "4f36313b83479dde848cdedba2937c4f222aeeb4304f97c1c925914e8b18eae3"
     ],
     [
         [

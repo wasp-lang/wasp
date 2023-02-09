@@ -3,7 +3,8 @@
     "NODE_ENV": "development"
   },
   "watch": [
-    "src/"
+    "src/",
+    ".env"
   ],
   "ext": "ts,mts,js,mjs,json"
 }

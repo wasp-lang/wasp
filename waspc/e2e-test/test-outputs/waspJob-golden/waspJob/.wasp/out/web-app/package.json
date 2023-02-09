@@ -37,10 +37,11 @@
   "name": "waspJob",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
+    "build": "npm run validate-env && react-scripts build",
     "eject": "react-scripts eject",
-    "start": "react-scripts start",
-    "test": "react-scripts test"
+    "start": "npm run validate-env && react-scripts start",
+    "test": "react-scripts test",
+    "validate-env": "node ./scripts/validate-env.mjs"
   },
   "version": "0.0.0"
 }

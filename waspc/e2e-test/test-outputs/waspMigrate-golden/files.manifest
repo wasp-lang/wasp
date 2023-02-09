@@ -3,7 +3,6 @@ waspMigrate/.wasp/out/.waspchecksums
 waspMigrate/.wasp/out/Dockerfile
 waspMigrate/.wasp/out/db/migrations/migration_lock.toml
 waspMigrate/.wasp/out/db/migrations/no-date-foo/migration.sql
-waspMigrate/.wasp/out/db/package.json
 waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
@@ -31,6 +30,7 @@ waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
 waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/utils.js
+waspMigrate/.wasp/out/server/src/validators/validators.js
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
@@ -39,6 +39,8 @@ waspMigrate/.wasp/out/web-app/package.json
 waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/index.html
 waspMigrate/.wasp/out/web-app/public/manifest.json
+waspMigrate/.wasp/out/web-app/scripts/validate-env.mjs
+waspMigrate/.wasp/out/web-app/scripts/validators.mjs
 waspMigrate/.wasp/out/web-app/src/actions/core.d.ts
 waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/actions/index.ts

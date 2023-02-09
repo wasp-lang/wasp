@@ -26,6 +26,7 @@ waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
 waspCompile/.wasp/out/server/src/types/index.ts
 waspCompile/.wasp/out/server/src/utils.js
+waspCompile/.wasp/out/server/src/validators/validators.js
 waspCompile/.wasp/out/server/tsconfig.json
 waspCompile/.wasp/out/web-app/.npmrc
 waspCompile/.wasp/out/web-app/README.md
@@ -34,6 +35,8 @@ waspCompile/.wasp/out/web-app/package.json
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/index.html
 waspCompile/.wasp/out/web-app/public/manifest.json
+waspCompile/.wasp/out/web-app/scripts/validate-env.mjs
+waspCompile/.wasp/out/web-app/scripts/validators.mjs
 waspCompile/.wasp/out/web-app/src/actions/core.d.ts
 waspCompile/.wasp/out/web-app/src/actions/core.js
 waspCompile/.wasp/out/web-app/src/actions/index.ts
