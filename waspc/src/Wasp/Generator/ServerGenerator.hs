@@ -59,7 +59,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
-import Wasp.Util ((<++>))
+import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -259,16 +259,17 @@ genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDra
         ( Just $
             object
               [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust userEntityName,
-                "userEntityName" .= fromMaybe "" userEntityName,
-                "userViewName" .= fromMaybe "" userViewName
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
               ]
         )
+    userEntityName = fromMaybe "" maybeUserEntityName
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-    userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
-    -- We might want to move this to a more global location in the future, but
-    -- it is currently used only in these two files.
-    userViewName = (++ "View") <$> userEntityName
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
+
+-- We might want to move this to a more global location in the future, but
+-- it is currently used only in these two files.
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
