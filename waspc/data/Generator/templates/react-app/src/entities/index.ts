@@ -11,7 +11,7 @@ export type {
   {=/ entities =}
 } from '@prisma/client'
 
-export type WaspEntity = 
+export type Entity = 
   {=# entities =}
   | {= name =}
   {=/ entities =}
