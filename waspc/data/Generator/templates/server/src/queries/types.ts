@@ -15,7 +15,7 @@ import {
 } from '../_types'
 
 {=# operations =}
-export type {= typeName =}<Output = unknown> = 
+export type {= typeName =}<Input = never, Output = unknown> = 
   {=# usesAuth =}
   AuthenticatedQuery<
   {=/ usesAuth =}
@@ -27,6 +27,7 @@ export type {= typeName =}<Output = unknown> =
       {= internalTypeName =},
     {=/ entities =}
     ],
+    Input,
     Output
   >
 

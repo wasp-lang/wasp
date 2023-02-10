@@ -8,10 +8,12 @@ module Wasp.Generator.DbGenerator.Operations
 where
 
 import Control.Applicative (liftA2)
-import Control.Concurrent (Chan, newChan, readChan)
+import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
+import Control.Monad (when)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
+import Data.Either (isRight)
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
@@ -32,23 +34,13 @@ import Wasp.Generator.DbGenerator.Common
     webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
-import Wasp.Generator.FileDraft.WriteableMonad
-  ( WriteableMonad (copyDirectoryRecursive),
-  )
-import Wasp.Generator.Job (JobMessage)
+import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (doesFileExist, removeFile)
 import qualified Wasp.Util.IO as IOUtil
-
-printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
-printJobMsgsUntilExitReceived chan = do
-  jobMsg <- readChan chan
-  case J._data jobMsg of
-    J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
-    J.JobExit {} -> return ()
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
@@ -114,27 +106,30 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp
+generatePrismaClients projectRootDir = do
+  generateResult <- liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp projectRootDir
+  when (isRight generateResult) updateDbSchemaChecksumOnLastGenerate
+  return generateResult
   where
     generatePrismaClientForServer = generatePrismaClient serverPrismaClientOutputDirEnv J.Server
     generatePrismaClientForWebApp = generatePrismaClient webAppPrismaClientOutputDirEnv J.WebApp
+    updateDbSchemaChecksumOnLastGenerate =
+      writeDbSchemaChecksumToFile projectRootDir dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
 generatePrismaClient ::
   (String, String) ->
   J.JobType ->
   Path' Abs (Dir ProjectRootDir) ->
   IO (Either String ())
-generatePrismaClient prismaClientOutputDirEnv jobType genProjectRootDirAbs = do
+generatePrismaClient prismaClientOutputDirEnv jobType projectRootDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient genProjectRootDirAbs prismaClientOutputDirEnv jobType chan)
-  case exitCode of
-    ExitSuccess -> do
-      writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumOnLastGenerateFileProjectRootDir
-      return $ Right ()
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+      (DbJobs.generatePrismaClient projectRootDir prismaClientOutputDirEnv jobType chan)
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "Prisma client generation failed with exit code: " ++ show code
 
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.

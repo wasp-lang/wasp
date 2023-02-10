@@ -16,7 +16,6 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
     dbSchemaFileInProjectRootDir,
-    serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
@@ -37,7 +36,15 @@ migrateDev projectDir migrateArgs = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asPrismaCliArgs migrateArgs
+  let prismaMigrateCmd =
+        [ absPrismaExecutableFp projectDir,
+          "migrate",
+          "dev",
+          "--schema",
+          SP.toFilePath schemaFile,
+          "--skip-generate"
+        ]
+          ++ asPrismaCliArgs migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
@@ -45,9 +52,7 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  -- TODO: Prisma migrate will generate a client whether we want it or not. Therefore, I passed
-  -- in the server's client location. We should probably generate one for the web app as well.
-  runNodeCommandAsJobWithExtraEnv [serverPrismaClientOutputDirEnv] serverDir "script" scriptArgs J.Db
+  runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
