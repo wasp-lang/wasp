@@ -1,5 +1,5 @@
 module Wasp.Generator.ServerGenerator.ExternalAuthG
-  ( genPassportAuth,
+  ( genOAuthAuth,
     depsRequiredByPassport,
   )
 where
@@ -34,8 +34,8 @@ import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInS
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Util ((<++>))
 
-genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genPassportAuth auth
+genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genGoogleAuth auth
         <++> genGitHubAuth auth
