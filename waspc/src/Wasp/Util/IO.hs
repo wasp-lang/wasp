@@ -7,6 +7,7 @@ module Wasp.Util.IO
     deleteFileIfExists,
     doesFileExist,
     readFile,
+    readFileStrict,
     writeFile,
     removeFile,
   )
@@ -14,6 +15,8 @@ where
 
 import Control.Monad (filterM, when)
 import Control.Monad.Extra (whenM)
+import Data.Text (Text)
+import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
@@ -89,6 +92,9 @@ doesFileExist = SD.doesFileExist . SP.fromAbsFile
 
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
+
+readFileStrict :: Path' Abs (File f) -> IO Text
+readFileStrict = T.IO.readFile . SP.toFilePath
 
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile
