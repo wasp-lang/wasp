@@ -1,5 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { getSomeResource } from './serverSetup.js'
+import { Task } from '@wasp/entities'
 import {
   CreateTask,
   DeleteCompletedTasks,
