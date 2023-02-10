@@ -171,7 +171,7 @@ genPrismaClients spec projectRootDir =
       checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
     generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientIfEntitiesExist
+    generatePrismaClientsIfEntitiesExist
       | entitiesExist = generateClientsOrWrapError
       | otherwise = return Nothing
 
