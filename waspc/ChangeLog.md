@@ -2,6 +2,9 @@
 
 ## v0.8.1
 
+### Bug fixes
+- Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
+
 ### `wasp deploy` CLI command added
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
 
