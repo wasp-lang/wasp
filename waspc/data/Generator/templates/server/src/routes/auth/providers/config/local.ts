@@ -10,7 +10,7 @@ const config: ProviderConfig = {
     setupRouter() {
         const router = Router();
 
-        router.get('/login', login);
+        router.post('/login', login);
         router.post('/signup', signup);
 
         return router;
