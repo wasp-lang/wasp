@@ -1,3 +1,5 @@
+{{={= =}=}}
+
 import { setupOAuthRouter } from "../oauth/setupRouter.js";
 import { makeOAuthInit } from "../oauth/init.js";
 
@@ -7,8 +9,8 @@ const config: ProviderConfig = {
     name: ProviderType.github,
     slug: "github",
     init: makeOAuthInit({
-        npmPackage: 'passport-github2',
-        passportImportPath: '../../passport/github/config.js',
+        npmPackage: '{= npmPackage =}',
+        passportImportPath: '{= passportConfigImport =}',
     }),
     setupRouter: setupOAuthRouter,
 }
