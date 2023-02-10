@@ -1,4 +1,4 @@
-module Wasp.Generator.WebAppGenerator.ExternalAuthG
+module Wasp.Generator.AuthProviders
   ( googleAuthInfo,
     gitHubAuthInfo,
     frontendLoginUrl,

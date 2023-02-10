@@ -233,6 +233,7 @@ library
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
+    Wasp.Generator.AuthProviders
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
@@ -251,7 +252,6 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.ExternalAuthG
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG

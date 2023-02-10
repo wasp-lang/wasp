@@ -7,7 +7,7 @@ import { ProviderConfig, ProviderType } from "../types.js";
 
 const config: ProviderConfig = {
     name: ProviderType.google,
-    slug: "google",
+    slug: "{= slug =}",
     init: makeOAuthInit({
         npmPackage: '{= npmPackage =}',
         passportImportPath: '{= passportConfigImport =}',

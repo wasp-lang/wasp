@@ -27,6 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.App.Dependency (Dependency)
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -34,7 +35,6 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
 import Wasp.Util ((<++>))
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -58,7 +58,7 @@ genGoogleAuth auth
       sequence
         [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath googleAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
-          genOAuthConfig googleAuthInfo googlePassportDependency [relfile|routes/auth/providers/config/github.ts|],
+          genOAuthConfig googleAuthInfo googlePassportDependency [relfile|routes/auth/providers/config/google.ts|],
           return $
             mkAuthConfigFd
               [relfile|routes/auth/passport/generic/configMapping.js|]
@@ -93,7 +93,8 @@ genOAuthConfig authInfo npmDependecy pathToConfigTmpl = return $ C.mkTmplFdWithD
     dstFile = C.serverSrcDirInServerRootDir </> SP.castRel pathToConfigTmpl
     tmplData =
       object
-        [ "npmPackage" .= App.Dependency.name npmDependecy,
+        [ "slug" .= _slug authInfo,
+          "npmPackage" .= App.Dependency.name npmDependecy,
           "passportConfigImport" .= SP.fromRelFile ([reldir|../../passport/|] </> templateFilePathInPassportDir authInfo)
         ]
 
