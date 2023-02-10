@@ -53,8 +53,6 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  -- TODO: Prisma migrate will generate a client whether we want it or not. Therefore, I passed
-  -- in the server's client location. We should probably generate one for the web app as well.
   runNodeCommandAsJobWithExtraEnv [serverPrismaClientOutputDirEnv] serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
