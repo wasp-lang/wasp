@@ -2,14 +2,13 @@
 import Prisma from '@prisma/client'
 import SecurePassword from 'secure-password'
 
-import { sign, verifyPassword } from '../../core/auth.js'
-import { handleRejection } from '../../utils.js'
+import { sign, verifyPassword } from '../../../../core/auth.js'
+import { handleRejection } from '../../../../utils.js'
 
 const prisma = new Prisma.PrismaClient()
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
-  const context = {}
 
   // Try to fetch user with the given username.
   const user = await prisma.{= userEntityLower =}.findUnique({ where: { username: args.username } })

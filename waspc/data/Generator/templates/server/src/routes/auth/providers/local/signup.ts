@@ -1,8 +1,8 @@
 {{={= =}=}}
-import prisma from '../../dbClient.js'
-import { handleRejection, isPrismaError, prismaErrorToHttpError } from '../../utils.js'
-import AuthError from '../../core/AuthError.js'
-import HttpError from '../../core/HttpError.js'
+import prisma from '../../../../dbClient.js'
+import { handleRejection, isPrismaError, prismaErrorToHttpError } from '../../../../utils.js'
+import AuthError from '../../../../core/AuthError.js'
+import HttpError from '../../../../core/HttpError.js'
 
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}

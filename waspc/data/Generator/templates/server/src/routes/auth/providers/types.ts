@@ -10,7 +10,11 @@ export type ProviderType = (typeof ProviderType)[keyof typeof ProviderType];
 
 export type ProviderConfig = {
     name: ProviderType;
-    slug: string; // it might differ from name, e.g. google -> google-oauth2
-    init?(): { [key: string]: any };
-    setupRouter(): Router;
+    slug: string;
+    init?(provider: ProviderConfig): Promise<InitData>;
+    setupRouter(provider: ProviderConfig, initData: InitData): Router;
 };
+
+export type InitData = {
+    [key: string]: any;
+}

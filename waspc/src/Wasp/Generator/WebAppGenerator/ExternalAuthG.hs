@@ -42,10 +42,10 @@ frontendLoginUrl :: ExternalAuthInfo -> String
 frontendLoginUrl eai = "/auth/login/" ++ _slug eai
 
 serverLoginUrl :: ExternalAuthInfo -> String
-serverLoginUrl eai = "/auth/external/" ++ _slug eai ++ "/login"
+serverLoginUrl eai = "/auth/" ++ _slug eai ++ "/login"
 
 serverOauthRedirectHandlerUrl :: ExternalAuthInfo -> String
-serverOauthRedirectHandlerUrl eai = "/auth/external/" ++ _slug eai ++ "/validateCodeForLogin"
+serverOauthRedirectHandlerUrl eai = "/auth/" ++ _slug eai ++ "/callback"
 
 templateFilePathInPassportDir :: ExternalAuthInfo -> Path' Rel' File'
 templateFilePathInPassportDir eai =

@@ -4,11 +4,11 @@ import { makeOAuthInit } from "../oauth/init.js";
 import { ProviderConfig, ProviderType } from "../types.js";
 
 const config: ProviderConfig = {
-    name: ProviderType.google,
-    slug: "google",
+    name: ProviderType.github,
+    slug: "github",
     init: makeOAuthInit({
-        npmPackage: 'passport-google-oauth20',
-        passportImportPath: '../../passport/google/config.js',
+        npmPackage: 'passport-github2',
+        passportImportPath: '../../passport/github/config.js',
     }),
     setupRouter: setupOAuthRouter,
 }

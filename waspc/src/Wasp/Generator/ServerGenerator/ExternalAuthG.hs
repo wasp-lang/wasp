@@ -14,7 +14,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    Rel',
     reldirP,
     relfile,
     (</>),
@@ -32,54 +31,23 @@ import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
+import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Util ((<++>))
 
 genPassportAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genPassportAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
-      sequence
-        [ genPassportJs auth,
-          copyTmplFile [relfile|routes/auth/passport/generic/provider.js|]
-        ]
-        <++> genGoogleAuth auth
+      genGoogleAuth auth
         <++> genGitHubAuth auth
+        <++> genOAuthHelpers
   | otherwise = return []
-  where
-    copyTmplFile = return . C.mkSrcTmplFd
 
-genPassportJs :: AS.Auth.Auth -> Generator FileDraft
-genPassportJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel passportFileInSrcDir
-    dstFile = C.serverSrcDirInServerRootDir </> passportFileInSrcDir
-    tmplData =
-      object
-        [ "providers"
-            .= [ buildProviderData
-                   (_slug googleAuthInfo)
-                   (App.Dependency.name googlePassportDependency)
-                   (AS.Auth.isGoogleAuthEnabled auth)
-                   (templateFilePathInPassportDir googleAuthInfo),
-                 buildProviderData
-                   (_slug gitHubAuthInfo)
-                   (App.Dependency.name gitHubPassportDependency)
-                   (AS.Auth.isGitHubAuthEnabled auth)
-                   (templateFilePathInPassportDir gitHubAuthInfo)
-               ]
-        ]
-
-    buildProviderData :: String -> String -> Bool -> Path' Rel' File' -> Aeson.Value
-    buildProviderData slug npmPackage isEnabled passportTemplateFP =
-      object
-        [ "slug" .= slug,
-          "npmPackage" .= npmPackage,
-          "isEnabled" .= isEnabled,
-          "passportImportPath" .= ("./" ++ SP.toFilePath passportTemplateFP)
-        ]
-
-    passportFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    passportFileInSrcDir = [relfile|routes/auth/passport/passport.js|]
+genOAuthHelpers :: Generator [FileDraft]
+genOAuthHelpers =
+  sequence
+    [ return $ C.mkSrcTmplFd [relfile|routes/auth/providers/oauth/init.ts|],
+      return $ C.mkSrcTmplFd [relfile|routes/auth/providers/oauth/setupRouter.ts|]
+    ]
 
 genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth
@@ -87,6 +55,7 @@ genGoogleAuth auth
       sequence
         [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath googleAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
+          return $ C.mkSrcTmplFd [relfile|routes/auth/providers/config/google.ts|],
           return $
             mkAuthConfigFd
               [relfile|routes/auth/passport/generic/configMapping.js|]
@@ -103,6 +72,7 @@ genGitHubAuth auth
       sequence
         [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath gitHubAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
+          return $ C.mkSrcTmplFd [relfile|routes/auth/providers/config/github.ts|],
           return $
             mkAuthConfigFd
               [relfile|routes/auth/passport/generic/configMapping.js|]

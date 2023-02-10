@@ -34,11 +34,11 @@ genAuth spec = case maybeAuth of
         genAuthMiddleware auth,
         -- Auth routes
         genAuthRoutesIndex auth,
-        genLoginRoute auth,
-        genSignupRoute auth,
         genMeRoute auth,
         genUtilsJs auth
       ]
+      <++> genProvidersIndexAndTypes
+      <++> genLocalAuth auth
       <++> genPassportAuth auth
   Nothing -> return []
   where
@@ -94,7 +94,7 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
 genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
 genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    loginRouteRelToSrc = [relfile|routes/auth/login.js|]
+    loginRouteRelToSrc = [relfile|routes/auth/providers/local/login.ts|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> loginRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile loginRouteRelToSrc
 
@@ -108,7 +108,7 @@ genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
 genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
 genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    signupRouteRelToSrc = [relfile|routes/auth/signup.js|]
+    signupRouteRelToSrc = [relfile|routes/auth/providers/local/signup.ts|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> signupRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile signupRouteRelToSrc
 
@@ -147,6 +147,32 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|routes/auth/utils.js|]
+
+genLocalAuthConfig :: Generator FileDraft
+genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile Nothing
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
+    dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
+
+    authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
+    authIndexFileInSrcDir = [relfile|routes/auth/providers/config/local.ts|]
+
+genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
+genLocalAuth auth
+  | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
+      sequence
+        [ genLoginRoute auth,
+          genSignupRoute auth,
+          genLocalAuthConfig
+        ]
+  | otherwise = return []
+
+genProvidersIndexAndTypes :: Generator [FileDraft]
+genProvidersIndexAndTypes =
+  sequence
+    [ return $ C.mkSrcTmplFd [relfile|routes/auth/providers/index.ts|],
+      return $ C.mkSrcTmplFd [relfile|routes/auth/providers/types.ts|]
+    ]
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
