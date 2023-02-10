@@ -164,13 +164,13 @@ genPrismaClients spec projectRootDir =
   ifM
     wasCurrentSchemaAlreadyGenerated
     (return Nothing)
-    generatePrismaClientIfEntitiesExist
+    generatePrismaClientsIfEntitiesExist
   where
     wasCurrentSchemaAlreadyGenerated :: IO Bool
     wasCurrentSchemaAlreadyGenerated =
       checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
-    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientsIfEntitiesExist
       | entitiesExist = generateClientsOrWrapError
       | otherwise = return Nothing
