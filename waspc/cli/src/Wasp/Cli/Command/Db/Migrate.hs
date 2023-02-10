@@ -32,11 +32,11 @@ migrateDev optionalMigrateArgs = do
           </> Cli.Common.dotWaspDirInWaspProjectDir
           </> Cli.Common.generatedCodeDirInDotWaspDir
 
-  migrate optionalMigrateArgs projectRootDir waspDbMigrationsDir
-  generateClients projectRootDir
+  migrateDatabase optionalMigrateArgs projectRootDir waspDbMigrationsDir
+  generatePrismaClients projectRootDir
 
-migrate :: [String] -> Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
-migrate optionalMigrateArgs projectRootDir dbMigrationsDir = do
+migrateDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
+migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
   cliSendMessageC $ Msg.Start "Starting database migration..."
   liftIO tryMigrate >>= \case
     Left err -> throwError $ CommandError "Migrate dev failed" err
@@ -46,8 +46,8 @@ migrate optionalMigrateArgs projectRootDir dbMigrationsDir = do
       migrateArgs <- liftEither $ parseMigrateArgs optionalMigrateArgs
       ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir migrateArgs
 
-generateClients :: Path' Abs (Dir ProjectRootDir) -> Command ()
-generateClients projectRootDir = do
+generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> Command ()
+generatePrismaClients projectRootDir = do
   cliSendMessageC $ Msg.Start "Generating prisma clients..."
   generatePrismaClientsResult <- liftIO $ DbOps.generatePrismaClients projectRootDir
   case generatePrismaClientsResult of
