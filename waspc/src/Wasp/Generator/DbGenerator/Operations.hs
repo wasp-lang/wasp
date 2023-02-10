@@ -10,8 +10,10 @@ where
 import Control.Applicative (liftA2)
 import Control.Concurrent (Chan, newChan, readChan)
 import Control.Concurrent.Async (concurrently)
+import Control.Monad (when)
 import Control.Monad.Catch (catch)
 import Control.Monad.Extra (whenM)
+import Data.Either (isRight)
 import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
@@ -114,27 +116,30 @@ removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-generatePrismaClients = liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp
+generatePrismaClients projectRootDir = do
+  generateResult <- liftA2 (>>) generatePrismaClientForServer generatePrismaClientForWebApp projectRootDir
+  when (isRight generateResult) updateDbSchemaChecksumOnLastGenerate
+  return generateResult
   where
     generatePrismaClientForServer = generatePrismaClient serverPrismaClientOutputDirEnv J.Server
     generatePrismaClientForWebApp = generatePrismaClient webAppPrismaClientOutputDirEnv J.WebApp
+    updateDbSchemaChecksumOnLastGenerate =
+      writeDbSchemaChecksumToFile projectRootDir dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
 generatePrismaClient ::
   (String, String) ->
   J.JobType ->
   Path' Abs (Dir ProjectRootDir) ->
   IO (Either String ())
-generatePrismaClient prismaClientOutputDirEnv jobType genProjectRootDirAbs = do
+generatePrismaClient prismaClientOutputDirEnv jobType projectRootDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (DbJobs.generatePrismaClient genProjectRootDirAbs prismaClientOutputDirEnv jobType chan)
-  case exitCode of
-    ExitSuccess -> do
-      writeDbSchemaChecksumToFile genProjectRootDirAbs dbSchemaChecksumOnLastGenerateFileProjectRootDir
-      return $ Right ()
-    ExitFailure code -> return $ Left $ "Prisma client generation failed with exit code: " ++ show code
+      (DbJobs.generatePrismaClient projectRootDir prismaClientOutputDirEnv jobType chan)
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "Prisma client generation failed with exit code: " ++ show code
 
 -- | Checks `prisma migrate diff` exit code to determine if schema.prisma is
 -- different than the DB. Returns Nothing on error as we do not know the current state.

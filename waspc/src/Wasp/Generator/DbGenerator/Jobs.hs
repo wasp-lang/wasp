@@ -37,7 +37,15 @@ migrateDev projectDir migrateArgs = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asPrismaCliArgs migrateArgs
+  let prismaMigrateCmd =
+        absPrismaExecutableFp projectDir :
+        [ "migrate",
+          "dev",
+          "--schema",
+          SP.toFilePath schemaFile,
+          "--skip-generate"
+        ]
+          ++ asPrismaCliArgs migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
