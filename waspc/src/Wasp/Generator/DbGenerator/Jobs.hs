@@ -37,8 +37,8 @@ migrateDev projectDir migrateArgs = do
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
   let prismaMigrateCmd =
-        absPrismaExecutableFp projectDir :
-        [ "migrate",
+        [ absPrismaExecutableFp projectDir,
+          "migrate",
           "dev",
           "--schema",
           SP.toFilePath schemaFile,
@@ -52,7 +52,7 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  runNodeCommandAsJob  serverDir "script" scriptArgs J.Db
+  runNodeCommandAsJob serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
