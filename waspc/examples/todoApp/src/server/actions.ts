@@ -7,7 +7,7 @@ import {
   UpdateTaskIsDone
 } from '@wasp/actions/types'
 
-export const createTask: CreateTask = async (task, context) => {
+export const createTask: CreateTask<Pick<Task, 'description'>> = async (task, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -26,7 +26,7 @@ export const createTask: CreateTask = async (task, context) => {
   })
 }
 
-export const updateTaskIsDone: UpdateTaskIsDone = async ({ id, isDone }, context) => {
+export const updateTaskIsDone: UpdateTaskIsDone<Pick<Task, 'id' | 'isDone'>> = async ({ id, isDone }, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -42,7 +42,7 @@ export const updateTaskIsDone: UpdateTaskIsDone = async ({ id, isDone }, context
   })
 }
 
-export const deleteCompletedTasks: DeleteCompletedTasks = async (args, context) => {
+export const deleteCompletedTasks: DeleteCompletedTasks = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -53,13 +53,16 @@ export const deleteCompletedTasks: DeleteCompletedTasks = async (args, context) 
   })
 }
 
-export const toggleAllTasks: ToggleAllTasks = async (args, context) => {
+export const toggleAllTasks: ToggleAllTasks = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
 
-  const whereIsDone = isDone => ({ isDone, user: { id: context.user.id } })
-  const Task = context.entities.Task
+  const whereIsDone = (isDone: boolean) => ({
+    isDone,
+    user: { id: context.user.id },
+  });
+  const Task = context.entities.Task;
   const notDoneTasksCount = await Task.count({ where: whereIsDone(false) })
 
   if (notDoneTasksCount > 0) {
