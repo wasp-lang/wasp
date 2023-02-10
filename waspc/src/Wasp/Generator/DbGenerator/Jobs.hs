@@ -16,7 +16,6 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( MigrateArgs (..),
     dbSchemaFileInProjectRootDir,
-    serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
@@ -53,7 +52,7 @@ migrateDev projectDir migrateArgs = do
           else -- NOTE(martin): On Linux, command that `script` should execute is treated as one argument.
             ["-feqc", unwords prismaMigrateCmd, "/dev/null"]
 
-  runNodeCommandAsJobWithExtraEnv [serverPrismaClientOutputDirEnv] serverDir "script" scriptArgs J.Db
+  runNodeCommandAsJob  serverDir "script" scriptArgs J.Db
 
 asPrismaCliArgs :: MigrateArgs -> [String]
 asPrismaCliArgs migrateArgs = do
