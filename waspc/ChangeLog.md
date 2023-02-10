@@ -2,6 +2,9 @@
 
 ## v0.8.1
 
+### `wasp deploy` CLI command added
+We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
+
 ### Import Wasp entity types on the backend
 You can now import and use the types of Wasp entities in your backend code:
 ```typescript

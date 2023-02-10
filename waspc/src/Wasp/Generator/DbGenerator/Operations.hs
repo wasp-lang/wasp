@@ -8,7 +8,7 @@ module Wasp.Generator.DbGenerator.Operations
 where
 
 import Control.Applicative (liftA2)
-import Control.Concurrent (Chan, newChan, readChan)
+import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Catch (catch)
@@ -34,23 +34,13 @@ import Wasp.Generator.DbGenerator.Common
     webAppPrismaClientOutputDirEnv,
   )
 import qualified Wasp.Generator.DbGenerator.Jobs as DbJobs
-import Wasp.Generator.FileDraft.WriteableMonad
-  ( WriteableMonad (copyDirectoryRecursive),
-  )
-import Wasp.Generator.Job (JobMessage)
+import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRecursive))
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMessage, readJobMessagesAndPrintThemPrefixed)
+import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
 import Wasp.Util (checksumFromFilePath, hexToString)
 import Wasp.Util.IO (doesFileExist, removeFile)
 import qualified Wasp.Util.IO as IOUtil
-
-printJobMsgsUntilExitReceived :: Chan JobMessage -> IO ()
-printJobMsgsUntilExitReceived chan = do
-  jobMsg <- readChan chan
-  case J._data jobMsg of
-    J.JobOutput {} -> printJobMessage jobMsg >> printJobMsgsUntilExitReceived chan
-    J.JobExit {} -> return ()
 
 -- | Migrates in the generated project context and then copies the migrations dir back
 -- up to the wasp project dir to ensure they remain in sync.
