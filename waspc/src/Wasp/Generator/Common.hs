@@ -13,7 +13,8 @@ import qualified Wasp.SemanticVersion as SV
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
 
--- | Used as a constraint to specify root directories with generated code (e.g. web app src dir or server src dir).
+-- | Type representing top-level src/ dir in an app component (e.g. in web app or in server).
+--   Examples: web-app/src/, server/src/, ... .
 class GeneratedCodeSourceDir d
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
