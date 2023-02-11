@@ -45,7 +45,8 @@ data JsImportName
 
 type JsImportIdentifier = String
 
--- | Represents the left side of the import statement e.g. @{ Name }@ or @{ Name as Alias }@ or @NameForDefault@
+-- | Represents the left side of the import statement, between @import@ and @from@,
+--   e.g. @{ Name }@ or @{ Name as Alias }@ or @NameForDefault@ .
 type JsImportClause = String
 
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
