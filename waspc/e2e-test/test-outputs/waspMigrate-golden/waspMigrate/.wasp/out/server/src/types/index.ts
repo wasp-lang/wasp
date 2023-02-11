@@ -2,19 +2,19 @@ import prisma from "../dbClient.js"
 import { 
   type WaspEntity,
   type Task,
- } from "../entities"
+} from "../entities"
 
-export type Query<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Query<Entities extends WaspEntity[], Input, Output> = Operation<Entities, Input, Output>
 
-export type Action<Entities extends WaspEntity[] = [], Result = unknown> = Operation<Entities, Result>
+export type Action<Entities extends WaspEntity[], Input, Output> = Operation<Entities, Input, Output>
 
 
-type Operation<Entities extends WaspEntity[], Result> = (
-  args: any,
+type Operation<Entities extends WaspEntity[], Input, Output> = (
+  args: Input,
   context: {
-      entities: EntityMap<Entities>,
+    entities: EntityMap<Entities>,
   },
-) => Promise<Result>
+) => Promise<Output>
 
 type PrismaDelegateFor<EntityName extends string> =
   EntityName extends "Task" ? typeof prisma.task :
