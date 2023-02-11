@@ -7,7 +7,7 @@ where
 import StrongPath (Dir, Dir', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (GeneratedCodeSourceDir)
+import Wasp.Generator.Common (GeneratedSrcDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport,
@@ -18,7 +18,7 @@ import Wasp.JsImport
 type PathFromImportLocationToExtCodeDir = Path Posix (Rel GeneratedExternalCodeDir) Dir'
 
 extImportToJsImport ::
-  GeneratedCodeSourceDir d =>
+  GeneratedSrcDir d =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
   Path Posix (Rel GeneratedExternalCodeDir) Dir' ->
   EI.ExtImport ->

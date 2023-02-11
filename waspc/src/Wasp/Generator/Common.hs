@@ -4,7 +4,7 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
-    GeneratedCodeSourceDir,
+    GeneratedSrcDir,
   )
 where
 
@@ -15,7 +15,7 @@ data ProjectRootDir
 
 -- | Type representing top-level src/ dir in an app component (e.g. in web app or in server).
 --   Examples: web-app/src/, server/src/, ... .
-class GeneratedCodeSourceDir d
+class GeneratedSrcDir d
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.

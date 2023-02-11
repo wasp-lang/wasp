@@ -130,13 +130,13 @@ getTmplDataForAuthMethodConfig auth authMethod =
       "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
     ]
   where
-    getImportStatement = getJsImportStmtAndIdentifier [reldirP|../../../../|]
+    getJsImportStmtAndIdentifier' = getJsImportStmtAndIdentifier [reldirP|../../../../|]
     maybeConfigFn = AS.Auth.configFn =<< authMethod (AS.Auth.methods auth)
-    maybeConfigFnImportDetails = getImportStatement <$> maybeConfigFn
+    maybeConfigFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeConfigFn
     (maybeConfigFnImportStmt, maybeConfigFnImportIdentifier) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< authMethod (AS.Auth.methods auth)
-    maybeOnSignInFnImportDetails = getImportStatement <$> maybeGetUserFieldsFn
+    maybeOnSignInFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportStmt, maybeOnSignInFnImportIdentifier) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
