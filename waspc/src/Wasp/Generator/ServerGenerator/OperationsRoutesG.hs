@@ -65,19 +65,19 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
           (Aeson.toJSON (U.toLowerFirst $ AS.refName $ AS.Auth.userEntity auth))
           baseTmplData
 
-    operationImportPath =
+    pathToOperationFile =
       relPosixPathFromOperationsRoutesDirToSrcDir
         </> fromJust (SP.relFileToPosix $ operationFileInSrcDir operation)
 
-    operationESModulesImportPath =
+    operationImportPath =
       fromJust $
         SP.parseRelFileP $
           C.toESModulesImportPath $
-            SP.fromRelFileP operationImportPath
+            SP.fromRelFileP pathToOperationFile
 
     operationName = AS.Operation.getName operation
 
-    (operationImportIdentifier, operationImportStmt) = getJsImportStmtAndIdentifier $ makeJsImport operationESModulesImportPath (JsImportModule operationName)
+    (operationImportStmt, operationImportIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport operationImportPath (JsImportModule operationName)
 
 data OperationsRoutesDir
 
@@ -112,7 +112,7 @@ genOperationsRouter spec
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
           importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ operationRouteFileInOperationsRoutesDir operation
-          (importIdentifier, importStmt) = getJsImportStmtAndIdentifier $ makeJsImport importPath (JsImportModule operationName)
+          (importStmt, importIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport importPath (JsImportModule operationName)
        in object
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,
