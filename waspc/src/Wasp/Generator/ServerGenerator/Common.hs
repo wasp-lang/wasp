@@ -11,28 +11,21 @@ module Wasp.Generator.ServerGenerator.Common
     asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
-    entityNameToPrismaIdentifier,
-    buildEntityData,
     toESModulesImportPath,
-    ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
   )
 where
 
-import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir, ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data ServerRootDir
 
 data ServerSrcDir
 
@@ -96,20 +89,6 @@ srcDirInServerTemplatesDir = [reldir|src|]
 
 dotEnvServer :: Path' (SP.Rel WaspProjectDir) File'
 dotEnvServer = [relfile|.env.server|]
-
--- | Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
--- converts it into a corresponding Prisma identifier (like `prisma.someTask`).
--- This is what Prisma implicitly does when translating `model` declarations to
--- client SDK identifiers. Useful when creating `context.entities` JS objects in Wasp templates.
-entityNameToPrismaIdentifier :: String -> String
-entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
-
-buildEntityData :: String -> Aeson.Value
-buildEntityData name =
-  object
-    [ "name" .= name,
-      "prismaIdentifier" .= entityNameToPrismaIdentifier name
-    ]
 
 -- Converts the real name of the source file (i.e., name on disk) into a name
 -- that can be used in an ESNext import.

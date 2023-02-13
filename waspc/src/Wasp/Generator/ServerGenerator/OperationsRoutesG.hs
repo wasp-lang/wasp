@@ -19,6 +19,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator, GeneratorError (GenericGeneratorError), logAndThrowGeneratorError)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -75,7 +76,7 @@ data OperationsRoutesDir
 operationsRoutesDirInServerSrcDir :: Path' (Rel C.ServerSrcDir) (Dir OperationsRoutesDir)
 operationsRoutesDirInServerSrcDir = [reldir|routes/operations/|]
 
-operationsRoutesDirInServerRootDir :: Path' (Rel C.ServerRootDir) (Dir OperationsRoutesDir)
+operationsRoutesDirInServerRootDir :: Path' (Rel ServerRootDir) (Dir OperationsRoutesDir)
 operationsRoutesDirInServerRootDir = C.serverSrcDirInServerRootDir </> operationsRoutesDirInServerSrcDir
 
 operationRouteFileInOperationsRoutesDir :: AS.Operation.Operation -> Path' (Rel OperationsRoutesDir) File'

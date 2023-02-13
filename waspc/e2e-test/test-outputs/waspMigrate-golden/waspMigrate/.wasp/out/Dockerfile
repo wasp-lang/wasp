@@ -28,7 +28,7 @@ WORKDIR /app
 COPY server/package*.json ./server/
 RUN cd server && npm install
 COPY db/schema.prisma ./db/
-RUN cd server && npx prisma generate --schema=../db/schema.prisma
+RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/ npx prisma generate --schema='../db/schema.prisma'
 
 
 # TODO: Use pm2?

@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.WebAppGenerator
   ( genWebApp,
     npmDepsForWasp,
@@ -25,8 +27,14 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
+import Wasp.Generator.Common
+  ( makeJsonWithEntityNameAndPrismaIdentifier,
+    nodeVersionRange,
+    npmVersionRange,
+    prismaVersion,
+  )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
@@ -113,7 +121,11 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1")
+            ("react-scripts", "5.0.1"),
+            -- The web app only needs @prisma/client (we're using the server's
+            -- CLI to generate what's necessary, check the description in
+            -- https://github.com/wasp-lang/wasp/pull/962/ for details).
+            ("@prisma/client", show prismaVersion)
           ]
           ++ depsRequiredByTailwind spec,
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
@@ -198,8 +210,6 @@ genPublicIndexHtml spec =
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.
 -- We could further "templatize" this file so only what is needed is generated.
---
-
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
@@ -213,9 +223,20 @@ genSrcDir spec =
       genApi
     ]
     <++> genOperations spec
+    <++> genEntitiesDir spec
     <++> genAuth spec
   where
     copyTmplFile = return . C.mkSrcTmplFd
+
+genEntitiesDir :: AppSpec -> Generator [FileDraft]
+genEntitiesDir spec = return [entitiesIndexFileDraft]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: Generator FileDraft
