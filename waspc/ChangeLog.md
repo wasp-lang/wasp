@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.8.1
+
+### Dropping exact requirement for npm version
+We are removing the requirement for a specific npm version to enable following the Node.js LTS release (Node.js LTS releases sometimes bump the major `npm` version).
+We are still requiring Node.js to be at least version 18, but the `npm` version can be anything and for most of Wasp users it will be the version that comes with Node.js.
+
 ## v0.8.0
 
 ### BREAKING CHANGES
@@ -117,9 +123,9 @@ directory `foo`, you should:
        // This previously resolved to ext/LoginPage.js
        component: import Login from "@ext/LoginPage.js"
      }
-     
+
      // ...
-     
+
      query getTasks {
        // This previously resolved to ext/queries.js
        fn: import { getTasks } from "@ext/queries.js",
@@ -133,16 +139,16 @@ directory `foo`, you should:
        // This resolves to src/client/LoginPage.js
        component: import Login from "@client/LoginPage"
      }
-     
+
      // ...
-     
+
      query getTasks {
        // This resolves to src/server/queries.js
        fn: import { getTasks } from "@server/queries.js",
      }
      ```
      Do this for all external imports in your `.wasp` file. After you're done, there shouldn't be any occurences of the string `"@ext"`.
-     
+
 That's it! You should now have a fully working Wasp project in the `foo` directory.
 
 ### [NEW FEATURE] TypeScript support
