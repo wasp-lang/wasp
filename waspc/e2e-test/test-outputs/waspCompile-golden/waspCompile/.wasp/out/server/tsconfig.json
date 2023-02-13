@@ -16,5 +16,5 @@
     "outDir": "dist",
     "allowJs": true
   },
-  "exclude": ["scripts"]
+  "include": ["src"]
 }

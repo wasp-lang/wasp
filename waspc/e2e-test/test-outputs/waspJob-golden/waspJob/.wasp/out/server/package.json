@@ -39,12 +39,12 @@
   "private": true,
   "scripts": {
     "build": "npx tsc",
-    "build-and-start": "npm run build && npm run start",
+    "build-and-start": "npm run validate-env && npm run build && npm run start",
     "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "postinstall": "patch-package",
     "standard": "standard",
-    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
     "start-production": "NODE_ENV=production npm run build-and-start",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"

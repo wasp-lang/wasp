@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "npx tsc",
-    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "build-and-start": "npm run build && npm run start",
+    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "build-and-start": "npm run validate-env && npm run build && npm run start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
