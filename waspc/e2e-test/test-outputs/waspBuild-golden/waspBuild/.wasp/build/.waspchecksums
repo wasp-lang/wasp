@@ -18,7 +18,7 @@
             "file",
             "db/schema.prisma"
         ],
-        "16c90bcaec8038a1b8bff30b2db2f7876b40c0e2e1b088076491f86f14d172c5"
+        "6f7b1b109e332bad9eb3cda4a2caf4963f4918c91b546c06fa42d8986c0b94a2"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "web-app/package.json"
         ],
-        "68c241389188ef0e6ec2397c89914d62e5a8f458543d08bfefeff49655e87c43"
+        "f4118eb025537133d213d3ff53f67be00f07606e822ae823b00cec61d0ef4dd8"
     ],
     [
         [
@@ -270,7 +270,7 @@
             "file",
             "web-app/src/actions/index.ts"
         ],
-        "d6710101a02f23b53972e72d374747047e4251c0177fd5c626c0cffd060cd4a2"
+        "0f294c2f1d50a1473f6d332ef17944e7475c7d83a2180f6e2c9c9aecf25439f4"
     ],
     [
         [
@@ -285,6 +285,13 @@
             "web-app/src/config.js"
         ],
         "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/entities/index.ts"
+        ],
+        "49702253f6beeca8661f60f41741b0d2120e62face9a1fb827d1147bf2ded9af"
     ],
     [
         [
