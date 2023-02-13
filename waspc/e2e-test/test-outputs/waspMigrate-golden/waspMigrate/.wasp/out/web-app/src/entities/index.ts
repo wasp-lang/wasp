@@ -6,6 +6,6 @@ export type {
   Task,
 } from '@prisma/client'
 
-export type WaspEntity = 
+export type Entity = 
   | Task
   | never

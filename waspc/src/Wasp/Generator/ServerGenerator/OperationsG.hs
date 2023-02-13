@@ -21,7 +21,7 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityNameAndPrismaIdentifier)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -86,15 +86,15 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
         [ "operations" .= map operationTypeData operations,
           "shouldImportAuthenticatedOperation" .= any usesAuth operations,
           "shouldImportNonAuthenticatedOperation" .= not (all usesAuth operations),
-          "allEntities" .= nub (concatMap entityNames operations)
+          "allEntities" .= nub (concatMap getEntities operations)
         ]
     operationTypeData operation =
       object
         [ "typeName" .= toUpperFirst (getName operation),
-          "entities" .= entityNames operation,
+          "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
-    entityNames = maybe [] (map AS.refName) . AS.Operation.getEntities
+    getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
 -- | Analogous to genQuery.
@@ -134,7 +134,7 @@ operationTmplData operation =
       "entities"
         .= maybe
           []
-          (map (makeJsonWithEntityNameAndPrismaIdentifier . AS.refName))
+          (map (makeJsonWithEntityData . AS.refName))
           (AS.Operation.getEntities operation)
     ]
   where

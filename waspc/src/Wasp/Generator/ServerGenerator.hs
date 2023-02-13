@@ -39,7 +39,7 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common
   ( ServerRootDir,
     latestMajorNodeVersion,
-    makeJsonWithEntityNameAndPrismaIdentifier,
+    makeJsonWithEntityData,
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
@@ -59,7 +59,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
-import Wasp.Util ((<++>))
+import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -245,30 +245,38 @@ genRoutesDir spec =
     ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
-genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDraft]
+genTypesAndEntitiesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      typesIndexFileDraft
+    ]
   where
     entitiesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
+    taggedEntitiesFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/_types/taggedEntities.ts|]
+        [relfile|src/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
-        [relfile|src/types/index.ts|]
-        [relfile|src/types/index.ts|]
+        [relfile|src/_types/index.ts|]
+        [relfile|src/_types/index.ts|]
         ( Just $
             object
               [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust userEntityName,
-                "userEntityName" .= fromMaybe "" userEntityName,
-                "userViewName" .= fromMaybe "" userViewName
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
               ]
         )
-    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
-    userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
-    -- We might want to move this to a more global location in the future, but
-    -- it is currently used only in these two files.
-    userViewName = (++ "View") <$> userEntityName
+    userEntityName = fromMaybe "" maybeUserEntityName
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

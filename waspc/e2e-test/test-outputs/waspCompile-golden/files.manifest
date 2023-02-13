@@ -7,6 +7,8 @@ waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
 waspCompile/.wasp/out/server/package.json
+waspCompile/.wasp/out/server/src/_types/index.ts
+waspCompile/.wasp/out/server/src/_types/taggedEntities.ts
 waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/config.js
@@ -24,7 +26,6 @@ waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
-waspCompile/.wasp/out/server/src/types/index.ts
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/server/tsconfig.json
 waspCompile/.wasp/out/web-app/.npmrc

@@ -4,5 +4,5 @@ import {
 export type {
 } from '@prisma/client'
 
-export type WaspEntity = 
+export type Entity = 
   | never

@@ -7,6 +7,8 @@ waspBuild/.wasp/build/server/.npmrc
 waspBuild/.wasp/build/server/README.md
 waspBuild/.wasp/build/server/nodemon.json
 waspBuild/.wasp/build/server/package.json
+waspBuild/.wasp/build/server/src/_types/index.ts
+waspBuild/.wasp/build/server/src/_types/taggedEntities.ts
 waspBuild/.wasp/build/server/src/actions/types.ts
 waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/config.js
@@ -24,7 +26,6 @@ waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
-waspBuild/.wasp/build/server/src/types/index.ts
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/server/tsconfig.json
 waspBuild/.wasp/build/web-app/.npmrc

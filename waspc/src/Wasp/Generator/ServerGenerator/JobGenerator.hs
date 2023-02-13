@@ -32,7 +32,7 @@ import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityNameAndPrismaIdentifier)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
@@ -65,7 +65,7 @@ genJob (jobName, job) =
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
             "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job)),
-            "entities" .= maybe [] (map (makeJsonWithEntityNameAndPrismaIdentifier . AS.refName)) (J.entities job)
+            "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
           ]
     )
   where

@@ -8,15 +8,14 @@ module Wasp.Generator.Common
     nodeVersionRange,
     npmVersionRange,
     prismaVersion,
-    makeJsonWithEntityNameAndPrismaIdentifier,
-    entityNameToPrismaIdentifier,
+    makeJsonWithEntityData,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util (toLowerFirst)
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
@@ -58,17 +57,18 @@ npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 4 5 0
 
-makeJsonWithEntityNameAndPrismaIdentifier :: String -> Aeson.Value
-makeJsonWithEntityNameAndPrismaIdentifier name =
+makeJsonWithEntityData :: String -> Aeson.Value
+makeJsonWithEntityData name =
   object
     [ "name" .= name,
+      "internalTypeName" .= ('_' : name),
       "prismaIdentifier" .= entityNameToPrismaIdentifier name
     ]
-
--- | Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
--- converts it into a corresponding Prisma identifier (e.g., `someTask` used in
--- `prisma.someTask`).  This is what Prisma implicitly does when translating
--- `model` declarations to client SDK identifiers. Useful when creating
--- `context.entities` JS objects in Wasp templates.
-entityNameToPrismaIdentifier :: String -> String
-entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
+  where
+    -- Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
+    -- converts it into a corresponding Prisma identifier (e.g., `someTask` used in
+    -- `prisma.someTask`).  This is what Prisma implicitly does when translating
+    -- `model` declarations to client SDK identifiers. Useful when creating
+    -- `context.entities` JS objects in Wasp templates.
+    entityNameToPrismaIdentifier :: String -> String
+    entityNameToPrismaIdentifier = toLowerFirst
