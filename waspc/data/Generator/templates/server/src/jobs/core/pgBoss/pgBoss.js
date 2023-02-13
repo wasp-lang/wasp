@@ -77,6 +77,8 @@ let errConnectionRetries = 0
 function handlePgBossError(error) {
   console.error('pg-boss error:', error)
 
+  // TODO: Should we track the last time it happened, and reset if it has been a while?
+  // Mainly to ensure it is all in rapid succession.
   if (error.code === 'ECONNREFUSED') {
     errConnectionRetries++
   }
