@@ -25,13 +25,11 @@ data Version
         minor :: Natural,
         patch :: Natural
       }
-  | AnyVersion
   deriving (Eq, Ord)
 
 -- | We rely on this `show` implementation to produce valid semver representation of version.
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
-  show AnyVersion = "*"
 
 data Operator
   = Equal
@@ -111,7 +109,6 @@ nextBreakingChangeVersion version = case version of
   (Version 0 0 x) -> Version 0 0 (succ x)
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
-  AnyVersion -> AnyVersion
 
 -- Helper methods.
 

@@ -2,7 +2,6 @@ module Wasp.Generator.Common
   ( ProjectRootDir,
     latestMajorNodeVersion,
     nodeVersionRange,
-    npmVersionRange,
     prismaVersion,
   )
 where
@@ -25,10 +24,6 @@ nodeVersionRange = SV.Range [SV.backwardsCompatibleWith latestNodeLTSVersion]
 
 latestNodeLTSVersion :: SV.Version
 latestNodeLTSVersion = SV.Version 18 12 0
-
--- | Range of npm versions that Wasp and generated projects work correctly with.
-npmVersionRange :: SV.Version
-npmVersionRange = SV.AnyVersion
 
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 4 5 0

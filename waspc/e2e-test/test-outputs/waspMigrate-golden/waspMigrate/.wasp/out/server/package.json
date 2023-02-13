@@ -23,8 +23,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "^18.12.0",
-    "npm": "*"
+    "node": "^18.12.0"
   },
   "name": "server",
   "nodemonConfig": {
