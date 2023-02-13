@@ -39,6 +39,7 @@ waspBuild/.wasp/build/web-app/src/actions/core.js
 waspBuild/.wasp/build/web-app/src/actions/index.ts
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
+waspBuild/.wasp/build/web-app/src/entities/index.ts
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
 waspBuild/.wasp/build/web-app/src/ext-src/MainPage.jsx
 waspBuild/.wasp/build/web-app/src/ext-src/react-app-env.d.ts

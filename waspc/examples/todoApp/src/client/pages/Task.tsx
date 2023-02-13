@@ -13,7 +13,7 @@ type TaskPayload = Pick<Task, "id" | "isDone">
 const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
 
-  const { data: task, isFetching, error } = useQuery<unknown, Task, Task>(getTask, { id: taskId })
+  const { data: task, isFetching, error } = useQuery<Pick<Task, "id">, Task>(getTask, { id: taskId })
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [

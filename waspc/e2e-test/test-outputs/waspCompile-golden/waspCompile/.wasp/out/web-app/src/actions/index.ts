@@ -14,14 +14,14 @@ export type Action<Input, Output> = (args?: Input) => Promise<Output>;
  * action with extra options.
  *
  */
-export type ActionOptions<ActionInput, CachedData> = {
-  optimisticUpdates: OptimisticUpdateDefinition<ActionInput, CachedData>[]
+export type ActionOptions<ActionInput> = {
+  optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[]
 }
 
 /**
  * A documented (public) way to define optimistic updates.
  */
-export type OptimisticUpdateDefinition<ActionInput, CachedData = unknown> = {
+export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
   getQuerySpecifier: GetQuerySpecifier<ActionInput, CachedData>
   updateQuery: UpdateQuery<ActionInput, CachedData>
 }
@@ -50,9 +50,9 @@ export type QuerySpecifier<Input, Output> = [Query<Input, Output>, ...any[]]
  * @param actionOptions An options object for enhancing/decorating the given Action.
  * @returns A decorated Action with added behavior but an unchanged API.
  */
-export function useAction<Input = unknown, Output = unknown, CachedData = unknown>(
+export function useAction<Input = unknown, Output = unknown>(
   actionFn: Action<Input, Output>,
-  actionOptions?: ActionOptions<Input, CachedData>
+  actionOptions?: ActionOptions<Input>
 ): typeof actionFn {
   const queryClient = useQueryClient();
 

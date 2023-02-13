@@ -44,6 +44,7 @@ waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/actions/index.ts
 waspMigrate/.wasp/out/web-app/src/api.js
 waspMigrate/.wasp/out/web-app/src/config.js
+waspMigrate/.wasp/out/web-app/src/entities/index.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
 waspMigrate/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspMigrate/.wasp/out/web-app/src/ext-src/react-app-env.d.ts

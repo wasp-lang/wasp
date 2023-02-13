@@ -23,7 +23,7 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator.Common
   ( PrismaDbSchema,
-    dbSchemaFileFromModuleDir,
+    dbSchemaFileFromAppComponentDir,
     serverPrismaClientOutputDirEnv,
   )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
@@ -41,7 +41,7 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
   usingServerPatches <- areServerPatchesUsed spec
-  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromModuleDir
+  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromAppComponentDir
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel ProjectRootDir) File')

@@ -13,6 +13,7 @@ module Wasp.Util.IO
 where
 
 import Control.Monad (filterM, when)
+import Control.Monad.Extra (whenM)
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
@@ -69,26 +70,28 @@ listDirectory absDirPath = do
       filterM (SD.doesDirectoryExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelDir
 
-deleteDirectoryIfExists :: Path' r (Dir d) -> IO ()
+-- The paths in the following functions intentionally aren't as polymorphic as
+-- possible (i.e., they require 'Abs` paths). We prefer working with absolute
+-- paths whenever possible (they make for a safe default). If you need to work
+-- with relative paths, define a new function (e.g., `readFileRel`).
+
+deleteDirectoryIfExists :: Path' Abs (Dir d) -> IO ()
 deleteDirectoryIfExists dirPath = do
-  let dirPathStr = SP.toFilePath dirPath
+  let dirPathStr = SP.fromAbsDir dirPath
   exists <- SD.doesDirectoryExist dirPathStr
   when exists $ SD.removeDirectoryRecursive dirPathStr
 
-deleteFileIfExists :: Path' r (File f) -> IO ()
-deleteFileIfExists filePath = do
-  let filePathStr = SP.toFilePath filePath
-  exists <- SD.doesFileExist filePathStr
-  when exists $ SD.removeFile filePathStr
+deleteFileIfExists :: Path' Abs (File f) -> IO ()
+deleteFileIfExists filePath = whenM (doesFileExist filePath) $ removeFile filePath
 
-doesFileExist :: Path' r (File f) -> IO Bool
-doesFileExist = SD.doesFileExist . SP.toFilePath
+doesFileExist :: Path' Abs (File f) -> IO Bool
+doesFileExist = SD.doesFileExist . SP.fromAbsFile
 
-readFile :: Path' r (File f) -> IO String
-readFile = P.readFile . SP.toFilePath
+readFile :: Path' Abs (File f) -> IO String
+readFile = P.readFile . SP.fromAbsFile
 
-writeFile :: Path' r (File f) -> String -> IO ()
-writeFile = P.writeFile . SP.toFilePath
+writeFile :: Path' Abs (File f) -> String -> IO ()
+writeFile = P.writeFile . SP.fromAbsFile
 
-removeFile :: Path' r (File f) -> IO ()
-removeFile = SD.removeFile . SP.toFilePath
+removeFile :: Path' Abs (File f) -> IO ()
+removeFile = SD.removeFile . SP.fromAbsFile

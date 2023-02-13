@@ -11,14 +11,14 @@
             "file",
             "Dockerfile"
         ],
-        "fc947858a99b55ff5963560b5201f3b54e4f302768ba4ab30f3ebe0cab14fb0f"
+        "e5332a9cfefb7af077ef2eba70e9deb90693997ae4cd2e0256bbe2a2346c465d"
     ],
     [
         [
             "file",
             "db/schema.prisma"
         ],
-        "04a6c677bba33a37c60132e09b60fec7679403fed77ad4cb7d7c306a600cef24"
+        "8d017edd849a861ae086850270a9f817bb4b75d9ee9ac27c08b0e9c29a16f6fe"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "web-app/package.json"
         ],
-        "15dac783a05b96e341b491a40368f4cfed4784967ca6a7980583b33d080986fa"
+        "7c3bc417dd899317da57af925acae935ff6884250f45b4b434e5bd172d811874"
     ],
     [
         [
@@ -270,7 +270,7 @@
             "file",
             "web-app/src/actions/index.ts"
         ],
-        "d6710101a02f23b53972e72d374747047e4251c0177fd5c626c0cffd060cd4a2"
+        "0f294c2f1d50a1473f6d332ef17944e7475c7d83a2180f6e2c9c9aecf25439f4"
     ],
     [
         [
@@ -285,6 +285,13 @@
             "web-app/src/config.js"
         ],
         "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/entities/index.ts"
+        ],
+        "acc242b6e297244848b08ea7a3f65980b255e747fce76ce6f5990be24cde0417"
     ],
     [
         [

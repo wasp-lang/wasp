@@ -2,7 +2,7 @@ module Wasp.Generator.Common
   ( ProjectRootDir,
     ServerRootDir,
     WebAppRootDir,
-    ComponentRootDir,
+    AppComponentRootDir,
     DbRootDir,
     latestMajorNodeVersion,
     nodeVersionRange,
@@ -21,19 +21,19 @@ import Wasp.Util (toLowerFirst)
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
 
-class ComponentRootDir d
+class AppComponentRootDir d
 
 data ServerRootDir
 
-instance ComponentRootDir ServerRootDir
+instance AppComponentRootDir ServerRootDir
 
 data WebAppRootDir
 
-instance ComponentRootDir WebAppRootDir
+instance AppComponentRootDir WebAppRootDir
 
 data DbRootDir
 
-instance ComponentRootDir DbRootDir
+instance AppComponentRootDir DbRootDir
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.
