@@ -14,7 +14,6 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst)
 
