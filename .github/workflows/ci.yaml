@@ -64,6 +64,13 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
+      # The fix will be propagated in a few days, so we can remove this workaround then.
+      # https://github.com/actions/runner-images/issues/7061
+      - name: Workaround runner image issue
+        if: matrix.os == 'ubuntu-20.04'
+        run: sudo chown -R $USER /usr/local/.ghcup
+
       - name: Set up Haskell
         id: setup-haskell-cabal
         uses: haskell/actions/setup@v2
@@ -100,9 +107,9 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: ./run ormolu:check
 
-      - name: Build external dependencies 
-        run: cabal build --enable-tests --enable-benchmarks --only-dependencies 
-      
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+
       - name: Build wasp code
         run: cabal build all
 
@@ -123,7 +130,7 @@ jobs:
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
-          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz" 
+          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
