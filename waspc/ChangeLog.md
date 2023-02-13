@@ -2,9 +2,9 @@
 
 ## v0.8.1
 
-### Dropping exact requirement for npm version
-We are removing the requirement for a specific npm version to enable following the Node.js LTS release (Node.js LTS releases sometimes bump the major `npm` version).
-We are still requiring Node.js to be at least version 18, but the `npm` version can be anything and for most of Wasp users it will be the version that comes with Node.js.
+### Remove npm version constraint
+We are removing the requirement for a specific npm version to enable following the Node.js LTS releases (Node.js LTS releases sometimes bump the major `npm` version).
+We are still requiring Node.js to be version 18, but the `npm` version can be anything and for most of Wasp users it will be the version that comes with Node.js.
 
 ## v0.8.0
 
