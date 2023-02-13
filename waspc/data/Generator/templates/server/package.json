@@ -27,8 +27,7 @@
     {=/ overrides =}
   },
   "engines": {
-    "node": "{=& nodeVersionRange =}",
-    "npm": "{=& npmVersionRange =}"
+    "node": "{=& nodeVersionRange =}"
   },
   {=& depsChunk =},
   {=& devDepsChunk =}
