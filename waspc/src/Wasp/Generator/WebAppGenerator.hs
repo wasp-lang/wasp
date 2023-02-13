@@ -77,10 +77,10 @@ genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
@@ -102,16 +102,6 @@ genPackageJson spec waspDependencies = do
               "npmVersionRange" .= show npmVersionRange
             ]
       )
-
-genEntitiesDir :: AppSpec -> Generator [FileDraft]
-genEntitiesDir spec = return [entitiesIndexFileDraft]
-  where
-    entitiesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
-        [relfile|src/entities/index.ts|]
-        [relfile|src/entities/index.ts|]
-        (Just $ object ["entities" .= allEntities])
-    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 genNpmrc :: Generator FileDraft
 genNpmrc =
@@ -237,6 +227,16 @@ genSrcDir spec =
     <++> genAuth spec
   where
     copyTmplFile = return . C.mkSrcTmplFd
+
+genEntitiesDir :: AppSpec -> Generator [FileDraft]
+genEntitiesDir spec = return [entitiesIndexFileDraft]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    allEntities = map (makeJsonWithEntityNameAndPrismaIdentifier . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: Generator FileDraft
