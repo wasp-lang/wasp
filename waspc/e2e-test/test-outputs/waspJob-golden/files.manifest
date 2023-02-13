@@ -9,6 +9,8 @@ waspJob/.wasp/out/server/nodemon.json
 waspJob/.wasp/out/server/package.json
 waspJob/.wasp/out/server/scripts/shared/validators.mjs
 waspJob/.wasp/out/server/scripts/validate-env.mjs
+waspJob/.wasp/out/server/src/_types/index.ts
+waspJob/.wasp/out/server/src/_types/taggedEntities.ts
 waspJob/.wasp/out/server/src/actions/types.ts
 waspJob/.wasp/out/server/src/app.js
 waspJob/.wasp/out/server/src/config.js
@@ -28,7 +30,6 @@ waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.ts
-waspJob/.wasp/out/server/src/types/index.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
 waspJob/.wasp/out/web-app/.npmrc
@@ -45,6 +46,7 @@ waspJob/.wasp/out/web-app/src/actions/core.js
 waspJob/.wasp/out/web-app/src/actions/index.ts
 waspJob/.wasp/out/web-app/src/api.js
 waspJob/.wasp/out/web-app/src/config.js
+waspJob/.wasp/out/web-app/src/entities/index.ts
 waspJob/.wasp/out/web-app/src/ext-src/Main.css
 waspJob/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspJob/.wasp/out/web-app/src/ext-src/react-app-env.d.ts

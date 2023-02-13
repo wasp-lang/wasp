@@ -1,6 +1,3 @@
 import {
-} from '../entities'
-
-import {
-} from '../types'
+} from '../_types'
 

@@ -6,7 +6,7 @@ import auth from '../../core/auth.js'
 {=/ isAuthEnabled =}
 
 {=# operationRoutes =}
-import {= importIdentifier =} from '{= importPath =}'
+{=& importStatement =}
 {=/ operationRoutes =}
 
 const router = express.Router()

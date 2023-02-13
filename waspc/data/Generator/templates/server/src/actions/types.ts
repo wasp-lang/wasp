@@ -3,21 +3,18 @@
           types, consider whether it makes sense to address this in the future. =}
 import {
   {=# allEntities =}
-  {= . =},
+  type {= internalTypeName =},
   {=/ allEntities =}
-} from '../entities'
-
-import {
   {=# shouldImportNonAuthenticatedOperation =}
-  Action,
+  type Action,
   {=/ shouldImportNonAuthenticatedOperation =}
   {=# shouldImportAuthenticatedOperation =}
-  AuthenticatedAction,
+  type AuthenticatedAction,
   {=/ shouldImportAuthenticatedOperation =}
-} from '../types'
+} from '../_types'
 
 {=# operations =}
-export type {= typeName =}<Output = unknown> = 
+export type {= typeName =}<Input = never, Output = unknown> = 
   {=# usesAuth =}
   AuthenticatedAction<
   {=/ usesAuth =}
@@ -26,9 +23,10 @@ export type {= typeName =}<Output = unknown> =
   {=/ usesAuth =}
     [
     {=# entities =}
-      {=.=},
+      {= internalTypeName =},
     {=/ entities =}
     ],
+    Input,
     Output
   >
 

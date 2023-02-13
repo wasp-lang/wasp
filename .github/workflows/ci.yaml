@@ -64,6 +64,11 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      - name: Workaround runner image issue
+        if: matrix.os == 'ubuntu-20.04'
+        # https://github.com/actions/runner-images/issues/7061
+        run: sudo chown -R $USER /usr/local/.ghcup
+
       - name: Set up Haskell
         id: setup-haskell-cabal
         uses: haskell/actions/setup@v2

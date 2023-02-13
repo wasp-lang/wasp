@@ -9,6 +9,8 @@ waspBuild/.wasp/build/server/nodemon.json
 waspBuild/.wasp/build/server/package.json
 waspBuild/.wasp/build/server/scripts/shared/validators.mjs
 waspBuild/.wasp/build/server/scripts/validate-env.mjs
+waspBuild/.wasp/build/server/src/_types/index.ts
+waspBuild/.wasp/build/server/src/_types/taggedEntities.ts
 waspBuild/.wasp/build/server/src/actions/types.ts
 waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/config.js
@@ -26,7 +28,6 @@ waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
-waspBuild/.wasp/build/server/src/types/index.ts
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/server/tsconfig.json
 waspBuild/.wasp/build/web-app/.npmrc
@@ -43,6 +44,7 @@ waspBuild/.wasp/build/web-app/src/actions/core.js
 waspBuild/.wasp/build/web-app/src/actions/index.ts
 waspBuild/.wasp/build/web-app/src/api.js
 waspBuild/.wasp/build/web-app/src/config.js
+waspBuild/.wasp/build/web-app/src/entities/index.ts
 waspBuild/.wasp/build/web-app/src/ext-src/Main.css
 waspBuild/.wasp/build/web-app/src/ext-src/MainPage.jsx
 waspBuild/.wasp/build/web-app/src/ext-src/react-app-env.d.ts

@@ -21,7 +21,7 @@ import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
-import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesDirectoryExist, doesFileExist)
 import qualified Wasp.Analyzer as Analyzer
 import Wasp.Analyzer.AnalyzeError (getErrorMessageAndCtx)
@@ -44,7 +44,7 @@ import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import Wasp.Generator.ServerGenerator.Common (dotEnvServer)
 import Wasp.Generator.WebAppGenerator.Common (dotEnvClient)
 import Wasp.Util (maybeToEither, unlessM)
-import qualified Wasp.Util.IO as Util.IO
+import qualified Wasp.Util.IO as IOUtil
 
 type CompileError = String
 
@@ -90,7 +90,7 @@ warnIfDotEnvPresent waspDir = (warningMessage <$) <$> findDotEnv waspDir
 
 analyzeWaspFileContent :: Path' Abs File' -> IO (Either CompileError [AS.Decl])
 analyzeWaspFileContent waspFilePath = do
-  waspFileContent <- readFile (fromAbsFile waspFilePath)
+  waspFileContent <- IOUtil.readFile waspFilePath
   let declsOrAnalyzeError = Analyzer.analyze waspFileContent
   return $
     left
@@ -134,7 +134,7 @@ constructAppSpec waspDir options decls = do
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs File'))
 findWaspFile waspDir = do
-  files <- fst <$> Util.IO.listDirectory waspDir
+  files <- fst <$> IOUtil.listDirectory waspDir
   return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
