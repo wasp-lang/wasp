@@ -3,7 +3,7 @@
 module Wasp.Cli.Command.Telemetry.Project
   ( getWaspProjectPathHash,
     considerSendingData,
-    readProjectTelemetryCache,
+    readProjectTelemetryCacheFile,
     getTimeOfLastTelemetryDataSent,
     -- NOTE: for testing only
     checkIfEnvValueIsTruthy,
@@ -126,8 +126,8 @@ initialCache = ProjectTelemetryCache {_lastCheckIn = Nothing, _lastCheckInBuild 
 getTimeOfLastTelemetryDataSent :: ProjectTelemetryCache -> Maybe T.UTCTime
 getTimeOfLastTelemetryDataSent cache = maximum [_lastCheckIn cache, _lastCheckInBuild cache]
 
-readProjectTelemetryCache :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
-readProjectTelemetryCache telemetryCacheDirPath projectHash =
+readProjectTelemetryCacheFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO (Maybe ProjectTelemetryCache)
+readProjectTelemetryCacheFile telemetryCacheDirPath projectHash =
   ifM
     (IOUtil.doesFileExist projectTelemetryFile)
     parseProjectTelemetryFile
@@ -138,7 +138,7 @@ readProjectTelemetryCache telemetryCacheDirPath projectHash =
 
 readOrCreateProjectTelemetryFile :: Path' Abs (Dir TelemetryCacheDir) -> ProjectHash -> IO ProjectTelemetryCache
 readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash = do
-  maybeProjectTelemetryCache <- readProjectTelemetryCache telemetryCacheDirPath projectHash
+  maybeProjectTelemetryCache <- readProjectTelemetryCacheFile telemetryCacheDirPath projectHash
   case maybeProjectTelemetryCache of
     Just cache -> return cache
     Nothing -> writeProjectTelemetryFile telemetryCacheDirPath projectHash initialCache >> return initialCache
