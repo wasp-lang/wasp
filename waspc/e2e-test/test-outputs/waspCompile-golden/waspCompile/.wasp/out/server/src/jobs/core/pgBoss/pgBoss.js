@@ -51,7 +51,7 @@ export async function startPgBoss() {
   pgBossStatus = PgBossStatus.Starting
   console.log('Starting pg-boss...')
 
-  boss.on('error', error => console.error(error))
+  boss.on('error', handlePgBossError)
   try {
     await boss.start()
   } catch (error) {
@@ -66,4 +66,27 @@ export async function startPgBoss() {
 
   console.log('pg-boss started!')
   pgBossStatus = PgBossStatus.Started
+}
+
+let errConnectionRetries = 0
+
+// In the unlikely event that the database becomes unreachable, we do not want the app
+// itself to die. This error handler will shut pg-boss down after several connection
+// refused errors to prevent an untrapped `pg` error from killing node (and thus, the entire app).
+// Ref: https://github.com/timgit/pg-boss/issues/365
+function handlePgBossError(error) {
+  console.error('pg-boss error:', error)
+
+  if (error.code === 'ECONNREFUSED') {
+    errConnectionRetries++
+  }
+
+  if (errConnectionRetries > 5) {
+    console.error(`Connection lost to postgres after ${errConnectionRetries} retries.  Stopping pg-boss...`)
+
+    boss.stop().catch(error => console.error('Error stopping pg-boss:', error))
+
+    const oneMinute = 1 * 60 * 1000
+    setInterval(() => console.log(`WARNING: pg-boss was stopped due to postgres connection errors and is no longer running!`), oneMinute)
+  }
 }
