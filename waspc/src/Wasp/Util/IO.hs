@@ -84,11 +84,16 @@ deleteFileIfExists filePath = do
 doesFileExist :: Path' r (File f) -> IO Bool
 doesFileExist = SD.doesFileExist . SP.toFilePath
 
-readFile :: Path' r (File f) -> IO String
-readFile = P.readFile . SP.toFilePath
+-- The paths in the following functions intentionally aren't as polymorphic as
+-- possible (i.e., they require 'Abs` paths). We prefer working with absolute
+-- paths whenever possible (they make for a safe default). If you need to work
+-- with relative paths, define a new function (e.g., `readFileRel`).
 
-writeFile :: Path' r (File f) -> String -> IO ()
-writeFile = P.writeFile . SP.toFilePath
+readFile :: Path' Abs (File f) -> IO String
+readFile = P.readFile . SP.fromAbsFile
 
-removeFile :: Path' r (File f) -> IO ()
-removeFile = SD.removeFile . SP.toFilePath
+writeFile :: Path' Abs (File f) -> String -> IO ()
+writeFile = P.writeFile . SP.fromAbsFile
+
+removeFile :: Path' Abs (File f) -> IO ()
+removeFile = SD.removeFile . SP.fromAbsFile
