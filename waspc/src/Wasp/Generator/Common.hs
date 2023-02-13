@@ -1,5 +1,7 @@
 module Wasp.Generator.Common
   ( ProjectRootDir,
+    SharedTemplatesDir,
+    sharedTemplatesDirInTemplatesDir,
     latestMajorNodeVersion,
     nodeVersionRange,
     npmVersionRange,
@@ -7,10 +9,18 @@ module Wasp.Generator.Common
   )
 where
 
+import StrongPath (Dir, Rel, reldir)
+import StrongPath.Types (Path')
+import Wasp.Generator.Templates (TemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
+
+data SharedTemplatesDir
+
+sharedTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SharedTemplatesDir)
+sharedTemplatesDirInTemplatesDir = [reldir|shared|]
 
 -- | Latest concrete major node version supported by the nodeVersionRange, and
 --   therefore by Wasp.

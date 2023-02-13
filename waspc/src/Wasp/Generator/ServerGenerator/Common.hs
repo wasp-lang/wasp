@@ -14,6 +14,7 @@ module Wasp.Generator.ServerGenerator.Common
     entityNameToPrismaIdentifier,
     buildEntityData,
     toESModulesImportPath,
+    mkSharedTmplFdWithDst,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -28,7 +29,7 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir, SharedTemplatesDir, sharedTemplatesDirInTemplatesDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -39,6 +40,12 @@ data ServerSrcDir
 data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
+
+class ValidServerTemplatesDir d
+
+instance ValidServerTemplatesDir ServerTemplatesDir
+
+instance ValidServerTemplatesDir SharedTemplatesDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel
@@ -68,17 +75,6 @@ mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     dstPath = SP.castRel srcPath :: Path' (Rel ServerRootDir) File'
 
-mkTmplFdWithDstAndData ::
-  Path' (Rel ServerTemplatesDir) File' ->
-  Path' (Rel ServerRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
-  createTemplateFileDraft
-    (serverRootDirInProjectRootDir </> relDstPath)
-    (serverTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
 mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
 mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
@@ -86,6 +82,32 @@ mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothi
     dstPath =
       serverSrcDirInServerRootDir
         </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+
+mkTmplFdWithDstAndData ::
+  Path' (Rel ServerTemplatesDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkTmplFdWithDstAndData = mkAnyValidFdWithDstAndData serverTemplatesDirInTemplatesDir
+
+mkSharedTmplFdWithDst ::
+  Path' (Rel SharedTemplatesDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  FileDraft
+mkSharedTmplFdWithDst relSrcPath relDstPath = mkAnyValidFdWithDstAndData sharedTemplatesDirInTemplatesDir relSrcPath relDstPath Nothing
+
+mkAnyValidFdWithDstAndData ::
+  ValidServerTemplatesDir d =>
+  Path' (Rel TemplatesDir) (Dir d) ->
+  Path' (Rel d) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkAnyValidFdWithDstAndData templatesDir relSrcPath relDstPath tmplData =
+  createTemplateFileDraft
+    (serverRootDirInProjectRootDir </> relDstPath)
+    (templatesDir </> relSrcPath)
+    tmplData
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)

@@ -51,7 +51,6 @@ import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInS
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified Wasp.Generator.Shared as S
 import Wasp.SemanticVersion (major)
 import Wasp.Util ((<++>))
 
@@ -72,7 +71,7 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
-    <++> genValidators
+    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -312,11 +311,9 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
 
-genValidators :: Generator [FileDraft]
-genValidators =
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
   return
-    [ genSharedTmplToServerSrcDirCopy [relfile|validators.js|] [relfile|validators/validators.js|]
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      C.mkSharedTmplFdWithDst [relfile|validators.js|] [relfile|scripts/shared/validators.mjs|]
     ]
-
-genSharedTmplToServerSrcDirCopy :: Path' (Rel S.SharedTemplatesDir) File' -> Path' (Rel C.ServerSrcDir) File' -> FileDraft
-genSharedTmplToServerSrcDirCopy src = S.mkTmplFdWithDst src . (</>) C.serverSrcDirInProjectRootDir

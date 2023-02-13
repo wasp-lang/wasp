@@ -34,7 +34,6 @@ import Wasp.Generator.FileDraft
 import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.Shared as S
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
@@ -249,8 +248,5 @@ genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
-      genSharedTmplToWebAppRootDirCopy [relfile|validators.js|] [relfile|scripts/validators.mjs|]
+      C.mkSharedTmplFdWithDst [relfile|validators.js|] [relfile|scripts/shared/validators.mjs|]
     ]
-
-genSharedTmplToWebAppRootDirCopy :: Path' (Rel S.SharedTemplatesDir) File' -> Path' (Rel C.WebAppRootDir) File' -> FileDraft
-genSharedTmplToWebAppRootDirCopy src = S.mkTmplFdWithDst src . (</>) C.webAppRootDirInProjectRootDir

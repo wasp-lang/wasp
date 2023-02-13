@@ -12,6 +12,7 @@ module Wasp.Generator.WebAppGenerator.Common
     asTmplFile,
     asWebAppFile,
     asWebAppSrcFile,
+    mkSharedTmplFdWithDst,
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
@@ -23,7 +24,7 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (ProjectRootDir, SharedTemplatesDir, sharedTemplatesDirInTemplatesDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -34,6 +35,12 @@ data WebAppSrcDir
 data WebAppTemplatesDir
 
 data WebAppTemplatesSrcDir
+
+class ValidWebAppTemplatesDir d
+
+instance ValidWebAppTemplatesDir WebAppTemplatesDir
+
+instance ValidWebAppTemplatesDir SharedTemplatesDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
 asTmplFile = SP.castRel
@@ -89,8 +96,20 @@ mkTmplFdWithDstAndData ::
   Path' (Rel WebAppRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData srcPathInWebAppTemplatesDir dstPathInWebAppRootDir tmplData =
+mkTmplFdWithDstAndData = mkAnyValidTmplFdWithDstAndData webAppTemplatesDirInTemplatesDir
+
+mkSharedTmplFdWithDst :: Path' (Rel SharedTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
+mkSharedTmplFdWithDst relSrcPath relDstPath = mkAnyValidTmplFdWithDstAndData sharedTemplatesDirInTemplatesDir relSrcPath relDstPath Nothing
+
+mkAnyValidTmplFdWithDstAndData ::
+  ValidWebAppTemplatesDir d =>
+  Path' (Rel TemplatesDir) (Dir d) ->
+  Path' (Rel d) File' ->
+  Path' (Rel WebAppRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkAnyValidTmplFdWithDstAndData templatesDir relSrcPath relDstPath tmplData =
   createTemplateFileDraft
-    (webAppRootDirInProjectRootDir </> dstPathInWebAppRootDir)
-    (webAppTemplatesDirInTemplatesDir </> srcPathInWebAppTemplatesDir)
+    (webAppRootDirInProjectRootDir </> relDstPath)
+    (templatesDir </> relSrcPath)
     tmplData

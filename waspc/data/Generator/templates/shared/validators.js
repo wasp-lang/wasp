@@ -2,22 +2,23 @@ export function isValidAbsoluteURL(rawUrl) {
     try {
         new URL(rawUrl);
     } catch (e) {
-        // Invalid URL
         return false;
     }
 
-    const urlParts = rawUrl.split("//");
+    /*
+        URL constrctor will parse some invalid absolute URLs as valid URLs
+        so we need to do some extra checks to make sure the URL is valid.
 
-    // No protocol specified
-    if (urlParts.length < 2) {
+        Example: "localhost:3000" will be parsed as URL with protocol of
+        "localhost:" and host of "3000"
+    */
+    const urlParts = rawUrl.split("//");
+    const isProtocolSpecified = urlParts.length > 1;
+    if (!isProtocolSpecified) {
         return false;
     }
 
     const protocol = urlParts[0];
-    // Invalid protocol specified
-    if (protocol !== "http:" && protocol !== "https:") {
-        return false;
-    }
 
-    return true;
+    return protocol === "http:" || protocol === "https:";
 }
