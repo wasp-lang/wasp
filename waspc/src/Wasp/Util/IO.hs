@@ -21,6 +21,7 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Prelude hiding (readFile, writeFile)
 import qualified Prelude as P
+import Control.Monad.Extra (whenM)
 
 -- TODO: write tests.
 
@@ -81,9 +82,8 @@ deleteDirectoryIfExists dirPath = do
   when exists $ SD.removeDirectoryRecursive dirPathStr
 
 deleteFileIfExists :: Path' Abs (File f) -> IO ()
-deleteFileIfExists filePath = do
-  exists <- doesFileExist filePath
-  when exists $ removeFile filePath
+deleteFileIfExists filePath =
+  whenM (doesFileExist filePath) $ removeFile filePath
 
 doesFileExist :: Path' Abs (File f) -> IO Bool
 doesFileExist = SD.doesFileExist . SP.fromAbsFile
