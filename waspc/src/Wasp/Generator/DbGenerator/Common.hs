@@ -104,14 +104,14 @@ prismaClientOutputDirInAppComponentDir :: AppComponentRootDir d => Path' (Rel d)
 prismaClientOutputDirInAppComponentDir = [reldir|node_modules/.prisma/client|]
 
 serverPrismaClientOutputDirEnv :: (String, String)
-serverPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv serverRootDirFromDbRootDir
+serverPrismaClientOutputDirEnv = appComponentPrismaClientOutputDirEnv serverRootDirFromDbRootDir
 
 webAppPrismaClientOutputDirEnv :: (String, String)
-webAppPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv webAppRootDirFromDbRootDir
+webAppPrismaClientOutputDirEnv = appComponentPrismaClientOutputDirEnv webAppRootDirFromDbRootDir
 
-modulePrismaClientOutputDirEnv :: AppComponentRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
-modulePrismaClientOutputDirEnv moduleRootDirFromDbRootDir =
-  (prismaClientOutputDirEnvVar, SP.fromRelDir $ moduleRootDirFromDbRootDir </> prismaClientOutputDirInAppComponentDir)
+appComponentPrismaClientOutputDirEnv :: AppComponentRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
+appComponentPrismaClientOutputDirEnv appComponentDirFromDbRootDir =
+  (prismaClientOutputDirEnvVar, SP.fromRelDir $ appComponentDirFromDbRootDir </> prismaClientOutputDirInAppComponentDir)
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,
