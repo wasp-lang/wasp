@@ -1,14 +1,12 @@
-import React from 'react'
-
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 const About = () => {
-  return (
-    <>
-      <div>I am About page!</div>
-      <Link to='/'>Go to dashboard</Link>
-    </>
-  )
-}
+    return (
+        <>
+            <div>I am About page!</div>
+            <Link to="/">Go to dashboard</Link>
+        </>
+    );
+};
 
 export default About;

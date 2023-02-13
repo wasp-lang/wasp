@@ -9,6 +9,7 @@ import Data.Data (Data)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Client = Client
-  { setupFn :: Maybe ExtImport
+  { setupFn :: Maybe ExtImport,
+    rootComponent :: Maybe ExtImport
   }
   deriving (Show, Eq, Data)
