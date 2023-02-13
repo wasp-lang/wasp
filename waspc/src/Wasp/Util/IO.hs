@@ -13,6 +13,7 @@ module Wasp.Util.IO
 where
 
 import Control.Monad (filterM, when)
+import Control.Monad.Extra (whenM)
 import StrongPath (Abs, Dir, Dir', File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
@@ -21,7 +22,6 @@ import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
 import Prelude hiding (readFile, writeFile)
 import qualified Prelude as P
-import Control.Monad.Extra (whenM)
 
 -- TODO: write tests.
 
@@ -82,8 +82,7 @@ deleteDirectoryIfExists dirPath = do
   when exists $ SD.removeDirectoryRecursive dirPathStr
 
 deleteFileIfExists :: Path' Abs (File f) -> IO ()
-deleteFileIfExists filePath =
-  whenM (doesFileExist filePath) $ removeFile filePath
+deleteFileIfExists filePath = whenM (doesFileExist filePath) $ removeFile filePath
 
 doesFileExist :: Path' Abs (File f) -> IO Bool
 doesFileExist = SD.doesFileExist . SP.fromAbsFile
