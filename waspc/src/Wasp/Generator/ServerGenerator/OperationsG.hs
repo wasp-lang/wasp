@@ -12,7 +12,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (File', Path', Rel, reldir, reldirP, relfile, (</>))
+import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -127,4 +127,7 @@ operationTmplData operation =
       "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
     ]
   where
-    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier [reldirP|../|] (AS.Operation.getFn operation)
+    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)
+
+    relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromOperationsDirToServerSrcDir = [reldirP|../|]

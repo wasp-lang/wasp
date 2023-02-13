@@ -8,8 +8,11 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     Rel',
     reldirP,
@@ -130,7 +133,7 @@ getTmplDataForAuthMethodConfig auth authMethod =
       "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
     ]
   where
-    getJsImportStmtAndIdentifier' = getJsImportStmtAndIdentifier [reldirP|../../../../|]
+    getJsImportStmtAndIdentifier' = getJsImportStmtAndIdentifier relPathFromAuthConfigToServerSrcDir
     maybeConfigFn = AS.Auth.configFn =<< authMethod (AS.Auth.methods auth)
     maybeConfigFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeConfigFn
     (maybeConfigFnImportStmt, maybeConfigFnImportIdentifier) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
@@ -138,6 +141,9 @@ getTmplDataForAuthMethodConfig auth authMethod =
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< authMethod (AS.Auth.methods auth)
     maybeOnSignInFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportStmt, maybeOnSignInFnImportIdentifier) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
+
+    relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromAuthConfigToServerSrcDir = [reldirP|../../../../|]
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =

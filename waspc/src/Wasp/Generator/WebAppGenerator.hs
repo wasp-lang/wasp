@@ -8,8 +8,11 @@ import Data.Aeson (object, (.=))
 import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust)
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldir,
     reldirP,
@@ -231,6 +234,9 @@ genIndexJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier [reldirP|./|] <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]

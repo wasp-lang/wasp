@@ -8,7 +8,8 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import StrongPath (reldir, reldirP, relfile, (</>))
+import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -164,7 +165,10 @@ createPageTemplateData page =
     }
   where
     importStmt :: String
-    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport [reldirP|./|] pageComponent
+    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
+
+    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]
 
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page

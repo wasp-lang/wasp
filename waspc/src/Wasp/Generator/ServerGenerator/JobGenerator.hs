@@ -16,6 +16,7 @@ import StrongPath
     File',
     Path,
     Path',
+    Posix,
     Rel,
     parseRelFile,
     reldir,
@@ -67,7 +68,7 @@ genJob (jobName, job) =
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-    (jobPerformFnImportStatement, jobPerformFnName) = getJsImportStmtAndIdentifier [reldirP|../|] $ (J.fn . J.perform) job
+    (jobPerformFnImportStatement, jobPerformFnName) = getJsImportStmtAndIdentifier relPathFromJobsDirToServerSrcDir $ (J.fn . J.perform) job
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object
@@ -76,6 +77,9 @@ genJob (jobName, job) =
           "options" .= fromMaybe AS.JSON.emptyObject (J.scheduleExecutorOptionsJson job)
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
+
+    relPathFromJobsDirToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromJobsDirToServerSrcDir = [reldirP|../|]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded
 -- even if they are not referenced by user code. This ensures schedules are started, etc.

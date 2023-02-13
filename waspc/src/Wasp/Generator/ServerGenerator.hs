@@ -16,8 +16,11 @@ import Data.Maybe
     isJust,
   )
 import StrongPath
-  ( File',
+  ( Dir,
+    File',
+    Path,
     Path',
+    Posix,
     Rel,
     reldir,
     reldirP,
@@ -210,9 +213,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier [reldirP|./|] <$> maybeSetupJsFunction
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
     (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+
+    relPathToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
