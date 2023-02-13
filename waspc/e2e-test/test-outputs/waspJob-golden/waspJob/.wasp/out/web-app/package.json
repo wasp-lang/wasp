@@ -41,7 +41,7 @@
     "eject": "react-scripts eject",
     "start": "npm run validate-env && react-scripts start",
     "test": "react-scripts test",
-    "validate-env": "node ./scripts/validate-env.mjs"
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "version": "0.0.0"
 }
