@@ -172,12 +172,11 @@ genPrismaClients spec projectRootDir =
 
     generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientsIfEntitiesExist
-      | entitiesExist = generateClientsOrWrapError
+      | entitiesExist =
+        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec
-    generateClientsOrWrapError =
-      either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
 
 checksumFileExistsAndMatchesSchema ::
   DbSchemaChecksumFile f =>
