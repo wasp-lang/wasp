@@ -12,6 +12,8 @@ waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
 waspMigrate/.wasp/out/server/package.json
+waspMigrate/.wasp/out/server/src/_types/index.ts
+waspMigrate/.wasp/out/server/src/_types/taggedEntities.ts
 waspMigrate/.wasp/out/server/src/actions/types.ts
 waspMigrate/.wasp/out/server/src/app.js
 waspMigrate/.wasp/out/server/src/config.js
@@ -29,7 +31,6 @@ waspMigrate/.wasp/out/server/src/queries/types.ts
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
-waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.npmrc

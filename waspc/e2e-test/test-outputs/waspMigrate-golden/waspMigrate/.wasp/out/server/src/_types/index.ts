@@ -1,8 +1,4 @@
-{{={= =}=}}
 import prisma from "../dbClient.js"
-{=# isAuthEnabled =}
-import { type {= userEntityName =} } from "../entities"
-{=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
 
 export * from "./taggedEntities"
@@ -11,25 +7,6 @@ export type Query<Entities extends _Entity[], Input, Output> = Operation<Entitie
 
 export type Action<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
 
-{=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends _Entity[], Input, Output> = 
-  AuthenticatedOperation<Entities, Input, Output>
-
-export type AuthenticatedAction<Entities extends _Entity[], Input, Output> = 
-  AuthenticatedOperation<Entities, Input, Output>
-
-type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
-  args: Input,
-  context: Expand<OperationContext<Entities> & { 
-  // TODO: This type must match the logic in core/auth.js (if we remove the
-  // password field from the object there, we must do the same here). Ideally,
-  // these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-    {= userFieldName =}: Omit<{= userEntityName =}, 'password'> 
-  }>,
-) => Promise<Output>
-
-{=/ isAuthEnabled =}
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: Expand<OperationContext<Entities>>,
@@ -44,9 +21,7 @@ type EntityMap<Entities extends _Entity[]> = {
 }
 
 type PrismaDelegate = {
-  {=# entities =}
-  "{= name =}": typeof prisma.{= prismaIdentifier =},
-  {=/ entities =}
+  "Task": typeof prisma.task,
 }
 
 // This is a helper type used exclusively for DX purposes. It's a No-op for the
