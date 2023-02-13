@@ -173,7 +173,7 @@ genPrismaClients spec projectRootDir =
     generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
     generatePrismaClientsIfEntitiesExist
       | entitiesExist =
-        either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
       | otherwise = return Nothing
 
     entitiesExist = not . null $ getEntities spec

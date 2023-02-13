@@ -28,7 +28,7 @@ where
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (DbMigrationsDir)
-import Wasp.Generator.Common (DbRootDir, AppComponentRootDir, ProjectRootDir, ServerRootDir)
+import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir, ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
 
 data DbTemplatesDir
