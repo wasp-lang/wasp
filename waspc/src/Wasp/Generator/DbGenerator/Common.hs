@@ -28,7 +28,7 @@ where
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (DbMigrationsDir)
-import Wasp.Generator.Common (DbRootDir, ComponentRootDir, ProjectRootDir, ServerRootDir)
+import Wasp.Generator.Common (DbRootDir, AppComponentRootDir, ProjectRootDir, ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
 
 data DbTemplatesDir
@@ -70,10 +70,10 @@ dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
 dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-dbRootDirFromModuleDir :: ComponentRootDir d => Path' (Rel d) (Dir DbRootDir)
+dbRootDirFromModuleDir :: AppComponentRootDir d => Path' (Rel d) (Dir DbRootDir)
 dbRootDirFromModuleDir = [reldir|../db|]
 
-dbSchemaFileFromModuleDir :: ComponentRootDir d => Path' (Rel d) (File PrismaDbSchema)
+dbSchemaFileFromModuleDir :: AppComponentRootDir d => Path' (Rel d) (File PrismaDbSchema)
 dbSchemaFileFromModuleDir = dbRootDirFromModuleDir </> dbSchemaFileInDbRootDir
 
 dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
@@ -100,7 +100,7 @@ prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
 databaseUrlEnvVar :: String
 databaseUrlEnvVar = "DATABASE_URL"
 
-prismaClientOutputDirInModuleDir :: ComponentRootDir d => Path' (Rel d) (Dir ServerRootDir)
+prismaClientOutputDirInModuleDir :: AppComponentRootDir d => Path' (Rel d) (Dir ServerRootDir)
 prismaClientOutputDirInModuleDir = [reldir|node_modules/.prisma/client|]
 
 serverPrismaClientOutputDirEnv :: (String, String)
@@ -109,7 +109,7 @@ serverPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv serverRootDirFro
 webAppPrismaClientOutputDirEnv :: (String, String)
 webAppPrismaClientOutputDirEnv = modulePrismaClientOutputDirEnv webAppRootDirFromDbRootDir
 
-modulePrismaClientOutputDirEnv :: ComponentRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
+modulePrismaClientOutputDirEnv :: AppComponentRootDir d => Path' (Rel DbRootDir) (Dir d) -> (String, String)
 modulePrismaClientOutputDirEnv moduleRootDirFromDbRootDir =
   (prismaClientOutputDirEnvVar, SP.fromRelDir $ moduleRootDirFromDbRootDir </> prismaClientOutputDirInModuleDir)
 
