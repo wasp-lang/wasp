@@ -81,13 +81,13 @@ deleteFileIfExists filePath = do
   exists <- SD.doesFileExist filePathStr
   when exists $ SD.removeFile filePathStr
 
-doesFileExist :: Path' r (File f) -> IO Bool
-doesFileExist = SD.doesFileExist . SP.toFilePath
-
 -- The paths in the following functions intentionally aren't as polymorphic as
 -- possible (i.e., they require 'Abs` paths). We prefer working with absolute
 -- paths whenever possible (they make for a safe default). If you need to work
 -- with relative paths, define a new function (e.g., `readFileRel`).
+
+doesFileExist :: Path' Abs (File f) -> IO Bool
+doesFileExist = SD.doesFileExist . SP.fromAbsFile
 
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
