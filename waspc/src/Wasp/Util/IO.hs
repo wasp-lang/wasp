@@ -69,22 +69,21 @@ listDirectory absDirPath = do
       filterM (SD.doesDirectoryExist . (absDir FilePath.</>)) relItems
         >>= mapM parseRelDir
 
-deleteDirectoryIfExists :: Path' r (Dir d) -> IO ()
-deleteDirectoryIfExists dirPath = do
-  let dirPathStr = SP.toFilePath dirPath
-  exists <- SD.doesDirectoryExist dirPathStr
-  when exists $ SD.removeDirectoryRecursive dirPathStr
-
-deleteFileIfExists :: Path' r (File f) -> IO ()
-deleteFileIfExists filePath = do
-  let filePathStr = SP.toFilePath filePath
-  exists <- SD.doesFileExist filePathStr
-  when exists $ SD.removeFile filePathStr
-
 -- The paths in the following functions intentionally aren't as polymorphic as
 -- possible (i.e., they require 'Abs` paths). We prefer working with absolute
 -- paths whenever possible (they make for a safe default). If you need to work
 -- with relative paths, define a new function (e.g., `readFileRel`).
+
+deleteDirectoryIfExists :: Path' Abs (Dir d) -> IO ()
+deleteDirectoryIfExists dirPath = do
+  let dirPathStr = SP.fromAbsDir dirPath
+  exists <- SD.doesDirectoryExist dirPathStr
+  when exists $ SD.removeDirectoryRecursive dirPathStr
+
+deleteFileIfExists :: Path' Abs (File f) -> IO ()
+deleteFileIfExists filePath = do
+  exists <- doesFileExist filePath
+  when exists $ removeFile filePath
 
 doesFileExist :: Path' Abs (File f) -> IO Bool
 doesFileExist = SD.doesFileExist . SP.fromAbsFile
