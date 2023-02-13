@@ -207,6 +207,7 @@ library
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
+    Wasp.JsImport
     Wasp.Generator
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile
@@ -234,6 +235,7 @@ library
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.ServerGenerator
+    Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
@@ -248,6 +250,7 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.WebAppGenerator
+    Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalAuthG
@@ -424,6 +427,7 @@ test-suite waspc-test
     Generator.MockWriteableMonad
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
+    Generator.JsImportTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Parser.ModelTest
@@ -436,6 +440,7 @@ test-suite waspc-test
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest
+    JsImportTest
 
 test-suite cli-test
   import: common-all, common-exe

@@ -8,7 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -16,8 +16,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -37,19 +37,17 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeDirInWebAppSrcDir,
-    extClientCodeGeneratorStrategy,
+  ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
+import Wasp.Generator.WebAppGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -257,9 +255,9 @@ genIndexJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
-extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir
+    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]

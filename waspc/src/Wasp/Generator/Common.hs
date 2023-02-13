@@ -9,6 +9,7 @@ module Wasp.Generator.Common
     npmVersionRange,
     prismaVersion,
     makeJsonWithEntityData,
+    GeneratedSrcDir,
   )
 where
 
@@ -19,6 +20,10 @@ import Wasp.Util (toLowerFirst)
 
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
+
+-- | Type representing top-level src/ dir in an app component (e.g. in web app or in server).
+--   Examples: web-app/src/, server/src/, ... .
+class GeneratedSrcDir d
 
 class AppComponentRootDir d
 

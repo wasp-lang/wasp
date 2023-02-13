@@ -22,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -45,17 +45,16 @@ import Wasp.Generator.Common
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
@@ -221,12 +220,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
-extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
+    relPathToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
