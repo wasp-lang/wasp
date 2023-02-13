@@ -11,7 +11,8 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
-import StrongPath (Abs, Dir', File', Path', Rel)
+import StrongPath (Abs, Dir, File, Path', Rel)
+import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
@@ -51,44 +52,44 @@ instance Writeable FileDraft where
   getDstPath (FileDraftTextFd draft) = getDstPath draft
 
 createTemplateFileDraft ::
-  Path' (Rel ProjectRootDir) File' ->
-  Path' (Rel TemplatesDir) File' ->
+  Path' (Rel ProjectRootDir) (File a) ->
+  Path' (Rel TemplatesDir) (File b) ->
   Maybe Aeson.Value ->
   FileDraft
 createTemplateFileDraft dstPath tmplSrcPath tmplData =
   FileDraftTemplateFd $
     TmplFD.TemplateFileDraft
-      { TmplFD._dstPath = dstPath,
-        TmplFD._srcPathInTmplDir = tmplSrcPath,
+      { TmplFD._dstPath = SP.castFile dstPath,
+        TmplFD._srcPathInTmplDir = SP.castFile tmplSrcPath,
         TmplFD._tmplData = tmplData
       }
 
-createCopyFileDraft :: Path' (Rel ProjectRootDir) File' -> Path' Abs File' -> FileDraft
+createCopyFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Path' Abs (File b) -> FileDraft
 createCopyFileDraft dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
-      { CopyFD._dstPath = dstPath,
-        CopyFD._srcPath = srcPath,
+      { CopyFD._dstPath = SP.castFile dstPath,
+        CopyFD._srcPath = SP.castFile srcPath,
         CopyFD._failIfSrcDoesNotExist = True
       }
 
-createCopyFileDraftIfExists :: Path' (Rel ProjectRootDir) File' -> Path' Abs File' -> FileDraft
+createCopyFileDraftIfExists :: Path' (Rel ProjectRootDir) (File a) -> Path' Abs (File b) -> FileDraft
 createCopyFileDraftIfExists dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
-      { CopyFD._dstPath = dstPath,
-        CopyFD._srcPath = srcPath,
+      { CopyFD._dstPath = SP.castFile dstPath,
+        CopyFD._srcPath = SP.castFile srcPath,
         CopyFD._failIfSrcDoesNotExist = False
       }
 
-createCopyDirFileDraft :: Path' (Rel ProjectRootDir) Dir' -> Path' Abs Dir' -> FileDraft
+createCopyDirFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
 createCopyDirFileDraft dstPath srcPath =
   FileDraftCopyDirFd $
     CopyDirFD.CopyDirFileDraft
-      { CopyDirFD._dstPath = dstPath,
-        CopyDirFD._srcPath = srcPath
+      { CopyDirFD._dstPath = SP.castDir dstPath,
+        CopyDirFD._srcPath = SP.castDir srcPath
       }
 
-createTextFileDraft :: Path' (Rel ProjectRootDir) File' -> Text -> FileDraft
+createTextFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Text -> FileDraft
 createTextFileDraft dstPath content =
-  FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = dstPath, TextFD._content = content}
+  FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = SP.castFile dstPath, TextFD._content = content}

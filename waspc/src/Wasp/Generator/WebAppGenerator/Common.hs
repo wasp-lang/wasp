@@ -23,11 +23,9 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, WebAppRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data WebAppRootDir
 
 data WebAppSrcDir
 

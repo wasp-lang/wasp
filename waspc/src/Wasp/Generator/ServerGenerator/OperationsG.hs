@@ -21,6 +21,7 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -71,7 +72,7 @@ genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile
 
 genOperationTypesFile ::
   Path' (Rel C.ServerTemplatesDir) File' ->
-  Path' (Rel C.ServerRootDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
@@ -83,15 +84,15 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
         [ "operations" .= map operationTypeData operations,
           "shouldImportAuthenticatedOperation" .= any usesAuth operations,
           "shouldImportNonAuthenticatedOperation" .= not (all usesAuth operations),
-          "allEntities" .= nub (concatMap entityNames operations)
+          "allEntities" .= nub (concatMap getEntities operations)
         ]
     operationTypeData operation =
       object
         [ "typeName" .= toUpperFirst (getName operation),
-          "entities" .= entityNames operation,
+          "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
-    entityNames = maybe [] (map AS.refName) . AS.Operation.getEntities
+    getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
 -- | Analogous to genQuery.
@@ -124,7 +125,11 @@ operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      "entities"
+        .= maybe
+          []
+          (map (makeJsonWithEntityData . AS.refName))
+          (AS.Operation.getEntities operation)
     ]
   where
     (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)

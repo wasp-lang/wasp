@@ -6,7 +6,7 @@ import {
   GetTasks
 } from '@wasp/queries/types'
 
-export const getTasks: GetTasks = async (_args, context) => {
+export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }
@@ -23,11 +23,11 @@ export const getTasks: GetTasks = async (_args, context) => {
   return tasks
 }
 
-export const getNumTasks: GetNumTasks = async (_args, context) => {
+export const getNumTasks: GetNumTasks<void, number> = async (_args, context) => {
   return context.entities.Task.count()
 }
 
-export const getTask: GetTask<Pick<Task, 'id'>> = async (where, context) => {
+export const getTask: GetTask<Pick<Task, 'id'>, Task> = async (where, context) => {
   if (!context.user) {
     throw new HttpError(401)
   }

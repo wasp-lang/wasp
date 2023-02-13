@@ -5,36 +5,51 @@
 ### `wasp deploy` CLI command added
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
 
-### Import Wasp entity types on the backend
-You can now import and use the types of Wasp entities in your backend code:
+### Import Wasp entity types (on frontend and backend)
+You can now import and use the types of Wasp entities anywhere in your code.
+
+Let's assume your Wasp file contains the following entity:
+```c
+entity Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+    user        User    @relation(fields: [userId], references: [id])
+    userId      Int
+psl=}
+```
+Here's how a file on your backend can use it:
 ```typescript
 import { Task } from '@wasp/entities/Task'
 
-const getTasks = (args, context): Task[] => {
+const getTasks = (args, context) => {
     const tasks: Task[] = // ...
     // ...
 }
 ```
+And here's how a frontend component can use it:
 
-### TypeScript support for Queries and Actions
-Wasp now includes generic type constructors for typing Queries and Actions.
-This features works hand-in-hand with Wasp entity types described in the
-previous chapter:
 ```typescript
-import { Query } from '@wasp/queries'
-import { Task } from '@wasp/entities/task'
+// ...
+import { useQuery } from '@wasp/queries'
+import getTasks from '@wasp/queries/getTasks.js'
+import { Task } from '@wasp/entities'
 
-const getTasks: Query<[Task]> = (args, context) => {
-  // The compiler knows the types of  'args' and 'context'
-  // inside the function's body.
+type TaskPayload = Pick<Task, "id">
+
+const Todo = (props: any) => {
+  // The variable 'task' will now have the type Task.
+  const { data: task } = useQuery<TaskPayload, Task>(getTask, { id: taskId })
+  // ...
 }
+
 ```
 
 ### Automatically generated types for Queries and Actions
-Building on the features described in the previous two chapters, Wasp can now
-automatically generate appropriate types for your operations. This reduces
-duplication and eliminates possible errors (i.e., no way to specify incorrect
-entities). Assuming your `.wasp` file looks like this:
+Wasp now automatically generates appropriate types for the operations specified
+in your `.wasp` file. This reduces duplication and eliminates possible errors
+(i.e., no way to specify incorrect entities). Assuming your `.wasp` file looks
+like this:
 ```css
 query getTasks {
   fn: import { getTasks } from "@server/queries.js",
@@ -46,10 +61,18 @@ You'll get the following feature:
 import { Task } from '@wasp/entities'
 import { GetTasks} from '@wasp/queries'
 
-// The type argument specifies the Query's return type
-const getTasks: GetTasks<Task[]> = (args, context) => {
-  // The function knows the types of  'args' and 'context'
-  // It also knows it must return a value of type Task[].
+type Payload = Pick<Task, 'isDone'>;
+
+// Use the type parameters specify the Query's argument and return types.
+const getTasks: GetTasks<Payload, Task[]> = (args, context) => { 
+  // Thanks to the definition in your .wasp file, the compiler knows the type of
+  // `context` (and that it contains the `Task` entity).
+  //
+  // Thanks to the first type argument in `GetTasks`, the compiler knows `args`
+  // is of type `Payload`.
+  //
+  // Thanks to the first type argument in `GetTasks`, the compiler knows the
+  // function must return a value of type `Task[]`.
 }
 ```
 
