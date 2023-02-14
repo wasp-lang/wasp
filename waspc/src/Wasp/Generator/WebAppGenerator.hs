@@ -249,28 +249,28 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "setupFn" .= mkClientTmplDataForExtImport maybeSetupJsFunction,
-              "rootComponent" .= mkClientTmplDataForExtImport maybeAppComponent
+            [ "setupFn" .= mkTmplDataForExtImport maybeSetupJsFunction,
+              "rootComponent" .= mkTmplDataForExtImport maybeRootComponent
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeAppComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
-mkClientTmplDataForExtImport :: Maybe ExtImport -> Aeson.Value
-mkClientTmplDataForExtImport maybeExtImport = case maybeExtImport of
-  Nothing -> object ["isDefined" .= False]
-  Just extImport' -> mkTmplData extImport'
-    where
-      mkTmplData :: ExtImport -> Aeson.Value
-      mkTmplData extImport =
-        let jsImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir extImport
-            (jsImportStmt, jsImportIdentifier) = jsImportDetails
-         in object
-              [ "isDefined" .= True,
-                "importStatement" .= jsImportStmt,
-                "importIdentifier" .= jsImportIdentifier
-              ]
+mkTmplDataForExtImport :: Maybe ExtImport -> Aeson.Value
+mkTmplDataForExtImport maybeExtImport = maybe notDefinedValue mkTmplData maybeExtImport
+  where
+    notDefinedValue = object ["isDefined" .= False]
+
+    mkTmplData :: ExtImport -> Aeson.Value
+    mkTmplData extImport =
+      let jsImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir extImport
+          (jsImportStmt, jsImportIdentifier) = jsImportDetails
+       in object
+            [ "isDefined" .= True,
+              "importStatement" .= jsImportStmt,
+              "importIdentifier" .= jsImportIdentifier
+            ]
 
 relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]
