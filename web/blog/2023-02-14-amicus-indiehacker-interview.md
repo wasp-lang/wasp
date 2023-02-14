@@ -18,7 +18,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 <br/>
 
-Erlis Kllogjri, a mechanical engineer / programmer and the creator of [Amicus.work](https://amicus.work), went from idea to paying customers in just one week 🤯! In this interview, he tells how sometimes the best ideas come looking for you, and how moving quickly can help you stay inspired, motivated, and pull in your first satisfied customers.
+Erlis Kllogjri, a computer engineer and the creator of [Amicus.work](https://amicus.work), went from idea to paying customers in just one week 🤯! In this interview, he tells how sometimes the best ideas come looking for you, and how moving quickly can help you stay inspired, motivated, and pull in your first satisfied customers.
 
 <br/>
 <ImgWithCaption
