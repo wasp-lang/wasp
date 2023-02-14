@@ -1,148 +1,144 @@
 name: CI
 
 on:
-    push:
-        branches:
-            - main
-            - release
-    pull_request: {}
-    create: { tags: [v*] }
-    schedule:
-        # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
-        # (GH deletes it after 7 days of not using it).
-        - cron: "0 0 * * 0"
+  push:
+    branches:
+      - main
+      - release
+  pull_request: { }
+  create: { tags: [v*] }
+  schedule:
+    # Additionally run once per week (At 00:00 on Sunday) to avoid loosing cache
+    # (GH deletes it after 7 days of not using it).
+    - cron: '0 0 * * 0'
 
 env:
-    WASP_TELEMETRY_DISABLE: 1
+  WASP_TELEMETRY_DISABLE: 1
 
 defaults:
-    run:
-        shell: bash
-        working-directory: waspc
+  run:
+    shell: bash
+    working-directory: waspc
 
 jobs:
-    cancel:
-        name: Cancel redundant actions already in progress
-        runs-on: ubuntu-latest
-        steps:
-            - name: Cancel actions in progress of same workflow and same branch
-              uses: styfle/cancel-workflow-action@0.11.0
-              with:
-                  access_token: ${{ github.token }}
+  cancel:
+    name: Cancel redundant actions already in progress
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel actions in progress of same workflow and same branch
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
 
-    build:
-        name: Build Wasp
-        runs-on: ${{ matrix.os }}
-        strategy:
-            matrix:
-                ghc:
-                    - "8.10.7"
-                cabal:
-                    - "3.6.2.0"
-                os:
-                    # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
-                    # users and other services. The strategy here is to pick a slightly older LTS
-                    # version of Ubuntu to build on so glibc is not too new. glibc has great backward
-                    # compatibility though, so older builds will run on new OSs (but not vice versa).
-                    # We can return to `ubuntu-latest` when enough time has elapsed.
-                    # Still looking into musl static binaries.
-                    # Ref: https://github.com/wasp-lang/wasp/issues/650
-                    - ubuntu-20.04
-                    - macos-latest
-                    - windows-latest
+  build:
+    name: Build Wasp
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        ghc:
+          - "8.10.7"
+        cabal:
+          - "3.6.2.0"
+        os:
+          # Using Ubuntu 20.04 due to recent GLIBC_2.34 version mismatch errors for
+          # users and other services. The strategy here is to pick a slightly older LTS
+          # version of Ubuntu to build on so glibc is not too new. glibc has great backward
+          # compatibility though, so older builds will run on new OSs (but not vice versa).
+          # We can return to `ubuntu-latest` when enough time has elapsed.
+          # Still looking into musl static binaries.
+          # Ref: https://github.com/wasp-lang/wasp/issues/650
+          - ubuntu-20.04
+          - macos-latest
+          - windows-latest
 
-        steps:
-            - name: Configure git
-              working-directory: ~
-              # For waspc parser tests, we need to make sure git doesn't convert line
-              # endings to CRLF during checkout on Windows because that would cause
-              # the test cases to fail.
-              run: |
-                  git config --global core.autocrlf input
-                  git config --global core.eol lf
+    steps:
+      - name: Configure git
+        working-directory: ~
+        # For waspc parser tests, we need to make sure git doesn't convert line
+        # endings to CRLF during checkout on Windows because that would cause
+        # the test cases to fail.
+        run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
 
-            - name: Checkout the repo
-              uses: actions/checkout@v3
+      - name: Checkout the repo
+        uses: actions/checkout@v3
 
-            # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
-            # The fix will be propagated in a few days, so we can remove this workaround then.
-            # https://github.com/actions/runner-images/issues/7061
-            - name: Workaround runner image issue
-              if: matrix.os == 'ubuntu-20.04'
-              run: sudo chown -R $USER /usr/local/.ghcup
+      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
+      # The fix will be propagated in a few days, so we can remove this workaround then.
+      # https://github.com/actions/runner-images/issues/7061
+      - name: Workaround runner image issue
+        if: matrix.os == 'ubuntu-20.04'
+        run: sudo chown -R $USER /usr/local/.ghcup
 
-            - name: Set up Haskell
-              id: setup-haskell-cabal
-              uses: haskell/actions/setup@v2
-              with:
-                  ghc-version: ${{ matrix.ghc }}
-                  cabal-version: ${{ matrix.cabal }}
+      - name: Set up Haskell
+        id: setup-haskell-cabal
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
 
-            - name: Verify Haskell setup
-              run: |
-                  ghc --version
-                  cabal --version
+      - name: Verify Haskell setup
+        run: |
+          ghc --version
+          cabal --version
 
-            - name: Cache
-              uses: actions/cache@v3
-              with:
-                  path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-                  # TODO: Right now, actions/cache updates cache only if cache was not fe
-                  #   This is not ideal for us, because we would ideally update cache even if it
-                  #   was fetched, because we want to cache any newly installed packages.
-                  #   This was working normally on Travis and Appveyor.
-                  #   There is an issue for this, and for now we are using proposed "fix" from it,
-                  #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
-                  #   which mitigates the problem by creating new cache for each job and then using
-                  #   the feature of restore-keys which makes sure that next cache picked is the
-                  #   latest one. However, this keeps creating new cache each time which is not
-                  #   ideal because caches keep getting evicted, so for example if Win job
-                  #   fails multiple times while others don't, its cache will likely get evicted,
-                  #   making it even slower to test and fix (uffff).
-                  #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-                  key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-                  restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+          # TODO: Right now, actions/cache updates cache only if cache was not fe
+          #   This is not ideal for us, because we would ideally update cache even if it
+          #   was fetched, because we want to cache any newly installed packages.
+          #   This was working normally on Travis and Appveyor.
+          #   There is an issue for this, and for now we are using proposed "fix" from it,
+          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
+          #   which mitigates the problem by creating new cache for each job and then using
+          #   the feature of restore-keys which makes sure that next cache picked is the
+          #   latest one. However, this keeps creating new cache each time which is not
+          #   ideal because caches keep getting evicted, so for example if Win job
+          #   fails multiple times while others don't, its cache will likely get evicted,
+          #   making it even slower to test and fix (uffff).
+          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
+          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
-            - name: Check Haskell code formatting
-              if: matrix.os == 'ubuntu-20.04'
-              run: ./run ormolu:check
+      - name: Check Haskell code formatting
+        if: matrix.os == 'ubuntu-20.04'
+        run: ./run ormolu:check
 
-            - name: Compile deploy TS package and move it into the Cabal data dir
-              if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-              run: ./tools/install_deploy_package_to_data_dir.sh
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
-            - name: Build external dependencies
-              run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+      - name: Build wasp code
+        run: cabal build all
 
-            - name: Build wasp code
-              run: cabal build all
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-            - name: Set up Node
-              uses: actions/setup-node@v3
-              with:
-                  node-version: "18"
+      - name: On MacOS, skip e2e tests with Docker since it is not installed
+        if: matrix.os == 'macos-latest'
+        run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
-            - name: On MacOS, skip e2e tests with Docker since it is not installed
-              if: matrix.os == 'macos-latest'
-              run: export WASP_E2E_TESTS_SKIP_DOCKER=1
+      - name: Run tests
+        run: cabal test
 
-            - name: Run tests
-              run: cabal test
+      - name: Create binary package (Unix)
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        run: |
+          OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
+          mkdir artifacts
+          ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
 
-            - name: Create binary package (Unix)
-              if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
-              run: |
-                  OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
-                  mkdir artifacts
-                  ./tools/make_binary_package.sh "artifacts/wasp-$OS_NAME-x86_64.tar.gz"
-
-            - name: Create Github release
-              uses: ncipollo/release-action@v1
-              if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
-              with:
-                  draft: true
-                  allowUpdates: true
-                  artifacts: "waspc/artifacts/*"
-                  artifactErrorsFailBuild: true
-                  replacesArtifacts: true
-                  token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Github release
+        uses: ncipollo/release-action@v1
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
+        with:
+          draft: true
+          allowUpdates: true
+          artifacts: "waspc/artifacts/*"
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
