@@ -4,6 +4,7 @@ data Call
   = New String -- project name
   | Start
   | Clean
+  | Uninstall
   | Compile
   | Db [String] -- db args
   | Build
@@ -16,4 +17,5 @@ data Call
   | GenerateBashCompletionScript
   | BashCompletionListCommands
   | WaspLS
+  | Deploy [String] -- deploy cmd passthrough args
   | Unknown [String] -- all args

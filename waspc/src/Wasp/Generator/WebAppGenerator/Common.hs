@@ -23,17 +23,17 @@ import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, WebAppRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data WebAppRootDir
 
 data WebAppSrcDir
 
 data WebAppTemplatesDir
 
 data WebAppTemplatesSrcDir
+
+instance GeneratedSrcDir WebAppSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
 asTmplFile = SP.castRel

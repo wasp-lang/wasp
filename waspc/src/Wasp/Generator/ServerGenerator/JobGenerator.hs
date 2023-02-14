@@ -32,18 +32,15 @@ import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss, Simple), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common
-  ( ServerRootDir,
-    ServerSrcDir,
-    ServerTemplatesDir,
+  ( ServerTemplatesDir,
     srcDirInServerTemplatesDir,
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import qualified Wasp.SemanticVersion as SV
 
 genJobs :: AppSpec -> Generator [FileDraft]
@@ -65,13 +62,13 @@ genJob (jobName, job) =
             "jobSchedule" .= Aeson.Text.encodeToLazyText (fromMaybe Aeson.Null maybeJobSchedule),
             "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions),
             "executorJobRelFP" .= toFilePath (executorJobTemplateInJobsDir (J.executor job)),
-            "entities" .= maybe [] (map (buildEntityData . AS.refName)) (J.entities job)
+            "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job)
           ]
     )
   where
     tmplFile = C.asTmplFile $ jobsDirInServerTemplatesDir SP.</> [relfile|_job.js|]
     dstFile = jobsDirInServerRootDir SP.</> fromJust (parseRelFile $ jobName ++ ".js")
-    (jobPerformFnName, jobPerformFnImportStatement) = getJsImportDetailsForExtFnImport relPosixPathFromJobFileToExtSrcDir $ (J.fn . J.perform) job
+    (jobPerformFnImportStatement, jobPerformFnName) = getJsImportStmtAndIdentifier relPathFromJobsDirToServerSrcDir $ (J.fn . J.perform) job
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     jobScheduleTmplData s =
       object
@@ -81,12 +78,8 @@ genJob (jobName, job) =
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
 
-    buildEntityData :: String -> Aeson.Value
-    buildEntityData entityName =
-      object
-        [ "name" .= entityName,
-          "prismaIdentifier" .= C.entityNameToPrismaIdentifier entityName
-        ]
+    relPathFromJobsDirToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromJobsDirToServerSrcDir = [reldirP|../|]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded
 -- even if they are not referenced by user code. This ensures schedules are started, etc.
@@ -107,9 +100,6 @@ genAllJobImports spec =
       object
         [ "name" .= jobName
         ]
-
-relPosixPathFromJobFileToExtSrcDir :: Path Posix (Rel ServerSrcDir) (Dir GeneratedExternalCodeDir)
-relPosixPathFromJobFileToExtSrcDir = [reldirP|../|] SP.</> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
 
 genJobExecutors :: Generator [FileDraft]
 genJobExecutors = return $ jobExecutorFds ++ jobExecutorHelperFds

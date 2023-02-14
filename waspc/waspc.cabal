@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.8.0
+version:        0.8.1
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -207,6 +207,7 @@ library
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
+    Wasp.JsImport
     Wasp.Generator
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile
@@ -234,6 +235,7 @@ library
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.ServerGenerator
+    Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
@@ -248,6 +250,7 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.WebAppGenerator
+    Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalAuthG
@@ -323,6 +326,7 @@ library cli-lib
     , optparse-applicative ^>=0.17.0.0
     , path
     , path-io
+    , process
     , strong-path
     , text
     , utf8-string
@@ -332,16 +336,19 @@ library cli-lib
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
+    Wasp.Cli.FileSystem
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean
+    Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Deps
+    Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Start
@@ -420,6 +427,7 @@ test-suite waspc-test
     Generator.MockWriteableMonad
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
+    Generator.JsImportTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Parser.ModelTest
@@ -432,6 +440,7 @@ test-suite waspc-test
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest
+    JsImportTest
 
 test-suite cli-test
   import: common-all, common-exe
@@ -453,6 +462,7 @@ test-suite cli-test
     DbMigrateTest
     TerminalTest
     Paths_waspc
+    Wasp.Cli.Command.Telemetry.ProjectTest
 
 test-suite e2e-test
   import: common-all, common-exe

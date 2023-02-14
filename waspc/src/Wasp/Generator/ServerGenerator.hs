@@ -22,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -36,23 +36,29 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common
+  ( ServerRootDir,
+    latestMajorNodeVersion,
+    makeJsonWithEntityData,
+    nodeVersionRange,
+    npmVersionRange,
+    prismaVersion,
+  )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
-import Wasp.Util ((<++>))
+import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -85,7 +91,7 @@ genDotEnv spec = return $
           ]
     _ -> []
 
-dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
+dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
@@ -173,6 +179,7 @@ genSrcDir spec =
       genServerJs spec
     ]
     <++> genRoutesDir spec
+    <++> genTypesAndEntitiesDirs spec
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
@@ -213,12 +220,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
-extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
+    relPathToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -235,6 +242,40 @@ genRoutesDir spec =
               ]
         )
     ]
+
+genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
+genTypesAndEntitiesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      typesIndexFileDraft
+    ]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    taggedEntitiesFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/_types/taggedEntities.ts|]
+        [relfile|src/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
+    typesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/_types/index.ts|]
+        [relfile|src/_types/index.ts|]
+        ( Just $
+            object
+              [ "entities" .= allEntities,
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
+              ]
+        )
+    userEntityName = fromMaybe "" maybeUserEntityName
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"

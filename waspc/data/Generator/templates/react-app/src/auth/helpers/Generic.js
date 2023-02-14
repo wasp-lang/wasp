@@ -6,24 +6,31 @@ export const signInUrl = `${config.apiUrl}{= signInPath =}`
 export const logoUrl = '/images/{= iconName =}'
 
 const containerStyle = {
+  boxSizing: 'border-box',
   height: 40,
   width: 225,
+
   border: '1px solid darkgray',
   borderRadius: 5,
+
   padding: 5,
   margin: '5px 0px',
+
   backgroundColor: 'white'
 }
 
 const linkStyle = {
+  height: '100%',
+
+  display: 'flex',
+  alignItems: 'center',
+
   textDecoration: 'none',
   color: 'black'
 }
 
 const logoStyle = {
-  maxWidth: '100%',
-  maxHeight: '100%',
-  display: 'inline-block',
+  maxHeight: 30,
   marginRight: 10
 }
 

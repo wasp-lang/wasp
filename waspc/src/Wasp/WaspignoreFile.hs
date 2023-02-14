@@ -7,10 +7,10 @@ module Wasp.WaspignoreFile
 where
 
 import StrongPath (Abs, File', Path')
-import qualified StrongPath as SP
 import System.FilePath.Glob (Pattern, compile, match)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
+import qualified Wasp.Util.IO as IOUtil
 
 newtype WaspignoreFile = WaspignoreFile [Pattern]
 
@@ -53,9 +53,9 @@ parseWaspignoreFile =
 --
 --   If the ignore file does not exist, it is interpreted as a blank file.
 readWaspignoreFile :: Path' Abs File' -> IO WaspignoreFile
-readWaspignoreFile fp = do
+readWaspignoreFile file = do
   text <-
-    readFile (SP.fromAbsFile fp)
+    IOUtil.readFile file
       `catch` ( \e ->
                   if isDoesNotExistError e
                     then return ""
