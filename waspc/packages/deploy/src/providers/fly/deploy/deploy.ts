@@ -50,7 +50,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployServer(deploymentInfo, options.buildServerRemotely);
+		await deployServer(deploymentInfo, options.buildServerLocally);
 	}
 
 	if (!clientTomlExistsInProject(tomlFilePaths)) {
@@ -61,11 +61,11 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployClient(deploymentInfo, options.buildClientRemotely);
+		await deployClient(deploymentInfo, options.buildClientLocally);
 	}
 }
 
-async function deployServer(deploymentInfo: DeploymentInfo, buildServerRemotely: boolean) {
+async function deployServer(deploymentInfo: DeploymentInfo, buildServerLocally: boolean) {
 	waspSays('Deploying your server now...');
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
@@ -84,11 +84,10 @@ async function deployServer(deploymentInfo: DeploymentInfo, buildServerRemotely:
 		exit(1);
 	}
 
-	if (buildServerRemotely) {
-		await $`flyctl deploy --remote-only`;
-	} else {
-		await $`flyctl deploy`;
-	}
+	const deployArgs = [
+		buildServerLocally ? '--local-only' : '--remote-only',
+	];
+	await $`flyctl deploy ${deployArgs}`;
 
 	// NOTE: Deploy is not expected to update the toml file, but doing this just in case.
 	// However, if it does and we fail to copy it back, we would be in an inconsistent state.
@@ -98,7 +97,7 @@ async function deployServer(deploymentInfo: DeploymentInfo, buildServerRemotely:
 	waspSays('Server has been deployed!');
 }
 
-async function deployClient(deploymentInfo: DeploymentInfo, buildClientRemotely: boolean) {
+async function deployClient(deploymentInfo: DeploymentInfo, buildClientLocally: boolean) {
 	waspSays('Deploying your client now...');
 
 	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
@@ -119,11 +118,10 @@ async function deployClient(deploymentInfo: DeploymentInfo, buildClientRemotely:
 	fs.writeFileSync('Dockerfile', dockerfileContents);
 	fs.writeFileSync('.dockerignore', '');
 
-	if (buildClientRemotely) {
-		await $`flyctl deploy --remote-only`;
-	} else {
-		await $`flyctl deploy`;
-	}
+	const deployArgs = [
+		buildClientLocally ? '--local-only' : '--remote-only',
+	];
+	await $`flyctl deploy ${deployArgs}`;
 
 	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
 

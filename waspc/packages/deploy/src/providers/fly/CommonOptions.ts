@@ -11,6 +11,6 @@ export interface DbOptions {
 }
 
 export interface LocalBuildOptions {
-	buildServerRemotely: boolean;
-	buildClientRemotely: boolean;
+	buildServerLocally: boolean;
+	buildClientLocally: boolean;
 }

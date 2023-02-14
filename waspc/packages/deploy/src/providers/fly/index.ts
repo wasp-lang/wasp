@@ -21,8 +21,8 @@ class FlyCommand extends Command {
 			.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
 	}
 	addLocalBuildOption(): this {
-		return this.option('--build-server-remotely', 'force the server Docker container to build on Fly', false)
-			.option('--build-client-remotely', 'force the client Docker container to build on Fly', false);
+		return this.option('--build-server-locally', 'force the server Docker container to build locally', false)
+			.option('--build-client-locally', 'force the client Docker container to build locally', false);
 	}
 }
 
