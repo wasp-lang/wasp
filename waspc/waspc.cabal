@@ -495,3 +495,4 @@ test-suite e2e-test
     Tests.WaspJobTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
+    Tests.WaspRootComponentTest

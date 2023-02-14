@@ -6,6 +6,7 @@ import Tests.WaspCompileTest (waspCompile)
 import Tests.WaspJobTest (waspJob)
 import Tests.WaspMigrateTest (waspMigrate)
 import Tests.WaspNewTest (waspNew)
+import Tests.WaspRootComponentTest (waspRootComponent)
 
 main :: IO ()
 main = do
@@ -25,5 +26,6 @@ tests = do
         waspCompile,
         waspMigrate,
         waspBuild,
-        waspJob
+        waspJob,
+        waspRootComponent
       ]
