@@ -1,8 +1,7 @@
 {{={= =}=}}
 import { handleRejection } from '../../utils.js'
 
-import {= operationName =} from "{= operationImportPath =}"
-
+{=& operationImportStmt =}
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}

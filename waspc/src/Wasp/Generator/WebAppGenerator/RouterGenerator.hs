@@ -8,9 +8,8 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import Data.List (find)
 import Data.Maybe (fromMaybe)
-import StrongPath (reldir, relfile, (</>))
-import qualified StrongPath as SP
-import qualified System.FilePath as FP
+import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
+import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -24,7 +23,8 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
-import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImport)
+import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
   { _routes :: ![RouteTemplateData],
@@ -57,16 +57,14 @@ instance ToJSON RouteTemplateData where
       ]
 
 data PageTemplateData = PageTemplateData
-  { _importWhat :: !String,
-    _importFrom :: !String
+  { _importStmt :: !String
   }
   deriving (Show, Eq)
 
 instance ToJSON PageTemplateData where
   toJSON pageTD =
     object
-      [ "importWhat" .= _importWhat pageTD,
-        "importFrom" .= _importFrom pageTD
+      [ "importStatement" .= _importStmt pageTD
       ]
 
 data ExternalAuthProviderTemplateData = ExternalAuthProviderTemplateData
@@ -163,21 +161,17 @@ determineRouteTargetComponent spec (_, route) =
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =
   PageTemplateData
-    { _importFrom = relPathToExtSrcDir FP.</> SP.fromRelFileP (AS.ExtImport.path pageComponent),
-      _importWhat = case AS.ExtImport.name pageComponent of
-        AS.ExtImport.ExtImportModule _ -> pageName
-        AS.ExtImport.ExtImportField identifier -> "{ " ++ mkNamedImportExpr identifier pageName ++ " }"
+    { _importStmt = importStmt
     }
   where
-    relPathToExtSrcDir = "./" FP.</> SP.toFilePath extClientCodeDirInWebAppSrcDir
+    importStmt :: String
+    (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
 
-    pageName :: String
-    pageName = fst page
+    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]
 
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
 
-mkNamedImportExpr :: String -> String -> String
-mkNamedImportExpr identifier alias
-  | identifier == alias = identifier
-  | otherwise = identifier ++ " as " ++ alias
+    importAlias :: String
+    importAlias = fst page

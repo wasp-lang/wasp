@@ -29,7 +29,7 @@ app todoApp {
     setupFn: import setup from "@server/serverSetup.js"
   },
   client: {
-    setupFn: import setup from "@client/clientSetup.js"
+    setupFn: import setup from "@client/clientSetup"
   },
   db: {
     system: PostgreSQL

@@ -8,23 +8,19 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, (</>))
+import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
+import StrongPath.TH (relfile)
 import qualified System.Info
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common
+  ( MigrateArgs (..),
+    dbSchemaFileInProjectRootDir,
+  )
+import Wasp.Generator.Job (JobType)
 import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
+import Wasp.Generator.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
-
--- | NOTE: The expectation is that `npm install` was already executed
--- such that we can use the locally installed package.
--- This assumption is ok since it happens during compilation now.
-prismaInServerNodeModules :: Path' (Rel ProjectRootDir) File'
-prismaInServerNodeModules = serverRootDirInProjectRootDir </> [SP.relfile|./node_modules/.bin/prisma|]
-
-absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
-absPrismaExecutableFp projectDir = SP.toFilePath $ projectDir </> prismaInServerNodeModules
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectDir migrateArgs = do
@@ -40,7 +36,15 @@ migrateDev projectDir migrateArgs = do
   --   we are using `script` to trick Prisma into thinking it is running in TTY (interactively).
 
   -- NOTE(martin): For this to work on Mac, filepath in the list below must be as it is now - not wrapped in any quotes.
-  let prismaMigrateCmd = absPrismaExecutableFp projectDir : ["migrate", "dev", "--schema", SP.toFilePath schemaFile] ++ asPrismaCliArgs migrateArgs
+  let prismaMigrateCmd =
+        [ absPrismaExecutableFp projectDir,
+          "migrate",
+          "dev",
+          "--schema",
+          SP.toFilePath schemaFile,
+          "--skip-generate"
+        ]
+          ++ asPrismaCliArgs migrateArgs
   let scriptArgs =
         if System.Info.os == "darwin"
           then -- NOTE(martin): On MacOS, command that `script` should execute is treated as multiple arguments.
@@ -96,17 +100,28 @@ migrateStatus projectDir = do
 
 -- | Runs `prisma studio` - Prisma's db inspector.
 runStudio :: Path' Abs (Dir ProjectRootDir) -> J.Job
-runStudio projectDir = do
-  let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaStudioCmdArgs = ["studio", "--schema", SP.toFilePath schemaFile]
-
+runStudio projectDir =
   runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaStudioCmdArgs J.Db
+  where
+    serverDir = projectDir </> serverRootDirInProjectRootDir
+    schemaFile = projectDir </> dbSchemaFileInProjectRootDir
+    prismaStudioCmdArgs = ["studio", "--schema", SP.toFilePath schemaFile]
 
-generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> J.Job
-generatePrismaClient projectDir = do
-  let serverDir = projectDir </> serverRootDirInProjectRootDir
-  let schemaFile = projectDir </> dbSchemaFileInProjectRootDir
-  let prismaGenerateCmdArgs = ["generate", "--schema", SP.toFilePath schemaFile]
+generatePrismaClient :: Path' Abs (Dir ProjectRootDir) -> (String, String) -> JobType -> J.Job
+generatePrismaClient projectDir prismaClientOutputDirEnv jobType =
+  runNodeCommandAsJobWithExtraEnv envVars serverRootDir prismaExecutable prismaGenerateCmdArgs jobType
+  where
+    envVars = [prismaClientOutputDirEnv]
+    serverRootDir = projectDir </> serverRootDirInProjectRootDir
+    prismaExecutable = absPrismaExecutableFp projectDir
+    prismaGenerateCmdArgs = ["generate", "--schema", schemaFile]
+    schemaFile = SP.fromAbsFile $ projectDir </> dbSchemaFileInProjectRootDir
 
-  runNodeCommandAsJob serverDir (absPrismaExecutableFp projectDir) prismaGenerateCmdArgs J.Db
+-- | NOTE: The expectation is that `npm install` was already executed
+-- such that we can use the locally installed package.
+-- This assumption is ok since it happens during compilation now.
+absPrismaExecutableFp :: Path' Abs (Dir ProjectRootDir) -> FilePath
+absPrismaExecutableFp projectDir = SP.fromAbsFile prismaExecutableAbs
+  where
+    prismaExecutableAbs :: Path' Abs File'
+    prismaExecutableAbs = projectDir </> serverRootDirInProjectRootDir </> [relfile|./node_modules/.bin/prisma|]

@@ -3,6 +3,7 @@
 module Wasp.Generator.Job.Process
   ( runProcessAsJob,
     runNodeCommandAsJob,
+    runNodeCommandAsJobWithExtraEnv,
     parseNodeVersion,
   )
 where
@@ -16,6 +17,7 @@ import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
+import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..))
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import qualified System.Info
@@ -95,20 +97,21 @@ runProcessAsJob process jobType chan =
       return $ ExitFailure 1
 
 runNodeCommandAsJob :: Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
-runNodeCommandAsJob fromDir command args jobType chan = do
-  errorOrNodeVersion <- getNodeVersion
-  case errorOrNodeVersion of
+runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
+
+runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
+runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
+  getNodeVersion >>= \case
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
     Right nodeVersion ->
       if SV.isVersionInRange nodeVersion C.nodeVersionRange
         then do
-          let process = (P.proc command args) {P.cwd = Just $ SP.fromAbsDir fromDir}
-          runProcessAsJob process jobType chan
-        else
-          exitWithError
-            (ExitFailure 1)
-            (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
+          envVars <- getAllEnvVars
+          let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+          runProcessAsJob nodeCommandProcess jobType chan
+        else exitWithError (ExitFailure 1) (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
   where
+    getAllEnvVars = (++ extraEnvVars) <$> getEnvironment
     exitWithError exitCode errorMsg = do
       writeChan chan $
         J.JobMessage

@@ -1,6 +1,7 @@
 module Analyzer.TypeChecker.InternalTest where
 
 import Analyzer.TestUtil (ctx, fromWithCtx)
+import Data.Either (isLeft)
 import qualified Data.HashMap.Strict as H
 import Data.List.NonEmpty (NonEmpty ((:|)))
 import Test.Tasty.Hspec
@@ -67,35 +68,103 @@ spec_Internal = do
         wctx6 = WithCtx ctx6
         wctx7 = WithCtx ctx7
 
-    describe "unify" $ do
-      it "Doesn't affect 2 expressions of the same type" $ do
-        property $ \(a, b) ->
-          let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
-              actual = unify ctx1 initial
-           in actual == Right (initial, NumberType)
-      it "Unifies two same-typed dictionaries to their original type" $ do
-        let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
-        let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
-        let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ
-        let texprs = a :| [b]
-        unify ctx1 texprs
-          `shouldBe` Right (texprs, typ)
-      it "Unifies an empty dict and a dict with one property" $ do
-        let a = wctx2 $ Dict [] (DictType H.empty)
-        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] (DictType $ H.singleton "a" $ DictRequired BoolType)
-        let expectedType = DictType $ H.singleton "a" $ DictOptional BoolType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expectedType :| [expectedType])
-      it "Is idempotent when unifying an empty dict and a singleton dict" $ do
-        let a = wctx2 $ Dict [] (DictType H.empty)
-        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] $ DictType $ H.singleton "a" $ DictRequired BoolType
-        unify ctx1 (a :| [b]) `shouldBe` (unify ctx1 (a :| [b]) >>= unify ctx1 . fst)
-      it "Unifies an empty list with any other list" $ do
-        let a = wctx2 $ List [] EmptyListType
-        let b = wctx3 $ List [wctx4 $ StringLiteral "a"] (ListType StringType)
-        let expected = ListType StringType
-        fmap (fmap (exprType . fromWithCtx) . fst) (unify ctx1 (a :| [b]))
-          `shouldBe` Right (expected :| [expected])
+    describe "check" $ do
+      describe "Correctly type checks an AST" $ do
+        it "When a declaration is used before its definition" $ do
+          let typeDefs =
+                TD.TypeDefinitions
+                  { TD.declTypes =
+                      H.fromList
+                        [ ("person", TD.DeclType "person" (DictType $ H.singleton "favoritePet" (DictRequired $ DeclType "pet")) undefined),
+                          ("pet", TD.DeclType "pet" (DictType H.empty) undefined)
+                        ],
+                    TD.enumTypes = H.empty
+                  }
+          let ast =
+                P.AST
+                  [ wctx1 $ P.Decl "person" "John" $ wctx2 $ P.Dict [("favoritePet", wctx3 $ P.Var "Riu")],
+                    wctx4 $ P.Decl "pet" "Riu" $ wctx5 $ P.Dict []
+                  ]
+          let actual = run typeDefs $ check ast
+          let expected =
+                Right $
+                  TypedAST
+                    [ wctx1 $
+                        Decl
+                          "John"
+                          ( wctx2 $
+                              Dict
+                                [("favoritePet", wctx3 $ Var "Riu" (DeclType "pet"))]
+                                (DictType $ H.singleton "favoritePet" (DictRequired $ DeclType "pet"))
+                          )
+                          (DeclType "person"),
+                      wctx4 $
+                        Decl
+                          "Riu"
+                          (wctx5 $ Dict [] (DictType H.empty))
+                          (DeclType "pet")
+                    ]
+
+          actual `shouldBe` expected
+
+    describe "checkStmt" $ do
+      it "Type checks existing declaration type with correct argument" $ do
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
+        let typeDefs =
+              TD.TypeDefinitions
+                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
+                  TD.enumTypes = H.empty
+                }
+        let actual = run typeDefs $ checkStmt ast
+        let expected = Right $ wctx1 $ Decl "App" (wctx2 $ StringLiteral "Wasp") (DeclType "string")
+        actual `shouldBe` expected
+      it "Fails to type check non-existant declaration type" $ do
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
+        let actual = run TD.empty $ checkStmt ast
+        actual `shouldBe` Left (mkTypeError ctx1 $ NoDeclarationType "string")
+      it "Fails to type check existing declaration type with incorrect argument" $ do
+        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.IntegerLiteral 5
+        let typeDefs =
+              TD.TypeDefinitions
+                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
+                  TD.enumTypes = H.empty
+                }
+        let actual = run typeDefs $ checkStmt ast
+        let expectedError =
+              mkTypeError ctx1 $
+                CoercionError $
+                  TypeCoercionError
+                    (wctx2 $ IntegerLiteral 5)
+                    StringType
+                    ReasonUncoercable
+        actual `shouldBe` Left expectedError
+
+      describe "A declaration statement with a body of type T satisfies a declaration type definition with a body of type S, when T is subtype of S." $ do
+        it "When S is a dict with an optional field, and T is a dict with a required field" $ do
+          let ast = wctx1 $ P.Decl "typeWithOptional" "Foo" $ wctx2 $ P.Dict [("val", wctx3 $ P.StringLiteral "Bar")]
+          let typeDefs =
+                TD.TypeDefinitions
+                  { TD.declTypes =
+                      H.singleton "typeWithOptional" $
+                        TD.DeclType
+                          "typeWithOptional"
+                          (DictType $ H.singleton "val" (DictOptional StringType))
+                          undefined,
+                    TD.enumTypes = H.empty
+                  }
+          let actual = run typeDefs $ checkStmt ast
+          let expected =
+                Right $
+                  wctx1 $
+                    Decl
+                      "Foo"
+                      ( wctx2 $
+                          Dict
+                            [("val", wctx3 $ StringLiteral "Bar")]
+                            (DictType $ H.singleton "val" (DictRequired StringType))
+                      )
+                      (DeclType "typeWithOptional")
+          actual `shouldBe` expected
 
     describe "inferExprType" $ do
       testSuccess "Types string literals as StringType" (wctx1 $ P.StringLiteral "string") StringType
@@ -215,59 +284,95 @@ spec_Internal = do
           )
           (TupleType (NumberType, StringType, [NumberType]))
 
-    describe "checkStmt" $ do
-      it "Type checks existing declaration type with correct argument" $ do
-        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
-        let typeDefs =
-              TD.TypeDefinitions
-                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
-                  TD.enumTypes = H.empty
-                }
-        let actual = run typeDefs $ checkStmt ast
-        let expected = Right $ wctx1 $ Decl "App" (wctx2 $ StringLiteral "Wasp") (DeclType "string")
-        actual `shouldBe` expected
-      it "Fails to type check non-existant declaration type" $ do
-        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.StringLiteral "Wasp"
-        let actual = run TD.empty $ checkStmt ast
-        actual `shouldBe` Left (mkTypeError ctx1 $ NoDeclarationType "string")
-      it "Fails to type check existing declaration type with incorrect argument" $ do
-        let ast = wctx1 $ P.Decl "string" "App" $ wctx2 $ P.IntegerLiteral 5
-        let typeDefs =
-              TD.TypeDefinitions
-                { TD.declTypes = H.singleton "string" (TD.DeclType "string" StringType undefined),
-                  TD.enumTypes = H.empty
-                }
-        let actual = run typeDefs $ checkStmt ast
-        let expectedError =
-              mkTypeError ctx1 $
-                WeakenError $
-                  TypeCoercionError
-                    (wctx2 $ IntegerLiteral 5)
-                    StringType
-                    ReasonUncoercable
-        actual `shouldBe` Left expectedError
-      it "Type checks declaration with dict type with an argument that unifies to the correct type" $ do
-        let ast = wctx1 $ P.Decl "maybeString" "App" $ wctx2 $ P.Dict [("val", wctx3 $ P.StringLiteral "Wasp")]
-        let typeDefs =
-              TD.TypeDefinitions
-                { TD.declTypes =
-                    H.singleton "maybeString" $
-                      TD.DeclType
-                        "maybeString"
-                        (DictType $ H.singleton "val" (DictOptional StringType))
-                        undefined,
-                  TD.enumTypes = H.empty
-                }
-        let actual = run typeDefs $ checkStmt ast
-        let expected =
-              Right $
-                wctx1 $
-                  Decl
-                    "App"
-                    ( wctx2 $
-                        Dict
-                          [("val", wctx3 $ StringLiteral "Wasp")]
-                          (DictType $ H.singleton "val" (DictOptional StringType))
-                    )
-                    (DeclType "maybeString")
-        actual `shouldBe` expected
+    describe "unify" $ do
+      it "Correctly unifies two expressions of the same type" $ do
+        property $ \(a, b) ->
+          let initial = wctx2 (IntegerLiteral a) :| [wctx3 $ DoubleLiteral b]
+              actual = unify ctx1 initial
+           in actual == Right NumberType
+      it "Correctly unifies two dictionaries of the same type" $ do
+        let typ = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
+        let a = wctx2 $ Dict [("a", wctx3 $ BoolLiteral True), ("b", wctx4 $ IntegerLiteral 2)] typ
+        let b = wctx5 $ Dict [("a", wctx6 $ BoolLiteral True), ("b", wctx7 $ DoubleLiteral 3.14)] typ
+        let texprs = a :| [b]
+        unify ctx1 texprs `shouldBe` Right typ
+      it "Unifies an empty dict and a dict with one property" $ do
+        let a = wctx2 $ Dict [] (DictType H.empty)
+        let b = wctx3 $ Dict [("a", wctx4 $ BoolLiteral True)] (DictType $ H.singleton "a" $ DictRequired BoolType)
+        let expectedType = DictType $ H.singleton "a" $ DictOptional BoolType
+        unify ctx1 (a :| [b]) `shouldBe` Right expectedType
+      it "Unifies an empty list with any other list" $ do
+        let a = wctx2 $ List [] EmptyListType
+        let b = wctx3 $ List [wctx4 $ StringLiteral "a"] (ListType StringType)
+        let expected = ListType StringType
+        unify ctx1 (a :| [b]) `shouldBe` Right expected
+
+    describe "checkIsSubTypeOf" $ do
+      describe "for lists" $ do
+        let emptyListExpr = wctx1 $ List [] EmptyListType
+        it "should confirm that an empty list is a subtype of any list" $ do
+          checkIsSubTypeOf emptyListExpr EmptyListType `shouldBe` Right ()
+          checkIsSubTypeOf emptyListExpr (ListType StringType) `shouldBe` Right ()
+          checkIsSubTypeOf emptyListExpr (ListType $ DictType H.empty) `shouldBe` Right ()
+        it "should confirm that an empty list is NOT a subtype of a non-list type" $ do
+          isLeft (checkIsSubTypeOf emptyListExpr NumberType) `shouldBe` True
+          isLeft (checkIsSubTypeOf emptyListExpr (DictType H.empty)) `shouldBe` True
+        it "should confirm that a non-empty list is NOT a subtype of an empty list" $ do
+          let integerListExpr = wctx1 $ List [wctx2 $ IntegerLiteral 5] (ListType NumberType)
+          isLeft (checkIsSubTypeOf integerListExpr EmptyListType) `shouldBe` True
+        it "should confirm that a list with elements of type T1 is a subtype of list with elements of type T2 when T1 is a subtype of T2" $ do
+          let listOfEmptyLists = wctx1 $ List [wctx2 $ List [] EmptyListType] (ListType EmptyListType)
+          checkIsSubTypeOf listOfEmptyLists (ListType $ ListType StringType) `shouldBe` Right ()
+
+      describe "for dictionaries" $ do
+        let d1Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictRequired NumberType)]
+        let d1Expr = wctx1 $ Dict [("a", wctx2 $ BoolLiteral True), ("b", wctx3 $ IntegerLiteral 2)] d1Type
+
+        describe "should confirm that a dict expr D1 is subtype of dict type D2 when" $ do
+          it "D2 is type of D1" $ do
+            checkIsSubTypeOf d1Expr d1Type `shouldBe` Right ()
+          it "D1 contains all fields specified by D2 (and only those), where D2 has some optional fields" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional NumberType)]
+            checkIsSubTypeOf d1Expr d2Type `shouldBe` Right ()
+          it "D1 contains all required fields specified by D2 (and only those), where D2 has some optional fields" $ do
+            let d2Type =
+                  DictType $
+                    H.fromList
+                      [ ("a", DictRequired BoolType),
+                        ("b", DictRequired NumberType),
+                        ("c", DictOptional NumberType)
+                      ]
+            checkIsSubTypeOf d1Expr d2Type `shouldBe` Right ()
+          it "D2 has a field of type T1 and D1 has a field of type T2, where T1 is a subtype of T2" $ do
+            let d1Type' = DictType $ H.fromList [("a", DictRequired EmptyListType)]
+            let d1Expr' = wctx1 $ Dict [("a", wctx2 $ List [] EmptyListType)] d1Type'
+            let d2Type' = DictType $ H.fromList [("a", DictRequired $ ListType StringType)]
+            checkIsSubTypeOf d1Expr' d2Type' `shouldBe` Right ()
+
+        describe "should confirm that a dict expr D1 is NOT a subtype of dict type D2 when" $ do
+          it "D1 contains a field not specified by D2" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType)]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+          it "D1 does contain a field specified by D2 but has different type" $ do
+            let d2Type = DictType $ H.fromList [("a", DictRequired BoolType), ("b", DictOptional BoolType)]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+          it "D1 does not contain a required field specified by D2" $ do
+            let d2Type =
+                  DictType $
+                    H.fromList
+                      [ ("a", DictRequired BoolType),
+                        ("b", DictOptional NumberType),
+                        ("c", DictRequired NumberType)
+                      ]
+            isLeft (checkIsSubTypeOf d1Expr d2Type) `shouldBe` True
+
+      it "should fail for non-related types" $ do
+        isLeft (checkIsSubTypeOf (wctx1 $ IntegerLiteral 5) StringType) `shouldBe` True
+        isLeft (checkIsSubTypeOf (wctx1 $ StringLiteral "a") EmptyListType) `shouldBe` True
+        isLeft (checkIsSubTypeOf (wctx1 $ List [wctx2 $ IntegerLiteral 5] (ListType NumberType)) BoolType) `shouldBe` True
+        isLeft
+          ( checkIsSubTypeOf
+              (wctx1 $ Dict [("a", wctx2 $ IntegerLiteral 5)] (DictType H.empty))
+              (ListType StringType)
+          )
+          `shouldBe` True

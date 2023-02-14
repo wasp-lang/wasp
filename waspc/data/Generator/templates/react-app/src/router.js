@@ -7,7 +7,7 @@ import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}
-import {= importWhat =} from "{= importFrom =}"
+{=& importStatement =}
 {=/ pagesToImport =}
 
 {=# isExternalAuthEnabled =}

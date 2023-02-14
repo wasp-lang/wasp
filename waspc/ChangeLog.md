@@ -1,4 +1,89 @@
 # Changelog
+## v0.8.2
+
+### Bug fixes
+- Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
+
+### `wasp deploy` CLI command added
+We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
+
+### Import Wasp entity types (on frontend and backend)
+You can now import and use the types of Wasp entities anywhere in your code.
+
+Let's assume your Wasp file contains the following entity:
+```c
+entity Task {=psl
+    id          Int     @id @default(autoincrement())
+    description String
+    isDone      Boolean @default(false)
+    user        User    @relation(fields: [userId], references: [id])
+    userId      Int
+psl=}
+```
+Here's how a file on your backend can use it:
+```typescript
+import { Task } from '@wasp/entities/Task'
+
+const getTasks = (args, context) => {
+    const tasks: Task[] = // ...
+    // ...
+}
+```
+And here's how a frontend component can use it:
+
+```typescript
+// ...
+import { useQuery } from '@wasp/queries'
+import getTasks from '@wasp/queries/getTasks.js'
+import { Task } from '@wasp/entities'
+
+type TaskPayload = Pick<Task, "id">
+
+const Todo = (props: any) => {
+  // The variable 'task' will now have the type Task.
+  const { data: task } = useQuery<TaskPayload, Task>(getTask, { id: taskId })
+  // ...
+}
+
+```
+
+### Automatically generated types for Queries and Actions
+Wasp now automatically generates appropriate types for the operations specified
+in your `.wasp` file. This reduces duplication and eliminates possible errors
+(i.e., no way to specify incorrect entities). Assuming your `.wasp` file looks
+like this:
+```css
+query getTasks {
+  fn: import { getTasks } from "@server/queries.js",
+  entities: [Task]
+}
+```
+You'll get the following feature:
+```typescript
+import { Task } from '@wasp/entities'
+import { GetTasks} from '@wasp/queries'
+
+type Payload = Pick<Task, 'isDone'>;
+
+// Use the type parameters specify the Query's argument and return types.
+const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
+  // Thanks to the definition in your .wasp file, the compiler knows the type of
+  // `context` (and that it contains the `Task` entity).
+  //
+  // Thanks to the first type argument in `GetTasks`, the compiler knows `args`
+  // is of type `Payload`.
+  //
+  // Thanks to the first type argument in `GetTasks`, the compiler knows the
+  // function must return a value of type `Task[]`.
+}
+```
+
+### Uninstall command
+If you want to uninstall Wasp from your system, you can now do so with:
+```bash
+wasp uninstall
+```
+It will remove all of the Wasp binaries and data from your system.
 
 ## v0.8.1
 

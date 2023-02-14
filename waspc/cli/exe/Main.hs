@@ -16,11 +16,13 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand, studio)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
 import Wasp.Util (indent)
@@ -36,6 +38,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
+        ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
         ["build"] -> Command.Call.Build
         ["telemetry"] -> Command.Call.Telemetry
@@ -46,6 +49,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:generate"] -> Command.Call.GenerateBashCompletionScript
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
+        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -57,6 +61,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
     Command.Call.Telemetry -> runCommand Telemetry.telemetry
     Command.Call.Deps -> runCommand deps
@@ -67,6 +72,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
+    Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -92,11 +98,13 @@ printUsage =
         cmd "    version               Prints current version of CLI.",
         cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd "    completion            Prints help on bash completion.",
+        cmd "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
         cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
         cmd "    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        cmd "    deploy                Deploys your Wasp app to cloud hosting providers.",
         cmd "    telemetry             Prints telemetry status.",
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",

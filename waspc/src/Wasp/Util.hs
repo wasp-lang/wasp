@@ -4,6 +4,7 @@ module Wasp.Util
   ( Checksum,
     camelToKebabCase,
     checksumFromString,
+    getEnvVarDefinition,
     checksumFromText,
     checksumFromByteString,
     onFirst,
@@ -25,6 +26,7 @@ module Wasp.Util
     checksumFromFilePath,
     checksumFromChecksums,
     ifM,
+    unlessM,
     fromMaybeM,
     orIfNothing,
     orIfNothingM,
@@ -34,6 +36,7 @@ module Wasp.Util
 where
 
 import Control.Applicative (liftA2)
+import Control.Monad (unless)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as B
@@ -46,6 +49,8 @@ import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
+import StrongPath (File, Path')
+import qualified StrongPath as SP
 import Text.Printf (printf)
 
 camelToKebabCase :: String -> String
@@ -175,6 +180,9 @@ infixr 5 <:>
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
 
+unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM ma mb = ma >>= (`unless` mb)
+
 type Checksum = Hex
 
 checksumFromString :: String -> Checksum
@@ -186,8 +194,8 @@ checksumFromText = bytestringToHex . SHA256.hash . TextEncoding.encodeUtf8
 checksumFromByteString :: BSU.ByteString -> Checksum
 checksumFromByteString = bytestringToHex . SHA256.hash
 
-checksumFromFilePath :: FilePath -> IO Checksum
-checksumFromFilePath file = checksumFromByteString <$> B.readFile file
+checksumFromFilePath :: Path' r (File f) -> IO Checksum
+checksumFromFilePath = fmap checksumFromByteString . B.readFile . SP.toFilePath
 
 checksumFromChecksums :: [Checksum] -> Checksum
 checksumFromChecksums = checksumFromString . concatMap (\(Hex s) -> s)
@@ -215,3 +223,6 @@ orIfNothingM = flip fromMaybeM
 
 maybeToEither :: a -> Maybe b -> Either a b
 maybeToEither leftValue = maybe (Left leftValue) Right
+
+getEnvVarDefinition :: (String, String) -> String
+getEnvVarDefinition (name, value) = concat [name, "=", value]

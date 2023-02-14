@@ -104,7 +104,7 @@ const MainPage = ({ user }) => {
     <UserPageLayout user={user}>
       <div className='board-header'>
         <div className='board-name'>
-          <h1 className='board-header-text'>Your board</h1>
+          <h1 className='board-header-text my-2'>Your board</h1>
         </div>
       </div>
 
