@@ -20,6 +20,10 @@ class FlyCommand extends Command {
 			.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
 			.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
 	}
+	addLocalBuildOption(): this {
+		return this.option('--build-server-remotely', 'force the server Docker container to build on Fly', false)
+			.option('--build-client-remotely', 'force the client Docker container to build on Fly', false);
+	}
 }
 
 const flyLaunchCommand = makeFlyLaunchCommand();
@@ -67,6 +71,7 @@ function makeFlyLaunchCommand(): Command {
 		.addBasenameArgument()
 		.addRegionArgument()
 		.addDbOptions()
+		.addLocalBuildOption()
 		.action(launchFn);
 }
 
@@ -84,6 +89,7 @@ function makeFlyDeployCommand(): Command {
 		.option('--skip-build', 'do not run `wasp build` before deploying')
 		.option('--skip-client', 'do not deploy the web client')
 		.option('--skip-server', 'do not deploy the server')
+		.addLocalBuildOption()
 		.action(deployFn);
 }
 

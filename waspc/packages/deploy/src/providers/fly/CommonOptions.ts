@@ -3,3 +3,14 @@ export interface CommonOptions {
 	waspProjectDir: string;
 	flyTomlDir?: string;
 }
+
+export interface DbOptions {
+	vmSize: string;
+	initialClusterSize: string;
+	volumeSize: string;
+}
+
+export interface LocalBuildOptions {
+	buildServerRemotely: boolean;
+	buildClientRemotely: boolean;
+}
