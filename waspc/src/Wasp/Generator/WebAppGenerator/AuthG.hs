@@ -64,22 +64,27 @@ genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genLoginForm auth,
-      genSignupForm auth
+    [ genLoginForm,
+      genAuthSuccessRedirectComponent auth,
+      genSignupForm
     ]
     <++> genExternalAuth auth
 
-genLoginForm :: AS.Auth.Auth -> Generator FileDraft
-genLoginForm auth =
-  compileTmplToSamePath
+genLoginForm :: Generator FileDraft
+genLoginForm =
+  copyTmplToSamePath
     [relfile|auth/forms/Login.js|]
+
+genAuthSuccessRedirectComponent :: AS.Auth.Auth -> Generator FileDraft
+genAuthSuccessRedirectComponent auth =
+  compileTmplToSamePath
+    [relfile|auth/components/AuthSuccessRedirect.jsx|]
     ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
-genSignupForm :: AS.Auth.Auth -> Generator FileDraft
-genSignupForm auth =
-  compileTmplToSamePath
+genSignupForm :: Generator FileDraft
+genSignupForm =
+  copyTmplToSamePath
     [relfile|auth/forms/Signup.js|]
-    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genExternalAuth auth
@@ -118,6 +123,9 @@ genOAuthCodeExchange auth =
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
+
+copyTmplToSamePath :: Path' Rel' File' -> Generator FileDraft
+copyTmplToSamePath tmplFileInTmplSrcDir = compileTmplToSamePath tmplFileInTmplSrcDir []
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =

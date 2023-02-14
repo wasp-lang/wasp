@@ -1,34 +1,26 @@
-{{={= =}=}}
-import React, { useState } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState } from 'react';
 
-import signup from '../signup.js'
-import login from '../login.js'
-import { errorMessage } from '../../utils.js'
+import signup from '../signup.js';
+import login from '../login.js';
 
-const SignupForm = () => {
-  const history = useHistory()
-
-  const [usernameFieldVal, setUsernameFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
+const SignupForm = ({ onSuccess = () => undefined, onError = () => undefined } = {}) => {
+  const [usernameFieldVal, setUsernameFieldVal] = useState('');
+  const [passwordFieldVal, setPasswordFieldVal] = useState('');
 
   const handleSignup = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
     try {
-      await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      await login (usernameFieldVal, passwordFieldVal)
+      await signup({ username: usernameFieldVal, password: passwordFieldVal });
+      await login (usernameFieldVal, passwordFieldVal);
 
-      setUsernameFieldVal('')
-      setPasswordFieldVal('')
-
-      // Redirect to configured page, defaults to /.
-      history.push('{= onAuthSucceededRedirectTo =}')
+      setUsernameFieldVal('');
+      setPasswordFieldVal('');
+      onSuccess();
     } catch (err) {
-      console.log(err)
-      window.alert(errorMessage(err))
+      onError(err);
     }
   }
-  
+
   return (
     <form onSubmit={handleSignup} className='signup-form auth-form'>
       <h2>Username</h2>
@@ -50,4 +42,4 @@ const SignupForm = () => {
   )
 }
 
-export default SignupForm
+export default SignupForm;
