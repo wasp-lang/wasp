@@ -20,7 +20,8 @@
 --
 -- In this second phase, the types of the argument to each declaration are checked
 -- to ensure they are valid for the declaration type. The implementation of the
--- type inference rules is in "inferExprType", "unifyTypes", and "weaken".
+-- type inference rules is in "inferExprType", "unify", "unifyTypes", and
+-- "checkIsSubTypeOf".
 module Wasp.Analyzer.TypeChecker.Internal
   ( check,
     hoistDeclarations,
@@ -68,7 +69,7 @@ checkStmt (P.WithCtx ctx (P.Decl typeName name expr)) =
       -- Decides whether the argument to the declaration has the correct type
       typedExpr <- inferExprType expr
       case typedExpr `checkIsSubTypeOf` expectedType of
-        Left e -> throw $ mkTypeError ctx $ WeakenError e
+        Left e -> throw $ mkTypeError ctx $ CoercionError e
         Right () -> return $ WithCtx ctx $ Decl name typedExpr (DeclType typeName)
 
 -- | Determine the type of an expression, following the inference rules described in

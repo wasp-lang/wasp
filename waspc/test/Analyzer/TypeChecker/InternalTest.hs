@@ -132,7 +132,7 @@ spec_Internal = do
         let actual = run typeDefs $ checkStmt ast
         let expectedError =
               mkTypeError ctx1 $
-                WeakenError $
+                CoercionError $
                   TypeCoercionError
                     (wctx2 $ IntegerLiteral 5)
                     StringType
