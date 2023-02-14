@@ -62,7 +62,7 @@ makeIsEnumTypeDefinition typeName dataConstructorNames =
 
 genEnumType :: Name -> [Name] -> DecQ
 genEnumType typeName dataConstructorNames =
-  THC.genFunc
+  THC.genVal
     'enumType
     [|
       EnumType

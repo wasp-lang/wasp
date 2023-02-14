@@ -11,7 +11,6 @@ nameToLowerFirstStringLiteralExpr = litE . stringL . toLowerFirst . nameBase
 nameToStringLiteralExpr :: Name -> ExpQ
 nameToStringLiteralExpr = litE . stringL . nameBase
 
--- | @genFunc name expr@ writes a function like @name = expr@
--- TODO: This function should use `valD` instead of `funD` because we're declaring a value
-genFunc :: Name -> ExpQ -> DecQ
-genFunc name expr = funD name [clause [] (normalB expr) []]
+-- | @genVal name expr@ defines a value binding like @name = expr@
+genVal :: Name -> ExpQ -> DecQ
+genVal name expr = valD (varP name) (normalB expr) []
