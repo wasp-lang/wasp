@@ -74,6 +74,7 @@ let errConnectionRetries = 0
 // itself to die. This error handler will shut pg-boss down after several connection
 // refused errors to prevent an untrapped `pg` error from killing node (and thus, the entire app).
 // Ref: https://github.com/timgit/pg-boss/issues/365
+// NOTE: It would be nice if we had a global way to indicate the Wasp app was in a degraded state.
 function handlePgBossError(error) {
   console.error('pg-boss error:', error)
 
