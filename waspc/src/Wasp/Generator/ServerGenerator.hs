@@ -109,7 +109,7 @@ genPackageJson spec waspDependencies = do
               "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production npm run build-and-start"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
