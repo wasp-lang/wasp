@@ -5,7 +5,8 @@ let someResource = undefined
 
 export const getSomeResource = () => someResource
 
-const setup = async () => {
+const setup = async (app) => {
+  addCustomRoute(app)
   sayHi()
   await new Promise(resolve => setTimeout(resolve, 2000))
   someResource = 'This resource is now set up.'
@@ -16,6 +17,12 @@ const setup = async () => {
   const submittedJob = await mySpecialJob.submit({ something: "here" })
   console.log(submittedJob.jobId, submittedJob.jobName, submittedJob.executorName)
   console.log("submittedJob.pgBoss.details()", await submittedJob.pgBoss.details())
+}
+
+function addCustomRoute(app) {
+  app.get('/customRoute', (_req, res) => {
+    res.send('I am a custom route')
+  })
 }
 
 export default setup
