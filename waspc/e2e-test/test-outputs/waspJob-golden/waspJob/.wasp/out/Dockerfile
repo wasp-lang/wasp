@@ -39,6 +39,7 @@ WORKDIR /app
 COPY --from=server-builder /app/server/node_modules ./server/node_modules
 COPY server/ ./server/
 COPY db/ ./db/
+RUN cd server && npm run build
 EXPOSE ${PORT}
 WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]

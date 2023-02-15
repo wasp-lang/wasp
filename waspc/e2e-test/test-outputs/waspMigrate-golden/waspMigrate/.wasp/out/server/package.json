@@ -44,7 +44,7 @@
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run build-and-start",
+    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",
