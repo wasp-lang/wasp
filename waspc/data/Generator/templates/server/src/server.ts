@@ -21,17 +21,11 @@ const startServer = async () => {
   const port = normalizePort(config.port)
   app.set('port', port)
 
-  {=# doesServerSetupFnExist =}
-  // NOTE: Technically, this should be `void | ((server: any) => Promise<void>)`, but that
-  // produces the error: "An expression of type 'void' cannot be tested for truthiness." below.
-  const processServerFn: any = await {= serverSetupJsFnIdentifier =}(app)
-  {=/ doesServerSetupFnExist =}
-
   const server = http.createServer(app)
 
-  if (processServerFn) {
-    await processServerFn(server)
-  }
+  {=# doesServerSetupFnExist =}
+  await {= serverSetupJsFnIdentifier =}(app, server)
+  {=/ doesServerSetupFnExist =}
 
   server.listen(port)
 

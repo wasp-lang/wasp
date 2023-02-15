@@ -5,7 +5,7 @@ let someResource = undefined
 
 export const getSomeResource = () => someResource
 
-const setup = async (app) => {
+const setup = async (app, _server) => {
   addCustomRoute(app)
   sayHi()
   await new Promise(resolve => setTimeout(resolve, 2000))
