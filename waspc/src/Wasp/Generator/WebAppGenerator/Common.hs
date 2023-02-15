@@ -34,12 +34,6 @@ data WebAppTemplatesDir
 
 data WebAppTemplatesSrcDir
 
-class ValidWebAppTemplatesDir d
-
-instance ValidWebAppTemplatesDir WebAppTemplatesDir
-
-instance ValidWebAppTemplatesDir SharedTemplatesDir
-
 instance GeneratedSrcDir WebAppSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
@@ -96,20 +90,15 @@ mkTmplFdWithDstAndData ::
   Path' (Rel WebAppRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData = mkAnyValidTmplFdWithDstAndData webAppTemplatesDirInTemplatesDir
-
-mkSharedTmplFdWithDst :: Path' (Rel SharedTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
-mkSharedTmplFdWithDst relSrcPath relDstPath = mkAnyValidTmplFdWithDstAndData sharedTemplatesDirInTemplatesDir relSrcPath relDstPath Nothing
-
-mkAnyValidTmplFdWithDstAndData ::
-  ValidWebAppTemplatesDir d =>
-  Path' (Rel TemplatesDir) (Dir d) ->
-  Path' (Rel d) File' ->
-  Path' (Rel WebAppRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkAnyValidTmplFdWithDstAndData templatesDir relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
     (webAppRootDirInProjectRootDir </> relDstPath)
-    (templatesDir </> relSrcPath)
+    (webAppTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
+
+mkSharedTmplFdWithDst :: Path' (Rel SharedTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
+mkSharedTmplFdWithDst relSrcPath relDstPath =
+  createTemplateFileDraft
+    (webAppRootDirInProjectRootDir </> relDstPath)
+    (sharedTemplatesDirInTemplatesDir </> relSrcPath)
+    Nothing

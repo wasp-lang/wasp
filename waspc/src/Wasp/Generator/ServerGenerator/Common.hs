@@ -35,12 +35,6 @@ data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
 
-class ValidServerTemplatesDir d
-
-instance ValidServerTemplatesDir ServerTemplatesDir
-
-instance ValidServerTemplatesDir SharedTemplatesDir
-
 instance GeneratedSrcDir ServerSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
@@ -84,26 +78,21 @@ mkTmplFdWithDstAndData ::
   Path' (Rel ServerRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData = mkAnyValidFdWithDstAndData serverTemplatesDirInTemplatesDir
+mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+  createTemplateFileDraft
+    (serverRootDirInProjectRootDir </> relDstPath)
+    (serverTemplatesDirInTemplatesDir </> relSrcPath)
+    tmplData
 
 mkSharedTmplFdWithDst ::
   Path' (Rel SharedTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
   FileDraft
-mkSharedTmplFdWithDst relSrcPath relDstPath = mkAnyValidFdWithDstAndData sharedTemplatesDirInTemplatesDir relSrcPath relDstPath Nothing
-
-mkAnyValidFdWithDstAndData ::
-  ValidServerTemplatesDir d =>
-  Path' (Rel TemplatesDir) (Dir d) ->
-  Path' (Rel d) File' ->
-  Path' (Rel ServerRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkAnyValidFdWithDstAndData templatesDir relSrcPath relDstPath tmplData =
+mkSharedTmplFdWithDst relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInProjectRootDir </> relDstPath)
-    (templatesDir </> relSrcPath)
-    tmplData
+    (sharedTemplatesDirInTemplatesDir </> relSrcPath)
+    Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)
