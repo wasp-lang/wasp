@@ -12,7 +12,7 @@ module Wasp.Generator.ServerGenerator.Common
     asServerFile,
     asServerSrcFile,
     toESModulesImportPath,
-    mkSharedTmplFdWithDst,
+    mkUniversalTmplFdWithDst,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -25,7 +25,7 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir, SharedTemplatesDir, sharedTemplatesDirInTemplatesDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir, UniversalTemplatesDir, universalTemplatesDirInTemplatesDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -84,14 +84,14 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkSharedTmplFdWithDst ::
-  Path' (Rel SharedTemplatesDir) File' ->
+mkUniversalTmplFdWithDst ::
+  Path' (Rel UniversalTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
   FileDraft
-mkSharedTmplFdWithDst relSrcPath relDstPath =
+mkUniversalTmplFdWithDst relSrcPath relDstPath =
   createTemplateFileDraft
     (serverRootDirInProjectRootDir </> relDstPath)
-    (sharedTemplatesDirInTemplatesDir </> relSrcPath)
+    (universalTemplatesDirInTemplatesDir </> relSrcPath)
     Nothing
 
 -- | Path where server app templates reside.

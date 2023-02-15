@@ -1,7 +1,7 @@
 module Wasp.Generator.Common
   ( ProjectRootDir,
-    SharedTemplatesDir,
-    sharedTemplatesDirInTemplatesDir,
+    UniversalTemplatesDir,
+    universalTemplatesDirInTemplatesDir,
     ServerRootDir,
     WebAppRootDir,
     AppComponentRootDir,
@@ -26,10 +26,10 @@ import Wasp.Util (toLowerFirst)
 -- | Directory where the whole web app project (client, server, ...) is generated.
 data ProjectRootDir
 
-data SharedTemplatesDir
+data UniversalTemplatesDir
 
-sharedTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SharedTemplatesDir)
-sharedTemplatesDirInTemplatesDir = [reldir|shared|]
+universalTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir UniversalTemplatesDir)
+universalTemplatesDirInTemplatesDir = [reldir|universal|]
 
 -- | Type representing top-level src/ dir in an app component (e.g. in web app or in server).
 --   Examples: web-app/src/, server/src/, ... .

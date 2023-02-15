@@ -77,6 +77,7 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+    <++> genSharedDir
     <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
@@ -325,9 +326,15 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
 
+genSharedDir :: Generator [FileDraft]
+genSharedDir =
+  return
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    ]
+
 genEnvValidationScript :: Generator [FileDraft]
 genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
-      C.mkSharedTmplFdWithDst [relfile|validators.js|] [relfile|scripts/shared/validators.mjs|]
+      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]

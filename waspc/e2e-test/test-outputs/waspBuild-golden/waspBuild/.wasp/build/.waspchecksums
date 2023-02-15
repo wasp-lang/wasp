@@ -58,16 +58,16 @@
     [
         [
             "file",
-            "server/scripts/shared/validators.mjs"
+            "server/scripts/universal/validators.mjs"
         ],
-        "853712a57c2d93e68de4710a7618aa57a5cb0a1146f4a36bee5bffbc90aef217"
+        "ce50742241ac70466a9799791cbc93db9bc036310e178aa8745a2c7c49a00e24"
     ],
     [
         [
             "file",
             "server/scripts/validate-env.mjs"
         ],
-        "e23121b4f5649960b9962231eb027c3fbe54658128fde88281653f652e59a5e4"
+        "b123a12b37f4ee471c9977f20ef68a6ac62a0699efcd2edd85fad5636195e540"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "server/src/config.js"
         ],
-        "8cd50aa8d9a4e67a0c31e60b2cb0487a9420e4bd92d54ceea68ff8667f61073c"
+        "379caccb02ebdabfb084d962c9f598d7c036323b3cdc66fd9c3875043fa12e82"
     ],
     [
         [
@@ -205,6 +205,13 @@
     [
         [
             "file",
+            "server/src/universal/url.ts"
+        ],
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+    ],
+    [
+        [
+            "file",
             "server/src/utils.js"
         ],
         "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
@@ -275,16 +282,16 @@
     [
         [
             "file",
-            "web-app/scripts/shared/validators.mjs"
+            "web-app/scripts/universal/validators.mjs"
         ],
-        "853712a57c2d93e68de4710a7618aa57a5cb0a1146f4a36bee5bffbc90aef217"
+        "ce50742241ac70466a9799791cbc93db9bc036310e178aa8745a2c7c49a00e24"
     ],
     [
         [
             "file",
             "web-app/scripts/validate-env.mjs"
         ],
-        "144002e552f91850aed1806d265253f21273b86de6ef29e2c37fea4bdde4ba31"
+        "f009ca708b8a3a17d4088ce61dd1e87f153b67a9b9678aa6d318071b11481f87"
     ],
     [
         [
@@ -319,7 +326,7 @@
             "file",
             "web-app/src/config.js"
         ],
-        "4f36313b83479dde848cdedba2937c4f222aeeb4304f97c1c925914e8b18eae3"
+        "f06f1bdb98dd4387b18159288ade916fd2c5bf3ed4161ca6711b0bda2f5963c3"
     ],
     [
         [
@@ -439,6 +446,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/url.ts"
+        ],
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
     ],
     [
         [

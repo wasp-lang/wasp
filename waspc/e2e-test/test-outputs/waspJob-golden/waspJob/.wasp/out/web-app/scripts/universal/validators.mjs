@@ -13,3 +13,9 @@ export function isValidAbsoluteURL(rawUrl) {
         return false;
     }
 }
+
+export function throwIfNotValidAbsoluteURL(rawUrl, errorMessage) {
+    if (rawUrl && !isValidAbsoluteURL(rawUrl)) {
+        throw new Error(errorMessage);
+    }
+}

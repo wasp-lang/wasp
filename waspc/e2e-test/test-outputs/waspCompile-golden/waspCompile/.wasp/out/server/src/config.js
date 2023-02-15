@@ -1,13 +1,13 @@
 import _ from 'lodash'
 
+import { stripTrailingSlash } from "./universal/url.js";
+
 const env = process.env.NODE_ENV || 'development'
 
 // TODO:
 //   - Use dotenv library to consume env vars from a file.
 //   - Use convict library to define schema and validate env vars.
 //  https://codingsans.com/blog/node-config-best-practices
-
-const frontendUrl = process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000'
 
 const config = {
   all: {
@@ -17,10 +17,10 @@ const config = {
     frontendUrl: undefined,
   },
   development: {
-    frontendUrl,
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000',
   },
   production: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL,
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL),
   }
 }
 
