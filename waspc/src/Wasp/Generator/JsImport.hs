@@ -1,6 +1,6 @@
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
-    PathFromImportLocationToSrcDir,
+    ImportLocation,
   )
 where
 
@@ -15,12 +15,12 @@ import Wasp.JsImport
     makeJsImport,
   )
 
-type PathFromImportLocationToSrcDir d = Path Posix (Rel ()) (Dir d)
+type ImportLocation = ()
 
 extImportToJsImport ::
   GeneratedSrcDir d =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
-  PathFromImportLocationToSrcDir d ->
+  Path Posix (Rel ImportLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
 extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeJsImport importPath importName

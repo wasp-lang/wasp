@@ -20,16 +20,18 @@ newtype TypeError = TypeError (WithCtx TypeError')
 
 {- ORMOLU_DISABLE -}
 data TypeError'
-  -- | Type coercion error that occurs when trying to "unify" the type T1 of typed expression with some other type T2.
-  -- If there is a super type that both T2 and T1 can be safely coerced to, "unify" will succeed, but if not,
+  -- | Type coercion error that occurs when trying to "unify" the type T1 of
+  -- typed expression with some other type T2.  If there is a super type that
+  -- both T2 and T1 can be safely coerced to, "unify" will succeed, but if not,
   -- we get this error.
-  -- We use "unify" in the TypeChecker when trying to infer the common type for typed expressions that we know
-  -- should be of the same type (e.g. for elements in the list).
+  -- We use "unify" in the TypeChecker when trying to infer the common type for
+  -- typed expressions that we know should be of the same type (e.g. for
+  -- elements in the list).
   = UnificationError    TypeCoercionError
-  -- | Type coercion error that occurs when trying to "weaken" the typed expression from its type T1 to some type T2.
-  -- If T2 is super type of T1 and T1 can be safely coerced to T2, "weaken" will succeed, but if not, we get this error.
-  -- We use "weaken" in the TypeChecker when trying to match inferred type of typed expression with some expected type.
-  | WeakenError         TypeCoercionError
+  -- | Type coercion error that occurs when trying to use the typed expression
+  -- of type T1 where T2 is expected.  If T2 is a super type of T1 and T1 can be
+  -- safely coerced to T2, no problem, but if not, we get this error.
+  | CoercionError       TypeCoercionError
   | NoDeclarationType   TypeName
   | UndefinedIdentifier Identifier
   | QuoterUnknownTag    QuoterTag
@@ -53,13 +55,13 @@ getErrorMessageAndCtx (TypeError (WithCtx ctx typeError)) = case typeError of
   (QuoterUnknownTag quoterTag) -> ("Unknown quoter tag: " ++ quoterTag, ctx)
   (DictDuplicateField dictFieldName) -> ("Duplicate dictionary field: " ++ dictFieldName, ctx)
   (UnificationError e) -> getUnificationErrorMessageAndCtx e
-  (WeakenError e) -> getWeakenErrorMessageAndCtx e
+  (CoercionError e) -> getCoercionErrorMessageAndCtx e
 
 -- TypeCoercionError <typed expression> <type which we tried to coerce the typed expression to/with> <reason>
 data TypeCoercionError = TypeCoercionError (WithCtx TypedExpr) Type (TypeCoercionErrorReason TypeCoercionError)
   deriving (Eq, Show)
 
--- | Describes a reason that a @UnificationError@ or @WeakenError@ happened
+-- | Describes a reason that a @UnificationError@ or @CoercionError@ happened
 data TypeCoercionErrorReason e
   = -- | A coercion involving a DeclType and a different type happened. For example,
     -- @unifyTypes (DeclType "foo") (DeclType "bar")@ and
@@ -90,8 +92,8 @@ getUnificationErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
         concatShortPrefixAndText " - " (show $ exprType texpr)
       ]
 
-getWeakenErrorMessageAndCtx :: TypeCoercionError -> (String, Ctx)
-getWeakenErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
+getCoercionErrorMessageAndCtx :: TypeCoercionError -> (String, Ctx)
+getCoercionErrorMessageAndCtx = getTypeCoercionErrorMessageAndCtx $
   \t texpr ->
     intercalate
       "\n"

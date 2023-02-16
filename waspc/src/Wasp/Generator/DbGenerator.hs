@@ -9,6 +9,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, maybeToList)
+import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getEntities)
@@ -194,10 +195,11 @@ checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
 
 checksumFileMatchesSchema :: DbSchemaChecksumFile f => Path' Abs (File PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
 checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
-  dbChecksumFileContents <- IOUtil.readFile dbSchemaChecksumFileAbs
+  -- Read file strictly as the checksum may be later overwritten.
+  dbChecksumFileContents <- IOUtil.readFileStrict dbSchemaChecksumFileAbs
   schemaFileHasChecksum dbSchemaFileAbs dbChecksumFileContents
   where
-    schemaFileHasChecksum :: Path' Abs (File PrismaDbSchema) -> String -> IO Bool
+    schemaFileHasChecksum :: Path' Abs (File PrismaDbSchema) -> Text -> IO Bool
     schemaFileHasChecksum schemaFile checksum = do
-      dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath schemaFile
+      dbSchemaFileChecksum <- pack . hexToString <$> checksumFromFilePath schemaFile
       return $ dbSchemaFileChecksum == checksum
