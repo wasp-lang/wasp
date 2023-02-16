@@ -55,7 +55,7 @@ You may notice after running `setup` you have a `fly-server.toml` and `fly-clien
 Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
 
 :::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, the CLI defaults to the use of a remote Fly.io builder. If you wish to build locally, you may supply the `--build-server-locally`/`--build-client-locally` option(s) to `wasp deploy fly`.
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, the CLI defaults to the use of a remote Fly.io builder. If you wish to build locally, you may supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
 :::
 
 If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:

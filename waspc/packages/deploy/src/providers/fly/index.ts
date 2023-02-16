@@ -13,7 +13,7 @@ class FlyCommand extends Command {
 		return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
 	}
 	addRegionArgument(): this {
-		return this.argument('<region>', 'deployment region to use on Fly.io');
+		return this.argument('<region>', '3 letter deployment region to use on Fly.io');
 	}
 	addDbOptions(): this {
 		return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
@@ -21,8 +21,7 @@ class FlyCommand extends Command {
 			.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
 	}
 	addLocalBuildOption(): this {
-		return this.option('--build-server-locally', 'force the server Docker container to build locally', false)
-			.option('--build-client-locally', 'force the client Docker container to build locally', false);
+		return this.option('--build-locally', 'build Docker containers locally instead of remotely', false);
 	}
 }
 
@@ -51,8 +50,8 @@ export function addFlyCommand(program: Command): void {
 	// NOTE: When we add another provider, consider pulling `--wasp-exe` and `--wasp-project-dir`
 	// up as a global option that every provider can use (if possible).
 	fly.commands.forEach((cmd) => {
-		cmd.requiredOption('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)', 'wasp')
-			.requiredOption('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
+		cmd.addOption(new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)').hideHelp().makeOptionMandatory())
+			.addOption(new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir').hideHelp().makeOptionMandatory())
 			.option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
 			.hook('preAction', ensureFlyReady)
 			.hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)

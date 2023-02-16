@@ -50,7 +50,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployServer(deploymentInfo, options.buildServerLocally);
+		await deployServer(deploymentInfo, options);
 	}
 
 	if (!clientTomlExistsInProject(tomlFilePaths)) {
@@ -61,11 +61,11 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployClient(deploymentInfo, options.buildClientLocally);
+		await deployClient(deploymentInfo, options);
 	}
 }
 
-async function deployServer(deploymentInfo: DeploymentInfo, buildServerLocally: boolean) {
+async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your server now...');
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
@@ -85,7 +85,7 @@ async function deployServer(deploymentInfo: DeploymentInfo, buildServerLocally: 
 	}
 
 	const deployArgs = [
-		buildServerLocally ? '--local-only' : '--remote-only',
+		buildLocally ? '--local-only' : '--remote-only',
 	];
 	await $`flyctl deploy ${deployArgs}`;
 
@@ -97,7 +97,7 @@ async function deployServer(deploymentInfo: DeploymentInfo, buildServerLocally: 
 	waspSays('Server has been deployed!');
 }
 
-async function deployClient(deploymentInfo: DeploymentInfo, buildClientLocally: boolean) {
+async function deployClient(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your client now...');
 
 	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
@@ -119,7 +119,7 @@ async function deployClient(deploymentInfo: DeploymentInfo, buildClientLocally: 
 	fs.writeFileSync('.dockerignore', '');
 
 	const deployArgs = [
-		buildClientLocally ? '--local-only' : '--remote-only',
+		buildLocally ? '--local-only' : '--remote-only',
 	];
 	await $`flyctl deploy ${deployArgs}`;
 
