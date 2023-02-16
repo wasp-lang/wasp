@@ -24,11 +24,13 @@ RUN apk add --no-cache openssl1.1-compat
 FROM base AS server-builder
 RUN apk add --no-cache build-base libtool autoconf automake
 WORKDIR /app
+COPY server/ ./server/
 # Install npm packages, resulting in node_modules/.
-COPY server/package*.json ./server/
 RUN cd server && npm install
 COPY db/schema.prisma ./db/
 RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/ npx prisma generate --schema='../db/schema.prisma'
+# Compile TS (depends on Prisma, if in use)
+RUN cd server && npm run build
 
 
 # TODO: Use pm2?
@@ -39,9 +41,9 @@ RUN apk add --no-cache python3
 ENV NODE_ENV production
 WORKDIR /app
 COPY --from=server-builder /app/server/node_modules ./server/node_modules
-COPY server/ ./server/
+COPY --from=server-builder /app/server/dist ./server/dist
+COPY --from=server-builder /app/server/package*.json ./server/
 COPY db/ ./db/
-RUN cd server && npm run build
 EXPOSE ${PORT}
 WORKDIR /app/server
 ENTRYPOINT ["npm", "run", "start-production"]
