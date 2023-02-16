@@ -41,7 +41,6 @@ import Wasp.Generator.Common
     latestMajorNodeVersion,
     makeJsonWithEntityData,
     nodeVersionRange,
-    npmVersionRange,
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -106,7 +105,6 @@ genPackageJson spec waspDependencies = do
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run build-and-start"

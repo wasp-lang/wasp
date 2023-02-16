@@ -33,7 +33,6 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
-    npmVersionRange,
     prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
@@ -97,8 +96,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange
+              "nodeVersionRange" .= show nodeVersionRange
             ]
       )
 

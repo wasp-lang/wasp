@@ -16,8 +16,7 @@
   },
   "engineStrict": true,
   "engines": {
-      "node": "{=& nodeVersionRange =}",
-      "npm": "{=& npmVersionRange =}"
+      "node": "{=& nodeVersionRange =}"
   },
   "browserslist": {
     "production": [
