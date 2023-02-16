@@ -50,7 +50,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromServerToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployServer(deploymentInfo);
+		await deployServer(deploymentInfo, options);
 	}
 
 	if (!clientTomlExistsInProject(tomlFilePaths)) {
@@ -61,11 +61,11 @@ export async function deploy(options: DeployOptions): Promise<void> {
 		const inferredBaseName = getInferredBasenameFromClientToml(tomlFilePaths);
 		const deploymentInfo = createDeploymentInfo(inferredBaseName, undefined, options, tomlFilePaths);
 		await buildWasp();
-		await deployClient(deploymentInfo);
+		await deployClient(deploymentInfo, options);
 	}
 }
 
-async function deployServer(deploymentInfo: DeploymentInfo) {
+async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your server now...');
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
@@ -84,7 +84,10 @@ async function deployServer(deploymentInfo: DeploymentInfo) {
 		exit(1);
 	}
 
-	await $`flyctl deploy --remote-only`;
+	const deployArgs = [
+		buildLocally ? '--local-only' : '--remote-only',
+	];
+	await $`flyctl deploy ${deployArgs}`;
 
 	// NOTE: Deploy is not expected to update the toml file, but doing this just in case.
 	// However, if it does and we fail to copy it back, we would be in an inconsistent state.
@@ -94,7 +97,7 @@ async function deployServer(deploymentInfo: DeploymentInfo) {
 	waspSays('Server has been deployed!');
 }
 
-async function deployClient(deploymentInfo: DeploymentInfo) {
+async function deployClient(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your client now...');
 
 	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
@@ -115,7 +118,10 @@ async function deployClient(deploymentInfo: DeploymentInfo) {
 	fs.writeFileSync('Dockerfile', dockerfileContents);
 	fs.writeFileSync('.dockerignore', '');
 
-	await $`flyctl deploy --remote-only`;
+	const deployArgs = [
+		buildLocally ? '--local-only' : '--remote-only',
+	];
+	await $`flyctl deploy ${deployArgs}`;
 
 	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
 
