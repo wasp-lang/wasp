@@ -1425,20 +1425,45 @@ import { Provider } from 'react-redux'
 export default async function Root({ children }) {
   return (
     <Provider store={store}>
-      <App>{children}</App>
+      {children}
+    </Provider>
+  )
+}
+```
+
+As long as you render the children, you can do whatever you want in your root
+component. Here's an example of a root component both sets up a provider and
+renders a custom layout:
+
+```jsx title="src/client/Root.jsx"
+import store from './store'
+import { Provider } from 'react-redux'
+
+export default function Root({ children }) {
+  return (
+    <Provider store={store}>
+      <Layout>
+        {children}
+      </Layout>
     </Provider>
   )
 }
 
-function App({ children }) {
+function Layout({ children }) {
   return (
     <div>
-      <h1>My App</h1>
+      <header>
+        <h1>My App</h1>
+      </header>
       {children}
+      <footer>
+        <p>My App footer</p>
+      </footer>
     </div>
   )
 }
 ```
+
 
 #### `setupFn: ClientImport` (optional)
 

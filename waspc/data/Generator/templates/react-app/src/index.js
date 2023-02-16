@@ -38,10 +38,11 @@ async function render() {
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
       {=# rootComponent.isDefined =}
-      <{= rootComponent.importIdentifier =}>{router}</{= rootComponent.importIdentifier =}>
+      <{= rootComponent.importIdentifier =}>
       {=/ rootComponent.isDefined =}
-      {=^ rootComponent.isDefined =}
       {router}
+      {=# rootComponent.isDefined =}
+      </{= rootComponent.importIdentifier =}>
       {=/ rootComponent.isDefined =}
     </QueryClientProvider>,
     document.getElementById('root')
