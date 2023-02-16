@@ -1416,7 +1416,7 @@ export default async function Root({ children }) {
 }
 ```
 
-You can use it to setup various providers that your application needs:
+You can use it to set up various providers that your application needs:
 
 ```jsx title="src/client/Root.jsx"
 import store from './store'

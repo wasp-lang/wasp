@@ -7,7 +7,6 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
 import Data.List (intercalate)
 import StrongPath
   ( Dir,
@@ -28,7 +27,6 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
@@ -47,7 +45,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
-import Wasp.Generator.WebAppGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImportTmplData)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -247,28 +245,13 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "setupFn" .= mkTmplDataForExtImport maybeSetupJsFunction,
-              "rootComponent" .= mkTmplDataForExtImport maybeRootComponent
+            [ "setupFn" .= extImportToJsImportTmplData relPathToWebAppSrcDir maybeSetupJsFunction,
+              "rootComponent" .= extImportToJsImportTmplData relPathToWebAppSrcDir maybeRootComponent
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
-
-mkTmplDataForExtImport :: Maybe ExtImport -> Aeson.Value
-mkTmplDataForExtImport maybeExtImport = maybe notDefinedValue mkTmplData maybeExtImport
-  where
-    notDefinedValue = object ["isDefined" .= False]
-
-    mkTmplData :: ExtImport -> Aeson.Value
-    mkTmplData extImport =
-      let jsImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir extImport
-          (jsImportStmt, jsImportIdentifier) = jsImportDetails
-       in object
-            [ "isDefined" .= True,
-              "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
-            ]
 
 relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]

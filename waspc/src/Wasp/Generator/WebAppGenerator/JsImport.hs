@@ -1,10 +1,14 @@
 module Wasp.Generator.WebAppGenerator.JsImport where
 
+import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
+import Wasp.AppSpec.ExtImport (ExtImport)
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.JsImport (ImportLocation)
+import Wasp.Generator.JsImport
+  ( jsImportToTmplData,
+  )
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.WebAppGenerator.Common (WebAppSrcDir)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator (extClientCodeDirInWebAppSrcDir)
@@ -15,14 +19,22 @@ import Wasp.JsImport
   )
 import qualified Wasp.JsImport as JI
 
+extImportToJsImportTmplData ::
+  Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
+  Maybe ExtImport ->
+  Aeson.Value
+extImportToJsImportTmplData pathFromImportLocationToSrcDir maybeExtImport = jsImportToTmplData jsImport
+  where
+    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
+
 getJsImportStmtAndIdentifier ::
-  Path Posix (Rel ImportLocation) (Dir WebAppSrcDir) ->
+  Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier pathFromImportLocationToSrcDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToSrcDir
 
 extImportToJsImport ::
-  Path Posix (Rel ImportLocation) (Dir WebAppSrcDir) ->
+  Path Posix (Rel importLocation) (Dir WebAppSrcDir) ->
   EI.ExtImport ->
   JsImport
 extImportToJsImport = GJI.extImportToJsImport webAppExtDir

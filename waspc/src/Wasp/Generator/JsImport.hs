@@ -1,9 +1,11 @@
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
-    ImportLocation,
+    jsImportToTmplData,
   )
 where
 
+import Data.Aeson (KeyValue ((.=)), object)
+import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
@@ -12,15 +14,14 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport,
     JsImportName (JsImportField, JsImportModule),
+    getJsImportStmtAndIdentifier,
     makeJsImport,
   )
-
-type ImportLocation = ()
 
 extImportToJsImport ::
   GeneratedSrcDir d =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
-  Path Posix (Rel ImportLocation) (Dir d) ->
+  Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
 extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeJsImport importPath importName
@@ -32,3 +33,17 @@ extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir ex
     extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
     extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
     extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
+
+jsImportToTmplData :: Maybe JsImport -> Aeson.Value
+jsImportToTmplData maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
+  where
+    notDefinedValue = object ["isDefined" .= False]
+
+    mkTmplData :: JsImport -> Aeson.Value
+    mkTmplData jsImport =
+      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
+       in object
+            [ "isDefined" .= True,
+              "importStatement" .= jsImportStmt,
+              "importIdentifier" .= jsImportIdentifier
+            ]
