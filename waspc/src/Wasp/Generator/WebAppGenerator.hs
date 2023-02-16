@@ -67,7 +67,7 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
-    <++> genSharedDir
+    <++> genUniversalDir
     <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
@@ -264,8 +264,8 @@ genIndexJs spec =
     relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
 
-genSharedDir :: Generator [FileDraft]
-genSharedDir =
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
   return
     [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
     ]

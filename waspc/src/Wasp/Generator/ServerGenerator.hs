@@ -77,7 +77,7 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
-    <++> genSharedDir
+    <++> genUniversalDir
     <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
@@ -326,8 +326,8 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
 
-genSharedDir :: Generator [FileDraft]
-genSharedDir =
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
   return
     [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
     ]
