@@ -1,7 +1,3 @@
-import { CommonOptions } from '../CommonOptions.js';
+import { CommonOptions, DbOptions } from '../CommonOptions.js';
 
-export interface CreateDbOptions extends CommonOptions {
-  vmSize: string;
-  initialClusterSize: string;
-  volumeSize: string;
-}
+export interface CreateDbOptions extends CommonOptions, DbOptions {}
