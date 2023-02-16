@@ -45,7 +45,7 @@ ENV NODE_ENV production
 WORKDIR /app
 COPY --from=server-builder /app/server/node_modules ./server/node_modules
 COPY --from=server-builder /app/server/dist ./server/dist
-COPY server/package*.json ./server/
+COPY --from=server-builder /app/server/package*.json ./server/
 COPY db/ ./db/
 EXPOSE ${PORT}
 WORKDIR /app/server
