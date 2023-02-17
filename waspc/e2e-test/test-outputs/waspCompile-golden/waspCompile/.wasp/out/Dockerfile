@@ -27,7 +27,7 @@ WORKDIR /app
 COPY server/ ./server/
 # Install npm packages, resulting in node_modules/.
 RUN cd server && npm install
-# Compile TS (depends on Prisma, if in use)
+# Building the server should come after Prisma generation.
 RUN cd server && npm run build
 
 

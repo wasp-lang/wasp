@@ -29,7 +29,7 @@ COPY server/ ./server/
 RUN cd server && npm install
 COPY db/schema.prisma ./db/
 RUN cd server && PRISMA_CLIENT_OUTPUT_DIR=../server/node_modules/.prisma/client/ npx prisma generate --schema='../db/schema.prisma'
-# Compile TS (depends on Prisma, if in use)
+# Building the server should come after Prisma generation.
 RUN cd server && npm run build
 
 

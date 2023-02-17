@@ -32,7 +32,7 @@ RUN cd server && npm install
 COPY db/schema.prisma ./db/
 RUN cd server && {= serverPrismaClientOutputDirEnv =} npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
-# Compile TS (depends on Prisma, if in use)
+# Building the server should come after Prisma generation.
 RUN cd server && npm run build
 
 
