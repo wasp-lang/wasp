@@ -54,6 +54,10 @@ You may notice after running `setup` you have a `fly-server.toml` and `fly-clien
 
 Finally, we `deploy` which will push your client and server live. We run this single command each time you want to update your app.
 
+:::note
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, the CLI defaults to the use of a remote Fly.io builder. If you wish to build locally, you may supply the `--build-locally` option to `wasp deploy fly launch` or `wasp deploy fly deploy`.
+:::
+
 If you would like to run arbitrary Fly commands (eg, `flyctl secrets list` for your server app), you can run them like so:
 ```shell
 wasp deploy fly cmd secrets list --context server
@@ -110,7 +114,7 @@ Server uses following environment variables, so you need to ensure they are set 
 Fly.io offers a variety of free services that are perfect for deploying your first Wasp app! You will need a Fly.io account and the [`flyctl` CLI](https://fly.io/docs/hands-on/install-flyctl/).
 
 :::note
-Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will force the use of a remote Fly.io builder.
+Fly.io offers support for both locally built Docker containers and remotely built ones. However, for simplicity and reproducability, we will default to the use of a remote Fly.io builder.
 
 Additionally, `fly` is a symlink for `flyctl` on most systems and they can be used interchangeably.
 :::

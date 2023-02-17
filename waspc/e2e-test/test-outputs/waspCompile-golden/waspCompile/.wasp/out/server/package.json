@@ -23,8 +23,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "^18.12.0",
-    "npm": "^8.19.2"
+    "node": "^18.12.0"
   },
   "name": "server",
   "nodemonConfig": {
@@ -44,7 +43,7 @@
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "start-production": "NODE_ENV=production npm run build-and-start",
+    "start-production": "NODE_ENV=production npm run start",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",

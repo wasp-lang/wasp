@@ -2,6 +2,8 @@
 
 Welcome to the Waspleau example! This is a small Wasp project that will allow you to setup an easy Dashboard that pulls in data via [Jobs](https://wasp-lang.dev/docs/language/features#jobs) and stores them in the database.
 
+The deployed version of this example can be found at https://waspleau.netlify.app/
+
 ## Step 1
 
 Clone this repo

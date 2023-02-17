@@ -1,4 +1,4 @@
-Waspello 
+Waspello
 =========
 
 **Waspello** is a trello clone app made with Wasp.

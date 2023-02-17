@@ -6,7 +6,6 @@ module Wasp.Generator.Common
     DbRootDir,
     latestMajorNodeVersion,
     nodeVersionRange,
-    npmVersionRange,
     prismaVersion,
     makeJsonWithEntityData,
     GeneratedSrcDir,
@@ -52,12 +51,6 @@ nodeVersionRange = SV.Range [SV.backwardsCompatibleWith latestNodeLTSVersion]
 
 latestNodeLTSVersion :: SV.Version
 latestNodeLTSVersion = SV.Version 18 12 0
-
--- | Range of npm versions that Wasp and generated projects work correctly with.
-npmVersionRange :: SV.Range
-npmVersionRange = SV.Range [SV.backwardsCompatibleWith latestLTSVersion]
-  where
-    latestLTSVersion = SV.Version 8 19 2 -- Goes with node 18 (but also higher versions too).
 
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 4 5 0

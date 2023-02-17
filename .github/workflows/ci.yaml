@@ -64,9 +64,11 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v3
 
+      # TODO: This is a temporary workaround for the failing GHCup installation on Ubuntu 20.04.
+      # The fix will be propagated in a few days, so we can remove this workaround then.
+      # https://github.com/actions/runner-images/issues/7061
       - name: Workaround runner image issue
         if: matrix.os == 'ubuntu-20.04'
-        # https://github.com/actions/runner-images/issues/7061
         run: sudo chown -R $USER /usr/local/.ghcup
 
       - name: Set up Haskell
@@ -118,7 +120,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18.12'
+          node-version: '18'
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
         if: matrix.os == 'macos-latest'

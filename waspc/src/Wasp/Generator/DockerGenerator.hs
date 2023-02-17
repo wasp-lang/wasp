@@ -29,7 +29,6 @@ import Wasp.Generator.DbGenerator.Common
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
-import Wasp.Generator.ServerGenerator (areServerPatchesUsed)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (getEnvVarDefinition)
@@ -40,7 +39,6 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
-  usingServerPatches <- areServerPatchesUsed spec
   let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromAppComponentDir
   return $
     createTemplateFileDraft
@@ -52,7 +50,6 @@ genDockerfile spec = do
               "serverPrismaClientOutputDirEnv" .= getEnvVarDefinition serverPrismaClientOutputDirEnv,
               "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
-              "usingServerPatches" .= usingServerPatches,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )

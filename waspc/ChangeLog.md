@@ -1,6 +1,8 @@
 # Changelog
+## v0.8.2
 
-## v0.8.1
+### Non-breaking Changes
+- The Dockerfile has been updated to build the server files during the Docker build stage instead of during server startup. This will reduce the memory footprint required for running apps.
 
 ### Bug fixes
 - Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
@@ -67,7 +69,7 @@ import { GetTasks} from '@wasp/queries'
 type Payload = Pick<Task, 'isDone'>;
 
 // Use the type parameters specify the Query's argument and return types.
-const getTasks: GetTasks<Payload, Task[]> = (args, context) => { 
+const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
   // Thanks to the definition in your .wasp file, the compiler knows the type of
   // `context` (and that it contains the `Task` entity).
   //
@@ -85,6 +87,12 @@ If you want to uninstall Wasp from your system, you can now do so with:
 wasp uninstall
 ```
 It will remove all of the Wasp binaries and data from your system.
+
+## v0.8.1
+
+### Remove npm version constraint
+We are removing the requirement for a specific npm version to enable following the Node.js LTS releases (Node.js LTS releases sometimes bump the major `npm` version).
+We are still requiring Node.js to be version 18, but the `npm` version can be anything and for most of Wasp users it will be the version that comes with Node.js.
 
 ## v0.8.0
 

@@ -1,9 +1,10 @@
 module Wasp.Generator.ServerGenerator.JsImport where
 
 import Data.Maybe (fromJust)
+import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.JsImport (PathFromImportLocationToSrcDir)
+import Wasp.Generator.JsImport (ImportLocation)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
@@ -15,13 +16,13 @@ import Wasp.JsImport
 import qualified Wasp.JsImport as JI
 
 getJsImportStmtAndIdentifier ::
-  PathFromImportLocationToSrcDir ServerSrcDir ->
+  Path Posix (Rel ImportLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
 
 extImportToJsImport ::
-  PathFromImportLocationToSrcDir ServerSrcDir ->
+  Path Posix (Rel ImportLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   JsImport
 extImportToJsImport = GJI.extImportToJsImport serverExtDir
