@@ -1,6 +1,9 @@
 # Changelog
 ## v0.8.2
 
+### Non-breaking Changes
+- The Dockerfile has been updated to build the server files during the Docker build stage instead of during server startup. This will reduce the memory footprint required for running apps.
+
 ### Bug fixes
 - Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
 
