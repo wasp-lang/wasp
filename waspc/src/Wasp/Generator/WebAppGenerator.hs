@@ -253,5 +253,5 @@ genIndexJs spec =
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
-relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
-relPathToWebAppSrcDir = [reldirP|./|]
+    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]
