@@ -1,6 +1,6 @@
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
-    jsImportToTmplData,
+    jsImportToImportJson,
   )
 where
 
@@ -34,8 +34,8 @@ extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir ex
     extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
     extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
-jsImportToTmplData :: Maybe JsImport -> Aeson.Value
-jsImportToTmplData maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
+jsImportToImportJson :: Maybe JsImport -> Aeson.Value
+jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
   where
     notDefinedValue = object ["isDefined" .= False]
 

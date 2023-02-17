@@ -78,7 +78,7 @@ genJob (jobName, job) =
         ]
     maybeJobSchedule = jobScheduleTmplData <$> J.schedule job
 
-    relPathFromJobsDirToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromJobsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromJobsDirToServerSrcDir = [reldirP|../|]
 
 -- Creates a file that is imported on the server to ensure all job JS modules are loaded

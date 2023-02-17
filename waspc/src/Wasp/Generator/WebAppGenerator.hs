@@ -45,7 +45,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
-import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImportTmplData)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -245,8 +245,8 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "setupFn" .= extImportToJsImportTmplData relPathToWebAppSrcDir maybeSetupJsFunction,
-              "rootComponent" .= extImportToJsImportTmplData relPathToWebAppSrcDir maybeRootComponent
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
+              "rootComponent" .= extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
             ]
       )
   where

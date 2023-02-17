@@ -134,5 +134,5 @@ operationTmplData operation =
   where
     (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)
 
-    relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromOperationsDirToServerSrcDir = [reldirP|../|]
