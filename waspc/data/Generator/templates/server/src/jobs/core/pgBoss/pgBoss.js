@@ -69,18 +69,26 @@ export async function startPgBoss() {
 }
 
 let errConnectionRetries = 0
+let errConnectionWindowStartTime = Date.now()
 
 // In the unlikely event that the database becomes unreachable, we do not want the app
 // itself to die. This error handler will shut pg-boss down after several connection
-// refused errors to prevent an untrapped `pg` error from killing node (and thus, the entire app).
-// Ref: https://github.com/timgit/pg-boss/issues/365
+// refused errors within a short time period to prevent an untrapped `pg` error from killing
+// node (and thus, the entire app). Ref: https://github.com/timgit/pg-boss/issues/365
+//
 // NOTE: It would be nice if we had a global way to indicate the Wasp app was in a degraded state.
 function handlePgBossError(error) {
   console.error('pg-boss error:', error)
 
-  // TODO: Should we track the last time it happened, and reset if it has been a while?
-  // Mainly to ensure it is all in rapid succession.
   if (error.code === 'ECONNREFUSED') {
+    // If it has been more than 60 seconds since the last erorr, reset tracking.
+    // If there was a real problem, we would see dozens in a few seconds.
+    // This allows for periodic connection blips to not accumulate over time.
+    if (elapsedSeconds(errConnectionWindowStartTime) > 60) {
+      errConnectionRetries = 0
+      errConnectionWindowStartTime = Date.now()
+    }
+
     errConnectionRetries++
   }
 
@@ -92,4 +100,9 @@ function handlePgBossError(error) {
     const oneMinute = 1 * 60 * 1000
     setInterval(() => console.log(`WARNING: pg-boss was stopped due to postgres connection errors and is no longer running!`), oneMinute)
   }
+}
+
+function elapsedSeconds(start) {
+  const millis = Date.now() - start;
+  return Math.floor(millis / 1000);
 }
