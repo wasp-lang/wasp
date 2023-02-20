@@ -3,7 +3,7 @@ import React from 'react'
 import { Route, BrowserRouter as Router } from 'react-router-dom'
 
 {=# isAuthEnabled =}
-import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
+import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}

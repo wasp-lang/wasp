@@ -76,8 +76,8 @@ spec_WebAppGenerator = do
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
-                      "index.js",
-                      "router.js",
+                      "index.tsx",
+                      "router.jsx",
                       "serviceWorker.js"
                     ]
                 ]

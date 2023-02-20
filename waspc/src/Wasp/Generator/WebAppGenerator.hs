@@ -58,7 +58,9 @@ genWebApp spec = do
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|]
+      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|],
+      genPublicIndexHtml spec,
+      genFileCopy [relfile|vite.config.ts|]
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
@@ -112,11 +114,11 @@ npmDepsForWasp spec =
     { N.waspDependencies =
         AS.Dependency.fromList
           [ ("axios", "^0.27.2"),
-            ("react", "^17.0.2"),
-            ("react-dom", "^17.0.2"),
+            ("react", "^18.2.0"),
+            ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1"),
+            -- ("react-scripts", "5.0.1"),
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
@@ -129,10 +131,12 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
-            ("@types/react", "^17.0.39"),
-            ("@types/react-dom", "^17.0.11"),
+            ("vite", "^4.1.0"),
+            ("typescript", "^4.9.3"),
+            ("@types/react", "^18.0.27"),
+            ("@types/react-dom", "^18.0.10"),
             ("@types/react-router-dom", "^5.3.3"),
+            ("@vitejs/plugin-react-swc", "^3.0.0"),
             -- TODO: What happens when react app changes its version? We should
             -- investigate.
             ("@tsconfig/create-react-app", "^1.0.3")
@@ -144,9 +148,9 @@ depsRequiredByTailwind spec =
   if G.CF.isTailwindUsed spec
     then
       AS.Dependency.fromList
-        [ ("tailwindcss", "^3.1.8"),
-          ("postcss", "^8.4.18"),
-          ("autoprefixer", "^10.4.12")
+        [ ("tailwindcss", "^3.2.7"),
+          ("postcss", "^8.4.21"),
+          ("autoprefixer", "^10.4.13")
         ]
     else []
 
@@ -159,10 +163,8 @@ genGitignore =
 
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
-  publicIndexHtmlFd <- genPublicIndexHtml spec
   return
-    [ publicIndexHtmlFd,
-      genFaviconFd,
+    [ genFaviconFd,
       genManifestFd
     ]
     <++> genSocialLoginIcons maybeAuth
@@ -191,11 +193,11 @@ genPublicIndexHtml :: AppSpec -> Generator FileDraft
 genPublicIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|public/index.html|])
+      (C.asTmplFile [relfile|index.html|])
       targetPath
       (Just templateData)
   where
-    targetPath = [relfile|public/index.html|]
+    targetPath = [relfile|index.html|]
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
@@ -213,6 +215,7 @@ genSrcDir spec =
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|vite-env.d.ts|],
       genRouter spec,
       genIndexJs spec,
       genApi
@@ -241,8 +244,8 @@ genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.js|])
-      (C.asWebAppFile [relfile|src/index.js|])
+      (C.asTmplFile [relfile|src/index.tsx|])
+      (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,

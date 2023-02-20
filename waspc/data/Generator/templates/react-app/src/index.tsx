@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import ReactDOM from 'react-dom'
+import ReactDOM from 'react-dom/client'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import router from './router'
@@ -35,16 +35,17 @@ async function startApp() {
 
 async function render() {
   const queryClient = await queryClientInitialized
-  ReactDOM.render(
-    <QueryClientProvider client={queryClient}>
-      {=# rootComponent.isDefined =}
-      <{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
-      {router}
-      {=# rootComponent.isDefined =}
-      </{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
-    </QueryClientProvider>,
-    document.getElementById('root')
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <React.StrictMode>
+      <QueryClientProvider client={queryClient}>
+        {=# rootComponent.isDefined =}
+        <{= rootComponent.importIdentifier =}>
+        {=/ rootComponent.isDefined =}
+        {router}
+        {=# rootComponent.isDefined =}
+        </{= rootComponent.importIdentifier =}>
+        {=/ rootComponent.isDefined =}
+      </QueryClientProvider>
+    </React.StrictMode>,
   )
 }

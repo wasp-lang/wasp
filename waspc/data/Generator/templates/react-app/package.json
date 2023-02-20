@@ -3,13 +3,12 @@
   "name": "{= appName =}",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   {=& depsChunk =},
   {=& devDepsChunk =},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "tsc && vite build"
   },
   "eslintConfig": {
     "extends": "react-app"
