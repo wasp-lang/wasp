@@ -14,8 +14,8 @@ export function isValidAbsoluteURL(rawUrl) {
     }
 }
 
-export function throwIfNotValidAbsoluteURL(rawUrl, errorMessage) {
-    if (rawUrl && !isValidAbsoluteURL(rawUrl)) {
-        throw new Error(errorMessage);
+export function throwIfNotValidAbsoluteURL(value, name) {
+    if (value && !isValidAbsoluteURL(value)) {
+        throw new Error(`${name} must be a valid absolute URL`);
     }
 }
