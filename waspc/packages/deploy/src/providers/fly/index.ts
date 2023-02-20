@@ -13,12 +13,15 @@ class FlyCommand extends Command {
 		return this.argument('<basename>', 'base app name to use on Fly.io (must be unique)');
 	}
 	addRegionArgument(): this {
-		return this.argument('<region>', 'deployment region to use on Fly.io');
+		return this.argument('<region>', '3 letter deployment region to use on Fly.io');
 	}
 	addDbOptions(): this {
 		return this.option('--vm-size <vmSize>', 'flyctl postgres create option', 'shared-cpu-1x')
 			.option('--initial-cluster-size <initialClusterSize>', 'flyctl postgres create option', '1')
 			.option('--volume-size <volumeSize>', 'flyctl postgres create option', '1');
+	}
+	addLocalBuildOption(): this {
+		return this.option('--build-locally', 'build Docker containers locally instead of remotely', false);
 	}
 }
 
@@ -47,8 +50,8 @@ export function addFlyCommand(program: Command): void {
 	// NOTE: When we add another provider, consider pulling `--wasp-exe` and `--wasp-project-dir`
 	// up as a global option that every provider can use (if possible).
 	fly.commands.forEach((cmd) => {
-		cmd.requiredOption('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)', 'wasp')
-			.requiredOption('--wasp-project-dir <dir>', 'absolute path to Wasp project dir')
+		cmd.addOption(new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)').hideHelp().makeOptionMandatory())
+			.addOption(new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir').hideHelp().makeOptionMandatory())
 			.option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
 			.hook('preAction', ensureFlyReady)
 			.hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)
@@ -67,6 +70,7 @@ function makeFlyLaunchCommand(): Command {
 		.addBasenameArgument()
 		.addRegionArgument()
 		.addDbOptions()
+		.addLocalBuildOption()
 		.action(launchFn);
 }
 
@@ -84,6 +88,7 @@ function makeFlyDeployCommand(): Command {
 		.option('--skip-build', 'do not run `wasp build` before deploying')
 		.option('--skip-client', 'do not deploy the web client')
 		.option('--skip-server', 'do not deploy the server')
+		.addLocalBuildOption()
 		.action(deployFn);
 }
 

@@ -14,14 +14,12 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 1. Requirements
 
-You need to have `node` (and `npm`) installed on your machine and available in `PATH`.
-- `node`: ^18.12.0
-- `npm`: ^8.19.2
+You need to have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version, and currently that's version `v18.14.0`.
 
-You can check `node` and `npm` versions by running:
+You can check the `node` version by running:
 ```shell-session
-node -v
-npm -v
+$ node -v
+v18.14.0
 ```
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
@@ -111,7 +109,7 @@ If the installer is not working for you or your OS is not supported, you can try
 
 To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [cabal](https://cabal.readthedocs.io/en/stable/getting-started.html) on your machine and then run `cabal install` from the `waspc/` dir.
 
-If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.  
+If you have never built Wasp before, this might take some time due to `cabal` downloading dependencies for the first time.
 
 Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more details on building.
 
@@ -132,7 +130,7 @@ That's it :tada:! You have successfully created and served a new web app at <htt
 
 :::info For Visual Studio Code
 
-If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp). 
+If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
 
 The extension brings the following functionality:
 
@@ -149,6 +147,6 @@ The extension brings the following functionality:
 
 **Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
 
-Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you. 
+Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you.
 
 Finally, to stay up to date with updates in Wasp, you can **subscribe to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

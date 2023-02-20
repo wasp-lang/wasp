@@ -8,7 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -32,7 +31,6 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
-    npmVersionRange,
     prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
@@ -47,7 +45,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
-import Wasp.Generator.WebAppGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -96,8 +94,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange
+              "nodeVersionRange" .= show nodeVersionRange
             ]
       )
 
@@ -248,16 +245,13 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
-              "clientSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "clientSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
+              "rootComponent" .= extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToWebAppSrcDir <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
-      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
-    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
