@@ -1,7 +1,7 @@
-import Todo from "../Todo";
+import Todo from '../Todo'
 
 const Main = () => {
-    return <Todo />;
-};
+  return <Todo />
+}
 
-export default Main;
+export default Main
