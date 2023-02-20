@@ -29,6 +29,7 @@ app todoApp {
     setupFn: import setup from "@server/serverSetup.js"
   },
   client: {
+    rootComponent: import { App } from "@client/App.jsx",
     setupFn: import setup from "@client/clientSetup"
   },
   db: {

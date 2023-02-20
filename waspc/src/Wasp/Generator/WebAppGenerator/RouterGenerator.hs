@@ -167,7 +167,7 @@ createPageTemplateData page =
     importStmt :: String
     (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
 
-    relPathToWebAppSrcDir :: Path Posix (Rel ()) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
 
     pageComponent :: AS.ExtImport.ExtImport
