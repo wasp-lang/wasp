@@ -68,7 +68,7 @@ export async function startPgBoss() {
   pgBossStatus = PgBossStatus.Started
 }
 
-let errConnectionRetries = 0
+let errConnectionCount = 0
 
 // In the unlikely event that the database becomes unreachable, we do not want the app
 // itself to die. This error handler will shut pg-boss down after several connection
@@ -80,11 +80,11 @@ function handlePgBossError(error) {
   console.error('pg-boss error:', error)
 
   if (error.code === 'ECONNREFUSED') {
-    errConnectionRetries++
+    errConnectionCount++
   }
 
-  if (errConnectionRetries > 5) {
-    console.error(`Connection lost to postgres after ${errConnectionRetries} retries.  Stopping pg-boss...`)
+  if (errConnectionCount > 5) {
+    console.error(`Connection to postgres deemed lost after ${errConnectionCount} errors.  Stopping pg-boss...`)
 
     boss.stop().catch(error => console.error('Error stopping pg-boss:', error))
 
