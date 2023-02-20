@@ -1,8 +1,15 @@
 # Changelog
+
 ## v0.8.2
+
+### Non-breaking Changes
+- The Dockerfile has been updated to build the server files during the Docker build stage instead of during server startup. This will reduce the memory footprint required for running apps.
 
 ### Bug fixes
 - Fixes a file lock error that kills CLI when changing entities with `wasp start` running on newer Macs.
+
+### Support for defining the web app's root component
+You can now define a root component for your client app. This is useful if you want to wrap your app in a provider or have a common layout. You can define it in `app.client.rootComponent` in your `.wasp` file.
 
 ### `wasp deploy` CLI command added
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!

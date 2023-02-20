@@ -142,7 +142,7 @@ getTmplDataForAuthMethodConfig auth authMethod =
     maybeOnSignInFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeGetUserFieldsFn
     (maybeOnSignInFnImportStmt, maybeOnSignInFnImportIdentifier) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
-    relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../../|]
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]

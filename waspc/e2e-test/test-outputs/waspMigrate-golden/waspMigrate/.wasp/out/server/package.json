@@ -43,7 +43,7 @@
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
-    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run build-and-start",
+    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },

@@ -109,7 +109,7 @@ genPackageJson spec waspDependencies = do
               "nodeVersionRange" .= show nodeVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production npm run build-and-start"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
@@ -224,7 +224,7 @@ genServerJs spec =
     (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-    relPathToServerSrcDir :: Path Posix (Rel ()) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
