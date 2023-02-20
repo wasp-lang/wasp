@@ -13,9 +13,6 @@ import * as serviceWorker from './serviceWorker'
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
-{=# rootComponent.isDefined =}
-{=& rootComponent.importStatement =}
-{=/ rootComponent.isDefined =}
 
 startApp()
 
@@ -37,13 +34,7 @@ async function render() {
   const queryClient = await queryClientInitialized
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
-      {=# rootComponent.isDefined =}
-      <{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
       {router}
-      {=# rootComponent.isDefined =}
-      </{= rootComponent.importIdentifier =}>
-      {=/ rootComponent.isDefined =}
     </QueryClientProvider>,
     document.getElementById('root')
   )
