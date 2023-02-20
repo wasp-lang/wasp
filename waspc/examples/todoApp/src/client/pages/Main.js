@@ -1,18 +1,7 @@
-import React from 'react'
-
-import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo'
-import '../Main.css'
+import Todo from "../Todo";
 
 const Main = () => {
-  return (
-    <>
-      <button className='btn btn-blue' onClick={logout}>
-        Logout
-      </button>
-      <Todo />
-    </>
-  )
-}
+    return <Todo />;
+};
 
-export default Main
+export default Main;
