@@ -1,6 +1,6 @@
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 import { sayHi } from '../shared/util.js'
-import { ServerSetupFn } from '@wasp/types'
+import { ServerSetupFn, Application } from '@wasp/types'
 
 let someResource = undefined
 
@@ -8,6 +8,7 @@ export const getSomeResource = () => someResource
 
 const setup: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app)
+
   sayHi()
   await new Promise(resolve => setTimeout(resolve, 2000))
   someResource = 'This resource is now set up.'
@@ -20,7 +21,7 @@ const setup: ServerSetupFn = async ({ app }) => {
   console.log("submittedJob.pgBoss.details()", await submittedJob.pgBoss.details())
 }
 
-function addCustomRoute(app) {
+function addCustomRoute(app: Application) {
   app.get('/customRoute', (_req, res) => {
     res.send('I am a custom route')
   })
