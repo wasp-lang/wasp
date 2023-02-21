@@ -10,14 +10,14 @@ const containerStyle = {
   margin: 0,
   cursor: 'pointer',
   borderRadius: '.375rem',
-  backgroundColor: 'rgb(255 255 255)',
+  backgroundColor: '#fff',
   paddingLeft: '1.5rem',
   paddingRight: '1.5rem',
   paddingTop: '.75rem',
   paddingBottom: '.75rem',
   fontWeight: 600,
   color: 'rgb(17 24 39)',
-  boxShadow: '0 0 #0000,0 0 #0000,0 1px 3px 0 rgb(0 0 0/0.1),0 1px 2px -1px rgb(0 0 0/0.1)',
+  boxShadow: '0 0 #0000,0 0 #0000, 0 1px 3px 0 rgb(0 0 0/0.1), 0 1px 2px -1px rgb(0 0 0/0.1)',
   outline: '2px solid transparent',
   outlineOffset: '2px',
 }
@@ -25,7 +25,6 @@ const containerStyle = {
 const linkStyle = {
   display: 'flex',
   alignItems: 'center',
-
   textDecoration: 'none',
   color: 'black'
 }
