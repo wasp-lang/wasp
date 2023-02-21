@@ -245,13 +245,11 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
-              "rootComponent" .= extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
     relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
     relPathToWebAppSrcDir = [reldirP|./|]
