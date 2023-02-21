@@ -11,9 +11,6 @@
     "build": "npm run validate-env && tsc && vite build",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
   "engineStrict": true,
   "engines": {
       "node": "{=& nodeVersionRange =}"

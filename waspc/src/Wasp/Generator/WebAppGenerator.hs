@@ -55,6 +55,7 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|tsconfig.node.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
