@@ -1,6 +1,10 @@
 import Prisma from '@prisma/client'
 import HttpError from './core/HttpError.js'
 
+import { readdir } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from 'url';
+
 /**
  * Decorator for async express middleware that handles promise rejections.
  * @param {Func} middleware - Express middleware function.
@@ -45,3 +49,23 @@ export const prismaErrorToHttpError = (e) => {
 }
 
 export const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+export function getDirFromFileUrl(fileUrl) {
+  return fileURLToPath(dirname(fileUrl));
+}
+
+export async function importJsFilesFromDir(absoluteDir, relativePath) {
+  const pathToDir = join(absoluteDir, relativePath);
+
+  return new Promise((resolve, reject) => {
+    readdir(pathToDir, async (err, files) => {
+      if (err) {
+        return reject(err);
+      }
+      const importPromises = files
+        .filter((file) => file.endsWith(".js"))
+        .map((file) => import(`${pathToDir}/${file}`));
+      resolve(Promise.all(importPromises));
+    });
+  });
+}
