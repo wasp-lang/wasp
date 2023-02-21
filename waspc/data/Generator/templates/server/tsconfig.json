@@ -8,7 +8,6 @@
     "target": "es2017",
     // Enable source map for debugging
     "sourceMap": true,
-
     // The remaining settings should match node18/tsconfig.json, but I kept
     // them here to be explicit.
 
@@ -17,5 +16,6 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true
-  }
+  },
+  "include": ["src"]
 }

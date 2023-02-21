@@ -1,13 +1,16 @@
 {{={= =}=}}
 import React from 'react'
 import { Route, BrowserRouter as Router } from 'react-router-dom'
+{=# rootComponent.isDefined =}
+{=& rootComponent.importStatement =}
+{=/ rootComponent.isDefined =}
 
 {=# isAuthEnabled =}
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage.js"
 {=/ isAuthEnabled =}
 
 {=# pagesToImport =}
-import {= importWhat =} from "{= importFrom =}"
+{=& importStatement =}
 {=/ pagesToImport =}
 
 {=# isExternalAuthEnabled =}
@@ -16,11 +19,15 @@ import OAuthCodeExchange from "./auth/pages/OAuthCodeExchange"
 
 const router = (
   <Router>
-    <div>
+    {=# rootComponent.isDefined =}
+    <{= rootComponent.importIdentifier =}>
+    {=/ rootComponent.isDefined =}
+    {=^ rootComponent.isDefined =}
+    <>
+    {=/ rootComponent.isDefined =}
       {=# routes =}
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
-
       {=# isExternalAuthEnabled =}
       {=# externalAuthProviders =}
       {=# authProviderEnabled =}
@@ -30,7 +37,12 @@ const router = (
       {=/ authProviderEnabled =}
       {=/ externalAuthProviders =}
       {=/ isExternalAuthEnabled =}
-    </div>
+    {=# rootComponent.isDefined =}
+    </{= rootComponent.importIdentifier =}>
+    {=/ rootComponent.isDefined =}
+    {=^ rootComponent.isDefined =}
+    </>
+    {=/ rootComponent.isDefined =}
   </Router>
 )
 

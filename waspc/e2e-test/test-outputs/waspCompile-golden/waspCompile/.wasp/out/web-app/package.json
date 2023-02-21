@@ -12,6 +12,7 @@
     ]
   },
   "dependencies": {
+    "@prisma/client": "4.5.0",
     "@tanstack/react-query": "^4.13.0",
     "axios": "^0.27.2",
     "react": "^17.0.2",
@@ -28,8 +29,7 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "^18.12.0",
-    "npm": "^8.19.2"
+    "node": "^18.12.0"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -37,10 +37,11 @@
   "name": "waspCompile",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
+    "build": "npm run validate-env && react-scripts build",
     "eject": "react-scripts eject",
-    "start": "react-scripts start",
-    "test": "react-scripts test"
+    "start": "npm run validate-env && react-scripts start",
+    "test": "react-scripts test",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "version": "0.0.0"
 }

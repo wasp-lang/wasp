@@ -6,8 +6,9 @@
   {=& depsChunk =},
   {=& devDepsChunk =},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "npm run validate-env && react-scripts start",
+    "build": "npm run validate-env && react-scripts build",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -16,8 +17,7 @@
   },
   "engineStrict": true,
   "engines": {
-      "node": "{=& nodeVersionRange =}",
-      "npm": "{=& npmVersionRange =}"
+      "node": "{=& nodeVersionRange =}"
   },
   "browserslist": {
     "production": [

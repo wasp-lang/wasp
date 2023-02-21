@@ -11,14 +11,14 @@
             "file",
             "Dockerfile"
         ],
-        "576e1a40a9d7e838cdbe23a504c9a8d4d53d8614e2bcd2d01838fa63541674b6"
+        "ef07c51e4998902c4b76e6e602659125cee390c0640c6b4a1f4f7ba8ac92ec7e"
     ],
     [
         [
             "file",
             "db/schema.prisma"
         ],
-        "16c90bcaec8038a1b8bff30b2db2f7876b40c0e2e1b088076491f86f14d172c5"
+        "6f7b1b109e332bad9eb3cda4a2caf4963f4918c91b546c06fa42d8986c0b94a2"
     ],
     [
         [
@@ -46,21 +46,49 @@
             "file",
             "server/nodemon.json"
         ],
-        "5d0e1103bbe7c29a7b3137a57345f8eeb4ccd8a2128d636cc1b2bd81cf348a86"
+        "c4c69994805c8e0d993bd39fec9e52478b5e656bae565fa1c19ef378901a7139"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "a25c784008e936018cc8f5fe0a35fdd6dfc86d7762fcad40bed04e6af294b87f"
+        "3ab0d1885aaa5e95f4dd5333e7bfbd68e4485c650750ce85261044c6ae27872b"
+    ],
+    [
+        [
+            "file",
+            "server/scripts/universal/validators.mjs"
+        ],
+        "94edf3906c43fb476b22244d07a5d69fd6c967de767532ed5b3215e2a6eee91b"
+    ],
+    [
+        [
+            "file",
+            "server/scripts/validate-env.mjs"
+        ],
+        "b507ff0f8cbdac18a0b42ccbb7acda9a5cd88e0ac5f95ca3d42341944298062d"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/index.ts"
+        ],
+        "cbfe28e0bdf628d038f3435249f2d41c8bd8c8c5358f4c2d8fe631965f85a9f4"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/taggedEntities.ts"
+        ],
+        "783703d6c7174bc262778598da7e24b1c9727e4fd1826f5d9a947ab701fe0977"
     ],
     [
         [
             "file",
             "server/src/actions/types.ts"
         ],
-        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
+        "2b2dba0828a9283901ed7132f5c51c119acef4fff739736e50c02b0f09b192db"
     ],
     [
         [
@@ -74,7 +102,7 @@
             "file",
             "server/src/config.js"
         ],
-        "d7f23a370f15869e6a3920552993c41d5e1a23d8e12a4a9d3a583d22b730a5d6"
+        "379caccb02ebdabfb084d962c9f598d7c036323b3cdc66fd9c3875043fa12e82"
     ],
     [
         [
@@ -102,7 +130,7 @@
             "file",
             "server/src/entities/index.ts"
         ],
-        "d9a8968d93bb382e1473765db426fb37b0cbe4a6dc4a158140065e3e657a8ac6"
+        "c59b97b122b977b5171686c92ee5ff2d80d397c2e83cc0915affb6ee136406fb"
     ],
     [
         [
@@ -151,7 +179,7 @@
             "file",
             "server/src/queries/types.ts"
         ],
-        "ab0768e29fc7f9e8bab88cd63f4c033922e22ab36c8bc7f4b9d41eb8f615d3b9"
+        "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
     ],
     [
         [
@@ -177,9 +205,9 @@
     [
         [
             "file",
-            "server/src/types/index.ts"
+            "server/src/universal/url.ts"
         ],
-        "5e097ef2cf636d2b481c303987aaabeb5276900a6dcbd0fd6fa031c95616058b"
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
     ],
     [
         [
@@ -193,7 +221,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "547a8c399ce385366cd05c46c5a3fa4ef48a5f60bb64bf322190546d1de1c622"
+        "c58318dce36bc48fdd1e998af906b5026c87b1d80415653b03a7285acdb56d69"
     ],
     [
         [
@@ -228,7 +256,7 @@
             "file",
             "web-app/package.json"
         ],
-        "68c241389188ef0e6ec2397c89914d62e5a8f458543d08bfefeff49655e87c43"
+        "539809605156bc8979aa36afd0d05f497d54d28a0aa3f76d3c43df526014fef2"
     ],
     [
         [
@@ -254,6 +282,20 @@
     [
         [
             "file",
+            "web-app/scripts/universal/validators.mjs"
+        ],
+        "94edf3906c43fb476b22244d07a5d69fd6c967de767532ed5b3215e2a6eee91b"
+    ],
+    [
+        [
+            "file",
+            "web-app/scripts/validate-env.mjs"
+        ],
+        "690460410bc9b28a8e96c6e20902e841f07b77faccf3db7e7249f48f700f4bab"
+    ],
+    [
+        [
+            "file",
             "web-app/src/actions/core.d.ts"
         ],
         "d649b4823ede60119858b868dac9b122da4a3185391e6b9242ff7f6dc5c25d31"
@@ -270,7 +312,7 @@
             "file",
             "web-app/src/actions/index.ts"
         ],
-        "d6710101a02f23b53972e72d374747047e4251c0177fd5c626c0cffd060cd4a2"
+        "0f294c2f1d50a1473f6d332ef17944e7475c7d83a2180f6e2c9c9aecf25439f4"
     ],
     [
         [
@@ -284,7 +326,14 @@
             "file",
             "web-app/src/config.js"
         ],
-        "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+        "f06f1bdb98dd4387b18159288ade916fd2c5bf3ed4161ca6711b0bda2f5963c3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/entities/index.ts"
+        ],
+        "52d61b8ed11976d75b351d2b7227469697781fbf8996b5b98143e220ada383f9"
     ],
     [
         [
@@ -319,7 +368,7 @@
             "file",
             "web-app/src/index.js"
         ],
-        "e7627d838b78383b5c95312fb205b15978dcd66aad16327e000b7e71810a066b"
+        "278ad569e8dbf14568c481e7929718362d40d4b6dc1940d4975453594e5568e9"
     ],
     [
         [
@@ -340,7 +389,7 @@
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "d815397e45efe773908b48de42f21ee22481396c318b21ea215ad6343d3f4170"
+        "8bb71b7d7ef3962c28b9db1554500452e7f91b0c9fd898d5cafcdb7229f6db1e"
     ],
     [
         [
@@ -389,7 +438,7 @@
             "file",
             "web-app/src/router.js"
         ],
-        "65a91308a13f2c8444e3ad7372c1fca85a194b85e8f8f7d11613f78fcfe7af6f"
+        "70c9237cf961320f04d9736007a8ec3fbc1cd1adfe2cfbc5214cb2d91d57d503"
     ],
     [
         [
@@ -397,6 +446,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/url.ts"
+        ],
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
     ],
     [
         [

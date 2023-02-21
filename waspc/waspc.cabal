@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.8.1
+version:        0.8.2
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -207,6 +207,7 @@ library
     Wasp.Data
     Wasp.Error
     Wasp.ExternalCode
+    Wasp.JsImport
     Wasp.Generator
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile
@@ -235,6 +236,7 @@ library
     Wasp.Generator.Monad
     Wasp.Generator.AuthProviders
     Wasp.Generator.ServerGenerator
+    Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
@@ -250,6 +252,7 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.WebAppGenerator
+    Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
@@ -425,6 +428,7 @@ test-suite waspc-test
     Generator.MockWriteableMonad
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
+    Generator.JsImportTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Parser.ModelTest
@@ -437,6 +441,7 @@ test-suite waspc-test
     WaspignoreFileTest
     Paths_waspc
     Generator.NpmDependenciesTest
+    JsImportTest
 
 test-suite cli-test
   import: common-all, common-exe

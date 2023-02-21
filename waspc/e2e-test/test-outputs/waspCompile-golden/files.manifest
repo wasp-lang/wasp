@@ -7,6 +7,10 @@ waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
 waspCompile/.wasp/out/server/package.json
+waspCompile/.wasp/out/server/scripts/universal/validators.mjs
+waspCompile/.wasp/out/server/scripts/validate-env.mjs
+waspCompile/.wasp/out/server/src/_types/index.ts
+waspCompile/.wasp/out/server/src/_types/taggedEntities.ts
 waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/config.js
@@ -24,7 +28,7 @@ waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
-waspCompile/.wasp/out/server/src/types/index.ts
+waspCompile/.wasp/out/server/src/universal/url.ts
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/server/tsconfig.json
 waspCompile/.wasp/out/web-app/.npmrc
@@ -34,11 +38,14 @@ waspCompile/.wasp/out/web-app/package.json
 waspCompile/.wasp/out/web-app/public/favicon.ico
 waspCompile/.wasp/out/web-app/public/index.html
 waspCompile/.wasp/out/web-app/public/manifest.json
+waspCompile/.wasp/out/web-app/scripts/universal/validators.mjs
+waspCompile/.wasp/out/web-app/scripts/validate-env.mjs
 waspCompile/.wasp/out/web-app/src/actions/core.d.ts
 waspCompile/.wasp/out/web-app/src/actions/core.js
 waspCompile/.wasp/out/web-app/src/actions/index.ts
 waspCompile/.wasp/out/web-app/src/api.js
 waspCompile/.wasp/out/web-app/src/config.js
+waspCompile/.wasp/out/web-app/src/entities/index.ts
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
 waspCompile/.wasp/out/web-app/src/ext-src/MainPage.jsx
 waspCompile/.wasp/out/web-app/src/ext-src/react-app-env.d.ts
@@ -55,6 +62,7 @@ waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.js
 waspCompile/.wasp/out/web-app/src/serviceWorker.js
+waspCompile/.wasp/out/web-app/src/universal/url.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasproot

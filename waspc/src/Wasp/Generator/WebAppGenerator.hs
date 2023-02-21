@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeApplications #-}
+
 module Wasp.Generator.WebAppGenerator
   ( genWebApp,
     npmDepsForWasp,
@@ -6,7 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (fromJust, fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -14,8 +15,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -25,23 +26,26 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.Common (nodeVersionRange, npmVersionRange)
+import Wasp.Generator.Common
+  ( makeJsonWithEntityData,
+    nodeVersionRange,
+    prismaVersion,
+  )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
-  ( extClientCodeDirInWebAppSrcDir,
-    extClientCodeGeneratorStrategy,
+  ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
   )
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
@@ -61,6 +65,8 @@ genWebApp spec = do
     <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
     <++> genDotEnv spec
+    <++> genUniversalDir
+    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -90,8 +96,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange
+              "nodeVersionRange" .= show nodeVersionRange
             ]
       )
 
@@ -113,7 +118,11 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1")
+            ("react-scripts", "5.0.1"),
+            -- The web app only needs @prisma/client (we're using the server's
+            -- CLI to generate what's necessary, check the description in
+            -- https://github.com/wasp-lang/wasp/pull/962/ for details).
+            ("@prisma/client", show prismaVersion)
           ]
           ++ depsRequiredByTailwind spec,
       -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
@@ -198,8 +207,6 @@ genPublicIndexHtml spec =
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.
 -- We could further "templatize" this file so only what is needed is generated.
---
-
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
@@ -213,9 +220,20 @@ genSrcDir spec =
       genApi
     ]
     <++> genOperations spec
+    <++> genEntitiesDir spec
     <++> genAuth spec
   where
     copyTmplFile = return . C.mkSrcTmplFd
+
+genEntitiesDir :: AppSpec -> Generator [FileDraft]
+genEntitiesDir spec = return [entitiesIndexFileDraft]
+  where
+    entitiesIndexFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/entities/index.ts|]
+        [relfile|src/entities/index.ts|]
+        (Just $ object ["entities" .= allEntities])
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
 
 -- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
 genApi :: Generator FileDraft
@@ -229,16 +247,24 @@ genIndexJs spec =
       (C.asWebAppFile [relfile|src/index.js|])
       ( Just $
           object
-            [ "doesClientSetupFnExist" .= isJust maybeSetupJsFunction,
-              "clientSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "clientSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extClientCodeDirInWebAppSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
-      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extClientCodeDirInWebAppSrcDirP :: Path Posix (Rel C.WebAppSrcDir) (Dir GeneratedExternalCodeDir)
-extClientCodeDirInWebAppSrcDirP = fromJust $ relDirToPosix extClientCodeDirInWebAppSrcDir
+    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
+    relPathToWebAppSrcDir = [reldirP|./|]
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    ]
+
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
+  return
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    ]

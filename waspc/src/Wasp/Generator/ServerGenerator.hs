@@ -22,8 +22,8 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    relDirToPosix,
     reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -36,23 +36,28 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Common (latestMajorNodeVersion, nodeVersionRange, npmVersionRange, prismaVersion)
+import Wasp.Generator.Common
+  ( ServerRootDir,
+    latestMajorNodeVersion,
+    makeJsonWithEntityData,
+    nodeVersionRange,
+    prismaVersion,
+  )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir, extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
+import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
-import Wasp.Util ((<++>))
+import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =
@@ -71,6 +76,8 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+    <++> genUniversalDir
+    <++> genEnvValidationScript
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -85,7 +92,7 @@ genDotEnv spec = return $
           ]
     _ -> []
 
-dotEnvInServerRootDir :: Path' (Rel C.ServerRootDir) File'
+dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsForWasp -> Generator FileDraft
@@ -100,10 +107,9 @@ genPackageJson spec waspDependencies = do
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
               "nodeVersionRange" .= show nodeVersionRange,
-              "npmVersionRange" .= show npmVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
-                       ++ "NODE_ENV=production npm run build-and-start"
+                       ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides
             ]
@@ -214,12 +220,12 @@ genServerJs spec =
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportDetailsForExtFnImport extServerCodeDirInServerSrcDirP <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportIdentifier, maybeSetupJsFnImportStmt) =
+    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
+    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
       (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
-extServerCodeDirInServerSrcDirP :: Path Posix (Rel C.ServerSrcDir) (Dir GeneratedExternalCodeDir)
-extServerCodeDirInServerSrcDirP = fromJust $ relDirToPosix extServerCodeDirInServerSrcDir
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -238,30 +244,38 @@ genRoutesDir spec =
     ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
-genTypesAndEntitiesDirs spec = return [entitiesIndexFileDraft, typesIndexFileDraft]
+genTypesAndEntitiesDirs spec =
+  return
+    [ entitiesIndexFileDraft,
+      taggedEntitiesFileDraft,
+      typesIndexFileDraft
+    ]
   where
     entitiesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/entities/index.ts|]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
+    taggedEntitiesFileDraft =
+      C.mkTmplFdWithDstAndData
+        [relfile|src/_types/taggedEntities.ts|]
+        [relfile|src/_types/taggedEntities.ts|]
+        (Just $ object ["entities" .= allEntities])
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
-        [relfile|src/types/index.ts|]
-        [relfile|src/types/index.ts|]
+        [relfile|src/_types/index.ts|]
+        [relfile|src/_types/index.ts|]
         ( Just $
             object
               [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust userEntityName,
-                "userEntityName" .= fromMaybe "" userEntityName,
-                "userViewName" .= fromMaybe "" userViewName
+                "isAuthEnabled" .= isJust maybeUserEntityName,
+                "userEntityName" .= userEntityName,
+                "userFieldName" .= toLowerFirst userEntityName
               ]
         )
-    allEntities = map (C.buildEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-    userEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
-    -- We might want to move this to a more global location in the future, but
-    -- it is currently used only in these two files.
-    userViewName = (++ "View") <$> userEntityName
+    userEntityName = fromMaybe "" maybeUserEntityName
+    allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
+    maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ getApp spec)
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
@@ -309,3 +323,16 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
     designateLastElement l =
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    ]
+
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
+  return
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    ]

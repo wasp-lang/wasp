@@ -3,16 +3,15 @@
 module Wasp.Generator.DbGenerator
   ( genDb,
     warnIfDbNeedsMigration,
-    genPrismaClient,
     postWriteDbGeneratorActions,
   )
 where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', (</>))
+import Data.Text (Text, pack)
+import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -21,13 +20,18 @@ import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
-  ( dbMigrationsDirInDbRootDir,
+  ( DbSchemaChecksumFile,
+    DbSchemaChecksumOnLastDbConcurrenceFile,
+    PrismaDbSchema,
+    databaseUrlEnvVar,
+    dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
     dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
     dbSchemaChecksumOnLastGenerateFileProjectRootDir,
     dbSchemaFileInDbTemplatesDir,
     dbSchemaFileInProjectRootDir,
     dbTemplatesDirInTemplatesDir,
+    prismaClientOutputDirEnvVar,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
@@ -40,15 +44,19 @@ import Wasp.Generator.Monad
 import qualified Wasp.Psl.Ast.Model as Psl.Ast.Model
 import qualified Wasp.Psl.Generator.Model as Psl.Generator.Model
 import Wasp.Util (checksumFromFilePath, hexToString, ifM, (<:>))
+import qualified Wasp.Util.IO as IOUtil
 
 genDb :: AppSpec -> Generator [FileDraft]
 genDb spec =
-  genPrismaSchema spec <:> (maybeToList <$> genMigrationsDir spec)
+  genPrismaSchema spec
+    <:> (maybeToList <$> genMigrationsDir spec)
 
-genPrismaSchema :: AppSpec -> Generator FileDraft
+genPrismaSchema ::
+  AppSpec ->
+  Generator FileDraft
 genPrismaSchema spec = do
-  (datasourceProvider, datasourceUrl) <- case dbSystem of
-    AS.Db.PostgreSQL -> return ("postgresql", "env(\"DATABASE_URL\")")
+  (datasourceProvider :: String, datasourceUrl) <- case dbSystem of
+    AS.Db.PostgreSQL -> return ("postgresql", makeEnvVarField databaseUrlEnvVar)
     AS.Db.SQLite ->
       if AS.isBuild spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp-lang.dev/docs/language/features#migrating-from-sqlite-to-postgresql ."
@@ -57,15 +65,16 @@ genPrismaSchema spec = do
   let templateData =
         object
           [ "modelSchemas" .= map entityToPslModelSchema (AS.getDecls @AS.Entity.Entity spec),
-            "datasourceProvider" .= (datasourceProvider :: String),
-            "datasourceUrl" .= (datasourceUrl :: String)
+            "datasourceProvider" .= datasourceProvider,
+            "datasourceUrl" .= datasourceUrl,
+            "prismaClientOutputDir" .= makeEnvVarField prismaClientOutputDirEnvVar
           ]
 
-  return $ createTemplateFileDraft dstPath tmplSrcPath (Just templateData)
+  return $ createTemplateFileDraft dbSchemaFileInProjectRootDir tmplSrcPath (Just templateData)
   where
-    dstPath = dbSchemaFileInProjectRootDir
     tmplSrcPath = dbTemplatesDirInTemplatesDir </> dbSchemaFileInDbTemplatesDir
-    dbSystem = fromMaybe AS.Db.SQLite (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+    dbSystem = fromMaybe AS.Db.SQLite $ AS.Db.system =<< AS.App.db (snd $ getApp spec)
+    makeEnvVarField envVarName = "env(\"" ++ envVarName ++ "\")"
 
     entityToPslModelSchema :: (String, AS.Entity.Entity) -> String
     entityToPslModelSchema (entityName, entity) =
@@ -84,7 +93,7 @@ genMigrationsDir spec =
 postWriteDbGeneratorActions :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO ([GeneratorWarning], [GeneratorError])
 postWriteDbGeneratorActions spec dstDir = do
   dbGeneratorWarnings <- maybeToList <$> warnIfDbNeedsMigration spec dstDir
-  dbGeneratorErrors <- maybeToList <$> genPrismaClient spec dstDir
+  dbGeneratorErrors <- maybeToList <$> genPrismaClients spec dstDir
   return (dbGeneratorWarnings, dbGeneratorErrors)
 
 -- | Checks if user needs to run `wasp db migrate-dev` due to changes in schema.prisma, and if so, returns a warning.
@@ -108,7 +117,7 @@ postWriteDbGeneratorActions spec dstDir = do
 --     in sync with the database and all migrations are applied, we generate that file to avoid future checks.
 warnIfDbNeedsMigration :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorWarning)
 warnIfDbNeedsMigration spec projectRootDir = do
-  dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
+  dbSchemaChecksumFileExists <- IOUtil.doesFileExist dbSchemaChecksumFp
   if dbSchemaChecksumFileExists
     then warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp
     else
@@ -116,17 +125,19 @@ warnIfDbNeedsMigration spec projectRootDir = do
         then warnProjectDiffersFromDb projectRootDir
         else return Nothing
   where
-    dbSchemaFp = SP.fromAbsFile $ projectRootDir </> dbSchemaFileInProjectRootDir
-    dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
+    dbSchemaFp = projectRootDir </> dbSchemaFileInProjectRootDir
+    dbSchemaChecksumFp = projectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
     entitiesExist = not . null $ getEntities spec
 
-warnIfSchemaDiffersFromChecksum :: FilePath -> FilePath -> IO (Maybe GeneratorWarning)
-warnIfSchemaDiffersFromChecksum dbSchemaFp dbSchemaChecksumFp = do
-  dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-  dbChecksumFileContents <- readFile dbSchemaChecksumFp
-  if dbSchemaFileChecksum /= dbChecksumFileContents
-    then return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready."
-    else return Nothing
+warnIfSchemaDiffersFromChecksum ::
+  Path' Abs (File PrismaDbSchema) ->
+  Path' Abs (File DbSchemaChecksumOnLastDbConcurrenceFile) ->
+  IO (Maybe GeneratorWarning)
+warnIfSchemaDiffersFromChecksum dbSchemaFileAbs dbschemachecksumfile =
+  ifM
+    (checksumFileMatchesSchema dbSchemaFileAbs dbschemachecksumfile)
+    (return Nothing)
+    (return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema has changed, please run `wasp db migrate-dev` when ready.")
 
 -- | Checks if the project's Prisma schema file and migrations dir matches the DB state.
 -- Issues a warning if it cannot connect, or if either check fails.
@@ -140,35 +151,55 @@ warnProjectDiffersFromDb projectRootDir = do
         then do
           -- NOTE: Since we know schema == db and all migrations are applied,
           -- we can write this file to prevent future redundant Prisma checks.
-          DbOps.writeDbSchemaChecksumToFile projectRootDir (SP.castFile dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir)
+          DbOps.writeDbSchemaChecksumToFile projectRootDir dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
           return Nothing
         else return . Just $ GeneratorNeedsMigrationWarning "You have unapplied migrations. Please run `wasp db migrate-dev` when ready."
     Just False -> return . Just $ GeneratorNeedsMigrationWarning "Your Prisma schema does not match your database, please run `wasp db migrate-dev`."
     -- NOTE: If there was an error, it could mean we could not connect to the SQLite db, since it does not exist.
-    -- Or it could mean their DATABASE_URL is wrong, or database is down, or any other number of causes.
+    -- Or it could mean their databaseUrlEnvVar is wrong, or database is down, or any other number of causes.
     -- In any case, migrating will either solve it (in the SQLite case), or allow Prisma to give them enough info to troubleshoot.
     Nothing -> return . Just $ GeneratorNeedsMigrationWarning "Wasp was unable to verify your database is up to date. Running `wasp db migrate-dev` may fix this and will provide more info."
 
-genPrismaClient :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
-genPrismaClient spec projectRootDir = do
-  ifM wasCurrentSchemaAlreadyGenerated (return Nothing) generatePrismaClientIfEntitiesExist
+genPrismaClients :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> IO (Maybe GeneratorError)
+genPrismaClients spec projectRootDir =
+  ifM
+    wasCurrentSchemaAlreadyGenerated
+    (return Nothing)
+    generatePrismaClientsIfEntitiesExist
   where
     wasCurrentSchemaAlreadyGenerated :: IO Bool
-    wasCurrentSchemaAlreadyGenerated = do
-      let dbSchemaFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaFileInProjectRootDir
-      let dbSchemaChecksumFp = SP.fromAbsFile $ projectRootDir SP.</> dbSchemaChecksumOnLastGenerateFileProjectRootDir
+    wasCurrentSchemaAlreadyGenerated =
+      checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumOnLastGenerateFileProjectRootDir
 
-      dbSchemaChecksumFileExists <- doesFileExist dbSchemaChecksumFp
-      if dbSchemaChecksumFileExists
-        then do
-          dbSchemaFileChecksum <- hexToString <$> checksumFromFilePath dbSchemaFp
-          dbChecksumFileContents <- readFile dbSchemaChecksumFp
-          return $ dbSchemaFileChecksum == dbChecksumFileContents
-        else return False
+    generatePrismaClientsIfEntitiesExist :: IO (Maybe GeneratorError)
+    generatePrismaClientsIfEntitiesExist
+      | entitiesExist =
+          either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClients projectRootDir
+      | otherwise = return Nothing
 
-    generatePrismaClientIfEntitiesExist :: IO (Maybe GeneratorError)
-    generatePrismaClientIfEntitiesExist = do
-      let entitiesExist = not . null $ getEntities spec
-      if entitiesExist
-        then either (Just . GenericGeneratorError) (const Nothing) <$> DbOps.generatePrismaClient projectRootDir
-        else return Nothing
+    entitiesExist = not . null $ getEntities spec
+
+checksumFileExistsAndMatchesSchema ::
+  DbSchemaChecksumFile f =>
+  Path' Abs (Dir ProjectRootDir) ->
+  Path' (Rel ProjectRootDir) (File f) ->
+  IO Bool
+checksumFileExistsAndMatchesSchema projectRootDir dbSchemaChecksumInProjectDir =
+  ifM
+    (IOUtil.doesFileExist checksumFileAbs)
+    (checksumFileMatchesSchema dbSchemaFileAbs checksumFileAbs)
+    (return False)
+  where
+    dbSchemaFileAbs = projectRootDir </> dbSchemaFileInProjectRootDir
+    checksumFileAbs = projectRootDir </> dbSchemaChecksumInProjectDir
+
+checksumFileMatchesSchema :: DbSchemaChecksumFile f => Path' Abs (File PrismaDbSchema) -> Path' Abs (File f) -> IO Bool
+checksumFileMatchesSchema dbSchemaFileAbs dbSchemaChecksumFileAbs = do
+  -- Read file strictly as the checksum may be later overwritten.
+  dbChecksumFileContents <- IOUtil.readFileStrict dbSchemaChecksumFileAbs
+  schemaFileHasChecksum dbSchemaFileAbs dbChecksumFileContents
+  where
+    schemaFileHasChecksum :: Path' Abs (File PrismaDbSchema) -> Text -> IO Bool
+    schemaFileHasChecksum schemaFile checksum = do
+      dbSchemaFileChecksum <- pack . hexToString <$> checksumFromFilePath schemaFile
+      return $ dbSchemaFileChecksum == checksum

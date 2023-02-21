@@ -1,6 +1,8 @@
 {{={= =}=}}
 import _ from 'lodash'
 
+import { stripTrailingSlash } from "./universal/url.js";
+
 const env = process.env.NODE_ENV || 'development'
 
 // TODO:
@@ -12,7 +14,7 @@ const config = {
   all: {
     env,
     port: parseInt(process.env.PORT) || 3001,
-    databaseUrl: process.env.DATABASE_URL,
+    databaseUrl: process.env.{= databaseUrlEnvVar =},
     frontendUrl: undefined,
     {=# isAuthEnabled =}
     auth: {
@@ -21,7 +23,7 @@ const config = {
     {=/ isAuthEnabled =}
   },
   development: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000',
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: 'DEVJWTSECRET'
@@ -29,7 +31,7 @@ const config = {
     {=/ isAuthEnabled =}
   },
   production: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL,
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL),
     {=# isAuthEnabled =}
     auth: {
       jwtSecret: process.env.JWT_SECRET

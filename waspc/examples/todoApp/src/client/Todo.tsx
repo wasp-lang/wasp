@@ -2,42 +2,43 @@ import React, { useState, FormEventHandler, ChangeEventHandler } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useQuery } from '@wasp/queries'
-import { useAction } from '@wasp/actions'
+import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
 import getTasks from '@wasp/queries/getTasks.js'
 import createTask from '@wasp/actions/createTask.js'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
 import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
-
-// Copied from Prisma
-type Task = {
-  id: number
-  description: string
-  isDone: boolean
-  userId: number
-}
+import { Task } from '@wasp/entities'
 
 type GetTasksError = { message: string }
 
 type NonEmptyArray<T> = [T, ...T[]]
 
-function areThereAnyTasks(tasks: Task[] | undefined): tasks is NonEmptyArray<Task> {
+function areThereAnyTasks(
+  tasks: Task[] | undefined
+): tasks is NonEmptyArray<Task> {
   return !!(tasks && tasks.length > 0)
 }
 
 const Todo = () => {
-  const { data: tasks, isError, error: tasksError } = useQuery<{}, Task[], GetTasksError>(getTasks)
+  const {
+    data: tasks,
+    isError,
+    error: tasksError,
+  } = useQuery<{}, Task[], GetTasksError>(getTasks)
 
   const TasksError = () => {
-    return <div>{'Error during fetching tasks: ' + (tasksError?.message || '')}</div>
+    return (
+      <div>{'Error during fetching tasks: ' + (tasksError?.message || '')}</div>
+    )
   }
 
   return (
-    <div className='flex justify-center'>
-      <div className='w-3/6 shadow-md rounded p-6'>
+    <div className="flex justify-center">
+      <div className="w-3/6 shadow-md rounded p-6">
         <h1>Todos</h1>
 
-        <div className='flex justify-start'>
+        <div className="flex justify-start gap-2">
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />
           <NewTaskForm />
         </div>
@@ -57,8 +58,8 @@ const Todo = () => {
 }
 
 const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
-  const numCompletedTasks = tasks.filter(t => t.isDone).length
-  const numUncompletedTasks = tasks.filter(t => !t.isDone).length
+  const numCompletedTasks = tasks.filter((t) => t.isDone).length
+  const numUncompletedTasks = tasks.filter((t) => !t.isDone).length
 
   const handleDeleteCompletedTasks = async () => {
     try {
@@ -69,10 +70,8 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
   }
 
   return (
-    <div className='flex justify-between'>
-      <div>
-        {numUncompletedTasks} items left
-      </div>
+    <div className="flex justify-between">
+      <div>{numUncompletedTasks} items left</div>
 
       <div>
         <button
@@ -89,32 +88,40 @@ const Footer = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
 const Tasks = ({ tasks }: { tasks: NonEmptyArray<Task> }) => {
   return (
     <div>
-      <table className='border-separate border-spacing-2'>
+      <table className="border-separate border-spacing-2">
         <tbody>
-          {tasks.map((task, idx) => <Task task={task} key={idx} />)}
+          {tasks.map((task, idx) => (
+            <TaskView task={task} key={idx} />
+          ))}
         </tbody>
       </table>
     </div>
   )
 }
 
-type UpdateTaskIsDonePayload = Pick<Task, "id" | "isDone">
+type UpdateTaskIsDonePayload = Pick<Task, 'id' | 'isDone'>
 
-const Task = ({ task }: { task: Task }) => {
-  const updateTaskIsDoneOptimistically = useAction<UpdateTaskIsDonePayload, void, Task[]>(updateTaskIsDone, {
-    optimisticUpdates: [{
-      getQuerySpecifier: () => [getTasks],
-      updateQuery: (updatedTask, oldTasks) => {
-        if (oldTasks === undefined) {
-          // cache is empty
-          return [{ ...task, ...updatedTask }];
-        } else {
-          return oldTasks.map(task => task.id === updatedTask.id ? { ...task, ...updatedTask } : task)
-        }
-      }
-    }]
-  });
-  const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (event) => {
+const TaskView = ({ task }: { task: Task }) => {
+  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
+    optimisticUpdates: [
+      {
+        getQuerySpecifier: () => [getTasks],
+        updateQuery: (updatedTask, oldTasks) => {
+          if (oldTasks === undefined) {
+            // cache is empty
+            return [{ ...task, ...updatedTask }]
+          } else {
+            return oldTasks.map((task) =>
+              task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+            )
+          }
+        },
+      } as OptimisticUpdateDefinition<UpdateTaskIsDonePayload, Task[]>,
+    ],
+  })
+  const handleTaskIsDoneChange: ChangeEventHandler<HTMLInputElement> = async (
+    event
+  ) => {
     const id = parseInt(event.target.id)
     const isDone = event.target.checked
 
@@ -129,11 +136,11 @@ const Task = ({ task }: { task: Task }) => {
     <tr>
       <td>
         <input
-          type='checkbox'
+          type="checkbox"
           id={String(task.id)}
           checked={task.isDone}
           onChange={handleTaskIsDoneChange}
-          color='default'
+          color="default"
         />
       </td>
       <td>
@@ -152,7 +159,9 @@ const NewTaskForm = () => {
     await createTask(task)
   }
 
-  const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
+  const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (
+    event
+  ) => {
     event.preventDefault()
     try {
       await createNewTask(description)
@@ -163,16 +172,14 @@ const NewTaskForm = () => {
   }
 
   return (
-    <form onSubmit={handleNewTaskSubmit} className='content-start'>
+    <form onSubmit={handleNewTaskSubmit} className="content-start flex gap-2">
       <input
-        type='text'
-        placeholder='Enter task'
+        type="text"
+        placeholder="Enter task"
         value={description}
-        onChange={e => setDescription(e.target.value)}
+        onChange={(e) => setDescription(e.target.value)}
       />
-      <button className='btn btn-blue'>
-        Create new task
-      </button>
+      <button className="btn btn-primary">Create new task</button>
     </form>
   )
 }
@@ -188,7 +195,7 @@ const ToggleAllTasksButton = ({ disabled }: { disabled: boolean }) => {
 
   return (
     <button
-      className='btn btn-blue'
+      className="btn btn-primary"
       disabled={disabled}
       onClick={handleToggleAllTasks}
     >

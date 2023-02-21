@@ -1,23 +1,21 @@
 {{={= =}=}}
 {=! TODO: This template is exactly the same at the moment as one for action
           types, consider whether it makes sense to address this in the future. =}
+
 import {
   {=# allEntities =}
-  {= . =},
+  type {= internalTypeName =},
   {=/ allEntities =}
-} from '../entities'
-
-import {
   {=# shouldImportNonAuthenticatedOperation =}
-  Query,
+  type Query,
   {=/ shouldImportNonAuthenticatedOperation =}
   {=# shouldImportAuthenticatedOperation =}
-  AuthenticatedQuery,
+  type AuthenticatedQuery,
   {=/ shouldImportAuthenticatedOperation =}
-} from '../types'
+} from '../_types'
 
 {=# operations =}
-export type {= typeName =}<Output = unknown> = 
+export type {= typeName =}<Input = never, Output = unknown> = 
   {=# usesAuth =}
   AuthenticatedQuery<
   {=/ usesAuth =}
@@ -26,9 +24,10 @@ export type {= typeName =}<Output = unknown> =
   {=/ usesAuth =}
     [
     {=# entities =}
-      {=.=},
+      {= internalTypeName =},
     {=/ entities =}
     ],
+    Input,
     Output
   >
 

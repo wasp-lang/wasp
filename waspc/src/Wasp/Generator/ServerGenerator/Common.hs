@@ -11,9 +11,8 @@ module Wasp.Generator.ServerGenerator.Common
     asTmplSrcFile,
     asServerFile,
     asServerSrcFile,
-    entityNameToPrismaIdentifier,
-    buildEntityData,
     toESModulesImportPath,
+    mkUniversalTmplFdWithDst,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -21,24 +20,22 @@ module Wasp.Generator.ServerGenerator.Common
   )
 where
 
-import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Char (toLower)
 import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir, UniversalTemplatesDir, universalTemplatesDirInTemplatesDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
-
-data ServerRootDir
 
 data ServerSrcDir
 
 data ServerTemplatesDir
 
 data ServerTemplatesSrcDir
+
+instance GeneratedSrcDir ServerSrcDir
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel ServerTemplatesDir) File'
 asTmplFile = SP.castRel
@@ -68,6 +65,14 @@ mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     dstPath = SP.castRel srcPath :: Path' (Rel ServerRootDir) File'
 
+mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
+mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
+  where
+    srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
+    dstPath =
+      serverSrcDirInServerRootDir
+        </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+
 mkTmplFdWithDstAndData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
@@ -79,13 +84,15 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
-mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
-  where
-    srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
-    dstPath =
-      serverSrcDirInServerRootDir
-        </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+mkUniversalTmplFdWithDst ::
+  Path' (Rel UniversalTemplatesDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  FileDraft
+mkUniversalTmplFdWithDst relSrcPath relDstPath =
+  createTemplateFileDraft
+    (serverRootDirInProjectRootDir </> relDstPath)
+    (universalTemplatesDirInTemplatesDir </> relSrcPath)
+    Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)
@@ -96,20 +103,6 @@ srcDirInServerTemplatesDir = [reldir|src|]
 
 dotEnvServer :: Path' (SP.Rel WaspProjectDir) File'
 dotEnvServer = [relfile|.env.server|]
-
--- | Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
--- converts it into a corresponding Prisma identifier (like `prisma.someTask`).
--- This is what Prisma implicitly does when translating `model` declarations to
--- client SDK identifiers. Useful when creating `context.entities` JS objects in Wasp templates.
-entityNameToPrismaIdentifier :: String -> String
-entityNameToPrismaIdentifier entityName = toLower (head entityName) : tail entityName
-
-buildEntityData :: String -> Aeson.Value
-buildEntityData name =
-  object
-    [ "name" .= name,
-      "prismaIdentifier" .= entityNameToPrismaIdentifier name
-    ]
 
 -- Converts the real name of the source file (i.e., name on disk) into a name
 -- that can be used in an ESNext import.

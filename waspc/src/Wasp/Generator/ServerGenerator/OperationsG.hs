@@ -12,7 +12,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (Dir, Dir', File', Path, Path', Posix, Rel, relDirToPosix, reldir, reldirP, relfile, (</>))
+import StrongPath (Dir, File', Path, Path', Posix, Rel, reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -21,12 +21,11 @@ import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -73,7 +72,7 @@ genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile
 
 genOperationTypesFile ::
   Path' (Rel C.ServerTemplatesDir) File' ->
-  Path' (Rel C.ServerRootDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
@@ -85,15 +84,15 @@ genOperationTypesFile tmplFile dstFile operations isAuthEnabledGlobally =
         [ "operations" .= map operationTypeData operations,
           "shouldImportAuthenticatedOperation" .= any usesAuth operations,
           "shouldImportNonAuthenticatedOperation" .= not (all usesAuth operations),
-          "allEntities" .= nub (concatMap entityNames operations)
+          "allEntities" .= nub (concatMap getEntities operations)
         ]
     operationTypeData operation =
       object
         [ "typeName" .= toUpperFirst (getName operation),
-          "entities" .= entityNames operation,
+          "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
-    entityNames = maybe [] (map AS.refName) . AS.Operation.getEntities
+    getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
 -- | Analogous to genQuery.
@@ -121,18 +120,19 @@ operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) Fi
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
 operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 
-relPosixPathFromOperationFileToExtSrcDir :: Path Posix (Rel Dir') (Dir GeneratedExternalCodeDir)
-relPosixPathFromOperationFileToExtSrcDir =
-  [reldirP|../|] </> fromJust (relDirToPosix extServerCodeDirInServerSrcDir)
-
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
     [ "jsFnImportStatement" .= importStmt,
       "jsFnIdentifier" .= importIdentifier,
-      "entities" .= maybe [] (map (C.buildEntityData . AS.refName)) (AS.Operation.getEntities operation)
+      "entities"
+        .= maybe
+          []
+          (map (makeJsonWithEntityData . AS.refName))
+          (AS.Operation.getEntities operation)
     ]
   where
-    (importIdentifier, importStmt) =
-      getJsImportDetailsForExtFnImport relPosixPathFromOperationFileToExtSrcDir $
-        AS.Operation.getFn operation
+    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)
+
+    relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathFromOperationsDirToServerSrcDir = [reldirP|../|]

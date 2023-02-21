@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath
   ( Dir,
     File',
@@ -28,13 +28,11 @@ import Wasp.AppSpec.App.Dependency (Dependency)
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
-import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.JsImport (getJsImportDetailsForExtFnImport)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeDirInServerSrcDir)
+import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
 import Wasp.Util ((<++>))
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -120,16 +118,17 @@ getTmplDataForAuthMethodConfig auth authMethod =
       "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
     ]
   where
+    getJsImportStmtAndIdentifier' = getJsImportStmtAndIdentifier relPathFromAuthConfigToServerSrcDir
     maybeConfigFn = AS.Auth.configFn =<< authMethod (AS.Auth.methods auth)
-    maybeConfigFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeConfigFn
-    (maybeConfigFnImportIdentifier, maybeConfigFnImportStmt) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
+    maybeConfigFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeConfigFn
+    (maybeConfigFnImportStmt, maybeConfigFnImportIdentifier) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
 
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< authMethod (AS.Auth.methods auth)
-    maybeOnSignInFnImportDetails = getJsImportDetailsForExtFnImport relPosixPathFromAuthMethodDirToExtSrcDir <$> maybeGetUserFieldsFn
-    (maybeOnSignInFnImportIdentifier, maybeOnSignInFnImportStmt) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
+    maybeOnSignInFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeGetUserFieldsFn
+    (maybeOnSignInFnImportStmt, maybeOnSignInFnImportIdentifier) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
-    relPosixPathFromAuthMethodDirToExtSrcDir :: Path Posix (Rel (Dir C.ServerSrcDir)) (Dir GeneratedExternalCodeDir)
-    relPosixPathFromAuthMethodDirToExtSrcDir = [reldirP|../../../../|] </> fromJust (SP.relDirToPosix extServerCodeDirInServerSrcDir)
+    relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathFromAuthConfigToServerSrcDir = [reldirP|../../../../|]
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =

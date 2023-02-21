@@ -11,17 +11,27 @@ import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (File, File', Path', Rel, relfile)
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.Generator.Common (ProjectRootDir, latestMajorNodeVersion)
+import Wasp.Generator.Common
+  ( ProjectRootDir,
+    ServerRootDir,
+    latestMajorNodeVersion,
+  )
+import Wasp.Generator.DbGenerator.Common
+  ( PrismaDbSchema,
+    dbSchemaFileFromAppComponentDir,
+    serverPrismaClientOutputDirEnv,
+  )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
-import Wasp.Generator.ServerGenerator (areServerPatchesUsed)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util (getEnvVarDefinition)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
@@ -29,7 +39,7 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
-  usingServerPatches <- areServerPatchesUsed spec
+  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromAppComponentDir
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel ProjectRootDir) File')
@@ -37,8 +47,9 @@ genDockerfile spec = do
       ( Just $
           object
             [ "usingPrisma" .= not (null $ AS.getDecls @AS.Entity.Entity spec),
+              "serverPrismaClientOutputDirEnv" .= getEnvVarDefinition serverPrismaClientOutputDirEnv,
+              "dbSchemaFileFromServerDir" .= SP.fromRelFile dbSchemaFileFromServerDir,
               "nodeMajorVersion" .= show (SV.major latestMajorNodeVersion),
-              "usingServerPatches" .= usingServerPatches,
               "userDockerfile" .= fromMaybe "" (AS.userDockerfileContents spec)
             ]
       )
