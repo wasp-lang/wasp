@@ -76,6 +76,7 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+    <++> genExportedTypesDir
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -144,6 +145,7 @@ npmDepsForWasp spec =
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
+            ("@types/express", "^4.17.13"),
             ("@types/node", "^18.11.9"),
             ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
@@ -239,6 +241,12 @@ genRoutesDir spec =
                 "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
               ]
         )
+    ]
+
+genExportedTypesDir :: Generator [FileDraft]
+genExportedTypesDir =
+  return
+    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
     ]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]

@@ -1,11 +1,12 @@
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 import { sayHi } from '../shared/util.js'
+import { ServerSetupFn } from '@wasp/types'
 
 let someResource = undefined
 
 export const getSomeResource = () => someResource
 
-const setup = async (app, _server) => {
+const setup: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app)
   sayHi()
   await new Promise(resolve => setTimeout(resolve, 2000))
