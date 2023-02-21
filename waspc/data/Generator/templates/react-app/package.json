@@ -8,7 +8,8 @@
   {=& devDepsChunk =},
   "scripts": {
     "start": "npm run validate-env && vite",
-    "build": "npm run validate-env && tsc && vite build"
+    "build": "npm run validate-env && tsc && vite build",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "eslintConfig": {
     "extends": "react-app"
