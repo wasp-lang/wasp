@@ -7,6 +7,8 @@ waspJob/.wasp/out/server/.npmrc
 waspJob/.wasp/out/server/README.md
 waspJob/.wasp/out/server/nodemon.json
 waspJob/.wasp/out/server/package.json
+waspJob/.wasp/out/server/scripts/universal/validators.mjs
+waspJob/.wasp/out/server/scripts/validate-env.mjs
 waspJob/.wasp/out/server/src/_types/index.ts
 waspJob/.wasp/out/server/src/_types/taggedEntities.ts
 waspJob/.wasp/out/server/src/actions/types.ts
@@ -28,6 +30,7 @@ waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.ts
+waspJob/.wasp/out/server/src/universal/url.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
 waspJob/.wasp/out/web-app/.npmrc
@@ -37,6 +40,8 @@ waspJob/.wasp/out/web-app/package.json
 waspJob/.wasp/out/web-app/public/favicon.ico
 waspJob/.wasp/out/web-app/public/index.html
 waspJob/.wasp/out/web-app/public/manifest.json
+waspJob/.wasp/out/web-app/scripts/universal/validators.mjs
+waspJob/.wasp/out/web-app/scripts/validate-env.mjs
 waspJob/.wasp/out/web-app/src/actions/core.d.ts
 waspJob/.wasp/out/web-app/src/actions/core.js
 waspJob/.wasp/out/web-app/src/actions/index.ts
@@ -59,6 +64,7 @@ waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.js
 waspJob/.wasp/out/web-app/src/serviceWorker.js
+waspJob/.wasp/out/web-app/src/universal/url.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasproot

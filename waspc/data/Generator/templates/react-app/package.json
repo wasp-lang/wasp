@@ -7,8 +7,8 @@
   {=& depsChunk =},
   {=& devDepsChunk =},
   "scripts": {
-    "start": "vite",
-    "build": "tsc && vite build"
+    "start": "npm run validate-env && vite",
+    "build": "npm run validate-env && tsc && vite build"
   },
   "eslintConfig": {
     "extends": "react-app"

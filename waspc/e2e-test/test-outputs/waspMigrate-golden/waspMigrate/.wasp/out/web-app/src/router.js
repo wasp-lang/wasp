@@ -7,10 +7,9 @@ import MainPage from './ext-src/MainPage'
 
 const router = (
   <Router>
-    <div>
+    <>
       <Route exact path="/" component={ MainPage }/>
-
-    </div>
+    </>
   </Router>
 )
 

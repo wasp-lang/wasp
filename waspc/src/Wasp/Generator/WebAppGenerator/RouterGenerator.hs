@@ -6,6 +6,7 @@ module Wasp.Generator.WebAppGenerator.RouterGenerator
 where
 
 import Data.Aeson (ToJSON (..), object, (.=))
+import qualified Data.Aeson as Aeson
 import Data.List (find)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
@@ -14,6 +15,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
@@ -23,7 +25,7 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
-import Wasp.Generator.WebAppGenerator.JsImport (extImportToJsImport)
+import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.JsImport (applyJsImportAlias, getJsImportStmtAndIdentifier)
 
 data RouterTemplateData = RouterTemplateData
@@ -31,7 +33,8 @@ data RouterTemplateData = RouterTemplateData
     _pagesToImport :: ![PageTemplateData],
     _isAuthEnabled :: Bool,
     _isExternalAuthEnabled :: Bool,
-    _externalAuthProviders :: ![ExternalAuthProviderTemplateData]
+    _externalAuthProviders :: ![ExternalAuthProviderTemplateData],
+    _rootComponent :: Aeson.Value
   }
 
 instance ToJSON RouterTemplateData where
@@ -41,7 +44,8 @@ instance ToJSON RouterTemplateData where
         "pagesToImport" .= _pagesToImport routerTD,
         "isAuthEnabled" .= _isAuthEnabled routerTD,
         "isExternalAuthEnabled" .= _isExternalAuthEnabled routerTD,
-        "externalAuthProviders" .= _externalAuthProviders routerTD
+        "externalAuthProviders" .= _externalAuthProviders routerTD,
+        "rootComponent" .= _rootComponent routerTD
       ]
 
 data RouteTemplateData = RouteTemplateData
@@ -101,7 +105,8 @@ createRouterTemplateData spec =
       _pagesToImport = pages,
       _isAuthEnabled = isAuthEnabled spec,
       _isExternalAuthEnabled = (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True,
-      _externalAuthProviders = externalAuthProviders
+      _externalAuthProviders = externalAuthProviders,
+      _rootComponent = extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
     }
   where
     routes = map (createRouteTemplateData spec) $ AS.getRoutes spec
@@ -113,6 +118,7 @@ createRouterTemplateData spec =
           (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthInfo)
         ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 createExternalAuthProviderTemplateData ::
   Maybe AS.App.Auth.Auth ->
@@ -167,11 +173,11 @@ createPageTemplateData page =
     importStmt :: String
     (importStmt, _) = getJsImportStmtAndIdentifier $ applyJsImportAlias (Just importAlias) $ extImportToJsImport relPathToWebAppSrcDir pageComponent
 
-    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
-    relPathToWebAppSrcDir = [reldirP|./|]
-
     pageComponent :: AS.ExtImport.ExtImport
     pageComponent = AS.Page.component $ snd page
 
     importAlias :: String
     importAlias = fst page
+
+relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
+relPathToWebAppSrcDir = [reldirP|./|]

@@ -42,8 +42,9 @@
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
     "postinstall": "patch-package",
     "standard": "standard",
-    "start": "NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
     "start-production": "NODE_ENV=production npm run start",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
     "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
   },
   "type": "module",

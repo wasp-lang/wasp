@@ -13,9 +13,6 @@ import * as serviceWorker from './serviceWorker'
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
-{=# rootComponent.isDefined =}
-{=& rootComponent.importStatement =}
-{=/ rootComponent.isDefined =}
 
 startApp()
 
@@ -38,13 +35,7 @@ async function render() {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        {=# rootComponent.isDefined =}
-        <{= rootComponent.importIdentifier =}>
-        {=/ rootComponent.isDefined =}
         {router}
-        {=# rootComponent.isDefined =}
-        </{= rootComponent.importIdentifier =}>
-        {=/ rootComponent.isDefined =}
       </QueryClientProvider>
     </React.StrictMode>,
   )

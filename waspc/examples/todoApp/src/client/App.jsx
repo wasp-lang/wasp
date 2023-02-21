@@ -1,8 +1,9 @@
+import { Link } from 'react-router-dom'
+
 import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth.js'
 
 import './Main.css'
-
 export function App({ children }) {
   const { data: user } = useAuth()
 
@@ -10,12 +11,12 @@ export function App({ children }) {
     <div className="app border-spacing-2 p-4">
       <header className="flex justify-between">
         <h1 className="font-bold text-3xl mb-5">
-          <a href="/">ToDo App</a>
+          <Link to="/">ToDo App</Link>
         </h1>
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello, <a href="/profile">{user.username}</a>
+              Hello, <Link to="/profile">{user.username}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>

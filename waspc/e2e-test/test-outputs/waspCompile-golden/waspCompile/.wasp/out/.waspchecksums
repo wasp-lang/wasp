@@ -46,14 +46,28 @@
             "file",
             "server/nodemon.json"
         ],
-        "5d0e1103bbe7c29a7b3137a57345f8eeb4ccd8a2128d636cc1b2bd81cf348a86"
+        "c4c69994805c8e0d993bd39fec9e52478b5e656bae565fa1c19ef378901a7139"
     ],
     [
         [
             "file",
             "server/package.json"
         ],
-        "bea0d57a5cec30f522ed36a84db0069498b00f6f3602e3aa035abdb6bfe82905"
+        "3ab0d1885aaa5e95f4dd5333e7bfbd68e4485c650750ce85261044c6ae27872b"
+    ],
+    [
+        [
+            "file",
+            "server/scripts/universal/validators.mjs"
+        ],
+        "94edf3906c43fb476b22244d07a5d69fd6c967de767532ed5b3215e2a6eee91b"
+    ],
+    [
+        [
+            "file",
+            "server/scripts/validate-env.mjs"
+        ],
+        "b507ff0f8cbdac18a0b42ccbb7acda9a5cd88e0ac5f95ca3d42341944298062d"
     ],
     [
         [
@@ -88,7 +102,7 @@
             "file",
             "server/src/config.js"
         ],
-        "d7f23a370f15869e6a3920552993c41d5e1a23d8e12a4a9d3a583d22b730a5d6"
+        "379caccb02ebdabfb084d962c9f598d7c036323b3cdc66fd9c3875043fa12e82"
     ],
     [
         [
@@ -191,6 +205,13 @@
     [
         [
             "file",
+            "server/src/universal/url.ts"
+        ],
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+    ],
+    [
+        [
+            "file",
             "server/src/utils.js"
         ],
         "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
@@ -200,7 +221,7 @@
             "file",
             "server/tsconfig.json"
         ],
-        "547a8c399ce385366cd05c46c5a3fa4ef48a5f60bb64bf322190546d1de1c622"
+        "c58318dce36bc48fdd1e998af906b5026c87b1d80415653b03a7285acdb56d69"
     ],
     [
         [
@@ -235,7 +256,7 @@
             "file",
             "web-app/package.json"
         ],
-        "dbc62803092acbf5483de9c1754c9e88b8183859690d01f582affcf6e990bcfe"
+        "58d2e6249fbc898d5b93cf1f2f5a88e357b3748a4d02fb95d16fbbfb78165dd6"
     ],
     [
         [
@@ -257,6 +278,20 @@
             "web-app/public/manifest.json"
         ],
         "434b67f4ee148d6a5c8d88879b616d0af36d71abf193e84ef247e5ab959a13bd"
+    ],
+    [
+        [
+            "file",
+            "web-app/scripts/universal/validators.mjs"
+        ],
+        "94edf3906c43fb476b22244d07a5d69fd6c967de767532ed5b3215e2a6eee91b"
+    ],
+    [
+        [
+            "file",
+            "web-app/scripts/validate-env.mjs"
+        ],
+        "690460410bc9b28a8e96c6e20902e841f07b77faccf3db7e7249f48f700f4bab"
     ],
     [
         [
@@ -291,7 +326,7 @@
             "file",
             "web-app/src/config.js"
         ],
-        "a30d5ae7c1b317a7132cac93f4b5bffc3daf11f4f07b5e0d977d063810ffdd11"
+        "f06f1bdb98dd4387b18159288ade916fd2c5bf3ed4161ca6711b0bda2f5963c3"
     ],
     [
         [
@@ -403,7 +438,7 @@
             "file",
             "web-app/src/router.js"
         ],
-        "62928b69543a870338ab09c2f7493ec7594993bc4f2922052da3c3a9d804e0cd"
+        "70c9237cf961320f04d9736007a8ec3fbc1cd1adfe2cfbc5214cb2d91d57d503"
     ],
     [
         [
@@ -411,6 +446,13 @@
             "web-app/src/serviceWorker.js"
         ],
         "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/url.ts"
+        ],
+        "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
     ],
     [
         [
