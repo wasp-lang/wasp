@@ -41,7 +41,7 @@ const MainPage = () => {
   )
 }
 
-const ExcuseList = (props) => { 
+const ExcuseList = (props) => {
   return props.excuses?.length ?  props.excuses.map((excuse, idx) => <Excuse excuse={excuse} key={idx} />) : 'No saved excuses'
 }
 

@@ -27,7 +27,7 @@ import createComment from '@wasp/actions/createComment'
 import deleteComment from '@wasp/actions/deleteComment'
 
 import Navbar from '../../Navbar'
-import addWaspSourceHeader from '../../addWaspSourceHeader.js'
+import addWaspSourceHeader from '../../addWaspSourceHeader'
 
 const useStyles = makeStyles((theme) => ({
   tags: {

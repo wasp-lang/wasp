@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-import addWaspSourceHeader from './addWaspSourceHeader.js'
+import addWaspSourceHeader from './addWaspSourceHeader'
 
 const LoginPage = (props) => {
   return (

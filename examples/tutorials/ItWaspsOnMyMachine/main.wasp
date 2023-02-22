@@ -16,7 +16,7 @@ app ItWaspsOnMyMachine {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage"
 }
 
 entity Excuse {=psl

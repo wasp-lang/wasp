@@ -31,7 +31,7 @@ const createListIdToSortedCardsMap = (listsAndCards) => {
   listsAndCards.forEach(list => {
     listIdToSortedCardsMap[list.id] = [...list.cards].sort((a, b) => a.pos - b.pos)
   })
-  
+
   return listIdToSortedCardsMap
 }
 
@@ -68,7 +68,7 @@ const MainPage = ({ user }) => {
       const sourceListId = result.source.droppableId
       const destListId = result.destination.droppableId
       // TODO(matija): this is not the nicest solution, we should have a consistent naming system
-      // for draggable ids (for lists we put prefix in the id, while for cards we use 
+      // for draggable ids (for lists we put prefix in the id, while for cards we use
       // their db id directly, because that saves us a bit of work in the further code.
       //
       // NOTE(matija): All draggable ids must be unique, even if they belong to different
@@ -144,7 +144,7 @@ const Lists = ({ lists, listIdToCardsMap }) => {
           cards={listIdToCardsMap[list.id]}
         />
       )
-    }) 
+    })
 }
 
 const List = ({ list, index, cards }) => {

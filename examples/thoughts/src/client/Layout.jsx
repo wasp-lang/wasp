@@ -1,7 +1,7 @@
 import React from 'react'
 import TopNavbar from './TopNavbar'
 import TagsSidebar from './TagsSidebar'
-import addWaspSourceHeader from './addWaspSourceHeader.js'
+import addWaspSourceHeader from './addWaspSourceHeader'
 import './Layout.css'
 
 const Layout = ({ user, activeTag, children }) => (

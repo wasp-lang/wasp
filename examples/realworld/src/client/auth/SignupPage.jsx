@@ -5,7 +5,7 @@ import login from '@wasp/auth/login'
 import signup from '@wasp/auth/signup'
 import addWaspSourceHeader from '../addWaspSourceHeader'
 
-import { errorMessage } from '../utils.js'
+import { errorMessage } from '../utils'
 
 const SignupPage = () => {
   const history = useHistory()

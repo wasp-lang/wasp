@@ -4,7 +4,7 @@ app Conduit {
   },
 
   title: "Conduit",
-  
+
   head: [
     "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
   ],
@@ -25,7 +25,8 @@ app Conduit {
     ("moment", "2.29.1"),
     ("@material-ui/core", "4.11.3"),
     ("@material-ui/icons", "4.11.2"),
-    ("slug", "4.0.2")
+    ("slug", "4.0.2"),
+    ("lodash", "^4.17.21")
   ]
 }
 
@@ -35,39 +36,39 @@ app Conduit {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage"
 }
 
 route LogInRoute { path: "/login", to: LogInPage }
 page LogInPage {
-  component: import LogIn from "@client/auth/LoginPage.js"
+  component: import LogIn from "@client/auth/LoginPage"
 }
 
 route RegisterRoute { path: "/register", to: SignUpPage }
 page SignUpPage {
-  component: import SignUp from "@client/auth/SignupPage.js"
+  component: import SignUp from "@client/auth/SignupPage"
 }
 
 route UserSettingsRoute { path: "/settings", to: UserSettingsPage }
 page UserSettingsPage {
   authRequired: true,
-  component: import UserSettings from "@client/user/components/UserSettingsPage.js"
+  component: import UserSettings from "@client/user/components/UserSettingsPage"
 }
 
 route UserProfileRoute { path: "/@:username", to: UserProfilePage }
 page UserProfilePage {
-  component: import UserProfile from "@client/user/components/UserProfilePage.js"
+  component: import UserProfile from "@client/user/components/UserProfilePage"
 }
 
 route ArticleEditorRoute { path: "/editor/:articleSlug?", to: ArticleEditorPage }
 page ArticleEditorPage {
   authRequired: true,
-  component: import ArticleEditor from "@client/article/components/ArticleEditorPage.js"
+  component: import ArticleEditor from "@client/article/components/ArticleEditorPage"
 }
 
 route ArticleViewRoute { path: "/article/:articleSlug", to: ArticleViewPage }
 page ArticleViewPage {
-  component: import ArticleView from "@client/article/components/ArticleViewPage.js"
+  component: import ArticleView from "@client/article/components/ArticleViewPage"
 }
 
 // ----------------- Entities ------------------ //

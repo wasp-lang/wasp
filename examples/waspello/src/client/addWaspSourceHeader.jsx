@@ -1,11 +1,11 @@
 import React from 'react'
-import WaspSourceHeader from './WaspSourceHeader.js'
+import WaspSourceHeader from './WaspSourceHeader'
 
 const addWaspSourceHeader = (Component) => {
   return function AddHeader(props) {
     return (
       <>
-        <WaspSourceHeader name="Realworld"/>
+        <WaspSourceHeader name="Waspello"/>
         <Component { ...props } />
       </>
     )

@@ -30,7 +30,7 @@ app waspello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@client/MainPage.js"
+    component: import Main from "@client/MainPage"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
