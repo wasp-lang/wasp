@@ -4,6 +4,7 @@ import { useHistory } from 'react-router-dom'
 
 import config from '../../config.js'
 import api, { setAuthToken } from '../../api.js'
+import { invalidateAndRemoveQueries } from '../../operations/resources'
 
 // After a user authenticates via an Oauth 2.0 provider, this is the page that
 // the provider should redirect them to, while providing query string parameters
@@ -38,6 +39,7 @@ async function exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthR
 
   if (token !== null) {
     setAuthToken(token)
+    await invalidateAndRemoveQueries()
     history.push('{= onAuthSucceededRedirectTo =}')
   } else {
     console.error('Error obtaining JWT token')
