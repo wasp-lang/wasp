@@ -33,7 +33,7 @@ const Todo = (props: any) => {
   })
 
   if (!task) return <div>Task with id {taskId} does not exist.</div>
-  if (error) return <div>Error occurred! {error as any}</div>
+  if (error) return <div>Error occurred! {error}</div>
 
   async function toggleIsDone({ id, isDone }: Task) {
     try {
