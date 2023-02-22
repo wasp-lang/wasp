@@ -94,8 +94,8 @@ genSocialLoginHelpers auth =
         [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
-    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
+    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.jsx|]
+    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.jsx|]
 
     mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
     mkHelpersFd externalAuthInfo helpersFp =
@@ -114,7 +114,7 @@ genSocialLoginHelpers auth =
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   compileTmplToSamePath
-    [relfile|auth/pages/OAuthCodeExchange.js|]
+    [relfile|auth/pages/OAuthCodeExchange.jsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
