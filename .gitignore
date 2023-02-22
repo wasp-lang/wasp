@@ -1,4 +1,5 @@
 .dir-locals.el
+.history
 # Local Netlify folder
 .netlify
 
