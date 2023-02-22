@@ -11,7 +11,7 @@ const faqs = [
       <strong>TL;DR</strong> - These are frontend-first frameworks, with some limited backend capabilities.
       Wasp is a full-stack framework.
       <br/><br/>
-      The main difference between Wasp and the solutions listed above is that Wasp is a trully full-stack
+      The main difference between Wasp and the solutions listed above is that Wasp is a truly full-stack
       framework, meaning it brings both back-end and database next to front-end. You can think of it as
       Ruby on Rails, but made for JS (React & Node.js) and full-stack.
       <br/><br/>
@@ -28,7 +28,7 @@ const faqs = [
       <br/><br/>
       Ruby on Rails and Django both fall in the category of full-stack web frameworks - they allow you to write backend/server code and also generate html/css that gets sent to the client.
       <br/><br/>
-      The main reason whey they are often today not used as a standalone solution, but rather as an API server combined with frontend libraries such as React & Vue, is to add support for the client side manipulation of DOM.
+      The main reason why they are not often used as a standalone solution today, but rather as an API server combined with frontend libraries such as React & Vue, is to add support for the client side manipulation of DOM.
       That’s especially important for web applications with a lot of dynamic content (e.g. dashboards) where you want “smooth” experience of a desktop app.
       Imagine expanding a post on Twitter or moving a Trello card and suddenly the whole site starts reloading - that's why you need React or Vue.
       <br/><br/>
@@ -57,7 +57,7 @@ const faqs = [
       Yes, that is currently the supported stack. But, Wasp is being developed as a language/framework and
       architecture-agnostic tool, so we plan to add support for more languages and frameworks in the future.
       <br/><br/>
-      This is something we're pretty excited about and think could be potentially be a unique opportunity 
+      This is something we're pretty excited about and think could potentially be a unique opportunity 
       due to the language approach we're taking with Wasp.
     </p>
   }
