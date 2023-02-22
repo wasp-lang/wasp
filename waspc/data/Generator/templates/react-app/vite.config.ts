@@ -9,4 +9,7 @@ export default defineConfig({
     open: true,
   },
   envPrefix: 'REACT_APP_',
+  build: {
+    outDir: 'build',
+  },
 })
