@@ -1541,7 +1541,7 @@ app MyApp {
 
 It gives you an opportunity to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
 
-This async JS function may accept a context object containing an `app` and `server` and should return nothing. In short, it should conform to a TypeScript signature like the following:
+The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server routes or for example, setting up `socket.io`.
 ```ts
 export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
 
