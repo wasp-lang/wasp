@@ -29,7 +29,8 @@ genAuth spec =
           genLogin,
           genLogout,
           genUseAuth,
-          genCreateAuthRequiredPage auth
+          genCreateAuthRequiredPage auth,
+          genUserHelpers
         ]
         <++> genAuthForms auth
     Nothing -> return []
@@ -132,3 +133,6 @@ compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+
+genUserHelpers :: Generator FileDraft
+genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])

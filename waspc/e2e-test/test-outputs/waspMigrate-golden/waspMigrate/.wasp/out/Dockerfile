@@ -43,6 +43,7 @@ WORKDIR /app
 COPY --from=server-builder /app/server/node_modules ./server/node_modules
 COPY --from=server-builder /app/server/dist ./server/dist
 COPY --from=server-builder /app/server/package*.json ./server/
+COPY --from=server-builder /app/server/scripts ./server/scripts
 COPY db/ ./db/
 EXPOSE ${PORT}
 WORKDIR /app/server

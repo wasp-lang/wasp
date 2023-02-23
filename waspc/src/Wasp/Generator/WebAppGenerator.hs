@@ -137,7 +137,8 @@ npmDepsForWasp spec =
             ("@types/react-router-dom", "^5.3.3"),
             -- TODO: What happens when react app changes its version? We should
             -- investigate.
-            ("@tsconfig/create-react-app", "^1.0.3")
+            ("@tsconfig/create-react-app", "^1.0.3"),
+            ("dotenv", "16.0.3")
           ]
     }
 
