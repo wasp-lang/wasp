@@ -7,18 +7,16 @@ import LoginForm from '@wasp/auth/forms/Login'
 
 const Login = () => {
   return (
-    <>
+    <div className="flex flex-col gap-5">
       <LoginForm/>
-      <br/>
       <span>
         I don't have an account yet (<Link to="/signup">go to signup</Link>).
       </span>
-
-      {/* <div>
+      {/* <div className="flex flex-col gap-2 max-w-xs">
         <GoogleSignInButton/>
         <GitHubSignInButton/>
       </div> */}
-    </>
+    </div>
   )
 }
 
