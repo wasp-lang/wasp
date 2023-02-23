@@ -72,6 +72,7 @@ module.exports = {
       ]
     },
     'cli',
+    'typescript',
     {
       type: 'category',
       label: 'Other',
