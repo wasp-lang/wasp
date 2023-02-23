@@ -3,8 +3,8 @@ import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import config from '../../config.js'
-import api, { setAuthToken } from '../../api.js'
-import { invalidateAndRemoveQueries } from '../../operations/resources'
+import api from '../../api.js'
+import { setupAuth } from '../helpers/user'
 
 // After a user authenticates via an Oauth 2.0 provider, this is the page that
 // the provider should redirect them to, while providing query string parameters
@@ -38,8 +38,7 @@ async function exchangeCodeForJwtAndRedirect(history, apiServerUrlHandlingOauthR
   const token = await exchangeCodeForJwt(apiServerUrlHandlingOauthRedirect)
 
   if (token !== null) {
-    setAuthToken(token)
-    await invalidateAndRemoveQueries()
+    await setupAuth({ token })
     history.push('{= onAuthSucceededRedirectTo =}')
   } else {
     console.error('Error obtaining JWT token')
