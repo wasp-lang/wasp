@@ -25,6 +25,7 @@
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
     "@types/react-router-dom": "^5.3.3",
+    "dotenv": "16.0.3",
     "typescript": "^4.8.4"
   },
   "engineStrict": true,
