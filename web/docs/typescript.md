@@ -11,7 +11,7 @@ This document assumes you are familiar with TypeScript and primarily focuses on 
 The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). Read [our feature docs](https://wasp-lang.dev/docs/language/features) to learn more.
 
 
-## Adding TypeScript to your project 
+## Migrating your project to TypeScript 
 Wasp supports TypeScript out of the box!
 
 Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis. 
@@ -71,6 +71,13 @@ export const getTaskInfo = async ({ id }, context) => {
   return getInfoMessage(task)
 }
 ``` 
+You don't need to change anything inside the `.wasp` file.
+:::caution
+<!-- This block is duplicated in 03-listing-tasks.md -->
+Even if you use TypeScript and have the file `queries.ts`, you will still need to import it using the `.js` extension. Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
+
+Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
+:::
 
 ## Entity Types 
 Instead of manually specifying the types for `isDone` and `description`, we can get them from the `Task` entity type. Wasp will generate types for all entities and let you import them from `"@wasp/entities"`:
