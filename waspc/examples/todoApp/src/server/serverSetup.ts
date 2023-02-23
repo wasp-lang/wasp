@@ -23,6 +23,8 @@ const setup: ServerSetupFn = async ({ app }) => {
 
 function addCustomRoute(app: Application) {
   app.get('/customRoute', (_req, res) => {
+    res.set('Access-Control-Allow-Origin', 'example-cors-override.com')
+    res.removeHeader('X-Frame-Options')
     res.send('I am a custom route')
   })
 }
