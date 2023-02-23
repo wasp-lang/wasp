@@ -1,7 +1,7 @@
 import { setAuthToken } from '../../api.js'
 import { invalidateAndRemoveQueries } from '../../operations/resources'
 
-export async function setupAuth({ token }: { token: string }): Promise<void> {
+export async function initSession(token: string): Promise<void> {
     setAuthToken(token)
     // We need to invalidate queries after login in order to get the correct user
     // data in the React components (using `useAuth`).
