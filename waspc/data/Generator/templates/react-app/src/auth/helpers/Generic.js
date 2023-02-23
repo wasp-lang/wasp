@@ -21,7 +21,7 @@ const linkStyle = {
   display: 'flex',
   alignItems: 'center',
   textDecoration: 'none',
-  color: 'black',
+  color: '#1e293b',
   paddingLeft: '1.5rem',
   paddingRight: '1.5rem',
   paddingTop: '.75rem',
