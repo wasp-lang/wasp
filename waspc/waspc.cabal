@@ -491,8 +491,10 @@ test-suite e2e-test
     Common
     GoldenTest
     ShellCommands
+    Util
     Tests.WaspBuildTest
     Tests.WaspCompileTest
     Tests.WaspJobTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
+    Tests.WaspComplexTest
