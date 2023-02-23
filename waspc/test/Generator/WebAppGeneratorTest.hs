@@ -78,7 +78,6 @@ spec_WebAppGenerator = do
                     [ "logo.png",
                       "index.tsx",
                       "router.jsx",
-                      "serviceWorker.js"
                     ]
                 ]
 

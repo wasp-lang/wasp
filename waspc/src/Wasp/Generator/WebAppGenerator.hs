@@ -211,7 +211,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|serviceWorker.js|],
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
