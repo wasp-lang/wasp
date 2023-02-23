@@ -28,7 +28,8 @@ import Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,

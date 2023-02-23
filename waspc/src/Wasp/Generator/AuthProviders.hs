@@ -1,53 +1,14 @@
-module Wasp.Generator.AuthProviders
-  ( googleAuthInfo,
-    gitHubAuthInfo,
-    frontendLoginUrl,
-    serverLoginUrl,
-    serverOauthRedirectHandlerUrl,
-    templateFilePathInPassportDir,
-    ExternalAuthInfo (..),
-  )
-where
+module Wasp.Generator.AuthProviders where
 
-import StrongPath (File', Path', Rel, Rel', relfile, (</>))
-import qualified StrongPath as SP
-import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
-
-data ExternalAuthInfo = ExternalAuthInfo
-  { _passportTemplateFilePath :: Path' (Rel ServerTemplatesSrcDir) File',
-    _logoFileName :: Path' Rel' File',
-    _displayName :: String,
-    _slug :: String
-  }
+import StrongPath (relfile)
+import Wasp.Generator.AuthProviders.Local (LocalAuthInfo, mkLocalAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, mkExternalAuthInfo)
 
 googleAuthInfo :: ExternalAuthInfo
-googleAuthInfo =
-  ExternalAuthInfo
-    { _passportTemplateFilePath = [relfile|routes/auth/passport/google/config.js|],
-      _logoFileName = [relfile|google-logo-icon.png|],
-      _displayName = "Google",
-      _slug = "google"
-    }
+googleAuthInfo = mkExternalAuthInfo "google" "Google" [relfile|routes/auth/passport/google/config.js|] [relfile|google-logo-icon.png|]
 
 gitHubAuthInfo :: ExternalAuthInfo
-gitHubAuthInfo =
-  ExternalAuthInfo
-    { _passportTemplateFilePath = [relfile|routes/auth/passport/github/config.js|],
-      _logoFileName = [relfile|github-logo-icon.png|],
-      _displayName = "GitHub",
-      _slug = "github"
-    }
+gitHubAuthInfo = mkExternalAuthInfo "github" "GitHub" [relfile|routes/auth/passport/github/config.js|] [relfile|github-logo-icon.png|]
 
-frontendLoginUrl :: ExternalAuthInfo -> String
-frontendLoginUrl eai = "/auth/login/" ++ _slug eai
-
-serverLoginUrl :: ExternalAuthInfo -> String
-serverLoginUrl eai = "/auth/" ++ _slug eai ++ "/login"
-
-serverOauthRedirectHandlerUrl :: ExternalAuthInfo -> String
-serverOauthRedirectHandlerUrl eai = "/auth/" ++ _slug eai ++ "/callback"
-
-templateFilePathInPassportDir :: ExternalAuthInfo -> Path' Rel' File'
-templateFilePathInPassportDir eai =
-  (SP.basename . SP.parent $ _passportTemplateFilePath eai)
-    </> SP.basename (_passportTemplateFilePath eai)
+localAuthInfo :: LocalAuthInfo
+localAuthInfo = mkLocalAuthInfo "local" "Username and password"

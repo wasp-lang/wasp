@@ -27,7 +27,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.App.Dependency (Dependency)
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo, templateFilePathInPassportDir)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
@@ -54,7 +55,7 @@ genGoogleAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGoogleAuth auth
   | AS.Auth.isGoogleAuthEnabled auth =
       sequence
-        [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath googleAuthInfo,
+        [ return $ C.mkSrcTmplFd $ OAuth.passportTemplateFilePath googleAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/google/defaults.js|],
           genOAuthConfig googleAuthInfo googlePassportDependency [relfile|routes/auth/providers/config/google.ts|],
           return $
@@ -71,7 +72,7 @@ genGitHubAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genGitHubAuth auth
   | AS.Auth.isGitHubAuthEnabled auth =
       sequence
-        [ return $ C.mkSrcTmplFd $ _passportTemplateFilePath gitHubAuthInfo,
+        [ return $ C.mkSrcTmplFd $ OAuth.passportTemplateFilePath gitHubAuthInfo,
           return $ C.mkSrcTmplFd [relfile|routes/auth/passport/github/defaults.js|],
           genOAuthConfig gitHubAuthInfo gitHubPassportDependency [relfile|routes/auth/providers/config/github.ts|],
           return $
@@ -91,7 +92,7 @@ genOAuthConfig authInfo npmDependecy pathToConfigTmpl = return $ C.mkTmplFdWithD
     dstFile = C.serverSrcDirInServerRootDir </> SP.castRel pathToConfigTmpl
     tmplData =
       object
-        [ "slug" .= _slug authInfo,
+        [ "slug" .= OAuth.slug authInfo,
           "npmPackage" .= App.Dependency.name npmDependecy,
           "passportConfigImport" .= SP.fromRelFile ([reldir|../../passport/|] </> templateFilePathInPassportDir authInfo)
         ]

@@ -13,8 +13,8 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
-import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
@@ -107,9 +107,9 @@ genSocialLoginHelpers auth =
       where
         tmplData =
           object
-            [ "signInPath" .= AuthProviders.serverLoginUrl externalAuthInfo,
-              "iconName" .= SP.toFilePath (AuthProviders._logoFileName externalAuthInfo),
-              "displayName" .= AuthProviders._displayName externalAuthInfo
+            [ "signInPath" .= OAuth.serverLoginUrl externalAuthInfo,
+              "iconName" .= SP.toFilePath (OAuth.logoFileName externalAuthInfo),
+              "displayName" .= OAuth.displayName externalAuthInfo
             ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
