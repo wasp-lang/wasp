@@ -1,0 +1,57 @@
+{
+  "dependencies": {
+    "@prisma/client": "4.5.0",
+    "cookie-parser": "~1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "16.0.2",
+    "express": "~4.18.1",
+    "helmet": "^6.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.21",
+    "morgan": "~1.10.0",
+    "passport": "0.6.0",
+    "passport-google-oauth20": "2.0.0",
+    "patch-package": "^6.4.7",
+    "pg-boss": "^8.0.0",
+    "react-redux": "^7.1.3",
+    "redux": "^4.0.5",
+    "secure-password": "^4.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node18": "^1.0.1",
+    "@types/node": "^18.11.9",
+    "nodemon": "^2.0.19",
+    "prisma": "4.5.0",
+    "standard": "^17.0.0",
+    "typescript": "^4.8.4"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^18.12.0"
+  },
+  "name": "server",
+  "nodemonConfig": {
+    "delay": "1000"
+  },
+  "overrides": {
+    "secure-password": {
+      "sodium-native": "3.3.0"
+    }
+  },
+  "private": true,
+  "scripts": {
+    "build": "npx tsc",
+    "build-and-start": "npm run build && npm run start",
+    "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
+    "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
+    "postinstall": "patch-package",
+    "standard": "standard",
+    "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",
+    "start-production": "npm run db-migrate-prod && NODE_ENV=production npm run start",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
+    "watch": "nodemon --exec 'npm run build-and-start || exit 1'"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

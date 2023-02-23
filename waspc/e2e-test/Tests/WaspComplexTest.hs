@@ -21,6 +21,7 @@ waspComplexTest = do
       [ waspCliNew,
         cdIntoCurrentProject
       ]
+      <++> addServerEnvFile
       <++> addDependencies
       <++> addClientSetup
       <++> addServerSetup
@@ -93,22 +94,23 @@ addJob = do
           ]
 
   sequence
-    [ waspCliNew,
-      cdIntoCurrentProject,
-      setDbToPSQL,
+    [ setDbToPSQL,
       appendToWaspFile jobDecl,
-      createFile jobFile "./src/server/jobs" "bar.js",
-      waspCliCompile
+      createFile jobFile "./src/server/jobs" "bar.js"
     ]
 
-addGoogleAuth :: ShellCommandBuilder [ShellCommand]
-addGoogleAuth = do
+addServerEnvFile :: ShellCommandBuilder [ShellCommand]
+addServerEnvFile = do
   let envFileContents =
         unlines
           [ "GOOGLE_CLIENT_ID=google_client_id",
             "GOOGLE_CLIENT_SECRET=google_client_secret"
           ]
 
+  sequence [createFile envFileContents "./" ".env.server"]
+
+addGoogleAuth :: ShellCommandBuilder [ShellCommand]
+addGoogleAuth = do
   let authField =
         unlines
           [ "  auth: {",
@@ -145,8 +147,7 @@ addGoogleAuth = do
           ]
 
   sequence
-    [ createFile envFileContents "./" ".env.server",
-      insertLineAtWaspFileAfterVersion authField,
+    [ insertLineAtWaspFileAfterVersion authField,
       appendToWaspFile userEntity,
       appendToWaspFile socialLoginEntity
     ]
@@ -156,10 +157,8 @@ addAction = do
   let actionDecl =
         unlines
           [ "action MySpecialAction {",
-            "  handler: {",
-            "    fn: import { foo } from \"@server/actions/bar.js\",",
-            "    entities: [User],",
-            "  }",
+            "  fn: import { foo } from \"@server/actions/bar.js\",",
+            "  entities: [User],",
             "}"
           ]
 
@@ -180,10 +179,8 @@ addQuery = do
   let queryDecl =
         unlines
           [ "query MySpecialQuery {",
-            "  handler: {",
-            "    fn: import { foo } from \"@server/queries/bar.js\",",
-            "    entities: [User],",
-            "  }",
+            "  fn: import { foo } from \"@server/queries/bar.js\",",
+            "  entities: [User],",
             "}"
           ]
 
