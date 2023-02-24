@@ -1,3 +1,5 @@
+{{={= =}=}}
+
 import { Router } from "express";
 
 import login from "../local/login.js";
@@ -6,7 +8,7 @@ import { ProviderConfig, ProviderType } from "../types.js";
 
 const config: ProviderConfig = {
     name: ProviderType.local,
-    slug: "local",
+    slug: "{= slug =}",
     setupRouter() {
         const router = Router();
 

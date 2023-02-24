@@ -15,6 +15,8 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.Generator.AuthProviders (localAuthInfo)
+import qualified Wasp.Generator.AuthProviders.Local as Local
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -31,10 +33,15 @@ genLocalAuth auth
   | otherwise = return []
 
 genLocalAuthConfig :: Generator FileDraft
-genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile Nothing
+genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
+
+    tmplData =
+      object
+        [ "slug" .= Local.slug localAuthInfo
+        ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/providers/config/local.ts|]
