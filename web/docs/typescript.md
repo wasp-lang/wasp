@@ -121,7 +121,7 @@ alert(JSON.stringify(task))
 The mentioned type safety mechanisms also apply here: Changing the task entity in our `.wasp` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
 
 
-## Backend type support for Operations
+## Backend type support for Queries and Actions
 Wasp automatically generates the appropriate types for all operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
 ```css
 query GetTaskInfo {
