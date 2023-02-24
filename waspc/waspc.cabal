@@ -243,7 +243,7 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
-    Wasp.Generator.ServerGenerator.ExternalAuthG
+    Wasp.Generator.ServerGenerator.OAuthAuthG
     Wasp.Generator.ServerGenerator.LocalAuthG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator

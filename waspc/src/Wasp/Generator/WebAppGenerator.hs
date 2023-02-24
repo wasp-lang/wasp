@@ -29,7 +29,7 @@ import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
@@ -187,8 +187,8 @@ genSocialLoginIcons maybeAuth =
     ]
   where
     socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> _logoFileName googleAuthInfo),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
+      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName googleAuthInfo),
+        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName gitHubAuthInfo)
       ]
 
 genPublicIndexHtml :: AppSpec -> Generator FileDraft

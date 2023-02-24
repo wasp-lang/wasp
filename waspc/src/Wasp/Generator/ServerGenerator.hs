@@ -50,10 +50,10 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
-import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)

@@ -13,7 +13,8 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)

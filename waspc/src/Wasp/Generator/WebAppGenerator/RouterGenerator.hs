@@ -20,7 +20,8 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, frontendLoginUrl, gitHubAuthInfo, googleAuthInfo, serverOauthRedirectHandlerUrl)
+import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, frontendLoginUrl, serverOauthRedirectHandlerUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)

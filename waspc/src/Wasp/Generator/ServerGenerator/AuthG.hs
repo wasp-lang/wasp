@@ -22,8 +22,8 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalAuthG (genOAuthAuth)
 import Wasp.Generator.ServerGenerator.LocalAuthG (genLocalAuth)
+import Wasp.Generator.ServerGenerator.OAuthAuthG (genOAuthAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
