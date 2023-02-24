@@ -57,7 +57,7 @@ module.exports = {
         },
         'integrations/css-frameworks',
         'deploying',
-        
+        'typescript',
       ],
 
     },
@@ -72,7 +72,6 @@ module.exports = {
       ]
     },
     'cli',
-    'typescript',
     {
       type: 'category',
       label: 'Other',

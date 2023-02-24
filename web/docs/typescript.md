@@ -18,7 +18,7 @@ Our scaffolding already includes TypeScript, so migrating your project to TypeSc
 
 ### Example
 Let's first assume your Wasp file contains the following definitions:
-```css
+```c title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -54,9 +54,10 @@ To migrate this file to TypeScript, all you have to do is:
  2. Write some types.
 
 Let's start by only providing a basic `getInfoMessage` function. We'll see how to properly type the rest of the file in the following sections.
-```typescript {3}
+```typescript title=queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 
+// highlight-next-line
 function getInfoMessage(task: { isDone: boolean, description: string }): string {
   const isDoneText = task.isDone ? "is done" : "is not done"
   return `Task '${task.description}' is ${isDoneText}.`
@@ -73,8 +74,16 @@ export const getTaskInfo = async ({ id }, context) => {
 ``` 
 You don't need to change anything inside the `.wasp` file.
 :::caution
-<!-- This block is duplicated in 03-listing-tasks.md -->
-Even if you use TypeScript and have the file `queries.ts`, you will still need to import it using the `.js` extension. Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
+<!-- This block is mostly duplicated in 03-listing-tasks.md -->
+Even when you use TypeScript and your file is called `queries.ts`, you still need to import it using the `.js` extension, like this:
+```c
+query getTaskInfo {
+  fn: import { getTaskInfo } from "@server/queries.js",
+  entities: [Task]
+}
+```
+
+Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
 
 Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
 :::
@@ -82,7 +91,7 @@ Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/d
 ## Entity Types 
 Instead of manually specifying the types for `isDone` and `description`, we can get them from the `Task` entity type. Wasp will generate types for all entities and let you import them from `"@wasp/entities"`:
 
-```typescript
+```typescript title=queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 // highlight-next-line
 import { Task } from "@wasp/entities"
@@ -107,23 +116,27 @@ By doing this, we've connected the argument type of the `getInfoMessage` functio
 Don't worry about typing the query function for now. We'll see how to handle this in the next section.
 
 Entity types are also available on the client under the same import:
-```tsx title="Main.js"
+```tsx title=Main.js
 import { Task } from "@wasp/entities"
 
-const task: Task = {
-  id: 123,
-  description: "Some random task",
-  isDone: false,
+export function ExamplePage() {}
+  const task: Task = {
+    id: 123,
+    description: "Some random task",
+    isDone: false,
+  }
+  return <div>{task.description}</div>;
 }
 
-alert(JSON.stringify(task))
 ```
 The mentioned type safety mechanisms also apply here: Changing the task entity in our `.wasp` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
 
 
 ## Backend type support for Queries and Actions
 Wasp automatically generates the appropriate types for all operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
-```css
+```c title=main.wasp
+// ...
+
 query GetTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
   entities: [Task]
@@ -137,7 +150,7 @@ Wasp will generate a type called `GetTaskInfo`, which you can use to type the Qu
 
 Suppose you don't care about typing the Query's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (i.e., `never` for the input, `unknown` for the output.).
 
-```typescript
+```typescript title=queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 import { Task } from "@wasp/entities"
 // highlight-next-line
@@ -167,7 +180,7 @@ export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async ({ id },
   return getInfoMessage(task)
 }
 ```
-Everything described above applies to Actions.
+Everything described above applies to Actions as well.
 
 ## Frontend type support for Queries and Actions
 ### Type support for the `useQuery` hook
@@ -210,14 +223,16 @@ To add type support to Actions on the frontend, you can use:
   - `Error` - This type argument specifies the error the Query throws.
 
 Assuming the following action definition in your `.wasp` file (and the corresponding implementation in `src/server/actions.js`):
-```typescript
+```typescript title=main.wasp
+// ...
+
 action addTask {
   fn: import { addTask } from "@server/actions.js"
   entities: [Task]
 }
 ```
 Here's how you can use it:
-```tsx
+```tsx title=AddTask.tsx
 const AddTask = ({ description }: Pick<Task, "description">) => {
 
   // TypeScript knows `addTaskAction` is a function that expects a value of
@@ -242,7 +257,7 @@ The `useAction` hook also includes support for optimistic updates. Read [the fea
 
 Here's an example that shows how you can use static type checking in their definitions (the example assumes an appropriate action defined in the `.wasp` file and implemented on the server):
 
-```tsx
+```tsx title=Task.tsx
 import { useQuery } from '@wasp/queries'
 import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
 import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
