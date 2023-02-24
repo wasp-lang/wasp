@@ -183,6 +183,8 @@ export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async ({ id },
 Everything described above applies to Actions as well.
 
 ## Frontend type support for Queries and Actions
+Wasp will soon support automatic full-stack type safety à la tRPC. Until then, you can get static type checking by manually passing type arguments to `useQuery` and `useAction` hooks.
+
 ### Type support for the `useQuery` hook
 To add type support to Queries on the frontend, you can use:
 - Entity types imported from `"@wasp/entities"`.
@@ -197,23 +199,59 @@ import { useQuery } from "@wasp/queries"
 import getTaskInfo from "@wasp/queries/getTaskInfo"
 import { Task } from "@wasp/entities"
 
-type TaskInfoError = { message: string }
 type TaskInfoPayload = Pick<Task, "id">
 
-const TaskInfo = ({ id }: TaskInfoPayload) => {
+export const TaskInfo = () => {
   const { 
-    data: taskInfo, // TypeScript knows this is a `string`.
-    isError,        // TypeScript knows this is a `boolean`.
-    error,          // TypeScript knows this is a `TaskInfoError`.
-  } = useQuery<TaskInfoPayload, string, TaskInfoError>(getTaskInfo, { id })
-                           // Typescript knows  `id` must be a string ^
+    // TypeScript knows `taskInfo` is a `string | undefined` because of the
+    // second type argument.
+    data: taskInfo,
+    // TypeScript also knows `isError` is a `boolean` regardless of the
+    // specified type arguments.
+    isError,        
+    // TypeScript knows `id` must b a `Task["id]` (i.e., a number) because of
+    // the first type argument.
+    // highlight-next-line
+  } = useQuery<TaskInfoPayload, string>(getTaskInfo, { id: 1 })
+  
   if (isError) {
-    return <div>Error during fetching tasks: {error.message || ''}</div>
+    return <div>Error when fetching tasks</div>
   }
 
+  // TypeScript forces you to perform this check.
   return taskInfo === undefined ? <div>Waiting for info...</div> : <div>{taskInfo}</div>
 }
 ```
+The above example omits the type argument for the error because it doesn't need it. Here's an example that uses the `error`:
+```tsx title="TaskInfo.tsx"
+import { useQuery } from "@wasp/queries"
+import getTaskInfo from "@wasp/queries/getTaskInfo"
+import { Task } from "@wasp/entities"
+
+type TaskInfoPayload = Pick<Task, "id">
+// highlight-next-line
+type TaskInfoError = { message: string }
+
+export const TaskInfo = () => {
+  const { 
+    data: taskInfo,
+    isError,        
+    // TypeScript knows `error` is a `TaskInfoError` because of the third type
+    // argument.
+    error,
+  // highlight-next-line
+  } = useQuery<TaskInfoPayload, string, TaskInfoError>(getTaskInfo, { id: 1 })
+  
+  if (isError) {
+    // highlight-next-line
+    return <div> Error during fetching tasks: {error.message || ''}</div>
+  }
+
+  // TypeScript forces you to perform this check.
+  return taskInfo === undefined ? <div>Waiting for info...</div> : <div>{taskInfo}</div>
+}
+```
+
 ### Type support for the `useAction` hook
 To add type support to Actions on the frontend, you can use:
 - Entity types imported from `"@wasp/entities"`.
