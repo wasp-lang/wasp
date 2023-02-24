@@ -8,8 +8,13 @@ TypeScript is a programming language that brings static type analysis to JavaScr
 
 This document assumes you are familiar with TypeScript and primarily focuses on how to use it with Wasp. To learn more about TypeScript itself, we recommend reading [the official docs](https://www.typescriptlang.org/docs/).
 
-The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). Read [our feature docs](https://wasp-lang.dev/docs/language/features) to learn more.
+The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](https://wasp-lang.dev/docs/language/features).
 
+:::info
+To get the best IDE experience, make sure to leave `wasp start` running in the background. Wasp will track the working directory and make sure the generated code/types are up to date with your changes.
+
+Your editor may sometimes report type and import errors even while `wasp start` is running. This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, try manually restarting the language server by opening the command pallete and selecting _"TypeScript: Restart TS Server"_.
+:::
 
 ## Migrating your project to TypeScript 
 Wasp supports TypeScript out of the box!
