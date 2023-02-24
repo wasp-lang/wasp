@@ -1,6 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import operations from './operations/index.js'
+import apis from './apis/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
@@ -16,5 +17,6 @@ router.get('/', function (req, res, next) {
 router.use('/auth', auth)
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', operations)
+router.use(apis)
 
 export default router

@@ -47,6 +47,7 @@ import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.ServerGenerator.ApiRoutesG (genApiRoutes)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
@@ -67,7 +68,8 @@ genServer spec =
       genFileCopy [relfile|nodemon.json|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
-      genGitignore
+      genGitignore,
+      genApiRoutes spec
     ]
     <++> genSrcDir spec
     <++> genExternalCodeDir extServerCodeGeneratorStrategy (AS.externalServerFiles spec)
