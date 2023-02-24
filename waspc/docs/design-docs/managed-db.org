@@ -1,0 +1,241 @@
+#+title: Managed Dev DB TDD
+
+Solves https://github.com/wasp-lang/wasp/issues/218.
+
+** Problem we are solving
+
+  * people can't remember the command to run the dev db (postgre) during development.
+  * people don't know how to clean up / reset the db during dev.
+  * even if they know how to run postgre db during dev, they might struggle to run a new one for another wasp project.
+  * setting up ENV vars to connect to dev db is also boring / PITA.
+
+** Solution
+
+Introduce the concept of "managed db" -> database that Wasp runs for you, when developing Wasp project!
+
+1. Leave them the option to specify custom database url, in which case they use custom database.
+   But, if they don't specify it, we take that as them wanting to connect to managed database.
+2. Give them a way to start managed db for the current Wasp project with one simple command: ~wasp db start~.
+   Also utility commands (e.g. for cleaning it up, connecting to it).
+3. More advanced: start managed db automatically for them when they need it.
+
+*** Implementation phases
+**** Local project setup
+
+Right now, dev database url is specified via .env.server, as env var DATABASE_URL.
+
+That is not flexible/usable enough though!
+What if we need it on multiple servers in the future, what if it is needed on frontend also,
+or if we need it for some other part of our app? What if Wasp compiler needs to read it?
+
+Looking at it, dev database url is a value that should be accessible to Wasp at compile time.
+However, it can't go into (main.)wasp file because it shouldn't be comitted to git, it is local
+to machine.
+
+We don't have a place to puth such values! The only way to provide local values that Wasp understand
+during compile time is via CLI flags, and some env vars (like telemetry on/off setting), but that is not
+fitting for this use case.
+
+What are possible solutions for this?
+
+1. wasp.local.yaml (or some similar name) file at the top level, read by Wasp.
+2. Wasp reads env vars, either directly from the env or from the .env file at the top level.
+   * In this case we can go very systematic, like:
+     1. First env vars are checked.
+     2. Then .env file is checked.
+     3. Finally, cmd flags are checked.
+     And all of these are the same options.
+     But maybe this is too much?
+3. Similar like 2, but it knows which env vars it reads because their names are specified in wasp file.
+   e.g.
+   #+begin_src
+     app {
+       ...
+       db: {
+         url: env("WASP_DATABASE_URL")
+       }
+     }
+   #+end_src
+
+What would be cool is if Wasp would know which env vars it needs, so it can complain about them and
+tell you what it needs.
+
+Additional question: what do we call these settings in the code? Do they go under =CompileOptions=?
+Or are they a new thing?
+
+*TODO*: Decide which choice are we going with here, it is not yet clear.
+
+**** Manually running the managed db (~wasp db start~)
+
+Ok, so once we have a way to provide database url to wasp, we want to be able to run the db easily, via ~wasp db start~ command.
+
+***** ~wasp db start~ algorithm
+
+1. If db is ~sqlite~, there is nothing to do, all good, stop here. If it is Postgre, continue.
+2. Check if user has ~docker~ installed. If not, error with useful error message.
+3. Check if user defined the database url. If they did, die with error, telling them that database url has to be undefined
+   if they are using the managed db.
+4. Run the db via docker command (while staying in the foreground)!
+   What if it is already running? In that case, I believe the docker command will fail anyway, so all good.
+   *TODO*: Check what happens in this situation, if we need to do some explicit handling potentially.
+
+***** Docker command
+
+This is the docker command we have used so far:
+#+begin_src sh
+  docker run \
+    --rm \
+    --publish 5432:5432 \
+    -v my-app-data:/var/lib/postgresql/data \
+    --env POSTGRES_PASSWORD=devpass1234 \
+    postgres
+#+end_src
+
+ * =my-app-data= here is the name of the docker volume that will be created/used.
+ * left part of =5432:5432= is port to which we will publish the database.
+ * =POSTGRES_PASSWORD= is, well, password :D.
+ * =postgres= at the end is the name of the Docker image! So that one we dont' touch :).
+   *TODO*: We might maybe want to specify version of the Docker image though, to ensure we have repeatable behaviour.
+
+This command will by default create a database named =postgres= with default =postgres= user.
+User can be configured with =POSTGRES_USER=, while db name can be configured with =POSTGRES_DB=.
+
+*NOTE*: =POSTGRES_USER=, =POSTGRES_DB=, and =POSTGRES_PASSWORD= are all used by the docker image only
+when database is initialized for the first time. If it instead already exists, they are ignored.
+This can be tricky, because it seems like you can set them on the fly, but you can't.
+*TODO*: I wonder what we should do about this, this could be a source of bugs during dev.
+  Probably just document it a bit and ensure we keep these names constant for least trouble.
+
+*Performance*:
+ * On the first run, when db doesn't yet exist, it takes 1-2 seconds to set it up.
+ * If db already exists, it takes less than a second to get it running.
+ * If docker container is not downloaded yet though, then it takes longer,
+   but that happens so rarely (only on first use) that we can ignore that I think.
+ So actually it runs pretty fast!
+
+*TODO*: Do we use one volume for all wasp apps, and create new db in it for each app?
+  Or do we create one volume per each app? I think one volume per app is better.
+  Do we customize user and db name for each app, or do we keep them hardcoded?
+  For custom user and db name -> if we keep them always the same we avoid troubles that moving
+  around project or renaming it would cause.
+
+***** Docker volume vs mount bind
+
+There are two main mechanisms of persisting Docker container's state: Docker volumes and Docker mount bind.
+
+1. Volumes
+   * Docker always puts them in its global volume storage on the disk, they can't be stored in the project dir.
+     * Maybe this is a solution to make them local? https://dbafromthecold.com/2018/05/02/changing-the-location-of-docker-named-volumes/
+       * this works because of driver/ thing. But if I got it right this again uses mount binds in the background?
+         If that is true, this also has performance issues? I think so.
+   * This is tricky because it complicates moving wasp project (figuring out the name for volume), deleting it, or uninstalling Wasp.
+     * We can just use the app name, and later solve the problem of two apps with the same name, or if name changes.
+     * We can assign each wasp app a unique id/hash that is stored in .waspinfo and use that. But it's a bit weird.
+       Also what if they copy app? Then it has same id.
+     * We can remove the volumes on wasp uninstall.
+     * We can have command in Wasp for cleaning those volumes.
+     * We can explain in docs where volumes are created and users can clean them out on their own (they would all be prefixed with =wasp=).
+2. Mount bind
+   * They can be stored local to the project dir, so that is perfect for moving project, deleting it, ...
+     -> no problems there, sounds perfect!
+   * BUT :), they have performance issues on mac / win, allegedly it is 10x slower, which sucks, especially when
+     used for the DB stuff. Who wants 10x slower db? Or maybe that is good for development, ensures
+     you are optimizing your db code :D?
+     
+*TODO*: Do we use volumes or mount bind? If volumes, what value do we use for Docker volume? Is it
+app name? Its path? Can we store the volume locally, in the dir of the project? If not, how can we
+make it survive the move of the project? What if there are two projects with the same name? What if
+we delete the project and volume remains on disk -> yuck? What if they uninstall Wasp and volume
+remains on disk -> yuck?
+
+**** Connecting to the managed db
+***** Connection URL anatomy
+
+This is what the postgres connection URL looks like:
+#+begin_src sh
+  DATABASE_URL=postgresql://<user>:<password>@localhost:<port>/<db_name>
+#+end_src
+
+which e.g. could be the following, if we use docker default settings:
+#+begin_src sh
+  DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
+#+end_src
+
+***** Obtaining connection URL
+
+If one is provided by the user, use that, otherwise assume they want to connect to the managed db,
+so use its url, which we should be able to derive from knowing the way we run managed db and the
+settings we used for it.
+   
+***** Using connection URL   
+
+****** Wasp (when compiling)
+When producing generated code, it should embed the database url into the =server/.env=, as =DATABASE_URL=.
+
+*TODO*: We might also want to put it into prisma.schema files? Have to investigate how we do stuff there.
+
+****** Wasp (in cmds)
+When running commands like ~wasp db migrate-dev~, ~wasp db studio~ and similar, we want to make sure
+they have access to the db. For most of them, it should be enough that compiled code has it in
+=server./env=, so maybe there is nothing to do here really, but still, we should double check this
+and provide it in any places needed. Maybe we can even make some of them not rely on =server/.env=,
+since that reliance is a bit smelly.
+
+****** User (manually)
+We also want to enable user to manually connect to the managed db if they want.
+
+I see three levels of this:
+ 1. Just provide them with connection url, when they run ~wasp db start~: we print connection url for them!
+ 2. A bit advanced would be to also print them a command to connect.
+ 3. Offer them a command that connects for them to the db, smth like ~wasp db connect~. This is probably redundant.
+
+I think we should do #1 and #2, I think those are great already and leave them enough control.
+
+**** Cleaning up the db
+Every so and so, you will want to clean up your db because you messed it up and go with a fresh
+start. Either you made a mess in the db itself, or something else has gone so wrong you just want to
+go with "turn it on and off" approach.
+
+We would offer ~wasp db clean~ command for such situations.
+There are two approaches to it:
+1. Connect to the database and drop all the tables and stuff.
+2. Completely delete the database data, probably by deleting the docker volume used for it (if we are using docker volumes).
+
+We have to yet pick the choice here, deleting the whole docker volume is probably the best, to ensure fresh start.
+
+**** [Bonus feature] Automatic running of the managed db
+
+Instead of user running ~wasp db start~ manually, we could run it for them automatically when they need it,
+to provide seamless DX when using the db.
+
+We would still want to enable them to run it manually though, for extra control, so we would keep ~wasp db start~.
+
+These are the situations when they need the db:
+1. On ~wasp start~.
+2. On ~wasp db ...~ commands.
+3. *TODO*: Maybe some other wasp commands? We should check.
+
+Also, we could have a compiler / local project options flag for choosing if automatic db running
+should be used or not, so people can turn it of if they encounter some kind of problems.
+
+***** Algorithm
+At start of a ~wasp~ command that needs db:
+1. *Check if managed db is already running*. If so, nothing to do, stop here.
+   * We can do this check by trying to connect to it? Is that expensive / complex? I think it is fine.
+2. If managed db is not running, *run it*!
+   * We will want to run it as a =job=, that will have its own output, same like we have for =Web App=, =Server= and =Db= so far.
+     So it will run concurrently with whatever else the command is doing.
+     Currently =Db= job is used for when we run Prisma commands -> we will likely want to label
+     those jobs with Prisma then, and use =Db= for actually running the db, or something like that.
+   * We will need to *make sure database init phase is done* before running the rest of the wasp command though.
+     So we want to start the db, listen for it successfully being initialized, and then run the rest of
+     the wasp command, while letting the db run concurrently. This might be a bit tricky to detect
+     and to act upon, with how =jobs= (jobs in Generator, not Wasp Jobs) currently work. We will
+     probably have to parse output from the command itself and listen for key phrases.
+
+***** Conclusion
+Since db actually starts up really quickly, this automatic running of it might be completely
+feasible! However, there are a couple of tricky things in implementing it, specifically in
+coordinating end of its init phase with the wasp command that needs it, so it does make sense to
+leave it as the very next step that we will implement when/if we will have resources. In the
+meantime, and as a safe back up option, we will have manual calling of ~wasp db start~.
