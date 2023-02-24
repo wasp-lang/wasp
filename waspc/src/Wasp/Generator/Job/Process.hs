@@ -111,7 +111,10 @@ runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
           runProcessAsJob nodeCommandProcess jobType chan
         else exitWithError (ExitFailure 1) (T.pack $ makeNodeVersionMismatchMessage nodeVersion)
   where
-    getAllEnvVars = (++ extraEnvVars) <$> getEnvironment
+    -- Haskell will use the first value for variable name it finds. Since env
+    -- vars in 'extraEnvVars' should override the the inherited env vars, we
+    -- must prepend them.
+    getAllEnvVars = (extraEnvVars ++) <$> getEnvironment
     exitWithError exitCode errorMsg = do
       writeChan chan $
         J.JobMessage
