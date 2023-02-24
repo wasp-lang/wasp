@@ -24,4 +24,7 @@ gitHubAuthInfo =
     $ App.Dependency.make ("passport-github2", "0.1.12")
 
 localAuthInfo :: LocalAuthInfo
-localAuthInfo = mkLocalAuthInfo "local" "Username and password"
+localAuthInfo =
+  mkLocalAuthInfo
+    "local"
+    "Username and password"

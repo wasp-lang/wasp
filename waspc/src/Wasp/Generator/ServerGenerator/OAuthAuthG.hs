@@ -41,8 +41,8 @@ genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers
-        <++> genOAuthProvider googleAuthInfo (AS.Auth.isGoogleAuthEnabled auth) (AS.Auth.google . AS.Auth.methods $ auth)
-        <++> genOAuthProvider gitHubAuthInfo (AS.Auth.isGitHubAuthEnabled auth) (AS.Auth.gitHub . AS.Auth.methods $ auth)
+        <++> genOAuthProvider googleAuthInfo (AS.Auth.google . AS.Auth.methods $ auth)
+        <++> genOAuthProvider gitHubAuthInfo (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
 
 genOAuthHelpers :: Generator [FileDraft]
@@ -54,11 +54,10 @@ genOAuthHelpers =
 
 genOAuthProvider ::
   ExternalAuthInfo ->
-  Bool ->
   Maybe AS.Auth.ExternalAuthConfig ->
   Generator [FileDraft]
-genOAuthProvider authInfo isEnabled maybeUserConfig
-  | isEnabled =
+genOAuthProvider authInfo maybeUserConfig
+  | isJust maybeUserConfig =
       sequence
         [ genOAuthConfig authInfo $ [reldir|routes/auth/providers/config|] </> providerTsFile,
           return $ C.mkSrcTmplFd $ OAuth.passportTemplateFilePath authInfo,
