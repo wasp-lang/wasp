@@ -13,7 +13,8 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
+import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo, localAuthInfo)
+import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -40,11 +41,21 @@ genAuth spec =
 
 -- | Generates file with signup function to be used by Wasp developer.
 genSignup :: Generator FileDraft
-genSignup = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/signup.js|])
+genSignup = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/signup.js|]) tmplData
+  where
+    tmplData =
+      object
+        [ "signupPath" .= serverSignupUrl localAuthInfo
+        ]
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: Generator FileDraft
-genLogin = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/login.js|])
+genLogin = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/login.js|]) tmplData
+  where
+    tmplData =
+      object
+        [ "loginPath" .= serverLoginUrl localAuthInfo
+        ]
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: Generator FileDraft
