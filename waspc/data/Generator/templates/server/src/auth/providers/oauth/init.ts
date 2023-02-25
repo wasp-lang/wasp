@@ -1,6 +1,6 @@
 import passport from "passport";
 
-import waspServerConfig from '../../../../config.js'
+import waspServerConfig from '../../../config.js'
 
 import { InitData, ProviderConfig } from "../types.js";
 

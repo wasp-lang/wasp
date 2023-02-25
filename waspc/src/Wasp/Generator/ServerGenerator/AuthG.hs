@@ -121,13 +121,13 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    utilsFileInSrcDir = [relfile|routes/auth/utils.js|]
+    utilsFileInSrcDir = [relfile|auth/utils.js|]
 
 genProvidersIndexAndTypes :: Generator [FileDraft]
 genProvidersIndexAndTypes =
   sequence
-    [ return $ C.mkSrcTmplFd [relfile|routes/auth/providers/index.ts|],
-      return $ C.mkSrcTmplFd [relfile|routes/auth/providers/types.ts|]
+    [ return $ C.mkSrcTmplFd [relfile|auth/providers/index.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/types.ts|]
     ]
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String

@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromJust, isJust)
 import StrongPath
   ( Dir,
     Dir',
@@ -34,7 +34,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -48,8 +48,8 @@ genOAuthAuth auth
 genOAuthHelpers :: Generator [FileDraft]
 genOAuthHelpers =
   sequence
-    [ return $ C.mkSrcTmplFd [relfile|routes/auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|routes/auth/providers/oauth/setupRouter.ts|]
+    [ return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/setupRouter.ts|]
     ]
 
 genOAuthProvider ::
@@ -59,13 +59,13 @@ genOAuthProvider ::
 genOAuthProvider authInfo maybeUserConfig
   | isJust maybeUserConfig =
       sequence
-        [ genOAuthConfig authInfo $ [reldir|routes/auth/providers/config|] </> providerTsFile,
+        [ genOAuthConfig authInfo $ [reldir|auth/providers/config|] </> providerTsFile,
           return $ C.mkSrcTmplFd $ OAuth.passportTemplateFilePath authInfo,
-          return $ C.mkSrcTmplFd $ [reldir|routes/auth/passport|] </> providerRelDir </> [relfile|defaults.js|],
+          return $ C.mkSrcTmplFd $ [reldir|auth/passport|] </> providerRelDir </> [relfile|defaults.js|],
           return $
             mkUserConfigForAuthProvider
-              [relfile|routes/auth/passport/generic/configMapping.js|]
-              ([reldir|routes/auth/passport|] </> providerRelDir </> [relfile|configMapping.js|])
+              [relfile|auth/passport/generic/configMapping.js|]
+              ([reldir|auth/passport|] </> providerRelDir </> [relfile|configMapping.js|])
               (Just userConfigJson)
         ]
   | otherwise = return []
@@ -105,25 +105,15 @@ mkUserConfigForAuthProvider pathInTemplatesSrcDir pathInGenProjectSrcDir tmplDat
 getJsonForUserConfig :: Maybe AS.Auth.ExternalAuthConfig -> Aeson.Value
 getJsonForUserConfig maybeUserConfig =
   object
-    [ "doesConfigFnExist" .= isJust maybeConfigFn,
-      "configFnImportStatement" .= fromMaybe "" maybeConfigFnImportStmt,
-      "configFnIdentifier" .= fromMaybe "" maybeConfigFnImportIdentifier,
-      "doesGetUserFieldsFnExist" .= isJust maybeGetUserFieldsFn,
-      "getUserFieldsFnImportStatement" .= fromMaybe "" maybeOnSignInFnImportStmt,
-      "getUserFieldsFnIdentifier" .= fromMaybe "" maybeOnSignInFnImportIdentifier
+    [ "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
+      "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
     ]
   where
-    getJsImportStmtAndIdentifier' = getJsImportStmtAndIdentifier relPathFromAuthConfigToServerSrcDir
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
-    maybeConfigFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeConfigFn
-    (maybeConfigFnImportStmt, maybeConfigFnImportIdentifier) = (fst <$> maybeConfigFnImportDetails, snd <$> maybeConfigFnImportDetails)
-
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< maybeUserConfig
-    maybeOnSignInFnImportDetails = getJsImportStmtAndIdentifier' <$> maybeGetUserFieldsFn
-    (maybeOnSignInFnImportStmt, maybeOnSignInFnImportIdentifier) = (fst <$> maybeOnSignInFnImportDetails, snd <$> maybeOnSignInFnImportDetails)
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathFromAuthConfigToServerSrcDir = [reldirP|../../../../|]
+    relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =

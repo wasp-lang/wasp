@@ -10,7 +10,7 @@ googleAuthInfo =
   mkExternalAuthInfo
     "google"
     "Google"
-    [relfile|routes/auth/passport/google/config.js|]
+    [relfile|auth/passport/google/config.js|]
     [relfile|google-logo-icon.png|]
     $ App.Dependency.make ("passport-google-oauth20", "2.0.0")
 
@@ -19,7 +19,7 @@ gitHubAuthInfo =
   mkExternalAuthInfo
     "github"
     "GitHub"
-    [relfile|routes/auth/passport/github/config.js|]
+    [relfile|auth/passport/github/config.js|]
     [relfile|github-logo-icon.png|]
     $ App.Dependency.make ("passport-github2", "0.1.12")
 

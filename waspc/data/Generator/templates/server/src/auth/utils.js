@@ -2,7 +2,7 @@
 
 import { v4 as uuidv4 } from 'uuid'
 
-import prisma from '../../dbClient.js'
+import prisma from '../dbClient.js'
 
 export const contextWithUserEntity = {
   entities: {

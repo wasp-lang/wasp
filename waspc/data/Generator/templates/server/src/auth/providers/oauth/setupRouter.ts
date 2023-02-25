@@ -1,8 +1,8 @@
 import { Router } from "express";
 import passport from "passport";
 
-import waspServerConfig from '../../../../config.js'
-import { sign } from '../../../../core/auth.js'
+import waspServerConfig from '../../../config.js'
+import { sign } from '../../../core/auth.js'
 import { authConfig, contextWithUserEntity, findOrCreateUserByExternalAuthAssociation } from "../../utils.js";
 
 import { ProviderConfig, InitData } from "../types.js";

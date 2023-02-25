@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getDirFromFileUrl, importJsFilesFromDir } from "../../../utils.js";
+import { getDirFromFileUrl, importJsFilesFromDir } from "../../utils.js";
 
 import { ProviderConfig } from "./types";
 
