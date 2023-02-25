@@ -4,9 +4,9 @@ import http from 'http'
 import app from './app.js'
 import config from './config.js'
 
-{=# doesServerSetupFnExist =}
-{=& serverSetupJsFnImportStatement =}
-{=/ doesServerSetupFnExist =}
+{=# setupFn.isDefined =}
+{=& setupFn.importStatement =}
+{=/ setupFn.isDefined =}
 
 {=# isPgBossJobExecutorUsed =}
 import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
@@ -21,9 +21,9 @@ const startServer = async () => {
   const port = normalizePort(config.port)
   app.set('port', port)
 
-  {=# doesServerSetupFnExist =}
-  await {= serverSetupJsFnIdentifier =}()
-  {=/ doesServerSetupFnExist =}
+  {=# setupFn.isDefined =}
+  await {= setupFn.importIdentifier =}()
+  {=/ setupFn.isDefined =}
 
   const server = http.createServer(app)
 

@@ -52,7 +52,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.ServerGenerator.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
@@ -212,17 +212,12 @@ genServerJs spec =
       (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
-            [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
-              "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier,
+            [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
-      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
