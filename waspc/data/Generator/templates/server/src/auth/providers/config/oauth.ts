@@ -3,10 +3,9 @@
 import { setupOAuthRouter } from "../oauth/setupRouter.js";
 import { makeOAuthInit } from "../oauth/init.js";
 
-import { ProviderConfig, ProviderType } from "../types.js";
+import { ProviderConfig } from "../types.js";
 
 const config: ProviderConfig = {
-    name: ProviderType.github,
     slug: "{= slug =}",
     init: makeOAuthInit({
         npmPackage: '{= npmPackage =}',

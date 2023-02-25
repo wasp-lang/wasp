@@ -4,10 +4,9 @@ import { Router } from "express";
 
 import login from "../local/login.js";
 import signup from "../local/signup.js";
-import { ProviderConfig, ProviderType } from "../types.js";
+import { ProviderConfig } from "../types.js";
 
 const config: ProviderConfig = {
-    name: ProviderType.local,
     slug: "{= slug =}",
     setupRouter() {
         const router = Router();

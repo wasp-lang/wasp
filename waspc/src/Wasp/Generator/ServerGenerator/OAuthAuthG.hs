@@ -32,7 +32,7 @@ import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, templateFilePathInP
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
+import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
@@ -79,11 +79,14 @@ genOAuthProvider authInfo maybeUserConfig
     slug = OAuth.slug authInfo
     userConfigJson = getJsonForUserConfig maybeUserConfig
 
-genOAuthConfig :: ExternalAuthInfo -> Path' (Rel ServerTemplatesSrcDir) File' -> Generator FileDraft
-genOAuthConfig authInfo pathToConfigTmpl = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOAuthConfig ::
+  ExternalAuthInfo ->
+  Path' (Rel ServerSrcDir) File' ->
+  Generator FileDraft
+genOAuthConfig authInfo pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.srcDirInServerTemplatesDir </> pathToConfigTmpl
-    dstFile = C.serverSrcDirInServerRootDir </> SP.castRel pathToConfigTmpl
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/oauth.ts|]
+    dstFile = C.serverSrcDirInServerRootDir </> pathToConfigDst
     tmplData =
       object
         [ "slug" .= OAuth.slug authInfo,

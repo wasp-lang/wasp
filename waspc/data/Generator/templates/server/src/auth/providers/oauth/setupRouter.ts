@@ -28,16 +28,16 @@ export function setupOAuthRouter(provider: ProviderConfig, initData: InitData) {
             const providerProfile = req?.wasp?.providerProfile;
 
             if (!providerProfile) {
-                throw new Error(`Missing ${provider.name} provider profile on request. This should not happen! Please contact Wasp.`);
+                throw new Error(`Missing ${provider.slug} provider profile on request. This should not happen! Please contact Wasp.`);
             } else if (!providerProfile.id) {
-                throw new Error(`${provider.name} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
+                throw new Error(`${provider.slug} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
             }
 
             // Wrap call to getUserFieldsFn so we can invoke only if needed.
             const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
             // TODO: In the future we could make this configurable, possibly associating an external account
             // with the currently logged in account, or by some DB lookup.
-            const user = await findOrCreateUserByExternalAuthAssociation(provider.name, providerProfile.id, getUserFields);
+            const user = await findOrCreateUserByExternalAuthAssociation(provider.slug, providerProfile.id, getUserFields);
 
             const token = await sign(user.id);
             res.json({ token });

@@ -9,7 +9,7 @@ export function makeOAuthInit({ passportImportPath, npmPackage }: OAuthImports) 
         const { config, getUserFieldsFn } = await import(passportImportPath);
         const ProviderStrategy = await import(npmPackage);
 
-        const passportStrategyName = `wasp${provider.name}LoginStrategy`;
+        const passportStrategyName = `wasp${provider.slug}LoginStrategy`;
         const requiredConfig = {
             callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${provider.slug}`,
             passReqToCallback: true
