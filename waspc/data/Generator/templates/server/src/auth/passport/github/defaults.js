@@ -1,4 +1,4 @@
-import { generateAvailableDictionaryUsername } from '../../../../core/auth.js'
+import { generateAvailableDictionaryUsername } from '../../../core/auth.js'
 
 // Default implementation if there is no `auth.methods.gitHub.configFn`.
 export function configFn() {
