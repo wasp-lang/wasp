@@ -9,7 +9,6 @@ import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust, isJust)
 import StrongPath
   ( Dir,
-    Dir',
     File',
     Path,
     Path',
@@ -28,7 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, templateFilePathInPassportDir)
+import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -59,60 +58,33 @@ genOAuthProvider ::
 genOAuthProvider authInfo maybeUserConfig
   | isJust maybeUserConfig =
       sequence
-        [ genOAuthConfig authInfo $ [reldir|auth/providers/config|] </> providerTsFile,
-          return $ C.mkSrcTmplFd $ OAuth.passportTemplateFilePath authInfo,
-          return $ C.mkSrcTmplFd $ [reldir|auth/passport|] </> providerRelDir </> [relfile|defaults.js|],
-          return $
-            mkUserConfigForAuthProvider
-              [relfile|auth/passport/generic/configMapping.js|]
-              ([reldir|auth/passport|] </> providerRelDir </> [relfile|configMapping.js|])
-              (Just userConfigJson)
+        [ genOAuthConfig authInfo maybeUserConfig $ [reldir|auth/providers/config|] </> providerTsFile
         ]
   | otherwise = return []
   where
-    providerRelDir :: Path' (Rel ()) Dir'
-    providerRelDir = fromJust $ SP.parseRelDir slug
-
     providerTsFile :: Path' (Rel ()) File'
     providerTsFile = fromJust $ SP.parseRelFile $ slug ++ ".ts"
 
     slug = OAuth.slug authInfo
-    userConfigJson = getJsonForUserConfig maybeUserConfig
 
 genOAuthConfig ::
   ExternalAuthInfo ->
+  Maybe AS.Auth.ExternalAuthConfig ->
   Path' (Rel ServerSrcDir) File' ->
   Generator FileDraft
-genOAuthConfig authInfo pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOAuthConfig authInfo maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/oauth.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> pathToConfigDst
     tmplData =
       object
         [ "slug" .= OAuth.slug authInfo,
+          "name" .= OAuth.displayName authInfo,
           "npmPackage" .= App.Dependency.name (OAuth.passportDependency authInfo),
-          "passportConfigImport" .= SP.fromRelFile ([reldir|../../passport/|] </> templateFilePathInPassportDir authInfo),
-          "oAuthConfigProps" .= getJsonForOAuthConfigProps authInfo
+          "oAuthConfigProps" .= getJsonForOAuthConfigProps authInfo,
+          "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
+          "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
         ]
-
-mkUserConfigForAuthProvider ::
-  Path' (Rel C.ServerTemplatesSrcDir) File' ->
-  Path' (Rel C.ServerSrcDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkUserConfigForAuthProvider pathInTemplatesSrcDir pathInGenProjectSrcDir tmplData =
-  C.mkTmplFdWithDstAndData srcPath dstPath tmplData
-  where
-    srcPath = C.srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
-    dstPath = C.serverSrcDirInServerRootDir </> pathInGenProjectSrcDir
-
-getJsonForUserConfig :: Maybe AS.Auth.ExternalAuthConfig -> Aeson.Value
-getJsonForUserConfig maybeUserConfig =
-  object
-    [ "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
-      "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
-    ]
-  where
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
     maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< maybeUserConfig
 

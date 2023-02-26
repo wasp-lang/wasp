@@ -8,6 +8,7 @@ import { ProviderConfig } from "../types.js";
 
 const config: ProviderConfig = {
     slug: "{= slug =}",
+    name: "{= name =}",
     setupRouter() {
         const router = Router();
 

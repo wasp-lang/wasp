@@ -16,7 +16,7 @@ for (const provider of providers) {
   }
   const providerRouter = setupRouter(provider, initData);
   router.use(`/${provider.slug}`, providerRouter);
-  console.log(`🚀 Init ${provider.slug} auth provider`);
+  console.log(`🚀 Init ${provider.name} auth provider`);
 }
 
 export default router;

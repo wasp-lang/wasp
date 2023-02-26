@@ -40,7 +40,8 @@ genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
 
     tmplData =
       object
-        [ "slug" .= Local.slug localAuthInfo
+        [ "slug" .= Local.slug localAuthInfo,
+          "name" .= Local.displayName localAuthInfo
         ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

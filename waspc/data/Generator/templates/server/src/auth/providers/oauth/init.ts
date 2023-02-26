@@ -4,9 +4,11 @@ import waspServerConfig from '../../../config.js';
 
 import { InitData, ProviderConfig, OAuthConfig } from "../types.js";
 
-export function makeOAuthInit({ passportImportPath, npmPackage, oAuthConfig }: OAuthImports) {
+export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage, oAuthConfig }: OAuthImports) {
     return async function init(provider: ProviderConfig): Promise<InitData> {
-        const { config: userDefinedConfig, getUserFieldsFn } = await import(passportImportPath);
+        const userDefinedConfig = userDefinedConfigFn
+            ? await userDefinedConfigFn()
+            : {};
         const ProviderStrategy = await import(npmPackage);
 
         const passportStrategyName = `wasp${provider.slug}LoginStrategy`;
@@ -45,20 +47,22 @@ async function addProviderProfileToRequest(req, _accessToken, _refreshToken, pro
 
 function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void {
     if (!config.clientID) {
-        throw new Error(`The ${provider.slug} configFn must return an object with a clientID property.`)
+        throw new Error(`The ${provider.name} auth provider requires clientID provided via env varibales.`)
     }
 
     if (!config.clientSecret) {
-        throw new Error(`The ${provider.slug} configFn must return an object with a clientSecret property.`)
+        throw new Error(`The ${provider.name} auth provider requires clientSecret provided via env varibales.`)
     }
 
     if (!config.scope || !Array.isArray(config.scope)) {
-        throw new Error(`The ${provider.slug} configFn must return an object with a scope property.`)
+        throw new Error(`The ${provider.name} auth provider requires scope.`)
     }
 }
 
 type OAuthImports = {
     npmPackage: string;
-    passportImportPath: string;
+    userDefinedConfigFn?: () => Promise<{ [key: string]: any }>;
+    // TODO: check the input type
+    getUserFieldsFn: (context: any, args: any) => Promise<{ [key: string]: any }>;
     oAuthConfig: OAuthConfig;
 };
