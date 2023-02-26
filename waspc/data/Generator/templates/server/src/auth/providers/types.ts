@@ -9,3 +9,9 @@ export type ProviderConfig = {
 export type InitData = {
     [key: string]: any;
 }
+
+export type OAuthConfig = {
+    clientID?: string;
+    clientSecret?: string;
+    scope?: string[];
+}

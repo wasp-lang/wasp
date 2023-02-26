@@ -91,7 +91,8 @@ genOAuthConfig authInfo pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmpl
       object
         [ "slug" .= OAuth.slug authInfo,
           "npmPackage" .= App.Dependency.name (OAuth.passportDependency authInfo),
-          "passportConfigImport" .= SP.fromRelFile ([reldir|../../passport/|] </> templateFilePathInPassportDir authInfo)
+          "passportConfigImport" .= SP.fromRelFile ([reldir|../../passport/|] </> templateFilePathInPassportDir authInfo),
+          "oAuthConfigProps" .= getJsonForOAuthConfigProps authInfo
         ]
 
 mkUserConfigForAuthProvider ::
@@ -117,6 +118,25 @@ getJsonForUserConfig maybeUserConfig =
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
+
+-- It should return a list of objects [{ key, value }]
+-- keys: clientID, clientSecret, scope
+-- values: process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, ['profile']
+getJsonForOAuthConfigProps :: ExternalAuthInfo -> [Aeson.Value]
+getJsonForOAuthConfigProps authInfo =
+  [ object
+      [ "key" .= ("clientID" :: String),
+        "value" .= ("process.env." ++ OAuth.clientIdEnvVarName authInfo)
+      ],
+    object
+      [ "key" .= ("clientSecret" :: String),
+        "value" .= ("process.env." ++ OAuth.clientSecretEnvVarName authInfo)
+      ],
+    object
+      [ "key" .= ("scope" :: String),
+        "value" .= OAuth.scopeStr authInfo
+      ]
+  ]
 
 depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =
