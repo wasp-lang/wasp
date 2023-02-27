@@ -12,6 +12,8 @@ waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
 waspMigrate/.wasp/out/server/package.json
+waspMigrate/.wasp/out/server/scripts/universal/validators.mjs
+waspMigrate/.wasp/out/server/scripts/validate-env.mjs
 waspMigrate/.wasp/out/server/src/_types/index.ts
 waspMigrate/.wasp/out/server/src/_types/taggedEntities.ts
 waspMigrate/.wasp/out/server/src/actions/types.ts
@@ -31,6 +33,7 @@ waspMigrate/.wasp/out/server/src/queries/types.ts
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
+waspMigrate/.wasp/out/server/src/universal/url.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json
 waspMigrate/.wasp/out/web-app/.npmrc
@@ -40,6 +43,8 @@ waspMigrate/.wasp/out/web-app/package.json
 waspMigrate/.wasp/out/web-app/public/favicon.ico
 waspMigrate/.wasp/out/web-app/public/index.html
 waspMigrate/.wasp/out/web-app/public/manifest.json
+waspMigrate/.wasp/out/web-app/scripts/universal/validators.mjs
+waspMigrate/.wasp/out/web-app/scripts/validate-env.mjs
 waspMigrate/.wasp/out/web-app/src/actions/core.d.ts
 waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/actions/index.ts
@@ -62,6 +67,7 @@ waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.js
 waspMigrate/.wasp/out/web-app/src/serviceWorker.js
+waspMigrate/.wasp/out/web-app/src/universal/url.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/tsconfig.json
 waspMigrate/.wasproot

@@ -1,5 +1,7 @@
 import _ from 'lodash'
 
+import { stripTrailingSlash } from "./universal/url.js";
+
 const env = process.env.NODE_ENV || 'development'
 
 // TODO:
@@ -15,10 +17,10 @@ const config = {
     frontendUrl: undefined,
   },
   development: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL || 'http://localhost:3000',
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000',
   },
   production: {
-    frontendUrl: process.env.WASP_WEB_CLIENT_URL,
+    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL),
   }
 }
 

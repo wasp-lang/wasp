@@ -6,32 +6,31 @@ export const signInUrl = `${config.apiUrl}{= signInPath =}`
 export const logoUrl = '/images/{= iconName =}'
 
 const containerStyle = {
-  boxSizing: 'border-box',
-  height: 40,
-  width: 225,
-
-  border: '1px solid darkgray',
-  borderRadius: 5,
-
-  padding: 5,
-  margin: '5px 0px',
-
-  backgroundColor: 'white'
+  border: '2px solid #cbd5e1',
+  margin: 0,
+  cursor: 'pointer',
+  borderRadius: '.375rem',
+  backgroundColor: '#f8fafc',
+  fontWeight: 600,
+  boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+  outline: '2px solid transparent',
+  outlineOffset: '2px',
 }
 
 const linkStyle = {
-  height: '100%',
-
   display: 'flex',
   alignItems: 'center',
-
   textDecoration: 'none',
-  color: 'black'
+  color: '#1e293b',
+  paddingLeft: '1.5rem',
+  paddingRight: '1.5rem',
+  paddingTop: '.75rem',
+  paddingBottom: '.75rem',
 }
 
 const logoStyle = {
-  maxHeight: 30,
-  marginRight: 10
+  maxHeight: '24px',
+  marginRight: '0.75rem'
 }
 
 export function SignInButton() {

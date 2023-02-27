@@ -1,6 +1,6 @@
 ---
 id: 01-creating-new-project
-title: "Creating new project"
+title: "Creating a new project"
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -74,6 +74,10 @@ If you'd prefer to follow along using TypeScript:
  just make sure to use the appropriate extensions.
 
 No extra configuration needed!
+
+To see how to get the most out of Wasp and TypeScript, take a look at [our
+TypeScript doc](/docs/typescript). It contains a list of all TypeScript features
+Wasp currently supports.
 :::
 
 Let's start with the `main.wasp` file, which introduces 3 new concepts:

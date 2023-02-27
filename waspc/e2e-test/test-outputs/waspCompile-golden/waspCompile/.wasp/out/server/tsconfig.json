@@ -3,11 +3,10 @@
   "compilerOptions": {
     // Overriding this until we implement more complete TypeScript support.
     "strict": false,
-    // Overriding this because we want to use top-level await 
+    // Overriding this because we want to use top-level await
     "module": "esnext",
     // Enable source map for debugging
     "sourceMap": true,
-    
     // The remaining settings should match node18/tsconfig.json, but I kept
     // them here to be explicit.
 
@@ -16,5 +15,6 @@
     "moduleResolution": "node",
     "outDir": "dist",
     "allowJs": true
-  }
+  },
+  "include": ["src"]
 }

@@ -76,6 +76,8 @@ genServer spec =
     <++> genJobs spec
     <++> genJobExecutors
     <++> genPatches spec
+    <++> genUniversalDir
+    <++> genEnvValidationScript
     <++> genExportedTypesDir
   where
     genFileCopy = return . C.mkTmplFd
@@ -243,12 +245,6 @@ genRoutesDir spec =
         )
     ]
 
-genExportedTypesDir :: Generator [FileDraft]
-genExportedTypesDir =
-  return
-    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
-    ]
-
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
   return
@@ -329,3 +325,22 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
     designateLastElement l =
       map (\(x1, x2, x3) -> (x1, x2, x3, False)) (init l)
         ++ map (\(x1, x2, x3) -> (x1, x2, x3, True)) [last l]
+
+genUniversalDir :: Generator [FileDraft]
+genUniversalDir =
+  return
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    ]
+
+genEnvValidationScript :: Generator [FileDraft]
+genEnvValidationScript =
+  return
+    [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
+      C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    ]
+
+genExportedTypesDir :: Generator [FileDraft]
+genExportedTypesDir =
+  return
+    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
+    ]

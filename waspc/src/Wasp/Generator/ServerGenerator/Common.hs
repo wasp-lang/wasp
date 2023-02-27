@@ -12,6 +12,8 @@ module Wasp.Generator.ServerGenerator.Common
     asServerFile,
     asServerSrcFile,
     toESModulesImportPath,
+    mkUniversalTmplFdWithDst,
+    ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
     ServerTemplatesSrcDir,
@@ -23,7 +25,7 @@ import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
 import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir, UniversalTemplatesDir, universalTemplatesDirInTemplatesDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -63,6 +65,14 @@ mkTmplFd srcPath = mkTmplFdWithDstAndData srcPath dstPath Nothing
   where
     dstPath = SP.castRel srcPath :: Path' (Rel ServerRootDir) File'
 
+mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
+mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
+  where
+    srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
+    dstPath =
+      serverSrcDirInServerRootDir
+        </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+
 mkTmplFdWithDstAndData ::
   Path' (Rel ServerTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
@@ -74,13 +84,15 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkSrcTmplFd :: Path' (Rel ServerTemplatesSrcDir) File' -> FileDraft
-mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothing
-  where
-    srcPath = srcDirInServerTemplatesDir </> pathInTemplatesSrcDir
-    dstPath =
-      serverSrcDirInServerRootDir
-        </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+mkUniversalTmplFdWithDst ::
+  Path' (Rel UniversalTemplatesDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  FileDraft
+mkUniversalTmplFdWithDst relSrcPath relDstPath =
+  createTemplateFileDraft
+    (serverRootDirInProjectRootDir </> relDstPath)
+    (universalTemplatesDirInTemplatesDir </> relSrcPath)
+    Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)
