@@ -10,8 +10,8 @@ import { handleRejection } from '../../utils.js'
 const router = express.Router()
 
 {=# apiRoutes =}
-// TODO: Add exported types.
-router.{= routeVerb =}('{= routePath =}', handleRejection((req, res) => {
+// TODO: Add types for entities.
+router.{= routeMethod =}('{= routePath =}', handleRejection((req, res) => {
   const context = {
     entities: {
       {=# entities =}

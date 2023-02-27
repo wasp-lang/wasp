@@ -11,7 +11,7 @@ import Wasp.Analyzer.StdTypeDefinitions.Entity ()
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
-import Wasp.AppSpec.Api (Api, HttpVerb)
+import Wasp.AppSpec.Api (Api, HttpMethod)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.Entity (Entity)
@@ -21,7 +21,7 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''DbSystem
-makeEnumType ''HttpVerb
+makeEnumType ''HttpMethod
 makeDeclType ''App
 makeDeclType ''Page
 makeDeclType ''Route
@@ -46,7 +46,7 @@ stdTypes =
   TD.addDeclType @Action $
   TD.addDeclType @Api $
   TD.addEnumType @DbSystem $
-  TD.addEnumType @HttpVerb $
+  TD.addEnumType @HttpMethod $
   TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
   TD.empty

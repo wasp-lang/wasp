@@ -108,8 +108,8 @@ query getTasks {
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
   entities: [Task],
-  route: "/foo/bar",
-  verb: GET
+  path: "/foo/bar",
+  method: GET
 }
 
 query getNumTasks {

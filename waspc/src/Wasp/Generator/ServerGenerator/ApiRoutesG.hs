@@ -31,8 +31,8 @@ genApiRoutes spec =
     getRouteData api =
       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisDirToServerSrcDir (Api.fn api)
        in object
-            [ "routeVerb" .= map toLower (show $ Api.verb api),
-              "routePath" .= Api.route api,
+            [ "routeMethod" .= map toLower (show $ Api.method api),
+              "routePath" .= Api.path api,
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
               "entities" .= allEntities

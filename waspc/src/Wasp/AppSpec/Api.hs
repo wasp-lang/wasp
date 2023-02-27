@@ -2,7 +2,7 @@
 
 module Wasp.AppSpec.Api
   ( Api (..),
-    HttpVerb (..),
+    HttpMethod (..),
   )
 where
 
@@ -15,12 +15,12 @@ import Wasp.AppSpec.ExtImport
 data Api = Api
   { fn :: ExtImport,
     entities :: Maybe [Ref Entity],
-    verb :: HttpVerb,
-    route :: String
+    method :: HttpMethod,
+    path :: String
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Api
 
-data HttpVerb = ALL | GET | POST | PUT | DELETE
+data HttpMethod = ALL | GET | POST | PUT | DELETE
   deriving (Show, Eq, Data)
