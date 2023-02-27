@@ -30,6 +30,7 @@ waspJob/.wasp/out/server/src/queries/types.ts
 waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.ts
+waspJob/.wasp/out/server/src/types/index.ts
 waspJob/.wasp/out/server/src/universal/url.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
