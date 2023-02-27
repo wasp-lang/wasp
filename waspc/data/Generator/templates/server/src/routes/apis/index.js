@@ -10,7 +10,6 @@ import { handleRejection } from '../../utils.js'
 const router = express.Router()
 
 {=# apiRoutes =}
-// TODO: Add types for entities.
 router.{= routeMethod =}('{= routePath =}', handleRejection((req, res) => {
   const context = {
     entities: {
