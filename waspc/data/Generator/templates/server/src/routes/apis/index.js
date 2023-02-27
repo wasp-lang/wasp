@@ -1,6 +1,7 @@
 {{={= =}=}}
 import express from 'express'
-import prisma from "../../dbClient.js"
+import prisma from '../../dbClient.js'
+import { handleRejection } from '../../utils.js'
 
 {=# apiRoutes =}
 {=& importStatement =}
@@ -10,7 +11,7 @@ const router = express.Router()
 
 {=# apiRoutes =}
 // TODO: Add exported types.
-router.{= routeVerb =}('{= routePath =}', (req, res, _next) => {
+router.{= routeVerb =}('{= routePath =}', handleRejection((req, res) => {
   const context = {
     entities: {
       {=# entities =}
@@ -18,8 +19,8 @@ router.{= routeVerb =}('{= routePath =}', (req, res, _next) => {
       {=/ entities =}
     },
   }
-  {= importIdentifier =}(req, res, context)
-})
+  return {= importIdentifier =}(req, res, context)
+}))
 {=/ apiRoutes =}
 
 export default router
