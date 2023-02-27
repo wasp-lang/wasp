@@ -33,6 +33,7 @@ waspMigrate/.wasp/out/server/src/queries/types.ts
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
+waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/universal/url.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json

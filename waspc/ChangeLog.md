@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.8.3
+
+### Express `app` and http `server` available in server `setupFn`
+- Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
+
 ## v0.8.2
 
 ### Non-breaking Changes
