@@ -12,7 +12,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Api (Api)
 import qualified Wasp.AppSpec.Api as Api
-import Wasp.Generator.Common (ServerRootDir)
+import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -34,8 +34,11 @@ genApiRoutes spec =
             [ "routeVerb" .= map toLower (show $ Api.verb api),
               "routePath" .= Api.route api,
               "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
+              "importIdentifier" .= jsImportIdentifier,
+              "entities" .= allEntities
             ]
+      where
+        allEntities = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
 
     relPathFromApisDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromApisDirToServerSrcDir = [reldirP|../..|]
