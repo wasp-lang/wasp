@@ -14,7 +14,7 @@ You can now define a root component for your client app. This is useful if you w
 ### `wasp deploy` CLI command added
 We have made it much easier to deploy your Wasp apps via a new CLI command, `wasp deploy`. 🚀 This release adds support for Fly.io, but we hope to add more hosting providers soon!
 
-### Import Wasp entity types (on frontend and backend)
+### Import Wasp Entity types (on frontend and backend)
 You can now import and use the types of Wasp entities anywhere in your code.
 
 Let's assume your Wasp file contains the following entity:
@@ -27,7 +27,7 @@ entity Task {=psl
     userId      Int
 psl=}
 ```
-Here's how a file on your backend can use it:
+Here's how you can access and use its type in a backend file:
 ```typescript
 import { Task } from '@wasp/entities/Task'
 
@@ -36,7 +36,7 @@ const getTasks = (args, context) => {
     // ...
 }
 ```
-And here's how a frontend component can use it:
+And here's how you can to the same in a frontend file:
 
 ```typescript
 // ...
@@ -59,7 +59,7 @@ Wasp now automatically generates appropriate types for the operations specified
 in your `.wasp` file. This reduces duplication and eliminates possible errors
 (i.e., no way to specify incorrect entities). Assuming your `.wasp` file looks
 like this:
-```css
+```c
 query getTasks {
   fn: import { getTasks } from "@server/queries.js",
   entities: [Task]
@@ -72,15 +72,15 @@ import { GetTasks} from '@wasp/queries'
 
 type Payload = Pick<Task, 'isDone'>;
 
-// Use the type parameters specify the Query's argument and return types.
+// Use the type parameters to specify the Query's argument and return types.
 const getTasks: GetTasks<Payload, Task[]> = (args, context) => {
-  // Thanks to the definition in your .wasp file, the compiler knows the type of
-  // `context` (and that it contains the `Task` entity).
+  // Thanks to the definition in your `.wasp` file, the compiler knows the type
+  // of `context` (and that it contains the `Task` entity).
   //
   // Thanks to the first type argument in `GetTasks`, the compiler knows `args`
   // is of type `Payload`.
   //
-  // Thanks to the first type argument in `GetTasks`, the compiler knows the
+  // Thanks to the second type argument in `GetTasks`, the compiler knows the
   // function must return a value of type `Task[]`.
 }
 ```

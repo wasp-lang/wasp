@@ -15,7 +15,7 @@ const Todo = (props: any) => {
 
   const { data: task, isFetching, error } = useQuery<Pick<Task, "id">, Task>(getTask, { id: taskId })
 
-  const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
+  const updateTaskIsDoneOptimistically = useAction<TaskPayload, Task>(updateTaskIsDone, {
     optimisticUpdates: [
       {
         getQuerySpecifier: () => [getTask, { id: taskId }],
