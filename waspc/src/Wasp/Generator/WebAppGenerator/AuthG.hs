@@ -15,7 +15,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo, localAuthInfo)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -110,8 +110,8 @@ genSocialLoginHelpers auth =
     gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
     googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
 
-    mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
-    mkHelpersFd externalAuthInfo helpersFp =
+    mkHelpersFd :: OAuthAuthInfo -> Path' Rel' File' -> FileDraft
+    mkHelpersFd oAuthAuthInfo helpersFp =
       mkTmplFdWithDstAndData
         [relfile|src/auth/helpers/Generic.js|]
         (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
@@ -119,9 +119,9 @@ genSocialLoginHelpers auth =
       where
         tmplData =
           object
-            [ "signInPath" .= OAuth.serverLoginUrl externalAuthInfo,
-              "iconName" .= SP.toFilePath (OAuth.logoFileName externalAuthInfo),
-              "displayName" .= OAuth.displayName externalAuthInfo
+            [ "signInPath" .= OAuth.serverLoginUrl oAuthAuthInfo,
+              "iconName" .= SP.toFilePath (OAuth.logoFileName oAuthAuthInfo),
+              "displayName" .= OAuth.displayName oAuthAuthInfo
             ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft

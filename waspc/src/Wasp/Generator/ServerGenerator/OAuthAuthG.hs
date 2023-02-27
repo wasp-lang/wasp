@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -52,7 +52,7 @@ genOAuthHelpers =
     ]
 
 genOAuthProvider ::
-  ExternalAuthInfo ->
+  OAuthAuthInfo ->
   Maybe AS.Auth.ExternalAuthConfig ->
   Generator [FileDraft]
 genOAuthProvider authInfo maybeUserConfig
@@ -68,7 +68,7 @@ genOAuthProvider authInfo maybeUserConfig
     slug = OAuth.slug authInfo
 
 genOAuthConfig ::
-  ExternalAuthInfo ->
+  OAuthAuthInfo ->
   Maybe AS.Auth.ExternalAuthConfig ->
   Path' (Rel ServerSrcDir) File' ->
   Generator FileDraft
@@ -91,10 +91,7 @@ genOAuthConfig authInfo maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
 
--- It should return a list of objects [{ key, value }]
--- keys: clientID, clientSecret, scope
--- values: process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, ['profile']
-getJsonForOAuthConfigProps :: ExternalAuthInfo -> [Aeson.Value]
+getJsonForOAuthConfigProps :: OAuthAuthInfo -> [Aeson.Value]
 getJsonForOAuthConfigProps authInfo =
   [ object
       [ "key" .= ("clientID" :: String),

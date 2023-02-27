@@ -1,10 +1,9 @@
 module Wasp.Generator.AuthProviders.Local
-  ( mkLocalAuthInfo,
-    slug,
+  ( slug,
     displayName,
     serverLoginUrl,
     serverSignupUrl,
-    LocalAuthInfo,
+    LocalAuthInfo (..),
   )
 where
 
@@ -12,9 +11,6 @@ data LocalAuthInfo = LocalAuthInfo
   { _slug :: String,
     _displayName :: String
   }
-
-mkLocalAuthInfo :: String -> String -> LocalAuthInfo
-mkLocalAuthInfo = LocalAuthInfo
 
 slug :: LocalAuthInfo -> String
 slug = _slug

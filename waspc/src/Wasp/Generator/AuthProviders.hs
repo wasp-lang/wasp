@@ -2,31 +2,32 @@ module Wasp.Generator.AuthProviders where
 
 import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
-import Wasp.Generator.AuthProviders.Local (LocalAuthInfo, mkLocalAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, mkExternalAuthInfo)
+import qualified Wasp.Generator.AuthProviders.Local as L
+import qualified Wasp.Generator.AuthProviders.OAuth as OA
 
-googleAuthInfo :: ExternalAuthInfo
+googleAuthInfo :: OA.OAuthAuthInfo
 googleAuthInfo =
-  mkExternalAuthInfo
-    "google"
-    "Google"
-    ["profile"]
-    [relfile|auth/passport/google/config.js|]
-    [relfile|google-logo-icon.png|]
-    $ App.Dependency.make ("passport-google-oauth20", "2.0.0")
+  OA.OAuthAuthInfo
+    { OA._slug = "google",
+      OA._displayName = "Google",
+      OA._requiredScope = ["profile"],
+      OA._logoFileName = [relfile|google-logo-icon.png|],
+      OA._passportDependency = App.Dependency.make ("passport-google-oauth20", "2.0.0")
+    }
 
-gitHubAuthInfo :: ExternalAuthInfo
+gitHubAuthInfo :: OA.OAuthAuthInfo
 gitHubAuthInfo =
-  mkExternalAuthInfo
-    "github"
-    "GitHub"
-    []
-    [relfile|auth/passport/github/config.js|]
-    [relfile|github-logo-icon.png|]
-    $ App.Dependency.make ("passport-github2", "0.1.12")
+  OA.OAuthAuthInfo
+    { OA._slug = "github",
+      OA._displayName = "GitHub",
+      OA._requiredScope = [],
+      OA._logoFileName = [relfile|github-logo-icon.png|],
+      OA._passportDependency = App.Dependency.make ("passport-github2", "0.1.12")
+    }
 
-localAuthInfo :: LocalAuthInfo
+localAuthInfo :: L.LocalAuthInfo
 localAuthInfo =
-  mkLocalAuthInfo
-    "local"
-    "Username and password"
+  L.LocalAuthInfo
+    { L._slug = "local",
+      L._displayName = "Username and password"
+    }

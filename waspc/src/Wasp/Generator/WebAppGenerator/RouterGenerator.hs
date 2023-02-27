@@ -21,7 +21,7 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (ExternalAuthInfo, frontendLoginUrl, serverOauthRedirectHandlerUrl)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo, frontendLoginUrl, serverOauthRedirectHandlerUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
@@ -123,12 +123,12 @@ createRouterTemplateData spec =
 
 createExternalAuthProviderTemplateData ::
   Maybe AS.App.Auth.Auth ->
-  (AS.App.Auth.Auth -> Bool, ExternalAuthInfo) ->
+  (AS.App.Auth.Auth -> Bool, OAuthAuthInfo) ->
   ExternalAuthProviderTemplateData
-createExternalAuthProviderTemplateData maybeAuth (method, externalAuthInfo) =
+createExternalAuthProviderTemplateData maybeAuth (method, oAuthAuthInfo) =
   ExternalAuthProviderTemplateData
-    { _authFrontendUrl = frontendLoginUrl externalAuthInfo,
-      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl externalAuthInfo,
+    { _authFrontendUrl = frontendLoginUrl oAuthAuthInfo,
+      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl oAuthAuthInfo,
       _authProviderEnabled = (method <$> maybeAuth) == Just True
     }
 
