@@ -56,12 +56,12 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
+      genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|],
-      genPublicIndexHtml spec,
-      genFileCopy [relfile|vite.config.ts|]
+      genIndexHtml spec
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
@@ -192,8 +192,8 @@ genSocialLoginIcons maybeAuth =
         (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
       ]
 
-genPublicIndexHtml :: AppSpec -> Generator FileDraft
-genPublicIndexHtml spec =
+genIndexHtml :: AppSpec -> Generator FileDraft
+genIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|index.html|])
