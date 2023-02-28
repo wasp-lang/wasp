@@ -1537,11 +1537,34 @@ app MyApp {
 
 #### `setupFn: ServerImport` (optional)
 
-`setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before server continues with its setup and starts serving any requests.
+`setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
-It gives you an opportunity to do any custom setup, e.g. setting up additional database or starting cron/scheduled jobs.
+It gives you an opportunity to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
 
-The javascript function should be async, takes no arguments and its return value is ignored.
+The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server routes or for example, setting up `socket.io`.
+```ts
+export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
+
+export type ServerSetupFnContext = {
+  app: Application, // === express.Application
+  server: Server,   // === http.Server
+}
+```
+
+As an example, adding a custom route would look something like:
+```ts title="src/server/myServerSetupCode.ts"
+import { ServerSetupFn, Application } from '@wasp/types'
+
+const mySetupFunction: ServerSetupFn = async ({ app }) => {
+  addCustomRoute(app)
+}
+
+function addCustomRoute(app: Application) {
+  app.get('/customRoute', (_req, res) => {
+    res.send('I am a custom route')
+  })
+}
+```
 
 In case you want to store some values for later use, or to be accessed by the Operations, recommended way is to store those in variables in the same module/file where you defined the javascript setup function and then expose additional functions for reading those values, which you can then import directly from Operations and use. This effectively turns your module into a singleton whose construction is performed on server start.
 
