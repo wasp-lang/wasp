@@ -4,8 +4,8 @@ module Wasp.AppSpec.ConfigFile
 where
 
 import StrongPath (File', Path', Rel)
-import Wasp.Common (WaspProjectDir)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Project.Common (WaspProjectDir)
 
 -- | A type for establishing the mapping of where to copy config files from/to.
 data ConfigFileRelocator = ConfigFileRelocator

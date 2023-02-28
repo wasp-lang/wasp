@@ -14,7 +14,7 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
-import Wasp.Lib (analyzeWaspProject)
+import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
 deps :: Command ()

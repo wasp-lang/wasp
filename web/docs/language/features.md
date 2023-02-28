@@ -1717,7 +1717,7 @@ Since environmental variables are usually different for server-side and client a
 
 `.env.server` and `.env.client` files should not be commited to the version control - we already ignore it by default in the .gitignore file we generate when you create a new Wasp project via `wasp new` cli command.
 
-Variables are defined in `.env.server` or `env.client` files in the form of `NAME=VALUE`, for example:
+Variables are defined in `.env.server` or `.env.client` files in the form of `NAME=VALUE`, for example:
 ```
 DATABASE_URL=postgresql://localhost:5432
 MY_VAR=somevalue
@@ -1754,29 +1754,20 @@ Default database is `SQLite`, since it is great for getting started with a new p
 Check below for more details on how to migrate from SQLite to PostgreSQL.
 
 ### PostgreSQL
-When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to spin up a postgres database on your own so it runs during development (when running `wasp start` or doing `wasp db ...` commands) and you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+When using `PostgreSQL` as your database (`app: { db: { system: PostgreSQL } }`), you will need to make sure you have a postgres database running during development (when running `wasp start` or doing `wasp db ...` commands).
 
-One of the easiest ways to run a PostgreSQL database on your own is by spinning up [postgres docker](https://hub.docker.com/_/postgres) container when you need it with the following shell command:
-```
-docker run \
-  --rm \
-  --publish 5432:5432 \
-  -v my-app-data:/var/lib/postgresql/data \
-  --env POSTGRES_PASSWORD=devpass1234 \
-  postgres
-```
+To help with this, Wasp provides `wasp start db` that starts the default db for you. Your Wasp app will automatically connect to it once you have it running via `wasp start db`, no additional configuration is needed. This command relies on Docker being installed on your machine.
 
-:::note
-The password you provide via `POSTGRES_PASSWORD` is relevant only for the first time when you run that docker command, when database is set up for the first time. Consequent runs will ignore the value of `POSTGRES_PASSWORD` and will just use the password that was initially set. This is just how postgres docker works.
-:::
+#### Custom database
 
-The easiest way to provide the needed `DATABASE_URL` environment variable is by adding the following line to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it):
-```
-DATABASE_URL=postgresql://postgres:devpass1234@localhost:5432/postgres
-```
+If instead of using `wasp start db` you would rather connect to some other database, you will need to provide Wasp with `DATABASE_URL` environment variable that Wasp will use to connect to it.
+
+The easiest way to provide the needed `DATABASE_URL` environment variable is by adding it to the [.env.server](https://wasp-lang.dev/docs/language/features#env) file in the root dir of your Wasp project (if that file doesn't yet exist, create it).
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.
-1. Set `app.db.system` to `PostgreSQL` and set `DATABASE_URL` env var accordingly (as described [above](/docs/language/features#postgresql)).
-2. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
-3. Run `wasp db migrate-dev` to apply new changes and create new, initial migration. You will need to have your postgres database running while doing this (check [above](/docs/language/features#postgresql) for easy way to get it running).
+1. Set `app.db.system` to `PostgreSQL`.
+3. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
+3. Run `wasp start db` to start your new db running (or check instructions above if you prefer using your custom db). Leave it running, since we need it for the next step.
+4. In a different terminal, run `wasp db migrate-dev` to apply new changes and create new, initial migration.
+5. That is it, you are all done!

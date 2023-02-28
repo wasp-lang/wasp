@@ -3,6 +3,7 @@ waspJob/.wasp/out/.waspchecksums
 waspJob/.wasp/out/Dockerfile
 waspJob/.wasp/out/db/schema.prisma
 waspJob/.wasp/out/installedFullStackNpmDependencies.json
+waspJob/.wasp/out/server/.env
 waspJob/.wasp/out/server/.npmrc
 waspJob/.wasp/out/server/README.md
 waspJob/.wasp/out/server/nodemon.json
@@ -34,6 +35,7 @@ waspJob/.wasp/out/server/src/types/index.ts
 waspJob/.wasp/out/server/src/universal/url.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
+waspJob/.wasp/out/web-app/.env
 waspJob/.wasp/out/web-app/.npmrc
 waspJob/.wasp/out/web-app/README.md
 waspJob/.wasp/out/web-app/index.html

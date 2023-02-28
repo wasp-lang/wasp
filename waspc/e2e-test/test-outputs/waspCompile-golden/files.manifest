@@ -3,6 +3,7 @@ waspCompile/.wasp/out/.waspchecksums
 waspCompile/.wasp/out/Dockerfile
 waspCompile/.wasp/out/db/schema.prisma
 waspCompile/.wasp/out/installedFullStackNpmDependencies.json
+waspCompile/.wasp/out/server/.env
 waspCompile/.wasp/out/server/.npmrc
 waspCompile/.wasp/out/server/README.md
 waspCompile/.wasp/out/server/nodemon.json
@@ -32,6 +33,7 @@ waspCompile/.wasp/out/server/src/types/index.ts
 waspCompile/.wasp/out/server/src/universal/url.ts
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/server/tsconfig.json
+waspCompile/.wasp/out/web-app/.env
 waspCompile/.wasp/out/web-app/.npmrc
 waspCompile/.wasp/out/web-app/README.md
 waspCompile/.wasp/out/web-app/index.html

@@ -5,45 +5,43 @@ module Wasp.Cli.Command.Info
   )
 where
 
-import Control.Arrow
-import Control.Monad.Except
+import Control.Arrow ()
+import Control.Monad.Except (MonadIO (liftIO))
 import StrongPath (Abs, Dir, Path', fromRelFile)
-import StrongPath.Operations
+import StrongPath.Operations ()
 import System.Directory (getFileSize)
-import qualified Wasp.Analyzer as Analyzer
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.Core.Decl as AS (Decl, takeDecls)
+import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, readWaspCompileInfo)
+import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import qualified Wasp.Cli.Common as Cli.Common
+import Wasp.Cli.Command.Start.Db (getDbSystem)
 import Wasp.Cli.Terminal (title)
-import Wasp.Common (WaspProjectDir)
-import Wasp.Error (showCompilerErrorForTerminal)
-import Wasp.Lib (findWaspFile)
 import qualified Wasp.Message as Msg
-import Wasp.Util (ifM)
+import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 
 info :: Command ()
 info = do
   waspDir <- findWaspProjectRootDirFromCwd
-  compileInfo <- liftIO $ readCompileInformation waspDir
+
+  compileInfo <- liftIO $ readWaspCompileInfo waspDir
   projectSize <- liftIO $ readDirectorySizeMB waspDir
-  declsOrError <- liftIO $ parseWaspFile waspDir
-  case declsOrError of
-    Left err -> cliSendMessageC $ Msg.Failure "Info failed" err
-    Right decls -> do
-      cliSendMessageC $
-        Msg.Info $
-          unlines
-            [ "",
-              title "Project information",
-              printInfo "Name" (fst $ head $ AS.takeDecls @AS.App.App decls),
-              printInfo "Last compile" compileInfo,
-              printInfo "Project size" projectSize
-            ]
+
+  appSpec <- analyze waspDir
+  let (appName, app) = ASV.getApp appSpec
+
+  cliSendMessageC $
+    Msg.Info $
+      unlines
+        [ "",
+          title "Project information",
+          printInfo "Name" appName,
+          printInfo "Database system" $ show $ getDbSystem app,
+          printInfo "Last compile" compileInfo,
+          printInfo "Project dir size" projectSize
+        ]
 
 printInfo :: String -> String -> String
 printInfo key value = Term.applyStyles [Term.Cyan] key ++ ": " <> Term.applyStyles [Term.White] value
@@ -52,26 +50,3 @@ readDirectorySizeMB :: Path' Abs (Dir WaspProjectDir) -> IO String
 readDirectorySizeMB path = (++ " MB") . show . (`div` 1000000) . sum <$> allFileSizes
   where
     allFileSizes = IOUtil.listDirectoryDeep path >>= mapM (getFileSize . fromRelFile)
-
-readCompileInformation :: Path' Abs (Dir WaspProjectDir) -> IO String
-readCompileInformation waspDir =
-  ifM
-    (IOUtil.doesFileExist dotWaspInfoFile)
-    (IOUtil.readFile dotWaspInfoFile)
-    (return "No compile information found")
-  where
-    dotWaspInfoFile =
-      waspDir </> Cli.Common.dotWaspDirInWaspProjectDir
-        </> Cli.Common.generatedCodeDirInDotWaspDir
-        </> Cli.Common.dotWaspInfoFileInGeneratedCodeDir
-
-parseWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String [AS.Decl])
-parseWaspFile waspDir = runExceptT $ do
-  waspFile <- ExceptT $ findWaspFile waspDir
-  waspStr <- liftIO $ IOUtil.readFile waspFile
-  liftEither $ left (annotateErrorForCli waspFile waspStr) $ Analyzer.analyze waspStr
-  where
-    annotateErrorForCli waspFile waspStr =
-      ("Couldn't parse .wasp file:\n" ++)
-        . showCompilerErrorForTerminal (waspFile, waspStr)
-        . Analyzer.getErrorMessageAndCtx

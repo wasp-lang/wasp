@@ -23,6 +23,13 @@
     [
         [
             "file",
+            "server/.env"
+        ],
+        "1e580d0718f6e02db66939b7f6f6bb839c1ef65f7cf00b4c51b04f903690bbb0"
+    ],
+    [
+        [
+            "file",
             "server/.gitignore"
         ],
         "2c3d81dd719ff91d51609a02d03ba62ad456e2c50763b7b4c761395cb583f890"
@@ -243,6 +250,13 @@
             "server/tsconfig.json"
         ],
         "f2632965c1e3678fcc0e63b83d7e33fea1a9008ef5fd5a2f5e7bf278337c3e02"
+    ],
+    [
+        [
+            "file",
+            "web-app/.env"
+        ],
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     ],
     [
         [
