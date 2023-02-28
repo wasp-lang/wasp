@@ -36,39 +36,39 @@ app Conduit {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage"
+  component: import Main from "@client/MainPage.jsx"
 }
 
 route LogInRoute { path: "/login", to: LogInPage }
 page LogInPage {
-  component: import LogIn from "@client/auth/LoginPage"
+  component: import LogIn from "@client/auth/LoginPage.jsx"
 }
 
 route RegisterRoute { path: "/register", to: SignUpPage }
 page SignUpPage {
-  component: import SignUp from "@client/auth/SignupPage"
+  component: import SignUp from "@client/auth/SignupPage.jsx"
 }
 
 route UserSettingsRoute { path: "/settings", to: UserSettingsPage }
 page UserSettingsPage {
   authRequired: true,
-  component: import UserSettings from "@client/user/components/UserSettingsPage"
+  component: import UserSettings from "@client/user/components/UserSettingsPage.jsx"
 }
 
 route UserProfileRoute { path: "/@:username", to: UserProfilePage }
 page UserProfilePage {
-  component: import UserProfile from "@client/user/components/UserProfilePage"
+  component: import UserProfile from "@client/user/components/UserProfilePage.jsx"
 }
 
 route ArticleEditorRoute { path: "/editor/:articleSlug?", to: ArticleEditorPage }
 page ArticleEditorPage {
   authRequired: true,
-  component: import ArticleEditor from "@client/article/components/ArticleEditorPage"
+  component: import ArticleEditor from "@client/article/components/ArticleEditorPage.jsx"
 }
 
 route ArticleViewRoute { path: "/article/:articleSlug", to: ArticleViewPage }
 page ArticleViewPage {
-  component: import ArticleView from "@client/article/components/ArticleViewPage"
+  component: import ArticleView from "@client/article/components/ArticleViewPage.jsx"
 }
 
 // ----------------- Entities ------------------ //

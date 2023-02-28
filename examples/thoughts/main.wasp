@@ -19,24 +19,24 @@ app Thoughts {
 
 route MainRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage",
+  component: import Main from "@client/MainPage.jsx",
   authRequired: true
 }
 
 route ThoughtsRoute { path: "/thoughts", to: ThoughtsPage }
 page ThoughtsPage {
-  component: import Thoughts from "@client/ThoughtsPage",
+  component: import Thoughts from "@client/ThoughtsPage.jsx",
   authRequired: true
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/LoginPage"
+  component: import Login from "@client/LoginPage.jsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import Signup from "@client/SignupPage"
+  component: import Signup from "@client/SignupPage.jsx"
 }
 
 action createThought {

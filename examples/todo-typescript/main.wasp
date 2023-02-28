@@ -34,17 +34,17 @@ psl=}
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
-  component: import { MainPage } from "@client/MainPage"
+  component: import { MainPage } from "@client/MainPage.tsx"
 }
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@client/LoginPage"
+  component: import { LoginPage } from "@client/LoginPage.tsx"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@client/SignupPage"
+  component: import { SignupPage } from "@client/SignupPage.tsx"
 }
 
 query getTasks {

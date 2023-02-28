@@ -30,17 +30,17 @@ app waspello {
 route MainRoute { path: "/", to: Main }
 page Main {
     authRequired: true,
-    component: import Main from "@client/MainPage"
+    component: import Main from "@client/MainPage.jsx"
 }
 
 route SignupRoute { path: "/signup", to: Signup }
 page Signup {
-    component: import Signup from "@client/SignupPage"
+    component: import Signup from "@client/SignupPage.jsx"
 }
 
 route LoginRoute { path: "/login", to: Login }
 page Login {
-    component: import Login from "@client/LoginPage"
+    component: import Login from "@client/LoginPage.jsx"
 }
 
 // Entities
