@@ -3,8 +3,8 @@
 ## v0.8.3
 
 ### BREAKING CHANGES
-- All client files which use `JSX` need to have either the `.jsx` or the `.tsx` extension. This is because we now use `Vite` under the hood instead of `Create React App`, and `Vite` requires this extension to be present to process `JSX`` files.
-- The Tailwind and PostCSS configs files need to have the `.cjs` extension. These config files are CommonJS modules, and with `Vite` we are using ES modules by default.
+- All client files which use `JSX` need to have either the `.jsx` or the `.tsx` extension. This is because we now use `Vite` under the hood instead of `Create React App`, and `Vite` requires these extensions to be present to process `JSX`` properly.
+- The Tailwind and PostCSS config files need to have the `.cjs` extension. These config files are CommonJS modules, and with `Vite` we are using ES modules by default.
 
 ### Wasp now uses Vite instead of Create React App
 We moved away from using Create React App for the client app. This means that dev startup time will be much faster and we are following the latest best practices for building web apps with React.
