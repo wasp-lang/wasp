@@ -2,20 +2,31 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import LoginForm from '@wasp/auth/forms/Login'
-// import { SignInButton as GoogleSignInButton } from '@wasp/auth/helpers/Google'
-// import { SignInButton as GitHubSignInButton } from '@wasp/auth/helpers/GitHub'
+
+import appearance from './appearance'
+import todoLogo from '../../todoLogo.png'
 
 const Login = () => {
   return (
-    <div className="flex flex-col gap-5">
-      <LoginForm />
-      <span>
-        I don't have an account yet (<Link to="/signup">go to signup</Link>).
-      </span>
-      {/* <div className="flex flex-col gap-2 max-w-xs">
-        <GoogleSignInButton/>
-        <GitHubSignInButton/>
-      </div> */}
+    <div className='w-full h-full bg-white'>
+      <div className='min-w-full min-h-[75vh] flex items-center justify-center'>
+        <div className='w-full h-full max-w-sm p-5 bg-white'>
+
+          <div>
+            <LoginForm
+              appearance={appearance} 
+              logo={todoLogo} 
+              socialLayout='horizontal'
+            />
+            <br/>
+            <span className='text-sm font-medium text-gray-900'>
+              Don't have an account yet? (<Link to="/signup">go to signup</Link>).
+            </span>
+            <br/>
+          </div>
+
+        </div>
+      </div>
     </div>
   )
 }
