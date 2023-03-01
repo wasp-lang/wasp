@@ -14,10 +14,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 1. Requirements
 
-You need to have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version, and currently that's version `v18.14.0`.
+You need to have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version, and currently, that's version `v18.14.0`.
 
 You can check the `node` version by running:
-```shell-session
+```shell
 $ node -v
 v18.14.0
 ```
@@ -33,18 +33,18 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   Install nvm via your OS package manager (aptitude, pacman, homebrew, ...) or alternatively via [nvm install script](https://github.com/nvm-sh/nvm#install--update-script).
 
   Then, install a version of node that you need, e.g.:
-  ```shell-session
+  ```shell
   nvm install 18
   ```
 
-  Finally, whenever you need to ensure specific version of node is used, run e.g.
-  ```shell-session
+  Finally, whenever you need to ensure a specific version of node is used, run e.g.
+  ```shell
   nvm use 18
   ```
-  to set the node version for current shell session.
+  to set the node version for the current shell session.
 
   You can run
-  ```shell-session
+  ```shell
   node -v
   ```
   to check the version of node currently being used in this shell session.
@@ -59,7 +59,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
     Why this version of node?
   </summary>
   <div>
-    At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintainance, which is why the official Node.js team recommends it for usage in production.
+    At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintenance, which is why the official Node.js team recommends it for usage in production.
     Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
     Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
   </div>
@@ -81,7 +81,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 
 Open your terminal and run:
 
-```bash
+```shell
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
 
@@ -118,7 +118,7 @@ Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more detai
 </Tabs>
 
 ## 3. Creating and running your first app
-```shell-session
+```shell
 wasp new MyNewApp # Creates a new web app named MyNewApp.
 cd MyNewApp
 wasp start # Serves the web app.

@@ -21,13 +21,13 @@ psl=}
 Since Wasp uses [Prisma](https://www.prisma.io) as a database, the definition of an entity comes down to defining a [Prisma model](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/data-model/), using PSL (Prisma Schema Language) inside the `{=psl psl=}` tags.
 
 After this change and before running `wasp start`, we first need to run:
-```shell-session
+```shell
 wasp db migrate-dev
 ```
 This instructs Prisma to create a new database schema migration (you'll see a new directory `migrations/` appeared in the root dir of our app) and apply it to the database.
 
 To take a look at the database and the new `Task` schema, run:
-```shell-session
+```shell
 wasp db studio
 ```
 
