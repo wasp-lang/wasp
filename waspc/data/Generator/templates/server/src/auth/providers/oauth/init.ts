@@ -1,6 +1,8 @@
 import passport from "passport";
+import type { Request } from "express";
 
 import waspServerConfig from '../../../config.js';
+import { contextWithUserEntity } from "../../utils";
 
 import { InitData, ProviderConfig, OAuthConfig } from "../types.js";
 
@@ -15,13 +17,15 @@ export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage
         const requiredConfig = {
             clientID: oAuthConfig.clientID,
             clientSecret: oAuthConfig.clientSecret,
-            // TODO: enable user to extend the scope
             scope: oAuthConfig.scope,
             callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${provider.slug}`,
             passReqToCallback: true
         };
 
-        const config = { ...requiredConfig, ...userDefinedConfig };
+        const config = {
+            ...requiredConfig,
+            ...userDefinedConfig,
+        };
         ensureValidConfig(provider, config);
 
         const passportStrategy = new ProviderStrategy.default(
@@ -40,7 +44,13 @@ export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage
 // This function is invoked after we successfully exchange the one-time-use OAuth code for a real provider API token.
 // This token was used to get the provider profile information supplied as a parameter.
 // We add the provider profile to the request for downstream use.
-async function addProviderProfileToRequest(req, _accessToken, _refreshToken, providerProfile, done) {
+async function addProviderProfileToRequest(
+    req: Request,
+    _accessToken: string,
+    _refreshToken: string,
+    providerProfile: { [key: string]: any },
+    done: any,
+) {
     req.wasp = { ...req.wasp, providerProfile };
     done(null, {});
 }
@@ -62,7 +72,9 @@ function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void 
 type OAuthImports = {
     npmPackage: string;
     userDefinedConfigFn?: () => Promise<{ [key: string]: any }>;
-    // TODO: check the input type
-    getUserFieldsFn: (context: any, args: any) => Promise<{ [key: string]: any }>;
+    getUserFieldsFn: (
+        context: typeof contextWithUserEntity,
+        args: { profile: { [key: string]: any } }
+    ) => Promise<{ [key: string]: any }>;
     oAuthConfig: OAuthConfig;
 };

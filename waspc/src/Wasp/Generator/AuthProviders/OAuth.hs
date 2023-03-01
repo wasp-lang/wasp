@@ -38,27 +38,27 @@ logoFileName :: OAuthAuthInfo -> Path' Rel' File'
 logoFileName = _logoFileName
 
 clientIdEnvVarName :: OAuthAuthInfo -> String
-clientIdEnvVarName eai = upperCaseSlug eai ++ "_CLIENT_ID"
+clientIdEnvVarName oai = upperCaseSlug oai ++ "_CLIENT_ID"
 
 clientSecretEnvVarName :: OAuthAuthInfo -> String
-clientSecretEnvVarName eai = upperCaseSlug eai ++ "_CLIENT_SECRET"
+clientSecretEnvVarName oai = upperCaseSlug oai ++ "_CLIENT_SECRET"
 
 upperCaseSlug :: OAuthAuthInfo -> String
-upperCaseSlug eai = map toUpper (_slug eai)
+upperCaseSlug oai = map toUpper (_slug oai)
 
 scopeStr :: OAuthAuthInfo -> String
-scopeStr eai = "[" ++ intercalate ", " scopeStrs ++ "]"
+scopeStr oai = "[" ++ intercalate ", " scopeStrs ++ "]"
   where
-    scopeStrs = map show (_requiredScope eai)
+    scopeStrs = map show (_requiredScope oai)
 
 passportDependency :: OAuthAuthInfo -> Dependency
 passportDependency = _passportDependency
 
 frontendLoginUrl :: OAuthAuthInfo -> String
-frontendLoginUrl eai = "/auth/login/" ++ _slug eai
+frontendLoginUrl oai = "/auth/login/" ++ _slug oai
 
 serverLoginUrl :: OAuthAuthInfo -> String
-serverLoginUrl eai = "/auth/" ++ _slug eai ++ "/login"
+serverLoginUrl oai = "/auth/" ++ _slug oai ++ "/login"
 
 serverOauthRedirectHandlerUrl :: OAuthAuthInfo -> String
-serverOauthRedirectHandlerUrl eai = "/auth/" ++ _slug eai ++ "/callback"
+serverOauthRedirectHandlerUrl oai = "/auth/" ++ _slug oai ++ "/callback"
