@@ -16,14 +16,14 @@ To enable support for Tailwind in your Wasp project, you simply need to add two 
 ├── main.wasp
 ├── src
 │   ├── client
-│   │   ├── jsconfig.json
+│   │   ├── tsconfig.json
 │   │   ├── Main.css
 │   │   ├── MainPage.js
 │   │   └── waspLogo.png
 │   ├── server
-│   │   └── jsconfig.json
+│   │   └── tsconfig.json
 │   └── shared
-│       └── jsconfig.json
+│       └── tsconfig.json
 ├── postcss.config.cjs
 └── tailwind.config.cjs
 ```
