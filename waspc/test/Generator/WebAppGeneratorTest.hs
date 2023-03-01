@@ -65,12 +65,12 @@ spec_WebAppGenerator = do
               concat
                 [ [ "README.md",
                     "package.json",
-                    ".gitignore"
+                    ".gitignore",
+                    "index.html"
                   ],
                   map
                     ("public" </>)
                     [ "favicon.ico",
-                      "index.html",
                       "manifest.json"
                     ],
                   map
