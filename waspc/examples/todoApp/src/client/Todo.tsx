@@ -36,7 +36,7 @@ const Todo = () => {
   return (
     <div className="flex justify-center">
       <div className="w-3/6 shadow-md rounded p-6">
-        <h1>Todos</h1>
+        <h1 className="mb-2">Todos</h1>
 
         <div className="flex justify-start gap-2">
           <ToggleAllTasksButton disabled={!areThereAnyTasks(tasks)} />

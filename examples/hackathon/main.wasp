@@ -15,9 +15,9 @@ entity Submission {=psl
   name       String  @id @unique
   email       String  @unique
   github      String
-  description String  
+  description String
   twitter     String?
-  country     String? 
+  country     String?
   website     String?
   image       String?
   approved    Boolean @default(false)
@@ -26,7 +26,7 @@ psl=}
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage"
+  component: import Main from "@client/MainPage.tsx"
 }
 
 action submitProject {

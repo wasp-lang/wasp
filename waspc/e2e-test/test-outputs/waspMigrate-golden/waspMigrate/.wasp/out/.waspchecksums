@@ -53,7 +53,7 @@
             "file",
             "server/package.json"
         ],
-        "cc972d370309b53537abab3a263c3cf8bf3eb62cfc972d5c5b6a23fc0686fab8"
+        "478ff50cf793c66fbf195bbdfcb6fe46f68f3623fd854fb346b312444cbe8ad7"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "server/src/config.js"
         ],
-        "379caccb02ebdabfb084d962c9f598d7c036323b3cdc66fd9c3875043fa12e82"
+        "60a63ed453f6a6d8306f7a3660eff80b5f9803b37e5865db66fcae80df918a68"
     ],
     [
         [
@@ -200,7 +200,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "c6114654819216004f0ef4a8771a0c1213c655cfd41760fbd835077c53a6b6ba"
+        "c0edaf956cf6d6f8424c22216b1e464f2f900ce672274fabf670ec4378ca3a95"
+    ],
+    [
+        [
+            "file",
+            "server/src/types/index.ts"
+        ],
+        "37352cdaeae444c90632fe788d1e49eca3927ef8755702ba95c81c8b90d9f408"
     ],
     [
         [
@@ -247,6 +254,13 @@
     [
         [
             "file",
+            "web-app/index.html"
+        ],
+        "be16520d0a664cda0212f52f7d42d5839415e8dd4a6ff025f6063e5b4b1f852d"
+    ],
+    [
+        [
+            "file",
             "web-app/netlify.toml"
         ],
         "854009c7d1b2630a55099439f89e4947188ea4160c9d1388b46b5a5cf6ab461a"
@@ -256,7 +270,7 @@
             "file",
             "web-app/package.json"
         ],
-        "620a5a691580e4d2f78aaf7169b139cc2a4131500de0523b6b740a06feb77efb"
+        "54b7e66b5dc8c14c01fd424b118883370b24c4dba232120bfc808714d54baa11"
     ],
     [
         [
@@ -264,13 +278,6 @@
             "web-app/public/favicon.ico"
         ],
         "1481f03584b46b63182c1f8d26e61a95ce4d8fae032b2b4f3fe5e00ab7e96c23"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/index.html"
-        ],
-        "8f4dd34e5793c4b06ebd711fc033a3ec789a69e4d63c2b2c2deb81b97869b311"
     ],
     [
         [
@@ -326,7 +333,7 @@
             "file",
             "web-app/src/config.js"
         ],
-        "f06f1bdb98dd4387b18159288ade916fd2c5bf3ed4161ca6711b0bda2f5963c3"
+        "b06175129dd8be8ca6c307fafa02646d47233c4e26fdfeea6d7802d02e9513f3"
     ],
     [
         [
@@ -352,9 +359,9 @@
     [
         [
             "file",
-            "web-app/src/ext-src/react-app-env.d.ts"
+            "web-app/src/ext-src/vite-env.d.ts"
         ],
-        "c9e89cb25e83121c0c451125de7a0b0569161e2bf18f83bc5f69836403910744"
+        "d677883c270ee71acc9bfd95c824650b541036599427a8ffc0ad33323d08e61d"
     ],
     [
         [
@@ -366,9 +373,9 @@
     [
         [
             "file",
-            "web-app/src/index.js"
+            "web-app/src/index.tsx"
         ],
-        "278ad569e8dbf14568c481e7929718362d40d4b6dc1940d4975453594e5568e9"
+        "7f1ee2834d45d4fe451e0eff699245e5de3a82a9d82a9931538cac75c2210e1f"
     ],
     [
         [
@@ -436,16 +443,9 @@
     [
         [
             "file",
-            "web-app/src/router.js"
+            "web-app/src/router.jsx"
         ],
-        "70c9237cf961320f04d9736007a8ec3fbc1cd1adfe2cfbc5214cb2d91d57d503"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/serviceWorker.js"
-        ],
-        "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+        "103724de16eb74300d9fab366bf73401ffd6bf9018394044c1d4ade22731868e"
     ],
     [
         [
@@ -464,8 +464,29 @@
     [
         [
             "file",
+            "web-app/src/vite-env.d.ts"
+        ],
+        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
             "web-app/tsconfig.json"
         ],
-        "7ba6350177394b6aaa336b3d13d7b7d9119bb6ddc35d594fe48458e313957a1f"
+        "49258557f92e10eddda507885655d22f51d52f6f39e277c2ec1c9d626018c728"
+    ],
+    [
+        [
+            "file",
+            "web-app/tsconfig.node.json"
+        ],
+        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite.config.ts"
+        ],
+        "ab5c138ab0ab01f5108c2da9a8bf6b673b79115ca97276f6293da8e3bc0a45b1"
     ]
 ]

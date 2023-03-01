@@ -78,6 +78,7 @@ genServer spec =
     <++> genPatches spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genExportedTypesDir
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -134,7 +135,7 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash", "^4.17.21")
+            ("lodash.merge", "^4.6.2")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec,
@@ -146,6 +147,7 @@ npmDepsForWasp spec =
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
+            ("@types/express", "^4.17.13"),
             ("@types/node", "^18.11.9"),
             ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
@@ -330,4 +332,10 @@ genEnvValidationScript =
   return
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
+    ]
+
+genExportedTypesDir :: Generator [FileDraft]
+genExportedTypesDir =
+  return
+    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
     ]

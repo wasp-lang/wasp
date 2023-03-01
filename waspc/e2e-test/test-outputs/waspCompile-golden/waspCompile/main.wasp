@@ -7,5 +7,5 @@ app waspCompile {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage"
+  component: import Main from "@client/MainPage.jsx"
 }
