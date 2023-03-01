@@ -51,7 +51,7 @@ psl=}
 
 route RootsRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage.js"
+  component: import Main from "@client/MainPage.jsx"
 }
 
 query dashboard {

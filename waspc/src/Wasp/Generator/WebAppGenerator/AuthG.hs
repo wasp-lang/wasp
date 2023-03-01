@@ -53,7 +53,7 @@ genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
 genCreateAuthRequiredPage auth =
   compileTmplToSamePath
-    [relfile|auth/pages/createAuthRequiredPage.js|]
+    [relfile|auth/pages/createAuthRequiredPage.jsx|]
     ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth]
 
 -- | Generates React hook that Wasp developer can use in a component to get
@@ -73,13 +73,13 @@ genAuthForms auth =
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
   compileTmplToSamePath
-    [relfile|auth/forms/Login.js|]
+    [relfile|auth/forms/Login.jsx|]
     ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   compileTmplToSamePath
-    [relfile|auth/forms/Signup.js|]
+    [relfile|auth/forms/Signup.jsx|]
     ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
 
 genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -95,13 +95,13 @@ genSocialLoginHelpers auth =
         [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.js|]
-    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.js|]
+    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.jsx|]
+    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.jsx|]
 
     mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
     mkHelpersFd externalAuthInfo helpersFp =
       mkTmplFdWithDstAndData
-        [relfile|src/auth/helpers/Generic.js|]
+        [relfile|src/auth/helpers/Generic.jsx|]
         (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
         (Just tmplData)
       where
@@ -115,7 +115,7 @@ genSocialLoginHelpers auth =
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
 genOAuthCodeExchange auth =
   compileTmplToSamePath
-    [relfile|auth/pages/OAuthCodeExchange.js|]
+    [relfile|auth/pages/OAuthCodeExchange.jsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
       "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
     ]
