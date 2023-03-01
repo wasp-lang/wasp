@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Tailwind
 
-To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.js` and `postcss.config.js`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) to your CSS files and `className`s to your React components.
+To enable support for Tailwind in your Wasp project, you simply need to add two config files (`tailwind.config.cjs` and `postcss.config.cjs`) to the root directory. When they are present, Wasp will add the necessary NPM dependencies and copy your config files into the generated project output. You can then start adding [Tailwind CSS directives](https://tailwindcss.com/docs/functions-and-directives#directives) to your CSS files and `className`s to your React components.
 
 ### New project tree overview
 ```bash title="tree ." {6,13-14}
@@ -24,14 +24,18 @@ To enable support for Tailwind in your Wasp project, you simply need to add two 
 │   │   └── jsconfig.json
 │   └── shared
 │       └── jsconfig.json
-├── postcss.config.js
-└── tailwind.config.js
+├── postcss.config.cjs
+└── tailwind.config.cjs
 ```
 
 ### Tailwind integration steps
 
-#### 1) Add `./tailwind.config.js`
-```js title="./tailwind.config.js"
+:::caution
+You need to name the config files with the `.cjs` extension since they are CommonJS modules. If you name them with `.js` extension, Wasp will not be able to find them and Tailwind integration will not work.
+:::
+
+#### 1) Add `./tailwind.config.cjs`
+```js title="./tailwind.config.cjs"
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -44,8 +48,8 @@ module.exports = {
 }
 ```
 
-#### 2) Add `./postcss.config.js`
-```js title="./postcss.config.js"
+#### 2) Add `./postcss.config.cjs`
+```js title="./postcss.config.cjs"
 module.exports = {
   plugins: {
     tailwindcss: {},
@@ -71,9 +75,9 @@ module.exports = {
 ```
 
 ### Adding Tailwind plugins
-To add Tailwind plugins, add them to your `tailwind.config.js` file and `main.wasp` files:
+To add Tailwind plugins, add them to your `tailwind.config.cjs` file and `main.wasp` files:
 
-```js title="./tailwind.config.js" {10-11}
+```js title="./tailwind.config.cjs" {10-11}
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
