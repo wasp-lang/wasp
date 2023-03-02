@@ -10,10 +10,18 @@ This document assumes you are familiar with TypeScript and primarily focuses on 
 
 The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](https://wasp-lang.dev/docs/language/features).
 
-:::info
-To get the best IDE experience, make sure to leave `wasp start` running in the background. Wasp will track the working directory and make sure the generated code/types are up to date with your changes.
+Besides allowing you to write your code in TypeScript, Wasp also supports:
+ - Importing and using Wasp Entity types (on both the server and the client).
+ - Automatically generated types for Queries and Actions.
+ - Type-safe generic hooks (`useQuery` and `useAction`) with the accompanying type inference.
+ - Type-safe optimistic update definitions.
 
-Your editor may sometimes report type and import errors even while `wasp start` is running. This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, try manually restarting the language server by opening the command pallete and selecting _"TypeScript: Restart TS Server"_.
+We'll dig into the details of each feature in the following sections. But first, let's see how you can introduce TypeScript to an existing Wasp project.
+
+:::info
+To get the best IDE experience, make sure to leave `wasp start` running in the background. Wasp will track the working directory and ensure the generated code/types are up to date with your changes.
+
+Your editor may sometimes report type and import errors even while `wasp start` is running. This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, you can manually restart the language server by opening the command palette and selecting _"TypeScript: Restart TS Server."_
 :::
 
 ## Migrating your project to TypeScript 
@@ -80,7 +88,7 @@ export const getTaskInfo = async ({ id }, context) => {
 You don't need to change anything inside the `.wasp` file.
 :::caution
 <!-- This block is mostly duplicated in 03-listing-tasks.md -->
-Even when you use TypeScript and your file is called `queries.ts`, you still need to import it using the `.js` extension, like this:
+Even when you use TypeScript, and your file is called `queries.ts`, you still need to import it using the `.js` extension:
 ```c
 query getTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
@@ -88,7 +96,7 @@ query getTaskInfo {
 }
 ```
 
-Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
+Wasp internally uses `esnext` module resolution, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` imports (and files on the server in general). This quirk does not apply to client files (the transpiler takes care of it).
 
 Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
 :::
@@ -147,7 +155,7 @@ query GetTaskInfo {
   entities: [Task]
 }
 ```
-Wasp will generate a type called `GetTaskInfo`, which you can use to type the Query's implementation. By assigning the `GetTaskInfo` type to your function, you get the type information for its context. In this case, TypeScript will know that the `context.entities` object must include the `Task` entity. If the Query had auth enabled, it would also know that `context` includes user information.
+Wasp will generate a type called `GetTaskInfo`, which you can use to type the Query's implementation. By assigning the `GetTaskInfo` type to your function, you get the type information for its context. In this case, TypeScript will know the `context.entities` object must include the `Task` entity. If the Query had auth enabled, it would also know that `context` includes user information.
 
 `GetTaskInfo` can is a generic type that takes two (optional) type arguments:
 1. `Input` - The argument (i.e., payload) received by the query function.
@@ -198,7 +206,7 @@ To add type support to Queries on the frontend, you can use:
   - `Output` - Use this type argument to specify the type for the **resposne's payload**.
   - `Error` - Use this type argument to specify the error the Query throws.
 
-Here's how a component that uses the Query the `getTaskInfo` might look like:
+Here's what a component that uses the Query the `getTaskInfo` might look like:
 ```tsx title="TaskInfo.tsx"
 import { useQuery } from "@wasp/queries"
 import getTaskInfo from "@wasp/queries/getTaskInfo"
@@ -214,7 +222,7 @@ export const TaskInfo = () => {
     // TypeScript also knows `isError` is a `boolean` regardless of the
     // specified type arguments.
     isError,        
-    // TypeScript knows `id` must b a `Task["id]` (i.e., a number) because of
+    // TypeScript knows `id` must be a `Task["id"]` (i.e., a number) because of
     // the first type argument.
     // highlight-next-line
   } = useQuery<TaskInfoPayload, string>(getTaskInfo, { id: 1 })
@@ -276,6 +284,10 @@ action addTask {
 ```
 Here's how you can use it:
 ```tsx title=AddTask.tsx
+import { useAction } from "@wasp/actions"
+import addTask from "@wasp/queries/addTask"
+import { Task } from "@wasp/entities"
+
 const AddTask = ({ description }: Pick<Task, "description">) => {
 
   // TypeScript knows `addTaskAction` is a function that expects a value of
@@ -314,6 +326,7 @@ const Task = ({ taskId }: Pick<Task, "id">) => {
         getQuerySpecifier: () => [getTask, { id: taskId }],
         // This query's cache should should never be empty
         updateQuery: ({ isDone }, oldTask) => ({ ...oldTask!, isDone }),
+      // highlight-next-line
       } as OptimisticUpdateDefinition<TaskPayload, Task>,
       {
         getQuerySpecifier: () => [getTasks],
@@ -321,6 +334,7 @@ const Task = ({ taskId }: Pick<Task, "id">) => {
           oldTasks && oldTasks.map(task =>
             task.id === updatedTask.id ? { ...task, ...updatedTask } : task
           ),
+      // highlight-next-line
       } as OptimisticUpdateDefinition<TaskPayload, Task[]>
     ]
   })
