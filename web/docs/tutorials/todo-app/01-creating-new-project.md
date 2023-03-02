@@ -17,7 +17,7 @@ wasp start
 You have just run your app in the development mode!
 
 :::note
-`wasp start` might take a little bit longer, due to the first-time setup.
+`wasp start` might take a little bit longer due to the initial setup.
 :::
 
 You will be seeing a lot of different output from the client, server and database setting themselves up.
