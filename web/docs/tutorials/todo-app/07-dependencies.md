@@ -21,7 +21,7 @@ app TodoApp {
 ```
 
 Run
-```shell-session
+```shell
 wasp start
 ```
 to have Wasp download and install the new dependency. If `wasp start` is already running, Wasp will detect the dependency change, and restart automatically.
@@ -34,12 +34,12 @@ import 'react-clock/dist/Clock.css'
 
 const Clocks = () => {
   const [time, setTime] = useState(new Date())
-  
+
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(interval)
   }, [])
-  
+
   return (
     <div style={{ display: 'flex' }}>
       <Clock value={time} />
@@ -51,7 +51,7 @@ const Clocks = () => {
 export default Clocks
 ```
 
-And let's import it in our main React component.
+And let's import it into our main React component.
 ```jsx {2,11} title="src/client/MainPage.jsx"
 // ...
 import Clocks from './Clocks'

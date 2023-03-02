@@ -65,7 +65,7 @@ const PHBadge = () => (
     <img
       className='w-32 md:w-[180px]'
       src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=277135&theme=light&period=daily"
-      alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt" 
+      alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt"
     />
   </a>
 )
@@ -73,7 +73,7 @@ const PHBadge = () => (
 const Hero = () => {
   const codeString =
 `app todoApp {
-  title: "ToDo App", /* visible in tab */
+  title: "ToDo App",  /* visible in the browser tab */
 
   auth: { /* full-stack auth out-of-the-box */
     userEntity: User,
@@ -90,7 +90,7 @@ page MainPage {
   /* Only logged in users can access this. */
   authRequired: true,
   /* import your React code */
-  component: import Main from "@client/Main.js"
+  component: import Main from "@client/Main.jsx"
 }`
 
   return (
@@ -168,7 +168,7 @@ page MainPage {
             {/* Editor body */}
             <div className='w-full text-sm shadow-2xl rounded-b-md'>
               <SyntaxHighlighter
-                language="javascript" 
+                language="javascript"
                 style={atomOneLight}
                 customStyle={{
                   borderBottomLeftRadius: '10px',
