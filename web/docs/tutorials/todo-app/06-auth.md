@@ -139,7 +139,7 @@ export default SignupPage
 
 Now, let's see how we're going to handle the situation when the user is not logged in.
 `MainPage` page is a private page and we want users to be able to see it only if they are authenticated.
-There is a specific Wasp feature that allows us to achieve this simply:
+Wasp allows you to simply enforce private pages using the `authRequired` field:
 
 ```c {3} title="main.wasp"
 // ...
