@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "257ad73773a8a72444090aa9dfbc751be76e61a2c448e8705c883e0512b5e91b"
+        "45dd065b8f3937ad56587759a30dc25fc467783a8f9cdd6e68f15fbed5babdff"
     ],
     [
         [
@@ -123,7 +123,7 @@
             "file",
             "server/src/config.js"
         ],
-        "02236bb0b83e4869b34c7673bd0be5893a33f2b77d8e9a209148e600b28a1bd0"
+        "99e89fb4d207108caf0afeaf8f364819bac6f6d7c28a0a14b6ae7a4f134aa779"
     ],
     [
         [
@@ -361,7 +361,14 @@
             "file",
             "server/src/server.ts"
         ],
-        "7c099cba53fb9fd02ef897bfb6f86e031d75c51ad49efa708fa286662d8edd66"
+        "e27f5f548ccf994e7a60c8e28b2eec80bb578d0da5c19cadb83b45745bc6fb84"
+    ],
+    [
+        [
+            "file",
+            "server/src/types/index.ts"
+        ],
+        "37352cdaeae444c90632fe788d1e49eca3927ef8755702ba95c81c8b90d9f408"
     ],
     [
         [
@@ -408,6 +415,13 @@
     [
         [
             "file",
+            "web-app/index.html"
+        ],
+        "f1ca90861003c568c2670b0064f15431cfc45a68b23ffd890b1187af588a76d9"
+    ],
+    [
+        [
+            "file",
             "web-app/netlify.toml"
         ],
         "854009c7d1b2630a55099439f89e4947188ea4160c9d1388b46b5a5cf6ab461a"
@@ -417,7 +431,7 @@
             "file",
             "web-app/package.json"
         ],
-        "79d6a40ddbd77c8c654c59454dbae28d4c66919a60eb8b4529285064e505cbe6"
+        "7076213d4eff673d37d271baa15cdda5cd5a647d31944015f52ef72aad558ac8"
     ],
     [
         [
@@ -432,13 +446,6 @@
             "web-app/public/images/google-logo-icon.png"
         ],
         "e2087f585c3b213ba537a56c8bc8e6134c69d6fa1a5728d306df56d697b4e7ab"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/index.html"
-        ],
-        "2f2717b7b1e5f8088002ae3528477c0eb3b79ebb09e62fb91b84e0ed0710fd04"
     ],
     [
         [
@@ -499,21 +506,21 @@
     [
         [
             "file",
-            "web-app/src/auth/forms/Login.js"
+            "web-app/src/auth/forms/Login.jsx"
         ],
         "2a97bf6cb1ba5cd1f271dc83aaac5864a7e5738b72814c7d09bb3e5f70877686"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/Signup.js"
+            "web-app/src/auth/forms/Signup.jsx"
         ],
         "712a1513116da68cef5a8dddcf80fbaffa8b733690c52e7c5cc1ef329af591e9"
     ],
     [
         [
             "file",
-            "web-app/src/auth/helpers/Google.js"
+            "web-app/src/auth/helpers/Google.jsx"
         ],
         "7707679f4ef70592429401cf932206b5cfd87dd80d244e3e8c05803658406228"
     ],
@@ -541,16 +548,16 @@
     [
         [
             "file",
-            "web-app/src/auth/pages/OAuthCodeExchange.js"
+            "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
         "bb202daa3b41c8288252d56a74ed78bed7129d7c96be96171cd516795d0ff71b"
     ],
     [
         [
             "file",
-            "web-app/src/auth/pages/createAuthRequiredPage.js"
+            "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
-        "e88e3faae4772674e1ed2a08c515ca9b6d04ccb826105bdc762c3df2e5ff5cd8"
+        "796720e403436139720fa72b941bc5fcf190b05777693c62d2b5f638e872badc"
     ],
     [
         [
@@ -571,7 +578,7 @@
             "file",
             "web-app/src/config.js"
         ],
-        "f06f1bdb98dd4387b18159288ade916fd2c5bf3ed4161ca6711b0bda2f5963c3"
+        "b06175129dd8be8ca6c307fafa02646d47233c4e26fdfeea6d7802d02e9513f3"
     ],
     [
         [
@@ -611,9 +618,9 @@
     [
         [
             "file",
-            "web-app/src/ext-src/react-app-env.d.ts"
+            "web-app/src/ext-src/vite-env.d.ts"
         ],
-        "c9e89cb25e83121c0c451125de7a0b0569161e2bf18f83bc5f69836403910744"
+        "d677883c270ee71acc9bfd95c824650b541036599427a8ffc0ad33323d08e61d"
     ],
     [
         [
@@ -625,9 +632,9 @@
     [
         [
             "file",
-            "web-app/src/index.js"
+            "web-app/src/index.tsx"
         ],
-        "ebab57bad021ee077a991cada538bbc4cabb69aa4e9e5ae6898bced123cdc54f"
+        "bcb8202d7b6c536d1589aa5ec64407e6e856fd4b3866ec8e2111389fee2c751d"
     ],
     [
         [
@@ -702,16 +709,9 @@
     [
         [
             "file",
-            "web-app/src/router.js"
+            "web-app/src/router.jsx"
         ],
-        "a87e66ccbbbe3845397ea9fb22911dedf5b10aff8e762d66b4f7f0db59c712e7"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/serviceWorker.js"
-        ],
-        "0b097cb6e2c83821630a33de933893bf75de49731b18ce3c25fc5384866fbac0"
+        "a92e5d20f1e2bbb7b4cbfae12e145338ddf34c38823c4b49c954da3c9b623157"
     ],
     [
         [
@@ -730,8 +730,29 @@
     [
         [
             "file",
+            "web-app/src/vite-env.d.ts"
+        ],
+        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    ],
+    [
+        [
+            "file",
             "web-app/tsconfig.json"
         ],
-        "7ba6350177394b6aaa336b3d13d7b7d9119bb6ddc35d594fe48458e313957a1f"
+        "49258557f92e10eddda507885655d22f51d52f6f39e277c2ec1c9d626018c728"
+    ],
+    [
+        [
+            "file",
+            "web-app/tsconfig.node.json"
+        ],
+        "c40d0614fda5b8a746a1ba2e3be8e2370140c0167851ac77881cd53bb5647cdd"
+    ],
+    [
+        [
+            "file",
+            "web-app/vite.config.ts"
+        ],
+        "ab5c138ab0ab01f5108c2da9a8bf6b673b79115ca97276f6293da8e3bc0a45b1"
     ]
 ]

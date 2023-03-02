@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Redirect } from 'react-router-dom'
-import useAuth from '../../auth/useAuth.js'
+import useAuth from '../useAuth.js'
 
 
 const createAuthRequiredPage = (Page) => {

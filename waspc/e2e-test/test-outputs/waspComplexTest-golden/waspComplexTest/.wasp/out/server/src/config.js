@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import merge from 'lodash.merge'
 
 import { stripTrailingSlash } from "./universal/url.js";
 
@@ -33,5 +33,5 @@ const config = {
   }
 }
 
-const resolvedConfig = _.merge(config.all, config[env])
+const resolvedConfig = merge(config.all, config[env])
 export default resolvedConfig

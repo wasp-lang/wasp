@@ -7,7 +7,6 @@ import {
   initializeQueryClient,
   queryClientInitialized,
 } from './queryClient'
-import * as serviceWorker from './serviceWorker'
 
 import myClientSetupFunction from './ext-src/myClientSetupCode.js'
 
@@ -18,11 +17,6 @@ async function startApp() {
   initializeQueryClient()
 
   await render()
-
-  // If you want your app to work offline and load faster, you can change
-  // unregister() to register() below. Note this comes with some pitfalls.
-  // Learn more about service workers: https://bit.ly/CRA-PWA
-  serviceWorker.unregister()
 }
 
 async function render() {

@@ -4,6 +4,7 @@ import app from './app.js'
 import config from './config.js'
 
 import mySetupFunction from './ext-src/myServerSetupCode.js'
+import { ServerSetupFnContext } from './types'
 
 import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
 import './jobs/core/allJobs.js'
@@ -14,9 +15,10 @@ const startServer = async () => {
   const port = normalizePort(config.port)
   app.set('port', port)
 
-  await mySetupFunction()
-
   const server = http.createServer(app)
+
+  const serverSetupFnContext: ServerSetupFnContext = { app, server }
+  await mySetupFunction(serverSetupFnContext)
 
   server.listen(port)
 
