@@ -12,8 +12,15 @@ app waspComplexTest {
     onAuthFailedRedirectTo: "/login"
   },
 
-  server: { setupFn: import mySetupFunction from "@server/myServerSetupCode.js" },
-  client: { setupFn: import myClientSetupFunction from "@client/myClientSetupCode.js", rootComponent: import App from "@client/App.jsx" },
+  server: {
+    setupFn: import mySetupFunction from "@server/myServerSetupCode.js",
+  },
+
+  client: {
+    setupFn: import myClientSetupFunction from "@client/myClientSetupCode.js",
+    rootComponent: import App from "@client/App.jsx"
+  },
+
   dependencies: [
     ("redux", "^4.0.5"),
     ("react-redux", "^7.1.3")
