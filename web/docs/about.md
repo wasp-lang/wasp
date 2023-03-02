@@ -32,7 +32,7 @@ actions.
 ## Is Wasp a web app framework?
 Wasp is addressing the same core problems that typical web app frameworks are addressing, and it in big part [looks, swims and quacks](https://en.wikipedia.org/wiki/Duck_test) like a web app framework.
 
-On the other hand, Wasp does not match typical expectations of a web app framework: it is not a set of libraries, but instead, it is a programming language (DSL).
+On the other hand, Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a programming language (DSL).
 
 ## What it is meant for
 - building full-stack web apps (like e.g. Airbnb or Asana)
