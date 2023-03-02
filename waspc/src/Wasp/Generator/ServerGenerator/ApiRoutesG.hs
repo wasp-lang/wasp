@@ -38,8 +38,8 @@ genApiRoutes spec =
     getTmplData api =
       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisDirToServerSrcDir (Api.fn api)
        in object
-            [ "routeMethod" .= map toLower (show $ Api.method api),
-              "routePath" .= Api.path api,
+            [ "routeMethod" .= map toLower (show $ Api.method . Api.httpRoute $ api),
+              "routePath" .= (Api.path . Api.httpRoute $ api),
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
               "entities" .= allEntities
