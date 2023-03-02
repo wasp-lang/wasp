@@ -1,0 +1,69 @@
+app waspComplexTest {
+  db: { system: PostgreSQL },
+  wasp: {
+    version: "^0.8.2"
+  },
+  auth: {
+    userEntity: User,
+    externalAuthEntity: SocialLogin,
+    methods: {
+      google: {}
+    },
+    onAuthFailedRedirectTo: "/login"
+  },
+
+  server: {
+    setupFn: import mySetupFunction from "@server/myServerSetupCode.js",
+  },
+
+  client: {
+    setupFn: import myClientSetupFunction from "@client/myClientSetupCode.js",
+    rootComponent: import App from "@client/App.jsx"
+  },
+
+  dependencies: [
+    ("redux", "^4.0.5"),
+    ("react-redux", "^7.1.3")
+  ],
+
+  title: "waspComplexTest"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
+entity User {=psl
+  id                        Int           @id @default(autoincrement())
+  username                  String        @unique
+  password                  String
+  externalAuthAssociations  SocialLogin[]
+psl=}
+
+entity SocialLogin {=psl
+  id          Int       @id @default(autoincrement())
+  provider    String
+  providerId  String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  createdAt   DateTime  @default(now())
+  @@unique([provider, providerId, userId])
+psl=}
+
+job MySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@server/jobs/bar.js"
+  }
+}
+
+action MySpecialAction {
+  fn: import { foo } from "@server/actions/bar.js",
+  entities: [User],
+}
+
+query MySpecialQuery {
+  fn: import { foo } from "@server/queries/bar.js",
+  entities: [User],
+}
+

@@ -6,7 +6,7 @@ import config from './config.js'
 
 {=# doesServerSetupFnExist =}
 {=& serverSetupJsFnImportStatement =}
-import { ServerSetupFnContext } from './types'
+import { ServerSetupFn, ServerSetupFnContext } from './types'
 {=/ doesServerSetupFnExist =}
 
 {=# isPgBossJobExecutorUsed =}
@@ -26,7 +26,7 @@ const startServer = async () => {
 
   {=# doesServerSetupFnExist =}
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
-  await {= serverSetupJsFnIdentifier =}(serverSetupFnContext)
+  await ({= serverSetupJsFnIdentifier =} as ServerSetupFn)(serverSetupFnContext)
   {=/ doesServerSetupFnExist =}
 
   server.listen(port)
