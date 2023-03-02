@@ -1,0 +1,47 @@
+{
+  "browserslist": {
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ],
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  },
+  "dependencies": {
+    "@prisma/client": "4.5.0",
+    "@tanstack/react-query": "^4.13.0",
+    "axios": "^0.27.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-redux": "^7.1.3",
+    "react-router-dom": "^5.3.3",
+    "redux": "^4.0.5"
+  },
+  "devDependencies": {
+    "@tsconfig/vite-react": "^1.0.1",
+    "@types/react": "^17.0.53",
+    "@types/react-dom": "^17.0.19",
+    "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react-swc": "^3.0.0",
+    "dotenv": "^16.0.3",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^18.12.0"
+  },
+  "name": "waspComplexTest",
+  "private": true,
+  "scripts": {
+    "build": "npm run validate-env && tsc && vite build",
+    "start": "npm run validate-env && vite",
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
+  },
+  "type": "module",
+  "version": "0.0.0"
+}

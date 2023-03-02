@@ -12,7 +12,7 @@ import ShellCommands
 
 waspJob :: GoldenTest
 waspJob = do
-  let entityDecl =
+  let jobDecl =
         " job MySpecialJob { \n\
         \   executor: PgBoss, \n\
         \   perform: { \n\
@@ -30,7 +30,7 @@ waspJob = do
       [ waspCliNew,
         cdIntoCurrentProject,
         setDbToPSQL,
-        appendToWaspFile entityDecl,
+        appendToWaspFile jobDecl,
         createFile jobFile "./src/server/jobs" "bar.js",
         waspCliCompile
       ]
