@@ -65,20 +65,19 @@ spec_WebAppGenerator = do
               concat
                 [ [ "README.md",
                     "package.json",
-                    ".gitignore"
+                    ".gitignore",
+                    "index.html"
                   ],
                   map
                     ("public" </>)
                     [ "favicon.ico",
-                      "index.html",
                       "manifest.json"
                     ],
                   map
                     (SP.toFilePath Common.webAppSrcDirInWebAppRootDir </>)
                     [ "logo.png",
-                      "index.js",
-                      "router.js",
-                      "serviceWorker.js"
+                      "index.tsx",
+                      "router.jsx"
                     ]
                 ]
 

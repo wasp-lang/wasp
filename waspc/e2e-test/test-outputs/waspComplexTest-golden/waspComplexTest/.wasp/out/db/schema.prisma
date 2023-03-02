@@ -1,0 +1,28 @@
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output = env("PRISMA_CLIENT_OUTPUT_DIR")
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String
+  externalAuthAssociations SocialLogin[]
+
+}
+model SocialLogin {
+  id Int @id @default(autoincrement())
+  provider String
+  providerId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  createdAt DateTime @default(now())
+  @@unique([provider, providerId, userId])
+
+}

@@ -7,7 +7,7 @@ app waspMigrate {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@client/MainPage"
+  component: import Main from "@client/MainPage.jsx"
 }
 entity Task {=psl 
   id          Int     @id @default(autoincrement()) 

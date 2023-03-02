@@ -13,10 +13,10 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.WebAppGenerator.Common (webAppRootDirInProjectRootDir)
 
 tailwindConfigFile :: Path' (Rel WaspProjectDir) File'
-tailwindConfigFile = [relfile|tailwind.config.js|]
+tailwindConfigFile = [relfile|tailwind.config.cjs|]
 
 postcssConfigFile :: Path' (Rel WaspProjectDir) File'
-postcssConfigFile = [relfile|postcss.config.js|]
+postcssConfigFile = [relfile|postcss.config.cjs|]
 
 asProjectRootDirConfigFile :: Path' (Rel WaspProjectDir) File' -> Path' (Rel ProjectRootDir) File'
 asProjectRootDirConfigFile = (webAppRootDirInProjectRootDir </>) . castRel

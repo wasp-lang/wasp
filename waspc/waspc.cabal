@@ -39,6 +39,8 @@ data-files:
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
+  Generator/templates/**/*.jsx
+  Generator/templates/**/*.tsx
   Generator/templates/**/*.mjs
   Generator/templates/**/*.png
   Cli/bash-completion
@@ -493,8 +495,10 @@ test-suite e2e-test
     Common
     GoldenTest
     ShellCommands
+    Util
     Tests.WaspBuildTest
     Tests.WaspCompileTest
     Tests.WaspJobTest
     Tests.WaspMigrateTest
     Tests.WaspNewTest
+    Tests.WaspComplexTest
