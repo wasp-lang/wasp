@@ -14,7 +14,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## 1. Requirements
 
-You need to have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version, and currently, that's version `v18.14.0`.
+You must have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.0`).
 
 You can check the `node` version by running:
 ```shell
