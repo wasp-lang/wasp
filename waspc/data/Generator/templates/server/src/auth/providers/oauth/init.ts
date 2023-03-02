@@ -1,10 +1,9 @@
 import passport from "passport";
-import type { Request } from "express";
 
 import waspServerConfig from '../../../config.js';
 import { contextWithUserEntity } from "../../utils";
 
-import { InitData, ProviderConfig, OAuthConfig } from "../types.js";
+import { InitData, ProviderConfig, OAuthConfig, RequestWithWasp } from "../types.js";
 
 export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage, oAuthConfig }: OAuthImports) {
     return async function init(provider: ProviderConfig): Promise<InitData> {
@@ -45,7 +44,7 @@ export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage
 // This token was used to get the provider profile information supplied as a parameter.
 // We add the provider profile to the request for downstream use.
 async function addProviderProfileToRequest(
-    req: Request,
+    req: RequestWithWasp,
     _accessToken: string,
     _refreshToken: string,
     providerProfile: { [key: string]: any },

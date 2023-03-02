@@ -5,7 +5,7 @@ import waspServerConfig from '../../../config.js'
 import { sign } from '../../../core/auth.js'
 import { authConfig, contextWithUserEntity, findOrCreateUserByExternalAuthAssociation } from "../../utils.js";
 
-import { ProviderConfig, InitData } from "../types.js";
+import { ProviderConfig, InitData, RequestWithWasp } from "../types.js";
 
 export function setupOAuthRouter(provider: ProviderConfig, initData: InitData) {
     const { passportStrategyName, getUserFieldsFn } = initData;
@@ -24,7 +24,7 @@ export function setupOAuthRouter(provider: ProviderConfig, initData: InitData) {
             session: false,
             failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
         }),
-        async function (req, res) {
+        async function (req: RequestWithWasp, res) {
             const providerProfile = req?.wasp?.providerProfile;
 
             if (!providerProfile) {

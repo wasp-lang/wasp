@@ -1,4 +1,4 @@
-import type { Router } from "express";
+import type { Router, Request } from "express";
 
 export type ProviderConfig = {
     // The name of the provider, e.g. "Google".
@@ -18,3 +18,5 @@ export type OAuthConfig = {
     clientSecret?: string;
     scope?: string[];
 }
+
+export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
