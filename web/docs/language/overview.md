@@ -13,7 +13,7 @@ The basic structure of a Wasp project is:
 
 The `src/` folder contains non-Wasp code (JS, CSS, ...). You can structure it however you want, as long as you put it somewhere inside the correct subfolder:
   - The `src/server` folder - Contains your server code (i.e., executed by Node JS).
-  - The `src/client` folder - Contains your client code (i.e., used in the browser).
+  - The `src/client` folder - Contains your client code (i.e., executed in the browser).
   - The `src/shared` folder - Contains the code you want to share between the server and the client (e.g., utility functions).
 
 When referencing code from `src/server` in your `*.wasp` file, you do it as `@server/relative/path/of/file/in/the/server/dir`.
