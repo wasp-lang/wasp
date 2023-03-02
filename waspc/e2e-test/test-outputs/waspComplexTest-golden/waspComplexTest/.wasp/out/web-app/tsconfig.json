@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "extends": "@tsconfig/vite-react/tsconfig.json",
+    // Temporary loosen the type checking until we can address all the errors.
+    "allowJs": true,
+    "strict": false
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

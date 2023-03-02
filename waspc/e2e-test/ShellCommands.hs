@@ -1,4 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module ShellCommands
   ( ShellCommand,
@@ -15,6 +16,7 @@ module ShellCommands
     waspCliMigrate,
     waspCliBuild,
     dockerBuild,
+    insertCodeIntoWaspFileAtLineNumber,
   )
 where
 
@@ -71,11 +73,14 @@ createFile content relDirFp filename = return $ combineShellCommands [createPare
 -- NOTE: This is fragile and will likely break in future. Assumes `app` decl is first line and by default
 --       we do not have a `db` field. Consider better alternatives.
 setDbToPSQL :: ShellCommandBuilder ShellCommand
-setDbToPSQL =
+-- Change DB to postgres by adding string at specific line so it still parses.
+setDbToPSQL = insertCodeIntoWaspFileAtLineNumber 2 "  db: { system: PostgreSQL },"
+
+insertCodeIntoWaspFileAtLineNumber :: Int -> String -> ShellCommandBuilder ShellCommand
+insertCodeIntoWaspFileAtLineNumber atLineNumber line =
   return $
     combineShellCommands
-      [ -- Change DB to postgres by adding string at specific line so it still parses.
-        "awk 'NR==2{print \"  db: { system: PostgreSQL },\"}1' main.wasp > main.wasp.tmp",
+      [ "awk 'NR==" ++ show atLineNumber ++ "{print " ++ show line ++ "}1' main.wasp > main.wasp.tmp",
         "mv main.wasp.tmp main.wasp"
       ]
 
