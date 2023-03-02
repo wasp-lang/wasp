@@ -150,4 +150,4 @@ At this point, you should see something like this:
      style={{ border: "1px solid black" }}
 />
 
-Ok, the next step, some real Todo app features!
+Ok, time to take the next step - implementing some real Todo app features!
