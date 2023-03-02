@@ -55,10 +55,13 @@ genWebApp spec = do
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
+      genFileCopy [relfile|tsconfig.node.json|],
+      genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
       genGitignore,
-      return $ C.mkTmplFd $ C.asTmplFile [relfile|netlify.toml|]
+      genIndexHtml spec
     ]
     <++> genPublicDir spec
     <++> genSrcDir spec
@@ -118,7 +121,6 @@ npmDepsForWasp spec =
             ("react-dom", "^17.0.2"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
-            ("react-scripts", "5.0.1"),
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
@@ -131,14 +133,16 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
-            ("@types/react", "^17.0.39"),
-            ("@types/react-dom", "^17.0.11"),
+            ("vite", "^4.1.0"),
+            ("typescript", "^4.9.3"),
+            ("@types/react", "^17.0.53"),
+            ("@types/react-dom", "^17.0.19"),
             ("@types/react-router-dom", "^5.3.3"),
-            -- TODO: What happens when react app changes its version? We should
-            -- investigate.
-            ("@tsconfig/create-react-app", "^1.0.3"),
-            ("dotenv", "16.0.3")
+            ("@vitejs/plugin-react-swc", "^3.0.0"),
+            ("dotenv", "^16.0.3"),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^1.0.1")
           ]
     }
 
@@ -147,9 +151,9 @@ depsRequiredByTailwind spec =
   if G.CF.isTailwindUsed spec
     then
       AS.Dependency.fromList
-        [ ("tailwindcss", "^3.1.8"),
-          ("postcss", "^8.4.18"),
-          ("autoprefixer", "^10.4.12")
+        [ ("tailwindcss", "^3.2.7"),
+          ("postcss", "^8.4.21"),
+          ("autoprefixer", "^10.4.13")
         ]
     else []
 
@@ -162,10 +166,8 @@ genGitignore =
 
 genPublicDir :: AppSpec -> Generator [FileDraft]
 genPublicDir spec = do
-  publicIndexHtmlFd <- genPublicIndexHtml spec
   return
-    [ publicIndexHtmlFd,
-      genFaviconFd,
+    [ genFaviconFd,
       genManifestFd
     ]
     <++> genSocialLoginIcons maybeAuth
@@ -190,15 +192,15 @@ genSocialLoginIcons maybeAuth =
         (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
       ]
 
-genPublicIndexHtml :: AppSpec -> Generator FileDraft
-genPublicIndexHtml spec =
+genIndexHtml :: AppSpec -> Generator FileDraft
+genIndexHtml spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|public/index.html|])
+      (C.asTmplFile [relfile|index.html|])
       targetPath
       (Just templateData)
   where
-    targetPath = [relfile|public/index.html|]
+    targetPath = [relfile|index.html|]
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
@@ -212,10 +214,10 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|serviceWorker.js|],
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|vite-env.d.ts|],
       genRouter spec,
       genIndexJs spec,
       genApi
@@ -244,8 +246,8 @@ genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =
   return $
     C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.js|])
-      (C.asWebAppFile [relfile|src/index.js|])
+      (C.asTmplFile [relfile|src/index.tsx|])
+      (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction

@@ -100,7 +100,7 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName) = IOUtil.writ
           "",
           "route RootRoute { path: \"/\", to: MainPage }",
           "page MainPage {",
-          "  component: import Main from \"@client/MainPage\"",
+          "  component: import Main from \"@client/MainPage.jsx\"",
           "}"
         ]
 

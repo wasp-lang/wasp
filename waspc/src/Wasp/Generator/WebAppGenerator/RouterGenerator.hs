@@ -94,7 +94,7 @@ genRouter spec = do
       targetPath
       (Just $ toJSON templateData)
   where
-    routerPath = [relfile|router.js|]
+    routerPath = [relfile|router.jsx|]
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
