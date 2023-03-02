@@ -122,5 +122,7 @@ You will notice that when you create a new task, the list of tasks is automatica
 The reason why the `getTasks` query automatically updates when the `createTask` action is executed is that Wasp is aware that both of them are working with the `Task` entity, and therefore assumes that the action that operates on `Task` (in this case `createTask`) might have changed the result of the `getTasks` query. Therefore, in the background, Wasp nudges the `getTasks` query to update. This means that **out of the box, Wasp will make sure that all your queries that deal with entities are always in sync with any changes that the actions might have done**.
 
 :::note
-While this kind of approach to automatic invalidation of queries is very convenient, it is in some situations wasteful and could become a performance bottleneck as the app grows. In that case, you will be able to override this default behavior and instead provide more detailed (and performant) instructions on how the specific action should affect queries. This is not yet implemented but is something we plan to do and you can track the progress [here](https://github.com/wasp-lang/wasp/issues/63) (or even contribute!).
+While this kind of approach to automatic invalidation of queries is very convenient, it is in some situations wasteful and could become a performance bottleneck as the app grows. In that case, you will be able to override this default behavior and instead provide more detailed (and performant) instructions on how the specific action should affect queries.
+
+Overriding the default behavior is not yet supported but it is something we plan to do and you can track the progress [here](https://github.com/wasp-lang/wasp/issues/63) (or even contribute!).
 :::

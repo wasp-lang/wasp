@@ -9,9 +9,11 @@ The basic idea is that the higher-level overview of an app (e.g. pages, routes, 
 
 The basic structure of a Wasp project is:
 - `*.wasp` file
-- The `src/` folder -> Contains non-Wasp code (JS, CSS, ...). You can structure it, however, you want, as long as you put it somewhere inside the correct subfolder:
+- The `src/` folder
+
+The `src/` folder contains non-Wasp code (JS, CSS, ...). You can structure it however you want, as long as you put it somewhere inside the correct subfolder:
   - The `src/server` folder - Contains your server code (i.e., executed by Node JS).
-  - The `src/client` folder - Contains your client code (i.e., executed by JS in the user's browsers).
+  - The `src/client` folder - Contains your client code (i.e., used in the browser).
   - The `src/shared` folder - Contains the code you want to share between the server and the client (e.g., utility functions).
 
 When referencing code from `src/server` in your `*.wasp` file, you do it as `@server/relative/path/of/file/in/the/server/dir`.
@@ -73,4 +75,4 @@ psl=}
 
 You can check out a full working example [here](https://github.com/wasp-lang/wasp/tree/main/waspc/examples/todoApp).
 
-In the following sections, each of the basic language features is explained.
+Each of the basic language features is explained in the following sections.

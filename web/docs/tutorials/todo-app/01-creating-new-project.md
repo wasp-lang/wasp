@@ -29,7 +29,7 @@ Once ready, a new tab should open in your browser at `http://localhost:3000`, wi
      height="400px"
 />
 
-We just set the foundations of our app! We don't have yet the features to show it, but Wasp has already generated for us the full front-end and back-end code of the app. Take a peek at `TodoApp/.wasp/out` if you are curious and see what it looks like!
+We just set the foundations of our app! We don't have yet the features to show it, but Wasp has already generated for us the full front-end and back-end code of the app. Take a peek at `TodoApp/.wasp/out` if you are curious and want to see what it looks like!
 
 ## Taking a closer look at the code
 
