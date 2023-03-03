@@ -60,6 +60,8 @@ This is one of the features we are most excited about! Now, when you define an e
 
 This feature beautifully showcases the power of the Wasp language approach and how much it can cut down on the boilerplate. And we're just getting started!
 
+For more details, [check out our docs on reusing entity types on both a client and a server](/docs/typescript#entity-types).
+
 ## 🗓 We set a date for the next launch - April 11th! 🚀
 
 <ImgWithCaption
@@ -68,8 +70,6 @@ This feature beautifully showcases the power of the Wasp language approach and h
 />
 
 Mark your calendars, it's official! **We will release the next version of Wasp on April 11th - in exactly 40 days**! As the last time, we will follow a launch week format with a lot of memes, swag and fun prizes (Including Da Boi, of course).
-
-That's why we introduced [Wasp GitHub Discussions](https://github.com/wasp-lang/wasp/discussions)! It's a relatively new service by GitHub that allows distinguishing between specific, well-defined issues (bug reports, TODOs, ...) and discussion items (ideating about new features, figuring out best practices, etc) and allows for upvotes from the community.
 
 Here's a quick list of the planned features:
 - Using Vite instead of CRA under the hood - you'll be able to create new Wasp apps in a blink of an eye! 🚀
