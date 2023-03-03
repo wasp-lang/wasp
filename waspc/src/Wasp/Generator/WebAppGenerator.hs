@@ -127,8 +127,6 @@ npmDepsForWasp spec =
             ("@prisma/client", show prismaVersion)
           ]
           ++ depsRequiredByTailwind spec,
-      -- NOTE: In order to follow Create React App conventions, do not place any dependencies under devDependencies.
-      -- See discussion here for more: https://github.com/wasp-lang/wasp/pull/621
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript

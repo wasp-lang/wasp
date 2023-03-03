@@ -40,7 +40,7 @@ app TodoApp {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  component: import Main from "@ext/pages/Main.js" // Importing React component.
+  component: import Main from "@ext/pages/Main.jsx" // Importing React component.
 }
 
 query getTasks {
@@ -72,7 +72,7 @@ Run
 ```
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
-to install Wasp on OSX/Linux. From there, just follow the instructions to run your first app in less then a minute!
+to install Wasp on OSX/Linux. From there, just follow the instructions to run your first app in less than a minute!
 
 For more details (including installing on Windows) check out [the docs](https://wasp-lang.dev/docs).
 
@@ -83,10 +83,10 @@ This is the main repo of the Wasp universe, containing core code (mostly `waspc`
 # Project status
 
 Currently, Wasp is in beta, with most features flushed out and working well.
-However, there is still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
+However, there are still a lot of improvements and additions that we have in mind for the future, and we are working on them constantly, so you can expect a lot of changes and improvements in the future.
 As Wasp grows further, it should allow the development of web apps of increasing complexity!
 
-While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes, taking trends into account, but for now, this is serving us well for the purpose of developing compiler and language.
+While the idea is to support multiple web tech stacks in the future, right now we are focusing on the specific stack: React + react-query, NodeJS + ExpressJS, Prisma. We might yet change that as time goes on, taking trends into account, but for now, this is serving us well to develop compiler and language.
 
 # Contributing
 

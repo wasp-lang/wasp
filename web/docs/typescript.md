@@ -24,10 +24,10 @@ To get the best IDE experience, make sure to leave `wasp start` running in the b
 Your editor may sometimes report type and import errors even while `wasp start` is running. This happens when the TypeScript Language Server gets out of sync with the current code. If you're using VS Code, you can manually restart the language server by opening the command palette and selecting _"TypeScript: Restart TS Server."_
 :::
 
-## Migrating your project to TypeScript 
+## Migrating your project to TypeScript
 Wasp supports TypeScript out of the box!
 
-Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis. 
+Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis.
 
 ### Example
 Let's first assume your Wasp file contains the following definitions:
@@ -84,7 +84,7 @@ export const getTaskInfo = async ({ id }, context) => {
   }
   return getInfoMessage(task)
 }
-``` 
+```
 You don't need to change anything inside the `.wasp` file.
 :::caution
 <!-- This block is mostly duplicated in 03-listing-tasks.md -->
@@ -101,7 +101,7 @@ Wasp internally uses `esnext` module resolution, which always requires specifyin
 Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
 :::
 
-## Entity Types 
+## Entity Types
 Instead of manually specifying the types for `isDone` and `description`, we can get them from the `Task` entity type. Wasp will generate types for all entities and let you import them from `"@wasp/entities"`:
 
 ```typescript title=queries.ts
@@ -123,13 +123,13 @@ export const getTaskInfo = async ({ id }, context) => {
   }
   return getInfoMessage(task)
 }
-``` 
+```
 By doing this, we've connected the argument type of the `getInfoMessage` function with the `Task` entity. This coupling removes duplication and ensures the function keeps the correct signature even if we change the entity. Of course, the function might throw type errors depending on how we change the entity, but that's precisely what we want!
 
 Don't worry about typing the query function for now. We'll see how to handle this in the next section.
 
 Entity types are also available on the client under the same import:
-```tsx title=Main.js
+```tsx title=Main.jsx
 import { Task } from "@wasp/entities"
 
 export function ExamplePage() {}
@@ -215,18 +215,18 @@ import { Task } from "@wasp/entities"
 type TaskInfoPayload = Pick<Task, "id">
 
 export const TaskInfo = () => {
-  const { 
+  const {
     // TypeScript knows `taskInfo` is a `string | undefined` because of the
     // second type argument.
     data: taskInfo,
     // TypeScript also knows `isError` is a `boolean` regardless of the
     // specified type arguments.
-    isError,        
+    isError,
     // TypeScript knows `id` must be a `Task["id"]` (i.e., a number) because of
     // the first type argument.
     // highlight-next-line
   } = useQuery<TaskInfoPayload, string>(getTaskInfo, { id: 1 })
-  
+
   if (isError) {
     return <div>Error when fetching tasks</div>
   }
@@ -246,15 +246,15 @@ type TaskInfoPayload = Pick<Task, "id">
 type TaskInfoError = { message: string }
 
 export const TaskInfo = () => {
-  const { 
+  const {
     data: taskInfo,
-    isError,        
+    isError,
     // TypeScript knows `error` is a `TaskInfoError` because of the third type
     // argument.
     error,
   // highlight-next-line
   } = useQuery<TaskInfoPayload, string, TaskInfoError>(getTaskInfo, { id: 1 })
-  
+
   if (isError) {
     // highlight-next-line
     return <div> Error during fetching tasks: {error.message || ''}</div>

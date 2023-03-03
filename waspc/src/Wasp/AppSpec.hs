@@ -63,7 +63,7 @@ data AppSpec = AppSpec
     isBuild :: Bool,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to any config files found (e.g., tailwind.config.js) and where to copy them.
+    -- | A list of paths to any config files found (e.g., tailwind.config.cjs) and where to copy them.
     configFiles :: [ConfigFileRelocator]
   }
 
