@@ -48,7 +48,8 @@ genOAuthHelpers :: Generator [FileDraft]
 genOAuthHelpers =
   sequence
     [ return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/setupRouter.ts|]
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/setupRouter.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/defaults.ts|]
     ]
 
 genOAuthProvider ::
