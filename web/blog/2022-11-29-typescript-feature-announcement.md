@@ -33,9 +33,9 @@ Without further ado, let's see how we can use TypeScript with Wasp.
 Let's start by creating a fresh Wasp project:
 
 ```bash
-wasp new ts-project
+wasp new myApp
 ```
-This will generate a project skeleton in the folder `ts-project`. The project structure is different than before, and there are now several additional generated files that help with IDE and TypeScript support. So let's explain it:
+This will generate a project skeleton in the folder `myApp`. The project structure is different than before, and there are now several additional generated files that help with IDE and TypeScript support. So let's explain it:
 ```
 .
 ├── .gitignore
@@ -56,7 +56,7 @@ This will generate a project skeleton in the folder `ts-project`. The project st
 ```
 
 
-At this point, we can chose one of three options:
+At this point, we can choose one of three options:
 1. We write our code exclusively in JavaScript.
 2. We write our code exclusively in TypeScript.
 3. We write some parts of our code in JavaScript, and other parts in TypeScript.

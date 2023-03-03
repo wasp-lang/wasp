@@ -14,10 +14,10 @@ Let's define a Todo list (luckily we have an app for that now ;)) to get this do
 - [ ] Modify `src/client/MainPage.jsx` so that it requires authentication.
 - [ ] Add Prisma relation between `User` and `Task` entities.
 - [ ] Modify our queries and actions so that they work only with the tasks belonging to the authenticated user.
-- [ ] Add logout button.
+- [ ] Add a logout button.
 
 ## Adding entity User
-First, let's define entity `User`:
+First, let's define the `User` entity:
 ```c title="main.wasp"
 // ...
 
@@ -29,13 +29,13 @@ psl=}
 ```
 
 Run:
-```shell-session
+```shell
 wasp db migrate-dev
 ```
 to propagate the schema change (we added User).
 
 ## Defining `app.auth`
-Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use entity `User` for it:
+Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use the `User` entity for it:
 
 ```c {7-16} title="main.wasp"
 app TodoApp {
@@ -135,11 +135,11 @@ export default SignupPage
 ```
 
 
-## Updating `MainPage` page to check if user is authenticated
+## Updating `MainPage` page to check if the user is authenticated
 
-Now, let's see how we're going to handle the situation when user is not logged in.
+Now, let's see how we're going to handle the situation when the user is not logged in.
 `MainPage` page is a private page and we want users to be able to see it only if they are authenticated.
-There is a specific Wasp feature that allows us to achieve this in a simple way:
+Wasp allows you to simply enforce private pages using the `authRequired` field:
 
 ```c {3} title="main.wasp"
 // ...
@@ -163,14 +163,14 @@ const MainPage = ({ user }) => {
 Ok, time to try out how this works!
 
 Now, we can start the app again (if it's not still running):
-```shell-session
+```shell
 wasp start
 ```
 
 Try going to the main page (`/`) of our web app. It will now redirect you to `/login`, where you'll be asked to authenticate. Once you log in or sign up, you will be sent back to `/` and you will see the todo list.
 
 Let's now see how things look in the database! Run:
-```shell-session
+```shell
 wasp db studio
 ```
 <img alt="Database demonstration - password hashing"
@@ -206,7 +206,7 @@ psl=}
 ```
 
 We modified entities by adding the User-Task relation, so let's run
-```shell-session
+```shell
 wasp db migrate-dev
 ```
 to create a database schema migration and apply it to the database.
@@ -220,7 +220,7 @@ However, for this tutorial, for the sake of simplicity, we will stick with this.
 
 ## Updating operations to forbid access to non-authenticated users
 
-Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged in user's tasks:
+Next, let's update the queries and actions to forbid access to non-authenticated users and to operate only on the currently logged-in user's tasks:
 ```js {1,4,6} title="src/server/queries.js"
 import HttpError from '@wasp/core/HttpError.js'
 
@@ -255,19 +255,19 @@ export const updateTask = async (args, context) => {
 ```
 
 :::note
-Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify user id in `where`.
+Due to how Prisma works, we had to convert `update` to `updateMany` in `updateTask` action to be able to specify the user id in `where`.
 :::
 
 Right, that should be it!
 
 Run (or just continue running):
-```shell-session
+```shell
 wasp start
 ```
 and everything should work as expected now! Each user has their own tasks only they can see and edit.
 
 Try playing around with our app, adding a few users and some tasks. Then run:
-```shell-session
+```shell
 wasp db studio
 ```
 <img alt="Database demonstration"
@@ -275,11 +275,11 @@ wasp db studio
      style={{ border: "1px solid black" }}
 />
 
-You will see that each user has its own tasks, just as we specified in our code!
+You will see that each user has their own tasks, just as we specified in our code!
 
 ## Logout button
 
-Last, but not the least, let's add logout functionality:
+Last, but not least, let's add the logout functionality:
 ```jsx {2,10} title="src/client/MainPage.jsx"
 // ...
 import logout from '@wasp/auth/logout.js'

@@ -40,7 +40,7 @@ query getTasks {
 ```
 :::caution
 <!-- This block is mostly duplicated in typescript.md -->
-Even if you use TypeScript and have the file `queries.ts`, you will still need to import it using the `.js` extension. Wasp internally uses `esnext` module resultion, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` immports (and files on the server in general). It does not apply to client files.
+Even if you use TypeScript and have the file `queries.ts`, you will still need to import it using the `.js` extension. Wasp internally uses `esnext` module resolution, which always requires specifying the extension as `.js` (i.e., the extension used in the emitted JS file). This applies to all `@server` imports (and files on the server in general). It does not apply to client files.
 
 Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/docs/handbook/esm-node.html). If you're interested in the discussion and the reasoning behind this, read about it [in this GitHub issue](https://github.com/microsoft/TypeScript/issues/33588).
 :::
@@ -59,7 +59,7 @@ Query function parameters:
 - `context`: `object`, additional stuff provided by Wasp.
 
 
-Since we declared in `main.wasp` that our query uses entity `Task`, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since we declared in `main.wasp` that our query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and actions are NodeJS functions that are executed on the server. Therefore, we put them in the `src/server` folder.
