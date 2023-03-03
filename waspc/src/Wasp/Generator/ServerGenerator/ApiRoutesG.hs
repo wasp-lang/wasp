@@ -42,17 +42,15 @@ genApiRoutes spec =
               "routePath" .= (Api.path . Api.httpRoute $ api),
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
-              "entities" .= allEntities
+              "entities" .= getApiEntitiesObject api
             ]
-      where
-        allEntities = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
 
 genApiTypes :: AppSpec -> Generator FileDraft
 genApiTypes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    apis = AS.getApis spec
-    tmplData = object ["apiRoutes" .= map getTmplData apis]
+    namedApis = AS.getApis spec
+    tmplData = object ["apiRoutes" .= map getTmplData namedApis]
     tmplFile = C.asTmplFile [relfile|src/apis/types.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
@@ -60,10 +58,11 @@ genApiTypes spec =
     getTmplData (name, api) =
       object
         [ "name" .= name,
-          "entities" .= allEntities
+          "entities" .= getApiEntitiesObject api
         ]
-      where
-        allEntities = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
+
+getApiEntitiesObject :: Api -> [Aeson.Value]
+getApiEntitiesObject api = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
 
 relPathFromApisDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisDirToServerSrcDir = [reldirP|../..|]

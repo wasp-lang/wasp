@@ -45,7 +45,6 @@ stdTypes =
   TD.addDeclType @Query $
   TD.addDeclType @Action $
   TD.addDeclType @Api $
-  TD.addEnumType @DbSystem $
   TD.addEnumType @HttpMethod $
   TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
