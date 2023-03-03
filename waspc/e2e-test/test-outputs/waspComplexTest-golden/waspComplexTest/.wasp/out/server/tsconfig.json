@@ -5,6 +5,7 @@
     "strict": false,
     // Overriding this because we want to use top-level await
     "module": "esnext",
+    "target": "es2017",
     // Enable source map for debugging
     "sourceMap": true,
     // The remaining settings should match node18/tsconfig.json, but I kept

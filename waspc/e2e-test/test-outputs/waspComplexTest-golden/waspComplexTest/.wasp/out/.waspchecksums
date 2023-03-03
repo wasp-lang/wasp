@@ -121,6 +121,48 @@
     [
         [
             "file",
+            "server/src/auth/providers/config/google.ts"
+        ],
+        "40e88547f19a22f41c68335c68ab593aeba3edd08f131013d6816a253e6e4894"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/index.ts"
+        ],
+        "98096a49c109bad31f3fea864930f5216a53254cacf9c6196110763c16459195"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/init.ts"
+        ],
+        "0704604813aa68421375bfa9ca4c624f17dcd9b35dc3ab9701efc1cd5105fdfa"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/setupRouter.ts"
+        ],
+        "617a69c021a9d3f185579f150a721c0fc46e73fcbb81312aa116629a68663450"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/types.ts"
+        ],
+        "757d47cbb4d1c1a3359fd81563c01c4bc0a9fec43af74acf7eda013219b6f865"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/utils.js"
+        ],
+        "94be7acfa8822dc80010f7d14980c281af5f9516a0d7909442cfe9f947ff2bf1"
+    ],
+    [
+        [
+            "file",
             "server/src/config.js"
         ],
         "99e89fb4d207108caf0afeaf8f364819bac6f6d7c28a0a14b6ae7a4f134aa779"
@@ -249,7 +291,7 @@
             "file",
             "server/src/queries/MySpecialQuery.js"
         ],
-        "ecb3145ccbb1b4888db63b5cb000f4d65721d5b6ea99cc670d9f8faaddf0c51d"
+        "3e7a98d241906c07c1fe42fd4af044cebaf39ce91a8aca152c0584e89c431b64"
     ],
     [
         [
@@ -263,14 +305,7 @@
             "file",
             "server/src/routes/auth/index.js"
         ],
-        "ac6c9f57907b95529955248014d4a0b87d9883afba9f725e8bb6da7e9cdcbaef"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/login.js"
-        ],
-        "0a5d88e1a91ceb6a893e286ed2e1167bf418ca9d226341d6ee6dc6c0fac54318"
+        "47fb3317c5707e0d7646bb1c0f6fa8d9c5c0f980ca2d643d226e63b49766cea3"
     ],
     [
         [
@@ -278,55 +313,6 @@
             "server/src/routes/auth/me.js"
         ],
         "65ac0f6fe12e13ffeb67b01b62301c4c70e12707985bfa567aea0253649e9151"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/generic/provider.js"
-        ],
-        "bac53b5bb71b55593c97c18dcb26fe05c9fa3487dd7a63ee64940362100853ef"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/config.js"
-        ],
-        "40b271cec4039bcd0435e1766b0fdf6954caff6401db1272034848ea5bef97b3"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/configMapping.js"
-        ],
-        "bb20100bf23ee29e783f0d486f4b3fc75792742f4b92f9547c4b12216afebbb7"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/defaults.js"
-        ],
-        "e390f515ed581c51b75b43e716e346710c17fb1e99470f944de22fc22925a2e1"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/passport.js"
-        ],
-        "8798e7255db79cd528776cc9c72781950f69314277c6eff8b5320e6ffa722a2e"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/signup.js"
-        ],
-        "7e1975a564b8d450f6c411753bfe4ab45d76b209bb28cfc86eb514236a018219"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/utils.js"
-        ],
-        "c2752f5686d06db30aaefe7e7d2bae5e5d988bf9f34e04c262b73a69179521ae"
     ],
     [
         [
@@ -361,7 +347,7 @@
             "file",
             "server/src/server.ts"
         ],
-        "e27f5f548ccf994e7a60c8e28b2eec80bb578d0da5c19cadb83b45745bc6fb84"
+        "ea5208ac63e4705156c15454f29f53f21cf4d98da8b697f44739eb899dc7f2e5"
     ],
     [
         [
@@ -382,14 +368,14 @@
             "file",
             "server/src/utils.js"
         ],
-        "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
+        "5cfa32df7af68bcc9f07c2617ee1148578f1f64ea65ef371df9485d1248ac670"
     ],
     [
         [
             "file",
             "server/tsconfig.json"
         ],
-        "c58318dce36bc48fdd1e998af906b5026c87b1d80415653b03a7285acdb56d69"
+        "f2632965c1e3678fcc0e63b83d7e33fea1a9008ef5fd5a2f5e7bf278337c3e02"
     ],
     [
         [
@@ -522,7 +508,7 @@
             "file",
             "web-app/src/auth/helpers/Google.jsx"
         ],
-        "7707679f4ef70592429401cf932206b5cfd87dd80d244e3e8c05803658406228"
+        "c3d12e7a6cc1305c9e411d522e6aa8411d036337791ed0fc37e6048fe2d90cfd"
     ],
     [
         [
@@ -536,7 +522,7 @@
             "file",
             "web-app/src/auth/login.js"
         ],
-        "69b575be2d52e2948983f82c2d3fdabcc9d5fad9fd54c21252e9e7daa0edab32"
+        "01d75f9d2c3b414505c0368f40d50f411ec931cc31cb12c01cd8988ff2326b7d"
     ],
     [
         [
@@ -564,7 +550,7 @@
             "file",
             "web-app/src/auth/signup.js"
         ],
-        "e2943a925604b86cb1eba6c8d5a99c6892d8d3b55940c656233aa1163a622a6d"
+        "982902ba7a2ad88e5d8df696cde129f59c328269af2302720d37529c0463e276"
     ],
     [
         [
@@ -711,7 +697,7 @@
             "file",
             "web-app/src/router.jsx"
         ],
-        "a92e5d20f1e2bbb7b4cbfae12e145338ddf34c38823c4b49c954da3c9b623157"
+        "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
     ],
     [
         [
