@@ -21,15 +21,15 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''DbSystem
-makeEnumType ''HttpMethod
 makeDeclType ''App
 makeDeclType ''Page
 makeDeclType ''Route
 makeDeclType ''Query
 makeDeclType ''Action
-makeDeclType ''Api
 makeEnumType ''JobExecutor
 makeDeclType ''Job
+makeEnumType ''HttpMethod
+makeDeclType ''Api
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -44,9 +44,9 @@ stdTypes =
   TD.addDeclType @Route $
   TD.addDeclType @Query $
   TD.addDeclType @Action $
-  TD.addDeclType @Api $
-  TD.addEnumType @HttpMethod $
   TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
+  TD.addEnumType @HttpMethod $
+  TD.addDeclType @Api $
   TD.empty
 {- ORMOLU_ENABLE -}
