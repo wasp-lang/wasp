@@ -205,7 +205,7 @@ psl=}
 // ...
 ```
 
-We modified entities by adding the User-Task relation. To create a database schema migration and apply it to the database, let's run the following command  :
+We modified entities by adding the User-Task relation. To create a database schema migration and apply it to the database, let's run the following command:
 ```shell-session
 wasp db migrate-dev
 ```
