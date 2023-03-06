@@ -243,10 +243,10 @@ library
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.AuthG
+    Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
+    Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
-    Wasp.Generator.ServerGenerator.OAuthAuthG
-    Wasp.Generator.ServerGenerator.LocalAuthG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG

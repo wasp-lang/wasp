@@ -9,14 +9,13 @@ const providers = await importProviders();
 const router = Router();
 
 for (const provider of providers) {
-  const { init, setupRouter } = provider;
-  let initData;
-  if (init) {
-    initData = await init(provider);
-  }
-  const providerRouter = setupRouter(provider, initData);
-  router.use(`/${provider.slug}`, providerRouter);
-  console.log(`🚀 "${provider.name}" auth initialized`)
+  const { init, createRouter } = provider;
+  const initData = init
+    ? await init(provider)
+    : undefined;
+  const providerRouter = createRouter(provider, initData);
+  router.use(`/${provider.id}`, providerRouter);
+  console.log(`🚀 "${provider.displayName}" auth initialized`)
 }
 
 export default router;

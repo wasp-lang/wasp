@@ -12,12 +12,12 @@ export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage
             : {};
         const ProviderStrategy = await import(npmPackage);
 
-        const passportStrategyName = `wasp${provider.slug}LoginStrategy`;
+        const passportStrategyName = `wasp${provider.id}LoginStrategy`;
         const requiredConfig = {
             clientID: oAuthConfig.clientID,
             clientSecret: oAuthConfig.clientSecret,
             scope: oAuthConfig.scope,
-            callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${provider.slug}`,
+            callbackURL: `${waspServerConfig.frontendUrl}/auth/login/${provider.id}`,
             passReqToCallback: true
         };
 
@@ -56,15 +56,15 @@ async function addProviderProfileToRequest(
 
 function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void {
     if (!config.clientID) {
-        throw new Error(`The ${provider.name} auth provider requires clientID provided via env varibales.`)
+        throw new Error(`The ${provider.displayName} auth provider requires clientID provided via env varibales.`)
     }
 
     if (!config.clientSecret) {
-        throw new Error(`The ${provider.name} auth provider requires clientSecret provided via env varibales.`)
+        throw new Error(`The ${provider.displayName} auth provider requires clientSecret provided via env varibales.`)
     }
 
     if (!config.scope || !Array.isArray(config.scope)) {
-        throw new Error(`The ${provider.name} auth provider requires scope.`)
+        throw new Error(`The ${provider.displayName} auth provider requires scope.`)
     }
 }
 

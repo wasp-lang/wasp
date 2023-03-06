@@ -21,9 +21,9 @@ import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
+import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.LocalAuthG (genLocalAuth)
-import Wasp.Generator.ServerGenerator.OAuthAuthG (genOAuthAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -75,9 +75,7 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object
-            [ "userEntityUpper" .= (userEntityName :: String)
-            ]
+       in object ["userEntityUpper" .= (userEntityName :: String)]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -85,9 +83,7 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
-      object
-        [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
-        ]
+      object ["isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
@@ -99,10 +95,7 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
     tmplFile = C.asTmplFile $ [reldir|src|] </> meRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile meRouteRelToSrc
 
-    tmplData =
-      object
-        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
-        ]
+    tmplData = object ["userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)]
 
 genUtilsJs :: AS.Auth.Auth -> Generator FileDraft
 genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

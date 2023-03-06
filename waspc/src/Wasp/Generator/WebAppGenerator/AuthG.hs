@@ -43,19 +43,13 @@ genAuth spec =
 genSignup :: Generator FileDraft
 genSignup = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/signup.js|]) tmplData
   where
-    tmplData =
-      object
-        [ "signupPath" .= serverSignupUrl localAuthInfo
-        ]
+    tmplData = object ["signupPath" .= serverSignupUrl localAuthInfo]
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: Generator FileDraft
 genLogin = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/login.js|]) tmplData
   where
-    tmplData =
-      object
-        [ "loginPath" .= serverLoginUrl localAuthInfo
-        ]
+    tmplData = object ["loginPath" .= serverLoginUrl localAuthInfo]
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: Generator FileDraft

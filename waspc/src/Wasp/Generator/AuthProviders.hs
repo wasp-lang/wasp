@@ -8,7 +8,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OA
 googleAuthInfo :: OA.OAuthAuthInfo
 googleAuthInfo =
   OA.OAuthAuthInfo
-    { OA._slug = "google",
+    { OA._providerId = "google",
       OA._displayName = "Google",
       OA._requiredScope = ["profile"],
       OA._logoFileName = [relfile|google-logo-icon.png|],
@@ -18,7 +18,7 @@ googleAuthInfo =
 gitHubAuthInfo :: OA.OAuthAuthInfo
 gitHubAuthInfo =
   OA.OAuthAuthInfo
-    { OA._slug = "github",
+    { OA._providerId = "github",
       OA._displayName = "GitHub",
       OA._requiredScope = [],
       OA._logoFileName = [relfile|github-logo-icon.png|],
@@ -28,6 +28,6 @@ gitHubAuthInfo =
 localAuthInfo :: L.LocalAuthInfo
 localAuthInfo =
   L.LocalAuthInfo
-    { L._slug = "local",
+    { L._providerId = "local",
       L._displayName = "Username and password"
     }

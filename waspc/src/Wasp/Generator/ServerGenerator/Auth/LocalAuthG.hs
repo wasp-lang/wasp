@@ -1,4 +1,4 @@
-module Wasp.Generator.ServerGenerator.LocalAuthG
+module Wasp.Generator.ServerGenerator.Auth.LocalAuthG
   ( genLocalAuth,
   )
 where
@@ -40,8 +40,8 @@ genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
 
     tmplData =
       object
-        [ "slug" .= Local.slug localAuthInfo,
-          "name" .= Local.displayName localAuthInfo
+        [ "providerId" .= Local.providerId localAuthInfo,
+          "displayName" .= Local.displayName localAuthInfo
         ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

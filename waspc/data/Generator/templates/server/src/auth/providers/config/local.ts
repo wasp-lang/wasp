@@ -7,9 +7,9 @@ import signup from "../local/signup.js";
 import { ProviderConfig } from "../types.js";
 
 const config: ProviderConfig = {
-    slug: "{= slug =}",
-    name: "{= name =}",
-    setupRouter() {
+    id: "{= providerId =}",
+    displayName: "{= displayName =}",
+    createRouter() {
         const router = Router();
 
         router.post('/login', login);

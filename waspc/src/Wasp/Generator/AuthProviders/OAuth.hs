@@ -2,7 +2,7 @@ module Wasp.Generator.AuthProviders.OAuth
   ( frontendLoginUrl,
     serverLoginUrl,
     serverOauthRedirectHandlerUrl,
-    slug,
+    providerId,
     displayName,
     logoFileName,
     passportDependency,
@@ -19,7 +19,9 @@ import StrongPath (File', Path', Rel')
 import Wasp.AppSpec.App.Dependency (Dependency)
 
 data OAuthAuthInfo = OAuthAuthInfo
-  { _slug :: String,
+  { -- Unique identifier of the auth provider
+    _providerId :: String,
+    -- Used for pretty printing
     _displayName :: String,
     _requiredScope :: OAuthScope,
     _logoFileName :: Path' Rel' File',
@@ -28,8 +30,8 @@ data OAuthAuthInfo = OAuthAuthInfo
 
 type OAuthScope = [String]
 
-slug :: OAuthAuthInfo -> String
-slug = _slug
+providerId :: OAuthAuthInfo -> String
+providerId = _providerId
 
 displayName :: OAuthAuthInfo -> String
 displayName = _displayName
@@ -38,14 +40,16 @@ logoFileName :: OAuthAuthInfo -> Path' Rel' File'
 logoFileName = _logoFileName
 
 clientIdEnvVarName :: OAuthAuthInfo -> String
-clientIdEnvVarName oai = upperCaseSlug oai ++ "_CLIENT_ID"
+clientIdEnvVarName oai = upperCaseId oai ++ "_CLIENT_ID"
 
 clientSecretEnvVarName :: OAuthAuthInfo -> String
-clientSecretEnvVarName oai = upperCaseSlug oai ++ "_CLIENT_SECRET"
+clientSecretEnvVarName oai = upperCaseId oai ++ "_CLIENT_SECRET"
 
-upperCaseSlug :: OAuthAuthInfo -> String
-upperCaseSlug oai = map toUpper (_slug oai)
+upperCaseId :: OAuthAuthInfo -> String
+upperCaseId oai = map toUpper (_providerId oai)
 
+-- Generates the string used in JS e.g. ["profile"] list in Haskell becomes "[\"profile\"]"
+-- string which can be outputted in JS code verbatim.
 scopeStr :: OAuthAuthInfo -> String
 scopeStr oai = "[" ++ intercalate ", " scopeStrs ++ "]"
   where
@@ -55,10 +59,10 @@ passportDependency :: OAuthAuthInfo -> Dependency
 passportDependency = _passportDependency
 
 frontendLoginUrl :: OAuthAuthInfo -> String
-frontendLoginUrl oai = "/auth/login/" ++ _slug oai
+frontendLoginUrl oai = "/auth/login/" ++ _providerId oai
 
 serverLoginUrl :: OAuthAuthInfo -> String
-serverLoginUrl oai = "/auth/" ++ _slug oai ++ "/login"
+serverLoginUrl oai = "/auth/" ++ _providerId oai ++ "/login"
 
 serverOauthRedirectHandlerUrl :: OAuthAuthInfo -> String
-serverOauthRedirectHandlerUrl oai = "/auth/" ++ _slug oai ++ "/callback"
+serverOauthRedirectHandlerUrl oai = "/auth/" ++ _providerId oai ++ "/callback"

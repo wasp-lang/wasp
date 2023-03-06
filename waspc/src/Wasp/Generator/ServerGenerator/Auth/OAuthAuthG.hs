@@ -1,4 +1,4 @@
-module Wasp.Generator.ServerGenerator.OAuthAuthG
+module Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
   ( genOAuthAuth,
     depsRequiredByPassport,
   )
@@ -48,7 +48,7 @@ genOAuthHelpers :: Generator [FileDraft]
 genOAuthHelpers =
   sequence
     [ return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/setupRouter.ts|],
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/createRouter.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/defaults.ts|]
     ]
 
@@ -64,10 +64,13 @@ genOAuthProvider authInfo maybeUserConfig
   | otherwise = return []
   where
     providerTsFile :: Path' (Rel ()) File'
-    providerTsFile = fromJust $ SP.parseRelFile $ slug ++ ".ts"
+    providerTsFile = fromJust $ SP.parseRelFile $ providerId ++ ".ts"
 
-    slug = OAuth.slug authInfo
+    providerId = OAuth.providerId authInfo
 
+-- Used to generate the specific provider config based on the generic oauth.ts file.
+-- The config receives everything: auth info, npm packages, user defined imports and env variables.
+-- It's all in one config file.
 genOAuthConfig ::
   OAuthAuthInfo ->
   Maybe AS.Auth.ExternalAuthConfig ->
@@ -75,12 +78,12 @@ genOAuthConfig ::
   Generator FileDraft
 genOAuthConfig authInfo maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/oauth.ts|]
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/_oauth.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> pathToConfigDst
     tmplData =
       object
-        [ "slug" .= OAuth.slug authInfo,
-          "name" .= OAuth.displayName authInfo,
+        [ "providerId" .= OAuth.providerId authInfo,
+          "displayName" .= OAuth.displayName authInfo,
           "npmPackage" .= App.Dependency.name (OAuth.passportDependency authInfo),
           "oAuthConfigProps" .= getJsonForOAuthConfigProps authInfo,
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
