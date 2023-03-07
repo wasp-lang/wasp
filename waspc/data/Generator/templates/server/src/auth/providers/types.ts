@@ -1,4 +1,8 @@
-import type { Router, Request } from "express";
+{{={= =}=}}
+
+import type { Router, Request } from "express"
+import { type Prisma } from "@prisma/client"
+import { contextWithUserEntity } from '../utils.js'
 
 export type ProviderConfig = {
     // Unique provider identifier, used as part of URL paths
@@ -23,3 +27,12 @@ export type OAuthConfig = {
 }
 
 export type RequestWithWasp = Request & { wasp?: { [key: string]: any } }
+
+export type CreateOAuthUser = Omit<Prisma.{= userEntityName =}CreateInput, 'password'>
+
+export type UserDefinedConfigFn = () => { [key: string]: any }
+
+export type GetUserFieldsFn = (
+    context: typeof contextWithUserEntity,
+    args: { profile: { [key: string]: any } },
+) => Promise<CreateOAuthUser>

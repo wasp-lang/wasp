@@ -1,14 +1,13 @@
 import passport from "passport";
 
 import waspServerConfig from '../../../config.js';
-import { contextWithUserEntity } from "../../utils";
 
-import { InitData, ProviderConfig, OAuthConfig, RequestWithWasp } from "../types.js";
+import { InitData, ProviderConfig, OAuthConfig, RequestWithWasp, GetUserFieldsFn, UserDefinedConfigFn } from "../types.js";
 
 export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage, oAuthConfig }: OAuthImports) {
     return async function init(provider: ProviderConfig): Promise<InitData> {
         const userDefinedConfig = userDefinedConfigFn
-            ? await userDefinedConfigFn()
+            ? userDefinedConfigFn()
             : {};
         const ProviderStrategy = await import(npmPackage);
 
@@ -68,12 +67,9 @@ function ensureValidConfig(provider: ProviderConfig, config: OAuthConfig): void 
     }
 }
 
-type OAuthImports = {
+export type OAuthImports = {
     npmPackage: string;
-    userDefinedConfigFn?: () => Promise<{ [key: string]: any }>;
-    getUserFieldsFn: (
-        context: typeof contextWithUserEntity,
-        args: { profile: { [key: string]: any } }
-    ) => Promise<{ [key: string]: any }>;
+    userDefinedConfigFn?: UserDefinedConfigFn;
+    getUserFieldsFn: GetUserFieldsFn;
     oAuthConfig: OAuthConfig;
 };

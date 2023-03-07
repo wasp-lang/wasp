@@ -32,7 +32,7 @@ const _waspConfig: ProviderConfig = {
     init: makeOAuthInit({
         npmPackage: '{= npmPackage =}',
         getUserFieldsFn: _waspGetUserFieldsFn,
-        userDefinedConfigFn: () => Promise.resolve(_waspUserDefinedConfigFn),
+        userDefinedConfigFn: _waspUserDefinedConfigFn,
         oAuthConfig: _waspOAuthConfig,
     }),
     createRouter,

@@ -33,17 +33,18 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware auth,
-        -- Auth routes
         genAuthRoutesIndex auth,
         genMeRoute auth,
-        genUtilsJs auth
+        genUtils auth,
+        genProviderTypes auth,
+        genFileCopy [relfile|auth/providers/index.ts|]
       ]
-      <++> genProvidersIndexAndTypes
       <++> genLocalAuth auth
       <++> genOAuthAuth auth
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+    genFileCopy = return . C.mkSrcTmplFd
 
 -- | Generates core/auth file which contains auth middleware and createUser() function.
 genCoreAuth :: AS.Auth.Auth -> Generator FileDraft
@@ -97,8 +98,8 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
 
     tmplData = object ["userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)]
 
-genUtilsJs :: AS.Auth.Auth -> Generator FileDraft
-genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genUtils :: AS.Auth.Auth -> Generator FileDraft
+genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
@@ -114,14 +115,14 @@ genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    utilsFileInSrcDir = [relfile|auth/utils.js|]
+    utilsFileInSrcDir = [relfile|auth/utils.ts|]
 
-genProvidersIndexAndTypes :: Generator [FileDraft]
-genProvidersIndexAndTypes =
-  sequence
-    [ return $ C.mkSrcTmplFd [relfile|auth/providers/index.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/types.ts|]
-    ]
+genProviderTypes :: AS.Auth.Auth -> Generator FileDraft
+genProviderTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/types.ts|]
+    tmplData = object ["userEntityName" .= userEntityName]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

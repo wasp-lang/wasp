@@ -3,6 +3,8 @@
 import { v4 as uuidv4 } from 'uuid'
 
 import prisma from '../dbClient.js'
+import { GetUserFieldsFn } from './providers/types.js'
+import { type {= userEntityUpper =} } from '../entities';
 
 export const contextWithUserEntity = {
   entities: {
@@ -15,7 +17,11 @@ export const authConfig = {
   successRedirectPath: "{= successRedirectPath =}",
 }
 
-export async function findOrCreateUserByExternalAuthAssociation(provider, providerId, getUserFields) {
+export async function findOrCreateUserByExternalAuthAssociation(
+  provider: string,
+  providerId: string,
+  getUserFields: () => ReturnType<GetUserFieldsFn>,
+): Promise<{= userEntityUpper =}> {
   // Attempt to find a User by an external auth association.
   const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
     where: { provider, providerId },
@@ -38,5 +44,5 @@ export async function findOrCreateUserByExternalAuthAssociation(provider, provid
     }
   }
 
-  return await prisma.{= userEntityLower =}.create({ data: userAndExternalAuthAssociation })
+  return prisma.{= userEntityLower =}.create({ data: userAndExternalAuthAssociation })
 }

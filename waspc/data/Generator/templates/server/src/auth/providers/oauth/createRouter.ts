@@ -5,11 +5,11 @@ import waspServerConfig from '../../../config.js'
 import { sign } from '../../../core/auth.js'
 import { authConfig, contextWithUserEntity, findOrCreateUserByExternalAuthAssociation } from "../../utils.js";
 
-import { ProviderConfig, InitData, RequestWithWasp } from "../types.js";
+import { ProviderConfig, GetUserFieldsFn, RequestWithWasp } from "../types.js";
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
-export function createRouter(provider: ProviderConfig, initData: InitData) {
+export function createRouter(provider: ProviderConfig, initData: { passportStrategyName: string, getUserFieldsFn: GetUserFieldsFn }) {
     const { passportStrategyName, getUserFieldsFn } = initData;
 
     const router = Router();
