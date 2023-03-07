@@ -67,3 +67,8 @@ query MySpecialQuery {
   entities: [User],
 }
 
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+}
+

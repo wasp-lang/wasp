@@ -114,6 +114,13 @@
     [
         [
             "file",
+            "server/src/apis/types.ts"
+        ],
+        "298885f44ca93c4665fdcb0d33c22743ad96d2a60bc68ea6d77d7432572fbbf1"
+    ],
+    [
+        [
+            "file",
             "server/src/app.js"
         ],
         "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
@@ -173,6 +180,13 @@
             "server/src/ext-src/actions/bar.js"
         ],
         "83c606a3eee7608155cdb2c2a20a38f851a82987e060ce25b196b467092c4740"
+    ],
+    [
+        [
+            "file",
+            "server/src/ext-src/apis.ts"
+        ],
+        "09ce10e551502418b69df8932150831d69a66f1c3c9533f1b8d98b80729ae049"
     ],
     [
         [
@@ -261,6 +275,13 @@
     [
         [
             "file",
+            "server/src/routes/apis/index.ts"
+        ],
+        "8871f2edf2f3bb9bd57cbdf72a42cf8a32a99a3cff95c503cac4f9e682ed9c7a"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/auth/index.js"
         ],
         "ac6c9f57907b95529955248014d4a0b87d9883afba9f725e8bb6da7e9cdcbaef"
@@ -333,7 +354,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "bd024209f256910dc8450851bf64d5309423e04f34bc5941cfb692df7907aa27"
+        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
     ],
     [
         [
