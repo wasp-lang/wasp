@@ -123,42 +123,49 @@
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "40e88547f19a22f41c68335c68ab593aeba3edd08f131013d6816a253e6e4894"
+        "89fb5ca2784afe73685b4b74bad7a4d28c048f41c85485ef704d71bc8ad5aae0"
     ],
     [
         [
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "98096a49c109bad31f3fea864930f5216a53254cacf9c6196110763c16459195"
+        "e777865d82ba10202593aaff7b95c491fad77087ff7927f7d310c8c377002789"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/createRouter.ts"
+        ],
+        "e4855f710d4c39ea11650ef1d80f5252e5633817d020d7951e91452ba2d4e613"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/defaults.ts"
+        ],
+        "2bff7ab070b402aac4ea69a950c0ef6ba7e58c27d4727bdf6046961cb7c0dd48"
     ],
     [
         [
             "file",
             "server/src/auth/providers/oauth/init.ts"
         ],
-        "0704604813aa68421375bfa9ca4c624f17dcd9b35dc3ab9701efc1cd5105fdfa"
-    ],
-    [
-        [
-            "file",
-            "server/src/auth/providers/oauth/setupRouter.ts"
-        ],
-        "617a69c021a9d3f185579f150a721c0fc46e73fcbb81312aa116629a68663450"
+        "85a90358da51500be7eec18dea9adfc8a22cc4b4eaea5c3ee8b664ac8854cfdf"
     ],
     [
         [
             "file",
             "server/src/auth/providers/types.ts"
         ],
-        "757d47cbb4d1c1a3359fd81563c01c4bc0a9fec43af74acf7eda013219b6f865"
+        "18be93b53d117a13a7aef41e637c90e37d4d57708ee368180d4c0358c4aacf29"
     ],
     [
         [
             "file",
-            "server/src/auth/utils.js"
+            "server/src/auth/utils.ts"
         ],
-        "94be7acfa8822dc80010f7d14980c281af5f9516a0d7909442cfe9f947ff2bf1"
+        "9afb195565748606deba580bfb69448fd3ab5b5c79c3c7b9ab83943c6a134175"
     ],
     [
         [
@@ -354,7 +361,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "37352cdaeae444c90632fe788d1e49eca3927ef8755702ba95c81c8b90d9f408"
+        "fd9e603be2b1db0b1335e754e7c63c403f0b1d03951c4181e204d801072369c7"
     ],
     [
         [
@@ -492,20 +499,6 @@
     [
         [
             "file",
-            "web-app/src/auth/forms/Login.jsx"
-        ],
-        "2a97bf6cb1ba5cd1f271dc83aaac5864a7e5738b72814c7d09bb3e5f70877686"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/Signup.jsx"
-        ],
-        "712a1513116da68cef5a8dddcf80fbaffa8b733690c52e7c5cc1ef329af591e9"
-    ],
-    [
-        [
-            "file",
             "web-app/src/auth/helpers/Google.jsx"
         ],
         "c3d12e7a6cc1305c9e411d522e6aa8411d036337791ed0fc37e6048fe2d90cfd"
@@ -516,13 +509,6 @@
             "web-app/src/auth/helpers/user.ts"
         ],
         "7ae0fa01ac15b43746877b765bc4e6fd533f302c435b771238ad79afbe923000"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/login.js"
-        ],
-        "01d75f9d2c3b414505c0368f40d50f411ec931cc31cb12c01cd8988ff2326b7d"
     ],
     [
         [
@@ -544,13 +530,6 @@
             "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
         "796720e403436139720fa72b941bc5fcf190b05777693c62d2b5f638e872badc"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/signup.js"
-        ],
-        "982902ba7a2ad88e5d8df696cde129f59c328269af2302720d37529c0463e276"
     ],
     [
         [
