@@ -20,8 +20,8 @@ import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo, frontendLoginUrl, serverOauthRedirectHandlerUrl)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider, frontendLoginUrl, serverOauthRedirectHandlerUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common (asTmplFile, asWebAppSrcFile)
@@ -115,20 +115,20 @@ createRouterTemplateData spec =
     externalAuthProviders =
       map
         (createExternalAuthProviderTemplateData maybeAuth)
-        [ (AS.App.Auth.isGoogleAuthEnabled, googleAuthInfo),
-          (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthInfo)
+        [ (AS.App.Auth.isGoogleAuthEnabled, googleAuthProvider),
+          (AS.App.Auth.isGitHubAuthEnabled, gitHubAuthProvider)
         ]
     maybeAuth = AS.App.auth $ snd $ getApp spec
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 createExternalAuthProviderTemplateData ::
   Maybe AS.App.Auth.Auth ->
-  (AS.App.Auth.Auth -> Bool, OAuthAuthInfo) ->
+  (AS.App.Auth.Auth -> Bool, OAuthAuthProvider) ->
   ExternalAuthProviderTemplateData
-createExternalAuthProviderTemplateData maybeAuth (method, oAuthAuthInfo) =
+createExternalAuthProviderTemplateData maybeAuth (method, provider) =
   ExternalAuthProviderTemplateData
-    { _authFrontendUrl = frontendLoginUrl oAuthAuthInfo,
-      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl oAuthAuthInfo,
+    { _authFrontendUrl = frontendLoginUrl provider,
+      _authServerOauthRedirectUrl = serverOauthRedirectHandlerUrl provider,
       _authProviderEnabled = (method <$> maybeAuth) == Just True
     }
 

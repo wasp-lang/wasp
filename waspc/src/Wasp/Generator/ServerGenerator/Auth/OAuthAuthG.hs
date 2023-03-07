@@ -26,8 +26,8 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo)
-import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -40,8 +40,8 @@ genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers
-        <++> genOAuthProvider googleAuthInfo (AS.Auth.google . AS.Auth.methods $ auth)
-        <++> genOAuthProvider gitHubAuthInfo (AS.Auth.gitHub . AS.Auth.methods $ auth)
+        <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
+        <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
 
 genOAuthHelpers :: Generator [FileDraft]
@@ -53,39 +53,39 @@ genOAuthHelpers =
     ]
 
 genOAuthProvider ::
-  OAuthAuthInfo ->
+  OAuthAuthProvider ->
   Maybe AS.Auth.ExternalAuthConfig ->
   Generator [FileDraft]
-genOAuthProvider authInfo maybeUserConfig
+genOAuthProvider provider maybeUserConfig
   | isJust maybeUserConfig =
       sequence
-        [ genOAuthConfig authInfo maybeUserConfig $ [reldir|auth/providers/config|] </> providerTsFile
+        [ genOAuthConfig provider maybeUserConfig $ [reldir|auth/providers/config|] </> providerTsFile
         ]
   | otherwise = return []
   where
     providerTsFile :: Path' (Rel ()) File'
     providerTsFile = fromJust $ SP.parseRelFile $ providerId ++ ".ts"
 
-    providerId = OAuth.providerId authInfo
+    providerId = OAuth.providerId provider
 
 -- Used to generate the specific provider config based on the generic oauth.ts file.
 -- The config receives everything: auth info, npm packages, user defined imports and env variables.
 -- It's all in one config file.
 genOAuthConfig ::
-  OAuthAuthInfo ->
+  OAuthAuthProvider ->
   Maybe AS.Auth.ExternalAuthConfig ->
   Path' (Rel ServerSrcDir) File' ->
   Generator FileDraft
-genOAuthConfig authInfo maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/config/_oauth.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> pathToConfigDst
     tmplData =
       object
-        [ "providerId" .= OAuth.providerId authInfo,
-          "displayName" .= OAuth.displayName authInfo,
-          "npmPackage" .= App.Dependency.name (OAuth.passportDependency authInfo),
-          "oAuthConfigProps" .= getJsonForOAuthConfigProps authInfo,
+        [ "providerId" .= OAuth.providerId provider,
+          "displayName" .= OAuth.displayName provider,
+          "npmPackage" .= App.Dependency.name (OAuth.passportDependency provider),
+          "oAuthConfigProps" .= getJsonForOAuthConfigProps provider,
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
           "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
         ]
@@ -95,19 +95,19 @@ genOAuthConfig authInfo maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]
 
-getJsonForOAuthConfigProps :: OAuthAuthInfo -> [Aeson.Value]
-getJsonForOAuthConfigProps authInfo =
+getJsonForOAuthConfigProps :: OAuthAuthProvider -> [Aeson.Value]
+getJsonForOAuthConfigProps provider =
   [ object
       [ "key" .= ("clientID" :: String),
-        "value" .= ("process.env." ++ OAuth.clientIdEnvVarName authInfo)
+        "value" .= ("process.env." ++ OAuth.clientIdEnvVarName provider)
       ],
     object
       [ "key" .= ("clientSecret" :: String),
-        "value" .= ("process.env." ++ OAuth.clientSecretEnvVarName authInfo)
+        "value" .= ("process.env." ++ OAuth.clientSecretEnvVarName provider)
       ],
     object
       [ "key" .= ("scope" :: String),
-        "value" .= OAuth.scopeStr authInfo
+        "value" .= OAuth.scopeStr provider
       ]
   ]
 
@@ -115,8 +115,8 @@ depsRequiredByPassport :: AppSpec -> [App.Dependency.Dependency]
 depsRequiredByPassport spec =
   concat
     [ [App.Dependency.make ("passport", "0.6.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True],
-      [OAuth.passportDependency googleAuthInfo | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True],
-      [OAuth.passportDependency gitHubAuthInfo | (AS.App.Auth.isGitHubAuthEnabled <$> maybeAuth) == Just True]
+      [OAuth.passportDependency googleAuthProvider | (AS.App.Auth.isGoogleAuthEnabled <$> maybeAuth) == Just True],
+      [OAuth.passportDependency gitHubAuthProvider | (AS.App.Auth.isGitHubAuthEnabled <$> maybeAuth) == Just True]
     ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

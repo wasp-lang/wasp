@@ -3,25 +3,27 @@ module Wasp.Generator.AuthProviders.Local
     displayName,
     serverLoginUrl,
     serverSignupUrl,
-    LocalAuthInfo (..),
+    LocalAuthProvider (..),
   )
 where
 
-data LocalAuthInfo = LocalAuthInfo
+import Wasp.Generator.AuthProviders.Common (ProviderId, fromProviderId)
+
+data LocalAuthProvider = LocalAuthProvider
   { -- Unique identifier of the auth provider
-    _providerId :: String,
+    _providerId :: ProviderId,
     -- Used for pretty printing
     _displayName :: String
   }
 
-providerId :: LocalAuthInfo -> String
-providerId = _providerId
+providerId :: LocalAuthProvider -> String
+providerId = fromProviderId . _providerId
 
-displayName :: LocalAuthInfo -> String
+displayName :: LocalAuthProvider -> String
 displayName = _displayName
 
-serverLoginUrl :: LocalAuthInfo -> String
-serverLoginUrl authInfo = "/auth/" ++ _providerId authInfo ++ "/login"
+serverLoginUrl :: LocalAuthProvider -> String
+serverLoginUrl provider = "/auth/" ++ providerId provider ++ "/login"
 
-serverSignupUrl :: LocalAuthInfo -> String
-serverSignupUrl authInfo = "/auth/" ++ _providerId authInfo ++ "/signup"
+serverSignupUrl :: LocalAuthProvider -> String
+serverSignupUrl provider = "/auth/" ++ providerId provider ++ "/signup"

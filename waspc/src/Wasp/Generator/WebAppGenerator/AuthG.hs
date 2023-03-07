@@ -13,9 +13,9 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (gitHubAuthInfo, googleAuthInfo, localAuthInfo)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider, localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
-import Wasp.Generator.AuthProviders.OAuth (OAuthAuthInfo)
+import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -43,13 +43,13 @@ genAuth spec =
 genSignup :: Generator FileDraft
 genSignup = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/signup.js|]) tmplData
   where
-    tmplData = object ["signupPath" .= serverSignupUrl localAuthInfo]
+    tmplData = object ["signupPath" .= serverSignupUrl localAuthProvider]
 
 -- | Generates file with login function to be used by Wasp developer.
 genLogin :: Generator FileDraft
 genLogin = return $ C.mkTmplFdWithData (C.asTmplFile [relfile|src/auth/login.js|]) tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthInfo]
+    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: Generator FileDraft
@@ -101,11 +101,11 @@ genSocialLoginHelpers auth =
         [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
       ]
   where
-    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.jsx|]
-    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.jsx|]
+    gitHubHelpers = mkHelpersFd gitHubAuthProvider [relfile|GitHub.jsx|]
+    googleHelpers = mkHelpersFd googleAuthProvider [relfile|Google.jsx|]
 
-    mkHelpersFd :: OAuthAuthInfo -> Path' Rel' File' -> FileDraft
-    mkHelpersFd oAuthAuthInfo helpersFp =
+    mkHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
+    mkHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
         [relfile|src/auth/helpers/Generic.jsx|]
         (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
@@ -113,9 +113,9 @@ genSocialLoginHelpers auth =
       where
         tmplData =
           object
-            [ "signInPath" .= OAuth.serverLoginUrl oAuthAuthInfo,
-              "iconName" .= SP.toFilePath (OAuth.logoFileName oAuthAuthInfo),
-              "displayName" .= OAuth.displayName oAuthAuthInfo
+            [ "signInPath" .= OAuth.serverLoginUrl provider,
+              "iconName" .= SP.toFilePath (OAuth.logoFileName provider),
+              "displayName" .= OAuth.displayName provider
             ]
 
 genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft

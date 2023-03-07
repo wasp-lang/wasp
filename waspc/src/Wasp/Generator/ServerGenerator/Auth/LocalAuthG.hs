@@ -15,7 +15,7 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthInfo)
+import Wasp.Generator.AuthProviders (localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Local as Local
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -40,8 +40,8 @@ genLocalAuthConfig = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tm
 
     tmplData =
       object
-        [ "providerId" .= Local.providerId localAuthInfo,
-          "displayName" .= Local.displayName localAuthInfo
+        [ "providerId" .= Local.providerId localAuthProvider,
+          "displayName" .= Local.displayName localAuthProvider
         ]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'

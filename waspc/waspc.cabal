@@ -238,6 +238,7 @@ library
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
     Wasp.Generator.AuthProviders
+    Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.ServerGenerator
