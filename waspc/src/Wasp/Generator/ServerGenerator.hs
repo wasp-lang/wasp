@@ -27,7 +27,7 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -242,7 +242,8 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+                "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+                "apisInUse" .= (not . null $ getApis spec)
               ]
         )
     ]

@@ -8,7 +8,7 @@ import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldirP, relfile)
 import qualified StrongPath as SP
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Api (Api)
 import qualified Wasp.AppSpec.Api as Api
@@ -21,10 +21,15 @@ import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
-  sequence
-    [ genApiRoutes spec,
-      genApiTypes spec
-    ]
+  if apisInUse
+    then
+      sequence
+        [ genApiRoutes spec,
+          genApiTypes spec
+        ]
+    else return []
+  where
+    apisInUse = not . null $ getApis spec
 
 genApiRoutes :: AppSpec -> Generator FileDraft
 genApiRoutes spec =
