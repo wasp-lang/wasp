@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom'
 import { User } from '@wasp/entities'
 import api from '@wasp/api'
 
+async function logCustomRoute() {
+  const res = await api.get('/foo/bar')
+  console.log(res.data)
+}
+
 export const ProfilePage = ({ user: { username } }: { user: User }) => {
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await api.get('/foo/bar')
-      return res.data
-    }
-    fetchData().then(data => console.log(data)).catch(console.error);
-  }, [])
+    logCustomRoute()
+  }, []);
 
   return (
     <>
