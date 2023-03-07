@@ -17,6 +17,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
@@ -31,19 +32,22 @@ genApiRoutes spec =
   where
     apis = map snd $ AS.getApis spec
     tmplData = object ["apiRoutes" .= map getTmplData apis]
-    tmplFile = C.asTmplFile [relfile|src/routes/apis/index.js|]
+    tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
     getTmplData :: Api -> Aeson.Value
     getTmplData api =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisDirToServerSrcDir (Api.fn api)
+      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisRoutesToServerSrcDir (Api.fn api)
        in object
-            [ "routeMethod" .= map toLower (show $ Api.method . Api.httpRoute $ api),
-              "routePath" .= (Api.path . Api.httpRoute $ api),
+            [ "routeMethod" .= map toLower (show $ Api.method api),
+              "routePath" .= Api.path api,
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
               "entities" .= getApiEntitiesObject api
             ]
+      where
+        relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+        relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
 
 genApiTypes :: AppSpec -> Generator FileDraft
 genApiTypes spec =
@@ -57,12 +61,9 @@ genApiTypes spec =
     getTmplData :: (String, Api) -> Aeson.Value
     getTmplData (name, api) =
       object
-        [ "name" .= name,
+        [ "name" .= toUpperFirst name,
           "entities" .= getApiEntitiesObject api
         ]
 
 getApiEntitiesObject :: Api -> [Aeson.Value]
 getApiEntitiesObject api = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
-
-relPathFromApisDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-relPathFromApisDirToServerSrcDir = [reldirP|../..|]

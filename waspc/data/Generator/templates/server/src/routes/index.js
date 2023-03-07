@@ -17,6 +17,7 @@ router.get('/', function (req, res, next) {
 router.use('/auth', auth)
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', operations)
+// Keep user-defined api routes last so they cannot override our routes.
 router.use(apis)
 
 export default router

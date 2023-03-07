@@ -1,5 +1,5 @@
 {{={= =}=}}
-import express from 'express'
+import express, { Request, Response } from 'express';
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 
@@ -10,7 +10,7 @@ import { handleRejection } from '../../utils.js'
 const router = express.Router()
 
 {=# apiRoutes =}
-router.{= routeMethod =}('{= routePath =}', handleRejection((req, res) => {
+router.{= routeMethod =}('{= routePath =}', handleRejection((req: Request, res: Response) => {
   const context = {
     entities: {
       {=# entities =}

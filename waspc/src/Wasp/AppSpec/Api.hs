@@ -2,31 +2,32 @@
 
 module Wasp.AppSpec.Api
   ( Api (..),
-    HttpRoute (..),
     HttpMethod (..),
+    method,
+    path,
   )
 where
 
 import Data.Data (Data)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref)
-import Wasp.AppSpec.Entity
-import Wasp.AppSpec.ExtImport
+import Wasp.AppSpec.Entity (Entity)
+import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Api = Api
   { fn :: ExtImport,
     entities :: Maybe [Ref Entity],
-    httpRoute :: HttpRoute
+    httpRoute :: (HttpMethod, String)
   }
   deriving (Show, Eq, Data)
 
 instance IsDecl Api
 
-data HttpRoute = HttpRoute
-  { method :: HttpMethod,
-    path :: String
-  }
-  deriving (Show, Eq, Data)
+method :: Api -> HttpMethod
+method = fst . httpRoute
+
+path :: Api -> String
+path = snd . httpRoute
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
   deriving (Show, Eq, Data)
