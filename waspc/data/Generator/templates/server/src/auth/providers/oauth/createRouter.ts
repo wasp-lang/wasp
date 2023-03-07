@@ -56,31 +56,31 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
 }
 
 async function findOrCreateUserByExternalAuthAssociation(
-    provider: string,
-    providerId: string,
-    getUserFields: () => ReturnType<GetUserFieldsFn>,
-  ): Promise<{= userEntityUpper =}> {
-    // Attempt to find a User by an external auth association.
-    const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
-      where: { provider, providerId },
-      include: { user: true }
-    })
+  provider: string,
+  providerId: string,
+  getUserFields: () => ReturnType<GetUserFieldsFn>,
+): Promise<{= userEntityUpper =}> {
+  // Attempt to find a User by an external auth association.
+  const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
+    where: { provider, providerId },
+    include: { user: true }
+  })
 
-    if (externalAuthAssociation) {
-      return externalAuthAssociation.user
-    }
-
-    // No external auth association linkage found. Create a new User using details from
-    // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
-    // NOTE: For now, we force a random (uuidv4) password string. In the future, we will allow password reset.
-    const userFields = await getUserFields()
-    const userAndExternalAuthAssociation = {
-      ...userFields,
-      password: uuidv4(),
-      externalAuthAssociations: {
-        create: [{ provider, providerId }]
-      }
-    }
-
-    return prisma.{= userEntityLower =}.create({ data: userAndExternalAuthAssociation })
+  if (externalAuthAssociation) {
+    return externalAuthAssociation.user
   }
+
+  // No external auth association linkage found. Create a new User using details from
+  // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
+  // NOTE: For now, we force a random (uuidv4) password string. In the future, we will allow password reset.
+  const userFields = await getUserFields()
+  const userAndExternalAuthAssociation = {
+    ...userFields,
+    password: uuidv4(),
+    externalAuthAssociations: {
+      create: [{ provider, providerId }]
+    }
+  }
+
+  return prisma.{= userEntityLower =}.create({ data: userAndExternalAuthAssociation })
+}
