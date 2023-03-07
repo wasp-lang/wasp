@@ -53,12 +53,12 @@ genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =
   return $
     C.mkTmplFdWithData
-      [relfile|auth/forms/Login.jsx|]
+      [relfile|src/auth/forms/Login.jsx|]
       (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
 
 genSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genSignupForm auth =
   return $
     C.mkTmplFdWithData
-      [relfile|auth/forms/Signup.jsx|]
+      [relfile|src/auth/forms/Signup.jsx|]
       (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])

@@ -36,7 +36,7 @@ genAuth spec = case maybeAuth of
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
-        genProviderTypes auth,
+        genFileCopy [relfile|auth/providers/types.ts|],
         genFileCopy [relfile|auth/providers/index.ts|]
       ]
       <++> genLocalAuth auth
@@ -102,27 +102,18 @@ genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel utilsFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> utilsFileInSrcDir
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     utilsFileInSrcDir = [relfile|auth/utils.ts|]
-
-genProviderTypes :: AS.Auth.Auth -> Generator FileDraft
-genProviderTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
-  where
-    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/types.ts|]
-    tmplData = object ["userEntityName" .= userEntityName]
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)

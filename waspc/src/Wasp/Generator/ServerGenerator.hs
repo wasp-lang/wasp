@@ -78,7 +78,7 @@ genServer spec =
     <++> genPatches spec
     <++> genUniversalDir
     <++> genEnvValidationScript
-    <++> genExportedTypesDir
+    <++> genExportedTypesDir spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -334,8 +334,12 @@ genEnvValidationScript =
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
 
-genExportedTypesDir :: Generator [FileDraft]
-genExportedTypesDir =
+genExportedTypesDir :: AppSpec -> Generator [FileDraft]
+genExportedTypesDir spec =
   return
-    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
+    [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
     ]
+  where
+    tmplData = object ["isExternalAuthEnabled" .= isExternalAuthEnabled]
+    isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
+    maybeAuth = AS.App.auth $ snd $ getApp spec

@@ -21,6 +21,7 @@ import StrongPath
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
@@ -35,22 +36,43 @@ import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
+import qualified Wasp.Util as Util
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuthAuth auth
   | AS.Auth.isExternalAuthEnabled auth =
-      genOAuthHelpers
+      genOAuthHelpers auth
         <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
         <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
   | otherwise = return []
 
-genOAuthHelpers :: Generator [FileDraft]
-genOAuthHelpers =
+genOAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genOAuthHelpers auth =
   sequence
-    [ return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/createRouter.ts|],
+    [ genCreateRouter auth,
+      genTypes auth,
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
       return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/defaults.ts|]
     ]
+
+genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
+genCreateRouter auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/oauth/createRouter.ts|] (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String)
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
+
+genTypes :: AS.Auth.Auth -> Generator FileDraft
+genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/types.ts|]
+    tmplData = object ["userEntityName" .= userEntityName]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genOAuthProvider ::
   OAuthAuthProvider ->
