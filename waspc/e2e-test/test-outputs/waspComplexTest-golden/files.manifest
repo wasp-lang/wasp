@@ -24,6 +24,7 @@ waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/createRouter.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/defaults.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/oauth/init.ts
+waspComplexTest/.wasp/out/server/src/auth/providers/oauth/types.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/types.ts
 waspComplexTest/.wasp/out/server/src/auth/utils.ts
 waspComplexTest/.wasp/out/server/src/config.js

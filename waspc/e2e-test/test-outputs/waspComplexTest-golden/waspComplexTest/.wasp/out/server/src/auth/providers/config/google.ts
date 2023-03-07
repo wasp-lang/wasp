@@ -2,7 +2,8 @@
 import { createRouter } from "../oauth/createRouter.js";
 import { makeOAuthInit } from "../oauth/init.js";
 
-import { ProviderConfig, OAuthConfig } from "../types.js";
+import type { ProviderConfig } from "../types.js";
+import type { OAuthConfig } from "../oauth/types.js";
 
 import { getUserFieldsFn as _waspGetUserFieldsFn } from '../oauth/defaults.js'
 const _waspUserDefinedConfigFn = undefined

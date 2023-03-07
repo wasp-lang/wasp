@@ -123,7 +123,7 @@
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "89fb5ca2784afe73685b4b74bad7a4d28c048f41c85485ef704d71bc8ad5aae0"
+        "c116d20d03a1784e6fcb6c39fd2f294a633d8cda1e8cc845a86549f877abf2be"
     ],
     [
         [
@@ -137,7 +137,7 @@
             "file",
             "server/src/auth/providers/oauth/createRouter.ts"
         ],
-        "e4855f710d4c39ea11650ef1d80f5252e5633817d020d7951e91452ba2d4e613"
+        "3855c4b789d15511d871d35f69a4b2d14b7923516cba5c50eb528aee9254b5c5"
     ],
     [
         [
@@ -151,21 +151,28 @@
             "file",
             "server/src/auth/providers/oauth/init.ts"
         ],
-        "85a90358da51500be7eec18dea9adfc8a22cc4b4eaea5c3ee8b664ac8854cfdf"
+        "7db2dc4736dadede12c9f85a88d31b992fe26ad06d57dde34784a2db54356ee4"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/types.ts"
+        ],
+        "81c3ff4d945025fc2530b57db7ceecb5c14857e84d98e8c11f045282c25efe37"
     ],
     [
         [
             "file",
             "server/src/auth/providers/types.ts"
         ],
-        "18be93b53d117a13a7aef41e637c90e37d4d57708ee368180d4c0358c4aacf29"
+        "9859bf91e0abe0aaadf7b8c74c573607f6085a5414071836cef6ba84b2bebb69"
     ],
     [
         [
             "file",
             "server/src/auth/utils.ts"
         ],
-        "9afb195565748606deba580bfb69448fd3ab5b5c79c3c7b9ab83943c6a134175"
+        "f956a964d5973e8521fb5c1e514a5da9d9c5e52ed3352e4d3373eb5c084872b3"
     ],
     [
         [
@@ -361,7 +368,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "fd9e603be2b1db0b1335e754e7c63c403f0b1d03951c4181e204d801072369c7"
+        "d14074812de8055f6dbeb67152c90c2eb94defa0a42749984069fbdcea7bc7af"
     ],
     [
         [

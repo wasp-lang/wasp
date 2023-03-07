@@ -1,3 +1,4 @@
+
 import { Application } from 'express'
 import { Server } from 'http'
 
@@ -11,4 +12,4 @@ export type ServerSetupFnContext = {
 export { Application } from 'express'
 export { Server } from 'http'
 
-export { GetUserFieldsFn } from '../auth/providers/types';
+export { GetUserFieldsFn } from '../auth/providers/oauth/types';

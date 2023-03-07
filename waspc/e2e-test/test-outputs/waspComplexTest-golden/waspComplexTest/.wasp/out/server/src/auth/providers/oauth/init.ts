@@ -2,7 +2,8 @@ import passport from "passport";
 
 import waspServerConfig from '../../../config.js';
 
-import { InitData, ProviderConfig, OAuthConfig, RequestWithWasp, GetUserFieldsFn, UserDefinedConfigFn } from "../types.js";
+import type { InitData, ProviderConfig, RequestWithWasp } from "../types.js";
+import type { OAuthConfig, GetUserFieldsFn, UserDefinedConfigFn  } from "./types.js";
 
 export function makeOAuthInit({ userDefinedConfigFn, getUserFieldsFn, npmPackage, oAuthConfig }: OAuthImports) {
     return async function init(provider: ProviderConfig): Promise<InitData> {
