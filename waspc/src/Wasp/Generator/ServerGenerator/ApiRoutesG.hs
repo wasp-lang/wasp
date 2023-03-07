@@ -5,13 +5,17 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import Data.Aeson.Types (Pair)
 import Data.Char (toLower)
+import Data.Maybe (fromMaybe)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldirP, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
-import Wasp.AppSpec.Api (Api)
 import qualified Wasp.AppSpec.Api as Api
+import qualified Wasp.AppSpec.App as App
+import qualified Wasp.AppSpec.App.Auth as App.Auth
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -36,11 +40,11 @@ genApiRoutes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     apis = map snd $ AS.getApis spec
-    tmplData = object ["apiRoutes" .= map getTmplData apis]
+    tmplData = object $ ("apiRoutes" .= map getTmplData apis) : getAuthValues spec
     tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getTmplData :: Api -> Aeson.Value
+    getTmplData :: Api.Api -> Aeson.Value
     getTmplData api =
       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisRoutesToServerSrcDir (Api.fn api)
        in object
@@ -48,7 +52,8 @@ genApiRoutes spec =
               "routePath" .= Api.path api,
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
-              "entities" .= getApiEntitiesObject api
+              "entities" .= getApiEntitiesObject api,
+              "isUsingAuth" .= isAuthEnabledForApi spec api
             ]
       where
         relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
@@ -59,16 +64,26 @@ genApiTypes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     namedApis = AS.getApis spec
-    tmplData = object ["apiRoutes" .= map getTmplData namedApis]
+    tmplData = object $ ("apiRoutes" .= map getTmplData namedApis) : getAuthValues spec
     tmplFile = C.asTmplFile [relfile|src/apis/types.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getTmplData :: (String, Api) -> Aeson.Value
+    getTmplData :: (String, Api.Api) -> Aeson.Value
     getTmplData (name, api) =
       object
         [ "name" .= toUpperFirst name,
-          "entities" .= getApiEntitiesObject api
+          "entities" .= getApiEntitiesObject api,
+          "isUsingAuth" .= isAuthEnabledForApi spec api
         ]
 
-getApiEntitiesObject :: Api -> [Aeson.Value]
+getApiEntitiesObject :: Api.Api -> [Aeson.Value]
 getApiEntitiesObject api = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
+
+getAuthValues :: AppSpec -> [Pair]
+getAuthValues spec =
+  [ "isAuthEnabled" .= isAuthEnabled spec,
+    "userEntityUpper" .= maybe "" (AS.refName . App.Auth.userEntity) (App.auth $ snd $ getApp spec)
+  ]
+
+isAuthEnabledForApi :: AppSpec -> Api.Api -> Bool
+isAuthEnabledForApi spec api = fromMaybe (isAuthEnabled spec) (Api.auth api)
