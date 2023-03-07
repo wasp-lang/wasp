@@ -260,6 +260,9 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
+    Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
+    Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator
