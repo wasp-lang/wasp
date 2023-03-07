@@ -8,5 +8,5 @@ export type ServerSetupFnContext = {
   server: Server,
 }
 
-export { Application } from 'express'
+export { Application, Request, Response } from 'express'
 export { Server } from 'http'
