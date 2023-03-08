@@ -23,27 +23,27 @@ And once you get into that career, as a Junior it can often be difficult to know
 
 So, I put together this list of things you should consider when starting out a career in tech: 
 
-1. 👎 If you’re doing it solely for the money, you’re not gonna make it. True, you don’t need a degree or anyone’s permission to advance in this career, but you need ambition and mental stamina. A genuine interest is needed to maintain them. 
+1. 👎 **If you’re doing it solely for the money, you’re not gonna make it.** True, you don’t need a degree or anyone’s permission to advance in this career, but you need ambition and mental stamina. A genuine interest is needed to maintain them. 
 
-2. 😎 You don’t have to follow the trends. Follow what interests you. Like I said before, you need mental stamina in this field of work. Following your interests will keep you engaged and help avoid burnout.
+2. 😎 **You don’t have to follow the trends. Follow what interests you.** Like I said before, you need mental stamina in this field of work. Following your interests will keep you engaged and help avoid burnout.
 
-3. 👩‍💻 You don’t need to know a piece of tech inside and out, contrary to what some devs might want you to believe. The truth is, you are always learning, and there will always be gaps in your knowledge. Your confidence in being able to fill those gaps is what matters.
+3. 👩‍💻 **You don’t need to know a piece of tech inside and out,** contrary to what some devs might want you to believe. The truth is, you are always learning, and there will always be gaps in your knowledge. Your confidence in being able to fill those gaps is what matters.
 
-4. 🧱 Start building, ASAP. Find a problem that interests you and build the solution yourself. Contribute to Open-Source projects that you use. A portfolio of unique work speaks volumes about your abilities. Plus, there’s no better teacher than experience. 
+4. 🧱 **Start building, ASAP.** Find a problem that interests you and build the solution yourself. Contribute to Open-Source projects that you use. A portfolio of unique work speaks volumes about your abilities. Plus, there’s no better teacher than experience. 
 
-5. 😱 Be fearless and seek feedback. Put your work out there and be ready to have it criticized. If you can stomach it, you’ll come out the other side a much better developer. 
+5. 😱 **Be fearless and seek feedback.** Put your work out there and be ready to have it criticized. If you can stomach it, you’ll come out the other side a much better developer. 
 
-6. 🧐 You should have a firm understanding of what you’re doing. Don’t copy-paste someone else’s answer (or GPT’s) to your problem and call it a day. Question why things work, and figure it out for yourself.
+6. 🧐 **You should have a firm understanding of what you’re doing.** Don’t copy-paste someone else’s answer (or GPT’s) to your problem and call it a day. Question why things work, and figure it out for yourself.
 
-7. 🏋️‍♀️ You have to do the grunt work, unfortunately. Don’t expect high salaries from the beginning. And you’ll probably want to improve your portfolio by working on side projects in your free time, or you might stay a junior dev for longer than you wish. 
+7. 🏋️‍♀️ **You have to do the grunt work, unfortunately. Don’t expect high salaries from the beginning.** And you’ll probably want to improve your portfolio by working on side projects in your free time, or you might stay a junior dev for longer than you wish. 
 
-8. 🧗‍♂️ Challenge yourself. Don’t let yourself get too comfortable. If you do, you won’t improve. Offer to take new, difficult, and daunting tasks at work or with your personal projects. You’ll be surprised what you can achieve. 
+8. 🧗‍♂️ **Challenge yourself. Don’t let yourself get too comfortable.** If you do, you won’t improve. Offer to take new, difficult, and daunting tasks at work or with your personal projects. You’ll be surprised what you can achieve. 
 
-9. 💰 You don’t have to pay for boot camps or courses. In fact, you’re better off tackling problems on your own and only asking for help if you’re truly stuck. There’s a wealth of free resources out there, and when you’re on the job, these might be the only things to assist you.
+9. 💰 **You don’t have to pay for boot camps or courses.** In fact, you’re better off tackling problems on your own and only asking for help if you’re truly stuck. There’s a wealth of free resources out there, and when you’re on the job, these might be the only things to assist you.
 
-10. 🗣 Programming is definitely not the only skill you’ll need. Being respectful, communicative, conscientious, ambitious, and humble will put you in a different league and make you a valuable asset in any tech team. 
+10. 🗣 **Programming is definitely not the only skill you’ll need.** Being respectful, communicative, conscientious, ambitious, and humble will put you in a different league and make you a valuable asset in any tech team. 
 
-TIP: *Contributing to an active, friendly Open-Source community project, like [https://wasp-lang.dev](https://wasp-lang.dev), is a great way to learn from others, build your skills and portfolio, and expose yourself to constructive criticism. Join us on [discord]([https://discord.gg/CFnqtaEU](https://discord.gg/CFnqtaEU))!*
+TIP: *Looking for some inspiration? Feedback? Motivation? Join us over at the [Wasp Discord server](https://discord.gg/CFnqtaEU), where we've got an active, friendly community of web developers of all skill levels that build side-projects, share their experiences, make memes, and chat about life*
 
 <br/>
 
