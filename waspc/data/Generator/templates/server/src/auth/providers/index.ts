@@ -1,10 +1,17 @@
+{{={= =}=}}
+
 import { Router } from "express";
 
 import { getDirFromFileUrl, importJsFilesFromDir } from "../../utils.js";
 
 import { ProviderConfig } from "./types";
 
-const providers = await importProviders();
+const allowedConfigs = [
+  {=# enabledProviderIds =}
+  "{= . =}.js",
+  {=/ enabledProviderIds =}
+];
+const providers = await importProviders(allowedConfigs);
 
 const router = Router();
 
@@ -20,8 +27,8 @@ for (const provider of providers) {
 
 export default router;
 
-async function importProviders(): Promise<ProviderConfig[]> {
+async function importProviders(providerConfigs: string[]): Promise<ProviderConfig[]> {
   const currentExecutionDir = getDirFromFileUrl(import.meta.url);
-  const providers = await importJsFilesFromDir(currentExecutionDir, "./config");
+  const providers = await importJsFilesFromDir(currentExecutionDir, "./config", providerConfigs);
   return providers.map((provider) => provider.default);
 }

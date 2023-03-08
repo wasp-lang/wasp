@@ -19,6 +19,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider, localAuthProvider)
+import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
@@ -36,8 +39,8 @@ genAuth spec = case maybeAuth of
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
-        genFileCopy [relfile|auth/providers/types.ts|],
-        genFileCopy [relfile|auth/providers/index.ts|]
+        genProvidersIndex auth,
+        genFileCopy [relfile|auth/providers/types.ts|]
       ]
       <++> genLocalAuth auth
       <++> genOAuthAuth auth
@@ -117,3 +120,17 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+
+genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
+genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
+  where
+    tmplData = object ["enabledProviderIds" .= (enabledProviderIds :: [String])]
+
+    enabledProviderIds =
+      map snd $
+        filter
+          fst
+          [ (AS.Auth.isGitHubAuthEnabled auth, OAuthProvider.providerId gitHubAuthProvider),
+            (AS.Auth.isGoogleAuthEnabled auth, OAuthProvider.providerId googleAuthProvider),
+            (AS.Auth.isUsernameAndPasswordAuthEnabled auth, LocalProvider.providerId localAuthProvider)
+          ]
