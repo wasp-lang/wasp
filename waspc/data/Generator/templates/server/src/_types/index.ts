@@ -27,11 +27,11 @@ type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
   // password field from the object there, we must do the same here). Ideally,
   // these two things would live in the same place:
   // https://github.com/wasp-lang/wasp/issues/965
-    {= userFieldName =}: UserWithoutPassword 
+    {= userFieldName =}: {= userEntityName =}WithoutPassword 
   }>,
 ) => Promise<Output>
 
-export type UserWithoutPassword = Omit<{= userEntityName =}, 'password'>
+export type {= userEntityName =}WithoutPassword = Omit<{= userEntityName =}, 'password'>
 
 export type AuthenticatedApi<
   Entities extends _Entity[],
@@ -44,7 +44,7 @@ export type AuthenticatedApi<
   req: Request<P, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
   context: Expand<ApiContext<Entities> & { 
-      {= userFieldName =}: UserWithoutPassword
+      {= userFieldName =}: {= userEntityName =}WithoutPassword
     }>,
 ) => any
 
