@@ -1,10 +1,10 @@
 {{={= =}=}}
-import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
-import { {= userEntityUpper =} } from '../../entities'
+import { UserWithoutPassword } from '../../_types'
 {=/ isAuthEnabled =}
 
 {=# apiRoutes =}
@@ -13,17 +13,18 @@ import { {= userEntityUpper =} } from '../../entities'
 
 const router = express.Router()
 
+// TODO: How can I use Request/Response instead of any below? Has errors when users override generic types :/
 {=# apiRoutes =}
-{=# isUsingAuth =}
-router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: Request & { user: {= userEntityUpper =} }, res: Response) => {
-{=/ isUsingAuth =}
-{=^ isUsingAuth =}
-router.{= routeMethod =}('{= routePath =}', handleRejection((req: Request, res: Response) => {
-{=/ isUsingAuth =}
+{=# usesAuth =}
+router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: any & { user: UserWithoutPassword }, res: any) => {
+{=/ usesAuth =}
+{=^ usesAuth =}
+router.{= routeMethod =}('{= routePath =}', handleRejection((req: any, res: any) => {
+{=/ usesAuth =}
   const context = {
-    {=# isUsingAuth =}
+    {=# usesAuth =}
     user: req.user,
-    {=/ isUsingAuth =}
+    {=/ usesAuth =}
     entities: {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},

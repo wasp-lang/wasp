@@ -150,6 +150,7 @@ npmDepsForWasp spec =
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
             ("@types/express", "^4.17.13"),
+            ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
             ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
@@ -243,7 +244,7 @@ genRoutesDir spec =
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
                 "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
-                "apisInUse" .= (not . null $ getApis spec)
+                "areApisInUse" .= (not . null $ getApis spec)
               ]
         )
     ]
