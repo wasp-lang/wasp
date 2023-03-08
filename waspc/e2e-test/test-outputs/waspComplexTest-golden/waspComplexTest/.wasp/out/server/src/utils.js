@@ -54,7 +54,7 @@ export function getDirFromFileUrl(fileUrl) {
   return fileURLToPath(dirname(fileUrl));
 }
 
-export async function importJsFilesFromDir(absoluteDir, relativePath) {
+export async function importJsFilesFromDir(absoluteDir, relativePath, whitelist = []) {
   const pathToDir = join(absoluteDir, relativePath);
 
   return new Promise((resolve, reject) => {
@@ -63,9 +63,16 @@ export async function importJsFilesFromDir(absoluteDir, relativePath) {
         return reject(err);
       }
       const importPromises = files
-        .filter((file) => file.endsWith(".js"))
+        .filter((file) => file.endsWith(".js") && isWhitelisted(file))
         .map((file) => import(`${pathToDir}/${file}`));
       resolve(Promise.all(importPromises));
     });
   });
+
+  function isWhitelisted(file) {
+    if (whitelist.length === 0) {
+      return true;
+    }
+    return whitelist.some((whitelistedFile) => file.endsWith(whitelistedFile));
+  }
 }
