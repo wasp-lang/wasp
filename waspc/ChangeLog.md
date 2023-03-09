@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.8.3
+## v0.9.0
 
 ### BREAKING CHANGES
 - All client files which use `JSX` need to have either the `.jsx` or the `.tsx` extension. This is because we now use `Vite` under the hood instead of `Create React App`, and `Vite` requires these extensions to be present to process `JSX`` properly.
