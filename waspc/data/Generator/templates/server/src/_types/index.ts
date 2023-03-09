@@ -22,58 +22,40 @@ export type AuthenticatedAction<Entities extends _Entity[], Input, Output> =
 
 type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
   args: Input,
-  context: Expand<OperationContext<Entities> & { 
-  // TODO: This type must match the logic in core/auth.js (if we remove the
-  // password field from the object there, we must do the same here). Ideally,
-  // these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-    {= userFieldName =}: {= userEntityName =}WithoutPassword 
-  }>,
+  context: ContextWithUser<Entities>,
 ) => Promise<Output>
-
-export type {= userEntityName =}WithoutPassword = Omit<{= userEntityName =}, 'password'>
 
 export type AuthenticatedApi<
   Entities extends _Entity[],
-  P extends ExpressParams = ExpressParams,
-  ResBody = any,
-  ReqBody = any,
-  ReqQuery extends ExpressQuery = ExpressQuery,
-  Locals extends Record<string, any> = Record<string, any>
+  Params extends ExpressParams,
+  ResBody,
+  ReqBody,
+  ReqQuery extends ExpressQuery,
+  Locals extends Record<string, any>
 > = (
-  req: Request<P, ResBody, ReqBody, ReqQuery, Locals>,
+  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
-  context: Expand<ApiContext<Entities> & { 
-      {= userFieldName =}: {= userEntityName =}WithoutPassword
-    }>,
-) => any
+  context: ContextWithUser<Entities>,
+) => void
 
 {=/ isAuthEnabled =}
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
-  context: Expand<OperationContext<Entities>>,
+  context: Context<Entities>,
 ) => Promise<Output>
-
-type OperationContext<Entities extends _Entity[]> = {
-  entities: Expand<EntityMap<Entities>>
-}
 
 export type Api<
   Entities extends _Entity[],
-  P extends ExpressParams = ExpressParams,
-  ResBody = any,
-  ReqBody = any,
-  ReqQuery extends ExpressQuery = ExpressQuery,
-  Locals extends Record<string, any> = Record<string, any>
+  Params extends ExpressParams,
+  ResBody,
+  ReqBody,
+  ReqQuery extends ExpressQuery,
+  Locals extends Record<string, any>
 > = (
-  req: Request<P, ResBody, ReqBody, ReqQuery, Locals>,
+  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
   res: Response<ResBody, Locals>,
-  context: Expand<ApiContext<Entities>>,
-) => any
-
-type ApiContext<Entities extends _Entity[]> = {
-  entities: Expand<EntityMap<Entities>>
-}
+  context: Context<Entities>,
+) => void
 
 type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
@@ -84,6 +66,20 @@ type PrismaDelegate = {
   "{= name =}": typeof prisma.{= prismaIdentifier =},
   {=/ entities =}
 }
+
+type Context<Entities extends _Entity[]> = Expand<{
+  entities: Expand<EntityMap<Entities>>
+}>
+
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & {
+  // TODO: This type must match the logic in core/auth.js (if we remove the
+  // password field from the object there, we must do the same here). Ideally,
+  // these two things would live in the same place:
+  // https://github.com/wasp-lang/wasp/issues/965
+  user: {= userEntityName =}WithoutPassword
+}>
+
+export type {= userEntityName =}WithoutPassword = Omit<{= userEntityName =}, 'password'>
 
 // This is a helper type used exclusively for DX purposes. It's a No-op for the
 // compiler, but expands the type's representatoin in IDEs (i.e., inlines all
