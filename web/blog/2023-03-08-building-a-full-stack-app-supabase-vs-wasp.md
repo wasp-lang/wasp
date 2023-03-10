@@ -1,5 +1,5 @@
 ---
-title: "Building a full-stack app: Supabase vs. Wasp"
+title: "Building a full-stack app for learning Italian: Supabase vs. Wasp"
 authors: [miho]
 image: /img/building-a-full-stack-app-supabase-vs-wasp.jpg
 tags: [Full-stack, Supabase, Wasp, WebDev]
