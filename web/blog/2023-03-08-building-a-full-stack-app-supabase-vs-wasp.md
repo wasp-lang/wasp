@@ -332,7 +332,7 @@ I want to compare the features of Supabase and Wasp. It's good to think about di
 | ---------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | Getting data from the API    | Use the Supabase JS SDK to query database tables                  | Declare query in Wasp config and use Prisma JS SDK to implement it |
 | Custom business logic        | Writing custom PostgreSQL procedures or by writing edge functions | Declare actions in the Wasp file and write server-side JS                       |
-| Defining the database schema | Visual editor or by CREATE TABLE query                            | Define Prisma schema                                                            |
+| Defining the database schema | Visual editor or by CREATE TABLE query                            | By code - edit Prisma schema and commit changes                                                          |
 | Auth                         | Enable in UI                                                      | Enable it in the Wasp file                                                      |
 | Deployment                   | Supabase managed instance or self-host it                         | Deploy anywhere, support for https://fly.io one line deployment                  |
 
