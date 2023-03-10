@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.8.0"
+    version: "^0.9.0"
   },
   title: "ToDo App",
   // head: [],
@@ -34,7 +34,14 @@ app todoApp {
   },
   db: {
     system: PostgreSQL
-  }
+  },
+  email: {
+    provider: SMTP,
+    sender: {
+      name: "Wasp Team",
+      email: "hello@wasp-team.dev"
+    },
+  },
 }
 
 entity User {=psl

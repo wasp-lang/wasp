@@ -13,12 +13,14 @@ import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
+import Wasp.AppSpec.App.Email (EmailProvider)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 
+makeEnumType ''EmailProvider
 makeEnumType ''DbSystem
 makeDeclType ''App
 makeDeclType ''Page
@@ -43,5 +45,6 @@ stdTypes =
   TD.addDeclType @Action $
   TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
+  TD.addEnumType @EmailProvider $
   TD.empty
 {- ORMOLU_ENABLE -}
