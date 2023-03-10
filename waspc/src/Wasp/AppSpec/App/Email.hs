@@ -3,6 +3,7 @@
 module Wasp.AppSpec.App.Email
   ( Email (..),
     EmailProvider (..),
+    Sender (..),
   )
 where
 
@@ -10,7 +11,7 @@ import Data.Data (Data)
 
 data Email = Email
   { provider :: EmailProvider,
-    sender :: Maybe Sender
+    sender :: Sender
   }
   deriving (Show, Eq, Data)
 
@@ -22,7 +23,7 @@ instance Show EmailProvider where
   show SendGrid = "sendgrid"
 
 data Sender = Sender
-  { name :: String,
+  { title :: Maybe String,
     email :: String
   }
   deriving (Show, Eq, Data)

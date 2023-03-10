@@ -2,8 +2,7 @@ module Wasp.Generator.ServerGenerator.EmailG where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import StrongPath (File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
@@ -32,17 +31,55 @@ genIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplDat
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/index.ts|]
     dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/index.ts|]
-    tmplData = object ["emailProvider" .= show provider]
+    tmplData =
+      object
+        [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
+          "isSendGridProviderUsed" .= isSendGridProviderUsed
+        ]
+    isSmtpProviderUsed = provider == AS.Email.SMTP
+    isSendGridProviderUsed = provider == AS.Email.SendGrid
     provider = AS.Email.provider email
 
 genCore :: Email -> Generator [FileDraft]
 genCore email =
   sequence
-    [ copyTmplFile [relfile|email/core/index.ts|],
-      copyTmplFile [relfile|email/core/helpers.ts|],
-      copyTmplFile [relfile|email/core/types.ts|]
+    [ genCoreIndex email,
+      copyTmplFile [relfile|email/core/types.ts|],
+      genCoreHelpers email
     ]
     <++> genSmtp email
+    <++> genSendGrid email
+
+genCoreIndex :: Email -> Generator FileDraft
+genCoreIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
+  where
+    srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/core/index.ts|]
+    dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/core/index.ts|]
+    tmplData =
+      object
+        [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
+          "isSendGridProviderUsed" .= isSendGridProviderUsed
+        ]
+    isSmtpProviderUsed = provider == AS.Email.SMTP
+    isSendGridProviderUsed = provider == AS.Email.SendGrid
+    provider = AS.Email.provider email
+
+genCoreHelpers :: Email -> Generator FileDraft
+genCoreHelpers email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
+  where
+    srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/core/helpers.ts|]
+    dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/core/helpers.ts|]
+    tmplData =
+      object
+        [ "senderDefaults"
+            .= object
+              [ "email" .= AS.Email.email sender,
+                "title" .= title,
+                "isTitleDefined" .= isJust title
+              ]
+        ]
+    sender = AS.Email.sender email
+    title = AS.Email.title sender
 
 genSmtp :: Email -> Generator [FileDraft]
 genSmtp email =
@@ -50,6 +87,15 @@ genSmtp email =
     AS.Email.SMTP ->
       sequence
         [ copyTmplFile [relfile|email/core/providers/smtp.ts|]
+        ]
+    _ -> return []
+
+genSendGrid :: Email -> Generator [FileDraft]
+genSendGrid email =
+  case AS.Email.provider email of
+    AS.Email.SendGrid ->
+      sequence
+        [ copyTmplFile [relfile|email/core/providers/sendgrid.ts|]
         ]
     _ -> return []
 
@@ -70,9 +116,9 @@ sendGridDependency = AS.Dependency.make ("@sendgrid/mail", show sendGridVesionRa
 
 depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByEmail spec =
-  [nodeMailerDependency | isSmtpUsed]
-    ++ [sendGridDependency | isSendGridUser]
+  concat
+    [ [nodeMailerDependency | provider == Just AS.Email.SMTP],
+      [sendGridDependency | provider == Just AS.Email.SendGrid]
+    ]
   where
-    isSmtpUsed = Just AS.Email.SMTP == provider
-    isSendGridUser = Just AS.Email.SendGrid == provider
     provider = AS.Email.provider <$> (AS.App.email . snd . getApp $ spec)

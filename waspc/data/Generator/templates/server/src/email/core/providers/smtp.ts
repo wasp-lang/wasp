@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer";
-import { createFromEmailString } from "../helpers.js";
+import { createFromEmailString, getDefaultFromField } from "../helpers.js";
 import type { SMTPEmailProvider, EmailSender } from "../types.js";
 
 export function initSmtpEmailSender(config: SMTPEmailProvider): EmailSender {
@@ -12,10 +12,12 @@ export function initSmtpEmailSender(config: SMTPEmailProvider): EmailSender {
     },
   });
 
+  const defaultFromField = getDefaultFromField();
+
   return {
     async send(email) {
       return transporter.sendMail({
-        from: createFromEmailString(email.from),
+        from: createFromEmailString(email.from || defaultFromField),
         to: email.to,
         subject: email.subject,
         text: email.text,

@@ -1,6 +1,6 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { getSomeResource } from './serverSetup.js'
-import { Task } from '@wasp/entities'
+import { Task, User } from '@wasp/entities'
 import {
   CreateTask,
   DeleteCompletedTasks,
@@ -45,30 +45,38 @@ export const updateTaskIsDone: UpdateTaskIsDone<
   // const sleep = (ms) => new Promise(res => setTimeout(res, ms))
   // await sleep(3000);
 
-  await emailSender.send({
-    from: {
-      title: 'Wasp Todo App',
-      email: 'mihovil@ilakovac.com',
-    },
-    to: 'martin@wasp-lang.dev',
-    subject: 'Task status changed',
-    text: `User ${context.user.username} marked task ${id} as ${
-      isDone ? 'done' : 'not done'
-    }.`,
-    html: `<div style="font-size: 18px">User ${
-      context.user.username
-    } marked task ${id} as ${
-      isDone
-        ? '<span style="color: lime">done</span>'
-        : '<span style="color: tomato">not done</span>'
-    }.</div>`,
-  })
+  try {
+    const info = await emailSender.send({
+      to: 'martin@wasp-lang.dev',
+      subject: 'Task status changed',
+      text: `User ${context.user.username} marked task ${id} as ${
+        isDone ? 'done' : 'not done'
+      }.`,
+      html: getHtml(context.user, { id, isDone }),
+    })
+    console.log('Email sent: ', info)
+  } catch (e) {
+    console.log('Error while sending email: ', e)
+  }
 
   const Task = context.entities.Task
   return Task.updateMany({
     where: { id, user: { id: context.user.id } },
     data: { isDone },
   })
+}
+
+function getHtml(
+  user: Omit<User, 'password'>,
+  { id, isDone }: { id: number; isDone: boolean }
+): string {
+  return `<div style="font-size: 18px">User ${
+    user.username
+  } marked task ${id} as ${
+    isDone
+      ? '<span style="color: lime">done</span>'
+      : '<span style="color: tomato">not done</span>'
+  }.</div>`
 }
 
 export const deleteCompletedTasks: DeleteCompletedTasks = async (
