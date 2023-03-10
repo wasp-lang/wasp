@@ -678,7 +678,7 @@ Wasp will inject the specified Entity into the APIs `context` argument, giving y
 import { FooBar } from '@wasp/apis/types'
 
 export const fooBar : FooBar = (req, res, context) => {
-  res.json({ count: context.entities.Task.count() })
+  res.json({ count: await context.entities.Task.count() })
 }
 
 ```
