@@ -15,12 +15,13 @@ data Email = Email
   }
   deriving (Show, Eq, Data)
 
-data EmailProvider = SMTP | SendGrid
+data EmailProvider = SMTP | SendGrid | Mailgun
   deriving (Eq, Data)
 
 instance Show EmailProvider where
   show SMTP = "smtp"
   show SendGrid = "sendgrid"
+  show Mailgun = "mailgun"
 
 data Sender = Sender
   { title :: Maybe String,

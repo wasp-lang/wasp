@@ -1,6 +1,7 @@
 module Wasp.Generator.ServerGenerator.EmailG where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
 import Data.Maybe (isJust)
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -31,14 +32,7 @@ genIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplDat
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/index.ts|]
     dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/index.ts|]
-    tmplData =
-      object
-        [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
-          "isSendGridProviderUsed" .= isSendGridProviderUsed
-        ]
-    isSmtpProviderUsed = provider == AS.Email.SMTP
-    isSendGridProviderUsed = provider == AS.Email.SendGrid
-    provider = AS.Email.provider email
+    tmplData = getEmailProvidersJson email
 
 genCore :: Email -> Generator [FileDraft]
 genCore email =
@@ -49,20 +43,14 @@ genCore email =
     ]
     <++> genSmtp email
     <++> genSendGrid email
+    <++> genMailgun email
 
 genCoreIndex :: Email -> Generator FileDraft
 genCoreIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/core/index.ts|]
     dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/core/index.ts|]
-    tmplData =
-      object
-        [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
-          "isSendGridProviderUsed" .= isSendGridProviderUsed
-        ]
-    isSmtpProviderUsed = provider == AS.Email.SMTP
-    isSendGridProviderUsed = provider == AS.Email.SendGrid
-    provider = AS.Email.provider email
+    tmplData = getEmailProvidersJson email
 
 genCoreHelpers :: Email -> Generator FileDraft
 genCoreHelpers email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
@@ -99,26 +87,57 @@ genSendGrid email =
         ]
     _ -> return []
 
+genMailgun :: Email -> Generator [FileDraft]
+genMailgun email =
+  case AS.Email.provider email of
+    AS.Email.Mailgun ->
+      sequence
+        [ copyTmplFile [relfile|email/core/providers/mailgun.ts|]
+        ]
+    _ -> return []
+
+getEmailProvidersJson :: Email -> Aeson.Value
+getEmailProvidersJson email =
+  object
+    [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
+      "isSendGridProviderUsed" .= isSendGridProviderUsed,
+      "isMailgunProviderUsed" .= isMailgunProviderUsed
+    ]
+  where
+    isSmtpProviderUsed = provider == AS.Email.SMTP
+    isSendGridProviderUsed = provider == AS.Email.SendGrid
+    isMailgunProviderUsed = provider == AS.Email.Mailgun
+    provider = AS.Email.provider email
+
 copyTmplFile :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
 copyTmplFile = return . C.mkSrcTmplFd
 
-nodeMailerVesionRange :: SV.Range
-nodeMailerVesionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 6 9 1)]
+-- Dependencies
+
+nodeMailerVersionRange :: SV.Range
+nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 6 9 1)]
 
 nodeMailerDependency :: AS.Dependency.Dependency
-nodeMailerDependency = AS.Dependency.make ("nodemailer", show nodeMailerVesionRange)
+nodeMailerDependency = AS.Dependency.make ("nodemailer", show nodeMailerVersionRange)
 
-sendGridVesionRange :: SV.Range
-sendGridVesionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 7 0)]
+sendGridVersionRange :: SV.Range
+sendGridVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 7 0)]
 
 sendGridDependency :: AS.Dependency.Dependency
-sendGridDependency = AS.Dependency.make ("@sendgrid/mail", show sendGridVesionRange)
+sendGridDependency = AS.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
+
+mailgunVersionRange :: SV.Range
+mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 0 5 1)]
+
+mailgunDependency :: AS.Dependency.Dependency
+mailgunDependency = AS.Dependency.make ("ts-mailgun", show mailgunVersionRange)
 
 depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByEmail spec =
   concat
     [ [nodeMailerDependency | provider == Just AS.Email.SMTP],
-      [sendGridDependency | provider == Just AS.Email.SendGrid]
+      [sendGridDependency | provider == Just AS.Email.SendGrid],
+      [mailgunDependency | provider == Just AS.Email.Mailgun]
     ]
   where
     provider = AS.Email.provider <$> (AS.App.email . snd . getApp $ spec)

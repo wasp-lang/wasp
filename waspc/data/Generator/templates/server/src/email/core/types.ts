@@ -1,4 +1,4 @@
-export type EmailProvider = SMTPEmailProvider | SendGridProvider;
+export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider;
 
 export type SMTPEmailProvider = {
   type: "smtp";
@@ -11,6 +11,12 @@ export type SMTPEmailProvider = {
 export type SendGridProvider = {
   type: "sendgrid";
   apiKey: string;
+};
+
+export type MailgunEmailProvider = {
+  type: "mailgun";
+  apiKey: string;
+  domain: string;
 };
 
 export type EmailProviderConstructor = (provider: EmailProvider) => EmailSender;

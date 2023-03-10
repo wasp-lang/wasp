@@ -17,5 +17,12 @@ const emailProvider = {
   apiKey: process.env.SENDGRID_API_KEY,
 } as const;
 {=/ isSendGridProviderUsed =}
+{=# isMailgunProviderUsed =}
+const emailProvider = {
+  type: "mailgun",
+  apiKey: process.env.MAILGUN_API_KEY,
+  domain: process.env.MAILGUN_DOMAIN,
+} as const;
+{=/ isMailgunProviderUsed =}
 
 export const emailSender = initEmailSender(emailProvider);

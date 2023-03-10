@@ -36,10 +36,10 @@ app todoApp {
     system: PostgreSQL
   },
   email: {
-    provider: SendGrid,
+    provider: Mailgun,
     sender: {
-      title: "Wasp Team",
-      email: "mihovil@ilakovac.com"
+      title: "Hello",
+      email: "hello@mg.studentski.space"
     },
   },
 }

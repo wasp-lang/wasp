@@ -5,3 +5,6 @@ export { initSmtpEmailSender as initEmailSender } from "./providers/smtp.js";
 {=# isSendGridProviderUsed =}
 export { initSendGridEmailSender as initEmailSender } from "./providers/sendgrid.js";
 {=/ isSendGridProviderUsed =}
+{=# isMailgunProviderUsed =}
+export { initMailgunEmailSender as initEmailSender } from "./providers/mailgun.js";
+{=/ isMailgunProviderUsed =}
