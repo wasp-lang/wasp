@@ -336,7 +336,7 @@ I want to compare the features of Supabase and Wasp. It's good to think about di
 | Auth                         | Enable in UI                                                      | Enable it in the Wasp file                                                      |
 | Deployment                   | Supabase managed instance or self-host it                         | Deploy anywhere, support for https://fly.io one line deployment                  |
 
-With Supabase, I liked how familiar the SDK felt and their UI made it easy to configure parts of my backend. I didn’t need to think about deploying Supabase since I used their hosted version, but it did get paused after 1 week of inactivity.
+With Supabase, I liked how familiar the SDK felt and their UI made it easy to configure parts of my backend. I didn’t need to think about deploying Supabase since I used their hosted version, but it did get paused after 1 week of inactivity on a free tier.
 
 On the other hand, Wasp felt like the glue for my React + Express.js + Prisma app and I needed to write more code to get things done. It felt more explicit because I wrote code closer to what I would normally write. I deployed it to [fly.io](https://fly.io) with the Wasp command `wasp deploy fly launch` and it’s now live on [https://phrasetutor.com](https://phrasetutor.com/)
 
