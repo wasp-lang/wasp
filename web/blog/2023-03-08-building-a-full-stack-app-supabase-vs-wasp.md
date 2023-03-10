@@ -23,7 +23,7 @@ In this blog post, I will explain how I created the [Phrase Tutor](https://phras
 
 <ImgWithCaption
     alt="Phrase Tutor’s front-end"
-    source="img/building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.png"
+    source="img/building-a-full-stack-app-supabase-vs-wasp/phrase_tutor.gif"
     caption="Phrase Tutor’s front-end"
 />
 
@@ -79,7 +79,7 @@ I’ve built the app twice: first with Supabase and then with Wasp. Supabase is 
 
 When I made the initial version, I worked heavily with Vue.js, which I used to create the first version of the Phrase Tutor app. I started by collecting some phrases. I searched on Google for "best Italian phrases to learn" and came across an article titled "100 Italian phrases to learn." (After extracting the phrases from the HTML, I found out that there were only 96 phrases, but that was still good enough for me.)
 
-The initial app contained the phrases in a [JSON file](https://github.com/infomiho/phrase-tutor-supabase/blob/master/src/phrases/italian.json) that the front-end loaded. It was completely static, but it worked.
+The initial app contained the phrases in a [JSON file](https://github.com/infomiho/phrase-tutor-supabase/blob/master/src/phrases/italian.json) that the frontend loaded. It was completely static, but it worked.
 
 ```json
 {
@@ -336,7 +336,7 @@ I want to compare the features of Supabase and Wasp. It's good to think about di
 | Auth                         | Enable in UI                                                      | Enable it in the Wasp file                                                      |
 | Deployment                   | Supabase managed instance or self-host it                         | Deploy anywhere, support for https://fly.io one line deployment                  |
 
-With Supabase, I liked how familiar the SDK felt and their UI made it easy to configure parts of my backend. I didn’t need to think about deploying Supabase since I used their hosted version, but it did get paused after 1 week of inactivity on a free tier.
+With Supabase, I liked how familiar the SDK felt and their UI made it easy to configure parts of my backend. I didn’t need to think about deploying Supabase since I used their hosted version, but it did get paused after 1 week of inactivity on the free tier.
 
 On the other hand, Wasp felt like the glue for my React + Express.js + Prisma app and I needed to write more code to get things done. It felt more explicit because I wrote code closer to what I would normally write. I deployed it to [fly.io](https://fly.io) with the Wasp command `wasp deploy fly launch` and it’s now live on [https://phrasetutor.com](https://phrasetutor.com/)
 
