@@ -330,7 +330,7 @@ I want to compare the features of Supabase and Wasp. It's good to think about di
 
 | Feature                      | Supabase                                                          | Wasp                                                                            |
 | ---------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| Getting data from the API    | Use the Supabase JS SDK to query database tables                  | Declare queries, write JS code to execute them and import them in the React app |
+| Getting data from the API    | Use the Supabase JS SDK to query database tables                  | Declare query in Wasp config and use Prisma JS SDK to implement it |
 | Custom business logic        | Writing custom PostgreSQL procedures or by writing edge functions | Declare actions in the Wasp file and write server-side JS                       |
 | Defining the database schema | Visual editor or by CREATE TABLE query                            | Define Prisma schema                                                            |
 | Auth                         | Enable in UI                                                      | Enable it in the Wasp file                                                      |
