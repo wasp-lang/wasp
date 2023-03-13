@@ -586,7 +586,7 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
 
 ## APIs
 
-In Wasp, the default client-server interaction mechanism is through Operations. However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
+In Wasp, the default client-server interaction mechanism is through [Operations](#queries-and-actions-aka-operations). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
 
 ### API
 
@@ -618,14 +618,14 @@ export const fooBar : FooBar = (req, res, context) => {
 After implementing your APIs in NodeJS, all that's left to do before using them is tell Wasp about it!
 You can easily do this with the `api` declaration, which supports the following fields:
 - `fn: ServerImport` (required) - The import statement of the APIs NodeJs implementation.
-- `httpRoute: (HttpMethod, string)` (required) - The HTTP (method, path) pair, where method can be one of:
+- `httpRoute: (HttpMethod, string)` (required) - The HTTP (method, path) pair, where the method can be one of:
   - `ALL`, `GET`, `POST`, `PUT` or `DELETE`
   - and path is an Express path `string`.
 - `entities: [Entity]` (optional) - A list of entities you wish to use inside your API.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-apis).
 - `auth: bool` (optional) - If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you may set this to `false`.
 
-Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that use the implementations from the previous step:
+Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that uses the implementations from the previous step:
 ```c title="pages/main.wasp"
 // ...
 
@@ -643,14 +643,14 @@ To use the API from your client, including with auth support, you can import the
 import React, { useEffect } from 'react'
 import api from '@wasp/api'
 
-async function useCustomRoute() {
+async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
   console.log(res.data)
 }
 
 export const Foo = () => {
   useEffect(() => {
-    useCustomRoute()
+    fetchCustomRoute()
   }, []);
 
   return (
