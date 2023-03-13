@@ -127,10 +127,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     tmplData = object ["enabledProviderIds" .= (enabledProviderIds :: [String])]
 
     enabledProviderIds =
-      map snd $
-        filter
-          fst
-          [ (AS.Auth.isGitHubAuthEnabled auth, OAuthProvider.providerId gitHubAuthProvider),
-            (AS.Auth.isGoogleAuthEnabled auth, OAuthProvider.providerId googleAuthProvider),
-            (AS.Auth.isUsernameAndPasswordAuthEnabled auth, LocalProvider.providerId localAuthProvider)
-          ]
+      concat
+        [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+          [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+          [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth]
+        ]
