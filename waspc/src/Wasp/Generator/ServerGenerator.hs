@@ -244,7 +244,7 @@ genRoutesDir spec =
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
                 "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
-                "areApisInUse" .= (not . null $ getApis spec)
+                "areThereAnyCustomApiRoutes" .= (not . null $ getApis spec)
               ]
         )
     ]

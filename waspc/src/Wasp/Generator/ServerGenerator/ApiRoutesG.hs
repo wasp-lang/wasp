@@ -25,7 +25,7 @@ import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
-  if areApisInUse
+  if areThereAnyCustomApiRoutes
     then
       sequence
         [ genApiRoutes spec,
@@ -33,7 +33,7 @@ genApis spec =
         ]
     else return []
   where
-    areApisInUse = not . null $ getApis spec
+    areThereAnyCustomApiRoutes = not . null $ getApis spec
 
 genApiRoutes :: AppSpec -> Generator FileDraft
 genApiRoutes spec =

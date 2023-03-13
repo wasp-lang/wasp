@@ -4,7 +4,7 @@ import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
-import { UserInContext } from '../../_types'
+import { type UserInContext } from '../../_types'
 {=/ isAuthEnabled =}
 
 {=# apiRoutes =}

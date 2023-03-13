@@ -1,6 +1,6 @@
 {{={= =}=}}
-import { Request, Response } from 'express'
-import { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
+import { type Request, type Response } from 'express'
+import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
 {=# isAuthEnabled =}
 import { type {= userEntityName =} } from "../entities"

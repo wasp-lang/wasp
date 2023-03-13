@@ -1,7 +1,9 @@
-import { Request, Response } from '../types'
-import { FooBarContext } from '../apis/types'
-export function fooBar(req: Request, res: Response, context: FooBarContext) {
+import { FooBar, FooBaz } from '../apis/types'
+export const fooBar: FooBar = (req, res, context) => {
   res.set('Access-Control-Allow-Origin', '*')
-  res.json({ msg: 'Hello, world!' })
+  res.json({ msg: 'Hello, context.user.username!' })
+}
+export const fooBaz: FooBaz = (req, res, context) => {
+  res.json({ msg: 'Hello, stranger!' })
 }
 

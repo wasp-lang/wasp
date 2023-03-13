@@ -233,24 +233,32 @@ insertCodeIntoWaspFileAfterVersion = insertCodeIntoWaspFileAtLineNumber lineNumb
 addApi :: ShellCommandBuilder [ShellCommand]
 addApi = do
   sequence
-    [ appendToWaspFile apiDecl,
+    [ appendToWaspFile apiDecls,
       createFile apiFile "./src/server" "apis.ts"
     ]
   where
-    apiDecl =
+    apiDecls =
       unlines
         [ "api fooBar {",
           "  fn: import { fooBar } from \"@server/apis.js\",",
           "  httpRoute: (GET, \"/foo/bar\")",
+          "  // implicit auth:true",
+          "}",
+          "api fooBaz {",
+          "  fn: import { fooBaz } from \"@server/apis.js\",",
+          "  httpRoute: (GET, \"/foo/baz\"),",
+          "  auth: false",
           "}"
         ]
 
     apiFile =
       unlines
-        [ "import { Request, Response } from '@wasp/types'",
-          "import { FooBarContext } from '@wasp/apis/types'",
-          "export function fooBar(req: Request, res: Response, context: FooBarContext) {",
+        [ "import { FooBar, FooBaz } from '@wasp/apis/types'",
+          "export const fooBar: FooBar = (req, res, context) => {",
           "  res.set('Access-Control-Allow-Origin', '*')",
-          "  res.json({ msg: 'Hello, world!' })",
+          "  res.json({ msg: 'Hello, context.user.username!' })",
+          "}",
+          "export const fooBaz: FooBaz = (req, res, context) => {",
+          "  res.json({ msg: 'Hello, stranger!' })",
           "}"
         ]

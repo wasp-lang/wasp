@@ -1,6 +1,6 @@
 {{={= =}=}}
 
-import { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
+import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 
 export { ParamsDictionary as ExpressParams, Query as ExpressQuery } from 'express-serve-static-core'
 
