@@ -598,6 +598,10 @@ To create a Wasp API, you must:
 
 After completing these two steps, you'll be able to call the API from client code (via our Axios wrapper), or from the outside world.
 
+:::note
+In order to leverage the benefits of TypeScript and use types in your NodeJS implementation (step 1), you must add your `api` declarations to your `.wasp` file (step 2) _and_ compile the Wasp project. This will enable the Wasp compiler to generate any new types based on your `.wasp`file definitions for use in your implementation files.
+:::
+
 #### Defining the APIs NodeJS implementation
 An API should be implemented as a NodeJS function that takes three arguments.
 1. `req`:  Express Request object
