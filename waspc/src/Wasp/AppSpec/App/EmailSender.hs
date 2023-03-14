@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Wasp.AppSpec.App.Email
-  ( Email (..),
+module Wasp.AppSpec.App.EmailSender
+  ( EmailSender (..),
     EmailProvider (..),
     Sender (..),
   )
@@ -9,7 +9,7 @@ where
 
 import Data.Data (Data)
 
-data Email = Email
+data EmailSender = EmailSender
   { provider :: EmailProvider,
     sender :: Sender
   }

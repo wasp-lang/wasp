@@ -186,7 +186,7 @@ library
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
-    Wasp.AppSpec.App.Email
+    Wasp.AppSpec.App.EmailSender
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp

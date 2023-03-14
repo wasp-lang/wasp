@@ -47,7 +47,7 @@ export const updateTaskIsDone: UpdateTaskIsDone<
 
   try {
     const info = await emailSender.send({
-      to: 'matija@wasp-lang.dev',
+      to: 'mario.kovacevic.96@gmail.com',
       subject: 'Task status changed',
       text: `User ${context.user.username} marked task ${id} as ${
         isDone ? 'done' : 'not done'

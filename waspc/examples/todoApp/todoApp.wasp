@@ -35,8 +35,8 @@ app todoApp {
   db: {
     system: PostgreSQL
   },
-  email: {
-    provider: Mailgun,
+  emailSender: {
+    provider: SMTP,
     sender: {
       title: "Hello",
       email: "hello@mg.studentski.space"

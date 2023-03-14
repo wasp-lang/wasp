@@ -7,8 +7,8 @@ import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import Wasp.AppSpec.App.Email (Email)
-import qualified Wasp.AppSpec.App.Email as AS.Email
+import Wasp.AppSpec.App.EmailSender (EmailSender)
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -17,24 +17,24 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genEmail :: AppSpec -> Generator [FileDraft]
-genEmail spec = case maybeEmail of
-  Just email ->
+genEmail spec = case maybeEmailSender of
+  Just emailSender ->
     sequence
-      [ genIndex email
+      [ genIndex emailSender
       ]
-      <++> genCore email
+      <++> genCore emailSender
   Nothing -> return []
   where
-    maybeEmail = AS.App.email $ snd $ getApp spec
+    maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
-genIndex :: Email -> Generator FileDraft
+genIndex :: EmailSender -> Generator FileDraft
 genIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/index.ts|]
     dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/index.ts|]
     tmplData = getEmailProvidersJson email
 
-genCore :: Email -> Generator [FileDraft]
+genCore :: EmailSender -> Generator [FileDraft]
 genCore email =
   sequence
     [ genCoreIndex email,
@@ -45,14 +45,14 @@ genCore email =
     <++> genSendGrid email
     <++> genMailgun email
 
-genCoreIndex :: Email -> Generator FileDraft
+genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/core/index.ts|]
     dstPath = C.serverSrcDirInServerRootDir </> [relfile|email/core/index.ts|]
     tmplData = getEmailProvidersJson email
 
-genCoreHelpers :: Email -> Generator FileDraft
+genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just tmplData)
   where
     srcPath = C.srcDirInServerTemplatesDir </> [relfile|email/core/helpers.ts|]
@@ -61,42 +61,42 @@ genCoreHelpers email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just t
       object
         [ "senderDefaults"
             .= object
-              [ "email" .= AS.Email.email sender,
+              [ "email" .= AS.EmailSender.email sender,
                 "title" .= title,
                 "isTitleDefined" .= isJust title
               ]
         ]
-    sender = AS.Email.sender email
-    title = AS.Email.title sender
+    sender = AS.EmailSender.sender email
+    title = AS.EmailSender.title sender
 
-genSmtp :: Email -> Generator [FileDraft]
+genSmtp :: EmailSender -> Generator [FileDraft]
 genSmtp email =
-  case AS.Email.provider email of
-    AS.Email.SMTP ->
+  case AS.EmailSender.provider email of
+    AS.EmailSender.SMTP ->
       sequence
         [ copyTmplFile [relfile|email/core/providers/smtp.ts|]
         ]
     _ -> return []
 
-genSendGrid :: Email -> Generator [FileDraft]
+genSendGrid :: EmailSender -> Generator [FileDraft]
 genSendGrid email =
-  case AS.Email.provider email of
-    AS.Email.SendGrid ->
+  case AS.EmailSender.provider email of
+    AS.EmailSender.SendGrid ->
       sequence
         [ copyTmplFile [relfile|email/core/providers/sendgrid.ts|]
         ]
     _ -> return []
 
-genMailgun :: Email -> Generator [FileDraft]
+genMailgun :: EmailSender -> Generator [FileDraft]
 genMailgun email =
-  case AS.Email.provider email of
-    AS.Email.Mailgun ->
+  case AS.EmailSender.provider email of
+    AS.EmailSender.Mailgun ->
       sequence
         [ copyTmplFile [relfile|email/core/providers/mailgun.ts|]
         ]
     _ -> return []
 
-getEmailProvidersJson :: Email -> Aeson.Value
+getEmailProvidersJson :: EmailSender -> Aeson.Value
 getEmailProvidersJson email =
   object
     [ "isSmtpProviderUsed" .= isSmtpProviderUsed,
@@ -104,10 +104,10 @@ getEmailProvidersJson email =
       "isMailgunProviderUsed" .= isMailgunProviderUsed
     ]
   where
-    isSmtpProviderUsed = provider == AS.Email.SMTP
-    isSendGridProviderUsed = provider == AS.Email.SendGrid
-    isMailgunProviderUsed = provider == AS.Email.Mailgun
-    provider = AS.Email.provider email
+    isSmtpProviderUsed = provider == AS.EmailSender.SMTP
+    isSendGridProviderUsed = provider == AS.EmailSender.SendGrid
+    isMailgunProviderUsed = provider == AS.EmailSender.Mailgun
+    provider = AS.EmailSender.provider email
 
 copyTmplFile :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
 copyTmplFile = return . C.mkSrcTmplFd
@@ -135,9 +135,9 @@ mailgunDependency = AS.Dependency.make ("ts-mailgun", show mailgunVersionRange)
 depsRequiredByEmail :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByEmail spec =
   concat
-    [ [nodeMailerDependency | provider == Just AS.Email.SMTP],
-      [sendGridDependency | provider == Just AS.Email.SendGrid],
-      [mailgunDependency | provider == Just AS.Email.Mailgun]
+    [ [nodeMailerDependency | provider == Just AS.EmailSender.SMTP],
+      [sendGridDependency | provider == Just AS.EmailSender.SendGrid],
+      [mailgunDependency | provider == Just AS.EmailSender.Mailgun]
     ]
   where
-    provider = AS.Email.provider <$> (AS.App.email . snd . getApp $ spec)
+    provider = AS.EmailSender.provider <$> (AS.App.emailSender . snd . getApp $ spec)

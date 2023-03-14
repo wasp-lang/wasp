@@ -20,7 +20,6 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.App.Email as AS.Email
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
