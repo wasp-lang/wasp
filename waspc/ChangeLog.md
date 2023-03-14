@@ -9,7 +9,7 @@ Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need comple
 api fooBar {
   fn: import { foo } from "@server/apis.js",
   entities: [Task],
-  httpRoute: (POST, "/foo/callback")
+  httpRoute: (GET, "/foo/callback")
 }
 
 // server/api.ts
