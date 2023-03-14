@@ -54,7 +54,7 @@ export function getDirFromFileUrl(fileUrl) {
   return fileURLToPath(dirname(fileUrl));
 }
 
-export async function importJsFilesFromDir(absoluteDir, relativePath, whitelist = []) {
+export async function importJsFilesFromDir(absoluteDir, relativePath, whitelist = null) {
   const pathToDir = join(absoluteDir, relativePath);
 
   return new Promise((resolve, reject) => {
@@ -70,7 +70,8 @@ export async function importJsFilesFromDir(absoluteDir, relativePath, whitelist 
   });
 
   function isWhitelisted(file) {
-    if (whitelist.length === 0) {
+    // No whitelist means all files are whitelisted
+    if (!Array.isArray(whitelist)) {
       return true;
     }
     return whitelist.some((whitelistedFile) => file.endsWith(whitelistedFile));
