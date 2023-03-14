@@ -1,5 +1,4 @@
 import { generateAvailableUsername } from '@wasp/core/auth.js'
-import { GetUserFieldsFn } from '@wasp/types'
 
 export function config() {
   console.log('Inside user-supplied Google config')
