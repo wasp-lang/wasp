@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "45dd065b8f3937ad56587759a30dc25fc467783a8f9cdd6e68f15fbed5babdff"
+        "16a69b703fd0dc9071b48df46fd6ce597819261b38ba83e7c4f53631dc17330f"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "64552c6b9e03c30d670161bd3912cd8050b9be8255f76a024c0995b9a38b5f55"
+        "0f83a8fb388ec7cb1693ac76a0c3a89336bb5f608bd93637f9f1da3648517ec3"
     ],
     [
         [
@@ -110,6 +110,13 @@
             "server/src/actions/types.ts"
         ],
         "225c35a21bce64ec2081013c7aadef5bb7ebbc3bdad617d08390164e150555aa"
+    ],
+    [
+        [
+            "file",
+            "server/src/apis/types.ts"
+        ],
+        "68417d37842d9186a6a9d942d65f8a18f2da8c0a9cf8a0dd5f1a4b087f6d4e20"
     ],
     [
         [
@@ -233,6 +240,13 @@
     [
         [
             "file",
+            "server/src/ext-src/apis.ts"
+        ],
+        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/jobs/bar.js"
         ],
         "83c606a3eee7608155cdb2c2a20a38f851a82987e060ce25b196b467092c4740"
@@ -317,6 +331,13 @@
     [
         [
             "file",
+            "server/src/routes/apis/index.ts"
+        ],
+        "fad5d169b2246292c42dfa5c83e9b06663ff7049d37f07aaf9369254bae7b788"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/auth/index.js"
         ],
         "47fb3317c5707e0d7646bb1c0f6fa8d9c5c0f980ca2d643d226e63b49766cea3"
@@ -333,7 +354,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "bd024209f256910dc8450851bf64d5309423e04f34bc5941cfb692df7907aa27"
+        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
     ],
     [
         [

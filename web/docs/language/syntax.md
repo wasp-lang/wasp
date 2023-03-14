@@ -66,6 +66,7 @@ While fundamental types are here to be basic building blocks of a language, and 
 - Domain types ([source of truth](https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Analyzer/StdTypeDefinitions.hs))
   - Declaration types
     - **action**
+    - **api**
     - **app**
     - **entity**
     - **job**
@@ -74,6 +75,7 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **route**
   - Enum types
     - **DbSystem**
+    - **HttpMethod**
     - **JobExecutor**
 
 For more details about each of the domain types, both regarding their body types and what they mean, check the [Features](/language/features.md) section.

@@ -182,6 +182,7 @@ library
     Wasp.Analyzer.TypeDefinitions.TH.Enum
     Wasp.AppSpec
     Wasp.AppSpec.Action
+    Wasp.AppSpec.Api
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Client
@@ -243,6 +244,7 @@ library
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
+    Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG

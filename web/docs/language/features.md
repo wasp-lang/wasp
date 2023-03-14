@@ -584,6 +584,111 @@ import { isPrismaError, prismaErrorToHttpError } from '@wasp/utils.js'
   }
 ```
 
+## APIs
+
+In Wasp, the default client-server interaction mechanism is through [Operations](#queries-and-actions-aka-operations). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
+
+### API
+
+APIs are used to tie a JS function to an HTTP (method, path) pair. They are distinct from Operations, and have no client-side helpers (like `useQuery`).
+
+To create a Wasp API, you must:
+1. Define the APIs NodeJS implementation
+2. Declare the API in Wasp using the `api` declaration
+
+After completing these two steps, you'll be able to call the API from client code (via our Axios wrapper), or from the outside world.
+
+:::note
+In order to leverage the benefits of TypeScript and use types in your NodeJS implementation (step 1), you must add your `api` declarations to your `.wasp` file (step 2) _and_ compile the Wasp project. This will enable the Wasp compiler to generate any new types based on your `.wasp`file definitions for use in your implementation files.
+:::
+
+#### Defining the APIs NodeJS implementation
+An API should be implemented as a NodeJS function that takes three arguments.
+1. `req`:  Express Request object
+2. `res`: Express Response object
+3. `context`: An additional context object **injected into the API by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in APIs](#using-entities-in-apis).
+
+Here's an example of a simple API:
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
+  res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+}
+```
+
+#### Declaring an API in Wasp
+After implementing your APIs in NodeJS, all that's left to do before using them is tell Wasp about it!
+You can easily do this with the `api` declaration, which supports the following fields:
+- `fn: ServerImport` (required) - The import statement of the APIs NodeJs implementation.
+- `httpRoute: (HttpMethod, string)` (required) - The HTTP (method, path) pair, where the method can be one of:
+  - `ALL`, `GET`, `POST`, `PUT` or `DELETE`
+  - and path is an Express path `string`.
+- `entities: [Entity]` (optional) - A list of entities you wish to use inside your API.
+We'll leave this option aside for now. You can read more about it [here](#using-entities-in-apis).
+- `auth: bool` (optional) - If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you may set this to `false`.
+
+Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that uses the implementations from the previous step:
+```c title="pages/main.wasp"
+// ...
+
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+}
+```
+
+#### Using the API
+To use the API externally, you simply call the endpoint using the method and path you used. For example, if your app is running at `https://example.com` then from the above you could issue a `GET` to `https://example/com/foo/callback` (in your browser, Postman, `curl`, another web service, etc.).
+
+To use the API from your client, including with auth support, you can import the Axios wrapper from `@wasp/api` and invoke a call. For example:
+```ts
+import React, { useEffect } from 'react'
+import api from '@wasp/api'
+
+async function fetchCustomRoute() {
+  const res = await api.get('/foo/bar')
+  console.log(res.data)
+}
+
+export const Foo = () => {
+  useEffect(() => {
+    fetchCustomRoute()
+  }, []);
+
+  return (
+    <>
+      // ...
+    </>
+  )
+}
+```
+
+#### Using Entities in APIs
+In many cases, resources used in APIs will be [Entities](#entity).
+To use an Entity in your API, add it to the `api` declaration in Wasp:
+
+```c {3} title="main.wasp"
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/bar")
+}
+```
+
+Wasp will inject the specified Entity into the APIs `context` argument, giving you access to the Entity's Prisma API:
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.json({ count: await context.entities.Task.count() })
+}
+
+```
+
+The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+
 ## Jobs
 
 If you have server tasks that you do not want to handle as part of the normal request-response cycle, Wasp allows you to make that function a `job` and it will gain some "superpowers." Jobs will:

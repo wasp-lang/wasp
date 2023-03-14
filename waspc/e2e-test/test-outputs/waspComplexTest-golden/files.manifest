@@ -18,6 +18,7 @@ waspComplexTest/.wasp/out/server/src/_types/index.ts
 waspComplexTest/.wasp/out/server/src/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/server/src/actions/MySpecialAction.js
 waspComplexTest/.wasp/out/server/src/actions/types.ts
+waspComplexTest/.wasp/out/server/src/apis/types.ts
 waspComplexTest/.wasp/out/server/src/app.js
 waspComplexTest/.wasp/out/server/src/auth/providers/config/google.ts
 waspComplexTest/.wasp/out/server/src/auth/providers/index.ts
@@ -35,6 +36,7 @@ waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/dbClient.js
 waspComplexTest/.wasp/out/server/src/entities/index.ts
 waspComplexTest/.wasp/out/server/src/ext-src/actions/bar.js
+waspComplexTest/.wasp/out/server/src/ext-src/apis.ts
 waspComplexTest/.wasp/out/server/src/ext-src/jobs/bar.js
 waspComplexTest/.wasp/out/server/src/ext-src/myServerSetupCode.js
 waspComplexTest/.wasp/out/server/src/ext-src/queries/bar.js
@@ -47,6 +49,7 @@ waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspComplexTest/.wasp/out/server/src/jobs/core/simpleJob.js
 waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.js
 waspComplexTest/.wasp/out/server/src/queries/types.ts
+waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
 waspComplexTest/.wasp/out/server/src/routes/auth/me.js
 waspComplexTest/.wasp/out/server/src/routes/index.js
@@ -116,6 +119,7 @@ waspComplexTest/src/client/tsconfig.json
 waspComplexTest/src/client/vite-env.d.ts
 waspComplexTest/src/client/waspLogo.png
 waspComplexTest/src/server/actions/bar.js
+waspComplexTest/src/server/apis.ts
 waspComplexTest/src/server/jobs/bar.js
 waspComplexTest/src/server/myServerSetupCode.js
 waspComplexTest/src/server/queries/bar.js
