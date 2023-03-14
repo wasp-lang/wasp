@@ -71,6 +71,7 @@ type Context<Entities extends _Entity[]> = Expand<{
   entities: Expand<EntityMap<Entities>>
 }>
 
+{=# isAuthEnabled =}
 type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & UserInContext>
 
 export type UserInContext = {
@@ -80,6 +81,7 @@ export type UserInContext = {
   // https://github.com/wasp-lang/wasp/issues/965
   user: Omit<{= userEntityName =}, 'password'>
 }
+{=/ isAuthEnabled =}
 
 // This is a helper type used exclusively for DX purposes. It's a No-op for the
 // compiler, but expands the type's representatoin in IDEs (i.e., inlines all
