@@ -29,6 +29,7 @@ waspComplexTest = do
       <++> addJob
       <++> addAction
       <++> addQuery
+      <++> addApi
       <++> sequence
         [ waspCliCompile
         ]
@@ -228,3 +229,36 @@ insertCodeIntoWaspFileAfterVersion = insertCodeIntoWaspFileAtLineNumber lineNumb
   where
     lineNumberInWaspFileAfterVersion :: Int
     lineNumberInWaspFileAfterVersion = 5
+
+addApi :: ShellCommandBuilder [ShellCommand]
+addApi = do
+  sequence
+    [ appendToWaspFile apiDecls,
+      createFile apiFile "./src/server" "apis.ts"
+    ]
+  where
+    apiDecls =
+      unlines
+        [ "api fooBar {",
+          "  fn: import { fooBar } from \"@server/apis.js\",",
+          "  httpRoute: (GET, \"/foo/bar\")",
+          "  // implicit auth:true",
+          "}",
+          "api fooBaz {",
+          "  fn: import { fooBaz } from \"@server/apis.js\",",
+          "  httpRoute: (GET, \"/foo/baz\"),",
+          "  auth: false",
+          "}"
+        ]
+
+    apiFile =
+      unlines
+        [ "import { FooBar, FooBaz } from '@wasp/apis/types'",
+          "export const fooBar: FooBar = (req, res, context) => {",
+          "  res.set('Access-Control-Allow-Origin', '*')",
+          "  res.json({ msg: 'Hello, context.user.username!' })",
+          "}",
+          "export const fooBaz: FooBaz = (req, res, context) => {",
+          "  res.json({ msg: 'Hello, stranger!' })",
+          "}"
+        ]
