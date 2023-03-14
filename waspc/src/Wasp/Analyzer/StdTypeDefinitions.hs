@@ -11,6 +11,7 @@ import Wasp.Analyzer.StdTypeDefinitions.Entity ()
 import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
+import Wasp.AppSpec.Api (Api, HttpMethod)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.App.EmailSender (EmailProvider)
@@ -29,6 +30,8 @@ makeDeclType ''Query
 makeDeclType ''Action
 makeEnumType ''JobExecutor
 makeDeclType ''Job
+makeEnumType ''HttpMethod
+makeDeclType ''Api
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.
@@ -45,6 +48,8 @@ stdTypes =
   TD.addDeclType @Action $
   TD.addEnumType @JobExecutor $
   TD.addDeclType @Job $
+  TD.addEnumType @HttpMethod $
+  TD.addDeclType @Api $
   TD.addEnumType @EmailProvider $
   TD.empty
 {- ORMOLU_ENABLE -}

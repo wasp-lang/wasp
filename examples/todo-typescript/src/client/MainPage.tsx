@@ -35,16 +35,16 @@ export function MainPage() {
 };
 
 function Todo({ id, isDone, description }: Task) {
-  const handleIsDoneChange = async (event: FormEventHandler<HTMLInputElement>) => {
+  const handleIsDoneChange: FormEventHandler<HTMLInputElement> = async (event) => {
     try {
       await updateTask({
-        taskId: id,
+        id,
         isDone: event.currentTarget.checked,
       });
     } catch (err: any) {
       window.alert('Error while updating task ' + err?.message);
     }
-  };
+  }
 
   return (
     <li>
@@ -58,8 +58,8 @@ function TasksList({tasks}: { tasks: Task[] }) {
   if (tasks.length === 0) return <p>No tasks yet.</p>;
   return (
     <ol className='tasklist'>
-      {tasks.map((tsk, idx) => (
-        <Todo {...tsk} key={idx} />
+      {tasks.map((task, idx) => (
+        <Todo {...task} key={idx} />
       ))}
     </ol>
   );

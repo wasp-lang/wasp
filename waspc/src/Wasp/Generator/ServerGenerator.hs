@@ -27,7 +27,7 @@ import StrongPath
     relfile,
     (</>),
   )
-import Wasp.AppSpec (AppSpec)
+import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -47,6 +47,7 @@ import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
@@ -80,6 +81,7 @@ genServer spec =
     <++> genUniversalDir
     <++> genEnvValidationScript
     <++> genExportedTypesDir
+    <++> genApis spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -150,6 +152,7 @@ npmDepsForWasp spec =
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
             ("@types/express", "^4.17.13"),
+            ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
             ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
@@ -243,7 +246,8 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "isAuthEnabled" .= (isAuthEnabled spec :: Bool)
+                "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+                "areThereAnyCustomApiRoutes" .= (not . null $ getApis spec)
               ]
         )
     ]

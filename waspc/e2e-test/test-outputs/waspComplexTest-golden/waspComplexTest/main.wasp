@@ -67,3 +67,14 @@ query MySpecialQuery {
   entities: [User],
 }
 
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+  // implicit auth:true
+}
+api fooBaz {
+  fn: import { fooBaz } from "@server/apis.js",
+  httpRoute: (GET, "/foo/baz"),
+  auth: false
+}
+
