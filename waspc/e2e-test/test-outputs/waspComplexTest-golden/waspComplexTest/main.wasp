@@ -1,7 +1,7 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.8.2"
+    version: "^0.9.0"
   },
   auth: {
     userEntity: User,
@@ -65,5 +65,16 @@ action MySpecialAction {
 query MySpecialQuery {
   fn: import { foo } from "@server/queries/bar.js",
   entities: [User],
+}
+
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+  // implicit auth:true
+}
+api fooBaz {
+  fn: import { fooBaz } from "@server/apis.js",
+  httpRoute: (GET, "/foo/baz"),
+  auth: false
 }
 

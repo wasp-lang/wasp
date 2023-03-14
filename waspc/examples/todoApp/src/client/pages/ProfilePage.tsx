@@ -1,8 +1,18 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/entities'
+import api from '@wasp/api'
+
+async function fetchCustomRoute() {
+  const res = await api.get('/foo/bar')
+  console.log(res.data)
+}
 
 export const ProfilePage = ({ user: { username } }: { user: User }) => {
+  useEffect(() => {
+    fetchCustomRoute()
+  }, []);
+
   return (
     <>
       <h2>Profile page</h2>

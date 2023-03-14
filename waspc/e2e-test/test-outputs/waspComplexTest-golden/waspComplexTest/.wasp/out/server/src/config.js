@@ -15,23 +15,36 @@ const config = {
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
     frontendUrl: undefined,
+    allowedCORSOrigins: [],
     auth: {
       jwtSecret: undefined
     }
   },
-  development: {
-    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000',
+  development: getDevelopmentConfig(),
+  production: getProductionConfig(),
+}
+
+const resolvedConfig = merge(config.all, config[env])
+export default resolvedConfig
+
+function getDevelopmentConfig() {
+  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000';
+  return {
+    frontendUrl,
+    allowedCORSOrigins: '*',
     auth: {
       jwtSecret: 'DEVJWTSECRET'
     }
-  },
-  production: {
-    frontendUrl: stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL),
+  }
+}
+
+function getProductionConfig() {
+  const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL);
+  return {
+    frontendUrl,
+    allowedCORSOrigins: [frontendUrl],
     auth: {
       jwtSecret: process.env.JWT_SECRET
     }
   }
 }
-
-const resolvedConfig = merge(config.all, config[env])
-export default resolvedConfig

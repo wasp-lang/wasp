@@ -7,6 +7,7 @@ module Wasp.AppSpec
     refName,
     getActions,
     getQueries,
+    getApis,
     getEntities,
     getPages,
     getRoutes,
@@ -22,6 +23,7 @@ import Data.Maybe (fromMaybe, isJust)
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 import Wasp.AppSpec.Action (Action)
+import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -78,6 +80,9 @@ getQueries = getDecls
 
 getActions :: AppSpec -> [(String, Action)]
 getActions = getDecls
+
+getApis :: AppSpec -> [(String, Api)]
+getApis = getDecls
 
 getEntities :: AppSpec -> [(String, Entity)]
 getEntities = getDecls

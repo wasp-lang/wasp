@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "45dd065b8f3937ad56587759a30dc25fc467783a8f9cdd6e68f15fbed5babdff"
+        "16a69b703fd0dc9071b48df46fd6ce597819261b38ba83e7c4f53631dc17330f"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "64552c6b9e03c30d670161bd3912cd8050b9be8255f76a024c0995b9a38b5f55"
+        "0f83a8fb388ec7cb1693ac76a0c3a89336bb5f608bd93637f9f1da3648517ec3"
     ],
     [
         [
@@ -114,16 +114,23 @@
     [
         [
             "file",
+            "server/src/apis/types.ts"
+        ],
+        "68417d37842d9186a6a9d942d65f8a18f2da8c0a9cf8a0dd5f1a4b087f6d4e20"
+    ],
+    [
+        [
+            "file",
             "server/src/app.js"
         ],
-        "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
+        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
     ],
     [
         [
             "file",
             "server/src/config.js"
         ],
-        "99e89fb4d207108caf0afeaf8f364819bac6f6d7c28a0a14b6ae7a4f134aa779"
+        "feb61b839f6ce3c1f49b279fd08275479308089a6f12188b312b64bdf571e6c5"
     ],
     [
         [
@@ -173,6 +180,13 @@
             "server/src/ext-src/actions/bar.js"
         ],
         "83c606a3eee7608155cdb2c2a20a38f851a82987e060ce25b196b467092c4740"
+    ],
+    [
+        [
+            "file",
+            "server/src/ext-src/apis.ts"
+        ],
+        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
     ],
     [
         [
@@ -261,6 +275,13 @@
     [
         [
             "file",
+            "server/src/routes/apis/index.ts"
+        ],
+        "fad5d169b2246292c42dfa5c83e9b06663ff7049d37f07aaf9369254bae7b788"
+    ],
+    [
+        [
+            "file",
             "server/src/routes/auth/index.js"
         ],
         "ac6c9f57907b95529955248014d4a0b87d9883afba9f725e8bb6da7e9cdcbaef"
@@ -333,7 +354,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "bd024209f256910dc8450851bf64d5309423e04f34bc5941cfb692df7907aa27"
+        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
     ],
     [
         [
@@ -739,7 +760,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "49258557f92e10eddda507885655d22f51d52f6f39e277c2ec1c9d626018c728"
+        "27e39dd3e6155ffccdb1d9cb0cba8db7d9e06e10958bee900340a2d9f17400c8"
     ],
     [
         [
@@ -753,6 +774,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "ab5c138ab0ab01f5108c2da9a8bf6b673b79115ca97276f6293da8e3bc0a45b1"
+        "56541f643d10dec29609b98dfc0df75d4893a592396be2888e89591efc93bd7c"
     ]
 ]

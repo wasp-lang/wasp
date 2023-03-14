@@ -1,4 +1,6 @@
 {{={= =}=}}
+import { type Request, type Response } from 'express'
+import { type ParamsDictionary as ExpressParams, type Query as ExpressQuery } from 'express-serve-static-core'
 import prisma from "../dbClient.js"
 {=# isAuthEnabled =}
 import { type {= userEntityName =} } from "../entities"
@@ -20,24 +22,40 @@ export type AuthenticatedAction<Entities extends _Entity[], Input, Output> =
 
 type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
   args: Input,
-  context: Expand<OperationContext<Entities> & { 
-  // TODO: This type must match the logic in core/auth.js (if we remove the
-  // password field from the object there, we must do the same here). Ideally,
-  // these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-    {= userFieldName =}: Omit<{= userEntityName =}, 'password'> 
-  }>,
+  context: ContextWithUser<Entities>,
 ) => Promise<Output>
+
+export type AuthenticatedApi<
+  Entities extends _Entity[],
+  Params extends ExpressParams,
+  ResBody,
+  ReqBody,
+  ReqQuery extends ExpressQuery,
+  Locals extends Record<string, any>
+> = (
+  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  res: Response<ResBody, Locals>,
+  context: ContextWithUser<Entities>,
+) => void
 
 {=/ isAuthEnabled =}
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
-  context: Expand<OperationContext<Entities>>,
+  context: Context<Entities>,
 ) => Promise<Output>
 
-type OperationContext<Entities extends _Entity[]> = {
-  entities: Expand<EntityMap<Entities>>
-}
+export type Api<
+  Entities extends _Entity[],
+  Params extends ExpressParams,
+  ResBody,
+  ReqBody,
+  ReqQuery extends ExpressQuery,
+  Locals extends Record<string, any>
+> = (
+  req: Request<Params, ResBody, ReqBody, ReqQuery, Locals>,
+  res: Response<ResBody, Locals>,
+  context: Context<Entities>,
+) => void
 
 type EntityMap<Entities extends _Entity[]> = {
   [EntityName in Entities[number]["_entityName"]]: PrismaDelegate[EntityName]
@@ -48,6 +66,22 @@ type PrismaDelegate = {
   "{= name =}": typeof prisma.{= prismaIdentifier =},
   {=/ entities =}
 }
+
+type Context<Entities extends _Entity[]> = Expand<{
+  entities: Expand<EntityMap<Entities>>
+}>
+
+{=# isAuthEnabled =}
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & UserInContext>
+
+export type UserInContext = {
+  // TODO: This type must match the logic in core/auth.js (if we remove the
+  // password field from the object there, we must do the same here). Ideally,
+  // these two things would live in the same place:
+  // https://github.com/wasp-lang/wasp/issues/965
+  user: Omit<{= userEntityName =}, 'password'>
+}
+{=/ isAuthEnabled =}
 
 // This is a helper type used exclusively for DX purposes. It's a No-op for the
 // compiler, but expands the type's representatoin in IDEs (i.e., inlines all

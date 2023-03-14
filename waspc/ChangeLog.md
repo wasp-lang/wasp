@@ -1,6 +1,27 @@
 # Changelog
 
-## v0.8.3
+## v0.9.1
+
+### Adds an `api` keyword for defining an arbitrary endpoint and URL
+Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need complete control of the response? Use an `api` to define one by tying a JS function to any HTTP method and path! For example:
+```ts
+// main.wasp
+api fooBar {
+  fn: import { foo } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/callback")
+}
+
+// server/api.ts
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
+  res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+}
+```
+
+## v0.9.0
 
 ### BREAKING CHANGES
 - All client files which use `JSX` need to have either the `.jsx` or the `.tsx` extension. This is because we now use `Vite` under the hood instead of `Create React App`, and `Vite` requires these extensions to be present to process `JSX`` properly.
@@ -10,7 +31,7 @@
 We moved away from using Create React App for the client app. This means that dev startup time will be much faster and we are following the latest best practices for building web apps with React.
 
 ### Express `app` and http `server` available in server `setupFn`
-- Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
+Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
 
 ## v0.8.2
 

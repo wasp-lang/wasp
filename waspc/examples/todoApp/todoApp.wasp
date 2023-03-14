@@ -1,6 +1,6 @@
 app todoApp {
   wasp: {
-    version: "^0.8.0"
+    version: "^0.9.0"
   },
   title: "ToDo App",
   // head: [],
@@ -103,6 +103,12 @@ page TaskPage {
 query getTasks {
   fn: import { getTasks } from "@server/queries.js",
   entities: [Task]
+}
+
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/bar")
 }
 
 query getNumTasks {
