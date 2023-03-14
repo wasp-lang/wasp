@@ -18,4 +18,5 @@ data Call
   | BashCompletionListCommands
   | WaspLS
   | Deploy [String] -- deploy cmd passthrough args
+  | Test
   | Unknown [String] -- all args

@@ -22,6 +22,7 @@ import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
@@ -50,6 +51,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
+        ["test"] -> Command.Call.Test
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -73,6 +75,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
+    Command.Call.Test -> runCommand test
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -109,6 +112,7 @@ printUsage =
         cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd "    info                  Prints basic information about current Wasp project.",
+        cmd "    test                  Executes tests in your project.",
         "",
         title "EXAMPLES",
         "  wasp new MyApp",
