@@ -47,8 +47,8 @@ import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
+import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
@@ -89,10 +89,10 @@ genDotEnv spec = return $
   case AS.dotEnvServerFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
