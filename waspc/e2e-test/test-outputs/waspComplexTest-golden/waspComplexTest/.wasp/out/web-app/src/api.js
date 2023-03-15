@@ -7,6 +7,10 @@ const api = axios.create({
 
 const WASP_APP_AUTH_TOKEN_NAME = "authToken"
 
+const storageKeys = [
+  WASP_APP_AUTH_TOKEN_NAME,
+];
+
 let authToken = null
 if (window.localStorage) {
   authToken = window.localStorage.getItem(WASP_APP_AUTH_TOKEN_NAME)
@@ -25,10 +29,16 @@ export const clearAuthToken = () => {
   window.localStorage && window.localStorage.removeItem(WASP_APP_AUTH_TOKEN_NAME)
 }
 
-export const clearLocalStorage = () => {
+export const cleanupStorage = () => {
   authToken = undefined
 
-  window.localStorage && window.localStorage.clear()
+  if (!window.localStorage) {
+    return
+  }
+
+  storageKeys.forEach(key => {
+    window.localStorage.removeItem(key)
+  })
 }
 
 api.interceptors.request.use(request => {
