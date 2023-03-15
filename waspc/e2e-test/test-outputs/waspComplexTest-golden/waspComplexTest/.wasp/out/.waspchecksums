@@ -522,7 +522,7 @@
             "file",
             "web-app/src/api.js"
         ],
-        "e4e051e1a0f80f03444161eb16d1713c3be79164030d00fbd9b3019d4263961a"
+        "c72fde93f10d9db658426ca90441cc385a173ab3e7a9f69466c81830cc7f346b"
     ],
     [
         [
@@ -733,6 +733,13 @@
             "web-app/src/router.jsx"
         ],
         "a92e5d20f1e2bbb7b4cbfae12e145338ddf34c38823c4b49c954da3c9b623157"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/storage.ts"
+        ],
+        "6a148a6261c16e5334f78c171d29df107b0c20a0245cef43ec7d9a07bfd7d183"
     ],
     [
         [

@@ -78,10 +78,10 @@ genDotEnv spec = return $
   case AS.dotEnvClientFile spec of
     Just srcFilePath
       | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
+        [ createCopyFileDraft
+            (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+            srcFilePath
+        ]
     _ -> []
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
@@ -216,9 +216,11 @@ genSrcDir spec =
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|vite-env.d.ts|],
+      -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
+      copyTmplFile [relfile|api.js|],
+      copyTmplFile [relfile|storage.ts|],
       genRouter spec,
-      genIndexJs spec,
-      genApi
+      genIndexJs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
@@ -235,10 +237,6 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-
--- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
-genApi :: Generator FileDraft
-genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
 genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =

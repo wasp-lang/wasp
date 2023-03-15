@@ -1,5 +1,6 @@
 import axios from 'axios'
 import config from './config'
+import { storage } from './storage'
 
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -7,38 +8,25 @@ const api = axios.create({
 
 const WASP_APP_AUTH_TOKEN_NAME = "authToken"
 
-const storageKeys = [
-  WASP_APP_AUTH_TOKEN_NAME,
-];
-
-let authToken = null
-if (window.localStorage) {
-  authToken = window.localStorage.getItem(WASP_APP_AUTH_TOKEN_NAME)
-}
+let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME)
 
 export const setAuthToken = (token) => {
   if (typeof token !== 'string') {
     throw Error(`Token must be a string, but it was: {${typeof token}} ${token}.`)
   }
   authToken = token
-  window.localStorage && window.localStorage.setItem(WASP_APP_AUTH_TOKEN_NAME, token)
+  storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
 }
 
 export const clearAuthToken = () => {
   authToken = undefined
-  window.localStorage && window.localStorage.removeItem(WASP_APP_AUTH_TOKEN_NAME)
+  storage.remove(WASP_APP_AUTH_TOKEN_NAME)
 }
 
-export const cleanupStorage = () => {
+export const removeLocalUserData = () => {
   authToken = undefined
 
-  if (!window.localStorage) {
-    return
-  }
-
-  storageKeys.forEach(key => {
-    window.localStorage.removeItem(key)
-  })
+  storage.clear()
 }
 
 api.interceptors.request.use(request => {

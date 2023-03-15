@@ -62,6 +62,7 @@ waspBuild/.wasp/build/web-app/src/queries/index.d.ts
 waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
 waspBuild/.wasp/build/web-app/src/router.jsx
+waspBuild/.wasp/build/web-app/src/storage.ts
 waspBuild/.wasp/build/web-app/src/universal/url.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts

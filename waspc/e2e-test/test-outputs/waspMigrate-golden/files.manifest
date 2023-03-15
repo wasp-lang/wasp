@@ -67,6 +67,7 @@ waspMigrate/.wasp/out/web-app/src/queries/index.d.ts
 waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.jsx
+waspMigrate/.wasp/out/web-app/src/storage.ts
 waspMigrate/.wasp/out/web-app/src/universal/url.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/src/vite-env.d.ts
