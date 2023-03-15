@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
+import { areThereAnyTasks } from './Todo'
 
-test('should work as expected', () => {
-  expect(Math.sqrt(4)).toBe(2)
+test('areThereAnyTasks', () => {
+  expect(areThereAnyTasks([])).toBe(false)
 })
