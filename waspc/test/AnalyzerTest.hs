@@ -32,6 +32,7 @@ import Wasp.AppSpec.Route (Route)
 import qualified Wasp.AppSpec.Route as Route
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.Version as WV
+import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 
 spec_Analyzer :: Spec
 spec_Analyzer = do
@@ -62,6 +63,13 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL",
+                "  },",
+                "  emailSender: {",
+                "    provider: SendGrid,",
+                "    defaultFrom: {",
+                "      email: \"test@test.com\",",
+                "      title: \"Test\"",
+                "    }",
                 "  }",
                 "}",
                 "",
@@ -154,7 +162,11 @@ spec_Analyzer = do
                               Just $
                                 ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
                           },
-                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
+                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL},
+                    App.emailSender = Just EmailSender.EmailSender {
+                      EmailSender.provider = EmailSender.SendGrid,
+                      EmailSender.defaultFrom = EmailSender.EmailFrom {EmailSender.email = "test@test.com", EmailSender.title = Just "Test"}
+                    }
                   }
               )
             ]

@@ -37,9 +37,9 @@ app todoApp {
   },
   emailSender: {
     provider: SMTP,
-    sender: {
+    defaultFrom: {
       title: "Hello",
-      email: "hello@mg.studentski.space"
+      email: "mihovil@ilakovac.com"
     },
   },
 }
