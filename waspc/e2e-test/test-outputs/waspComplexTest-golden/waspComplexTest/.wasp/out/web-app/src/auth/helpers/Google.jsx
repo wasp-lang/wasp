@@ -1,7 +1,7 @@
 
 import config from '../../config.js'
 
-export const signInUrl = `${config.apiUrl}/auth/external/google/login`
+export const signInUrl = `${config.apiUrl}/auth/google/login`
 export const logoUrl = '/images/google-logo-icon.png'
 
 const containerStyle = {
