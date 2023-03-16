@@ -1,13 +1,13 @@
 import HttpError from '@wasp/core/HttpError.js'
 import { getSomeResource } from './serverSetup.js'
-import { Task, User } from '@wasp/entities'
+import { Task } from '@wasp/entities'
 import {
   CreateTask,
   DeleteCompletedTasks,
   ToggleAllTasks,
   UpdateTaskIsDone,
 } from '@wasp/actions/types'
-import { emailSender } from '@wasp/email/index.js'
+import { sendTaskUpdate } from '@wasp/jobs/sendTaskUpdate.js'
 
 export const createTask: CreateTask<Pick<Task, 'description'>> = async (
   task,
@@ -45,38 +45,17 @@ export const updateTaskIsDone: UpdateTaskIsDone<
   // const sleep = (ms) => new Promise(res => setTimeout(res, ms))
   // await sleep(3000);
 
-  try {
-    const info = await emailSender.send({
-      to: 'mihovil@ilakovac.com',
-      subject: 'Task status changed',
-      text: `User ${context.user.username} marked task ${id} as ${
-        isDone ? 'done' : 'not done'
-      }.`,
-      html: getHtml(context.user, { id, isDone }),
-    })
-    console.log('Email sent: ', info)
-  } catch (e) {
-    console.log('Error while sending email: ', e)
-  }
-
   const Task = context.entities.Task
-  return Task.updateMany({
+  const updateResult = await Task.updateMany({
     where: { id, user: { id: context.user.id } },
     data: { isDone },
   })
-}
-
-function getHtml(
-  user: Omit<User, 'password'>,
-  { id, isDone }: { id: number; isDone: boolean }
-): string {
-  return `<div style="font-size: 18px">User ${
-    user.username
-  } marked task ${id} as ${
-    isDone
-      ? '<span style="color: lime">done</span>'
-      : '<span style="color: tomato">not done</span>'
-  }.</div>`
+  sendTaskUpdate.submit({
+    username: context.user.username,
+    taskId: id,
+    isDone,
+  })
+  return updateResult
 }
 
 export const deleteCompletedTasks: DeleteCompletedTasks = async (

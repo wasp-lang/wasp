@@ -36,7 +36,7 @@ app todoApp {
     system: PostgreSQL
   },
   emailSender: {
-    provider: SMTP,
+    provider: SendGrid,
     defaultFrom: {
       title: "Hello",
       email: "mihovil@ilakovac.com"
@@ -174,4 +174,12 @@ job mySpecialScheduledJob {
       pgBoss: {=json { "retryLimit": 2 } json=}
     }
   }
+}
+
+job sendTaskUpdate {
+  executor: PgBoss,
+  perform: {
+    fn: import { sendTaskUpdateFn } from "@server/jobs/sendTaskUpdate.js"
+  },
+  entities: [Task],
 }
