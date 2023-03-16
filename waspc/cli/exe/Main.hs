@@ -51,7 +51,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ["test"] -> Command.Call.Test
+        ("test" : testArgs) -> Command.Call.Test testArgs
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -75,7 +75,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test -> runCommand test
+    Command.Call.Test testArgs -> runCommand $ test testArgs
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.

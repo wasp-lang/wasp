@@ -1,7 +1,7 @@
 module Wasp.Lib
   ( compile,
     Generator.start,
-    Generator.test,
+    Generator.testWebApp,
     ProjectRootDir,
     findWaspFile,
     analyzeWaspProject,

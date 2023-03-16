@@ -9,7 +9,7 @@ import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
 
-testWebApp :: Path' Abs (Dir ProjectRootDir) -> J.Job
-testWebApp projectDir = do
+testWebApp :: [String] -> Path' Abs (Dir ProjectRootDir) -> J.Job
+testWebApp args projectDir = do
   let webAppDir = projectDir </> Common.webAppRootDirInProjectRootDir
-  runNodeCommandAsJob webAppDir "npm" ["test"] J.WebApp
+  runNodeCommandAsJob webAppDir "npx" ("vitest" : args) J.WebApp

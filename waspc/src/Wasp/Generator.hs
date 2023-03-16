@@ -1,7 +1,7 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
-    Wasp.Generator.Test.test,
+    Wasp.Generator.Test.testWebApp,
   )
 where
 

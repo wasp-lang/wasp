@@ -1,5 +1,5 @@
 module Wasp.Generator.Test
-  ( test,
+  ( testWebApp,
   )
 where
 
@@ -9,15 +9,14 @@ import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Generator.WebAppGenerator.Test (testWebApp)
+import qualified Wasp.Generator.WebAppGenerator.Test as WebAppTest
 
-test :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-test projectDir = do
+testWebApp :: [String] -> Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
+testWebApp args projectDir = do
   chan <- newChan
-  -- TODO: Add server tests in future.
-  let runTestJobs = testWebApp projectDir chan
+  let testWebAppJob = WebAppTest.testWebApp args projectDir chan
   (testExitCode, _) <-
-    runTestJobs `concurrently` readJobMessagesAndPrintThemPrefixed chan
+    testWebAppJob `concurrently` readJobMessagesAndPrintThemPrefixed chan
   case testExitCode of
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "Tests failed with exit code " ++ show code ++ "."
