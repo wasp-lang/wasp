@@ -19,10 +19,14 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider, localAuthProvider)
+import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
+import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.ExternalAuthG (genPassportAuth)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -32,17 +36,18 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware auth,
-        -- Auth routes
         genAuthRoutesIndex auth,
-        genLoginRoute auth,
-        genSignupRoute auth,
         genMeRoute auth,
-        genUtilsJs auth
+        genUtils auth,
+        genProvidersIndex auth,
+        genFileCopy [relfile|auth/providers/types.ts|]
       ]
-      <++> genPassportAuth auth
+      <++> genLocalAuth auth
+      <++> genOAuthAuth auth
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
+    genFileCopy = return . C.mkSrcTmplFd
 
 -- | Generates core/auth file which contains auth middleware and createUser() function.
 genCoreAuth :: AS.Auth.Auth -> Generator FileDraft
@@ -74,9 +79,7 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object
-            [ "userEntityUpper" .= (userEntityName :: String)
-            ]
+       in object ["userEntityUpper" .= (userEntityName :: String)]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -84,38 +87,10 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
-      object
-        [ "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
-        ]
+      object ["isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
-
-genLoginRoute :: AS.Auth.Auth -> Generator FileDraft
-genLoginRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    loginRouteRelToSrc = [relfile|routes/auth/login.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> loginRouteRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile loginRouteRelToSrc
-
-    tmplData =
-      let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object
-            [ "userEntityUpper" .= (userEntityName :: String),
-              "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
-            ]
-
-genSignupRoute :: AS.Auth.Auth -> Generator FileDraft
-genSignupRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    signupRouteRelToSrc = [relfile|routes/auth/signup.js|]
-    tmplFile = C.asTmplFile $ [reldir|src|] </> signupRouteRelToSrc
-    dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile signupRouteRelToSrc
-
-    tmplData =
-      object
-        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
-        ]
 
 genMeRoute :: AS.Auth.Auth -> Generator FileDraft
 genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -124,29 +99,36 @@ genMeRoute auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplD
     tmplFile = C.asTmplFile $ [reldir|src|] </> meRouteRelToSrc
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile meRouteRelToSrc
 
-    tmplData =
-      object
-        [ "userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)
-        ]
+    tmplData = object ["userEntityLower" .= (Util.toLowerFirst (AS.refName $ AS.Auth.userEntity auth) :: String)]
 
-genUtilsJs :: AS.Auth.Auth -> Generator FileDraft
-genUtilsJs auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genUtils :: AS.Auth.Auth -> Generator FileDraft
+genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel utilsFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> utilsFileInSrcDir
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
-    utilsFileInSrcDir = [relfile|routes/auth/utils.js|]
+    utilsFileInSrcDir = [relfile|auth/utils.ts|]
 
 getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
 getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+
+genProvidersIndex :: AS.Auth.Auth -> Generator FileDraft
+genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/index.ts|] (Just tmplData)
+  where
+    tmplData = object ["enabledProviderIds" .= (enabledProviderIds :: [String])]
+
+    enabledProviderIds =
+      concat
+        [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
+          [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
+          [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth]
+        ]

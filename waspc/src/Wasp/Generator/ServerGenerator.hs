@@ -48,14 +48,14 @@ import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
+import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.EmailG (depsRequiredByEmail, genEmail)
-import Wasp.Generator.ServerGenerator.ExternalAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.SemanticVersion (major)
@@ -80,7 +80,7 @@ genServer spec =
     <++> genPatches spec
     <++> genUniversalDir
     <++> genEnvValidationScript
-    <++> genExportedTypesDir
+    <++> genExportedTypesDir spec
     <++> genApis spec
   where
     genFileCopy = return . C.mkTmplFd
@@ -220,17 +220,12 @@ genServerJs spec =
       (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
-            [ "doesServerSetupFnExist" .= isJust maybeSetupJsFunction,
-              "serverSetupJsFnImportStatement" .= fromMaybe "" maybeSetupJsFnImportStmt,
-              "serverSetupJsFnIdentifier" .= fromMaybe "" maybeSetupJsFnImportIdentifier,
+            [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeSetupJsFnImportDetails = getJsImportStmtAndIdentifier relPathToServerSrcDir <$> maybeSetupJsFunction
-    (maybeSetupJsFnImportStmt, maybeSetupJsFnImportIdentifier) =
-      (fst <$> maybeSetupJsFnImportDetails, snd <$> maybeSetupJsFnImportDetails)
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -346,8 +341,12 @@ genEnvValidationScript =
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
 
-genExportedTypesDir :: Generator [FileDraft]
-genExportedTypesDir =
+genExportedTypesDir :: AppSpec -> Generator [FileDraft]
+genExportedTypesDir spec =
   return
-    [ C.mkTmplFd (C.asTmplFile [relfile|src/types/index.ts|])
+    [ C.mkTmplFdWithData [relfile|src/types/index.ts|] (Just tmplData)
     ]
+  where
+    tmplData = object ["isExternalAuthEnabled" .= isExternalAuthEnabled]
+    isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
+    maybeAuth = AS.App.auth $ snd $ getApp spec

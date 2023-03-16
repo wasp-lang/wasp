@@ -13,6 +13,7 @@ module Wasp.Generator.ServerGenerator.Common
     asServerSrcFile,
     toESModulesImportPath,
     mkUniversalTmplFdWithDst,
+    mkTmplFdWithData,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -72,6 +73,14 @@ mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDstAndData srcPath dstPath Nothi
     dstPath =
       serverSrcDirInServerRootDir
         </> (SP.castRel pathInTemplatesSrcDir :: Path' (Rel ServerSrcDir) File')
+
+mkTmplFdWithData ::
+  Path' (Rel ServerTemplatesDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath dstPath tmplData
+  where
+    dstPath = SP.castRel relSrcPath :: Path' (Rel ServerRootDir) File'
 
 mkTmplFdWithDstAndData ::
   Path' (Rel ServerTemplatesDir) File' ->

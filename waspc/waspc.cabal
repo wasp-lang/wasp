@@ -239,14 +239,19 @@ library
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
+    Wasp.Generator.AuthProviders
+    Wasp.Generator.AuthProviders.Common
+    Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.AuthProviders.Local
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.AuthG
+    Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
+    Wasp.Generator.ServerGenerator.Auth.LocalAuthG
     Wasp.Generator.ServerGenerator.EmailG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
-    Wasp.Generator.ServerGenerator.ExternalAuthG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator
     Wasp.Generator.ServerGenerator.JobGenerator
     Wasp.Generator.ServerGenerator.OperationsG
@@ -259,8 +264,10 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
+    Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
+    Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.ExternalAuthG
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator
     Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG
