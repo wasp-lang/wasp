@@ -141,7 +141,8 @@ npmDepsForWasp spec =
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^1.0.1"),
-            ("vitest", "^0.29.2"),
+            ("vitest", "^0.29.3"),
+            ("@vitest/ui", "^0.29.3"),
             ("jsdom", "^21.1.1")
           ]
     }
