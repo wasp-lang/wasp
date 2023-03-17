@@ -143,7 +143,9 @@ npmDepsForWasp spec =
             ("@tsconfig/vite-react", "^1.0.1"),
             ("vitest", "^0.29.3"),
             ("@vitest/ui", "^0.29.3"),
-            ("jsdom", "^21.1.1")
+            ("jsdom", "^21.1.1"),
+            ("@testing-library/react", "^12.1.5"),
+            ("msw", "^1.1.0")
           ]
     }
 
