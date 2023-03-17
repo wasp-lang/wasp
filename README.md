@@ -21,7 +21,7 @@
 
 Develop full stack web apps without boilerplate. Describe common features via Wasp DSL and write the rest in React, Node.js and Prisma.
 
-Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative configugation tool for developing, building and deploying modern full-stack web apps with less code.
+Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative configuration tool for developing, building and deploying modern full stack web apps with less code.
 
 ```js
 // file: main.wasp
