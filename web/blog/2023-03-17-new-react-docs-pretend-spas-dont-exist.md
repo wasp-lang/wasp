@@ -19,7 +19,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 React just released their new docs at [https://react.dev/](https://react.dev/). While it looks great and packs a lot of improvements, one section that caught the community’s attention is “[Start a New React Project](https://react.dev/learn/start-a-new-react-project)”. The strongly recommended way to start a new React project is to use a framework such as Next.js, while the traditional route of using bundlers like Vite or CRA is fairly strongly discouraged.
 
-Next.js is a great framework, and it’s rise in popularity is due in a large part to the return of SEO optimization via Server-Side-Rendering (SSR) within the collective developer conscience. And it definitely does make sense to use a framework that provides SSR for static sites and pages that rely on SEO.
+Next.js is a great framework, and its rise in popularity is due in a large part to the return of SEO optimization via Server-Side-Rendering (SSR) within the collective developer conscience. And it definitely does make sense to use a framework that provides SSR for static sites and pages that rely on SEO.
 
 But what about typical Single Page Apps (SPAs)? Dashboard-like tools that live behind the auth (and don’t need SEO at all), and for which React was originally designed, still very much exist.
 
