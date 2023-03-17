@@ -15,8 +15,10 @@ import { expect, test, beforeAll, afterEach, afterAll } from 'vitest'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { render, screen } from '@testing-library/react'
-import Todo, { areThereAnyTasks } from './Todo'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+import getTasks from '@wasp/queries/getTasks.js'
+import Todo, { areThereAnyTasks } from './Todo'
 
 const server = setupServer()
 
@@ -28,17 +30,27 @@ test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
 })
 
-function renderWithClient(client: QueryClient, ui: React.ReactElement) {
+function renderWithClient(ui: React.ReactElement) {
+  const client = new QueryClient()
   const { rerender, ...result } = render(
-    <QueryClientProvider client={client}>{ui}</QueryClientProvider>
+    <QueryClientProvider client={client}><Router>{ui}</Router></QueryClientProvider>
   )
   return {
     ...result,
     rerender: (rerenderUi: React.ReactElement) =>
       rerender(
-        <QueryClientProvider client={client}>{rerenderUi}</QueryClientProvider>
+        <QueryClientProvider client={client}><Router>{rerenderUi}</Router></QueryClientProvider>
       ),
   }
+}
+
+function mockQuery(query, resJson) {
+  const route = query.queryCacheKey[0]
+  server.use(
+    rest.post(`http://localhost:3001/${route}`, (req, res, ctx) => {
+      return res(ctx.json(resJson))
+    })
+  )
 }
 
 const mockTasks = [{
@@ -48,18 +60,10 @@ const mockTasks = [{
   userId: 1
 }]
 
-function serverReturns(route, resJson) {
-  server.use(
-    rest.post(`http://localhost:3001/${route}`, (req, res, ctx) => {
-      return res(ctx.json(resJson))
-    })
-  )
-}
-
 test('handles server error', async () => {
-  serverReturns('operations/get-tasks', mockTasks);
+  mockQuery(getTasks, mockTasks);
 
-  renderWithClient(new QueryClient(), <Router><Todo /></Router>)
+  renderWithClient(<Todo />)
 
   await screen.findByText('test todo 1')
 
