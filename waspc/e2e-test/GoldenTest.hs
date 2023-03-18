@@ -14,6 +14,7 @@ import qualified Data.ByteString.Lazy as BSL
 import Data.List (isSuffixOf, sort)
 import Data.Maybe (fromJust)
 import Data.Text (pack, replace, unpack)
+import qualified Data.Text.IO as T
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -29,6 +30,8 @@ import qualified System.FilePath as FP
 import System.Process (callCommand)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
+import qualified Wasp.Env
+import qualified Wasp.Project.Db as Db
 
 data GoldenTest = GoldenTest {_goldenTestName :: String, _goldenTestCommands :: ShellCommandBuilder [ShellCommand]}
 
@@ -64,6 +67,7 @@ runGoldenTest goldenTest = do
 
   currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
   reformatPackageJsonFiles currentOutputAbsFps
+  makeServerDotEnvFileDeterministic currentOutputAbsFps
 
   let manifestAbsFp = currentOutputDirAbsFp FP.</> "files.manifest"
   writeFileManifest currentOutputDirAbsFp currentOutputAbsFps manifestAbsFp
@@ -89,7 +93,14 @@ runGoldenTest goldenTest = do
 
     isTestOutputFileTestable :: FilePath -> Bool
     isTestOutputFileTestable fp =
-      takeFileName fp `notElem` [".waspinfo", "node_modules", "dev.db", "dev.db-journal", "package-lock.json", ".gitignore"]
+      takeFileName fp
+        `notElem` [ ".waspinfo",
+                    "node_modules",
+                    "dev.db",
+                    "dev.db-journal",
+                    "package-lock.json",
+                    ".gitignore"
+                  ]
 
     writeFileManifest :: String -> [FilePath] -> FilePath -> IO ()
     writeFileManifest baseAbsFp filePaths manifestAbsFp = do
@@ -125,3 +136,26 @@ runGoldenTest goldenTest = do
           where
             unsafeDecodeAnyJson :: B.ByteString -> Aeson.Value
             unsafeDecodeAnyJson = fromJust . Aeson.decodeStrict
+
+    -- Some of the env vars in server .env file are reliant on stuff that is not fixed through tests,
+    -- specifically DATABASE_URL is reliant on the absolute project path, which depends on where tests are executed.
+    -- This means that .env is different between running tests on linux or mac.
+    -- To avoid this being an issue, we rewrite dot env file to be deterministic by replacing these values
+    -- with something fixed.
+    makeServerDotEnvFileDeterministic :: [FilePath] -> IO ()
+    makeServerDotEnvFileDeterministic allOutputFilePaths = do
+      mapM_ makeFileDeterministic $ filter isServerDotEnvFp allOutputFilePaths
+      where
+        isServerDotEnvFp :: FilePath -> Bool
+        isServerDotEnvFp = ((FP.pathSeparator : "server" FP.</> ".env") `isSuffixOf`)
+
+        makeFileDeterministic :: FilePath -> IO ()
+        makeFileDeterministic dotEnvFp = do
+          envVars <- Wasp.Env.parseDotEnvFile $ fromJust $ SP.parseAbsFile dotEnvFp
+          let envVars' = map ensureEnvVarIsDeterministic envVars
+          T.writeFile dotEnvFp $ Wasp.Env.envVarsToDotEnvContent envVars'
+
+        ensureEnvVarIsDeterministic :: (String, String) -> (String, String)
+        ensureEnvVarIsDeterministic = \case
+          (n, _) | n == Db.databaseUrlEnvVarName -> (n, "mock-database-url")
+          (n, v) -> (n, v)
