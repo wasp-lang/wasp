@@ -1,0 +1,131 @@
+** Requirements
+
+Relevant Github issue: https://github.com/wasp-lang/wasp/issues/569
+
+*** I want to be able to easily set dev database into a certain state.
+  This allows me to always have good starting point for doing my development.
+  If I mess up the database state, I can easily go back to this state.
+
+  I might want to also share it with others, so they can test / try out stuff.
+  In that case I would want to commit it into git.
+  
+  I might want to have multiple such states, each of them named.
+
+  I imagine this would actually be easier to do by doing snapshots of db then having seeding script, so I don't think this is what Prisma is targeting with their `seed`.
+  So I probably went here a bit into a different use case -> still interesting though.
+  Actuall, I read a bit more and seeding script is also valid way to do this.
+
+  As for snapshots -> I guess this would come down to doing postgre exports and then saving those in git and loading them.
+  I saw this being called "SQL backup file" somewhere.
+
+*** I want to populate my db with the data that is required for my app to start.
+  Examples:
+    - default language
+    - default currency
+    - predefined user roles
+
+  I would expect that I can tell wasp which "script" / piece of logic to run to do the seeding.
+
+  I might want to have multiple different seeds.
+
+  I might want to reuse code from my Wasp project inside of seeding logic. Possibly even actions.
+  Actually directly calling actions might be tricky, since they often require authenticated user and
+  similar. But, what me as a dev could easily do is extract core logic from the action into a
+  standalone function and then call that function both to do action and to do db seeding. So if we
+  can reuse Wasp project code, we are already in good place. The question is how do we do that?
+
+
+** Solutions
+There are two main solutions:
+  1. Database snapshots
+  2. Seeding script
+
+*** Database snapshots
+Database snapshots sound relatively straight forward to implement, also easy for devs to create.
+So they could use the app itself, or `db studio`, or some richer postgresql client, or their own scripts,
+to put db into a certain state, and then they can do snapshot and there you go.
+What is not great is that data can easily become out of sync with how app currently works,
+and you need to recreate them as app changes in order to keep them relevant.
+
+*** Seeding scripts
+Seeding script seems to be what most existing solutions do (Laravel, Prisma).
+Good thing about them is that they are code, so they don't have an issue of db snapshots
+that you need to completely recreate them when app changes. Instead, you just modify the code,
+you also have type-checking on your hands, ... .
+What is trickier is that you have to sometimes work around stuff like authentication,
+mocking something, ... -> the part with users and authentication sounds tricky.
+
+*** Conclusion
+I think seeding scripts are way to go.
+Database snasphots are very tempting due to ease of creation and implementation,
+but the fact that you don't have a good way to know when and how you need to recreate them is a big no-no.
+Also, others mostly do seeding scripts -> I am guessing for this same reason.
+
+
+** Seeding script implementation plan
+
+*** What do we want
+ - Be able to write a single JS/TS file that has access to DB and Prisma SDK and can be specified to Wasp as a seed script. Ideally named.
+ - More advanced: that file would be able to reuse JS/TS logic from our Wasp project (server).
+ - Also: it can potentially be just a .sh script. I guess we pass it database url via env var?
+
+*** MVP version
+ - Let them write a JS/TS file, we give it to Prisma as seed script (in package.json), that is it.
+   - But does that file have to be standalone? Can it use the rest of the Wasp project? I think it can!
+     Yeah, should be able to use it quite normally I think. So it needs to be a file from @server.
+     It would get much more complex if we had multiple servers and wanted to combine logic from them,
+     stuff like that, but this sounds ok.
+     Would be interesting if it could use stuff from @shared -> I guess it can -> hmmmmmm.
+   - Hm well this is already pretty advanced! So we would have smth like:
+     ```
+       db: {
+         seeds: [
+           (<string>, <ServerImport>)
+           (<string>, <ServerImport>)
+         ]
+       }
+     Ok, maybe just one for start, since I am not sure how we can tell Prisma to have multiple seeds.
+     Actually, we probably can, sure why not, we can rewrite package.json if needed.
+ - More advanced would be to look into interplay with Actions, what makes sense there and what can be done.
+
+
+** Initial research
+Prisma just let’s you specify a .ts or .js file that imports Prisma client and does something.
+
+You need to specify it in package.json as prisma.seed and then it gets called on `prisma db seed` or
+on `prisma migrate reset` or even `prisma migrate dev` if it results in a reset.
+
+You can also alternatively specify .sh script, and then it will run that.
+
+That is it!
+
+What can we do?
+
+We can do the same thing, as the most bare bones version.
+
+It would be cooler if we gave them access to Operations though!
+
+It could also be cool if we let them save the state of the db as it is at the specific moment, so
+they can just restore it later.
+
+multiple seeds?
+
+can we give them access to Operations without running the server? If not, is that an issue?
+
+We can’t force them to use only Operations → or they will litter their server code with the code
+that is used only for setting up the db. But it is nice if they can use them still.
+
+Important to note: seeding of the database might be something you need to do even before the server
+starts. In that case, it can’t rely on the server running. What if there are different servers? How
+would it even wait for one of them then? So yeah, it makes sense that it is something that has
+nothing to do with the server. It has to do with the database itself, its setup → migrations,
+seeding. But what about reusing the logic of Operations? Well, one way is to have Operations use TS
+functions, and then those TS functions are also used in seeding → as a common functionality. Another
+way might be to offer a way to do after-seeding → so setup of the database once the server(s) is
+running. That can still be practical. But we should probably recognize that as something that
+happens after the real seeding.
+
+It might make sense to also differentiate between the seeding that is also needed for production,
+and seeding that is needed for development? Or maybe not? Should we look at it all as one use case?
+How would one even do seeding for production, I guess you would just connect to the production DB
+and do it?
