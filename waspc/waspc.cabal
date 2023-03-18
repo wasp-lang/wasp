@@ -431,6 +431,7 @@ test-suite waspc-test
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
+    , tasty-golden          ^>= 2.3.5
   other-modules:
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
