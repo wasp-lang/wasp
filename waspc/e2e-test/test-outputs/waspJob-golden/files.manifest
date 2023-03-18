@@ -1,3 +1,4 @@
+waspJob/.env.server
 waspJob/.wasp/out/.dockerignore
 waspJob/.wasp/out/.waspchecksums
 waspJob/.wasp/out/Dockerfile

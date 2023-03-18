@@ -13,6 +13,7 @@ import ShellCommands
     waspCliNew,
   )
 import Util ((<++>))
+import Wasp.Project.Db (databaseUrlEnvVarName)
 
 waspComplexTest :: GoldenTest
 waspComplexTest = do
@@ -120,7 +121,15 @@ addServerEnvFile = do
     envFileContents =
       unlines
         [ "GOOGLE_CLIENT_ID=google_client_id",
-          "GOOGLE_CLIENT_SECRET=google_client_secret"
+          "GOOGLE_CLIENT_SECRET=google_client_secret",
+          -- NOTE: Since we are using PSQL in this test, if we don't set custom
+          -- database url in server/.env, Wasp will set its own, for managed dev db.
+          -- That is problematic because Wasp's db url depends on project's abs path,
+          -- which is not something we have constant during e2e tests, it depends
+          -- on the location where the tests are being run.
+          -- Therefore, we make sure to set custom database url here, to avoid .env
+          -- changing between different machines / setups.
+          databaseUrlEnvVarName <> "=" <> "mock-database-url"
         ]
 
 addGoogleAuth :: ShellCommandBuilder [ShellCommand]
