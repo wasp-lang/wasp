@@ -128,8 +128,6 @@ startPostgreDevDb waspProjectDir appName = do
           Dev.Postgres.defaultDevPass
           Dev.Postgres.defaultDevUser
           dbName
-  -- TODO: Can I catch when command returns error, and then print an error message if appropriate exit code?
-  -- For example it threw 125 when it was not able to connect to the port.
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
@@ -138,20 +136,22 @@ startPostgreDevDb waspProjectDir appName = do
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
-    throwIfDevDbPortIsAlreadyInUse =
-      whenM
-        ( liftIO $
-            Socket.checkIfPortIsInUse $
-              Socket.makeLocalHostSocketAddress $ fromIntegral Dev.Postgres.defaultDevPort
-        )
-        ( E.throwError $
+    throwIfDevDbPortIsAlreadyInUse = do
+      -- I am checking both conditions because of Docker having virtual network on Mac which
+      -- always gives precedence to native ports so checking only if we can open the port is
+      -- not enough because we can open it even if Docker container is already bound to that port.
+      whenM (liftIO $ Socket.checkIfPortIsInUse devDbSocketAddress) throwPortAlreadyInUseError
+      whenM (liftIO $ Socket.checkIfPortIsAcceptingConnections devDbSocketAddress) throwPortAlreadyInUseError
+      where
+        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral Dev.Postgres.defaultDevPort
+        throwPortAlreadyInUseError =
+          E.throwError $
             CommandError
               "Port already in use"
               ( printf
                   "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
                   Dev.Postgres.defaultDevPort
               )
-        )
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String
