@@ -3,7 +3,10 @@
   "compilerOptions": {
     // Temporary loosen the type checking until we can address all the errors.
     "allowJs": true,
-    "strict": false
+    "strict": false,
+    "types": [
+      "vitest/globals"
+    ]
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

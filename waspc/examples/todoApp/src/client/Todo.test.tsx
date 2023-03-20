@@ -10,49 +10,14 @@
 // TODO: check out a react project that uses vitest to see what they are testing and replicate to see if this setup breaks.
 // Escape hatch: Pass anything beyond test to vitest.
 
-import { BrowserRouter as Router } from 'react-router-dom'
-import { expect, test, beforeAll, afterEach, afterAll } from 'vitest'
-import { rest } from 'msw'
-import { setupServer } from 'msw/node'
-import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { screen } from '@testing-library/react'
 
 import getTasks from '@wasp/queries/getTasks.js'
 import Todo, { areThereAnyTasks } from './Todo'
 
-const server = setupServer()
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
-
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
 })
-
-function renderWithClient(ui: React.ReactElement) {
-  const client = new QueryClient()
-  const { rerender, ...result } = render(
-    <QueryClientProvider client={client}><Router>{ui}</Router></QueryClientProvider>
-  )
-  return {
-    ...result,
-    rerender: (rerenderUi: React.ReactElement) =>
-      rerender(
-        <QueryClientProvider client={client}><Router>{rerenderUi}</Router></QueryClientProvider>
-      ),
-  }
-}
-
-function mockQuery(query, resJson) {
-  const route = query.queryCacheKey[0]
-  server.use(
-    rest.post(`http://localhost:3001/${route}`, (req, res, ctx) => {
-      return res(ctx.json(resJson))
-    })
-  )
-}
 
 const mockTasks = [{
   id: 1,
