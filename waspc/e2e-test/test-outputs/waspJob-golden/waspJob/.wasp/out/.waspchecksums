@@ -338,9 +338,9 @@
     [
         [
             "file",
-            "web-app/src/api.js"
+            "web-app/src/api.ts"
         ],
-        "c72fde93f10d9db658426ca90441cc385a173ab3e7a9f69466c81830cc7f346b"
+        "92da775d256ec4f1bf247b299460a5262da34969c986840ca4c907ddc287206e"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
+        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "web-app/src/storage.ts"
         ],
-        "6a148a6261c16e5334f78c171d29df107b0c20a0245cef43ec7d9a07bfd7d183"
+        "87b3b3bec35fa5dd3383ffb67bea76224a8a0177546747b734044c8130bdfd89"
     ],
     [
         [

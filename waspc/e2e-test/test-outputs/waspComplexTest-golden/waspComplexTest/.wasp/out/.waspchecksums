@@ -520,9 +520,9 @@
     [
         [
             "file",
-            "web-app/src/api.js"
+            "web-app/src/api.ts"
         ],
-        "c72fde93f10d9db658426ca90441cc385a173ab3e7a9f69466c81830cc7f346b"
+        "92da775d256ec4f1bf247b299460a5262da34969c986840ca4c907ddc287206e"
     ],
     [
         [
@@ -536,21 +536,21 @@
             "file",
             "web-app/src/auth/helpers/user.ts"
         ],
-        "7ae0fa01ac15b43746877b765bc4e6fd533f302c435b771238ad79afbe923000"
+        "e6bc091d8f8520db542f959846ecf528e8a070c5ce989151d00d2f45da4a58a6"
     ],
     [
         [
             "file",
             "web-app/src/auth/logout.js"
         ],
-        "b6ae9bbf4d8147e0bab26dbd5ee550a8f19fca514514e569f73896ab10f2658d"
+        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
-        "bb202daa3b41c8288252d56a74ed78bed7129d7c96be96171cd516795d0ff71b"
+        "180e07f82c8290f9cae71e0aef97b40cf1b72a5a5fb58317feaf4cf66e629e42"
     ],
     [
         [
@@ -564,7 +564,7 @@
             "file",
             "web-app/src/auth/useAuth.js"
         ],
-        "6ab962413a3103fa4e2cb8f7d4751ee93da484f9312c007e0b4d28bfa130a367"
+        "ce3d41effe82eb317557cbdd3296174ff0e4d5acff6aa804a396b0cf453f95e6"
     ],
     [
         [
@@ -641,7 +641,7 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
+        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "web-app/src/storage.ts"
         ],
-        "6a148a6261c16e5334f78c171d29df107b0c20a0245cef43ec7d9a07bfd7d183"
+        "87b3b3bec35fa5dd3383ffb67bea76224a8a0177546747b734044c8130bdfd89"
     ],
     [
         [

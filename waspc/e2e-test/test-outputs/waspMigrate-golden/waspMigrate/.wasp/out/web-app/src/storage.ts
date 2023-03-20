@@ -1,32 +1,31 @@
+export type DataStore = {
+    set(key: string, value: unknown): void;
+    get(key: string): unknown | undefined;
+    remove(key: string): void;
+    clear(): void;
+};
+
 function createLocalStorageDataStore(prefix: string): DataStore {
     return {
         set(key, value) {
-            if (!isLocalStorageAvailable()) {
-                return;
-            }
+            ensureLocalStorageIsAvailable();
             localStorage.setItem(`${prefix}:${key}`, JSON.stringify(value));
         },
         get(key) {
-            if (!isLocalStorageAvailable()) {
-                return;
-            }
+            ensureLocalStorageIsAvailable();
             const value = localStorage.getItem(`${prefix}:${key}`);
             try {
-                return value ? JSON.parse(value) : null;
+                return value ? JSON.parse(value) : undefined;
             } catch (e: any) {
-                return null;
+                return undefined;
             }
         },
         remove(key) {
-            if (!isLocalStorageAvailable()) {
-                return;
-            }
+            ensureLocalStorageIsAvailable();
             localStorage.removeItem(`${prefix}:${key}`);
         },
         clear() {
-            if (!isLocalStorageAvailable()) {
-                return;
-            }
+            ensureLocalStorageIsAvailable();
             Object.keys(localStorage).forEach((key) => {
                 if (key.startsWith(prefix)) {
                     localStorage.removeItem(key);
@@ -35,20 +34,11 @@ function createLocalStorageDataStore(prefix: string): DataStore {
         },
     };
 
-    function isLocalStorageAvailable() {
-        try {
-            return !!window.localStorage;
-        } catch (e) {
-            return false;
+    function ensureLocalStorageIsAvailable(): void {
+        if (!window.localStorage) {
+            throw new Error('Local storage is not available.');
         }
     }
 }
 
 export const storage = createLocalStorageDataStore('wasp');
-
-type DataStore = {
-    set(key: string, value: any): void;
-    get(key: string): any;
-    remove(key: string): void;
-    clear(): void;
-};

@@ -1,4 +1,4 @@
-import { removeLocalUserData } from '../api.js'
+import { removeLocalUserData } from '../api'
 import { invalidateAndRemoveQueries } from '../operations/resources'
 
 export default async function logout() {

@@ -75,7 +75,7 @@ waspComplexTest/.wasp/out/web-app/src/actions/MySpecialAction.js
 waspComplexTest/.wasp/out/web-app/src/actions/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
-waspComplexTest/.wasp/out/web-app/src/api.js
+waspComplexTest/.wasp/out/web-app/src/api.ts
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/Google.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
