@@ -2,7 +2,7 @@
   <img height="80px" src="https://user-images.githubusercontent.com/1536647/77317442-78625700-6d0b-11ea-9822-0fb21e557e87.png"/>
 </p>
 <p align=center>
-  A programming language that understands what a web app is.
+  The fastest way to develop full-stack web apps with React & Node.js.
 </p>
 <br>
 <p align=center>
@@ -14,21 +14,14 @@
 
 ------
 
-<p align="center">
-  {= <a href="https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672">We are hiring!</a> =}
-</p>
-
 - [**Project page**](https://wasp-lang.dev)
 - [**Docs**](https://wasp-lang.dev/docs)
 
 <br>
 
-Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative DSL (domain-specific language) for developing, building and deploying modern full-stack web apps with less code.
+Develop full stack web apps without boilerplate. Describe common features via Wasp DSL and write the rest in React, Node.js and Prisma.
 
-Concepts such as *app*, *page*, *user*, *login*, *frontend*, *production*, etc. are baked into the language, bringing a new level of expressiveness and allowing you to get more work done with fewer lines of code.
-
-While describing high-level features with Wasp, you still write the rest of your logic in your favorite technologies (currently React, NodeJS, Prisma).
-
+Wasp (**W**eb **A**pplication **Sp**ecification Language) is a declarative configuration tool for developing, building and deploying modern full stack web apps with less code.
 
 ```js
 // file: main.wasp
