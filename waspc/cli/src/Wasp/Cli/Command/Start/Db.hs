@@ -95,7 +95,7 @@ startPostgreDevDb waspProjectDir appName = do
 
   cliSendMessageC . Msg.Info $
     unlines
-      [ "✨ Starting dev database for your Wasp app (detected PostgreSQL) ✨",
+      [ "✨ Starting a PostgreSQL dev database (based on your Wasp config) ✨",
         "",
         "Additional info:",
         " ℹ Connection URL, in case you might want to connect with external tools:",
