@@ -13,7 +13,7 @@ const router = (
     <App>
       <Route exact path="/" component={ MainPage }/>
       <Route exact path="/auth/login/google">
-        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/external/google/validateCodeForLogin" />
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="/auth/google/callback" />
       </Route>
     </App>
   </Router>

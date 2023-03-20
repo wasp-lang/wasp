@@ -1,5 +1,6 @@
 module Wasp.Generator.ServerGenerator.JsImport where
 
+import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel)
 import qualified StrongPath as SP
@@ -13,6 +14,14 @@ import Wasp.JsImport
     JsImportStatement,
   )
 import qualified Wasp.JsImport as JI
+
+extImportToImportJson ::
+  Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
+  Maybe EI.ExtImport ->
+  Aeson.Value
+extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
+  where
+    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
 
 getJsImportStmtAndIdentifier ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
