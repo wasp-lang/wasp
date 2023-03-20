@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import config from '../../config.js'
-import api from '../../api.js'
+import api from '../../api'
 import { initSession } from '../helpers/user'
 
 // After a user authenticates via an Oauth 2.0 provider, this is the page that
