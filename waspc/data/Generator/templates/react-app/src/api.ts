@@ -8,7 +8,7 @@ const api = axios.create({
 
 const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
-let authToken: string | undefined = storage.get(WASP_APP_AUTH_TOKEN_NAME)
+let authToken: string | undefined = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 
 export const setAuthToken = (token: unknown): void => {
   if (typeof token !== 'string') {
