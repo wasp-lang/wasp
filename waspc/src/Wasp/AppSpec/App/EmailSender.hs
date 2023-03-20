@@ -11,17 +11,13 @@ import Data.Data (Data)
 
 data EmailSender = EmailSender
   { provider :: EmailProvider,
-    defaultFrom :: EmailFrom
+    defaultFrom :: EmailFrom,
+    areEmailsSentInDevelopment :: Maybe Bool
   }
   deriving (Show, Eq, Data)
 
 data EmailProvider = SMTP | SendGrid | Mailgun
-  deriving (Eq, Data)
-
-instance Show EmailProvider where
-  show SMTP = "smtp"
-  show SendGrid = "sendgrid"
-  show Mailgun = "mailgun"
+  deriving (Eq, Data, Show)
 
 data EmailFrom = EmailFrom
   { title :: Maybe String,

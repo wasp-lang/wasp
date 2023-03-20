@@ -249,7 +249,7 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
-    Wasp.Generator.ServerGenerator.EmailG
+    Wasp.Generator.ServerGenerator.EmailSenderG
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator

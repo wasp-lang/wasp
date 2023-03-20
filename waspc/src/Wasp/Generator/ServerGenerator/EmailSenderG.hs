@@ -1,4 +1,4 @@
-module Wasp.Generator.ServerGenerator.EmailG where
+module Wasp.Generator.ServerGenerator.EmailSenderG where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
@@ -16,8 +16,8 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
-genEmail :: AppSpec -> Generator [FileDraft]
-genEmail spec = case maybeEmailSender of
+genEmailSender :: AppSpec -> Generator [FileDraft]
+genEmailSender spec = case maybeEmailSender of
   Just emailSender ->
     sequence
       [ genIndex emailSender
