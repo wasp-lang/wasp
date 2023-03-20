@@ -145,6 +145,7 @@ npmDepsForWasp spec =
             ("@vitest/ui", "^0.29.3"),
             ("jsdom", "^21.1.1"),
             ("@testing-library/react", "^12.1.5"),
+            ("@testing-library/jest-dom", "^5.16.5"),
             ("msw", "^1.1.0")
           ]
     }

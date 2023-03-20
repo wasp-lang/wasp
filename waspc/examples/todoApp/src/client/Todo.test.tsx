@@ -15,6 +15,7 @@ import { expect, test, beforeAll, afterEach, afterAll } from 'vitest'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import getTasks from '@wasp/queries/getTasks.js'
@@ -56,16 +57,18 @@ function mockQuery(query, resJson) {
 const mockTasks = [{
   id: 1,
   description: 'test todo 1',
-  isDone: false,
+  isDone: true,
   userId: 1
 }]
 
-test('handles server error', async () => {
+test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks);
 
   renderWithClient(<Todo />)
 
   await screen.findByText('test todo 1')
+
+  expect(screen.getByRole('checkbox')).toBeChecked()
 
   screen.debug()
 })
