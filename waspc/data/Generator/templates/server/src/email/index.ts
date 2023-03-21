@@ -1,5 +1,4 @@
 {{={= =}=}}
-
 import { initEmailSender } from "./core/index.js";
 
 import waspServerConfig from '../config.js';

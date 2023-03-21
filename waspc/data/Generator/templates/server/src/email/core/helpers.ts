@@ -1,5 +1,4 @@
 {{={= =}=}}
-
 import { EmailFromField } from "./types";
 
 export function createFromEmailString({

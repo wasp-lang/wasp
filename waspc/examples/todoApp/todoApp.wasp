@@ -36,7 +36,7 @@ app todoApp {
     system: PostgreSQL
   },
   emailSender: {
-    provider: SendGrid,
+    provider: SMTP,
     defaultFrom: {
       name: "Hello",
       email: "mihovil@ilakovac.com"
