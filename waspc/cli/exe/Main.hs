@@ -5,6 +5,7 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Data.Char (isSpace)
+import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
@@ -14,13 +15,16 @@ import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
-import Wasp.Cli.Command.Db (runDbCommand, studio)
+import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
+import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
+import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
@@ -35,6 +39,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
         ["start"] -> Command.Call.Start
+        ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
@@ -57,6 +62,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   case commandCall of
     Command.Call.New projectName -> runCommand $ createNewProject projectName
     Command.Call.Start -> runCommand start
+    Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
@@ -89,36 +95,40 @@ printUsage :: IO ()
 printUsage =
   putStrLn $
     unlines
+{- ORMOLU_DISABLE -}
       [ title "USAGE",
-        "  wasp <command> [command-args]",
-        "",
+              "  wasp <command> [command-args]",
+              "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd "    new <project-name>    Creates new Wasp project.",
-        cmd "    version               Prints current version of CLI.",
-        cmd "    waspls                Run Wasp Language Server. Add --help to get more info.",
-        cmd "    completion            Prints help on bash completion.",
-        cmd "    uninstall             Removes Wasp from your system.",
+        cmd   "    new <project-name>    Creates new Wasp project.",
+        cmd   "    version               Prints current version of CLI.",
+        cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
+        cmd   "    completion            Prints help on bash completion.",
+        cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd "    start                 Runs Wasp app in development mode, watching for file changes.",
-        cmd "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd "    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.",
-        cmd "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
-        cmd "    deploy                Deploys your Wasp app to cloud hosting providers.",
-        cmd "    telemetry             Prints telemetry status.",
-        cmd "    deps                  Prints the dependencies that Wasp uses in your project.",
-        cmd "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
-        cmd "    info                  Prints basic information about current Wasp project.",
-        "",
+        cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
+        cmd   "    start db              Starts managed development database for you.",
+        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
+        cmd $ "    clean                 Deletes all generated code and other cached artifacts.",
+              "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
+        cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
+        cmd   "    telemetry             Prints telemetry status.",
+        cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
+        cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
+        cmd   "    info                  Prints basic information about current Wasp project.",
+              "",
         title "EXAMPLES",
-        "  wasp new MyApp",
-        "  wasp start",
-        "  wasp db migrate-dev",
-        "",
-        Term.applyStyles [Term.Green] "Docs:" ++ " https://wasp-lang.dev/docs",
+              "  wasp new MyApp",
+              "  wasp start",
+              "  wasp db migrate-dev",
+              "",
+        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp-lang.dev/docs",
         Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan] "Newsletter:" ++ " https://wasp-lang.dev/#signup"
+        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp-lang.dev/#signup"
       ]
+{- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
 printVersion = do
@@ -128,44 +138,49 @@ printVersion = do
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
         "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s",
-        "or do",
-        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
-        "if you want specific x.y.z version of Wasp.",
         "",
-        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, include the latest one."
+        "If you want specific x.y.z version of Wasp, do:",
+        "  curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v x.y.z",
+        "",
+        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
 
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["studio"] -> runDbCommand studio
+  ["reset"] -> runDbCommand Command.Db.Reset.reset
+  ["studio"] -> runDbCommand Command.Db.Studio.studio
   _ -> printDbUsage
 
 printDbUsage :: IO ()
 printDbUsage =
   putStrLn $
     unlines
+{- ORMOLU_DISABLE -}
       [ title "USAGE",
-        "  wasp db <command> [command-args]",
-        "",
+              "  wasp db <command> [command-args]",
+              "",
         title "COMMANDS",
-        cmd
-          ( "  migrate-dev     Ensures dev database corresponds to the current state of schema(entities):\n"
-              <> "                  - Generates a new migration if there are changes in the schema.\n"
-              <> "                  - Applies any pending migrations to the database either using the supplied migration name or asking for one.\n"
-              <> "\nOPTIONS:\n"
-              <> " --name [migration-name]\n"
-              <> " --create-only\n"
-          ),
-        cmd "  studio          GUI for inspecting your database.",
-        "",
+        cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
+        cmd $ intercalate "\n" [
+              "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
+              "                  - Generates a new migration if there are changes in the schema.",
+              "                  - Applies any pending migrations to the database either using the",
+              "                    supplied migration name or asking for one.",
+              "    OPTIONS:",
+              "      --name [migration-name]",
+              "      --create-only"
+        ],
+        cmd   "  studio        GUI for inspecting your database.",
+              "",
         title "EXAMPLES",
-        "  wasp db migrate-dev",
-        "  wasp db migrate-dev --name \"Added User entity\"",
-        "  wasp db migrate-dev --create-only",
-        "  wasp db studio"
+              "  wasp db migrate-dev",
+              "  wasp db migrate-dev --name \"Added User entity\"",
+              "  wasp db migrate-dev --create-only",
+              "  wasp db studio"
       ]
+{- ORMOLU_ENABLE -}
 
 cmd :: String -> String
 cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])

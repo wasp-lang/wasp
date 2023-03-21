@@ -24,10 +24,11 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import Wasp.AppSpec.App.Client as AS.App.Client
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
@@ -75,15 +76,15 @@ genWebApp spec = do
     genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
-genDotEnv spec = return $
-  case AS.dotEnvClientFile spec of
-    Just srcFilePath
-      | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
-    _ -> []
+-- Don't generate .env if we are building for production, since .env is to be used only for
+-- development.
+genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec =
+  return
+    [ createTextFileDraft
+        (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+        (envVarsToDotEnvContent $ AS.devEnvVarsClient spec)
+    ]
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]

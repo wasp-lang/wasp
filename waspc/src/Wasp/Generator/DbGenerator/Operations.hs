@@ -4,6 +4,7 @@ module Wasp.Generator.DbGenerator.Operations
     doesSchemaMatchDb,
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
+    dbReset,
   )
 where
 
@@ -18,7 +19,6 @@ import qualified Path as P
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
-import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common
   ( DbSchemaChecksumFile,
@@ -38,8 +38,9 @@ import Wasp.Generator.FileDraft.WriteableMonad (WriteableMonad (copyDirectoryRec
 import qualified Wasp.Generator.Job as J
 import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived, readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Generator.WriteFileDrafts as Generator.WriteFileDrafts
+import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import Wasp.Util (checksumFromFilePath, hexToString)
-import Wasp.Util.IO (doesFileExist, removeFile)
+import Wasp.Util.IO (deleteFileIfExists, doesFileExist)
 import qualified Wasp.Util.IO as IOUtil
 
 -- | Migrates in the generated project context and then copies the migrations dir back
@@ -101,9 +102,24 @@ removeDbSchemaChecksumFile ::
   Path' Abs (Dir ProjectRootDir) ->
   Path' (Rel ProjectRootDir) (File f) ->
   IO ()
-removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = removeFile dbSchemaChecksumFp
+removeDbSchemaChecksumFile genProjectRootDirAbs dbSchemaChecksumInProjectRootDir = deleteFileIfExists dbSchemaChecksumFp
   where
     dbSchemaChecksumFp = genProjectRootDirAbs </> dbSchemaChecksumInProjectRootDir
+
+-- Resets the database: drops all data and applies all migrations from scratch.
+dbReset ::
+  Path' Abs (Dir ProjectRootDir) ->
+  IO (Either String ())
+dbReset genProjectDir = do
+  -- We are doing quite a move here, resetting the whole db, so best to delete the checksum file,
+  -- which will force Wasp to do a deep check of migrations next time, just to be sure.
+  removeDbSchemaChecksumFile genProjectDir dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir
+  chan <- newChan
+  ((), exitCode) <-
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset genProjectDir chan
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure c -> Left $ "Failed with exit code " <> show c
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do

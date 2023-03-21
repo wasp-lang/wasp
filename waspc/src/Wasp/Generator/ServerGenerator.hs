@@ -1,4 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Replace case with maybe" #-}
 
 module Wasp.Generator.ServerGenerator
   ( genServer,
@@ -36,6 +39,7 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
     latestMajorNodeVersion,
@@ -44,7 +48,7 @@ import Wasp.Generator.Common
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
@@ -58,6 +62,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
 
@@ -86,15 +91,22 @@ genServer spec =
     genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
-genDotEnv spec = return $
-  case AS.dotEnvServerFile spec of
-    Just srcFilePath
-      | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
-              srcFilePath
-          ]
-    _ -> []
+-- Don't generate .env if we are building for production, since .env is to be used only for
+-- development.
+genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec =
+  return
+    [ createTextFileDraft
+        (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+        (envVarsToDotEnvContent envVars)
+    ]
+  where
+    envVars = waspEnvVars ++ userEnvVars
+    userEnvVars = AS.devEnvVarsServer spec
+    waspEnvVars = case AS.devDatabaseUrl spec of
+      Just url | not isThereCustomDbUrl -> [(databaseUrlEnvVarName, url)]
+      _ -> []
+    isThereCustomDbUrl = any ((== databaseUrlEnvVarName) . fst) userEnvVars
 
 dotEnvInServerRootDir :: Path' (Rel ServerRootDir) File'
 dotEnvInServerRootDir = [relfile|.env|]

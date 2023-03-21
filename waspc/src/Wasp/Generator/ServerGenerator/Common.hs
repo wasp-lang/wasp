@@ -5,7 +5,6 @@ module Wasp.Generator.ServerGenerator.Common
     mkTmplFd,
     mkTmplFdWithDstAndData,
     mkSrcTmplFd,
-    dotEnvServer,
     srcDirInServerTemplatesDir,
     asTmplFile,
     asTmplSrcFile,
@@ -22,11 +21,16 @@ module Wasp.Generator.ServerGenerator.Common
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
-import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, ServerRootDir, UniversalTemplatesDir, universalTemplatesDirInTemplatesDir)
+import Wasp.Generator.Common
+  ( GeneratedSrcDir,
+    ProjectRootDir,
+    ServerRootDir,
+    UniversalTemplatesDir,
+    universalTemplatesDirInTemplatesDir,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -109,9 +113,6 @@ serverTemplatesDirInTemplatesDir = [reldir|server|]
 
 srcDirInServerTemplatesDir :: Path' (Rel ServerTemplatesDir) (Dir ServerTemplatesSrcDir)
 srcDirInServerTemplatesDir = [reldir|src|]
-
-dotEnvServer :: Path' (SP.Rel WaspProjectDir) File'
-dotEnvServer = [relfile|.env.server|]
 
 -- Converts the real name of the source file (i.e., name on disk) into a name
 -- that can be used in an ESNext import.

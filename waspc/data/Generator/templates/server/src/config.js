@@ -15,7 +15,7 @@ const config = {
     env,
     isDevelopment: env === 'development',
     port: parseInt(process.env.PORT) || 3001,
-    databaseUrl: process.env.{= databaseUrlEnvVar =},
+    databaseUrl: process.env.{= databaseUrlEnvVarName =},
     frontendUrl: undefined,
     allowedCORSOrigins: [],
     {=# isAuthEnabled =}

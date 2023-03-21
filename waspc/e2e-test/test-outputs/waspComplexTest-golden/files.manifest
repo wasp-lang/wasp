@@ -61,6 +61,7 @@ waspComplexTest/.wasp/out/server/src/types/index.ts
 waspComplexTest/.wasp/out/server/src/universal/url.ts
 waspComplexTest/.wasp/out/server/src/utils.js
 waspComplexTest/.wasp/out/server/tsconfig.json
+waspComplexTest/.wasp/out/web-app/.env
 waspComplexTest/.wasp/out/web-app/.npmrc
 waspComplexTest/.wasp/out/web-app/README.md
 waspComplexTest/.wasp/out/web-app/index.html

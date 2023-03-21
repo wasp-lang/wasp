@@ -200,10 +200,11 @@ spec_AppSpecValid = do
           AS.externalSharedFiles = [],
           AS.isBuild = False,
           AS.migrationsDir = Nothing,
-          AS.dotEnvServerFile = Nothing,
-          AS.dotEnvClientFile = Nothing,
+          AS.devEnvVarsClient = [],
+          AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.configFiles = []
+          AS.configFiles = [],
+          AS.devDatabaseUrl = Nothing
         }
 
     basicPage =

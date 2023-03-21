@@ -49,6 +49,14 @@ const info = await emailSender.send({
 })
 ```
 
+### `wasp start db` -> Wasp can now run your dev database for you with a single command
+
+Moving from SQLite to PostgreSQL with Wasp can feel like increase in complexity, because suddenly you have to care about running your PostgreSQL database, providing connection URL for it via env var, and if you checkout somebody's else Wasp project, or your old Wasp project that you have no memory of any more, you also have to figure all that out.
+
+To help with that, we now added `wasp start db`, which runs a development database for you!
+That it, all you need to do is run `wasp start db` and you are good to go. No env var setting, no remembering how to run the db.
+
+NOTE: Requires `docker` to be installed.
 
 ## v0.9.0
 
