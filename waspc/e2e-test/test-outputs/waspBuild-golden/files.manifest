@@ -65,9 +65,11 @@ waspBuild/.wasp/build/web-app/src/router.jsx
 waspBuild/.wasp/build/web-app/src/universal/url.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts
+waspBuild/.wasp/build/web-app/src/vitest.helpers.tsx
 waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts
+waspBuild/.wasp/build/web-app/vitest.setup.ts
 waspBuild/.wasproot
 waspBuild/main.wasp
 waspBuild/src/.waspignore

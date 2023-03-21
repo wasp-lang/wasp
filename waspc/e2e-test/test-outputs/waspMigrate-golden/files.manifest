@@ -70,9 +70,11 @@ waspMigrate/.wasp/out/web-app/src/router.jsx
 waspMigrate/.wasp/out/web-app/src/universal/url.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/src/vite-env.d.ts
+waspMigrate/.wasp/out/web-app/src/vitest.helpers.tsx
 waspMigrate/.wasp/out/web-app/tsconfig.json
 waspMigrate/.wasp/out/web-app/tsconfig.node.json
 waspMigrate/.wasp/out/web-app/vite.config.ts
+waspMigrate/.wasp/out/web-app/vitest.setup.ts
 waspMigrate/.wasproot
 waspMigrate/main.wasp
 waspMigrate/migrations/migration_lock.toml

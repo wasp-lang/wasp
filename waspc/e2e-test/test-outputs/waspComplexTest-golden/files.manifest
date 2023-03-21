@@ -109,9 +109,11 @@ waspComplexTest/.wasp/out/web-app/src/router.jsx
 waspComplexTest/.wasp/out/web-app/src/universal/url.ts
 waspComplexTest/.wasp/out/web-app/src/utils.js
 waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
+waspComplexTest/.wasp/out/web-app/src/vitest.helpers.tsx
 waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.node.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
+waspComplexTest/.wasp/out/web-app/vitest.setup.ts
 waspComplexTest/.wasproot
 waspComplexTest/main.wasp
 waspComplexTest/src/.waspignore

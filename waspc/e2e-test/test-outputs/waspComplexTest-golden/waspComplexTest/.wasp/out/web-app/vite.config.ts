@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
@@ -11,5 +12,9 @@ export default defineConfig({
   envPrefix: 'REACT_APP_',
   build: {
     outDir: 'build',
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
   },
 })
