@@ -12,6 +12,7 @@ const env = process.env.NODE_ENV || 'development'
 const config = {
   all: {
     env,
+    isDevelopment: env === 'development',
     port: parseInt(process.env.PORT) || 3001,
     databaseUrl: process.env.DATABASE_URL,
     frontendUrl: undefined,
