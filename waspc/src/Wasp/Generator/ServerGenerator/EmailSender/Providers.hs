@@ -2,29 +2,32 @@ module Wasp.Generator.ServerGenerator.EmailSender.Providers
   ( smtp,
     sendGrid,
     mailgun,
+    providersDirInServerSrc,
     EmailSenderProvider (..),
   )
 where
 
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (Dir, File', Path', Rel, reldir, relfile)
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: AS.Dependency.Dependency,
-    setupFnPath :: Path' (Rel C.ServerTemplatesSrcDir) File',
+    setupFnFile :: Path' (Rel ProvidersDir) File',
     -- We have to use explicit boolean keys in templates (e.g. "isSMTPProviderEnabled") so each
     -- provider provides its own key which we pass to the template.
     isEnabledKey :: String
   }
   deriving (Show, Eq)
 
+data ProvidersDir
+
 smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = nodeMailerDependency,
-      setupFnPath = [relfile|email/core/providers/smtp.ts|],
+      setupFnFile = [relfile|smtp.ts|],
       isEnabledKey = "isSmtpProviderUsed"
     }
   where
@@ -38,7 +41,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = sendGridDependency,
-      setupFnPath = [relfile|email/core/providers/sendgrid.ts|],
+      setupFnFile = [relfile|sendgrid.ts|],
       isEnabledKey = "isSendGridProviderUsed"
     }
   where
@@ -52,7 +55,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = mailgunDependency,
-      setupFnPath = [relfile|email/core/providers/mailgun.ts|],
+      setupFnFile = [relfile|mailgun.ts|],
       isEnabledKey = "isMailgunProviderUsed"
     }
   where
@@ -61,3 +64,6 @@ mailgun =
 
     mailgunDependency :: AS.Dependency.Dependency
     mailgunDependency = AS.Dependency.make ("ts-mailgun", show mailgunVersionRange)
+
+providersDirInServerSrc :: Path' (Rel C.ServerTemplatesSrcDir) (Dir ProvidersDir)
+providersDirInServerSrc = [reldir|email/core/providers|]
