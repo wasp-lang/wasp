@@ -1785,7 +1785,7 @@ To run Wasp app in production, you will need to switch from `SQLite` to `Postgre
 2. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
 3. Run `wasp db migrate-dev` to apply new changes and create new, initial migration. You will need to have your postgres database running while doing this (check [above](/docs/language/features#postgresql) for easy way to get it running).
 
-## Email sender configuration
+## Email sender
 
 #### `provider: EmailProvider`
 
@@ -1876,3 +1876,18 @@ app MyApp {
 }
 ```
 
+### Sending e-mails
+
+To send an e-mail, you can use the `emailSender` that is provided by the `@wasp/email` module.
+
+```ts title="src/actions/sendEmail.js"
+import { emailSender } from '@wasp/email/index.js'
+
+// In some action handler...
+const info = await emailSender.send({
+    to: 'user@domain.com',
+    subject: 'Saying hello',
+    text: 'Hello world',
+    html: 'Hello <strong>world</strong>'
+})
+```
