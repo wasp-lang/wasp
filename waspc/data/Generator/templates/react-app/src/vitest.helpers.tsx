@@ -23,10 +23,7 @@ export function renderWithClient(ui: React.ReactElement): any {
 export const server = setupServer()
 
 export function initCallbacks() {
-  beforeAll(() => {
-    console.log("beforeAll")
-    server.listen()
-  })
+  beforeAll(() => server.listen())
   afterEach(() => server.resetHandlers())
   afterAll(() => server.close())
 }

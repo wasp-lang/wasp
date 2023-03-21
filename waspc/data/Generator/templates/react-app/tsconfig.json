@@ -5,6 +5,6 @@
     "allowJs": true,
     "strict": false
   },
-  "include": ["src", "./vitest.setup.ts"],
+  "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

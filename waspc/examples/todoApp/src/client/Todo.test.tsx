@@ -5,8 +5,8 @@
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockQuery, renderWithClient } from '@wasp/../vitest.helpers.js'
-import getTasks from '@wasp/queries/getTasks.js'
+import { mockQuery, renderWithClient } from '@wasp/vitest.helpers'
+import getTasks from '@wasp/queries/getTasks'
 import Todo, { areThereAnyTasks } from './Todo'
 
 test('areThereAnyTasks', () => {
