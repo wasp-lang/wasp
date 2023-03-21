@@ -17,11 +17,21 @@ export function formatFromField({
   return email;
 }
 
+{=# isDefaultFromFieldDefined =}
 export function getDefaultFromField(): EmailFromField {
   return {
-    email: "{= senderDefaults.email =}",
-    {=# senderDefaults.isNameDefined =}
-    name: "{= senderDefaults.name =}",
-    {=/ senderDefaults.isNameDefined =}
+    email: "{= defaultFromField.email =}",
+    {=# defaultFromField.isNameDefined =}
+    name: "{= defaultFromField.name =}",
+    {=/ defaultFromField.isNameDefined =}
   }
 }
+{=/ isDefaultFromFieldDefined =}
+{=^ isDefaultFromFieldDefined =}
+export function getDefaultFromField(): EmailFromField {
+  return {
+    email: "",
+    name: "",
+  };
+}
+{=/ isDefaultFromFieldDefined =}

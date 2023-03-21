@@ -38,7 +38,7 @@ genCore :: EmailSender -> Generator [FileDraft]
 genCore email =
   sequence
     [ genCoreIndex email,
-      copyTmplFile [relfile|email/core/types.ts|],
+      genCoreTypes email,
       genCoreHelpers email,
       copyTmplFile [relfile|email/core/providers/dummy.ts|]
     ]
@@ -50,21 +50,33 @@ genCoreIndex email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
     tmplPath = [relfile|src/email/core/index.ts|]
     tmplData = getEmailProvidersJson email
 
+genCoreTypes :: EmailSender -> Generator FileDraft
+genCoreTypes email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+  where
+    tmplPath = [relfile|src/email/core/types.ts|]
+    tmplData =
+      object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
+    isDefaultFromFieldDefined = isJust defaultFromField
+    defaultFromField = AS.EmailSender.defaultFrom email
+
 genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
   where
     tmplPath = [relfile|src/email/core/helpers.ts|]
     tmplData =
       object
-        [ "senderDefaults"
+        [ "defaultFromField"
             .= object
-              [ "email" .= AS.EmailSender.email emailFromField,
-                "name" .= name,
-                "isNameDefined" .= isJust name
-              ]
+              [ "email" .= maybeEmail,
+                "name" .= maybeName,
+                "isNameDefined" .= isJust maybeName
+              ],
+          "isDefaultFromFieldDefined" .= isDefaultFromFieldDefined
         ]
-    emailFromField = AS.EmailSender.defaultFrom email
-    name = AS.EmailSender.name emailFromField
+    isDefaultFromFieldDefined = isJust defaultFromField
+    maybeEmail = AS.EmailSender.email <$> defaultFromField
+    maybeName = AS.EmailSender.name <$> defaultFromField
+    defaultFromField = AS.EmailSender.defaultFrom email
 
 genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
 genEmailSenderProviderSetupFn email =

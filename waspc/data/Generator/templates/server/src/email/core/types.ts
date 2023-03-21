@@ -1,3 +1,4 @@
+{{={= =}=}}
 export type EmailProvider = SMTPEmailProvider | SendGridProvider | MailgunEmailProvider;
 
 export type SMTPEmailProvider = {
@@ -28,7 +29,12 @@ export type EmailSender = {
 export type SentMessageInfo = any;
 
 export type Email = {
+  {=# isDefaultFromFieldDefined =}
   from?: EmailFromField;
+  {=/ isDefaultFromFieldDefined =}
+  {=^ isDefaultFromFieldDefined =}
+  from: EmailFromField;
+  {=/ isDefaultFromFieldDefined =}
   to: string;
   subject: string;
   text: string;
