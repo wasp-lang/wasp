@@ -30,6 +30,9 @@ That it, all you need to do is run `wasp start db` and you are good to go. No en
 
 NOTE: Requires `docker` to be installed.
 
+### `pg-boss` upgraded to latest version (8.4.2)
+This `pg-boss` release fixes an issue where the node server would exit due to an unhandled exception when the DB connection was lost.
+
 ## v0.9.0
 
 ### BREAKING CHANGES
