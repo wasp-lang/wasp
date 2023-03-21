@@ -14,8 +14,7 @@ export default defineConfig({
     outDir: 'build',
   },
   test: {
-    globals: true,
     environment: 'jsdom',
-    setupFiles: ['./vitest.setup.tsx'],
+    setupFiles: ['./vitest.setup.ts'],
   },
 })
