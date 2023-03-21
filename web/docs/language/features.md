@@ -4,6 +4,7 @@ title: Features
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
 
 ## App
 
@@ -1787,7 +1788,7 @@ To run Wasp app in production, you will need to switch from `SQLite` to `Postgre
 
 ## Email sender
 
-#### `provider: EmailProvider`
+#### `provider: EmailProvider` (required)
 
 We support multiple different providers for sending e-mails: `SMTP`, `SendGrid` and `Mailgun`.
 
@@ -1795,70 +1796,22 @@ We support multiple different providers for sending e-mails: `SMTP`, `SendGrid` 
 
 SMTP e-mail sender uses your SMTP server to send e-mails.
 
-1. To set it up, add the `emailSender` field and put `SMTP` as the provider:
-
-```c
-app MyApp {
-  title: "My app",
-  // ...
-  emailSender: {
-    provider: SMTP
-  }
-}
-```
-2. And then provide the env variables in the `.env.server` file:
-```properties
-SMTP_HOST=
-SMTP_USERNAME=
-SMTP_PASSWORD=
-SMTP_PORT=
-```
+Read [our guide](/docs/guides/sending-emails#using-the-smtp-provider) for setting up SMTP for more details.
 
 
 ### SendGrid
 
 SendGrid is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
 
-1. To set it up, make sure your `emailSender` field looks like this:
-```c
-app MyApp {
-  title: "My app",
-  // ...
-  emailSender: {
-    provider: SendGrid
-  }
-}
-```
-2. Then provide the env variables in the `.env.server` file:
-```properties
-SENDGRID_API_KEY=
-```
-
-Check out our guide for setting up Sendgrid for more details.
+Check out [our guide](/docs/guides/sending-emails#using-the-sendgrid-provider) for setting up Sendgrid for more details.
 
 ### Mailgun
 
 Mailgun is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
 
-1. To set it up, make sure your `emailSender` field looks like this:
-```c
-app MyApp {
-  title: "My app",
-  // ...
-  emailSender: {
-    provider: Mailgun
-  }
-}
-```
-2. Then provide the env variables in the `.env.server` file:
-```properties
-MAILGUN_API_KEY=
-MAILGUN_DOMAIN=
-```
+Check out [our guide](/docs/guides/sending-emails#using-the-mailgun-provider) for setting up Mailgun for more details.
 
-Check out our guide for setting up Mailgun for more details.
-
-#### `defaultSender: EmailFromField`
+#### `defaultSender: EmailFromField` (optional)
 
 You can optionally provide a default sender info that will be used when you don't provide it explicitly when sending an e-mail.
 
@@ -1876,7 +1829,11 @@ app MyApp {
 }
 ```
 
+After you set up the email sender, you can use it in your code to send e-mails. For example, you can send an e-mail when a user signs up, or when a user resets their password.
+
 ### Sending e-mails
+
+<SendingEmailsInDevelopment />
 
 To send an e-mail, you can use the `emailSender` that is provided by the `@wasp/email` module.
 
