@@ -19,7 +19,7 @@ data EmailProvider = SMTP | SendGrid | Mailgun
   deriving (Eq, Data, Show)
 
 data EmailFrom = EmailFrom
-  { title :: Maybe String,
+  { name :: Maybe String,
     email :: String
   }
   deriving (Show, Eq, Data)

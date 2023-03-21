@@ -68,7 +68,7 @@ spec_Analyzer = do
                 "    provider: SendGrid,",
                 "    defaultFrom: {",
                 "      email: \"test@test.com\",",
-                "      title: \"Test\"",
+                "      name: \"Test\"",
                 "    }",
                 "  }",
                 "}",
@@ -170,7 +170,7 @@ spec_Analyzer = do
                             EmailSender.defaultFrom =
                               EmailSender.EmailFrom
                                 { EmailSender.email = "test@test.com",
-                                  EmailSender.title = Just "Test"
+                                  EmailSender.name = Just "Test"
                                 }
                           }
                   }

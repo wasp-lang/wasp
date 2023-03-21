@@ -9,7 +9,7 @@ export function initDummyEmailSender(): EmailSender {
             console.log('Test email (not sent):', {
                 from: {
                     email: fromField.email,
-                    name: fromField.title,
+                    name: fromField.name,
                 },
                 to: email.to,
                 subject: email.subject,

@@ -36,6 +36,6 @@ export type Email = {
 };
 
 export type EmailFromField = {
-  title?: string;
+  name?: string;
   email: string;
 }

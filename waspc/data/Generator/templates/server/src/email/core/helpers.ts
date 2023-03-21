@@ -4,13 +4,13 @@ import { EmailFromField } from "./types";
 
 export function createFromEmailString({
   email,
-  title,
+  name,
 }: {
   email: string;
-  title?: string;
+  name?: string;
 }): string {
-  if (title) {
-    return `${title} <${email}>`;
+  if (name) {
+    return `${name} <${email}>`;
   }
   return email;
 }
@@ -18,8 +18,8 @@ export function createFromEmailString({
 export function getDefaultFromField(): EmailFromField {
   return {
     email: "{= senderDefaults.email =}",
-    {=# senderDefaults.isTitleDefined =}
-    title: "{= senderDefaults.title =}",
-    {=/ senderDefaults.isTitleDefined =}
+    {=# senderDefaults.isNameDefined =}
+    name: "{= senderDefaults.name =}",
+    {=/ senderDefaults.isNameDefined =}
   }
 }

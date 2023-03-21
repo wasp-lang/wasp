@@ -38,7 +38,7 @@ app todoApp {
   emailSender: {
     provider: SendGrid,
     defaultFrom: {
-      title: "Hello",
+      name: "Hello",
       email: "mihovil@ilakovac.com"
     },
   },

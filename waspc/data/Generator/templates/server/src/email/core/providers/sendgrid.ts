@@ -15,7 +15,7 @@ export function initSendGridEmailSender(
       return SendGrid.send({
         from: {
           email: fromField.email,
-          name: fromField.title,
+          name: fromField.name,
         },
         to: email.to,
         subject: email.subject,

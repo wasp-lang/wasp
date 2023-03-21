@@ -13,7 +13,7 @@ export function initMailgunEmailSender(
     async send(email) {
       const fromField = email.from || defaultFromField;
       mailer.fromEmail = fromField.email;
-      mailer.fromTitle = fromField.title;
+      mailer.fromTitle = fromField.name;
       mailer.init();
       return mailer.send(email.to, email.subject, email.html);
     },

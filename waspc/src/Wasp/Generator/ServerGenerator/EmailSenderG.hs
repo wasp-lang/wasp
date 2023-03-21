@@ -63,12 +63,12 @@ genCoreHelpers email = return $ C.mkTmplFdWithDstAndData srcPath dstPath (Just t
         [ "senderDefaults"
             .= object
               [ "email" .= AS.EmailSender.email emailFrom,
-                "title" .= title,
-                "isTitleDefined" .= isJust title
+                "name" .= name,
+                "isNameDefined" .= isJust name
               ]
         ]
     emailFrom = AS.EmailSender.defaultFrom email
-    title = AS.EmailSender.title emailFrom
+    name = AS.EmailSender.name emailFrom
 
 genSmtp :: EmailSender -> Generator [FileDraft]
 genSmtp email =
