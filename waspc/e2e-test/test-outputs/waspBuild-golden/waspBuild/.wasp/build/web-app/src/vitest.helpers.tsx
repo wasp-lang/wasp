@@ -6,7 +6,7 @@ import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 
-export function renderWithClient(ui: React.ReactElement): any {
+export function renderWrapped(ui: React.ReactElement): any {
   const client = new QueryClient()
   const { rerender, ...result } = render(
     <QueryClientProvider client={client}><Router>{ui}</Router></QueryClientProvider>

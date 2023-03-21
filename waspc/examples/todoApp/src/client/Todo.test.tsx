@@ -1,11 +1,7 @@
-// Not wrapping for now (had questions about making global)
-// Since watch runs with test, should not run with start
-// Passess any extra args to vitest
-
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockQuery, renderWithClient } from '@wasp/vitest.helpers'
+import { mockQuery, renderWrapped } from '@wasp/vitest.helpers'
 import getTasks from '@wasp/queries/getTasks'
 import Todo, { areThereAnyTasks } from './Todo'
 
@@ -23,7 +19,7 @@ const mockTasks = [{
 test('handles mock data', async () => {
   mockQuery(getTasks, mockTasks);
 
-  renderWithClient(<Todo />)
+  renderWrapped(<Todo />)
 
   await screen.findByText('test todo 1')
 
