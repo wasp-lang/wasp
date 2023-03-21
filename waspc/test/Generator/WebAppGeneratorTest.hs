@@ -9,6 +9,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Wasp as AS.Wasp
 import qualified Wasp.AppSpec.Core.Decl as AS.Decl
 import Wasp.Generator.FileDraft
+import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -48,10 +49,11 @@ spec_WebAppGenerator = do
             AS.externalSharedFiles = [],
             AS.isBuild = False,
             AS.migrationsDir = Nothing,
-            AS.dotEnvServerFile = Nothing,
-            AS.dotEnvClientFile = Nothing,
+            AS.devEnvVarsServer = [],
+            AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
-            AS.configFiles = []
+            AS.configFiles = [],
+            AS.devDatabaseUrl = Nothing
           }
 
   describe "genWebApp" $ do
@@ -101,3 +103,4 @@ getFileDraftDstPath (FileDraftTemplateFd fd) = SP.toFilePath $ TmplFD._dstPath f
 getFileDraftDstPath (FileDraftCopyFd fd) = SP.toFilePath $ CopyFD._dstPath fd
 getFileDraftDstPath (FileDraftCopyDirFd fd) = SP.toFilePath $ CopyDirFD._dstPath fd
 getFileDraftDstPath (FileDraftTextFd fd) = SP.toFilePath $ TextFD._dstPath fd
+getFileDraftDstPath (FileDraftCopyAndModifyTextFd fd) = SP.toFilePath $ CMTextFD._dstPath fd

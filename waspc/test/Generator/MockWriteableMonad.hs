@@ -33,17 +33,23 @@ defaultMockConfig =
       getTemplateFileAbsPath_impl = \path -> systemSPRoot </> [reldir|mock/templates/dir|] </> path,
       compileAndRenderTemplate_impl = \_ _ -> pack "Mock template content",
       doesFileExist_impl = const True,
-      doesDirectoryExist_impl = const True
+      doesDirectoryExist_impl = const True,
+      readFileAsText_impl = \_ -> pack "Mock text file content"
     }
 
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
 getMockLogs mock config = fst $ execState (unMockWriteableMonad mock) (emptyLogs, config)
   where
-    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] []
+    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] [] []
 
 instance WriteableMonad MockWriteableMonad where
   writeFileFromText dstPath text = MockWriteableMonad $ do
     modifyLogs (writeFileFromText_addCall dstPath text)
+
+  readFileAsText srcPath = MockWriteableMonad $ do
+    modifyLogs (readFileAsText_addCall srcPath)
+    (_, config) <- get
+    return $ readFileAsText_impl config srcPath
 
   getTemplatesDirAbsPath = MockWriteableMonad $ do
     modifyLogs getTemplatesDirAbsPath_addCall
@@ -95,6 +101,7 @@ newtype MockWriteableMonad a = MockWriteableMonad
 
 data MockWriteableMonadLogs = MockWriteableMonadLogs
   { writeFileFromText_calls :: [(FilePath, Text)],
+    readFileAsText_calls :: [FilePath],
     getTemplatesDirAbsPath_calls :: [()],
     createDirectoryIfMissing_calls :: [(Bool, FilePath)],
     copyFile_calls :: [(FilePath, FilePath)],
@@ -109,12 +116,17 @@ data MockWriteableMonadConfig = MockWriteableMonadConfig
     getTemplateFileAbsPath_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Path' Abs (File a),
     compileAndRenderTemplate_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool,
-    doesDirectoryExist_impl :: FilePath -> Bool
+    doesDirectoryExist_impl :: FilePath -> Bool,
+    readFileAsText_impl :: FilePath -> Text
   }
 
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs
 writeFileFromText_addCall path text logs =
   logs {writeFileFromText_calls = (path, text) : writeFileFromText_calls logs}
+
+readFileAsText_addCall :: FilePath -> MockWriteableMonadLogs -> MockWriteableMonadLogs
+readFileAsText_addCall path logs =
+  logs {readFileAsText_calls = path : readFileAsText_calls logs}
 
 getTemplatesDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLogs
 getTemplatesDirAbsPath_addCall logs =

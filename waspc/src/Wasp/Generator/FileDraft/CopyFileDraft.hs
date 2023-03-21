@@ -19,7 +19,7 @@ data CopyFileDraft = CopyFileDraft
     _dstPath :: !(Path' (Rel ProjectRootDir) File'),
     -- | Absolute path of source file to copy.
     _srcPath :: !(Path' Abs File'),
-    _failIfSrcDoesNotExist :: Bool
+    _failIfSrcDoesNotExist :: !Bool
   }
   deriving (Show, Eq)
 

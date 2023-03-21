@@ -9,6 +9,7 @@ import StrongPath (fromAbsDir, fromAbsFile, (</>))
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -24,7 +25,12 @@ uninstall :: Command ()
 uninstall = do
   cliSendMessageC $ Msg.Start "Uninstalling Wasp ..."
   liftIO removeWaspFiles
-  cliSendMessageC $ Msg.Success "Uninstalled Wasp"
+  cliSendMessageC $ Msg.Success "Uninstalled Wasp."
+  cliSendMessageC $
+    Msg.Info $
+      "If you have used Wasp to run dev database for you, you might want to make sure you also"
+        <> " deleted all the docker volumes it might have created."
+        <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
 removeWaspFiles :: IO ()
 removeWaspFiles = do

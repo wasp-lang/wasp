@@ -8,6 +8,7 @@ waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 waspMigrate/.wasp/out/installedFullStackNpmDependencies.json
+waspMigrate/.wasp/out/server/.env
 waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
@@ -37,6 +38,7 @@ waspMigrate/.wasp/out/server/src/types/index.ts
 waspMigrate/.wasp/out/server/src/universal/url.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json
+waspMigrate/.wasp/out/web-app/.env
 waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html

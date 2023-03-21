@@ -1,6 +1,7 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
+    ProjectRootDir,
   )
 where
 

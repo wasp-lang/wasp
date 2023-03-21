@@ -6,7 +6,7 @@ cabal-version: 2.4
 --    Consider using hpack, or maybe even hpack-dhall.
 
 name:           waspc
-version:        0.9.0
+version:        0.9.1
 description:    Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage:       https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports:    https://github.com/wasp-lang/wasp/issues
@@ -124,6 +124,8 @@ library
     , array                 ^>= 0.5.4
     , deepseq               ^>= 1.4.4
     , extra                 ^>= 1.7.10
+    , dotenv                ^>= 0.10.0
+    , network               ^>= 3.1.2
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -205,11 +207,12 @@ library
     Wasp.AppSpec.Route
     Wasp.AppSpec.Valid
     Wasp.AppSpec.Util
-    Wasp.Common
     Wasp.CompileOptions
     Wasp.ConfigFile
     Wasp.Data
+    Wasp.Db.Postgres
     Wasp.Error
+    Wasp.Env
     Wasp.ExternalCode
     Wasp.JsImport
     Wasp.Generator
@@ -229,6 +232,7 @@ library
     Wasp.Generator.FileDraft.CopyFileDraft
     Wasp.Generator.FileDraft.TemplateFileDraft
     Wasp.Generator.FileDraft.TextFileDraft
+    Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.Job
@@ -273,13 +277,22 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WriteFileDrafts
-    Wasp.Lib
+    Wasp.Project
+    Wasp.Project.Analyze
+    Wasp.Project.Common
+    Wasp.Project.Db
+    Wasp.Project.Db.Migrations
+    Wasp.Project.Db.Dev
+    Wasp.Project.Db.Dev.Postgres
+    Wasp.Project.Deployment
+    Wasp.Project.Env
     Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
     Wasp.SemanticVersion
     Wasp.Util
+    Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
     Wasp.Util.Fib
     Wasp.Util.IO
@@ -359,11 +372,14 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
+    Wasp.Cli.Command.Db.Reset
+    Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
@@ -435,6 +451,7 @@ test-suite waspc-test
     Generator.DbGeneratorTest
     Generator.ExternalCodeGenerator.JsTest
     Generator.FileDraft.CopyFileDraftTest
+    Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
     Generator.WebAppGeneratorTest
@@ -483,6 +500,7 @@ test-suite e2e-test
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:
+    , waspc
     , aeson
     , directory
     , base

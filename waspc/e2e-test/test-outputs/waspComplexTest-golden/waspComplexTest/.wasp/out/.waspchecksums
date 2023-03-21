@@ -25,7 +25,7 @@
             "file",
             "server/.env"
         ],
-        "7868f4dd9dc579bb21167f4e4cd5caa2960bf44ebe7d3f9f27a2f9380491d31f"
+        "368bf0f88f43e6cc3083d535f348905e51a1d3747abb479749dc250253a0c042"
     ],
     [
         [
@@ -411,6 +411,13 @@
             "server/tsconfig.json"
         ],
         "f2632965c1e3678fcc0e63b83d7e33fea1a9008ef5fd5a2f5e7bf278337c3e02"
+    ],
+    [
+        [
+            "file",
+            "web-app/.env"
+        ],
+        "368bf0f88f43e6cc3083d535f348905e51a1d3747abb479749dc250253a0c042"
     ],
     [
         [

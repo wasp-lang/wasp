@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-orphans #-}
+
 module Generator.WriteFileDraftsTest where
 
 import Data.Bifunctor (Bifunctor (first))
@@ -33,6 +35,14 @@ spec_WriteDuplicatedDstFileDrafts =
     it "should not throw error because unique destination paths" $
       let fileDrafts = map FileDraftTextFd (genMockTextFileDrafts 2)
        in (return $! assertDstPathsAreUnique fileDrafts) `shouldReturn` ()
+
+-- NOTE: Very weak show function, but it is good enough for the tests below.
+instance Show FileDraft where
+  show fd = "FileDraft {dstPath = " ++ show (getDstPath fd) ++ "}"
+
+-- NOTE: Very weak eq function, but it is good enough for the tests below.
+instance Eq FileDraft where
+  fd1 == fd2 = getDstPath fd1 == getDstPath fd2
 
 spec_WriteFileDrafts :: Spec
 spec_WriteFileDrafts =

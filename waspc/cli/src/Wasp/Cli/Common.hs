@@ -18,8 +18,8 @@ where
 
 import StrongPath (Dir, File', Path', Rel, reldir, relfile)
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
-import Wasp.Common (WaspProjectDir)
 import qualified Wasp.Generator.Common
+import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Util.Terminal as Term
 
 data DotWaspDir -- Here we put everything that wasp generates.

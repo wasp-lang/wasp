@@ -6,6 +6,8 @@ module Wasp.Cli.Command.Compile
     defaultCompileOptions,
     printCompilationResult,
     printWarningsAndErrorsIfAny,
+    analyze,
+    analyzeWithOptions,
   )
 where
 
@@ -14,6 +16,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
+import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common
   ( findWaspProjectRootDirFromCwd,
@@ -21,11 +24,11 @@ import Wasp.Cli.Command.Common
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Common
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Common (WaspProjectDir)
 import Wasp.CompileOptions (CompileOptions (..))
-import Wasp.Lib (CompileError, CompileWarning)
-import qualified Wasp.Lib
+import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
+import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
+import qualified Wasp.Project
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command [CompileWarning]
@@ -98,18 +101,18 @@ formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
 --   in given outDir directory.
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 compileIO waspProjectDir outDir =
   compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
 
 compileIOWithOptions ::
   CompileOptions ->
-  Path' Abs (Dir Common.WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Lib.ProjectRootDir) ->
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
   IO ([CompileWarning], [CompileError])
 compileIOWithOptions options waspProjectDir outDir =
-  Wasp.Lib.compile waspProjectDir outDir options
+  Wasp.Project.compile waspProjectDir outDir options
 
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
@@ -121,3 +124,19 @@ defaultCompileOptions waspProjectDir =
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id
     }
+
+analyze :: Path' Abs (Dir WaspProjectDir) -> Command AS.AppSpec
+analyze waspProjectDir = do
+  analyzeWithOptions waspProjectDir $ defaultCompileOptions waspProjectDir
+
+-- | Analyzes Wasp project that the current working directory is a part of and returns
+-- AppSpec. So same like compilation, but it stops before any code generation.
+-- Throws if there were any compilation errors.
+analyzeWithOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions -> Command AS.AppSpec
+analyzeWithOptions waspProjectDir options = do
+  liftIO (Wasp.Project.analyzeWaspProject waspProjectDir options) >>= \case
+    Left errors ->
+      throwError $
+        CommandError "Analyzing wasp project failed" $
+          show (length errors) <> " errors found:\n" <> formatErrorOrWarningMessages errors
+    Right spec -> return spec
