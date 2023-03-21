@@ -39,7 +39,8 @@ genCore email =
   sequence
     [ genCoreIndex email,
       copyTmplFile [relfile|email/core/types.ts|],
-      genCoreHelpers email
+      genCoreHelpers email,
+      copyTmplFile [relfile|email/core/providers/dummy.ts|]
     ]
     <++> genSmtp email
     <++> genSendGrid email

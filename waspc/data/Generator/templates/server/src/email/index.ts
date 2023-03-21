@@ -2,6 +2,9 @@
 
 import { initEmailSender } from "./core/index.js";
 
+import waspServerConfig from '../config.js';
+import { initDummyEmailSender } from "./core/providers/dummy.js";
+
 {=# isSmtpProviderUsed =}
 const emailProvider = {
     type: "smtp",
@@ -25,4 +28,9 @@ const emailProvider = {
 } as const;
 {=/ isMailgunProviderUsed =}
 
-export const emailSender = initEmailSender(emailProvider);
+const areEmailsSentInDevelopment = process.env.SEND_EMAILS_IN_DEVELOPMENT === "true";
+const isDummyEmailSenderUsed = waspServerConfig.isDevelopment && !areEmailsSentInDevelopment;
+
+export const emailSender = isDummyEmailSenderUsed
+  ? initDummyEmailSender()
+  : initEmailSender(emailProvider);
