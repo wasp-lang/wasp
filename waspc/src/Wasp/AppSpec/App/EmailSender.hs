@@ -11,8 +11,7 @@ import Data.Data (Data)
 
 data EmailSender = EmailSender
   { provider :: EmailProvider,
-    defaultFrom :: EmailFrom,
-    areEmailsSentInDevelopment :: Maybe Bool
+    defaultFrom :: EmailFrom
   }
   deriving (Show, Eq, Data)
 
