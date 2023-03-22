@@ -46,7 +46,7 @@ waspCompile/.wasp/out/web-app/scripts/validate-env.mjs
 waspCompile/.wasp/out/web-app/src/actions/core.d.ts
 waspCompile/.wasp/out/web-app/src/actions/core.js
 waspCompile/.wasp/out/web-app/src/actions/index.ts
-waspCompile/.wasp/out/web-app/src/api.js
+waspCompile/.wasp/out/web-app/src/api.ts
 waspCompile/.wasp/out/web-app/src/config.js
 waspCompile/.wasp/out/web-app/src/entities/index.ts
 waspCompile/.wasp/out/web-app/src/ext-src/Main.css
@@ -64,6 +64,7 @@ waspCompile/.wasp/out/web-app/src/queries/index.d.ts
 waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.jsx
+waspCompile/.wasp/out/web-app/src/storage.ts
 waspCompile/.wasp/out/web-app/src/universal/url.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/src/vite-env.d.ts
