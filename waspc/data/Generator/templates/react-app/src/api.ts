@@ -8,24 +8,19 @@ const api = axios.create({
 
 const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
-let authToken: string | undefined = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
+let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 
-export const setAuthToken = (token: unknown): void => {
-  if (typeof token !== 'string') {
-    throw Error(
-      `Token must be a string, but it was: {${typeof token}} ${token}.`
-    )
-  }
+export function setAuthToken (token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
 }
 
-export const clearAuthToken = (): void => {
+export function clearAuthToken(): void {
   authToken = undefined
   storage.remove(WASP_APP_AUTH_TOKEN_NAME)
 }
 
-export const removeLocalUserData = (): void => {
+export function removeLocalUserData(): void {
   authToken = undefined
 
   storage.clear()
@@ -50,7 +45,7 @@ api.interceptors.response.use(undefined, (error) => {
  * standard format to be further used by the client. It is also assumed that given API
  * error has been formatted as implemented by HttpError on the server.
  */
-export const handleApiError = (error: AxiosError): void => {
+export function handleApiError (error: AxiosError<{ message?: string, data?: unknown }>): void {
   if (error?.response) {
     // If error came from HTTP response, we capture most informative message
     // and also add .statusCode information to it.
@@ -59,24 +54,25 @@ export const handleApiError = (error: AxiosError): void => {
     // TODO: We might want to use HttpError here instead of just Error, since
     //   HttpError is also used on server to throw errors like these.
     //   That would require copying HttpError code to web-app also and using it here.
-    const responseJson = error.response?.data as {
-      message?: string
-      data?: unknown
-    }
+    const responseJson = error.response?.data
     const responseStatusCode = error.response.status
-    const e: WaspError = new Error(responseJson?.message || error.message)
-    e.statusCode = responseStatusCode
-    e.data = responseJson?.data
-    throw e
+    throw new WaspHttpError(responseStatusCode, responseJson?.message ?? error.message, responseJson)
   } else {
     // If any other error, we just propagate it.
     throw error
   }
 }
 
-type WaspError = Error & {
-  statusCode?: number
-  data?: unknown
+class WaspHttpError extends Error {
+  statusCode: number
+
+  data: unknown
+
+  constructor (statusCode: number, message: string, data: unknown) {
+    super(message)
+    this.statusCode = statusCode
+    this.data = data
+  }
 }
 
 export default api

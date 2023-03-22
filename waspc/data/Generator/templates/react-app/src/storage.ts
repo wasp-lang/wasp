@@ -1,6 +1,6 @@
 export type DataStore = {
     set(key: string, value: unknown): void;
-    get(key: string): unknown | undefined;
+    get(key: string): unknown;
     remove(key: string): void;
     clear(): void;
 };
@@ -33,12 +33,12 @@ function createLocalStorageDataStore(prefix: string): DataStore {
             });
         },
     };
-
-    function ensureLocalStorageIsAvailable(): void {
-        if (!window.localStorage) {
-            throw new Error('Local storage is not available.');
-        }
-    }
 }
 
 export const storage = createLocalStorageDataStore('wasp');
+
+function ensureLocalStorageIsAvailable(): void {
+    if (!window.localStorage) {
+        throw new Error('Local storage is not available.');
+    }
+}
