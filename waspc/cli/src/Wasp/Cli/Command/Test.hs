@@ -15,13 +15,13 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Lib (ProjectRootDir)
-import qualified Wasp.Lib as Lib
+import qualified Wasp.Generator
+import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Message as Msg
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments." "Expected: wasp test client <args>"
-test ("client" : args) = watchAndtest $ Lib.testWebApp args
+test ("client" : args) = watchAndtest $ Wasp.Generator.testWebApp args
 test ("server" : _args) = throwError $ CommandError "Invalid arguments." "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments." "Expected: wasp test client <args>"
 
