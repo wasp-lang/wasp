@@ -7,7 +7,6 @@ import {
   ToggleAllTasks,
   UpdateTaskIsDone,
 } from '@wasp/actions/types'
-import { sendTaskUpdate } from '@wasp/jobs/sendTaskUpdate.js'
 
 export const createTask: CreateTask<Pick<Task, 'description'>> = async (
   task,
@@ -49,11 +48,6 @@ export const updateTaskIsDone: UpdateTaskIsDone<
   const updateResult = await Task.updateMany({
     where: { id, user: { id: context.user.id } },
     data: { isDone },
-  })
-  sendTaskUpdate.submit({
-    username: context.user.username,
-    taskId: id,
-    isDone,
   })
   return updateResult
 }
