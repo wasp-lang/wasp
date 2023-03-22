@@ -459,7 +459,7 @@
             "file",
             "web-app/package.json"
         ],
-        "7076213d4eff673d37d271baa15cdda5cd5a647d31944015f52ef72aad558ac8"
+        "5d47cdd56c42f8819b0a5b74b48fddbedb7882d524b38f579014d78b74aaaa1b"
     ],
     [
         [
@@ -744,6 +744,13 @@
     [
         [
             "file",
+            "web-app/src/vitest.helpers.tsx"
+        ],
+        "ae4b81c24d6a59372938c91ad304de80c63a1695d7bc2192c6e38eab5fb9a6db"
+    ],
+    [
+        [
+            "file",
             "web-app/tsconfig.json"
         ],
         "27e39dd3e6155ffccdb1d9cb0cba8db7d9e06e10958bee900340a2d9f17400c8"
@@ -760,6 +767,13 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "0f62618ba1d03ad7fca703b5fadc64e1a4be7c553f121dbefe8e1f7d6efe2a19"
+        "459321798f9b8fa053534e2acb94d75fc9e3131dcd48b15b4c7eecc73b8bf6cf"
+    ],
+    [
+        [
+            "file",
+            "web-app/vitest.setup.ts"
+        ],
+        "c27463e0d3eb61d12984d3d8f672c1dfdea9170fe8204d1591f4b30e03ffb9b1"
     ]
 ]
