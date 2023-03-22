@@ -2,7 +2,7 @@ module Wasp.Generator.ServerGenerator.EmailSenderG where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.Maybe (isJust, maybeToList)
+import Data.Maybe (fromMaybe, isJust, maybeToList)
 import qualified Data.Text
 import StrongPath (File', Path', Rel, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -67,15 +67,15 @@ genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
       object
         [ "defaultFromField"
             .= object
-              [ "email" .= maybeEmail,
-                "name" .= maybeName,
+              [ "email" .= fromMaybe "" maybeEmail,
+                "name" .= fromMaybe "" maybeName,
                 "isNameDefined" .= isJust maybeName
               ],
           "isDefaultFromFieldDefined" .= isDefaultFromFieldDefined
         ]
     isDefaultFromFieldDefined = isJust defaultFromField
     maybeEmail = AS.EmailSender.email <$> defaultFromField
-    maybeName = AS.EmailSender.name <$> defaultFromField
+    maybeName = defaultFromField >>= AS.EmailSender.name
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
