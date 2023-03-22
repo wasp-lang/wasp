@@ -20,8 +20,6 @@ export type MailgunEmailProvider = {
   domain: string;
 };
 
-export type EmailProviderConstructor = (provider: EmailProvider) => EmailSender;
-
 export type EmailSender = {
   send: (email: Email) => Promise<SentMessageInfo>;
 };
