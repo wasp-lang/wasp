@@ -34,6 +34,12 @@ waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
 waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/dbClient.js
+waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
+waspComplexTest/.wasp/out/server/src/email/core/index.ts
+waspComplexTest/.wasp/out/server/src/email/core/providers/dummy.ts
+waspComplexTest/.wasp/out/server/src/email/core/providers/sendgrid.ts
+waspComplexTest/.wasp/out/server/src/email/core/types.ts
+waspComplexTest/.wasp/out/server/src/email/index.ts
 waspComplexTest/.wasp/out/server/src/entities/index.ts
 waspComplexTest/.wasp/out/server/src/ext-src/actions/bar.js
 waspComplexTest/.wasp/out/server/src/ext-src/apis.ts

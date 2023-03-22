@@ -25,7 +25,7 @@
             "file",
             "server/.env"
         ],
-        "368bf0f88f43e6cc3083d535f348905e51a1d3747abb479749dc250253a0c042"
+        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "16a69b703fd0dc9071b48df46fd6ce597819261b38ba83e7c4f53631dc17330f"
+        "e160da11bc97dac2c9a4ce0f804a066cc98b585faecbad08c02b1375f2fbf80d"
     ],
     [
         [
@@ -222,6 +222,48 @@
             "server/src/dbClient.js"
         ],
         "5fb53eff5e5eae318e281a8fc1cc433b69688d93c3c82d72415f710a6e75e2af"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/helpers.ts"
+        ],
+        "b59fd329fc96e47f2839ba0b06ea5e42935e4959d228676be9c13ddb30d9e02c"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/index.ts"
+        ],
+        "d524dd9ef27cd311340060411276df0e8ef22db503473f44281832338b954bb7"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/providers/dummy.ts"
+        ],
+        "e93a7a02f50c8466f3e8e89255b98bebde598b25f9969ec117b16f07691575ae"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/providers/sendgrid.ts"
+        ],
+        "b1a16455eede9723f6ae43c03e628b4129fd96f7300f004f052f1eab31d9b95b"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/types.ts"
+        ],
+        "c343f0d87b65d7563816159a88f410b65d78d897822c0bbcd723ca7752e00a20"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/index.ts"
+        ],
+        "c4864d5c83b96a61b1ddfaac7b52c0898f5cff04320c166c8f658b017952ee05"
     ],
     [
         [
@@ -417,7 +459,7 @@
             "file",
             "web-app/.env"
         ],
-        "368bf0f88f43e6cc3083d535f348905e51a1d3747abb479749dc250253a0c042"
+        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
     ],
     [
         [

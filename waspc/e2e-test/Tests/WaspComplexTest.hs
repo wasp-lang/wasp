@@ -24,6 +24,7 @@ waspComplexTest = do
       ]
       <++> addServerEnvFile
       <++> addDependencies
+      <++> addEmailSender
       <++> addClientSetup
       <++> addServerSetup
       <++> addGoogleAuth
@@ -129,7 +130,8 @@ addServerEnvFile = do
           -- on the location where the tests are being run.
           -- Therefore, we make sure to set custom database url here, to avoid .env
           -- changing between different machines / setups.
-          databaseUrlEnvVarName <> "=" <> "mock-database-url"
+          databaseUrlEnvVarName <> "=" <> "mock-database-url",
+          "SENDGRID_API_KEY=sendgrid_api_key"
         ]
 
 addGoogleAuth :: ShellCommandBuilder [ShellCommand]
@@ -233,12 +235,6 @@ addDependencies = do
           "  ],"
         ]
 
-insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand
-insertCodeIntoWaspFileAfterVersion = insertCodeIntoWaspFileAtLineNumber lineNumberInWaspFileAfterVersion
-  where
-    lineNumberInWaspFileAfterVersion :: Int
-    lineNumberInWaspFileAfterVersion = 5
-
 addApi :: ShellCommandBuilder [ShellCommand]
 addApi = do
   sequence
@@ -271,3 +267,26 @@ addApi = do
           "  res.json({ msg: 'Hello, stranger!' })",
           "}"
         ]
+
+addEmailSender :: ShellCommandBuilder [ShellCommand]
+addEmailSender = do
+  sequence
+    [ insertCodeIntoWaspFileAfterVersion emailSender
+    ]
+  where
+    emailSender =
+      unlines
+        [ "  emailSender: {",
+          "    provider: SendGrid,",
+          "    defaultFrom: {",
+          "      name: \"Hello\",",
+          "      email: \"hello@itsme.com\"",
+          "    },",
+          "  },"
+        ]
+
+insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand
+insertCodeIntoWaspFileAfterVersion = insertCodeIntoWaspFileAtLineNumber lineNumberInWaspFileAfterVersion
+  where
+    lineNumberInWaspFileAfterVersion :: Int
+    lineNumberInWaspFileAfterVersion = 5
