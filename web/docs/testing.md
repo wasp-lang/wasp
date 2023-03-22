@@ -24,8 +24,8 @@ Wasp enables you to quickly and easily write both unit tests and React component
 
   [`jsdom`](https://www.npmjs.com/package/jsdom): A web browser test environment for Node.js.
 
-  [`@testing-library/react"`](https://www.npmjs.com/package/@testing-library/react) / [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom): Testing helpers.
-  
+  [`@testing-library/react`](https://www.npmjs.com/package/@testing-library/react) / [`@testing-library/jest-dom`](https://www.npmjs.com/package/@testing-library/jest-dom): Testing helpers.
+
   [`msw`](https://www.npmjs.com/package/msw): A server mocking library.
 
   </div>
@@ -33,11 +33,11 @@ Wasp enables you to quickly and easily write both unit tests and React component
 
 ## Test File Structure
 
-Unit tests should live under your `src/client` directory and have an extension that is compatible with [these defaults](https://vitest.dev/config/#include). Within test files, you can import things to test using relative paths.
+Unit tests should live under your `src/client` directory and have an extension that is compatible with [these glob pattern defaults](https://vitest.dev/config/#include). Within test files, you can import things to test using relative paths.
 
 ## Running Tests
 
-Running `wasp test client` will execute Vitest in watch mode, and watch your Wasp source tree for any changes as well.
+Running `wasp test client` will execute Vitest in watch mode, and watch your Wasp source tree for any changes to compile as well.
 
 If you want to see a live-updating UI, you can pass a `--ui` option like so: `wasp test client --ui`. In fact, anything after `wasp test client` gets passed to Vitest directly.
 
@@ -91,7 +91,7 @@ test('handles mock data', async () => {
 #### React Testing Helpers
 
 Wasp provides two React testing helpers:
-- `mockQuery`: Takes a Wasp Query to mock and the data to return. This is helpful if your Query uses `useQuery`. Behind the scenes, this uses `msw` to create a server that responds with JSON to an HTTP request to some operation's endpoint.
+- `mockQuery`: Takes a Wasp Query to mock and the data to return. This is helpful if your Query uses `useQuery`. Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint. Request handlers are cleared after each test.
 - `renderWrapped`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
 
 # Server
