@@ -39,7 +39,10 @@ Unit tests should live under your `src/client` directory and have an extension t
 
 Running `wasp test client` will execute Vitest in watch mode, and watch your Wasp source tree for any changes to compile as well.
 
-If you want to see a live-updating UI, you can pass a `--ui` option like so: `wasp test client --ui`. In fact, anything after `wasp test client` gets passed to Vitest directly.
+- If you want to see a live-updating UI, you can pass a `--ui` option, like so: `wasp test client --ui`
+- If you'd like to just run the tests once and exit (for example, in CI), you can pass `run`, like so: `wasp test client run`
+
+In fact, anything after `wasp test client` gets passed to Vitest directly, so check out [their CLI docs](https://vitest.dev/guide/cli.html) for more.
 
 :::note
 You should not run `wasp test` while running `wasp start`, as both will attempt to compile and write your project to `.wasp/out`.
