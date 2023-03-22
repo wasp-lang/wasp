@@ -168,10 +168,11 @@ spec_Analyzer = do
                         EmailSender.EmailSender
                           { EmailSender.provider = EmailSender.SendGrid,
                             EmailSender.defaultFrom =
-                              EmailSender.EmailFromField
-                                { EmailSender.email = "test@test.com",
-                                  EmailSender.name = Just "Test"
-                                }
+                              Just
+                                EmailSender.EmailFromField
+                                  { EmailSender.email = "test@test.com",
+                                    EmailSender.name = Just "Test"
+                                  }
                           }
                   }
               )
