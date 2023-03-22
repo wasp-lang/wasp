@@ -6,6 +6,7 @@ import { render } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from './queries'
+import config from './config'
 
 export function renderWrapped(ui: React.ReactElement): any {
   const client = new QueryClient()
@@ -32,7 +33,7 @@ export function initCallbacks() {
 export function mockQuery(query: Query<any, any>, resJson: any): void {
   const route = query.queryCacheKey[0]
   server.use(
-    rest.post(`http://localhost:3001/${route}`, (_req, res, ctx) => {
+    rest.post(`${config.apiUrl}/${route}`, (_req, res, ctx) => {
       return res(ctx.json(resJson))
     })
   )
