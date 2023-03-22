@@ -24,10 +24,13 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import Wasp.AppSpec.App.Client as AS.App.Client
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Env (envVarsToDotEnvContent)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
@@ -40,7 +43,6 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo (..), gitHubAuthInfo, googleAuthInfo)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
@@ -76,15 +78,15 @@ genWebApp spec = do
     genFileCopy = return . C.mkTmplFd
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
-genDotEnv spec = return $
-  case AS.dotEnvClientFile spec of
-    Just srcFilePath
-      | not $ AS.isBuild spec ->
-          [ createCopyFileDraft
-              (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
-              srcFilePath
-          ]
-    _ -> []
+-- Don't generate .env if we are building for production, since .env is to be used only for
+-- development.
+genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec =
+  return
+    [ createTextFileDraft
+        (C.webAppRootDirInProjectRootDir </> dotEnvInWebAppRootDir)
+        (envVarsToDotEnvContent $ AS.devEnvVarsClient spec)
+    ]
 
 dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
@@ -194,8 +196,8 @@ genSocialLoginIcons maybeAuth =
     ]
   where
     socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> _logoFileName googleAuthInfo),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> _logoFileName gitHubAuthInfo)
+      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName googleAuthProvider),
+        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName gitHubAuthProvider)
       ]
 
 genIndexHtml :: AppSpec -> Generator FileDraft
@@ -224,9 +226,11 @@ genSrcDir spec =
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
       copyTmplFile [relfile|vite-env.d.ts|],
+      -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
+      copyTmplFile [relfile|api.ts|],
+      copyTmplFile [relfile|storage.ts|],
       genRouter spec,
-      genIndexJs spec,
-      genApi
+      genIndexJs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
@@ -243,10 +247,6 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         [relfile|src/entities/index.ts|]
         (Just $ object ["entities" .= allEntities])
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
-
--- | Generates api.js file which contains token management and configured api (e.g. axios) instance.
-genApi :: Generator FileDraft
-genApi = return $ C.mkTmplFd (C.asTmplFile [relfile|src/api.js|])
 
 genIndexJs :: AppSpec -> Generator FileDraft
 genIndexJs spec =

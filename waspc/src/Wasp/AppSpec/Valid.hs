@@ -187,5 +187,9 @@ isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+getDbSystem :: AppSpec -> Maybe AS.Db.DbSystem
+getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem

@@ -54,6 +54,8 @@ class (MonadIO m) => WriteableMonad m where
 
   writeFileFromText :: FilePath -> Text -> m ()
 
+  readFileAsText :: FilePath -> m Text
+
   getTemplateFileAbsPath ::
     -- | Template file path.
     Path' (Rel Templates.TemplatesDir) (File a) ->
@@ -94,6 +96,7 @@ instance WriteableMonad IO where
   doesFileExist = System.Directory.doesFileExist
   doesDirectoryExist = System.Directory.doesDirectoryExist
   writeFileFromText = Data.Text.IO.writeFile
+  readFileAsText = Data.Text.IO.readFile
   getTemplateFileAbsPath = Templates.getTemplateFileAbsPath
   getTemplatesDirAbsPath = Templates.getTemplatesDirAbsPath
   compileAndRenderTemplate = Templates.compileAndRenderTemplate

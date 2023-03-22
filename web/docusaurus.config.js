@@ -142,7 +142,7 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         gtag: {
-          trackingID: 'GTM-WJX89HZ',
+          trackingID: 'G-3ZEDH3BVGE',
           anonymizeIP: true,
         },
         docs: {

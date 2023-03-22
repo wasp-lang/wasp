@@ -14,9 +14,8 @@ import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Common (WaspProjectDir)
-import qualified Wasp.Common as Common (WaspProjectDir)
 import qualified Wasp.Data as Data
+import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
@@ -79,7 +78,7 @@ getAbsoluteWaspProjectDir (ProjectInfo projectName _) = do
         "Failed to parse absolute path to wasp project dir: " ++ show err
 
 -- Copies prepared files to the new project directory.
-initializeProjectFromSkeleton :: Path' Abs (Dir Common.WaspProjectDir) -> IO ()
+initializeProjectFromSkeleton :: Path' Abs (Dir WaspProjectDir) -> IO ()
 initializeProjectFromSkeleton absWaspProjectDir = do
   dataDir <- Data.getAbsDataDirPath
   let absSkeletonDir = dataDir </> [reldir|Cli/templates/new|]

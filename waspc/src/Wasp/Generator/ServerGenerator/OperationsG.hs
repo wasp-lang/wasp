@@ -25,7 +25,7 @@ import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -123,8 +123,7 @@ operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
-    [ "jsFnImportStatement" .= importStmt,
-      "jsFnIdentifier" .= importIdentifier,
+    [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
       "entities"
         .= maybe
           []
@@ -132,7 +131,5 @@ operationTmplData operation =
           (AS.Operation.getEntities operation)
     ]
   where
-    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)
-
     relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromOperationsDirToServerSrcDir = [reldirP|../|]
