@@ -23,7 +23,7 @@ export const fooBar : FooBar = (req, res, context) => {
 
 ### Adds support for sending e-mails
 
-Wasp now supports sending e-mails! You can use the `emailSender` app property to configure the e-mail provider and optionally the `defaultFrom` address. Then, you can use the `sendEmail` function in your backend code to send e-mails.
+Wasp now supports sending e-mails! You can use the `emailSender` app property to configure the e-mail provider and optionally the `defaultFrom` address. Then, you can use the `send` function in your backend code to send e-mails.
 
 ```ts
 // main.wasp
