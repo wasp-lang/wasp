@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockServer, renderInContext } from '@wasp/vitest.helpers'
+import { mockServer, renderInContext } from '@wasp/test'
 import getTasks from '@wasp/queries/getTasks'
 import Todo, { areThereAnyTasks } from './Todo'
 

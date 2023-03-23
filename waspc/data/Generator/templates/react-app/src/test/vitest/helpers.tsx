@@ -5,8 +5,8 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { Query } from './queries'
-import config from './config'
+import { Query } from '../../queries'
+import config from '../../config'
 
 export function renderInContext(ui: React.ReactElement): RenderResult {
   const client = new QueryClient()
