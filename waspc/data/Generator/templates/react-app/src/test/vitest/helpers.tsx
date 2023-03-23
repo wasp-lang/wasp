@@ -22,6 +22,8 @@ export function renderInContext(ui: React.ReactElement): RenderResult {
   }
 }
 
+type QueryRoute = Query<any, any>['route']
+
 export function mockServer() {
   const server = setupServer()
 
@@ -32,20 +34,20 @@ export function mockServer() {
   })
   afterAll(() => server.close())
 
-  function mockQuery(query: Query<any, any>, resJson: any): void {
-    const url = `${config.apiUrl}${query.route.path}`
+  function mockQuery({ route }: { route: QueryRoute }, resJson: any): void {
+    const url = `${config.apiUrl}${route.path}`
     const responseHandler = (_req, res, ctx) => {
       return res(ctx.json(resJson))
     }
 
-    switch (query.route.method) {
+    switch (route.method) {
       case 'GET':
         server.use(rest.get(url, responseHandler))
         break
       case 'POST':
         server.use(rest.post(url, responseHandler))
         break
-      default: throw new Error(`Unsupported method ${query.route.method}`)
+      default: throw new Error(`Unsupported method ${route.method}`)
     }
   }
 
