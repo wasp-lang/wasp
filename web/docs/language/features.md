@@ -1605,7 +1605,7 @@ _react-query_'s `QueryClient` object:
 
 
 ```js title="src/client/myClientSetupCode.js"
-import { configureQueryClient } from '@wasp/queries'
+import { configureQueryClient } from '@wasp/queryClient'
 
 export default async function mySetupFunction() {
   // ... some setup
