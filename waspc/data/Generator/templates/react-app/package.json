@@ -9,8 +9,7 @@
   "scripts": {
     "start": "npm run validate-env && vite",
     "build": "npm run validate-env && tsc && vite build",
-    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs",
-    "test": "vitest run"
+    "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "engineStrict": true,
   "engines": {

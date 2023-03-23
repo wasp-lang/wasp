@@ -21,12 +21,12 @@ import qualified Wasp.Message as Msg
 
 test :: [String] -> Command ()
 test [] = throwError $ CommandError "Not enough arguments." "Expected: wasp test client <args>"
-test ("client" : args) = watchAndtest $ Wasp.Generator.testWebApp args
+test ("client" : args) = watchAndTest $ Wasp.Generator.testWebApp args
 test ("server" : _args) = throwError $ CommandError "Invalid arguments." "Server testing not yet implemented."
 test _ = throwError $ CommandError "Invalid arguments." "Expected: wasp test client <args>"
 
-watchAndtest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
-watchAndtest testRunner = do
+watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
+watchAndTest testRunner = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 

@@ -1,13 +1,15 @@
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockQuery, renderWrapped } from '@wasp/vitest.helpers'
+import { mockServer, renderInContext } from '@wasp/vitest.helpers'
 import getTasks from '@wasp/queries/getTasks'
 import Todo, { areThereAnyTasks } from './Todo'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
 })
+
+const { mockQuery } = mockServer()
 
 const mockTasks = [{
   id: 1,
@@ -17,9 +19,9 @@ const mockTasks = [{
 }]
 
 test('handles mock data', async () => {
-  mockQuery(getTasks, mockTasks);
+  mockQuery(getTasks, mockTasks)
 
-  renderWrapped(<Todo />)
+  renderInContext(<Todo />)
 
   await screen.findByText('test todo 1')
 
