@@ -18,7 +18,6 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     ShellCommandContext (..),
-    combineShellCommands,
     runShellCommandBuilder,
   )
 import qualified StrongPath as SP
@@ -55,12 +54,22 @@ runGoldenTest goldenTest = do
         ShellCommandContext
           { _ctxtCurrentProjectName = _goldenTestName goldenTest
           }
-  let shellCommand = combineShellCommands $ runShellCommandBuilder (_goldenTestCommands goldenTest) context
-  putStrLn $ "Running the following command: " ++ shellCommand
+  -- let shellCommand = combineShellCommands $ runShellCommandBuilder (_initCommands goldenTest) context
+  -- runWaspFileCreator (_waspFileOperations goldenTest) context
+  -- let shellCommand = combineShellCommands $ runShellCommandBuilder (_runCommands goldenTest) context
 
-  -- Run the series of commands within the context of a current output dir.
-  -- TODO: Save stdout/error as log file for "contains" checks.
-  callCommand $ "cd " ++ currentOutputDirAbsFp ++ " && " ++ shellCommand
+  -- We need two context: one for init commands, and one for run commands.
+  -- We should use turtle or similar to help with the shell command contexts.
+
+  let shellCommands = runShellCommandBuilder (_goldenTestCommands goldenTest) context
+
+  -- Run all shell commands.
+  let printAndRun cmd = do
+        let cmdStr = "cd " ++ currentOutputDirAbsFp ++ " && " ++ cmd
+        putStrLn $ "Running command: " ++ cmdStr
+        callCommand cmdStr
+
+  mapM_ printAndRun shellCommands
 
   currentOutputAbsFps <- listRelevantTestOutputFiles currentOutputDirAbsFp
   reformatPackageJsonFiles currentOutputAbsFps
