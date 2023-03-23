@@ -67,9 +67,11 @@ test('areThereAnyTasks', () => {
 import { test, expect } from 'vitest'
 import { screen } from '@testing-library/react'
 
-import { mockQuery, renderWrapped } from '@wasp/vitest.helpers'
+import { mockServer, renderInContext } from '@wasp/test'
 import getTasks from '@wasp/queries/getTasks'
 import Todo from './Todo'
+
+const { mockQuery } = mockServer()
 
 const mockTasks = [{
   id: 1,
@@ -79,9 +81,9 @@ const mockTasks = [{
 }]
 
 test('handles mock data', async () => {
-  mockQuery(getTasks, mockTasks);
+  mockQuery(getTasks, mockTasks)
 
-  renderWrapped(<Todo />)
+  renderInContext(<Todo />)
 
   await screen.findByText('test todo 1')
 
@@ -94,8 +96,8 @@ test('handles mock data', async () => {
 #### React Testing Helpers
 
 Wasp provides two React testing helpers:
-- `mockQuery`: Takes a Wasp Query to mock and the data to return. This is helpful if your Query uses `useQuery`. Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint. Request handlers are cleared after each test.
-- `renderWrapped`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
+- `mockQuery`: Takes a Wasp Query (or an object of type `{ route: { method: string; path: string; } }`) to mock and the JSON data to return. This is helpful if your Query uses `useQuery`. Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint. Request handlers are cleared after each test.
+- `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
 
 # Server
 
