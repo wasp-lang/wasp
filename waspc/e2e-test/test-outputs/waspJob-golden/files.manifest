@@ -68,14 +68,15 @@ waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.jsx
 waspJob/.wasp/out/web-app/src/storage.ts
+waspJob/.wasp/out/web-app/src/test/index.ts
+waspJob/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspJob/.wasp/out/web-app/src/test/vitest/setup.ts
 waspJob/.wasp/out/web-app/src/universal/url.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/src/vite-env.d.ts
-waspJob/.wasp/out/web-app/src/vitest.helpers.tsx
 waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.node.json
 waspJob/.wasp/out/web-app/vite.config.ts
-waspJob/.wasp/out/web-app/vitest.setup.ts
 waspJob/.wasproot
 waspJob/main.wasp
 waspJob/src/.waspignore

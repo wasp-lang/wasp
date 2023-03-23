@@ -44,7 +44,6 @@
   "scripts": {
     "build": "npm run validate-env && tsc && vite build",
     "start": "npm run validate-env && vite",
-    "test": "vitest run",
     "validate-env": "node -r dotenv/config ./scripts/validate-env.mjs"
   },
   "type": "module",

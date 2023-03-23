@@ -65,14 +65,15 @@ waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.jsx
 waspCompile/.wasp/out/web-app/src/storage.ts
+waspCompile/.wasp/out/web-app/src/test/index.ts
+waspCompile/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspCompile/.wasp/out/web-app/src/test/vitest/setup.ts
 waspCompile/.wasp/out/web-app/src/universal/url.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/src/vite-env.d.ts
-waspCompile/.wasp/out/web-app/src/vitest.helpers.tsx
 waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasp/out/web-app/tsconfig.node.json
 waspCompile/.wasp/out/web-app/vite.config.ts
-waspCompile/.wasp/out/web-app/vitest.setup.ts
 waspCompile/.wasproot
 waspCompile/main.wasp
 waspCompile/src/.waspignore

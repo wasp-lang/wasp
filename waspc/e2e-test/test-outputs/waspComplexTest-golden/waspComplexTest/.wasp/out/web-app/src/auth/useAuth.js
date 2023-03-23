@@ -4,7 +4,8 @@ import api, { handleApiError } from '../api'
 export default function useAuth(queryFnArgs, config) {
   return useQuery(getMe, queryFnArgs, config)
 }
-async function getMe() {
+
+export async function getMe() {
   try {
     const response = await api.get('/auth/me')
 
@@ -19,3 +20,4 @@ async function getMe() {
 }
 
 getMe.queryCacheKey = ['auth/me']
+getMe.route = { method: 'GET', path: '/auth/me' }

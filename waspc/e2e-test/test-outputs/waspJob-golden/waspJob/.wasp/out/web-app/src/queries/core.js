@@ -14,6 +14,7 @@ export function createQuery(queryRoute, entitiesUsed) {
   }
 
   query.queryCacheKey = [queryRoute]
+  query.route = { method: 'POST', path: `/${queryRoute}` }
   addResourcesUsedByQuery(query.queryCacheKey, entitiesUsed)
 
   return query
