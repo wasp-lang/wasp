@@ -4,6 +4,8 @@ import { screen } from '@testing-library/react'
 import { mockServer, renderInContext } from '@wasp/test'
 import getTasks from '@wasp/queries/getTasks'
 import Todo, { areThereAnyTasks } from './Todo'
+import { App } from './App'
+import { getMe } from '@wasp/auth/useAuth'
 
 test('areThereAnyTasks', () => {
   expect(areThereAnyTasks([])).toBe(false)
@@ -24,6 +26,19 @@ test('handles mock data', async () => {
   renderInContext(<Todo />)
 
   await screen.findByText('test todo 1')
+
+  expect(screen.getByRole('checkbox')).toBeChecked()
+
+  screen.debug()
+})
+
+test('handles multiple mock data sources', async () => {
+  mockQuery(getMe, { username: 'elon' })
+  mockQuery(getTasks, mockTasks)
+
+  renderInContext(<App><Todo /></App>)
+
+  await screen.findByText('elon')
 
   expect(screen.getByRole('checkbox')).toBeChecked()
 

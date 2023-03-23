@@ -33,11 +33,20 @@ export function mockServer() {
   afterAll(() => server.close())
 
   function mockQuery(query: Query<any, any>, resJson: any): void {
-    server.use(
-      rest.post(`${config.apiUrl}/${query.route}`, (_req, res, ctx) => {
-        return res(ctx.json(resJson))
-      })
-    )
+    const url = `${config.apiUrl}${query.route.path}`
+    const responseHandler = (_req, res, ctx) => {
+      return res(ctx.json(resJson))
+    }
+
+    switch (query.route.method) {
+      case 'GET':
+        server.use(rest.get(url, responseHandler))
+        break
+      case 'POST':
+        server.use(rest.post(url, responseHandler))
+        break
+      default: throw new Error(`Unsupported method ${query.route.method}`)
+    }
   }
 
   return { server, mockQuery }
