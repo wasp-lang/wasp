@@ -6,7 +6,7 @@ import helmet from 'helmet'
 
 import config from './config.js'
 
-type MiddlewareConfig = { name: string; fn: express.RequestHandler }
+export type MiddlewareConfig = { name: string; fn: express.RequestHandler }
 
 // NOTE: These are installed on a per-route basis.
 export const defaultMiddleware: MiddlewareConfig[] = [
