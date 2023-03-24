@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "e1cb0fbab9e37e5dd96869f8f9ffffa05f2c8a138ca6078c99687da7906f405d"
+        "cb5a091956f4a076298187d412aba130beb3a64e29fc4cb6d60a1f6504fbcf96"
     ],
     [
         [
@@ -352,9 +352,9 @@
     [
         [
             "file",
-            "web-app/src/api.js"
+            "web-app/src/api.ts"
         ],
-        "bcdb1fdc97fd622fbc882e4a16a7137e849748d6776b960121df6ccab577a3a9"
+        "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
+        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
     ],
     [
         [
@@ -474,6 +474,13 @@
             "web-app/src/router.jsx"
         ],
         "103724de16eb74300d9fab366bf73401ffd6bf9018394044c1d4ade22731868e"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/storage.ts"
+        ],
+        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
     ],
     [
         [

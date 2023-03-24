@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "e160da11bc97dac2c9a4ce0f804a066cc98b585faecbad08c02b1375f2fbf80d"
+        "9ebd5e39b263bee5baf7a60d86850051050f665b9a2e0274a8e80b47b93ae90d"
     ],
     [
         [
@@ -569,9 +569,9 @@
     [
         [
             "file",
-            "web-app/src/api.js"
+            "web-app/src/api.ts"
         ],
-        "bcdb1fdc97fd622fbc882e4a16a7137e849748d6776b960121df6ccab577a3a9"
+        "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
     ],
     [
         [
@@ -585,21 +585,21 @@
             "file",
             "web-app/src/auth/helpers/user.ts"
         ],
-        "7ae0fa01ac15b43746877b765bc4e6fd533f302c435b771238ad79afbe923000"
+        "e6bc091d8f8520db542f959846ecf528e8a070c5ce989151d00d2f45da4a58a6"
     ],
     [
         [
             "file",
             "web-app/src/auth/logout.js"
         ],
-        "041fe67384d24bf43a61b6ad9160b68309d8d1f5f3dd34f1961c93585d4eff50"
+        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
-        "bb202daa3b41c8288252d56a74ed78bed7129d7c96be96171cd516795d0ff71b"
+        "180e07f82c8290f9cae71e0aef97b40cf1b72a5a5fb58317feaf4cf66e629e42"
     ],
     [
         [
@@ -613,7 +613,7 @@
             "file",
             "web-app/src/auth/useAuth.js"
         ],
-        "6ab962413a3103fa4e2cb8f7d4751ee93da484f9312c007e0b4d28bfa130a367"
+        "ce3d41effe82eb317557cbdd3296174ff0e4d5acff6aa804a396b0cf453f95e6"
     ],
     [
         [
@@ -690,7 +690,7 @@
             "file",
             "web-app/src/operations/index.js"
         ],
-        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
+        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
     ],
     [
         [
@@ -754,6 +754,13 @@
             "web-app/src/router.jsx"
         ],
         "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/storage.ts"
+        ],
+        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
     ],
     [
         [

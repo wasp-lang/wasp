@@ -49,7 +49,7 @@ waspJob/.wasp/out/web-app/scripts/validate-env.mjs
 waspJob/.wasp/out/web-app/src/actions/core.d.ts
 waspJob/.wasp/out/web-app/src/actions/core.js
 waspJob/.wasp/out/web-app/src/actions/index.ts
-waspJob/.wasp/out/web-app/src/api.js
+waspJob/.wasp/out/web-app/src/api.ts
 waspJob/.wasp/out/web-app/src/config.js
 waspJob/.wasp/out/web-app/src/entities/index.ts
 waspJob/.wasp/out/web-app/src/ext-src/Main.css
@@ -67,6 +67,7 @@ waspJob/.wasp/out/web-app/src/queries/index.d.ts
 waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.jsx
+waspJob/.wasp/out/web-app/src/storage.ts
 waspJob/.wasp/out/web-app/src/universal/url.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/src/vite-env.d.ts

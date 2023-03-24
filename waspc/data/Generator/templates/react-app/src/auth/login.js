@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from '../api.js'
+import api, { handleApiError } from '../api'
 import { initSession } from './helpers/user'
 
 export default async function login(username, password) {

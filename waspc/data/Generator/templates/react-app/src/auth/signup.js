@@ -1,5 +1,5 @@
 {{={= =}=}}
-import api, { handleApiError } from '../api.js'
+import api, { handleApiError } from '../api'
 
 export default async function signup(userFields) {
   try {
