@@ -189,6 +189,7 @@ library
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
+    Wasp.AppSpec.App.EmailSender
     Wasp.AppSpec.App.Dependency
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
@@ -252,6 +253,8 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
+    Wasp.Generator.ServerGenerator.EmailSenderG
+    Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
     Wasp.Generator.ServerGenerator.ConfigG
     Wasp.Generator.ServerGenerator.ExternalCodeGenerator

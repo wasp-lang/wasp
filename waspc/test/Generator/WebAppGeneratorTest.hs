@@ -40,7 +40,8 @@ spec_WebAppGenerator = do
                       AS.App.client = Nothing,
                       AS.App.auth = Nothing,
                       AS.App.dependencies = Nothing,
-                      AS.App.head = Nothing
+                      AS.App.head = Nothing,
+                      AS.App.emailSender = Nothing
                     }
               ],
             AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],

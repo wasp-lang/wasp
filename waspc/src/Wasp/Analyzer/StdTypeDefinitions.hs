@@ -14,12 +14,14 @@ import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api, HttpMethod)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
+import Wasp.AppSpec.App.EmailSender (EmailProvider)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 
+makeEnumType ''EmailProvider
 makeEnumType ''DbSystem
 makeDeclType ''App
 makeDeclType ''Page
@@ -48,5 +50,6 @@ stdTypes =
   TD.addDeclType @Job $
   TD.addEnumType @HttpMethod $
   TD.addDeclType @Api $
+  TD.addEnumType @EmailProvider $
   TD.empty
 {- ORMOLU_ENABLE -}

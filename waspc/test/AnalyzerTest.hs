@@ -18,6 +18,7 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as Db
 import qualified Wasp.AppSpec.App.Dependency as Dependency
+import qualified Wasp.AppSpec.App.EmailSender as EmailSender
 import qualified Wasp.AppSpec.App.Server as Server
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Ref (Ref (..))
@@ -62,6 +63,13 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL",
+                "  },",
+                "  emailSender: {",
+                "    provider: SendGrid,",
+                "    defaultFrom: {",
+                "      email: \"test@test.com\",",
+                "      name: \"Test\"",
+                "    }",
                 "  }",
                 "}",
                 "",
@@ -154,7 +162,18 @@ spec_Analyzer = do
                               Just $
                                 ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
                           },
-                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL}
+                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL},
+                    App.emailSender =
+                      Just
+                        EmailSender.EmailSender
+                          { EmailSender.provider = EmailSender.SendGrid,
+                            EmailSender.defaultFrom =
+                              Just
+                                EmailSender.EmailFromField
+                                  { EmailSender.email = "test@test.com",
+                                    EmailSender.name = Just "Test"
+                                  }
+                          }
                   }
               )
             ]

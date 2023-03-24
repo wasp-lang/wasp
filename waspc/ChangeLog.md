@@ -21,6 +21,34 @@ export const fooBar : FooBar = (req, res, context) => {
 }
 ```
 
+### Adds support for sending e-mails
+
+Wasp now supports sending e-mails! You can use the `emailSender` app property to configure the e-mail provider and optionally the `defaultFrom` address. Then, you can use the `send` function in your backend code to send e-mails.
+
+```ts
+// main.wasp
+app MyApp {
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "My App",
+      email: "myapp@domain.com"
+    },
+  },
+}
+
+// server/actions.ts
+import { emailSender } from '@wasp/email/index.js'
+
+// In some action handler...
+const info = await emailSender.send({
+    to: 'user@domain.com',
+    subject: 'Saying hello',
+    text: 'Hello world',
+    html: 'Hello <strong>world</strong>'
+})
+```
+
 ### `wasp start db` -> Wasp can now run your dev database for you with a single command
 
 Moving from SQLite to PostgreSQL with Wasp can feel like increase in complexity, because suddenly you have to care about running your PostgreSQL database, providing connection URL for it via env var, and if you checkout somebody's else Wasp project, or your old Wasp project that you have no memory of any more, you also have to figure all that out.
