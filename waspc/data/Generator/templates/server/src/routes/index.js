@@ -1,6 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import operations from './operations/index.js'
+import { defaultMiddleware, toMiddlewareArray } from '../middleware.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
@@ -16,9 +17,9 @@ router.get('/', function (req, res, next) {
 })
 
 {=# isAuthEnabled =}
-router.use('/auth', auth)
+router.use('/auth', toMiddlewareArray(defaultMiddleware), auth)
 {=/ isAuthEnabled =}
-router.use('/{= operationsRouteInRootRouter =}', operations)
+router.use('/{= operationsRouteInRootRouter =}', toMiddlewareArray(defaultMiddleware), operations)
 {=# areThereAnyCustomApiRoutes =}
 // Keep user-defined api routes last so they cannot override our routes.
 router.use(apis)

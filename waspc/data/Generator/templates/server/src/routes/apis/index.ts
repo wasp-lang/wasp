@@ -14,6 +14,7 @@ import { type UserInContext } from '../../_types'
 const router = express.Router()
 
 {=# apiRoutes =}
+// TODO: Have a per-route way to operate on the middeware array.
 {=# usesAuth =}
 router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}
