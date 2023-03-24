@@ -1,5 +1,10 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
+    -- TODO: I just exported whatever I needed, I should think more through how to abstract this really.
+    createWaspProjectDir,
+    parseProjectInfo,
+    ProjectInfo (..),
+    getAbsoluteWaspProjectDir,
   )
 where
 
