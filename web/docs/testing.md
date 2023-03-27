@@ -33,7 +33,9 @@ Wasp enables you to quickly and easily write both unit tests and React component
 
 ## Test File Structure
 
-Unit tests should live under your `src/client` directory and have an extension that is compatible with [these glob pattern defaults](https://vitest.dev/config/#include). Within test files, you can import things to test using relative paths.
+Unit tests should live under your `src/client` directory and have an extension that is compatible with [these glob pattern defaults](https://vitest.dev/config/#include). Some of the files Vitest would pick up automatically: `yourFile.test.ts` or `YourComponent.test.jsx`.
+
+Within test files, you can import things to test using relative paths. For example, if you made a component called `Counter.jsx`, now you can test it by adding a file alongside it called `Counter.test.jsx`, which would just import from `'./Counter'`.
 
 ## Running Tests
 
@@ -44,7 +46,7 @@ Running `wasp test client` will execute Vitest in watch mode, and watch your Was
 
 In fact, anything after `wasp test client` gets passed to Vitest directly, so check out [their CLI docs](https://vitest.dev/guide/cli.html) for more.
 
-:::note
+:::warning
 You should not run `wasp test` while running `wasp start`, as both will attempt to compile and write your project to `.wasp/out`.
 :::
 
