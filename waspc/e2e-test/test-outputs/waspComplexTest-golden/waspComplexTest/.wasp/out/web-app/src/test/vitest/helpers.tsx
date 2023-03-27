@@ -24,6 +24,7 @@ export function renderInContext(ui: React.ReactElement): RenderResult {
 }
 
 type QueryRoute = Query<any, any>['route']
+type Handler = () => void
 
 export function mockServer() {
   const server = setupServer()
@@ -41,22 +42,27 @@ export function mockServer() {
       return res(ctx.json(resJson))
     }
 
-    // NOTE: For now, we only need to care about Queries (which use POST)
-    // and the /auth/me route (which uses GET).
-    type MockableHttpMethod = 'GET' | 'POST'
-
-    const handlers: Record<HttpMethod & MockableHttpMethod, typeof responseHandler> = {
+    // NOTE: Technically, we only need to care about POST for Queries
+    // and GET for the /auth/me route. However, an additional use case
+    // for this function could be to mock APIs, so more methods are supported.
+    const handlers: Record<HttpMethod, Handler> = {
       GET: () => {
         server.use(rest.get(url, responseHandler))
       },
       POST: () => {
         server.use(rest.post(url, responseHandler))
       },
+      PUT: () => {
+        server.use(rest.put(url, responseHandler))
+      },
+      DELETE: () => {
+        server.use(rest.delete(url, responseHandler))
+      },
     }
 
     const setupMock = handlers[route.method]
     if (!setupMock) {
-      throw new Error(`Unsupported query method for mocking: ${route.method}`)
+      throw new Error(`Unsupported query method for mocking: ${route.method}. Supported method strings are: ${Object.keys(handlers).join(', ')}.`)
     }
 
     setupMock()
