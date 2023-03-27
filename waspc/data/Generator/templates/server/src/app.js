@@ -11,7 +11,7 @@ const app = express()
 app.use('/', indexRouter)
 
 // Custom error handler.
-app.use((err, req, res, next) => {
+app.use((err, _req, res, next) => {
   // As by expressjs documentation, when the headers have already
   // been sent to the client, we must delegate to the default error handler.
   if (res.headersSent) { return next(err) }

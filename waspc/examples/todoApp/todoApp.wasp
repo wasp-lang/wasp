@@ -108,7 +108,7 @@ query getTasks {
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
   entities: [Task],
-  httpRoute: (GET, "/foo/bar")
+  httpRoute: (POST, "/foo/bar")
 }
 
 query getNumTasks {

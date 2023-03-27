@@ -8,7 +8,8 @@ import config from './config.js'
 
 export type MiddlewareConfig = { name: string; fn: express.RequestHandler }
 
-// NOTE: These are installed on a per-route basis.
+// NOTE: These are installed on a per-router or per-route basis.
+// TODO: Have a global function to operate on the middleware array.
 export const defaultMiddleware: MiddlewareConfig[] = [
   { name: 'helmet', fn: helmet() },
   // TODO: Consider allowing users to provide an ENV variable or function to further configure CORS setup.
@@ -19,7 +20,8 @@ export const defaultMiddleware: MiddlewareConfig[] = [
   { name: 'cookieParser', fn: cookieParser() },
 ]
 
-// TODO: Have a global function to operate on the middleware array.
+export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware)
+
 export function toMiddlewareArray(middleware: MiddlewareConfig[]): express.RequestHandler[] {
   return middleware.map(({ fn }) => fn)
 }
