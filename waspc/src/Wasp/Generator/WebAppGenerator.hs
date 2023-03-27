@@ -226,6 +226,7 @@ genSrcDir spec =
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|types.ts|],
       copyTmplFile [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],

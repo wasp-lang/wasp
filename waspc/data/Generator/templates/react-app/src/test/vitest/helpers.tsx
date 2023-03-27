@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from '../../queries'
 import config from '../../config'
+import { type HttpMethod } from '../../types'
 
 export function renderInContext(ui: React.ReactElement): RenderResult {
   const client = new QueryClient()
@@ -40,15 +41,23 @@ export function mockServer() {
       return res(ctx.json(resJson))
     }
 
-    switch (route.method) {
-      case 'GET':
+    type MockableHttpMethod = 'GET' | 'POST'
+
+    const handlers: Record<HttpMethod & MockableHttpMethod, typeof responseHandler> = {
+      GET: () => {
         server.use(rest.get(url, responseHandler))
-        break
-      case 'POST':
+      },
+      POST: () => {
         server.use(rest.post(url, responseHandler))
-        break
-      default: throw new Error(`Unsupported method ${route.method}`)
+      },
     }
+
+    const setupMock = handlers[route.method]
+    if (!setupMock) {
+      throw new Error(`Unsupported query method for mocking: ${route.method}`)
+    }
+
+    setupMock()
   }
 
   return { server, mockQuery }

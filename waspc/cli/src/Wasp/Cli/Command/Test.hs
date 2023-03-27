@@ -20,10 +20,10 @@ import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Message as Msg
 
 test :: [String] -> Command ()
-test [] = throwError $ CommandError "Not enough arguments." "Expected: wasp test client <args>"
+test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
 test ("client" : args) = watchAndTest $ Wasp.Generator.testWebApp args
-test ("server" : _args) = throwError $ CommandError "Invalid arguments." "Server testing not yet implemented."
-test _ = throwError $ CommandError "Invalid arguments." "Expected: wasp test client <args>"
+test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
+test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
 
 watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do
@@ -34,8 +34,7 @@ watchAndTest testRunner = do
 
   warnings <- compile
 
-  cliSendMessageC $ Msg.Start "Listening for file changes..."
-  cliSendMessageC $ Msg.Start "Running tests..."
+  cliSendMessageC $ Msg.Start "Watching for file changes and running tests ..."
 
   watchOrStartResult <- liftIO $ do
     ongoingCompilationResultMVar <- newMVar (warnings, [])
