@@ -10,9 +10,9 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
 :::
 
-# Web App
+# Testing your React app
 
-Wasp enables you to quickly and easily write both unit tests and React component tests for your frontend code. Becase we already use [Vite](https://vitejs.dev/), we were able to add many additional testing capabilities by giving you an integrated [Vitest](https://vitest.dev/) experience out of the box.
+Wasp enables you to quickly and easily write both unit tests and React component tests for your frontend code. Because we already use [Vite](https://vitejs.dev/), we also support testing the web app by giving you an integrated [Vitest](https://vitest.dev/) experience out of the box.
 
 <details>
   <summary>Included Libraries</summary>
@@ -20,7 +20,7 @@ Wasp enables you to quickly and easily write both unit tests and React component
 
   [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
 
-  [`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your tests results.
+  [`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your test results.
 
   [`jsdom`](https://www.npmjs.com/package/jsdom): A web browser test environment for Node.js.
 
@@ -96,9 +96,12 @@ test('handles mock data', async () => {
 #### React Testing Helpers
 
 Wasp provides two React testing helpers:
-- `mockQuery`: Takes a Wasp Query (or an object of type `{ route: { method: string; path: string; } }`) to mock and the JSON data to return. This is helpful if your Query uses `useQuery`. Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint. Request handlers are cleared after each test.
+- `mockQuery`: Takes a Wasp Query to mock and the JSON data to return.
+  - This is helpful if your Query uses `useQuery`.
+  - Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint.
+  - Request handlers are cleared after each test.
 - `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
 
-# Server
+# Testing your server-side code
 
 Coming soon!
