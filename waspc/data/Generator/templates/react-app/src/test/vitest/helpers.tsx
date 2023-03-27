@@ -41,6 +41,8 @@ export function mockServer() {
       return res(ctx.json(resJson))
     }
 
+    // NOTE: For now, we only need to care about Queries (which use POST)
+    // and the /auth/me route (which uses GET).
     type MockableHttpMethod = 'GET' | 'POST'
 
     const handlers: Record<HttpMethod & MockableHttpMethod, typeof responseHandler> = {
