@@ -438,7 +438,7 @@
             "file",
             "web-app/src/queries/core.d.ts"
         ],
-        "818ab197afbbd49e097275a866e8ff782cc183185933ed55d224bb63d1aa819e"
+        "1ed2b19e65d843b942e7fd61a3f7fe1d644f92d04211a0fb96147217f1021b12"
     ],
     [
         [
@@ -452,7 +452,7 @@
             "file",
             "web-app/src/queries/index.d.ts"
         ],
-        "c6eb62cdb2d1deb660b7b3505b11c3d788e0011dec155b039dd805ad83b6da15"
+        "4edef3ef8d29516502d119f6f947d12b41542ce52a9a8e2698311ba0e0922ac0"
     ],
     [
         [
@@ -494,7 +494,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "fe4bdd379283151ce1a8bea86adbfa66fd55aac86fdf7a5072df16165dbbcb84"
+        "689cf50a701e304ae322689dd2f679bc32e5a07b2c54fccf0dd8b46ae032e41e"
     ],
     [
         [
@@ -502,6 +502,13 @@
             "web-app/src/test/vitest/setup.ts"
         ],
         "1c08b10e428cec3939e0ab269c9a02694e196de7c5dd9f18372424bdccbc5028"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/types.ts"
+        ],
+        "e9741daf4d9888bfeab42e2831d09e5a0b717d38cd29a53b2e99bafcb05b3b5d"
     ],
     [
         [

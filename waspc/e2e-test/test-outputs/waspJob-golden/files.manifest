@@ -71,6 +71,7 @@ waspJob/.wasp/out/web-app/src/storage.ts
 waspJob/.wasp/out/web-app/src/test/index.ts
 waspJob/.wasp/out/web-app/src/test/vitest/helpers.tsx
 waspJob/.wasp/out/web-app/src/test/vitest/setup.ts
+waspJob/.wasp/out/web-app/src/types.ts
 waspJob/.wasp/out/web-app/src/universal/url.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/src/vite-env.d.ts

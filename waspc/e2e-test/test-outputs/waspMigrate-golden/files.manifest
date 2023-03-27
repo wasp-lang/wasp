@@ -73,6 +73,7 @@ waspMigrate/.wasp/out/web-app/src/storage.ts
 waspMigrate/.wasp/out/web-app/src/test/index.ts
 waspMigrate/.wasp/out/web-app/src/test/vitest/helpers.tsx
 waspMigrate/.wasp/out/web-app/src/test/vitest/setup.ts
+waspMigrate/.wasp/out/web-app/src/types.ts
 waspMigrate/.wasp/out/web-app/src/universal/url.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/src/vite-env.d.ts
