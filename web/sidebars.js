@@ -59,6 +59,7 @@ module.exports = {
         'deploying',
         'typescript',
         'testing',
+        'guides/sending-emails'
       ],
 
     },

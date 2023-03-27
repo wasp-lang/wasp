@@ -7,6 +7,7 @@ import Wasp.AppSpec.App.Auth (Auth)
 import Wasp.AppSpec.App.Client (Client)
 import Wasp.AppSpec.App.Db (Db)
 import Wasp.AppSpec.App.Dependency (Dependency)
+import Wasp.AppSpec.App.EmailSender (EmailSender)
 import Wasp.AppSpec.App.Server (Server)
 import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.Core.Decl (IsDecl)
@@ -19,6 +20,7 @@ data App = App
     server :: Maybe Server,
     client :: Maybe Client,
     db :: Maybe Db,
+    emailSender :: Maybe EmailSender,
     dependencies :: Maybe [Dependency]
   }
   deriving (Show, Eq, Data)

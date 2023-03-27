@@ -4,6 +4,7 @@ title: Features
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import SendingEmailsInDevelopment from '../_sendingEmailsInDevelopment.md'
 
 ## App
 
@@ -57,6 +58,10 @@ Check [`app.db`](/docs/language/features#database-configuration) for more detail
 #### `dependencies: [(string, string)]` (optional)
 List of dependencies (external libraries).
 Check [`app.dependencies`](/docs/language/features#dependencies) for more details.
+
+#### `emailSender: dict` (optional)
+Email sender configuration.
+Check [`app.emailSender`](/docs/language/features#email-sender) for more details.
 
 ## Page
 
@@ -717,11 +722,11 @@ Keep in mind that pg-boss jobs run alongside your other server-side code, so the
 <details>
   <summary>pg-boss details</summary>
 
-  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.0.0/README.md).
+  pg-boss provides many useful features, which can be found [here](https://github.com/timgit/pg-boss/blob/8.4.2/README.md).
 
   When you add pg-boss to a Wasp project, it will automatically add a new schema to your database called `pgboss` with some internal tracking tables, including `job` and `schedule`. pg-boss tables have a `name` column in most tables that will correspond to your `job` identifier. Additionally, these tables maintain arguments, states, return values, retry information, start and expiration times, and other metadata required by pg-boss.
 
-  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
+  If you need to customize the creation of the pg-boss instance, you can set an environment variable called `PG_BOSS_NEW_OPTIONS` to a stringified JSON object containing [these initialization parameters](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#newoptions). **NOTE**: Setting this overwrites all Wasp defaults, so you must include database connection information as well.
 
   ##### pg-boss considerations
   - Wasp starts pg-boss alongside your web server's application, where both are simultaneously operational. This means that jobs running via pg-boss and the rest of the server logic (like Operations) share the CPU, therefore you should avoid running CPU-intensive tasks via jobs.
@@ -825,12 +830,12 @@ job mySpecialJob {
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
 #### `schedule: dict` (optional)
 
   - ##### `cron: string` (required)
-  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#scheduling).
+  A 5-placeholder format cron expression string. See rationale for minute-level precision [here](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#scheduling).
 
   _If you need help building cron expressions, Check out_ <em>[Crontab guru](https://crontab.guru/#0_*_*_*_*).</em>
 
@@ -841,7 +846,7 @@ job mySpecialJob {
   Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `perform.executorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 
     - ##### `pgBoss: JSON` (optional)
-    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#sendname-data-options).
+    See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
 #### `entities: [Entity]` (optional)
 A list of entities you wish to use inside your Job (similar to Queries and Actions).
@@ -888,9 +893,9 @@ There will also be namespaced, job executor-specific objects.
 
 - For pg-boss, you may access: `pgBoss`
   - **NOTE**: no arguments are necessary, as we already applied the `jobId` in the available functions.
-  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#getjobbyidid)
-  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#cancelid)
-  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.0.0/docs/readme.md#resumeid)
+  - `details()`: pg-boss specific job detail information. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#getjobbyidid)
+  - `cancel()`: attempts to cancel a job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#cancelid)
+  - `resume()`: attempts to resume a canceled job. [Reference](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#resumeid)
 
 ## Dependencies
 
@@ -1605,7 +1610,7 @@ _react-query_'s `QueryClient` object:
 
 
 ```js title="src/client/myClientSetupCode.js"
-import { configureQueryClient } from '@wasp/queries'
+import { configureQueryClient } from '@wasp/queryClient'
 
 export default async function mySetupFunction() {
   // ... some setup
@@ -1766,8 +1771,72 @@ The easiest way to provide the needed `DATABASE_URL` environment variable is by 
 
 ### Migrating from SQLite to PostgreSQL
 To run Wasp app in production, you will need to switch from `SQLite` to `PostgreSQL`.
+
 1. Set `app.db.system` to `PostgreSQL`.
 3. Delete old migrations, since they are SQLite migrations and can't be used with PostgreSQL: `rm -r migrations/`.
 3. Run `wasp start db` to start your new db running (or check instructions above if you prefer using your custom db). Leave it running, since we need it for the next step.
 4. In a different terminal, run `wasp db migrate-dev` to apply new changes and create new, initial migration.
 5. That is it, you are all done!
+
+## Email sender
+
+#### `provider: EmailProvider` (required)
+
+We support multiple different providers for sending e-mails: `SMTP`, `SendGrid` and `Mailgun`.
+
+### SMTP
+
+SMTP e-mail sender uses your SMTP server to send e-mails.
+
+Read [our guide](/docs/guides/sending-emails#using-the-smtp-provider) for setting up SMTP for more details.
+
+
+### SendGrid
+
+SendGrid is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
+
+Check out [our guide](/docs/guides/sending-emails#using-the-sendgrid-provider) for setting up Sendgrid for more details.
+
+### Mailgun
+
+Mailgun is a popular service for sending e-mails that provides both API and SMTP methods of sending e-mails. We use their official SDK for sending e-mails.
+
+Check out [our guide](/docs/guides/sending-emails#using-the-mailgun-provider) for setting up Mailgun for more details.
+
+#### `defaultSender: EmailFromField` (optional)
+
+You can optionally provide a default sender info that will be used when you don't provide it explicitly when sending an e-mail.
+
+```c
+app MyApp {
+  title: "My app",
+  // ...
+  emailSender: {
+    provider: SMTP,
+    defaultFrom: {
+      name: "Hello",
+      email: "hello@itsme.com"
+    },
+  },
+}
+```
+
+After you set up the email sender, you can use it in your code to send e-mails. For example, you can send an e-mail when a user signs up, or when a user resets their password.
+
+### Sending e-mails
+
+<SendingEmailsInDevelopment />
+
+To send an e-mail, you can use the `emailSender` that is provided by the `@wasp/email` module.
+
+```ts title="src/actions/sendEmail.js"
+import { emailSender } from '@wasp/email/index.js'
+
+// In some action handler...
+const info = await emailSender.send({
+    to: 'user@domain.com',
+    subject: 'Saying hello',
+    text: 'Hello world',
+    html: 'Hello <strong>world</strong>'
+})
+```

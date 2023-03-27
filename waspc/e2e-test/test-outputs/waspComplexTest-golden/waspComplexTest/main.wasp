@@ -21,6 +21,14 @@ app waspComplexTest {
     rootComponent: import App from "@client/App.jsx"
   },
 
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "Hello",
+      email: "hello@itsme.com"
+    },
+  },
+
   dependencies: [
     ("redux", "^4.0.5"),
     ("react-redux", "^7.1.3")

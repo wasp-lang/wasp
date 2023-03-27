@@ -56,6 +56,7 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
@@ -152,7 +153,8 @@ npmDepsForWasp spec =
             ("lodash.merge", "^4.6.2")
           ]
           ++ depsRequiredByPassport spec
-          ++ depsRequiredByJobs spec,
+          ++ depsRequiredByJobs spec
+          ++ depsRequiredByEmail spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -200,6 +202,7 @@ genSrcDir spec =
     <++> genOperationsRoutes spec
     <++> genOperations spec
     <++> genAuth spec
+    <++> genEmailSender spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
