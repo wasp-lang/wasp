@@ -3,8 +3,6 @@ title: Testing
 ---
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-
 :::info
 Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly some changes with testing support in the future.
 If you encounter any issues, reach out to us on [Discord](https://discord.gg/rzdnErX) and we will make sure to help you out!
