@@ -35,6 +35,7 @@ test('handles mock data', async () => {
 test('handles multiple mock data sources', async () => {
   mockQuery(getMe, { username: 'elon' })
   mockQuery(getTasks, mockTasks)
+  // mockQuery({route: {method: 'DELETE', path: '/foo'}}, [])
 
   renderInContext(<App><Todo /></App>)
 
