@@ -2,6 +2,41 @@
 
 ## v0.9.1
 
+### Adds support for database seeding
+You can now define JS/TS functions for seeding the database!
+
+```c
+app MyApp {
+  // ...
+  db: {
+    seeds: [
+      import { devSeedSimple } from "@server/dbSeeds.js",
+      import { prodSeed } from "@server/dbSeeds.js",
+    ]
+  }
+}
+```
+
+```js
+import { createTask } from './actions.js'
+
+export const devSeedSimple = async (prismaClient) => {
+  const { password, ...newUser } = await prismaClient.user.create({
+    username: "RiuTheDog", password: "bark1234"
+  })
+  await createTask(
+    { description: "Chase the cat" },
+    { user: newUser, entities: { Task: prismaClient.task } }
+  )
+}
+
+//...
+```
+
+`wasp db seed` runs the first(default) seed, while `wasp db seed <name>` will run a seed with specific name.  
+For example, for the case above, you could do `wasp db seed prodSeed`.
+
+
 ### Adds an `api` keyword for defining an arbitrary endpoint and URL
 Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need complete control of the response? Use an `api` to define one by tying a JS function to any HTTP method and path! For example:
 ```ts

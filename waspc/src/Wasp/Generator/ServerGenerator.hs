@@ -13,10 +13,12 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
   ( fromJust,
     fromMaybe,
     isJust,
+    maybeToList,
   )
 import StrongPath
   ( Dir,
@@ -56,6 +58,7 @@ import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
+import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
@@ -127,11 +130,19 @@ genPackageJson spec waspDependencies = do
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
                    ),
-              "overrides" .= getPackageJsonOverrides
+              "overrides" .= getPackageJsonOverrides,
+              -- TODO: Make it so that I don't render any 'prisma' field
+              --   if there is nothing to render in it?
+              "prisma" .= ByteStringLazyUTF8.toString (Aeson.encode $ getPackageJsonPrismaField spec)
             ]
       )
   where
     hasEntities = not . null $ AS.getDecls @AS.Entity.Entity spec
+
+getPackageJsonPrismaField :: AppSpec -> Aeson.Value
+getPackageJsonPrismaField spec = object $ [] <> seedEntry
+  where
+    seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
 npmDepsForWasp :: AppSpec -> N.NpmDepsForWasp
 npmDepsForWasp spec =
@@ -163,6 +174,9 @@ npmDepsForWasp spec =
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
+            -- TODO: ts-node here I put for seeding, but I should not do it at all
+            --   or do it conditionally.
+            ("ts-node", "^10.9.1"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
@@ -203,6 +217,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
     <++> genEmailSender spec
+    <++> genDbSeed spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -211,7 +226,7 @@ genDbClient spec = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
-    dbClientRelToSrcP = [relfile|dbClient.js|]
+    dbClientRelToSrcP = [relfile|dbClient.ts|]
     tmplFile = C.asTmplFile $ [reldir|src|] </> dbClientRelToSrcP
     dstFile = C.serverSrcDirInServerRootDir </> C.asServerSrcFile dbClientRelToSrcP
 
