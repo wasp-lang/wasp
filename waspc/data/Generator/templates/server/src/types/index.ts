@@ -16,3 +16,7 @@ export { Server } from 'http'
 {=# isExternalAuthEnabled =}
 export { GetUserFieldsFn } from '../auth/providers/oauth/types';
 {=/ isExternalAuthEnabled =}
+
+{=# isEmailAuthEnabled =}
+export { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from '../auth/providers/email/types';
+{=/ isEmailAuthEnabled =}

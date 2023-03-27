@@ -21,6 +21,20 @@ app todoApp {
       //   configFn: import { config } from "@server/auth/github.js",
       //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       // }
+      email: {
+        fromField: {
+          name: "ToDO App",
+          email: "mihovil@ilakovac.com"
+        },
+        emailVerfication: {
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          onVerifySuccessRedirectTo: EmailVerificationSuccessRoute,
+        },
+        passwordReset: {
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          clientRoute: PasswordResetRoute
+        },
+      },
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
@@ -34,6 +48,12 @@ app todoApp {
   },
   db: {
     system: PostgreSQL
+  },
+  emailSender: {
+    provider: SMTP,
+    defaultFrom: {
+      email: "mihovil@ilakovac.com"
+    },
   },
 }
 
@@ -71,6 +91,21 @@ page SignupPage {
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import Login from "@client/pages/auth/Login.jsx"
+}
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordReset } from "@client/pages/auth/PasswordReset.tsx",
+}
+
+route EmailVerificationSuccessRoute { path: "/email-verification-success", to: EmailVerificationSuccessPage }
+page EmailVerificationSuccessPage {
+  component: import { EmailVerificationSuccess } from "@client/pages/auth/EmailVerificationSuccess.tsx",
+}
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
+page RequestPasswordResetPage {
+  component: import { RequestPasswordReset } from "@client/pages/auth/RequestPasswordReset.tsx",
 }
 
 route HomeRoute { path: "/", to: MainPage }

@@ -33,8 +33,11 @@ export default resolvedConfig
 
 function getDevelopmentConfig() {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL) || 'http://localhost:3000';
+  // TODO: update the docs to mention this
+  const backendUrl = stripTrailingSlash(process.env.WASP_SERVER_URL) || 'http://localhost:3001';
   return {
     frontendUrl,
+    backendUrl,
     allowedCORSOrigins: '*',
     {=# isAuthEnabled =}
     auth: {
@@ -46,8 +49,11 @@ function getDevelopmentConfig() {
 
 function getProductionConfig() {
   const frontendUrl = stripTrailingSlash(process.env.WASP_WEB_CLIENT_URL);
+  // TODO: make this mandatory when deploying (use it when deploying with Fly)
+  const backendUrl = stripTrailingSlash(process.env.WASP_SERVER_URL);
   return {
     frontendUrl,
+    backendUrl,
     allowedCORSOrigins: [frontendUrl],
     {=# isAuthEnabled =}
     auth: {

@@ -247,12 +247,14 @@ library
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
+    Wasp.Generator.AuthProviders.Email
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
+    Wasp.Generator.ServerGenerator.Auth.EmailAuthG
     Wasp.Generator.ServerGenerator.EmailSenderG
     Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
@@ -271,6 +273,7 @@ library
     Wasp.Generator.WebAppGenerator.AuthG
     Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
     Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
+    Wasp.Generator.WebAppGenerator.Auth.EmailAuthG
     Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
