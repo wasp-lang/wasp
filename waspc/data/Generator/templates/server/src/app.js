@@ -8,6 +8,8 @@ import indexRouter from './routes/index.js'
 
 const app = express()
 
+// NOTE: Middleware are installed on a per-router or per-route basis.
+
 app.use('/', indexRouter)
 
 // Custom error handler.

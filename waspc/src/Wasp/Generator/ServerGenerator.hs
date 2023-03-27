@@ -37,6 +37,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
+import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
@@ -59,9 +60,11 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, extImportToJsImport)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import Wasp.JsImport (JsImportAlias, JsImportIdentifier, JsImportStatement, applyJsImportAlias)
+import qualified Wasp.JsImport as JsImport
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -190,7 +193,6 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genFileCopy [relfile|middleware.ts|],
       genFileCopy [relfile|utils.js|],
       genFileCopy [relfile|core/AuthError.js|],
       genFileCopy [relfile|core/HttpError.js|],
@@ -204,6 +206,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
     <++> genEmailSender spec
+    <++> genMiddleware spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -363,3 +366,24 @@ genExportedTypesDir spec =
     tmplData = object ["isExternalAuthEnabled" .= isExternalAuthEnabled]
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware spec =
+  return
+    [ C.mkTmplFdWithData [relfile|src/middleware.ts|] (Just tmplData)
+    ]
+  where
+    tmplData =
+      object
+        [ "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
+          "middlewareImportStatement" .= fmap fst maybeMidlewareImports,
+          -- NOTE: `middlewareConfigFnAlias == fmap snd maybeMidlewareImports`,
+          -- but we always want it available in the template.
+          "middlewareImportAlias" .= middlewareConfigFnAlias
+        ]
+    middlewareConfigFnAlias = "middlewareConfigFn"
+    maybeMidlewareImports = getAliasedImport middlewareConfigFnAlias <$> maybeMiddlewareConfigFn
+    maybeMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+
+    getAliasedImport :: JsImportAlias -> ExtImport -> (JsImportStatement, JsImportIdentifier)
+    getAliasedImport alias extImport = JsImport.getJsImportStmtAndIdentifier $ applyJsImportAlias (Just alias) $ extImportToJsImport [reldirP|./|] extImport

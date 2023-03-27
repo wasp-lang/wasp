@@ -26,7 +26,8 @@ app todoApp {
     onAuthSucceededRedirectTo: "/profile"
   },
   server: {
-    setupFn: import setup from "@server/serverSetup.js"
+    setupFn: import setup from "@server/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@server/serverSetup.js"
   },
   client: {
     rootComponent: import { App } from "@client/App.jsx",

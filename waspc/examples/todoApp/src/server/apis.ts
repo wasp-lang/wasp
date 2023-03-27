@@ -11,11 +11,11 @@ export const fooBar : FooBar = (req, res, context) => {
 
 export const fooBarMiddlewareFn : MiddlewareConfigFn = (middleware) => {
   console.log(`Removing all default middleware: ${middleware}`)
-  console.log('Adding express.raw middleware.')
+  console.log('Adding custom and express.text middlewares.')
   return [
-    { name: 'custom',
+    { name: 'custom.route',
       fn: (_req, _res, next) => {
-        console.log('custom middleware')
+        console.log('custom route middleware')
         next()
       }
     },

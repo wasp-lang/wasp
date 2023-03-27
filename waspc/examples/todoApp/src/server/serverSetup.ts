@@ -1,6 +1,7 @@
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 import { sayHi } from '../shared/util.js'
 import { ServerSetupFn, Application } from '@wasp/types'
+import { MiddlewareConfigFn } from '@wasp/middleware'
 
 let someResource = undefined
 
@@ -27,6 +28,17 @@ function addCustomRoute(app: Application) {
     res.removeHeader('X-Frame-Options')
     res.send('I am a custom route')
   })
+}
+
+export const serverMiddlewareFn: MiddlewareConfigFn = (middleware) => {
+  middleware.push({
+    name: 'custom.global',
+    fn: (_req, _res, next) => {
+      console.log('custom global middleware')
+      next()
+    }
+  })
+  return middleware
 }
 
 export default setup
