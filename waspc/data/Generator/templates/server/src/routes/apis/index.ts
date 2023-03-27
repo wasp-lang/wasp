@@ -8,20 +8,28 @@ import auth from '../../core/auth.js'
 import { type UserInContext } from '../../_types'
 {=/ isAuthEnabled =}
 
+const idFn = (x: any) => x
+
 {=# apiRoutes =}
 {=& importStatement =}
+
+{=# middlewareConfigFnDefined =}
+{=& middlewareImportStatement =}
+{=/ middlewareConfigFnDefined =}
+{=^ middlewareConfigFnDefined =}
+const {=& middlewareImportAlias =} = idFn
+{=/ middlewareConfigFnDefined =}
+
 {=/ apiRoutes =}
 
 const router = express.Router()
 
-const idFn = (x: any) => x
-
 {=# apiRoutes =}
 {=# usesAuth =}
-router.{= routeMethod =}('{= routePath =}', [auth, ...toMiddlewareArray(({= importIdentifier =}.middlewareFn || idFn)(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
+router.{= routeMethod =}('{= routePath =}', [auth, ...toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}
 {=^ usesAuth =}
-router.{= routeMethod =}('{= routePath =}', [...toMiddlewareArray(({= importIdentifier =}.middlewareFn || idFn)(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0], res: Parameters<typeof {= importIdentifier =}>[1]) => {
+router.{= routeMethod =}('{= routePath =}', [...toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0], res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}
   const context = {
     {=# usesAuth =}

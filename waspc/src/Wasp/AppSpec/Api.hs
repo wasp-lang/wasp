@@ -16,6 +16,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Api = Api
   { fn :: ExtImport,
+    middlewareConfigFn :: Maybe ExtImport,
     entities :: Maybe [Ref Entity],
     httpRoute :: (HttpMethod, String), -- (method, path), exe: (GET, "/foo/bar")
     auth :: Maybe Bool

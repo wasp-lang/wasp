@@ -7,20 +7,21 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Char (toLower)
 import Data.List (nub)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, isJust)
 import StrongPath (Dir, File', Path, Path', Posix, Rel, reldirP, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
-import qualified Wasp.AppSpec.App as App
-import qualified Wasp.AppSpec.App.Auth as App.Auth
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToJsImport)
+import Wasp.JsImport (JsImportAlias, JsImportIdentifier, JsImportStatement, applyJsImportAlias)
+import qualified Wasp.JsImport as JsImport
 import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
@@ -39,28 +40,38 @@ genApiRoutes :: AppSpec -> Generator FileDraft
 genApiRoutes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    apis = map snd $ AS.getApis spec
+    namedApis = AS.getApis spec
     tmplData =
       object
-        [ "apiRoutes" .= map getTmplData apis,
-          "isAuthEnabled" .= isAuthEnabledGlobally spec,
-          "userEntityName" .= maybe "" (AS.refName . App.Auth.userEntity) (App.auth $ snd $ getApp spec)
+        [ "apiRoutes" .= map getTmplData namedApis,
+          "isAuthEnabled" .= isAuthEnabledGlobally spec
         ]
     tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getTmplData :: Api.Api -> Aeson.Value
-    getTmplData api =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier relPathFromApisRoutesToServerSrcDir (Api.fn api)
-       in object
-            [ "routeMethod" .= map toLower (show $ Api.method api),
-              "routePath" .= Api.path api,
-              "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier,
-              "entities" .= getApiEntitiesObject api,
-              "usesAuth" .= isAuthEnabledForApi spec api
-            ]
+    getTmplData :: (String, Api.Api) -> Aeson.Value
+    getTmplData (apiName, api) =
+      object
+        [ "routeMethod" .= map toLower (show $ Api.method api),
+          "routePath" .= Api.path api,
+          "importStatement" .= jsImportStmt,
+          "importIdentifier" .= jsImportIdentifier,
+          "entities" .= getApiEntitiesObject api,
+          "usesAuth" .= isAuthEnabledForApi spec api,
+          "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
+          "middlewareImportStatement" .= fmap fst maybeMidlewareImports,
+          -- NOTE: `middlewareConfigFnAlias == fmap snd maybeMidlewareImports`,
+          -- but we always want it available in the template.
+          "middlewareImportAlias" .= middlewareConfigFnAlias
+        ]
       where
+        middlewareConfigFnAlias = apiName ++ "middlewareConfigFn"
+        maybeMidlewareImports = getAliasedImport middlewareConfigFnAlias <$> Api.middlewareConfigFn api
+        (jsImportStmt, jsImportIdentifier) = getAliasedImport (apiName ++ "fn") (Api.fn api)
+
+        getAliasedImport :: JsImportAlias -> ExtImport -> (JsImportStatement, JsImportIdentifier)
+        getAliasedImport alias extImport = JsImport.getJsImportStmtAndIdentifier $ applyJsImportAlias (Just alias) $ extImportToJsImport relPathFromApisRoutesToServerSrcDir extImport
+
         relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
         relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
 

@@ -42,6 +42,6 @@ export type {= typeName =}<
     ReqBody,
     ReqQuery,
     Locals
-  > & { middlewareFn?: (middleware: MiddlewareConfig[]) => MiddlewareConfig[] }
+  >
 
 {=/ apiRoutes =}

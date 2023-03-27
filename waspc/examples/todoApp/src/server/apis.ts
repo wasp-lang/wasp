@@ -1,7 +1,7 @@
 import express from 'express'
 
 import { FooBar } from '@wasp/apis/types'
-import { MiddlewareConfig } from '@wasp/middleware'
+import { MiddlewareConfigFn } from '@wasp/middleware'
 
 export const fooBar : FooBar = (req, res, context) => {
   console.log(req.body)
@@ -9,7 +9,7 @@ export const fooBar : FooBar = (req, res, context) => {
   res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
 }
 
-fooBar.middlewareFn = (middleware: MiddlewareConfig[]): MiddlewareConfig[] => {
+export const fooBarMiddlewareFn : MiddlewareConfigFn = (middleware) => {
   console.log(`Removing all default middleware: ${middleware}`)
   console.log('Adding express.raw middleware.')
   return [
