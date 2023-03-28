@@ -16,8 +16,6 @@ import {
   {=/ shouldImportAuthenticatedApi =}
 } from '../_types'
 
-import { type MiddlewareConfig } from '../middleware.js'
-
 {=# apiRoutes =}
 export type {= typeName =}<
   P extends ExpressParams = ExpressParams,

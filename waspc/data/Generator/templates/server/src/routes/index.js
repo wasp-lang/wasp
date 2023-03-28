@@ -12,7 +12,7 @@ import apis from './apis/index.js'
 
 const router = express.Router()
 
-router.get('/', function (_req, res, _next) {
+router.get('/', defaultMiddlewareArray, function (_req, res, _next) {
   res.json('Hello world')
 })
 

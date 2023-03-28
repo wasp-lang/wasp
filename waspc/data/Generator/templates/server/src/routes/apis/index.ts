@@ -25,11 +25,12 @@ const {=& middlewareImportAlias =} = idFn
 const router = express.Router()
 
 {=# apiRoutes =}
+router.use('{= routePath =}', toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware())))
 {=# usesAuth =}
-router.{= routeMethod =}('{= routePath =}', [auth, ...toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
+router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}
 {=^ usesAuth =}
-router.{= routeMethod =}('{= routePath =}', [...toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware))], handleRejection((req: Parameters<typeof {= importIdentifier =}>[0], res: Parameters<typeof {= importIdentifier =}>[1]) => {
+router.{= routeMethod =}('{= routePath =}', handleRejection((req: Parameters<typeof {= importIdentifier =}>[0], res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}
   const context = {
     {=# usesAuth =}

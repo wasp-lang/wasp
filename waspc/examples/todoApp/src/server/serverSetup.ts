@@ -31,13 +31,12 @@ function addCustomRoute(app: Application) {
 }
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  middleware.push({
-    name: 'custom.global',
-    fn: (_req, _res, next) => {
+  middleware.set('custom.global',
+    (_req, _res, next) => {
       console.log('custom global middleware')
       next()
     }
-  })
+  )
   return middleware
 }
 

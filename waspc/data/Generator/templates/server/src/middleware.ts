@@ -11,27 +11,29 @@ import config from './config.js'
 {=& middlewareImportStatement =}
 {=/ middlewareConfigFnDefined =}
 {=^ middlewareConfigFnDefined =}
-const {=& middlewareImportAlias =} = (m: MiddlewareConfig[]) => m
+const {=& middlewareImportAlias =} = (m: MiddlewareConfig) => m
 {=/ middlewareConfigFnDefined =}
 
-export type MiddlewareConfigFn = (middleware: MiddlewareConfig[]) => MiddlewareConfig[]
+export type MiddlewareConfig = Map<string, express.RequestHandler>
 
-export type MiddlewareConfig = { name: string; fn: express.RequestHandler }
+export type MiddlewareConfigFn = (middleware: MiddlewareConfig) => MiddlewareConfig
 
-const _defaultMiddleware: MiddlewareConfig[] = [
-  { name: 'helmet', fn: helmet() },
-  // TODO: Consider allowing users to provide an ENV variable or function to further configure CORS setup.
-  { name: 'cors', fn: cors({ origin: config.allowedCORSOrigins }) },
-  { name: 'logger', fn: logger('dev') },
-  { name: 'express.json', fn: express.json() },
-  { name: 'express.urlencoded', fn: express.urlencoded({ extended: false }) },
-  { name: 'cookieParser', fn: cookieParser() },
-]
+const _defaultMiddleware: MiddlewareConfig = new Map([
+  ['helmet', helmet()],
+  ['cors', cors({ origin: config.allowedCORSOrigins })],
+  ['logger', logger('dev')],
+  ['express.json', express.json()],
+  ['express.urlencoded', express.urlencoded({ extended: false })],
+  ['cookieParser', cookieParser()]
+])
 
-export const defaultMiddleware: MiddlewareConfig[] = {=& middlewareImportAlias =}(_defaultMiddleware)
+export function defaultMiddleware(): MiddlewareConfig {
+  // Return a clone so they can't mess up the map for any other routes.
+  return new Map({=& middlewareImportAlias =}(_defaultMiddleware))
+}
 
-export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware)
+export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware())
 
-export function toMiddlewareArray(middleware: MiddlewareConfig[]): express.RequestHandler[] {
-  return middleware.map(({ fn }) => fn)
+export function toMiddlewareArray(middleware: MiddlewareConfig): express.RequestHandler[] {
+  return Array.from(middleware.values())
 }
