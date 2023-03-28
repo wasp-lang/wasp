@@ -15,7 +15,6 @@ const LoginForm = () => {
     event.preventDefault()
     try {
       await login(usernameFieldVal, passwordFieldVal)
-      // Redirect to configured page, defaults to /.
       history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)

@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -23,7 +24,7 @@ export const SignupForm = () => {
       setEmailFieldVal('')
       setPasswordFieldVal('')
 
-      history.push('/')
+      history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)
       window.alert(errorMessage(err))

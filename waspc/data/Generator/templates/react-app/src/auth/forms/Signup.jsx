@@ -1,5 +1,5 @@
 {{={= =}=}}
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import signup from '../signup.js'

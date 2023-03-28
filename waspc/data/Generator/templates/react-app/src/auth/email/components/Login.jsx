@@ -1,3 +1,4 @@
+{{={= =}=}}
 import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
 
@@ -17,8 +18,7 @@ export const LoginForm = () => {
         email: emailFieldVal,
         password: passwordFieldVal,
       })
-      // Redirect to configured page, defaults to /.
-      history.push('/')
+      history.push('{= onAuthSucceededRedirectTo =}')
     } catch (err) {
       console.log(err)
       window.alert(errorMessage(err))
