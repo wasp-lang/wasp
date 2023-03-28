@@ -13,36 +13,34 @@ import Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genEmailAuth auth =
-  sequence
-    [ genIndex
-    ]
-    <++> genActions auth
-    <++> genComponents auth
+genEmailAuth auth
+  | AS.Auth.isEmailAuthEnabled auth =
+    sequence
+      [ genIndex
+      ]
+      <++> genActions
+      <++> genComponents auth
+  | otherwise = return []
 
 genIndex :: Generator FileDraft
 genIndex = return $ C.mkSrcTmplFd [relfile|auth/email/index.ts|]
 
-genActions :: AS.Auth.Auth -> Generator [FileDraft]
-genActions auth
-  | AS.Auth.isEmailAuthEnabled auth =
-    sequence
-      [ copyTmplFile [relfile|auth/email/actions/login.ts|],
-        copyTmplFile [relfile|auth/email/actions/signup.ts|],
-        copyTmplFile [relfile|auth/email/actions/passwordReset.ts|]
-      ]
-  | otherwise = return []
+genActions :: Generator [FileDraft]
+genActions =
+  sequence
+    [ copyTmplFile [relfile|auth/email/actions/login.ts|],
+      copyTmplFile [relfile|auth/email/actions/signup.ts|],
+      copyTmplFile [relfile|auth/email/actions/passwordReset.ts|]
+    ]
   where
     copyTmplFile = return . C.mkSrcTmplFd
 
 genComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genComponents auth
-  | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
-    sequence
-      [ genLoginComponent auth,
-        genSignupComponent auth
-      ]
-  | otherwise = return []
+genComponents auth =
+  sequence
+    [ genLoginComponent auth,
+      genSignupComponent auth
+    ]
 
 genLoginComponent :: AS.Auth.Auth -> Generator FileDraft
 genLoginComponent auth =

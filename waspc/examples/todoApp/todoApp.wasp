@@ -12,7 +12,7 @@ app todoApp {
     userEntity: User,
     // externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
+      // usernameAndPassword: {},
       // google: {
       //   configFn: import { config } from "@server/auth/google.js",
       //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
@@ -59,8 +59,9 @@ app todoApp {
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
+    email                     String        @unique
     password                  String
+    isEmailVerified           Boolean       @default(false)
     tasks                     Task[]
     externalAuthAssociations  SocialLogin[]
 psl=}

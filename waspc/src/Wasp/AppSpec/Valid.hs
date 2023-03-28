@@ -45,6 +45,7 @@ validateAppSpec spec =
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
+          validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
@@ -130,6 +131,22 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
               (validateEntityHasField "app.auth.userEntity" userEntityFields)
               [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
+              ]
+
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else
+        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+            userEntityFields = Entity.getFields userEntity
+         in concatMap
+              (validateEntityHasField "app.auth.userEntity" userEntityFields)
+              [ ("email", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean")
               ]
 
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]

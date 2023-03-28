@@ -38,6 +38,7 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware auth,
+        genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
@@ -82,7 +83,11 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object ["userEntityUpper" .= (userEntityName :: String)]
+       in object
+            [ "userEntityUpper" .= userEntityName,
+              "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+              "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+            ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)

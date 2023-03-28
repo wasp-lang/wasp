@@ -6,8 +6,6 @@ module Wasp.AppSpec.App.Auth
     AuthMethods (..),
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
-    EmailVerificationConfig (..),
-    PasswordResetConfig (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
@@ -19,11 +17,12 @@ where
 
 import Data.Data (Data)
 import Data.Maybe (isJust)
+import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
+import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
 import Wasp.AppSpec.App.EmailSender (EmailFromField)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
-import Wasp.AppSpec.Route (Route)
 
 data Auth = Auth
   { userEntity :: Ref Entity,
@@ -58,18 +57,6 @@ data EmailAuthConfig = EmailAuthConfig
   { fromField :: EmailFromField,
     emailVerfication :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig
-  }
-  deriving (Show, Eq, Data)
-
-data EmailVerificationConfig = EmailVerificationConfig
-  { getEmailContentFn :: Maybe ExtImport,
-    onVerifySuccessRedirectTo :: Ref Route
-  }
-  deriving (Show, Eq, Data)
-
-data PasswordResetConfig = PasswordResetConfig
-  { getEmailContentFn :: Maybe ExtImport,
-    clientRoute :: Ref Route
   }
   deriving (Show, Eq, Data)
 

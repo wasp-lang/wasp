@@ -187,6 +187,8 @@ library
     Wasp.AppSpec.Api
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
+    Wasp.AppSpec.App.Auth.PasswordReset
+    Wasp.AppSpec.App.Auth.EmailVerification
     Wasp.AppSpec.App.Client
     Wasp.AppSpec.App.Db
     Wasp.AppSpec.App.EmailSender
