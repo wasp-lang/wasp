@@ -35,7 +35,7 @@ export const SignupForm = () => {
     <form onSubmit={handleSignup} className='signup-form auth-form'>
       <h2>Email</h2>
       <input
-        type="text"
+        type="email"
         value={emailFieldVal}
         onChange={e => setEmailFieldVal(e.target.value)}
       />
