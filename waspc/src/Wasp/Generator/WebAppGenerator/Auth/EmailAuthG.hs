@@ -6,6 +6,8 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.Generator.AuthProviders (emailAuthProvider)
+import Wasp.Generator.AuthProviders.Email (serverLoginUrl, serverRequestPasswordResetUrl, serverResetPasswordUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -28,12 +30,35 @@ genIndex = return $ C.mkSrcTmplFd [relfile|auth/email/index.ts|]
 genActions :: Generator [FileDraft]
 genActions =
   sequence
-    [ copyTmplFile [relfile|auth/email/actions/login.ts|],
-      copyTmplFile [relfile|auth/email/actions/signup.ts|],
-      copyTmplFile [relfile|auth/email/actions/passwordReset.ts|]
+    [ genLoginAction,
+      genSignupAction,
+      genPasswordResetActions
     ]
-  where
-    copyTmplFile = return . C.mkSrcTmplFd
+
+genLoginAction :: Generator FileDraft
+genLoginAction =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/email/actions/login.ts|]
+      (object ["loginPath" .= serverLoginUrl emailAuthProvider])
+
+genSignupAction :: Generator FileDraft
+genSignupAction =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/email/actions/signup.ts|]
+      (object ["signupPath" .= serverLoginUrl emailAuthProvider])
+
+genPasswordResetActions :: Generator FileDraft
+genPasswordResetActions =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/email/actions/passwordReset.ts|]
+      ( object
+          [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
+            "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
+          ]
+      )
 
 genComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genComponents auth =
