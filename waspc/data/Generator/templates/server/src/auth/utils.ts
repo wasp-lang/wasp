@@ -37,6 +37,14 @@ export async function createUser(data: {= userEntityUpper =}): Promise<{= userEn
   }
 }
 
+export async function createAuthToken(user: {= userEntityUpper =}): Promise<string> {
+  return sign(user.id);
+}
+
+export async function verifyToken(token: string): Promise<{ id: any }> {
+  return verify(token);
+}
+{=# isEmailAuthEnabled =}
 export async function updateUserEmailVerification(userId: {= userEntityUpper =}Id): Promise<void> {
   try {
     await prisma.{= userEntityLower =}.update({
@@ -70,10 +78,7 @@ export async function updateUserPassword(userId: {= userEntityUpper =}Id, passwo
     }
   }
 }
-
-export async function createAuthToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id);
-}
+{=/ isEmailAuthEnabled =}
 
 export async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
   return sign(user.id);
@@ -81,8 +86,4 @@ export async function createEmailVerificationToken(user: {= userEntityUpper =}):
 
 export async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
   return sign(user.id);
-}
-
-export async function verifyToken(token: string): Promise<{ id: any }> {
-  return verify(token);
 }

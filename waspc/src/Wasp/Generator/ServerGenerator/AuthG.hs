@@ -120,7 +120,8 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
