@@ -9,3 +9,4 @@
 
 # macOS related
 .DS_Store
+.vscode/
