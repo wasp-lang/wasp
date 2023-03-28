@@ -7,7 +7,12 @@ import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
-import Wasp.Generator.AuthProviders.Email (serverLoginUrl, serverRequestPasswordResetUrl, serverResetPasswordUrl)
+import Wasp.Generator.AuthProviders.Email
+  ( serverLoginUrl,
+    serverRequestPasswordResetUrl,
+    serverResetPasswordUrl,
+    serverSignupUrl,
+  )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -47,7 +52,7 @@ genSignupAction =
   return $
     C.mkTmplFdWithData
       [relfile|src/auth/email/actions/signup.ts|]
-      (object ["signupPath" .= serverLoginUrl emailAuthProvider])
+      (object ["signupPath" .= serverSignupUrl emailAuthProvider])
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
