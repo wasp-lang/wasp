@@ -10,17 +10,23 @@ export const fooBar: FooBar = (req, res, context) => {
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  console.log('Removing all default middleware except cors.')
-  console.log('Adding custom and express.text middlewares.')
+  console.log('Adding custom and express.text middlewares for route.')
 
-  return new Map([
-    ['cors', middleware.get('cors')],
-    ['custom.route',
-      (_req, _res, next) => {
-        console.log('custom route middleware')
-        next()
-      }
-    ],
+  const customMiddleware : express.RequestHandler = (_req, _res, next) => {
+    console.log('custom route middleware')
+    next()
+  }
+
+  const updatedMiddleware = new Map([
+    ['custom.route', customMiddleware],
     ['express.text', express.text({ type: '*/*' })]
   ])
+
+  console.log('Ignoring all default middleware except cors.')
+
+  if (middleware.has('cors')) {
+    updatedMiddleware.set('cors', middleware.get('cors')!)
+  }
+
+  return updatedMiddleware
 }
