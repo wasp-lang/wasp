@@ -312,7 +312,7 @@
             "file",
             "web-app/src/actions/core.js"
         ],
-        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+        "f38003d51d9754952bf595a25fdb44580d88af3bcd6658848cf8a339a8240689"
     ],
     [
         [
@@ -387,9 +387,9 @@
     [
         [
             "file",
-            "web-app/src/operations/index.js"
+            "web-app/src/operations/index.ts"
         ],
-        "0d41d5791489c43814dfcfae09cf98a44418de9c36393cece15a2ff22da7d0b2"
+        "1e08a84826d88031e0aaaeecd35329c46d203e4ac3ddc5d001388a725b09af00"
     ],
     [
         [
@@ -410,21 +410,21 @@
             "file",
             "web-app/src/queries/core.d.ts"
         ],
-        "1ed2b19e65d843b942e7fd61a3f7fe1d644f92d04211a0fb96147217f1021b12"
+        "a5bcc60f2a082359e537e1a1f231bd66abcdf4d7066531e68fd2aede3c04c059"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.js"
         ],
-        "6d97e35c6a35ff822f7d2bcb201bd3e1961752a99be6c7c44ace4c0813b717a5"
+        "a0ba3524c8efff27abce03406ba661ac56197ddecbe665cd53a41409c6e4fc5d"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.d.ts"
         ],
-        "4edef3ef8d29516502d119f6f947d12b41542ce52a9a8e2698311ba0e0922ac0"
+        "e6b8b66d31eee3284c20085a4def388e4a4f34eb945e7cf8f2cccd2b6c3cbc2d"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "eed42df0243389fa7c56520c631d2cf70dd69eb9b5d69b583ca749055e730345"
+        "f79b242670c09642684014d4eb0c7106a1b42cc3efce73f5b2f9b551854ce513"
     ],
     [
         [
@@ -480,7 +480,7 @@
             "file",
             "web-app/src/types.ts"
         ],
-        "11488684bb4f95ecfea6a11c1604004bac95057cd8184450901cf0a65151557d"
+        "3be2f95a2d7d2fa790e6a077edc241bd26db5e167ad3a4033a88bbb0262bb1c6"
     ],
     [
         [

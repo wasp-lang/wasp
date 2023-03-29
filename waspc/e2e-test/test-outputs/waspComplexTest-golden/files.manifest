@@ -99,7 +99,7 @@ waspComplexTest/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspComplexTest/.wasp/out/web-app/src/index.tsx
 waspComplexTest/.wasp/out/web-app/src/logo.png
-waspComplexTest/.wasp/out/web-app/src/operations/index.js
+waspComplexTest/.wasp/out/web-app/src/operations/index.ts
 waspComplexTest/.wasp/out/web-app/src/operations/resources.js
 waspComplexTest/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspComplexTest/.wasp/out/web-app/src/queries/MySpecialQuery.js

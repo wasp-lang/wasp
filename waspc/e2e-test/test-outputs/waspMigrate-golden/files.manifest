@@ -60,7 +60,7 @@ waspMigrate/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspMigrate/.wasp/out/web-app/src/index.tsx
 waspMigrate/.wasp/out/web-app/src/logo.png
-waspMigrate/.wasp/out/web-app/src/operations/index.js
+waspMigrate/.wasp/out/web-app/src/operations/index.ts
 waspMigrate/.wasp/out/web-app/src/operations/resources.js
 waspMigrate/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspMigrate/.wasp/out/web-app/src/queries/core.d.ts

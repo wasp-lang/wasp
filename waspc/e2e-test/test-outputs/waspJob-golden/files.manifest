@@ -58,7 +58,7 @@ waspJob/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspJob/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspJob/.wasp/out/web-app/src/index.tsx
 waspJob/.wasp/out/web-app/src/logo.png
-waspJob/.wasp/out/web-app/src/operations/index.js
+waspJob/.wasp/out/web-app/src/operations/index.ts
 waspJob/.wasp/out/web-app/src/operations/resources.js
 waspJob/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspJob/.wasp/out/web-app/src/queries/core.d.ts
