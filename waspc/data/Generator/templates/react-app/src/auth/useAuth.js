@@ -1,5 +1,6 @@
 import { useQuery } from '../queries'
 import api, { handleApiError } from '../api'
+import { HttpMethod } from '../types'
 
 export default function useAuth(queryFnArgs, config) {
   return useQuery(getMe, queryFnArgs, config)
@@ -20,4 +21,4 @@ export async function getMe() {
 }
 
 getMe.queryCacheKey = ['auth/me']
-getMe.route = { method: 'GET', path: '/auth/me' }
+getMe.route = { method: HttpMethod.Get, path: '/auth/me' }
