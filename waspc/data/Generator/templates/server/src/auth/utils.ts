@@ -78,12 +78,12 @@ export async function updateUserPassword(userId: {= userEntityUpper =}Id, passwo
     }
   }
 }
-{=/ isEmailAuthEnabled =}
 
 export async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id);
+  return sign(user.id, { expiresIn: '30m' });
 }
 
 export async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
-  return sign(user.id);
+  return sign(user.id, { expiresIn: '30m' });
 }
+{=/ isEmailAuthEnabled =}

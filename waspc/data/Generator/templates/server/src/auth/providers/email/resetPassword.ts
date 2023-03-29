@@ -1,5 +1,6 @@
 import { handleRejection } from "../../../utils.js";
 import { findUserBy, updateUserPassword, verifyToken } from "../../utils.js";
+import { tokenVerificationErrors } from "./types.js";
 
 export const resetPassword = handleRejection(async (req, res) => {
     const args = req.body || {};
@@ -12,8 +13,10 @@ export const resetPassword = handleRejection(async (req, res) => {
         }
         await updateUserPassword(userId, newPassword);
     } catch (e) {
-        res.status(400).json({ error: 'Invalid token' });
-        return;
+        const reason = e.name === tokenVerificationErrors.TokenExpiredError
+            ? 'expired'
+            : 'invalid';
+        return res.status(400).json({ error: `Password reset failed, ${reason} token`});
     }
     res.json({ success: true });
 });

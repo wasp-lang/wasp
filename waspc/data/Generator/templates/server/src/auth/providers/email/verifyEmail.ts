@@ -2,6 +2,7 @@ import waspServerConfig from '../../../config.js';
 
 import { handleRejection } from "../../../utils.js";
 import { updateUserEmailVerification, verifyToken } from '../../utils.js';
+import { tokenVerificationErrors } from './types.js';
 
 export function getVerifyEmailRoute({
     onVerifySuccessRedirectTo,
@@ -15,12 +16,15 @@ export function getVerifyEmailRoute({
             const { id: userId } = await verifyToken(token);
             await updateUserEmailVerification(userId);
         } catch (e) {
-            console.warn('Email verification failed', e);
-            console.warn('Token:', token);
-            return res.redirect(waspServerConfig.frontendUrl);
+            const reason = e.name === tokenVerificationErrors.TokenExpiredError
+                ? 'expired'
+                : 'invalid';
+            // TODO: implement on error redirect route
+            const errorRedirectUrl = `${waspServerConfig.frontendUrl}/?emailVerificationStatus=${reason}`;
+            return res.redirect(errorRedirectUrl);
         }
     
-        const redirectUrl = `${waspServerConfig.frontendUrl}${onVerifySuccessRedirectTo}?result=success`;
+        const redirectUrl = `${waspServerConfig.frontendUrl}${onVerifySuccessRedirectTo}?emailVerificationStatus=success`;
         res.redirect(redirectUrl);
     });
 }

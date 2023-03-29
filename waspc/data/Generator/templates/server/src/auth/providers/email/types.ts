@@ -7,3 +7,7 @@ type EmailContent = {
     html: string;
     text: string;
 }
+
+export const tokenVerificationErrors = {
+    TokenExpiredError: 'TokenExpiredError',
+};
