@@ -51,7 +51,7 @@ You should not run `wasp test` while running `wasp start`, as both will attempt 
 ## Examples
 ### Unit Tests
 
-```ts title=src/client/Todo.test.tsx
+```ts title=src/client/Todo.test.ts
 import { test, expect } from 'vitest'
 
 import { areThereAnyTasks } from './Todo'
@@ -98,7 +98,7 @@ test('handles mock data', async () => {
 Wasp provides two React testing helpers:
 - `mockQuery`: Takes a Wasp Query to mock and the JSON data to return.
   - This is helpful if your Query uses `useQuery`.
-  - Behind the scenes, this uses `msw` to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint.
+  - Behind the scenes, this uses [`msw`](https://www.npmjs.com/package/msw) to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint.
   - Request handlers are cleared after each test.
 - `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
 

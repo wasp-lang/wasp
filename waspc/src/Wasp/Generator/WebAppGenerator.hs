@@ -145,14 +145,9 @@ npmDepsForWasp spec =
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^1.0.1"),
-            ("vitest", "^0.29.3"),
-            ("@vitest/ui", "^0.29.3"),
-            ("jsdom", "^21.1.1"),
-            ("@testing-library/react", "^12.1.5"),
-            ("@testing-library/jest-dom", "^5.16.5"),
-            ("msw", "^1.1.0")
+            ("@tsconfig/vite-react", "^1.0.1")
           ]
+          ++ depsRequiredForTesting
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
@@ -165,6 +160,17 @@ depsRequiredByTailwind spec =
           ("autoprefixer", "^10.4.13")
         ]
     else []
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^0.29.3"),
+      ("@vitest/ui", "^0.29.3"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/jest-dom", "^5.16.5"),
+      ("msw", "^1.1.0")
+    ]
 
 genGitignore :: Generator FileDraft
 genGitignore =
