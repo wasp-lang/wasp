@@ -1,11 +1,21 @@
 import api, { handleApiError } from '../api'
+import { HttpMethod } from '../types'
 
-export async function callOperation(operationRoute, args) {
+export type OperationRoute = { method: HttpMethod, path: string }
+
+export async function callOperation(operationRoute: OperationRoute, args: any) {
+  if (operationRoute.method !== HttpMethod.Post) {
+    throw new Error(`Unsupported operation method: ${operationRoute.method}. Only POST is supported.`)
+  }
+
   try {
-    const response = await api.post(`/${operationRoute}`, args)
+    const response = await api.post(operationRoute.path, args)
     return response.data
   } catch (error) {
     handleApiError(error)
   }
 }
 
+export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
+  return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
+}
