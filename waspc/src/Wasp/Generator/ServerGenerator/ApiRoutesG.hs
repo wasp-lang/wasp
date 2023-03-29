@@ -13,15 +13,12 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
-import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (extImportToJsImport)
-import Wasp.JsImport (JsImportAlias, JsImportIdentifier, JsImportStatement, applyJsImportAlias)
-import qualified Wasp.JsImport as JsImport
+import Wasp.Generator.ServerGenerator.JsImport (getAliasedJsImportStmtAndIdentifier)
 import Wasp.Util (toUpperFirst)
 
 genApis :: AppSpec -> Generator [FileDraft]
@@ -59,18 +56,13 @@ genApiRoutes spec =
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api,
           "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
-          "middlewareImportStatement" .= fmap fst maybeMidlewareImports,
-          -- NOTE: `middlewareConfigFnAlias == fmap snd maybeMidlewareImports`,
-          -- but we always want it available in the template.
+          "middlewareImportStatement" .= maybe "" fst maybeMidlewareImports,
           "middlewareImportAlias" .= middlewareConfigFnAlias
         ]
       where
         middlewareConfigFnAlias = apiName ++ "middlewareConfigFn"
-        maybeMidlewareImports = getAliasedImport middlewareConfigFnAlias <$> Api.middlewareConfigFn api
-        (jsImportStmt, jsImportIdentifier) = getAliasedImport (apiName ++ "fn") (Api.fn api)
-
-        getAliasedImport :: JsImportAlias -> ExtImport -> (JsImportStatement, JsImportIdentifier)
-        getAliasedImport alias extImport = JsImport.getJsImportStmtAndIdentifier $ applyJsImportAlias (Just alias) $ extImportToJsImport relPathFromApisRoutesToServerSrcDir extImport
+        maybeMidlewareImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
+        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier (apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
 
         relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
         relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]

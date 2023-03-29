@@ -37,7 +37,6 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.ExtImport (ExtImport)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
@@ -60,11 +59,9 @@ import Wasp.Generator.ServerGenerator.ConfigG (genConfigFile)
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, extImportToJsImport)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.JsImport (JsImportAlias, JsImportIdentifier, JsImportStatement, applyJsImportAlias)
-import qualified Wasp.JsImport as JsImport
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -243,8 +240,8 @@ genServerJs spec =
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
 
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|./|]
+relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -376,14 +373,9 @@ genMiddleware spec =
     tmplData =
       object
         [ "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
-          "middlewareImportStatement" .= fmap fst maybeMidlewareImports,
-          -- NOTE: `middlewareConfigFnAlias == fmap snd maybeMidlewareImports`,
-          -- but we always want it available in the template.
+          "middlewareImportStatement" .= maybe "" fst maybeMidlewareImports,
           "middlewareImportAlias" .= middlewareConfigFnAlias
         ]
     middlewareConfigFnAlias = "middlewareConfigFn"
-    maybeMidlewareImports = getAliasedImport middlewareConfigFnAlias <$> maybeMiddlewareConfigFn
+    maybeMidlewareImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathToServerSrcDir <$> maybeMiddlewareConfigFn
     maybeMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
-
-    getAliasedImport :: JsImportAlias -> ExtImport -> (JsImportStatement, JsImportIdentifier)
-    getAliasedImport alias extImport = JsImport.getJsImportStmtAndIdentifier $ applyJsImportAlias (Just alias) $ extImportToJsImport [reldirP|./|] extImport
