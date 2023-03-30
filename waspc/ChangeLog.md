@@ -58,6 +58,9 @@ That it, all you need to do is run `wasp start db` and you are good to go. No en
 
 NOTE: Requires `docker` to be installed.
 
+### `wasp test client` -> Wasp can now test your web app code
+By leveraging Vitest and some supporting libraries, Wasp now makes it super easy to add unit tests and React component tests to your frontend codebase.
+
 ### `pg-boss` upgraded to latest version (8.4.2)
 This `pg-boss` release fixes an issue where the node server would exit due to an unhandled exception when the DB connection was lost.
 

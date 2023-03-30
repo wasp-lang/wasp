@@ -30,6 +30,7 @@ COMMANDS
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     info                  Prints basic information about current Wasp project.
+    test                  Executes tests in your project.
 
 EXAMPLES
   wasp new MyApp

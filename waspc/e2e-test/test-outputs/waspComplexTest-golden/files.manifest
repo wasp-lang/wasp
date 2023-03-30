@@ -99,7 +99,7 @@ waspComplexTest/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspComplexTest/.wasp/out/web-app/src/index.tsx
 waspComplexTest/.wasp/out/web-app/src/logo.png
-waspComplexTest/.wasp/out/web-app/src/operations/index.js
+waspComplexTest/.wasp/out/web-app/src/operations/index.ts
 waspComplexTest/.wasp/out/web-app/src/operations/resources.js
 waspComplexTest/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspComplexTest/.wasp/out/web-app/src/queries/MySpecialQuery.js
@@ -110,6 +110,10 @@ waspComplexTest/.wasp/out/web-app/src/queries/index.js
 waspComplexTest/.wasp/out/web-app/src/queryClient.js
 waspComplexTest/.wasp/out/web-app/src/router.jsx
 waspComplexTest/.wasp/out/web-app/src/storage.ts
+waspComplexTest/.wasp/out/web-app/src/test/index.ts
+waspComplexTest/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspComplexTest/.wasp/out/web-app/src/test/vitest/setup.ts
+waspComplexTest/.wasp/out/web-app/src/types.ts
 waspComplexTest/.wasp/out/web-app/src/universal/url.ts
 waspComplexTest/.wasp/out/web-app/src/utils.js
 waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
