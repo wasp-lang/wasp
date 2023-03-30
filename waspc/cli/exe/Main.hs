@@ -26,6 +26,7 @@ import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
@@ -55,6 +56,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
+        ("test" : testArgs) -> Command.Call.Test testArgs
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -79,6 +81,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
+    Command.Call.Test testArgs -> runCommand $ test testArgs
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -110,7 +113,7 @@ printUsage =
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd   "    start db              Starts managed development database for you.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd $ "    clean                 Deletes all generated code and other cached artifacts.",
+        cmd   "    clean                 Deletes all generated code and other cached artifacts.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
@@ -118,6 +121,7 @@ printUsage =
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    info                  Prints basic information about current Wasp project.",
+        cmd   "    test                  Executes tests in your project.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",

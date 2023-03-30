@@ -12,7 +12,7 @@ import { Task } from '@wasp/entities'
 
 type NonEmptyArray<T> = [T, ...T[]]
 
-function areThereAnyTasks(
+export function areThereAnyTasks(
   tasks: Task[] | undefined
 ): tasks is NonEmptyArray<Task> {
   return !!(tasks && tasks.length > 0)

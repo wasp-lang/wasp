@@ -53,7 +53,7 @@ waspBuild/.wasp/build/web-app/src/ext-src/vite-env.d.ts
 waspBuild/.wasp/build/web-app/src/ext-src/waspLogo.png
 waspBuild/.wasp/build/web-app/src/index.tsx
 waspBuild/.wasp/build/web-app/src/logo.png
-waspBuild/.wasp/build/web-app/src/operations/index.js
+waspBuild/.wasp/build/web-app/src/operations/index.ts
 waspBuild/.wasp/build/web-app/src/operations/resources.js
 waspBuild/.wasp/build/web-app/src/operations/updateHandlersMap.js
 waspBuild/.wasp/build/web-app/src/queries/core.d.ts
@@ -63,6 +63,10 @@ waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
 waspBuild/.wasp/build/web-app/src/router.jsx
 waspBuild/.wasp/build/web-app/src/storage.ts
+waspBuild/.wasp/build/web-app/src/test/index.ts
+waspBuild/.wasp/build/web-app/src/test/vitest/helpers.tsx
+waspBuild/.wasp/build/web-app/src/test/vitest/setup.ts
+waspBuild/.wasp/build/web-app/src/types.ts
 waspBuild/.wasp/build/web-app/src/universal/url.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts

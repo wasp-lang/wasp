@@ -58,6 +58,7 @@ module.exports = {
         'integrations/css-frameworks',
         'deploying',
         'typescript',
+        'guides/testing',
         'guides/sending-emails'
       ],
 

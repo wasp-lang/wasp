@@ -39,7 +39,7 @@ genOperations spec =
     <++> genActions spec
     <++> Resources.genResources spec
     <++> return
-      [ C.mkSrcTmplFd [relfile|operations/index.js|],
+      [ C.mkSrcTmplFd [relfile|operations/index.ts|],
         C.mkSrcTmplFd [relfile|operations/updateHandlersMap.js|]
       ]
 

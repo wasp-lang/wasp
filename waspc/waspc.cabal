@@ -266,6 +266,7 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
+    Wasp.Generator.Test
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
@@ -279,6 +280,7 @@ library
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
+    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WriteFileDrafts
     Wasp.Project
     Wasp.Project.Analyze
@@ -387,6 +389,7 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
+    Wasp.Cli.Command.Test
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common
