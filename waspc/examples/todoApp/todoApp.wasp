@@ -28,7 +28,7 @@ app todoApp {
         },
         emailVerfication: {
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-          onVerifySuccessRedirectTo: EmailVerificationSuccessRoute,
+          clientRoute: EmailVerificationRoute,
         },
         passwordReset: {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
@@ -59,11 +59,16 @@ app todoApp {
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    email                     String        @unique
+    // Email auth
+    username                  String        @unique
     password                  String
     isEmailVerified           Boolean       @default(false)
-    tasks                     Task[]
+    emailVerificationSentAt   DateTime?
+    passwordResetSentAt       DateTime?
+    // Social login
     externalAuthAssociations  SocialLogin[]
+    // Business logic
+    tasks                     Task[]
 psl=}
 
 entity SocialLogin {=psl
@@ -99,9 +104,9 @@ page PasswordResetPage {
   component: import { PasswordReset } from "@client/pages/auth/PasswordReset.tsx",
 }
 
-route EmailVerificationSuccessRoute { path: "/email-verification-success", to: EmailVerificationSuccessPage }
-page EmailVerificationSuccessPage {
-  component: import { EmailVerificationSuccess } from "@client/pages/auth/EmailVerificationSuccess.tsx",
+route EmailVerificationRoute { path: "/email-verification-", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerification } from "@client/pages/auth/EmailVerification.tsx",
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }

@@ -54,10 +54,11 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
         [ "providerId" .= Email.providerId emailAuthProvider,
           "displayName" .= Email.displayName emailAuthProvider,
           "fromField" .= fromFieldJson,
-          "onVerifySuccessRedirectTo" .= onVerifySuccessRedirectTo,
+          "emailVerificationClientRoute" .= emailVerificationClientRoute,
           "passwordResetClientRoute" .= passwordResetClientRoute,
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
-          "getVerificationEmailContent" .= getVerificationEmailContent
+          "getVerificationEmailContent" .= getVerificationEmailContent,
+          "allowUnverifiedLogin" .= fromMaybe False (AS.Auth.allowUnverifiedLogin emailAuthConfig)
         ]
 
     fromFieldJson =
@@ -70,7 +71,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
     maybeName = AS.EmailSender.name fromField
     email = AS.EmailSender.email fromField
 
-    onVerifySuccessRedirectTo = getRoutePathFromRef spec $ AS.Auth.EmailVerification.onVerifySuccessRedirectTo emailVerfication
+    emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerfication
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
     getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
     getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerfication

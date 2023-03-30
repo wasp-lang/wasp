@@ -9,6 +9,6 @@ import Wasp.AppSpec.Route (Route)
 
 data EmailVerificationConfig = EmailVerificationConfig
   { getEmailContentFn :: Maybe ExtImport,
-    onVerifySuccessRedirectTo :: Ref Route
+    clientRoute :: Ref Route
   }
   deriving (Show, Eq, Data)

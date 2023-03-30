@@ -4,6 +4,7 @@ import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
 
+import { rateLimiterMiddleware } from './middleware/rateLimiter.js'
 import HttpError from './core/HttpError.js'
 import indexRouter from './routes/index.js'
 import config from './config.js'
@@ -19,6 +20,7 @@ app.use(cors({
   origin: config.allowedCORSOrigins,
 }))
 app.use(logger('dev'))
+app.use(rateLimiterMiddleware())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())

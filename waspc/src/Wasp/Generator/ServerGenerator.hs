@@ -150,7 +150,8 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash.merge", "^4.6.2")
+            ("lodash.merge", "^4.6.2"),
+            ("rate-limiter-flexible", "^2.4.1")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
@@ -203,6 +204,7 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
     <++> genEmailSender spec
+    <++> genMiddleware
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -363,3 +365,11 @@ genExportedTypesDir spec =
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genMiddleware :: Generator [FileDraft]
+genMiddleware =
+  sequence
+    [ genFileCopy [relfile|middleware/rateLimiter.ts|]
+    ]
+  where
+    genFileCopy = return . C.mkSrcTmplFd

@@ -12,6 +12,7 @@ import Wasp.Generator.AuthProviders.Email
     serverRequestPasswordResetUrl,
     serverResetPasswordUrl,
     serverSignupUrl,
+    serverVerifyEmailUrl,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -37,7 +38,8 @@ genActions =
   sequence
     [ genLoginAction,
       genSignupAction,
-      genPasswordResetActions
+      genPasswordResetActions,
+      genVerifyEmailAction
     ]
 
 genLoginAction :: Generator FileDraft
@@ -64,6 +66,13 @@ genPasswordResetActions =
             "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
           ]
       )
+
+genVerifyEmailAction :: Generator FileDraft
+genVerifyEmailAction =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/email/actions/verifyEmail.ts|]
+      (object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider])
 
 genComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genComponents auth =

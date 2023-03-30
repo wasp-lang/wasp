@@ -15,9 +15,9 @@ export const SignupForm = () => {
   const handleSignup = async (event) => {
     event.preventDefault()
     try {
-      await signup({ email: emailFieldVal, password: passwordFieldVal })
+      await signup({ username: emailFieldVal, password: passwordFieldVal })
       await login ({
-        email: emailFieldVal,
+        username: emailFieldVal,
         password: passwordFieldVal,
       })
 

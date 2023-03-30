@@ -46,6 +46,7 @@ validateAppSpec spec =
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
           validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
+          validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
@@ -144,10 +145,24 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (sn
             userEntityFields = Entity.getFields userEntity
          in concatMap
               (validateEntityHasField "app.auth.userEntity" userEntityFields)
-              [ ("email", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+              [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean")
+                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
+                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
+                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
               ]
+
+validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else case App.emailSender app of
+        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth."]
+        Just _ -> []
+  where
+    app = snd $ getApp spec
 
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
