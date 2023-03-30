@@ -24,6 +24,12 @@ const {=& middlewareImportAlias =} = idFn
 
 const router = express.Router()
 
+// TODO: Add check in Haskell for unique API paths.
+/*
+  NOTE: Since some middleware needs to run _before_ the method, like CORS for GET routes,
+  we need to use `Router.use`. However, since this applies to all methods, this means we
+  can only support _unique_ route paths.
+*/
 {=# apiRoutes =}
 router.use('{= routePath =}', toMiddlewareArray({= middlewareImportAlias =}(getDefaultMiddleware())))
 {=# usesAuth =}
