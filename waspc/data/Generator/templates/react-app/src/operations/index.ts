@@ -3,11 +3,7 @@ import { HttpMethod } from '../types'
 
 export type OperationRoute = { method: HttpMethod, path: string }
 
-export async function callOperation(operationRoute: OperationRoute, args: any) {
-  if (operationRoute.method !== HttpMethod.Post) {
-    throw new Error(`Unsupported operation method: ${operationRoute.method}. Only POST is supported.`)
-  }
-
+export async function callOperation(operationRoute: OperationRoute & { method: HttpMethod.Post }, args: any) {
   try {
     const response = await api.post(operationRoute.path, args)
     return response.data
