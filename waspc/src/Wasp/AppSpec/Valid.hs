@@ -9,12 +9,13 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.List (find)
+import Data.List (find, group, intercalate, sort)
 import Data.Maybe (isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
@@ -46,7 +47,8 @@ validateAppSpec spec =
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
-          validateDbIsPostgresIfPgBossUsed spec
+          validateDbIsPostgresIfPgBossUsed spec,
+          validateApiRoutesAreUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -170,6 +172,15 @@ validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeN
           [ GenericValidationError $
               "Expected an Entity referenced by " ++ entityName ++ " to have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
           ]
+
+validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
+validateApiRoutesAreUnique spec =
+  if null duplicateRoutes
+    then []
+    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " duplicateRoutes]
+  where
+    apiRoutes = snd . AS.Api.httpRoute . snd <$> AS.getApis spec
+    duplicateRoutes = map head $ filter ((> 1) . length) (group . sort $ apiRoutes)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
