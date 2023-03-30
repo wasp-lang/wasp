@@ -78,7 +78,9 @@ genOperationRoute spec operation tmplFile = return $ C.mkTmplFdWithDstAndData tm
 
     operationName = AS.Operation.getName operation
 
-    (operationImportStmt, operationImportIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport operationImportPath (JsImportModule operationName)
+    (operationImportStmt, operationImportIdentifier) =
+      getJsImportStmtAndIdentifier $
+        makeJsImport operationImportPath (JsImportModule operationName)
 
 data OperationsRoutesDir
 

@@ -16,3 +16,5 @@ export default async function (args, context) {
     },
   })
 }
+
+export type {= queryTypeName =} = typeof {= jsFn.importIdentifier =} 

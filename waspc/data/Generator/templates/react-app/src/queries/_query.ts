@@ -1,7 +1,9 @@
 {{={= =}=}}
 import { createQuery } from './core'
+{=& operationTypeImportStmt =}
 
-export default createQuery(
+
+export default createQuery<{= operationTypeName =}>(
   '{= queryRoute =}',
   {=& entitiesArray =},
 )

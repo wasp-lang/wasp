@@ -9,9 +9,13 @@ import Data.Aeson
   ( object,
     (.=),
   )
+import Data.Aeson.Types (Pair)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
+import Debug.Trace (trace)
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
+import qualified StrongPath as SP
+import System.FilePath (splitExtension)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -20,10 +24,14 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
+import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
+import Wasp.Generator.WebAppGenerator.Common (serverRootDirFromWebAppRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
-import Wasp.Util ((<++>))
+import Wasp.JsImport (JsImportName (JsImportField), getJsImportStmtAndIdentifier, makeJsImport)
+import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -57,11 +65,11 @@ genActions spec =
 genQuery :: AppSpec -> (String, AS.Query.Query) -> Generator FileDraft
 genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
-    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
 
     dstFile = C.asWebAppFile $ [reldir|src/queries/|] </> fromJust (getOperationDstFileName operation)
     tmplData =
-      object
+      object $
         [ "queryRoute"
             .= ( ServerGenerator.operationsRouteInRootRouter
                    ++ "/"
@@ -69,7 +77,41 @@ genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFi
                ),
           "entitiesArray" .= makeJsArrayOfEntityNames operation
         ]
+          ++ operationTypeData operation
     operation = AS.Operation.QueryOp queryName query
+
+operationTypeData :: AS.Operation.Operation -> [Pair]
+operationTypeData operation = tmplData
+  where
+    tmplData =
+      [ "operationTypeImportStmt" .= (operationTypeImportStmt :: String),
+        "operationTypeName" .= (operationTypeImportIdentifier :: String)
+      ]
+
+    serverOperationFileInServerRootDir = serverSrcDirInServerRootDir </> operationFileInSrcDir operation
+    serverOperationFileFromWebAppRootDir = serverRootDirFromWebAppRootDir </> serverOperationFileInServerRootDir
+    webAppRootDirFromWebAppQueriesDir = [reldir|../..|]
+    serverOperationFileFromWebAppQueriesDir =
+      webAppRootDirFromWebAppQueriesDir </> serverOperationFileFromWebAppRootDir
+
+    operationImportPath =
+      fromJust $
+        SP.parseRelFileP $
+          toViteImportPath $
+            SP.fromRelFileP $
+              fromJust $
+                SP.relFileToPosix serverOperationFileFromWebAppQueriesDir
+
+    operationName = AS.Operation.getName operation
+
+    (operationTypeImportStmt, operationTypeImportIdentifier) =
+      getJsImportStmtAndIdentifier $
+        makeJsImport operationImportPath (JsImportField $ toUpperFirst operationName)
+
+toViteImportPath :: FilePath -> String
+toViteImportPath = dropExtension
+  where
+    dropExtension = fst . splitExtension
 
 genAction :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
 genAction _ (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
@@ -96,4 +138,4 @@ makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]
     entityStrings = maybe [] (map $ \x -> "'" ++ AS.refName x ++ "'") (AS.Operation.getEntities operation)
 
 getOperationDstFileName :: AS.Operation.Operation -> Maybe (Path' Rel' File')
-getOperationDstFileName operation = parseRelFile (AS.Operation.getName operation ++ ".js")
+getOperationDstFileName operation = parseRelFile (AS.Operation.getName operation ++ ".ts")

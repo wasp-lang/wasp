@@ -10,8 +10,6 @@ import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
 import { Task } from '@wasp/entities'
 
-type GetTasksError = { message: string }
-
 type NonEmptyArray<T> = [T, ...T[]]
 
 function areThereAnyTasks(
@@ -21,11 +19,7 @@ function areThereAnyTasks(
 }
 
 const Todo = () => {
-  const {
-    data: tasks,
-    isError,
-    error: tasksError,
-  } = useQuery<{}, Task[], GetTasksError>(getTasks)
+  const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
 
   const TasksError = () => {
     return (
@@ -153,10 +147,29 @@ const TaskView = ({ task }: { task: Task }) => {
 const NewTaskForm = () => {
   const defaultDescription = ''
   const [description, setDescription] = useState(defaultDescription)
+  const createTaskFn = useAction(createTask, {
+    optimisticUpdates: [
+      {
+        getQuerySpecifier: () => [getTasks],
+        updateQuery: (newTask, oldTasks) => {
+          if (oldTasks === undefined) {
+            // cache is empty
+            return [newTask as Task]
+          } else {
+            return [...oldTasks, newTask as Task]
+          }
+        },
+      } as OptimisticUpdateDefinition<
+        Pick<Task, 'isDone' | 'description'>,
+        Task[]
+      >,
+    ],
+  })
 
   const createNewTask = async (description: Task['description']) => {
     const task = { isDone: false, description }
-    await createTask(task)
+    await createTaskFn(task)
+    console.log('asdf')
   }
 
   const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (
@@ -164,8 +177,8 @@ const NewTaskForm = () => {
   ) => {
     event.preventDefault()
     try {
-      await createNewTask(description)
       setDescription(defaultDescription)
+      await createNewTask(description)
     } catch (err) {
       console.log(err)
     }

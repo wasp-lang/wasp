@@ -12,6 +12,7 @@ module Wasp.Generator.WebAppGenerator.Common
     asWebAppFile,
     asWebAppSrcFile,
     mkUniversalTmplFdWithDst,
+    serverRootDirFromWebAppRootDir,
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
@@ -22,7 +23,7 @@ where
 import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, UniversalTemplatesDir, WebAppRootDir, universalTemplatesDirInTemplatesDir)
+import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, UniversalTemplatesDir, WebAppRootDir, universalTemplatesDirInTemplatesDir, ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -33,6 +34,9 @@ data WebAppTemplatesDir
 data WebAppTemplatesSrcDir
 
 instance GeneratedSrcDir WebAppSrcDir
+
+serverRootDirFromWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir ServerRootDir)
+serverRootDirFromWebAppRootDir = [reldir|../server|]
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
 asTmplFile = SP.castRel

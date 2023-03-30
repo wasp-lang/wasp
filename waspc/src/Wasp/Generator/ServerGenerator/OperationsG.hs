@@ -66,7 +66,7 @@ genQuery :: (String, AS.Query.Query) -> Generator FileDraft
 genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
-    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
     tmplData = operationTmplData operation
 
@@ -108,7 +108,7 @@ queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir queryName =
   [reldir|queries|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ queryName ++ ".js")
+    </> fromJust (SP.parseRelFile $ queryName ++ ".ts")
 
 actionFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir actionName =
@@ -124,6 +124,7 @@ operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
     [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
+      "queryTypeName" .= toUpperFirst (getName operation),
       "entities"
         .= maybe
           []

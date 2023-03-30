@@ -1,3 +1,6 @@
-export type Query<Input, Output> = (args: Input) => Promise<Output>
 
-export function createQuery<Input, Output>(queryRoute: string, entitiesUsed: any[]): Query<Input, Output>
+export function createQuery<BackendQuery extends GenericBackendQuery>(queryRoute: string, entitiesUsed: any[]): QueryFor<BackendQuery>
+
+type QueryFor<BackendQuery extends GenericBackendQuery> = (queryKey: string[], args: Parameters<BackendQuery>[0]) => ReturnType<BackendQuery>
+
+type GenericBackendQuery = (args: never, context: any) => Promise<unknown>
