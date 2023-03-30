@@ -7,12 +7,12 @@ import helmet from 'helmet'
 
 import config from './config.js'
 
-{=# middlewareConfigFnDefined =}
-{=& middlewareImportStatement =}
-{=/ middlewareConfigFnDefined =}
-{=^ middlewareConfigFnDefined =}
-const {=& middlewareImportAlias =} = (m: MiddlewareConfig) => m
-{=/ middlewareConfigFnDefined =}
+{=# globalMiddlewareConfigFnDefined =}
+{=& globalMiddlewareConfigFnImportStatement =}
+{=/ globalMiddlewareConfigFnDefined =}
+{=^ globalMiddlewareConfigFnDefined =}
+const {=& globalMiddlewareConfigFnImportAlias =} = (m: MiddlewareConfig) => m
+{=/ globalMiddlewareConfigFnDefined =}
 
 export type MiddlewareConfig = Map<string, express.RequestHandler>
 
@@ -27,8 +27,7 @@ const _defaultMiddleware: MiddlewareConfig = new Map([
   ['cookieParser', cookieParser()]
 ])
 
-// TODO: change middlewareImportAlias name
-const defaultMiddleware = {=& middlewareImportAlias =}(_defaultMiddleware)
+const defaultMiddleware = {=& globalMiddlewareConfigFnImportAlias =}(_defaultMiddleware)
 
 export function getDefaultMiddleware(): MiddlewareConfig {
   // Return a clone so they can't mess up the Map for any other routes.

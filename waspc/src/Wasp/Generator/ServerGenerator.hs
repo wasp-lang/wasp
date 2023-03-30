@@ -372,10 +372,10 @@ genMiddleware spec =
   where
     tmplData =
       object
-        [ "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
-          "middlewareImportStatement" .= maybe "" fst maybeMidlewareImports,
-          "middlewareImportAlias" .= middlewareConfigFnAlias
+        [ "globalMiddlewareConfigFnDefined" .= isJust maybeMidlewareConfigFnImports,
+          "globalMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMidlewareConfigFnImports,
+          "globalMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
-    middlewareConfigFnAlias = "middlewareConfigFn"
-    maybeMidlewareImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathToServerSrcDir <$> maybeMiddlewareConfigFn
     maybeMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+    middlewareConfigFnAlias = "middlewareConfigFn"
+    maybeMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathToServerSrcDir <$> maybeMiddlewareConfigFn

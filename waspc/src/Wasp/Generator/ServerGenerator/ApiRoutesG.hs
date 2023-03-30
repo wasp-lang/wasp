@@ -55,13 +55,13 @@ genApiRoutes spec =
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api,
-          "middlewareConfigFnDefined" .= isJust maybeMidlewareImports,
-          "middlewareImportStatement" .= maybe "" fst maybeMidlewareImports,
-          "middlewareImportAlias" .= middlewareConfigFnAlias
+          "routeMiddlewareConfigFnDefined" .= isJust maybeMiddlewareConfigFnImports,
+          "routeMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMiddlewareConfigFnImports,
+          "routeMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
       where
         middlewareConfigFnAlias = apiName ++ "middlewareConfigFn"
-        maybeMidlewareImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
+        maybeMiddlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
         (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier (apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
 
         relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
