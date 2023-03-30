@@ -4,7 +4,6 @@ import AuthError from '../AuthError.js'
 import { isValidEmail } from './validators.js'
 
 const USERNAME_FIELD = 'username'
-const EMAIL_FIELD = 'email'
 const PASSWORD_FIELD = 'password'
 
 // Allows flexible validation of a user entity.
@@ -71,8 +70,8 @@ const userValidations = [
 userValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
 {=/ isUsernameAndPasswordAuthEnabled  =}
 {=# isEmailAuthEnabled =}
-userValidations.push({ validates: EMAIL_FIELD, message: 'email must be present', validator: email => !!email })
-userValidations.push({ validates: EMAIL_FIELD, message: 'email must be valid', validator: email => isValidEmail(email) })
+userValidations.push({ validates: USERNAME_FIELD, message: 'email must be present', validator: email => !!email })
+userValidations.push({ validates: USERNAME_FIELD, message: 'email must be valid', validator: email => isValidEmail(email) })
 {=/ isEmailAuthEnabled =}
 
 const validateUser = (user, args, action) => {

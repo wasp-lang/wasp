@@ -144,9 +144,11 @@ validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (sn
             userEntityFields = Entity.getFields userEntity
          in concatMap
               (validateEntityHasField "app.auth.userEntity" userEntityFields)
-              [ ("email", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
+              [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean")
+                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
+                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
+                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
               ]
 
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]

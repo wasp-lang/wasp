@@ -15,9 +15,9 @@ export function getRequestPasswordResetRoute({
     clientRoute: string;
     getPasswordResetEmailContent: GetPasswordResetEmailContentFn;
 }) {
-    return handleRejection(async (req: Request<{ email: string; }>, res: Response) => {
+    return handleRejection(async (req: Request<{ username: string; }>, res: Response) => {
         const args = req.body || {};
-        const user = await findUserBy<'email'>({ email: args.email });
+        const user = await findUserBy<'username'>({ username: args.email });
     
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
@@ -27,7 +27,7 @@ export function getRequestPasswordResetRoute({
         try {
             await emailSender.send({
                 from: fromField,
-                to: user.email,
+                to: user.username,
                 ...getPasswordResetEmailContent({ passwordResetLink }),
             });
         } catch (e: any) {

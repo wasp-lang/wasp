@@ -57,7 +57,8 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "emailVerificationClientRoute" .= emailVerificationClientRoute,
           "passwordResetClientRoute" .= passwordResetClientRoute,
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
-          "getVerificationEmailContent" .= getVerificationEmailContent
+          "getVerificationEmailContent" .= getVerificationEmailContent,
+          "allowUnverifiedLogin" .= fromMaybe False (AS.Auth.allowUnverifiedLogin emailAuthConfig)
         ]
 
     fromFieldJson =

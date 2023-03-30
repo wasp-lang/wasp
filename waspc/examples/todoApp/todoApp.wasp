@@ -60,7 +60,7 @@ app todoApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     // Email auth
-    email                     String        @unique
+    username                  String        @unique
     password                  String
     isEmailVerified           Boolean       @default(false)
     emailVerificationSentAt   DateTime?

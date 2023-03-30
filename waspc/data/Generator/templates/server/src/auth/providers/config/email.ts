@@ -5,7 +5,7 @@ import { ProviderConfig } from "../types.js";
 import { emailSender } from '../../../email/index.js';
 import type { EmailFromField } from '../../../email/core/types.js';
 
-import { login } from "../email/login.js";
+import { getLoginRoute } from "../email/login.js";
 import { getSignupRoute } from "../email/signup.js";
 import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
@@ -53,7 +53,9 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        router.post('/login', login);
+        router.post('/login', getLoginRoute({
+            allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
+        }));
         router.post('/signup', getSignupRoute({
             emailSender,
             fromField,

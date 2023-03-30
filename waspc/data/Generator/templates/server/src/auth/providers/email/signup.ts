@@ -15,11 +15,11 @@ export function getSignupRoute({
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
 }) {
-    return handleRejection(async (req: Request<{ email: string; password: string; }>, res: Response) => {
+    return handleRejection(async (req: Request<{ username: string; password: string; }>, res: Response) => {
         const userFields = req.body;
-        userFields.email = userFields.email.toLowerCase();
+        userFields.username = userFields.username.toLowerCase();
 
-        const existingUser  = await findUserBy<'email'>({ email: userFields.email });
+        const existingUser  = await findUserBy<'username'>({ username: userFields.username });
         if (existingUser && existingUser.isEmailVerified) {
             return res.status(400).json({ message: 'User with this email already exists.' });
         } else if (existingUser && !existingUser.isEmailVerified) {
@@ -33,7 +33,7 @@ export function getSignupRoute({
         try {
             await emailSender.send({
                 from: fromField,
-                to: req.body.email,
+                to: userFields.username,
                 ...getVerificationEmailContent({ verificationLink }),
             });
         } catch (e: any) {

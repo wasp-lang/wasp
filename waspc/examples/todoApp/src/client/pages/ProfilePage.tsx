@@ -9,7 +9,7 @@ async function fetchCustomRoute() {
 }
 
 export const ProfilePage = ({
-  user: { email, isEmailVerified },
+  user: { username, isEmailVerified },
 }: {
   user: User
 }) => {
@@ -21,7 +21,7 @@ export const ProfilePage = ({
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{email}</strong>! Your status is{' '}
+        Hello <strong>{username}</strong>! Your status is{' '}
         <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
       </div>
       <br />

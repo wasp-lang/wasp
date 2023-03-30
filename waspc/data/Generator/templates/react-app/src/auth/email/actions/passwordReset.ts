@@ -2,7 +2,7 @@
 import type { AxiosError } from 'axios';
 import api, { handleApiError } from '../../../api';
 
-export async function requestPasswordReset(data: { email: string; }): Promise<{ success: boolean }> {
+export async function requestPasswordReset(data: { username: string; }): Promise<{ success: boolean }> {
     try {
         const response = api.post('{= requestPasswordResetPath =}', data).catch(handleApiError);
         return response.data;
