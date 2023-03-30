@@ -5,6 +5,7 @@ module Wasp.Generator.AuthProviders.Email
     serverSignupUrl,
     serverRequestPasswordResetUrl,
     serverResetPasswordUrl,
+    serverVerifyEmailUrl,
     EmailAuthProvider (..),
   )
 where
@@ -35,3 +36,6 @@ serverRequestPasswordResetUrl provider = "/auth/" ++ providerId provider ++ "/re
 
 serverResetPasswordUrl :: EmailAuthProvider -> String
 serverResetPasswordUrl provider = "/auth/" ++ providerId provider ++ "/reset-password"
+
+serverVerifyEmailUrl :: EmailAuthProvider -> String
+serverVerifyEmailUrl provider = "/auth/" ++ providerId provider ++ "/verify-email"

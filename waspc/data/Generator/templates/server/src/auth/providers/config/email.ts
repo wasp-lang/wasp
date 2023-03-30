@@ -9,7 +9,7 @@ import { login } from "../email/login.js";
 import { getSignupRoute } from "../email/signup.js";
 import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
-import { getVerifyEmailRoute } from "../email/verifyEmail.js";
+import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "../email/types.js";
 
 {=# getVerificationEmailContent.isDefined =}
@@ -57,6 +57,7 @@ const config: ProviderConfig = {
         router.post('/signup', getSignupRoute({
             emailSender,
             fromField,
+            clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
         }));
         router.post('/request-password-reset', getRequestPasswordResetRoute({
@@ -66,9 +67,7 @@ const config: ProviderConfig = {
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
         router.post('/reset-password', resetPassword);
-        router.get('/verify-email', getVerifyEmailRoute({
-            onVerifySuccessRedirectTo: '{= onVerifySuccessRedirectTo =}',
-        }));
+        router.post('/verify-email', verifyEmail);
 
         return router;
     },

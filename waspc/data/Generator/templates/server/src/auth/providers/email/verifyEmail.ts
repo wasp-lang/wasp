@@ -1,30 +1,20 @@
-import waspServerConfig from '../../../config.js';
-
+import { Request, Response } from 'express';
 import { handleRejection } from "../../../utils.js";
 import { updateUserEmailVerification, verifyToken } from '../../utils.js';
 import { tokenVerificationErrors } from './types.js';
 
-export function getVerifyEmailRoute({
-    onVerifySuccessRedirectTo,
-}: {
-    onVerifySuccessRedirectTo: string;
-}) {
-    return handleRejection(async (req, res) => {
-        const args = req.query || {};
-        const { token } = args;
-        try {
-            const { id: userId } = await verifyToken(token);
-            await updateUserEmailVerification(userId);
-        } catch (e) {
-            const reason = e.name === tokenVerificationErrors.TokenExpiredError
-                ? 'expired'
-                : 'invalid';
-            // TODO: implement on error redirect route
-            const errorRedirectUrl = `${waspServerConfig.frontendUrl}/?emailVerificationStatus=${reason}`;
-            return res.redirect(errorRedirectUrl);
-        }
-    
-        const redirectUrl = `${waspServerConfig.frontendUrl}${onVerifySuccessRedirectTo}?emailVerificationStatus=success`;
-        res.redirect(redirectUrl);
-    });
-}
+export const verifyEmail = handleRejection(async (req: Request<{ token: string }>, res: Response) => {
+    try {
+        const { token } = req.body;
+        const { id: userId } = await verifyToken(token);
+        await updateUserEmailVerification(userId);
+    } catch (e) {
+        const reason = e.name === tokenVerificationErrors.TokenExpiredError
+            ? 'expired'
+            : 'invalid';
+        return res.status(400).json({ success: false, reason });
+    }
+
+    return res.json({ success: true });
+});
+

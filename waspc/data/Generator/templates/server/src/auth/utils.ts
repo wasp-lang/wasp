@@ -5,6 +5,7 @@ import HttpError from '../core/HttpError.js'
 import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError } from '../utils.js'
 import { type {= userEntityUpper =} } from '../entities/index.js'
+import waspServerConfig from '../config.js';
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
@@ -26,6 +27,20 @@ export async function findUserBy<K extends keyof {= userEntityUpper =}>(where: {
 export async function createUser(data: {= userEntityUpper =}): Promise<{= userEntityUpper =}> {
   try {
     return await prisma.{= userEntityLower =}.create({ data })
+  } catch (e) {
+    if (e instanceof AuthError) {
+      throw new HttpError(422, 'Validation failed', { message: e.message })
+    } else if (isPrismaError(e)) {
+      throw prismaErrorToHttpError(e)
+    } else {
+      throw new HttpError(500)
+    }
+  }
+}
+
+export async function deleteUser(user: {= userEntityUpper =}): Promise<{= userEntityUpper =}> {
+  try {
+    return await prisma.{= userEntityLower =}.delete({ where: { id: user.id } })
   } catch (e) {
     if (e instanceof AuthError) {
       throw new HttpError(422, 'Validation failed', { message: e.message })
@@ -79,11 +94,21 @@ export async function updateUserPassword(userId: {= userEntityUpper =}Id, passwo
   }
 }
 
-export async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
+export async function createEmailVerificationLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
+  const token = await createEmailVerificationToken(user);
+  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
+}
+
+export async function createPasswordResetLink(user: {= userEntityUpper =}, clientRoute: string): Promise<string> {
+  const token = await createPasswordResetToken(user);
+  return `${waspServerConfig.frontendUrl}${clientRoute}?token=${token}`;
+}
+
+async function createEmailVerificationToken(user: {= userEntityUpper =}): Promise<string> {
   return sign(user.id, { expiresIn: '30m' });
 }
 
-export async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
+async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
   return sign(user.id, { expiresIn: '30m' });
 }
 {=/ isEmailAuthEnabled =}
