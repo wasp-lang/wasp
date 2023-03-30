@@ -70,7 +70,6 @@ async function findOrCreateUserByExternalAuthAssociation(
     return externalAuthAssociation.user
   }
 
-  // TODO: Wrap `getuser()` and the `update()` into a transaction.
   // No external auth association linkage found. Get a user by invoking `getUser()`.
   // Additionally, associate the externalAuthAssociations with the new User.
   const user = await getUser()
