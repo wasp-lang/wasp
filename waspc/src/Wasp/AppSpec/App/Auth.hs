@@ -49,7 +49,7 @@ data UsernameAndPasswordConfig = UsernameAndPasswordConfig
 
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
-    getUserFieldsFn :: Maybe ExtImport
+    getUserFn :: ExtImport
   }
   deriving (Show, Eq, Data)
 

@@ -51,8 +51,7 @@ genOAuthHelpers auth =
   sequence
     [ genCreateRouter auth,
       genTypes auth,
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/defaults.ts|]
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
     ]
 
 genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
@@ -109,10 +108,10 @@ genOAuthConfig provider maybeUserConfig pathToConfigDst = return $ C.mkTmplFdWit
           "npmPackage" .= App.Dependency.name (OAuth.passportDependency provider),
           "oAuthConfigProps" .= getJsonForOAuthConfigProps provider,
           "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
-          "userFieldsFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFieldsFn
+          "userFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeGetUserFn
         ]
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
-    maybeGetUserFieldsFn = AS.Auth.getUserFieldsFn =<< maybeUserConfig
+    maybeGetUserFn = AS.Auth.getUserFn <$> maybeUserConfig
 
     relPathFromAuthConfigToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromAuthConfigToServerSrcDir = [reldirP|../../../|]

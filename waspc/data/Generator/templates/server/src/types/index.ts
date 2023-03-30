@@ -14,7 +14,7 @@ export { Application } from 'express'
 export { Server } from 'http'
 
 {=# isExternalAuthEnabled =}
-export { GetUserFieldsFn } from '../auth/providers/oauth/types';
+export { GetUserFn } from '../auth/providers/oauth/types';
 {=/ isExternalAuthEnabled =}
 
 {=# isEmailAuthEnabled =}

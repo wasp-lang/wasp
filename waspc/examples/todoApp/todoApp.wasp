@@ -10,17 +10,17 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    // externalAuthEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
     methods: {
       // usernameAndPassword: {},
-      // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
-      // gitHub: {
+      google: {
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFn: import { getUser } from "@server/auth/google.js"
+      },
+      gitHub: {
       //   configFn: import { config } from "@server/auth/github.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
-      // }
+        getUserFn: import { getUser } from "@server/auth/github.js"
+      },
       email: {
         fromField: {
           name: "ToDO App",
