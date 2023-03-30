@@ -2,7 +2,7 @@
 import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
-import { defaultMiddleware, toMiddlewareArray } from '../../middleware.js'
+import { getDefaultMiddleware, toMiddlewareArray } from '../../middleware.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
 import { type UserInContext } from '../../_types'
@@ -25,7 +25,7 @@ const {=& middlewareImportAlias =} = idFn
 const router = express.Router()
 
 {=# apiRoutes =}
-router.use('{= routePath =}', toMiddlewareArray({= middlewareImportAlias =}(defaultMiddleware())))
+router.use('{= routePath =}', toMiddlewareArray({= middlewareImportAlias =}(getDefaultMiddleware())))
 {=# usesAuth =}
 router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
 {=/ usesAuth =}

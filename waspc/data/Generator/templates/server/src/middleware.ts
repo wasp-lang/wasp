@@ -27,12 +27,15 @@ const _defaultMiddleware: MiddlewareConfig = new Map([
   ['cookieParser', cookieParser()]
 ])
 
-export function defaultMiddleware(): MiddlewareConfig {
-  // Return a clone so they can't mess up the map for any other routes.
-  return new Map({=& middlewareImportAlias =}(_defaultMiddleware))
+// TODO: change middlewareImportAlias name
+const defaultMiddleware = {=& middlewareImportAlias =}(_defaultMiddleware)
+
+export function getDefaultMiddleware(): MiddlewareConfig {
+  // Return a clone so they can't mess up the Map for any other routes.
+  return new Map(defaultMiddleware)
 }
 
-export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware())
+export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware)
 
 export function toMiddlewareArray(middleware: MiddlewareConfig): express.RequestHandler[] {
   return Array.from(middleware.values())
