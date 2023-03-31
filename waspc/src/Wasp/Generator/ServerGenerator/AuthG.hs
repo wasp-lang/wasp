@@ -86,7 +86,8 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
        in object
             [ "userEntityUpper" .= userEntityName,
               "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-              "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
+              "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+              "isEmailOrUsernameAndPasswordAuthEnabled" .= any ($ auth) [AS.Auth.isEmailAuthEnabled, AS.Auth.isUsernameAndPasswordAuthEnabled]
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
