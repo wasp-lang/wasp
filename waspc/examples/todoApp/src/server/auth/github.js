@@ -20,11 +20,11 @@ export async function getUser(context, args) {
   // Find or create user based on GitHub email.
   const user = await context.entities.User.upsert({
     where: {
-      email: args.profile.email,
+      username: args.profile.email,
     },
     update: {},
     create: {
-      email: args.profile.email,
+      username: args.profile.email,
       password: uuidv4(),
     },
   })

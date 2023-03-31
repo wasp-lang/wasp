@@ -19,11 +19,11 @@ export async function getUser(context, args) {
   // Find or create user based on Google email.
   const user = await context.entities.User.upsert({
     where: {
-      email: email.value,
+      username: email.value,
     },
     update: {},
     create: {
-      email: email.value,
+      username: email.value,
       isEmailVerified: email.verified,
       password: uuidv4(),
     },

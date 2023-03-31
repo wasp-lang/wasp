@@ -2,11 +2,12 @@
 
 import { Router } from "express"
 import passport from "passport"
+import { PrismaClient } from '@prisma/client'
 
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import { sign } from '../../../core/auth.js'
-import { authConfig, contextWithUserEntity } from "../../utils.js"
+import { authConfig } from "../../utils.js"
 
 import type { {= userEntityUpper =} } from '../../../entities';
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
@@ -40,9 +41,13 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
                 throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
             }
 
-            const user = await prisma.$transaction(async (tx) => {
+            const user = await prisma.$transaction(async (tx: PrismaClient) => {
               // Wrap call to getUserFn so we can invoke only if needed.
-              const getUser = () => getUserFn({ entities: { {= userEntityUpper =}: tx.{= userEntityLower =} } }, { profile: providerProfile });
+              const context = {
+                entities: { {= userEntityUpper =}: tx.{= userEntityLower =} },
+                prisma: tx
+              }
+              const getUser = () => getUserFn(context, { profile: providerProfile });
               return await findOrCreateUserByExternalAuthAssociation(provider.id, providerProfile.id, getUser, tx);
             })
 
@@ -58,7 +63,7 @@ async function findOrCreateUserByExternalAuthAssociation(
   provider: string,
   providerId: string,
   getUser: () => ReturnType<GetUserFn>,
-  tx: any,
+  tx: PrismaClient,
 ): Promise<{= userEntityUpper =}> {
   // Attempt to find a User by an external auth association.
   const externalAuthAssociation = await prisma.{= externalAuthEntityLower =}.findFirst({
