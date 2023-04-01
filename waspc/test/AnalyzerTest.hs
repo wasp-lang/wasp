@@ -63,6 +63,7 @@ spec_Analyzer = do
                 "  },",
                 "  db: {",
                 "    system: PostgreSQL",
+                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -162,7 +163,17 @@ spec_Analyzer = do
                               Just $
                                 ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
                           },
-                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL},
+                    App.db =
+                      Just
+                        Db.Db
+                          { Db.system = Just Db.PostgreSQL,
+                            Db.seeds =
+                              Just
+                                [ ExtImport
+                                    (ExtImportField "devSeedSimple")
+                                    (fromJust $ SP.parseRelFileP "dbSeeds.js")
+                                ]
+                          },
                     App.emailSender =
                       Just
                         EmailSender.EmailSender
