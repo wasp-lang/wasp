@@ -62,7 +62,7 @@ spec_Analyzer = do
                 "    setupFn: import { setupClient } from \"@client/baz.js\"",
                 "  },",
                 "  db: {",
-                "    system: PostgreSQL",
+                "    system: PostgreSQL,",
                 "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
                 "  },",
                 "  emailSender: {",

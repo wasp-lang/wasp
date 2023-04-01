@@ -174,9 +174,6 @@ npmDepsForWasp spec =
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("typescript", "^4.8.4"),
-            -- TODO: ts-node here I put for seeding, but I should not do it at all
-            --   or do it conditionally.
-            ("ts-node", "^10.9.1"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
