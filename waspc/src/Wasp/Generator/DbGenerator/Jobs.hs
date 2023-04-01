@@ -107,7 +107,6 @@ reset projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
 --   prisma.seed field.
 seed :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
--- seed projectDir = runPrismaCommandAsJob projectDir $ const ["db", "seed"]
 seed projectDir maybeSeedName =
   runPrismaCommandAsJobWithExtraEnv
     J.Db

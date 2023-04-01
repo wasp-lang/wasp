@@ -131,8 +131,6 @@ genPackageJson spec waspDependencies = do
                        ++ "NODE_ENV=production npm run start"
                    ),
               "overrides" .= getPackageJsonOverrides,
-              -- TODO: Make it so that I don't render any 'prisma' field
-              --   if there is nothing to render in it?
               "prisma" .= ByteStringLazyUTF8.toString (Aeson.encode $ getPackageJsonPrismaField spec)
             ]
       )
