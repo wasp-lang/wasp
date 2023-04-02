@@ -41,10 +41,14 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
                 throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
             }
 
+            // Use a transaction as the `getUserFn` may create a new User entity,
+            // but we want that to rollback if creating the association fails.
             const user = await prisma.$transaction(async (tx: PrismaClient) => {
               // Wrap call to getUserFn so we can invoke only if needed.
               const context = {
                 entities: { {= userEntityUpper =}: tx.{= userEntityLower =} },
+                // NOTE: Giving them "prisma" as the tx so they can do other DB stuff in a
+                // transaction friendly way.
                 prisma: tx
               }
               const getUser = () => getUserFn(context, { profile: providerProfile });
