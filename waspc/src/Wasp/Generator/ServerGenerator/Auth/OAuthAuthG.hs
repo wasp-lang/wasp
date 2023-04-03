@@ -51,8 +51,8 @@ genOAuthHelpers auth =
   sequence
     [ genCreateRouter auth,
       genTypes auth,
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|],
-      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/defaults.ts|]
+      genDefaults auth,
+      return $ C.mkSrcTmplFd [relfile|auth/providers/oauth/init.ts|]
     ]
 
 genCreateRouter :: AS.Auth.Auth -> Generator FileDraft
@@ -62,7 +62,8 @@ genCreateRouter auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers/o
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String)
+          "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
+          "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
@@ -73,6 +74,12 @@ genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/types.ts|]
     tmplData = object ["userEntityName" .= userEntityName]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+
+genDefaults :: AS.Auth.Auth -> Generator FileDraft
+genDefaults auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
+  where
+    tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/defaults.ts|]
+    tmplData = object ["isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth]
 
 genOAuthProvider ::
   OAuthAuthProvider ->

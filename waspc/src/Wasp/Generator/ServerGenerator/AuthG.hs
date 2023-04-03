@@ -79,7 +79,10 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
-       in object ["userEntityUpper" .= (userEntityName :: String)]
+       in object
+            [ "userEntityUpper" .= (userEntityName :: String),
+              "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
+            ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
