@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { EmailSender, EmailFromField } from "../../../email/core/types.js";
 import { handleRejection } from "../../../utils.js";
-import { createEmailVerificationLink, createUser, findUserBy, deleteUser } from "../../utils.js";
+import { createEmailVerificationLink, createUser, findUserBy, deleteUser, doFakeWork } from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
 
 export function getSignupRoute({
@@ -20,8 +20,10 @@ export function getSignupRoute({
         userFields.username = userFields.username.toLowerCase();
 
         const existingUser  = await findUserBy<'username'>({ username: userFields.username });
+        // User already exists and is verified - don't leak information
         if (existingUser && existingUser.isEmailVerified) {
-            return res.status(400).json({ message: 'User with this email already exists.' });
+            await doFakeWork();
+            return res.json({ success: true });
         } else if (existingUser && !existingUser.isEmailVerified) {
             // TODO: Check using emailVerificationSentAt to ensure we send email once per minute
             await deleteUser(existingUser);

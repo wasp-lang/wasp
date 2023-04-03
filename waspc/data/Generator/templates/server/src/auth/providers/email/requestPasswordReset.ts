@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { handleRejection } from "../../../utils.js";
-import { createPasswordResetLink, findUserBy } from "../../utils.js";
+import { createPasswordResetLink, findUserBy, doFakeWork } from "../../utils.js";
 import type { EmailSender, EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
 
@@ -19,8 +19,10 @@ export function getRequestPasswordResetRoute({
         const args = req.body || {};
         const user = await findUserBy<'username'>({ username: args.email });
     
-        if (!user) {
-            return res.status(400).json({ message: 'User not found' });
+        // User not found or not verified - don't leak information
+        if (!user || !user.isEmailVerified) {
+            await doFakeWork();
+            return res.json({ success: true });
         }
     
         const passwordResetLink = await createPasswordResetLink(user, clientRoute);

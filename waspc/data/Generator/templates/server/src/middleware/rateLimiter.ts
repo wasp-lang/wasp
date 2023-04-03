@@ -1,30 +1,22 @@
 import { Request, Response, NextFunction } from "express";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
-// There are two limiters
-// - rateLimiter: 10 requests per second
-// - oncePerMinuteLimiter: 2 requests per minute
-
-const rateLimiter = new RateLimiterMemory({
-  points: 10,
-  duration: 1,
-})
-
-const oncePerMinuteLimiter = new RateLimiterMemory({
-  points: 2,
+// 3 requests per minute
+const limiter = new RateLimiterMemory({
+  points: 3,
   duration: 60,
 })
 
-const oncePerMinuteRoutes = [
+const rateLimitedRoutes = [
   '/auth/email/signup',
   '/auth/email/request-password-reset',
 ]
 
 export function rateLimiterMiddleware() {
   return function rateLimit(req: Request, res: Response, next: NextFunction) {
-    const limiter = oncePerMinuteRoutes.includes(req.path)
-      ? oncePerMinuteLimiter
-      : rateLimiter
+    if (!rateLimitedRoutes.includes(req.path)) {
+      return next()
+    }
 
     limiter
       .consume(req.ip)
