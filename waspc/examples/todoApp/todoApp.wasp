@@ -111,6 +111,13 @@ api fooBar {
   httpRoute: (GET, "/foo/bar")
 }
 
+api barBaz {
+  fn: import { barBaz } from "@server/apis.js",
+  auth: false,
+  entities: [Task],
+  httpRoute: (GET, "/bar/baz")
+}
+
 query getNumTasks {
   fn: import { getNumTasks } from "@server/queries.js",
   entities: [Task],

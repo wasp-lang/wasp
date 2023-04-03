@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 
 import logout from '@wasp/auth/logout.js'
-import useAuth from '@wasp/auth/useAuth.js'
+import useAuth from '@wasp/auth/useAuth'
 
 import './Main.css'
+
 export function App({ children }) {
   const { data: user } = useAuth()
 

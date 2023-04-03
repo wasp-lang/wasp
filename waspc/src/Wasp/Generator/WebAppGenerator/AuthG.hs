@@ -48,7 +48,7 @@ genCreateAuthRequiredPage auth =
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: Generator FileDraft
-genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
+genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.ts|])
 
 genUserHelpers :: Generator FileDraft
 genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])

@@ -72,15 +72,13 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 {=# isAuthEnabled =}
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & UserInContext>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user: SanitizedUser}>
 
-export type UserInContext = {
-  // TODO: This type must match the logic in core/auth.js (if we remove the
-  // password field from the object there, we must do the same here). Ideally,
-  // these two things would live in the same place:
-  // https://github.com/wasp-lang/wasp/issues/965
-  user: Omit<{= userEntityName =}, 'password'>
-}
+// TODO: This type must match the logic in core/auth.js (if we remove the
+// password field from the object there, we must do the same here). Ideally,
+// these two things would live in the same place:
+// https://github.com/wasp-lang/wasp/issues/965
+export type SanitizedUser = Omit<{= userEntityName =}, 'password'>
 {=/ isAuthEnabled =}
 
 // This is a helper type used exclusively for DX purposes. It's a No-op for the
