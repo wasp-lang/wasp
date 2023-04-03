@@ -55,7 +55,7 @@ waspCompile/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspCompile/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspCompile/.wasp/out/web-app/src/index.tsx
 waspCompile/.wasp/out/web-app/src/logo.png
-waspCompile/.wasp/out/web-app/src/operations/index.js
+waspCompile/.wasp/out/web-app/src/operations/index.ts
 waspCompile/.wasp/out/web-app/src/operations/resources.js
 waspCompile/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspCompile/.wasp/out/web-app/src/queries/core.d.ts
@@ -65,6 +65,10 @@ waspCompile/.wasp/out/web-app/src/queries/index.js
 waspCompile/.wasp/out/web-app/src/queryClient.js
 waspCompile/.wasp/out/web-app/src/router.jsx
 waspCompile/.wasp/out/web-app/src/storage.ts
+waspCompile/.wasp/out/web-app/src/test/index.ts
+waspCompile/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspCompile/.wasp/out/web-app/src/test/vitest/setup.ts
+waspCompile/.wasp/out/web-app/src/types.ts
 waspCompile/.wasp/out/web-app/src/universal/url.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/src/vite-env.d.ts

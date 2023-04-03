@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { SignupForm } from '@wasp/auth/email'
 import getNumTasks from '@wasp/queries/getNumTasks'
 import { useQuery } from '@wasp/queries'
+import { getTotalTaskCountMessage } from './helpers'
 
 const Signup = () => {
   const { data: numTasks } = useQuery(getNumTasks)
@@ -14,7 +15,7 @@ const Signup = () => {
         I already have an account (<Link to="/login">go to login</Link>).
       </span>
       <br />
-      <span>Number of tasks already created: {numTasks}</span>
+      <span>{getTotalTaskCountMessage(numTasks)}</span>
     </>
   )
 }

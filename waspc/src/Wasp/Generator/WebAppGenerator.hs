@@ -59,6 +59,9 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|src/test/vitest/setup.ts|],
+      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|src/test/index.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -144,6 +147,7 @@ npmDepsForWasp spec =
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^1.0.1")
           ]
+          ++ depsRequiredForTesting
     }
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
@@ -156,6 +160,17 @@ depsRequiredByTailwind spec =
           ("autoprefixer", "^10.4.13")
         ]
     else []
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^0.29.3"),
+      ("@vitest/ui", "^0.29.3"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/jest-dom", "^5.16.5"),
+      ("msw", "^1.1.0")
+    ]
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -217,6 +232,7 @@ genSrcDir spec =
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|types.ts|],
       copyTmplFile [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
