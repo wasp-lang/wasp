@@ -40,7 +40,8 @@ export function mockServer(): {
   })
   afterAll(() => server.close())
 
-  function mockQuery({ route }: { route: QueryRoute }, resJson: any): void {
+  function mockQuery<Input, Output>(query: Query<Input, Output>, resJson: Output): void {
+    const route = (query as InternalQuery<Input, Output>).route
     if (!Object.values(HttpMethod).includes(route.method)) {
       throw new Error(`Unsupported query method for mocking: ${route.method}. Supported method strings are: ${Object.values(HttpMethod).join(', ')}.`)
     }
@@ -64,4 +65,10 @@ export function mockServer(): {
   }
 
   return { server, mockQuery }
+}
+
+type InternalQuery<Input, Output> = {
+  (args: Input): Promise<Output>
+  queryCacheKey: string[]
+  route: { method: HttpMethod, path: string }
 }

@@ -169,7 +169,6 @@ const NewTaskForm = () => {
   const createNewTask = async (description: Task['description']) => {
     const task = { isDone: false, description }
     await createTaskFn(task)
-    console.log('asdf')
   }
 
   const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (

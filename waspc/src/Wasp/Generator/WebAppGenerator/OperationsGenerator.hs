@@ -12,7 +12,6 @@ import Data.Aeson
 import Data.Aeson.Types (Pair)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
-import Debug.Trace (trace)
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.FilePath (splitExtension)
