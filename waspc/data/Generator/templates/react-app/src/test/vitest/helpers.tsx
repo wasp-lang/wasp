@@ -26,10 +26,11 @@ export function renderInContext(ui: ReactElement): RenderResult {
 }
 
 type QueryRoute = Query<any, any>['route']
+type MockQuery = <Input, Output, MockData extends Output>(query: Query<Input, Output>, resJson: MockData) => void
 
 export function mockServer(): {
   server: SetupServer,
-  mockQuery: ({ route }: { route: QueryRoute }, resJson: any) => void
+  mockQuery: MockQuery,
 } {
   const server: SetupServer = setupServer()
 
@@ -40,15 +41,15 @@ export function mockServer(): {
   })
   afterAll(() => server.close())
 
-  function mockQuery<Input, Output>(query: Query<Input, Output>, resJson: Output): void {
-    const route = (query as InternalQuery<Input, Output>).route
+  const mockQuery : MockQuery = (query, mockData) => {
+    const route = (query as InternalQuery<any, any>).route
     if (!Object.values(HttpMethod).includes(route.method)) {
       throw new Error(`Unsupported query method for mocking: ${route.method}. Supported method strings are: ${Object.values(HttpMethod).join(', ')}.`)
     }
 
     const url = `${config.apiUrl}${route.path}`
     const responseHandler: ResponseResolver<any, RestContext, any> = (_req, res, ctx) => {
-      return res(ctx.json(resJson))
+      return res(ctx.json(mockData))
     }
 
     // NOTE: Technically, we only need to care about POST for Queries
