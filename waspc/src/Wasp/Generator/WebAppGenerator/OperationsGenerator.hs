@@ -12,8 +12,9 @@ import Data.Aeson
 import Data.Aeson.Types (Pair)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
-import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
+import StrongPath (File, File', Path, Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
+import StrongPath.Types (Posix)
 import System.FilePath (splitExtension)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -105,28 +106,25 @@ operationTypeData operation = tmplData
         "operationTypeName" .= (operationTypeImportIdentifier :: String)
       ]
 
-    serverOperationFileInServerRootDir = serverSrcDirInServerRootDir </> operationFileInSrcDir operation
-    serverOperationFileFromWebAppRootDir = serverRootDirFromWebAppRootDir </> serverOperationFileInServerRootDir
-    webAppRootDirFromWebAppQueriesDir = [reldir|../..|]
-    serverOperationFileFromWebAppQueriesDir =
-      webAppRootDirFromWebAppQueriesDir </> serverOperationFileFromWebAppRootDir
-
-    operationImportPath =
-      fromJust $
-        SP.parseRelFileP $
-          toViteImportPath $
-            SP.fromRelFileP $
-              fromJust $
-                SP.relFileToPosix serverOperationFileFromWebAppQueriesDir
-
-    operationName = AS.Operation.getName operation
-
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
         makeJsImport operationImportPath (JsImportField $ toUpperFirst operationName)
 
-toViteImportPath :: FilePath -> String
-toViteImportPath = dropExtension
+    operationName = AS.Operation.getName operation
+
+    operationImportPath =
+      toViteImportPath $
+        fromJust $
+          SP.relFileToPosix serverOperationFileFromWebAppOperationsDir
+
+    serverOperationFileFromWebAppOperationsDir =
+      webAppRootDirFromWebAppOperationsDir </> serverOperationFileFromWebAppRootDir
+    webAppRootDirFromWebAppOperationsDir = [reldir|../..|]
+    serverOperationFileFromWebAppRootDir = serverRootDirFromWebAppRootDir </> serverOperationFileInServerRootDir
+    serverOperationFileInServerRootDir = serverSrcDirInServerRootDir </> operationFileInSrcDir operation
+
+toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
+toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
   where
     dropExtension = fst . splitExtension
 
