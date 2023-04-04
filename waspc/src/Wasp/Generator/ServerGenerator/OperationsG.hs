@@ -100,7 +100,7 @@ genAction :: (String, AS.Action.Action) -> Generator FileDraft
 genAction (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.ActionOp actionName action
-    tmplFile = [relfile|src/actions/_action.js|]
+    tmplFile = [relfile|src/actions/_action.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir actionName
     tmplData = operationTmplData operation
 
@@ -114,7 +114,7 @@ actionFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir actionName =
   [reldir|actions|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ actionName ++ ".js")
+    </> fromJust (SP.parseRelFile $ actionName ++ ".ts")
 
 operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) File'
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
@@ -124,7 +124,7 @@ operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
     [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
-      "queryTypeName" .= toUpperFirst (getName operation),
+      "operationTypeName" .= toUpperFirst (getName operation),
       "entities"
         .= maybe
           []

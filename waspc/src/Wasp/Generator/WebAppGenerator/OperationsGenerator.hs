@@ -79,6 +79,24 @@ genQuery _ (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFi
           ++ operationTypeData operation
     operation = AS.Operation.QueryOp queryName query
 
+genAction :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
+genAction _ (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+  where
+    tmplFile = C.asTmplFile [relfile|src/actions/_action.ts|]
+
+    dstFile = C.asWebAppFile $ [reldir|src/actions/|] </> fromJust (getOperationDstFileName operation)
+    tmplData =
+      object $
+        [ "actionRoute"
+            .= ( ServerGenerator.operationsRouteInRootRouter
+                   ++ "/"
+                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
+               ),
+          "entitiesArray" .= makeJsArrayOfEntityNames operation
+        ]
+          ++ operationTypeData operation
+    operation = AS.Operation.ActionOp actionName action
+
 operationTypeData :: AS.Operation.Operation -> [Pair]
 operationTypeData operation = tmplData
   where
@@ -111,23 +129,6 @@ toViteImportPath :: FilePath -> String
 toViteImportPath = dropExtension
   where
     dropExtension = fst . splitExtension
-
-genAction :: AppSpec -> (String, AS.Action.Action) -> Generator FileDraft
-genAction _ (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
-  where
-    tmplFile = C.asTmplFile [relfile|src/actions/_action.js|]
-
-    dstFile = C.asWebAppFile $ [reldir|src/actions/|] </> fromJust (getOperationDstFileName operation)
-    tmplData =
-      object
-        [ "actionRoute"
-            .= ( ServerGenerator.operationsRouteInRootRouter
-                   ++ "/"
-                   ++ ServerOperationsRoutesG.operationRouteInOperationsRouter operation
-               ),
-          "entitiesArray" .= makeJsArrayOfEntityNames operation
-        ]
-    operation = AS.Operation.ActionOp actionName action
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
 --   E.g. "['Task', 'Project']"

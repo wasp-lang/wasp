@@ -7,7 +7,10 @@ import {
 } from '@tanstack/react-query'
 import { Query } from '../queries';
 
-export type Action<Input, Output> = (args?: Input) => Promise<Output>;
+export type Action<Input, Output> = 
+  [Input] extends [never] ? 
+  () => Promise<Output> :
+  (args: Input) => Promise<Output>
 
 /**
  * An options object passed into the `useAction` hook and used to enhance the
