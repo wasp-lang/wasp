@@ -44,6 +44,7 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
           validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
@@ -111,6 +112,18 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   ]
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
+
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
+  case App.auth (snd $ getApp spec) of
+    Nothing -> []
+    Just auth ->
+      [ GenericValidationError
+          "Expected app.auth to use either email or username and password authentication, but not both."
+        | areBothAuthMethodsUsed
+      ]
+      where
+        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
