@@ -10,18 +10,19 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    // externalAuthEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
     methods: {
       // usernameAndPassword: {},
-      // google: {
-      //   // configFn: import { config } from "@server/auth/google.js",
-      //   // getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
+      google: {
+        // configFn: import { config } from "@server/auth/google.js",
+        // getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      },
       // gitHub: {
       //   configFn: import { config } from "@server/auth/github.js",
       //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
       // }
       email: {
+        allowUnverifiedLogin: true,
         fromField: {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { LoginForm } from '@wasp/auth/email'
-// import { SignInButton as GoogleSignInButton } from '@wasp/auth/helpers/Google'
+import { SignInButton as GoogleSignInButton } from '@wasp/auth/helpers/Google'
 // import { SignInButton as GitHubSignInButton } from '@wasp/auth/helpers/GitHub'
 
 const Login = () => {
@@ -15,10 +15,10 @@ const Login = () => {
         I forgot my password (
         <Link to="/request-password-reset">reset password</Link>).
       </div>
-      {/* <div className="flex flex-col gap-2 max-w-xs">
-        <GoogleSignInButton/>
-        <GitHubSignInButton/>
-      </div> */}
+      <div className="flex flex-col gap-2 max-w-xs">
+        <GoogleSignInButton />
+        {/* <GitHubSignInButton/> */}
+      </div>
     </div>
   )
 }

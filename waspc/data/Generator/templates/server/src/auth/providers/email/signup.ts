@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { EmailSender, EmailFromField } from "../../../email/core/types.js";
-import { handleRejection } from "../../../utils.js";
 import { createEmailVerificationLink, createUser, findUserBy, deleteUser, doFakeWork, ensureValidEmailAndPassword } from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
 
@@ -15,7 +14,10 @@ export function getSignupRoute({
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
 }) {
-    return handleRejection(async (req: Request<{ email: string; password: string; }>, res: Response) => {
+    return async function signup(
+        req: Request<{ email: string; password: string; }>,
+        res: Response,
+    ): Promise<Response<{ success: true } | { success: false; message: string }>> {
         const userFields = req.body;
         ensureValidEmailAndPassword(userFields);
         
@@ -46,5 +48,5 @@ export function getSignupRoute({
         } 
       
         return res.json({ success: true });
-    });
+    };
 }

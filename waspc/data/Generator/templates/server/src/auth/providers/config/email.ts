@@ -11,8 +11,7 @@ import { getRequestPasswordResetRoute } from "../email/requestPasswordReset.js";
 import { resetPassword } from "../email/resetPassword.js";
 import { verifyEmail } from "../email/verifyEmail.js";
 import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "../email/types.js";
-import AuthError from "../../../core/AuthError.js";
-import HttpError from "../../../core/HttpError.js";
+import { handleRejection } from "../../../utils.js";
 
 {=# getVerificationEmailContent.isDefined =}
 {=& getVerificationEmailContent.importStatement =}
@@ -55,38 +54,35 @@ const config: ProviderConfig = {
     createRouter() {
         const router = Router();
 
-        router.post('/login', handleAuthErrorMiddleware, getLoginRoute({
+        const loginRoute = handleRejection(getLoginRoute({
             allowUnverifiedLogin: {=# allowUnverifiedLogin =}true{=/ allowUnverifiedLogin =}{=^ allowUnverifiedLogin =}false{=/ allowUnverifiedLogin =},
         }));
-        router.post('/signup', getSignupRoute({
+        router.post('/login', loginRoute);
+
+        const signupRoute = handleRejection(getSignupRoute({
             emailSender,
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
         }));
-        router.post('/request-password-reset', handleAuthErrorMiddleware, getRequestPasswordResetRoute({
+        router.post('/signup', signupRoute);
+        
+        const requestPasswordResetRoute = handleRejection(getRequestPasswordResetRoute({
             emailSender,
             fromField,
             clientRoute: '{= passwordResetClientRoute =}',
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,
         }));
-        router.post('/reset-password', handleAuthErrorMiddleware, resetPassword);
-        router.post('/verify-email', handleAuthErrorMiddleware, verifyEmail);
+        router.post('/request-password-reset', requestPasswordResetRoute);
+
+        router.post('/reset-password', handleRejection(resetPassword));
+        router.post('/verify-email', handleRejection(verifyEmail));
 
         return router;
     },
 }
 
-function handleAuthErrorMiddleware(_req: Request, res: Response, next: NextFunction): void {
-    try {
-        next();
-    } catch (e: unknown) {
-        if (e instanceof AuthError) {
-            throw new HttpError(422, 'Validation failed', { message: e.message })
-        } else {
-            throw e;
-        }
-    }    
-}
+type ExpressRoute = (req: Request, res: Response, next: NextFunction) => Promise<Response>;
+
 
 export default config;

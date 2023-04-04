@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import { verifyPassword } from "../../../core/auth.js";
-import AuthError from '../../../core/AuthError.js';
-import { handleRejection } from "../../../utils.js";
 import { findUserBy, createAuthToken, ensureValidEmailAndPassword } from "../../utils.js";
 
 export function getLoginRoute({
@@ -9,7 +7,10 @@ export function getLoginRoute({
 }: {
     allowUnverifiedLogin: boolean
 }) {
-    return handleRejection(async (req: Request<{ email: string; password: string; }>, res: Response) => {
+    return async function login(
+        req: Request<{ email: string; password: string; }>,
+        res: Response
+    ): Promise<Response<{ token: string } | undefined>> {
         const args = req.body || {};
         ensureValidEmailAndPassword(args);
 
@@ -29,5 +30,5 @@ export function getLoginRoute({
         const token = await createAuthToken(user);
       
         return res.json({ token })
-    });
+    };
 }

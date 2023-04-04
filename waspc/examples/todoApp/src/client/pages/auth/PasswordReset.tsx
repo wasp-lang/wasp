@@ -19,7 +19,7 @@ export function PasswordReset() {
       return
     }
     try {
-      await resetPassword({ newPassword: password, token })
+      await resetPassword({ password, token })
       history.push('/login')
     } catch (e: any) {
       alert(e.message)

@@ -146,14 +146,13 @@ export function ensureValidPassword(args: unknown): void {
 function validate(args: unknown, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
   for (const { validates, message, validator } of validators) {
     if (!validator(args[validates])) {
-      throw new AuthError(message);
+      throw new HttpError(422, `Validation failed: ${message}`, { message, field: validates })
     }
   }
 }
 {=/ isEmailAuthEnabled =}
 
 function rethrowError(e: unknown): void {
-  console.error(e);
   if (e instanceof AuthError) {
     throw new HttpError(422, 'Validation failed', { message: e.message })
   } else if (isPrismaError(e)) {
