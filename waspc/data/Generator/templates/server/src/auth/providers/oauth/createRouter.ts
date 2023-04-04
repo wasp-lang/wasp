@@ -75,10 +75,10 @@ async function findOrCreateUserByExternalAuthAssociation(
   const userFields = await getUserFields()
   const userAndExternalAuthAssociation = {
     ...userFields,
-    {=# isUsernameAndPasswordAuthEnabled =}
-    // TODO: Decouple social from username and password auth.
+    {=# isPasswordOnUserEntity =}
+    // TODO: Decouple social from usernameAndPassword oauth.
     password: uuidv4(),
-    {=/ isUsernameAndPasswordAuthEnabled =}
+    {=/ isPasswordOnUserEntity =}
     externalAuthAssociations: {
       create: [{ provider, providerId }]
     }

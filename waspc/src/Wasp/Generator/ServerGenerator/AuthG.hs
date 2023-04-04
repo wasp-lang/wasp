@@ -18,7 +18,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider, localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
@@ -35,7 +35,7 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genCoreAuth auth,
-        genAuthMiddleware auth,
+        genAuthMiddleware spec auth,
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
@@ -43,7 +43,7 @@ genAuth spec = case maybeAuth of
         genFileCopy [relfile|auth/providers/types.ts|]
       ]
       <++> genLocalAuth auth
-      <++> genOAuthAuth auth
+      <++> genOAuthAuth spec auth
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -64,8 +64,8 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genAuthMiddleware :: AS.Auth.Auth -> Generator FileDraft
-genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAuthMiddleware :: AS.AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genAuthMiddleware spec auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     -- TODO(martin): In prismaMiddleware.js, we assume that 'username' and 'password' are defined in user entity.
     --   This was promised to us by AppSpec, which has validation checks for this.
@@ -81,7 +81,8 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
-              "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
+              "isPasswordOnUserEntity" .= (doesUserEntityContainField spec "password" == Just True),
+              "isUsernameOnUserEntity" .= (doesUserEntityContainField spec "username" == Just True)
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft

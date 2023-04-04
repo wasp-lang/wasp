@@ -5,6 +5,7 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
+    doesUserEntityContainField,
   )
 where
 
@@ -193,3 +194,11 @@ getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
 isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
+doesUserEntityContainField spec fieldName = do
+  auth <- App.auth (snd $ getApp spec)
+  let (_userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+  let userEntityFields = Entity.getFields userEntity
+  Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields

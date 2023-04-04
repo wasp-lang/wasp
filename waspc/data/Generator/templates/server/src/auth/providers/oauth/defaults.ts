@@ -2,11 +2,11 @@
 import { generateAvailableDictionaryUsername } from '../../../core/auth.js'
 
 export async function getUserFieldsFn(_context, _args) {
-  {=# isUsernameAndPasswordAuthEnabled =}
+  {=# isUsernameOnUserEntity =}
   const username = await generateAvailableDictionaryUsername()
   return { username }
-  {=/ isUsernameAndPasswordAuthEnabled =}
-  {=^ isUsernameAndPasswordAuthEnabled =}
+  {=/ isUsernameOnUserEntity =}
+  {=^ isUsernameOnUserEntity =}
   return {}
-  {=/ isUsernameAndPasswordAuthEnabled =}
+  {=/ isUsernameOnUserEntity =}
 }
