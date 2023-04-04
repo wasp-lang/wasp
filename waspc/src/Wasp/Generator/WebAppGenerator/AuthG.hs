@@ -61,32 +61,20 @@ genAuthForms auth =
     [ genLoginForm auth,
       genSignupForm auth,
       genAuthForm auth,
-      genStitchesConfig,
-      genSocialIcons
+      copyTmplFile [relfile|stitches.config.js|],
+      copyTmplFile [relfile|auth/forms/SocialIcons.tsx|]
     ]
+    where
+        copyTmplFile = return . C.mkSrcTmplFd
 
-genSocialIcons :: Generator FileDraft
-genSocialIcons =
-    copyTmplFile [relfile|auth/forms/SocialIcons.jsx|]
-  where
-    copyTmplFile = return . C.mkSrcTmplFd
-
-genStitchesConfig :: Generator FileDraft
-genStitchesConfig =
-    -- TODO(matija): where should I put this? Maybe keep it localy scopped in auth/forms for now?
-    copyTmplFile [relfile|stitches.config.js|]
-  where
-    -- TODO(matija): duplicated, extract
-    copyTmplFile = return . C.mkSrcTmplFd
 
 genAuthForm :: AS.Auth.Auth -> Generator FileDraft
 genAuthForm auth =
   compileTmplToSamePath
-    [relfile|auth/forms/Auth.jsx|]
+    [relfile|auth/forms/Auth.tsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
     , "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    , "isBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.isBothExternalAndUsernameAndPasswordAuthEnabled auth
-       -- Social auth methods
+    , "areBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.areBothExternalAndUsernameAndPasswordAuthEnabled auth
     , "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
     -- Google
     , "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth
@@ -112,14 +100,10 @@ genSignupForm auth =
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
-  return $
-    C.mkTmplFdWithDstAndData
-      (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
-      targetPath
-      (Just templateData)
-  where
-    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile tmplFileInTmplSrcDir
-    templateData = object keyValuePairs
+    return $
+        C.mkTmplFdWithData
+            (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
+            (object keyValuePairs )
 
 genUserHelpers :: Generator FileDraft
 genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])

@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
@@ -51,6 +51,7 @@ import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Util ((<++>))
+import qualified Wasp.SemanticVersion as SV
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
@@ -129,10 +130,9 @@ npmDepsForWasp spec =
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion),
-            -- TODO(matija): should we import this conditionally, only if use use auth?
-            ("@stitches/react", "^1.2.8")
+            ("@prisma/client", show prismaVersion)
           ]
+          ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -151,6 +151,12 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredForTesting
     }
+
+depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth spec =
+    [ AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+    where
+        versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =

@@ -9,7 +9,6 @@ import { getTotalTaskCountMessage } from './helpers'
 import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'
 
-
 const Signup = () => {
   const { data: numTasks } = useQuery(getNumTasks)
 

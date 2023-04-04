@@ -70,7 +70,7 @@ page SignupPage {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/pages/auth/Login.jsx"
+  component: import Login from "@client/pages/auth/Login.tsx"
 }
 
 route HomeRoute { path: "/", to: MainPage }

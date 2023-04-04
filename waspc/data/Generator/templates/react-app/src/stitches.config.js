@@ -16,7 +16,6 @@ export const {
       brandAccent: '#ffdb46',
 
       submitButtonText: 'black'
-
     },
     fontSizes: {
       sm: '0.875rem'

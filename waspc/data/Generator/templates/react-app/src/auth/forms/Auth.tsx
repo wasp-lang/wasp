@@ -4,9 +4,13 @@ import { useHistory } from 'react-router-dom'
 import { createStitches, createTheme } from '@stitches/react'
 
 import { errorMessage } from '../../utils.js'
+{=# isUsernameAndPasswordAuthEnabled =}
 import signup from '../signup.js'
 import login from '../login.js'
+{=/ isUsernameAndPasswordAuthEnabled =}
+{=# isExternalAuthEnabled =}
 import * as SocialIcons from './SocialIcons'
+{=/ isExternalAuthEnabled =}
 
 import config from '../../config.js'
 import { styled, css } from '../../stitches.config'
@@ -197,7 +201,9 @@ const SubmitButton = styled('button', {
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 
-const Auth = ({ isLogin, appearance, logo, socialLayout }) => {
+// TODO(matija): introduce type for appearance
+const Auth = ({ isLogin, appearance, logo, socialLayout } :
+              { isLogin: boolean; logo: string; socialLayout: "horizontal" | "vertical" }) => {
   const history = useHistory()
 
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
@@ -230,12 +236,12 @@ const Auth = ({ isLogin, appearance, logo, socialLayout }) => {
   const cta = isLogin ? 'Log in' : 'Sign up'
   const title = isLogin ? 'Log in to your account' : 'Create a new account'
 
-  const socialButtonsDirection = socialLayout == 'vertical' ? 'vertical' : 'horizontal'
+  const socialButtonsDirection = socialLayout === 'vertical' ? 'vertical' : 'horizontal'
 
   return (
     <Container className={customTheme}>
       <div>
-        { logo && (
+        {logo && (
           <img style={logoStyle} src={logo} alt='Your Company' />
         )}
         <HeaderText>{title}</HeaderText>
@@ -256,7 +262,7 @@ const Auth = ({ isLogin, appearance, logo, socialLayout }) => {
         </SocialAuth>
       {=/ isExternalAuthEnabled =}
       
-      {=# isBothExternalAndUsernameAndPasswordAuthEnabled =}
+      {=# areBothExternalAndUsernameAndPasswordAuthEnabled =}
         <OrContinueWith>
           <OrContinueWithLineContainer>
             <OrContinueWithLine/>
@@ -265,7 +271,7 @@ const Auth = ({ isLogin, appearance, logo, socialLayout }) => {
             <OrContinueWithText>Or continue with</OrContinueWithText>
           </OrContinueWithTextContainer>
         </OrContinueWith>
-      {=/ isBothExternalAndUsernameAndPasswordAuthEnabled =}
+      {=/ areBothExternalAndUsernameAndPasswordAuthEnabled =}
       
       {=# isUsernameAndPasswordAuthEnabled =}
         <UserPassForm onSubmit={handleSubmit}>
