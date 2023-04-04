@@ -200,6 +200,6 @@ isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
 doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
 doesUserEntityContainField spec fieldName = do
   auth <- App.auth (snd $ getApp spec)
-  let (_userEntityName, userEntity) = AS.resolveRef spec (Auth.userEntity auth)
+  let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
   let userEntityFields = Entity.getFields userEntity
   Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields

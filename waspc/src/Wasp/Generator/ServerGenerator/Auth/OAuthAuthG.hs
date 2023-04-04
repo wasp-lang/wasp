@@ -63,10 +63,11 @@ genCreateRouter spec auth = return $ C.mkTmplFdWithData [relfile|src/auth/provid
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "externalAuthEntityLower" .= (Util.toLowerFirst externalAuthEntityName :: String),
-          "isPasswordOnUserEntity" .= (doesUserEntityContainField spec "password" == Just True)
+          "isPasswordOnUserEntity" .= isPasswordOnUserEntity
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     externalAuthEntityName = maybe "undefined" AS.refName (AS.Auth.externalAuthEntity auth)
+    isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
@@ -79,7 +80,8 @@ genDefaults :: AS.AppSpec -> Generator FileDraft
 genDefaults spec = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
   where
     tmplFile = C.srcDirInServerTemplatesDir </> [relfile|auth/providers/oauth/defaults.ts|]
-    tmplData = object ["isUsernameOnUserEntity" .= (doesUserEntityContainField spec "username" == Just True)]
+    tmplData = object ["isUsernameOnUserEntity" .= isUsernameOnUserEntity]
+    isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
 
 genOAuthProvider ::
   OAuthAuthProvider ->

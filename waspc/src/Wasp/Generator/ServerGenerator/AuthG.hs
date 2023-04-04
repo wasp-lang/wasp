@@ -79,10 +79,12 @@ genAuthMiddleware spec auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
+          isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
+          isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
        in object
             [ "userEntityUpper" .= (userEntityName :: String),
-              "isPasswordOnUserEntity" .= (doesUserEntityContainField spec "password" == Just True),
-              "isUsernameOnUserEntity" .= (doesUserEntityContainField spec "username" == Just True)
+              "isPasswordOnUserEntity" .= isPasswordOnUserEntity,
+              "isUsernameOnUserEntity" .= isUsernameOnUserEntity
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
