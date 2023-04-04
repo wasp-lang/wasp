@@ -124,12 +124,12 @@ dbReset genProjectDir = do
 
 dbSeed ::
   Path' Abs (Dir ProjectRootDir) ->
-  Maybe String ->
+  String ->
   IO (Either String ())
-dbSeed genProjectDir maybeSeedName = do
+dbSeed genProjectDir seedName = do
   chan <- newChan
   ((), exitCode) <-
-    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed genProjectDir maybeSeedName chan
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed genProjectDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c

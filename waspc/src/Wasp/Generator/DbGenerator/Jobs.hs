@@ -12,7 +12,6 @@ module Wasp.Generator.DbGenerator.Jobs
   )
 where
 
-import Data.Maybe (maybeToList)
 import StrongPath (Abs, Dir, File, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
@@ -105,12 +104,12 @@ reset projectDir = runPrismaCommandAsDbJob projectDir $ \schema ->
 
 -- | Runs `prisma db seed`, which executes the seeding script specified in package.json in
 --   prisma.seed field.
-seed :: Path' Abs (Dir ProjectRootDir) -> Maybe String -> J.Job
+seed :: Path' Abs (Dir ProjectRootDir) -> String -> J.Job
 -- NOTE: Since v 0.3, Prisma doesn't use --schema parameter for `db seed`.
-seed projectDir maybeSeedName =
+seed projectDir seedName =
   runPrismaCommandAsJobWithExtraEnv
     J.Db
-    (maybeToList $ (dbSeedNameEnvVarName,) <$> maybeSeedName)
+    [(dbSeedNameEnvVarName, seedName)]
     projectDir
     (const ["db", "seed"])
 

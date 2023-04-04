@@ -20,8 +20,12 @@ const seeds = {
 }
 
 async function main() {
-  const nameOfSeedToRun = process.env.{= dbSeedNameEnvVarName =} || '{= defaultDbSeed.importIdentifier =}'
-  console.log(`Running seed: ${nameOfSeedToRun}`)
+  const nameOfSeedToRun = process.env.{= dbSeedNameEnvVarName =}
+  if (nameOfSeedToRun) {
+    console.log(`Running seed: ${nameOfSeedToRun}`)
+  } else {
+    console.error('Name of the seed to run not specified!')
+  }
   await (seeds[nameOfSeedToRun] satisfies DbSeedFn)(prismaClient)
 }
 

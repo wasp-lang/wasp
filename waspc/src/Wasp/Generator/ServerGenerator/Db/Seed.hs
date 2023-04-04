@@ -51,11 +51,10 @@ getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ getApp spec)
 dbSeedsToTemplateData :: Maybe [ExtImport] -> Maybe Aeson.Value
 dbSeedsToTemplateData Nothing = Nothing
 dbSeedsToTemplateData (Just []) = Nothing
-dbSeedsToTemplateData (Just seeds@(defaultSeed : _)) =
+dbSeedsToTemplateData (Just seeds) =
   Just $
     object
       [ "dbSeeds" .= (dbSeedToTemplateData <$> seeds),
-        "defaultDbSeed" .= dbSeedToTemplateData defaultSeed,
         "dbSeedNameEnvVarName" .= dbSeedNameEnvVarName
       ]
   where
