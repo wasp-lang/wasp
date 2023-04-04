@@ -7,6 +7,8 @@ import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type {= userEntityUpper =} } from '../entities/index.js'
 import waspServerConfig from '../config.js';
 import { isValidEmail } from '../core/auth/validators.js'
+import { emailSender } from '../email/index.js';
+import { Email } from '../email/core/types.js'
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
@@ -100,6 +102,50 @@ async function createEmailVerificationToken(user: {= userEntityUpper =}): Promis
 
 async function createPasswordResetToken(user: {= userEntityUpper =}): Promise<string> {
   return sign(user.id, { expiresIn: '30m' });
+}
+
+export async function sendPasswordResetEmail(
+  email: string,
+  content: Email,
+): Promise<void> {
+  await emailSender.send(content);
+  try {
+    await prisma.{= userEntityLower =}.update({
+      where: { email },
+      data: { passwordResetSentAt: new Date() },
+    })
+  } catch (e) {
+    rethrowError(e);
+  }
+}
+
+export async function sendEmailVerificationEmail(
+  email: string,
+  content: Email,
+): Promise<void> {
+  await emailSender.send(content);
+  try {
+    await prisma.{= userEntityLower =}.update({
+      where: { email },
+      data: { emailVerificationSentAt: new Date() },
+    })
+  } catch (e) {
+    rethrowError(e);  
+  }
+}
+
+export function isEmailResendAllowed(
+  user: {= userEntityUpper =},
+  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
+  resendInterval: number = 1000 * 60,
+): boolean {
+  const sentAt = user[field];
+  if (!sentAt) {
+    return true;
+  }
+  const now = new Date();
+  const diff = now.getTime() - sentAt.getTime();
+  return diff > resendInterval;
 }
 
 const EMAIL_FIELD = 'email';

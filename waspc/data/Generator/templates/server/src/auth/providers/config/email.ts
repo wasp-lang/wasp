@@ -2,7 +2,6 @@
 import { Router, Request, Response, NextFunction } from "express";
 
 import { ProviderConfig } from "../types.js";
-import { emailSender } from '../../../email/index.js';
 import type { EmailFromField } from '../../../email/core/types.js';
 
 import { getLoginRoute } from "../email/login.js";
@@ -60,7 +59,6 @@ const config: ProviderConfig = {
         router.post('/login', loginRoute);
 
         const signupRoute = handleRejection(getSignupRoute({
-            emailSender,
             fromField,
             clientRoute: '{= emailVerificationClientRoute =}',
             getVerificationEmailContent: _waspGetVerificationEmailContent,
@@ -68,7 +66,6 @@ const config: ProviderConfig = {
         router.post('/signup', signupRoute);
         
         const requestPasswordResetRoute = handleRejection(getRequestPasswordResetRoute({
-            emailSender,
             fromField,
             clientRoute: '{= passwordResetClientRoute =}',
             getPasswordResetEmailContent: _waspGetPasswordResetEmailContent,

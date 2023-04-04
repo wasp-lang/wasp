@@ -1,15 +1,20 @@
 import { Request, Response } from 'express';
-import { createPasswordResetLink, findUserBy, doFakeWork, ensureValidEmail } from "../../utils.js";
-import type { EmailSender, EmailFromField } from '../../../email/core/types.js';
+import {
+    createPasswordResetLink,
+    findUserBy,
+    doFakeWork,
+    ensureValidEmail,
+    sendPasswordResetEmail,
+    isEmailResendAllowed,
+} from "../../utils.js";
+import type { EmailFromField } from '../../../email/core/types.js';
 import { GetPasswordResetEmailContentFn } from './types.js';
 
 export function getRequestPasswordResetRoute({
-   emailSender,
    fromField,
    clientRoute,
    getPasswordResetEmailContent,
 }: {
-    emailSender: EmailSender;
     fromField: EmailFromField;
     clientRoute: string;
     getPasswordResetEmailContent: GetPasswordResetEmailContentFn;
@@ -27,14 +32,21 @@ export function getRequestPasswordResetRoute({
             await doFakeWork();
             return res.json({ success: true });
         }
+
+        if (!isEmailResendAllowed(user, 'passwordResetSentAt')) {
+            return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+        }
     
         const passwordResetLink = await createPasswordResetLink(user, clientRoute);
         try {
-            await emailSender.send({
-                from: fromField,
-                to: user.email,
-                ...getPasswordResetEmailContent({ passwordResetLink }),
-            });
+            await sendPasswordResetEmail(
+                user.email,
+                {
+                    from: fromField,
+                    to: user.email,
+                    ...getPasswordResetEmailContent({ passwordResetLink }),
+                }
+            );
         } catch (e: any) {
             console.error("Failed to send password reset email:", e);
             return res.status(500).json({ success: false, message: "Failed to send password reset email." });

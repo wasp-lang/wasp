@@ -1,15 +1,22 @@
 import { Request, Response } from 'express';
-import { EmailSender, EmailFromField } from "../../../email/core/types.js";
-import { createEmailVerificationLink, createUser, findUserBy, deleteUser, doFakeWork, ensureValidEmailAndPassword } from "../../utils.js";
+import { EmailFromField } from "../../../email/core/types.js";
+import {
+    createEmailVerificationLink,
+    createUser,
+    findUserBy,
+    deleteUser,
+    doFakeWork,
+    ensureValidEmailAndPassword,
+    sendEmailVerificationEmail,
+    isEmailResendAllowed,
+} from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
 
 export function getSignupRoute({
-    emailSender,
     fromField,
     clientRoute,
     getVerificationEmailContent,
 }: {
-    emailSender: EmailSender;
     fromField: EmailFromField;
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
@@ -29,7 +36,9 @@ export function getSignupRoute({
             await doFakeWork();
             return res.json({ success: true });
         } else if (existingUser && !existingUser.isEmailVerified) {
-            // TODO: Check using emailVerificationSentAt to ensure we send email once per minute
+            if (!isEmailResendAllowed(existingUser, 'emailVerificationSentAt')) {
+                return res.status(400).json({ success: false, message: "Please wait a minute before trying again." });
+            }
             await deleteUser(existingUser);
         }
     
@@ -37,11 +46,14 @@ export function getSignupRoute({
 
         const verificationLink = await createEmailVerificationLink(user, clientRoute);
         try {
-            await emailSender.send({
-                from: fromField,
-                to: userFields.email,
-                ...getVerificationEmailContent({ verificationLink }),
-            });
+            await sendEmailVerificationEmail(
+                userFields.email,
+                {
+                    from: fromField,
+                    to: userFields.email,
+                    ...getVerificationEmailContent({ verificationLink }),
+                }
+            );
         } catch (e: any) {
             console.error("Failed to send email verification email:", e);
             return res.status(500).json({ success: false, message: "Failed to send email verification email." });
