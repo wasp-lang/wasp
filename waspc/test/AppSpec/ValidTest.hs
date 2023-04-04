@@ -126,6 +126,11 @@ spec_AppSpecValid = do
             `shouldBe` [ ASV.GenericValidationError
                            "Expected app.auth to be defined since there are Pages with authRequired set to true."
                        ]
+        it "contains expected fields" $ do
+          ASV.doesUserEntityContainField (makeSpec Nothing Nothing) "password" `shouldBe` Nothing
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "username" `shouldBe` Just True
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "password" `shouldBe` Just True
+          ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
 
       describe "should validate that when app.auth is using UsernameAndPassword, user entity is of valid shape." $ do
         let makeSpec appAuth userEntity =
