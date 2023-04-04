@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import { handleRejection } from "../../../utils.js";
-import { findUserBy, updateUserPassword, verifyToken } from "../../utils.js";
+import { ensureValidTokenAndNewPassword, findUserBy, updateUserPassword, verifyToken } from "../../utils.js";
 import { tokenVerificationErrors } from "./types.js";
 
 export const resetPassword = handleRejection(async (
     req: Request<{ token: string; newPassword: string; }>, res: Response,
 ) => {
-    const { token, newPassword } = req.body;
+    const args = req.body || {};
+    ensureValidTokenAndNewPassword(args);
+    const { token, newPassword } = args;
     try {
         const { id: userId } = await verifyToken(token);
         const user = await findUserBy<'id'>({ id: userId });

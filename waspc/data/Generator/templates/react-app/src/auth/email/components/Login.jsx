@@ -15,7 +15,7 @@ export const LoginForm = () => {
     event.preventDefault()
     try {
       await login({
-        username: emailFieldVal,
+        email: emailFieldVal,
         password: passwordFieldVal,
       })
       history.push('{= onAuthSucceededRedirectTo =}')

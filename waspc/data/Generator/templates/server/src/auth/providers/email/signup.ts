@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { EmailSender, EmailFromField } from "../../../email/core/types.js";
 import { handleRejection } from "../../../utils.js";
-import { createEmailVerificationLink, createUser, findUserBy, deleteUser, doFakeWork } from "../../utils.js";
+import { createEmailVerificationLink, createUser, findUserBy, deleteUser, doFakeWork, ensureValidEmailAndPassword } from "../../utils.js";
 import { GetVerificationEmailContentFn } from './types.js';
 
 export function getSignupRoute({
@@ -15,11 +15,13 @@ export function getSignupRoute({
     clientRoute: string;
     getVerificationEmailContent: GetVerificationEmailContentFn;
 }) {
-    return handleRejection(async (req: Request<{ username: string; password: string; }>, res: Response) => {
+    return handleRejection(async (req: Request<{ email: string; password: string; }>, res: Response) => {
         const userFields = req.body;
-        userFields.username = userFields.username.toLowerCase();
+        ensureValidEmailAndPassword(userFields);
+        
+        userFields.email = userFields.email.toLowerCase();
 
-        const existingUser  = await findUserBy<'username'>({ username: userFields.username });
+        const existingUser  = await findUserBy<'email'>({ email: userFields.email });
         // User already exists and is verified - don't leak information
         if (existingUser && existingUser.isEmailVerified) {
             await doFakeWork();
@@ -35,7 +37,7 @@ export function getSignupRoute({
         try {
             await emailSender.send({
                 from: fromField,
-                to: userFields.username,
+                to: userFields.email,
                 ...getVerificationEmailContent({ verificationLink }),
             });
         } catch (e: any) {

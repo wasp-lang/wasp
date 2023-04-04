@@ -7,7 +7,7 @@ import { findUserBy, createAuthToken } from '../../utils.js'
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
 
-  const user = await findUserBy<'username'>({ username: args.username })
+  const user = await findUserBy<'email'>({ email: args.email })
   if (!user) {
     return res.status(401).send()
   }

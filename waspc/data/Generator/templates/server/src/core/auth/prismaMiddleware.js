@@ -1,9 +1,10 @@
 {{={= =}=}}
 import { hashPassword } from '../auth.js'
 import AuthError from '../AuthError.js'
-import { isValidEmail } from './validators.js'
 
+{=# isUsernameAndPasswordAuthEnabled  =}
 const USERNAME_FIELD = 'username'
+{=/ isUsernameAndPasswordAuthEnabled  =}
 const PASSWORD_FIELD = 'password'
 
 // Allows flexible validation of a user entity.
@@ -60,19 +61,20 @@ export const registerAuthMiddleware = (prismaClient) => {
   registerPasswordHashing(prismaClient)
 }
 
+{=# isUsernameAndPasswordAuthEnabled  =}
 const userValidations = [
   { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
   { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
   { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
 ]
+{=/ isUsernameAndPasswordAuthEnabled  =}
+{=^ isUsernameAndPasswordAuthEnabled  =}
+const userValidations = []
+{=/ isUsernameAndPasswordAuthEnabled  =}
 
 {=# isUsernameAndPasswordAuthEnabled  =}
 userValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
 {=/ isUsernameAndPasswordAuthEnabled  =}
-{=# isEmailAuthEnabled =}
-userValidations.push({ validates: USERNAME_FIELD, message: 'email must be present', validator: email => !!email })
-userValidations.push({ validates: USERNAME_FIELD, message: 'email must be valid', validator: email => isValidEmail(email) })
-{=/ isEmailAuthEnabled =}
 
 const validateUser = (user, args, action) => {
   user = user || {}

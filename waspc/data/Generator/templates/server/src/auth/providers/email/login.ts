@@ -1,16 +1,19 @@
 import { Request, Response } from 'express';
 import { verifyPassword } from "../../../core/auth.js";
+import AuthError from '../../../core/AuthError.js';
 import { handleRejection } from "../../../utils.js";
-import { findUserBy, createAuthToken } from "../../utils.js";
+import { findUserBy, createAuthToken, ensureValidEmailAndPassword } from "../../utils.js";
 
 export function getLoginRoute({
     allowUnverifiedLogin,
 }: {
     allowUnverifiedLogin: boolean
 }) {
-    return handleRejection(async (req: Request<{ username: string; password: string; }>, res: Response) => {
+    return handleRejection(async (req: Request<{ email: string; password: string; }>, res: Response) => {
         const args = req.body || {};
-        const user = await findUserBy<'username'>({ username: args.username });
+        ensureValidEmailAndPassword(args);
+
+        const user = await findUserBy<'email'>({ email: args.email });
         if (!user) {
             return res.status(401).send();
         }

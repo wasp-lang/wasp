@@ -55,7 +55,7 @@ data ExternalAuthConfig = ExternalAuthConfig
 
 data EmailAuthConfig = EmailAuthConfig
   { fromField :: EmailFromField,
-    emailVerfication :: EmailVerificationConfig,
+    emailVerification :: EmailVerificationConfig,
     passwordReset :: PasswordResetConfig,
     allowUnverifiedLogin :: Maybe Bool
   }

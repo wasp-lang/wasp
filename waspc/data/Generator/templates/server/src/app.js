@@ -34,6 +34,7 @@ app.use((err, req, res, next) => {
   if (res.headersSent) { return next(err) }
 
   if (err instanceof HttpError) {
+    console.log('here');
     return res.status(err.statusCode).json({ message: err.message, data: err.data })
   }
 

@@ -14,8 +14,8 @@ app todoApp {
     methods: {
       // usernameAndPassword: {},
       // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      //   // configFn: import { config } from "@server/auth/google.js",
+      //   // getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       // },
       // gitHub: {
       //   configFn: import { config } from "@server/auth/github.js",
@@ -26,7 +26,7 @@ app todoApp {
           name: "ToDO App",
           email: "mihovil@ilakovac.com"
         },
-        emailVerfication: {
+        emailVerification: {
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
           clientRoute: EmailVerificationRoute,
         },
@@ -60,8 +60,8 @@ app todoApp {
 entity User {=psl
     id                        Int           @id @default(autoincrement())
     // Email auth
-    username                  String        @unique
-    password                  String
+    email                     String?       @unique
+    password                  String?
     isEmailVerified           Boolean       @default(false)
     emailVerificationSentAt   DateTime?
     passwordResetSentAt       DateTime?
