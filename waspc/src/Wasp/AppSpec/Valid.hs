@@ -196,6 +196,7 @@ isPostgresUsed :: AppSpec -> Bool
 isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- If there is no user entity, it returns Nothing.
 doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
 doesUserEntityContainField spec fieldName = do
   auth <- App.auth (snd $ getApp spec)
