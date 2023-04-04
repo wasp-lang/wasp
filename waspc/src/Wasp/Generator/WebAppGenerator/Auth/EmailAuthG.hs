@@ -23,11 +23,11 @@ import Wasp.Util ((<++>))
 genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
-    sequence
-      [ genIndex
-      ]
-      <++> genActions
-      <++> genComponents auth
+      sequence
+        [ genIndex
+        ]
+        <++> genActions
+        <++> genComponents auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
