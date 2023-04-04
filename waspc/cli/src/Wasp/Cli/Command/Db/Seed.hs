@@ -6,7 +6,6 @@ where
 import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (isNothing)
 import StrongPath ((</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -28,7 +27,7 @@ seed maybeSeedName = do
         waspProjectDir </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
   appSpec <- analyze waspProjectDir
-  when (isNothing $ getDbSeedFn appSpec) $
+  when (noSeeds appSpec) $
     (E.throwError . CommandError "No seed specified") $
       "You haven't specified any database seeding functions, so there is nothing to run!\n"
         <> "To do so, set app.db.seed in your Wasp config."
@@ -39,5 +38,10 @@ seed maybeSeedName = do
     Left errorMsg -> cliSendMessageC $ Msg.Failure "Database seeding failed" errorMsg
     Right () -> cliSendMessageC $ Msg.Success "Database seeded successfully!"
 
-getDbSeedFn :: AS.AppSpec -> Maybe [AS.ExtImport]
-getDbSeedFn spec = AS.Db.seeds =<< AS.App.db (snd $ ASV.getApp spec)
+getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport]
+getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ ASV.getApp spec)
+
+noSeeds :: AS.AppSpec -> Bool
+noSeeds spec = case getDbSeeds spec of
+  Just (_ : _) -> True
+  _ -> False
