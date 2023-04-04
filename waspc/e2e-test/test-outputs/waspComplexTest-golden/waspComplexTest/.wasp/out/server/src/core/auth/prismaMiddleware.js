@@ -61,12 +61,11 @@ export const registerAuthMiddleware = (prismaClient) => {
 const validateUser = (user, args, action) => {
   user = user || {}
 
-  const defaultValidations = [
-    { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username },
-    { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-    { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-    { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-  ]
+  const defaultValidations = []
+  defaultValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
+  defaultValidations.push({ validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password })
+  defaultValidations.push({ validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 })
+  defaultValidations.push({ validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) })
 
   const validations = [
     ...(args._waspSkipDefaultValidations ? [] : defaultValidations),

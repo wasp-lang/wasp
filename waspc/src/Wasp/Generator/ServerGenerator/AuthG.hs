@@ -18,7 +18,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
 import Wasp.Generator.AuthProviders (emailAuthProvider, gitHubAuthProvider, googleAuthProvider, localAuthProvider)
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
@@ -37,7 +37,7 @@ genAuth spec = case maybeAuth of
   Just auth ->
     sequence
       [ genCoreAuth auth,
-        genAuthMiddleware auth,
+        genAuthMiddleware spec auth,
         genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
         genMeRoute auth,
@@ -46,7 +46,7 @@ genAuth spec = case maybeAuth of
         genFileCopy [relfile|auth/providers/types.ts|]
       ]
       <++> genLocalAuth auth
-      <++> genOAuthAuth auth
+      <++> genOAuthAuth spec auth
       <++> genEmailAuth spec auth
   Nothing -> return []
   where
@@ -68,8 +68,8 @@ genCoreAuth auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmpl
               "userEntityLower" .= (Util.toLowerFirst userEntityName :: String)
             ]
 
-genAuthMiddleware :: AS.Auth.Auth -> Generator FileDraft
-genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
+genAuthMiddleware :: AS.AppSpec -> AS.Auth.Auth -> Generator FileDraft
+genAuthMiddleware spec auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     -- TODO(martin): In prismaMiddleware.js, we assume that 'username' and 'password' are defined in user entity.
     --   This was promised to us by AppSpec, which has validation checks for this.
@@ -83,9 +83,13 @@ genAuthMiddleware auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Jus
 
     tmplData =
       let userEntityName = AS.refName $ AS.Auth.userEntity auth
+          isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
+          isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
        in object
             [ "userEntityUpper" .= userEntityName,
               "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+              "isPasswordOnUserEntity" .= isPasswordOnUserEntity,
+              "isUsernameOnUserEntity" .= isUsernameOnUserEntity,
               "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
             ]
 

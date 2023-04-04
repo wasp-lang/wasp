@@ -61,20 +61,15 @@ export const registerAuthMiddleware = (prismaClient) => {
   registerPasswordHashing(prismaClient)
 }
 
-{=# isUsernameAndPasswordAuthEnabled  =}
-const userValidations = [
-  { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-  { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-  { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-]
-{=/ isUsernameAndPasswordAuthEnabled  =}
-{=^ isUsernameAndPasswordAuthEnabled  =}
 const userValidations = []
-{=/ isUsernameAndPasswordAuthEnabled  =}
-
-{=# isUsernameAndPasswordAuthEnabled  =}
+{=# isUsernameOnUserEntity =}
 userValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
-{=/ isUsernameAndPasswordAuthEnabled  =}
+{=/ isUsernameOnUserEntity =}
+{=# isPasswordOnUserEntity =}
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password })
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 })
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) })
+{=/ isPasswordOnUserEntity =}
 
 const validateUser = (user, args, action) => {
   user = user || {}

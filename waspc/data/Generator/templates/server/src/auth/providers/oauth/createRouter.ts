@@ -72,11 +72,13 @@ async function findOrCreateUserByExternalAuthAssociation(
 
   // No external auth association linkage found. Create a new User using details from
   // `getUserFields()`. Additionally, associate the externalAuthAssociations with the new User.
-  // NOTE: For now, we force a random (uuidv4) password string. In the future, we will allow password reset.
   const userFields = await getUserFields()
   const userAndExternalAuthAssociation = {
     ...userFields,
+    {=# isPasswordOnUserEntity =}
+    // TODO: Decouple social from usernameAndPassword auth.
     password: uuidv4(),
+    {=/ isPasswordOnUserEntity =}
     externalAuthAssociations: {
       create: [{ provider, providerId }]
     }

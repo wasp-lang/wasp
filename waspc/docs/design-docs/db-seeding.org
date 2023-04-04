@@ -1,0 +1,149 @@
+** Requirements
+
+Relevant Github issue: https://github.com/wasp-lang/wasp/issues/569
+
+*** I want to be able to easily set dev database into a certain state.
+This allows me to always have good starting point for doing my development.
+If I mess up the database state, I can easily go back to this state.
+
+I might want to also share it with others, so they can test / try out stuff.
+In that case I would want to commit it into git.
+
+I might want to have multiple such states, each of them named.
+
+I imagine this would actually be easier to do by doing snapshots of db then having seeding script, so I don't think this is what Prisma is targeting with their =seed=.
+So I probably went here a bit into a different use case -> still interesting though.
+Actuall, I read a bit more and seeding script is also valid way to do this.
+
+As for snapshots -> I guess this would come down to doing postgre exports and then saving those in git and loading them.
+I saw this being called "SQL backup file" somewhere.
+
+*** I want to populate my db with the data that is required for my app to start.
+Examples:
+  - default language
+  - default currency
+  - predefined user roles
+
+I would expect that I can tell wasp which "script" / piece of logic to run to do the seeding.
+
+I might want to have multiple different seeds.
+
+I might want to reuse code from my Wasp project inside of seeding logic. Possibly even actions.
+Actually directly calling actions might be tricky, since they often require authenticated user and
+similar. But, what me as a dev could easily do is extract core logic from the action into a
+standalone function and then call that function both to do action and to do db seeding. So if we
+can reuse Wasp project code, we are already in good place. The question is how do we do that?
+
+** How Prisma does it
+For seeding, prisma just let’s you specify a .ts or .js file that imports Prisma client and does something.
+
+You need to specify it in =package.json= as =prisma.seed= and then it gets called on ~prisma db seed~ or
+on ~prisma migrate reset~ or even ~prisma migrate dev~ if it results in a reset.
+
+You can also alternatively specify .sh script, and then it will run that.
+
+** Evaluation of solutions
+There are two main solutions:
+  1. Database snapshots
+  2. Seeding script
+
+*** Database snapshots
+Database snapshots sound relatively straight forward to implement, also easy for devs to create.
+So they could use the app itself, or =db studio=, or some richer postgresql client, or their own scripts,
+to put db into a certain state, and then they can do snapshot and there you go.
+What is not great is that data can easily become out of sync with how app currently works,
+and you need to recreate them as app changes in order to keep them relevant.
+
+*** Seeding scripts
+Seeding script seems to be what most existing solutions do (Laravel, Prisma).
+Good thing about them is that they are code, so they don't have an issue of db snapshots
+that you need to completely recreate them when app changes. Instead, you just modify the code,
+you also have type-checking on your hands, ... .
+What is trickier is that you have to sometimes work around stuff like authentication,
+mocking something, ... -> the part with users and authentication sounds tricky.
+
+*** Conclusion
+I think seeding scripts are way to go.
+Database snasphots are very tempting due to ease of creation and implementation,
+but the fact that you don't have a good way to know when and how you need to recreate them is a big no-no.
+Also, others mostly do seeding scripts -> I am guessing for this same reason.
+
+
+** Seeding script implementation plan
+
+*** What do we want
+ - Be able to write a single JS/TS file that has access to DB and Prisma SDK and can be specified to Wasp as a seed script. Ideally named.
+ - More advanced: that file would be able to reuse JS/TS logic from our Wasp project (server).
+ - Also: it can potentially be just a .sh script. I guess we pass it database url via env var?
+
+*** Brainstorming
+What we really want to do is run a JS/TS file from the @server project.
+When we run server, we do =node server.js= or smth like that (more complex but that is the idea).
+Now for this, we want to do =node seedFile.js=.
+What is great is that this is all the same project, so this =seedFile.js= should be able to access all the stuff from the server, including actions and everything.
+I am guessing prisma does this same thing when you specify =seed= in the package.json file.
+I am not yet sure if we should use their =seed= field in package.json, or do our own custom script in package.json where we call =node= and stuff.
+
+So we are running this seed script in the context of the server, that is important. 
+That sounds good / useful.
+
+Can it also be bad / limiting in some way? Is there a way to run it in more standalone context?
+Sure there is -> we could run it in the context of our =db/= npm project. It would have access to Prisma SDK, but not to files from @server.
+If it needed to use stuff from @server project, it could in theory import it, if we made that easy.
+This could also scale to having multiple servers in the future -> it could those that it needs and use them.
+This also makes most sense semantically -> to have db seeding script tied to db it seeds, not to a server.
+
+So if we have access to server code from seed script (be it because it is part of server project or it imports @server package),
+how does that open up using actions?
+We are not (and don't want to be) running the server, so REST API of actions is not available.
+We can call the action functions directly, for sure, but then we need to provide them with context and stuff, inject correct things into them.
+We could have some machinery that enables calling them from seed script, but it would need to provide all the stuff to actions that they normally expect.
+Good thing is we know what they expect, so we can do it.
+Interesting part is also user creation in seeding script, and passing that user to actions -> this will be interesting to explore,
+how we can best support that.
+
+*** Final implementation plan!
+**** MVP
+ - In Wasp:
+   #+BEGIN_SRC
+     app {
+       ...
+       db: {
+         seed: <ServerImport>
+       }
+     }
+   #+END_SRC
+   
+ - When generating code, we add =seed= entry to =package.json= that points to our seed file =seed.js=
+   that imports the seed function user specified via ServerImport and calls it.
+   This should be all Prisma needs to pick this file up and use it.
+   - Alternatively, we might want to do something more manual, like creating our own script in =package.json=
+     that does something like ~node seed.js~, but let's first try doing it the Prisma way, this is
+     backup plan if we are not happy with how Prisma does it.
+ - Make sure that in seed script we can access code from the @server project (we should be able to),
+   but also make sure that we can directly access Prisma SDK if we want to.
+ - Write a seed script that creates some users and then some resources for those users.
+   Explore how this feels, especially the part with creating and sending user around, if we can support that somehow to be nicer.
+ - Explore how providing .sh as a seed script works, since Prisma supports that.
+ - Write docs about seeding + put an example there of a simple seed script so they can get started with it.
+   This is a good candidate for scaffolding -> create an issue for that.
+ - Explore if this can also be used for production db, to kick start it, and if that even makes sense.
+
+**** Advanced steps
+ - We could support multiple seeding scripts, each one would have a name:
+   #+BEGIN_SRC
+     app {
+       ...
+       db: {
+         seeds: [
+           (<string>, <ServerImport>)
+           (<string>, <ServerImport>)
+         ]
+       }
+     }
+   #+END_SRC
+ - Explore a bit if there can be done something more to make using Actions easier, in seed script.
+ - Explore the idea of coupling db script with the @db, not the @server, since it makes more sense semantically and scales with the future development of Wasp (multiple servers).
+   Probably create an issue on GH for this.
+
+
