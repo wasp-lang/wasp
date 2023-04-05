@@ -13,7 +13,6 @@ import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExtImport as AS
 import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
@@ -90,5 +89,5 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     getSeedNames :: (Functor f) => f AS.ExtImport.ExtImport -> f String
     getSeedNames seeds = AS.ExtImport.importIdentifier <$> seeds
 
-getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport]
+getDbSeeds :: AS.AppSpec -> Maybe [AS.ExtImport.ExtImport]
 getDbSeeds spec = AS.Db.seeds =<< AS.App.db (snd $ ASV.getApp spec)
