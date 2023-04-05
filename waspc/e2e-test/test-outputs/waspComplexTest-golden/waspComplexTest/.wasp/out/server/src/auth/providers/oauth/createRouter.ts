@@ -6,11 +6,12 @@ import { v4 as uuidv4 } from 'uuid'
 import prisma from '../../../dbClient.js'
 import waspServerConfig from '../../../config.js'
 import { sign } from '../../../core/auth.js'
-import { authConfig, contextWithUserEntity } from "../../utils.js"
+import { authConfig, contextWithUserEntity, createUser } from "../../utils.js"
 
 import type { User } from '../../../entities';
 import type { ProviderConfig, RequestWithWasp } from "../types.js"
 import type { GetUserFieldsFn } from "./types.js"
+import { handleRejection } from "../../../utils.js"
 
 // For oauth providers, we have an endpoint /login to get the auth URL,
 // and the /callback endpoint which is used to get the actual access_token and the user info.
@@ -31,24 +32,24 @@ export function createRouter(provider: ProviderConfig, initData: { passportStrat
             session: false,
             failureRedirect: waspServerConfig.frontendUrl + authConfig.failureRedirectPath
         }),
-        async function (req: RequestWithWasp, res) {
-            const providerProfile = req?.wasp?.providerProfile;
+        handleRejection(async function (req: RequestWithWasp, res) {
+          const providerProfile = req?.wasp?.providerProfile;
 
-            if (!providerProfile) {
-                throw new Error(`Missing ${provider.displayName} provider profile on request. This should not happen! Please contact Wasp.`);
-            } else if (!providerProfile.id) {
-                throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
-            }
+          if (!providerProfile) {
+              throw new Error(`Missing ${provider.displayName} provider profile on request. This should not happen! Please contact Wasp.`);
+          } else if (!providerProfile.id) {
+              throw new Error(`${provider.displayName} provider profile was missing required id property. This should not happen! Please contact Wasp.`);
+          }
 
-            // Wrap call to getUserFieldsFn so we can invoke only if needed.
-            const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
-            // TODO: In the future we could make this configurable, possibly associating an external account
-            // with the currently logged in account, or by some DB lookup.
-            const user = await findOrCreateUserByExternalAuthAssociation(provider.id, providerProfile.id, getUserFields);
+          // Wrap call to getUserFieldsFn so we can invoke only if needed.
+          const getUserFields = () => getUserFieldsFn(contextWithUserEntity, { profile: providerProfile });
+          // TODO: In the future we could make this configurable, possibly associating an external account
+          // with the currently logged in account, or by some DB lookup.
+          const user = await findOrCreateUserByExternalAuthAssociation(provider.id, providerProfile.id, getUserFields);
 
-            const token = await sign(user.id);
-            res.json({ token });
-        }
+          const token = await sign(user.id);
+          res.json({ token });
+      })
     )
 
     return router;
@@ -81,5 +82,5 @@ async function findOrCreateUserByExternalAuthAssociation(
     }
   }
 
-  return prisma.user.create({ data: userAndExternalAuthAssociation })
+  return createUser(userAndExternalAuthAssociation)
 }

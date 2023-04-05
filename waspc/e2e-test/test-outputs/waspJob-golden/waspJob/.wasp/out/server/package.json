@@ -11,6 +11,7 @@
     "morgan": "~1.10.0",
     "patch-package": "^6.4.7",
     "pg-boss": "^8.4.2",
+    "rate-limiter-flexible": "^2.4.1",
     "secure-password": "^4.0.0",
     "uuid": "^9.0.0"
   },

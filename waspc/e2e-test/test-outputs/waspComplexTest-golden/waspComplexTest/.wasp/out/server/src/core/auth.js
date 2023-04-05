@@ -65,11 +65,9 @@ export const hashPassword = async (password) => {
 }
 
 export const verifyPassword = async (hashedPassword, password) => {
-  try {
-    return await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
-  } catch (error) {
-    console.error(error)
-    return false
+  const result = await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
+  if (result !== SecurePassword.VALID) {
+    throw new Error('Invalid password.')
   }
 }
 
