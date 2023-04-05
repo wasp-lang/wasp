@@ -173,6 +173,7 @@ makeJobMessagePrefix jobMsg =
     J.Server -> T.pack $ Term.applyStyles [Term.Magenta] "Server"
     J.WebApp -> T.pack $ Term.applyStyles [Term.Cyan] "Web app"
     J.Db -> T.pack $ Term.applyStyles [Term.Blue] "Db"
+    J.Cli -> T.pack $ Term.applyStyles [Term.White] "Cli"
     <> ( if getJobMessageOutHandle jobMsg == stderr
            then T.pack $ Term.applyStyles [Term.Yellow] "(stderr)"
            else ""

@@ -38,7 +38,7 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
-        ["new", projectName] -> Command.Call.New projectName
+        ("new" : newArgs) -> Command.Call.New newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -62,7 +62,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
   case commandCall of
-    Command.Call.New projectName -> runCommand $ createNewProject projectName
+    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -104,7 +104,10 @@ printUsage =
               "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd   "    new <project-name>    Creates new Wasp project.",
+        cmd   "    new <name> [args]     Creates a new Wasp project.",
+              "    OPTIONS:",
+              "    --template <template-name>",
+              "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
@@ -125,6 +128,7 @@ printUsage =
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
+              "  wasp new MyApp --template waspello",
               "  wasp start",
               "  wasp db migrate-dev",
               "",

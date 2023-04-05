@@ -28,4 +28,4 @@ data JobMessageData
 
 data JobOutputType = Stdout | Stderr deriving (Show, Eq)
 
-data JobType = WebApp | Server | Db deriving (Show, Eq, Ord, Bounded, Enum)
+data JobType = WebApp | Server | Db | Cli deriving (Show, Eq, Ord, Bounded, Enum)

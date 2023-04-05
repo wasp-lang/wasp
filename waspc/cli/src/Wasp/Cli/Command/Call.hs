@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New String -- project name
+  = New [String] -- new args
   | Start
   | StartDb
   | Clean
