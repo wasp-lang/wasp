@@ -80,8 +80,8 @@ createWaspProjectDir projectInfo@ProjectInfo {_template = template} = do
 
   when
     dirExists
-    $ throwProjectCreationError
-    $ show absWaspProjectDir ++ " is an existing directory"
+    $ throwProjectCreationError $
+      show absWaspProjectDir ++ " is an existing directory"
 
   createProjectFromProjectInfo absWaspProjectDir
   where
