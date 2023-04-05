@@ -33,7 +33,11 @@ app todoApp {
     setupFn: import setup from "@client/clientSetup"
   },
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
+    seeds: [
+      import { devSeedSimple } from "@server/dbSeeds.js",
+      import { prodSeed } from "@server/dbSeeds.js"
+    ]
   },
 }
 

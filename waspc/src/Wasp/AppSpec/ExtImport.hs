@@ -3,6 +3,7 @@
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
+    importIdentifier,
   )
 where
 
@@ -28,3 +29,8 @@ data ExtImportName
   | -- | Represents external imports like @import { Identifier } from "file.js"@
     ExtImportField Identifier
   deriving (Show, Eq, Data)
+
+importIdentifier :: ExtImport -> Identifier
+importIdentifier (ExtImport importName _) = case importName of
+  ExtImportModule n -> n
+  ExtImportField n -> n

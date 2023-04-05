@@ -5,6 +5,7 @@ module Wasp.Generator.DbGenerator.Operations
     writeDbSchemaChecksumToFile,
     areAllMigrationsAppliedToDb,
     dbReset,
+    dbSeed,
   )
 where
 
@@ -117,6 +118,18 @@ dbReset genProjectDir = do
   chan <- newChan
   ((), exitCode) <-
     readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.reset genProjectDir chan
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure c -> Left $ "Failed with exit code " <> show c
+
+dbSeed ::
+  Path' Abs (Dir ProjectRootDir) ->
+  String ->
+  IO (Either String ())
+dbSeed genProjectDir seedName = do
+  chan <- newChan
+  ((), exitCode) <-
+    readJobMessagesAndPrintThemPrefixed chan `concurrently` DbJobs.seed genProjectDir seedName chan
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c

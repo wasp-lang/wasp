@@ -253,6 +253,7 @@ library
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.Auth.LocalAuthG
+    Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.EmailSenderG
     Wasp.Generator.ServerGenerator.EmailSender.Providers
     Wasp.Generator.ServerGenerator.Common
@@ -378,6 +379,7 @@ library cli-lib
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
+    Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Deploy
