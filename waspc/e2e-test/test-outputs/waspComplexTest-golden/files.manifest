@@ -83,6 +83,10 @@ waspComplexTest/.wasp/out/web-app/src/actions/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
 waspComplexTest/.wasp/out/web-app/src/api.ts
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Auth.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Login.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Signup.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/SocialIcons.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/Google.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
@@ -109,6 +113,7 @@ waspComplexTest/.wasp/out/web-app/src/queries/index.d.ts
 waspComplexTest/.wasp/out/web-app/src/queries/index.js
 waspComplexTest/.wasp/out/web-app/src/queryClient.js
 waspComplexTest/.wasp/out/web-app/src/router.jsx
+waspComplexTest/.wasp/out/web-app/src/stitches.config.js
 waspComplexTest/.wasp/out/web-app/src/storage.ts
 waspComplexTest/.wasp/out/web-app/src/test/index.ts
 waspComplexTest/.wasp/out/web-app/src/test/vitest/helpers.tsx
