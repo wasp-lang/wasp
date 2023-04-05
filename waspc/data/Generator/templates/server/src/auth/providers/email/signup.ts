@@ -30,7 +30,7 @@ export function getSignupRoute({
         
         userFields.email = userFields.email.toLowerCase();
 
-        const existingUser  = await findUserBy<'email'>({ email: userFields.email.toLowerCase() });
+        const existingUser  = await findUserBy<'email'>({ email: userFields.email });
         // User already exists and is verified - don't leak information
         if (existingUser && existingUser.isEmailVerified) {
             await doFakeWork();

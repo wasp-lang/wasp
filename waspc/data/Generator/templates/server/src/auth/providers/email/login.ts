@@ -9,12 +9,14 @@ export function getLoginRoute({
 }) {
     return async function login(
         req: Request<{ email: string; password: string; }>,
-        res: Response
+        res: Response,
     ): Promise<Response<{ token: string } | undefined>> {
         const args = req.body || {};
         ensureValidEmailAndPassword(args);
 
-        const user = await findUserBy<'email'>({ email: args.email.toLowerCase() });
+        args.email = args.email.toLowerCase();
+
+        const user = await findUserBy<'email'>({ email: args.email });
         if (!user) {
             return res.status(401).send();
         }

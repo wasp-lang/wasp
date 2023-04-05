@@ -25,7 +25,10 @@ export function getRequestPasswordResetRoute({
     ): Promise<Response<{ success: true } | { success: false; message: string }>> {
         const args = req.body || {};
         ensureValidEmail(args);
-        const user = await findUserBy<'email'>({ email: args.email.toLowerCase() });
+
+        args.email = args.email.toLowerCase();
+
+        const user = await findUserBy<'email'>({ email: args.email });
     
         // User not found or not verified - don't leak information
         if (!user || !user.isEmailVerified) {

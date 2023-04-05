@@ -13,7 +13,7 @@ export async function requestPasswordReset(data: { email: string; }): Promise<{ 
 export async function resetPassword(data: { token: string; password: string; }): Promise<{ success: boolean }> {
     try {
         const response = await api.post('{= resetPasswordPath =}', data);
-        return response;
+        return response.data;
     } catch (e: unknown) {
         handleApiError(e);
     }
