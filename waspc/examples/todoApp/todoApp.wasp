@@ -10,17 +10,32 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-     externalAuthEntity: SocialLogin,
+    externalAuthEntity: SocialLogin,
     methods: {
-       usernameAndPassword: {},
-       google: {
-         configFn: import { config } from "@server/auth/google.js",
-         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-       },
-       gitHub: {
-         configFn: import { config } from "@server/auth/github.js",
-         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
-       }
+      // usernameAndPassword: {},
+      google: {
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      },
+      // gitHub: {
+      //   configFn: import { config } from "@server/auth/github.js",
+      //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+      // }
+      email: {
+        allowUnverifiedLogin: true,
+        fromField: {
+          name: "ToDO App",
+          email: "mihovil@ilakovac.com"
+        },
+        emailVerification: {
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          clientRoute: PasswordResetRoute
+        },
+      },
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
@@ -39,14 +54,26 @@ app todoApp {
       import { prodSeed } from "@server/dbSeeds.js"
     ]
   },
+  emailSender: {
+    provider: SMTP,
+    defaultFrom: {
+      email: "mihovil@ilakovac.com"
+    },
+  },
 }
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
-    tasks                     Task[]
+    // Email auth
+    email                     String?       @unique
+    password                  String?
+    isEmailVerified           Boolean       @default(false)
+    emailVerificationSentAt   DateTime?
+    passwordResetSentAt       DateTime?
+    // Social login
     externalAuthAssociations  SocialLogin[]
+    // Business logic
+    tasks                     Task[]
 psl=}
 
 entity SocialLogin {=psl
@@ -75,6 +102,21 @@ page SignupPage {
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import Login from "@client/pages/auth/Login.tsx"
+}
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordReset } from "@client/pages/auth/PasswordReset.tsx",
+}
+
+route EmailVerificationRoute { path: "/email-verification-", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerification } from "@client/pages/auth/EmailVerification.tsx",
+}
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
+page RequestPasswordResetPage {
+  component: import { RequestPasswordReset } from "@client/pages/auth/RequestPasswordReset.tsx",
 }
 
 route HomeRoute { path: "/", to: MainPage }

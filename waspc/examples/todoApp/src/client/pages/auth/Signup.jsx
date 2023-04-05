@@ -1,7 +1,6 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 
-import SignupForm from '@wasp/auth/forms/Signup'
+import { SignupForm } from '@wasp/auth/email'
 import getNumTasks from '@wasp/queries/getNumTasks'
 import { useQuery } from '@wasp/queries'
 import { getTotalTaskCountMessage } from './helpers'

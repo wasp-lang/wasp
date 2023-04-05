@@ -4,6 +4,7 @@ import Data.Maybe (fromJust)
 import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import Wasp.Generator.AuthProviders.Common (makeProviderId)
+import qualified Wasp.Generator.AuthProviders.Email as E
 import qualified Wasp.Generator.AuthProviders.Local as L
 import qualified Wasp.Generator.AuthProviders.OAuth as OA
 
@@ -32,4 +33,11 @@ localAuthProvider =
   L.LocalAuthProvider
     { L._providerId = fromJust $ makeProviderId "local",
       L._displayName = "Username and password"
+    }
+
+emailAuthProvider :: E.EmailAuthProvider
+emailAuthProvider =
+  E.EmailAuthProvider
+    { E._providerId = fromJust $ makeProviderId "email",
+      E._displayName = "Email and password"
     }

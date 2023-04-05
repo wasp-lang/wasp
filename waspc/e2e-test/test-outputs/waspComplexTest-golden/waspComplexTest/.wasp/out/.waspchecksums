@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "f32445341b14c6e04eb4e5c4f8f7e2c9a55dcb154cbc9823b6a24eb57700b4e4"
+        "43785eb2123f65d8555de544f14dca978dff4f0299d32885beabe12afb8c73d7"
     ],
     [
         [
@@ -144,7 +144,7 @@
             "file",
             "server/src/auth/providers/oauth/createRouter.ts"
         ],
-        "3743bd9f6b01ba355ae9af62637bd66f327615664552869397c1feb025273dad"
+        "63dbe409a2de70c55e3f4c01b5faa1da6d09ac0947ff90133c6c616c57ad75c7"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "server/src/auth/utils.ts"
         ],
-        "f956a964d5973e8521fb5c1e514a5da9d9c5e52ed3352e4d3373eb5c084872b3"
+        "e5b365c0914f8da5dfeb721db11bb241b97ce5f82b59537786747bdb6521bf93"
     ],
     [
         [
@@ -207,14 +207,21 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "968abe76a1cf4627b2bce2b9504558dbb1a8e5a50690262d6d4cd9506066ee72"
+        "da2adb670df6bb76d9df157a44056c7f13bf16a2eb5b78fa90dbaa8d98674689"
     ],
     [
         [
             "file",
             "server/src/core/auth/prismaMiddleware.js"
         ],
-        "14746535104eaaefeeb0befda6d4472177e367d906c005706f740802f6a57240"
+        "72352443cb7f3f72e7608270d19f7e541b1b1f233fa995391f253e1585efc71c"
+    ],
+    [
+        [
+            "file",
+            "server/src/core/auth/validators.ts"
+        ],
+        "d7cfe22168d66e0d346c2aec33573c0346c9f0f5c854d3f204bed5b4c315da87"
     ],
     [
         [
@@ -438,7 +445,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "d14074812de8055f6dbeb67152c90c2eb94defa0a42749984069fbdcea7bc7af"
+        "6b9dcc39aee89af771c01c9daf84aa769968081dd9b1b22a96e98f09366b06a8"
     ],
     [
         [
@@ -592,14 +599,14 @@
             "file",
             "web-app/src/auth/forms/Login.jsx"
         ],
-        "a0bf5bc76dc48aacd73436c4dc15881f039f7f7d3d9a5b2e9dabda87b72d24b0"
+        "cc899de975012417da95738016650b4d7416475a50fd730bae08c10b99c58d52"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Signup.jsx"
         ],
-        "cba167b5decece31212894297a27cf2509bccb6a55fc0fba0a54322602d9d21e"
+        "413ba86964bbe7735ed102618d5c4efc8187eae2feb73cae72f2ddfda55a53b3"
     ],
     [
         [

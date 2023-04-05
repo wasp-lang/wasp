@@ -19,11 +19,13 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (doesUserEntityContainField, getApp)
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider, localAuthProvider)
+import Wasp.Generator.AuthProviders (emailAuthProvider, gitHubAuthProvider, googleAuthProvider, localAuthProvider)
+import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
 import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.ServerGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.ServerGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -36,6 +38,7 @@ genAuth spec = case maybeAuth of
     sequence
       [ genCoreAuth auth,
         genAuthMiddleware spec auth,
+        genFileCopy [relfile|core/auth/validators.ts|],
         genAuthRoutesIndex auth,
         genMeRoute auth,
         genUtils auth,
@@ -44,6 +47,7 @@ genAuth spec = case maybeAuth of
       ]
       <++> genLocalAuth auth
       <++> genOAuthAuth spec auth
+      <++> genEmailAuth spec auth
   Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
@@ -82,9 +86,11 @@ genAuthMiddleware spec auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile
           isPasswordOnUserEntity = doesUserEntityContainField spec "password" == Just True
           isUsernameOnUserEntity = doesUserEntityContainField spec "username" == Just True
        in object
-            [ "userEntityUpper" .= (userEntityName :: String),
+            [ "userEntityUpper" .= userEntityName,
+              "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
               "isPasswordOnUserEntity" .= isPasswordOnUserEntity,
-              "isUsernameOnUserEntity" .= isUsernameOnUserEntity
+              "isUsernameOnUserEntity" .= isUsernameOnUserEntity,
+              "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
             ]
 
 genAuthRoutesIndex :: AS.Auth.Auth -> Generator FileDraft
@@ -118,7 +124,8 @@ genUtils auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplDat
         [ "userEntityUpper" .= (userEntityName :: String),
           "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
-          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
+          "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
         ]
 
     utilsFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
@@ -136,5 +143,6 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
       concat
         [ [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
           [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-          [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth]
+          [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
+          [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
         ]

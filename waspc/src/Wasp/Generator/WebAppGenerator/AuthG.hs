@@ -15,6 +15,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.WebAppGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.WebAppGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.WebAppGenerator.Common as C
@@ -33,6 +34,7 @@ genAuth spec =
         <++> genAuthForms auth
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
+        <++> genEmailAuth auth
     Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec

@@ -5,17 +5,22 @@ module Wasp.AppSpec.App.Auth
   ( Auth (..),
     AuthMethods (..),
     ExternalAuthConfig (..),
+    EmailAuthConfig (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
     areBothExternalAndUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
+    isEmailAuthEnabled,
   )
 where
 
 import Data.Data (Data)
 import Data.Maybe (isJust)
+import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
+import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
+import Wasp.AppSpec.App.EmailSender (EmailFromField)
 import Wasp.AppSpec.Core.Ref (Ref)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -32,7 +37,8 @@ data Auth = Auth
 data AuthMethods = AuthMethods
   { usernameAndPassword :: Maybe UsernameAndPasswordConfig,
     google :: Maybe ExternalAuthConfig,
-    gitHub :: Maybe ExternalAuthConfig
+    gitHub :: Maybe ExternalAuthConfig,
+    email :: Maybe EmailAuthConfig
   }
   deriving (Show, Eq, Data)
 
@@ -45,6 +51,14 @@ data UsernameAndPasswordConfig = UsernameAndPasswordConfig
 data ExternalAuthConfig = ExternalAuthConfig
   { configFn :: Maybe ExtImport,
     getUserFieldsFn :: Maybe ExtImport
+  }
+  deriving (Show, Eq, Data)
+
+data EmailAuthConfig = EmailAuthConfig
+  { fromField :: EmailFromField,
+    emailVerification :: EmailVerificationConfig,
+    passwordReset :: PasswordResetConfig,
+    allowUnverifiedLogin :: Maybe Bool
   }
   deriving (Show, Eq, Data)
 
@@ -65,3 +79,6 @@ isGoogleAuthEnabled = isJust . google . methods
 
 isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods
+
+isEmailAuthEnabled :: Auth -> Bool
+isEmailAuthEnabled = isJust . email . methods
