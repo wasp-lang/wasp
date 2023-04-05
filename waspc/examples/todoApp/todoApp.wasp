@@ -10,17 +10,17 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    // externalAuthEntity: SocialLogin,
+     externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
-      // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
-      // gitHub: {
-      //   configFn: import { config } from "@server/auth/github.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
-      // }
+       usernameAndPassword: {},
+       google: {
+         configFn: import { config } from "@server/auth/google.js",
+         getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+       },
+       gitHub: {
+         configFn: import { config } from "@server/auth/github.js",
+         getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+       }
     },
     onAuthFailedRedirectTo: "/login",
     onAuthSucceededRedirectTo: "/profile"
@@ -74,7 +74,7 @@ page SignupPage {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/pages/auth/Login.jsx"
+  component: import Login from "@client/pages/auth/Login.tsx"
 }
 
 route HomeRoute { path: "/", to: MainPage }

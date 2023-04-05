@@ -508,7 +508,7 @@
             "file",
             "web-app/package.json"
         ],
-        "bbb4abefcbfeb37e6feaee0906b849939df6bd85d70821a81217be6cff2c6b1d"
+        "242405370b2d81ba452a0979203c6825d510e601334397e4c4eb2923a3b6edf2"
     ],
     [
         [
@@ -579,6 +579,34 @@
             "web-app/src/api.ts"
         ],
         "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Auth.tsx"
+        ],
+        "3c15faec2c79eafeb0e796bb849c04eaf3c6c233636b96de6765352670816d97"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Login.jsx"
+        ],
+        "a0bf5bc76dc48aacd73436c4dc15881f039f7f7d3d9a5b2e9dabda87b72d24b0"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Signup.jsx"
+        ],
+        "cba167b5decece31212894297a27cf2509bccb6a55fc0fba0a54322602d9d21e"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialIcons.tsx"
+        ],
+        "4e89c92b63539e28fe0d084b1fdcf870a426eb228ce37c57b374597005ff235c"
     ],
     [
         [
@@ -761,6 +789,13 @@
             "web-app/src/router.jsx"
         ],
         "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/stitches.config.js"
+        ],
+        "25680fb34bd5200a8416e0a5ebfe8cb0e4240e7848ed3a065c56d1b55d7edd09"
     ],
     [
         [

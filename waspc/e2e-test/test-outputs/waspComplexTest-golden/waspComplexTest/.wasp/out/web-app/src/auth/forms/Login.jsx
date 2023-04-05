@@ -1,19 +1,15 @@
-{{={= =}=}}
 import React, { useState } from 'react'
-
 import Auth from './Auth'
 
-const SignupForm = ({ appearance, logo, socialLayout }) => {
+const LoginForm = ({ appearance, logo, socialLayout }) => {
   return (
     <Auth
       appearance={appearance}
       logo={logo}
       socialLayout={socialLayout}
-      isLogin={false}
+      isLogin={true}
     />
   )
-
-
 }
 
-export default SignupForm
+export default LoginForm
