@@ -2,9 +2,9 @@
 import { hashPassword } from '../auth.js'
 import AuthError from '../AuthError.js'
 
-{=# isUsernameAndPasswordAuthEnabled  =}
+{=# isUsernameOnUserEntity  =}
 const USERNAME_FIELD = 'username'
-{=/ isUsernameAndPasswordAuthEnabled  =}
+{=/ isUsernameOnUserEntity  =}
 const PASSWORD_FIELD = 'password'
 
 // Allows flexible validation of a user entity.
