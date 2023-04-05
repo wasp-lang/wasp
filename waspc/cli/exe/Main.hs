@@ -170,9 +170,9 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
-        cmd   "  seed [name]   Executes the db seed function (specified via app.db.seed).",
-        cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name.",
-        cmd   "                By default it will execute the first seed.",
+        cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
+        cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
+        cmd   "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
               "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
               "                  - Generates a new migration if there are changes in the schema.",

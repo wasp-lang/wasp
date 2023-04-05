@@ -33,8 +33,8 @@ export const devSeedSimple = async (prismaClient) => {
 //...
 ```
 
-`wasp db seed` runs the first(default) seed, while `wasp db seed <name>` will run a seed with specific name.  
-For example, for the case above, you could do `wasp db seed prodSeed`.
+Run `wasp db seed` to run database seeding. If there is only one seed, it will run that one, or it will interactively ask you to pick one.
+You can also do `wasp db seed <name>` to run a seed with specific name: for example, for the case above, you could do `wasp db seed prodSeed`.
 
 
 ### Adds an `api` keyword for defining an arbitrary endpoint and URL

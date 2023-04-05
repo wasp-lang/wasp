@@ -1808,7 +1808,7 @@ Seeding is most commonly used for two following scenarios:
  1. To put development database into a state convenient for testing / playing with it.
  2. To initialize dev/staging/prod database with some essential data needed for it to be useful,
     for example default currencies in a Currency table.
-    
+
 #### Writing a seed function
 
 Wasp enables you to define multiple **seed functions** via `app.db.seeds`:
@@ -1856,11 +1856,9 @@ async function createUser (prismaClient, data) {
 
 #### Running seed functions
 
-Run `wasp db seed` to run the default seed function (the first one in the `app.db.seeds` list).
+ - `wasp db seed`: If you have just one seed function, it will run it. If you have multiple, it will interactively ask you to choose one to run.
 
-Run `wasp db seed <seed-name>` to run the seed function with the specified name,
-where the name is the identifier you used in its `import` expression in the `app.db.seeds` list.  
-Example: `wasp db seed devSeedSimple`.
+ - `wasp db seed <seed-name>`: It will run the seed function with the specified name, where the name is the identifier you used in its `import` expression in the `app.db.seeds` list. Example: `wasp db seed devSeedSimple`.
 
 :::tip
   Often you will want to call `wasp db seed` right after you ran `wasp db reset`: first you empty your database, then you fill it with some initial data.

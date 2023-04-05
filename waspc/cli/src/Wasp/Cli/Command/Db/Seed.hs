@@ -34,7 +34,7 @@ seed maybeUserProvidedSeedName = do
 
   nameOfSeedToRun <- obtainNameOfExistingSeedToRun maybeUserProvidedSeedName appSpec
 
-  cliSendMessageC $ Msg.Start "Seeding the database..."
+  cliSendMessageC $ Msg.Start $ "Running database seed " <> nameOfSeedToRun <> "..."
 
   liftIO (dbSeed genProjectDir nameOfSeedToRun) >>= \case
     Left errorMsg -> cliSendMessageC $ Msg.Failure "Database seeding failed" errorMsg
@@ -52,7 +52,7 @@ obtainNameOfExistingSeedToRun maybeUserProvidedSeedName spec = do
     askUserToChooseFromSeedNames :: NE.NonEmpty String -> IO String
     askUserToChooseFromSeedNames seedNames = do
       putStrLn "Choose a seed to run:"
-      mapM_ (\(i, n) -> putStrLn $ printf "  %d: %s" i n) $ zip [1 :: Int ..] (NE.toList seedNames)
+      mapM_ (\(i, n) -> putStrLn $ printf " [%d] %s" i n) $ zip [1 :: Int ..] (NE.toList seedNames)
       putStrLn "Type a number (e.g. 1 or 2):"
       chosenNumber <- getLine
       case parseNumberInRange (1, length seedNames) chosenNumber of
