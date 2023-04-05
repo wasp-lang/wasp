@@ -14,7 +14,7 @@ export function getLoginRoute({
         const args = req.body || {};
         ensureValidEmailAndPassword(args);
 
-        const user = await findUserBy<'email'>({ email: args.email });
+        const user = await findUserBy<'email'>({ email: args.email.toLowerCase() });
         if (!user) {
             return res.status(401).send();
         }
