@@ -204,7 +204,6 @@ genSrcDir spec =
     <++> genOperations spec
     <++> genAuth spec
     <++> genEmailSender spec
-    <++> genMiddleware
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -365,11 +364,3 @@ genExportedTypesDir spec =
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-genMiddleware :: Generator [FileDraft]
-genMiddleware =
-  sequence
-    [ genFileCopy [relfile|middleware/rateLimiter.ts|]
-    ]
-  where
-    genFileCopy = return . C.mkSrcTmplFd
