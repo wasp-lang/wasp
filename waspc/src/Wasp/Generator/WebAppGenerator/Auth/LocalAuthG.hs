@@ -13,7 +13,7 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Common as C
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genLocalAuth = genActions 
+genLocalAuth = genActions
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth

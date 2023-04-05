@@ -5,15 +5,15 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
-import StrongPath (relfile, Path', Rel', File', reldir, (</>))
+import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.WebAppGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG (genOAuthAuth)
@@ -64,24 +64,23 @@ genAuthForms auth =
       copyTmplFile [relfile|stitches.config.js|],
       copyTmplFile [relfile|auth/forms/SocialIcons.tsx|]
     ]
-    where
-        copyTmplFile = return . C.mkSrcTmplFd
-
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
 
 genAuthForm :: AS.Auth.Auth -> Generator FileDraft
 genAuthForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Auth.tsx|]
-    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
-    , "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    , "areBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.areBothExternalAndUsernameAndPasswordAuthEnabled auth
-    , "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
-    -- Google
-    , "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth
-    , "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider
-    -- GitHub
-    , "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth
-    , "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider
+    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+      "areBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.areBothExternalAndUsernameAndPasswordAuthEnabled auth,
+      "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+      -- Google
+      "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+      "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+      -- GitHub
+      "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider
     ]
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
@@ -100,10 +99,10 @@ genSignupForm auth =
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
-    return $
-        C.mkTmplFdWithData
-            (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
-            (object keyValuePairs )
+  return $
+    C.mkTmplFdWithData
+      (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
+      (object keyValuePairs)
 
 genUserHelpers :: Generator FileDraft
 genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])

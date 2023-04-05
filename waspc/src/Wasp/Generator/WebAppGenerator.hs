@@ -50,8 +50,8 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
-import Wasp.Util ((<++>))
 import qualified Wasp.SemanticVersion as SV
+import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
@@ -154,9 +154,9 @@ npmDepsForWasp spec =
 
 depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForAuth spec =
-    [ AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
-    where
-        versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
+  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+  where
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
