@@ -17,7 +17,8 @@ waspCompile/.wasp/out/server/src/app.js
 waspCompile/.wasp/out/server/src/config.js
 waspCompile/.wasp/out/server/src/core/AuthError.js
 waspCompile/.wasp/out/server/src/core/HttpError.js
-waspCompile/.wasp/out/server/src/dbClient.js
+waspCompile/.wasp/out/server/src/dbClient.ts
+waspCompile/.wasp/out/server/src/dbSeed/types.ts
 waspCompile/.wasp/out/server/src/entities/index.ts
 waspCompile/.wasp/out/server/src/jobs/core/Job.js
 waspCompile/.wasp/out/server/src/jobs/core/SubmittedJob.js

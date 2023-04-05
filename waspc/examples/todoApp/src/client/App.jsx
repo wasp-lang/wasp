@@ -27,7 +27,9 @@ export function App({ children }) {
         )}
       </header>
       <main>{children}</main>
-      <footer className="mt-8 text-center">Created with Wasp</footer>
+      <footer className="mt-8 text-center">
+        Created with Wasp
+      </footer>
     </div>
   )
 }

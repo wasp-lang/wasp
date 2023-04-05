@@ -33,6 +33,7 @@ module Wasp.Util
     kebabToCamelCase,
     maybeToEither,
     whenM,
+    trim,
   )
 where
 
@@ -167,6 +168,9 @@ insertAt :: [a] -> Int -> [a] -> [a]
 insertAt theInsert idx host =
   let (before, after) = splitAt idx host
    in before ++ theInsert ++ after
+
+trim :: String -> String
+trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 infixr 5 <++>
 

@@ -18,7 +18,8 @@ waspJob/.wasp/out/server/src/app.js
 waspJob/.wasp/out/server/src/config.js
 waspJob/.wasp/out/server/src/core/AuthError.js
 waspJob/.wasp/out/server/src/core/HttpError.js
-waspJob/.wasp/out/server/src/dbClient.js
+waspJob/.wasp/out/server/src/dbClient.ts
+waspJob/.wasp/out/server/src/dbSeed/types.ts
 waspJob/.wasp/out/server/src/entities/index.ts
 waspJob/.wasp/out/server/src/ext-src/jobs/bar.js
 waspJob/.wasp/out/server/src/jobs/MySpecialJob.js

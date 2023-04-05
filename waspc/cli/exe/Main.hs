@@ -18,6 +18,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
+import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -154,6 +155,8 @@ dbCli :: [String] -> IO ()
 dbCli args = case args of
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["reset"] -> runDbCommand Command.Db.Reset.reset
+  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runDbCommand Command.Db.Studio.studio
   _ -> printDbUsage
 
@@ -167,6 +170,9 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
+        cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
+        cmd   "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
               "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
               "                  - Generates a new migration if there are changes in the schema.",

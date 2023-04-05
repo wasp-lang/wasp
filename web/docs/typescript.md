@@ -341,3 +341,14 @@ const Task = ({ taskId }: Pick<Task, "id">) => {
   // ...
 }
 ```
+
+## Database seeding
+
+When implementing a seed function in TypeScript, you can import a `DbSeedFn` type via
+```ts
+import type { DbSeedFn } from '@wasp/dbSeed/types.js'
+```
+and use it to type your seed function like this:
+```ts
+export const devSeedSimple: DbSeedFn = async (prismaClient) => { ... }
+```

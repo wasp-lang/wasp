@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "efd229d153b5c50efd1c4e0507b164a2da6123d6203ea17997ddc95d678c8ba8"
+        "43785eb2123f65d8555de544f14dca978dff4f0299d32885beabe12afb8c73d7"
     ],
     [
         [
@@ -226,9 +226,16 @@
     [
         [
             "file",
-            "server/src/dbClient.js"
+            "server/src/dbClient.ts"
         ],
-        "5fb53eff5e5eae318e281a8fc1cc433b69688d93c3c82d72415f710a6e75e2af"
+        "a749686af4e331a0b982e8c2acbfe00aff043340f34d54e80a34d417c6901e56"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbSeed/types.ts"
+        ],
+        "47442c546d286164c2cdb3359deb45b47f115df2ca72bb181b4639bee2059d38"
     ],
     [
         [
@@ -508,7 +515,7 @@
             "file",
             "web-app/package.json"
         ],
-        "bbb4abefcbfeb37e6feaee0906b849939df6bd85d70821a81217be6cff2c6b1d"
+        "242405370b2d81ba452a0979203c6825d510e601334397e4c4eb2923a3b6edf2"
     ],
     [
         [
@@ -579,6 +586,34 @@
             "web-app/src/api.ts"
         ],
         "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Auth.tsx"
+        ],
+        "3c15faec2c79eafeb0e796bb849c04eaf3c6c233636b96de6765352670816d97"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Login.jsx"
+        ],
+        "cc899de975012417da95738016650b4d7416475a50fd730bae08c10b99c58d52"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Signup.jsx"
+        ],
+        "413ba86964bbe7735ed102618d5c4efc8187eae2feb73cae72f2ddfda55a53b3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialIcons.tsx"
+        ],
+        "4e89c92b63539e28fe0d084b1fdcf870a426eb228ce37c57b374597005ff235c"
     ],
     [
         [
@@ -761,6 +796,13 @@
             "web-app/src/router.jsx"
         ],
         "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/stitches.config.js"
+        ],
+        "25680fb34bd5200a8416e0a5ebfe8cb0e4240e7848ed3a065c56d1b55d7edd09"
     ],
     [
         [

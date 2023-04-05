@@ -48,7 +48,11 @@ app todoApp {
     setupFn: import setup from "@client/clientSetup"
   },
   db: {
-    system: PostgreSQL
+    system: PostgreSQL,
+    seeds: [
+      import { devSeedSimple } from "@server/dbSeeds.js",
+      import { prodSeed } from "@server/dbSeeds.js"
+    ]
   },
   emailSender: {
     provider: SMTP,
@@ -97,7 +101,7 @@ page SignupPage {
 
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import Login from "@client/pages/auth/Login.jsx"
+  component: import Login from "@client/pages/auth/Login.tsx"
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }

@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "6b0f5e5bf322d20e4b8d9d2b8b702d37752d5c8cf0c80e6254a6e392d3f93ea4"
+        "3efe339177fc65c14215d1b2a6e62a338a7f605b01f77d0eebb771e1aad1751a"
     ],
     [
         [
@@ -128,9 +128,16 @@
     [
         [
             "file",
-            "server/src/dbClient.js"
+            "server/src/dbClient.ts"
         ],
         "20c67ca197da3de2d37528ceaff2e40af910be8177f346c6d5c2b2f983810c43"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbSeed/types.ts"
+        ],
+        "47442c546d286164c2cdb3359deb45b47f115df2ca72bb181b4639bee2059d38"
     ],
     [
         [
