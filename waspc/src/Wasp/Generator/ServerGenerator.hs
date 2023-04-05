@@ -150,7 +150,8 @@ npmDepsForWasp spec =
             ("helmet", "^6.0.0"),
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
-            ("lodash.merge", "^4.6.2")
+            ("lodash.merge", "^4.6.2"),
+            ("superjson", "^1.12.2")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec

@@ -129,7 +129,9 @@ npmDepsForWasp spec =
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion)
+            ("@prisma/client", show prismaVersion),
+            ("superjson", "^1.12.2")
+
           ]
           ++ depsRequiredByTailwind spec,
       N.waspDevDependencies =
