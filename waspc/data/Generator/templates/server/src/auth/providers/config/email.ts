@@ -79,7 +79,4 @@ const config: ProviderConfig = {
     },
 }
 
-type ExpressRoute = (req: Request, res: Response, next: NextFunction) => Promise<Response>;
-
-
 export default config;

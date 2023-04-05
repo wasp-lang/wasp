@@ -14,8 +14,8 @@ app todoApp {
     methods: {
       // usernameAndPassword: {},
       google: {
-        // configFn: import { config } from "@server/auth/google.js",
-        // getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+        configFn: import { config } from "@server/auth/google.js",
+        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
       },
       // gitHub: {
       //   configFn: import { config } from "@server/auth/github.js",

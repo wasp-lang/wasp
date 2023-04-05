@@ -6,9 +6,12 @@ import prisma from '../dbClient.js'
 import { isPrismaError, prismaErrorToHttpError, sleep } from '../utils.js'
 import { type {= userEntityUpper =} } from '../entities/index.js'
 import waspServerConfig from '../config.js';
+import { type Prisma } from '@prisma/client';
+{=# isEmailAuthEnabled =}
 import { isValidEmail } from '../core/auth/validators.js'
 import { emailSender } from '../email/index.js';
-import { Email } from '../email/core/types.js'
+import { Email } from '../email/core/types.js';
+{=/ isEmailAuthEnabled =}
 
 type {= userEntityUpper =}Id = {= userEntityUpper =}['id']
 
@@ -27,7 +30,7 @@ export async function findUserBy<K extends keyof {= userEntityUpper =}>(where: {
   return prisma.{= userEntityLower =}.findUnique({ where });
 }
 
-export async function createUser(data: {= userEntityUpper =}): Promise<{= userEntityUpper =}> {
+export async function createUser(data: Prisma.{= userEntityUpper =}CreateInput): Promise<{= userEntityUpper =}> {
   try {
     return await prisma.{= userEntityLower =}.create({ data })
   } catch (e) {
@@ -108,30 +111,33 @@ export async function sendPasswordResetEmail(
   email: string,
   content: Email,
 ): Promise<void> {
-  await emailSender.send(content);
-  try {
-    await prisma.{= userEntityLower =}.update({
-      where: { email },
-      data: { passwordResetSentAt: new Date() },
-    })
-  } catch (e) {
-    rethrowError(e);
-  }
+  return sendEmailAndLogTimestamp(email, content, 'passwordResetSentAt');
 }
 
 export async function sendEmailVerificationEmail(
   email: string,
   content: Email,
 ): Promise<void> {
-  await emailSender.send(content);
+  return sendEmailAndLogTimestamp(email, content, 'emailVerificationSentAt');
+}
+
+async function sendEmailAndLogTimestamp(
+  email: string,
+  content: Email,
+  field: 'emailVerificationSentAt' | 'passwordResetSentAt',
+): Promise<void> {
+  // Set the timestamp first, and then send the email
+  // so the user can't send multiple requests while
+  // the email is being sent.
   try {
     await prisma.{= userEntityLower =}.update({
       where: { email },
-      data: { emailVerificationSentAt: new Date() },
+      data: { [field]: new Date() },
     })
   } catch (e) {
     rethrowError(e);  
   }
+  await emailSender.send(content);
 }
 
 export function isEmailResendAllowed(

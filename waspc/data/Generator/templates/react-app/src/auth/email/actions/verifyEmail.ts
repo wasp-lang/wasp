@@ -1,5 +1,4 @@
 {{={= =}=}}
-import type { AxiosError } from 'axios';
 import api, { handleApiError } from '../../../api';
 
 export async function verifyEmail(data: { token: string; }): Promise<{ success: boolean; reason?: string; }> {

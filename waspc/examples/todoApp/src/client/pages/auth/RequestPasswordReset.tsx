@@ -1,10 +1,16 @@
 import { requestPasswordReset } from '@wasp/auth/email'
+import { errorMessage } from '@wasp/utils'
 
 export function RequestPasswordReset() {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     const email = e.target[0].value as string
-    await requestPasswordReset({ email })
+    try {
+      await requestPasswordReset({ email })
+      window.alert('Check your e-mail!')
+    } catch (e) {
+      window.alert(errorMessage(e))
+    }
   }
   return (
     <div>
