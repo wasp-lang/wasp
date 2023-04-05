@@ -1,23 +1,22 @@
 {{={= =}=}}
-import React, { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { createStitches, createTheme } from '@stitches/react'
+import { createTheme } from '@stitches/react'
 
-import { errorMessage } from '../../utils.js'
 {=# isUsernameAndPasswordAuthEnabled =}
 import signup from '../signup.js'
 import login from '../login.js'
 {=/ isUsernameAndPasswordAuthEnabled =}
+{=# isEmailAuthEnabled =}
+import { signup } from '../email/actions/signup.js'
+import { login } from '../email/actions/login.js'
+{=/ isEmailAuthEnabled =}
 {=# isExternalAuthEnabled =}
 import * as SocialIcons from './SocialIcons'
 {=/ isExternalAuthEnabled =}
 
 import config from '../../config.js'
-import { styled, css } from '../../stitches.config'
-
-const socialButtonsContainerStyle = {
-  maxWidth: '20rem'
-}
+import { styled } from '../../stitches.config'
 
 const logoStyle = {
   height: '3rem'
@@ -36,7 +35,6 @@ const HeaderText = styled('h2', {
 
 const SocialAuth = styled('div', {
   marginTop: '1.5rem'
-  
 })
 
 const SocialAuthLabel = styled('div', {
@@ -175,7 +173,6 @@ const SubmitButton = styled('button', {
   justifyContent: 'center',
 
   width: '100%',
-  borderRadius: '0.375rem',
   borderWidth: '1px',
   borderColor: '$brand',
   backgroundColor: '$brand',
@@ -198,35 +195,42 @@ const SubmitButton = styled('button', {
   transitionDuration: '100ms'
 })
 
+const ErrorMessage = styled('div', {
+  background: '$errorBackground',
+  color: '$errorText',
+  padding: '0.5rem 0.75rem',
+  borderRadius: '0.375rem',
+  marginTop: '1rem',
+})
+
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 
-// TODO(matija): introduce type for appearance
-const Auth = ({ isLogin, appearance, logo, socialLayout } :
-              { isLogin: boolean; logo: string; socialLayout: "horizontal" | "vertical" }) => {
-  const history = useHistory()
-
-  const [usernameFieldVal, setUsernameFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    try {
-      if (!isLogin) {
-        await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      }
-      await login (usernameFieldVal, passwordFieldVal)
-
-      setUsernameFieldVal('')
-      setPasswordFieldVal('')
-
-      // Redirect to configured page, defaults to /.
-      history.push('{= onAuthSucceededRedirectTo =}')
-    } catch (err) {
-      console.log(err)
-      window.alert(errorMessage(err))
+function Auth (
+  { isLogin, appearance, logo, socialLayout }: {
+    isLogin: boolean;
+    logo: string; 
+    socialLayout: "horizontal" | "vertical";
+    appearance: Parameters<typeof createTheme>[0];
+  },
+) {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  {=# isUsernameAndPasswordAuthEnabled =}
+  const { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal } = useUsernameAndPassword({
+    isLogin,
+    onError: (error) => {
+      setErrorMessage(error.message);
     }
-  }
+  });
+  {=/ isUsernameAndPasswordAuthEnabled =}
+  {=# isEmailAuthEnabled =}
+  const { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal } = useEmail({
+    isLogin,
+    onError: (error) => {
+      setErrorMessage(error.message);
+    }
+  });
+  {=/ isEmailAuthEnabled =}
 
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
@@ -247,6 +251,8 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
         <HeaderText>{title}</HeaderText>
       </div>
 
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+
       {=# isExternalAuthEnabled =}
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
@@ -262,7 +268,7 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
         </SocialAuth>
       {=/ isExternalAuthEnabled =}
       
-      {=# areBothExternalAndUsernameAndPasswordAuthEnabled =}
+      {=# areBothSocialAndPasswordBasedAuthEnabled =}
         <OrContinueWith>
           <OrContinueWithLineContainer>
             <OrContinueWithLine/>
@@ -271,7 +277,7 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
             <OrContinueWithText>Or continue with</OrContinueWithText>
           </OrContinueWithTextContainer>
         </OrContinueWith>
-      {=/ areBothExternalAndUsernameAndPasswordAuthEnabled =}
+      {=/ areBothSocialAndPasswordBasedAuthEnabled =}
       
       {=# isUsernameAndPasswordAuthEnabled =}
         <UserPassForm onSubmit={handleSubmit}>
@@ -298,9 +304,103 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
           </FormItemGroup>
         </UserPassForm>
       {=/ isUsernameAndPasswordAuthEnabled =}
-      
+      {=# isEmailAuthEnabled =}
+      <UserPassForm onSubmit={handleSubmit}>
+          <FormItemGroup>
+            <FormLabel>E-mail</FormLabel>
+            <FormInput
+              type="text"
+              value={emailFieldVal}
+              onChange={e => setEmailFieldVal(e.target.value)}
+            />
+          </FormItemGroup>
+
+          <FormItemGroup>
+            <FormLabel>Password</FormLabel>
+            <FormInput
+              type="password"
+              value={passwordFieldVal}
+              onChange={e => setPasswordFieldVal(e.target.value)}
+            />
+          </FormItemGroup>
+
+          <FormItemGroup>
+            <SubmitButton type="submit">{cta}</SubmitButton>
+          </FormItemGroup>
+        </UserPassForm>
+      {=/ isEmailAuthEnabled =}
+
     </Container>
   )
 }
 
-export default Auth
+export default Auth;
+
+{=# isUsernameAndPasswordAuthEnabled =}
+function useUsernameAndPassword({
+  onError,
+  isLogin,
+}: {
+  onError: (error: Error) => void;
+  isLogin: boolean;
+}) {
+  const history = useHistory()
+
+  const [usernameFieldVal, setUsernameFieldVal] = useState('')
+  const [passwordFieldVal, setPasswordFieldVal] = useState('')
+
+  async function handleSubmit (event) {
+    event.preventDefault()
+    try {
+      if (!isLogin) {
+        await signup({ username: usernameFieldVal, password: passwordFieldVal })
+      }
+      await login (usernameFieldVal, passwordFieldVal)
+
+      setUsernameFieldVal('')
+      setPasswordFieldVal('')
+
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
+    } catch (err: unknown) {
+      onError(err as Error)
+    }
+  }
+
+  return { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal }
+}
+{=/ isUsernameAndPasswordAuthEnabled =}
+{=# isEmailAuthEnabled =}
+function useEmail({
+  onError,
+  isLogin,
+}: {
+  onError: (error: Error) => void;
+  isLogin: boolean;
+}) {
+  const history = useHistory()
+
+  const [emailFieldVal, setEmailFieldVal] = useState('')
+  const [passwordFieldVal, setPasswordFieldVal] = useState('')
+
+  async function handleSubmit (event) {
+    event.preventDefault()
+    try {
+      if (!isLogin) {
+        await signup({ email: emailFieldVal, password: passwordFieldVal })
+      }
+      await login ({ email: emailFieldVal, password: passwordFieldVal})
+
+      setEmailFieldVal('')
+      setPasswordFieldVal('')
+
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
+    } catch (err: unknown) {
+      onError(err as Error)
+    }
+  }
+
+  return { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal }
+}
+{=/ isEmailAuthEnabled =}

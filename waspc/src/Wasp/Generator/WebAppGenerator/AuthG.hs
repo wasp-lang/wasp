@@ -75,7 +75,8 @@ genAuthForm auth =
     [relfile|auth/forms/Auth.tsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-      "areBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.areBothExternalAndUsernameAndPasswordAuthEnabled auth,
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+      "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
       "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
       -- Google
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
@@ -84,6 +85,8 @@ genAuthForm auth =
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
       "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider
     ]
+  where
+    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && (AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth)
 
 genLoginForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginForm auth =

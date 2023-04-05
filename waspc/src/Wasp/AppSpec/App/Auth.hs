@@ -8,7 +8,6 @@ module Wasp.AppSpec.App.Auth
     EmailAuthConfig (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
-    areBothExternalAndUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
@@ -67,9 +66,6 @@ usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
-
-areBothExternalAndUsernameAndPasswordAuthEnabled :: Auth -> Bool
-areBothExternalAndUsernameAndPasswordAuthEnabled auth = all ($ auth) [isExternalAuthEnabled, isUsernameAndPasswordAuthEnabled]
 
 isExternalAuthEnabled :: Auth -> Bool
 isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled, isGitHubAuthEnabled]
