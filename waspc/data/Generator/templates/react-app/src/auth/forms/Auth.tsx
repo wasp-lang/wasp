@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { useState } from 'react'
+import { useState, FormEvent } from 'react'
 import { useHistory } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
 
@@ -13,6 +13,7 @@ import { login } from '../email/actions/login.js'
 {=/ isEmailAuthEnabled =}
 {=# isExternalAuthEnabled =}
 import * as SocialIcons from './SocialIcons'
+import { SocialButton } from './SocialButton';
 {=/ isExternalAuthEnabled =}
 
 import config from '../../config.js'
@@ -69,31 +70,6 @@ const SocialAuthButtons = styled('div', {
       }
     }
   }
-})
-
-const SocialButton = styled('a', {
-  display: 'flex',
-  justifyContent: 'center',
-
-  cursor: 'pointer',
-  // NOTE(matija): icon is otherwise blue, since that
-  // is link's default font color.
-  color: 'inherit',
-  backgroundColor: '#f0f0f0',
-  borderRadius: '0.375rem',
-  borderWidth: '1px',
-  borderColor: '$gray600',
-  fontSize: '13px',
-  padding: '10px 15px',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  '&:visited': {
-    color: 'inherit',
-  },
-  '&:hover': {
-    backgroundColor: '$gray500',
-  },
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionDuration: '100ms'
 })
 
 const OrContinueWith = styled('div', {
@@ -158,6 +134,11 @@ const FormInput = styled('input', {
     borderColor: '$gray700',
     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+  },
 
   borderRadius: '0.375rem',
   width: '100%',
@@ -191,6 +172,11 @@ const SubmitButton = styled('button', {
     backgroundColor: '$brandAccent',
     borderColor: '$brandAccent',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+  },
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
   transitionDuration: '100ms'
 })
@@ -203,8 +189,12 @@ const ErrorMessage = styled('div', {
   marginTop: '1rem',
 })
 
+{=# isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
+{=/ isGoogleAuthEnabled =}
+{=# isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
+{=/ isGitHubAuthEnabled =}
 
 function Auth (
   { isLogin, appearance, logo, socialLayout }: {
@@ -215,22 +205,43 @@ function Auth (
   },
 ) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  {=# isAnyPasswordBasedAuthEnabled =}
+  const history = useHistory();
+  const onErrorHandler = (error) => {
+    setErrorMessage(error.message)
+  };
+  const onSuccessHandler = () => {
+    // Redirect to configured page, defaults to /.
+    history.push('{= onAuthSucceededRedirectTo =}')
+  };
+  {=/ isAnyPasswordBasedAuthEnabled =}
   {=# isUsernameAndPasswordAuthEnabled =}
   const { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal } = useUsernameAndPassword({
     isLogin,
-    onError: (error) => {
-      setErrorMessage(error.message);
-    }
+    onError: onErrorHandler,
+    onSuccess: onSuccessHandler,
   });
   {=/ isUsernameAndPasswordAuthEnabled =}
   {=# isEmailAuthEnabled =}
   const { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal } = useEmail({
     isLogin,
-    onError: (error) => {
-      setErrorMessage(error.message);
-    }
+    onError: onErrorHandler,
+    onSuccess: onSuccessHandler,
   });
   {=/ isEmailAuthEnabled =}
+  {=# isAnyPasswordBasedAuthEnabled =}
+  async function onSubmit (event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      await handleSubmit();
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  {=/ isAnyPasswordBasedAuthEnabled =}
 
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
@@ -278,58 +289,48 @@ function Auth (
           </OrContinueWithTextContainer>
         </OrContinueWith>
       {=/ areBothSocialAndPasswordBasedAuthEnabled =}
-      
-      {=# isUsernameAndPasswordAuthEnabled =}
-        <UserPassForm onSubmit={handleSubmit}>
+      {=# isAnyPasswordBasedAuthEnabled =}
+        <UserPassForm onSubmit={onSubmit}>
+          {=# isUsernameAndPasswordAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
             <FormInput
               type="text"
+              required
               value={usernameFieldVal}
               onChange={e => setUsernameFieldVal(e.target.value)}
+              disabled={isLoading}
             />
           </FormItemGroup>
-
-          <FormItemGroup>
-            <FormLabel>Password</FormLabel>
-            <FormInput
-              type="password"
-              value={passwordFieldVal}
-              onChange={e => setPasswordFieldVal(e.target.value)}
-            />
-          </FormItemGroup>
-
-          <FormItemGroup>
-            <SubmitButton type="submit">{cta}</SubmitButton>
-          </FormItemGroup>
-        </UserPassForm>
-      {=/ isUsernameAndPasswordAuthEnabled =}
-      {=# isEmailAuthEnabled =}
-      <UserPassForm onSubmit={handleSubmit}>
+          {=/ isUsernameAndPasswordAuthEnabled =}
+          {=# isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>E-mail</FormLabel>
             <FormInput
-              type="text"
+              type="email"
+              required
               value={emailFieldVal}
               onChange={e => setEmailFieldVal(e.target.value)}
+              disabled={isLoading}
             />
           </FormItemGroup>
-
+          {=/ isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormInput
               type="password"
+              required
               value={passwordFieldVal}
               onChange={e => setPasswordFieldVal(e.target.value)}
+              disabled={isLoading}
             />
           </FormItemGroup>
 
           <FormItemGroup>
-            <SubmitButton type="submit">{cta}</SubmitButton>
+            <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>
         </UserPassForm>
-      {=/ isEmailAuthEnabled =}
-
+      {=/ isAnyPasswordBasedAuthEnabled =}
     </Container>
   )
 }
@@ -339,18 +340,17 @@ export default Auth;
 {=# isUsernameAndPasswordAuthEnabled =}
 function useUsernameAndPassword({
   onError,
+  onSuccess,
   isLogin,
 }: {
   onError: (error: Error) => void;
+  onSuccess: () => void;
   isLogin: boolean;
 }) {
-  const history = useHistory()
-
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
-  async function handleSubmit (event) {
-    event.preventDefault()
+  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     try {
       if (!isLogin) {
         await signup({ username: usernameFieldVal, password: passwordFieldVal })
@@ -359,9 +359,7 @@ function useUsernameAndPassword({
 
       setUsernameFieldVal('')
       setPasswordFieldVal('')
-
-      // Redirect to configured page, defaults to /.
-      history.push('{= onAuthSucceededRedirectTo =}')
+      onSuccess()
     } catch (err: unknown) {
       onError(err as Error)
     }
@@ -373,18 +371,17 @@ function useUsernameAndPassword({
 {=# isEmailAuthEnabled =}
 function useEmail({
   onError,
+  onSuccess,
   isLogin,
 }: {
   onError: (error: Error) => void;
+  onSuccess: () => void;
   isLogin: boolean;
 }) {
-  const history = useHistory()
-
   const [emailFieldVal, setEmailFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
-  async function handleSubmit (event) {
-    event.preventDefault()
+  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     try {
       if (!isLogin) {
         await signup({ email: emailFieldVal, password: passwordFieldVal })
@@ -393,9 +390,7 @@ function useEmail({
 
       setEmailFieldVal('')
       setPasswordFieldVal('')
-
-      // Redirect to configured page, defaults to /.
-      history.push('{= onAuthSucceededRedirectTo =}')
+      onSuccess()
     } catch (err: unknown) {
       onError(err as Error)
     }
