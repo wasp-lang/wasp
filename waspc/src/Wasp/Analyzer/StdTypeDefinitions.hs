@@ -23,7 +23,6 @@ import Wasp.AppSpec.Route (Route)
 
 makeEnumType ''EmailProvider
 makeEnumType ''DbSystem
-makeDeclType ''App
 makeDeclType ''Page
 makeDeclType ''Route
 makeDeclType ''Query
@@ -32,6 +31,7 @@ makeEnumType ''JobExecutor
 makeDeclType ''Job
 makeEnumType ''HttpMethod
 makeDeclType ''Api
+makeDeclType ''App
 
 {- ORMOLU_DISABLE -}
 -- | Collection of domain types that are standard for Wasp, that define what the Wasp language looks like.

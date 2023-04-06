@@ -16,7 +16,8 @@ waspBuild/.wasp/build/server/src/app.js
 waspBuild/.wasp/build/server/src/config.js
 waspBuild/.wasp/build/server/src/core/AuthError.js
 waspBuild/.wasp/build/server/src/core/HttpError.js
-waspBuild/.wasp/build/server/src/dbClient.js
+waspBuild/.wasp/build/server/src/dbClient.ts
+waspBuild/.wasp/build/server/src/dbSeed/types.ts
 waspBuild/.wasp/build/server/src/entities/index.ts
 waspBuild/.wasp/build/server/src/jobs/core/Job.js
 waspBuild/.wasp/build/server/src/jobs/core/SubmittedJob.js

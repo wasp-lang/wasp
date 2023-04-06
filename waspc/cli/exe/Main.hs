@@ -18,6 +18,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
+import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -38,7 +39,7 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
-        ["new", projectName] -> Command.Call.New projectName
+        ("new" : projectName : newArgs) -> Command.Call.New projectName newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -62,7 +63,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
   case commandCall of
-    Command.Call.New projectName -> runCommand $ createNewProject projectName
+    Command.Call.New projectName newArgs -> runCommand $ createNewProject projectName newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -104,7 +105,11 @@ printUsage =
               "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd   "    new <project-name>    Creates new Wasp project.",
+        cmd   "    new <name> [args]     Creates a new Wasp project.",
+              "      OPTIONS:",
+              "        -t|--template <template-name>",
+              "           Check out the templates list here: https://github.com/wasp-lang/starters",
+              "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
@@ -125,6 +130,7 @@ printUsage =
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
+              "  wasp new MyApp -t waspello",
               "  wasp start",
               "  wasp db migrate-dev",
               "",
@@ -154,6 +160,8 @@ dbCli :: [String] -> IO ()
 dbCli args = case args of
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["reset"] -> runDbCommand Command.Db.Reset.reset
+  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runDbCommand Command.Db.Studio.studio
   _ -> printDbUsage
 
@@ -167,6 +175,9 @@ printDbUsage =
               "",
         title "COMMANDS",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
+        cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
+        cmd   "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
               "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
               "                  - Generates a new migration if there are changes in the schema.",

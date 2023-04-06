@@ -33,7 +33,9 @@ waspComplexTest/.wasp/out/server/src/core/AuthError.js
 waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
 waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
-waspComplexTest/.wasp/out/server/src/dbClient.js
+waspComplexTest/.wasp/out/server/src/core/auth/validators.ts
+waspComplexTest/.wasp/out/server/src/dbClient.ts
+waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
 waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
 waspComplexTest/.wasp/out/server/src/email/core/index.ts
 waspComplexTest/.wasp/out/server/src/email/core/providers/dummy.ts
@@ -83,6 +85,10 @@ waspComplexTest/.wasp/out/web-app/src/actions/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
 waspComplexTest/.wasp/out/web-app/src/api.ts
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Auth.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Login.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Signup.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/SocialIcons.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/Google.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
@@ -109,6 +115,7 @@ waspComplexTest/.wasp/out/web-app/src/queries/index.d.ts
 waspComplexTest/.wasp/out/web-app/src/queries/index.js
 waspComplexTest/.wasp/out/web-app/src/queryClient.js
 waspComplexTest/.wasp/out/web-app/src/router.jsx
+waspComplexTest/.wasp/out/web-app/src/stitches.config.js
 waspComplexTest/.wasp/out/web-app/src/storage.ts
 waspComplexTest/.wasp/out/web-app/src/test/index.ts
 waspComplexTest/.wasp/out/web-app/src/test/vitest/helpers.tsx

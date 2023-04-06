@@ -1,23 +1,11 @@
 {{={= =}=}}
-import prisma from '../../../dbClient.js'
-import { handleRejection, isPrismaError, prismaErrorToHttpError } from '../../../utils.js'
-import AuthError from '../../../core/AuthError.js'
-import HttpError from '../../../core/HttpError.js'
+import { handleRejection } from '../../../utils.js'
+import { createUser } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
   const userFields = req.body || {}
 
-  try {
-    await prisma.{= userEntityLower =}.create({ data: userFields })
-  } catch (e) {
-    if (e instanceof AuthError) {
-      throw new HttpError(422, 'Validation failed', { message: e.message })
-    } else if (isPrismaError(e)) {
-      throw prismaErrorToHttpError(e)
-    } else {
-      throw new HttpError(500)
-    }
-  }
+  await createUser(userFields)
 
-  res.send()
+  return res.send()
 })

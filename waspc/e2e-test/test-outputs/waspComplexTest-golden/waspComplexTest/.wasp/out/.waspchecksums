@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "9ebd5e39b263bee5baf7a60d86850051050f665b9a2e0274a8e80b47b93ae90d"
+        "43785eb2123f65d8555de544f14dca978dff4f0299d32885beabe12afb8c73d7"
     ],
     [
         [
@@ -144,7 +144,7 @@
             "file",
             "server/src/auth/providers/oauth/createRouter.ts"
         ],
-        "3855c4b789d15511d871d35f69a4b2d14b7923516cba5c50eb528aee9254b5c5"
+        "63dbe409a2de70c55e3f4c01b5faa1da6d09ac0947ff90133c6c616c57ad75c7"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "server/src/auth/utils.ts"
         ],
-        "f956a964d5973e8521fb5c1e514a5da9d9c5e52ed3352e4d3373eb5c084872b3"
+        "e5b365c0914f8da5dfeb721db11bb241b97ce5f82b59537786747bdb6521bf93"
     ],
     [
         [
@@ -207,21 +207,35 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "968abe76a1cf4627b2bce2b9504558dbb1a8e5a50690262d6d4cd9506066ee72"
+        "da2adb670df6bb76d9df157a44056c7f13bf16a2eb5b78fa90dbaa8d98674689"
     ],
     [
         [
             "file",
             "server/src/core/auth/prismaMiddleware.js"
         ],
-        "aede440c2297aa5028e5f387e3392228d8249fb4906aeb95364006aeec039aae"
+        "72352443cb7f3f72e7608270d19f7e541b1b1f233fa995391f253e1585efc71c"
     ],
     [
         [
             "file",
-            "server/src/dbClient.js"
+            "server/src/core/auth/validators.ts"
         ],
-        "5fb53eff5e5eae318e281a8fc1cc433b69688d93c3c82d72415f710a6e75e2af"
+        "d7cfe22168d66e0d346c2aec33573c0346c9f0f5c854d3f204bed5b4c315da87"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbClient.ts"
+        ],
+        "a749686af4e331a0b982e8c2acbfe00aff043340f34d54e80a34d417c6901e56"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbSeed/types.ts"
+        ],
+        "47442c546d286164c2cdb3359deb45b47f115df2ca72bb181b4639bee2059d38"
     ],
     [
         [
@@ -431,7 +445,7 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "d14074812de8055f6dbeb67152c90c2eb94defa0a42749984069fbdcea7bc7af"
+        "6b9dcc39aee89af771c01c9daf84aa769968081dd9b1b22a96e98f09366b06a8"
     ],
     [
         [
@@ -501,7 +515,7 @@
             "file",
             "web-app/package.json"
         ],
-        "bbb4abefcbfeb37e6feaee0906b849939df6bd85d70821a81217be6cff2c6b1d"
+        "242405370b2d81ba452a0979203c6825d510e601334397e4c4eb2923a3b6edf2"
     ],
     [
         [
@@ -572,6 +586,34 @@
             "web-app/src/api.ts"
         ],
         "f509fac2e6e742d7df53f9999141644664d9ffc7c82eeb292fd3f060bf9233a3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Auth.tsx"
+        ],
+        "3c15faec2c79eafeb0e796bb849c04eaf3c6c233636b96de6765352670816d97"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Login.jsx"
+        ],
+        "cc899de975012417da95738016650b4d7416475a50fd730bae08c10b99c58d52"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Signup.jsx"
+        ],
+        "413ba86964bbe7735ed102618d5c4efc8187eae2feb73cae72f2ddfda55a53b3"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialIcons.tsx"
+        ],
+        "4e89c92b63539e28fe0d084b1fdcf870a426eb228ce37c57b374597005ff235c"
     ],
     [
         [
@@ -754,6 +796,13 @@
             "web-app/src/router.jsx"
         ],
         "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/stitches.config.js"
+        ],
+        "25680fb34bd5200a8416e0a5ebfe8cb0e4240e7848ed3a065c56d1b55d7edd09"
     ],
     [
         [

@@ -8,16 +8,21 @@ async function fetchCustomRoute() {
   console.log(res.data)
 }
 
-export const ProfilePage = ({ user: { username } }: { user: User }) => {
+export const ProfilePage = ({
+  user: { email, isEmailVerified },
+}: {
+  user: User
+}) => {
   useEffect(() => {
     fetchCustomRoute()
-  }, []);
+  }, [])
 
   return (
     <>
       <h2>Profile page</h2>
       <div>
-        Hello <strong>{username}</strong>!
+        Hello <strong>{email}</strong>! Your status is{' '}
+        <strong>{isEmailVerified ? 'verfied' : 'unverified'}</strong>.
       </div>
       <br />
       <Link to="/">Go to dashboard</Link>

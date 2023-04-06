@@ -11,6 +11,7 @@
     "morgan": "~1.10.0",
     "patch-package": "^6.4.7",
     "pg-boss": "^8.4.2",
+    "rate-limiter-flexible": "^2.4.1",
     "secure-password": "^4.0.0",
     "uuid": "^9.0.0"
   },
@@ -37,12 +38,13 @@
       "sodium-native": "3.3.0"
     }
   },
+  "prisma": {},
   "private": true,
   "scripts": {
     "build": "npx tsc",
     "build-and-start": "npm run build && npm run start",
-    "db-migrate-dev": "prisma migrate dev --schema=../db/schema.prisma",
     "db-migrate-prod": "prisma migrate deploy --schema=../db/schema.prisma",
+    "db-seed": "npm run build && NODE_PATH=dist node -r dotenv/config dist/dbSeed.js",
     "postinstall": "patch-package",
     "standard": "standard",
     "start": "npm run validate-env && NODE_PATH=dist node -r dotenv/config dist/server.js",

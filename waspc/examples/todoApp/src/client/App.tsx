@@ -23,7 +23,7 @@ export function App({ children }: any) {
         {user && (
           <div className="flex gap-3 items-center">
             <div>
-              Hello, <Link to="/profile">{user.username}</Link>
+              Hello, <Link to="/profile">{user.email}</Link>
             </div>
             <div>
               <button className="btn btn-primary" onClick={logout}>
@@ -34,7 +34,9 @@ export function App({ children }: any) {
         )}
       </header>
       <main>{children}</main>
-      <footer className="mt-8 text-center">Created with Wasp</footer>
+      <footer className="mt-8 text-center">
+        Created with Wasp
+      </footer>
     </div>
   )
 }
