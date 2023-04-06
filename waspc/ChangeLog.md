@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.9.1
+## v0.10.0
 
 ### Adds support for database seeding
 You can now define JS/TS functions for seeding the database!
