@@ -4,10 +4,12 @@ import { foo } from '../ext-src/queries/bar.js'
 
 
 export default async function (args, context) {
-  return foo(args, {
+  return foo(args as never, {
     ...context,
     entities: {
       User: prisma.user,
     },
   })
 }
+
+export type MySpecialQuery = typeof foo 

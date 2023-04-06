@@ -31,6 +31,7 @@ waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
 waspCompile/.wasp/out/server/src/server.ts
 waspCompile/.wasp/out/server/src/types/index.ts
+waspCompile/.wasp/out/server/src/universal/types.ts
 waspCompile/.wasp/out/server/src/universal/url.ts
 waspCompile/.wasp/out/server/src/utils.js
 waspCompile/.wasp/out/server/tsconfig.json
@@ -70,6 +71,7 @@ waspCompile/.wasp/out/web-app/src/test/index.ts
 waspCompile/.wasp/out/web-app/src/test/vitest/helpers.tsx
 waspCompile/.wasp/out/web-app/src/test/vitest/setup.ts
 waspCompile/.wasp/out/web-app/src/types.ts
+waspCompile/.wasp/out/web-app/src/universal/types.ts
 waspCompile/.wasp/out/web-app/src/universal/url.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/src/vite-env.d.ts

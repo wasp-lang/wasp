@@ -30,6 +30,7 @@ waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
 waspBuild/.wasp/build/server/src/server.ts
 waspBuild/.wasp/build/server/src/types/index.ts
+waspBuild/.wasp/build/server/src/universal/types.ts
 waspBuild/.wasp/build/server/src/universal/url.ts
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/server/tsconfig.json
@@ -68,6 +69,7 @@ waspBuild/.wasp/build/web-app/src/test/index.ts
 waspBuild/.wasp/build/web-app/src/test/vitest/helpers.tsx
 waspBuild/.wasp/build/web-app/src/test/vitest/setup.ts
 waspBuild/.wasp/build/web-app/src/types.ts
+waspBuild/.wasp/build/web-app/src/universal/types.ts
 waspBuild/.wasp/build/web-app/src/universal/url.ts
 waspBuild/.wasp/build/web-app/src/utils.js
 waspBuild/.wasp/build/web-app/src/vite-env.d.ts

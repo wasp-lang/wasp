@@ -1,12 +1,17 @@
 import api, { handleApiError } from '../api'
 import { HttpMethod } from '../types'
+import { 
+  serialize as superjsonSerialize,
+  deserialize as superjsonDeserialize,
+ } from 'superjson'
 
 export type OperationRoute = { method: HttpMethod, path: string }
 
 export async function callOperation(operationRoute: OperationRoute & { method: HttpMethod.Post }, args: any) {
   try {
-    const response = await api.post(operationRoute.path, args)
-    return response.data
+    const superjsonArgs = superjsonSerialize(args)
+    const response = await api.post(operationRoute.path, superjsonArgs)
+    return superjsonDeserialize(response.data)
   } catch (error) {
     handleApiError(error)
   }

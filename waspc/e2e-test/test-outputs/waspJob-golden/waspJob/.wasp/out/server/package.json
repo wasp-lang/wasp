@@ -13,6 +13,7 @@
     "pg-boss": "^8.4.2",
     "rate-limiter-flexible": "^2.4.1",
     "secure-password": "^4.0.0",
+    "superjson": "^1.12.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
