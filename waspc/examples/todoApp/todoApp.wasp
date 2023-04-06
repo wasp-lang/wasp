@@ -29,7 +29,7 @@ app todoApp {
     setupFn: import setup from "@server/serverSetup.js"
   },
   client: {
-    rootComponent: import { App } from "@client/App.jsx",
+    rootComponent: import { App } from "@client/App",
     setupFn: import setup from "@client/clientSetup"
   },
   db: {
@@ -127,6 +127,10 @@ query getNumTasks {
 query getTask {
   fn: import { getTask } from "@server/queries.js",
   entities: [Task]
+}
+
+query getDate {
+  fn: import { getDate } from "@server/queries.js"
 }
 
 // --------- Actions --------- //

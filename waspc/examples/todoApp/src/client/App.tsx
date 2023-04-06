@@ -2,11 +2,14 @@ import { Link } from 'react-router-dom'
 
 import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth'
+import { useQuery } from '@wasp/queries'
+import getDate from '@wasp/queries/getDate'
 
 import './Main.css'
 
-export function App({ children }) {
+export function App({ children }: any) {
   const { data: user } = useAuth()
+  const { data: date } = useQuery(getDate)
 
   return (
     <div className="app border-spacing-2 p-4">
@@ -14,6 +17,9 @@ export function App({ children }) {
         <h1 className="font-bold text-3xl mb-5">
           <Link to="/">ToDo App</Link>
         </h1>
+        <h2>
+          Your site was loaded at: {date?.toLocaleString()}
+        </h2>
         {user && (
           <div className="flex gap-3 items-center">
             <div>
