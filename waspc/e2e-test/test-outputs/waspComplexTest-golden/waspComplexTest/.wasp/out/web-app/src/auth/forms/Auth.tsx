@@ -1,7 +1,6 @@
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
-import { useMutation } from '@tanstack/react-query'
 
 import * as SocialIcons from './SocialIcons'
 import { SocialButton } from './SocialButton';
@@ -180,6 +179,7 @@ const Message = styled('div', {
   padding: '0.5rem 0.75rem',
   borderRadius: '0.375rem',
   marginTop: '1rem',
+  background: '$gray400',
 })
 
 const ErrorMessage = styled(Message, {
@@ -230,8 +230,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
       
   </>)
 
-
-
   return (
     <Container className={customTheme}>
       <div>
@@ -249,4 +247,5 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
 }
 
 export default Auth;
+
 
