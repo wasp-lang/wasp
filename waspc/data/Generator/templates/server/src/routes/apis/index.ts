@@ -3,6 +3,7 @@ import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 {=# isAuthEnabled =}
+import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
 {=/ isAuthEnabled =}
 
@@ -15,6 +16,9 @@ const router = express.Router()
 {=# apiRoutes =}
 router.{= routeMethod =}(
   '{= routePath =}',
+  {=# usesAuth =}
+  auth,
+  {=/ usesAuth =}
   handleRejection(
     (
       req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: SanitizedUser }{=/ usesAuth =},
