@@ -106,8 +106,8 @@ printUsage =
         title "  GENERAL",
         cmd   "    new <name> [args]     Creates a new Wasp project.",
               "      OPTIONS:",
-              "        -t|--template <template-name>
-                         Check out the templates list here: https://github.com/wasp-lang/starters",
+              "        -t|--template <template-name>",
+              "           Check out the templates list here: https://github.com/wasp-lang/starters",
               "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
