@@ -4,8 +4,8 @@ import { HttpMethod } from '../types'
 // todo(filip): turn into a proper import
 import { type SanitizedUser } from '../../../server/src/_types/' 
 
-export default function useAuth() {
-  return useQuery(getMe)
+export default function useAuth(queryFnArgs, config) {
+  return useQuery(getMe, queryFnArgs, config)
 }
 
 export async function getMe(): Promise<SanitizedUser | null> {
