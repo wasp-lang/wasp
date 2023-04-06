@@ -12,10 +12,8 @@ import Data.Aeson
 import Data.Aeson.Types (Pair)
 import Data.List (intercalate)
 import Data.Maybe (fromJust)
-import StrongPath (File, File', Path, Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
+import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import StrongPath.Types (Posix)
-import System.FilePath (splitExtension)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -27,7 +25,7 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import Wasp.Generator.ServerGenerator.OperationsG (operationFileInSrcDir)
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import Wasp.Generator.WebAppGenerator.Common (serverRootDirFromWebAppRootDir)
+import Wasp.Generator.WebAppGenerator.Common (serverRootDirFromWebAppRootDir, toViteImportPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.OperationsGenerator.ResourcesG as Resources
 import Wasp.JsImport (JsImportName (JsImportField), getJsImportStmtAndIdentifier, makeJsImport)
@@ -122,11 +120,6 @@ operationTypeData operation = tmplData
     webAppRootDirFromWebAppOperationsDir = [reldir|../..|]
     serverOperationFileFromWebAppRootDir = serverRootDirFromWebAppRootDir </> serverOperationFileInServerRootDir
     serverOperationFileInServerRootDir = serverSrcDirInServerRootDir </> operationFileInSrcDir operation
-
-toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
-toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
-  where
-    dropExtension = fst . splitExtension
 
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
 --   E.g. "['Task', 'Project']"

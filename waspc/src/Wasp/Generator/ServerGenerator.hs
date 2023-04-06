@@ -344,8 +344,7 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ 
-      C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
       C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
     ]
 

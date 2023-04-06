@@ -17,12 +17,15 @@ module Wasp.Generator.WebAppGenerator.Common
     WebAppSrcDir,
     WebAppTemplatesDir,
     WebAppTemplatesSrcDir,
+    toViteImportPath,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, (</>))
+import Data.Maybe (fromJust)
+import StrongPath (Dir, File, File', Path, Path', Posix, Rel, reldir, (</>))
 import qualified StrongPath as SP
+import System.FilePath (splitExtension)
 import Wasp.Generator.Common
   ( GeneratedSrcDir,
     ProjectRootDir,
@@ -108,3 +111,8 @@ mkUniversalTmplFdWithDst relSrcPath relDstPath =
     (webAppRootDirInProjectRootDir </> relDstPath)
     (universalTemplatesDirInTemplatesDir </> relSrcPath)
     Nothing
+
+toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
+toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
+  where
+    dropExtension = fst . splitExtension
