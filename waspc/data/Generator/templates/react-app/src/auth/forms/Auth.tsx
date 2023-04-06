@@ -1,8 +1,7 @@
 {{={= =}=}}
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, useCallback } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
-import { useMutation } from '@tanstack/react-query'
 
 {=# isUsernameAndPasswordAuthEnabled =}
 import signup from '../signup.js'
@@ -193,6 +192,7 @@ const Message = styled('div', {
   padding: '0.5rem 0.75rem',
   borderRadius: '0.375rem',
   marginTop: '1rem',
+  background: '$gray400',
 })
 
 const ErrorMessage = styled(Message, {
@@ -349,151 +349,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
       {=/ isAnyPasswordBasedAuthEnabled =}
   </>)
 
-  {=# isEmailAuthEnabled =}
-  const ForgotPasswordForm = () => {
-    const [email, setEmail] = useState('')
-    
-    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-      setIsLoading(true)
-      setErrorMessage(null)
-      setSuccessMessage(null)
-      try {
-        await requestPasswordReset({ email })
-        setSuccessMessage('Check your email for a password reset link.')
-        setEmail('')
-      } catch (error) {
-        setErrorMessage(error.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    return (
-      <>
-        <UserPassForm onSubmit={onSubmit}>
-          <FormItemGroup>
-            <FormLabel>E-mail</FormLabel>
-            <FormInput
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              disabled={isLoading}
-            />
-          </FormItemGroup>
-          <FormItemGroup>
-            <SubmitButton type="submit" disabled={isLoading}>Send password reset email</SubmitButton>
-          </FormItemGroup>
-        </UserPassForm>
-      </>
-    )
-  }
-
-  const ResetPasswordForm = () => {
-    const location = useLocation()
-    const token = new URLSearchParams(location.search).get('token')
-    const [password, setPassword] = useState('')
-    const [passwordConfirmation, setPasswordConfirmation] = useState('')
-
-    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
-
-      if (!token) {
-        setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
-        return
-      }
-
-      if (!password || password !== passwordConfirmation) {
-        setErrorMessage("Passwords don't match!")
-        return
-      }
-
-      setIsLoading(true)
-      setErrorMessage(null)
-      setSuccessMessage(null)
-      try {
-        await resetPassword({ password, token })
-        setSuccessMessage('Your password has been reset.')
-        setPassword('')
-        setPasswordConfirmation('')
-      } catch (error) {
-        setErrorMessage(error.message)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    return (
-      <>
-        <UserPassForm onSubmit={onSubmit}>
-          <FormItemGroup>
-            <FormLabel>New password</FormLabel>
-            <FormInput
-              type="password"
-              required
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              disabled={isLoading}
-            />
-          </FormItemGroup>
-          <FormItemGroup>
-            <FormLabel>Confirm new password</FormLabel>
-            <FormInput
-              type="password"
-              required
-              value={passwordConfirmation}
-              onChange={e => setPasswordConfirmation(e.target.value)}
-              disabled={isLoading}
-            />
-          </FormItemGroup>
-          <FormItemGroup>
-            <SubmitButton type="submit" disabled={isLoading}>Reset password</SubmitButton>
-          </FormItemGroup>
-        </UserPassForm>
-      </>
-    )
-  }
-
-  const VerifyEmailForm = () => {
-    const location = useLocation()
-    const history = useHistory()
-    const verifyEmailInfo = useMutation<
-      { success: boolean },
-      { data: { success: boolean; reason?: string } },
-      { token: string },
-      unknown
-    >({
-      mutationFn: verifyEmail,
-    })
-    useEffect(() => {
-      const token = new URLSearchParams(location.search).get('token')
-      if (!token) {
-        history.push('/login')
-        return
-      }
-      verifyEmailInfo.mutateAsync({ token })
-    }, [location])
-
-    return (
-      <>
-        {verifyEmailInfo.isLoading && <Message>Verifying email...</Message>}
-        {verifyEmailInfo.isError && (
-          <ErrorMessage>
-            {verifyEmailInfo.error?.message || 'Something went wrong'}
-          </ErrorMessage>
-        )}
-        {verifyEmailInfo.isSuccess && (
-          <SuccessMessage>
-            Your email has been verified. You can now log in.
-          </SuccessMessage>
-        )}
-      </>
-    )
-  }
-  {=/ isEmailAuthEnabled =}
-
-
   return (
     <Container className={customTheme}>
       <div>
@@ -507,15 +362,170 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
       {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
       {(state === 'login' || state === 'signup') && loginSignupForm}
       {=# isEmailAuthEnabled =}
-      {state === 'forgot-password' && <ForgotPasswordForm />}
-      {state === 'reset-password' && <ResetPasswordForm />}
-      {state === 'verify-email' && <VerifyEmailForm />}
+      {state === 'forgot-password' && (<ForgotPasswordForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
+      {state === 'reset-password' && (<ResetPasswordForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
+      {state === 'verify-email' && (<VerifyEmailForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
       {=/ isEmailAuthEnabled =}
     </Container>
   )
 }
 
 export default Auth;
+
+{=# isEmailAuthEnabled =}
+const ForgotPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const [email, setEmail] = useState('')
+  
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await requestPasswordReset({ email })
+      setSuccessMessage('Check your email for a password reset link.')
+      setEmail('')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <UserPassForm onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>E-mail</FormLabel>
+          <FormInput
+            type="email"
+            required
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <SubmitButton type="submit" disabled={isLoading}>Send password reset email</SubmitButton>
+        </FormItemGroup>
+      </UserPassForm>
+    </>
+  )
+}
+
+const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const location = useLocation()
+  const token = new URLSearchParams(location.search).get('token')
+  const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!token) {
+      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      return
+    }
+
+    if (!password || password !== passwordConfirmation) {
+      setErrorMessage("Passwords don't match!")
+      return
+    }
+
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await resetPassword({ password, token })
+      setSuccessMessage('Your password has been reset.')
+      setPassword('')
+      setPasswordConfirmation('')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <UserPassForm onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>New password</FormLabel>
+          <FormInput
+            type="password"
+            required
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <FormLabel>Confirm new password</FormLabel>
+          <FormInput
+            type="password"
+            required
+            value={passwordConfirmation}
+            onChange={e => setPasswordConfirmation(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <SubmitButton type="submit" disabled={isLoading}>Reset password</SubmitButton>
+        </FormItemGroup>
+      </UserPassForm>
+    </>
+  )
+}
+
+const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const location = useLocation()
+  const token = new URLSearchParams(location.search).get('token')
+
+  const submitForm = useCallback(async () => {
+    if (!token) {
+      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      return
+    }
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await verifyEmail({ token })
+      setSuccessMessage('Your email has been verified. You can now log in.')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  })
+
+  useEffect(() => {
+    submitForm()
+  }, [location])
+
+  return (
+    <>
+      {isLoading && <Message>Verifying email...</Message>}
+    </>
+  )
+}
+{=/ isEmailAuthEnabled =}
 
 {=# isUsernameAndPasswordAuthEnabled =}
 function useUsernameAndPassword({
