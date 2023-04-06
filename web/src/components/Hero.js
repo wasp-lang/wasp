@@ -111,8 +111,7 @@ page MainPage {
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-              Describe common features via Wasp DSL and write the rest in React, Node.js
-              and Prisma.
+              Rails-like framework for the PERN stack. Build your project in a day and deploy it anywhere with a single command.
             </p>
           </div> {/* EOF Hero title and subtitle */}
 
@@ -213,7 +212,7 @@ page MainPage {
             <iframe
               title="Demo video showcasing Wasp"
               className="absolute h-full w-full rounded-md"
-              src="https://www.youtube-nocookie.com/embed/R8uOu6ZEr5s?playlist=R8uOu6ZEr5s&autoplay=0&loop=1&controls=1&modestbranding=1&rel=0&disablekb=1&mute=0&muted=0&allowfullscreen"
+              src="https://www.youtube-nocookie.com/embed/YaaTJOhx68I?playlist=YaaTJOhx68I&autoplay=0&loop=1&controls=0&showinfo=1&modestbranding=0&rel=0&disablekb=0&mute=0"
               style={{ top: 0, left: 0 }}
               frameBorder="0"
               allow="autoplay; modestbranding; encrypted-media"

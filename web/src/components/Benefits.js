@@ -42,11 +42,10 @@ const Benefits = () => {
       <div className='grid grid-cols-12'>
         <div className='col-span-12 text-center'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
-            Yet another web framework. Except it's
-            a <Lang />.
+            Get started in minutes - zero config required.
           </h2>
           <p className='text-neutral-500'>
-            Don&apos;t worry, it takes less than 30 minutes to learn. Works seamlessly with your stack.
+            Wasp provides all the best practices out-of-the-box and lets you focus on your code.
           </p>
         </div>
       </div>
@@ -74,7 +73,7 @@ const Benefits = () => {
           Icon={Code}
           title='Less boilerplate'
           description={`
-            The language approach allows us to immensely improve developer experience.
+            The .wasp config file allows us to immensely improve developer experience.
             E.g., full-stack auth takes only 5 lines of code.
           `}
         />
