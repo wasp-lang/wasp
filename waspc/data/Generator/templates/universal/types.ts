@@ -2,7 +2,7 @@
 // compiler, but expands the type's representatoin in IDEs (i.e., inlines all
 // type constructors) to make it more readable for the user.
 //
-// It expands this SO answer to funcitons: https://stackoverflow.com/a/57683652
+// It expands this SO answer to functions: https://stackoverflow.com/a/57683652
 export type Expand<T> = T extends (...args: infer A) => infer R
   ? (...args: A) => R
   : T extends infer O
