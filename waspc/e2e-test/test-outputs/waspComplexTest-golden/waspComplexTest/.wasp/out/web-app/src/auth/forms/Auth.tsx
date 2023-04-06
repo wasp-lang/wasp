@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
-import { createStitches, createTheme } from '@stitches/react'
+import { useState, FormEvent, useEffect } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
+import { createTheme } from '@stitches/react'
+import { useMutation } from '@tanstack/react-query'
 
-import { errorMessage } from '../../utils.js'
 import * as SocialIcons from './SocialIcons'
+import { SocialButton } from './SocialButton';
 
 import config from '../../config.js'
-import { styled, css } from '../../stitches.config'
-
-const socialButtonsContainerStyle = {
-  maxWidth: '20rem'
-}
+import { styled } from '../../stitches.config'
+import { State, CustomizationOptions } from './types'
 
 const logoStyle = {
   height: '3rem'
@@ -29,7 +27,6 @@ const HeaderText = styled('h2', {
 
 const SocialAuth = styled('div', {
   marginTop: '1.5rem'
-  
 })
 
 const SocialAuthLabel = styled('div', {
@@ -64,31 +61,6 @@ const SocialAuthButtons = styled('div', {
       }
     }
   }
-})
-
-const SocialButton = styled('a', {
-  display: 'flex',
-  justifyContent: 'center',
-
-  cursor: 'pointer',
-  // NOTE(matija): icon is otherwise blue, since that
-  // is link's default font color.
-  color: 'inherit',
-  backgroundColor: '#f0f0f0',
-  borderRadius: '0.375rem',
-  borderWidth: '1px',
-  borderColor: '$gray600',
-  fontSize: '13px',
-  padding: '10px 15px',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  '&:visited': {
-    color: 'inherit',
-  },
-  '&:hover': {
-    backgroundColor: '$gray500',
-  },
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionDuration: '100ms'
 })
 
 const OrContinueWith = styled('div', {
@@ -153,6 +125,13 @@ const FormInput = styled('input', {
     borderColor: '$gray700',
     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
+  },
 
   borderRadius: '0.375rem',
   width: '100%',
@@ -168,7 +147,6 @@ const SubmitButton = styled('button', {
   justifyContent: 'center',
 
   width: '100%',
-  borderRadius: '0.375rem',
   borderWidth: '1px',
   borderColor: '$brand',
   backgroundColor: '$brand',
@@ -187,39 +165,42 @@ const SubmitButton = styled('button', {
     backgroundColor: '$brandAccent',
     borderColor: '$brandAccent',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
+  },
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
   transitionDuration: '100ms'
 })
 
+const Message = styled('div', {
+  padding: '0.5rem 0.75rem',
+  borderRadius: '0.375rem',
+  marginTop: '1rem',
+})
+
+const ErrorMessage = styled(Message, {
+  background: '$errorBackground',
+  color: '$errorText',
+})
+
+const SuccessMessage = styled(Message, {
+  background: '$successBackground',
+  color: '$successText',
+})
+
 const googleSignInUrl = `${config.apiUrl}/auth/google/login`
-const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
 
-// TODO(matija): introduce type for appearance
-const Auth = ({ isLogin, appearance, logo, socialLayout } :
-              { isLogin: boolean; logo: string; socialLayout: "horizontal" | "vertical" }) => {
-  const history = useHistory()
-
-  const [usernameFieldVal, setUsernameFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    try {
-      if (!isLogin) {
-        await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      }
-      await login (usernameFieldVal, passwordFieldVal)
-
-      setUsernameFieldVal('')
-      setPasswordFieldVal('')
-
-      // Redirect to configured page, defaults to /.
-      history.push('/')
-    } catch (err) {
-      console.log(err)
-      window.alert(errorMessage(err))
-    }
-  }
+function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
+    state: State;
+} & CustomizationOptions) {
+  const isLogin = state === "login";
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
@@ -227,9 +208,29 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
   const customTheme = createTheme(appearance)
 
   const cta = isLogin ? 'Log in' : 'Sign up'
-  const title = isLogin ? 'Log in to your account' : 'Create a new account'
+  const titles: Record<State, string> = {
+    login: 'Log in to your account',
+    signup: 'Create a new account',
+    "forgot-password": "Forgot your password?",
+    "reset-password": "Reset your password",
+    "verify-email": "Email verification",
+  }
+  const title = titles[state]
 
   const socialButtonsDirection = socialLayout === 'vertical' ? 'vertical' : 'horizontal'
+
+  const loginSignupForm = (<>
+        <SocialAuth>
+          <SocialAuthLabel>{cta} with</SocialAuthLabel>
+          <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
+              <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
+
+          </SocialAuthButtons>
+        </SocialAuth>
+      
+  </>)
+
+
 
   return (
     <Container className={customTheme}>
@@ -240,18 +241,12 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
         <HeaderText>{title}</HeaderText>
       </div>
 
-        <SocialAuth>
-          <SocialAuthLabel>{cta} with</SocialAuthLabel>
-          <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
-              <SocialButton href={googleSignInUrl}><SocialIcons.Google/></SocialButton>
-
-          </SocialAuthButtons>
-        </SocialAuth>
-      
-      
-      
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+      {(state === 'login' || state === 'signup') && loginSignupForm}
     </Container>
   )
 }
 
-export default Auth
+export default Auth;
+

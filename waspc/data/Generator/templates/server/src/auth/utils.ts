@@ -137,7 +137,9 @@ async function sendEmailAndLogTimestamp(
   } catch (e) {
     rethrowError(e);  
   }
-  emailSender.send(content);
+  emailSender.send(content).catch((e) => {
+    console.error(`Failed to send email for ${field}`, e);
+  });
 }
 
 export function isEmailResendAllowed(

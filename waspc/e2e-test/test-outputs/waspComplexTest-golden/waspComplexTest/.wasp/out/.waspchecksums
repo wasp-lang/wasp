@@ -527,13 +527,6 @@
     [
         [
             "file",
-            "web-app/public/images/google-logo-icon.png"
-        ],
-        "e2087f585c3b213ba537a56c8bc8e6134c69d6fa1a5728d306df56d697b4e7ab"
-    ],
-    [
-        [
-            "file",
             "web-app/public/manifest.json"
         ],
         "b57981d1636058192ae6057166991125031f519f24c0a0711ef16dc73958e51a"
@@ -592,35 +585,70 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "3c15faec2c79eafeb0e796bb849c04eaf3c6c233636b96de6765352670816d97"
+        "4ecc28022210537618f8a3d0724f4f0e9131ea16f2539bfa41709d2be241cd2b"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/Login.jsx"
+            "web-app/src/auth/forms/ForgotPassword.tsx"
         ],
-        "cc899de975012417da95738016650b4d7416475a50fd730bae08c10b99c58d52"
+        "39eda745fc19798d235cbecf7e755ab1050187d99775dfb06304b06804e5c7fc"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/Signup.jsx"
+            "web-app/src/auth/forms/Login.tsx"
         ],
-        "413ba86964bbe7735ed102618d5c4efc8187eae2feb73cae72f2ddfda55a53b3"
+        "788a896a5717cd6e082db23cd5e1f4f46816253e24d6bbe60b2d64fb5a208d3c"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/ResetPassword.tsx"
+        ],
+        "be24461d42102d53c028713146054029950137e79e27906a166a16cf9dd64add"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Signup.tsx"
+        ],
+        "bea6a9756a546820ccd240aabfa3db3d14faf655f7681c7b9ca0791677556c3a"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialButton.tsx"
+        ],
+        "fb14b39e617bf0cb7eec96428fd2882c2fbcda8bebd453ed00866b3203420043"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/SocialIcons.tsx"
         ],
-        "4e89c92b63539e28fe0d084b1fdcf870a426eb228ce37c57b374597005ff235c"
+        "18ce4ed1aec9fb0e71d4ce8376d5c42fcec1008d9b16d92dd18d51f34ee189a6"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/VerifyEmail.tsx"
+        ],
+        "2cb996958b1332f383af1265a9fa7dd30d71aaef371cd2ac471f9feb44158568"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/types.ts"
+        ],
+        "601917a95f8218f9db51148bf852a21925ea9806729fe9f8a65a96f84e8ba22f"
     ],
     [
         [
             "file",
             "web-app/src/auth/helpers/Google.jsx"
         ],
-        "c3d12e7a6cc1305c9e411d522e6aa8411d036337791ed0fc37e6048fe2d90cfd"
+        "c6677ed5052cf7dc9aca312935b48dd59eaf22420d581ac1b79c01070d3c109e"
     ],
     [
         [
@@ -802,7 +830,7 @@
             "file",
             "web-app/src/stitches.config.js"
         ],
-        "25680fb34bd5200a8416e0a5ebfe8cb0e4240e7848ed3a065c56d1b55d7edd09"
+        "7de37836b80021870f286ff14d275e2ca7a1c2aa113ba5a5624ed0c77e178f76"
     ],
     [
         [

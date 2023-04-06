@@ -240,7 +240,7 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
     isLogin,
     onError: onErrorHandler,
     showEmailVerificationPending() {
-      setSuccessMessage('Check your email for a confirmation link.')
+      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
       // Redirect to configured page, defaults to /.
