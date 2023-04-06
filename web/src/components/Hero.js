@@ -203,20 +203,17 @@ page MainPage {
         </div>
       </div>
 
-
+      {/* Demo video with hacky way to remove the youtube logo */}
       <div className='flex justify-center mt-20'>
-        <div className='w-full lg:w-2/3 xl:w-3/5'>
-          <div
-            className="relative w-full rounded-md shadow-lg"
-            style={{ padding: '56.25% 0 0 0' }}
-          >
+        <div className='w-full lg:w-2/3 xl:w-3/5 overflow-hidden rounded-md shadow-lg'>
+          <div className='relative w-[200%] -left-[50%] pb-[56.25%] pt-25px'>
             <iframe
-              title="Demo video showcasing Wasp"
-              className="absolute h-full w-full rounded-md"
-              src="https://www.youtube-nocookie.com/embed/R8uOu6ZEr5s?playlist=R8uOu6ZEr5s&autoplay=0&loop=1&controls=1&modestbranding=1&rel=0&disablekb=1&mute=0&muted=0&allowfullscreen"
-              style={{ top: 0, left: 0 }}
-              frameBorder="0"
-              allow="autoplay; modestbranding; encrypted-media"
+              src='https://www.youtube-nocookie.com/embed/YaaTJOhx68I?playlist=YaaTJOhx68I&autoplay=0&loop=1&controls=0&showinfo=1&modestbranding=0&rel=0&disablekb=0&mute=1'
+              title='Demo video showcasing Wasp'
+              className='absolute h-full w-full top-0 left-0 rounded-md'
+              frameborder='0'
+              allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; allowfullscreen;'
+              allowfullscreen
             />
           </div>
         </div>
