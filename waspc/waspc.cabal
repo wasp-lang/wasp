@@ -369,6 +369,7 @@ library cli-lib
     , uuid
     , waspc
     , waspls
+    , unliftio ^>= 0.2.20
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
