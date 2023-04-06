@@ -1,4 +1,5 @@
 import { Query } from "."
+import { Expand } from '../universal/types'
 
 export function createQuery<BackendQuery extends GenericBackendQuery>(
     queryRoute: string, 
@@ -6,6 +7,6 @@ export function createQuery<BackendQuery extends GenericBackendQuery>(
 ): QueryFor<BackendQuery>
 
 type QueryFor<BackendQuery extends GenericBackendQuery> = 
-  Query<Parameters<BackendQuery>[0], Awaited<ReturnType<BackendQuery>>>
+  Expand<Query<Parameters<BackendQuery>[0], Awaited<ReturnType<BackendQuery>>>>
 
 type GenericBackendQuery = (args: never, context: any) => Promise<unknown>
