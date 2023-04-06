@@ -12,11 +12,12 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
+    isEmailVerificationRequired,
   )
 where
 
 import Data.Data (Data)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
 import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
 import Wasp.AppSpec.App.EmailSender (EmailFromField)
@@ -78,3 +79,8 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
+
+isEmailVerificationRequired :: Auth -> Bool
+isEmailVerificationRequired auth = case email . methods $ auth of
+  Nothing -> False
+  Just emailAuthConfig -> not $ fromMaybe False (allowUnverifiedLogin emailAuthConfig)

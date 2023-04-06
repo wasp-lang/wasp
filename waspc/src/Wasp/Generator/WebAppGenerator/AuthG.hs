@@ -75,8 +75,6 @@ genAuthForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Auth.tsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
       "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
       "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
       "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
@@ -85,7 +83,12 @@ genAuthForm auth =
       "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
       -- GitHub
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
-      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider
+      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+      -- Username and password
+      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+      -- Email
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+      "isEmailVerificationRequired" .= AS.Auth.isEmailVerificationRequired auth
     ]
   where
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled

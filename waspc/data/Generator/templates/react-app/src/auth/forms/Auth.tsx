@@ -138,6 +138,8 @@ const FormInput = styled('input', {
     opacity: 0.5,
     cursor: 'not-allowed',
     backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
   },
 
   borderRadius: '0.375rem',
@@ -176,17 +178,27 @@ const SubmitButton = styled('button', {
     opacity: 0.5,
     cursor: 'not-allowed',
     backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
   },
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
   transitionDuration: '100ms'
 })
 
-const ErrorMessage = styled('div', {
-  background: '$errorBackground',
-  color: '$errorText',
+const Message = styled('div', {
   padding: '0.5rem 0.75rem',
   borderRadius: '0.375rem',
   marginTop: '1rem',
+})
+
+const ErrorMessage = styled(Message, {
+  background: '$errorBackground',
+  color: '$errorText',
+})
+
+const SuccessMessage = styled(Message, {
+  background: '$successBackground',
+  color: '$successText',
 })
 
 {=# isGoogleAuthEnabled =}
@@ -205,29 +217,35 @@ function Auth (
   },
 ) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   {=# isAnyPasswordBasedAuthEnabled =}
   const history = useHistory();
   const onErrorHandler = (error) => {
     setErrorMessage(error.message)
   };
-  const onSuccessHandler = () => {
-    // Redirect to configured page, defaults to /.
-    history.push('{= onAuthSucceededRedirectTo =}')
-  };
   {=/ isAnyPasswordBasedAuthEnabled =}
   {=# isUsernameAndPasswordAuthEnabled =}
   const { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal } = useUsernameAndPassword({
     isLogin,
     onError: onErrorHandler,
-    onSuccess: onSuccessHandler,
+    onSuccess() {
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
+    },
   });
   {=/ isUsernameAndPasswordAuthEnabled =}
   {=# isEmailAuthEnabled =}
   const { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal } = useEmail({
     isLogin,
     onError: onErrorHandler,
-    onSuccess: onSuccessHandler,
+    showEmailVerificationPending() {
+      setSuccessMessage('Check your email for a confirmation link.')
+    },
+    onLoginSuccess() {
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
+    }
   });
   {=/ isEmailAuthEnabled =}
   {=# isAnyPasswordBasedAuthEnabled =}
@@ -235,6 +253,7 @@ function Auth (
     event.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
     try {
       await handleSubmit();
     } finally {
@@ -263,6 +282,7 @@ function Auth (
       </div>
 
       {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
 
       {=# isExternalAuthEnabled =}
         <SocialAuth>
@@ -371,11 +391,13 @@ function useUsernameAndPassword({
 {=# isEmailAuthEnabled =}
 function useEmail({
   onError,
-  onSuccess,
+  showEmailVerificationPending,
+  onLoginSuccess,
   isLogin,
 }: {
   onError: (error: Error) => void;
-  onSuccess: () => void;
+  showEmailVerificationPending: () => void;
+  onLoginSuccess: () => void;
   isLogin: boolean;
 }) {
   const [emailFieldVal, setEmailFieldVal] = useState('')
@@ -383,14 +405,22 @@ function useEmail({
 
   async function handleSubmit (event: FormEvent<HTMLFormElement>) {
     try {
-      if (!isLogin) {
+      if (isLogin) {
+        await login({ email: emailFieldVal, password: passwordFieldVal })
+        onLoginSuccess()
+      } else {
         await signup({ email: emailFieldVal, password: passwordFieldVal })
+        {=# isEmailVerificationRequired =}
+        showEmailVerificationPending()
+        {=/ isEmailVerificationRequired =}
+        {=^ isEmailVerificationRequired =}
+        await login ({ email: emailFieldVal, password: passwordFieldVal})
+        onLoginSuccess()
+        {=/ isEmailVerificationRequired =}
       }
-      await login ({ email: emailFieldVal, password: passwordFieldVal})
 
       setEmailFieldVal('')
       setPasswordFieldVal('')
-      onSuccess()
     } catch (err: unknown) {
       onError(err as Error)
     }
