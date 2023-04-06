@@ -128,7 +128,6 @@ installNpmDependencies projectDir = do
               J.WebApp -> go (True, isServerDone) chan
               J.Server -> go (isWebAppDone, True) chan
               J.Db -> error "This should never happen. No db job should be active."
-              J.Cli -> error "This should never happen. No cli job should be active."
 
     setupFailedMessage (serverExitCode, webAppExitCode) =
       let serverErrorMessage = case serverExitCode of
