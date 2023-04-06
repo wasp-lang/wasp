@@ -9,7 +9,7 @@ import { Query } from '../queries';
 
 export type Action<Input, Output> = 
   [Input] extends [never] ? 
-  () => Promise<Output> :
+  (args?: unknown) => Promise<Output> :
   (args: Input) => Promise<Output>
 
 /**
