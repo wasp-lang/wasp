@@ -160,7 +160,8 @@ npmDepsForWasp spec =
             ("patch-package", "^6.4.7"),
             ("uuid", "^9.0.0"),
             ("lodash.merge", "^4.6.2"),
-            ("rate-limiter-flexible", "^2.4.1")
+            ("rate-limiter-flexible", "^2.4.1"),
+            ("superjson", "^1.12.2")
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
@@ -354,7 +355,8 @@ getPackageJsonOverrides = map buildOverrideData (designateLastElement overrides)
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
     ]
 
 genEnvValidationScript :: Generator [FileDraft]

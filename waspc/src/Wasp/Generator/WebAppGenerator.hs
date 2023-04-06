@@ -126,7 +126,8 @@ npmDepsForWasp spec =
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion)
+            ("@prisma/client", show prismaVersion),
+            ("superjson", "^1.12.2")
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec,
@@ -265,7 +266,8 @@ genIndexJs spec =
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
     ]
 
 genEnvValidationScript :: Generator [FileDraft]

@@ -16,7 +16,7 @@ waspComplexTest/.wasp/out/server/scripts/universal/validators.mjs
 waspComplexTest/.wasp/out/server/scripts/validate-env.mjs
 waspComplexTest/.wasp/out/server/src/_types/index.ts
 waspComplexTest/.wasp/out/server/src/_types/taggedEntities.ts
-waspComplexTest/.wasp/out/server/src/actions/MySpecialAction.js
+waspComplexTest/.wasp/out/server/src/actions/MySpecialAction.ts
 waspComplexTest/.wasp/out/server/src/actions/types.ts
 waspComplexTest/.wasp/out/server/src/apis/types.ts
 waspComplexTest/.wasp/out/server/src/app.js
@@ -55,7 +55,7 @@ waspComplexTest/.wasp/out/server/src/jobs/core/allJobs.js
 waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspComplexTest/.wasp/out/server/src/jobs/core/simpleJob.js
-waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.js
+waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/queries/types.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
@@ -66,6 +66,7 @@ waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialQuery.js
 waspComplexTest/.wasp/out/server/src/routes/operations/index.js
 waspComplexTest/.wasp/out/server/src/server.ts
 waspComplexTest/.wasp/out/server/src/types/index.ts
+waspComplexTest/.wasp/out/server/src/universal/types.ts
 waspComplexTest/.wasp/out/server/src/universal/url.ts
 waspComplexTest/.wasp/out/server/src/utils.js
 waspComplexTest/.wasp/out/server/tsconfig.json
@@ -79,7 +80,7 @@ waspComplexTest/.wasp/out/web-app/public/favicon.ico
 waspComplexTest/.wasp/out/web-app/public/manifest.json
 waspComplexTest/.wasp/out/web-app/scripts/universal/validators.mjs
 waspComplexTest/.wasp/out/web-app/scripts/validate-env.mjs
-waspComplexTest/.wasp/out/web-app/src/actions/MySpecialAction.js
+waspComplexTest/.wasp/out/web-app/src/actions/MySpecialAction.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
@@ -98,7 +99,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
 waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCodeExchange.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
-waspComplexTest/.wasp/out/web-app/src/auth/useAuth.js
+waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/App.jsx
@@ -112,7 +113,7 @@ waspComplexTest/.wasp/out/web-app/src/logo.png
 waspComplexTest/.wasp/out/web-app/src/operations/index.ts
 waspComplexTest/.wasp/out/web-app/src/operations/resources.js
 waspComplexTest/.wasp/out/web-app/src/operations/updateHandlersMap.js
-waspComplexTest/.wasp/out/web-app/src/queries/MySpecialQuery.js
+waspComplexTest/.wasp/out/web-app/src/queries/MySpecialQuery.ts
 waspComplexTest/.wasp/out/web-app/src/queries/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/queries/core.js
 waspComplexTest/.wasp/out/web-app/src/queries/index.d.ts
@@ -125,6 +126,7 @@ waspComplexTest/.wasp/out/web-app/src/test/index.ts
 waspComplexTest/.wasp/out/web-app/src/test/vitest/helpers.tsx
 waspComplexTest/.wasp/out/web-app/src/test/vitest/setup.ts
 waspComplexTest/.wasp/out/web-app/src/types.ts
+waspComplexTest/.wasp/out/web-app/src/universal/types.ts
 waspComplexTest/.wasp/out/web-app/src/universal/url.ts
 waspComplexTest/.wasp/out/web-app/src/utils.js
 waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts

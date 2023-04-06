@@ -10,17 +10,17 @@ app todoApp {
   ],
   auth: {
     userEntity: User,
-    externalAuthEntity: SocialLogin,
+    // externalAuthEntity: SocialLogin,
     methods: {
       // usernameAndPassword: {},
-      google: {
-        configFn: import { config } from "@server/auth/google.js",
-        getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      },
-      gitHub: {
-        // configFn: import { config } from "@server/auth/github.js",
-        // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
-      },
+      // google: {
+      //   configFn: import { config } from "@server/auth/google.js",
+      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+      // },
+      // gitHub: {
+      //   // configFn: import { config } from "@server/auth/github.js",
+      //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
+      // },
       email: {
         fromField: {
           name: "ToDO App",
@@ -43,8 +43,8 @@ app todoApp {
     setupFn: import setup from "@server/serverSetup.js"
   },
   client: {
-    rootComponent: import { App } from "@client/App.jsx",
-    setupFn: import setup from "@client/clientSetup"
+    rootComponent: import { App } from "@client/App.tsx",
+    setupFn: import setup from "@client/clientSetup.js"
   },
   db: {
     system: PostgreSQL,
@@ -156,6 +156,13 @@ api fooBar {
   httpRoute: (GET, "/foo/bar")
 }
 
+api barBaz {
+  fn: import { barBaz } from "@server/apis.js",
+  auth: false,
+  entities: [Task],
+  httpRoute: (GET, "/bar/baz")
+}
+
 query getNumTasks {
   fn: import { getNumTasks } from "@server/queries.js",
   entities: [Task],
@@ -165,6 +172,10 @@ query getNumTasks {
 query getTask {
   fn: import { getTask } from "@server/queries.js",
   entities: [Task]
+}
+
+query getDate {
+  fn: import { getDate } from "@server/queries.js"
 }
 
 // --------- Actions --------- //

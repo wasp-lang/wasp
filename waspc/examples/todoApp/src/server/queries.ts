@@ -3,7 +3,8 @@ import { Task } from '@wasp/entities'
 import {
   GetNumTasks,
   GetTask,
-  GetTasks
+  GetTasks,
+  GetDate,
 } from '@wasp/queries/types'
 
 export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
@@ -46,4 +47,8 @@ export const getTask: GetTask<Pick<Task, 'id'>, Task> = async (where, context) =
   }
 
   return task
+}
+
+export const getDate: GetDate<void, Date> = async () => {
+  return new Date()
 }

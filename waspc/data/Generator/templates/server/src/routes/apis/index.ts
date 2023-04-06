@@ -4,7 +4,7 @@ import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
-import { type UserInContext } from '../../_types'
+import { type SanitizedUser } from '../../_types'
 {=/ isAuthEnabled =}
 
 {=# apiRoutes =}
@@ -14,24 +14,30 @@ import { type UserInContext } from '../../_types'
 const router = express.Router()
 
 {=# apiRoutes =}
-{=# usesAuth =}
-router.{= routeMethod =}('{= routePath =}', auth, handleRejection((req: Parameters<typeof {= importIdentifier =}>[0] & UserInContext, res: Parameters<typeof {= importIdentifier =}>[1]) => {
-{=/ usesAuth =}
-{=^ usesAuth =}
-router.{= routeMethod =}('{= routePath =}', handleRejection((req: Parameters<typeof {= importIdentifier =}>[0], res: Parameters<typeof {= importIdentifier =}>[1]) => {
-{=/ usesAuth =}
-  const context = {
-    {=# usesAuth =}
-    user: req.user,
-    {=/ usesAuth =}
-    entities: {
-      {=# entities =}
-      {= name =}: prisma.{= prismaIdentifier =},
-      {=/ entities =}
-    },
-  }
-  return {= importIdentifier =}(req, res, context)
-}))
+router.{= routeMethod =}(
+  '{= routePath =}',
+  {=# usesAuth =}
+  auth,
+  {=/ usesAuth =}
+  handleRejection(
+    (
+      req: Parameters<typeof {= importIdentifier =}>[0]{=# usesAuth =} & { user: SanitizedUser }{=/ usesAuth =},
+      res: Parameters<typeof {= importIdentifier =}>[1],
+    ) => {
+      const context = {
+        {=# usesAuth =}
+        user: req.user,
+        {=/ usesAuth =}
+        entities: {
+          {=# entities =}
+          {= name =}: prisma.{= prismaIdentifier =},
+          {=/ entities =}
+        },
+      }
+      return {= importIdentifier =}(req, res, context)
+    }
+  )
+)
 {=/ apiRoutes =}
 
 export default router
