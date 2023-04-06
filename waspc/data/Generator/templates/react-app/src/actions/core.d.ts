@@ -1,5 +1,5 @@
-import { Action } from '.'
-import { Expand, _Awaited } from '../universal/types'
+import { type Action } from '.'
+import type { Expand, _Awaited } from '../universal/types'
 
 export function createAction<BackendAction extends GenericBackendAction>(
   actionRoute: string,

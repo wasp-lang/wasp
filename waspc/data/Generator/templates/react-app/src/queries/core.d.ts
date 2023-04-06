@@ -1,5 +1,5 @@
-import { Query } from '.'
-import { Expand, _Awaited } from '../universal/types'
+import { type Query } from '.'
+import type { Expand, _Awaited } from '../universal/types'
 
 export function createQuery<BackendQuery extends GenericBackendQuery>(
   queryRoute: string,
