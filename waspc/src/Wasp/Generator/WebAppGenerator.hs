@@ -15,7 +15,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    reldir,
     reldirP,
     relfile,
     (</>),
@@ -23,14 +22,11 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
@@ -194,27 +190,12 @@ genPublicDir spec = do
     [ genFaviconFd,
       genManifestFd
     ]
-    <++> genSocialLoginIcons maybeAuth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd =
       let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           tmplFile = C.asTmplFile [relfile|public/manifest.json|]
        in C.mkTmplFdWithData tmplFile tmplData
-
-genSocialLoginIcons :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
-genSocialLoginIcons maybeAuth =
-  return $
-    [ C.mkTmplFd (C.asTmplFile fp)
-      | (isEnabled, fp) <- socialIcons,
-        (isEnabled <$> maybeAuth) == Just True
-    ]
-  where
-    socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName googleAuthProvider),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName gitHubAuthProvider)
-      ]
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =

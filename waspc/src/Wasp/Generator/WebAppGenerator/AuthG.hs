@@ -60,11 +60,16 @@ genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.ts|])
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genLoginForm auth,
-      genSignupForm auth,
-      genAuthForm auth,
+    [ genAuthForm auth,
+      copyTmplFile [relfile|auth/forms/Login.tsx|],
+      copyTmplFile [relfile|auth/forms/Signup.tsx|],
+      copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|],
+      copyTmplFile [relfile|auth/forms/types.ts|],
       copyTmplFile [relfile|stitches.config.js|],
-      copyTmplFile [relfile|auth/forms/SocialIcons.tsx|]
+      copyTmplFile [relfile|auth/forms/SocialIcons.tsx|],
+      copyTmplFile [relfile|auth/forms/SocialButton.tsx|]
     ]
   where
     copyTmplFile = return . C.mkSrcTmplFd
@@ -74,30 +79,24 @@ genAuthForm auth =
   compileTmplToSamePath
     [relfile|auth/forms/Auth.tsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
-      "areBothExternalAndUsernameAndPasswordAuthEnabled" .= AS.Auth.areBothExternalAndUsernameAndPasswordAuthEnabled auth,
+      "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+      "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
       "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
       -- Google
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
       -- GitHub
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
-      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider
+      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+      -- Username and password
+      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+      -- Email
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+      "isEmailVerificationRequired" .= AS.Auth.isEmailVerificationRequired auth
     ]
-
-genLoginForm :: AS.Auth.Auth -> Generator FileDraft
-genLoginForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Login.jsx|]
-    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
-    ]
-
-genSignupForm :: AS.Auth.Auth -> Generator FileDraft
-genSignupForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Signup.jsx|]
-    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
-    ]
+  where
+    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =

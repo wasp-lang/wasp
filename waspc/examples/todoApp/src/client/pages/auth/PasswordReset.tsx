@@ -1,36 +1,27 @@
-import { useHistory, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
-import { resetPassword } from '@wasp/auth/email'
+import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import appearance from './appearance'
+import todoLogo from '../../todoLogo.png'
 
 export function PasswordReset() {
-  const location = useLocation()
-  const history = useHistory()
-  const token = new URLSearchParams(location.search).get('token')
-  const handleSubmit = async (e: any) => {
-    e.preventDefault()
-    if (!token) {
-      alert('Invalid token!')
-      return
-    }
-    const password = e.target[0].value as string
-    const passwordConfirmation = e.target[1].value as string
-    if (!password || password !== passwordConfirmation) {
-      alert("Passwords don't match!")
-      return
-    }
-    try {
-      await resetPassword({ password, token })
-      history.push('/login')
-    } catch (e: any) {
-      alert(e.message)
-    }
-  }
   return (
-    <form className="flex flex-col gap-3 max-w-xs" onSubmit={handleSubmit}>
-      <h1>Reset password</h1>
-      <input type="password" placeholder="Enter new password" />
-      <input type="password" placeholder="Confirm new password" />
-      <button className="btn btn-primary">Reset password</button>
-    </form>
+    <div className="w-full h-full bg-white">
+      <div className="min-w-full min-h-[75vh] flex items-center justify-center">
+        <div className="w-full h-full max-w-sm p-5 bg-white">
+          <div>
+            <ResetPasswordForm
+              appearance={appearance}
+              logo={todoLogo}
+              socialLayout="horizontal"
+            />
+            <br />
+            <span className="text-sm font-medium text-gray-900">
+              If everything is okay, <Link to="/login">go to login</Link>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
