@@ -137,7 +137,7 @@ async function sendEmailAndLogTimestamp(
   } catch (e) {
     rethrowError(e);  
   }
-  await emailSender.send(content);
+  emailSender.send(content);
 }
 
 export function isEmailResendAllowed(

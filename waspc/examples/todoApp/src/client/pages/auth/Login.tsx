@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import LoginForm from '@wasp/auth/forms/Login'
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 import appearance from './appearance'
 import todoLogo from '../../todoLogo.png'
@@ -18,10 +18,13 @@ const Login = () => {
             />
             <br />
             <span className="text-sm font-medium text-gray-900">
-              Don't have an account yet? (<Link to="/signup">go to signup</Link>
-              ).
+              Don't have an account yet? <Link to="/signup">go to signup</Link>.
             </span>
             <br />
+            <span className="text-sm font-medium text-gray-900">
+              Forgot your password?{' '}
+              <Link to="/request-password-reset">reset it</Link>.
+            </span>
           </div>
         </div>
       </div>

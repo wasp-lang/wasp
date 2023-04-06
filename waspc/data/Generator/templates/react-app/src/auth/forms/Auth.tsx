@@ -1,7 +1,8 @@
 {{={= =}=}}
-import { useState, FormEvent } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useState, FormEvent, useEffect } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
+import { useMutation } from '@tanstack/react-query'
 
 {=# isUsernameAndPasswordAuthEnabled =}
 import signup from '../signup.js'
@@ -10,6 +11,8 @@ import login from '../login.js'
 {=# isEmailAuthEnabled =}
 import { signup } from '../email/actions/signup.js'
 import { login } from '../email/actions/login.js'
+import { requestPasswordReset, resetPassword } from '../email/actions/passwordReset.js'
+import { verifyEmail } from '../email/actions/verifyEmail.js'
 {=/ isEmailAuthEnabled =}
 {=# isExternalAuthEnabled =}
 import * as SocialIcons from './SocialIcons'
@@ -18,6 +21,7 @@ import { SocialButton } from './SocialButton';
 
 import config from '../../config.js'
 import { styled } from '../../stitches.config'
+import { State, CustomizationOptions } from './types'
 
 const logoStyle = {
   height: '3rem'
@@ -208,14 +212,10 @@ const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ isGitHubAuthEnabled =}
 
-function Auth (
-  { isLogin, appearance, logo, socialLayout }: {
-    isLogin: boolean;
-    logo: string; 
-    socialLayout: "horizontal" | "vertical";
-    appearance: Parameters<typeof createTheme>[0];
-  },
-) {
+function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
+    state: State;
+} & CustomizationOptions) {
+  const isLogin = state === "login";
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -268,22 +268,18 @@ function Auth (
   const customTheme = createTheme(appearance)
 
   const cta = isLogin ? 'Log in' : 'Sign up'
-  const title = isLogin ? 'Log in to your account' : 'Create a new account'
+  const titles: Record<State, string> = {
+    login: 'Log in to your account',
+    signup: 'Create a new account',
+    "forgot-password": "Forgot your password?",
+    "reset-password": "Reset your password",
+    "verify-email": "Email verification",
+  }
+  const title = titles[state]
 
   const socialButtonsDirection = socialLayout === 'vertical' ? 'vertical' : 'horizontal'
 
-  return (
-    <Container className={customTheme}>
-      <div>
-        {logo && (
-          <img style={logoStyle} src={logo} alt='Your Company' />
-        )}
-        <HeaderText>{title}</HeaderText>
-      </div>
-
-      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
-
+  const loginSignupForm = (<>
       {=# isExternalAuthEnabled =}
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
@@ -351,6 +347,170 @@ function Auth (
           </FormItemGroup>
         </UserPassForm>
       {=/ isAnyPasswordBasedAuthEnabled =}
+  </>)
+
+  {=# isEmailAuthEnabled =}
+  const ForgotPasswordForm = () => {
+    const [email, setEmail] = useState('')
+    
+    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      setIsLoading(true)
+      setErrorMessage(null)
+      setSuccessMessage(null)
+      try {
+        await requestPasswordReset({ email })
+        setSuccessMessage('Check your email for a password reset link.')
+        setEmail('')
+      } catch (error) {
+        setErrorMessage(error.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    return (
+      <>
+        <UserPassForm onSubmit={onSubmit}>
+          <FormItemGroup>
+            <FormLabel>E-mail</FormLabel>
+            <FormInput
+              type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              disabled={isLoading}
+            />
+          </FormItemGroup>
+          <FormItemGroup>
+            <SubmitButton type="submit" disabled={isLoading}>Send password reset email</SubmitButton>
+          </FormItemGroup>
+        </UserPassForm>
+      </>
+    )
+  }
+
+  const ResetPasswordForm = () => {
+    const location = useLocation()
+    const token = new URLSearchParams(location.search).get('token')
+    const [password, setPassword] = useState('')
+    const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+
+      if (!token) {
+        setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+        return
+      }
+
+      if (!password || password !== passwordConfirmation) {
+        setErrorMessage("Passwords don't match!")
+        return
+      }
+
+      setIsLoading(true)
+      setErrorMessage(null)
+      setSuccessMessage(null)
+      try {
+        await resetPassword({ password, token })
+        setSuccessMessage('Your password has been reset.')
+        setPassword('')
+        setPasswordConfirmation('')
+      } catch (error) {
+        setErrorMessage(error.message)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    return (
+      <>
+        <UserPassForm onSubmit={onSubmit}>
+          <FormItemGroup>
+            <FormLabel>New password</FormLabel>
+            <FormInput
+              type="password"
+              required
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
+          </FormItemGroup>
+          <FormItemGroup>
+            <FormLabel>Confirm new password</FormLabel>
+            <FormInput
+              type="password"
+              required
+              value={passwordConfirmation}
+              onChange={e => setPasswordConfirmation(e.target.value)}
+              disabled={isLoading}
+            />
+          </FormItemGroup>
+          <FormItemGroup>
+            <SubmitButton type="submit" disabled={isLoading}>Reset password</SubmitButton>
+          </FormItemGroup>
+        </UserPassForm>
+      </>
+    )
+  }
+
+  const VerifyEmailForm = () => {
+    const location = useLocation()
+    const history = useHistory()
+    const verifyEmailInfo = useMutation<
+      { success: boolean },
+      { data: { success: boolean; reason?: string } },
+      { token: string },
+      unknown
+    >({
+      mutationFn: verifyEmail,
+    })
+    useEffect(() => {
+      const token = new URLSearchParams(location.search).get('token')
+      if (!token) {
+        history.push('/login')
+        return
+      }
+      verifyEmailInfo.mutateAsync({ token })
+    }, [location])
+
+    return (
+      <>
+        {verifyEmailInfo.isLoading && <Message>Verifying email...</Message>}
+        {verifyEmailInfo.isError && (
+          <ErrorMessage>
+            {verifyEmailInfo.error?.message || 'Something went wrong'}
+          </ErrorMessage>
+        )}
+        {verifyEmailInfo.isSuccess && (
+          <SuccessMessage>
+            Your email has been verified. You can now log in.
+          </SuccessMessage>
+        )}
+      </>
+    )
+  }
+  {=/ isEmailAuthEnabled =}
+
+
+  return (
+    <Container className={customTheme}>
+      <div>
+        {logo && (
+          <img style={logoStyle} src={logo} alt='Your Company' />
+        )}
+        <HeaderText>{title}</HeaderText>
+      </div>
+
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+      {(state === 'login' || state === 'signup') && loginSignupForm}
+      {=# isEmailAuthEnabled =}
+      {state === 'forgot-password' && <ForgotPasswordForm />}
+      {state === 'reset-password' && <ResetPasswordForm />}
+      {state === 'verify-email' && <VerifyEmailForm />}
+      {=/ isEmailAuthEnabled =}
     </Container>
   )
 }
@@ -370,7 +530,7 @@ function useUsernameAndPassword({
   const [usernameFieldVal, setUsernameFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
-  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit () {
     try {
       if (!isLogin) {
         await signup({ username: usernameFieldVal, password: passwordFieldVal })
@@ -403,7 +563,7 @@ function useEmail({
   const [emailFieldVal, setEmailFieldVal] = useState('')
   const [passwordFieldVal, setPasswordFieldVal] = useState('')
 
-  async function handleSubmit (event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit () {
     try {
       if (isLogin) {
         await login({ email: emailFieldVal, password: passwordFieldVal })

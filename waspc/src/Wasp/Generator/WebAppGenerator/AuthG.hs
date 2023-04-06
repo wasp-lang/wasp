@@ -60,9 +60,13 @@ genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genLoginForm auth,
-      genSignupForm auth,
-      genAuthForm auth,
+    [ genAuthForm auth,
+      copyTmplFile [relfile|auth/forms/Login.tsx|],
+      copyTmplFile [relfile|auth/forms/Signup.tsx|],
+      copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|],
+      copyTmplFile [relfile|auth/forms/types.ts|],
       copyTmplFile [relfile|stitches.config.js|],
       copyTmplFile [relfile|auth/forms/SocialIcons.tsx|],
       copyTmplFile [relfile|auth/forms/SocialButton.tsx|]
@@ -93,20 +97,6 @@ genAuthForm auth =
   where
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
-
-genLoginForm :: AS.Auth.Auth -> Generator FileDraft
-genLoginForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Login.jsx|]
-    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
-    ]
-
-genSignupForm :: AS.Auth.Auth -> Generator FileDraft
-genSignupForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Signup.jsx|]
-    [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth
-    ]
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
