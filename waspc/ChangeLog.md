@@ -99,6 +99,9 @@ By leveraging Vitest and some supporting libraries, Wasp now makes it super easy
 ### `pg-boss` upgraded to latest version (8.4.2)
 This `pg-boss` release fixes an issue where the node server would exit due to an unhandled exception when the DB connection was lost.
 
+### Bug fixes
+- Starts the process of removing the coupling between `usernameAndPassword` and social logins. Now, your `userEntity` no longer requires a `username` or `password` field if you only want to use Google/GitHub for auth.
+
 ## v0.9.0
 
 ### BREAKING CHANGES

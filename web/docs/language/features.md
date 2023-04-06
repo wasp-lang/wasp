@@ -1310,7 +1310,7 @@ When using Social Login Providers, Wasp gives you the following options:
 </TabItem>
 </Tabs>
 
-When a user signs in for the first time, Wasp assigns generated values to the `username` and `password` fields of the `userEntity` by default (e.g. `username: nice-blue-horse-14357`), so make sure to include these in your `userEntity` declaration even if you're only using a Social Login provider. If you'd like to change this behavior, these values can be overridden as described below.
+When a user signs in for the first time, if the `userEntity` has `username` and/or `password` fields Wasp assigns generated values to those fields by default (e.g. `username: nice-blue-horse-14357` and a strong random `password`). This is a historical coupling between auth methods that will be removed over time. If you'd like to change this behavior, these values can be overridden as described below.
 
 :::tip Overriding Defaults
 It is also posslbe to [override the default](features#overrides-for-social-login-providers) login behaviors that Wasp provides for you. This allows you to create custom setups, such as allowing Users to define a username rather than the default random username assigned by Wasp on initial Login.
@@ -1320,16 +1320,15 @@ It is also posslbe to [override the default](features#overrides-for-social-login
 Anytime an authentication method is used that relies on an external authorization provider, for example, Google, we require an `externalAuthEntity` specified in `auth`, in addition to the `userEntity`, that contains the following configuration:
 
 ```c {4,14}
-...
+//...
   auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
-...
+//...
 
 entity User {=psl
     id                        Int           @id @default(autoincrement())
-    username                  String        @unique
-    password                  String
+    //...
     externalAuthAssociations  SocialLogin[]
 psl=}
 
@@ -1376,7 +1375,7 @@ If you need more customization than what the buttons provide, you can create you
 
 ### Overrides
 
-When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. The `username` will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`.
+When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. If the `userEntity` contains a `username` field it will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`. This is a historical coupling between auth methods that will be removed over time.
 
 If you would like to allow the user to select their own username, or some other sign up flow, you could add a boolean property to your `User` entity indicating the account setup is incomplete. You can then check this user's property on the client with the [`useAuth()`](#useauth) hook and redirect them when appropriate
   - e.g. check on homepage if `user.isAuthSetup === false`, redirect them to `EditUserDetailsPage` where they can edit the `username` property.
