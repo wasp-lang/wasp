@@ -38,7 +38,7 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
-        ("new" : newArgs) -> Command.Call.New newArgs
+        ("new" : projectName : newArgs) -> Command.Call.New projectName newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -62,7 +62,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
   case commandCall of
-    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
+    Command.Call.New projectName newArgs -> runCommand $ createNewProject projectName newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean

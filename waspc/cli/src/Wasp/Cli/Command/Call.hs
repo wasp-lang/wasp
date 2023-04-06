@@ -1,13 +1,13 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New [String] -- new args
+  = New ProjectName Arguments -- project name, new args
   | Start
   | StartDb
   | Clean
   | Uninstall
   | Compile
-  | Db [String] -- db args
+  | Db Arguments -- db args
   | Build
   | Version
   | Telemetry
@@ -18,6 +18,10 @@ data Call
   | GenerateBashCompletionScript
   | BashCompletionListCommands
   | WaspLS
-  | Deploy [String] -- deploy cmd passthrough args
-  | Test [String] -- "client" | "server", then test cmd passthrough args
-  | Unknown [String] -- all args
+  | Deploy Arguments -- deploy cmd passthrough args
+  | Test Arguments -- "client" | "server", then test cmd passthrough args
+  | Unknown Arguments -- all args
+
+type ProjectName = String
+
+type Arguments = [String]

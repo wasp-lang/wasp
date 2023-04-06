@@ -3,29 +3,28 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Concurrent (newChan)
 import Control.Monad (when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.Maybe (isJust)
 import qualified Data.Text as T
-import GHC.IO.Exception (ExitCode (..))
 import Path.IO (copyDirRecur, doesDirExist)
 import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (getCurrentDirectory)
 import qualified System.FilePath as FP
+import System.Process (callCommand)
 import Text.Printf (printf)
+import UnliftIO.Exception (SomeException, try)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Call (Arguments, ProjectName)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Data as Data
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (indent, kebabToCamelCase, whenM)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
@@ -34,33 +33,33 @@ import qualified Wasp.Version as WV
 data ProjectInfo = ProjectInfo
   { _projectName :: String,
     _appName :: String,
-    _template :: Maybe String
+    _templateName :: Maybe String
   }
 
-createNewProject :: [String] -> Command ()
-createNewProject newArgs = do
-  projectInfo <- parseProjectInfo newArgs
+createNewProject :: ProjectName -> Arguments -> Command ()
+createNewProject projectName newArgs = do
+  projectInfo <- parseProjectInfo projectName newArgs
   createWaspProjectDir projectInfo
   liftIO $ printGettingStartedInstructions $ _projectName projectInfo
   where
-    printGettingStartedInstructions :: String -> IO ()
-    printGettingStartedInstructions projectName = do
-      putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectName ++ " directory!")
+    printGettingStartedInstructions :: ProjectName -> IO ()
+    printGettingStartedInstructions projectFolder = do
+      putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectFolder ++ " directory!")
       putStrLn "To run it, do:"
       putStrLn ""
-      putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectName)
+      putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectFolder)
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
 
-parseProjectInfo :: [String] -> Command ProjectInfo
-parseProjectInfo newArgs = case newArgs of
-  [projectName] -> createProjectInfo projectName Nothing
-  [projectName, templateFlag, templateName] | templateFlag `elem` ["--template", "-t"] -> createProjectInfo projectName (Just templateName)
-  [_, templateFlag] | templateFlag `elem` ["--template", "-t"] -> throwProjectCreationError "You must provide a template name."
+parseProjectInfo :: ProjectName -> Arguments -> Command ProjectInfo
+parseProjectInfo projectName newArgs = case newArgs of
+  [] -> createProjectInfo projectName Nothing
+  [templateFlag, templateName] | templateFlag `elem` ["--template", "-t"] -> createProjectInfo projectName (Just templateName)
+  [templateFlag] | templateFlag `elem` ["--template", "-t"] -> throwProjectCreationError "You must provide a template name."
   _anyOtherArgs -> throwProjectCreationError "Invalid arguments for 'wasp new' command."
 
-createProjectInfo :: String -> Maybe String -> Command ProjectInfo
-createProjectInfo name template
-  | isValidWaspIdentifier appName = return $ ProjectInfo {_projectName = name, _appName = appName, _template = template}
+createProjectInfo :: ProjectName -> Maybe String -> Command ProjectInfo
+createProjectInfo name templateName
+  | isValidWaspIdentifier appName = return $ ProjectInfo {_projectName = name, _appName = appName, _templateName = templateName}
   | otherwise =
       throwProjectCreationError $
         intercalate
@@ -74,13 +73,12 @@ createProjectInfo name template
     appName = kebabToCamelCase name
 
 createWaspProjectDir :: ProjectInfo -> Command ()
-createWaspProjectDir projectInfo@ProjectInfo {_template = template} = do
+createWaspProjectDir projectInfo@ProjectInfo {_templateName = template} = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
   dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
 
-  when
-    dirExists
-    $ throwProjectCreationError $
+  when dirExists $
+    throwProjectCreationError $
       show absWaspProjectDir ++ " is an existing directory"
 
   createProjectFromProjectInfo absWaspProjectDir
@@ -116,7 +114,7 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName _) = IOUtil.wr
       unlines
         [ "app %s {" `printf` appName,
           "  wasp: {",
-          "    version: \"%s\"" `printf` waspVersionStr,
+          "    version: \"%s\"" `printf` waspVersionBounds,
           "  },",
           "  title: \"%s\"" `printf` projectName,
           "}",
@@ -128,25 +126,18 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName _) = IOUtil.wr
         ]
 
 createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> ProjectInfo -> Command ()
-createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _projectName = projectName, _template = maybeTemplateName} = do
+createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _projectName = projectName, _templateName = maybeTemplateName} = do
   cliSendMessageC $ Msg.Start "Creating project from template..."
 
-  dirWhereProjectIsCreated <- getDirWhereProjectIsCreated
   templatePath <- getPathToRemoteTemplate maybeTemplateName
 
   let projectDir = projectName
 
-  fetchTemplate templatePath projectDir dirWhereProjectIsCreated
+  fetchTemplate templatePath projectDir
   ensureTemplateWasFetched
 
   replacePlaceholdersInWaspFile
   where
-    getDirWhereProjectIsCreated :: Command (Path System Abs (Dir dir))
-    getDirWhereProjectIsCreated = do
-      (liftIO getCurrentDirectory <&> parseAbsDir) >>= \case
-        Left err -> throwProjectCreationError $ "Failed to parse absolute path to current working directory: " ++ show err
-        Right result -> return result
-
     getPathToRemoteTemplate :: Maybe String -> Command String
     getPathToRemoteTemplate = \case
       Just templateName -> return $ waspTemplatesRepo ++ "/" ++ templateName
@@ -155,21 +146,20 @@ createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _pr
         -- gh: prefix means Github repo
         waspTemplatesRepo = "gh:wasp-lang/starters"
 
-    fetchTemplate :: String -> String -> Path System Abs (Dir dir) -> Command ()
-    fetchTemplate templatePath projectDir dirWhereProjectIsCreated = do
-      liftIO executeCmd >>= \case
-        ExitSuccess -> return ()
-        ExitFailure _ -> throwProjectCreationError "Failed to create project from template."
+    fetchTemplate :: String -> String -> Command ()
+    fetchTemplate templatePath projectDir = do
+      liftIO (try executeCmd) >>= \case
+        Left (e :: SomeException) -> throwProjectCreationError $ "Failed to create project from template: " ++ show e
+        Right _ -> return ()
       where
-        executeCmd = newChan >>= runNodeCommandAsJob dirWhereProjectIsCreated "npx" args J.Cli
-        args = ["giget@latest", templatePath, projectDir]
+        executeCmd = callCommand $ unwords command
+        command = ["npx", "giget@latest", templatePath, projectDir]
 
     -- gitget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
     ensureTemplateWasFetched :: Command ()
-    ensureTemplateWasFetched = do
-      whenM
-        (liftIO $ IOUtil.isDirectoryEmpty absWaspProjectDir)
-        $ throwProjectCreationError "Are you sure that the template exists? 🤔 Check the list of templates here: https://github.com/wasp-lang/starters"
+    ensureTemplateWasFetched =
+      whenM (liftIO $ IOUtil.isDirectoryEmpty absWaspProjectDir) $
+        throwProjectCreationError "Are you sure that the template exists? 🤔 Check the list of templates here: https://github.com/wasp-lang/starters"
 
     replacePlaceholdersInWaspFile :: Command ()
     replacePlaceholdersInWaspFile = liftIO $ do
@@ -179,19 +169,19 @@ createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _pr
             foldl
               (\acc (placeholder, value) -> T.replace (T.pack placeholder) (T.pack value) acc)
               mainWaspFileContent
-              placeholders
+              replacements
 
       IOUtil.writeFileFromText absMainWaspFile replacedContent
       where
         absMainWaspFile = absWaspProjectDir </> [relfile|main.wasp|]
-        placeholders =
+        replacements =
           [ ("__waspAppName__", appName),
             ("__waspProjectName__", projectName),
-            ("__waspVersion__", waspVersionStr)
+            ("__waspVersion__", waspVersionBounds)
           ]
 
-waspVersionStr :: String
-waspVersionStr = "^%s" `printf` show WV.waspVersion
+waspVersionBounds :: String
+waspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)
 
 throwProjectCreationError :: String -> Command a
 throwProjectCreationError = throwError . CommandError "Project creation failed"
