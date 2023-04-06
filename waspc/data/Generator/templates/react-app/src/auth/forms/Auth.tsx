@@ -1,23 +1,26 @@
 {{={= =}=}}
-import React, { useState, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
-import { createStitches, createTheme } from '@stitches/react'
+import { useState, FormEvent, useEffect, useCallback } from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
+import { createTheme } from '@stitches/react'
 
-import { errorMessage } from '../../utils.js'
 {=# isUsernameAndPasswordAuthEnabled =}
 import signup from '../signup.js'
 import login from '../login.js'
 {=/ isUsernameAndPasswordAuthEnabled =}
+{=# isEmailAuthEnabled =}
+import { signup } from '../email/actions/signup.js'
+import { login } from '../email/actions/login.js'
+import { requestPasswordReset, resetPassword } from '../email/actions/passwordReset.js'
+import { verifyEmail } from '../email/actions/verifyEmail.js'
+{=/ isEmailAuthEnabled =}
 {=# isExternalAuthEnabled =}
 import * as SocialIcons from './SocialIcons'
+import { SocialButton } from './SocialButton';
 {=/ isExternalAuthEnabled =}
 
 import config from '../../config.js'
-import { styled, css } from '../../stitches.config'
-
-const socialButtonsContainerStyle = {
-  maxWidth: '20rem'
-}
+import { styled } from '../../stitches.config'
+import { State, CustomizationOptions } from './types'
 
 const logoStyle = {
   height: '3rem'
@@ -36,7 +39,6 @@ const HeaderText = styled('h2', {
 
 const SocialAuth = styled('div', {
   marginTop: '1.5rem'
-  
 })
 
 const SocialAuthLabel = styled('div', {
@@ -71,31 +73,6 @@ const SocialAuthButtons = styled('div', {
       }
     }
   }
-})
-
-const SocialButton = styled('a', {
-  display: 'flex',
-  justifyContent: 'center',
-
-  cursor: 'pointer',
-  // NOTE(matija): icon is otherwise blue, since that
-  // is link's default font color.
-  color: 'inherit',
-  backgroundColor: '#f0f0f0',
-  borderRadius: '0.375rem',
-  borderWidth: '1px',
-  borderColor: '$gray600',
-  fontSize: '13px',
-  padding: '10px 15px',
-  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-  '&:visited': {
-    color: 'inherit',
-  },
-  '&:hover': {
-    backgroundColor: '$gray500',
-  },
-  transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-  transitionDuration: '100ms'
 })
 
 const OrContinueWith = styled('div', {
@@ -160,6 +137,13 @@ const FormInput = styled('input', {
     borderColor: '$gray700',
     boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
+  },
 
   borderRadius: '0.375rem',
   width: '100%',
@@ -175,7 +159,6 @@ const SubmitButton = styled('button', {
   justifyContent: 'center',
 
   width: '100%',
-  borderRadius: '0.375rem',
   borderWidth: '1px',
   borderColor: '$brand',
   backgroundColor: '$brand',
@@ -194,39 +177,90 @@ const SubmitButton = styled('button', {
     backgroundColor: '$brandAccent',
     borderColor: '$brandAccent',
   },
+  '&:disabled': {
+    opacity: 0.5,
+    cursor: 'not-allowed',
+    backgroundColor: '$gray400',
+    borderColor: '$gray400',
+    color: '$gray500',
+  },
   transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
   transitionDuration: '100ms'
 })
 
+const Message = styled('div', {
+  padding: '0.5rem 0.75rem',
+  borderRadius: '0.375rem',
+  marginTop: '1rem',
+  background: '$gray400',
+})
+
+const ErrorMessage = styled(Message, {
+  background: '$errorBackground',
+  color: '$errorText',
+})
+
+const SuccessMessage = styled(Message, {
+  background: '$successBackground',
+  color: '$successText',
+})
+
+{=# isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
+{=/ isGoogleAuthEnabled =}
+{=# isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
+{=/ isGitHubAuthEnabled =}
 
-// TODO(matija): introduce type for appearance
-const Auth = ({ isLogin, appearance, logo, socialLayout } :
-              { isLogin: boolean; logo: string; socialLayout: "horizontal" | "vertical" }) => {
-  const history = useHistory()
-
-  const [usernameFieldVal, setUsernameFieldVal] = useState('')
-  const [passwordFieldVal, setPasswordFieldVal] = useState('')
-
-  const handleSubmit = async (event) => {
-    event.preventDefault()
-    try {
-      if (!isLogin) {
-        await signup({ username: usernameFieldVal, password: passwordFieldVal })
-      }
-      await login (usernameFieldVal, passwordFieldVal)
-
-      setUsernameFieldVal('')
-      setPasswordFieldVal('')
-
+function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
+    state: State;
+} & CustomizationOptions) {
+  const isLogin = state === "login";
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  {=# isAnyPasswordBasedAuthEnabled =}
+  const history = useHistory();
+  const onErrorHandler = (error) => {
+    setErrorMessage(error.message)
+  };
+  {=/ isAnyPasswordBasedAuthEnabled =}
+  {=# isUsernameAndPasswordAuthEnabled =}
+  const { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal } = useUsernameAndPassword({
+    isLogin,
+    onError: onErrorHandler,
+    onSuccess() {
       // Redirect to configured page, defaults to /.
       history.push('{= onAuthSucceededRedirectTo =}')
-    } catch (err) {
-      console.log(err)
-      window.alert(errorMessage(err))
+    },
+  });
+  {=/ isUsernameAndPasswordAuthEnabled =}
+  {=# isEmailAuthEnabled =}
+  const { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal } = useEmail({
+    isLogin,
+    onError: onErrorHandler,
+    showEmailVerificationPending() {
+      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
+    },
+    onLoginSuccess() {
+      // Redirect to configured page, defaults to /.
+      history.push('{= onAuthSucceededRedirectTo =}')
+    }
+  });
+  {=/ isEmailAuthEnabled =}
+  {=# isAnyPasswordBasedAuthEnabled =}
+  async function onSubmit (event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setIsLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    try {
+      await handleSubmit();
+    } finally {
+      setIsLoading(false);
     }
   }
+  {=/ isAnyPasswordBasedAuthEnabled =}
 
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
@@ -234,19 +268,18 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
   const customTheme = createTheme(appearance)
 
   const cta = isLogin ? 'Log in' : 'Sign up'
-  const title = isLogin ? 'Log in to your account' : 'Create a new account'
+  const titles: Record<State, string> = {
+    login: 'Log in to your account',
+    signup: 'Create a new account',
+    "forgot-password": "Forgot your password?",
+    "reset-password": "Reset your password",
+    "verify-email": "Email verification",
+  }
+  const title = titles[state]
 
   const socialButtonsDirection = socialLayout === 'vertical' ? 'vertical' : 'horizontal'
 
-  return (
-    <Container className={customTheme}>
-      <div>
-        {logo && (
-          <img style={logoStyle} src={logo} alt='Your Company' />
-        )}
-        <HeaderText>{title}</HeaderText>
-      </div>
-
+  const loginSignupForm = (<>
       {=# isExternalAuthEnabled =}
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
@@ -262,7 +295,7 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
         </SocialAuth>
       {=/ isExternalAuthEnabled =}
       
-      {=# areBothExternalAndUsernameAndPasswordAuthEnabled =}
+      {=# areBothSocialAndPasswordBasedAuthEnabled =}
         <OrContinueWith>
           <OrContinueWithLineContainer>
             <OrContinueWithLine/>
@@ -271,36 +304,298 @@ const Auth = ({ isLogin, appearance, logo, socialLayout } :
             <OrContinueWithText>Or continue with</OrContinueWithText>
           </OrContinueWithTextContainer>
         </OrContinueWith>
-      {=/ areBothExternalAndUsernameAndPasswordAuthEnabled =}
-      
-      {=# isUsernameAndPasswordAuthEnabled =}
-        <UserPassForm onSubmit={handleSubmit}>
+      {=/ areBothSocialAndPasswordBasedAuthEnabled =}
+      {=# isAnyPasswordBasedAuthEnabled =}
+        <UserPassForm onSubmit={onSubmit}>
+          {=# isUsernameAndPasswordAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
             <FormInput
               type="text"
+              required
               value={usernameFieldVal}
               onChange={e => setUsernameFieldVal(e.target.value)}
+              disabled={isLoading}
             />
           </FormItemGroup>
-
+          {=/ isUsernameAndPasswordAuthEnabled =}
+          {=# isEmailAuthEnabled =}
+          <FormItemGroup>
+            <FormLabel>E-mail</FormLabel>
+            <FormInput
+              type="email"
+              required
+              value={emailFieldVal}
+              onChange={e => setEmailFieldVal(e.target.value)}
+              disabled={isLoading}
+            />
+          </FormItemGroup>
+          {=/ isEmailAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Password</FormLabel>
             <FormInput
               type="password"
+              required
               value={passwordFieldVal}
               onChange={e => setPasswordFieldVal(e.target.value)}
+              disabled={isLoading}
             />
           </FormItemGroup>
 
           <FormItemGroup>
-            <SubmitButton type="submit">{cta}</SubmitButton>
+            <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>
         </UserPassForm>
-      {=/ isUsernameAndPasswordAuthEnabled =}
-      
+      {=/ isAnyPasswordBasedAuthEnabled =}
+  </>)
+
+  return (
+    <Container className={customTheme}>
+      <div>
+        {logo && (
+          <img style={logoStyle} src={logo} alt='Your Company' />
+        )}
+        <HeaderText>{title}</HeaderText>
+      </div>
+
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+      {(state === 'login' || state === 'signup') && loginSignupForm}
+      {=# isEmailAuthEnabled =}
+      {state === 'forgot-password' && (<ForgotPasswordForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
+      {state === 'reset-password' && (<ResetPasswordForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
+      {state === 'verify-email' && (<VerifyEmailForm
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        setErrorMessage={setErrorMessage}
+        setSuccessMessage={setSuccessMessage}
+      />)}
+      {=/ isEmailAuthEnabled =}
     </Container>
   )
 }
 
-export default Auth
+export default Auth;
+
+{=# isEmailAuthEnabled =}
+const ForgotPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const [email, setEmail] = useState('')
+  
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await requestPasswordReset({ email })
+      setSuccessMessage('Check your email for a password reset link.')
+      setEmail('')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <UserPassForm onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>E-mail</FormLabel>
+          <FormInput
+            type="email"
+            required
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <SubmitButton type="submit" disabled={isLoading}>Send password reset email</SubmitButton>
+        </FormItemGroup>
+      </UserPassForm>
+    </>
+  )
+}
+
+const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const location = useLocation()
+  const token = new URLSearchParams(location.search).get('token')
+  const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    if (!token) {
+      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      return
+    }
+
+    if (!password || password !== passwordConfirmation) {
+      setErrorMessage("Passwords don't match!")
+      return
+    }
+
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await resetPassword({ password, token })
+      setSuccessMessage('Your password has been reset.')
+      setPassword('')
+      setPasswordConfirmation('')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <>
+      <UserPassForm onSubmit={onSubmit}>
+        <FormItemGroup>
+          <FormLabel>New password</FormLabel>
+          <FormInput
+            type="password"
+            required
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <FormLabel>Confirm new password</FormLabel>
+          <FormInput
+            type="password"
+            required
+            value={passwordConfirmation}
+            onChange={e => setPasswordConfirmation(e.target.value)}
+            disabled={isLoading}
+          />
+        </FormItemGroup>
+        <FormItemGroup>
+          <SubmitButton type="submit" disabled={isLoading}>Reset password</SubmitButton>
+        </FormItemGroup>
+      </UserPassForm>
+    </>
+  )
+}
+
+const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+  const location = useLocation()
+  const token = new URLSearchParams(location.search).get('token')
+
+  const submitForm = useCallback(async () => {
+    if (!token) {
+      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      return
+    }
+    setIsLoading(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+    try {
+      await verifyEmail({ token })
+      setSuccessMessage('Your email has been verified. You can now log in.')
+    } catch (error) {
+      setErrorMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  })
+
+  useEffect(() => {
+    submitForm()
+  }, [location])
+
+  return (
+    <>
+      {isLoading && <Message>Verifying email...</Message>}
+    </>
+  )
+}
+{=/ isEmailAuthEnabled =}
+
+{=# isUsernameAndPasswordAuthEnabled =}
+function useUsernameAndPassword({
+  onError,
+  onSuccess,
+  isLogin,
+}: {
+  onError: (error: Error) => void;
+  onSuccess: () => void;
+  isLogin: boolean;
+}) {
+  const [usernameFieldVal, setUsernameFieldVal] = useState('')
+  const [passwordFieldVal, setPasswordFieldVal] = useState('')
+
+  async function handleSubmit () {
+    try {
+      if (!isLogin) {
+        await signup({ username: usernameFieldVal, password: passwordFieldVal })
+      }
+      await login (usernameFieldVal, passwordFieldVal)
+
+      setUsernameFieldVal('')
+      setPasswordFieldVal('')
+      onSuccess()
+    } catch (err: unknown) {
+      onError(err as Error)
+    }
+  }
+
+  return { handleSubmit, usernameFieldVal, passwordFieldVal, setUsernameFieldVal, setPasswordFieldVal }
+}
+{=/ isUsernameAndPasswordAuthEnabled =}
+{=# isEmailAuthEnabled =}
+function useEmail({
+  onError,
+  showEmailVerificationPending,
+  onLoginSuccess,
+  isLogin,
+}: {
+  onError: (error: Error) => void;
+  showEmailVerificationPending: () => void;
+  onLoginSuccess: () => void;
+  isLogin: boolean;
+}) {
+  const [emailFieldVal, setEmailFieldVal] = useState('')
+  const [passwordFieldVal, setPasswordFieldVal] = useState('')
+
+  async function handleSubmit () {
+    try {
+      if (isLogin) {
+        await login({ email: emailFieldVal, password: passwordFieldVal })
+        onLoginSuccess()
+      } else {
+        await signup({ email: emailFieldVal, password: passwordFieldVal })
+        {=# isEmailVerificationRequired =}
+        showEmailVerificationPending()
+        {=/ isEmailVerificationRequired =}
+        {=^ isEmailVerificationRequired =}
+        await login ({ email: emailFieldVal, password: passwordFieldVal})
+        onLoginSuccess()
+        {=/ isEmailVerificationRequired =}
+      }
+
+      setEmailFieldVal('')
+      setPasswordFieldVal('')
+    } catch (err: unknown) {
+      onError(err as Error)
+    }
+  }
+
+  return { handleSubmit, emailFieldVal, passwordFieldVal, setEmailFieldVal, setPasswordFieldVal }
+}
+{=/ isEmailAuthEnabled =}

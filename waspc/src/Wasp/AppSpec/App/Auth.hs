@@ -8,11 +8,11 @@ module Wasp.AppSpec.App.Auth
     EmailAuthConfig (..),
     usernameAndPasswordConfig,
     isUsernameAndPasswordAuthEnabled,
-    areBothExternalAndUsernameAndPasswordAuthEnabled,
     isExternalAuthEnabled,
     isGoogleAuthEnabled,
     isGitHubAuthEnabled,
     isEmailAuthEnabled,
+    isEmailVerificationRequired,
   )
 where
 
@@ -68,9 +68,6 @@ usernameAndPasswordConfig = UsernameAndPasswordConfig Nothing
 isUsernameAndPasswordAuthEnabled :: Auth -> Bool
 isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
 
-areBothExternalAndUsernameAndPasswordAuthEnabled :: Auth -> Bool
-areBothExternalAndUsernameAndPasswordAuthEnabled auth = all ($ auth) [isExternalAuthEnabled, isUsernameAndPasswordAuthEnabled]
-
 isExternalAuthEnabled :: Auth -> Bool
 isExternalAuthEnabled auth = any ($ auth) [isGoogleAuthEnabled, isGitHubAuthEnabled]
 
@@ -82,3 +79,8 @@ isGitHubAuthEnabled = isJust . gitHub . methods
 
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
+
+isEmailVerificationRequired :: Auth -> Bool
+isEmailVerificationRequired auth = case email . methods $ auth of
+  Nothing -> False
+  Just emailAuthConfig -> allowUnverifiedLogin emailAuthConfig /= Just True

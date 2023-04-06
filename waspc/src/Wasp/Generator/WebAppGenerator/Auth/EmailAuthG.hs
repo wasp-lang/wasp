@@ -16,7 +16,6 @@ import Wasp.Generator.AuthProviders.Email
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.WebAppGenerator.Common as C
 import Wasp.Util ((<++>))
 
@@ -27,7 +26,6 @@ genEmailAuth auth
         [ genIndex
         ]
         <++> genActions
-        <++> genComponents auth
   | otherwise = return []
 
 genIndex :: Generator FileDraft
@@ -73,24 +71,3 @@ genVerifyEmailAction =
     C.mkTmplFdWithData
       [relfile|src/auth/email/actions/verifyEmail.ts|]
       (object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider])
-
-genComponents :: AS.Auth.Auth -> Generator [FileDraft]
-genComponents auth =
-  sequence
-    [ genLoginComponent auth,
-      genSignupComponent auth
-    ]
-
-genLoginComponent :: AS.Auth.Auth -> Generator FileDraft
-genLoginComponent auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|src/auth/email/components/Login.jsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
-
-genSignupComponent :: AS.Auth.Auth -> Generator FileDraft
-genSignupComponent auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|src/auth/email/components/Signup.jsx|]
-      (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])

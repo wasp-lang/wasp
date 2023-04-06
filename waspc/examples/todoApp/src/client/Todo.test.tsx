@@ -33,7 +33,7 @@ test('handles mock data', async () => {
 })
 
 test('handles multiple mock data sources', async () => {
-  mockQuery(getMe, { username: 'elon' })
+  mockQuery(getMe, { email: 'elon' })
   mockQuery(getTasks, mockTasks)
 
   renderInContext(<App><Todo /></App>)

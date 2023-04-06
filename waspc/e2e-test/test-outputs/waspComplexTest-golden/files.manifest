@@ -76,7 +76,6 @@ waspComplexTest/.wasp/out/web-app/index.html
 waspComplexTest/.wasp/out/web-app/netlify.toml
 waspComplexTest/.wasp/out/web-app/package.json
 waspComplexTest/.wasp/out/web-app/public/favicon.ico
-waspComplexTest/.wasp/out/web-app/public/images/google-logo-icon.png
 waspComplexTest/.wasp/out/web-app/public/manifest.json
 waspComplexTest/.wasp/out/web-app/scripts/universal/validators.mjs
 waspComplexTest/.wasp/out/web-app/scripts/validate-env.mjs
@@ -86,9 +85,14 @@ waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
 waspComplexTest/.wasp/out/web-app/src/api.ts
 waspComplexTest/.wasp/out/web-app/src/auth/forms/Auth.tsx
-waspComplexTest/.wasp/out/web-app/src/auth/forms/Login.jsx
-waspComplexTest/.wasp/out/web-app/src/auth/forms/Signup.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/ForgotPassword.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Login.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/ResetPassword.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/Signup.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/SocialButton.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/forms/SocialIcons.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/VerifyEmail.tsx
+waspComplexTest/.wasp/out/web-app/src/auth/forms/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/Google.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
