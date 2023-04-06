@@ -1,3 +1,4 @@
+import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery } from '../queries'
 import api, { handleApiError } from '../api'
 import { HttpMethod } from '../types'
@@ -12,7 +13,7 @@ export async function getMe(): Promise<User | null> {
   try {
     const response = await api.get('/auth/me')
 
-    return response.data
+    return superjsonDeserialize(response.data)
   } catch (error) {
     if (error.response?.status === 401) {
       return null

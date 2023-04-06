@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react'
 
 import { mockServer, renderInContext } from '@wasp/test'
 import getTasks from '@wasp/queries/getTasks'
+import getDate from '@wasp/queries/getDate'
 import Todo, { areThereAnyTasks } from './Todo'
 import { App } from './App'
 import { getMe } from '@wasp/auth/useAuth'
@@ -34,6 +35,7 @@ test('handles mock data', async () => {
 
 test('handles multiple mock data sources', async () => {
   mockQuery(getMe, { id: 12, username: 'elon' })
+  mockQuery(getDate, new Date())
   mockQuery(getTasks, mockTasks)
 
   renderInContext(<App><Todo /></App>)
