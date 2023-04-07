@@ -48,7 +48,7 @@ app MyApp {
 }
 ```
 
-The form will look like this:
+The form will automatically update itself to look like this:
 
 ![Auth UI](/img/authui/multiple_providers.png)
 
