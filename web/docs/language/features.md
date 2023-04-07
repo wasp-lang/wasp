@@ -1156,9 +1156,17 @@ is created or updated on the user entity, it is also hashed before it is stored 
 ### Email authentication
 
 :::info 
-We have written a step by step guide on how to set up the email authentication with Wasp's included Auth UI. 
+We have written a step-by-step guide on how to set up the e-mail authentication with Wasp's included Auth UI. 
 
 Read more in the [email authentication guide](/docs/guides/email-auth).
+:::
+
+:::warning
+If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password.
+
+If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that.
+
+In the future, we will lift this limitation and enable smarter merging of accounts.
 :::
 
 `email` authentication method makes it possible to signup/login into the app by using an e-mail and a password.

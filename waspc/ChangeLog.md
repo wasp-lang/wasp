@@ -2,6 +2,56 @@
 
 ## v0.10.0
 
+### Breaking changes
+
+- we changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
+    - `import { LoginForm } from '@wasp/auth/forms/Login'`
+    - `import { SignupForm } from '@wasp/auth/Signup'`
+
+### Adds support for e-mail authentication
+
+You can now use e-mail authentication in your Wasp app! This means that users can sign up and log in using their e-mail address. You get e-mail verification and password reset out of the box.
+
+```c
+app MyApp {
+  // ...
+  auth: {
+    // ...
+    email: {
+        fromField: {
+          name: "ToDO App",
+          email: "mihovil@ilakovac.com"
+        },
+        emailVerification: {
+          allowUnverifiedLogin: false,
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          clientRoute: PasswordResetRoute
+        },
+      },
+  }
+}
+```
+
+You can only use one of e-mail or username & password authentication in your app. You can't use both at the same time.
+
+### Adds Auth UI components
+
+Wasp now provides a set of UI components for authentication. You can use them to quickly build a login and signup page for your app. The UI changes dynamically based on your Wasp config.
+
+We provide `LoginForm`, `SignupForm`, `ForgotPassworForm`, `ResetPasswordForm` and`VerifyEmailForm` components. You can import them from `@wasp/auth/forms` like:
+
+```js
+import { LoginForm } from '@wasp/auth/forms/Login'
+import { SignupForm } from '@wasp/auth/forms/Signup'
+import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+```
+
 ### Adds support for database seeding
 You can now define JS/TS functions for seeding the database!
 

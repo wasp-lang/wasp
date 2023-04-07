@@ -77,7 +77,7 @@ app myApp {
 
 ### User entity
 
-Then we'll defined the `User` entity in our `main.wasp` file:
+Then we'll define the `User` entity in our `main.wasp` file:
 
 ```c title="main.wasp" {4-8}
 // 5. Define the user entity
@@ -379,9 +379,9 @@ export function PasswordReset() {
 }
 ```
 
-### Log-out action
+### Logout action
 
-To implement the log-out action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
+To implement the logout action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
 
 ```jsx title="client/components/Navbar.tsx"
 import logout from '@wasp/auth/logout';
@@ -421,6 +421,6 @@ export function Profile() {
 
 ## Conclusion
 
-And that's it! We now have a full authentication system in our app. We can register new users, login, log-out, verify their e-mail, and reset their password.
+And that's it! We now have a full authentication system in our app. We can register new users, login, logout, verify their e-mail, and reset their password.
 
 We hope you enjoyed this guide and that you learned something new. If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).
