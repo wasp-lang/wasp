@@ -2,7 +2,7 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { Terminal, ArrowUpRight } from 'react-feather'
+import { Terminal, ArrowUpRight, Play } from 'react-feather'
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
@@ -32,12 +32,12 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <span>Get started in 5 minutes</span>
+        <span>Create your app</span>
         <StartIcon />
       </button>
     </Link>
 
-    <Link to='#showcases'>
+    <Link to='#demo'>
       <button
         className={`
           inline-flex items-center space-x-2
@@ -49,8 +49,8 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <Terminal size={16} />
-        <span>Showcases</span>
+        <Play size={16} />
+        <span>Watch Demo</span>
       </button>
     </Link>
   </div>
@@ -79,7 +79,7 @@ const Hero = () => {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
+      email: {...},
       google: {}
     }
   }
@@ -90,7 +90,7 @@ page MainPage {
   /* Only logged in users can access this. */
   authRequired: true,
   /* import your React code */
-  component: import Main from "@client/Main.jsx"
+  component: import Main from "@client/Main.tsx"
 }`
 
   return (
@@ -107,11 +107,11 @@ page MainPage {
               `}
             >
               Develop full-stack web apps&nbsp;
-              <span className='underline decoration-yellow-500'>without boilerplate</span>.
+              <span className='underline decoration-yellow-500'>fast</span>.
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-              Rails-like framework for the PERN stack. Build your project in a day and deploy it anywhere with a single command.
+              Rails-like open source framework for React, Node.js and Prisma. Build your app in a day and deploy it anywhere with a single command.
             </p>
           </div> {/* EOF Hero title and subtitle */}
 
@@ -146,7 +146,7 @@ page MainPage {
 
             {/* Editor header bar */}
             <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
-              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/tutorials/TodoApp/main.wasp'>
+              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/todo-typescript/main.wasp'>
                 <span
                   className={`
                     text-sm text-neutral-500 flex items-center space-x-1 hover:text-neutral-400
@@ -186,6 +186,7 @@ page MainPage {
       </div>
 
       {/* Bash install cmd */}
+      {/*
       <div className='hidden md:flex md:mt-28 items-center justify-center'>
         <div className='flex flex-col items-center gap-2'>
           <InstallCmd />
@@ -201,8 +202,11 @@ page MainPage {
           </Link>
         </div>
       </div>
+      */}
 
 
+      {/* 1-min video */}
+      {/*
       <div className='flex justify-center mt-20'>
         <div className='w-full lg:w-2/3 xl:w-3/5'>
           <div
@@ -212,7 +216,7 @@ page MainPage {
             <iframe
               title="Demo video showcasing Wasp"
               className="absolute h-full w-full rounded-md"
-              src="https://www.youtube-nocookie.com/embed/YaaTJOhx68I?playlist=YaaTJOhx68I&autoplay=0&loop=1&controls=0&showinfo=1&modestbranding=0&rel=0&disablekb=0&mute=0"
+              src="https://www.youtube-nocookie.com/embed/YaaTJOhx68I?playlist=YaaTJOhx68I&autoplay=0&loop=1&controls=0&showinfo=1&modestbranding=0&rel=0&disablekb=0&mute=1"
               style={{ top: 0, left: 0 }}
               frameBorder="0"
               allow="autoplay; modestbranding; encrypted-media"
@@ -220,8 +224,10 @@ page MainPage {
           </div>
         </div>
       </div>
+      */}
 
       {/* PH & YC badges */}
+      {/*
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
         <PHBadge />
         <div
@@ -235,6 +241,7 @@ page MainPage {
           alt='YC'
         />
       </div>
+      */}
 
     </SectionContainer>
   )

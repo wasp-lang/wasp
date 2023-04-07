@@ -4,10 +4,12 @@ import classNames from 'classnames'
 import Head from '@docusaurus/Head'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'
+import Features from '../components/Features'
 import Benefits from '../components/Benefits'
 import Testimonials from '../components/Testimonials'
 import ExampleWaspApps from '../components/ExampleWaspApps'
 import HowItWorks from '../components/HowItWorks'
+import VideoAndTutorial from '../components/VideoAndTutorial'
 import ShowcaseGallery from '../components/ShowcaseGallery'
 import Newsletter from '../components/Newsletter'
 import Faq from '../components/Faq'
@@ -54,7 +56,8 @@ const Index = () => {
           <div>
             {/* container */}
             <Hero />
-            <Benefits />
+            <Features />
+            <VideoAndTutorial />
             <Testimonials />
             <ExampleWaspApps />
             <LightsTwo />
