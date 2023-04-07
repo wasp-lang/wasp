@@ -33,14 +33,22 @@ test('handles mock data', async () => {
   screen.debug()
 })
 
+const mockUser = {
+  id: 12,
+  email: 'elon@tesla.com',
+  isEmailVerified: false,
+  emailVerificationSentAt: null,
+  passwordResetSentAt: null
+}
+
 test('handles multiple mock data sources', async () => {
-  mockQuery(getMe, { id: 12, email: 'elon' })
+  mockQuery(getMe, mockUser)
   mockQuery(getDate, new Date())
   mockQuery(getTasks, mockTasks)
 
   renderInContext(<App><Todo /></App>)
 
-  await screen.findByText('elon')
+  await screen.findByText('elon@tesla.com')
 
   expect(screen.getByRole('checkbox')).toBeChecked()
 
