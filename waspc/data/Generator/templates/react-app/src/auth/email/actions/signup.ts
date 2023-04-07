@@ -5,7 +5,7 @@ export async function signup(data: { email: string; password: string }): Promise
     try {
         const response = await api.post('{= signupPath =}', data);
         return response.data;
-    } catch (e: unknown) {
+    } catch (e) {
         handleApiError(e);
     }
 }
