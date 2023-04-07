@@ -6,7 +6,7 @@ export async function login(data: { email: string; password: string }): Promise<
     try {
         const response = await api.post('{= loginPath =}', data);
         await initSession(response.data.token);
-    } catch (e: unknown) {
+    } catch (e) {
         handleApiError(e);
     }
 }

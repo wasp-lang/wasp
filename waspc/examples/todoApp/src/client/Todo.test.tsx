@@ -34,7 +34,12 @@ test('handles mock data', async () => {
 })
 
 test('handles multiple mock data sources', async () => {
-  mockQuery(getMe, { id: 12, email: 'elon' })
+  mockQuery(getMe, {
+    id: 12, email: 'elon',
+    isEmailVerified: false,
+    emailVerificationSentAt: undefined,
+    passwordResetSentAt: undefined
+  })
   mockQuery(getDate, new Date())
   mockQuery(getTasks, mockTasks)
 
