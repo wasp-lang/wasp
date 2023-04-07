@@ -91,7 +91,7 @@ Moving from SQLite to PostgreSQL with Wasp can feel like increase in complexity,
 To help with that, we now added `wasp start db`, which runs a development database for you!
 That it, all you need to do is run `wasp start db` and you are good to go. No env var setting, no remembering how to run the db.
 
-NOTE: Requires `docker` to be installed.
+NOTE: Requires `docker` to be installed and in `PATH`, and docker daemon to be running.
 
 ### `wasp test client` -> Wasp can now test your web app code
 By leveraging Vitest and some supporting libraries, Wasp now makes it super easy to add unit tests and React component tests to your frontend codebase.
