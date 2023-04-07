@@ -63,7 +63,7 @@ latestNodeLTSVersion :: SV.Version
 latestNodeLTSVersion = SV.Version 18 12 0
 
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 4 5 0
+prismaVersion = SV.Version 4 12 0
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =
