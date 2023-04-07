@@ -7,7 +7,7 @@ import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 
 import updateUser from '@wasp/actions/updateUser'
 
