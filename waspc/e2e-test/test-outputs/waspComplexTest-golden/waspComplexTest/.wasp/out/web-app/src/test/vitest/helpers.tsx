@@ -8,9 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
 import { Query } from '../../queries'
 import config from '../../config'
-import { HttpMethod } from '../../types'
-
-export type Route = { method: HttpMethod; path: string }
+import { HttpMethod, Route } from '../../types'
 
 export type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,
