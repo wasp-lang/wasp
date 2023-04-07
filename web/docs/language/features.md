@@ -940,7 +940,8 @@ app MyApp {
     userEntity: User,
     externalAuthEntity: SocialLogin,
     methods: {
-      usernameAndPassword: {},
+      usernameAndPassword: {}, // use this or email, not both
+      email: {}, // use this or usernameAndPassword, not both
       google: {},
       gitHub: {},
     },
@@ -954,16 +955,17 @@ app MyApp {
 `app.auth` is a dictionary with following fields:
 
 #### `userEntity: entity` (required)
-Entity which represents the user (sometimes also referred to as *Principal*).
+Entity which represents the user.
 
 #### `externalAuthEntity: entity` (optional)
 Entity which associates a user with some external authentication provider. We currently offer support for Google and GitHub. See the sections on [Social Login Providers](#social-login-providers-oauth-20) for more info.
 
 #### `methods: dict` (required)
 List of authentication methods that Wasp app supports. Currently supported methods are:
-* `usernameAndPassword`: Provides support for authentication with a username and password. See [here](#username-and-password) for more.
-* `google`: Provides support for login via Google accounts. See [here](#social-login-providers-oauth-20) for more.
-* `gitHub`: Provides support for login via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
+* `usernameAndPassword`: authentication with a username and password. See [here](#username-and-password) for more.
+* `email`: authentication with a email and password. See [here](#email-authentication) for more.
+* `google`: authentication via Google accounts. See [here](#social-login-providers-oauth-20) for more.
+* `gitHub`: authentication via GitHub accounts. See [here](#social-login-providers-oauth-20) for more.
 
 #### `onAuthFailedRedirectTo: String` (required)
 Path where an unauthenticated user will be redirected to if they try to access a private page (which is declared by setting `authRequired: true` for a specific page).
@@ -1076,7 +1078,7 @@ Validations always run on `create()`, but only when the field mentioned in `vali
 
 #### Specification
 
-### `login()`
+#### `login()`
 An action for logging in the user.
 ```js
 login(username, password)
@@ -1098,7 +1100,7 @@ import login from '@wasp/auth/login.js'
 Login is a regular action and can be used directly from the frontend.
 
 
-### `signup()`
+#### `signup()`
 An action for signing up the user. This action does not log in the user, you still need to call `login()`.
 ```js
 signup(userFields)
@@ -1113,7 +1115,7 @@ import signup from '@wasp/auth/signup.js'
 Signup is a regular action and can be used directly from the frontend.
 
 
-### `logout()`
+#### `logout()`
 An action for logging out the user.
 ```js
 logout()
@@ -1135,9 +1137,6 @@ const SignOut = () => {
 }
 ```
 
-#### Reset password
-Coming soon.
-
 #### Updating a user's password
 If you need to update user's password, you can do it safely via Prisma client, e.g. within an action:
 ```js
@@ -1154,103 +1153,195 @@ You don't need to worry about hashing the password yourself - if you have an `au
 in your `.wasp` file, Wasp already set a middleware on Prisma that makes sure whenever password
 is created or updated on the user entity, it is also hashed before it is stored to the database.
 
+### Email authentication
 
-### Accessing the currently logged in user
-When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
-With that, we can further implement access control and decide which content is private and which public.
+:::info 
+We have written a step-by-step guide on how to set up the e-mail authentication with Wasp's included Auth UI. 
 
-#### On the client
-On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
-This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
+Read more in the [email authentication guide](/docs/guides/email-auth).
+:::
 
-### `useAuth()`
-#### `import statement`:
-```js
-import useAuth from '@wasp/auth/useAuth.js'
-```
+:::warning
+If a user signs up with Google or Github (and you set it up to save their social provider e-mail info on the `User` entity), they'll be able to reset their password and login with e-mail and password.
 
-##### Example of usage:
-```js title="src/client/pages/MainPage.js"
-import React from 'react'
+If a user signs up with the e-mail and password and then tries to login with a social provider (Google or Github), they won't be able to do that.
 
-import { Link } from 'react-router-dom'
-import useAuth from '@wasp/auth/useAuth.js'
-import logout from '@wasp/auth/logout.js'
-import Todo from '../Todo.js'
-import '../Main.css'
+In the future, we will lift this limitation and enable smarter merging of accounts.
+:::
 
-const Main = () => {
-  const { data: user } = useAuth()
+`email` authentication method makes it possible to signup/login into the app by using an e-mail and a password.
 
-  if (!user) {
-    return (
-      <span>
-        Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
-      </span>
-    )
-  } else {
-    return (
-      <>
-        <button onClick={logout}>Logout</button>
-        <Todo />
-      < />
-    )
-  }
+```c title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        // we'll deal with `email` below
+      },
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
 }
 
-export default Main
+// Wasp requires the userEntity to have at least the following fields
+entity User {=psl
+    id                        Int           @id @default(autoincrement())
+    email                     String?       @unique
+    password                  String?
+    isEmailVerified           Boolean       @default(false)
+    emailVerificationSentAt   DateTime?
+    passwordResetSentAt       DateTime?
+psl=}
 ```
 
-#### On the server
+This method requires that `userEntity` specified in `auth` contains:
 
-When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
+- optional `email` field of type `String`
+- optional `password` field of type `String`
+- `isEmailVerified` field of type `Boolean` with a default value of `false`
+- optional `emailVerificationSentAt` field of type `DateTime`
+- optional `passwordResetSentAt` field of type `DateTime`
 
-##### Example of usage:
-```js title="src/server/actions.js"
-import HttpError from '@wasp/core/HttpError.js'
+#### Fields in the `email` dict
 
-export const createTask = async (task, context) => {
-  if (!context.user) {
-    throw new HttpError(403)
-  }
+```c title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
 
-  const Task = context.entities.Task
-  return Task.create({
-    data: {
-      description: task.description,
-      user: {
-        connect: { id: context.user.id }
-      }
-    }
-  })
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        fromField: {
+          name: "My App",
+          email: "hello@itsme.com"
+        },
+        emailVerification: {
+          allowUnverifiedLogin: false,
+          clientRoute: EmailVerificationRoute,
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+        },
+      },
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
 }
 ```
-In order to implement access control, each operation is responsible for checking `context.user` and
-acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user
-should be denied access to it.
 
-### Validation Error Handling
-When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+##### `fromField: EmailFromField` (required)
+`fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by Wasp. It is required to be defined. The object has the following fields:
+- `name`: name of the sender (optional)
+- `email`: e-mail address of the sender
 
-#### `import statement`:
-```js
-import AuthError from '@wasp/core/AuthError.js'
+##### `emailVerification: EmailVerificationConfig` (required)
+`emailVerification` is a dict that specifies the e-mail verification process. It is required to be defined.
+
+The object has the following fields:
+- `clientRoute: Route`: a route that is used for the user to verify their e-mail address. (required)
+
+Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
+
+```js title="src/pages/EmailVerificationPage.jsx"
+import { verifyEmail } from '@wasp/auth/email/actions';
+...
+await verifyEmail({ token });
 ```
 
-##### Example of usage:
-```js
-  try {
-    await context.entities.User.update(...)
-  } catch (e) {
-    if (e instanceof AuthError) {
-      throw new HttpError(422, 'Validation failed', { message: e.message })
-    } else {
-      throw e
-    }
-  }
+Read on how to do it the easiest way with Auth UI in the [email authentication guide](/docs/guides/email-auth).
+
+- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user. (optional)
+
+Defining `getEmailContentFn` can be done by defining a Javscript or Typescript file in the `server` directory.
+
+```ts title="server/email.ts"
+import { GetVerificationEmailContentFn } from '@wasp/types'
+
+export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
+  verificationLink,
+}) => ({
+  subject: 'Verify your email',
+  text: `Click the link below to verify your email: ${verificationLink}`,
+  html: `
+        <p>Click the link below to verify your email</p>
+        <a href="${verificationLink}">Verify email</a>
+    `,
+})
 ```
 
-## Social Login Providers (OAuth 2.0)
+- `allowUnverifiedLogin: Boolean`: a boolean that specifies whether the user can login without verifying their e-mail address. (optional)
+
+It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
+
+##### `passwordReset: PasswordResetConfig` (required)
+`passwordReset` is a dict that specifies the password reset process. It is required to be defined. The object has the following fields:
+- `clientRoute: Route`: a route that is used for the user to reset their password. (required)
+
+Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server.  You can use our `requestPasswordReset` and `resetPassword` actions to do that.
+
+```js title="src/pages/ForgotPasswordPage.jsx"
+import { requestPasswordReset } from '@wasp/auth/email/actions';
+...
+await requestPasswordReset({ email });
+```
+
+```js title="src/pages/PasswordResetPage.jsx"
+import { resetPassword } from '@wasp/auth/email/actions';
+...
+await resetPassword({ password, token })
+```
+
+
+Read on how to do it the easiest way with Auth UI in the [email authentication guide](/docs/guides/email-auth).
+
+- `getEmailContentFn: ServerImport`: a function that returns the content of the e-mail that is sent to the user. (optional)
+
+Defining `getEmailContentFn` is done by defining a function that looks like this:
+
+```ts title="server/email.ts"
+import { GetPasswordResetEmailContentFn } from '@wasp/types'
+
+export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
+  passwordResetLink,
+}) => ({
+  subject: 'Password reset',
+  text: `Click the link below to reset your password: ${passwordResetLink}`,
+  html: `
+        <p>Click the link below to reset your password</p>
+        <a href="${passwordResetLink}">Reset password</a>
+    `,
+})
+```
+
+#### Email sender for email authentication
+
+We require that you define an `emailSender`, so that Wasp knows how to send e-mails. Read more about that [here](#email-sender).
+
+#### Validations
+
+We provide basic validations out of the box. The validations are:
+- `email`: non-empty, valid e-mail address
+- `password`: non-empty, at least 8 characters, and contains a number
+
+Note that `email`s are stored in a case-insensitive manner.
+
+:::info
+You don't need to worry about hashing the password yourself! Even when you are using Prisma's client directly and calling `create()` with a plain-text password, Wasp's middleware takes care of hashing it before storing it in the database. An additional middleware also performs field validation.
+:::
+
+
+
+### Social Login Providers (OAuth 2.0)
 Wasp allows you to easily add social login providers to your app.
 
 The following is a list of links to guides that will help you get started with the currently supported providers:
@@ -1262,7 +1353,7 @@ When using Social Login Providers, Wasp gives you the following options:
 - UI Helpers to make it easy to add social login buttons and actions
 - Override settings to customize the behavior of the providers
 
-### Default Settings
+#### Default Settings
 
 
 <Tabs>
@@ -1345,7 +1436,7 @@ psl=}
 :::note
 the same `externalAuthEntity` can be used across different social login providers (e.g., both GitHub and Google can use the same entity).
 :::
-### UI helpers
+#### UI helpers
 
 Wasp provides sign-in buttons, logos and URLs for your login page:
 
@@ -1373,7 +1464,7 @@ export default Login
 
 If you need more customization than what the buttons provide, you can create your own custom components using the `signInUrl`s.
 
-### Overrides
+#### Overrides
 
 When a user signs in for the first time, Wasp will create a new User account and link it to the chosen Auth Provider account for future logins. If the `userEntity` contains a `username` field it will default to a random dictionary phrase that does not exist in the database, such as `nice-blue-horse-27160`. This is a historical coupling between auth methods that will be removed over time.
 
@@ -1490,6 +1581,103 @@ This function should return the user fields to use when creating a new user upon
   - `generateAvailableUsername` takes an array of Strings and an optional separator and generates a string ending with a random number that is not yet in the database. For example, the above could produce something like "Jim.Smith.3984" for a Google user Jim Smith.
   - `generateAvailableDictionaryUsername` generates a random dictionary phrase that is not yet in the database. For example, `nice-blue-horse-27160`.
 
+
+### Validation Error Handling
+When creating, updating, or deleting entities, you may wish to handle validation errors. We have exposed a class called `AuthError` for this purpose. This could also be combined with [Prisma Error Helpers](/docs/language/features#prisma-error-helpers).
+
+#### `import statement`:
+```js
+import AuthError from '@wasp/core/AuthError.js'
+```
+
+##### Example of usage:
+```js
+  try {
+    await context.entities.User.update(...)
+  } catch (e) {
+    if (e instanceof AuthError) {
+      throw new HttpError(422, 'Validation failed', { message: e.message })
+    } else {
+      throw e
+    }
+  }
+```
+
+## Accessing the currently logged in user
+When authentication is enabled in a Wasp app, we need a way to tell whether a user is logged in and access its data.
+With that, we can further implement access control and decide which content is private and which public.
+
+#### On the client
+On the client, Wasp provides a React hook you can use in functional components - `useAuth`.
+This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localhost:3002/docs/language/features#the-usequery-hook) and returns data in the same format.
+
+### `useAuth()`
+#### `import statement`:
+```js
+import useAuth from '@wasp/auth/useAuth'
+```
+
+##### Example of usage:
+```js title="src/client/pages/MainPage.js"
+import React from 'react'
+
+import { Link } from 'react-router-dom'
+import useAuth from '@wasp/auth/useAuth'
+import logout from '@wasp/auth/logout.js'
+import Todo from '../Todo.js'
+import '../Main.css'
+
+const Main = () => {
+  const { data: user } = useAuth()
+
+  if (!user) {
+    return (
+      <span>
+        Please <Link to='/login'>login</Link> or <Link to='/signup'>sign up</Link>.
+      </span>
+    )
+  } else {
+    return (
+      <>
+        <button onClick={logout}>Logout</button>
+        <Todo />
+      < />
+    )
+  }
+}
+
+export default Main
+```
+
+#### On the server
+
+### `context.user`
+
+When authentication is enabled, all operations (actions and queries) will have access to the `user` through the `context` argument. `context.user` will contain all the fields from the user entity except for the password.
+
+##### Example of usage:
+```js title="src/server/actions.js"
+import HttpError from '@wasp/core/HttpError.js'
+
+export const createTask = async (task, context) => {
+  if (!context.user) {
+    throw new HttpError(403)
+  }
+
+  const Task = context.entities.Task
+  return Task.create({
+    data: {
+      description: task.description,
+      user: {
+        connect: { id: context.user.id }
+      }
+    }
+  })
+}
+```
+In order to implement access control, each operation is responsible for checking `context.user` and
+acting accordingly - e.g. if `context.user` is `undefined` and the operation is private then user
+should be denied access to it.
 
 ## Client configuration
 
