@@ -169,12 +169,30 @@ getJobMessageOutput jm =
 
 makeJobMessagePrefix :: J.JobMessage -> T.Text
 makeJobMessagePrefix jobMsg =
-  case J._jobType jobMsg of
-    J.Server -> T.pack $ Term.applyStyles [Term.Magenta] "Server"
-    J.WebApp -> T.pack $ Term.applyStyles [Term.Cyan] "Web app"
-    J.Db -> T.pack $ Term.applyStyles [Term.Blue] "Db"
-    <> ( if getJobMessageOutHandle jobMsg == stderr
-           then T.pack $ Term.applyStyles [Term.Yellow] "(stderr)"
-           else ""
-       )
-    <> ": "
+  (T.pack . buildPrefix . concat)
+    [ [("[", jobStyles)],
+      [(jobName, jobStyles)],
+      styledFlags,
+      [("]", jobStyles)]
+    ]
+  where
+    buildPrefix :: [StyledText] -> String
+    buildPrefix styledTexts =
+      concatMap styledTextToTermText styledTexts <> replicate paddingLength ' '
+      where
+        numVisibleChars = length $ concatMap fst styledTexts
+        paddingLength = max 0 (minPrefixLength - numVisibleChars)
+        styledTextToTermText (text, styles) = Term.applyStyles styles text
+        -- NOTE: Adjust this number if you expect longer prefixes!
+        minPrefixLength = 10
+
+    (jobName, jobStyles) = case J._jobType jobMsg of
+      J.Server -> ("Server", [Term.Magenta])
+      J.WebApp -> ("Client", [Term.Cyan])
+      J.Db -> ("Db", [Term.Blue])
+
+    styledFlags :: [StyledText]
+    styledFlags =
+      [("!", [Term.Red]) | getJobMessageOutHandle jobMsg == stderr]
+
+type StyledText = (String, [Term.Style])
