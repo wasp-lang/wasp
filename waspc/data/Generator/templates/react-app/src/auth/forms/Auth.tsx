@@ -265,7 +265,7 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
   // TODO(matija): this is called on every render, is it a problem?
   // If we do it in useEffect(), then there is a glitch between the default color and the
   // user provided one.
-  const customTheme = createTheme(appearance)
+  const customTheme = createTheme(appearance ?? {})
 
   const cta = isLogin ? 'Log in' : 'Sign up'
   const titles: Record<State, string> = {
@@ -497,7 +497,7 @@ const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessM
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
 
-  const submitForm = useCallback(async () => {
+  async function submitForm() {
     if (!token) {
       setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
       return
@@ -513,7 +513,7 @@ const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessM
     } finally {
       setIsLoading(false)
     }
-  })
+  }
 
   useEffect(() => {
     submitForm()
