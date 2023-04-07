@@ -17,7 +17,7 @@ import Chip from '@material-ui/core/Chip'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 
-import useAuth from '@wasp/auth/useAuth.js'
+import useAuth from '@wasp/auth/useAuth'
 import { useQuery } from '@wasp/queries'
 
 import getArticle from '@wasp/queries/getArticle'
