@@ -402,7 +402,7 @@ You read about our `useAuth` hook in [this section](/docs/language/features#acce
 In short, you can use the `useAuth` hook in your client code to get the currently logged-in user. If there is no user logged in, it will return `null`.
 
 ```jsx title="client/pages/Profile.tsx"
-import { useAuth } from '@wasp/auth'
+import useAuth from '@wasp/auth'
 
 export function Profile() {
   const { data: user } = useAuth()

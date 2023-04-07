@@ -1614,7 +1614,7 @@ This hook is actually a thin wrapper over Wasp's [`useQuery` hook](http://localh
 ### `useAuth()`
 #### `import statement`:
 ```js
-import useAuth from '@wasp/auth/useAuth.js'
+import useAuth from '@wasp/auth/useAuth'
 ```
 
 ##### Example of usage:
@@ -1622,7 +1622,7 @@ import useAuth from '@wasp/auth/useAuth.js'
 import React from 'react'
 
 import { Link } from 'react-router-dom'
-import useAuth from '@wasp/auth/useAuth.js'
+import useAuth from '@wasp/auth/useAuth'
 import logout from '@wasp/auth/logout.js'
 import Todo from '../Todo.js'
 import '../Main.css'

@@ -7,6 +7,7 @@
 - we changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
     - `import { LoginForm } from '@wasp/auth/forms/Login'`
     - `import { SignupForm } from '@wasp/auth/Signup'`
+- we renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
 
 ### Adds support for e-mail authentication
 
