@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 
-import useAuth from '@wasp/auth/useAuth.js'
+import useAuth from '@wasp/auth/useAuth'
 
 
 const useStyles = makeStyles((theme) => ({

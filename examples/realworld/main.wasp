@@ -1,6 +1,6 @@
 app Conduit {
   wasp: {
-    version: "^0.8.0"
+    version: "^0.10.0"
   },
 
   title: "Conduit",
@@ -17,7 +17,10 @@ app Conduit {
     onAuthFailedRedirectTo: "/login"
   },
 
-  db: { system: PostgreSQL },
+  db: {
+    system: PostgreSQL,
+    seeds: [ import { devSeedSimple } from "@server/seeds.js" ]
+  },
 
   dependencies: [
     ("prop-types", "15.7.2"),
@@ -29,8 +32,6 @@ app Conduit {
     ("lodash", "^4.17.21")
   ]
 }
-
-
 
 // ----------------- Pages ------------------ //
 
