@@ -6,7 +6,7 @@ title: Email Authentication
 
 ## Overview
 
-Wasp supports e-mail authentication out of the box. It provides a set of routes and email templates that you can use to implement email authentication in your app.
+Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides a set of routes and email templates that you can use to implement it in your app.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
@@ -14,12 +14,12 @@ In this guide, we'll go through the easiest way to set up email authentication: 
 
 ## Outline of the guide
 
-We'll need to do the following steps to set up email authentication:
+We'll need to take the following steps to set up email authentication:
 - [ ] Set up email authentication in `main.wasp`
-- [ ] Define the user entity
-- [ ] Define the routes and pages
+- [ ] Add the user entity
+- [ ] Add the routes and pages
 - [ ] Set up the email sender in `main.wasp` and `.env.server`
-- [ ] Use Auth UI in our pages
+- [ ] Use Auth UI components in our pages
 
 Outline of the Wasp file we'll be working with:
 
@@ -77,7 +77,7 @@ app myApp {
 
 ### User entity
 
-Then we'll defined the `User` entity in our `main.wasp` file:
+Then we'll define the `User` entity in our `main.wasp` file:
 
 ```c title="main.wasp" {4-8}
 // 5. Define the user entity
@@ -149,6 +149,10 @@ SENDGRID_API_KEY=<your key>
 ```
 
 ## Using Auth UI
+
+:::info
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the page. Read more about how to add it [here](/docs/integrations/css-frameworks#tailwind).
+:::
 
 ### Signup page
 
@@ -266,7 +270,7 @@ export function EmailVerification() {
 }
 ```
 
-You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will give a nice-looking form for the user to verify their e-mail. We are also using [Tailwind CSS](/docs/integrations/css-frameworks#tailwind) to style the page.
+You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will give a nice-looking form for the user to verify their e-mail.
 
 We will also override the default e-mail content. We are using the `getVerificationEmailContent` function from the `@server/auth/email.js` file to generate the email content.
 
@@ -379,9 +383,9 @@ export function PasswordReset() {
 }
 ```
 
-### Log-out action
+### Logout action
 
-To implement the log-out action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
+To implement the logout action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
 
 ```jsx title="client/components/Navbar.tsx"
 import logout from '@wasp/auth/logout';
@@ -402,7 +406,7 @@ You read about our `useAuth` hook in [this section](/docs/language/features#acce
 In short, you can use the `useAuth` hook in your client code to get the currently logged-in user. If there is no user logged in, it will return `null`.
 
 ```jsx title="client/pages/Profile.tsx"
-import { useAuth } from '@wasp/auth'
+import useAuth from '@wasp/auth'
 
 export function Profile() {
   const { data: user } = useAuth()
@@ -421,6 +425,6 @@ export function Profile() {
 
 ## Conclusion
 
-And that's it! We now have a full authentication system in our app. We can register new users, login, log-out, verify their e-mail, and reset their password.
+And that's it! We now have a full authentication system in our app. We can register new users, login, logout, verify their e-mail, and reset their password.
 
 We hope you enjoyed this guide and that you learned something new. If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).
