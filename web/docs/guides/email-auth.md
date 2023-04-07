@@ -150,6 +150,10 @@ SENDGRID_API_KEY=<your key>
 
 ## Using Auth UI
 
+:::info
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the page. Read more about how to add it [here](/docs/integrations/css-frameworks#tailwind).
+:::
+
 ### Signup page
 
 ![Auth UI](/img/authui/signup.png)
@@ -266,7 +270,7 @@ export function EmailVerification() {
 }
 ```
 
-You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will give a nice-looking form for the user to verify their e-mail. We are also using [Tailwind CSS](/docs/integrations/css-frameworks#tailwind) to style the page.
+You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will give a nice-looking form for the user to verify their e-mail.
 
 We will also override the default e-mail content. We are using the `getVerificationEmailContent` function from the `@server/auth/email.js` file to generate the email content.
 
