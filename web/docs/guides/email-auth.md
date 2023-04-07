@@ -10,7 +10,7 @@ Wasp supports e-mail authentication out of the box. It provides a set of routes 
 
 ![Auth UI](/img/authui/all_screens.gif)
 
-In this guide we'll go through the easiest way to set up email authentication: using Wasp's Auth UI components.
+In this guide, we'll go through the easiest way to set up email authentication: using Wasp's Auth UI components.
 
 ## Outline of the guide
 
@@ -216,7 +216,7 @@ export function Login() {
 
 ## Email verification setup
 
-By default Wasp requires e-mail to be verified before allowing the user to log in. This is done by sending a verification email to the user's email address and requiring the user to click on a link in the email to verify their email address.
+By default, Wasp requires the e-mail to be verified before allowing the user to log in. This is done by sending a verification email to the user's email address and requiring the user to click on a link in the email to verify their email address.
 
 Our setup looks like this:
 
@@ -241,7 +241,7 @@ page EmailVerificationPage {
 
 ![Auth UI](/img/authui/email_verification.png)
 
-This routes goes to the `EmailVerification` page, which is defined in the `EmailVerification.tsx` file:
+This route goes to the `EmailVerification` page, which is defined in the `EmailVerification.tsx` file:
 
 ```jsx title="client/pages/auth/EmailVerification.tsx"
 import { Link } from 'react-router-dom'
@@ -266,7 +266,7 @@ export function EmailVerification() {
 }
 ```
 
-You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will gives nice looking form for the user to verify their e-mail. We are also using [Tailwind CSS](/docs/integrations/css-frameworks#tailwind) to style the page.
+You'll notice we are using the `VerifyEmailForm` component from the `@wasp/auth/forms/VerifyEmail` module. This will give a nice-looking form for the user to verify their e-mail. We are also using [Tailwind CSS](/docs/integrations/css-frameworks#tailwind) to style the page.
 
 We will also override the default e-mail content. We are using the `getVerificationEmailContent` function from the `@server/auth/email.js` file to generate the email content.
 
@@ -354,7 +354,7 @@ page PasswordResetPage {
 }
 ```
 
-This routes goes to the `PasswordResetPage` page, which is defined in the `PasswordReset.tsx` file. Users can enter their new password here:
+This route goes to the `PasswordResetPage` page, which is defined in the `PasswordReset.tsx` file. Users can enter their new password here:
 
 ```tsx title="client/pages/auth/PasswordReset.tsx"
 import { Link } from 'react-router-dom'
@@ -379,9 +379,9 @@ export function PasswordReset() {
 }
 ```
 
-### Logout action
+### Log-out action
 
-To implement the log out action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
+To implement the log-out action, you can use the `logout` function from the `@wasp/auth/logout` module. We can add it for example, to the `Navbar` component:
 
 ```jsx title="client/components/Navbar.tsx"
 import logout from '@wasp/auth/logout';
@@ -399,7 +399,7 @@ export function Navbar() {
 
 You read about our `useAuth` hook in [this section](/docs/language/features#accessing-the-currently-logged-in-user) of the docs.
 
-In short, you can use the `useAuth` hook in your client code to get the currently logged in user. If there is no user logged in, it will return `null`.
+In short, you can use the `useAuth` hook in your client code to get the currently logged-in user. If there is no user logged in, it will return `null`.
 
 ```jsx title="client/pages/Profile.tsx"
 import { useAuth } from '@wasp/auth'
@@ -421,6 +421,6 @@ export function Profile() {
 
 ## Conclusion
 
-And that's it! We now have a full authentication system in our app. We can register new users, login, logout, verify their e-mail, and reset their password.
+And that's it! We now have a full authentication system in our app. We can register new users, login, log-out, verify their e-mail, and reset their password.
 
 We hope you enjoyed this guide and that you learned something new. If you have any questions, feel free to ask them on [our Discord server](https://discord.gg/rzdnErX).
