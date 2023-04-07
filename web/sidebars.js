@@ -46,6 +46,7 @@ module.exports = {
       label: 'Guides',
       collapsed: false,
       items: [
+        'guides/auth-ui',
         {
           type: 'category',
           label: 'Auth Providers',
