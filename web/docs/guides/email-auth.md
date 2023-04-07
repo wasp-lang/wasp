@@ -6,7 +6,7 @@ title: Email Authentication
 
 ## Overview
 
-Wasp supports e-mail authentication out of the box. It provides a set of routes and email templates that you can use to implement email authentication in your app.
+Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides a set of routes and email templates that you can use to implement it in your app.
 
 ![Auth UI](/img/authui/all_screens.gif)
 
@@ -14,12 +14,12 @@ In this guide, we'll go through the easiest way to set up email authentication: 
 
 ## Outline of the guide
 
-We'll need to do the following steps to set up email authentication:
+We'll need to take the following steps to set up email authentication:
 - [ ] Set up email authentication in `main.wasp`
-- [ ] Define the user entity
-- [ ] Define the routes and pages
+- [ ] Add the user entity
+- [ ] Add the routes and pages
 - [ ] Set up the email sender in `main.wasp` and `.env.server`
-- [ ] Use Auth UI in our pages
+- [ ] Use Auth UI components in our pages
 
 Outline of the Wasp file we'll be working with:
 
