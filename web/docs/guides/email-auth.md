@@ -10,7 +10,7 @@ Wasp supports e-mail authentication out of the box, along with email verificatio
 
 ![Auth UI](/img/authui/all_screens.gif)
 
-In this guide, we'll go through the easiest way to set up email authentication: using Wasp's Auth UI components.
+In this guide, we'll go through the easiest way to set up email authentication: using Wasp's [Auth UI](/docs/guides/auth-ui) components. Check out the Auth UI guide for more details on how to customize the UI.
 
 ## Outline of the guide
 
