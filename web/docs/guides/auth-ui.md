@@ -79,7 +79,7 @@ Useful for <span style={{ background: '#fee', padding: '0.2rem 0.5rem', borderRa
 
 ![Signup form](/img/authui/signup.png)
 
-You can use the `SignupForm` component to build your own signup form.
+You can use the `SignupForm` component to build your signup form.
 
 ```tsx title="client/SignupPage.tsx"
 import { SignupForm } from '@wasp/auth/forms/Signup'
@@ -109,7 +109,7 @@ Useful for <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRa
 
 ![Reset password form](/img/authui/reset_password.png)
 
-You can use the `ResetPasswordForm` component to build your own reset password form.
+You can use the `ResetPasswordForm` component to build your reset password form.
 
 ```tsx title="client/ResetPasswordPage.tsx"
 import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
@@ -140,7 +140,7 @@ You customize all of the available forms by passing props to them.
 Props you can pass to all of the forms:
 - `appearance` - appearance of the form, see below (optional)
 - `logo` - path to your logo (optional)
-- `socialLayout` - layout of the social buttons, can be `vertical` or `horizontal` (optional)
+- `socialLayout` - layout of the social buttons, which can be `vertical`` or `horizontal` (optional)
 
 ### Theme colors override
 
@@ -162,7 +162,7 @@ const appearance = {
 <LoginForm appearance={appearance} />
 ```
 
-See the list of all available tokens [here](https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/react-app/src/stitches.config.js).
+See the list of all available tokens [here](https://github.com/wasp-lang/wasp/blob/main/waspc/data/Generator/templates/react-app/src/stitches.config.js). We'll be adding more tokens soon 🙂
 
 ### Adding your logo
 
@@ -177,7 +177,7 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 ### Social buttons layout
 
-You can change the layout of the social buttons by passing the `socialLayout` prop to the any of the components.
+You can change the layout of the social buttons by passing the `socialLayout` prop to any of the components.
 
 If we pass in `vertical`:
 
