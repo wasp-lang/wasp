@@ -11,10 +11,11 @@ export default function useAuth(queryFnArgs?: unknown, config?: any) {
   return useQuery(getMe, queryFnArgs, config)
 }
 
-const getMePath = '/auth/me'
+const getMeRelativePath = 'auth/me'
+const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
 export async function getMe(): Promise<User | null> {
   try {
-    const response = await api.get(getMePath)
+    const response = await api.get(getMeRoute.path)
 
     return superjsonDeserialize(response.data)
   } catch (error) {
@@ -27,7 +28,7 @@ export async function getMe(): Promise<User | null> {
 }
 
 addMetadataToQuery(getMe, {
-  relativeQueryPath: getMePath,
-  queryRoute: { method: HttpMethod.Get, path: getMePath },
-  entitiesUsed: {=& getMeDependsOnEntities =},
+  relativeQueryPath: getMeRelativePath,
+  queryRoute: getMeRoute,
+  entitiesUsed: {=& entitiesGetMeDependsOn =},
 })

@@ -58,11 +58,9 @@ genCreateAuthRequiredPage auth =
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
 genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmplData
   where
-    tmplData = object ["getMeDependsOnEntities" .= ("[" ++ userEntitiyStr ++ "]")]
+    tmplData = object ["entitiesGetMeDependsOn" .= ("[" ++ userEntitiyStr ++ "]")]
     userEntitiyStr = "'" ++ userEntityName ++ "'"
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-
--- genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.ts|])
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
