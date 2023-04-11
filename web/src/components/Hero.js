@@ -111,7 +111,7 @@ page MainPage {
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-              Rails-like open source framework for React, Node.js and Prisma. Build your app in a day and deploy it anywhere with a single command.
+              Rails-like open-source framework for React, Node.js and Prisma. Build your app in a day and deploy it anywhere with a single command.
             </p>
           </div> {/* EOF Hero title and subtitle */}
 

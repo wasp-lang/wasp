@@ -1,6 +1,9 @@
 import React from 'react'
+import classNames from 'classnames'
 import { useHistory } from '@docusaurus/router'
 import { ChevronRight, X } from 'react-feather'
+
+import styles from '../../pages/styles.module.css'
 
 const Announcement = () => {
   let history = useHistory()
@@ -15,14 +18,12 @@ const Announcement = () => {
   return (
     <div
       onClick={handleLink}
-      className={`
+      className={classNames(styles.gradientBackground, `
         overflow-hidden
         cursor-pointer flex-row
         space-x-3
         text-white
-
-        bg-gradient-to-r from-fuchsia-600 to-[#ffcc00]
-      `}
+      `)}
     >
       <div
         className={`
