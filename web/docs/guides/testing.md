@@ -100,6 +100,9 @@ Wasp provides two React testing helpers:
   - This is helpful if your Query uses `useQuery`.
   - Behind the scenes, this uses [`msw`](https://www.npmjs.com/package/msw) to create a server request handler that responds with the provided JSON to an HTTP request for the operation's endpoint.
   - Request handlers are cleared after each test.
+- `mockApi`: Similar to `mockQuery`, but for mocking `api`s instead.
+  - Instead of a Wasp Query, it takes a route of the shape: `mockApi({ method: HttpMethod.Get, path: '/foo/bar' }, { res: 'hello' })`.
+  - You can import `HttpMethod` like so: `import { HttpMethod } from '@wasp/types'`.
 - `renderInContext`: Takes a React component, wraps it inside a `QueryClientProvider` and `Router`, and renders it.
 
 # Testing your server-side code
