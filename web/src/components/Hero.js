@@ -206,8 +206,8 @@ entity Task {=psl ... psl=} // Your Prisma data model.
                 </SyntaxHighlighter>
               </div> {/* EOF code block wrapper */}
             </div> {/* EOF wrapper of header + code */}
-            <figcaption style={{color: 'grey', opacity:'0.7', marginTop: '5px', float: 'right'}}>
-              Declarative, high-level description of your app in Wasp.
+            <figcaption style={{color: 'grey', opacity:'0.5', marginTop: '5px', float: 'right', fontSize: '14px'}}>
+              declarative, high-level description of your app in Wasp
             </figcaption>
           </figure>
 
