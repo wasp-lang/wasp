@@ -9,8 +9,8 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    //history.push('/blog/2022/11/26/wasp-beta-launch-week')
-    history.push('/#signup')
+    history.push('/blog/2023/04/11/wasp-launch-week-two')
+    //history.push('/#signup')
 
     //window.open('https://betathon.wasp-lang.dev/')
   }
@@ -44,7 +44,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Notify me
+            See what's coming
           </span>
         </span>
 
