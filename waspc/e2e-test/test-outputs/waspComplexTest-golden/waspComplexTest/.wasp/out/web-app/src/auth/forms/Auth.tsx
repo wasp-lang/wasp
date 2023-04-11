@@ -1,4 +1,4 @@
-import { useState, FormEvent, useEffect, useCallback } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
 
@@ -8,6 +8,11 @@ import { SocialButton } from './SocialButton';
 import config from '../../config.js'
 import { styled } from '../../stitches.config'
 import { State, CustomizationOptions } from './types'
+
+type ErrorMessage = {
+  title: string;
+  description?: string;
+};
 
 const logoStyle = {
   height: '3rem'
@@ -198,7 +203,7 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
     state: State;
 } & CustomizationOptions) {
   const isLogin = state === "login";
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -239,7 +244,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
         <HeaderText>{title}</HeaderText>
       </div>
 
-      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {errorMessage && (<ErrorMessage>
+        {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
+      </ErrorMessage>)}
       {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
       {(state === 'login' || state === 'signup') && loginSignupForm}
     </Container>
