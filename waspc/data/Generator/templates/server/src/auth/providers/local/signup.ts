@@ -7,5 +7,5 @@ export default handleRejection(async (req, res) => {
 
   await createUser(userFields)
 
-  return res.send()
+  return res.json({ success: true })
 })

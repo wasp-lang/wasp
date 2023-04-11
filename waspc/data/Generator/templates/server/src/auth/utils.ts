@@ -34,7 +34,7 @@ export async function createUser(data: Prisma.{= userEntityUpper =}CreateInput):
   try {
     return await prisma.{= userEntityLower =}.create({ data })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -42,7 +42,7 @@ export async function deleteUser(user: {= userEntityUpper =}): Promise<{= userEn
   try {
     return await prisma.{= userEntityLower =}.delete({ where: { id: user.id } })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -74,7 +74,7 @@ export async function updateUserEmailVerification(userId: {= userEntityUpper =}I
       data: { isEmailVerified: true },
     })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -85,7 +85,7 @@ export async function updateUserPassword(userId: {= userEntityUpper =}Id, passwo
       data: { password },
     })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -135,7 +135,7 @@ async function sendEmailAndLogTimestamp(
       data: { [field]: new Date() },
     })
   } catch (e) {
-    rethrowError(e);  
+    rethrowPossiblePrismaError(e);  
   }
   emailSender.send(content).catch((e) => {
     console.error(`Failed to send email for ${field}`, e);
@@ -200,18 +200,26 @@ export function ensureValidPassword(args: unknown): void {
 function validate(args: unknown, validators: { validates: string, message: string, validator: (value: unknown) => boolean }[]): void {
   for (const { validates, message, validator } of validators) {
     if (!validator(args[validates])) {
-      throw new HttpError(422, `Validation failed: ${message}`, { message, field: validates })
+      throwValidationError(message);
     }
   }
 }
 {=/ isEmailAuthEnabled =}
 
-function rethrowError(e: unknown): void {
+export function throwInvalidCredentialsError(message?: string): void {
+  throw new HttpError(401, 'Invalid credentials', { message })
+}
+
+function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
+    throwValidationError(e.message);
   } else if (isPrismaError(e)) {
     throw prismaErrorToHttpError(e)
   } else {
     throw new HttpError(500)
   }
+}
+
+function throwValidationError(message: string): void {
+  throw new HttpError(422, 'Validation failed', { message })
 }

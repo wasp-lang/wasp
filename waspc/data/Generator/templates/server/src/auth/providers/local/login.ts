@@ -2,20 +2,20 @@
 import { verifyPassword } from '../../../core/auth.js'
 import { handleRejection } from '../../../utils.js'
 
-import { findUserBy, createAuthToken } from '../../utils.js'
+import { findUserBy, createAuthToken, throwInvalidCredentialsError } from '../../utils.js'
 
 export default handleRejection(async (req, res) => {
   const args = req.body || {}
 
   const user = await findUserBy<'username'>({ username: args.username })
   if (!user) {
-    return res.status(401).send()
+    throwInvalidCredentialsError()
   }
 
   try {
     await verifyPassword(user.password, args.password)
   } catch(e) {
-    return res.status(401).send()
+    throwInvalidCredentialsError()
   }
 
   // Username & password valid - generate token.
