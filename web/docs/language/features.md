@@ -621,13 +621,36 @@ An API should be implemented as a NodeJS function that takes three arguments.
 2. `res`: Express Response object
 3. `context`: An additional context object **injected into the API by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in APIs](#using-entities-in-apis).
 
-Here's an example of a simple API:
+##### Simple API example
 ```ts title="src/server/apis.ts"
 import { FooBar } from '@wasp/apis/types'
 
 export const fooBar : FooBar = (req, res, context) => {
   res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
   res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+}
+```
+
+##### More complicated TypeScript example
+Let's say you wanted to create some `GET` route that would take an email address as a param, and provide them the answer to "Life, the Universe and Everything". :) What would this look like in TypeScript?
+
+```c title="main.wasp"
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/bar/:email")
+}
+```
+
+```ts title="src/server/apis.ts"
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar: FooBar<
+{ email: string }, // params
+{ count: number }  // response
+> = (req, res, _context) => {
+  console.log(req.params.email)
+  res.json({ count: 42 })
 }
 ```
 
