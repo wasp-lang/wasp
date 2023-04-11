@@ -53,6 +53,9 @@ new = do
       CNP.createWaspProjectDir projectInfo
       absWaspProjectDir <- CNP.getAbsoluteWaspProjectDir projectInfo
       -- Delete existing source files that we generate in the new project.
+      -- TODO: Instead of deleting files, I should instead have a function that generates
+      --   the very basic skeleton for the Wasp app, and then the normal "new app" would
+      --   just add files to it.
       liftIO $ do
         removeFile $ absWaspProjectDir </> [relfile|main.wasp|]
         removeFile $ absWaspProjectDir </> [relfile|src/client/Main.css|]
@@ -73,3 +76,9 @@ new = do
     aiWriteWaspOperations :: Path' Abs (Dir WaspProjectDir) -> Text -> Command ()
     aiWriteWaspOperations absWaspProjectDir waspFileContent = do
       error "TODO"
+
+sendPromptToGpt :: String -> IO ()
+sendPromptToGpt prompt = do
+  -- TODO: https://platform.openai.com/docs/guides/chat/introduction
+  -- TODO: https://www.reddit.com/r/haskell/comments/1263sfl/haskellai_stable_package_set_shell_and/ -> also mentions openai-hs and a fork of it which is more up to date it seems.
+  undefined
