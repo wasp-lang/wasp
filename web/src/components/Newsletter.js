@@ -21,7 +21,8 @@ const Newsletter = () => {
                 Stay up to date 📬
               </h2>
               <p className='mt-3 text-lg text-neutral-500 leading-6'>
-                Be the first to know when we ship new features and updates!
+                Be the first to know when we ship new features and updates! <br/>
+                One e-mail per month, with no lack of jokes and memes.
               </p>
             </div>
 

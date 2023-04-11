@@ -133,8 +133,8 @@ entity Task {=psl ... psl=} // Your Prisma data model.
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-            Modern web app framework, reimagined.
-            Describe the high-level of your app declaratively, implement details in JS (React / Node.js / Prisma) and let Wasp take care of the rest.
+            Modern web app framework, reimagined. <br/>
+      Describe the high-level of your app declaratively, implement its details in JS (using React / Node.js / Prisma), and let Wasp take care of the rest.
             {/* Describe the high-level of your app in a simple config file, implement the details in JS (React / Node.js / Prisma). Write only the code that matters and let Wasp take care of the rest. */}
             {/* Write only the code that matters: implement details of your web app in JS (React / Node.js / Prisma) and let Wasp take care of the rest. */}
             </p>
@@ -142,6 +142,7 @@ entity Task {=psl ... psl=} // Your Prisma data model.
 
           <ActionButtons />
 
+          { /*
           <div className='flex flex-col gap-4'>
             <small className='text-neutral-500 text-xs'>works with</small>
 
@@ -163,6 +164,7 @@ entity Task {=psl ... psl=} // Your Prisma data model.
               />
             </div>
           </div>
+          */ }
 
         </div>
 
@@ -211,23 +213,6 @@ entity Task {=psl ... psl=} // Your Prisma data model.
 
         </div> {/* EOF col-span-6 */}
 
-      </div>
-
-      {/* Bash install cmd */}
-      <div className='hidden md:flex md:mt-24 items-center justify-center'>
-        <div className='flex flex-col items-center gap-1'>
-          <InstallCmd />
-          <Link to='/docs'>
-            <small
-              className={`
-                text-neutral-500 text-xs
-                hover:text-neutral-400
-              `}
-            >
-              or <span className='underline decoration-neutral-500'>check the detailed instructions</span>
-            </small>
-          </Link>
-        </div>
       </div>
 
 

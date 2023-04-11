@@ -13,7 +13,7 @@ const InstallCmd = () => {
   
   return (
     <div
-      className='cursor-pointer text-neutral-500 border-2 border-yellow-500/75 rounded'
+      className='cursor-pointer text-sm text-neutral-500 border border-yellow-500/75 rounded'
       data-tip
       data-event='click'
       data-event-off='click'
