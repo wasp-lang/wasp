@@ -2,7 +2,9 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { Terminal, ArrowUpRight, Play } from 'react-feather'
+import { Terminal, ArrowUpRight, Play, BookOpen, Grid, Layout, Trello   } from 'react-feather'
+
+// Terminal, BookOpen, Grid, Layout, Trello, FileText 
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
@@ -32,12 +34,14 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <span>Create your app</span>
-        <StartIcon />
+        <Terminal size={16} />
+        <span>{'wasp new <my-app>'}</span>
       </button>
     </Link>
 
-    <Link to='#demo'>
+    |
+
+    <Link to='/docs/tutorials/todo-app'>
       <button
         className={`
           inline-flex items-center space-x-2
@@ -49,8 +53,27 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <Play size={16} />
-        <span>Watch Demo</span>
+        <BookOpen size={16} />
+        <span>Read Tutorial</span>
+      </button>
+    </Link>
+
+    |
+
+    <Link to='#examples'>
+    <button
+      className={`
+        inline-flex items-center space-x-2
+        px-3 py-2 rounded
+        border border-neutral-500
+        text-sm leading-4
+        text-neutral-700
+        hover:text-neutral-400 hover:border-neutral-400
+        transition ease-out duration-200
+      `}
+      >
+        <Trello size={16} />
+        <span>Check Examples</span>
       </button>
     </Link>
   </div>
@@ -73,25 +96,25 @@ const PHBadge = () => (
 const Hero = () => {
   const codeString =
 `app todoApp {
-  title: "ToDo App",  /* visible in the browser tab */
-
-  auth: { /* full-stack auth out-of-the-box */
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      email: {...},
-      google: {}
-    }
+  title: "ToDo App",  // visible in the browser tab
+  auth: { // full-stack auth out-of-the-box
+    userEntity: User, methods: { email: {...} }
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  /* Only logged in users can access this. */
-  authRequired: true,
-  /* import your React code */
-  component: import Main from "@client/Main.tsx"
-}`
+  authRequired: true, // Limit access to logged in users.
+  component: import Main from "@client/Main.tsx" // Your React code.
+}
+
+query getTasks {
+  fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
+  entities: [Task]
+}
+
+entity Task {=psl ... psl=} // Your Prisma data model.
+`
 
   return (
     <SectionContainer className='pb-5 pt-24'>
@@ -106,12 +129,14 @@ page MainPage {
                 font-extrabold text-neutral-700
               `}
             >
-              Develop full-stack web apps&nbsp;
-              <span className='underline decoration-yellow-500'>fast</span>.
+            The easiest way to build <span className='underline decoration-yellow-500'>truly full-stack</span> web apps
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-              Rails-like open-source framework for React, Node.js and Prisma. Build your app in a day and deploy it anywhere with a single command.
+            Modern web app framework, reimagined.
+            Describe the high-level of your app declaratively, implement details in JS (React / Node.js / Prisma) and let Wasp take care of the rest.
+            {/* Describe the high-level of your app in a simple config file, implement the details in JS (React / Node.js / Prisma). Write only the code that matters and let Wasp take care of the rest. */}
+            {/* Write only the code that matters: implement details of your web app in JS (React / Node.js / Prisma) and let Wasp take care of the rest. */}
             </p>
           </div> {/* EOF Hero title and subtitle */}
 
@@ -142,53 +167,55 @@ page MainPage {
         </div>
 
         <div className='lg:col-span-6 lg:mt-0 mt-16'>
-          <div className='relative flex flex-col items-center justify-center'>
-
-            {/* Editor header bar */}
-            <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
-              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/todo-typescript/main.wasp'>
-                <span
-                  className={`
-                    text-sm text-neutral-500 flex items-center space-x-1 hover:text-neutral-400
-                    transition ease-out duration-200
-                  `}
-                >
-                  <span>todoApp.wasp</span>
-                  <ArrowUpRight size={14} />
-                </span>
-              </Link>
-              <div className='flex space-x-2'>
-                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
-                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
-                <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+          <figure>
+            <div className='relative flex flex-col items-center justify-center'>
+              {/* Editor header bar */}
+              <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
+                <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/todo-typescript/main.wasp'>
+                  <span
+                    className={`
+                      text-sm text-neutral-500 flex items-center space-x-1 hover:text-neutral-400
+                      transition ease-out duration-200
+                    `}
+                  >
+                    <span>todoApp.wasp</span>
+                    <ArrowUpRight size={14} />
+                  </span>
+                </Link>
+                <div className='flex space-x-2'>
+                  <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+                  <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+                  <div className='bg-yellow-500 h-2 w-2 rounded-full' />
+                </div>
               </div>
-            </div>
 
-            {/* Editor body */}
-            <div className='w-full text-sm shadow-2xl rounded-b-md'>
-              <SyntaxHighlighter
-                language="javascript"
-                style={atomOneLight}
-                customStyle={{
-                  borderBottomLeftRadius: '10px',
-                  borderBottomRightRadius: '10px',
-                  paddingLeft: '15px',
-                }}
-              >
-                {codeString}
-              </SyntaxHighlighter>
-            </div> {/* EOF code block wrapper */}
-
-          </div> {/* EOF wrapper of header + code */}
+              {/* Editor body */}
+              <div className='w-full text-sm shadow-2xl rounded-b-md'>
+                <SyntaxHighlighter
+                  language="javascript"
+                  style={atomOneLight}
+                  customStyle={{
+                    borderBottomLeftRadius: '10px',
+                    borderBottomRightRadius: '10px',
+                    paddingLeft: '15px',
+                  }}
+                >
+                  {codeString}
+                </SyntaxHighlighter>
+              </div> {/* EOF code block wrapper */}
+            </div> {/* EOF wrapper of header + code */}
+            <figcaption>
+              Declarative, high-level description of your app in Wasp.
+            </figcaption>
+          </figure>
 
         </div> {/* EOF col-span-6 */}
 
       </div>
 
       {/* Bash install cmd */}
-      {/*
-      <div className='hidden md:flex md:mt-28 items-center justify-center'>
-        <div className='flex flex-col items-center gap-2'>
+      <div className='hidden md:flex md:mt-24 items-center justify-center'>
+        <div className='flex flex-col items-center gap-1'>
           <InstallCmd />
           <Link to='/docs'>
             <small
@@ -202,7 +229,6 @@ page MainPage {
           </Link>
         </div>
       </div>
-      */}
 
 
       {/* 1-min video */}
