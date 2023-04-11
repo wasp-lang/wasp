@@ -32,7 +32,7 @@ export const prismaErrorToHttpError = (e) => {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
     if (e.code === 'P2002') {
       return new HttpError(422, 'Save failed', {
-        message: `A record with the same ${e.meta.target.join(', ')} already exists.`,
+        message: `user with the same ${e.meta.target.join(', ')} already exists`,
         target: e.meta.target
       })
     } else {

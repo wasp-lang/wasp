@@ -5,3 +5,5 @@ export enum HttpMethod {
 	Put = 'PUT',
 	Delete = 'DELETE',
 }
+
+export type Route = { method: HttpMethod; path: string }

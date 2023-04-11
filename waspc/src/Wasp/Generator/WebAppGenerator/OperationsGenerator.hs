@@ -10,7 +10,6 @@ import Data.Aeson
     (.=),
   )
 import Data.Aeson.Types (Pair)
-import Data.List (intercalate)
 import Data.Maybe (fromJust)
 import StrongPath (File', Path', Rel', parseRelFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
@@ -19,6 +18,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -124,9 +124,9 @@ operationTypeData operation = tmplData
 -- | Generates string that is JS array containing names (as strings) of entities being used by given operation.
 --   E.g. "['Task', 'Project']"
 makeJsArrayOfEntityNames :: AS.Operation.Operation -> String
-makeJsArrayOfEntityNames operation = "[" ++ intercalate ", " entityStrings ++ "]"
+makeJsArrayOfEntityNames operation = makeJsArrayFromHaskellList entityNames
   where
-    entityStrings = maybe [] (map $ \x -> "'" ++ AS.refName x ++ "'") (AS.Operation.getEntities operation)
+    entityNames = maybe [] (map $ \x -> AS.refName x) (AS.Operation.getEntities operation)
 
 getOperationDstFileName :: AS.Operation.Operation -> Maybe (Path' Rel' File')
 getOperationDstFileName operation = parseRelFile (AS.Operation.getName operation ++ ".ts")

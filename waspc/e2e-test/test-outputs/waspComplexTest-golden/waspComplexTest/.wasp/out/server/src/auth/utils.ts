@@ -28,7 +28,7 @@ export async function createUser(data: Prisma.UserCreateInput): Promise<User> {
   try {
     return await prisma.user.create({ data })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -36,7 +36,7 @@ export async function deleteUser(user: User): Promise<User> {
   try {
     return await prisma.user.delete({ where: { id: user.id } })
   } catch (e) {
-    rethrowError(e);
+    rethrowPossiblePrismaError(e);
   }
 }
 
@@ -61,12 +61,20 @@ export async function doFakeWork() {
 }
 
 
-function rethrowError(e: unknown): void {
+export function throwInvalidCredentialsError(message?: string): void {
+  throw new HttpError(401, 'Invalid credentials', { message })
+}
+
+function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
-    throw new HttpError(422, 'Validation failed', { message: e.message })
+    throwValidationError(e.message);
   } else if (isPrismaError(e)) {
     throw prismaErrorToHttpError(e)
   } else {
     throw new HttpError(500)
   }
+}
+
+function throwValidationError(message: string): void {
+  throw new HttpError(422, 'Validation failed', { message })
 }

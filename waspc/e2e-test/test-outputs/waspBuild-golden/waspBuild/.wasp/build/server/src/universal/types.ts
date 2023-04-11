@@ -13,17 +13,18 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 // https://github.com/wasp-lang/wasp/pull/1090#discussion_r1159687537 for
 // details). Until it's fixed, we're using our own type for this.
 //
-// This most likely has something to do with an unsatisfied 'extends'
-// constraints. A mismatch is probably happening with function parameter types
-// and/or return types (check '_ReturnType' below for more).
+// TODO: investigate further. This most likely has something to do with an
+// unsatisfied 'extends' constraints. A mismatch is probably happening with
+// function parameter types and/or return types (check '_ReturnType' below for
+// more).
 export type _Awaited<T> = T extends Promise<infer V>
   ? _Awaited<V>
   : T
 
 // TypeScript's native ReturnType does not work for functions of type '(...args:
-// never[])  => unknown' (and that's what operations currently use).
+// never[]) => unknown' (and that's what operations currently use).
 //
-// Todo: investigate how to properly specify the 'extends' constraint for function
+// TODO: investigate how to properly specify the 'extends' constraint for function
 // type (i.e., any vs never and unknown) and stick with that. Take DX into
 // consideration.
 export type _ReturnType<T extends (...args: never[]) => unknown> = 

@@ -7,11 +7,13 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
@@ -27,7 +29,7 @@ genAuth spec =
     Just auth ->
       sequence
         [ genLogout,
-          genUseAuth,
+          genUseAuth auth,
           genCreateAuthRequiredPage auth,
           genUserHelpers
         ]
@@ -54,8 +56,11 @@ genCreateAuthRequiredPage auth =
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
-genUseAuth :: Generator FileDraft
-genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.ts|])
+genUseAuth :: AS.Auth.Auth -> Generator FileDraft
+genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmplData
+  where
+    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
