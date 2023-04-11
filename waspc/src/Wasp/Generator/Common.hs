@@ -11,11 +11,13 @@ module Wasp.Generator.Common
     prismaVersion,
     makeJsonWithEntityData,
     GeneratedSrcDir,
+    makeJsArrayFromHaskellList,
   )
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
+import Data.List (intercalate)
 import StrongPath (Dir, Rel, reldir)
 import StrongPath.Types (Path')
 import Wasp.Generator.Templates (TemplatesDir)
@@ -80,3 +82,8 @@ makeJsonWithEntityData name =
     -- `context.entities` JS objects in Wasp templates.
     entityNameToPrismaIdentifier :: String -> String
     entityNameToPrismaIdentifier = toLowerFirst
+
+makeJsArrayFromHaskellList :: Show a => [a] -> String
+makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
+  where
+    listOfJsStrings = map (\x -> "'" ++ show x ++ "'") list
