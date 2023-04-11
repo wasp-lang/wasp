@@ -65,7 +65,7 @@ const Features = () => {
       <dl className='grid grid-cols-1 lg:grid-cols-4 md:gap-16 lg:gap-x-8 xl:gap-x-16'>
 
         <Feature
-          Icon={Globe}
+          Icon={Star}
           title='Open Source'
           url='https://github.com/wasp-lang/wasp'
           description={`
@@ -116,7 +116,7 @@ const Features = () => {
           title='Email Sending'
           url='/docs/email-sending'
           description={`
-
+            All you need to do is connect an email provider and you can send emails!
           `}
         />
 
@@ -125,7 +125,7 @@ const Features = () => {
           title='Full-stack Type Safety'
           url='/docs/typescript'
           description={`
-            Full support for TypeScript with auto-generated types that span from server to the client.
+            Full support for TypeScript with auto-generated types that span the whole stack.
           `}
         />
 
