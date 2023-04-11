@@ -11,6 +11,9 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 // TypeScript's native Awaited type exhibits strange behavior in VS Code (see
 // todo for details). Until it's fixed, we're using our own type for this.
-export type _Awaited<T extends Promise<unknown>> = T extends Promise<infer V>
-  ? V
-  : never
+export type _Awaited<T> = T extends Promise<infer V>
+  ? _Awaited<V>
+  : T
+
+export type _ReturnType<T extends (...args: never[]) => unknown> = 
+  T extends (...args: never[]) => infer R ? R : never
