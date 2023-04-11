@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { useState, FormEvent, useEffect, useCallback } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { createTheme } from '@stitches/react'
 
@@ -21,6 +21,11 @@ import { SocialButton } from './SocialButton';
 import config from '../../config.js'
 import { styled } from '../../stitches.config'
 import { State, CustomizationOptions } from './types'
+
+type ErrorMessage = {
+  title: string;
+  description?: string;
+};
 
 const logoStyle = {
   height: '3rem'
@@ -216,13 +221,13 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
     state: State;
 } & CustomizationOptions) {
   const isLogin = state === "login";
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   {=# isAnyPasswordBasedAuthEnabled =}
   const history = useHistory();
   const onErrorHandler = (error) => {
-    setErrorMessage(error.message)
+    setErrorMessage({ title: error.message, description: error.data?.data?.message })
   };
   {=/ isAnyPasswordBasedAuthEnabled =}
   {=# isUsernameAndPasswordAuthEnabled =}
@@ -358,7 +363,9 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
         <HeaderText>{title}</HeaderText>
       </div>
 
-      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+      {errorMessage && (<ErrorMessage>
+        {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
+      </ErrorMessage>)}
       {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
       {(state === 'login' || state === 'signup') && loginSignupForm}
       {=# isEmailAuthEnabled =}
@@ -388,7 +395,14 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
 export default Auth;
 
 {=# isEmailAuthEnabled =}
-const ForgotPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+const ForgotPasswordForm = (
+  { isLoading, setIsLoading, setErrorMessage, setSuccessMessage }: {
+    isLoading: boolean;
+    setIsLoading: (isLoading: boolean) => void;
+    setErrorMessage: (errorMessage: ErrorMessage | null) => void;
+    setSuccessMessage: (successMessage: string | null) => void;
+  },
+) => {
   const [email, setEmail] = useState('')
   
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -401,7 +415,7 @@ const ForgotPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSucce
       setSuccessMessage('Check your email for a password reset link.')
       setEmail('')
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage({ title: error.message, description: error.data?.data?.message })
     } finally {
       setIsLoading(false)
     }
@@ -428,7 +442,14 @@ const ForgotPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSucce
   )
 }
 
-const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+const ResetPasswordForm = (
+  { isLoading, setIsLoading, setErrorMessage, setSuccessMessage }: {
+    isLoading: boolean;
+    setIsLoading: (isLoading: boolean) => void;
+    setErrorMessage: (errorMessage: ErrorMessage | null) => void;
+    setSuccessMessage: (successMessage: string | null) => void;
+  },
+) => {
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
   const [password, setPassword] = useState('')
@@ -438,12 +459,12 @@ const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSucces
     event.preventDefault()
 
     if (!token) {
-      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      setErrorMessage({ title: 'The token is missing from the URL. Please check the link you received in your email.' })
       return
     }
 
     if (!password || password !== passwordConfirmation) {
-      setErrorMessage("Passwords don't match!")
+      setErrorMessage({ title: `Passwords don't match!` })
       return
     }
 
@@ -456,7 +477,7 @@ const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSucces
       setPassword('')
       setPasswordConfirmation('')
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage({ title: error.message, description: error.data?.data?.message })
     } finally {
       setIsLoading(false)
     }
@@ -493,7 +514,14 @@ const ResetPasswordForm = ({ isLoading, setIsLoading, setErrorMessage, setSucces
   )
 }
 
-const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }) => {
+const VerifyEmailForm = (
+  { isLoading, setIsLoading, setErrorMessage, setSuccessMessage }: {
+    isLoading: boolean;
+    setIsLoading: (isLoading: boolean) => void;
+    setErrorMessage: (errorMessage: ErrorMessage | null) => void;
+    setSuccessMessage: (successMessage: string | null) => void;
+  },
+) => {
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
 
@@ -509,7 +537,7 @@ const VerifyEmailForm = ({ isLoading, setIsLoading, setErrorMessage, setSuccessM
       await verifyEmail({ token })
       setSuccessMessage('Your email has been verified. You can now log in.')
     } catch (error) {
-      setErrorMessage(error.message)
+      setErrorMessage({ title: error.message, description: error.data?.data?.message })
     } finally {
       setIsLoading(false)
     }
