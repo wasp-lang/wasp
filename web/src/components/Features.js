@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
 import classNames from 'classnames'
-import { Terminal, Layers, Coffee, Code, Unlock, Repeat, Send, Link2, Grid, ArrowRight } from 'react-feather'
+import { Terminal, Layers, Coffee, Code, Unlock, Repeat, Send, Link2, Grid, ArrowRight, Globe, Settings, Mail, Type, Star } from 'react-feather'
 
 import SectionContainer from './Layouts/SectionContainer'
 
@@ -23,6 +23,7 @@ const Feature = ({ Icon, title, description, url }) => (
           inline-flex h-8 w-8 rounded-md
           items-center justify-center
           text-yellow-500 bg-neutral-700
+          
         `}
       >
         <Icon size={20} />
@@ -47,13 +48,15 @@ const TextLink = ({ url, label }) => (
         text-neutral-600 hover:text-neutral-500
       `}
     >
-      <div className='group flex gap-1 items-center'>
-        <span>{label}</span>
-        <div className='transition-all group-hover:ml-0.5'>
-          <span className='text-yellow-600'>
-            <ArrowRight size={14} strokeWidth={2} />
-          </span>
-        </div>
+      <div className='group flex'>
+        <span className='flex gap-1 items-center bg-yellow-500/25 px-1 rounded'>
+          <span>{label}</span>
+          <div className='transition-all group-hover:ml-0.5'>
+            <span className='text-yellow-600'>
+              <ArrowRight size={14} strokeWidth={2} />
+            </span>
+          </div>
+        </span>
       </div>
     </span>
   </Link>
@@ -63,9 +66,19 @@ const Features = () => {
   return (
     <SectionContainer className='space-y-16 lg:py-18'>
       <dl className='grid grid-cols-1 lg:grid-cols-4 md:gap-16 lg:gap-x-8 xl:gap-x-16'>
+
+        <Feature
+          Icon={Star}
+          title='Open Source'
+          url='https://github.com/wasp-lang/wasp'
+          description={`
+            This is the way. Wasp is fully open-source and you're welcome to contribute!
+          `}
+        />
+
         <Feature
           Icon={Unlock}
-          title='Full-stack Authentication'
+          title='Full-stack Auth'
           url='/docs/language/features#authentication--authorization'
           description={`
             Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
@@ -74,7 +87,7 @@ const Features = () => {
 
         <Feature
           Icon={Link2}
-          title='No API Required'
+          title='RPC (Client <-> Server)'
           url='/docs/language/features#queries-and-actions-aka-operations'
           description={`
             Wasp provides a typesafe RPC layer that instantly brings your data models and server logic to the client.
@@ -83,19 +96,48 @@ const Features = () => {
 
         <Feature
           Icon={Send}
-          title='Deployment'
+          title='Simple Deployment'
           url='/docs/deploying'
           description={`
             Deploy your app to any platform. Wasp offers CLI helpers for the most popular options.
           `}
         />
 
+
+        <Feature
+          Icon={Settings}
+          title='Jobs'
+          url='/docs/language/features#jobs'
+          description={`
+            Easily define, schedule and run specialized server tasks.
+            Persistent, retryable, delayable.
+          `}
+        />
+
+        <Feature
+          Icon={Mail}
+          title='Email Sending'
+          url='/docs'
+          description={`
+            All you need to do is connect an email provider and you can send emails!
+          `}
+        />
+
+        <Feature
+          Icon={Type}
+          title='Full-stack Type Safety'
+          url='/docs/typescript'
+          description={`
+            Full support for TypeScript with auto-generated types that span the whole stack.
+          `}
+        />
+
         <Feature
           Icon={Grid}
-          title='And More'
+          title='And More!'
           url='/docs/language/features'
           description={`
-            Typescript support, email sending, cron jobs and custom API routes are supported out of the box.
+            Custom API routes, database seeding, optimistic updates, automatic cache invalidation on the client, ...
           `}
         />
       </dl>

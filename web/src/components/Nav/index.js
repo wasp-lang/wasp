@@ -206,7 +206,7 @@ const Nav = () => {
                       </span>
                     </span>
                   </Link>
-                  
+
                 </div> {/* EOF left items */}
               </div> {/* EOF left side */}
 
@@ -232,7 +232,7 @@ const Nav = () => {
                       transition ease-out duration-200
                     `}
                   >
-                    Create your app
+                    {'wasp new <app>'}
                   </button>
                 </Link>
 

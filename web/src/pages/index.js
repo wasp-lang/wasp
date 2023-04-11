@@ -57,11 +57,10 @@ const Index = () => {
             {/* container */}
             <Hero />
             <Features />
-            <VideoAndTutorial />
-            <Testimonials />
-            <ExampleWaspApps />
-            <LightsTwo />
             <HowItWorks />
+            <ExampleWaspApps />
+            <Testimonials />
+            <LightsTwo />
             <ShowcaseGallery />
             <Newsletter />
             <Faq />
