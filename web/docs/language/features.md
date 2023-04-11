@@ -632,7 +632,7 @@ export const fooBar : FooBar = (req, res, context) => {
 ```
 
 ##### More complicated TypeScript example
-Let's say you wanted to create some `GET` route that would take an email address as a param, and provide them the answer to "Life, the Universe and Everything". :) What would this look like in TypeScript?
+Let's say you wanted to create some `GET` route that would take an email address as a param, and provide them the answer to "Life, the Universe and Everything." :) What would this look like in TypeScript?
 
 ```c title="main.wasp"
 api fooBar {
@@ -647,10 +647,10 @@ import { FooBar } from '@wasp/apis/types'
 
 export const fooBar: FooBar<
 { email: string }, // params
-{ count: number }  // response
+{ answer: number }  // response
 > = (req, res, _context) => {
   console.log(req.params.email)
-  res.json({ count: 42 })
+  res.json({ answer: 42 })
 }
 ```
 
