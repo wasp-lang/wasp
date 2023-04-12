@@ -158,6 +158,7 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  ["start"] -> runCommand Command.Start.Db.start
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["reset"] -> runDbCommand Command.Db.Reset.reset
   ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
@@ -174,6 +175,7 @@ printDbUsage =
               "  wasp db <command> [command-args]",
               "",
         title "COMMANDS",
+        cmd   "  start         Alias for `wasp start db`.",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
         cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
