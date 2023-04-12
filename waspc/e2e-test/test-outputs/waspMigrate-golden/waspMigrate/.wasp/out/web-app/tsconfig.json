@@ -2,6 +2,7 @@
   "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
     // Temporary loosen the type checking until we can address all the errors.
+    "jsx": "preserve",
     "allowJs": true,
     "strict": false
   },

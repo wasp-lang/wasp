@@ -1,6 +1,10 @@
 import Prisma from '@prisma/client'
 import HttpError from './core/HttpError.js'
 
+import { readdir } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from 'url';
+
 /**
  * Decorator for async express middleware that handles promise rejections.
  * @param {Func} middleware - Express middleware function.
@@ -28,7 +32,7 @@ export const prismaErrorToHttpError = (e) => {
   if (e instanceof Prisma.PrismaClientKnownRequestError) {
     if (e.code === 'P2002') {
       return new HttpError(422, 'Save failed', {
-        message: `A record with the same ${e.meta.target.join(', ')} already exists.`,
+        message: `user with the same ${e.meta.target.join(', ')} already exists`,
         target: e.meta.target
       })
     } else {
@@ -45,3 +49,31 @@ export const prismaErrorToHttpError = (e) => {
 }
 
 export const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+export function getDirFromFileUrl(fileUrl) {
+  return fileURLToPath(dirname(fileUrl));
+}
+
+export async function importJsFilesFromDir(absoluteDir, relativePath, whitelist = null) {
+  const pathToDir = join(absoluteDir, relativePath);
+
+  return new Promise((resolve, reject) => {
+    readdir(pathToDir, async (err, files) => {
+      if (err) {
+        return reject(err);
+      }
+      const importPromises = files
+        .filter((file) => file.endsWith(".js") && isWhitelisted(file))
+        .map((file) => import(`${pathToDir}/${file}`));
+      resolve(Promise.all(importPromises));
+    });
+  });
+
+  function isWhitelisted(file) {
+    // No whitelist means all files are whitelisted
+    if (!Array.isArray(whitelist)) {
+      return true;
+    }
+    return whitelist.some((whitelistedFile) => file.endsWith(whitelistedFile));
+  }
+}

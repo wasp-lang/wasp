@@ -15,9 +15,9 @@ import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Lib (CompileError, CompileWarning)
-import qualified Wasp.Lib
+import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
+import Wasp.Project (CompileError, CompileWarning)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -41,7 +41,7 @@ start = do
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspRoot outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Lib.start outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    let startGeneratedWebApp = Wasp.Generator.start outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated code is re-generated).

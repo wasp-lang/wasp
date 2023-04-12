@@ -1,7 +1,7 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.9.0"
+    version: "^0.10.0"
   },
   auth: {
     userEntity: User,
@@ -19,6 +19,14 @@ app waspComplexTest {
   client: {
     setupFn: import myClientSetupFunction from "@client/myClientSetupCode.js",
     rootComponent: import App from "@client/App.jsx"
+  },
+
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "Hello",
+      email: "hello@itsme.com"
+    },
   },
 
   dependencies: [
@@ -65,5 +73,16 @@ action MySpecialAction {
 query MySpecialQuery {
   fn: import { foo } from "@server/queries/bar.js",
   entities: [User],
+}
+
+api fooBar {
+  fn: import { fooBar } from "@server/apis.js",
+  httpRoute: (GET, "/foo/bar")
+  // implicit auth:true
+}
+api fooBaz {
+  fn: import { fooBaz } from "@server/apis.js",
+  httpRoute: (GET, "/foo/baz"),
+  auth: false
 }
 

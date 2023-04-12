@@ -46,6 +46,7 @@ module.exports = {
       label: 'Guides',
       collapsed: false,
       items: [
+        'guides/auth-ui',
         {
           type: 'category',
           label: 'Auth Providers',
@@ -53,11 +54,14 @@ module.exports = {
           items: [
             'integrations/github',
             'integrations/google',
+            'guides/email-auth',
           ]
         },
         'integrations/css-frameworks',
         'deploying',
         'typescript',
+        'guides/testing',
+        'guides/sending-emails',
       ],
 
     },

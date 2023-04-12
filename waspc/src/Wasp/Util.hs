@@ -32,11 +32,13 @@ module Wasp.Util
     orIfNothingM,
     kebabToCamelCase,
     maybeToEither,
+    whenM,
+    trim,
   )
 where
 
 import Control.Applicative (liftA2)
-import Control.Monad (unless)
+import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as B
@@ -167,6 +169,9 @@ insertAt theInsert idx host =
   let (before, after) = splitAt idx host
    in before ++ theInsert ++ after
 
+trim :: String -> String
+trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
+
 infixr 5 <++>
 
 (<++>) :: Applicative f => f [a] -> f [a] -> f [a]
@@ -179,6 +184,9 @@ infixr 5 <:>
 
 ifM :: Monad m => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
+
+whenM :: Monad m => m Bool -> m () -> m ()
+whenM ma mb = ma >>= (`when` mb)
 
 unlessM :: Monad m => m Bool -> m () -> m ()
 unlessM ma mb = ma >>= (`unless` mb)

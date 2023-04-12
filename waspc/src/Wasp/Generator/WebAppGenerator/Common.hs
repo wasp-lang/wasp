@@ -1,7 +1,6 @@
 module Wasp.Generator.WebAppGenerator.Common
   ( webAppRootDirInProjectRootDir,
     webAppSrcDirInWebAppRootDir,
-    dotEnvClient,
     mkSrcTmplFd,
     mkTmplFd,
     mkTmplFdWithDst,
@@ -13,18 +12,28 @@ module Wasp.Generator.WebAppGenerator.Common
     asWebAppFile,
     asWebAppSrcFile,
     mkUniversalTmplFdWithDst,
+    serverRootDirFromWebAppRootDir,
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
     WebAppTemplatesSrcDir,
+    toViteImportPath,
   )
 where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
+import Data.Maybe (fromJust)
+import StrongPath (Dir, File, File', Path, Path', Posix, Rel, reldir, (</>))
 import qualified StrongPath as SP
-import Wasp.Common (WaspProjectDir)
-import Wasp.Generator.Common (GeneratedSrcDir, ProjectRootDir, UniversalTemplatesDir, WebAppRootDir, universalTemplatesDirInTemplatesDir)
+import System.FilePath (splitExtension)
+import Wasp.Generator.Common
+  ( GeneratedSrcDir,
+    ProjectRootDir,
+    ServerRootDir,
+    UniversalTemplatesDir,
+    WebAppRootDir,
+    universalTemplatesDirInTemplatesDir,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
@@ -35,6 +44,9 @@ data WebAppTemplatesDir
 data WebAppTemplatesSrcDir
 
 instance GeneratedSrcDir WebAppSrcDir
+
+serverRootDirFromWebAppRootDir :: Path' (Rel WebAppRootDir) (Dir ServerRootDir)
+serverRootDirFromWebAppRootDir = [reldir|../server|]
 
 asTmplFile :: Path' (Rel d) File' -> Path' (Rel WebAppTemplatesDir) File'
 asTmplFile = SP.castRel
@@ -64,9 +76,6 @@ webAppTemplatesDirInTemplatesDir = [reldir|react-app|]
 -- | Path to the web app templates src/ directory, relative to the web app templates directory.
 srcDirInWebAppTemplatesDir :: Path' (Rel WebAppTemplatesDir) (Dir WebAppTemplatesSrcDir)
 srcDirInWebAppTemplatesDir = [reldir|src|]
-
-dotEnvClient :: Path' (SP.Rel WaspProjectDir) File'
-dotEnvClient = [relfile|.env.client|]
 
 mkSrcTmplFd :: Path' (Rel WebAppTemplatesSrcDir) File' -> FileDraft
 mkSrcTmplFd pathInTemplatesSrcDir = mkTmplFdWithDst srcPath dstPath
@@ -102,3 +111,8 @@ mkUniversalTmplFdWithDst relSrcPath relDstPath =
     (webAppRootDirInProjectRootDir </> relDstPath)
     (universalTemplatesDirInTemplatesDir </> relSrcPath)
     Nothing
+
+toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
+toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
+  where
+    dropExtension = fst . splitExtension

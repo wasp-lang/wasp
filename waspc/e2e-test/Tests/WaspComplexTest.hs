@@ -13,6 +13,7 @@ import ShellCommands
     waspCliNew,
   )
 import Util ((<++>))
+import Wasp.Project.Db (databaseUrlEnvVarName)
 
 waspComplexTest :: GoldenTest
 waspComplexTest = do
@@ -23,12 +24,14 @@ waspComplexTest = do
       ]
       <++> addServerEnvFile
       <++> addDependencies
+      <++> addEmailSender
       <++> addClientSetup
       <++> addServerSetup
       <++> addGoogleAuth
       <++> addJob
       <++> addAction
       <++> addQuery
+      <++> addApi
       <++> sequence
         [ waspCliCompile
         ]
@@ -119,7 +122,16 @@ addServerEnvFile = do
     envFileContents =
       unlines
         [ "GOOGLE_CLIENT_ID=google_client_id",
-          "GOOGLE_CLIENT_SECRET=google_client_secret"
+          "GOOGLE_CLIENT_SECRET=google_client_secret",
+          -- NOTE: Since we are using PSQL in this test, if we don't set custom
+          -- database url in server/.env, Wasp will set its own, for managed dev db.
+          -- That is problematic because Wasp's db url depends on project's abs path,
+          -- which is not something we have constant during e2e tests, it depends
+          -- on the location where the tests are being run.
+          -- Therefore, we make sure to set custom database url here, to avoid .env
+          -- changing between different machines / setups.
+          databaseUrlEnvVarName <> "=" <> "mock-database-url",
+          "SENDGRID_API_KEY=sendgrid_api_key"
         ]
 
 addGoogleAuth :: ShellCommandBuilder [ShellCommand]
@@ -221,6 +233,56 @@ addDependencies = do
           "    (\"redux\", \"^4.0.5\"),",
           "    (\"react-redux\", \"^7.1.3\")",
           "  ],"
+        ]
+
+addApi :: ShellCommandBuilder [ShellCommand]
+addApi = do
+  sequence
+    [ appendToWaspFile apiDecls,
+      createFile apiFile "./src/server" "apis.ts"
+    ]
+  where
+    apiDecls =
+      unlines
+        [ "api fooBar {",
+          "  fn: import { fooBar } from \"@server/apis.js\",",
+          "  httpRoute: (GET, \"/foo/bar\")",
+          "  // implicit auth:true",
+          "}",
+          "api fooBaz {",
+          "  fn: import { fooBaz } from \"@server/apis.js\",",
+          "  httpRoute: (GET, \"/foo/baz\"),",
+          "  auth: false",
+          "}"
+        ]
+
+    apiFile =
+      unlines
+        [ "import { FooBar, FooBaz } from '@wasp/apis/types'",
+          "export const fooBar: FooBar = (req, res, context) => {",
+          "  res.set('Access-Control-Allow-Origin', '*')",
+          "  res.json({ msg: 'Hello, context.user.username!' })",
+          "}",
+          "export const fooBaz: FooBaz = (req, res, context) => {",
+          "  res.json({ msg: 'Hello, stranger!' })",
+          "}"
+        ]
+
+addEmailSender :: ShellCommandBuilder [ShellCommand]
+addEmailSender = do
+  sequence
+    [ insertCodeIntoWaspFileAfterVersion emailSender
+    ]
+  where
+    emailSender =
+      unlines
+        [ "  emailSender: {",
+          "    provider: SendGrid,",
+          "    defaultFrom: {",
+          "      name: \"Hello\",",
+          "      email: \"hello@itsme.com\"",
+          "    },",
+          "  },"
         ]
 
 insertCodeIntoWaspFileAfterVersion :: String -> ShellCommandBuilder ShellCommand

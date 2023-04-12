@@ -25,7 +25,7 @@
             "file",
             "server/.env"
         ],
-        "7868f4dd9dc579bb21167f4e4cd5caa2960bf44ebe7d3f9f27a2f9380491d31f"
+        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
     ],
     [
         [
@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "45dd065b8f3937ad56587759a30dc25fc467783a8f9cdd6e68f15fbed5babdff"
+        "595657debb7d5a82faf58d10e8039b1071b7ed1723d0f47e776db6b5c18d56ed"
     ],
     [
         [
@@ -88,7 +88,7 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "64552c6b9e03c30d670161bd3912cd8050b9be8255f76a024c0995b9a38b5f55"
+        "3f49624670ad023511d0dff500f1e8f02075b443ae3cece90f6ed0826baf165e"
     ],
     [
         [
@@ -100,9 +100,9 @@
     [
         [
             "file",
-            "server/src/actions/MySpecialAction.js"
+            "server/src/actions/MySpecialAction.ts"
         ],
-        "2dce5f6e711a9b7d94ce57c17ec27c5f86149baaf4a2ad9bc4a108756b13145e"
+        "248581d3f982f69d491b5da0279a7c5c77e7fac1cc8c7c48e70406d4e986001a"
     ],
     [
         [
@@ -114,16 +114,79 @@
     [
         [
             "file",
+            "server/src/apis/types.ts"
+        ],
+        "68417d37842d9186a6a9d942d65f8a18f2da8c0a9cf8a0dd5f1a4b087f6d4e20"
+    ],
+    [
+        [
+            "file",
             "server/src/app.js"
         ],
-        "1e802078a0c6738f9dc2dc8f1739120d28fdc3d6fdc8029671ec9aed73c8ed72"
+        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/config/google.ts"
+        ],
+        "7fbd4267706f1ce75574392c4b763917b7d574554db6966cacb9bac29abcf3df"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/index.ts"
+        ],
+        "c56c888520fb6148883d86ede9e2226f3548d2ca929fb6b89145d69b490c775e"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/createRouter.ts"
+        ],
+        "63dbe409a2de70c55e3f4c01b5faa1da6d09ac0947ff90133c6c616c57ad75c7"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/defaults.ts"
+        ],
+        "2bff7ab070b402aac4ea69a950c0ef6ba7e58c27d4727bdf6046961cb7c0dd48"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/init.ts"
+        ],
+        "7db2dc4736dadede12c9f85a88d31b992fe26ad06d57dde34784a2db54356ee4"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/oauth/types.ts"
+        ],
+        "81c3ff4d945025fc2530b57db7ceecb5c14857e84d98e8c11f045282c25efe37"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/providers/types.ts"
+        ],
+        "9859bf91e0abe0aaadf7b8c74c573607f6085a5414071836cef6ba84b2bebb69"
+    ],
+    [
+        [
+            "file",
+            "server/src/auth/utils.ts"
+        ],
+        "cc5c7e899b9e4389999748f19177f8a392098279f19d99875d09986334d173c8"
     ],
     [
         [
             "file",
             "server/src/config.js"
         ],
-        "99e89fb4d207108caf0afeaf8f364819bac6f6d7c28a0a14b6ae7a4f134aa779"
+        "b5e2d31201460b018e781532b7bb6348cf3f7eb45851a81711a18584c0f4f5ac"
     ],
     [
         [
@@ -144,21 +207,77 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "968abe76a1cf4627b2bce2b9504558dbb1a8e5a50690262d6d4cd9506066ee72"
+        "0ea7ff5b8576c4bd455328a56d60a038c1107eaa2e20cba28437cdfc630ce571"
     ],
     [
         [
             "file",
             "server/src/core/auth/prismaMiddleware.js"
         ],
-        "aede440c2297aa5028e5f387e3392228d8249fb4906aeb95364006aeec039aae"
+        "72352443cb7f3f72e7608270d19f7e541b1b1f233fa995391f253e1585efc71c"
     ],
     [
         [
             "file",
-            "server/src/dbClient.js"
+            "server/src/core/auth/validators.ts"
         ],
-        "5fb53eff5e5eae318e281a8fc1cc433b69688d93c3c82d72415f710a6e75e2af"
+        "d7cfe22168d66e0d346c2aec33573c0346c9f0f5c854d3f204bed5b4c315da87"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbClient.ts"
+        ],
+        "a749686af4e331a0b982e8c2acbfe00aff043340f34d54e80a34d417c6901e56"
+    ],
+    [
+        [
+            "file",
+            "server/src/dbSeed/types.ts"
+        ],
+        "47442c546d286164c2cdb3359deb45b47f115df2ca72bb181b4639bee2059d38"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/helpers.ts"
+        ],
+        "b59fd329fc96e47f2839ba0b06ea5e42935e4959d228676be9c13ddb30d9e02c"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/index.ts"
+        ],
+        "d524dd9ef27cd311340060411276df0e8ef22db503473f44281832338b954bb7"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/providers/dummy.ts"
+        ],
+        "e93a7a02f50c8466f3e8e89255b98bebde598b25f9969ec117b16f07691575ae"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/providers/sendgrid.ts"
+        ],
+        "b1a16455eede9723f6ae43c03e628b4129fd96f7300f004f052f1eab31d9b95b"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/core/types.ts"
+        ],
+        "c343f0d87b65d7563816159a88f410b65d78d897822c0bbcd723ca7752e00a20"
+    ],
+    [
+        [
+            "file",
+            "server/src/email/index.ts"
+        ],
+        "c4864d5c83b96a61b1ddfaac7b52c0898f5cff04320c166c8f658b017952ee05"
     ],
     [
         [
@@ -173,6 +292,13 @@
             "server/src/ext-src/actions/bar.js"
         ],
         "83c606a3eee7608155cdb2c2a20a38f851a82987e060ce25b196b467092c4740"
+    ],
+    [
+        [
+            "file",
+            "server/src/ext-src/apis.ts"
+        ],
+        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
     ],
     [
         [
@@ -247,9 +373,9 @@
     [
         [
             "file",
-            "server/src/queries/MySpecialQuery.js"
+            "server/src/queries/MySpecialQuery.ts"
         ],
-        "ecb3145ccbb1b4888db63b5cb000f4d65721d5b6ea99cc670d9f8faaddf0c51d"
+        "cf06f4dcc7e10dc88e5f155171a7ac1d8d8e8bbd43d8391385bce3b467278791"
     ],
     [
         [
@@ -261,93 +387,44 @@
     [
         [
             "file",
-            "server/src/routes/auth/index.js"
+            "server/src/routes/apis/index.ts"
         ],
-        "ac6c9f57907b95529955248014d4a0b87d9883afba9f725e8bb6da7e9cdcbaef"
+        "601591c5b0846be03c31ad70185ba6e6592732656843daf91c5ecc9e1b053fe3"
     ],
     [
         [
             "file",
-            "server/src/routes/auth/login.js"
+            "server/src/routes/auth/index.js"
         ],
-        "0a5d88e1a91ceb6a893e286ed2e1167bf418ca9d226341d6ee6dc6c0fac54318"
+        "47fb3317c5707e0d7646bb1c0f6fa8d9c5c0f980ca2d643d226e63b49766cea3"
     ],
     [
         [
             "file",
             "server/src/routes/auth/me.js"
         ],
-        "65ac0f6fe12e13ffeb67b01b62301c4c70e12707985bfa567aea0253649e9151"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/generic/provider.js"
-        ],
-        "bac53b5bb71b55593c97c18dcb26fe05c9fa3487dd7a63ee64940362100853ef"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/config.js"
-        ],
-        "40b271cec4039bcd0435e1766b0fdf6954caff6401db1272034848ea5bef97b3"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/configMapping.js"
-        ],
-        "bb20100bf23ee29e783f0d486f4b3fc75792742f4b92f9547c4b12216afebbb7"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/google/defaults.js"
-        ],
-        "e390f515ed581c51b75b43e716e346710c17fb1e99470f944de22fc22925a2e1"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/passport/passport.js"
-        ],
-        "8798e7255db79cd528776cc9c72781950f69314277c6eff8b5320e6ffa722a2e"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/signup.js"
-        ],
-        "7e1975a564b8d450f6c411753bfe4ab45d76b209bb28cfc86eb514236a018219"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/auth/utils.js"
-        ],
-        "c2752f5686d06db30aaefe7e7d2bae5e5d988bf9f34e04c262b73a69179521ae"
+        "9a9cb533bb94af63caf448f73a0d0fef8902c8f8d1af411bed2570a32da2fab9"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "bd024209f256910dc8450851bf64d5309423e04f34bc5941cfb692df7907aa27"
+        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialAction.js"
         ],
-        "a811906270902af1259bffee936c9628e5aa3235cf9b08cc52b1acd54adebb2c"
+        "19eea333d3f3f559b93b49f34a3a6f474d86b4d8b83c70f4bb456ef44e361eef"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialQuery.js"
         ],
-        "5e4ef25a29bff0806cb2abef2e9ff8314232a5e505dbec0b9ace56d1c3369237"
+        "f8a7ce6ab0c320f24e76d12c5ba01891d8c408c80f07bbf8a6471fafb29abc91"
     ],
     [
         [
@@ -368,7 +445,14 @@
             "file",
             "server/src/types/index.ts"
         ],
-        "37352cdaeae444c90632fe788d1e49eca3927ef8755702ba95c81c8b90d9f408"
+        "04e01e653bd889436903843cf1dae0a6ba0ecbc1c369beef0e90fae4d0c21127"
+    ],
+    [
+        [
+            "file",
+            "server/src/universal/types.ts"
+        ],
+        "0d461014deaebf4f725204e88bb8fb3878d245ef56dd0cf637109e01c0e4e1bb"
     ],
     [
         [
@@ -382,14 +466,21 @@
             "file",
             "server/src/utils.js"
         ],
-        "68a5794f55e24b303d81456a1181a3a2cd70773f6ebc4e7a63dac064834aa8e9"
+        "300e9bb586b163f2608acb27346b5c94ec3e58cdc25dace5381f3d0c6710a7ec"
     ],
     [
         [
             "file",
             "server/tsconfig.json"
         ],
-        "c58318dce36bc48fdd1e998af906b5026c87b1d80415653b03a7285acdb56d69"
+        "f2632965c1e3678fcc0e63b83d7e33fea1a9008ef5fd5a2f5e7bf278337c3e02"
+    ],
+    [
+        [
+            "file",
+            "web-app/.env"
+        ],
+        "d9649485a674ce3c6b8d668a1253cde3bd8695cb3d2d3a6b7c573a3e2805c7ec"
     ],
     [
         [
@@ -431,7 +522,7 @@
             "file",
             "web-app/package.json"
         ],
-        "7076213d4eff673d37d271baa15cdda5cd5a647d31944015f52ef72aad558ac8"
+        "106826ffacc2f21e037bb05f08c3dfb8370d429c1d5226624a1a02e698de3ae0"
     ],
     [
         [
@@ -439,13 +530,6 @@
             "web-app/public/favicon.ico"
         ],
         "1481f03584b46b63182c1f8d26e61a95ce4d8fae032b2b4f3fe5e00ab7e96c23"
-    ],
-    [
-        [
-            "file",
-            "web-app/public/images/google-logo-icon.png"
-        ],
-        "e2087f585c3b213ba537a56c8bc8e6134c69d6fa1a5728d306df56d697b4e7ab"
     ],
     [
         [
@@ -471,107 +555,142 @@
     [
         [
             "file",
-            "web-app/src/actions/MySpecialAction.js"
+            "web-app/src/actions/MySpecialAction.ts"
         ],
-        "55e4031ed91e5dd8c1aaa5cf64e3295356938966f167c6950d81c9b7a77db787"
+        "5bcc78e0debb14c6af4572fe1c7512e8128f0d66c7bb80bd606cab014e6df8ec"
     ],
     [
         [
             "file",
             "web-app/src/actions/core.d.ts"
         ],
-        "d649b4823ede60119858b868dac9b122da4a3185391e6b9242ff7f6dc5c25d31"
+        "eacfa75bdfbf483f1322fe4c80fbefe6068990d33fdf7cc504ab9ec4bffbdaf4"
     ],
     [
         [
             "file",
             "web-app/src/actions/core.js"
         ],
-        "5c4dcdec74fb014a8edbb3d240bcbbfc829e201bce64132598b444db14a2bd45"
+        "f38003d51d9754952bf595a25fdb44580d88af3bcd6658848cf8a339a8240689"
     ],
     [
         [
             "file",
             "web-app/src/actions/index.ts"
         ],
-        "0f294c2f1d50a1473f6d332ef17944e7475c7d83a2180f6e2c9c9aecf25439f4"
+        "3afb54edb61cbc95a9b2133f9b3bdc460ca97580aca700adad988bf0515ab092"
     ],
     [
         [
             "file",
-            "web-app/src/api.js"
+            "web-app/src/api.ts"
         ],
-        "bcdb1fdc97fd622fbc882e4a16a7137e849748d6776b960121df6ccab577a3a9"
+        "ebe9b49e262c56942f61d48082905cd3715d2da6bee945f7f7201dd1641720f9"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/Login.jsx"
+            "web-app/src/auth/forms/Auth.tsx"
         ],
-        "2a97bf6cb1ba5cd1f271dc83aaac5864a7e5738b72814c7d09bb3e5f70877686"
+        "9f8dde92a52f2b89c2ba1d32ac6025f0d010fa5650b858adba0707760e3b4ba6"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/Signup.jsx"
+            "web-app/src/auth/forms/ForgotPassword.tsx"
         ],
-        "712a1513116da68cef5a8dddcf80fbaffa8b733690c52e7c5cc1ef329af591e9"
+        "39eda745fc19798d235cbecf7e755ab1050187d99775dfb06304b06804e5c7fc"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Login.tsx"
+        ],
+        "788a896a5717cd6e082db23cd5e1f4f46816253e24d6bbe60b2d64fb5a208d3c"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/ResetPassword.tsx"
+        ],
+        "be24461d42102d53c028713146054029950137e79e27906a166a16cf9dd64add"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/Signup.tsx"
+        ],
+        "bea6a9756a546820ccd240aabfa3db3d14faf655f7681c7b9ca0791677556c3a"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialButton.tsx"
+        ],
+        "fb14b39e617bf0cb7eec96428fd2882c2fbcda8bebd453ed00866b3203420043"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/SocialIcons.tsx"
+        ],
+        "18ce4ed1aec9fb0e71d4ce8376d5c42fcec1008d9b16d92dd18d51f34ee189a6"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/VerifyEmail.tsx"
+        ],
+        "2cb996958b1332f383af1265a9fa7dd30d71aaef371cd2ac471f9feb44158568"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/types.ts"
+        ],
+        "601917a95f8218f9db51148bf852a21925ea9806729fe9f8a65a96f84e8ba22f"
     ],
     [
         [
             "file",
             "web-app/src/auth/helpers/Google.jsx"
         ],
-        "7707679f4ef70592429401cf932206b5cfd87dd80d244e3e8c05803658406228"
+        "c6677ed5052cf7dc9aca312935b48dd59eaf22420d581ac1b79c01070d3c109e"
     ],
     [
         [
             "file",
             "web-app/src/auth/helpers/user.ts"
         ],
-        "7ae0fa01ac15b43746877b765bc4e6fd533f302c435b771238ad79afbe923000"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/login.js"
-        ],
-        "69b575be2d52e2948983f82c2d3fdabcc9d5fad9fd54c21252e9e7daa0edab32"
+        "e6bc091d8f8520db542f959846ecf528e8a070c5ce989151d00d2f45da4a58a6"
     ],
     [
         [
             "file",
             "web-app/src/auth/logout.js"
         ],
-        "041fe67384d24bf43a61b6ad9160b68309d8d1f5f3dd34f1961c93585d4eff50"
+        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/OAuthCodeExchange.jsx"
         ],
-        "bb202daa3b41c8288252d56a74ed78bed7129d7c96be96171cd516795d0ff71b"
+        "180e07f82c8290f9cae71e0aef97b40cf1b72a5a5fb58317feaf4cf66e629e42"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
-        "796720e403436139720fa72b941bc5fcf190b05777693c62d2b5f638e872badc"
+        "eb3eced8b273e539f1f0d06a4f99194237e414d208136ac5ac3da6e3c52c2566"
     ],
     [
         [
             "file",
-            "web-app/src/auth/signup.js"
+            "web-app/src/auth/useAuth.ts"
         ],
-        "e2943a925604b86cb1eba6c8d5a99c6892d8d3b55940c656233aa1163a622a6d"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/useAuth.js"
-        ],
-        "6ab962413a3103fa4e2cb8f7d4751ee93da484f9312c007e0b4d28bfa130a367"
+        "e3cd75c8a68c29a17a9ca5c5c8e86c03229c2323cf62cbaf70519fe8001cefa4"
     ],
     [
         [
@@ -646,16 +765,16 @@
     [
         [
             "file",
-            "web-app/src/operations/index.js"
+            "web-app/src/operations/index.ts"
         ],
-        "6ab717db2304b6134073aa71144b213b86f8d68a106549da06e193d18683dd87"
+        "7ec3870a9313ec17d2282f9002da4a5d4da3c096c5fb0927acd008f1bec60bb3"
     ],
     [
         [
             "file",
             "web-app/src/operations/resources.js"
         ],
-        "8bb71b7d7ef3962c28b9db1554500452e7f91b0c9fd898d5cafcdb7229f6db1e"
+        "c08445d84f9931ebc3e4f975017bf88c03b6bee9aa588e945d52fe3aee9c4d70"
     ],
     [
         [
@@ -667,30 +786,30 @@
     [
         [
             "file",
-            "web-app/src/queries/MySpecialQuery.js"
+            "web-app/src/queries/MySpecialQuery.ts"
         ],
-        "277428b1579f92eb2fb04b323fa7b9c0acaad935d4f3a451c72694aee8605a32"
+        "cf9bc21326f94f4359c66a373324290d73c6b71ff335210b7fddfa3afaa062d6"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.d.ts"
         ],
-        "f0b289140e92738451be386ca73a2fd1c84e9951eb2f1b9c6c09dfa3079d0c74"
+        "1fa653257c2121fbe08d6ba4544827ebc3748ad12a577f81d0cfb785ab4085f5"
     ],
     [
         [
             "file",
             "web-app/src/queries/core.js"
         ],
-        "2daf5b414722204281d65e954ce862a6fc586e8907b202800694909d23957c5e"
+        "3ac4a8402a7d6af3eb4a90ec59bcfdd32585f3f2dc6d6bed8a1140cea8fdb7f2"
     ],
     [
         [
             "file",
             "web-app/src/queries/index.d.ts"
         ],
-        "efc70de9916a60e19e0c86aaf955b0be0c999ba5c30139c3b6b98bcc4d382091"
+        "f3a7cf037867cd7f8ce76cbca5e5eb2aacb9ca69933c182bce2f7ff935c4d385"
     ],
     [
         [
@@ -711,7 +830,56 @@
             "file",
             "web-app/src/router.jsx"
         ],
-        "a92e5d20f1e2bbb7b4cbfae12e145338ddf34c38823c4b49c954da3c9b623157"
+        "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/stitches.config.js"
+        ],
+        "7de37836b80021870f286ff14d275e2ca7a1c2aa113ba5a5624ed0c77e178f76"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/storage.ts"
+        ],
+        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/index.ts"
+        ],
+        "cb2e2dc33df8afc0d4453f4322a4e2af92f3345e9622e0416fa87e34d6acb9d8"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/vitest/helpers.tsx"
+        ],
+        "6e1def1b1755c23d766a1581200295429238beaaea67ba066ba81e3b7768f8bb"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/test/vitest/setup.ts"
+        ],
+        "1c08b10e428cec3939e0ab269c9a02694e196de7c5dd9f18372424bdccbc5028"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/types.ts"
+        ],
+        "282f6bdef1e7e8846ad53909bbf88c54cd04a0594b77b1e87cb69266de84cc6d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/types.ts"
+        ],
+        "0d461014deaebf4f725204e88bb8fb3878d245ef56dd0cf637109e01c0e4e1bb"
     ],
     [
         [
@@ -739,7 +907,7 @@
             "file",
             "web-app/tsconfig.json"
         ],
-        "27e39dd3e6155ffccdb1d9cb0cba8db7d9e06e10958bee900340a2d9f17400c8"
+        "887c55937264ea8b2c538340962c3011091cf3eb6b9d39523acbe8ebcdd35474"
     ],
     [
         [
@@ -753,6 +921,6 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "ab5c138ab0ab01f5108c2da9a8bf6b673b79115ca97276f6293da8e3bc0a45b1"
+        "0ab8b3892a5d5d25b85646ef30e8b2487904415021912e68670fab316b2ecf2d"
     ]
 ]

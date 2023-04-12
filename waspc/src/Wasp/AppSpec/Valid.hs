@@ -5,6 +5,7 @@ module Wasp.AppSpec.Valid
     ValidationError (..),
     getApp,
     isAuthEnabled,
+    doesUserEntityContainField,
   )
 where
 
@@ -44,7 +45,10 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec,
+          validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
+          validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec
         ]
@@ -110,6 +114,18 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
 
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
+validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
+  case App.auth (snd $ getApp spec) of
+    Nothing -> []
+    Just auth ->
+      [ GenericValidationError
+          "Expected app.auth to use either email or username and password authentication, but not both."
+        | areBothAuthMethodsUsed
+      ]
+      where
+        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
+
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
   [ GenericValidationError
@@ -131,6 +147,36 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
               [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
                 ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
               ]
+
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else
+        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+            userEntityFields = Entity.getFields userEntity
+         in concatMap
+              (validateEntityHasField "app.auth.userEntity" userEntityFields)
+              [ ("email", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
+                ("password", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.String), "String"),
+                ("isEmailVerified", Entity.Field.FieldTypeScalar Entity.Field.Boolean, "Boolean"),
+                ("emailVerificationSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?"),
+                ("passwordResetSentAt", Entity.Field.FieldTypeComposite (Entity.Field.Optional Entity.Field.DateTime), "DateTime?")
+              ]
+
+validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
+validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
+  Nothing -> []
+  Just auth ->
+    if not $ Auth.isEmailAuthEnabled auth
+      then []
+      else case App.emailSender app of
+        Nothing -> [GenericValidationError "app.emailSender must be specified when using email auth."]
+        Just _ -> []
+  where
+    app = snd $ getApp spec
 
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed :: AppSpec -> [ValidationError]
 validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -187,5 +233,18 @@ isAuthEnabled :: AppSpec -> Bool
 isAuthEnabled spec = isJust (App.auth $ snd $ getApp spec)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+getDbSystem :: AppSpec -> Maybe AS.Db.DbSystem
+getDbSystem spec = AS.Db.system =<< AS.App.db (snd $ getApp spec)
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 isPostgresUsed :: AppSpec -> Bool
-isPostgresUsed spec = Just AS.Db.PostgreSQL == (AS.Db.system =<< AS.App.db (snd $ getApp spec))
+isPostgresUsed = (Just AS.Db.PostgreSQL ==) . getDbSystem
+
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
+-- If there is no user entity, it returns Nothing.
+doesUserEntityContainField :: AppSpec -> String -> Maybe Bool
+doesUserEntityContainField spec fieldName = do
+  auth <- App.auth (snd $ getApp spec)
+  let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
+  let userEntityFields = Entity.getFields userEntity
+  Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields

@@ -25,7 +25,7 @@ import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
-import Wasp.Generator.ServerGenerator.JsImport (getJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Util (toUpperFirst, (<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -66,7 +66,7 @@ genQuery :: (String, AS.Query.Query) -> Generator FileDraft
 genQuery (queryName, query) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.QueryOp queryName query
-    tmplFile = C.asTmplFile [relfile|src/queries/_query.js|]
+    tmplFile = C.asTmplFile [relfile|src/queries/_query.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> queryFileInSrcDir queryName
     tmplData = operationTmplData operation
 
@@ -100,7 +100,7 @@ genAction :: (String, AS.Action.Action) -> Generator FileDraft
 genAction (actionName, action) = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     operation = AS.Operation.ActionOp actionName action
-    tmplFile = [relfile|src/actions/_action.js|]
+    tmplFile = [relfile|src/actions/_action.ts|]
     dstFile = C.serverSrcDirInServerRootDir </> actionFileInSrcDir actionName
     tmplData = operationTmplData operation
 
@@ -108,13 +108,13 @@ queryFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 queryFileInSrcDir queryName =
   [reldir|queries|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ queryName ++ ".js")
+    </> fromJust (SP.parseRelFile $ queryName ++ ".ts")
 
 actionFileInSrcDir :: String -> Path' (Rel C.ServerSrcDir) File'
 actionFileInSrcDir actionName =
   [reldir|actions|]
     -- TODO: fromJust here could fail if there is some problem with the name, we should handle this.
-    </> fromJust (SP.parseRelFile $ actionName ++ ".js")
+    </> fromJust (SP.parseRelFile $ actionName ++ ".ts")
 
 operationFileInSrcDir :: AS.Operation.Operation -> Path' (Rel C.ServerSrcDir) File'
 operationFileInSrcDir (AS.Operation.QueryOp name _) = queryFileInSrcDir name
@@ -123,8 +123,8 @@ operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
-    [ "jsFnImportStatement" .= importStmt,
-      "jsFnIdentifier" .= importIdentifier,
+    [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
+      "operationTypeName" .= toUpperFirst (getName operation),
       "entities"
         .= maybe
           []
@@ -132,7 +132,5 @@ operationTmplData operation =
           (AS.Operation.getEntities operation)
     ]
   where
-    (importStmt, importIdentifier) = getJsImportStmtAndIdentifier relPathFromOperationsDirToServerSrcDir (AS.Operation.getFn operation)
-
     relPathFromOperationsDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathFromOperationsDirToServerSrcDir = [reldirP|../|]

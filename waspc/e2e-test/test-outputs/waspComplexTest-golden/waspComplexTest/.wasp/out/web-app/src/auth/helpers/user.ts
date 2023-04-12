@@ -1,4 +1,4 @@
-import { setAuthToken } from '../../api.js'
+import { setAuthToken } from '../../api'
 import { invalidateAndRemoveQueries } from '../../operations/resources'
 
 export async function initSession(token: string): Promise<void> {

@@ -20,16 +20,15 @@ module Wasp.Generator.DbGenerator.Common
     webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
     prismaClientOutputDirEnvVar,
-    databaseUrlEnvVar,
     DbSchemaChecksumFile,
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import Wasp.Common (DbMigrationsDir)
 import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir, ServerRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
 
@@ -96,9 +95,6 @@ dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </>
 
 prismaClientOutputDirEnvVar :: String
 prismaClientOutputDirEnvVar = "PRISMA_CLIENT_OUTPUT_DIR"
-
-databaseUrlEnvVar :: String
-databaseUrlEnvVar = "DATABASE_URL"
 
 prismaClientOutputDirInAppComponentDir :: AppComponentRootDir d => Path' (Rel d) (Dir ServerRootDir)
 prismaClientOutputDirInAppComponentDir = [reldir|node_modules/.prisma/client|]

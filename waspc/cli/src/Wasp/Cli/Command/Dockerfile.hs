@@ -9,7 +9,7 @@ import qualified Data.Text.IO as T.IO
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
-import Wasp.Lib (compileAndRenderDockerfile)
+import Wasp.Project (compileAndRenderDockerfile)
 
 printDockerfile :: Command ()
 printDockerfile = do
