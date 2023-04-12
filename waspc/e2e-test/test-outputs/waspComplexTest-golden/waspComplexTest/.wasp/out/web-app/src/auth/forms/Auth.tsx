@@ -142,6 +142,8 @@ const FormInput = styled('input', {
 
   paddingTop: '0.375rem',
   paddingBottom: '0.375rem',
+  paddingLeft: '0.75rem',
+  paddingRight: '0.75rem',
 
   marginTop: '0.5rem'
 })
