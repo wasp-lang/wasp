@@ -17,6 +17,7 @@ import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.App.EmailSender (EmailProvider)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
+import Wasp.AppSpec.Namespace (Namespace)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -24,6 +25,7 @@ import Wasp.AppSpec.Route (Route)
 makeEnumType ''EmailProvider
 makeEnumType ''DbSystem
 makeDeclType ''Page
+makeDeclType ''Namespace
 makeDeclType ''Route
 makeDeclType ''Query
 makeDeclType ''Action
@@ -41,6 +43,7 @@ stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $
   TD.addEnumType @DbSystem $
+  TD.addDeclType @Namespace $
   TD.addDeclType @Entity $
   TD.addDeclType @Page $
   TD.addDeclType @Route $

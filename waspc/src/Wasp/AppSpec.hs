@@ -18,6 +18,7 @@ module Wasp.AppSpec
     doesConfigFileExist,
     asAbsWaspProjectDirFile,
     getApp,
+    getNamespaces,
   )
 where
 
@@ -34,6 +35,7 @@ import Wasp.AppSpec.Core.Ref (Ref, refName)
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Job (Job)
+import Wasp.AppSpec.Namespace (Namespace)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -93,6 +95,9 @@ getApis = getDecls
 
 getEntities :: AppSpec -> [(String, Entity)]
 getEntities = getDecls
+
+getNamespaces :: AppSpec -> [(String, Namespace)]
+getNamespaces = getDecls
 
 getPages :: AppSpec -> [(String, Page)]
 getPages = getDecls

@@ -151,6 +151,11 @@ query getTasks {
   entities: [Task]
 }
 
+namespace heyYo {
+  middlewareConfigFn: import { heyYoMiddlewareFn } from "@server/apis.js",
+  path: "/foo/bar"
+}
+
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
   middlewareConfigFn: import { fooBarMiddlewareFn } from "@server/apis.js",

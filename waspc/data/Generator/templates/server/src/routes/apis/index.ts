@@ -10,6 +10,10 @@ import { type SanitizedUser } from '../../_types'
 
 const idFn = (x: any) => x
 
+{=# namespaces =}
+{=& namespaceMiddlewareConfigFnImportStatement =}
+{=/ namespaces =}
+
 {=# apiRoutes =}
 {=& importStatement =}
 
@@ -19,22 +23,23 @@ const idFn = (x: any) => x
 {=^ routeMiddlewareConfigFnDefined =}
 const {=& routeMiddlewareConfigFnImportAlias =} = idFn
 {=/ routeMiddlewareConfigFnDefined =}
-
 {=/ apiRoutes =}
 
 const router = express.Router()
 
-/*
-  NOTE: Since some middleware needs to run _before_ the method, like CORS for GET/POST requests,
-  we need to use `Router.use`. However, since this applies to all methods for that route, this
-  means we can only support _unique_ route paths.
-*/
+{=# namespaces =}
+router.use('{= namespacePath =}', toMiddlewareArray({= namespaceMiddlewareConfigFnImportAlias =}(getDefaultMiddleware())))
+{=/ namespaces =}
+
 {=# apiRoutes =}
-router.use('{= routePath =}', toMiddlewareArray({= routeMiddlewareConfigFnImportAlias =}(getDefaultMiddleware())))
+const {= apiName =}Middleware = toMiddlewareArray({= routeMiddlewareConfigFnImportAlias =}(getDefaultMiddleware()))
 router.{= routeMethod =}(
   '{= routePath =}',
   {=# usesAuth =}
-  auth,
+  [auth, ...{= apiName =}Middleware],
+  {=/ usesAuth =}
+  {=^ usesAuth =}
+  {= apiName =}Middleware,
   {=/ usesAuth =}
   handleRejection(
     (

@@ -13,6 +13,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
+import qualified Wasp.AppSpec.Namespace as N
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -38,16 +39,29 @@ genApiRoutes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     namedApis = AS.getApis spec
+    namedNamespaces = AS.getNamespaces spec
     tmplData =
       object
-        [ "apiRoutes" .= map getTmplData namedApis,
+        [ "apiRoutes" .= map getApiRoutesTmplData namedApis,
+          "namespaces" .= map getNamespaceTmplData namedNamespaces,
           "isAuthEnabled" .= isAuthEnabledGlobally spec
         ]
     tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getTmplData :: (String, Api.Api) -> Aeson.Value
-    getTmplData (apiName, api) =
+    getNamespaceTmplData :: (String, N.Namespace) -> Aeson.Value
+    getNamespaceTmplData (namespaceName, namespace) =
+      object
+        [ "namespacePath" .= N.path namespace,
+          "namespaceMiddlewareConfigFnImportStatement" .= middlewareConfigFnImport,
+          "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
+        ]
+      where
+        namespaceConfigFnAlias = namespaceName ++ "namespaceConfigFn"
+        (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (N.middlewareConfigFn namespace)
+
+    getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
+    getApiRoutesTmplData (apiName, api) =
       object
         [ "routeMethod" .= map toLower (show $ Api.method api),
           "routePath" .= Api.path api,
@@ -55,17 +69,18 @@ genApiRoutes spec =
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api,
-          "routeMiddlewareConfigFnDefined" .= isJust maybeMiddlewareConfigFnImports,
-          "routeMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMiddlewareConfigFnImports,
-          "routeMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
+          "routeMiddlewareConfigFnDefined" .= isJust maybeMiddlewareConfigFnImport,
+          "routeMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMiddlewareConfigFnImport,
+          "routeMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias,
+          "apiName" .= apiName
         ]
       where
         middlewareConfigFnAlias = apiName ++ "middlewareConfigFn"
-        maybeMiddlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
+        maybeMiddlewareConfigFnImport = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
         (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier (apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
 
-        relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-        relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
+relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
 
 genApiTypes :: AppSpec -> Generator FileDraft
 genApiTypes spec =

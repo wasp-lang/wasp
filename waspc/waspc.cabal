@@ -204,6 +204,7 @@ library
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
+    Wasp.AppSpec.Namespace
     Wasp.AppSpec.Operation
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
