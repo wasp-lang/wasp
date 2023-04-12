@@ -16,7 +16,6 @@ export async function createTask({ description }: CreateArgs, context: Context) 
   });
 };
 
-// type UpdateArgs = { taskId: Task['id']; isDone: Task['isDone'] };
 type UpdateArgs = Pick<Task, 'id' | 'isDone'>;
 
 export async function updateTask({ id, isDone }: UpdateArgs, context: Context) {

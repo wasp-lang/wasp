@@ -5,19 +5,22 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Aeson.Types (Pair)
-import Data.Maybe (fromMaybe)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.WebAppGenerator.Auth.EmailAuthG (genEmailAuth)
+import Wasp.Generator.WebAppGenerator.Auth.LocalAuthG (genLocalAuth)
+import Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.ExternalAuthG (ExternalAuthInfo, gitHubAuthInfo, googleAuthInfo)
-import qualified Wasp.Generator.WebAppGenerator.ExternalAuthG as ExternalAuthG
 import Wasp.Util ((<++>))
 
 genAuth :: AppSpec -> Generator [FileDraft]
@@ -25,25 +28,18 @@ genAuth spec =
   case maybeAuth of
     Just auth ->
       sequence
-        [ genSignup,
-          genLogin,
-          genLogout,
-          genUseAuth,
+        [ genLogout,
+          genUseAuth auth,
           genCreateAuthRequiredPage auth,
           genUserHelpers
         ]
         <++> genAuthForms auth
+        <++> genLocalAuth auth
+        <++> genOAuthAuth auth
+        <++> genEmailAuth auth
     Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
--- | Generates file with signup function to be used by Wasp developer.
-genSignup :: Generator FileDraft
-genSignup = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/signup.js|])
-
--- | Generates file with login function to be used by Wasp developer.
-genLogin :: Generator FileDraft
-genLogin = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/login.js|])
 
 -- | Generates file with logout function to be used by Wasp developer.
 genLogout :: Generator FileDraft
@@ -52,87 +48,67 @@ genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
 genCreateAuthRequiredPage auth =
-  compileTmplToSamePath
-    [relfile|auth/pages/createAuthRequiredPage.jsx|]
-    ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth]
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/pages/createAuthRequiredPage.jsx|]
+      (object ["onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth])
 
 -- | Generates React hook that Wasp developer can use in a component to get
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
-genUseAuth :: Generator FileDraft
-genUseAuth = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/useAuth.js|])
+genUseAuth :: AS.Auth.Auth -> Generator FileDraft
+genUseAuth auth = return $ C.mkTmplFdWithData [relfile|src/auth/useAuth.ts|] tmplData
+  where
+    tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genLoginForm auth,
-      genSignupForm auth
+    [ genAuthForm auth,
+      copyTmplFile [relfile|auth/forms/Login.tsx|],
+      copyTmplFile [relfile|auth/forms/Signup.tsx|],
+      copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
+      copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|],
+      copyTmplFile [relfile|auth/forms/types.ts|],
+      copyTmplFile [relfile|stitches.config.js|],
+      copyTmplFile [relfile|auth/forms/SocialIcons.tsx|],
+      copyTmplFile [relfile|auth/forms/SocialButton.tsx|]
     ]
-    <++> genExternalAuth auth
-
-genLoginForm :: AS.Auth.Auth -> Generator FileDraft
-genLoginForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Login.jsx|]
-    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
-
-genSignupForm :: AS.Auth.Auth -> Generator FileDraft
-genSignupForm auth =
-  compileTmplToSamePath
-    [relfile|auth/forms/Signup.jsx|]
-    ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth]
-
-genExternalAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genExternalAuth auth
-  | AS.App.Auth.isExternalAuthEnabled auth = (:) <$> genOAuthCodeExchange auth <*> genSocialLoginHelpers auth
-  | otherwise = return []
-
-genSocialLoginHelpers :: AS.Auth.Auth -> Generator [FileDraft]
-genSocialLoginHelpers auth =
-  return $
-    concat
-      [ [gitHubHelpers | AS.App.Auth.isGitHubAuthEnabled auth],
-        [googleHelpers | AS.App.Auth.isGoogleAuthEnabled auth]
-      ]
   where
-    gitHubHelpers = mkHelpersFd gitHubAuthInfo [relfile|GitHub.jsx|]
-    googleHelpers = mkHelpersFd googleAuthInfo [relfile|Google.jsx|]
+    copyTmplFile = return . C.mkSrcTmplFd
 
-    mkHelpersFd :: ExternalAuthInfo -> Path' Rel' File' -> FileDraft
-    mkHelpersFd externalAuthInfo helpersFp =
-      mkTmplFdWithDstAndData
-        [relfile|src/auth/helpers/Generic.jsx|]
-        (SP.castRel $ [reldir|src/auth/helpers|] SP.</> helpersFp)
-        (Just tmplData)
-      where
-        tmplData =
-          object
-            [ "signInPath" .= ExternalAuthG.serverLoginUrl externalAuthInfo,
-              "iconName" .= SP.toFilePath (ExternalAuthG._logoFileName externalAuthInfo),
-              "displayName" .= ExternalAuthG._displayName externalAuthInfo
-            ]
-
-genOAuthCodeExchange :: AS.Auth.Auth -> Generator FileDraft
-genOAuthCodeExchange auth =
+genAuthForm :: AS.Auth.Auth -> Generator FileDraft
+genAuthForm auth =
   compileTmplToSamePath
-    [relfile|auth/pages/OAuthCodeExchange.jsx|]
+    [relfile|auth/forms/Auth.tsx|]
     [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-      "onAuthFailedRedirectTo" .= AS.Auth.onAuthFailedRedirectTo auth
+      "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+      "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
+      "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+      -- Google
+      "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
+      "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+      -- GitHub
+      "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+      -- Username and password
+      "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
+      -- Email
+      "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth,
+      "isEmailVerificationRequired" .= AS.Auth.isEmailVerificationRequired auth
     ]
+  where
+    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
 
 compileTmplToSamePath :: Path' Rel' File' -> [Pair] -> Generator FileDraft
 compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
   return $
-    C.mkTmplFdWithDstAndData
+    C.mkTmplFdWithData
       (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
-      targetPath
-      (Just templateData)
-  where
-    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile tmplFileInTmplSrcDir
-    templateData = object keyValuePairs
-
-getOnAuthSucceededRedirectToOrDefault :: AS.Auth.Auth -> String
-getOnAuthSucceededRedirectToOrDefault auth = fromMaybe "/" (AS.Auth.onAuthSucceededRedirectTo auth)
+      (object keyValuePairs)
 
 genUserHelpers :: Generator FileDraft
 genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])

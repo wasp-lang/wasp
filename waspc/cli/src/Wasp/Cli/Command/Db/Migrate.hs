@@ -13,12 +13,11 @@ import Wasp.Cli.Command.Common
   )
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Common as Cli.Common
-import Wasp.Common (DbMigrationsDir)
-import qualified Wasp.Common
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Wasp.Message as Msg
+import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProjectDir)
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
 -- This assumes the wasp project migrations dir was copied from wasp source project by a previous compile.
@@ -26,14 +25,13 @@ import qualified Wasp.Message as Msg
 migrateDev :: [String] -> Command ()
 migrateDev optionalMigrateArgs = do
   waspProjectDir <- findWaspProjectRootDirFromCwd
-  let waspDbMigrationsDir = waspProjectDir </> Wasp.Common.dbMigrationsDirInWaspProjectDir
+  let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
   let projectRootDir =
         waspProjectDir
           </> Cli.Common.dotWaspDirInWaspProjectDir
           </> Cli.Common.generatedCodeDirInDotWaspDir
 
   migrateDatabase optionalMigrateArgs projectRootDir waspDbMigrationsDir
-  generatePrismaClients projectRootDir
 
 migrateDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
 migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
@@ -45,14 +43,6 @@ migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
     tryMigrate = runExceptT $ do
       migrateArgs <- liftEither $ parseMigrateArgs optionalMigrateArgs
       ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir migrateArgs
-
-generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> Command ()
-generatePrismaClients projectRootDir = do
-  cliSendMessageC $ Msg.Start "Generating prisma clients..."
-  generatePrismaClientsResult <- liftIO $ DbOps.generatePrismaClients projectRootDir
-  case generatePrismaClientsResult of
-    Left err -> throwError $ CommandError "Could not generate Prisma clients" err
-    Right () -> cliSendMessageC $ Msg.Success "Prisma clients successfully generated."
 
 -- | Basic parsing of db-migrate args. In the future, we could use a smarter parser
 -- for this (and all other CLI arg parsing).

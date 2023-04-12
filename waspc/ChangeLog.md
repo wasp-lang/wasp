@@ -1,5 +1,233 @@
 # Changelog
 
+## v0.10.0
+
+### Breaking changes
+
+- We changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
+    - `import { LoginForm } from '@wasp/auth/forms/Login'`
+    - `import { SignupForm } from '@wasp/auth/Signup'`
+- We renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
+- We changed the type arguments for `useQuery` and `useAction` hooks. They now take two arguments (the `Error` type argument was removed):
+  - `Input` - This type argument specifies the type for the **request's payload**.
+  - `Output` - This type argument specifies the type for the **resposne's payload**.
+
+### Full-stack type safety for Operations
+Frontend code can now infer correct payload/response types for Queries and Actions from their definitions on the server.
+
+Define a Query on the server:
+```typescript
+export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = 
+  async ({ id }, context) => {
+    // ...
+  }
+```
+
+Get properly typed functions and data on the frontend:
+```typescript
+import { useQuery } from "@wasp/queries"
+// Wasp knows the type of `getTask` thanks to your backend definition.
+import getTask from "@wasp/queries/getTask"
+
+export const TaskInfo = () => {
+  const {
+    // TypeScript knows `task` is a `Task | undefined` thanks to the
+    // backend definition.
+    data: task,
+    // TypeScript knows `isError` is a `boolean`.
+    isError,
+    // TypeScript knows `error` is of type `Error`.
+    error,
+    // TypeScript knows the second argument must be a `Pick<Task, "id">` thanks
+    // to the backend definition.
+  } = useQuery(getTask, { id: 1 })
+
+  if (isError) {
+    return <div> Error during fetching tasks: {error.message || "unknown"}</div>
+  }
+
+  // TypeScript forces you to perform this check.
+  return taskInfo === undefined ? (
+    <div>Waiting for info...</div>
+  ) : (
+    <div>{taskInfo}</div>
+  )
+}
+```
+The same feature is available for Actions.
+
+### Payloads compatible with Superjson 
+Client and the server can now communicate with richer payloads.
+
+Return a Superjson-compatible object from your Operation:
+```typescript
+type FooInfo = { foos: Foo[], message: string, queriedAt: Date }
+
+const getFoos: GetFoo<void, FooInfo> = (_args, context) => {
+  const foos = context.entities.Foo.findMany()
+  return {
+    foos,
+    message: "Here are some foos!",
+    queriedAt: new Date(),
+  }
+}
+```
+And seamlessly use it on the frontend:
+
+```typescript
+import getfoos from "@wasp/queries/getTask"
+
+const { data } = useQuery(getfoos)
+const { foos, message, queriedAt } = data
+// foos: Foo[]
+// message: string
+// queriedAt: Date
+```
+
+### E-mail authentication
+
+You can now use e-mail authentication in your Wasp app! This means that users can sign up and log in using their e-mail address. You get e-mail verification and password reset out of the box.
+
+```c
+app MyApp {
+  // ...
+  auth: {
+    // ...
+    email: {
+        fromField: {
+          name: "ToDO App",
+          email: "hello@itsme.com"
+        },
+        emailVerification: {
+          allowUnverifiedLogin: false,
+          getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
+          clientRoute: PasswordResetRoute
+        },
+      },
+  }
+}
+```
+
+You can only use one of e-mail or username & password authentication in your app. You can't use both at the same time.
+
+### Auth UI components
+
+Wasp now provides a set of UI components for authentication. You can use them to quickly build a login and signup page for your app. The UI changes dynamically based on your Wasp config.
+
+We provide `LoginForm`, `SignupForm`, `ForgotPassworForm`, `ResetPasswordForm` and`VerifyEmailForm` components. You can import them from `@wasp/auth/forms` like:
+
+```js
+import { LoginForm } from '@wasp/auth/forms/Login'
+import { SignupForm } from '@wasp/auth/forms/Signup'
+import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
+import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
+import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
+```
+
+### Database seeding 
+You can now define JS/TS functions for seeding the database!
+
+```c
+app MyApp {
+  // ...
+  db: {
+    seeds: [
+      import { devSeedSimple } from "@server/dbSeeds.js",
+      import { prodSeed } from "@server/dbSeeds.js",
+    ]
+  }
+}
+```
+
+```js
+import { createTask } from './actions.js'
+
+export const devSeedSimple = async (prismaClient) => {
+  const { password, ...newUser } = await prismaClient.user.create({
+    username: "RiuTheDog", password: "bark1234"
+  })
+  await createTask(
+    { description: "Chase the cat" },
+    { user: newUser, entities: { Task: prismaClient.task } }
+  )
+}
+
+//...
+```
+
+Run `wasp db seed` to run database seeding. If there is only one seed, it will run that one, or it will interactively ask you to pick one.
+You can also do `wasp db seed <name>` to run a seed with specific name: for example, for the case above, you could do `wasp db seed prodSeed`.
+
+
+### The `api` keyword for defining an arbitrary endpoint and URL
+Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need complete control of the response? Use an `api` to define one by tying a JS function to any HTTP method and path! For example:
+```ts
+// main.wasp
+api fooBar {
+  fn: import { foo } from "@server/apis.js",
+  entities: [Task],
+  httpRoute: (GET, "/foo/callback")
+}
+
+// server/api.ts
+import { FooBar } from '@wasp/apis/types'
+
+export const fooBar : FooBar = (req, res, context) => {
+  res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
+  res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+}
+```
+
+### E-mail sending support
+
+Wasp now supports sending e-mails! You can use the `emailSender` app property to configure the e-mail provider and optionally the `defaultFrom` address. Then, you can use the `send` function in your backend code to send e-mails.
+
+```ts
+// main.wasp
+app MyApp {
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "My App",
+      email: "myapp@domain.com"
+    },
+  },
+}
+
+// server/actions.ts
+import { emailSender } from '@wasp/email/index.js'
+
+// In some action handler...
+const info = await emailSender.send({
+    to: 'user@domain.com',
+    subject: 'Saying hello',
+    text: 'Hello world',
+    html: 'Hello <strong>world</strong>'
+})
+```
+
+### `wasp start db` -> Wasp can now run your dev database for you with a single command
+
+Moving from SQLite to PostgreSQL with Wasp can feel like increase in complexity, because suddenly you have to care about running your PostgreSQL database, providing connection URL for it via env var, and if you checkout somebody's else Wasp project, or your old Wasp project that you have no memory of any more, you also have to figure all that out.
+
+To help with that, we now added `wasp start db`, which runs a development database for you!
+That it, all you need to do is run `wasp start db` and you are good to go. No env var setting, no remembering how to run the db.
+
+NOTE: Requires `docker` to be installed and in `PATH`, and docker daemon to be running.
+
+### `wasp test client` -> Wasp can now test your web app code
+By leveraging Vitest and some supporting libraries, Wasp now makes it super easy to add unit tests and React component tests to your frontend codebase.
+
+### `pg-boss` upgraded to latest version (8.4.2)
+This `pg-boss` release fixes an issue where the node server would exit due to an unhandled exception when the DB connection was lost.
+
+### Bug fixes
+- Starts the process of removing the coupling between `usernameAndPassword` and social logins. Now, your `userEntity` no longer requires a `username` or `password` field if you only want to use Google/GitHub for auth.
+
 ## v0.9.0
 
 ### BREAKING CHANGES
@@ -10,7 +238,7 @@
 We moved away from using Create React App for the client app. This means that dev startup time will be much faster and we are following the latest best practices for building web apps with React.
 
 ### Express `app` and http `server` available in server `setupFn`
-- Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
+Wasp now passes in a context to the server `setupFn` that contains Express `app` and http `server` objects. This can be used as an escape hatch for things like custom routes or WebSocket support.
 
 ## v0.8.2
 

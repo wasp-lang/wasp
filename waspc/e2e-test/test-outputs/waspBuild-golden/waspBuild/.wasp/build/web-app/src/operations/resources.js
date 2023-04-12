@@ -11,7 +11,7 @@ const updateHandlers = makeUpdateHandlersMap(hashQueryKey)
 /**
  * Remembers that specified query is using specified resources.
  * If called multiple times for same query, resources are added, not reset.
- * @param {string} queryCacheKey - Unique key under used to identify query in the cache.
+ * @param {string[]} queryCacheKey - Unique key under used to identify query in the cache.
  * @param {string[]} resources - Names of resources that query is using.
  */
 export function addResourcesUsedByQuery(queryCacheKey, resources) {

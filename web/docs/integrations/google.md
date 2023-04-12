@@ -29,8 +29,7 @@ app Example {
 
 entity User {=psl
     id          Int     @id @default(autoincrement())
-    username    String  @unique
-    password    String
+    // ...
     externalAuthAssociations  SocialLogin[]
 psl=}
 

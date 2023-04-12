@@ -21,14 +21,16 @@ COMMANDS
     uninstall             Removes Wasp from your system.
   IN PROJECT
     start                 Runs Wasp app in development mode, watching for file changes.
+    start db              Starts managed development database for you.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
-    clean                 Deletes all generated code and other cached artifacts. Wasp equivalent of 'have you tried closing and opening it again?'.
+    clean                 Deletes all generated code and other cached artifacts.                          Wasp equivalent of 'have you tried closing and opening it again?'.
     build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
     deps                  Prints the dependencies that Wasp uses in your project.
     dockerfile            Prints the contents of the Wasp generated Dockerfile.
     info                  Prints basic information about current Wasp project.
+    test                  Executes tests in your project.
 
 EXAMPLES
   wasp new MyApp
@@ -80,7 +82,7 @@ To setup Bash completion, execute `wasp completion` and follow the instructions.
 
 ### In project
  - `wasp start` runs Wasp app in development mode. It opens a browser tab with your application running, and watches for any changes to .wasp or files in `src/` to automatically reflect in the browser. It also shows messages from the web app, the server and the database on stdout/stderr.
-
+ - `wasp start db` starts the database for you. This can be very handy, since you don't need to spin up your own database or provide its connection URL to the Wasp app!
  - `wasp clean` deletes all generated code and other cached artifacts. If using SQlite, it also deletes the SQlite database. It is the Wasp equivalent to "try shutting it down and turning back on".
 
    ```

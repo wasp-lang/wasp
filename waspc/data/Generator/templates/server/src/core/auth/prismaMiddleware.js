@@ -2,7 +2,9 @@
 import { hashPassword } from '../auth.js'
 import AuthError from '../AuthError.js'
 
+{=# isUsernameOnUserEntity  =}
 const USERNAME_FIELD = 'username'
+{=/ isUsernameOnUserEntity  =}
 const PASSWORD_FIELD = 'password'
 
 // Allows flexible validation of a user entity.
@@ -59,18 +61,21 @@ export const registerAuthMiddleware = (prismaClient) => {
   registerPasswordHashing(prismaClient)
 }
 
+const userValidations = []
+{=# isUsernameOnUserEntity =}
+userValidations.push({ validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username })
+{=/ isUsernameOnUserEntity =}
+{=# isPasswordOnUserEntity =}
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password })
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 })
+userValidations.push({ validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) })
+{=/ isPasswordOnUserEntity =}
+
 const validateUser = (user, args, action) => {
   user = user || {}
 
-  const defaultValidations = [
-    { validates: USERNAME_FIELD, message: 'username must be present', validator: username => !!username },
-    { validates: PASSWORD_FIELD, message: 'password must be present', validator: password => !!password },
-    { validates: PASSWORD_FIELD, message: 'password must be at least 8 characters', validator: password => password.length >= 8 },
-    { validates: PASSWORD_FIELD, message: 'password must contain a number', validator: password => /\d/.test(password) },
-  ]
-
   const validations = [
-    ...(args._waspSkipDefaultValidations ? [] : defaultValidations),
+    ...(args._waspSkipDefaultValidations ? [] : userValidations),
     ...(args._waspCustomValidations || [])
   ]
 

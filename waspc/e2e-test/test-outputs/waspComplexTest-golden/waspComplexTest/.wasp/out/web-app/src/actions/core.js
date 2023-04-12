@@ -1,10 +1,12 @@
-import { callOperation } from '../operations'
+import { callOperation, makeOperationRoute } from '../operations'
 import {
   registerActionInProgress,
   registerActionDone,
 } from '../operations/resources'
 
-export function createAction(actionRoute, entitiesUsed) {
+export function createAction(relativeActionRoute, entitiesUsed) {
+  const actionRoute = makeOperationRoute(relativeActionRoute)
+
   async function internalAction(args, specificOptimisticUpdateDefinitions) {
     registerActionInProgress(specificOptimisticUpdateDefinitions)
     try {

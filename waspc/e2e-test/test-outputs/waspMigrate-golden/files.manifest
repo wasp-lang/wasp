@@ -8,6 +8,7 @@ waspMigrate/.wasp/out/db/schema.prisma
 waspMigrate/.wasp/out/db/schema.prisma.wasp-generate-checksum
 waspMigrate/.wasp/out/db/schema.prisma.wasp-last-db-concurrence-checksum
 waspMigrate/.wasp/out/installedFullStackNpmDependencies.json
+waspMigrate/.wasp/out/server/.env
 waspMigrate/.wasp/out/server/.npmrc
 waspMigrate/.wasp/out/server/README.md
 waspMigrate/.wasp/out/server/nodemon.json
@@ -21,7 +22,8 @@ waspMigrate/.wasp/out/server/src/app.js
 waspMigrate/.wasp/out/server/src/config.js
 waspMigrate/.wasp/out/server/src/core/AuthError.js
 waspMigrate/.wasp/out/server/src/core/HttpError.js
-waspMigrate/.wasp/out/server/src/dbClient.js
+waspMigrate/.wasp/out/server/src/dbClient.ts
+waspMigrate/.wasp/out/server/src/dbSeed/types.ts
 waspMigrate/.wasp/out/server/src/entities/index.ts
 waspMigrate/.wasp/out/server/src/jobs/core/Job.js
 waspMigrate/.wasp/out/server/src/jobs/core/SubmittedJob.js
@@ -34,9 +36,11 @@ waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js
 waspMigrate/.wasp/out/server/src/server.ts
 waspMigrate/.wasp/out/server/src/types/index.ts
+waspMigrate/.wasp/out/server/src/universal/types.ts
 waspMigrate/.wasp/out/server/src/universal/url.ts
 waspMigrate/.wasp/out/server/src/utils.js
 waspMigrate/.wasp/out/server/tsconfig.json
+waspMigrate/.wasp/out/web-app/.env
 waspMigrate/.wasp/out/web-app/.npmrc
 waspMigrate/.wasp/out/web-app/README.md
 waspMigrate/.wasp/out/web-app/index.html
@@ -49,7 +53,7 @@ waspMigrate/.wasp/out/web-app/scripts/validate-env.mjs
 waspMigrate/.wasp/out/web-app/src/actions/core.d.ts
 waspMigrate/.wasp/out/web-app/src/actions/core.js
 waspMigrate/.wasp/out/web-app/src/actions/index.ts
-waspMigrate/.wasp/out/web-app/src/api.js
+waspMigrate/.wasp/out/web-app/src/api.ts
 waspMigrate/.wasp/out/web-app/src/config.js
 waspMigrate/.wasp/out/web-app/src/entities/index.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/Main.css
@@ -58,7 +62,7 @@ waspMigrate/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspMigrate/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspMigrate/.wasp/out/web-app/src/index.tsx
 waspMigrate/.wasp/out/web-app/src/logo.png
-waspMigrate/.wasp/out/web-app/src/operations/index.js
+waspMigrate/.wasp/out/web-app/src/operations/index.ts
 waspMigrate/.wasp/out/web-app/src/operations/resources.js
 waspMigrate/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspMigrate/.wasp/out/web-app/src/queries/core.d.ts
@@ -67,6 +71,12 @@ waspMigrate/.wasp/out/web-app/src/queries/index.d.ts
 waspMigrate/.wasp/out/web-app/src/queries/index.js
 waspMigrate/.wasp/out/web-app/src/queryClient.js
 waspMigrate/.wasp/out/web-app/src/router.jsx
+waspMigrate/.wasp/out/web-app/src/storage.ts
+waspMigrate/.wasp/out/web-app/src/test/index.ts
+waspMigrate/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspMigrate/.wasp/out/web-app/src/test/vitest/setup.ts
+waspMigrate/.wasp/out/web-app/src/types.ts
+waspMigrate/.wasp/out/web-app/src/universal/types.ts
 waspMigrate/.wasp/out/web-app/src/universal/url.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/src/vite-env.d.ts

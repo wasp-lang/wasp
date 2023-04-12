@@ -7,9 +7,11 @@ module Wasp.AppSpec.App.Db
 where
 
 import Data.Data (Data)
+import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Db = Db
-  { system :: Maybe DbSystem
+  { system :: Maybe DbSystem,
+    seeds :: Maybe [ExtImport]
   }
   deriving (Show, Eq, Data)
 
