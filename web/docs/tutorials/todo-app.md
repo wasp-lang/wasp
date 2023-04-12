@@ -5,7 +5,7 @@ title: Introduction
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 :::info 
-If you want to run Wasp locally and haven't yet set it up, check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial.
+If you want to run Wasp locally and haven't yet set it up, check out [Getting Started](/docs) first for installation instructions, and then continue with the tutorial.
 :::
 
 Let's build together a simple Todo App in Wasp!
