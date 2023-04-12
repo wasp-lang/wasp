@@ -4,12 +4,87 @@
 
 ### Breaking changes
 
-- we changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
+- We changed `LoginForm` and `SignupForm` to use a named export instead of a default export, this means you must use them like this:
     - `import { LoginForm } from '@wasp/auth/forms/Login'`
     - `import { SignupForm } from '@wasp/auth/Signup'`
-- we renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
+- We renamed `useAuth.js` to `useAuth.ts` and you should import it like this: `import useAuth from '@wasp/auth/useAuth'` (without the `.js` extension)
+- We changed the type arguments for `useQuery` and `useAction` hooks. They now take two arguments (the `Error` type argument was removed):
+  - `Input` - This type argument specifies the type for the **request's payload**.
+  - `Output` - This type argument specifies the type for the **resposne's payload**.
 
-### Adds support for e-mail authentication
+### Full-stack type safety for Operations
+Frontend code can now infer correct payload/response types for Queries and Actions from their definitions on the server.
+
+Define a Query on the server:
+```typescript
+export const getTask: GetTaskInfo<Pick<Task, "id">, Task> = 
+  async ({ id }, context) => {
+    // ...
+  }
+```
+
+Get properly typed functions and data on the frontend:
+```typescript
+import { useQuery } from "@wasp/queries"
+// Wasp knows the type of `getTask` thanks to your backend definition.
+import getTask from "@wasp/queries/getTask"
+
+export const TaskInfo = () => {
+  const {
+    // TypeScript knows `task` is a `Task | undefined` thanks to the
+    // backend definition.
+    data: task,
+    // TypeScript knows `isError` is a `boolean`.
+    isError,
+    // TypeScript knows `error` is of type `Error`.
+    error,
+    // TypeScript knows the second argument must be a `Pick<Task, "id">` thanks
+    // to the backend definition.
+  } = useQuery(getTask, { id: 1 })
+
+  if (isError) {
+    return <div> Error during fetching tasks: {error.message || "unknown"}</div>
+  }
+
+  // TypeScript forces you to perform this check.
+  return taskInfo === undefined ? (
+    <div>Waiting for info...</div>
+  ) : (
+    <div>{taskInfo}</div>
+  )
+}
+```
+The same feature is available for Actions.
+
+### Payloads compatible with Superjson 
+Client and the server can now communicate with richer payloads.
+
+Return a Superjson-compatible object from your Operation:
+```typescript
+type FooInfo = { foos: Foo[], message: string, queriedAt: Date }
+
+const getFoos: GetFoo<void, FooInfo> = (_args, context) => {
+  const foos = context.entities.Foo.findMany()
+  return {
+    foos,
+    message: "Here are some foos!",
+    queriedAt: new Date(),
+  }
+}
+```
+And seamlessly use it on the frontend:
+
+```typescript
+import getfoos from "@wasp/queries/getTask"
+
+const { data } = useQuery(getfoos)
+const { foos, message, queriedAt } = data
+// foos: Foo[]
+// message: string
+// queriedAt: Date
+```
+
+### E-mail authentication
 
 You can now use e-mail authentication in your Wasp app! This means that users can sign up and log in using their e-mail address. You get e-mail verification and password reset out of the box.
 
@@ -21,7 +96,7 @@ app MyApp {
     email: {
         fromField: {
           name: "ToDO App",
-          email: "mihovil@ilakovac.com"
+          email: "hello@itsme.com"
         },
         emailVerification: {
           allowUnverifiedLogin: false,
@@ -39,7 +114,7 @@ app MyApp {
 
 You can only use one of e-mail or username & password authentication in your app. You can't use both at the same time.
 
-### Adds Auth UI components
+### Auth UI components
 
 Wasp now provides a set of UI components for authentication. You can use them to quickly build a login and signup page for your app. The UI changes dynamically based on your Wasp config.
 
@@ -53,7 +128,7 @@ import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 ```
 
-### Adds support for database seeding
+### Database seeding 
 You can now define JS/TS functions for seeding the database!
 
 ```c
@@ -88,7 +163,7 @@ Run `wasp db seed` to run database seeding. If there is only one seed, it will r
 You can also do `wasp db seed <name>` to run a seed with specific name: for example, for the case above, you could do `wasp db seed prodSeed`.
 
 
-### Adds an `api` keyword for defining an arbitrary endpoint and URL
+### The `api` keyword for defining an arbitrary endpoint and URL
 Need a specific endpoint, like `/healthcheck` or `/foo/callback`? Or need complete control of the response? Use an `api` to define one by tying a JS function to any HTTP method and path! For example:
 ```ts
 // main.wasp
@@ -107,7 +182,7 @@ export const fooBar : FooBar = (req, res, context) => {
 }
 ```
 
-### Adds support for sending e-mails
+### E-mail sending support
 
 Wasp now supports sending e-mails! You can use the `emailSender` app property to configure the e-mail provider and optionally the `defaultFrom` address. Then, you can use the `send` function in your backend code to send e-mails.
 
