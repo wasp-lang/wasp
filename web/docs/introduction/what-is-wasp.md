@@ -39,7 +39,7 @@ Define your app in the Wasp config and get:
 - security best practices,
 - and more. 
 
-You don't need to write any code for these features, Wasp will take care of it for you 🤯
+You don't need to write any code for these features, Wasp will take care of it for you 🤯 And what's even better, Wasp also maintains the code for you, so you don't have to worry about keeping up with the latest security best practices. As Wasp updates, so does your app.
 
 ### But what does it look like?
 
