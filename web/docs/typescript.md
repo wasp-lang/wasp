@@ -160,7 +160,7 @@ export function ExamplePage() {}
 
 ```
 
-The mentioned type safety mechanisms also apply here: Changing the task entity in our `.wasp` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
+The mentioned type safety mechanisms also apply here: changing the task entity in our `.wasp` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
 
 ## Backend type support for Queries and Actions
 
