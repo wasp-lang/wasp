@@ -7,7 +7,7 @@ import prisma from '../dbClient.js'
           consider in the future if it is worth removing this duplication. =}
 
 export default async function (args, context) {
-  return {= jsFn.importIdentifier =}(args as never, {
+  return ({= jsFn.importIdentifier =} as any)(args, {
     ...context,
     entities: {
       {=# entities =}

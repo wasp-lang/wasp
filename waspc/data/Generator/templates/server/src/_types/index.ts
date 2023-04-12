@@ -24,7 +24,7 @@ export type AuthenticatedAction<Entities extends _Entity[], Input, Output> =
 type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: ContextWithUser<Entities>,
-) => Promise<Output>
+) => Output | Promise<Output>
 
 export type AuthenticatedApi<
   Entities extends _Entity[],
@@ -43,7 +43,7 @@ export type AuthenticatedApi<
 type Operation<Entities extends _Entity[], Input, Output> = (
   args: Input,
   context: Context<Entities>,
-) => Promise<Output>
+) => Output | Promise<Output>
 
 export type Api<
   Entities extends _Entity[],
@@ -73,7 +73,7 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 {=# isAuthEnabled =}
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user: SanitizedUser}>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser}>
 
 // TODO: This type must match the logic in core/auth.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
