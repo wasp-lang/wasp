@@ -52,24 +52,7 @@ const ActionButtons = () => (
         `}
       >
         <BookOpen size={16} />
-        <span>Read Tutorial</span>
-      </button>
-    </Link>
-
-    <Link to='#examples'>
-    <button
-      className={`
-        inline-flex items-center space-x-2
-        px-3 py-2 rounded
-        border border-neutral-500
-        text-sm leading-4
-        text-neutral-700
-        hover:text-neutral-400 hover:border-neutral-400
-        transition ease-out duration-200
-      `}
-      >
-        <Trello size={16} />
-        <span>Examples</span>
+        <span>Tutorial</span>
       </button>
     </Link>
   </div>

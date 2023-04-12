@@ -45,18 +45,16 @@ const TextLink = ({ url, label }) => (
     <span
       className={`
         mt-3 block cursor-pointer text-sm
-        text-neutral-600 hover:text-neutral-500
+        text-neutral-500 hover:text-neutral-400
       `}
     >
-      <div className='group flex'>
-        <span className='flex gap-1 items-center bg-yellow-500/25 px-1 rounded'>
-          <span>{label}</span>
-          <div className='transition-all group-hover:ml-0.5'>
-            <span className='text-yellow-600'>
-              <ArrowRight size={14} strokeWidth={2} />
-            </span>
-          </div>
-        </span>
+      <div className='group flex gap-1 items-center'>
+        <span>{label}</span>
+        <div className='transition-all group-hover:ml-0.5'>
+          <span className='text-yellow-600'>
+            <ArrowRight size={14} strokeWidth={2} />
+          </span>
+        </div>
       </div>
     </span>
   </Link>

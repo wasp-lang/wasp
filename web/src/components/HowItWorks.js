@@ -88,9 +88,7 @@ const HowItWorks = () => {
           </div> {/* EOF Features */}
         </div>
 
-        <div className='col-span-12 lg:col-span-7 xl:col-span-7 xl:col-start-6'
-            style={{display: 'flex', alignItems: 'center'}}
-        >
+        <div className='col-span-12 lg:col-span-7 xl:col-span-7 xl:col-start-6'>
           <img
             className=''
             src='img/lp/wasp-compilation-diagram.png'
