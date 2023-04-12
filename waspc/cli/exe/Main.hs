@@ -178,8 +178,8 @@ printDbUsage =
         cmd   "  start         Alias for `wasp start db`.",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
-        cmd   "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
-        cmd   "                or if not then you will be asked to provide the name interactively.",
+              "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
+              "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
               "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
               "                  - Generates a new migration if there are changes in the schema.",
