@@ -4,11 +4,7 @@ module.exports = {
       type: "category",
       label: "Introduction",
       collapsed: false,
-      items: [
-        "introduction/getting-started",
-        // 'introduction/about',
-        "introduction/what-is-wasp",
-      ],
+      items: ["introduction/getting-started", "introduction/what-is-wasp"],
     },
     {
       type: "category",
