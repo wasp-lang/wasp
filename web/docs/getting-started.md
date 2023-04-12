@@ -8,19 +8,46 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::tip Try Wasp Without Installing 🤔?
-  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
+## Quick Start
+
+Welcome, new Waspeteer 🐝!
+
+To install Wasp on Linux / OSX, open your terminal and run: 
+
+```shell
+curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+```
+
+Then, create a new app by running:
+
+
+```shell
+wasp new MyNewApp # Creates a new web app named MyNewApp.
+cd MyNewApp
+wasp start # Serves the web app.
+```
+
+That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
+
+:::info
+Anything went wrong, or you have additional questions? Check [More Details](#more-details) section below!
 :::
 
-## 1. Requirements
+
+### What next?
+
+ - If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
+ - ➡️ **Check out the [Todo App tutorial](tutorials/todo-app.md) , which will take you through all the core features of Wasp!** ⬅️
+ - ️ **Join us on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you.
+ - Follow Wasp development by **subscribing to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
+
+------
+
+## More details
+
+### 1. Requirements
 
 You must have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
-
-You can check the `node` version by running:
-```shell
-$ node -v
-v18.14.2
-```
 
 We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -54,19 +81,8 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
   </div>
 </details>
 
-<details>
-  <summary style={{cursor: 'pointer', 'textDecoration': 'underline'}}>
-    Why this version of node?
-  </summary>
-  <div>
-    At Wasp, we focus on supporting the latest LTS ("long-term-support") Node.js version, since it guarantees stability and active maintenance, which is why the official Node.js team recommends it for usage in production.
-    Therefore, a specific Wasp release will usually require the version of Node.js that was LTS at that point of time.
-    Check out https://nodejs.org/en/about/releases/ for more details about Node.js releases.
-  </div>
-</details>
 
-
-## 2. Installation
+### 2. Installation
 
 <Tabs
   defaultValue='linux/osx'
@@ -117,36 +133,7 @@ Check [waspc/](https://github.com/wasp-lang/wasp/tree/main/waspc) for more detai
   </TabItem>
 </Tabs>
 
-## 3. Creating and running your first app
-```shell
-wasp new MyNewApp # Creates a new web app named MyNewApp.
-cd MyNewApp
-wasp start # Serves the web app.
-```
 
-That's it :tada:! You have successfully created and served a new web app at <http://localhost:3000> and Wasp is serving both frontend and backend for you.
-
-
-
-:::info For Visual Studio Code
-
-If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
-
-The extension brings the following functionality:
-
-* Syntax highlighting for .wasp files
-* Snippets for .wasp files
-* Wasp language server
-* live reporting of compilation errors
-* autocompletion
-
+:::tip Try Wasp Without Installing 🤔?
+  Give Wasp a spin in the browser without any setup by running our [Wasp Template for Gitpod](https://github.com/wasp-lang/gitpod-template)
 :::
-
-
-## 4. What next?
-
-**Check out the 🤓 [Todo App tutorial](tutorials/todo-app.md) 🤓 , which will take you through all the core features of Wasp!**
-
-Also, we would be excited to have you **join our community on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you.
-
-Finally, to stay up to date with updates in Wasp, you can **subscribe to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!

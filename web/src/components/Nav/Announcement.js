@@ -1,26 +1,29 @@
 import React from 'react'
+import classNames from 'classnames'
 import { useHistory } from '@docusaurus/router'
 import { ChevronRight, X } from 'react-feather'
+
+import styles from '../../pages/styles.module.css'
 
 const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    //history.push('/blog/2022/11/26/wasp-beta-launch-week')
+    history.push('/blog/2023/04/11/wasp-launch-week-two')
+    //history.push('/#signup')
 
-    window.open('https://betathon.wasp-lang.dev/')
+    //window.open('https://betathon.wasp-lang.dev/')
   }
 
   return (
     <div
       onClick={handleLink}
-      className={`
+      className={classNames(styles.gradientBackground, `
         overflow-hidden
         cursor-pointer flex-row
         space-x-3
         text-white
-        bg-yellow-500
-      `}
+      `)}
     >
       <div
         className={`
@@ -31,12 +34,18 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Wasp Hackathon #1 is under way! 🚀</span>
+          <span>Wasp Launch Week 2 starts on <span className='underline'>April 12</span>! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
-          <span>Join now</span>
-          <ChevronRight size={14} />
+          <span
+            className={`
+              bg-neutral-700 px-2.5 py-1 text-xs rounded-full cursor-pointer
+              hover:bg-neutral-600
+            `}
+          >
+            See what's coming
+          </span>
         </span>
 
       </div>

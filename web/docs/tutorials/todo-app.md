@@ -4,17 +4,6 @@ title: Introduction
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::tip See Wasp in Action
-Prefer Videos? We have a YouTube tutorial which walks you through building this Todo App step by step. Check it out [here](https://youtu.be/R8uOu6ZEr5s).
-
-We've also set up an in-browser dev environment for you on Gitpod, which allows you to see and edit the finished ToDo app with no setup required. 
-<p align="center">
-     <a href="https://gitpod.io/#https://github.com/wasp-lang/gitpod-template">
-          <img src="https://gitpod.io/button/open-in-gitpod.svg" />
-     </a>
-</p>
-:::
-
 :::info 
 If you want to run Wasp locally and haven't yet set it up, check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial.
 :::
@@ -37,5 +26,16 @@ You can check out the complete code of the app we are about to build with Wasp [
 
 :::tip
 If you are interested at any moment in what is Wasp actually generating in the background, take a look at `.wasp/out/` directory in your project.
+:::
+
+:::tip See Wasp in Action
+Prefer Videos? We have a YouTube tutorial which walks you through building this Todo App step by step. Check it out [here](https://youtu.be/R8uOu6ZEr5s).
+
+We've also set up an in-browser dev environment for you on Gitpod, which allows you to see and edit the finished ToDo app with no setup required. 
+<p align="center">
+     <a href="https://gitpod.io/#https://github.com/wasp-lang/gitpod-template">
+          <img src="https://gitpod.io/button/open-in-gitpod.svg" />
+     </a>
+</p>
 :::
 

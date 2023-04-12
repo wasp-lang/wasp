@@ -122,7 +122,7 @@ const Footer = () => {
               <input
                 type="email" name="email-address" id="email-address"
                 required autoComplete='email'
-                placeholder='you@awesomedev.com'
+                placeholder='you@areawesomeforsubscribing.com'
                 className={`
                   text-sm w-full
                   appearance-none

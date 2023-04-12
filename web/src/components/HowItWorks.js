@@ -16,7 +16,7 @@ const Feature = ({ title, description, url }) => (
         <p className='text-neutral-600'>
           { description }
         </p>
-        <TextLink url={url} label='Learn more' />
+        { url && <TextLink url={url} label='Learn more' /> }
       </dt>
     </div>
   </div>
@@ -49,40 +49,38 @@ const HowItWorks = () => {
 
         <div className='col-span-12 lg:col-span-4'>
           <h2 className='text-xl lg:text-2xl text-neutral-700 mb-4'>
-             What&apos;s under the hood? 🚕
+             How does it work? 🧐
           </h2>
           <p className='text-neutral-700'>
-            Given <code>.wasp</code> and <code>.js(x)/.css/...</code>, source files,
-            Wasp compiler generates the full source of your web app in
-            the target stack - front-end, back-end and deployment.
+            Given a simple <code>.wasp</code> configuration file that describes the high-level details of your web app, and <code>.js(x)/.css/...</code>, source files with your unique logic, Wasp compiler generates the full source of your web app in the target stack: front-end, back-end and deployment. <br/><br/>
+            This unique approach is what makes Wasp "smart" and gives it its super powers!
           </p>
 
           {/* Features */}
           <div className='py-8'>
             <dl className='grid grid-cols-12 gap-y-4 md:gap-8'>
 
-              <Feature 
-                title='Typescript support'
-                url='/blog/2022/11/29/typescript-feature-announcement'
-                description="JS or TS - mix'n'match as you wish."
+              <Feature
+                title='Simple config language'
+                url='/docs/language/overview'
+                description='Declaratively describe high-level details of your app.'
               />
 
-              <Feature 
+              <Feature
                 title='Wasp CLI'
                 url='/docs/cli'
                 description='All the handy commands at your fingertips.'
               />
 
-              <Feature 
-                title='LSP for VS Code'
-                url='/blog/2022/12/01/beta-ide-improvements'
-                description='Syntax highligthing, go-to-definition, etc. work out-of-the-box.'
+              <Feature
+                title='React / Node.js / Prisma'
+                description="You are still writing 90% of the code in your favorite technologies."
               />
 
-              <Feature 
-                title='Deploy anywhere'
-                url='/docs/deploying'
-                description='See our deployment guide for more details.'
+              <Feature
+                title='Arrivederci boilerplate'
+                description='Write only the code that matters, let Wasp handle the rest.'
+                url='https://www.youtube.com/watch?v=x5nsBbLvKnU'
               />
 
             </dl>
@@ -100,7 +98,6 @@ const HowItWorks = () => {
 
       </div>
     </SectionContainer>
-    
 
   )
 
