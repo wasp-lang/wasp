@@ -7,6 +7,7 @@ import { randomInt } from 'node:crypto'
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
 import config from '../config.js'
+import { throwInvalidCredentialsError } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -33,7 +34,7 @@ const auth = handleRejection(async (req, res, next) => {
       userIdFromToken = (await verify(token)).id
     } catch (error) {
       if (['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)) {
-        return res.status(401).send()
+        throwInvalidCredentialsError()
       } else {
         throw error
       }
@@ -41,7 +42,7 @@ const auth = handleRejection(async (req, res, next) => {
 
     const user = await prisma.{= userEntityLower =}.findUnique({ where: { id: userIdFromToken } })
     if (!user) {
-      return res.status(401).send()
+      throwInvalidCredentialsError()
     }
 
     // TODO: This logic must match the type in types/index.ts (if we remove the
@@ -52,7 +53,7 @@ const auth = handleRejection(async (req, res, next) => {
 
     req.user = userView
   } else {
-    return res.status(401).send()
+    throwInvalidCredentialsError()
   }
 
   next()
@@ -66,11 +67,9 @@ export const hashPassword = async (password) => {
 }
 
 export const verifyPassword = async (hashedPassword, password) => {
-  try {
-    return await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
-  } catch (error) {
-    console.error(error)
-    return false
+  const result = await SP.verify(Buffer.from(password), Buffer.from(hashedPassword, "base64"))
+  if (result !== SecurePassword.VALID) {
+    throw new Error('Invalid password.')
   }
 }
 

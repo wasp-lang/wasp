@@ -6,7 +6,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import DiscordLink from '../../blog/components/DiscordLink';
 
 :::info
-Make sure you've set up Wasp! Check out [Getting Started](/getting-started.md) first for installation instructions, and then continue with the tutorial. In case of any issues - please, ping us on <DiscordLink />. 
+Make sure you've set up Wasp! Check out [Getting Started](/docs) first for installation instructions, and then continue with the tutorial. In case of any issues - please, ping us on <DiscordLink />. 
 :::
 
 We’ll build a web app to solve every developer's most common problem – finding an excuse to justify our messy work! We will start with a single config file that outlines the full-stack architecture of our app plus several dozen lines of code for our specific business logic. There's no faster way to do it, so we can’t excuse ourselves from building it!

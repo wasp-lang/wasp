@@ -62,7 +62,8 @@ spec_Analyzer = do
                 "    setupFn: import { setupClient } from \"@client/baz.js\"",
                 "  },",
                 "  db: {",
-                "    system: PostgreSQL",
+                "    system: PostgreSQL,",
+                "    seeds: [ import { devSeedSimple } from \"@server/dbSeeds.js\" ]",
                 "  },",
                 "  emailSender: {",
                 "    provider: SendGrid,",
@@ -134,7 +135,8 @@ spec_Analyzer = do
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword = Just Auth.usernameAndPasswordConfig,
                                   Auth.google = Nothing,
-                                  Auth.gitHub = Nothing
+                                  Auth.gitHub = Nothing,
+                                  Auth.email = Nothing
                                 },
                             Auth.onAuthFailedRedirectTo = "/",
                             Auth.onAuthSucceededRedirectTo = Nothing
@@ -162,7 +164,17 @@ spec_Analyzer = do
                               Just $
                                 ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App.jsx")
                           },
-                    App.db = Just Db.Db {Db.system = Just Db.PostgreSQL},
+                    App.db =
+                      Just
+                        Db.Db
+                          { Db.system = Just Db.PostgreSQL,
+                            Db.seeds =
+                              Just
+                                [ ExtImport
+                                    (ExtImportField "devSeedSimple")
+                                    (fromJust $ SP.parseRelFileP "dbSeeds.js")
+                                ]
+                          },
                     App.emailSender =
                       Just
                         EmailSender.EmailSender

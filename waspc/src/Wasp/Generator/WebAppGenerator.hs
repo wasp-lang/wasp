@@ -15,7 +15,6 @@ import StrongPath
     Path',
     Posix,
     Rel,
-    reldir,
     reldirP,
     relfile,
     (</>),
@@ -23,14 +22,11 @@ import StrongPath
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.Entity as AS.Entity
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
-import Wasp.Generator.AuthProviders (gitHubAuthProvider, googleAuthProvider)
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
     nodeVersionRange,
@@ -50,6 +46,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
@@ -59,6 +56,9 @@ genWebApp spec = do
       genFileCopy [relfile|tsconfig.json|],
       genFileCopy [relfile|tsconfig.node.json|],
       genFileCopy [relfile|vite.config.ts|],
+      genFileCopy [relfile|src/test/vitest/setup.ts|],
+      genFileCopy [relfile|src/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|src/test/index.ts|],
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsForWasp spec),
       genNpmrc,
@@ -126,8 +126,10 @@ npmDepsForWasp spec =
             -- The web app only needs @prisma/client (we're using the server's
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
-            ("@prisma/client", show prismaVersion)
+            ("@prisma/client", show prismaVersion),
+            ("superjson", "^1.12.2")
           ]
+          ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
@@ -144,7 +146,14 @@ npmDepsForWasp spec =
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^1.0.1")
           ]
+          ++ depsRequiredForTesting
     }
+
+depsRequiredForAuth :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForAuth spec =
+  [AS.Dependency.make ("@stitches/react", show versionRange) | isAuthEnabled spec]
+  where
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 1 2 8)]
 
 depsRequiredByTailwind :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByTailwind spec =
@@ -156,6 +165,17 @@ depsRequiredByTailwind spec =
           ("autoprefixer", "^10.4.13")
         ]
     else []
+
+depsRequiredForTesting :: [AS.Dependency.Dependency]
+depsRequiredForTesting =
+  AS.Dependency.fromList
+    [ ("vitest", "^0.29.3"),
+      ("@vitest/ui", "^0.29.3"),
+      ("jsdom", "^21.1.1"),
+      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/jest-dom", "^5.16.5"),
+      ("msw", "^1.1.0")
+    ]
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -170,27 +190,12 @@ genPublicDir spec = do
     [ genFaviconFd,
       genManifestFd
     ]
-    <++> genSocialLoginIcons maybeAuth
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd =
       let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
           tmplFile = C.asTmplFile [relfile|public/manifest.json|]
        in C.mkTmplFdWithData tmplFile tmplData
-
-genSocialLoginIcons :: Maybe AS.App.Auth.Auth -> Generator [FileDraft]
-genSocialLoginIcons maybeAuth =
-  return $
-    [ C.mkTmplFd (C.asTmplFile fp)
-      | (isEnabled, fp) <- socialIcons,
-        (isEnabled <$> maybeAuth) == Just True
-    ]
-  where
-    socialIcons =
-      [ (AS.App.Auth.isGoogleAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName googleAuthProvider),
-        (AS.App.Auth.isGitHubAuthEnabled, [reldir|public/images|] </> OAuth.logoFileName gitHubAuthProvider)
-      ]
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -217,6 +222,7 @@ genSrcDir spec =
       copyTmplFile [relfile|config.js|],
       copyTmplFile [relfile|queryClient.js|],
       copyTmplFile [relfile|utils.js|],
+      copyTmplFile [relfile|types.ts|],
       copyTmplFile [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
@@ -260,7 +266,8 @@ genIndexJs spec =
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   return
-    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|]
+    [ C.mkUniversalTmplFdWithDst [relfile|url.ts|] [relfile|src/universal/url.ts|],
+      C.mkUniversalTmplFdWithDst [relfile|types.ts|] [relfile|src/universal/types.ts|]
     ]
 
 genEnvValidationScript :: Generator [FileDraft]

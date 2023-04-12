@@ -1,14 +1,18 @@
+import { 
+  deserialize as superjsonDeserialize,
+  serialize as superjsonSerialize,
+} from 'superjson'
 import { handleRejection } from '../../utils.js'
-
 import MySpecialQuery from '../../queries/MySpecialQuery.js'
 
 export default handleRejection(async (req, res) => {
-  const args = req.body || {}
+  const args = (req.body && superjsonDeserialize(req.body)) || {}
 
   const context = {
     user: req.user
   }
 
   const result = await MySpecialQuery(args, context)
-  res.json(result)
+  const serializedResult = superjsonSerialize(result)
+  res.json(serializedResult)
 })

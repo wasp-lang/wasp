@@ -3,8 +3,8 @@ import ReactTooltip from 'react-tooltip'
 import { Clipboard } from 'react-feather'
 
 
-const copyToClipboard = (code) => {
-  navigator.clipboard.writeText(code)
+const copyToClipboard = (text) => {
+  navigator.clipboard.writeText(text)
 }
 
 const InstallCmd = () => {
@@ -13,7 +13,7 @@ const InstallCmd = () => {
   
   return (
     <div
-      className='cursor-pointer text-neutral-500 border border-yellow-500/75 rounded'
+      className='cursor-pointer text-sm text-neutral-500 border border-yellow-500/75 rounded'
       data-tip
       data-event='click'
       data-event-off='click'
@@ -24,10 +24,12 @@ const InstallCmd = () => {
           flex justify-between gap-4
         `}
       >
-        <code>
-          <span className='select-none'>$ </span>
-          {code}
-        </code>
+        <strong>
+          <code>
+            <span className='select-none'>$ </span>
+            {code}
+          </code>
+        </strong>
         <Clipboard size={18} />
       </pre>
       <ReactTooltip

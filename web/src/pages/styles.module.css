@@ -58,3 +58,10 @@
   will-change: filter;
   mix-blend-mode: normal;
 }
+
+/* NOTE(matija): for some reason I couldn't get tailwind gradient to work when docusaurus build,
+ * so I resorted to doing it manually.
+ */
+.gradientBackground {
+  background-image: linear-gradient(to right, #d946ef, #ffcc00);
+}

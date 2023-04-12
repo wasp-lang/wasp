@@ -4,7 +4,6 @@ module Wasp.Generator.AuthProviders.OAuth
     serverOauthRedirectHandlerUrl,
     providerId,
     displayName,
-    logoFileName,
     passportDependency,
     scopeStr,
     clientIdEnvVarName,
@@ -14,10 +13,9 @@ module Wasp.Generator.AuthProviders.OAuth
 where
 
 import Data.Char (toUpper)
-import Data.List (intercalate)
-import StrongPath (File', Path', Rel')
 import Wasp.AppSpec.App.Dependency (Dependency)
 import Wasp.Generator.AuthProviders.Common (ProviderId, fromProviderId)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 
 data OAuthAuthProvider = OAuthAuthProvider
   { -- Unique identifier of the auth provider
@@ -25,7 +23,6 @@ data OAuthAuthProvider = OAuthAuthProvider
     -- Used for pretty printing
     _displayName :: String,
     _requiredScope :: OAuthScope,
-    _logoFileName :: Path' Rel' File',
     _passportDependency :: Dependency
   }
 
@@ -36,9 +33,6 @@ providerId = fromProviderId . _providerId
 
 displayName :: OAuthAuthProvider -> String
 displayName = _displayName
-
-logoFileName :: OAuthAuthProvider -> Path' Rel' File'
-logoFileName = _logoFileName
 
 clientIdEnvVarName :: OAuthAuthProvider -> String
 clientIdEnvVarName oai = upperCaseId oai ++ "_CLIENT_ID"
@@ -52,9 +46,7 @@ upperCaseId oai = map toUpper (providerId oai)
 -- Generates the string used in JS e.g. ["profile"] list in Haskell becomes "[\"profile\"]"
 -- string which can be outputted in JS code verbatim.
 scopeStr :: OAuthAuthProvider -> String
-scopeStr oai = "[" ++ intercalate ", " scopeStrs ++ "]"
-  where
-    scopeStrs = map show (_requiredScope oai)
+scopeStr oai = makeJsArrayFromHaskellList $ _requiredScope oai
 
 passportDependency :: OAuthAuthProvider -> Dependency
 passportDependency = _passportDependency

@@ -18,6 +18,7 @@ import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
+import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
 import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
@@ -26,6 +27,7 @@ import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Terminal (title)
@@ -37,7 +39,7 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
-        ["new", projectName] -> Command.Call.New projectName
+        ("new" : projectName : newArgs) -> Command.Call.New projectName newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -55,12 +57,13 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["completion:list"] -> Command.Call.BashCompletionListCommands
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
+        ("test" : testArgs) -> Command.Call.Test testArgs
         _ -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
   case commandCall of
-    Command.Call.New projectName -> runCommand $ createNewProject projectName
+    Command.Call.New projectName newArgs -> runCommand $ createNewProject projectName newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -79,6 +82,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Unknown _ -> printUsage
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
+    Command.Call.Test testArgs -> runCommand $ test testArgs
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -101,7 +105,11 @@ printUsage =
               "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd   "    new <project-name>    Creates new Wasp project.",
+        cmd   "    new <name> [args]     Creates a new Wasp project.",
+              "      OPTIONS:",
+              "        -t|--template <template-name>",
+              "           Check out the templates list here: https://github.com/wasp-lang/starters",
+              "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
@@ -110,7 +118,7 @@ printUsage =
         cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
         cmd   "    start db              Starts managed development database for you.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd $ "    clean                 Deletes all generated code and other cached artifacts.",
+        cmd   "    clean                 Deletes all generated code and other cached artifacts.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
@@ -118,9 +126,11 @@ printUsage =
         cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
         cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
         cmd   "    info                  Prints basic information about current Wasp project.",
+        cmd   "    test                  Executes tests in your project.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
+              "  wasp new MyApp -t waspello",
               "  wasp start",
               "  wasp db migrate-dev",
               "",
@@ -148,8 +158,11 @@ printVersion = do
 -- TODO(matija): maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()
 dbCli args = case args of
+  ["start"] -> runCommand Command.Start.Db.start
   "migrate-dev" : optionalMigrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["reset"] -> runDbCommand Command.Db.Reset.reset
+  ["seed"] -> runDbCommand $ Command.Db.Seed.seed Nothing
+  ["seed", seedName] -> runDbCommand $ Command.Db.Seed.seed $ Just seedName
   ["studio"] -> runDbCommand Command.Db.Studio.studio
   _ -> printDbUsage
 
@@ -162,7 +175,11 @@ printDbUsage =
               "  wasp db <command> [command-args]",
               "",
         title "COMMANDS",
+        cmd   "  start         Alias for `wasp start db`.",
         cmd   "  reset         Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  seed [name]   Executes a db seed function (specified via app.db.seeds).",
+              "                If there are multiple seeds, you can specify a seed to execute by providing its name,",
+              "                or if not then you will be asked to provide the name interactively.",
         cmd $ intercalate "\n" [
               "  migrate-dev   Ensures dev database corresponds to the current state of schema(entities):",
               "                  - Generates a new migration if there are changes in the schema.",

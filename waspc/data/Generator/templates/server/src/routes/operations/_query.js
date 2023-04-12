@@ -1,6 +1,9 @@
 {{={= =}=}}
+import { 
+  deserialize as superjsonDeserialize,
+  serialize as superjsonSerialize,
+} from 'superjson'
 import { handleRejection } from '../../utils.js'
-
 {=& operationImportStmt =}
 
 export default handleRejection(async (req, res) => {
@@ -11,7 +14,7 @@ export default handleRejection(async (req, res) => {
     JSON objects or smth.
     So for now we are just going with POST that has JSON in the body -> generated code is not
     as human-like as it should be though. =}
-  const args = req.body || {}
+  const args = (req.body && superjsonDeserialize(req.body)) || {}
 
   const context = {
     {=# userEntityLower =}
@@ -20,5 +23,6 @@ export default handleRejection(async (req, res) => {
   }
 
   const result = await {= operationName =}(args, context)
-  res.json(result)
+  const serializedResult = superjsonSerialize(result)
+  res.json(serializedResult)
 })

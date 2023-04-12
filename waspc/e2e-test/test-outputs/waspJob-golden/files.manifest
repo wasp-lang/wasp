@@ -18,7 +18,8 @@ waspJob/.wasp/out/server/src/app.js
 waspJob/.wasp/out/server/src/config.js
 waspJob/.wasp/out/server/src/core/AuthError.js
 waspJob/.wasp/out/server/src/core/HttpError.js
-waspJob/.wasp/out/server/src/dbClient.js
+waspJob/.wasp/out/server/src/dbClient.ts
+waspJob/.wasp/out/server/src/dbSeed/types.ts
 waspJob/.wasp/out/server/src/entities/index.ts
 waspJob/.wasp/out/server/src/ext-src/jobs/bar.js
 waspJob/.wasp/out/server/src/jobs/MySpecialJob.js
@@ -33,6 +34,7 @@ waspJob/.wasp/out/server/src/routes/index.js
 waspJob/.wasp/out/server/src/routes/operations/index.js
 waspJob/.wasp/out/server/src/server.ts
 waspJob/.wasp/out/server/src/types/index.ts
+waspJob/.wasp/out/server/src/universal/types.ts
 waspJob/.wasp/out/server/src/universal/url.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
@@ -58,7 +60,7 @@ waspJob/.wasp/out/web-app/src/ext-src/vite-env.d.ts
 waspJob/.wasp/out/web-app/src/ext-src/waspLogo.png
 waspJob/.wasp/out/web-app/src/index.tsx
 waspJob/.wasp/out/web-app/src/logo.png
-waspJob/.wasp/out/web-app/src/operations/index.js
+waspJob/.wasp/out/web-app/src/operations/index.ts
 waspJob/.wasp/out/web-app/src/operations/resources.js
 waspJob/.wasp/out/web-app/src/operations/updateHandlersMap.js
 waspJob/.wasp/out/web-app/src/queries/core.d.ts
@@ -68,6 +70,11 @@ waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
 waspJob/.wasp/out/web-app/src/router.jsx
 waspJob/.wasp/out/web-app/src/storage.ts
+waspJob/.wasp/out/web-app/src/test/index.ts
+waspJob/.wasp/out/web-app/src/test/vitest/helpers.tsx
+waspJob/.wasp/out/web-app/src/test/vitest/setup.ts
+waspJob/.wasp/out/web-app/src/types.ts
+waspJob/.wasp/out/web-app/src/universal/types.ts
 waspJob/.wasp/out/web-app/src/universal/url.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/src/vite-env.d.ts

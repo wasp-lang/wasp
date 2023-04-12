@@ -1,12 +1,13 @@
-import express from 'express'
+import { BarBaz, FooBar } from '@wasp/apis/types'
 
-import { FooBar } from '@wasp/apis/types'
-import { MiddlewareConfigFn } from '@wasp/middleware'
+export const fooBar: FooBar = (_req, res, context) => {
+  res.set('Access-Control-Allow-Origin', '*') // Example of modifying headers to override Wasp default CORS middleware.
+  res.json({ msg: `Hello, ${context.user.email}!` })
+}
 
-export const fooBar: FooBar = (req, res, context) => {
-  console.log(req.body)
-  console.log(context)
-  res.json({ msg: `Hello, ${context.user?.username || "stranger"}!` })
+export const barBaz: BarBaz = (_req, res, _context) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.json({ msg: `Hello, stranger!` })
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middleware) => {

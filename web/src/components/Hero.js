@@ -2,7 +2,9 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import SyntaxHighlighter from 'react-syntax-highlighter'
 import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
-import { Terminal, ArrowUpRight } from 'react-feather'
+import { Terminal, ArrowUpRight, Play, BookOpen, Grid, Layout, Trello   } from 'react-feather'
+
+// Terminal, BookOpen, Grid, Layout, Trello, FileText 
 
 import InstallCmd from './InstallCmd'
 import SectionContainer from './Layouts/SectionContainer'
@@ -32,12 +34,12 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <span>Get started in 5 minutes</span>
-        <StartIcon />
+        <Terminal size={16} />
+        <span>{'wasp new <app>'}</span>
       </button>
     </Link>
 
-    <Link to='#showcases'>
+    <Link to='/docs/tutorials/todo-app'>
       <button
         className={`
           inline-flex items-center space-x-2
@@ -49,8 +51,8 @@ const ActionButtons = () => (
           transition ease-out duration-200
         `}
       >
-        <Terminal size={16} />
-        <span>Showcases</span>
+        <BookOpen size={16} />
+        <span>Tutorial</span>
       </button>
     </Link>
   </div>
@@ -73,25 +75,25 @@ const PHBadge = () => (
 const Hero = () => {
   const codeString =
 `app todoApp {
-  title: "ToDo App",  /* visible in the browser tab */
-
-  auth: { /* full-stack auth out-of-the-box */
-    userEntity: User,
-    externalAuthEntity: SocialLogin,
-    methods: {
-      usernameAndPassword: {},
-      google: {}
-    }
+  title: "ToDo App",  // visible in the browser tab
+  auth: { // full-stack auth out-of-the-box
+    userEntity: User, methods: { email: {...} }
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  /* Only logged in users can access this. */
-  authRequired: true,
-  /* import your React code */
-  component: import Main from "@client/Main.jsx"
-}`
+  authRequired: true, // Limit access to logged in users.
+  component: import Main from "@client/Main.tsx" // Your React code.
+}
+
+query getTasks {
+  fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
+  entities: [Task] // Automatic cache invalidation.
+}
+
+entity Task {=psl ... psl=} // Your Prisma data model.
+`
 
   return (
     <SectionContainer className='pb-5 pt-24'>
@@ -106,13 +108,11 @@ page MainPage {
                 font-extrabold text-neutral-700
               `}
             >
-              Develop full-stack web apps&nbsp;
-              <span className='underline decoration-yellow-500'>without boilerplate</span>.
+              Develop full-stack web apps <span className='underline decoration-yellow-500'>faster</span>.
             </h1>
 
             <p className='mt-4 sm:mt-5 text-xl lg:text-xl text-neutral-500'>
-              Describe common features via Wasp DSL and write the rest in React, Node.js
-              and Prisma.
+              Rails-like framework for React, Node.js and Prisma. Build your app in a day and deploy it with a single CLI command.
             </p>
           </div> {/* EOF Hero title and subtitle */}
 
@@ -144,10 +144,9 @@ page MainPage {
 
         <div className='lg:col-span-6 lg:mt-0 mt-16'>
           <div className='relative flex flex-col items-center justify-center'>
-
             {/* Editor header bar */}
             <div className='bg-yellow-500/10 flex h-6 w-full items-center justify-between rounded-t-md px-2'>
-              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/tutorials/TodoApp/main.wasp'>
+              <Link to='https://github.com/wasp-lang/wasp/blob/main/examples/todo-typescript/main.wasp'>
                 <span
                   className={`
                     text-sm text-neutral-500 flex items-center space-x-1 hover:text-neutral-400
@@ -156,6 +155,7 @@ page MainPage {
                 >
                   <span>todoApp.wasp</span>
                   <ArrowUpRight size={14} />
+                  <span className='text-neutral-400'>· Wasp config file</span>
                 </span>
               </Link>
               <div className='flex space-x-2'>
@@ -179,31 +179,14 @@ page MainPage {
                 {codeString}
               </SyntaxHighlighter>
             </div> {/* EOF code block wrapper */}
-
           </div> {/* EOF wrapper of header + code */}
-
         </div> {/* EOF col-span-6 */}
 
       </div>
 
-      {/* Bash install cmd */}
-      <div className='hidden md:flex md:mt-28 items-center justify-center'>
-        <div className='flex flex-col items-center gap-2'>
-          <InstallCmd />
-          <Link to='/docs'>
-            <small
-              className={`
-                text-neutral-500 text-xs
-                hover:text-neutral-400
-              `}
-            >
-              or <span className='underline decoration-neutral-500'>check the detailed instructions</span>
-            </small>
-          </Link>
-        </div>
-      </div>
 
-
+      {/* 1-min video */}
+      {/*
       <div className='flex justify-center mt-20'>
         <div className='w-full lg:w-2/3 xl:w-3/5'>
           <div
@@ -213,7 +196,7 @@ page MainPage {
             <iframe
               title="Demo video showcasing Wasp"
               className="absolute h-full w-full rounded-md"
-              src="https://www.youtube-nocookie.com/embed/R8uOu6ZEr5s?playlist=R8uOu6ZEr5s&autoplay=0&loop=1&controls=1&modestbranding=1&rel=0&disablekb=1&mute=0&muted=0&allowfullscreen"
+              src="https://www.youtube-nocookie.com/embed/YaaTJOhx68I?playlist=YaaTJOhx68I&autoplay=0&loop=1&controls=0&showinfo=1&modestbranding=0&rel=0&disablekb=0&mute=1"
               style={{ top: 0, left: 0 }}
               frameBorder="0"
               allow="autoplay; modestbranding; encrypted-media"
@@ -221,8 +204,10 @@ page MainPage {
           </div>
         </div>
       </div>
+      */}
 
       {/* PH & YC badges */}
+      {/*
       <div className='flex justify-center items-center space-x-4 mt-20 mb-10 md:mt-28 md:mb-0'>
         <PHBadge />
         <div
@@ -236,6 +221,7 @@ page MainPage {
           alt='YC'
         />
       </div>
+      */}
 
     </SectionContainer>
   )
