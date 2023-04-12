@@ -11,10 +11,11 @@ This document assumes you are familiar with TypeScript and primarily focuses on 
 The document also assumes a basic understanding of core Wasp features (e.g., Queries, Actions, Entities). You can read more about these features in [our feature docs](https://wasp-lang.dev/docs/language/features).
 
 Besides allowing you to write your code in TypeScript, Wasp also supports:
- - Importing and using Wasp Entity types (on both the server and the client).
- - Automatically generated types for Queries and Actions.
- - Type-safe generic hooks (`useQuery` and `useAction`) with the accompanying type inference.
- - Type-safe optimistic update definitions.
+
+- Importing and using Wasp Entity types (on both the server and the client).
+- Automatic full-stack type support for Queries and Actions - frontend types are automatically inferred from backend definitions.
+- Type-safe generic hooks (`useQuery` and `useAction`) with the accompanying type inference.
+- Type-safe optimistic update definitions.
 
 We'll dig into the details of each feature in the following sections. But first, let's see how you can introduce TypeScript to an existing Wasp project.
 
@@ -25,12 +26,15 @@ Your editor may sometimes report type and import errors even while `wasp start` 
 :::
 
 ## Migrating your project to TypeScript
+
 Wasp supports TypeScript out of the box!
 
 Our scaffolding already includes TypeScript, so migrating your project to TypeScript is as simple as changing file extensions and using the language. This approach allows you to gradually migrate your project on a file-by-file basis.
 
 ### Example
+
 Let's first assume your Wasp file contains the following definitions:
+
 ```c title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
@@ -43,9 +47,10 @@ query getTaskInfo {
   entities: [Task]
 }
 ```
+
 Let's now assume that your `queries.js` file looks something like this:
 
-```javascript title="queries.js"
+```javascript title="src/server/queries.js"
 import HttpError from "@wasp/core/HttpError.js"
 
 function getInfoMessage(task) {
@@ -63,15 +68,20 @@ export const getTaskInfo = async ({ id }, context) => {
 }
 ```
 To migrate this file to TypeScript, all you have to do is:
- 1. Change the filename from `queries.js` to `queries.ts`.
- 2. Write some types.
+
+1.  Change the filename from `queries.js` to `queries.ts`.
+2.  Write some types.
 
 Let's start by only providing a basic `getInfoMessage` function. We'll see how to properly type the rest of the file in the following sections.
-```typescript title=queries.ts
+
+```typescript title=src/server/queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 
 // highlight-next-line
-function getInfoMessage(task: { isDone: boolean, description: string }): string {
+function getInfoMessage(task: {
+  isDone: boolean
+  description: string
+}): string {
   const isDoneText = task.isDone ? "is done" : "is not done"
   return `Task '${task.description}' is ${isDoneText}.`
 }
@@ -85,10 +95,14 @@ export const getTaskInfo = async ({ id }, context) => {
   return getInfoMessage(task)
 }
 ```
+
 You don't need to change anything inside the `.wasp` file.
 :::caution
+
 <!-- This block is mostly duplicated in 03-listing-tasks.md -->
+
 Even when you use TypeScript, and your file is called `queries.ts`, you still need to import it using the `.js` extension:
+
 ```c
 query getTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
@@ -102,9 +116,10 @@ Read more about ES modules in TypeScript [here](https://www.typescriptlang.org/d
 :::
 
 ## Entity Types
+
 Instead of manually specifying the types for `isDone` and `description`, we can get them from the `Task` entity type. Wasp will generate types for all entities and let you import them from `"@wasp/entities"`:
 
-```typescript title=queries.ts
+```typescript title=src/server/queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 // highlight-next-line
 import { Task } from "@wasp/entities"
@@ -124,12 +139,14 @@ export const getTaskInfo = async ({ id }, context) => {
   return getInfoMessage(task)
 }
 ```
+
 By doing this, we've connected the argument type of the `getInfoMessage` function with the `Task` entity. This coupling removes duplication and ensures the function keeps the correct signature even if we change the entity. Of course, the function might throw type errors depending on how we change the entity, but that's precisely what we want!
 
 Don't worry about typing the query function for now. We'll see how to handle this in the next section.
 
 Entity types are also available on the client under the same import:
-```tsx title=Main.jsx
+
+```tsx title=src/client/Main.jsx
 import { Task } from "@wasp/entities"
 
 export function ExamplePage() {}
@@ -138,15 +155,17 @@ export function ExamplePage() {}
     description: "Some random task",
     isDone: false,
   }
-  return <div>{task.description}</div>;
+  return <div>{task.description}</div>
 }
 
 ```
+
 The mentioned type safety mechanisms also apply here: Changing the task entity in our `.wasp` file changes the imported type, which might throw a type error and warn us that our task definition is outdated.
 
-
 ## Backend type support for Queries and Actions
-Wasp automatically generates the appropriate types for all operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
+
+Wasp automatically generates the appropriate types for all Operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
+
 ```c title=main.wasp
 // ...
 
@@ -155,15 +174,17 @@ query GetTaskInfo {
   entities: [Task]
 }
 ```
+
 Wasp will generate a type called `GetTaskInfo`, which you can use to type the Query's implementation. By assigning the `GetTaskInfo` type to your function, you get the type information for its context. In this case, TypeScript will know the `context.entities` object must include the `Task` entity. If the Query had auth enabled, it would also know that `context` includes user information.
 
 `GetTaskInfo` can is a generic type that takes two (optional) type arguments:
+
 1. `Input` - The argument (i.e., payload) received by the query function.
 2. `Output` - The query function's return type.
 
 Suppose you don't care about typing the Query's inputs and outputs. In that case, you can omit both type arguments, and TypeScript will infer the most general types (i.e., `never` for the input, `unknown` for the output.).
 
-```typescript title=queries.ts
+```typescript title=src/server/queries.ts
 import HttpError from "@wasp/core/HttpError.js"
 import { Task } from "@wasp/entities"
 // highlight-next-line
@@ -194,118 +215,128 @@ export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async ({ id },
 }
 ```
 Everything described above applies to Actions as well.
+:::tip
+
+If don't want to define a new type for the Query's return value, the new `satisfies` keyword will allow TypeScript to infer it automatically:
+```typescript
+const getFoo = ((_args, context) => {
+  const foos = context.entities.Foo.findMany()
+  return {
+    foos,
+    message: "Here are some foos!",
+    queriedAt: new Date(),
+  }
+}) satisfies GetFoo
+```
+From the snippet above, TypeScript knows:
+1. The correct type for `context`. 
+2. The Query's return type is `{ foos: Foo[], message: string, queriedAt: Date }`.
+
+If you don't need the context, you can skip specifying the Query's type (and arguments):
+```typescript
+const getFoo = () => {{ name: 'Foo', date: new Date() }}
+```
+
+:::
 
 ## Frontend type support for Queries and Actions
-Wasp will soon support automatic full-stack type safety à la tRPC. Until then, you can get static type checking by manually passing type arguments to `useQuery` and `useAction` hooks.
 
-### Type support for the `useQuery` hook
-To add type support to Queries on the frontend, you can use:
-- Entity types imported from `"@wasp/entities"`.
-- The generic hook `useQuery<Input, Output, Error>` (read more about this hook [here](/docs/language/features#the-useaction-hook)):
-  - `Input` - Use this type argument to specify the type for the **request's payload**.
-  - `Output` - Use this type argument to specify the type for the **resposne's payload**.
-  - `Error` - Use this type argument to specify the error the Query throws.
+Wasp supports automatic full-stack type safety à la tRPC. You only need to define the Operation's type on the backend, and the frontend will automatically know how to call it.
 
-Here's what a component that uses the Query the `getTaskInfo` might look like:
-```tsx title="TaskInfo.tsx"
-import { useQuery } from "@wasp/queries"
-import getTaskInfo from "@wasp/queries/getTaskInfo"
-import { Task } from "@wasp/entities"
+### Frontend type support for Queries 
+The examples assume you've defined the Query `getTaskInfo` from the previous sections:
 
-type TaskInfoPayload = Pick<Task, "id">
-
-export const TaskInfo = () => {
-  const {
-    // TypeScript knows `taskInfo` is a `string | undefined` because of the
-    // second type argument.
-    data: taskInfo,
-    // TypeScript also knows `isError` is a `boolean` regardless of the
-    // specified type arguments.
-    isError,
-    // TypeScript knows `id` must be a `Task["id"]` (i.e., a number) because of
-    // the first type argument.
-    // highlight-next-line
-  } = useQuery<TaskInfoPayload, string>(getTaskInfo, { id: 1 })
-
-  if (isError) {
-    return <div>Error when fetching tasks</div>
+```typescript title="src/server/queries.ts"
+export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = 
+  async ({ id }, context) => {
+    // ...
   }
-
-  // TypeScript forces you to perform this check.
-  return taskInfo === undefined ? <div>Waiting for info...</div> : <div>{taskInfo}</div>
-}
 ```
-The above example omits the type argument for the error because it doesn't need it. Here's an example that uses the `error`:
-```tsx title="TaskInfo.tsx"
-import { useQuery } from "@wasp/queries"
-import getTaskInfo from "@wasp/queries/getTaskInfo"
-import { Task } from "@wasp/entities"
 
-type TaskInfoPayload = Pick<Task, "id">
+Wasp will use the type of `getTaskInfo` to infer the Query's types on the frontend:
+
+```tsx title="src/client/TaskInfo.tsx"
+import { useQuery } from "@wasp/queries"
+// Wasp knows the type of `getTaskInfo` thanks to your backend definition.
 // highlight-next-line
-type TaskInfoError = { message: string }
+import getTaskInfo from "@wasp/queries/getTaskInfo"
 
 export const TaskInfo = () => {
   const {
+    // TypeScript knows `taskInfo` is a `string | undefined` thanks to the
+    // backend definition.
     data: taskInfo,
+    // TypeScript also knows `isError` is a `boolean`.
     isError,
-    // TypeScript knows `error` is a `TaskInfoError` because of the third type
-    // argument.
+    // TypeScript knows `error` is of type `Error`.
     error,
-  // highlight-next-line
-  } = useQuery<TaskInfoPayload, string, TaskInfoError>(getTaskInfo, { id: 1 })
+    // TypeScript knows `id` must be a `Task["id"]` (i.e., a number) thanks to
+    // your backend definition.
+    // highlight-next-line
+  } = useQuery(getTaskInfo, { id: 1 })
 
   if (isError) {
-    // highlight-next-line
-    return <div> Error during fetching tasks: {error.message || ''}</div>
+    return <div> Error during fetching tasks: {error.message || "unknown"}</div>
   }
 
   // TypeScript forces you to perform this check.
-  return taskInfo === undefined ? <div>Waiting for info...</div> : <div>{taskInfo}</div>
+  return taskInfo === undefined ? (
+    <div>Waiting for info...</div>
+  ) : (
+    <div>{taskInfo}</div>
+  )
 }
 ```
 
-### Type support for the `useAction` hook
-To add type support to Actions on the frontend, you can use:
-- Entity types imported from `"@wasp/entities"`.
-- The generic hook `useAction<Input, Output, Error>` (read more about this hook [here](/docs/language/features#the-useaction-hook)):
-  - `Input` - This type argument specifies the type for the **request's payload**.
-  - `Output` - This type argument specifies the type for the **response's payload**.
-  - `Error` - This type argument specifies the error the Query throws.
+### Frontend type support for Actions
 
-Assuming the following action definition in your `.wasp` file (and the corresponding implementation in `src/server/actions.js`):
+Assuming the following action definition in your `.wasp` file
+
 ```typescript title=main.wasp
-// ...
-
 action addTask {
   fn: import { addTask } from "@server/actions.js"
   entities: [Task]
 }
 ```
-Here's how you can use it:
-```tsx title=AddTask.tsx
+
+And its corresponding implementation in `src/server/actions.ts`:
+
+```typescript title=src/server/actions.ts
+import { AddTask } from "@wasp/actions/types"
+
+type TaskPayload = Pick<Task, "description" | "isDone">
+
+const addTask: AddTask<TaskPayload, Task> = async (args, context) => {
+  // ...
+}
+```
+
+Here's how to use it on the frontend:
+```tsx title=src/client/AddTask.tsx
 import { useAction } from "@wasp/actions"
+// TypeScript knows `addTask` is a function that expects a value of type
+// `TaskPayload` and returns a value of type `Promise<Task>`.
 import addTask from "@wasp/queries/addTask"
-import { Task } from "@wasp/entities"
 
 const AddTask = ({ description }: Pick<Task, "description">) => {
-
-  // TypeScript knows `addTaskAction` is a function that expects a value of
-  // type `Pick<Task, "description"> and returns a value of type
-  // `Promise<Task>`.
-  const addTaskAction = useAction<Pick<Task, "description" | "isDone">, Task>(addTask)
-
   return (
     <div>
-      <button
-        onClick={() => addTaskAction({ description, isDone: false })}
-      >Add unfinished task</button>
-      <button
-        onClick={() => addTaskAction({ description, isDone: true })}
-      >Add finished task</button>
+      <button onClick={() => addTask({ description, isDone: false })}>
+        Add unfinished task
+      </button>
+      <button onClick={() => addTask({ description, isDone: true })}>
+        Add finished task
+      </button>
     </div>
   )
 }
+
+```
+#### Type support for the `useAction` hook
+Type inference also works if you decide to use the action via the `useAction` hook:
+```typescript
+// addTaskFn is of type (args: TaskPayload) => Task
+const addTaskFn = useAction(addTask)
 ```
 
 The `useAction` hook also includes support for optimistic updates. Read [the feature docs](/docs/language/features#the-useaction-hook) to understand more about optimistic updates and how to define them in Wasp.
@@ -313,31 +344,35 @@ The `useAction` hook also includes support for optimistic updates. Read [the fea
 Here's an example that shows how you can use static type checking in their definitions (the example assumes an appropriate action defined in the `.wasp` file and implemented on the server):
 
 ```tsx title=Task.tsx
-import { useQuery } from '@wasp/queries'
-import { OptimisticUpdateDefinition, useAction } from '@wasp/actions'
-import updateTaskIsDone from '@wasp/actions/updateTaskIsDone'
+import { useQuery } from "@wasp/queries"
+import { OptimisticUpdateDefinition, useAction } from "@wasp/actions"
+import updateTaskIsDone from "@wasp/actions/updateTaskIsDone"
 
 type TaskPayload = Pick<Task, "id" | "isDone">
 
 const Task = ({ taskId }: Pick<Task, "id">) => {
-  const updateTaskIsDoneOptimistically = useAction<TaskPayload, Task>(updateTaskIsDone, {
-    optimisticUpdates: [
-      {
-        getQuerySpecifier: () => [getTask, { id: taskId }],
-        // This query's cache should should never be empty
-        updateQuery: ({ isDone }, oldTask) => ({ ...oldTask!, isDone }),
-      // highlight-next-line
-      } as OptimisticUpdateDefinition<TaskPayload, Task>,
-      {
-        getQuerySpecifier: () => [getTasks],
-        updateQuery: (updatedTask, oldTasks) =>
-          oldTasks && oldTasks.map(task =>
-            task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-          ),
-      // highlight-next-line
-      } as OptimisticUpdateDefinition<TaskPayload, Task[]>
-    ]
-  })
+  const updateTaskIsDoneOptimistically = useAction(
+    updateTaskIsDone,
+    {
+      optimisticUpdates: [
+        {
+          getQuerySpecifier: () => [getTask, { id: taskId }],
+          // This query's cache should should never be empty
+          updateQuery: ({ isDone }, oldTask) => ({ ...oldTask!, isDone }),
+          // highlight-next-line
+        } as OptimisticUpdateDefinition<TaskPayload, Task>,
+        {
+          getQuerySpecifier: () => [getTasks],
+          updateQuery: (updatedTask, oldTasks) =>
+            oldTasks &&
+            oldTasks.map((task) =>
+              task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+            ),
+          // highlight-next-line
+        } as OptimisticUpdateDefinition<TaskPayload, Task[]>,
+      ],
+    }
+  )
   // ...
 }
 ```
@@ -345,10 +380,13 @@ const Task = ({ taskId }: Pick<Task, "id">) => {
 ## Database seeding
 
 When implementing a seed function in TypeScript, you can import a `DbSeedFn` type via
+
 ```ts
-import type { DbSeedFn } from '@wasp/dbSeed/types.js'
+import type { DbSeedFn } from "@wasp/dbSeed/types.js"
 ```
+
 and use it to type your seed function like this:
+
 ```ts
 export const devSeedSimple: DbSeedFn = async (prismaClient) => { ... }
 ```
