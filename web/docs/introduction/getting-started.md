@@ -12,11 +12,13 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Welcome, new Waspeteer 🐝!
 
-To install Wasp on Linux / OSX, open your terminal and run: 
+To install Wasp on Linux / OSX / WSL(Win), open your terminal and run: 
 
 ```shell
 curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 ```
+
+ ℹ️ Wasp requires `node` and will warn you if it is missing: check below for [more details](#requirements).
 
 Then, create a new app by running:
 
@@ -36,16 +38,16 @@ Anything went wrong, or you have additional questions? Check [More Details](#mor
 
 ### What next?
 
- - If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
- - ➡️ **Check out the [Todo App tutorial](tutorials/todo-app.md) , which will take you through all the core features of Wasp!** ⬅️
- - ️ **Join us on [Discord](https://discord.gg/rzdnErX)!** Any feedback or questions you have, we are there for you.
- - Follow Wasp development by **subscribing to our newsletter: https://wasp-lang.dev/#signup ** . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
+ - [ ] 👉 **Check out the [Todo App tutorial](tutorials/todo-app.md) , which will take you through all the core features of Wasp!** 👈
+ - [ ] If you are using VSCode, install our [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp).
+ - [ ] Join us on [Discord](https://discord.gg/rzdnErX)! Any feedback or questions you have, we are there for you.
+ - [ ] Follow Wasp development by subscribing to our newsletter: https://wasp-lang.dev/#signup . We usually send 1 per month, and Matija does his best to unleash his creativity to make them engaging and fun to read :D!
 
 ------
 
-## More details
+## More details 
 
-### 1. Requirements
+### Requirements
 
 You must have `node` (and `npm`) installed on your machine and available in `PATH`. We rely on the latest Node.js LTS version (currently `v18.14.2`).
 
@@ -82,7 +84,7 @@ We recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.j
 </details>
 
 
-### 2. Installation
+### Installation
 
 <Tabs
   defaultValue='linux/osx'

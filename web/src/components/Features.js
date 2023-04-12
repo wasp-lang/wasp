@@ -77,7 +77,7 @@ const Features = () => {
         <Feature
           Icon={Unlock}
           title='Full-stack Auth'
-          url='/docs/language/features#authentication--authorization'
+          url='/blog/2023/04/12/auth-ui'
           description={`
             Add login with social providers or email in a few lines of code with powerful UI helpers. No third party vendor lock-in.
           `}
@@ -115,7 +115,7 @@ const Features = () => {
         <Feature
           Icon={Mail}
           title='Email Sending'
-          url='/docs'
+          url='/docs/guides/sending-emails'
           description={`
             All you need to do is connect an email provider and you can send emails!
           `}
