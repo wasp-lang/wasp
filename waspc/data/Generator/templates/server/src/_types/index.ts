@@ -73,7 +73,7 @@ type Context<Entities extends _Entity[]> = Expand<{
 }>
 
 {=# isAuthEnabled =}
-type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user: SanitizedUser}>
+type ContextWithUser<Entities extends _Entity[]> = Expand<Context<Entities> & { user?: SanitizedUser}>
 
 // TODO: This type must match the logic in core/auth.js (if we remove the
 // password field from the object there, we must do the same here). Ideally,
