@@ -1,3 +1,5 @@
+{-# LANGUAGE TypeOperators #-}
+
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
   )
@@ -12,6 +14,8 @@ import qualified Data.Text as T
 import Path.IO (copyDirRecur, doesDirExist)
 import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
+import System.Console.Wizard (Line, Wizard, defaultTo, inRange, line, nonEmpty, parseRead, retry, run, (:<:))
+import System.Console.Wizard.BasicIO (basicIO)
 import System.Directory (getCurrentDirectory)
 import qualified System.FilePath as FP
 import System.Process (callCommand)
@@ -38,8 +42,11 @@ data ProjectInfo = ProjectInfo
 
 createNewProject :: ProjectName -> Arguments -> Command ()
 createNewProject projectName newArgs = do
+  liftIO $ putStrLn "Welcome to Wasp!"
+  student <- liftIO runTestWixards
+  liftIO $ print student
   projectInfo <- parseProjectInfo projectName newArgs
-  createWaspProjectDir projectInfo
+  -- createWaspProjectDir projectInfo
   liftIO $ printGettingStartedInstructions $ _projectName projectInfo
   where
     printGettingStartedInstructions :: ProjectName -> IO ()
@@ -185,3 +192,25 @@ waspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)
 
 throwProjectCreationError :: String -> Command a
 throwProjectCreationError = throwError . CommandError "Project creation failed"
+
+type Name = String
+
+type Class = Int
+
+data Student = Student Name Class deriving (Show)
+
+nameWizard :: (Line :<: b) => Wizard b Name
+nameWizard = retry $ nonEmpty $ line "Name: "
+
+classWizard :: (Line :<: b) => Wizard b Class
+classWizard =
+  retry $
+    inRange (1, 5) $
+      parseRead $
+        nonEmpty (line "Class[1]: ") `defaultTo` "1"
+
+studentWizard :: (Line :<: b) => Wizard b Student
+studentWizard = Student <$> nameWizard <*> classWizard
+
+runTestWixards :: IO (Maybe Student)
+runTestWixards = run (basicIO studentWizard)
