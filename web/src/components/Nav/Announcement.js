@@ -44,7 +44,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Day 1: Auth UI 👔
+            Day 2: One-line deployment to Fly.io 🚀
           </span>
         </span>
 
