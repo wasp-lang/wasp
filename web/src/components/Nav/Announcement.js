@@ -9,10 +9,10 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    history.push('/blog/2023/04/12/auth-ui')
+    //history.push('/blog/2023/04/12/auth-ui')
     //history.push('/#signup')
 
-    //window.open('https://betathon.wasp-lang.dev/')
+    window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
   }
 
   return (
