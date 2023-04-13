@@ -57,7 +57,7 @@ genApiRoutes spec =
           "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
       where
-        namespaceConfigFnAlias = namespaceName ++ "namespaceConfigFn"
+        namespaceConfigFnAlias = namespaceName ++ "namespaceMiddlewareConfigFn"
         (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (N.middlewareConfigFn namespace)
 
     getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
