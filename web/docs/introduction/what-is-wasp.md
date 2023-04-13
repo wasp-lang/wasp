@@ -1,8 +1,13 @@
 ---
-title: What is Wasp?
+title: Introduction
+slug: /
 ---
 
 import ImgWithCaption from '../../blog/components/ImgWithCaption'
+
+:::note
+If you are looking for the installation instructions, check out the [Quick Start](/docs/quick-start) section.
+:::
 
 We will give a brief overview of what Wasp is, how it works on a high level and when to use it.
 

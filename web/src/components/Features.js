@@ -115,7 +115,7 @@ const Features = () => {
         <Feature
           Icon={Mail}
           title='Email Sending'
-          url='/docs'
+          url='/docs/guides/sending-emails'
           description={`
             All you need to do is connect an email provider and you can send emails!
           `}
