@@ -2,7 +2,7 @@
 import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
-import { getDefaultMiddleware, toMiddlewareArray } from '../../middleware.js'
+import { globalMiddlewareForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
@@ -28,11 +28,11 @@ const {=& routeMiddlewareConfigFnImportAlias =} = idFn
 const router = express.Router()
 
 {=# namespaces =}
-router.use('{= namespacePath =}', toMiddlewareArray({= namespaceMiddlewareConfigFnImportAlias =}(getDefaultMiddleware())))
+router.use('{= namespacePath =}', globalMiddlewareForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
 {=/ namespaces =}
 
 {=# apiRoutes =}
-const {= apiName =}Middleware = toMiddlewareArray({= routeMiddlewareConfigFnImportAlias =}(getDefaultMiddleware()))
+const {= apiName =}Middleware = globalMiddlewareForExpress({= routeMiddlewareConfigFnImportAlias =})
 router.{= routeMethod =}(
   '{= routePath =}',
   {=# usesAuth =}

@@ -17,7 +17,7 @@ export const heyYoMiddlewareFn: MiddlewareConfigFn = (middleware) => {
     ['express.text', express.text({ type: '*/*' })]
   ])
 
-  console.log('Ignoring all default middleware except cors.')
+  console.log('heyYoMiddlewareFn: Ignoring all default middleware except cors.')
 
   if (middleware.has('cors')) {
     updatedMiddleware.set('cors', middleware.get('cors')!)
@@ -27,10 +27,10 @@ export const heyYoMiddlewareFn: MiddlewareConfigFn = (middleware) => {
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (_middleware) => {
-  console.log('Adding custom middleware for route.')
+  console.log('fooBarMiddlewareFn: Adding custom middleware for route.')
 
   const customMiddleware : express.RequestHandler = (_req, _res, next) => {
-    console.log('custom route middleware')
+    console.log('fooBarMiddlewareFn: custom route middleware')
     next()
   }
 

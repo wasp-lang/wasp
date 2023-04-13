@@ -5,7 +5,7 @@ import logger from 'morgan'
 import cors from 'cors'
 import helmet from 'helmet'
 
-import config from './config.js'
+import config from '../config.js'
 
 {=# globalMiddlewareConfigFnDefined =}
 {=& globalMiddlewareConfigFnImportStatement =}
@@ -18,7 +18,14 @@ export type MiddlewareConfig = Map<string, express.RequestHandler>
 
 export type MiddlewareConfigFn = (middleware: MiddlewareConfig) => MiddlewareConfig
 
-const _defaultMiddleware: MiddlewareConfig = new Map([
+export function globalMiddlewareForExpress(middlewareConfigFn?: MiddlewareConfigFn): express.RequestHandler[] {
+  const globalMiddleware = getGlobalMiddleware()
+  const middleware = middlewareConfigFn ? middlewareConfigFn(globalMiddleware) : globalMiddleware
+  return Array.from(middleware.values())
+}
+
+// This is the set of middleware Wasp supplies by default.
+const defaultGlobalMiddleware: MiddlewareConfig = new Map([
   ['helmet', helmet()],
   ['cors', cors({ origin: config.allowedCORSOrigins })],
   ['logger', logger('dev')],
@@ -27,15 +34,11 @@ const _defaultMiddleware: MiddlewareConfig = new Map([
   ['cookieParser', cookieParser()]
 ])
 
-const defaultMiddleware = {=& globalMiddlewareConfigFnImportAlias =}(_defaultMiddleware)
+// This is the global middleware that is the result of applying the user's modifications.
+// It will be used as the basis for Operations and APIs (unless the latter is further customized).
+const globalMiddleware = {=& globalMiddlewareConfigFnImportAlias =}(defaultGlobalMiddleware)
 
-export function getDefaultMiddleware(): MiddlewareConfig {
+function getGlobalMiddleware(): MiddlewareConfig {
   // Return a clone so they can't mess up the Map for any other routes.
-  return new Map(defaultMiddleware)
-}
-
-export const defaultMiddlewareArray: express.RequestHandler[] = toMiddlewareArray(defaultMiddleware)
-
-export function toMiddlewareArray(middleware: MiddlewareConfig): express.RequestHandler[] {
-  return Array.from(middleware.values())
+  return new Map(globalMiddleware)
 }

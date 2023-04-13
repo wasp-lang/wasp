@@ -1,7 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import operations from './operations/index.js'
-import { defaultMiddlewareArray } from '../middleware.js'
+import { globalMiddlewareForExpress } from '../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from './auth/index.js'
 {=/ isAuthEnabled =}
@@ -11,17 +11,20 @@ import apis from './apis/index.js'
 
 
 const router = express.Router()
+const middleware = globalMiddlewareForExpress()
 
-router.get('/', defaultMiddlewareArray, function (_req, res, _next) {
+router.get('/', middleware, function (_req, res, _next) {
   res.json('Hello world')
 })
 
 {=# isAuthEnabled =}
-router.use('/auth', defaultMiddlewareArray, auth)
+router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
-router.use('/{= operationsRouteInRootRouter =}', defaultMiddlewareArray, operations)
+router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCustomApiRoutes =}
-// Keep user-defined api routes last so they cannot override our routes.
+// NOTE: Keep user-defined api routes last so they cannot override our routes.
+// Additionally, do not add middleware to these routes here. Instead, we add
+// it later to allow for middleware customization.
 router.use(apis)
 {=/ areThereAnyCustomApiRoutes =}
 

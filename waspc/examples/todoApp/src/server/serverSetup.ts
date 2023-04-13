@@ -32,8 +32,8 @@ function addCustomRoute(app: Application) {
 
 export const serverMiddlewareFn: MiddlewareConfigFn = (middleware) => {
   middleware.set('custom.global',
-    (_req, _res, next) => {
-      console.log('custom global middleware')
+    (req, _res, next) => {
+      console.log(`serverMiddlewareFn: custom global middleware (path: ${req.path})`)
       next()
     }
   )

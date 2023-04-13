@@ -381,7 +381,8 @@ genExportedTypesDir spec =
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
   return
-    [ C.mkTmplFdWithData [relfile|src/middleware.ts|] (Just tmplData)
+    [ C.mkTmplFd [relfile|src/middleware/index.ts|],
+      C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData)
     ]
   where
     tmplData =
@@ -391,5 +392,5 @@ genMiddleware spec =
           "globalMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
     maybeMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
-    middlewareConfigFnAlias = "middlewareConfigFn"
-    maybeMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathToServerSrcDir <$> maybeMiddlewareConfigFn
+    middlewareConfigFnAlias = "globalMiddlewareConfigFn"
+    maybeMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias [reldirP|../|] <$> maybeMiddlewareConfigFn
