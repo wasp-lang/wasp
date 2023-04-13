@@ -5,7 +5,7 @@ title: Creating the project
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-By now you've already learned [how to install Wasp and create a new project](/docs). So let’s create a new web app appropriately named `ItWaspsOnMyMachine`.
+By now you've already learned [how to install Wasp and create a new project](/docs/quick-start). So let’s create a new web app appropriately named `ItWaspsOnMyMachine`.
 
 ```
 wasp new ItWaspsOnMyMachine

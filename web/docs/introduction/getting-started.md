@@ -1,6 +1,6 @@
 ---
-title: Getting Started
-slug: /
+title: Quick Start
+slug: /quick-start
 next: /tutorials/todo-app
 ---
 
@@ -8,7 +8,7 @@ import Tabs from '@theme/Tabs'
 import TabItem from '@theme/TabItem'
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-## Quick Start
+## Installation
 
 Welcome, new Waspeteer 🐝!
 

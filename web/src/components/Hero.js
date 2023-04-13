@@ -23,7 +23,7 @@ const StartIcon = () => (
 
 const ActionButtons = () => (
   <div className='flex items-center gap-2'>
-    <Link to='/docs'>
+    <Link to='/docs/quick-start'>
       <button
         className={`
           inline-flex items-center space-x-2
