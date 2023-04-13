@@ -77,7 +77,8 @@ const Hero = () => {
 `app todoApp {
   title: "ToDo App",  // visible in the browser tab
   auth: { // full-stack auth out-of-the-box
-    userEntity: User, methods: { email: {...} }
+    userEntity: User, 
+    methods: { google: {}, gitHub: {}, email: {...} }
   }
 }
 
@@ -119,7 +120,7 @@ entity Task {=psl ... psl=} // Your Prisma data model.
           <ActionButtons />
 
           <div className='flex flex-col gap-4'>
-            <small className='text-neutral-500 text-xs'>works with</small>
+            <small className='text-neutral-500 text-xs'>Works with</small>
 
             <div className='flex'>
               <img
@@ -138,6 +139,15 @@ entity Task {=psl ... psl=} // Your Prisma data model.
                 alt='Prisma'
               />
             </div>
+
+            <span className='flex items-center mt-6'>
+              <small className='text-neutral-500 text-xs'>Backed by</small>
+              <img
+                className='w-24 ml-2'
+                src='img/lp/yc-logo-rounded.png'
+                alt='YC'
+              />
+            </span>
           </div>
 
         </div>
