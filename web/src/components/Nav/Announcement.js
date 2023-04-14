@@ -9,7 +9,7 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    //history.push('/blog/2023/04/12/auth-ui')
+    history.push('/blog/2023/04/13/db-start-and-seed')
     //history.push('/#signup')
 
     window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
@@ -44,7 +44,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Day 2: One-line deployment to Fly.io 🚀
+            Day 3: Database Dev Tooling 🛠
           </span>
         </span>
 
