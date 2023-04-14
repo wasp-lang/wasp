@@ -12,7 +12,7 @@ const Announcement = () => {
     history.push('/blog/2023/04/13/db-start-and-seed')
     //history.push('/#signup')
 
-    window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
+    //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
   }
 
   return (
