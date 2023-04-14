@@ -232,9 +232,9 @@ validateApiRoutesAreUnique spec =
 
     routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
     routeComparator l@(lMethod, lPath) r@(rMethod, rPath) =
-      if (lPath == rPath) && (lMethod == rMethod || elem AS.Api.ALL [lMethod, rMethod])
-        then EQ
-        else compare l r
+      let pathsEqual = lPath == rPath
+          methodsEquivalent = lMethod == rMethod || elem AS.Api.ALL [lMethod, rMethod]
+       in if pathsEqual && methodsEquivalent then EQ else compare l r
 
 validateNamespacePathsAreUnique :: AppSpec -> [ValidationError]
 validateNamespacePathsAreUnique spec =
