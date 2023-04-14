@@ -14,15 +14,15 @@ We will give a brief overview of what Wasp is, how it works on a high level and 
 ## Wasp is a tool to build modern web applications
 
 It is an opinionated way of building **full-stack web applications**. It takes care of all three
-major parts of a web application: **client** (front-end), **server** (back-end) and **deployment**.
+major parts of a web application: **client** (front-end), **server** (back-end) and **database**.
 
-#### Works well with your existing stack
+### Works well with your existing stack
 Wasp is not trying to do everything at once but rather focuses on the complexity
-which arises from connecting all the parts of the stack (client, server, deployment) together.
+which arises from connecting all the parts of the stack (client, server, database, deployment) together.
 
 Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on them to define web components and server queries and actions.
 
-#### Wasp's secret sauce
+### Wasp's secret sauce
 
 At the core is the Wasp compiler which takes the Wasp config and your Javascript code and outputs the client app, server app and deployment code.
 
@@ -46,35 +46,34 @@ Define your app in the Wasp config and get:
 
 You don't need to write any code for these features, Wasp will take care of it for you 🤯 And what's even better, Wasp also maintains the code for you, so you don't have to worry about keeping up with the latest security best practices. As Wasp updates, so does your app.
 
-### But what does it look like?
+## So what does the code look like?
 
 Let's say you want to build a web app that allows users to **create and share their favorite recipes**. 
 
-You would start by defining your app in the Wasp file:
+Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
 
+Let's give our app a title and let's immediatelly turn on the full-stack authentication via username and password:
 ```c title="main.wasp"
-app recepieApp {
+app RecipeApp {
   title: "My Recipes",
-  wasp: {
-    version: "^0.10.0"
-  },
+  wasp: { version: "^0.10.0" },
   auth: {
-    methods: {
-      google: {} // out-of-the-box auth with Google
-    },
+    methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",
-    onAuthSucceededRedirectTo: "/",
-  },
+    userEntity: User
+  }
 }
 ```
 
-Let's then add the data model for your recipes:
+Let's then add the data models for your recipes. We will want to have Users and Users can own Recipes:
 
 ```c title="main.wasp"
-// Use Prisma schema syntax to define your data model
-entity User {=psl
+...
+
+entity User {=psl  // Data models are defined using Prisma Schema Language.
   id          Int @id @default(autoincrement())
-  name        String
+  username    String @unique
+  password    String
   recipes     Recipe[]
 psl=}
 
@@ -87,44 +86,67 @@ entity Recipe {=psl
 psl=}
 ```
 
-Next, you would define some queries and actions...
+Next, let's define how to do something with these data models!
 
+We do that by defining Operations, in this case a Query `getRecipes` and Action `addRecipe`,
+which are in their essence a Node.js functions that execute on server and can, thanks to Wasp, very easily be called from the client.
+
+First, we define these Operations in our main.wasp file, so Wasp knows about them and can "beef them up":
 ```c title="main.wasp"
-// Queries have automatic cache invalidation and are type-safe
+// Queries have automatic cache invalidation and are type-safe.
 query getRecipes {
-  fn: import { getRecipes } from "@server/queries.js",
+  fn: import { getRecipes } from "@server/recipe.js",
   entities: [Recipe],
 }
 
-// Actions are type-safe and can be used to perform side-effects
+// Actions are type-safe and can be used to perform side-effects.
 action addRecipe {
-  fn: import { addRecipe } from "@server/actions.js",
+  fn: import { addRecipe } from "@server/recipe.js",
   entities: [Recipe],
 }
 ```
 
-... which you would implement in your Javascript or Typescript code:
+... and then implement them in our Javascript (or TypeScript) code (we show just the query here, using TypeScript):
 
-```ts title="src/server/queries.ts"
-// Wasp compiler will generate types for you based on your data model
-import { GetRecipes } from "@wasp/queries/types";
-import { Recipe } from "@wasp/entities";
+```ts title="src/server/recipe.ts"
+// Wasp generates types for you.
+import type { GetRecipes } from "@wasp/queries/types";
+import type { Recipe } from "@wasp/entities";
 
 export const getRecipes: GetRecipes<{}, Recipe[]> = async (_args, context) => {
-  // Use Prisma to query your database
-  return context.entities.Recipe.findMany();
+  return context.entities.Recipe.findMany( // Prisma query
+    { where: { user: { id: context.user.id } } }
+  );
 };
+
+export const addRecipe ...
 ```
 
-And then use it in your React component:
+Now we can very easily use these in our React components!
 
-```tsx title="src/client/pages/RecipeListPage.tsx"
+For the end, let's create a home page of our app.
+
+First we define it in main.wasp:
+```c title="main.wasp"
+...
+
+route HomeRoute { path: "/", to: HomePage }
+component HomePage {
+  component: import { HomePage } from "@client/pages/HomePage",
+  authRequired: true // Will send user to /login if not authenticated.
+}
+```
+
+and then implement it as a React component in JS/TS (that calls the Operations we previously defined):
+
+```tsx title="src/client/pages/HomePage.tsx"
 import getRecipes from "@wasp/queries/getRecipes";
 import { useQuery } from "@wasp/queries";
+import type { User } from "@wasp/entities";
 
-export function Homepage({ user }: { user: User }) {
-  // Due to full-stack type safety, `recipes` will be of type `Recipe[]` here
-  const { data: recipes, isLoading } = useQuery(getRecipes);
+export function HomePage({ user }: { user: User }) {
+  // Due to full-stack type safety, `recipes` will be of type `Recipe[]` here.
+  const { data: recipes, isLoading } = useQuery(getRecipes); // Calling our query here!
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -134,11 +156,12 @@ export function Homepage({ user }: { user: User }) {
     <div>
       <h1>Recipes</h1>
       <ul>
-        {recipes.map((recipe) => (
+        {recipes ? recipes.map((recipe) => (
           <li key={recipe.id}>
-            <Link to={`/recipes/${recipe.id}`}>{recipe.title}</Link>
+            <div>{recipe.title}</div>
+            <div>{recipe.description}</div>
           </li>
-        ))}
+        )) : 'No recipes defined yet!'}
       </ul>
     </div>
   );
@@ -148,6 +171,10 @@ export function Homepage({ user }: { user: User }) {
 And voila! We are listing all the recipes in our app 🎉
 
 This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](/docs/tutorials/todo-app).
+
+:::note
+Above we skipped defining /login and /signup pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
+:::
 
 ## When to use Wasp
 Wasp is addressing the same core problems that typical web app frameworks are addressing, and it in big part [looks, swims and quacks](https://en.wikipedia.org/wiki/Duck_test) like a web app framework.

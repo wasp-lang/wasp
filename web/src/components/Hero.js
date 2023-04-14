@@ -39,7 +39,7 @@ const ActionButtons = () => (
       </button>
     </Link>
 
-    <Link to='/docs/tutorials/todo-app'>
+    <Link to='/docs'>
       <button
         className={`
           inline-flex items-center space-x-2
@@ -52,7 +52,7 @@ const ActionButtons = () => (
         `}
       >
         <BookOpen size={16} />
-        <span>Tutorial</span>
+        <span>Quick Guide</span>
       </button>
     </Link>
   </div>
