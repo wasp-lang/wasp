@@ -55,6 +55,8 @@ waspComplexTest/.wasp/out/server/src/jobs/core/allJobs.js
 waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBoss.js
 waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspComplexTest/.wasp/out/server/src/jobs/core/simpleJob.js
+waspComplexTest/.wasp/out/server/src/middleware/globalMiddleware.ts
+waspComplexTest/.wasp/out/server/src/middleware/index.ts
 waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/queries/types.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts

@@ -123,7 +123,7 @@
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
     ],
     [
         [
@@ -373,6 +373,20 @@
     [
         [
             "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "288dd2bcf6fbe80754cb099a8e984e413fef0e30a7605886d3df9cf6ef831df9"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -389,7 +403,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "601591c5b0846be03c31ad70185ba6e6592732656843daf91c5ecc9e1b053fe3"
+        "ce0cfe21d7b48a4fa3eceb8ce84b3bc789b12a3e329edaa6e9af4ebd360e7c16"
     ],
     [
         [
@@ -410,7 +424,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
+        "e8779f52ff95dacc21269cd5ef0120e25be62a80cabe127fdc0e9579ba37c924"
     ],
     [
         [

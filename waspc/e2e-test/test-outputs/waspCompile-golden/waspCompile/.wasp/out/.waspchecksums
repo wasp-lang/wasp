@@ -102,7 +102,7 @@
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
     ],
     [
         [
@@ -191,6 +191,20 @@
     [
         [
             "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "288dd2bcf6fbe80754cb099a8e984e413fef0e30a7605886d3df9cf6ef831df9"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/types.ts"
         ],
         "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
@@ -200,7 +214,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "7fb59b1d6c05570ca1d42d5dbf5868160844165f04e1c75e4be7c372965063fb"
+        "48485cb183bb1ba15f2213d93ea292ba2dfe3796e4d25e3e19c2aee083b3e28e"
     ],
     [
         [
