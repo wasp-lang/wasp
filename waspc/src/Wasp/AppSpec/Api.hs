@@ -32,4 +32,4 @@ path :: Api -> String
 path = snd . httpRoute
 
 data HttpMethod = ALL | GET | POST | PUT | DELETE
-  deriving (Show, Eq, Data)
+  deriving (Show, Eq, Ord, Data)

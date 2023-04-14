@@ -10,7 +10,7 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.List (find, group, intercalate, sort)
+import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
+import qualified Wasp.AppSpec.Namespace as AS.Namespace
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.SemanticVersion as SV
@@ -52,7 +53,8 @@ validateAppSpec spec =
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
-          validateApiRoutesAreUnique spec
+          validateApiRoutesAreUnique spec,
+          validateNamespacePathsAreUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -223,10 +225,25 @@ validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
   if null duplicateRoutes
     then []
-    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " duplicateRoutes]
+    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " (show <$> duplicateRoutes)]
   where
-    apiRoutes = snd . AS.Api.httpRoute . snd <$> AS.getApis spec
-    duplicateRoutes = map head $ filter ((> 1) . length) (group . sort $ apiRoutes)
+    apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
+    duplicateRoutes = filter ((> 1) . length) (groupBy (\l r -> EQ == routeComparator l r) $ sortBy routeComparator apiRoutes)
+
+    routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
+    routeComparator l@(lMethod, lPath) r@(rMethod, rPath) =
+      if (lPath == rPath) && (lMethod == rMethod || elem AS.Api.ALL [lMethod, rMethod])
+        then EQ
+        else compare l r
+
+validateNamespacePathsAreUnique :: AppSpec -> [ValidationError]
+validateNamespacePathsAreUnique spec =
+  if null duplicatePaths
+    then []
+    else [GenericValidationError $ "Namespace paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
+  where
+    namespacePaths = AS.Namespace.path . snd <$> AS.getNamespaces spec
+    duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
