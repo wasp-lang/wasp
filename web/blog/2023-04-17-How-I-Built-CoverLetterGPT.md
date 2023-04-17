@@ -34,7 +34,7 @@ Even though I did think it had potential as a SaaS app, I was approaching it mos
 </div>
 
 
-So I started sharing my progress on twitter, reddit, and indiehackers. I made my first post about it on March 9th, and because I was just experimenting and trying my hand at a SaaS app for the first time, I also [open-sourced the app](https://github.com/vincanger/coverlettergpt) to share the code and what I was learning with others. This led to a lot of interest and great feedback, and I ended up getting featured in the [indiehackers newsletter](https://www.indiehackers.com/post/whats-new-don-t-build-things-no-one-wants-833ee752ba?utm_source=indie-hackers-emails&utm_campaign=ih-newsletter&utm_medium=email), which led to a even more interest.
+So I started sharing my progress on Twitter, Reddit, and Indie Hackers. I made my first post about it on March 9th, and because I was just experimenting and trying my hand at a SaaS app for the first time, I also [open-sourced the app](https://github.com/vincanger/coverlettergpt) to share the code and what I was learning with others. This led to a lot of interest and great feedback, and I ended up getting featured in the [indiehackers newsletter](https://www.indiehackers.com/post/whats-new-don-t-build-things-no-one-wants-833ee752ba?utm_source=indie-hackers-emails&utm_campaign=ih-newsletter&utm_medium=email), which led to even more interest.
 
 Within the first month, I got over 1,000 sign-ups along with my first paying customers. Pretty surprising, to say the least!
 
