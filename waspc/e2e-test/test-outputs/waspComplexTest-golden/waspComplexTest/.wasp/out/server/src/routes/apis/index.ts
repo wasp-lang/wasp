@@ -1,18 +1,17 @@
 import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
-import { globalMiddlewareForExpress } from '../../middleware/index.js'
+import { MiddlewareConfigFn, globalMiddlewareForExpress } from '../../middleware/index.js'
 import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
 
-const idFn = (x: any) => x
-
 
 import { fooBar as fooBarfn } from '../../ext-src/apis.js'
-
-const fooBarmiddlewareConfigFn = idFn
 import { fooBaz as fooBazfn } from '../../ext-src/apis.js'
 
+const idFn: MiddlewareConfigFn = x => x
+
+const fooBarmiddlewareConfigFn = idFn
 const fooBazmiddlewareConfigFn = idFn
 
 const router = express.Router()
