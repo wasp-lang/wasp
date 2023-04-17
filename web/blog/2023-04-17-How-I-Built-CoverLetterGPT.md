@@ -19,7 +19,7 @@ import ImgWithCaption from './components/ImgWithCaption'
 
 ---
 
-Like many other software developers, I really enjoy trying out new technologies even if it's just to get a feel for what they can do. 
+Like many other software developers, I enjoy trying out new technologies even if it's just to get a feel for what they can do. 
 
 So when I first learned about the [OpenAI API](https://platform.openai.com/docs/api-reference), I knew I wanted to give it a try. I had already wanted to create a SaaS app that could help manage the process of applying to numerous jobs, and the prospect of adding GPT into the mix made it even more interesting. So with API access and a bit of free time, I decided to give it a shot.
 
