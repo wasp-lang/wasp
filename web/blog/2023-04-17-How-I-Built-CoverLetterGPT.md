@@ -38,7 +38,7 @@ So I started sharing my progress on Twitter, Reddit, and Indie Hackers. I made m
 
 Within the first month, I got over 1,000 sign-ups along with my first paying customers. Pretty surprising, to say the least!
 
-So to continue in the spirit of curiousity, learning, and just "wingin' it," I decided to make a code walkthrough video that explains how I built the app, the tools I used to build it, and a little bit about how I marketed the app without spending any money. 
+So to continue in the spirit of curiosity, learning, and just "wingin' it," I decided to make a code walkthrough video that explains how I built the app, the tools I used to build it, and a little bit about how I marketed the app without spending any money. 
 
 As an extra bonus, I also give a quick introduction to the [free SaaS template](https://github.com/wasp-lang/SaaS-Template-GPT) I created for building your own SaaS app, with or without GPT, on the PERN stack (PostgreSQL/Prisma, Express, React, NodeJS).
 
