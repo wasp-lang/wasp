@@ -99,7 +99,6 @@ app MyApp {
           email: "hello@itsme.com"
         },
         emailVerification: {
-          allowUnverifiedLogin: false,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
           clientRoute: EmailVerificationRoute,
         },
@@ -107,6 +106,7 @@ app MyApp {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
           clientRoute: PasswordResetRoute
         },
+        allowUnverifiedLogin: false,
       },
   }
 }
