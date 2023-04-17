@@ -29,15 +29,17 @@ const defaultGlobalMiddleware: MiddlewareConfig = new Map([
 ])
 
 // This is the global middleware that is the result of applying the user's modifications.
-// It will be used as the basis for Operations and APIs (unless the latter is further customized).
+// It will be used as the basis for Operations and APIs (unless they are further customized).
 const globalMiddleware = {=& globalMiddlewareConfigFnImportAlias =}(defaultGlobalMiddleware)
 
+// This function returns an array of Express middleware to be used by a router. It optionally
+// accepts a function that can modify the global middleware for specific route customization.
 export function globalMiddlewareForExpress(middlewareConfigFn?: MiddlewareConfigFn): express.RequestHandler[] {
   if (!middlewareConfigFn) {
     return Array.from(globalMiddleware.values())
   }
 
-  // Make a clone so they can't mess up the global Map for any other routes.
+  // Make a clone so they can't mess up the global Map for any other routes calling this.
   const globalMiddlewareClone = new Map(globalMiddleware)
   const modifiedMiddleware = middlewareConfigFn(globalMiddlewareClone)
   return Array.from(modifiedMiddleware.values())

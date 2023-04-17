@@ -11,7 +11,7 @@ export const barBaz: BarBaz = (_req, res, _context) => {
 }
 
 export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  console.log('fooBarNamespaceMiddlewareFn: Ignoring all default middleware except cors.')
+  // console.log('fooBarNamespaceMiddlewareFn: Ignoring all default middleware except cors.')
 
   const updatedMiddleware = new Map([
     ['express.text', express.text({ type: '*/*' })]
@@ -25,7 +25,7 @@ export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middleware) => {
 }
 
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  console.log('fooBarMiddlewareFn: Adding custom middleware for route.')
+  // console.log('fooBarMiddlewareFn: Adding custom middleware for route.')
 
   const customMiddleware : express.RequestHandler = (_req, _res, next) => {
     console.log('fooBarMiddlewareFn: custom route middleware')
@@ -42,7 +42,7 @@ export const webhookCallback: WebhookCallback = (req, res, _context) => {
 }
 
 export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
+  // console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
   
   middleware.delete('express.json')
   middleware.set('express.raw', express.raw({ type: '*/*' }))

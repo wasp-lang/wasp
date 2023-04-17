@@ -2,13 +2,11 @@
 import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
-import { globalMiddlewareForExpress } from '../../middleware/index.js'
+import { MiddlewareConfigFn, globalMiddlewareForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
 {=/ isAuthEnabled =}
-
-const idFn = (x: any) => x
 
 {=# namespaces =}
 {=& namespaceMiddlewareConfigFnImportStatement =}
@@ -16,10 +14,14 @@ const idFn = (x: any) => x
 
 {=# apiRoutes =}
 {=& importStatement =}
-
 {=# routeMiddlewareConfigFnDefined =}
 {=& routeMiddlewareConfigFnImportStatement =}
 {=/ routeMiddlewareConfigFnDefined =}
+{=/ apiRoutes =}
+
+const idFn: MiddlewareConfigFn = x => x
+
+{=# apiRoutes =}
 {=^ routeMiddlewareConfigFnDefined =}
 const {=& routeMiddlewareConfigFnImportAlias =} = idFn
 {=/ routeMiddlewareConfigFnDefined =}
