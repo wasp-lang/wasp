@@ -25,7 +25,7 @@ So when I first learned about the [OpenAI API](https://platform.openai.com/docs/
 
 I threw together a simple version of the app in about 3-4 days and [CoverLetterGPT](https://coverlettergpt.xyz) was born, a SaaS app that uses GPT-3.5-turbo to generate, revise, and manage cover letters for you based on your skills and the specific job descriptions. 
 
-Even though I did think it had potential as a SaaS app, I was approaching it mostly as way to learn how to build one for the first time. And after seeing so many people "building in public" and sharing their progress, I thought it would be fun to try it out myself.
+Even though I did think it had potential as a SaaS app, I was approaching it mostly as a way to learn how to build one for the first time. And after seeing so many people "building in public" and sharing their progress, I thought it would be fun to try it out myself.
 
 <div style={{ marginBottom: "1rem" }}>
     <a href="https://twitter.com/hot_town/status/1633873684573323265?s=20">
