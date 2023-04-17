@@ -70,6 +70,7 @@ While fundamental types are here to be basic building blocks of a language, and 
     - **app**
     - **entity**
     - **job**
+    - **namespace**
     - **page**
     - **query**
     - **route**

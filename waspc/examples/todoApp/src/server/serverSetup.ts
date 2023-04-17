@@ -2,6 +2,8 @@ import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 import { sayHi } from '../shared/util.js'
 import { ServerSetupFn, Application } from '@wasp/types'
 import { MiddlewareConfigFn } from '@wasp/middleware'
+import cors from 'cors'
+import config from '@wasp/config.js'
 
 let someResource = undefined
 
@@ -37,6 +39,9 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middleware) => {
       next()
     }
   )
+
+  // Example of adding an extra domain to CORS.
+  middleware.set('cors', cors({ origin: [config.frontendUrl, 'http://127.0.0.1:3000'] }))
   return middleware
 }
 

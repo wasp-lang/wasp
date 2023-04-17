@@ -1,4 +1,4 @@
-import { BarBaz, FooBar } from '@wasp/apis/types'
+import { BarBaz, FooBar, WebhookCallback } from '@wasp/apis/types'
 import express from 'express'
 import { MiddlewareConfigFn } from '@wasp/middleware'
 
@@ -33,6 +33,19 @@ export const fooBarMiddlewareFn: MiddlewareConfigFn = (middleware) => {
   }
 
   middleware.set('custom.route', customMiddleware)
+
+  return middleware
+}
+
+export const webhookCallback: WebhookCallback = (req, res, _context) => {
+  res.json({ msg: req.body.length })
+}
+
+export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (middleware) => {
+  console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
+  
+  middleware.delete('express.json')
+  middleware.set('express.raw', express.raw({ type: '*/*' }))
 
   return middleware
 }

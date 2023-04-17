@@ -170,6 +170,13 @@ api barBaz {
   httpRoute: (GET, "/bar/baz")
 }
 
+api webhookCallback {
+  fn: import { webhookCallback } from "@server/apis.js",
+  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@server/apis.js",
+  httpRoute: (POST, "/webhook/callback"),
+  auth: false
+}
+
 query getNumTasks {
   fn: import { getNumTasks } from "@server/queries.js",
   entities: [Task],
