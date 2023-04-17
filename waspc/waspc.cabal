@@ -370,7 +370,6 @@ library cli-lib
     , waspc
     , waspls
     , unliftio ^>= 0.2.20
-    , wizards ^>= 1.0.3
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
@@ -383,6 +382,9 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
+    Wasp.Cli.Command.CreateNewProject.Http
+    Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.Options
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
@@ -405,6 +407,7 @@ library cli-lib
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
     Wasp.Cli.Message
+    Wasp.Cli.Question
 
 executable wasp-cli
   import: common-all, common-exe

@@ -6,78 +6,44 @@ module Wasp.Cli.Command.CreateNewProject
 where
 
 import Control.Monad (when)
-import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List (intercalate)
 import Data.Maybe (isJust)
 import qualified Data.Text as T
 import Path.IO (copyDirRecur, doesDirExist)
 import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
-import System.Console.Wizard (Line, Wizard, defaultTo, inRange, line, nonEmpty, parseRead, retry, run, (:<:))
-import System.Console.Wizard.BasicIO (basicIO)
 import System.Directory (getCurrentDirectory)
 import qualified System.FilePath as FP
 import System.Process (callCommand)
 import Text.Printf (printf)
 import UnliftIO.Exception (SomeException, try)
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Call (Arguments, ProjectName)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Call (Arguments)
+import Wasp.Cli.Command.CreateNewProject.Common (ProjectInfo (..), throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Options (getProjectInfo)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Data as Data
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
-import Wasp.Util (indent, kebabToCamelCase, whenM)
+import Wasp.Util (whenM)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 import qualified Wasp.Version as WV
 
-data ProjectInfo = ProjectInfo
-  { _projectName :: String,
-    _appName :: String,
-    _templateName :: Maybe String
-  }
-
-createNewProject :: ProjectName -> Arguments -> Command ()
-createNewProject projectName newArgs = do
-  liftIO $ putStrLn "Welcome to Wasp!"
-  student <- liftIO runTestWixards
-  liftIO $ print student
-  projectInfo <- parseProjectInfo projectName newArgs
-  -- createWaspProjectDir projectInfo
+createNewProject :: Arguments -> Command ()
+createNewProject newArgs = do
+  projectInfo <- getProjectInfo newArgs
+  createWaspProjectDir projectInfo
   liftIO $ printGettingStartedInstructions $ _projectName projectInfo
   where
-    printGettingStartedInstructions :: ProjectName -> IO ()
+    printGettingStartedInstructions :: String -> IO ()
     printGettingStartedInstructions projectFolder = do
       putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectFolder ++ " directory!")
       putStrLn "To run it, do:"
       putStrLn ""
       putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectFolder)
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
-
-parseProjectInfo :: ProjectName -> Arguments -> Command ProjectInfo
-parseProjectInfo projectName newArgs = case newArgs of
-  [] -> createProjectInfo projectName Nothing
-  [templateFlag, templateName] | templateFlag `elem` ["--template", "-t"] -> createProjectInfo projectName (Just templateName)
-  [templateFlag] | templateFlag `elem` ["--template", "-t"] -> throwProjectCreationError "You must provide a template name."
-  _anyOtherArgs -> throwProjectCreationError "Invalid arguments for 'wasp new' command."
-
-createProjectInfo :: ProjectName -> Maybe String -> Command ProjectInfo
-createProjectInfo name templateName
-  | isValidWaspIdentifier appName = return $ ProjectInfo {_projectName = name, _appName = appName, _templateName = templateName}
-  | otherwise =
-      throwProjectCreationError $
-        intercalate
-          "\n"
-          [ "The project's name is not in the valid format!",
-            indent 2 "- It can start with a letter or an underscore.",
-            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-            indent 2 "- It can't be a Wasp keyword."
-          ]
-  where
-    appName = kebabToCamelCase name
 
 createWaspProjectDir :: ProjectInfo -> Command ()
 createWaspProjectDir projectInfo@ProjectInfo {_templateName = template} = do
@@ -189,28 +155,3 @@ createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _pr
 
 waspVersionBounds :: String
 waspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)
-
-throwProjectCreationError :: String -> Command a
-throwProjectCreationError = throwError . CommandError "Project creation failed"
-
-type Name = String
-
-type Class = Int
-
-data Student = Student Name Class deriving (Show)
-
-nameWizard :: (Line :<: b) => Wizard b Name
-nameWizard = retry $ nonEmpty $ line "Name: "
-
-classWizard :: (Line :<: b) => Wizard b Class
-classWizard =
-  retry $
-    inRange (1, 5) $
-      parseRead $
-        nonEmpty (line "Class[1]: ") `defaultTo` "1"
-
-studentWizard :: (Line :<: b) => Wizard b Student
-studentWizard = Student <$> nameWizard <*> classWizard
-
-runTestWixards :: IO (Maybe Student)
-runTestWixards = run (basicIO studentWizard)
