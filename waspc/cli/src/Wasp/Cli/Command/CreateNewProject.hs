@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeOperators #-}
-
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
   )

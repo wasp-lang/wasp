@@ -35,6 +35,7 @@ instance FromJSON RepoInfo where
         { _tree = tree
         }
 
+-- Uses Github API to fetch repo info and extract template names. Each folder in the repo is a template.
 getTemplatesJson :: IO (Maybe [String])
 getTemplatesJson = do
   response <- HTTP.httpJSONEither $ createRequestWithUserAgent urlToStarterTemplates
