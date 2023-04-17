@@ -42,7 +42,7 @@ So to continue in the spirit of curiosity, learning, and just "wingin' it," I de
 
 As an extra bonus, I also give a quick introduction to the [free SaaS template](https://github.com/wasp-lang/SaaS-Template-GPT) I created for building your own SaaS app, with or without GPT, on the PERN stack (PostgreSQL/Prisma, Express, React, NodeJS).
 
-My hope is that others will learn something from my experience, and that it could inspire them to try out new technologies and build that app idea they've had in mind (and if they do, they should make sure to share it with me on twitter [@hot_town](https://twitter.com/hot_town) -- I'd love to see it!)
+My hope is that others will learn something from my experience, and that it could inspire them to try out new technologies and build that app idea they've had in mind (and if they do, they should make sure to share it with me on Twitter [@hot_town](https://twitter.com/hot_town) -- I'd love to see it!)
 
 
 *Want to stay in the loop? → [Join our newsletter!](https://wasp-lang.dev/#signup)*
