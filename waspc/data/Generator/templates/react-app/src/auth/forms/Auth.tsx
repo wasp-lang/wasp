@@ -529,7 +529,7 @@ const VerifyEmailForm = (
 
   async function submitForm() {
     if (!token) {
-      setErrorMessage('The token is missing from the URL. Please check the link you received in your email.')
+      setErrorMessage({ title: 'The token is missing from the URL. Please check the link you received in your email.' })
       return
     }
     setIsLoading(true)
