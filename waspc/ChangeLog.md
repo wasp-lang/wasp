@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.1
+
+### Bug fixes
+- Fixed several TypeScript errors preventing the frontend build
+
 ## v0.10.0
 
 ### Breaking changes
