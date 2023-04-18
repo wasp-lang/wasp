@@ -61,12 +61,12 @@ app myApp {
         emailVerification: {
           clientRoute: EmailVerificationRoute,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-          allowUnverifiedLogin: false,
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
+        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -228,7 +228,6 @@ Our setup looks like this:
 emailVerification: {
     clientRoute: EmailVerificationRoute,
     getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-    allowUnverifiedLogin: false,
 }
 ```
 

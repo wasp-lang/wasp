@@ -9,10 +9,11 @@ const Announcement = () => {
   let history = useHistory()
 
   const handleLink = () => {
-    history.push('/blog/2023/04/11/wasp-launch-week-two')
+    //history.push('/blog/2023/04/13/db-start-and-seed')
     //history.push('/#signup')
 
-    //window.open('https://betathon.wasp-lang.dev/')
+    //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
+    window.open('https://twitter.com/WaspLang/status/1647979490180575234')
   }
 
   return (
@@ -34,7 +35,7 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Wasp Launch Week 2 starts on <span className='underline'>April 12</span>! 🚀</span>
+          <span>Launch Week 2 is under way! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -44,7 +45,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            See what's coming
+            Day 5: Testing🧪 + Full-stack Type Safety🛡
           </span>
         </span>
 

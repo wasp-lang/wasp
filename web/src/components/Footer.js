@@ -123,6 +123,15 @@ const Footer = () => {
               inputBgColor='bg-transparent'
             />
 
+            <span className='flex items-center mt-6'>
+              <small className='text-neutral-500 text-xs'>Backed by</small>
+              <img
+                className='w-24 ml-2'
+                src='img/lp/yc-logo-rounded.png'
+                alt='YC'
+              />
+            </span>
+
           </div>
         </div>
         <div className='pt-8 mt-8'>
