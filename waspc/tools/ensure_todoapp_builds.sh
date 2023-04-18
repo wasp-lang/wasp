@@ -22,6 +22,6 @@ echo "Ensure client builds"
 cd .wasp/build/web-app
 npm run build
 
-echo "Ensure server builds""
+echo "Ensure server builds"
 cd ../server
 npm run build
