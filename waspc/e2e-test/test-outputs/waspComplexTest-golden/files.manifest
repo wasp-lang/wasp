@@ -134,6 +134,7 @@ waspComplexTest/.wasp/out/web-app/tsconfig.json
 waspComplexTest/.wasp/out/web-app/tsconfig.node.json
 waspComplexTest/.wasp/out/web-app/vite.config.ts
 waspComplexTest/.wasproot
+waspComplexTest/README.md
 waspComplexTest/main.wasp
 waspComplexTest/src/.waspignore
 waspComplexTest/src/client/App.jsx

@@ -84,6 +84,7 @@ waspMigrate/.wasp/out/web-app/tsconfig.json
 waspMigrate/.wasp/out/web-app/tsconfig.node.json
 waspMigrate/.wasp/out/web-app/vite.config.ts
 waspMigrate/.wasproot
+waspMigrate/README.md
 waspMigrate/main.wasp
 waspMigrate/migrations/migration_lock.toml
 waspMigrate/migrations/no-date-foo/migration.sql

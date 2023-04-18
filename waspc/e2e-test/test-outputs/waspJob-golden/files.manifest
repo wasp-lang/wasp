@@ -82,6 +82,7 @@ waspJob/.wasp/out/web-app/tsconfig.json
 waspJob/.wasp/out/web-app/tsconfig.node.json
 waspJob/.wasp/out/web-app/vite.config.ts
 waspJob/.wasproot
+waspJob/README.md
 waspJob/main.wasp
 waspJob/src/.waspignore
 waspJob/src/client/Main.css

@@ -77,6 +77,7 @@ waspBuild/.wasp/build/web-app/tsconfig.json
 waspBuild/.wasp/build/web-app/tsconfig.node.json
 waspBuild/.wasp/build/web-app/vite.config.ts
 waspBuild/.wasproot
+waspBuild/README.md
 waspBuild/main.wasp
 waspBuild/src/.waspignore
 waspBuild/src/client/Main.css

@@ -87,7 +87,7 @@ insertCodeIntoWaspFileAtLineNumber atLineNumber line =
 waspCliNew :: ShellCommandBuilder ShellCommand
 waspCliNew = do
   context <- ask
-  return $ "wasp-cli new " ++ _ctxtCurrentProjectName context
+  return $ "wasp-cli new " ++ _ctxtCurrentProjectName context ++ " -t basic"
 
 waspCliCompile :: ShellCommandBuilder ShellCommand
 waspCliCompile = return "wasp-cli compile"
