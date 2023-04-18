@@ -136,7 +136,7 @@ npmDepsForWasp spec =
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("vite", "^4.1.0"),
-            ("typescript", "^4.9.3"),
+            ("typescript", "^5.0.0"),
             ("@types/react", "^17.0.53"),
             ("@types/react-dom", "^17.0.19"),
             ("@types/react-router-dom", "^5.3.3"),
