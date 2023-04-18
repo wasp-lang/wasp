@@ -10,7 +10,7 @@ import { Query } from '../../queries'
 import config from '../../config'
 import { HttpMethod, Route } from '../../types'
 
-export { Route } from '../../types'
+export { type Route } from '../../types'
 
 export type MockQuery = <Input, Output, MockOutput extends Output>(
   query: Query<Input, Output>,
