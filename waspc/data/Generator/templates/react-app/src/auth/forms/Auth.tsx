@@ -461,7 +461,7 @@ const ResetPasswordForm = (
     event.preventDefault()
 
     if (!token) {
-      setErrorMessage({ title: 'The token is missing from the URL. Please check the link you received in your email.' })
+      setErrorMessage({ 'The token is missing from the URL. Please check the link you received in your email.' })
       return
     }
 
