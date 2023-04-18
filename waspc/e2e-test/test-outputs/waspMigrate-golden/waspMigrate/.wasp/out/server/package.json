@@ -16,7 +16,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "@tsconfig/node18": "1.0.1",
+    "@tsconfig/node18": "^1.0.1",
     "@types/express": "^4.17.13",
     "@types/express-serve-static-core": "^4.17.13",
     "@types/node": "^18.11.9",

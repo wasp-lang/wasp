@@ -177,7 +177,7 @@ npmDepsForWasp spec =
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "1.0.1")
+            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
           ]
     }
 
