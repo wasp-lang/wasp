@@ -1,21 +1,17 @@
 #!/bin/sh -e
 
 # Compiles the todoApp and checks `npm run build` on both client and server.
+# This helps us out in CI since Vite won't typecheck locally. So we want to
+# make sure we don't accidentally add anything that causes `tsc` to error out.
 
 # Gets the directory of where this script lives.
 dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 echo "Running ensure_todoapp_builds.sh from $dir"
 
 cd "$dir/../examples/todoApp"
-echo "cd into $(pwd)"
 
 # Compile example app.
-WASP_BINARY_PATH="$(cabal list-bin wasp-cli)"
-CABAL_PROJECT_ROOT_PATH="$(cabal list-bin wasp-cli | sed s/\\/dist-newstyle.*//)"
-WASP_COMMAND="waspc_datadir=$CABAL_PROJECT_ROOT_PATH/data $WASP_BINARY_PATH"
-echo "Wasp command: $WASP_COMMAND"
-
-eval "$WASP_COMMAND build"
+cabal run wasp-cli build
 
 # Make sure they build.
 echo "Ensure client builds"
