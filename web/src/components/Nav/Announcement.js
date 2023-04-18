@@ -13,7 +13,8 @@ const Announcement = () => {
     //history.push('/#signup')
 
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
-    window.open('https://twitter.com/WaspLang/status/1647979490180575234')
+    //window.open('https://twitter.com/WaspLang/status/1647979490180575234')
+    window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
   }
 
   return (
@@ -35,7 +36,7 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Launch Week 2 is under way! 🚀</span>
+          <span>Wasp is live on Product Hunt! 🚀</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -45,7 +46,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Day 5: Testing🧪 + Full-stack Type Safety🛡
+            Try now: Free GPT SaaS template 🐝 🤖 
           </span>
         </span>
 
