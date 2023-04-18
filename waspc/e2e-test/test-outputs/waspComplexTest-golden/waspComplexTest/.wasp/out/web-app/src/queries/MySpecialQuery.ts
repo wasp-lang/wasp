@@ -4,7 +4,7 @@ import { MySpecialQuery } from '../../../server/src/queries/MySpecialQuery'
 
 const query = createQuery<MySpecialQuery>(
   'operations/my-special-query',
-  ['"User"'],
+  ['User'],
 )
 
 export default query

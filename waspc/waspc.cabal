@@ -471,6 +471,7 @@ test-suite waspc-test
     Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
+    Generator.CommonTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
     Psl.Parser.ModelTest
