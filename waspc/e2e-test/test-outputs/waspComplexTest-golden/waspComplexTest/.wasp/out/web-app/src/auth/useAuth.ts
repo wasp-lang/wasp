@@ -32,7 +32,7 @@ function createUserGetter() {
   addMetadataToQuery(getMe, {
     relativeQueryPath: getMeRelativePath,
     queryRoute: getMeRoute,
-    entitiesUsed: ['"User"'],
+    entitiesUsed: ['User'],
   })
 
   return getMe
