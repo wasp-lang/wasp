@@ -17,8 +17,8 @@ import Text.Printf (printf)
 import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.Common (ProjectInfo (..), throwProjectCreationError)
-import Wasp.Cli.Command.CreateNewProject.Options (getProjectInfo)
+import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), initNewProjectDescription)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Data as Data
 import qualified Wasp.Message as Msg
@@ -31,9 +31,9 @@ import qualified Wasp.Version as WV
 
 createNewProject :: Arguments -> Command ()
 createNewProject newArgs = do
-  projectInfo <- getProjectInfo newArgs
-  createWaspProjectDir projectInfo
-  liftIO $ printGettingStartedInstructions $ _projectName projectInfo
+  newProjectDescription <- initNewProjectDescription newArgs
+  createWaspProjectDir newProjectDescription
+  liftIO $ printGettingStartedInstructions $ _projectName newProjectDescription
   where
     printGettingStartedInstructions :: String -> IO ()
     printGettingStartedInstructions projectFolder = do
@@ -43,26 +43,26 @@ createNewProject newArgs = do
       putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectFolder)
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
 
-createWaspProjectDir :: ProjectInfo -> Command ()
-createWaspProjectDir projectInfo@ProjectInfo {_templateName = template} = do
-  absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
+createWaspProjectDir :: NewProjectDescription -> Command ()
+createWaspProjectDir newProjectDescription@NewProjectDescription {_templateName = template} = do
+  absWaspProjectDir <- getAbsoluteWaspProjectDir newProjectDescription
   dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
 
   when dirExists $
     throwProjectCreationError $
       show absWaspProjectDir ++ " is an existing directory"
 
-  createProjectFromProjectInfo absWaspProjectDir
+  createProjectFromProjectDescription absWaspProjectDir
   where
-    createProjectFromProjectInfo absWaspProjectDir = do
+    createProjectFromProjectDescription absWaspProjectDir = do
       if isJust template
-        then createProjectFromTemplate absWaspProjectDir projectInfo
+        then createProjectFromTemplate absWaspProjectDir newProjectDescription
         else liftIO $ do
           initializeProjectFromSkeleton absWaspProjectDir
-          writeMainWaspFile absWaspProjectDir projectInfo
+          writeMainWaspFile absWaspProjectDir newProjectDescription
 
-getAbsoluteWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
-getAbsoluteWaspProjectDir (ProjectInfo projectName _ _) = do
+getAbsoluteWaspProjectDir :: NewProjectDescription -> Command (Path System Abs (Dir WaspProjectDir))
+getAbsoluteWaspProjectDir (NewProjectDescription projectName _ _) = do
   absCwd <- liftIO getCurrentDirectory
   case parseAbsDir $ absCwd FP.</> projectName of
     Right sp -> return sp
@@ -77,8 +77,8 @@ initializeProjectFromSkeleton absWaspProjectDir = do
   let absSkeletonDir = dataDir </> [reldir|Cli/templates/new|]
   copyDirRecur (toPathAbsDir absSkeletonDir) (toPathAbsDir absWaspProjectDir)
 
-writeMainWaspFile :: Path System Abs (Dir WaspProjectDir) -> ProjectInfo -> IO ()
-writeMainWaspFile waspProjectDir (ProjectInfo projectName appName _) = IOUtil.writeFile absMainWaspFile mainWaspFileContent
+writeMainWaspFile :: Path System Abs (Dir WaspProjectDir) -> NewProjectDescription -> IO ()
+writeMainWaspFile waspProjectDir (NewProjectDescription projectName appName _) = IOUtil.writeFile absMainWaspFile mainWaspFileContent
   where
     absMainWaspFile = waspProjectDir </> [relfile|main.wasp|]
     mainWaspFileContent =
@@ -96,11 +96,15 @@ writeMainWaspFile waspProjectDir (ProjectInfo projectName appName _) = IOUtil.wr
           "}"
         ]
 
-createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> ProjectInfo -> Command ()
-createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _projectName = projectName, _templateName = maybeTemplateName} = do
-  cliSendMessageC $ Msg.Start "Creating project from template..."
+createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> NewProjectDescription -> Command ()
+createProjectFromTemplate absWaspProjectDir NewProjectDescription {_appName = appName, _projectName = projectName, _templateName = maybeTemplateName} = do
+  templateName <- case maybeTemplateName of
+    Just name -> return name
+    Nothing -> throwProjectCreationError "Template name is not provided."
 
-  templatePath <- getPathToRemoteTemplate maybeTemplateName
+  cliSendMessageC $ Msg.Start $ "Creating your project from the " ++ templateName ++ " template..."
+
+  templatePath <- getPathToRemoteTemplate templateName
 
   let projectDir = projectName
 
@@ -109,10 +113,8 @@ createProjectFromTemplate absWaspProjectDir ProjectInfo {_appName = appName, _pr
 
   replacePlaceholdersInWaspFile
   where
-    getPathToRemoteTemplate :: Maybe String -> Command String
-    getPathToRemoteTemplate = \case
-      Just templateName -> return $ waspTemplatesRepo ++ "/" ++ templateName
-      Nothing -> throwProjectCreationError "Template name is not provided."
+    getPathToRemoteTemplate :: String -> Command String
+    getPathToRemoteTemplate templateName = return $ waspTemplatesRepo ++ "/" ++ templateName
       where
         -- gh: prefix means Github repo
         waspTemplatesRepo = "gh:wasp-lang/starters"

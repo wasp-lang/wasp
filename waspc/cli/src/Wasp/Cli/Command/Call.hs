@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New Arguments -- passthrough new args to options parser
+  = New Arguments
   | Start
   | StartDb
   | Clean

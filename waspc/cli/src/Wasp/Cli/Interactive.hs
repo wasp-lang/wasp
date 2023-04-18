@@ -1,7 +1,7 @@
-module Wasp.Cli.Question
-  ( query,
-    queryWithOptions,
-    queryNotNull,
+module Wasp.Cli.Interactive
+  ( askForInput,
+    askToChoose,
+    askForRequiredInput,
   )
 where
 
@@ -11,33 +11,23 @@ import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
-queryNotNull :: String -> IO String
-queryNotNull question = do
-  ensureNotNull . query $ question
+askForRequiredInput :: String -> IO String
+askForRequiredInput question = do
+  ensureNotNull . askForInput $ question
 
-queryWithOptions :: String -> [String] -> IO (Maybe String)
-queryWithOptions question options = do
-  putStrLn optionsStr
-  putStr $ question ++ " "
+askToChoose :: String -> [String] -> IO (Maybe String)
+askToChoose question options = do
+  putStrLn $ Term.applyStyles [Term.Bold] question
+  putStrLn optionsToChooseFrom
   answer <- prompt
 
-  handleEmptyAnswer answer
-    >>= \case
-      Just _ ->
-        handleOptionIndex answer
-          >>= \case
-            Just option -> return $ Just option
-            Nothing -> handleOptionName answer
-      -- Optional
-      Nothing -> return Nothing
+  handleOptionIndex answer >>= \case
+    Just option -> return $ Just option
+    Nothing -> handleOptionName answer
   where
-    handleEmptyAnswer :: String -> IO (Maybe String)
-    handleEmptyAnswer answer = do
-      return $ if null answer then Nothing else Just answer
-
     handleOptionIndex :: String -> IO (Maybe String)
     handleOptionIndex answer = do
-      let index = readMaybe answer :: Maybe Int
+      let index = parseIndexOrDefault answer
 
       case index of
         Just i -> do
@@ -45,6 +35,9 @@ queryWithOptions question options = do
             then return $ Just $ options !! (i - 1)
             else invalidOptionAction
         Nothing -> return Nothing
+      where
+        -- The default option is the first one
+        parseIndexOrDefault input = if null input then Just 1 else readMaybe input :: Maybe Int
 
     handleOptionName :: String -> IO (Maybe String)
     handleOptionName answer = do
@@ -55,15 +48,16 @@ queryWithOptions question options = do
     invalidOptionAction :: IO (Maybe String)
     invalidOptionAction = do
       putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
-      queryWithOptions question options
+      askToChoose question options
 
-    optionsStr = intercalate "\n" $ showOptionsWithIndexes options
-    showOptionsWithIndexes = zipWith (\i o -> indexWithStyle i ++ o) indexes
-    indexWithStyle i = Term.applyStyles [Term.Yellow] $ "(" ++ show (i :: Int) ++ ") "
+    optionsToChooseFrom = intercalate "\n" $ prependIndexToOption options
+    prependIndexToOption = zipWith (\i o -> showIndexWithStyle i ++ o ++ noteForDefault i) indexes
+    noteForDefault i = if i == 1 then " (default)" else ""
+    showIndexWithStyle i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "] "
     indexes = [1 .. length options]
 
-query :: String -> IO String
-query question = putStr question >> prompt
+askForInput :: String -> IO String
+askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
 ensureNotNull :: Foldable t => IO (t a) -> IO (t a)
 ensureNotNull action = do

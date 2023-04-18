@@ -382,9 +382,10 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
-    Wasp.Cli.Command.CreateNewProject.Http
+    Wasp.Cli.Command.CreateNewProject.Templates
     Wasp.Cli.Command.CreateNewProject.Common
-    Wasp.Cli.Command.CreateNewProject.Options
+    Wasp.Cli.Command.CreateNewProject.ProjectDescription
+    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
@@ -407,7 +408,7 @@ library cli-lib
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
     Wasp.Cli.Message
-    Wasp.Cli.Question
+    Wasp.Cli.Interactive
 
 executable wasp-cli
   import: common-all, common-exe
