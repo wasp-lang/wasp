@@ -83,7 +83,7 @@ makeJsonWithEntityData name =
     entityNameToPrismaIdentifier :: String -> String
     entityNameToPrismaIdentifier = toLowerFirst
 
-makeJsArrayFromHaskellList :: Show a => [a] -> String
+makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
   where
-    listOfJsStrings = map (\x -> "'" ++ show x ++ "'") list
+    listOfJsStrings = map (\s -> "'" ++ s ++ "'") list

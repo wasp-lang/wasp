@@ -5,6 +5,7 @@ import Head from '@docusaurus/Head'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'
 import Features from '../components/Features'
+import Roadmap from '../components/Roadmap'
 import Benefits from '../components/Benefits'
 import Testimonials from '../components/Testimonials'
 import ExampleWaspApps from '../components/ExampleWaspApps'
@@ -63,6 +64,7 @@ const Index = () => {
             <LightsTwo />
             <ShowcaseGallery />
             <Newsletter />
+            <Roadmap />
             <Faq />
           </div>
           {/* eof container */}

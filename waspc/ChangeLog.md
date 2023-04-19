@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.10.2
+
+### Bug fixes
+- Fixed a bug where JS arrays weren't generated properly from Haskell code which caused issues with oAuth, operations and cache invalidation.
+
+## v0.10.1
+
+### Bug fixes
+- Fixed several TypeScript errors preventing the frontend build
+
 ## v0.10.0
 
 ### Breaking changes
@@ -99,7 +109,6 @@ app MyApp {
           email: "hello@itsme.com"
         },
         emailVerification: {
-          allowUnverifiedLogin: false,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
           clientRoute: EmailVerificationRoute,
         },
@@ -107,6 +116,7 @@ app MyApp {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
           clientRoute: PasswordResetRoute
         },
+        allowUnverifiedLogin: false,
       },
   }
 }
