@@ -1,14 +1,24 @@
+{-# LANGUAGE DeriveGeneric #-}
+
 module Wasp.Cli.Command.AI.New
   ( new,
+    queryChatGpt,
+    sayHiToChatGpt,
   )
 where
 
 import Control.Arrow ()
 import Control.Monad.Except (MonadIO (liftIO))
+import Data.Aeson ((.=))
+import qualified Data.Aeson as Aeson
+import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
+import GHC.Generics (Generic)
+import qualified Network.HTTP.Simple as HTTP
 import StrongPath (Abs, Dir, Path', fromAbsDir, fromRelFile, relfile, (</>))
 import StrongPath.Operations ()
 import System.Directory (getFileSize, setCurrentDirectory)
+import qualified System.Environment as System.Environment
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd, readWaspCompileInfo)
@@ -77,8 +87,91 @@ new = do
     aiWriteWaspOperations absWaspProjectDir waspFileContent = do
       error "TODO"
 
-sendPromptToGpt :: String -> IO ()
-sendPromptToGpt prompt = do
-  -- TODO: https://platform.openai.com/docs/guides/chat/introduction
-  -- TODO: https://www.reddit.com/r/haskell/comments/1263sfl/haskellai_stable_package_set_shell_and/ -> also mentions openai-hs and a fork of it which is more up to date it seems.
-  undefined
+-- In general, gpt-3.5-turbo-0301 does not pay strong attention to the system message, and therefore important instructions are often better placed in a user message.
+
+sayHiToChatGpt :: IO ()
+sayHiToChatGpt = do
+  apiKey <- System.Environment.getEnv "OPENAI_API_KEY"
+  answer <- queryChatGpt apiKey [ChatMessage {role = User, content = "What is 2 + 2?"}]
+  putStrLn answer
+
+-- TODO: We will need to have this on a server somewhere, not here, if we want to use our API keys.
+--   If we let them use their API keys then it can be here.
+queryChatGpt :: String -> [ChatMessage] -> IO String
+queryChatGpt apiKey requestMessages = do
+  -- TODO: We could try playing with parameters like temperature, max_tokens, ... .
+  let reqBodyJson =
+        Aeson.object
+          [ "model" .= ("gpt-3.5-turbo" :: String),
+            "messages" .= requestMessages
+          ]
+      request =
+        HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
+          HTTP.setRequestBodyJSON reqBodyJson $
+            HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"
+
+  -- TODO: Consider using httpJSONEither here, so I can handle errors better.
+  response <- HTTP.httpJSON request
+
+  -- TODO: I should probably check status code here, confirm it is 200.
+  let responseStatusCode = HTTP.getResponseStatusCode response
+      (chatResponse :: ChatResponse) = HTTP.getResponseBody response
+  putStrLn $ "Response status code:" <> show responseStatusCode
+  putStrLn $ "Response body:" <> show chatResponse
+
+  return $ content $ message $ head $ choices chatResponse
+
+data ChatResponse = ChatResponse
+  { id :: !String,
+    object :: !String,
+    created :: !Int,
+    model :: !String,
+    choices :: ![ChatResponseChoice],
+    usage :: !ChatResponseUsage
+  }
+  deriving (Generic, Show)
+
+instance Aeson.FromJSON ChatResponse
+
+data ChatResponseUsage = ChatResponseUsage
+  { prompt_tokens :: !Int,
+    completion_tokens :: !Int,
+    total_tokens :: !Int
+  }
+  deriving (Generic, Show)
+
+instance Aeson.FromJSON ChatResponseUsage
+
+data ChatResponseChoice = ChatResponseChoice
+  { index :: !Int,
+    message :: !ChatMessage,
+    finish_reason :: !String
+  }
+  deriving (Generic, Show)
+
+instance Aeson.FromJSON ChatResponseChoice
+
+data ChatMessage = ChatMessage
+  { role :: !ChatRole,
+    content :: !String
+  }
+  deriving (Generic, Show)
+
+instance Aeson.ToJSON ChatMessage
+
+instance Aeson.FromJSON ChatMessage
+
+data ChatRole = User | System | Assistant
+  deriving (Generic, Show)
+
+instance Aeson.ToJSON ChatRole where
+  toJSON User = "user"
+  toJSON System = "system"
+  toJSON Assistant = "assistant"
+
+instance Aeson.FromJSON ChatRole where
+  parseJSON = Aeson.withText "ChatRole" $ \case
+    "user" -> return User
+    "system" -> return System
+    "assistant" -> return Assistant
+    other -> fail $ "Invalid ChatRole: " <> show other
