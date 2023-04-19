@@ -11,7 +11,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), parseNewProjectArgs)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
-import Wasp.Cli.Command.CreateNewProject.Templates (Templates, getStarterTemplates, templatesToList)
+import Wasp.Cli.Command.CreateNewProject.Templates (StarterTemplateNames, getStarterTemplates, templatesToList)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Util (indent, kebabToCamelCase)
 
@@ -27,19 +27,19 @@ initNewProjectDescription newArgs = do
   templates <- liftIO getStarterTemplates
   createNewProjectDescription newProjectArgs templates
 
-createNewProjectDescription :: NewProjectArgs -> Maybe Templates -> Command NewProjectDescription
-createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) maybeTemplates =
-  case (projectNameArg, templateNameArg, maybeTemplates) of
+createNewProjectDescription :: NewProjectArgs -> Maybe StarterTemplateNames -> Command NewProjectDescription
+createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) maybeTemplateNames =
+  case (projectNameArg, templateNameArg, maybeTemplateNames) of
     -- If both project name and template name are provided
     (Just projectName, Just templateName, _) -> mkNewProjectDescription projectName (Just templateName)
     -- Project name is provided, ask for template name
-    (Just projectName, Nothing, Just templates) -> do
-      templateName <- askTemplateName templates
+    (Just projectName, Nothing, Just templateNames) -> do
+      templateName <- askTemplateName templateNames
       mkNewProjectDescription projectName templateName
     -- Ask for project name and template name
-    (_, _, Just templates) -> do
+    (_, _, Just templateNames) -> do
       projectName <- askProjectName
-      templateName <- askTemplateName templates
+      templateName <- askTemplateName templateNames
       mkNewProjectDescription projectName templateName
     -- Fallback: If there are not templates, and project name is provided
     (Just projectName, Nothing, Nothing) -> mkNewProjectDescription projectName Nothing
@@ -51,8 +51,8 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) mayb
     askProjectName :: Command String
     askProjectName = liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
 
-    askTemplateName :: Templates -> Command (Maybe String)
-    askTemplateName templates = liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templates
+    askTemplateName :: StarterTemplateNames -> Command (Maybe String)
+    askTemplateName templateNames = liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
 
     mkNewProjectDescription :: String -> Maybe String -> Command NewProjectDescription
     mkNewProjectDescription projectName templateName

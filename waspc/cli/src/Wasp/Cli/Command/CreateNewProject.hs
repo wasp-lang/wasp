@@ -29,6 +29,7 @@ import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 import qualified Wasp.Version as WV
 
+-- It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
 createNewProject newArgs = do
   newProjectDescription <- initNewProjectDescription newArgs

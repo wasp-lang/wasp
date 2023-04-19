@@ -73,7 +73,7 @@ prompt = do
   putStrFlush $ Term.applyStyles [Term.Yellow] " ▸ "
   T.unpack . T.strip . T.pack <$> getLine
 
--- | Explicit flush ensures prompt messages are in the correct order on all systems.
+-- Explicit flush ensures prompt messages are printed immediately on all systems.
 putStrFlush :: String -> IO ()
 putStrFlush msg = do
   putStr msg

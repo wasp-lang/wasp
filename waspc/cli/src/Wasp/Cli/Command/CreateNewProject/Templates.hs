@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.Templates
   ( getStarterTemplates,
-    Templates,
+    StarterTemplateNames,
     templatesToList,
   )
 where
@@ -9,9 +9,9 @@ import Control.Exception (try)
 import Data.Aeson (FromJSON, parseJSON, withObject, (.:))
 import qualified Network.HTTP.Simple as HTTP
 
-data Templates = Templates [String]
+data StarterTemplateNames = StarterTemplateNames [String]
 
-getStarterTemplates :: IO (Maybe Templates)
+getStarterTemplates :: IO (Maybe StarterTemplateNames)
 getStarterTemplates = do
   -- Github returns 403 if we don't specify user-agent.
   let request = HTTP.addRequestHeader "User-Agent" "wasp-lang/wasp" templatesRepoInfoURL
@@ -24,15 +24,15 @@ getStarterTemplates = do
     templatesRepoInfoURL = "https://api.github.com/repos/wasp-lang/starters/git/trees/main"
 
     -- Each folder in the "wasp-lang/starters" repo is a template.
-    extractTemplateNames :: Either HTTP.JSONException RepoInfo -> Maybe Templates
+    extractTemplateNames :: Either HTTP.JSONException RepoInfo -> Maybe StarterTemplateNames
     extractTemplateNames (Left _) = Nothing
-    extractTemplateNames (Right body) = Just . Templates . map _path . filter isFolder $ _objects body
+    extractTemplateNames (Right body) = Just . StarterTemplateNames . map _path . filter isFolder $ _objects body
 
     isFolder :: RepoObject -> Bool
     isFolder = (== Folder) . _type
 
-templatesToList :: Templates -> [String]
-templatesToList (Templates templates) = templates
+templatesToList :: StarterTemplateNames -> [String]
+templatesToList (StarterTemplateNames templates) = templates
 
 data RepoInfo = RepoInfo
   { _objects :: [RepoObject]
