@@ -8,10 +8,11 @@
 	"type": "module",
 	"scripts": {
 		"build": "npx tsc",
-		"cli": "node dist/index.js"
+		"cli": "node dist/index.js railway deploy --wasp-exe /Users/oleggulevskyy/.local/bin/wasp --wasp-project-dir /Users/oleggulevskyy/Documents/dev/zd-gpt --skip-build"
 	},
 	"dependencies": {
 		"commander": "^9.4.1",
+		"fs-extra": "^11.1.1",
 		"toml": "^3.0.0",
 		"zx": "^7.1.1"
 	},
