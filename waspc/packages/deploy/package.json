@@ -1,24 +1,25 @@
 {
-  "author": "Wasp Team",
-  "license": "MIT",
-  "name": "wasp-deploy",
-  "version": "0.0.1",
-  "main": "dist/index.js",
-  "bin": "dist/index.js",
-  "type": "module",
-  "scripts": {
-    "build": "npx tsc"
-  },
-  "dependencies": {
-    "commander": "^9.4.1",
-    "toml": "^3.0.0",
-    "zx": "^7.1.1"
-  },
-  "devDependencies": {
-    "@types/node": "^18.11.18",
-    "@typescript-eslint/eslint-plugin": "^5.48.0",
-    "@typescript-eslint/parser": "^5.48.0",
-    "eslint": "^8.31.0",
-    "typescript": "^4.9.4"
-  }
+	"author": "Wasp Team",
+	"license": "MIT",
+	"name": "wasp-deploy",
+	"version": "0.0.1",
+	"main": "dist/index.js",
+	"bin": "dist/index.js",
+	"type": "module",
+	"scripts": {
+		"build": "npx tsc",
+		"cli": "node dist/index.js"
+	},
+	"dependencies": {
+		"commander": "^9.4.1",
+		"toml": "^3.0.0",
+		"zx": "^7.1.1"
+	},
+	"devDependencies": {
+		"@types/node": "^18.11.18",
+		"@typescript-eslint/eslint-plugin": "^5.48.0",
+		"@typescript-eslint/parser": "^5.48.0",
+		"eslint": "^8.31.0",
+		"typescript": "^4.9.4"
+	}
 }
