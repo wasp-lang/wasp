@@ -3,21 +3,18 @@ module Wasp.Cli.Command.CreateNewProject
   )
 where
 
-import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
 import qualified Data.Text as T
-import Path.IO (copyDirRecur, doesDirExist)
-import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
+import Path.IO (copyDirRecur)
+import StrongPath (Abs, Dir, Path, Path', System, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
-import System.Directory (getCurrentDirectory)
-import qualified System.FilePath as FP
 import System.Process (callCommand)
 import Text.Printf (printf)
 import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.Common (throwInvalidTemplateNameUsedError, throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Common (getAbsoluteWaspProjectDir, throwInvalidTemplateNameUsedError, throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), initNewProjectDescription)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Data as Data
@@ -45,13 +42,9 @@ createNewProject newArgs = do
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
 
 createWaspProjectDir :: NewProjectDescription -> Command ()
-createWaspProjectDir newProjectDescription@NewProjectDescription {_templateName = template} = do
-  absWaspProjectDir <- getAbsoluteWaspProjectDir newProjectDescription
-  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
-
-  when dirExists $
-    throwProjectCreationError $
-      show absWaspProjectDir ++ " is an existing directory"
+createWaspProjectDir newProjectDescription@NewProjectDescription {_projectName = projectName, _templateName = template} = do
+  let projectDir = projectName
+  absWaspProjectDir <- getAbsoluteWaspProjectDir projectDir
 
   createProjectFromProjectDescription absWaspProjectDir
   where
@@ -61,15 +54,6 @@ createWaspProjectDir newProjectDescription@NewProjectDescription {_templateName 
         else liftIO $ do
           initializeProjectFromSkeleton absWaspProjectDir
           writeMainWaspFile absWaspProjectDir newProjectDescription
-
-getAbsoluteWaspProjectDir :: NewProjectDescription -> Command (Path System Abs (Dir WaspProjectDir))
-getAbsoluteWaspProjectDir (NewProjectDescription projectName _ _) = do
-  absCwd <- liftIO getCurrentDirectory
-  case parseAbsDir $ absCwd FP.</> projectName of
-    Right sp -> return sp
-    Left err ->
-      throwProjectCreationError $
-        "Failed to parse absolute path to wasp project dir: " ++ show err
 
 -- Copies prepared files to the new project directory.
 initializeProjectFromSkeleton :: Path' Abs (Dir WaspProjectDir) -> IO ()

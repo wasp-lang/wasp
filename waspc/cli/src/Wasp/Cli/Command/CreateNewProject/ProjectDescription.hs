@@ -8,11 +8,13 @@ import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.Maybe (isJust)
+import Path.IO (doesDirExist)
+import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), parseNewProjectArgs)
-import Wasp.Cli.Command.CreateNewProject.Common (throwInvalidTemplateNameUsedError, throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Common (getAbsoluteWaspProjectDir, throwInvalidTemplateNameUsedError, throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.Templates (StarterTemplateNames, getStarterTemplates, isValidTemplateName, templatesToList)
 import Wasp.Cli.Common (waspWarns)
 import qualified Wasp.Cli.Interactive as Interactive
@@ -36,6 +38,14 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) mayb
   projectName <- case projectNameArg of
     Just projectName -> return projectName
     Nothing -> askProjectName
+
+  let projectDir = projectName
+  absWaspProjectDir <- getAbsoluteWaspProjectDir projectDir
+  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
+
+  when dirExists $
+    throwProjectCreationError $
+      "Directory \"" ++ projectDir ++ "\" is not empty."
 
   case maybeTemplateNames of
     Just templateNames -> do
