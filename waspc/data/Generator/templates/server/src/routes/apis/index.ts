@@ -2,7 +2,7 @@
 import express from 'express'
 import prisma from '../../dbClient.js'
 import { handleRejection } from '../../utils.js'
-import { MiddlewareConfigFn, globalMiddlewareForExpress } from '../../middleware/index.js'
+import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../middleware/index.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
@@ -14,27 +14,27 @@ import { type SanitizedUser } from '../../_types'
 
 {=# apiRoutes =}
 {=& importStatement =}
-{=# routeMiddlewareConfigFnDefined =}
-{=& routeMiddlewareConfigFnImportStatement =}
-{=/ routeMiddlewareConfigFnDefined =}
+{=# routeMiddlewareConfigFn.isDefined =}
+{=& routeMiddlewareConfigFn.importStatement =}
+{=/ routeMiddlewareConfigFn.isDefined =}
 {=/ apiRoutes =}
 
 const idFn: MiddlewareConfigFn = x => x
 
 {=# apiRoutes =}
-{=^ routeMiddlewareConfigFnDefined =}
-const {=& routeMiddlewareConfigFnImportAlias =} = idFn
-{=/ routeMiddlewareConfigFnDefined =}
+{=^ routeMiddlewareConfigFn.isDefined =}
+const {=& routeMiddlewareConfigFn.importAlias =} = idFn
+{=/ routeMiddlewareConfigFn.isDefined =}
 {=/ apiRoutes =}
 
 const router = express.Router()
 
 {=# namespaces =}
-router.use('{= namespacePath =}', globalMiddlewareForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
+router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
 {=/ namespaces =}
 
 {=# apiRoutes =}
-const {= apiName =}Middleware = globalMiddlewareForExpress({= routeMiddlewareConfigFnImportAlias =})
+const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})
 router.{= routeMethod =}(
   '{= routePath =}',
   {=# usesAuth =}

@@ -223,18 +223,23 @@ validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeN
 
 validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
-  if null duplicateRoutes
+  if null groupsOfConflictingRoutes
     then []
-    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " (show <$> duplicateRoutes)]
+    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
   where
     apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
-    duplicateRoutes = filter ((> 1) . length) (groupBy (\l r -> EQ == routeComparator l r) $ sortBy routeComparator apiRoutes)
+    groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
 
     routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
-    routeComparator l@(lMethod, lPath) r@(rMethod, rPath) =
-      let pathsEqual = lPath == rPath
-          methodsEquivalent = lMethod == rMethod || elem AS.Api.ALL [lMethod, rMethod]
-       in if pathsEqual && methodsEquivalent then EQ else compare l r
+    routeComparator l r | routesHaveConflictingDefinitions l r = EQ
+    routeComparator l r = compare l r
+
+    -- Two routes have conflicting definitions if they define the same thing twice,
+    -- so we don't know which definition to use. This can happen if they are exactly
+    -- the same (path and method) or if they have the same paths and one has ALL for a method.
+    routesHaveConflictingDefinitions :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Bool
+    routesHaveConflictingDefinitions (lMethod, lPath) (rMethod, rPath) =
+      lPath == rPath && (lMethod == rMethod || AS.Api.ALL `elem` [lMethod, rMethod])
 
 validateNamespacePathsAreUnique :: AppSpec -> [ValidationError]
 validateNamespacePathsAreUnique spec =

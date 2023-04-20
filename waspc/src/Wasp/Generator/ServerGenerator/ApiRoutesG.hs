@@ -57,7 +57,7 @@ genApiRoutes spec =
           "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
       where
-        namespaceConfigFnAlias = namespaceName ++ "namespaceMiddlewareConfigFn"
+        namespaceConfigFnAlias = "_wasp" ++ namespaceName ++ "namespaceMiddlewareConfigFn"
         (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (N.middlewareConfigFn namespace)
 
     getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
@@ -69,15 +69,21 @@ genApiRoutes spec =
           "importIdentifier" .= jsImportIdentifier,
           "entities" .= getApiEntitiesObject api,
           "usesAuth" .= isAuthEnabledForApi spec api,
-          "routeMiddlewareConfigFnDefined" .= isJust maybeMiddlewareConfigFnImport,
-          "routeMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMiddlewareConfigFnImport,
-          "routeMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias,
+          "routeMiddlewareConfigFn" .= middlewareConfigFnTmplData,
           "apiName" .= apiName
         ]
       where
-        middlewareConfigFnAlias = apiName ++ "middlewareConfigFn"
-        maybeMiddlewareConfigFnImport = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
-        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier (apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
+        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier ("_wasp" ++ apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
+
+        middlewareConfigFnTmplData :: Aeson.Value
+        middlewareConfigFnTmplData =
+          let middlewareConfigFnAlias = "_wasp" ++ apiName ++ "middlewareConfigFn"
+              maybeMiddlewareConfigFnImport = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
+           in object
+                [ "isDefined" .= isJust maybeMiddlewareConfigFnImport,
+                  "importStatement" .= maybe "" fst maybeMiddlewareConfigFnImport,
+                  "importAlias" .= middlewareConfigFnAlias
+                ]
 
 relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]

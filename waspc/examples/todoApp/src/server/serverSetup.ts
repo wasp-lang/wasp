@@ -32,17 +32,10 @@ function addCustomRoute(app: Application) {
   })
 }
 
-export const serverMiddlewareFn: MiddlewareConfigFn = (middleware) => {
-  middleware.set('custom.global',
-    (req, _res, next) => {
-      console.log(`serverMiddlewareFn: custom global middleware (path: ${req.path})`)
-      next()
-    }
-  )
-
+export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // Example of adding an extra domain to CORS.
-  middleware.set('cors', cors({ origin: [config.frontendUrl, 'http://127.0.0.1:3000'] }))
-  return middleware
+  middlewareConfig.set('cors', cors({ origin: [config.frontendUrl, 'http://127.0.0.1:3000'] }))
+  return middlewareConfig
 }
 
 export default setup

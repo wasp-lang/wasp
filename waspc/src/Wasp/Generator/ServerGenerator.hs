@@ -387,10 +387,16 @@ genMiddleware spec =
   where
     tmplData =
       object
-        [ "globalMiddlewareConfigFnDefined" .= isJust maybeMidlewareConfigFnImports,
-          "globalMiddlewareConfigFnImportStatement" .= maybe "" fst maybeMidlewareConfigFnImports,
-          "globalMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
+        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
         ]
-    maybeMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
-    middlewareConfigFnAlias = "globalMiddlewareConfigFn"
-    maybeMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias [reldirP|../|] <$> maybeMiddlewareConfigFn
+
+    globalMiddlewareConfigFnTmplData :: Aeson.Value
+    globalMiddlewareConfigFnTmplData =
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+          globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
+          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
+       in object
+            [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
+              "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
+              "importAlias" .= globalMiddlewareConfigFnAlias
+            ]
