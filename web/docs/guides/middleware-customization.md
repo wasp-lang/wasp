@@ -11,9 +11,11 @@ Wasp comes with a minimal set of useful Express middleware in every application.
 
 - [Helmet](https://helmetjs.github.io/): Helmet helps you secure your Express apps by setting various HTTP headers. It's not a silver bullet, but it can help!
 - [CORS](https://github.com/expressjs/cors#readme): CORS is a package for providing a middleware that can be used to enable [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) with various options.
+  - ⚠️ This is required for the frontend to communicate with the backend.
 - [Morgan](https://github.com/expressjs/morgan#readme): HTTP request logger middleware.
-- [express.json](https://expressjs.com/en/api.html#express.json) / [body-parser](https://github.com/expressjs/body-parser#bodyparserjsonoptions): Parses incoming request bodies in a middleware before your handlers, making the result available under the `req.body` property. ⚠️ This is required for Wasp Operations to function properly.
-- [express.urlencoded](https://expressjs.com/en/api.html#express.urlencoded) / [body-parser](https://expressjs.com/en/resources/middleware/body-parser.html#bodyparserurlencodedoptions): Returns middleware that only parses urlencoded bodies and only looks at requests where the `Content-Type` header matches the type option.
+- [express.json](https://expressjs.com/en/api.html#express.json) (which uses [body-parser](https://github.com/expressjs/body-parser#bodyparserjsonoptions)): Parses incoming request bodies in a middleware before your handlers, making the result available under the `req.body` property.
+  - ⚠️ This is required for Wasp Operations to function properly.
+- [express.urlencoded](https://expressjs.com/en/api.html#express.urlencoded) (which uses [body-parser](https://expressjs.com/en/resources/middleware/body-parser.html#bodyparserurlencodedoptions)): Returns middleware that only parses urlencoded bodies and only looks at requests where the `Content-Type` header matches the type option.
 - [cookieParser](https://github.com/expressjs/cookie-parser#readme): Parse Cookie header and populate `req.cookies` with an object keyed by the cookie names.
 
 ## Customization
