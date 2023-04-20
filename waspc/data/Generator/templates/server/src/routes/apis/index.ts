@@ -8,9 +8,9 @@ import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
 {=/ isAuthEnabled =}
 
-{=# namespaces =}
+{=# apiNamespaces =}
 {=& namespaceMiddlewareConfigFnImportStatement =}
-{=/ namespaces =}
+{=/ apiNamespaces =}
 
 {=# apiRoutes =}
 {=& importStatement =}
@@ -29,9 +29,9 @@ const {=& routeMiddlewareConfigFn.importAlias =} = idFn
 
 const router = express.Router()
 
-{=# namespaces =}
+{=# apiNamespaces =}
 router.use('{= namespacePath =}', globalMiddlewareConfigForExpress({= namespaceMiddlewareConfigFnImportAlias =}))
-{=/ namespaces =}
+{=/ apiNamespaces =}
 
 {=# apiRoutes =}
 const {= apiName =}Middleware = globalMiddlewareConfigForExpress({= routeMiddlewareConfigFn.importAlias =})

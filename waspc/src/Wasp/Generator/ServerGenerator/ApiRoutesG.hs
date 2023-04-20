@@ -13,7 +13,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
-import qualified Wasp.AppSpec.Namespace as N
+import qualified Wasp.AppSpec.ApiNamespace as ApiNamespace
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -39,26 +39,26 @@ genApiRoutes spec =
   return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Just tmplData)
   where
     namedApis = AS.getApis spec
-    namedNamespaces = AS.getNamespaces spec
+    namedNamespaces = AS.getApiNamespaces spec
     tmplData =
       object
         [ "apiRoutes" .= map getApiRoutesTmplData namedApis,
-          "namespaces" .= map getNamespaceTmplData namedNamespaces,
+          "apiNamespaces" .= map getNamespaceTmplData namedNamespaces,
           "isAuthEnabled" .= isAuthEnabledGlobally spec
         ]
     tmplFile = C.asTmplFile [relfile|src/routes/apis/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel ServerRootDir) File'
 
-    getNamespaceTmplData :: (String, N.Namespace) -> Aeson.Value
+    getNamespaceTmplData :: (String, ApiNamespace.ApiNamespace) -> Aeson.Value
     getNamespaceTmplData (namespaceName, namespace) =
       object
-        [ "namespacePath" .= N.path namespace,
+        [ "namespacePath" .= ApiNamespace.path namespace,
           "namespaceMiddlewareConfigFnImportStatement" .= middlewareConfigFnImport,
           "namespaceMiddlewareConfigFnImportAlias" .= middlewareConfigFnAlias
         ]
       where
         namespaceConfigFnAlias = "_wasp" ++ namespaceName ++ "namespaceMiddlewareConfigFn"
-        (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (N.middlewareConfigFn namespace)
+        (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (ApiNamespace.middlewareConfigFn namespace)
 
     getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
     getApiRoutesTmplData (apiName, api) =

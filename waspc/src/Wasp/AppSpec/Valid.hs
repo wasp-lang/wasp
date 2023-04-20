@@ -17,6 +17,7 @@ import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
+import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
@@ -26,7 +27,6 @@ import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
-import qualified Wasp.AppSpec.Namespace as AS.Namespace
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.SemanticVersion as SV
@@ -54,7 +54,7 @@ validateAppSpec spec =
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
-          validateNamespacePathsAreUnique spec
+          validateApiNamespacePathsAreUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -225,7 +225,7 @@ validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
 validateApiRoutesAreUnique spec =
   if null groupsOfConflictingRoutes
     then []
-    else [GenericValidationError $ "API routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
+    else [GenericValidationError $ "`api` routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
   where
     apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
     groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
@@ -241,13 +241,13 @@ validateApiRoutesAreUnique spec =
     routesHaveConflictingDefinitions (lMethod, lPath) (rMethod, rPath) =
       lPath == rPath && (lMethod == rMethod || AS.Api.ALL `elem` [lMethod, rMethod])
 
-validateNamespacePathsAreUnique :: AppSpec -> [ValidationError]
-validateNamespacePathsAreUnique spec =
+validateApiNamespacePathsAreUnique :: AppSpec -> [ValidationError]
+validateApiNamespacePathsAreUnique spec =
   if null duplicatePaths
     then []
-    else [GenericValidationError $ "Namespace paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
+    else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
   where
-    namespacePaths = AS.Namespace.path . snd <$> AS.getNamespaces spec
+    namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
     duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).

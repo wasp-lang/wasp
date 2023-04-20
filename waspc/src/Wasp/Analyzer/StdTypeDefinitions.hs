@@ -12,12 +12,12 @@ import qualified Wasp.Analyzer.TypeDefinitions as TD
 import Wasp.Analyzer.TypeDefinitions.TH (makeDeclType, makeEnumType)
 import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api, HttpMethod)
+import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.App.Db (DbSystem)
 import Wasp.AppSpec.App.EmailSender (EmailProvider)
 import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.Job (Job, JobExecutor)
-import Wasp.AppSpec.Namespace (Namespace)
 import Wasp.AppSpec.Page (Page)
 import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
@@ -25,7 +25,6 @@ import Wasp.AppSpec.Route (Route)
 makeEnumType ''EmailProvider
 makeEnumType ''DbSystem
 makeDeclType ''Page
-makeDeclType ''Namespace
 makeDeclType ''Route
 makeDeclType ''Query
 makeDeclType ''Action
@@ -33,6 +32,7 @@ makeEnumType ''JobExecutor
 makeDeclType ''Job
 makeEnumType ''HttpMethod
 makeDeclType ''Api
+makeDeclType ''ApiNamespace
 makeDeclType ''App
 
 {- ORMOLU_DISABLE -}
@@ -43,7 +43,6 @@ stdTypes :: TD.TypeDefinitions
 stdTypes =
   TD.addDeclType @App $
   TD.addEnumType @DbSystem $
-  TD.addDeclType @Namespace $
   TD.addDeclType @Entity $
   TD.addDeclType @Page $
   TD.addDeclType @Route $
@@ -53,6 +52,7 @@ stdTypes =
   TD.addDeclType @Job $
   TD.addEnumType @HttpMethod $
   TD.addDeclType @Api $
+  TD.addDeclType @ApiNamespace $
   TD.addEnumType @EmailProvider $
   TD.empty
 {- ORMOLU_ENABLE -}

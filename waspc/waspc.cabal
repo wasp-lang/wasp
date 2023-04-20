@@ -185,6 +185,7 @@ library
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
+    Wasp.AppSpec.ApiNamespace
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
@@ -204,7 +205,6 @@ library
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
-    Wasp.AppSpec.Namespace
     Wasp.AppSpec.Operation
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query

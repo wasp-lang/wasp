@@ -6,24 +6,6 @@ export const fooBar: FooBar = (_req, res, context) => {
   res.json({ msg: `Hello, ${context?.user?.email}!` })
 }
 
-export const barBaz: BarBaz = (_req, res, _context) => {
-  res.json({ msg: `Hello, stranger!` })
-}
-
-export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
-  // console.log('fooBarNamespaceMiddlewareFn: Ignoring all default middleware except cors.')
-
-  const updatedMiddlewareConfig: MiddlewareConfig = new Map([
-    ['express.text', express.text({ type: '*/*' })]
-  ])
-
-  if (middlewareConfig.has('cors')) {
-    updatedMiddlewareConfig.set('cors', middlewareConfig.get('cors')!)
-  }
-
-  return updatedMiddlewareConfig
-}
-
 export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   // console.log('fooBarMiddlewareFn: Adding custom middleware for route.')
 
@@ -33,6 +15,23 @@ export const fooBarMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   }
 
   middlewareConfig.set('custom.route', customMiddleware)
+
+  return middlewareConfig
+}
+
+export const barBaz: BarBaz = (_req, res, _context) => {
+  res.json({ msg: `Hello, stranger!` })
+}
+
+export const barNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
+  console.log('barNamespaceMiddlewareFn: Ignoring all default middleware.')
+
+  middlewareConfig.set('custom.apiNamespace',
+    (req, _res, next) => {
+      console.log(`barNamespaceMiddlewareFn: custom middleware (path: ${req.path})`)
+      next()
+    }
+  )
 
   return middlewareConfig
 }
