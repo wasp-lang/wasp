@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { addFlyCommand } from './providers/fly/index.js';
+import { addRailwayCommand } from './providers/railway/index.js';
 
 const program = new Command();
 
@@ -11,5 +12,6 @@ program
 	.allowUnknownOption();
 
 addFlyCommand(program);
+addRailwayCommand(program);
 
 program.parseAsync();
