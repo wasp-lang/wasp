@@ -296,9 +296,16 @@
     [
         [
             "file",
+            "server/src/ext-src/apiNamespaces.ts"
+        ],
+        "33ea32722151840f2591036f3f548a7af96d5218aea6468ac94fd3c0fe05cb78"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/apis.ts"
         ],
-        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
+        "3d00118d2b80472e7efb24c89d309471ad5e0e9c6212f5dda908eebe8436d99d"
     ],
     [
         [
@@ -403,7 +410,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "2fb0c6425ed52ba43d33230e8bf8518d48d2405801e0969098f24d4778613812"
+        "879cafb5d1a8d2dd58acff9254c44b8449060d68183c49d95f1a141806fc969e"
     ],
     [
         [

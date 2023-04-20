@@ -44,6 +44,7 @@ waspComplexTest/.wasp/out/server/src/email/core/types.ts
 waspComplexTest/.wasp/out/server/src/email/index.ts
 waspComplexTest/.wasp/out/server/src/entities/index.ts
 waspComplexTest/.wasp/out/server/src/ext-src/actions/bar.js
+waspComplexTest/.wasp/out/server/src/ext-src/apiNamespaces.ts
 waspComplexTest/.wasp/out/server/src/ext-src/apis.ts
 waspComplexTest/.wasp/out/server/src/ext-src/jobs/bar.js
 waspComplexTest/.wasp/out/server/src/ext-src/myServerSetupCode.js
@@ -146,6 +147,7 @@ waspComplexTest/src/client/tsconfig.json
 waspComplexTest/src/client/vite-env.d.ts
 waspComplexTest/src/client/waspLogo.png
 waspComplexTest/src/server/actions/bar.js
+waspComplexTest/src/server/apiNamespaces.ts
 waspComplexTest/src/server/apis.ts
 waspComplexTest/src/server/jobs/bar.js
 waspComplexTest/src/server/myServerSetupCode.js

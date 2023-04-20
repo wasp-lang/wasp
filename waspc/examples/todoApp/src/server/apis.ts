@@ -1,6 +1,6 @@
 import { BarBaz, FooBar, WebhookCallback } from '@wasp/apis/types'
 import express from 'express'
-import { MiddlewareConfig, MiddlewareConfigFn } from '@wasp/middleware'
+import { MiddlewareConfigFn } from '@wasp/middleware'
 
 export const fooBar: FooBar = (_req, res, context) => {
   res.json({ msg: `Hello, ${context?.user?.email}!` })

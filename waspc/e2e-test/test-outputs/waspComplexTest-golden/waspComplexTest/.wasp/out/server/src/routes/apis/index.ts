@@ -5,17 +5,19 @@ import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../midd
 import auth from '../../core/auth.js'
 import { type SanitizedUser } from '../../_types'
 
+import { fooBarNamespaceMiddlewareFn as _waspfooBarNamespacenamespaceMiddlewareConfigFn } from '../../ext-src/apiNamespaces.js'
 
 import { fooBar as _waspfooBarfn } from '../../ext-src/apis.js'
+import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../ext-src/apis.js'
 import { fooBaz as _waspfooBazfn } from '../../ext-src/apis.js'
 
 const idFn: MiddlewareConfigFn = x => x
 
-const _waspfooBarmiddlewareConfigFn = idFn
 const _waspfooBazmiddlewareConfigFn = idFn
 
 const router = express.Router()
 
+router.use('/bar', globalMiddlewareConfigForExpress(_waspfooBarNamespacenamespaceMiddlewareConfigFn))
 
 const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)
 router.get(
