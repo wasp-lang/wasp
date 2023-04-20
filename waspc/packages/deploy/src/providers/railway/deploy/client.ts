@@ -12,6 +12,17 @@ import {
 } from '../helpers/consts.js';
 import { RailwayDeploymentConfig } from '../types';
 
+// !!!!!!!!!!!!!!!!!
+// TODO: this is a hack, we should not be doing this, but I need to for now
+const HACK_PACKAGES_JSON = () => {
+    const packagesJson = fs.readJsonSync('package.json');
+    packagesJson.scripts = {
+        ...packagesJson.scripts,
+        build: 'npm run validate-env && vite build',
+    };
+    fs.writeJsonSync('package.json', packagesJson, { spaces: 2 });
+};
+
 type RwDeploymentInfo = {
     commonOptions: CommonOptions;
     clientService: RailwayDeploymentConfig['clientService'];
@@ -25,6 +36,8 @@ export async function deployClient({
     cdToClientBuildDir(commonOptions.waspProjectDir);
 
     waspSays('Building web client for production...');
+
+	HACK_PACKAGES_JSON();
 
     // TODO: make it skipable, don't need to install deps for re-deployments as it's installed in docker
     await $`npm install`;

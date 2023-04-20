@@ -74,8 +74,7 @@ export function ensureDirsInCmdAreAbsoluteAndPresent(
 // TODO: add support for multiple environmental files (prod, dev)
 // with flag for user to pass which config file to use
 export function getRailwayConfig(): RailwayDeploymentConfig {
-    const config = fs.readFileSync(RAILWAY_CONFIG_FILE_NAME, 'utf8');
-    return JSON.parse(config);
+    return fs.readJsonSync(RAILWAY_CONFIG_FILE_NAME, 'utf8');
 }
 
 async function hasLinkedProject() {
