@@ -3,8 +3,8 @@ import { exit } from 'process';
 import { getTomlFilePaths, serverTomlExistsInProject, getInferredBasenameFromServerToml } from '../helpers/tomlFileHelpers.js';
 import { createDeploymentInfo } from '../DeploymentInfo.js';
 import { CreateDbOptions } from './CreateDbOptions.js';
-import { getCommandHelp, waspSays } from '../helpers/helpers.js';
 import { flyDeployCommand, flySetupCommand } from '../index.js';
+import { getCommandHelp, waspSays } from '../../shared/helpers.js';
 
 export async function createDb(region: string, options: CreateDbOptions): Promise<void> {
 	waspSays('Creating your DB on Fly.io!');
