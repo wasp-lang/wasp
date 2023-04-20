@@ -375,7 +375,7 @@
             "file",
             "server/src/middleware/globalMiddleware.ts"
         ],
-        "5e097895fb6e61f719d354454438fe3cb8405b6313c013297d5367dc7927f997"
+        "87edaddb661fc516406b20e6b7fd60ce178f64e6a94bc7c1d02a85330fff822a"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "68c7d4690debf633ba82c453c3279fa8e4e291c0b7897356b46ab4ab269a75b7"
+        "2fb0c6425ed52ba43d33230e8bf8518d48d2405801e0969098f24d4778613812"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "server/src/routes/index.js"
         ],
-        "e8779f52ff95dacc21269cd5ef0120e25be62a80cabe127fdc0e9579ba37c924"
+        "57c6074cfb790ea019efbab199e860e70248a3e758419312939ba63c7a84a42c"
     ],
     [
         [
