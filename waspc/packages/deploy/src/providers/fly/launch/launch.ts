@@ -1,6 +1,6 @@
 import { exit } from 'process';
-import { LaunchOptions } from './LaunchOptions.js';
-import { DeployOptions } from '../deploy/DeployOptions.js';
+import { LaunchOptions } from './LaunchOptions';
+import { FlyDeployOptions } from '../deploy/DeployOptions';
 import { setup } from '../setup/setup.js';
 import { createDb } from '../createDb/createDb.js';
 import { deploy } from '../deploy/deploy.js';
@@ -34,7 +34,7 @@ export async function launch(basename: string, region: string, options: LaunchOp
 	}
 
 	try {
-		const deployOptions: DeployOptions = { ...options, skipBuild: true };
+		const deployOptions: FlyDeployOptions = { ...options, skipBuild: true };
 		await deploy(deployOptions);
 	} catch (e) {
 		console.error(e);

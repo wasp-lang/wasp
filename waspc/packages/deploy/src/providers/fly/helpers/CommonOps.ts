@@ -1,4 +1,4 @@
-import { cdToClientBuildDir, cdToServerBuildDir } from './helpers.js';
+import { cdToClientBuildDir, cdToServerBuildDir } from '../../shared/helpers.js';
 import {
 	clientTomlExistsInProject,
 	copyLocalClientTomlToProject,

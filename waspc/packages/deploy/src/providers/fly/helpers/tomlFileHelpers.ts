@@ -1,7 +1,7 @@
 import toml from 'toml';
 import fs from 'fs';
 import path from 'node:path';
-import { CommonOptions } from '../CommonOptions.js';
+import { CommonOptions } from '../../shared/CommonOptions';
 
 export interface TomlFilePaths {
 	serverTomlPath: string;

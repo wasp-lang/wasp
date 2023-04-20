@@ -1,10 +1,6 @@
 import { exit } from 'process';
 import { $, cd, fs } from 'zx';
 import {
-	cdToClientBuildDir,
-	cdToServerBuildDir,
-} from '../helpers/helpers.js';
-import {
 	clientTomlExistsInProject,
 	copyLocalClientTomlToProject,
 	copyLocalServerTomlToProject,
@@ -15,13 +11,13 @@ import {
 	getTomlFilePaths,
 	serverTomlExistsInProject,
 } from '../helpers/tomlFileHelpers.js';
-import { DeployOptions } from './DeployOptions.js';
+import { type FlyDeployOptions } from './DeployOptions';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
 import { flySetupCommand } from '../index.js';
 import { secretExists } from '../helpers/flyctlHelpers.js';
-import { displayWaspRocketImage, getCommandHelp, makeIdempotent, waspSays } from '../../shared/helpers.js';
+import { cdToClientBuildDir, cdToServerBuildDir, displayWaspRocketImage, getCommandHelp, makeIdempotent, waspSays } from '../../shared/helpers.js';
 
-export async function deploy(options: DeployOptions): Promise<void> {
+export async function deploy(options: FlyDeployOptions): Promise<void> {
 	waspSays('Deploying your Wasp app to Fly.io!');
 
 	const buildWasp = makeIdempotent(async () => {
@@ -62,7 +58,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 	}
 }
 
-async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
+async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: FlyDeployOptions) {
 	waspSays('Deploying your server now...');
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
@@ -94,7 +90,7 @@ async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: De
 	waspSays('Server has been deployed!');
 }
 
-async function deployClient(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
+async function deployClient(deploymentInfo: DeploymentInfo, { buildLocally }: FlyDeployOptions) {
 	waspSays('Deploying your client now...');
 
 	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);

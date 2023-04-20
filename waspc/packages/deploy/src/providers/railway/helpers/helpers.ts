@@ -1,11 +1,13 @@
 import { Command } from 'commander';
 import { exit } from 'process';
-import { $, question } from 'zx';
+import { $, fs, question } from 'zx';
 import {
     ensureDirAbsoluteAndExists,
     isYes,
     waspSays,
 } from '../../shared/helpers.js';
+import { RailwayDeploymentConfig } from '../types.js';
+import { RAILWAY_CONFIG_FILE_NAME, RAILWAY_INSTALL_CLI_URL } from './consts.js';
 
 export async function isUserLoggedIn(): Promise<boolean> {
     try {
@@ -49,7 +51,6 @@ export async function railwayCliExists(): Promise<boolean> {
     }
 }
 
-const RAILWAY_INSTALL_CLI_URL = 'https://docs.railway.app/develop/cli';
 export async function ensureRailwayReady(): Promise<void> {
     const doesRailwayCliExist = await railwayCliExists();
     if (!doesRailwayCliExist) {
@@ -68,4 +69,31 @@ export function ensureDirsInCmdAreAbsoluteAndPresent(
     const waspProjectDirPath: string | undefined = thisCommand.opts()
         .waspProjectDir;
     ensureDirAbsoluteAndExists({ label: 'Wasp dir', dir: waspProjectDirPath });
+}
+
+// TODO: add support for multiple environmental files (prod, dev)
+// with flag for user to pass which config file to use
+export function getRailwayConfig(): RailwayDeploymentConfig {
+    const config = fs.readFileSync(RAILWAY_CONFIG_FILE_NAME, 'utf8');
+    return JSON.parse(config);
+}
+
+async function hasLinkedProject() {
+    try {
+        await $`railway status`;
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export async function ensureProjectLinked({
+    environment,
+    projectId,
+}: Pick<RailwayDeploymentConfig, 'environment' | 'projectId'>) {
+    const isLinked = await hasLinkedProject();
+    if (isLinked) {
+        return;
+    }
+    await $`railway link ${projectId} --environment ${environment} `;
 }

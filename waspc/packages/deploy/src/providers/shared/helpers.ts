@@ -1,13 +1,11 @@
 import fs from 'fs';
 import path from 'node:path';
 import { $ } from 'zx';
-
-// For some reason, the colors from the chalk package wouldn't
-
 import { Command } from 'commander';
-import { ProcessOutput, Shell } from 'zx/core';
+import { cd, ProcessOutput, Shell } from 'zx';
 import { exit } from 'process';
 
+// For some reason, the colors from the chalk package wouldn't
 // show up when run as a subprocess by the Wasp CLI. This works.
 export function waspSays(str: string): void {
     console.log('🚀 \x1b[33m ' + str + ' \x1b[0m');
@@ -93,4 +91,18 @@ export function ensureDirAbsoluteAndExists({
         waspSays(`The ${label} path does not exist.`);
         exit(1);
     }
+}
+
+export function getWaspBuildDir(waspProjectDir: string) {
+    return path.join(waspProjectDir, '.wasp', 'build');
+}
+
+export function cdToClientBuildDir(waspProjectDir: string): void {
+    const waspBuildDir = getWaspBuildDir(waspProjectDir);
+    cd(path.join(waspBuildDir, 'web-app'));
+}
+
+export function cdToServerBuildDir(waspProjectDir: string): void {
+    const waspBuildDir = getWaspBuildDir(waspProjectDir);
+    cd(waspBuildDir);
 }

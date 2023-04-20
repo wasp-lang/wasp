@@ -1,3 +1,10 @@
-import { CommonOptions, DbOptions, LocalBuildOptions } from '../CommonOptions.js';
+import {
+    CommonOptions,
+    DbOptions,
+    LocalBuildOptions,
+} from '../../shared/CommonOptions';
 
-export interface LaunchOptions extends CommonOptions, DbOptions, LocalBuildOptions {}
+export interface LaunchOptions
+    extends CommonOptions,
+        DbOptions,
+        LocalBuildOptions {}

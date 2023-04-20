@@ -10,10 +10,9 @@ import {
 	serverTomlExistsInProject,
 } from '../helpers/tomlFileHelpers.js';
 import { createDeploymentInfo, DeploymentInfo } from '../DeploymentInfo.js';
-import { CommonOptions } from '../CommonOptions.js';
-import { cdToClientBuildDir, cdToServerBuildDir } from '../helpers/helpers.js';
+import { CommonOptions } from '../../shared/CommonOptions';
 import { createFlyDbCommand } from '../index.js';
-import { getCommandHelp, makeIdempotent, waspSays } from '../../shared/helpers.js';
+import { cdToClientBuildDir, cdToServerBuildDir, getCommandHelp, makeIdempotent, waspSays } from '../../shared/helpers.js';
 
 export async function setup(baseName: string, region: string, options: CommonOptions): Promise<void> {
 	waspSays('Setting up your Wasp app with Fly.io!');
