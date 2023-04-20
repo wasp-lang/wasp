@@ -110,12 +110,12 @@ router.post('/webhook/callback', webhookCallbackMiddleware, ...)
 ```
 :::
 
-## 3. Customize path-path middleware
+## 3. Customize per-path middleware
 
 If you would like to modify the middleware for all API routes under some common path, you can do something like:
 
 ```c title=todoApp.wasp
-namespace fooBar {
+apiNamespace fooBar {
   middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
   path: "/foo/bar"
 }
