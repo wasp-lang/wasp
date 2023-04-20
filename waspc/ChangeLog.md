@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.10.3
+
+### Express middleware customization
+We now offer the ability to customize Express middleware:
+- globally (impacting all actions, queries, and apis by default)
+- on a per-api basis
+- on a per-path basis (groups of apis)
+
+This should make it much easier to work with apis and to customize your Express app in general.
+
 ## v0.10.2
 
 ### Bug fixes
