@@ -222,7 +222,7 @@ const Nav = () => {
 
                 <GitHubButton />
 
-                <Link to='/docs'>
+                <Link to='/docs/quick-start'>
                   <button
                     className={`
                       hidden lg:block text-xs

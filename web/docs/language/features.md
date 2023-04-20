@@ -1260,7 +1260,6 @@ app MyApp {
           email: "hello@itsme.com"
         },
         emailVerification: {
-          allowUnverifiedLogin: false,
           clientRoute: EmailVerificationRoute,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
         },
@@ -1268,6 +1267,7 @@ app MyApp {
           clientRoute: PasswordResetRoute
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
+        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/someRoute"
@@ -1316,10 +1316,6 @@ export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
 })
 ```
 
-- `allowUnverifiedLogin: Boolean`: a boolean that specifies whether the user can login without verifying their e-mail address. (optional)
-
-It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
-
 ##### `passwordReset: PasswordResetConfig` (required)
 `passwordReset` is a dict that specifies the password reset process. It is required to be defined. The object has the following fields:
 - `clientRoute: Route`: a route that is used for the user to reset their password. (required)
@@ -1337,6 +1333,10 @@ import { resetPassword } from '@wasp/auth/email/actions';
 ...
 await resetPassword({ password, token })
 ```
+
+##### `allowUnverifiedLogin: bool`: a boolean that specifies whether the user can login without verifying their e-mail address. (optional)
+
+It defaults to `false`. If `allowUnverifiedLogin` is set to `true`, the user can login without verifying their e-mail address, otherwise users will receive a `401` error when trying to login without verifying their e-mail address.
 
 
 Read on how to do it the easiest way with Auth UI in the [email authentication guide](/docs/guides/email-auth).
