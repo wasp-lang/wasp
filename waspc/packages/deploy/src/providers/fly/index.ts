@@ -4,9 +4,10 @@ import { deploy as deployFn } from './deploy/deploy.js';
 import { createDb as createDbFn } from './createDb/createDb.js';
 import { cmd as cmdFn } from './cmd/cmd.js';
 import { launch as launchFn } from './launch/launch.js';
-import { ensureWaspDirLooksRight, ensureDirsInCmdAreAbsoluteAndPresent } from './helpers/helpers.js';
+import { ensureDirsInCmdAreAbsoluteAndPresent } from './helpers/helpers.js';
 import { ensureFlyReady, ensureRegionIsValid } from './helpers/flyctlHelpers.js';
 import { ContextOption } from './helpers/CommonOps.js';
+import { ensureWaspDirLooksRight } from '../shared/hooks.js';
 
 class FlyCommand extends Command {
 	addBasenameArgument(): this {
@@ -50,8 +51,7 @@ export function addFlyCommand(program: Command): void {
 	// NOTE: When we add another provider, consider pulling `--wasp-exe` and `--wasp-project-dir`
 	// up as a global option that every provider can use (if possible).
 	fly.commands.forEach((cmd) => {
-		cmd.addOption(new Option('--wasp-exe <path>', 'Wasp executable (either on PATH or absolute path)').hideHelp().makeOptionMandatory())
-			.addOption(new Option('--wasp-project-dir <dir>', 'absolute path to Wasp project dir').hideHelp().makeOptionMandatory())
+		cmd
 			.option('--fly-toml-dir <dir>', 'absolute path to dir where fly.toml files live')
 			.hook('preAction', ensureFlyReady)
 			.hook('preAction', ensureDirsInCmdAreAbsoluteAndPresent)

@@ -1,6 +1,11 @@
+import { Command } from 'commander';
 import { exit } from 'process';
 import { $, question } from 'zx';
-import { isYes, waspSays } from '../../shared/helpers.js';
+import {
+    ensureDirAbsoluteAndExists,
+    isYes,
+    waspSays,
+} from '../../shared/helpers.js';
 
 export async function isUserLoggedIn(): Promise<boolean> {
     try {
@@ -55,4 +60,12 @@ export async function ensureRailwayReady(): Promise<void> {
         exit(1);
     }
     await ensureUserLoggedIn();
+}
+
+export function ensureDirsInCmdAreAbsoluteAndPresent(
+    thisCommand: Command,
+): void {
+    const waspProjectDirPath: string | undefined = thisCommand.opts()
+        .waspProjectDir;
+    ensureDirAbsoluteAndExists({ label: 'Wasp dir', dir: waspProjectDirPath });
 }

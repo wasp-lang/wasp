@@ -1,9 +1,12 @@
+import fs from 'fs';
+import path from 'node:path';
 import { $ } from 'zx';
 
 // For some reason, the colors from the chalk package wouldn't
 
 import { Command } from 'commander';
 import { ProcessOutput, Shell } from 'zx/core';
+import { exit } from 'process';
 
 // show up when run as a subprocess by the Wasp CLI. This works.
 export function waspSays(str: string): void {
@@ -69,4 +72,25 @@ export async function silence(
 
 export function isYes(str: string): boolean {
     return str.trim().toLowerCase().startsWith('y');
+}
+
+export function ensureDirAbsoluteAndExists({
+    label,
+    dir,
+}: {
+    label: string;
+    dir: string | undefined;
+}): void {
+    if (!dir) return;
+
+    if (!path.isAbsolute(dir)) {
+        waspSays(`The ${label} path must be absolute.`);
+        exit(1);
+    }
+
+    const dirExists = fs.existsSync(dir);
+    if (!dirExists) {
+        waspSays(`The ${label} path does not exist.`);
+        exit(1);
+    }
 }
