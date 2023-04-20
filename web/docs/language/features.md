@@ -726,12 +726,12 @@ export const fooBar : FooBar = (req, res, context) => {
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-### `namespace`
+### `apiNamespace`
 
-A `namespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
+An `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
 
 ```c title="main.wasp"
-namespace fooBar {
+apiNamespace fooBar {
   middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
   path: "/foo/bar"
 }

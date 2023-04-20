@@ -67,10 +67,10 @@ While fundamental types are here to be basic building blocks of a language, and 
   - Declaration types
     - **action**
     - **api**
+    - **apiNamespace**
     - **app**
     - **entity**
     - **job**
-    - **namespace**
     - **page**
     - **query**
     - **route**
