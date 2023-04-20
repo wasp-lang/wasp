@@ -4,15 +4,19 @@ module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   )
 where
 
+import Control.Monad (when)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import Data.Maybe (isJust)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), parseNewProjectArgs)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
-import Wasp.Cli.Command.CreateNewProject.Templates (StarterTemplateNames, getStarterTemplates, templatesToList)
+import Wasp.Cli.Command.CreateNewProject.Common (throwInvalidTemplateNameUsedError, throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Templates (StarterTemplateNames, getStarterTemplates, isValidTemplateName, templatesToList)
+import Wasp.Cli.Common (waspWarns)
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Cli.Terminal (asWaspWarningMessage)
 import Wasp.Util (indent, kebabToCamelCase)
 
 data NewProjectDescription = NewProjectDescription
@@ -28,24 +32,25 @@ initNewProjectDescription newArgs = do
   createNewProjectDescription newProjectArgs templates
 
 createNewProjectDescription :: NewProjectArgs -> Maybe StarterTemplateNames -> Command NewProjectDescription
-createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) maybeTemplateNames =
-  case (projectNameArg, templateNameArg, maybeTemplateNames) of
-    -- If both project name and template name are provided
-    (Just projectName, Just templateName, _) -> mkNewProjectDescription projectName (Just templateName)
-    -- Project name is provided, ask for template name
-    (Just projectName, Nothing, Just templateNames) -> do
-      templateName <- askTemplateName templateNames
+createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) maybeTemplateNames = do
+  projectName <- case projectNameArg of
+    Just projectName -> return projectName
+    Nothing -> askProjectName
+
+  case maybeTemplateNames of
+    Just templateNames -> do
+      templateName <- case templateNameArg of
+        Just templateName -> ensureValidTemplateName templateName templateNames
+        Nothing -> askTemplateName templateNames
+
       mkNewProjectDescription projectName templateName
-    -- Ask for project name and template name
-    (_, _, Just templateNames) -> do
-      projectName <- askProjectName
-      templateName <- askTemplateName templateNames
-      mkNewProjectDescription projectName templateName
-    -- Fallback: If there are not templates, and project name is provided
-    (Just projectName, Nothing, Nothing) -> mkNewProjectDescription projectName Nothing
-    -- Fallback: If there are no templates, but no project name is provided
-    _anyOtherCase -> do
-      projectName <- askProjectName
+    -- Sometimes due to network issues, we can't fetch the list of templates. In that case, we just
+    -- create a project with the bundled template (ignoring the template name argument)
+    Nothing -> do
+      -- If the user provided a template name, warn him that we can't fetch it
+      liftIO $
+        when (isJust templateNameArg) $
+          waspWarns (asWaspWarningMessage "Could not download Wasp templates, using the default template.")
       mkNewProjectDescription projectName Nothing
   where
     askProjectName :: Command String
@@ -53,6 +58,12 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) mayb
 
     askTemplateName :: StarterTemplateNames -> Command (Maybe String)
     askTemplateName templateNames = liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
+
+    ensureValidTemplateName :: String -> StarterTemplateNames -> Command (Maybe String)
+    ensureValidTemplateName templateName templateNames =
+      if isValidTemplateName templateName templateNames
+        then return $ Just templateName
+        else throwInvalidTemplateNameUsedError
 
     mkNewProjectDescription :: String -> Maybe String -> Command NewProjectDescription
     mkNewProjectDescription projectName templateName

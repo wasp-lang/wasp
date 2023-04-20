@@ -2,6 +2,7 @@ module Wasp.Cli.Command.CreateNewProject.Templates
   ( getStarterTemplates,
     StarterTemplateNames,
     templatesToList,
+    isValidTemplateName,
   )
 where
 
@@ -33,6 +34,9 @@ getStarterTemplates = do
 
 templatesToList :: StarterTemplateNames -> [String]
 templatesToList (StarterTemplateNames templates) = templates
+
+isValidTemplateName :: String -> StarterTemplateNames -> Bool
+isValidTemplateName templateName (StarterTemplateNames templates) = templateName `elem` templates
 
 data RepoInfo = RepoInfo
   { _objects :: [RepoObject]

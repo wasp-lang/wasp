@@ -17,7 +17,7 @@ import Text.Printf (printf)
 import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Common (throwInvalidTemplateNameUsedError, throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), initNewProjectDescription)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Data as Data
@@ -127,13 +127,14 @@ createProjectFromTemplate absWaspProjectDir NewProjectDescription {_appName = ap
         Right _ -> return ()
       where
         executeCmd = callCommand $ unwords command
-        command = ["npx", "giget@latest", templatePath, projectDir]
+        command = ["npx", "--yes", "giget@latest", templatePath, projectDir]
 
-    -- gitget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
+    -- giget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
     ensureTemplateWasFetched :: Command ()
     ensureTemplateWasFetched =
-      whenM (liftIO $ IOUtil.isDirectoryEmpty absWaspProjectDir) $
-        throwProjectCreationError "Are you sure that the template exists? 🤔 Check the list of templates here: https://github.com/wasp-lang/starters"
+      whenM
+        (liftIO $ IOUtil.isDirectoryEmpty absWaspProjectDir)
+        throwInvalidTemplateNameUsedError
 
     replacePlaceholdersInWaspFile :: Command ()
     replacePlaceholdersInWaspFile = liftIO $ do
