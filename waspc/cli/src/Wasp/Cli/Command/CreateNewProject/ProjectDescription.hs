@@ -42,39 +42,24 @@ data NewProjectDescription = NewProjectDescription
 data NewProjectTemplate = RemoteTemplate String | FallbackTemplate
 
 createNewProjectDescription :: NewProjectArgs -> StarterTemplateNamesFetchResult -> Command NewProjectDescription
-createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg forceFallbackTemplate) templateNamesFetchResult = do
-  projectName <- getOrAskProjectName projectNameArg
+createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg forceFallbackTemplate) templateNamesFetchResult =
+  do
+    projectName <- getOrAskProjectName projectNameArg
+    absWaspProjectDir <- validateAndGetAbsProjectDir projectName
 
-  let projectDir = projectName
-  absWaspProjectDir <- getAbsPathToNewProjectDirInCwd projectDir
-  ensureProjectDirDoesNotExist projectDir absWaspProjectDir
-
-  case (templateNamesFetchResult, forceFallbackTemplate) of
-    (_, True) -> do
-      mkNewProjectDescription projectName absWaspProjectDir FallbackTemplate
-    (Success templateNames, _) -> do
-      templateName <- getOrAskTemplateName templateNames templateNameArg
-
-      ensureValidTemplateNameUsed templateName templateNames
-
-      mkNewProjectDescription projectName absWaspProjectDir $ RemoteTemplate templateName
-    -- Sometimes due to network issues, we can't fetch the list of templates. In that case, we just
-    -- create a project with the fallback template. If the user wanted to use some different template,
-    -- we give him a warning that we are using the fallback template.
-    (Failure, _) -> do
-      liftIO warnUserIfTemplateNameProvided
-
-      mkNewProjectDescription projectName absWaspProjectDir FallbackTemplate
+    selectedTemplate <- selectTemplate templateNamesFetchResult forceFallbackTemplate
+    mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
   where
     getOrAskProjectName :: Maybe String -> Command String
     getOrAskProjectName = \case
       Just projectName -> return projectName
       Nothing -> liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
 
-    getOrAskTemplateName :: StarterTemplateNames -> Maybe String -> Command String
-    getOrAskTemplateName templateNames = \case
-      Just templateName -> return templateName
-      Nothing -> liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
+    validateAndGetAbsProjectDir :: String -> Command (Path' Abs (Dir WaspProjectDir))
+    validateAndGetAbsProjectDir projectName = do
+      absWaspProjectDir <- getAbsPathToNewProjectDirInCwd projectName
+      ensureProjectDirDoesNotExist projectName absWaspProjectDir
+      return absWaspProjectDir
 
     ensureProjectDirDoesNotExist :: String -> Path' Abs (Dir WaspProjectDir) -> Command ()
     ensureProjectDirDoesNotExist projectDirName absWaspProjectDir = do
@@ -84,14 +69,37 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg force
         throwProjectCreationError $
           "Directory \"" ++ projectDirName ++ "\" is not empty."
 
+    selectTemplate :: StarterTemplateNamesFetchResult -> Bool -> Command NewProjectTemplate
+    selectTemplate fetchResult forceFallback
+      | forceFallback = return FallbackTemplate
+      | otherwise = handleTemplateFetchResult
+      where
+        handleTemplateFetchResult = case fetchResult of
+          Success templateNames -> useRemoteTemplate templateNames
+          Failure -> useFallbackTemplateWithWarning
+
+        useRemoteTemplate templateNames = do
+          templateName <- getOrAskTemplateName templateNames templateNameArg
+          ensureValidTemplateNameUsed templateName templateNames
+          return $ RemoteTemplate templateName
+
+        useFallbackTemplateWithWarning = do
+          liftIO warnUserIfUsingUnavailableTemplate
+          return FallbackTemplate
+
+    getOrAskTemplateName :: StarterTemplateNames -> Maybe String -> Command String
+    getOrAskTemplateName templateNames = \case
+      Just templateName -> return templateName
+      Nothing -> liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
+
     ensureValidTemplateNameUsed :: String -> StarterTemplateNames -> Command ()
     ensureValidTemplateNameUsed templateName templateNames = do
       unless
         (isOneOfAvailableTemplateNames templateName templateNames)
         throwInvalidTemplateNameUsedError
 
-    warnUserIfTemplateNameProvided :: IO ()
-    warnUserIfTemplateNameProvided = do
+    warnUserIfUsingUnavailableTemplate :: IO ()
+    warnUserIfUsingUnavailableTemplate = do
       when (isJust templateNameArg) $
         waspWarns (asWaspWarningMessage "Could note download templates, using the fallback template.")
 
