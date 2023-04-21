@@ -15,8 +15,7 @@ const Announcement = () => {
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
     //window.open('https://twitter.com/WaspLang/status/1647979490180575234')
     //window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
-    //window.open('https://hackathon.wasp-lang.dev')
-    window.open('https://wasp-hackathon-2.netlify.app/')
+    window.open('https://hackathon.wasp-lang.dev')
   }
 
   return (
