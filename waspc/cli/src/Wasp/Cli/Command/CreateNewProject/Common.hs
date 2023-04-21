@@ -2,7 +2,7 @@ module Wasp.Cli.Command.CreateNewProject.Common where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (Abs, Dir, Path, System)
+import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import Wasp.Project (WaspProjectDir)
@@ -15,7 +15,7 @@ throwProjectCreationError = throwError . CommandError "Project creation failed"
 throwInvalidTemplateNameUsedError :: Command a
 throwInvalidTemplateNameUsedError = throwProjectCreationError "Are you sure that the template exists? 🤔 Check the list of templates here: https://github.com/wasp-lang/starters"
 
-getAbsPathToNewProjectDirInCwd :: String -> Command (Path System Abs (Dir WaspProjectDir))
+getAbsPathToNewProjectDirInCwd :: String -> Command (Path' Abs (Dir WaspProjectDir))
 getAbsPathToNewProjectDirInCwd projectDir = do
   absPathOrError <- liftIO $ getAbsPathToDirInCwd projectDir
 

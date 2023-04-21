@@ -1,5 +1,4 @@
 waspNew/.wasproot
-waspNew/README.md
 waspNew/main.wasp
 waspNew/src/.waspignore
 waspNew/src/client/Main.css

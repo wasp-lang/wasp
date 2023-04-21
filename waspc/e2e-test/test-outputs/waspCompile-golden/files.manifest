@@ -79,7 +79,6 @@ waspCompile/.wasp/out/web-app/tsconfig.json
 waspCompile/.wasp/out/web-app/tsconfig.node.json
 waspCompile/.wasp/out/web-app/vite.config.ts
 waspCompile/.wasproot
-waspCompile/README.md
 waspCompile/main.wasp
 waspCompile/src/.waspignore
 waspCompile/src/client/Main.css

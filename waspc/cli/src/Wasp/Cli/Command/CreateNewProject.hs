@@ -11,9 +11,16 @@ import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (parseNewProjectArgs)
-import Wasp.Cli.Command.CreateNewProject.Common (getAbsoluteWaspProjectDir, throwInvalidTemplateNameUsedError, throwProjectCreationError, waspVersionBounds)
+import Wasp.Cli.Command.CreateNewProject.Common
+  ( throwInvalidTemplateNameUsedError,
+    throwProjectCreationError,
+    waspVersionBounds,
+  )
 import Wasp.Cli.Command.CreateNewProject.FallbackTemplate (createProjectFromFallbackTemplate)
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), createNewProjectDescription)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription
+  ( NewProjectDescription (..),
+    createNewProjectDescription,
+  )
 import Wasp.Cli.Command.CreateNewProject.Templates (getStarterTemplateNames)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Message as Msg
@@ -42,13 +49,16 @@ createNewProject argumentsList = do
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
 
 createNewProjectFromNewProjectDescription :: NewProjectDescription -> Command ()
-createNewProjectFromNewProjectDescription NewProjectDescription {_projectName = projectName, _appName = appName, _templateName = maybeTemplateName} = do
-  let projectDir = projectName
-  absWaspProjectDir <- getAbsoluteWaspProjectDir projectDir
-
-  case maybeTemplateName of
-    Just templateName -> createProjectFromTemplate absWaspProjectDir projectName appName templateName
-    Nothing -> liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
+createNewProjectFromNewProjectDescription
+  NewProjectDescription
+    { _projectName = projectName,
+      _appName = appName,
+      _templateName = maybeTemplateName,
+      _absWaspProjectDir = absWaspProjectDir
+    } = do
+    case maybeTemplateName of
+      Just templateName -> createProjectFromTemplate absWaspProjectDir projectName appName templateName
+      Nothing -> liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
 
 createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> String -> String -> String -> Command ()
 createProjectFromTemplate absWaspProjectDir projectName appName templateName = do
