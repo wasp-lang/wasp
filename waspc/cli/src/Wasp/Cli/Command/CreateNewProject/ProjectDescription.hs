@@ -1,10 +1,10 @@
 module Wasp.Cli.Command.CreateNewProject.ProjectDescription
-  ( initNewProjectDescription,
+  ( createNewProjectDescription,
     NewProjectDescription (..),
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (unless, when)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import Data.Maybe (isJust)
@@ -12,10 +12,14 @@ import Path.IO (doesDirExist)
 import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..), parseNewProjectArgs)
-import Wasp.Cli.Command.CreateNewProject.Common (getAbsoluteWaspProjectDir, throwInvalidTemplateNameUsedError, throwProjectCreationError)
-import Wasp.Cli.Command.CreateNewProject.Templates (StarterTemplateNames, getStarterTemplates, isValidTemplateName, templatesToList)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
+import Wasp.Cli.Command.CreateNewProject.Common (getAbsPathToNewProjectDirInCwd, throwInvalidTemplateNameUsedError, throwProjectCreationError)
+import Wasp.Cli.Command.CreateNewProject.Templates
+  ( StarterTemplateNames,
+    StarterTemplateNamesFetchResult (..),
+    isOneOfAvailableTemplateNames,
+    templatesToList,
+  )
 import Wasp.Cli.Common (waspWarns)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Cli.Terminal (asWaspWarningMessage)
@@ -27,53 +31,56 @@ data NewProjectDescription = NewProjectDescription
     _templateName :: Maybe String
   }
 
-initNewProjectDescription :: Arguments -> Command NewProjectDescription
-initNewProjectDescription newArgs = do
-  newProjectArgs <- parseNewProjectArgs newArgs
-  templates <- liftIO getStarterTemplates
-  createNewProjectDescription newProjectArgs templates
+createNewProjectDescription :: NewProjectArgs -> StarterTemplateNamesFetchResult -> Command NewProjectDescription
+createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) templateNamesFetchResult = do
+  projectName <- getOrAskProjectName projectNameArg
 
-createNewProjectDescription :: NewProjectArgs -> Maybe StarterTemplateNames -> Command NewProjectDescription
-createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) maybeTemplateNames = do
-  projectName <- case projectNameArg of
-    Just projectName -> return projectName
-    Nothing -> askProjectName
+  ensureProjectDirDoesNotExist projectName
 
-  let projectDir = projectName
-  absWaspProjectDir <- getAbsoluteWaspProjectDir projectDir
-  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
+  case templateNamesFetchResult of
+    Success templateNames -> do
+      templateName <- getOrAskTemplateName templateNames templateNameArg
 
-  when dirExists $
-    throwProjectCreationError $
-      "Directory \"" ++ projectDir ++ "\" is not empty."
+      ensureValidTemplateNameUsed templateName templateNames
 
-  case maybeTemplateNames of
-    Just templateNames -> do
-      templateName <- case templateNameArg of
-        Just templateName -> ensureValidTemplateName templateName templateNames
-        Nothing -> askTemplateName templateNames
-
-      mkNewProjectDescription projectName templateName
+      mkNewProjectDescription projectName $ Just templateName
     -- Sometimes due to network issues, we can't fetch the list of templates. In that case, we just
-    -- create a project with the bundled template (ignoring the template name argument)
-    Nothing -> do
-      -- If the user provided a template name, warn him that we can't fetch it
-      liftIO $
-        when (isJust templateNameArg) $
-          waspWarns (asWaspWarningMessage "Could not download Wasp templates, using the default template.")
+    -- create a project with the fallback template. If the user wanted to use some different template,
+    -- we give him a warning that we are using the fallback template.
+    Failure -> do
+      liftIO warnUserIfTemplateNameProvided
+
       mkNewProjectDescription projectName Nothing
   where
-    askProjectName :: Command String
-    askProjectName = liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
+    getOrAskProjectName :: Maybe String -> Command String
+    getOrAskProjectName = \case
+      Just projectName -> return projectName
+      Nothing -> liftIO $ Interactive.askForRequiredInput "Enter the project name (e.g. my-project)"
 
-    askTemplateName :: StarterTemplateNames -> Command (Maybe String)
-    askTemplateName templateNames = liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
+    getOrAskTemplateName :: StarterTemplateNames -> Maybe String -> Command String
+    getOrAskTemplateName templateNames = \case
+      Just templateName -> return templateName
+      Nothing -> liftIO $ Interactive.askToChoose "Choose a starter template" $ templatesToList templateNames
 
-    ensureValidTemplateName :: String -> StarterTemplateNames -> Command (Maybe String)
-    ensureValidTemplateName templateName templateNames =
-      if isValidTemplateName templateName templateNames
-        then return $ Just templateName
-        else throwInvalidTemplateNameUsedError
+    ensureProjectDirDoesNotExist :: String -> Command ()
+    ensureProjectDirDoesNotExist projectDir = do
+      absWaspProjectDir <- getAbsPathToNewProjectDirInCwd projectDir
+      dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
+
+      when dirExists $
+        throwProjectCreationError $
+          "Directory \"" ++ projectDir ++ "\" is not empty."
+
+    ensureValidTemplateNameUsed :: String -> StarterTemplateNames -> Command ()
+    ensureValidTemplateNameUsed templateName templateNames = do
+      unless
+        (isOneOfAvailableTemplateNames templateName templateNames)
+        throwInvalidTemplateNameUsedError
+
+    warnUserIfTemplateNameProvided :: IO ()
+    warnUserIfTemplateNameProvided = do
+      when (isJust templateNameArg) $
+        waspWarns (asWaspWarningMessage "Could note download templates, using the fallback template.")
 
     mkNewProjectDescription :: String -> Maybe String -> Command NewProjectDescription
     mkNewProjectDescription projectName templateName

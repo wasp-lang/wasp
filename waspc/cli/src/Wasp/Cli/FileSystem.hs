@@ -4,16 +4,19 @@ module Wasp.Cli.FileSystem
     getHomeDir,
     waspInstallationDirInHomeDir,
     waspExecutableInHomeDir,
+    getAbsPathToDirInCwd,
     UserCacheDir,
     WaspCacheDir,
   )
 where
 
+import Control.Exception (SomeException)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, parseAbsDir, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory
 import qualified System.Directory as SD
+import qualified System.FilePath as FP
 
 data UserHomeDir
 
@@ -38,3 +41,8 @@ waspInstallationDirInHomeDir = [reldir|.local/share/wasp-lang|]
 
 waspExecutableInHomeDir :: Path' (Rel UserHomeDir) File'
 waspExecutableInHomeDir = [relfile|.local/bin/wasp|]
+
+getAbsPathToDirInCwd :: String -> IO (Either SomeException (Path' Abs (Dir a)))
+getAbsPathToDirInCwd dir = do
+  absCwd <- getCurrentDirectory
+  return $ parseAbsDir $ absCwd FP.</> dir

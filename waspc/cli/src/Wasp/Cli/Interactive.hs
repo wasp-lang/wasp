@@ -15,14 +15,14 @@ askForRequiredInput :: String -> IO String
 askForRequiredInput question = do
   ensureNotNull . askForInput $ question
 
-askToChoose :: String -> [String] -> IO (Maybe String)
+askToChoose :: String -> [String] -> IO String
 askToChoose question options = do
   putStrLn $ Term.applyStyles [Term.Bold] question
   putStrLn optionsToChooseFrom
   answer <- prompt
 
   handleOptionIndex answer >>= \case
-    Just option -> return $ Just option
+    Just option -> return option
     Nothing -> handleOptionName answer
   where
     handleOptionIndex :: String -> IO (Maybe String)
@@ -33,19 +33,19 @@ askToChoose question options = do
         Just i -> do
           if i `elem` indexes
             then return $ Just $ options !! (i - 1)
-            else invalidOptionAction
+            else Just <$> invalidOptionAction
         Nothing -> return Nothing
       where
         -- The default option is the first one
         parseIndexOrDefault input = if null input then Just 1 else readMaybe input :: Maybe Int
 
-    handleOptionName :: String -> IO (Maybe String)
+    handleOptionName :: String -> IO String
     handleOptionName answer = do
       if answer `elem` options
-        then return $ Just answer
+        then return answer
         else invalidOptionAction
 
-    invalidOptionAction :: IO (Maybe String)
+    invalidOptionAction :: IO String
     invalidOptionAction = do
       putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
       askToChoose question options

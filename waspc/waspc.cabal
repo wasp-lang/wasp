@@ -386,6 +386,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.FallbackTemplate
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset

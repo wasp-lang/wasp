@@ -1,8 +1,9 @@
 module Wasp.Cli.Command.CreateNewProject.Templates
-  ( getStarterTemplates,
+  ( getStarterTemplateNames,
     StarterTemplateNames,
+    StarterTemplateNamesFetchResult (..),
     templatesToList,
-    isValidTemplateName,
+    isOneOfAvailableTemplateNames,
   )
 where
 
@@ -10,24 +11,26 @@ import Control.Exception (try)
 import Data.Aeson (FromJSON, parseJSON, withObject, (.:))
 import qualified Network.HTTP.Simple as HTTP
 
+data StarterTemplateNamesFetchResult = Success StarterTemplateNames | Failure
+
 data StarterTemplateNames = StarterTemplateNames [String]
 
-getStarterTemplates :: IO (Maybe StarterTemplateNames)
-getStarterTemplates = do
+getStarterTemplateNames :: IO StarterTemplateNamesFetchResult
+getStarterTemplateNames = do
   -- Github returns 403 if we don't specify user-agent.
   let request = HTTP.addRequestHeader "User-Agent" "wasp-lang/wasp" templatesRepoInfoURL
   responseOrException <- try $ HTTP.httpJSONEither request
   return $ case responseOrException of
     Right response -> extractTemplateNames . HTTP.getResponseBody $ response
-    Left (_ :: HTTP.HttpException) -> Nothing
+    Left (_ :: HTTP.HttpException) -> Failure
   where
     templatesRepoInfoURL :: HTTP.Request
     templatesRepoInfoURL = "https://api.github.com/repos/wasp-lang/starters/git/trees/main"
 
     -- Each folder in the "wasp-lang/starters" repo is a template.
-    extractTemplateNames :: Either HTTP.JSONException RepoInfo -> Maybe StarterTemplateNames
-    extractTemplateNames (Left _) = Nothing
-    extractTemplateNames (Right body) = Just . StarterTemplateNames . map _path . filter isFolder $ _objects body
+    extractTemplateNames :: Either HTTP.JSONException RepoInfo -> StarterTemplateNamesFetchResult
+    extractTemplateNames (Left _) = Failure
+    extractTemplateNames (Right body) = Success $ StarterTemplateNames . map _path . filter isFolder $ _objects body
 
     isFolder :: RepoObject -> Bool
     isFolder = (== Folder) . _type
@@ -35,8 +38,8 @@ getStarterTemplates = do
 templatesToList :: StarterTemplateNames -> [String]
 templatesToList (StarterTemplateNames templates) = templates
 
-isValidTemplateName :: String -> StarterTemplateNames -> Bool
-isValidTemplateName templateName (StarterTemplateNames templates) = templateName `elem` templates
+isOneOfAvailableTemplateNames :: String -> StarterTemplateNames -> Bool
+isOneOfAvailableTemplateNames templateName (StarterTemplateNames templates) = templateName `elem` templates
 
 data RepoInfo = RepoInfo
   { _objects :: [RepoObject]
