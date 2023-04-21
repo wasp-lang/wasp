@@ -8,7 +8,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "npx tsc",
-		"cli": "node dist/index.js railway deploy --wasp-exe /Users/oleggulevskyy/.local/bin/wasp --wasp-project-dir /Users/oleggulevskyy/Documents/dev/zd-gpt --skip-build"
+		"cli": "node dist/index.js railway deploy --wasp-exe /Users/oleggulevskyy/.local/bin/wasp --wasp-project-dir /Users/oleggulevskyy/Documents/dev/zd-gpt --skip-build --skip-client"
 	},
 	"dependencies": {
 		"commander": "^9.4.1",

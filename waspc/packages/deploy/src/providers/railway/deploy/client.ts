@@ -1,6 +1,5 @@
 import { $ } from 'zx';
 import fs from 'fs-extra';
-import { CommonOptions } from '../../shared/CommonOptions';
 import {
     cdToClientBuildDir,
     displayWaspRocketImage,
@@ -10,7 +9,7 @@ import {
     NGINX_CONFIG_TEMPLATE,
     REACT_DOCKER_TEMPLATE,
 } from '../helpers/consts.js';
-import { RailwayDeploymentConfig } from '../types';
+import { RwClientDeploymentInfo } from './RwDeploymentInfo';
 
 // !!!!!!!!!!!!!!!!!
 // TODO: this is a hack, we should not be doing this, but I need to for now
@@ -23,14 +22,10 @@ const HACK_PACKAGES_JSON = () => {
     fs.writeJsonSync('package.json', packagesJson, { spaces: 2 });
 };
 
-type RwDeploymentInfo = {
-    commonOptions: CommonOptions;
-    clientService: RailwayDeploymentConfig['clientService'];
-};
 export async function deployClient({
     commonOptions,
     clientService,
-}: RwDeploymentInfo) {
+}: RwClientDeploymentInfo) {
     waspSays('Deploying your client now...');
 
     cdToClientBuildDir(commonOptions.waspProjectDir);

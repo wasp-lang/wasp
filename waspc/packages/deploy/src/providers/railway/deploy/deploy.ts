@@ -3,14 +3,16 @@ import { makeIdempotent, waspSays } from '../../shared/helpers.js';
 import { RAILWAY_SERVICE_NAME } from '../helpers/consts.js';
 import { ensureProjectLinked, getRailwayConfig } from '../helpers/helpers.js';
 import { deployClient } from './client.js';
-import { RwDeployOptions } from './RwDeployOptions';
+import { deployServer } from './server.js';
+
+import type { RwDeployOptions } from './RwDeployOptions';
 
 export async function deploy(options: RwDeployOptions): Promise<void> {
     waspSays(`Deploying your Wasp app to ${RAILWAY_SERVICE_NAME}!`);
     cd(options.waspProjectDir);
 
     const rwConfig = getRailwayConfig();
-    ensureProjectLinked({
+    await ensureProjectLinked({
         environment: rwConfig.environment,
         projectId: rwConfig.projectId,
     });
@@ -26,6 +28,13 @@ export async function deploy(options: RwDeployOptions): Promise<void> {
 
     if (!options.skipBuild) {
         await buildWasp();
+    }
+
+    if (!options.skipServer) {
+        await deployServer({
+            commonOptions: options,
+            serverService: rwConfig.serverService,
+        });
     }
 
     if (!options.skipClient) {

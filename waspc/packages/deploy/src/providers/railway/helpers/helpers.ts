@@ -95,4 +95,5 @@ export async function ensureProjectLinked({
         return;
     }
     await $`railway link ${projectId} --environment ${environment} `;
+    waspSays(`Project ${projectId} linked!`);
 }
