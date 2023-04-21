@@ -37,7 +37,7 @@ export async function deployClient({
 
     waspSays('Building web client for production...');
 
-	HACK_PACKAGES_JSON();
+    HACK_PACKAGES_JSON();
 
     // TODO: make it skipable, don't need to install deps for re-deployments as it's installed in docker
     await $`npm install`;
