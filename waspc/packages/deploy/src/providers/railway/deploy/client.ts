@@ -13,6 +13,8 @@ import { RwClientDeploymentInfo } from './RwDeploymentInfo';
 
 // !!!!!!!!!!!!!!!!!
 // TODO: this is a hack, we should not be doing this, but I need to for now
+// In order to NOT do this and make the build pass, we need to build server as well inside Docker container
+// and retrieve server types, so that `tsc` is happy
 const HACK_PACKAGES_JSON = () => {
     const packagesJson = fs.readJsonSync('package.json');
     packagesJson.scripts = {
