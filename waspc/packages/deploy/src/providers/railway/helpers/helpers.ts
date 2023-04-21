@@ -23,23 +23,8 @@ async function ensureUserLoggedIn(): Promise<void> {
     if (userLoggedIn) {
         return;
     }
-
-    const answer = await question(
-        'You are not logged in to Railway CLI. Would you like to log in now? ',
-    );
-    if (!isYes(answer)) {
-        waspSays('Ok, exiting.');
-        exit(1);
-    }
-
-    try {
-        await $`railway login`;
-    } catch {
-        waspSays(
-            'It seems there was a problem logging in. Please run "railway login" and try again.',
-        );
-        exit(1);
-    }
+    waspSays('You are not logged in to Railway!');
+    waspSays('Please, run `railway login` and try deployment again.');
 }
 
 export async function railwayCliExists(): Promise<boolean> {
