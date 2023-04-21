@@ -19,6 +19,7 @@ import Wasp.Cli.Command.CreateNewProject.Common
 import Wasp.Cli.Command.CreateNewProject.FallbackTemplate (createProjectFromFallbackTemplate)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
+    NewProjectTemplate (..),
     createNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.Templates (getStarterTemplateNames)
@@ -53,12 +54,12 @@ createNewProjectFromNewProjectDescription
   NewProjectDescription
     { _projectName = projectName,
       _appName = appName,
-      _templateName = maybeTemplateName,
+      _templateName = templateName,
       _absWaspProjectDir = absWaspProjectDir
     } = do
-    case maybeTemplateName of
-      Just templateName -> createProjectFromTemplate absWaspProjectDir projectName appName templateName
-      Nothing -> liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
+    case templateName of
+      RemoteTemplate remoteTemplateName -> createProjectFromTemplate absWaspProjectDir projectName appName remoteTemplateName
+      FallbackTemplate -> liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
 
 createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> String -> String -> String -> Command ()
 createProjectFromTemplate absWaspProjectDir projectName appName templateName = do

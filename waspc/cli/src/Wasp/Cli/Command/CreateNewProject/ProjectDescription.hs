@@ -1,6 +1,7 @@
 module Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( createNewProjectDescription,
     NewProjectDescription (..),
+    NewProjectTemplate (..),
   )
 where
 
@@ -34,9 +35,11 @@ import Wasp.Util (indent, kebabToCamelCase)
 data NewProjectDescription = NewProjectDescription
   { _projectName :: String,
     _appName :: String,
-    _templateName :: Maybe String,
+    _templateName :: NewProjectTemplate,
     _absWaspProjectDir :: Path' Abs (Dir WaspProjectDir)
   }
+
+data NewProjectTemplate = RemoteTemplate String | FallbackTemplate
 
 createNewProjectDescription :: NewProjectArgs -> StarterTemplateNamesFetchResult -> Command NewProjectDescription
 createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg forceFallbackTemplate) templateNamesFetchResult = do
@@ -48,20 +51,20 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg force
 
   case (templateNamesFetchResult, forceFallbackTemplate) of
     (_, True) -> do
-      mkNewProjectDescription projectName absWaspProjectDir Nothing
+      mkNewProjectDescription projectName absWaspProjectDir FallbackTemplate
     (Success templateNames, _) -> do
       templateName <- getOrAskTemplateName templateNames templateNameArg
 
       ensureValidTemplateNameUsed templateName templateNames
 
-      mkNewProjectDescription projectName absWaspProjectDir $ Just templateName
+      mkNewProjectDescription projectName absWaspProjectDir $ RemoteTemplate templateName
     -- Sometimes due to network issues, we can't fetch the list of templates. In that case, we just
     -- create a project with the fallback template. If the user wanted to use some different template,
     -- we give him a warning that we are using the fallback template.
     (Failure, _) -> do
       liftIO warnUserIfTemplateNameProvided
 
-      mkNewProjectDescription projectName absWaspProjectDir Nothing
+      mkNewProjectDescription projectName absWaspProjectDir FallbackTemplate
   where
     getOrAskProjectName :: Maybe String -> Command String
     getOrAskProjectName = \case
@@ -92,7 +95,7 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg force
       when (isJust templateNameArg) $
         waspWarns (asWaspWarningMessage "Could note download templates, using the fallback template.")
 
-    mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> Maybe String -> Command NewProjectDescription
+    mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> NewProjectTemplate -> Command NewProjectDescription
     mkNewProjectDescription projectName absWaspProjectDir templateName
       | isValidWaspIdentifier appName =
           return $
