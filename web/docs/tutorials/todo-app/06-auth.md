@@ -95,7 +95,7 @@ Great, Wasp now knows how to route these and where to find the pages. Now to the
 ```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 
-import LoginForm from '@wasp/auth/forms/Login'
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
@@ -117,7 +117,7 @@ The Signup page is very similar to the login one:
 ```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
 
-import SignupForm from '@wasp/auth/forms/Signup'
+import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
