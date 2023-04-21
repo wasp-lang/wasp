@@ -1,11 +1,7 @@
 import { Command } from 'commander';
 import { exit } from 'process';
-import { $, fs, question } from 'zx';
-import {
-    ensureDirAbsoluteAndExists,
-    isYes,
-    waspSays,
-} from '../../shared/helpers.js';
+import { $, fs } from 'zx';
+import { ensureDirAbsoluteAndExists, waspSays } from '../../shared/helpers.js';
 import { RailwayDeploymentConfig } from '../types.js';
 import { RAILWAY_CONFIG_FILE_NAME, RAILWAY_INSTALL_CLI_URL } from './consts.js';
 
