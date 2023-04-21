@@ -21,6 +21,7 @@ async function ensureUserLoggedIn(): Promise<void> {
     }
     waspSays('You are not logged in to Railway!');
     waspSays('Please, run `railway login` and try deployment again.');
+    exit(1);
 }
 
 export async function railwayCliExists(): Promise<boolean> {
