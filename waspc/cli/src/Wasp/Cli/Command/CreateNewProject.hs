@@ -4,8 +4,11 @@ module Wasp.Cli.Command.CreateNewProject
 where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.List (foldl')
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, Path, System, relfile, (</>))
+import StrongPath (Abs, Dir, relfile, (</>))
+import qualified StrongPath as SP
+import StrongPath.Types (Path')
 import System.Process (callCommand)
 import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
@@ -38,7 +41,7 @@ createNewProject argumentsList = do
 
   newProjectDescription <- createNewProjectDescription newProjectArgs templateNamesFetchResult
 
-  createNewProjectFromNewProjectDescription newProjectDescription
+  createNewProjectOnTheDisk newProjectDescription
   liftIO $ printGettingStartedInstructions $ _projectName newProjectDescription
   where
     printGettingStartedInstructions :: String -> IO ()
@@ -49,8 +52,8 @@ createNewProject argumentsList = do
       putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectFolder)
       putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
 
-createNewProjectFromNewProjectDescription :: NewProjectDescription -> Command ()
-createNewProjectFromNewProjectDescription
+createNewProjectOnTheDisk :: NewProjectDescription -> Command ()
+createNewProjectOnTheDisk
   NewProjectDescription
     { _projectName = projectName,
       _appName = appName,
@@ -58,57 +61,57 @@ createNewProjectFromNewProjectDescription
       _absWaspProjectDir = absWaspProjectDir
     } = do
     case templateName of
-      RemoteTemplate remoteTemplateName -> createProjectFromTemplate absWaspProjectDir projectName appName remoteTemplateName
-      FallbackTemplate -> liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
+      RemoteTemplate remoteTemplateName ->
+        createProjectOnTheDiskFromRemoteTemplate absWaspProjectDir projectName appName remoteTemplateName
+      FallbackTemplate ->
+        liftIO $ createProjectFromFallbackTemplate absWaspProjectDir projectName appName
 
-createProjectFromTemplate :: Path System Abs (Dir WaspProjectDir) -> String -> String -> String -> Command ()
-createProjectFromTemplate absWaspProjectDir projectName appName templateName = do
+createProjectOnTheDiskFromRemoteTemplate :: Path' Abs (Dir WaspProjectDir) -> String -> String -> String -> Command ()
+createProjectOnTheDiskFromRemoteTemplate absWaspProjectDir projectName appName templateName = do
   cliSendMessageC $ Msg.Start $ "Creating your project from the " ++ templateName ++ " template..."
-
   templatePath <- getPathToRemoteTemplate templateName
-
-  let projectDir = projectName
-
-  fetchTemplate templatePath projectDir
-  ensureTemplateWasFetched
-
-  replacePlaceholdersInWaspFile
+  fetchTemplateAndWriteToDisk absWaspProjectDir templatePath
+  replaceTemplatePlaceholdersInWaspFile absWaspProjectDir
   where
     getPathToRemoteTemplate :: String -> Command String
-    getPathToRemoteTemplate templateFolderName = return $ waspTemplatesRepo ++ "/" ++ templateFolderName
+    getPathToRemoteTemplate tmplName = return $ waspTemplatesRepo ++ "/" ++ templateFolderName
       where
+        templateFolderName = tmplName
         -- gh: prefix means Github repo
         waspTemplatesRepo = "gh:wasp-lang/starters"
 
-    fetchTemplate :: String -> String -> Command ()
-    fetchTemplate templatePath projectDir = do
+    fetchTemplateAndWriteToDisk :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
+    fetchTemplateAndWriteToDisk projectDir templatePath = do
       liftIO (try executeCmd) >>= \case
         Left (e :: SomeException) -> throwProjectCreationError $ "Failed to create project from template: " ++ show e
-        Right _ -> return ()
+        Right _ -> ensureTemplateWasFetched
       where
+        -- TODO: Throw nice message if node is not installed.
         executeCmd = callCommand $ unwords command
-        command = ["npx", "--yes", "giget@latest", templatePath, projectDir]
+        command = ["npx", "--yes", "giget@latest", templatePath, SP.fromAbsDir projectDir]
 
-    -- giget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
-    ensureTemplateWasFetched :: Command ()
-    ensureTemplateWasFetched =
-      whenM
-        (liftIO $ IOUtil.isDirectoryEmpty absWaspProjectDir)
-        throwInvalidTemplateNameUsedError
+        -- giget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
+        ensureTemplateWasFetched :: Command ()
+        ensureTemplateWasFetched =
+          whenM
+            (liftIO $ IOUtil.isDirectoryEmpty projectDir)
+            throwInvalidTemplateNameUsedError
 
-    replacePlaceholdersInWaspFile :: Command ()
-    replacePlaceholdersInWaspFile = liftIO $ do
+    -- Template file for wasp file has placeholders in it that we want to replace
+    -- in the wasp file we have just written to the disk.
+    replaceTemplatePlaceholdersInWaspFile :: Path' Abs (Dir WaspProjectDir) -> Command ()
+    replaceTemplatePlaceholdersInWaspFile projectDir = liftIO $ do
       mainWaspFileContent <- IOUtil.readFileStrict absMainWaspFile
 
       let replacedContent =
-            foldl
+            foldl'
               (\acc (placeholder, value) -> T.replace (T.pack placeholder) (T.pack value) acc)
               mainWaspFileContent
               replacements
 
       IOUtil.writeFileFromText absMainWaspFile replacedContent
       where
-        absMainWaspFile = absWaspProjectDir </> [relfile|main.wasp|]
+        absMainWaspFile = projectDir </> [relfile|main.wasp|]
         replacements =
           [ ("__waspAppName__", appName),
             ("__waspProjectName__", projectName),
