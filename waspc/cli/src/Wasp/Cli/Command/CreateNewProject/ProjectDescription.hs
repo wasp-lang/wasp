@@ -35,12 +35,12 @@ data NewProjectDescription = NewProjectDescription
   }
 
 createNewProjectDescription :: NewProjectArgs -> [StarterTemplateName] -> Command NewProjectDescription
-createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) availableTemplates =
+createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) starterTemplateNames =
   do
     projectName <- getOrAskProjectName projectNameArg
     absWaspProjectDir <- validateAndGetAbsProjectDir projectName
 
-    selectedTemplate <- selectTemplate availableTemplates
+    selectedTemplate <- selectTemplate starterTemplateNames
     mkNewProjectDescription projectName absWaspProjectDir selectedTemplate
   where
     getOrAskProjectName :: Maybe String -> Command String

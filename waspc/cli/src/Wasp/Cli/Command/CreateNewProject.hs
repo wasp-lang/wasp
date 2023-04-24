@@ -25,9 +25,9 @@ import qualified Wasp.Util.Terminal as Term
 createNewProject :: Arguments -> Command ()
 createNewProject args = do
   newProjectArgs <- parseNewProjectArgs args
-  templateNamesFetchResult <- liftIO getStarterTemplateNames
+  starterTemplateNames <- liftIO getStarterTemplateNames
 
-  newProjectDescription <- createNewProjectDescription newProjectArgs templateNamesFetchResult
+  newProjectDescription <- createNewProjectDescription newProjectArgs starterTemplateNames
 
   createProjectOnDisk newProjectDescription
   liftIO $ printGettingStartedInstructions $ _projectName newProjectDescription

@@ -40,9 +40,6 @@ getStarterTemplateNames = do
 
   return $ localTemplates ++ remoteTemplates
   where
-    localTemplates :: [StarterTemplateName]
-    localTemplates = [LocalTemplate "basic"]
-
     getRemoteStarterTemplateNames :: IO StarterTemplateNamesFetchResult
     getRemoteStarterTemplateNames = do
       -- Github returns 403 if we don't specify user-agent.
@@ -63,8 +60,8 @@ getStarterTemplateNames = do
         isFolder :: RepoObject -> Bool
         isFolder = (== Folder) . _type
 
-findTemplateNameByString :: [StarterTemplateName] -> String -> Maybe StarterTemplateName
-findTemplateNameByString templateNames templateNameString = find (\templateName -> show templateName == templateNameString) templateNames
+    localTemplates :: [StarterTemplateName]
+    localTemplates = [LocalTemplate "basic"]
 
 -- Template file for wasp file has placeholders in it that we want to replace
 -- in the .wasp file we have written to the disk.
@@ -86,6 +83,9 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = liftIO $ 
         ("__waspProjectName__", projectName),
         ("__waspVersion__", waspVersionBounds)
       ]
+
+findTemplateNameByString :: [StarterTemplateName] -> String -> Maybe StarterTemplateName
+findTemplateNameByString templateNames templateNameString = find (\templateName -> show templateName == templateNameString) templateNames
 
 data StarterTemplateNamesFetchResult = Success [StarterTemplateName] | Failure
 
