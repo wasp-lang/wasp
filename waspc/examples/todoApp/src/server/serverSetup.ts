@@ -1,6 +1,9 @@
 import { mySpecialJob } from '@wasp/jobs/mySpecialJob.js'
 import { sayHi } from '../shared/util.js'
 import { ServerSetupFn, Application } from '@wasp/types'
+import { MiddlewareConfigFn } from '@wasp/middleware'
+import cors from 'cors'
+import config from '@wasp/config.js'
 
 let someResource = undefined
 
@@ -27,6 +30,12 @@ function addCustomRoute(app: Application) {
     res.removeHeader('X-Frame-Options')
     res.send('I am a custom route')
   })
+}
+
+export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
+  // Example of adding an extra domain to CORS.
+  middlewareConfig.set('cors', cors({ origin: [config.frontendUrl, 'http://127.0.0.1:3000'] }))
+  return middlewareConfig
 }
 
 export default setup
