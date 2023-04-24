@@ -5,6 +5,7 @@ module Wasp.Cli.Interactive
   )
 where
 
+import Data.Foldable (find)
 import Data.List (intercalate)
 import qualified Data.Text as T
 import System.IO (hFlush, stdout)
@@ -15,17 +16,21 @@ askForRequiredInput :: String -> IO String
 askForRequiredInput question = do
   ensureNotNull . askForInput $ question
 
-askToChoose :: String -> [String] -> IO String
-askToChoose question options = do
-  putStrLn $ Term.applyStyles [Term.Bold] question
-  putStrLn optionsToChooseFrom
-  answer <- prompt
-
-  handleOptionIndex answer >>= \case
-    Just option -> return option
-    Nothing -> handleOptionName answer
+askToChoose :: Show a => String -> [a] -> IO a
+askToChoose question options = case options of
+  [] -> error "Cannot ask to choose from empty list of options."
+  [singleOption] -> return singleOption
+  _multipleOptionsCase -> askUserToChoose
   where
-    handleOptionIndex :: String -> IO (Maybe String)
+    askUserToChoose = do
+      putStrLn $ Term.applyStyles [Term.Bold] question
+      putStrLn optionsToChooseFrom
+      answer <- prompt
+
+      handleOptionIndex answer >>= \case
+        Just option -> return option
+        Nothing -> handleOptionName answer
+
     handleOptionIndex answer = do
       let index = parseIndexOrDefault answer
 
@@ -39,19 +44,20 @@ askToChoose question options = do
         -- The default option is the first one
         parseIndexOrDefault input = if null input then Just 1 else readMaybe input :: Maybe Int
 
-    handleOptionName :: String -> IO String
     handleOptionName answer = do
-      if answer `elem` options
-        then return answer
-        else invalidOptionAction
+      let option = findElemByString answer
+      case option of
+        Just o -> return o
+        Nothing -> invalidOptionAction
 
-    invalidOptionAction :: IO String
     invalidOptionAction = do
       putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
       askToChoose question options
 
+    findElemByString option = find (\o -> show o == option) options
+
     optionsToChooseFrom = intercalate "\n" $ prependIndexToOption options
-    prependIndexToOption = zipWith (\i o -> showIndexWithStyle i ++ o ++ noteForDefault i) indexes
+    prependIndexToOption = zipWith (\i o -> showIndexWithStyle i ++ show o ++ noteForDefault i) indexes
     noteForDefault i = if i == 1 then " (default)" else ""
     showIndexWithStyle i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "] "
     indexes = [1 .. length options]

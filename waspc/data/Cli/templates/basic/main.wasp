@@ -1,0 +1,11 @@
+app __waspAppName__ {
+  wasp: {
+    version: "__waspVersion__"
+  },
+  title: "__waspProjectName__"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}

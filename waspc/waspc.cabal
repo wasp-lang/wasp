@@ -382,11 +382,12 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
-    Wasp.Cli.Command.CreateNewProject.Templates
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
-    Wasp.Cli.Command.CreateNewProject.FallbackTemplate
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
