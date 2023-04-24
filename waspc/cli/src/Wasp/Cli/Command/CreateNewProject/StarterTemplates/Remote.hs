@@ -6,8 +6,6 @@ where
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
-import System.Process (callCommand)
-import UnliftIO.Exception (SomeException, try)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common
   ( throwInvalidTemplateNameUsedError,
@@ -17,6 +15,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common (replaceTemplat
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (whenM)
 import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.NodeCommand (runNodeCommand)
 
 createProjectOnDiskFromRemoteTemplate :: Path' Abs (Dir WaspProjectDir) -> String -> String -> String -> Command ()
 createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName templateName = do
@@ -33,12 +32,10 @@ createProjectOnDiskFromRemoteTemplate absWaspProjectDir projectName appName temp
 
     fetchTemplateAndWriteToDisk :: Path' Abs (Dir WaspProjectDir) -> String -> Command ()
     fetchTemplateAndWriteToDisk projectDir templatePath = do
-      liftIO (try executeCmd) >>= \case
-        Left (e :: SomeException) -> throwProjectCreationError $ "Failed to create project from template: " ++ show e
+      liftIO (runNodeCommand command) >>= \case
+        Left e -> throwProjectCreationError e
         Right _ -> ensureTemplateWasFetched
       where
-        -- TODO: Throw nice message if node is not installed.
-        executeCmd = callCommand $ unwords command
         command = ["npx", "--yes", "giget@latest", templatePath, SP.fromAbsDir projectDir]
 
         -- giget doesn't fail if the template dir doesn't exist in the repo, so we need to check if the directory exists.
