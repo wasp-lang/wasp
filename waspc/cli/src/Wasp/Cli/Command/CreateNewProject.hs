@@ -23,8 +23,8 @@ import qualified Wasp.Util.Terminal as Term
 
 -- It receives all of the arguments that were passed to the `wasp new` command.
 createNewProject :: Arguments -> Command ()
-createNewProject argumentsList = do
-  newProjectArgs <- parseNewProjectArgs argumentsList
+createNewProject args = do
+  newProjectArgs <- parseNewProjectArgs args
   templateNamesFetchResult <- liftIO getStarterTemplateNames
 
   newProjectDescription <- createNewProjectDescription newProjectArgs templateNamesFetchResult

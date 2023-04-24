@@ -53,14 +53,14 @@ createNewProjectDescription (NewProjectArgs projectNameArg templateNameArg) avai
       absWaspProjectDir <- getAbsPathToNewProjectDirInCwd projectName
       ensureProjectDirDoesNotExist projectName absWaspProjectDir
       return absWaspProjectDir
+      where
+        ensureProjectDirDoesNotExist :: String -> Path' Abs (Dir WaspProjectDir) -> Command ()
+        ensureProjectDirDoesNotExist projectDirName absWaspProjectDir = do
+          dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
 
-    ensureProjectDirDoesNotExist :: String -> Path' Abs (Dir WaspProjectDir) -> Command ()
-    ensureProjectDirDoesNotExist projectDirName absWaspProjectDir = do
-      dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
-
-      when dirExists $
-        throwProjectCreationError $
-          "Directory \"" ++ projectDirName ++ "\" is not empty."
+          when dirExists $
+            throwProjectCreationError $
+              "Directory \"" ++ projectDirName ++ "\" is not empty."
 
     selectTemplate :: [StarterTemplateName] -> Command StarterTemplateName
     selectTemplate templateNames = do
