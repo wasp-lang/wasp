@@ -28,6 +28,6 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir = liftIO $ 
     replacements =
       [ ("__waspAppName__", show appName),
         ("__waspProjectName__", show projectName),
-        ("__waspVersion__", show waspVersionBounds)
+        ("__waspVersion__", waspVersionBounds)
       ]
     waspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)
