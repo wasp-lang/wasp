@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Wasp.Cli.Command.AI.New
   ( new,
@@ -14,6 +15,7 @@ import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import NeatInterpolation (trimming)
 import qualified Network.HTTP.Simple as HTTP
 import StrongPath (Abs, Dir, Path', fromAbsDir, fromRelFile, relfile, (</>))
 import StrongPath.Operations ()
@@ -56,6 +58,12 @@ new = do
   where
     -- appSpec <- analyze waspDir
     -- let (appName, app) = ASV.getApp appSpec
+    testAppDesc =
+      [trimming|
+      Simple app that enables inputing pokemons and then on request can produce a random fight between the two of them.
+      It should have authentication, so each user has their own pokemon, but fights happen with random pokemon
+      of another user.
+      |]
 
     createNewEmptyProject :: String -> Command (Path' Abs (Dir WaspProjectDir))
     createNewEmptyProject webAppTitle = do
@@ -75,28 +83,124 @@ new = do
 
     -- Writes wasp file to disk, but also returns its content.
     -- TODO: Also check if it compiles and if not, send errors to GPT.
-    aiWriteWaspFile :: Path' Abs (Dir WaspProjectDir) -> String -> String -> Command Text
+    aiWriteWaspFile :: Path' Abs (Dir WaspProjectDir) -> String -> Text -> Command Text
     aiWriteWaspFile absWaspProjectDir appTitle appDesc = do
       -- TODO: Tell GPT about Wasp in general, shortly.
-      -- Also give it an example of a Wasp file that is pretty rich. It can even be done as a previous part of the conversation, so it has an example of what is good.
-      -- Then, tell it to generate a Wasp file for the given prompt, while also adding comments in it for every ExtImport, where comments explain what that file is supposed to contain / do, so basically to serve as instrutioncs to itself.
-      -- Or probably best to tell it to provide those instructions separately, in a JSON object where key is the name of each page or whatever.
-      -- Once it does, let's feed that Wasp file to the Wasp analyzer and see if it returns any errors. If it does, send it back to chat GPT for repairs.
+      -- Also give it an example of a Wasp file that is pretty rich. It can even be done as a
+      -- previous part of the conversation, so it has an example of what is good.
+      -- Then, tell it to generate a Wasp file for the given prompt, while also adding comments in
+      -- it for every ExtImport, where comments explain what that file is supposed to contain / do,
+      -- so basically to serve as instrutioncs to itself.
+      -- Or probably best to tell it to provide those instructions separately, in a JSON object
+      -- where key is the name of each page or whatever.
+      -- Once it does, let's feed that Wasp file to the Wasp analyzer and see if it returns any
+      -- errors. If it does, send it back to chat GPT for repairs.
       -- Finally, write it to disk.
-      -- In the example wasp file, we can put in a lot of comments explaining stuff, but then we can ask it to not produce those once it produces a wasp file, so we save some tokens.
-      -- We should also make it clear which feature in wasp file is related to which part of the prompt, so it can know to skip them properly.
+      -- In the example wasp file, we can put in a lot of comments explaining stuff, but then we can
+      -- ask it to not produce those once it produces a wasp file, so we save some tokens.
+      -- We should also make it clear which feature in wasp file is related to which part of the
+      -- prompt, so it can know to skip them properly.
       -- TODO: What if it fails to repair it? Well we can just pretend all is ok, let user fix it.
-      -- TODO: As chatGPT to compress our prompt for us.
+      -- TODO: Ask chatGPT to compress our prompt for us.
       let chatMessages =
-            [ ChatMessage {role = System, content = "You are an expert Wasp developer, helping set up a new Wasp project."},
+            [ ChatMessage
+                { role = System,
+                  content = "You are an expert Wasp developer, helping set up a new Wasp project."
+                },
               ChatMessage
                 { role = User,
+                  -- TODO: I should tell it to mark the type of each ext import: "page", "query", "action".
                   content =
-                    "Wasp is a framework for building web apps with React (frontend), NodeJS (backend) and Prisma (db)."
-                      <> "\nIt let's you define high-level overview of your app via specialized Wasp DSL in main.wasp file, and then implements the details in JS/JSX files."
-                      <> "\nMain Wasp features are: frontend routes and pages, operations (queries and actions -> it is really an RPC system), entities (data models), jobs (cron / scheduled), ... ."
-                      <> "\nHere is an example main.wasp file:"
-                      <> ""
+                    [trimming|
+  Wasp is web app framework that uses React, NodeJS and Prisma.
+  High-level is described in main.wasp file, details in JS/JSX files.
+  Main Wasp features: frontend Routes and Pages, Queries and Actions (RPC), Entities.
+
+  Example main.wasp (comments are explanation for you):
+
+  ```wasp
+    app todoApp {
+      wasp: { version: "^0.10.2" },
+      title: "ToDo App",
+      auth: {
+        userEntity: User,
+        // Define only if using social (google) auth.
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {},
+          google: {
+            configFn: import { config } from "@server/auth/google.js",
+            getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+        onAuthSucceededRedirectTo: "/"
+      }
+    }
+
+    // psl stands for Prisma Schema Language.
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        username                  String        @unique
+        password                  String
+        tasks                     Task[]
+        externalAuthAssociations  SocialLogin[] // Only if using social auth.
+    psl=}
+
+    // Define only if using social auth (e.g. google).
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+
+    // TODO: implement entity Task.
+
+    route SignupRoute { path: "/signup", to: SignupPage }
+    page SignupPage {
+      component: import Signup from "@client/pages/auth/Signup.jsx" // REQ.
+    }
+
+    // TODO: implement LoginPage, analogous to SignupPage.
+
+    route HomeRoute { path: "/", to: MainPage }
+    page MainPage {
+      authRequired: true,
+      component: import Main from "@client/pages/Main.jsx"
+    }
+
+    // Queries are nodejs functions that do R in CRUD.
+    query getTasks {
+      fn: import { getTasks } from "@server/queries.js", // REQ
+      entities: [Task]
+    }
+
+    // Actions are like quries but do CUD in CRUD.
+    action createTask {
+      fn: import { createTask } from "@server/actions.js",
+      entities: [Task]
+    }
+  ```
+
+  Now, I will describe a new Wasp app to you.
+
+  You will first respond with only the content of main.wasp file (no comments).
+
+  Then, you will print a line that goes like this: "---------------------------", to mark the ending of the wasp file content. This is very important, make sure to do this.
+
+  Finally, for every external import, provide instructions on how to implement the corresponding JS function/component.
+  The instructions should be in a JSON format like this:
+  [{ import: "import { createTask } from \"@server/tasks.js\"", in: "page", instruction: "..." }, ...].
+  `in` field can be "page", "query" or "action".
+
+  Everything after this sentence is app description:
+
+  ${appDesc}
+  |]
                 }
             ]
       error "TODO"
@@ -104,13 +208,19 @@ new = do
     aiWriteWaspPages :: Path' Abs (Dir WaspProjectDir) -> Text -> Command ()
     aiWriteWaspPages absWaspProjectDir waspFileContent = do
       -- TODO: Actually it should recieve AppSpec I think, right?
-      -- So idea is here that for each page we give Wasp file to Chat GPT, also all the basic knowledge about Wasp,
-      -- and then ask it to generate JS for that page. If page already exists, we also pass that and tell it to add stuff to it.
-      -- How do we get comments to it about it? Well, maybe it is smart enough to pick them up from the wasp file?
-      -- Or, we give them separately, but then we need them in a good format. I think it will be able to pick them up on its own.
+      -- So idea is here that for each page we give Wasp file to Chat GPT, also all the basic
+      -- knowledge about Wasp, and then ask it to generate JS for that page. If page already exists,
+      -- we also pass that and tell it to add stuff to it.
+      --
+      -- How do we get comments to it about it? Well, maybe it is smart enough to pick them up from
+      -- the wasp file?
+      -- Or, we give them separately, but then we need them in a good format. I think it will be
+      -- able to pick them up on its own.
       -- Oh and we also need to give it info about the concept of the page itself! And example. Uff.
-      -- Maybe that is too much and we can't give it all that. In that case we should drop the idea of passing whole Wasp file,
-      -- and we need to give it only instructions for that page. We can have it write those instructions separately, for each page, in that case. Yeah probably that is the best.
+      -- Maybe that is too much and we can't give it all that. In that case we should drop the idea
+      -- of passing whole Wasp file, and we need to give it only instructions for that page. We can
+      -- have it write those instructions separately, for each page, in that case. Yeah probably
+      -- that is the best.
       -- Hm and we also need initial prompt by user here.
       error "TODO"
 
@@ -128,13 +238,14 @@ sayHiToChatGpt :: IO ()
 sayHiToChatGpt = do
   apiKey <- System.Environment.getEnv "OPENAI_API_KEY"
   answer <- queryChatGpt apiKey [ChatMessage {role = User, content = "What is 2 + 2?"}]
-  putStrLn answer
+  print answer
 
 -- TODO: We will need to have this on a server somewhere, not here, if we want to use our API keys.
 --   If we let them use their API keys then it can be here.
-queryChatGpt :: String -> [ChatMessage] -> IO String
+queryChatGpt :: String -> [ChatMessage] -> IO Text
 queryChatGpt apiKey requestMessages = do
   -- TODO: We could try playing with parameters like temperature, max_tokens, ... .
+  --   I noticed it works quite well with temperature of 1!
   let reqBodyJson =
         Aeson.object
           [ "model" .= ("gpt-3.5-turbo" :: String),
@@ -188,7 +299,7 @@ instance Aeson.FromJSON ChatResponseChoice
 
 data ChatMessage = ChatMessage
   { role :: !ChatRole,
-    content :: !String
+    content :: !Text
   }
   deriving (Generic, Show)
 
