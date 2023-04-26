@@ -1,9 +1,10 @@
 import HttpError from '@wasp/core/HttpError.js';
-import { Context, Task } from './serverTypes'
+import type { CreateTask, UpdateTask } from '@wasp/actions/types';
+import type { Task } from '@wasp/entities';
 
 type CreateArgs = Pick<Task, 'description'>;
 
-export async function createTask({ description }: CreateArgs, context: Context) {
+export const createTask: CreateTask<CreateArgs, Task> = async ({ description }, context ) => {
   if (!context.user) {
     throw new HttpError(401);
   }
@@ -18,15 +19,14 @@ export async function createTask({ description }: CreateArgs, context: Context) 
 
 type UpdateArgs = Pick<Task, 'id' | 'isDone'>;
 
-export async function updateTask({ id, isDone }: UpdateArgs, context: Context) {
+export const updateTask: UpdateTask<UpdateArgs, Task> = ({ id, isDone }, context) => {
   if (!context.user) {
     throw new HttpError(401);
   }
 
-  return context.entities.Task.updateMany({
+  return context.entities.Task.update({
     where: {
-      id,
-      user: { id: context.user.id },
+      id
     },
     data: { isDone },
   });

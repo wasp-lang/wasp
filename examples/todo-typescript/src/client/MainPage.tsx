@@ -1,17 +1,18 @@
-import './Main.css';
 import React, { useEffect, FormEventHandler, FormEvent } from 'react';
+import waspLogo from './waspLogo.png';
+import './Main.css';
+// Wasp imports 🐝 = }
 import logout from '@wasp/auth/logout.js';
 import useAuth from '@wasp/auth/useAuth.js';
 import { useQuery } from '@wasp/queries'; // Wasp uses a thin wrapper around react-query
 import getTasks from '@wasp/queries/getTasks';
 import createTask from '@wasp/actions/createTask';
 import updateTask from '@wasp/actions/updateTask';
-import waspLogo from './waspLogo.png';
-import { Task } from './types'
+import type { Task } from '@wasp/entities'
 
 export function MainPage() {
   const { data: user } = useAuth();
-  const { data: tasks, isLoading, error } = useQuery<unknown, Task[]>(getTasks);
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   useEffect(() => {
     console.log(user);
@@ -23,10 +24,10 @@ export function MainPage() {
   return (
     <main>
       <img src={waspLogo} alt='wasp logo' />
-      <h1>
+      {user && <h1>
         {user.username}
         {`'s tasks :)`}
-      </h1>
+      </h1>}
       <NewTaskForm />
       {tasks && <TasksList tasks={tasks} /> }
       <button onClick={logout}> Logout </button>
