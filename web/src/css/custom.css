@@ -42,7 +42,11 @@
   --ifm-h3-font-size: 1.3rem;
 
   /* Blog */
-  --custom-blog-list-background-color: #fbf7e5;
+  /**
+   * TODO(matija): this is a separate value from the background color on the landing page (in custom.css)
+   * Shall we unify that?
+   **/
+  --custom-blog-list-background-color: #f5f5f5;
   --custom-blog-card-timestamp-color: #737373;
   --custom-blog-card-background-color: white;
 
