@@ -47,7 +47,7 @@ import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
-import qualified Wasp.Util.NodeVersion as NodeVersion
+import qualified Wasp.Util.Node.Version as NodeVersion
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do

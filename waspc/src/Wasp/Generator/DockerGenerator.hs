@@ -31,7 +31,7 @@ import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (getEnvVarDefinition)
-import Wasp.Util.NodeVersion (latestMajorNodeVersion)
+import Wasp.Util.Node.Version (latestMajorNodeVersion)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
 genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]

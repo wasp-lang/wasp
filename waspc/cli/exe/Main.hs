@@ -130,7 +130,6 @@ printUsage =
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
-              "  wasp new MyApp -t waspello",
               "  wasp start",
               "  wasp db migrate-dev",
               "",

@@ -23,7 +23,7 @@ import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Job as J
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.Util.NodeVersion as NodeVersion
+import qualified Wasp.Util.Node.Version as NodeVersion
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.

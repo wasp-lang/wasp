@@ -49,9 +49,9 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/new/.gitignore
-  Cli/templates/new/.wasproot
-  Cli/templates/new/src/.waspignore
+  Cli/templates/basic/.gitignore
+  Cli/templates/basic/.wasproot
+  Cli/templates/basic/src/.waspignore
 data-dir: data/
 
 source-repository head
@@ -308,8 +308,8 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
-    Wasp.Util.NodeVersion
-    Wasp.Util.NodeCommand
+    Wasp.Util.Node.Version
+    Wasp.Util.Node.Command
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -387,9 +387,11 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Common
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Github
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset

@@ -66,7 +66,7 @@ import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
-import qualified Wasp.Util.NodeVersion as NodeVersion
+import qualified Wasp.Util.Node.Version as NodeVersion
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =

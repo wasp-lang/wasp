@@ -1,4 +1,4 @@
-module Wasp.Util.NodeCommand where
+module Wasp.Util.Node.Command where
 
 import System.Exit (ExitCode)
 import System.Process
@@ -11,10 +11,10 @@ import System.Process
   )
 import UnliftIO.Exception (SomeException, try)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.Util.NodeVersion as NodeVersion
+import qualified Wasp.Util.Node.Version as NodeVersion
 
-runNodeCommandWithoutOutput :: [String] -> IO (Either String ExitCode)
-runNodeCommandWithoutOutput command =
+runNodeCommandSilenced :: [String] -> IO (Either String ExitCode)
+runNodeCommandSilenced command =
   NodeVersion.getNodeVersion >>= \case
     Left nodeVersionErrorMsg -> return $ Left nodeVersionErrorMsg
     Right nodeVersion ->
@@ -28,5 +28,5 @@ runNodeCommandWithoutOutput command =
     executeCommand :: IO ExitCode
     executeCommand = do
       -- Creating a pipe for stdout to disable printing of the command output.
-      (_, _, _, processHandle) <- createProcess (shell $ unwords command) {std_out = CreatePipe}
+      (_, _, _, processHandle) <- createProcess (shell $ unwords command) {std_out = CreatePipe, std_err = CreatePipe}
       waitForProcess processHandle

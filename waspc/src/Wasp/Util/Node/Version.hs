@@ -1,4 +1,4 @@
-module Wasp.Util.NodeVersion
+module Wasp.Util.Node.Version
   ( getNodeVersion,
     nodeVersionRange,
     latestMajorNodeVersion,

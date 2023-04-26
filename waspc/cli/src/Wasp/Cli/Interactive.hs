@@ -5,73 +5,75 @@ module Wasp.Cli.Interactive
   )
 where
 
+import Control.Applicative ((<|>))
 import Data.Foldable (find)
+import Data.Function ((&))
 import Data.List (intercalate)
+import Data.List.NonEmpty (NonEmpty ((:|)))
+import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
 askForRequiredInput :: String -> IO String
-askForRequiredInput question = do
-  ensureNotNull . askForInput $ question
+askForRequiredInput = repeatIfNull . askForInput
 
-askToChoose :: Show a => String -> [a] -> IO a
-askToChoose question options = case options of
-  [] -> error "Cannot ask to choose from empty list of options."
-  [singleOption] -> return singleOption
-  _multipleOptionsCase -> askUserToChoose
+-- TODO: using a list of Strings for options results in the Strings being wrapped in quotes
+-- when printed. This is not ideal, we should enable printing of Strings without quotes.
+askToChoose :: forall o. Show o => String -> NonEmpty o -> IO o
+askToChoose _ (singleOption :| []) = return singleOption
+askToChoose question options = do
+  putStrLn $ Term.applyStyles [Term.Bold] question
+  putStrLn showIndexedOptions
+  answer <- prompt
+  getOptionMatchingAnswer answer & maybe printErrorAndAskAgain return
   where
-    askUserToChoose = do
-      putStrLn $ Term.applyStyles [Term.Bold] question
-      putStrLn optionsToChooseFrom
-      answer <- prompt
+    getOptionMatchingAnswer :: String -> Maybe o
+    getOptionMatchingAnswer "" = Just defaultOption
+    getOptionMatchingAnswer answer =
+      getOptionByIndex answer <|> getOptionByName answer
 
-      handleOptionIndex answer >>= \case
-        Just option -> return option
-        Nothing -> handleOptionName answer
+    getOptionByIndex :: String -> Maybe o
+    getOptionByIndex idxStr =
+      case readMaybe idxStr of
+        Just idx | idx >= 1 && idx <= length options -> Just $ options NE.!! (idx - 1)
+        _invalidIndex -> Nothing
 
-    handleOptionIndex answer = do
-      let index = parseIndexOrDefault answer
+    getOptionByName :: String -> Maybe o
+    getOptionByName name = find ((== name) . show) options
 
-      case index of
-        Just i -> do
-          if i `elem` indexes
-            then return $ Just $ options !! (i - 1)
-            else Just <$> invalidOptionAction
-        Nothing -> return Nothing
-      where
-        -- The default option is the first one
-        parseIndexOrDefault input = if null input then Just 1 else readMaybe input :: Maybe Int
-
-    handleOptionName answer = do
-      let option = findElemByString answer
-      case option of
-        Just o -> return o
-        Nothing -> invalidOptionAction
-
-    invalidOptionAction = do
+    printErrorAndAskAgain :: IO o
+    printErrorAndAskAgain = do
       putStrLn $ Term.applyStyles [Term.Red] "Invalid selection, write the name or the index of the option."
       askToChoose question options
 
-    findElemByString option = find (\o -> show o == option) options
+    showIndexedOptions :: String
+    showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
+      where
+        showIndexedOption (idx, option) =
+          showIndex idx <> " " <> show option <> (if isDefaultOption option then " (default)" else "")
+        showIndex i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "]"
 
-    optionsToChooseFrom = intercalate "\n" $ prependIndexToOption options
-    prependIndexToOption = zipWith (\i o -> showIndexWithStyle i ++ show o ++ noteForDefault i) indexes
-    noteForDefault i = if i == 1 then " (default)" else ""
-    showIndexWithStyle i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "] "
-    indexes = [1 .. length options]
+    defaultOption :: o
+    defaultOption = NE.head options
+
+    isDefaultOption :: o -> Bool
+    isDefaultOption option = show option == show defaultOption
 
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
-ensureNotNull :: Foldable t => IO (t a) -> IO (t a)
-ensureNotNull action = do
+repeatIfNull :: Foldable t => IO (t a) -> IO (t a)
+repeatIfNull action = repeatUtil null "This field cannot be empty." action
+
+repeatUtil :: (a -> Bool) -> String -> IO a -> IO a
+repeatUtil predicate errorMessage action = do
   result <- action
-  if null result
+  if predicate result
     then do
-      putStrLn $ Term.applyStyles [Term.Red] "This field cannot be empty."
-      ensureNotNull action
+      putStrLn $ Term.applyStyles [Term.Red] errorMessage
+      repeatUtil predicate errorMessage action
     else return result
 
 prompt :: IO String
