@@ -34,11 +34,13 @@ createNewProject args = do
   where
     printGettingStartedInstructions :: String -> IO ()
     printGettingStartedInstructions projectFolder = do
-      putStrLn $ Term.applyStyles [Term.Green] ("Created new Wasp app in ./" ++ projectFolder ++ " directory!")
-      putStrLn "To run it, do:"
-      putStrLn ""
-      putStrLn $ Term.applyStyles [Term.Bold] ("    cd " ++ projectFolder)
-      putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
+{- ORMOLU_DISABLE -}
+      putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp app in ./" ++ projectFolder ++ " directory!"
+      putStrLn                                   "To run it, do:"
+      putStrLn                                   ""
+      putStrLn $ Term.applyStyles [Term.Bold] $  "    cd " ++ projectFolder
+      putStrLn $ Term.applyStyles [Term.Bold]    "    wasp start"
+{- ORMOLU_ENABLE -}
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
