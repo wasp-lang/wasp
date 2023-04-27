@@ -2,6 +2,9 @@
 
 ## v0.10.3
 
+### Bug fixes
+- Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
+
 ### Express middleware customization
 We now offer the ability to customize Express middleware:
 - globally (impacting all actions, queries, and apis by default)
