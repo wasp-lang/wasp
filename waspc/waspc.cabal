@@ -415,6 +415,7 @@ library cli-lib
     Wasp.Cli.Command.Message
     Wasp.Cli.Message
     Wasp.Cli.Interactive
+    Wasp.Cli.GithubRepo
 
 executable wasp-cli
   import: common-all, common-exe

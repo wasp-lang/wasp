@@ -1,7 +1,11 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module Wasp.Cli.Interactive
   ( askForInput,
     askToChoose,
     askForRequiredInput,
+    Option,
   )
 where
 
@@ -16,12 +20,29 @@ import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 import qualified Wasp.Util.Terminal as Term
 
+{-
+  Why are we doing this?
+
+  Using a list of Strings for options results in the Strings being wrapped in quotes
+  when printed. We want to avoid this so users can just type the name of the option
+  without having to type the quotes as well.
+
+  We do this by overriding the default Show instance for Strings with our own instance
+  that just returns the String itself.
+-}
+class Option o where
+  showOption :: o -> String
+
+instance {-# OVERLAPPING #-} Option [Char] where
+  showOption = id
+
+instance {-# OVERLAPPABLE #-} Show t => Option t where
+  showOption = show
+
 askForRequiredInput :: String -> IO String
 askForRequiredInput = repeatIfNull . askForInput
 
--- TODO: using a list of Strings for options results in the Strings being wrapped in quotes
--- when printed. This is not ideal, we should enable printing of Strings without quotes.
-askToChoose :: forall o. Show o => String -> NonEmpty o -> IO o
+askToChoose :: forall o. Option o => String -> NonEmpty o -> IO o
 askToChoose _ (singleOption :| []) = return singleOption
 askToChoose question options = do
   putStrLn $ Term.applyStyles [Term.Bold] question
@@ -41,7 +62,7 @@ askToChoose question options = do
         _invalidIndex -> Nothing
 
     getOptionByName :: String -> Maybe o
-    getOptionByName name = find ((== name) . show) options
+    getOptionByName name = find ((== name) . showOption) options
 
     printErrorAndAskAgain :: IO o
     printErrorAndAskAgain = do
@@ -52,14 +73,14 @@ askToChoose question options = do
     showIndexedOptions = intercalate "\n" $ showIndexedOption <$> zip [1 ..] (NE.toList options)
       where
         showIndexedOption (idx, option) =
-          showIndex idx <> " " <> show option <> (if isDefaultOption option then " (default)" else "")
+          showIndex idx <> " " <> showOption option <> (if isDefaultOption option then " (default)" else "")
         showIndex i = Term.applyStyles [Term.Yellow] $ "[" ++ show (i :: Int) ++ "]"
 
     defaultOption :: o
     defaultOption = NE.head options
 
     isDefaultOption :: o -> Bool
-    isDefaultOption option = show option == show defaultOption
+    isDefaultOption option = showOption option == showOption defaultOption
 
 askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
