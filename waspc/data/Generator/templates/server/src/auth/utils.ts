@@ -206,10 +206,6 @@ function validate(args: unknown, validators: { validates: string, message: strin
 }
 {=/ isEmailAuthEnabled =}
 
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
-}
-
 function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);
