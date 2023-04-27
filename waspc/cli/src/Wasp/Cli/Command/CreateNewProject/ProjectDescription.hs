@@ -11,7 +11,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.List (intercalate)
 import Data.List.NonEmpty (fromList)
-import Data.Maybe (isJust)
+import Data.Maybe (fromMaybe, isJust)
 import Path.IO (doesDirExist)
 import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
@@ -78,9 +78,7 @@ obtainNewProjectDescriptionFromCliArgs projectName templateNameArg availableTemp
       let maybeTemplateName = templateNameArg >>= findTemplateNameByString availableTemplates
       throwIfUserProvidedInvalidTemplateNameViaArgs templateNameArg maybeTemplateName
 
-      case maybeTemplateName of
-        Just templateName -> return templateName
-        Nothing -> return defaultStarterTemplateName
+      return $ fromMaybe defaultStarterTemplateName maybeTemplateName
 
 obtainNewProjectDescriptionInteractively :: Maybe String -> [StarterTemplateName] -> Command NewProjectDescription
 obtainNewProjectDescriptionInteractively templateNameArg availableTemplates = do
