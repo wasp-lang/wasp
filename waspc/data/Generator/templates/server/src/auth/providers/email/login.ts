@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { verifyPassword } from "../../../core/auth.js";
-import { findUserBy, createAuthToken, ensureValidEmailAndPassword, throwInvalidCredentialsError } from "../../utils.js";
+import { verifyPassword, throwInvalidCredentialsError } from "../../../core/auth.js";
+import { findUserBy, createAuthToken, ensureValidEmailAndPassword } from "../../utils.js";
 
 export function getLoginRoute({
     allowUnverifiedLogin,

@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.3
+
+### Bug fixes
+- Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
+
 ## v0.10.2
 
 ### Bug fixes
