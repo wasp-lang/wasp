@@ -14,7 +14,7 @@ data NewProjectArgs = NewProjectArgs
   }
 
 parseNewProjectArgs :: Arguments -> Either String NewProjectArgs
-parseNewProjectArgs newArgs = parserResultToEither (execParserPure defaultPrefs newProjectArgsParserInfo newArgs)
+parseNewProjectArgs newArgs = parserResultToEither $ execParserPure defaultPrefs newProjectArgsParserInfo newArgs
   where
     newProjectArgsParserInfo :: Opt.ParserInfo NewProjectArgs
     newProjectArgsParserInfo = Opt.info (newProjectArgsParser Opt.<**> Opt.helper) Opt.fullDesc

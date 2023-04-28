@@ -11,5 +11,5 @@ throwProjectCreationError = throwError . CommandError "Project creation failed"
 throwInvalidTemplateNameUsedError :: Command a
 throwInvalidTemplateNameUsedError = throwProjectCreationError "Are you sure that the template exists? 🤔 Check the list of templates here: https://github.com/wasp-lang/starters"
 
-waspVersionBounds :: String
-waspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)
+defaultWaspVersionBounds :: String
+defaultWaspVersionBounds = show (SV.backwardsCompatibleWith WV.waspVersion)

@@ -4,7 +4,7 @@ import Data.List (foldl')
 import Data.Text (Text)
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, File, Path', relfile, (</>))
-import Wasp.Cli.Command.CreateNewProject.Common (waspVersionBounds)
+import Wasp.Cli.Command.CreateNewProject.Common (defaultWaspVersionBounds)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
@@ -28,5 +28,5 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
     waspFileReplacements =
       [ ("__waspAppName__", show appName),
         ("__waspProjectName__", show projectName),
-        ("__waspVersion__", waspVersionBounds)
+        ("__waspVersion__", defaultWaspVersionBounds)
       ]

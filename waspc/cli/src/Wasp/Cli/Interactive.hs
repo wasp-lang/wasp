@@ -22,13 +22,25 @@ import qualified Wasp.Util.Terminal as Term
 
 {-
   Why are we doing this?
-
   Using a list of Strings for options results in the Strings being wrapped in quotes
-  when printed. We want to avoid this so users can just type the name of the option
+  when printed.
+
+  What we want to avoid:
+    Choose an option:
+    - "one"
+    - "two"
+
+  What we want:
+    Choose an option:
+    - one
+    - two
+
+  We want to avoid this so users can type the name of the option when answering
   without having to type the quotes as well.
 
-  We do this by overriding the default Show instance for Strings with our own instance
-  that just returns the String itself.
+  We introduced the Option class to get different "show" behavior for Strings and other
+  types. Option delegates to the Show instance for all other types, but for Strings it
+  just returns the String itself.
 -}
 class Option o where
   showOption :: o -> String
@@ -86,15 +98,15 @@ askForInput :: String -> IO String
 askForInput question = putStr (Term.applyStyles [Term.Bold] question) >> prompt
 
 repeatIfNull :: Foldable t => IO (t a) -> IO (t a)
-repeatIfNull action = repeatUtil null "This field cannot be empty." action
+repeatIfNull action = repeatUntil null "This field cannot be empty." action
 
-repeatUtil :: (a -> Bool) -> String -> IO a -> IO a
-repeatUtil predicate errorMessage action = do
+repeatUntil :: (a -> Bool) -> String -> IO a -> IO a
+repeatUntil predicate errorMessage action = do
   result <- action
   if predicate result
     then do
       putStrLn $ Term.applyStyles [Term.Red] errorMessage
-      repeatUtil predicate errorMessage action
+      repeatUntil predicate errorMessage action
     else return result
 
 prompt :: IO String

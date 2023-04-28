@@ -35,6 +35,7 @@ import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
@@ -47,7 +48,6 @@ import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
-import qualified Wasp.Util.Node.Version as NodeVersion
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do

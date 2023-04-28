@@ -2,93 +2,73 @@
 
 module Wasp.Cli.GithubRepo where
 
-import qualified Codec.Archive.Tar as Tar
-import qualified Codec.Compression.GZip as GZip
-import Control.Exception (SomeException, try)
+import Control.Exception (try)
 import Data.Aeson
   ( FromJSON,
     parseJSON,
     withObject,
     (.:),
   )
-import qualified Data.ByteString.Lazy as BL
 import Data.Functor ((<&>))
 import Data.List (intercalate)
 import Data.Maybe (fromJust, maybeToList)
-import Network.HTTP.Conduit (simpleHttp)
 import qualified Network.HTTP.Simple as HTTP
-import Path.IO (copyDirRecur, removeDirRecur)
-import StrongPath (Abs, Dir, File, Path', (</>))
+import StrongPath (Abs, Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
-import StrongPath.Path (toPathAbsDir)
-import System.Directory (createDirectoryIfMissing)
-import Wasp.Cli.FileSystem (getUserCacheDir)
+import Wasp.Cli.Archive (fetchArchiveAndCopySubdirToDisk)
 
-type GithubRepo = (GithubRepoOwner, GithubRepoName)
+data GithubRepoRef = GithubRepoRef
+  { _repoOwner :: GithubRepoOwner,
+    _repoName :: GithubRepoName,
+    -- Which point in repo history to download (a branch or commit hash).
+    _repoReferenceName :: GithubRepoReferenceName
+  }
+  deriving (Show, Eq)
 
 type GithubRepoOwner = String
 
 type GithubRepoName = String
 
+type GithubRepoReferenceName = String
+
 fetchFolderFromGithubRepoToDisk ::
-  forall d.
-  GithubRepo ->
+  GithubRepoRef ->
   String ->
   Path' Abs (Dir d) ->
   IO (Either String ())
-fetchFolderFromGithubRepoToDisk (githubOrg, repoName) pathToFolderInRepo destinationOnDisk = do
-  try
-    (withTempDir ".wasp-templates-temp" downloadFolderToDisk)
-    <&> either showException Right
+fetchFolderFromGithubRepoToDisk githubRepoRef targetRepoFolderName destinationOnDisk = do
+  let downloadUrl = getGithubRepoArchiveDownloadURL githubRepoRef
+      targetRepoFolderPathInArchive = mapFolderInRepoToFolderPathInGithubArchive githubRepoRef $ fromJust . SP.parseRelDir $ targetRepoFolderName
+
+  fetchArchiveAndCopySubdirToDisk downloadUrl targetRepoFolderPathInArchive destinationOnDisk
   where
-    downloadFolderToDisk :: Path' Abs (Dir d) -> IO ()
-    downloadFolderToDisk tempDir = do
-      downloadFile githubArchiveUrl tempDir archiveFileName >>= unpackArchive tempDir
-      copyRepoFolderToDestination tempDir pathToFolderInRepo destinationOnDisk
+    getGithubRepoArchiveDownloadURL :: GithubRepoRef -> String
+    getGithubRepoArchiveDownloadURL
+      GithubRepoRef
+        { _repoName = repoName,
+          _repoOwner = repoOwner,
+          _repoReferenceName = repoReferenceName
+        } = intercalate "/" ["https://github.com", repoOwner, repoName, "archive", downloadArchiveName]
+        where
+          downloadArchiveName = repoReferenceName ++ ".tar.gz"
+
+    mapFolderInRepoToFolderPathInGithubArchive ::
+      forall r archiveInnerDir targetDir.
+      GithubRepoRef ->
+      Path' (Rel archiveInnerDir) (Dir targetDir) ->
+      Path' (Rel r) (Dir targetDir)
+    mapFolderInRepoToFolderPathInGithubArchive githubRepo targetFolderPath = githubRepoArchiveRootFolderName </> targetFolderPath
       where
-        githubArchiveUrl = intercalate "/" ["https://github.com", githubOrg, repoName, "archive", archiveFileName]
-        archiveFileName = repoReference ++ ".tar.gz"
+        -- Github repo tars have a root folder that is named after the repo
+        -- name and the reference (branch or tag).
+        githubRepoArchiveRootFolderName :: Path' (Rel r) (Dir archiveInnerDir)
+        githubRepoArchiveRootFolderName = fromJust . SP.parseRelDir $ _repoName githubRepo ++ "-" ++ _repoReferenceName githubRepo
 
-    -- Which point in repo history to download (a branch or commit hash)
-    repoReference :: String
-    repoReference = "main"
-
-    downloadFile :: String -> Path' Abs (Dir d) -> String -> IO (Path' Abs (File f))
-    downloadFile downloadUrl destinationDir fileName = do
-      let destinationPath = destinationDir </> fromJust (SP.parseRelFile fileName)
-      simpleHttp downloadUrl >>= BL.writeFile (SP.fromAbsFile destinationPath)
-      return destinationPath
-
-    unpackArchive :: Path' Abs (Dir d) -> Path' Abs (File f) -> IO ()
-    unpackArchive destinationDir pathToTheTarFile = do
-      Tar.unpack (SP.fromAbsDir destinationDir) . Tar.read . GZip.decompress =<< BL.readFile (SP.fromAbsFile pathToTheTarFile)
-
-    copyRepoFolderToDestination :: Path' Abs (Dir d) -> String -> Path' Abs (Dir d) -> IO ()
-    copyRepoFolderToDestination archiveRootDir pathToFolderInRepo' destinationOnDisk' = do
-      copyDirRecur (toPathAbsDir pathToDownloadededFolder) (toPathAbsDir destinationOnDisk')
-      where
-        pathToDownloadededFolder = archiveRootDir </> rootArchiveFolder </> fromJust (SP.parseRelDir pathToFolderInRepo')
-        -- Github repo tars have a root folder that is named after the repo name and the reference (branch or tag).
-        rootArchiveFolder = fromJust (SP.parseRelDir $ repoName ++ "-" ++ repoReference)
-
-    withTempDir :: FilePath -> (Path' Abs (Dir d) -> IO a) -> IO a
-    withTempDir dirName action = do
-      tempDir <- getUserCacheDir <&> (</> fromJust (SP.parseRelDir dirName))
-
-      createDirectoryIfMissing True $ SP.fromAbsDir tempDir
-      result <- action tempDir
-      removeDirRecur (toPathAbsDir tempDir)
-
-      return result
-
-    showException :: SomeException -> Either String ()
-    showException = Left . show
-
-fetchRepoRootFolderContents :: GithubRepo -> IO (Either String RepoFolderContents)
+fetchRepoRootFolderContents :: GithubRepoRef -> IO (Either String RepoFolderContents)
 fetchRepoRootFolderContents githubRepo = fetchRepoFolderContents githubRepo Nothing
 
-fetchRepoFolderContents :: GithubRepo -> Maybe String -> IO (Either String RepoFolderContents)
-fetchRepoFolderContents (org, name) pathToFolderInRepo = do
+fetchRepoFolderContents :: GithubRepoRef -> Maybe String -> IO (Either String RepoFolderContents)
+fetchRepoFolderContents githubRepo pathToFolderInRepo = do
   try (HTTP.httpJSONEither ghRepoInfoRequest) <&> \case
     Right response -> either (Left . show) Right $ HTTP.getResponseBody response
     Left (e :: HTTP.HttpException) -> Left $ show e
@@ -96,7 +76,7 @@ fetchRepoFolderContents (org, name) pathToFolderInRepo = do
     ghRepoInfoRequest =
       -- Github returns 403 if we don't specify user-agent.
       HTTP.addRequestHeader "User-Agent" "wasp-lang/wasp" $ HTTP.parseRequest_ apiURL
-    apiURL = intercalate "/" $ ["https://api.github.com/repos", org, name, "contents"] ++ maybeToList pathToFolderInRepo
+    apiURL = intercalate "/" $ ["https://api.github.com/repos", _repoOwner githubRepo, _repoName githubRepo, "contents"] ++ maybeToList pathToFolderInRepo
 
 type RepoFolderContents = [RepoObject]
 

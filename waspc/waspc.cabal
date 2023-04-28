@@ -250,6 +250,7 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Node.Version
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -308,8 +309,6 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
-    Wasp.Util.Node.Version
-    Wasp.Util.Node.Command
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -375,10 +374,12 @@ library cli-lib
     , bytestring ^>= 0.10.12
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0
+    , temporary ^>=1.3
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
+    Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
@@ -393,8 +394,8 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
-    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Github
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset

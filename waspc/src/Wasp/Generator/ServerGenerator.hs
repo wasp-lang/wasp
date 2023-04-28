@@ -50,6 +50,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
@@ -66,7 +67,6 @@ import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
-import qualified Wasp.Util.Node.Version as NodeVersion
 
 genServer :: AppSpec -> Generator [FileDraft]
 genServer spec =

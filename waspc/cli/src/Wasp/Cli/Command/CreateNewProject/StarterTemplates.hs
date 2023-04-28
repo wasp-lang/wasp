@@ -8,8 +8,7 @@ where
 
 import Data.Either (fromRight)
 import Data.Foldable (find)
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Github (starterTemplateGithubRepo)
-import Wasp.Cli.GithubRepo (fetchRepoRootFolderContents)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github (starterTemplateGithubRepo)
 import qualified Wasp.Cli.GithubRepo as GR
 
 data StarterTemplateName = RemoteTemplate String | LocalTemplate String
@@ -26,7 +25,7 @@ getStarterTemplateNames = do
 
 fetchRemoteStarterTemplateNames :: IO (Either String [StarterTemplateName])
 fetchRemoteStarterTemplateNames = do
-  fmap extractTemplateNames <$> fetchRepoRootFolderContents starterTemplateGithubRepo
+  fmap extractTemplateNames <$> GR.fetchRepoRootFolderContents starterTemplateGithubRepo
   where
     extractTemplateNames :: GR.RepoFolderContents -> [StarterTemplateName]
     -- Each folder in the repo is a template.
@@ -39,4 +38,4 @@ defaultStarterTemplateName :: StarterTemplateName
 defaultStarterTemplateName = LocalTemplate "basic"
 
 findTemplateNameByString :: [StarterTemplateName] -> String -> Maybe StarterTemplateName
-findTemplateNameByString templateNames templateNameString = find (\templateName -> show templateName == templateNameString) templateNames
+findTemplateNameByString templateNames query = find ((== query) . show) templateNames
