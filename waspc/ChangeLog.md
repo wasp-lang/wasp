@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.4
+
+### Bug fixes
+- Adds missing import for HttpError which prevent auth from working properly.
+
 ## v0.10.3
 
 ### Bug fixes
