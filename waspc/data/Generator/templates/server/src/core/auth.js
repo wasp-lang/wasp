@@ -6,6 +6,7 @@ import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
+import HttpError from '../core/HttpError.js'
 import config from '../config.js'
 
 const jwtSign = util.promisify(jwt.sign)
