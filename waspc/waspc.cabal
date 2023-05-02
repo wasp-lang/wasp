@@ -52,6 +52,7 @@ data-files:
   Cli/templates/basic/.gitignore
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
+  Cli/templates/basic/main.wasp
 data-dir: data/
 
 source-repository head
