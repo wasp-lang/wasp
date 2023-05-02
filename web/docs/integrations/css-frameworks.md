@@ -68,7 +68,9 @@ module.exports = {
 ```
 
 #### 4) Start using Tailwind 🥳
-```html title="./src/client/MainPage.js"
+```js title="./src/client/MainPage.js"
+import './Main.css'
+
 <h1 className="text-3xl font-bold underline">
   Hello world!
 </h1>
