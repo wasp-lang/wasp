@@ -1,0 +1,18 @@
+{
+  "name": "headless-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "wasp-example-app:start-all": "concurrently \"npm:wasp-example-app:start-db\" \"npm:wasp-example-app:start\" --kill-others-on-fail",
+    "wasp-example-app:start-db": "cd ../examples/todoApp && cabal run wasp-cli start db",
+    "wasp-example-app:start": "sleep 1 && cd ../examples/todoApp && cabal run wasp-cli db migrate-dev && cabal run wasp-cli start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.33.0",
+    "concurrently": "^8.0.1"
+  }
+}
