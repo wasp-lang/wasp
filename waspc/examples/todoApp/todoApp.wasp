@@ -41,7 +41,8 @@ app todoApp {
     onAuthSucceededRedirectTo: "/profile"
   },
   server: {
-    setupFn: import setup from "@server/serverSetup.js"
+    setupFn: import setup from "@server/serverSetup.js",
+    middlewareConfigFn: import { serverMiddlewareFn } from "@server/serverSetup.js"
   },
   client: {
     rootComponent: import { App } from "@client/App.tsx",
@@ -153,8 +154,15 @@ query getTasks {
 
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@server/apis.js",
   entities: [Task],
-  httpRoute: (GET, "/foo/bar")
+  // ALL here let's our CORS work. If we did GET, we would need an apiNamespace over it with CORS.
+  httpRoute: (ALL, "/foo/bar")
+}
+
+apiNamespace bar {
+  middlewareConfigFn: import { barNamespaceMiddlewareFn } from "@server/apis.js",
+  path: "/bar"
 }
 
 api barBaz {
@@ -162,6 +170,13 @@ api barBaz {
   auth: false,
   entities: [Task],
   httpRoute: (GET, "/bar/baz")
+}
+
+api webhookCallback {
+  fn: import { webhookCallback } from "@server/apis.js",
+  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@server/apis.js",
+  httpRoute: (POST, "/webhook/callback"),
+  auth: false
 }
 
 query getNumTasks {

@@ -9,6 +9,7 @@ where
 
 import Control.Monad.Except (ExceptT, MonadError, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
+import System.Exit (exitFailure)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 
@@ -18,7 +19,9 @@ newtype Command a = Command {_runCommand :: ExceptT CommandError IO a}
 runCommand :: Command a -> IO ()
 runCommand cmd = do
   runExceptT (_runCommand cmd) >>= \case
-    Left cmdError -> cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
+    Left cmdError -> do
+      cliSendMessage $ Msg.Failure (_errorTitle cmdError) (_errorMsg cmdError)
+      exitFailure
     Right _ -> return ()
 
 -- TODO: What if we want to recognize errors in order to handle them?

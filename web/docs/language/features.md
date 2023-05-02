@@ -669,6 +669,7 @@ You can easily do this with the `api` declaration, which supports the following 
 - `entities: [Entity]` (optional) - A list of entities you wish to use inside your API.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-apis).
 - `auth: bool` (optional) - If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you may set this to `false`.
+- `middlewareConfigFn: ServerImport` (optional) - The import statement to an Express middleware config function for this API. See [the guide here](/docs/guides/middleware-customization#2-customize-api-specific-middleware).
 
 Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that uses the implementations from the previous step:
 ```c title="pages/main.wasp"
@@ -729,6 +730,19 @@ export const fooBar : FooBar = (req, res, context) => {
 ```
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+
+### `apiNamespace`
+
+An `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
+
+```c title="main.wasp"
+apiNamespace fooBar {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
+  path: "/foo/bar"
+}
+```
+
+For more information about middleware configuration, please see: [Middleware Configuration](/docs/guides/middleware-customization)
 
 ## Jobs
 
@@ -1867,6 +1881,10 @@ app MyApp {
 ```
 
 `app.server` is a dictionary with following fields:
+
+#### `middlewareConfigFn: ServerImport` (optional)
+
+The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See [the guide here](/docs/guides/middleware-customization#1-customize-global-middleware).
 
 #### `setupFn: ServerImport` (optional)
 

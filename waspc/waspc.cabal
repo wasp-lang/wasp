@@ -185,6 +185,7 @@ library
     Wasp.AppSpec
     Wasp.AppSpec.Action
     Wasp.AppSpec.Api
+    Wasp.AppSpec.ApiNamespace
     Wasp.AppSpec.App
     Wasp.AppSpec.App.Auth
     Wasp.AppSpec.App.Auth.PasswordReset
