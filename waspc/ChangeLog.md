@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.4
+
+### Bug fixes
+- Wrap react routes with `<Switch/>` so that only one route is rendered at a time.
+
 ## v0.10.3
 
 ### Bug fixes
