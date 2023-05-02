@@ -1,6 +1,7 @@
 ---
 title: 'How I Built CoverLetterGPT - SaaS app with the PERN stack, GPT, Stripe, & Chakra UI'
 authors: [vinny]
+image: /img/cover-letter-gpt-yt.png
 tags: [wasp, ai, gpt, fullstack, PERN, stripe, chakra, saas]
 ---
 import Link from '@docusaurus/Link';

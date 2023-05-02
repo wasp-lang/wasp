@@ -61,6 +61,7 @@ module.exports = {
         "typescript",
         "guides/testing",
         "guides/sending-emails",
+        "guides/middleware-customization",
       ],
     },
     {

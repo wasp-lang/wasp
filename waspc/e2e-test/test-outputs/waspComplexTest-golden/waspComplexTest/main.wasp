@@ -1,7 +1,7 @@
 app waspComplexTest {
   db: { system: PostgreSQL },
   wasp: {
-    version: "^0.10.2"
+    version: "^0.10.4"
   },
   auth: {
     userEntity: User,
@@ -77,12 +77,17 @@ query MySpecialQuery {
 
 api fooBar {
   fn: import { fooBar } from "@server/apis.js",
-  httpRoute: (GET, "/foo/bar")
-  // implicit auth:true
+  httpRoute: (GET, "/foo/bar"),
+  middlewareConfigFn: import { fooBarMiddlewareFn } from "@server/apis.js"
 }
 api fooBaz {
   fn: import { fooBaz } from "@server/apis.js",
   httpRoute: (GET, "/foo/baz"),
   auth: false
+}
+
+apiNamespace fooBarNamespace {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apiNamespaces.js",
+  path: "/bar"
 }
 

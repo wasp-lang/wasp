@@ -9,24 +9,24 @@ import styles from '../pages/styles.module.css'
 
 // TODO(matija): this is duplication from HowItWorks section.
 const GhIssueLink = ({ url, label }) => (
-    <Link to={url}>
-      <span className={`
-          cursor-pointer text-xs
-          bg-neutral-600 text-white
-          px-2.5 py-1 rounded-full
-        `}
-      >
-        <div className='group inline-flex gap-1 items-center'>
-          <span>{label}</span>
-          <div className='transition-all group-hover:ml-0.5'>
-            <span className='text-yellow-400'>
-              <ArrowRight size={14} strokeWidth={2} />
-            </span>
-          </div>
+  <Link to={url}>
+    <span className={`
+        cursor-pointer text-xs
+        bg-neutral-600 text-white
+        px-2.5 py-1 rounded-full
+      `}
+    >
+      <div className='group inline-flex gap-1 items-center'>
+        <span>{label}</span>
+        <div className='transition-all group-hover:ml-0.5'>
+          <span className='text-yellow-400'>
+            <ArrowRight size={14} strokeWidth={2} />
+          </span>
         </div>
+      </div>
 
-      </span>
-    </Link>
+    </span>
+  </Link>
 )
 
 const Section = ({ features }) => (

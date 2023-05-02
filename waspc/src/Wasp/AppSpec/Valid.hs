@@ -10,12 +10,14 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.List (find)
+import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Api as AS.Api
+import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import Wasp.AppSpec.App (App)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
@@ -50,7 +52,9 @@ validateAppSpec spec =
           validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
-          validateDbIsPostgresIfPgBossUsed spec
+          validateDbIsPostgresIfPgBossUsed spec,
+          validateApiRoutesAreUnique spec,
+          validateApiNamespacePathsAreUnique spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -216,6 +220,35 @@ validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeN
           [ GenericValidationError $
               "Expected an Entity referenced by " ++ entityName ++ " to have field '" ++ fieldName ++ "' of type '" ++ fieldTypeName ++ "'."
           ]
+
+validateApiRoutesAreUnique :: AppSpec -> [ValidationError]
+validateApiRoutesAreUnique spec =
+  if null groupsOfConflictingRoutes
+    then []
+    else [GenericValidationError $ "`api` routes must be unique. Duplicates: " ++ intercalate ", " (show <$> groupsOfConflictingRoutes)]
+  where
+    apiRoutes = AS.Api.httpRoute . snd <$> AS.getApis spec
+    groupsOfConflictingRoutes = filter ((> 1) . length) (groupBy routesHaveConflictingDefinitions $ sortBy routeComparator apiRoutes)
+
+    routeComparator :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Ordering
+    routeComparator l r | routesHaveConflictingDefinitions l r = EQ
+    routeComparator l r = compare l r
+
+    -- Two routes have conflicting definitions if they define the same thing twice,
+    -- so we don't know which definition to use. This can happen if they are exactly
+    -- the same (path and method) or if they have the same paths and one has ALL for a method.
+    routesHaveConflictingDefinitions :: (AS.Api.HttpMethod, String) -> (AS.Api.HttpMethod, String) -> Bool
+    routesHaveConflictingDefinitions (lMethod, lPath) (rMethod, rPath) =
+      lPath == rPath && (lMethod == rMethod || AS.Api.ALL `elem` [lMethod, rMethod])
+
+validateApiNamespacePathsAreUnique :: AppSpec -> [ValidationError]
+validateApiNamespacePathsAreUnique spec =
+  if null duplicatePaths
+    then []
+    else [GenericValidationError $ "`apiNamespace` paths must be unique. Duplicates: " ++ intercalate ", " duplicatePaths]
+  where
+    namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
+    duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

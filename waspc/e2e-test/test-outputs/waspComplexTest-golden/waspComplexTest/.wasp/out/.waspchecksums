@@ -123,7 +123,7 @@
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "server/src/auth/utils.ts"
         ],
-        "cc5c7e899b9e4389999748f19177f8a392098279f19d99875d09986334d173c8"
+        "4b57bc76321dbc5708ae28aeffb6e6402e06517221e2044cf3712b16e124a4ff"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "0ea7ff5b8576c4bd455328a56d60a038c1107eaa2e20cba28437cdfc630ce571"
+        "89d2e6b1693deb9cc243efd0bf680513d0860475a2655ef487c684eb2574a92f"
     ],
     [
         [
@@ -296,9 +296,16 @@
     [
         [
             "file",
+            "server/src/ext-src/apiNamespaces.ts"
+        ],
+        "33ea32722151840f2591036f3f548a7af96d5218aea6468ac94fd3c0fe05cb78"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/apis.ts"
         ],
-        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
+        "3d00118d2b80472e7efb24c89d309471ad5e0e9c6212f5dda908eebe8436d99d"
     ],
     [
         [
@@ -373,6 +380,20 @@
     [
         [
             "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "87edaddb661fc516406b20e6b7fd60ce178f64e6a94bc7c1d02a85330fff822a"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -389,7 +410,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "601591c5b0846be03c31ad70185ba6e6592732656843daf91c5ecc9e1b053fe3"
+        "879cafb5d1a8d2dd58acff9254c44b8449060d68183c49d95f1a141806fc969e"
     ],
     [
         [
@@ -403,14 +424,14 @@
             "file",
             "server/src/routes/auth/me.js"
         ],
-        "9a9cb533bb94af63caf448f73a0d0fef8902c8f8d1af411bed2570a32da2fab9"
+        "705f77d8970a8367981c9a89601c6d5b12e998c23970ae1735b376dd0826ef10"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
+        "57c6074cfb790ea019efbab199e860e70248a3e758419312939ba63c7a84a42c"
     ],
     [
         [

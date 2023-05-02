@@ -228,13 +228,13 @@ After completing these two steps, you'll be able to use the Query from any point
 
 
 #### Defining the Query's NodeJS implementation
-A Query must be implemented as an `async` NodeJS function that takes two arguments.
+The Query's implementation is a NodeJS function that takes two arguments (it can be an `async` function but doesn't have to).
 Since both arguments are positional, you can name the parameters however you want, but we'll stick with `args` and `context`:
 1. `args`:  An object containing all the arguments (i.e., payload) **passed to the Query by the caller** (e.g., filtering conditions).
 Take a look at [the examples of usage](#using-the-query) to see how to pass this object to the Query.
 3. `context`: An additional context object **injected into the Query by Wasp**. This object contains user session information, as well as information about entities. The examples here won't use the context for simplicity purposes. You can read more about it in the [section about using entities in queries](#using-entities-in-queries).
 
-Here's an example of two simple Queries:
+Here's an example of three simple Queries:
 ```js title="src/server/queries.js"
 // our "database"
 const tasks = [
@@ -243,16 +243,21 @@ const tasks = [
   { id: 3, description: "Eat breakfast", isDone: false }
 ]
 
-
 // You don't need to use the arguments if you don't need them
-export const getAllTasks = async () => {
+export const getAllTasks = () => {
   return tasks;
 }
 
 // The 'args' object is something sent by the caller (most often from the client)
-export const getFilteredTasks = async (args) => {
+export const getFilteredTasks = (args) => {
   const { isDone } = args;
   return tasks.filter(task => task.isDone === isDone)
+}
+
+// Query implementations can be async functions and use await.
+export const getTasksWithDelay = async () => {
+  const result = await sleep(1000)
+  return tasks
 }
 ```
 
@@ -452,10 +457,10 @@ Here's an example on how you might define a less contrived Action.
 ```js title=src/server/actions.js
 // ...
 export const updateTaskIsDone = ({ id, isDone }, context) => {
-    return context.entities.Task.update({
-        where: { id },
-        data: { isDone }
-    })
+  return context.entities.Task.update({
+    where: { id },
+    data: { isDone }
+  })
 }
 ```
 ```c title=main.wasp
@@ -664,6 +669,7 @@ You can easily do this with the `api` declaration, which supports the following 
 - `entities: [Entity]` (optional) - A list of entities you wish to use inside your API.
 We'll leave this option aside for now. You can read more about it [here](#using-entities-in-apis).
 - `auth: bool` (optional) - If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you may set this to `false`.
+- `middlewareConfigFn: ServerImport` (optional) - The import statement to an Express middleware config function for this API. See [the guide here](/docs/guides/middleware-customization#2-customize-api-specific-middleware).
 
 Wasp APIs and their implementations don't need to (but can) have the same name. With that in mind, this is how you might declare the API that uses the implementations from the previous step:
 ```c title="pages/main.wasp"
@@ -724,6 +730,19 @@ export const fooBar : FooBar = (req, res, context) => {
 ```
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
+
+### `apiNamespace`
+
+An `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
+
+```c title="main.wasp"
+apiNamespace fooBar {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
+  path: "/foo/bar"
+}
+```
+
+For more information about middleware configuration, please see: [Middleware Configuration](/docs/guides/middleware-customization)
 
 ## Jobs
 
@@ -1862,6 +1881,10 @@ app MyApp {
 ```
 
 `app.server` is a dictionary with following fields:
+
+#### `middlewareConfigFn: ServerImport` (optional)
+
+The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See [the guide here](/docs/guides/middleware-customization#1-customize-global-middleware).
 
 #### `setupFn: ServerImport` (optional)
 

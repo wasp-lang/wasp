@@ -5,8 +5,8 @@ import { randomInt } from 'node:crypto'
 
 import prisma from '../dbClient.js'
 import { handleRejection } from '../utils.js'
+import HttpError from '../core/HttpError.js'
 import config from '../config.js'
-import { throwInvalidCredentialsError } from '../auth/utils.js'
 
 const jwtSign = util.promisify(jwt.sign)
 const jwtVerify = util.promisify(jwt.verify)
@@ -118,6 +118,10 @@ async function findAvailableUsername(potentialUsernames) {
   }
 
   return availableUsernames[0]
+}
+
+export function throwInvalidCredentialsError(message) {
+  throw new HttpError(401, 'Invalid credentials', { message })
 }
 
 export default auth

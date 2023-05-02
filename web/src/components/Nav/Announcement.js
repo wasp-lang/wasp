@@ -14,7 +14,8 @@ const Announcement = () => {
 
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
     //window.open('https://twitter.com/WaspLang/status/1647979490180575234')
-    window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
+    //window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
+    window.open('https://hackathon.wasp-lang.dev')
   }
 
   return (
@@ -36,7 +37,7 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>Wasp is live on Product Hunt! 🚀</span>
+          <span>🏆 Wasp Hackathon 2.0 kick-off: April 28th! 🏆</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
@@ -46,7 +47,7 @@ const Announcement = () => {
               hover:bg-neutral-600
             `}
           >
-            Try now: Free GPT SaaS template 🐝 🤖 
+            Register now 📝
           </span>
         </span>
 

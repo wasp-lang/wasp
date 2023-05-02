@@ -157,6 +157,7 @@ module.exports = {
           // Please change this to your repo.
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
+          postsPerPage: 'ALL',
           editUrl: "https://github.com/wasp-lang/wasp/edit/main/web/blog",
         },
         theme: {

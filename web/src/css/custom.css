@@ -25,6 +25,10 @@
 
 /* Docusaurus stuff */
 
+.blog-list-page {
+  background-color: var(--custom-blog-list-background-color);
+}
+
 /* You can override the default Infima variables here. */
 :root {
   /* Our custom values */
@@ -36,6 +40,15 @@
   --custom-discord-color: #8a9cff;
   --custom-wasp-color: #ffcc00;
   --ifm-h3-font-size: 1.3rem;
+
+  /* Blog */
+  /**
+   * TODO(matija): this is a separate value from the background color on the landing page (in custom.css)
+   * Shall we unify that?
+   **/
+  --custom-blog-list-background-color: #f5f5f5;
+  --custom-blog-card-timestamp-color: #737373;
+  --custom-blog-card-background-color: white;
 
   /* Infima overrides */
   --ifm-container-width-xl: 1280px;
@@ -67,5 +80,10 @@
 
 :root[data-theme='dark'] {
   --custom-background-color-diff: #2A2A2A;
+
+  /* Blog */
+  --custom-blog-list-background-color: var(--ifm-background-color);
+  --custom-blog-card-timestamp-color: #a3a3a3;
+  --custom-blog-card-background-color: black;
 }
 
