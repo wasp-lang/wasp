@@ -219,8 +219,8 @@ Everything described above applies to Actions as well.
 
 If don't want to define a new type for the Query's return value, the new `satisfies` keyword will allow TypeScript to infer it automatically:
 ```typescript
-const getFoo = ((_args, context) => {
-  const foos = context.entities.Foo.findMany()
+const getFoo = (async (_args, context) => {
+  const foos = await context.entities.Foo.findMany()
   return {
     foos,
     message: "Here are some foos!",
