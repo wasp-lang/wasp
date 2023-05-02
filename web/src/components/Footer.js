@@ -119,7 +119,7 @@ const Footer = () => {
             </p>
 
             <SubscribeForm
-              className='mt-4 sm:flex sm:max-w-md'
+              className='mt-4 sm:max-w-md'
               inputBgColor='bg-transparent'
             />
 
