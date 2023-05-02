@@ -105,7 +105,7 @@ printUsage =
               "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd   "    new <name> [args]     Creates a new Wasp project.",
+        cmd   "    new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.",
               "      OPTIONS:",
               "        -t|--template <template-name>",
               "           Check out the templates list here: https://github.com/wasp-lang/starters",
