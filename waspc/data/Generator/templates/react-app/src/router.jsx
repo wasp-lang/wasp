@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { Route, BrowserRouter as Router } from 'react-router-dom'
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -25,18 +25,20 @@ const router = (
     {=^ rootComponent.isDefined =}
     <>
     {=/ rootComponent.isDefined =}
-      {=# routes =}
-      <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
-      {=/ routes =}
-      {=# isExternalAuthEnabled =}
-      {=# externalAuthProviders =}
-      {=# authProviderEnabled =}
-      <Route exact path="{= authFrontendUrl =}">
-        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
-      </Route>
-      {=/ authProviderEnabled =}
-      {=/ externalAuthProviders =}
-      {=/ isExternalAuthEnabled =}
+      <Switch>
+        {=# routes =}
+        <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
+        {=/ routes =}
+        {=# isExternalAuthEnabled =}
+        {=# externalAuthProviders =}
+        {=# authProviderEnabled =}
+        <Route exact path="{= authFrontendUrl =}">
+          <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
+        </Route>
+        {=/ authProviderEnabled =}
+        {=/ externalAuthProviders =}
+        {=/ isExternalAuthEnabled =}
+      </Switch>
     {=# rootComponent.isDefined =}
     </{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
