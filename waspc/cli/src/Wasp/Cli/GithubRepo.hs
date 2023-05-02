@@ -33,14 +33,14 @@ type GithubRepoReferenceName = String
 
 fetchFolderFromGithubRepoToDisk ::
   GithubRepoRef ->
-  String ->
-  Path' Abs (Dir d) ->
+  Path' (Rel repoRoot) (Dir folderInRepo) ->
+  Path' Abs (Dir destinationDir) ->
   IO (Either String ())
-fetchFolderFromGithubRepoToDisk githubRepoRef targetRepoFolderName destinationOnDisk = do
+fetchFolderFromGithubRepoToDisk githubRepoRef folderInRepoRoot destinationOnDisk = do
   let downloadUrl = getGithubRepoArchiveDownloadURL githubRepoRef
-      targetRepoFolderPathInArchive = mapFolderInRepoToFolderPathInGithubArchive githubRepoRef $ fromJust . SP.parseRelDir $ targetRepoFolderName
+      folderInArchiveRoot = mapFolderPathInRepoToFolderPathInGithubArchive githubRepoRef folderInRepoRoot
 
-  fetchArchiveAndCopySubdirToDisk downloadUrl targetRepoFolderPathInArchive destinationOnDisk
+  fetchArchiveAndCopySubdirToDisk downloadUrl folderInArchiveRoot destinationOnDisk
   where
     getGithubRepoArchiveDownloadURL :: GithubRepoRef -> String
     getGithubRepoArchiveDownloadURL
@@ -52,17 +52,22 @@ fetchFolderFromGithubRepoToDisk githubRepoRef targetRepoFolderName destinationOn
         where
           downloadArchiveName = repoReferenceName ++ ".tar.gz"
 
-    mapFolderInRepoToFolderPathInGithubArchive ::
-      forall r archiveInnerDir targetDir.
+    mapFolderPathInRepoToFolderPathInGithubArchive ::
+      forall archiveInnerDir targetDir archiveRoot.
       GithubRepoRef ->
       Path' (Rel archiveInnerDir) (Dir targetDir) ->
-      Path' (Rel r) (Dir targetDir)
-    mapFolderInRepoToFolderPathInGithubArchive githubRepo targetFolderPath = githubRepoArchiveRootFolderName </> targetFolderPath
-      where
-        -- Github repo tars have a root folder that is named after the repo
-        -- name and the reference (branch or tag).
-        githubRepoArchiveRootFolderName :: Path' (Rel r) (Dir archiveInnerDir)
-        githubRepoArchiveRootFolderName = fromJust . SP.parseRelDir $ _repoName githubRepo ++ "-" ++ _repoReferenceName githubRepo
+      Path' (Rel archiveRoot) (Dir targetDir)
+    mapFolderPathInRepoToFolderPathInGithubArchive
+      GithubRepoRef
+        { _repoName = repoName,
+          _repoReferenceName = repoReferenceName
+        }
+      targetFolderPath = githubRepoArchiveRootFolderName </> targetFolderPath
+        where
+          -- Github repo tars have a root folder that is named after the repo
+          -- name and the reference (branch or tag).
+          githubRepoArchiveRootFolderName :: Path' (Rel archiveRoot) (Dir archiveInnerDir)
+          githubRepoArchiveRootFolderName = fromJust . SP.parseRelDir $ repoName ++ "-" ++ repoReferenceName
 
 fetchRepoRootFolderContents :: GithubRepoRef -> IO (Either String RepoFolderContents)
 fetchRepoRootFolderContents githubRepo = fetchRepoFolderContents githubRepo Nothing

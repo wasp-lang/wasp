@@ -20,7 +20,11 @@ import Wasp.Cli.Command.CreateNewProject.Common
   ( throwInvalidTemplateNameUsedError,
     throwProjectCreationError,
   )
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplateName, defaultStarterTemplateName, findTemplateNameByString)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates
+  ( StarterTemplateName,
+    defaultStarterTemplateName,
+    findTemplateNameByString,
+  )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project (WaspProjectDir)

@@ -22,7 +22,8 @@ fetchArchiveAndCopySubdirToDisk ::
 fetchArchiveAndCopySubdirToDisk archiveDownloadUrl targetFolder destinationOnDisk = do
   try
     ( withTempDir $ \tempDir -> do
-        let archiveDownloadPath = tempDir </> (fromJust . SP.parseRelFile $ archiveName)
+        let archiveName = takeFileName archiveDownloadUrl
+            archiveDownloadPath = tempDir </> (fromJust . SP.parseRelFile $ archiveName)
             archiveUnpackPath = tempDir
             targetFolderInArchivePath = archiveUnpackPath </> targetFolder
 
@@ -40,9 +41,6 @@ fetchArchiveAndCopySubdirToDisk archiveDownloadUrl targetFolder destinationOnDis
     unpackArchive sourceFile destinationDir =
       Tar.unpack (SP.fromAbsDir destinationDir) . Tar.read . GZip.decompress
         =<< BL.readFile (SP.fromAbsFile sourceFile)
-
-    archiveName :: String
-    archiveName = takeFileName archiveDownloadUrl
 
     showException :: SomeException -> Either String ()
     showException = Left . show

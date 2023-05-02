@@ -13,7 +13,7 @@ where
 
 import Control.Monad.Catch (MonadThrow)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Dir', File', Path', Rel, parseAbsDir, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.Directory as SD
 import qualified System.FilePath as FP
@@ -49,4 +49,4 @@ waspExecutableInHomeDir = [relfile|.local/bin/wasp|]
 getAbsPathToDirInCwd :: MonadThrow m => String -> IO (m (Path' Abs (Dir d)))
 getAbsPathToDirInCwd dirName = do
   absCwd <- SD.getCurrentDirectory
-  return $ parseAbsDir $ absCwd FP.</> dirName
+  return $ SP.parseAbsDir $ absCwd FP.</> dirName
