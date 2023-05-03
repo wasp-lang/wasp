@@ -20,6 +20,4 @@ deploy cmdArgs = do
     -- our purposes.
     waspExePath <- getExecutablePath
     Wasp.Project.Deployment.deploy waspExePath waspProjectDir cmdArgs
-  case deployResult of
-    Left err -> throwError $ CommandError "Deploy command failed" err
-    Right () -> return ()
+  either (throwError . CommandError "Deploy command failed") return deployResult
