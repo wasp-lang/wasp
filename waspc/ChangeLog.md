@@ -2,6 +2,9 @@
 
 ## v0.10.5
 
+### Bug fixes
+- Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
+
 ### Express middleware customization
 We now offer the ability to customize Express middleware:
 - globally (impacting all actions, queries, and apis by default)
