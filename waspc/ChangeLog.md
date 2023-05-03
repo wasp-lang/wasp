@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.10.3
+## v0.10.5
 
 ### Bug fixes
 - Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
