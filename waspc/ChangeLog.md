@@ -8,6 +8,10 @@ We now offer the ability to customize Express middleware:
 - on a per-api basis
 - on a per-path basis (groups of apis)
 
+
+### Interactive new project creation
+We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
+
 ## v0.10.4
 
 ### Bug fixes
