@@ -60,7 +60,9 @@ throwIfCustomDbAlreadyInUse spec = do
       dbUrl <- liftIO $ lookupEnv databaseUrlEnvVarName
       when (isJust dbUrl) $
         throwCustomDbAlreadyInUseError
-          ( "Wasp has detected existing " <> databaseUrlEnvVarName <> " var in your environment.\n"
+          ( "Wasp has detected existing "
+              <> databaseUrlEnvVarName
+              <> " var in your environment.\n"
               <> "To have Wasp run the dev database for you, make sure you remove that env var first."
           )
 
