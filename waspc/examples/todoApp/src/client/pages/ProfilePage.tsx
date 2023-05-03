@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { User } from '@wasp/entities'
+import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
 
 async function fetchCustomRoute() {

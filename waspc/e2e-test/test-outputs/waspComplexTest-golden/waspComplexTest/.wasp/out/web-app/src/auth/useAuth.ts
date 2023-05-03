@@ -2,9 +2,9 @@ import { deserialize as superjsonDeserialize } from 'superjson'
 import { useQuery } from '../queries'
 import api, { handleApiError } from '../api'
 import { HttpMethod } from '../types'
-// todo(filip): turn into a proper import
-import { type SanitizedUser as User } from '../../../server/src/_types/' 
+import type { User } from './types' 
 import { addMetadataToQuery } from '../queries/core'
+
 
 export const getMe = createUserGetter()
 

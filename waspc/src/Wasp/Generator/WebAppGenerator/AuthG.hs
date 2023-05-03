@@ -26,24 +26,22 @@ import Wasp.Util ((<++>))
 genAuth :: AppSpec -> Generator [FileDraft]
 genAuth spec =
   case maybeAuth of
+    Nothing -> return []
     Just auth ->
       sequence
-        [ genLogout,
+        [ copyTmplFile [relfile|auth/logout.js|],
+          copyTmplFile [relfile|auth/helpers/user.ts|],
+          copyTmplFile [relfile|auth/types.ts|],
           genUseAuth auth,
-          genCreateAuthRequiredPage auth,
-          genUserHelpers
+          genCreateAuthRequiredPage auth
         ]
         <++> genAuthForms auth
         <++> genLocalAuth auth
         <++> genOAuthAuth auth
         <++> genEmailAuth auth
-    Nothing -> return []
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
--- | Generates file with logout function to be used by Wasp developer.
-genLogout :: Generator FileDraft
-genLogout = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/logout.js|])
+    copyTmplFile = return . C.mkSrcTmplFd
 
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
@@ -109,6 +107,3 @@ compileTmplToSamePath tmplFileInTmplSrcDir keyValuePairs =
     C.mkTmplFdWithData
       (asTmplFile $ [reldir|src|] </> tmplFileInTmplSrcDir)
       (object keyValuePairs)
-
-genUserHelpers :: Generator FileDraft
-genUserHelpers = return $ C.mkTmplFd (C.asTmplFile [relfile|src/auth/helpers/user.ts|])
