@@ -133,6 +133,10 @@ jobs:
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_todoapp_builds.sh
 
+      - name: Run headless tests
+        if: matrix.os == 'ubuntu-20.04'
+        run: ./tools/run_headless_tests.sh
+
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
