@@ -8,5 +8,8 @@ dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 cd "$dir/../headless-test"
 npm install
 
+# Installing PLaywright browsers
+npx -y playwright install
+
 # Runs the tests with the debug flag so that we can see Wasp output
 DEBUG=pw:webserver npx -y playwright test
