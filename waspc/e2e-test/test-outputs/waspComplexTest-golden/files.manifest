@@ -102,6 +102,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/helpers/user.ts
 waspComplexTest/.wasp/out/web-app/src/auth/logout.js
 waspComplexTest/.wasp/out/web-app/src/auth/pages/OAuthCodeExchange.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
+waspComplexTest/.wasp/out/web-app/src/auth/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
