@@ -71,51 +71,51 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: sudo chown -R $USER /usr/local/.ghcup
 
-      # - name: Set up Haskell
-      #   id: setup-haskell-cabal
-      #   uses: haskell/actions/setup@v2
-      #   with:
-      #     ghc-version: ${{ matrix.ghc }}
-      #     cabal-version: ${{ matrix.cabal }}
+      - name: Set up Haskell
+        id: setup-haskell-cabal
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: ${{ matrix.cabal }}
 
-      # - name: Verify Haskell setup
-      #   run: |
-      #     ghc --version
-      #     cabal --version
+      - name: Verify Haskell setup
+        run: |
+          ghc --version
+          cabal --version
 
-      # - name: Cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-      #     # TODO: Right now, actions/cache updates cache only if cache was not fe
-      #     #   This is not ideal for us, because we would ideally update cache even if it
-      #     #   was fetched, because we want to cache any newly installed packages.
-      #     #   This was working normally on Travis and Appveyor.
-      #     #   There is an issue for this, and for now we are using proposed "fix" from it,
-      #     #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
-      #     #   which mitigates the problem by creating new cache for each job and then using
-      #     #   the feature of restore-keys which makes sure that next cache picked is the
-      #     #   latest one. However, this keeps creating new cache each time which is not
-      #     #   ideal because caches keep getting evicted, so for example if Win job
-      #     #   fails multiple times while others don't, its cache will likely get evicted,
-      #     #   making it even slower to test and fix (uffff).
-      #     #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-      #     key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-      #     restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+          # TODO: Right now, actions/cache updates cache only if cache was not fe
+          #   This is not ideal for us, because we would ideally update cache even if it
+          #   was fetched, because we want to cache any newly installed packages.
+          #   This was working normally on Travis and Appveyor.
+          #   There is an issue for this, and for now we are using proposed "fix" from it,
+          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
+          #   which mitigates the problem by creating new cache for each job and then using
+          #   the feature of restore-keys which makes sure that next cache picked is the
+          #   latest one. However, this keeps creating new cache each time which is not
+          #   ideal because caches keep getting evicted, so for example if Win job
+          #   fails multiple times while others don't, its cache will likely get evicted,
+          #   making it even slower to test and fix (uffff).
+          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
+          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
-      # - name: Check Haskell code formatting
-      #   if: matrix.os == 'ubuntu-20.04'
-      #   run: ./run ormolu:check
+      - name: Check Haskell code formatting
+        if: matrix.os == 'ubuntu-20.04'
+        run: ./run ormolu:check
 
       - name: Compile deploy TS package and move it into the Cabal data dir
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/install_deploy_package_to_data_dir.sh
 
-      # - name: Build external dependencies
-      #   run: cabal build --enable-tests --enable-benchmarks --only-dependencies
+      - name: Build external dependencies
+        run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 
-      # - name: Build wasp code
-      #   run: cabal build all
+      - name: Build wasp code
+        run: cabal build all
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -126,25 +126,27 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
-      # TODO: temporary while fixing
-      # - name: Run tests
-      #   run: cabal test
+      - name: Run tests
+        run: cabal test
 
-      # - name: Ensure todoApp builds
-      #   if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-      #   run: ./tools/ensure_todoapp_builds.sh
+      - name: Ensure todoApp builds
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_todoapp_builds.sh
+
+      - name: Cache Node Modules (headless)
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('./headless-test/package-lock.json') }}
+
+      - name: Install Dependencies (headless)
+        run: |
+          cd headless-test
+          npm ci
 
       - name: Store Playwright's Version (headless)
         run: |
-          echo "Trying to do this"
-          ls -lah
           cd headless-test
-          npm ci
-          echo "Inside"
-          pwd
-          npm ls @playwright/test
-          npm ls @playwright/test | grep @playwright
-          npm ls @playwright/test | grep @playwright | sed 's/.*@//'
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
@@ -164,6 +166,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
+          npm ci
           # Runs the tests with the debug flag so that we can see Wasp output
           DEBUG=pw:webserver npx playwright test
 
