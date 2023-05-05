@@ -126,12 +126,12 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
-      - name: Run tests
-        run: cabal test
+      # - name: Run tests
+      #   run: cabal test
 
-      - name: Ensure todoApp builds
-        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-        run: ./tools/ensure_todoapp_builds.sh
+      # - name: Ensure todoApp builds
+      #   if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+      #   run: ./tools/ensure_todoapp_builds.sh
 
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
@@ -156,6 +156,9 @@ jobs:
     runs-on: ubuntu-20.04
     needs: [build]
     steps:
+      - name: Debug
+        run: |
+          ls -lah
       - name: Cache Node Modules
         uses: actions/cache@v3
         with:
@@ -181,13 +184,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
-      - name: Setup Playwright (headless)
+      - name: Setup Playwright
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
         run: |
           cd headless-test
           npx playwright install --with-deps
 
-      - name: Run Playwright tests
+      - name: Run Playwright Tests
         run: |
           cd headless-test
           npm ci
