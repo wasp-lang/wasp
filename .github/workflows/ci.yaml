@@ -83,25 +83,25 @@ jobs:
       #     ghc --version
       #     cabal --version
 
-      - name: Cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
-          # TODO: Right now, actions/cache updates cache only if cache was not fe
-          #   This is not ideal for us, because we would ideally update cache even if it
-          #   was fetched, because we want to cache any newly installed packages.
-          #   This was working normally on Travis and Appveyor.
-          #   There is an issue for this, and for now we are using proposed "fix" from it,
-          #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
-          #   which mitigates the problem by creating new cache for each job and then using
-          #   the feature of restore-keys which makes sure that next cache picked is the
-          #   latest one. However, this keeps creating new cache each time which is not
-          #   ideal because caches keep getting evicted, so for example if Win job
-          #   fails multiple times while others don't, its cache will likely get evicted,
-          #   making it even slower to test and fix (uffff).
-          #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
-          key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
-          restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
+      # - name: Cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}
+      #     # TODO: Right now, actions/cache updates cache only if cache was not fe
+      #     #   This is not ideal for us, because we would ideally update cache even if it
+      #     #   was fetched, because we want to cache any newly installed packages.
+      #     #   This was working normally on Travis and Appveyor.
+      #     #   There is an issue for this, and for now we are using proposed "fix" from it,
+      #     #   https://github.com/actions/cache/issues/342#issuecomment-673371329,
+      #     #   which mitigates the problem by creating new cache for each job and then using
+      #     #   the feature of restore-keys which makes sure that next cache picked is the
+      #     #   latest one. However, this keeps creating new cache each time which is not
+      #     #   ideal because caches keep getting evicted, so for example if Win job
+      #     #   fails multiple times while others don't, its cache will likely get evicted,
+      #     #   making it even slower to test and fix (uffff).
+      #     #   When they fix this, we should remove ${{ github.run_id }} from the end of the key.
+      #     key: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-${{ hashFiles('waspc/waspc.cabal') }}-${{ hashFiles('waspc/cabal.project') }}-${{ github.run_id }}
+      #     restore-keys: wasp-build-${{ matrix.os }}-${{ matrix.ghc }}-
 
       # - name: Check Haskell code formatting
       #   if: matrix.os == 'ubuntu-20.04'
