@@ -133,43 +133,6 @@ jobs:
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_todoapp_builds.sh
 
-      - name: Cache Node Modules (headless)
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: node-modules-${{ hashFiles('./headless-test/package-lock.json') }}
-
-      - name: Install Dependencies (headless)
-        run: |
-          cd headless-test
-          npm ci
-
-      - name: Store Playwright's Version (headless)
-        run: |
-          cd headless-test
-          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
-          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
-          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
-
-      - name: Cache Playwright Browsers for Playwright's Version (headless)
-        id: cache-playwright-browsers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
-
-      - name: Setup Playwright (headless)
-        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests (headless)
-        if: matrix.os == 'ubuntu-20.04'
-        run: |
-          cd headless-test
-          npm ci
-          # Runs the tests with the debug flag so that we can see Wasp output
-          DEBUG=pw:webserver npx playwright test
-
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |
@@ -187,3 +150,46 @@ jobs:
           artifactErrorsFailBuild: true
           replacesArtifacts: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  headless-tests:
+    name: Run headless tests
+    runs-on: ubuntu-20.04
+    needs: [build]
+    steps:
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('./headless-test/package-lock.json') }}
+
+      - name: Install Dependencies
+        run: |
+          cd headless-test
+          npm ci
+
+      - name: Store Playwright's Version
+        run: |
+          cd headless-test
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: Cache Playwright Browsers for Playwright's Version
+        id: cache-playwright-browsers
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Setup Playwright (headless)
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        run: |
+          cd headless-test
+          npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: |
+          cd headless-test
+          npm ci
+          # Runs the tests with the debug flag so that we can see Wasp output
+          DEBUG=pw:webserver npx playwright test
