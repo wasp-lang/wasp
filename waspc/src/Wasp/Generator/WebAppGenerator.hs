@@ -39,6 +39,7 @@ import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
@@ -72,6 +73,7 @@ genWebApp spec = do
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 

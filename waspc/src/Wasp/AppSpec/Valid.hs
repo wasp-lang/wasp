@@ -25,6 +25,7 @@ import qualified Wasp.AppSpec.App.Auth as Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
+import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
@@ -54,7 +55,8 @@ validateAppSpec spec =
           validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec,
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
-          validateApiNamespacePathsAreUnique spec
+          validateApiNamespacePathsAreUnique spec,
+          validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -74,7 +76,8 @@ validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
   unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left $ incompatibleVersionError WV.waspVersion specWaspVersionRange
+    Left $
+      incompatibleVersionError WV.waspVersion specWaspVersionRange
   where
     -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
 
@@ -249,6 +252,18 @@ validateApiNamespacePathsAreUnique spec =
   where
     namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
     duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
+
+validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed :: AppSpec -> [ValidationError]
+validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed spec = concatMap validateOnlyOrExceptIsUsed cruds
+  where
+    cruds = AS.getCruds spec
+    validateOnlyOrExceptIsUsed :: (String, AS.Crud.Crud) -> [ValidationError]
+    validateOnlyOrExceptIsUsed (crudName, crud) = if isValid then [] else [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
+      where
+        --
+        isValid = null only || null except
+        only = AS.Crud.only crud
+        except = AS.Crud.except crud
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

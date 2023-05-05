@@ -19,6 +19,7 @@ module Wasp.AppSpec
     asAbsWaspProjectDirFile,
     getApp,
     getApiNamespaces,
+    getCruds,
   )
 where
 
@@ -33,6 +34,7 @@ import Wasp.AppSpec.App (App)
 import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, IsDecl, takeDecls)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
+import Wasp.AppSpec.Crud (Crud)
 import Wasp.AppSpec.Entity (Entity)
 import qualified Wasp.AppSpec.ExternalCode as ExternalCode
 import Wasp.AppSpec.Job (Job)
@@ -96,6 +98,9 @@ getApis = getDecls
 getApiNamespaces :: AppSpec -> [(String, ApiNamespace)]
 getApiNamespaces = getDecls
 
+getCruds :: AppSpec -> [(String, Crud)]
+getCruds = getDecls
+
 getEntities :: AppSpec -> [(String, Entity)]
 getEntities = getDecls
 
@@ -117,10 +122,13 @@ resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =
   fromMaybe
     ( error $
-        "Failed to resolve declaration reference: " ++ refName ref ++ "."
+        "Failed to resolve declaration reference: "
+          ++ refName ref
+          ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst) $ getDecls spec
+    $ find ((== refName ref) . fst)
+    $ getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

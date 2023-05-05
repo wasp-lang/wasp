@@ -240,3 +240,8 @@ job mySpecialScheduledJob {
     }
   }
 }
+
+crud tasksCrud {
+  entity: Task,
+  except: [Delete]
+}
