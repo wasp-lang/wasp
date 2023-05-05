@@ -139,6 +139,10 @@ jobs:
           echo "Trying to do this"
           ls -lah
           cd headless-test
+          echo "Inside"
+          pwd
+          npm ls @playwright/test
+          npm ls @playwright/test | grep @playwright
           npm ls @playwright/test | grep @playwright | sed 's/.*@//'
           PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
