@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
