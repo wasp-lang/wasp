@@ -158,7 +158,7 @@
             "file",
             "server/src/auth/providers/oauth/init.ts"
         ],
-        "7db2dc4736dadede12c9f85a88d31b992fe26ad06d57dde34784a2db54356ee4"
+        "ff022c6f9132db9c3833afd12018fecfcdd3243cbf9e5d1b69367864301fe085"
     ],
     [
         [
@@ -709,9 +709,16 @@
     [
         [
             "file",
+            "web-app/src/auth/types.ts"
+        ],
+        "b6572845796b4217c142b855fc72652d5dfd67fd317b0ed5487fa70ba3d92219"
+    ],
+    [
+        [
+            "file",
             "web-app/src/auth/useAuth.ts"
         ],
-        "8d4051f75e47c6bfa1d44ef2ecf252e38988795c1a8b795cdf5ca3c7a1ac065d"
+        "f730cb58a5ebd12285b7568bec34f4e5615261580cff1727e64b5c871d784d62"
     ],
     [
         [

@@ -39,7 +39,7 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
-        ("new" : projectName : newArgs) -> Command.Call.New projectName newArgs
+        ("new" : newArgs) -> Command.Call.New newArgs
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -63,7 +63,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
   case commandCall of
-    Command.Call.New projectName newArgs -> runCommand $ createNewProject projectName newArgs
+    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
@@ -105,7 +105,7 @@ printUsage =
               "",
         title "COMMANDS",
         title "  GENERAL",
-        cmd   "    new <name> [args]     Creates a new Wasp project.",
+        cmd   "    new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.",
               "      OPTIONS:",
               "        -t|--template <template-name>",
               "           Check out the templates list here: https://github.com/wasp-lang/starters",
@@ -130,7 +130,6 @@ printUsage =
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
-              "  wasp new MyApp -t waspello",
               "  wasp start",
               "  wasp db migrate-dev",
               "",

@@ -44,14 +44,13 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
-    latestMajorNodeVersion,
     makeJsonWithEntityData,
-    nodeVersionRange,
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.Auth.OAuthAuthG (depsRequiredByPassport)
@@ -125,7 +124,7 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -177,7 +176,7 @@ npmDepsForWasp spec =
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
+            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1")
           ]
     }
 

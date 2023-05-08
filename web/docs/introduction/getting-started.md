@@ -22,10 +22,9 @@ curl -sSL https://get.wasp-lang.dev/installer.sh | sh
 
 Then, create a new app by running:
 
-
 ```shell
-wasp new MyNewApp # Creates a new web app named MyNewApp.
-cd MyNewApp
+wasp new # Enter the project and choose the template
+cd <my-project-name>
 wasp start # Serves the web app.
 ```
 

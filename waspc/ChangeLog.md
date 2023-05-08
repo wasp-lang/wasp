@@ -7,11 +7,18 @@
 
 ## v0.10.5
 
+### Bug fixes
+- Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
+
 ### Express middleware customization
 We now offer the ability to customize Express middleware:
 - globally (impacting all actions, queries, and apis by default)
 - on a per-api basis
 - on a per-path basis (groups of apis)
+
+
+### Interactive new project creation
+We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
 
 ## v0.10.4
 

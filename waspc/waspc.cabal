@@ -49,9 +49,10 @@ data-files:
   Cli/templates/**/*.jsx
   Cli/templates/**/*.png
   Cli/templates/**/*.ts
-  Cli/templates/new/.gitignore
-  Cli/templates/new/.wasproot
-  Cli/templates/new/src/.waspignore
+  Cli/templates/basic/.gitignore
+  Cli/templates/basic/.wasproot
+  Cli/templates/basic/src/.waspignore
+  Cli/templates/basic/main.wasp
 data-dir: data/
 
 source-repository head
@@ -251,6 +252,7 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
+    Wasp.Generator.Node.Version
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -371,10 +373,15 @@ library cli-lib
     , waspc
     , waspls
     , unliftio ^>= 0.2.20
+    , bytestring ^>= 0.10.12
+    , tar ^>=0.5.1.1
+    , zlib ^>=0.6.3.0
+    , temporary ^>=1.3
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
+    Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
@@ -383,6 +390,14 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
+    Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.ProjectDescription
+    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
+    Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
@@ -405,6 +420,8 @@ library cli-lib
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
     Wasp.Cli.Message
+    Wasp.Cli.Interactive
+    Wasp.Cli.GithubRepo
 
 executable wasp-cli
   import: common-all, common-exe
