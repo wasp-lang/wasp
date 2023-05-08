@@ -20,14 +20,18 @@ export async function cmd(flyctlArgs: string[], options: CmdOptions): Promise<vo
 	const tomlFilePaths = getTomlFilePaths(options);
 	const commonOps = getCommonOps(options.context, options.waspProjectDir, tomlFilePaths);
 
-	await runFlyctlCommand(commonOps, flyctlArgs);
+	await runFlyctlCommand(commonOps, flyctlArgs, options.org);
 }
 
-async function runFlyctlCommand(commonOps: CommonOps, flyctlArgs: string[]) {
+async function runFlyctlCommand(commonOps: CommonOps, flyctlArgs: string[], org?: string): Promise<void> {
 	commonOps.cdToBuildDir();
 	deleteLocalToml();
 	if (commonOps.tomlExistsInProject()) {
 		commonOps.copyProjectTomlLocally();
+	}
+
+	if (org) {
+		flyctlArgs.push('--org', org);
 	}
 
 	try {

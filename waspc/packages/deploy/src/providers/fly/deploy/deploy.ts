@@ -65,7 +65,7 @@ export async function deploy(options: DeployOptions): Promise<void> {
 	}
 }
 
-async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
+async function deployServer(deploymentInfo: DeploymentInfo<DeployOptions>, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your server now...');
 
 	cdToServerBuildDir(deploymentInfo.options.waspProjectDir);
@@ -97,7 +97,7 @@ async function deployServer(deploymentInfo: DeploymentInfo, { buildLocally }: De
 	waspSays('Server has been deployed!');
 }
 
-async function deployClient(deploymentInfo: DeploymentInfo, { buildLocally }: DeployOptions) {
+async function deployClient(deploymentInfo: DeploymentInfo<DeployOptions>, { buildLocally }: DeployOptions) {
 	waspSays('Deploying your client now...');
 
 	cdToClientBuildDir(deploymentInfo.options.waspProjectDir);
