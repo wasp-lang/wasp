@@ -56,7 +56,7 @@ validateAppSpec spec =
           validateDbIsPostgresIfPgBossUsed spec,
           validateApiRoutesAreUnique spec,
           validateApiNamespacePathsAreUnique spec,
-          validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed spec
+          validateCrudOperations spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -253,17 +253,27 @@ validateApiNamespacePathsAreUnique spec =
     namespacePaths = AS.ApiNamespace.path . snd <$> AS.getApiNamespaces spec
     duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
-validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed :: AppSpec -> [ValidationError]
-validateOnlyOneWayOfSpecifyingCrudOperationsIsUsed spec = concatMap validateOnlyOrExceptIsUsed cruds
+validateCrudOperations :: AppSpec -> [ValidationError]
+validateCrudOperations spec = concatMap (\fn -> fn cruds) [validateOnlyOrExceptIsUsed, validateUniqueCrudNames]
   where
     cruds = AS.getCruds spec
-    validateOnlyOrExceptIsUsed :: (String, AS.Crud.Crud) -> [ValidationError]
-    validateOnlyOrExceptIsUsed (crudName, crud) = if isValid then [] else [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
+    validateOnlyOrExceptIsUsed :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    validateOnlyOrExceptIsUsed = concatMap validate
       where
-        --
-        isValid = null only || null except
-        only = AS.Crud.only crud
-        except = AS.Crud.except crud
+        validate (crudName, crud) = if isValid then [] else [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
+          where
+            isValid = null only || null except
+            only = AS.Crud.only crud
+            except = AS.Crud.except crud
+
+    validateUniqueCrudNames :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    validateUniqueCrudNames cruds' =
+      if null duplicateNames
+        then []
+        else [GenericValidationError $ "CRUD names must be unique. Duplicates: " ++ intercalate ", " duplicateNames]
+      where
+        crudNames = map fst cruds'
+        duplicateNames = map head $ filter ((> 1) . length) (group . sort $ crudNames)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

@@ -267,6 +267,7 @@ genRoutesDir spec =
         ( Just $
             object
               [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+                "crudRouteInRootRouter" .= (crudRouteInRootRouter :: String),
                 "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
                 "areThereAnyCustomApiRoutes" .= (not . null $ getApis spec)
               ]
@@ -309,6 +310,9 @@ genTypesAndEntitiesDirs spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
+
+crudRouteInRootRouter :: String
+crudRouteInRootRouter = "crud"
 
 areServerPatchesUsed :: AppSpec -> Generator Bool
 areServerPatchesUsed spec = not . null <$> genPatches spec
