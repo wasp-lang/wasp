@@ -3,7 +3,7 @@
 ## v0.10.6
 
 ### Bug fixes
-- Wrap react routes with `<Switch/>` so that only one route is rendered at a time.
+- Wasp now renders only the first route that matches the current path in the browser. 
 
 ## v0.10.5
 
