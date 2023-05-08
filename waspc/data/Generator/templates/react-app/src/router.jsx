@@ -22,28 +22,22 @@ const router = (
     {=# rootComponent.isDefined =}
     <{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
-    {=^ rootComponent.isDefined =}
-    <>
-    {=/ rootComponent.isDefined =}
-      <Switch>
-        {=# routes =}
-        <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
-        {=/ routes =}
-        {=# isExternalAuthEnabled =}
-        {=# externalAuthProviders =}
-        {=# authProviderEnabled =}
-        <Route exact path="{= authFrontendUrl =}">
-          <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
-        </Route>
-        {=/ authProviderEnabled =}
-        {=/ externalAuthProviders =}
-        {=/ isExternalAuthEnabled =}
-      </Switch>
+    <Switch>
+      {=# routes =}
+      <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
+      {=/ routes =}
+      {=# isExternalAuthEnabled =}
+      {=# externalAuthProviders =}
+      {=# authProviderEnabled =}
+      <Route exact path="{= authFrontendUrl =}">
+        <OAuthCodeExchange pathToApiServerRouteHandlingOauthRedirect="{= authServerOauthRedirectUrl =}" />
+      </Route>
+      {=/ authProviderEnabled =}
+      {=/ externalAuthProviders =}
+      {=/ isExternalAuthEnabled =}
+    </Switch>
     {=# rootComponent.isDefined =}
     </{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-    {=^ rootComponent.isDefined =}
-    </>
     {=/ rootComponent.isDefined =}
   </Router>
 )
