@@ -127,8 +127,8 @@ resolveRef spec ref =
           ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst)
-    $ getDecls spec
+    $ find ((== refName ref) . fst) $
+      getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =
