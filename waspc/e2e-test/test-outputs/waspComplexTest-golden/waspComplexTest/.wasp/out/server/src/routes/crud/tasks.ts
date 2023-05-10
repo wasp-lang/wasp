@@ -12,25 +12,19 @@ const router = express.Router()
 const entity = dbClient.task
 
 router.post('/get', withSuperJsonSerialization((args, req) => {
-  if (!req.user) {
-    throw new HttpError(401)
-  }
-  const primaryField = args.id
-  return entity.findUnique({ where: { id: primaryField } })
+    throwIfNotAuthenticated(req)
+    const primaryField = args.id
+    return entity.findUnique({ where: { id: primaryField } })
 }))
 router.post('/getAll', withSuperJsonSerialization((_args, req) => {
     return entity.findMany({})
 }))
 router.post('/create', withSuperJsonSerialization((args, req) => {
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     return entity.create({ data: args })
 }))
 router.post('/update', withSuperJsonSerialization((args, req) => {
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     const { id: primaryField, ...rest } = args.id
     return entity.update({ where: { id: primaryField }, data: rest })
 }))
@@ -44,4 +38,10 @@ function withSuperJsonSerialization (crudFn) {
     const serializedResult = superjsonSerialize(result)
     res.json(serializedResult)
   })
+}
+
+function throwIfNotAuthenticated (req) {
+  if (!req.user) {
+    throw new HttpError(401)
+  }
 }
