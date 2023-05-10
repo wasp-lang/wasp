@@ -63,6 +63,8 @@ waspComplexTest/.wasp/out/server/src/queries/types.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
 waspComplexTest/.wasp/out/server/src/routes/auth/me.js
+waspComplexTest/.wasp/out/server/src/routes/crud/index.ts
+waspComplexTest/.wasp/out/server/src/routes/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/routes/index.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialAction.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialQuery.js
@@ -105,6 +107,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
+waspComplexTest/.wasp/out/web-app/src/crud/tasks.ts
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/App.jsx
 waspComplexTest/.wasp/out/web-app/src/ext-src/Main.css
