@@ -241,7 +241,8 @@ job mySpecialScheduledJob {
   }
 }
 
-crud tasksCrud {
+crud tasks {
   entity: Task,
-  except: [Delete]
+  except: [Delete],
+  public: [GetAll]
 }

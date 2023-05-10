@@ -12,9 +12,9 @@ const router = express.Router()
 
 const entity = dbClient.{= entityLower =}
 
-{=# operationsData.Get =}
+{=# operations.Get =}
 {=# isEnabled =}
-router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
   {=^ isPublic =}
   if (!req.user) {
     throw new HttpError(401)
@@ -24,10 +24,10 @@ router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
   return entity.findUnique({ where: { {= primaryFieldName =}: primaryField } })
 }))
 {=/ isEnabled =}
-{=/ operationsData.Get =}
-{=# operationsData.GetAll =}
+{=/ operations.Get =}
+{=# operations.GetAll =}
 {=# isEnabled =}
-router.post('/{= path =}', withSuperJsonSerialization((_args, req) => {
+router.post('/{= route =}', withSuperJsonSerialization((_args, req) => {
     {=^ isPublic =}
     if (!req.user) {
       throw new HttpError(401)
@@ -36,10 +36,10 @@ router.post('/{= path =}', withSuperJsonSerialization((_args, req) => {
     return entity.findMany({})
 }))
 {=/ isEnabled =}
-{=/ operationsData.GetAll =}
-{=# operationsData.Create =}
+{=/ operations.GetAll =}
+{=# operations.Create =}
 {=# isEnabled =}
-router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     if (!req.user) {
       throw new HttpError(401)
@@ -48,10 +48,10 @@ router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
     return entity.create({ data: args })
 }))
 {=/ isEnabled =}
-{=/ operationsData.Create =}
-{=# operationsData.Update =}
+{=/ operations.Create =}
+{=# operations.Update =}
 {=# isEnabled =}
-router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     if (!req.user) {
       throw new HttpError(401)
@@ -61,10 +61,10 @@ router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
     return entity.update({ where: { {= primaryFieldName =}: primaryField }, data: rest })
 }))
 {=/ isEnabled =}
-{=/ operationsData.Update =}
-{=# operationsData.Delete =}
+{=/ operations.Update =}
+{=# operations.Delete =}
 {=# isEnabled =}
-router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     if (!req.user) {
       throw new HttpError(401)
@@ -74,7 +74,7 @@ router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
     return entity.delete({ where: { {= primaryFieldName =}: primaryField } })
 }))
 {=/ isEnabled =}
-{=/ operationsData.Delete =}
+{=/ operations.Delete =}
 
 export const {= name =} = router
 

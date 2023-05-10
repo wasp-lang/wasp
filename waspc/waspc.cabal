@@ -482,6 +482,7 @@ test-suite waspc-test
     Analyzer.TypeCheckerTest
     AnalyzerTest
     AppSpec.ValidTest
+    AppSpec.EntityTest
     ErrorTest
     FilePath.ExtraTest
     Fixtures

@@ -20,12 +20,16 @@ import Wasp.Util ((<++>))
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
-  sequence
-    [ genCrudIndexRoute cruds
-    ]
-    <++> genCrudRoutes spec cruds
+  if areThereAnyCruds
+    then
+      sequence
+        [ genCrudIndexRoute cruds
+        ]
+        <++> genCrudRoutes spec cruds
+    else return []
   where
     cruds = getCruds spec
+    areThereAnyCruds = not . null $ cruds
 
 genCrudIndexRoute :: [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)

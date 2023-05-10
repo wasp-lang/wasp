@@ -11,87 +11,87 @@ type PrimaryFieldArgs = { {= primaryFieldName =}: PrimaryFieldType }
 type CreateArgs = Partial<Omit<EntityType, "{= primaryFieldName =}">>
 
 function createCrud() {
-    {=# operationsData.Get =}
+    {=# operations.Get =}
     {=# isEnabled =}
     const crudGetQuery = createQuery<(args: PrimaryFieldArgs) => Promise<EntityType>>(
-        '{= route =}',
+        '{= fullPath =}',
         {=& entitiesArray =}
     )
     {=/ isEnabled =}
-    {=/ operationsData.Get =}
-    {=# operationsData.GetAll =}
+    {=/ operations.Get =}
+    {=# operations.GetAll =}
     {=# isEnabled =}
     const crudGetAllQuery = createQuery<() => Promise<EntityType[]>>(
-        '{= route =}',
+        '{= fullPath =}',
         {=& entitiesArray =}
     )
     {=/ isEnabled =}
-    {=/ operationsData.GetAll =}
-    {=# operationsData.Create =}
+    {=/ operations.GetAll =}
+    {=# operations.Create =}
     {=# isEnabled =}
     const crudCreateAction = createAction<(args: CreateArgs) => Promise<void>>(
-        '{= route =}',
+        '{= fullPath =}',
         {=& entitiesArray =}
     )
     {=/ isEnabled =}
-    {=/ operationsData.Create =}
-    {=# operationsData.Update =}
+    {=/ operations.Create =}
+    {=# operations.Update =}
     {=# isEnabled =}
     const crudUpdateAction = createAction<(args: CreateArgs & PrimaryFieldArgs) => Promise<void>>(
-        '{= route =}',
+        '{= fullPath =}',
         {=& entitiesArray =}
     )
     {=/ isEnabled =}
-    {=/ operationsData.Update =}
-    {=# operationsData.Delete =}
+    {=/ operations.Update =}
+    {=# operations.Delete =}
     {=# isEnabled =}
     const crudDeleteAction = createAction<(args: PrimaryFieldArgs) => Promise<void>>(
-        '{= route =}',
+        '{= fullPath =}',
         {=& entitiesArray =}
     )
     {=/ isEnabled =}
-    {=/ operationsData.Delete =}
+    {=/ operations.Delete =}
     return {
-        {=# operationsData.Get.isEnabled =}
+        {=# operations.Get.isEnabled =}
         get: {
             query: crudGetQuery,
             useQuery(args: PrimaryFieldArgs) {
                 return useQuery(crudGetQuery, args);
             }
         },
-        {=/ operationsData.Get.isEnabled =}
-        {=# operationsData.GetAll.isEnabled =}
+        {=/ operations.Get.isEnabled =}
+        {=# operations.GetAll.isEnabled =}
         getAll: {
             query: crudGetAllQuery,
             useQuery() {
                 return useQuery(crudGetAllQuery);
             }
         },
-        {=/ operationsData.GetAll.isEnabled =}
-        {=# operationsData.Create.isEnabled =}
+        {=/ operations.GetAll.isEnabled =}
+        {=# operations.Create.isEnabled =}
         create: {
             action: crudCreateAction,
             useAction() {
                 return useAction(crudCreateAction);
             }
         },
-        {=/ operationsData.Create.isEnabled =}
-        {=# operationsData.Update.isEnabled =}
+        {=/ operations.Create.isEnabled =}
+        {=# operations.Update.isEnabled =}
         update: {
             action: crudUpdateAction,
             useAction() {
                 return useAction(crudUpdateAction);
             }
         },
-        {=/ operationsData.Update.isEnabled =}
-        {=# operationsData.Delete.isEnabled =}
+        {=/ operations.Update.isEnabled =}
+        {=# operations.Delete.isEnabled =}
         delete: {
             action: crudDeleteAction,
             useAction() {
                 return useAction(crudDeleteAction);
             }
         },
-        {=/ operationsData.Delete.isEnabled =}
+        {=/ operations.Delete.isEnabled =}
     }
 }
 
