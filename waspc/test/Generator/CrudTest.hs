@@ -21,7 +21,7 @@ spec_GeneratorCrudTest = do
             except = Nothing,
             public = Nothing
           }
-        (Just primaryEntityField)
+        primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
@@ -71,7 +71,7 @@ spec_GeneratorCrudTest = do
             except = Nothing,
             public = Nothing
           }
-        (Just primaryEntityField)
+        primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
@@ -121,7 +121,7 @@ spec_GeneratorCrudTest = do
             except = Just [AS.Crud.Delete],
             public = Nothing
           }
-        (Just primaryEntityField)
+        primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
@@ -171,7 +171,7 @@ spec_GeneratorCrudTest = do
             except = Nothing,
             public = Just [AS.Crud.Get, AS.Crud.GetAll]
           }
-        (Just primaryEntityField)
+        primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
