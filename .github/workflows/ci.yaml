@@ -126,14 +126,15 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
-      # - name: Run tests
-      #   run: cabal test
+      - name: Run tests
+        run: cabal test
 
-      # - name: Ensure todoApp builds
-      #   if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
-      #   run: ./tools/ensure_todoapp_builds.sh
+      - name: Ensure todoApp builds
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
+        run: ./tools/ensure_todoapp_builds.sh
 
       - name: Headless - Cache Node Modules
+        id: headless-cache-node-modules
         uses: actions/cache@v3
         if: matrix.os == 'ubuntu-20.04'
         with:
@@ -141,12 +142,14 @@ jobs:
           key: node-modules-${{ hashFiles('./headless-test/package-lock.json') }}
 
       - name: Headless - Install Dependencies
+        id: headless-install-dependencies
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
           npm ci
 
       - name: Headless - Store Playwright's Version
+        id: headless-store-playwright-version
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
@@ -155,20 +158,22 @@ jobs:
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
       - name: Headless - Cache Playwright Browsers for Playwright's Version
+        id: headless-cache-playwright-browsers
         if: matrix.os == 'ubuntu-20.04'
-        id: cache-playwright-browsers
         uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
 
       - name: Headless - Setup Playwright
+        id: headless-setup-playwright
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
           npx playwright install --with-deps
 
       - name: Headless - Run Playwright Tests
+        id: headless-run-playwright-tests
         if: matrix.os == 'ubuntu-20.04'
         run: |
           cd headless-test
