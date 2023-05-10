@@ -254,26 +254,42 @@ validateApiNamespacePathsAreUnique spec =
     duplicatePaths = map head $ filter ((> 1) . length) (group . sort $ namespacePaths)
 
 validateCrudOperations :: AppSpec -> [ValidationError]
-validateCrudOperations spec = concatMap (\fn -> fn cruds) [validateOnlyOrExceptIsUsed, validateUniqueCrudNames]
+validateCrudOperations spec =
+  concat
+    [ checkIfOnlyAndExceptAreUsedTogether cruds,
+      checkIfAllCrudNamesAreUnique cruds,
+      checkIfPrimaryFieldExistsForCrudEntities cruds
+    ]
   where
     cruds = AS.getCruds spec
-    validateOnlyOrExceptIsUsed :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    validateOnlyOrExceptIsUsed = concatMap validate
-      where
-        validate (crudName, crud) = if isValid then [] else [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
-          where
-            isValid = null only || null except
-            only = AS.Crud.only crud
-            except = AS.Crud.except crud
 
-    validateUniqueCrudNames :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    validateUniqueCrudNames cruds' =
+    checkIfOnlyAndExceptAreUsedTogether :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    checkIfOnlyAndExceptAreUsedTogether = concatMap hasBothOnlyAndExcept
+      where
+        hasBothOnlyAndExcept (crudName, crud) =
+          if isJust (AS.Crud.only crud) && isJust (AS.Crud.except crud)
+            then [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
+            else []
+
+    checkIfAllCrudNamesAreUnique :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    checkIfAllCrudNamesAreUnique cruds' =
       if null duplicateNames
         then []
         else [GenericValidationError $ "CRUD names must be unique. Duplicates: " ++ intercalate ", " duplicateNames]
       where
-        crudNames = map fst cruds'
-        duplicateNames = map head $ filter ((> 1) . length) (group . sort $ crudNames)
+        names = map fst cruds'
+        duplicateNames = map head $ filter ((> 1) . length) (group . sort $ names)
+
+    checkIfPrimaryFieldExistsForCrudEntities :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    checkIfPrimaryFieldExistsForCrudEntities = concatMap checkIfPrimaryFieldExistsForEntity
+      where
+        checkIfPrimaryFieldExistsForEntity (crudName, crud) =
+          if isJust maybePrimaryField
+            then []
+            else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have a primary field."]
+          where
+            (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+            maybePrimaryField = Entity.getPrimaryField entity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

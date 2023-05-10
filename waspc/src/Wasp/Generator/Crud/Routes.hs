@@ -1,36 +1,21 @@
 module Wasp.Generator.Crud.Routes where
 
 import Data.List (intercalate)
+import qualified Wasp.AppSpec.Crud as AS.Crud
 
-getPath :: String
-getPath = "get"
+getPath :: AS.Crud.CrudOperation -> String
+getPath operation = case operation of
+  AS.Crud.Get -> "get"
+  AS.Crud.GetAll -> "getAll"
+  AS.Crud.Create -> "create"
+  AS.Crud.Update -> "update"
+  AS.Crud.Delete -> "delete"
 
-makeGetRoute :: String -> String
-makeGetRoute name = makeCrudRoute name getPath
+makeRoute :: String -> AS.Crud.CrudOperation -> String
+makeRoute name operation = intercalate "/" [getCrudOperationsExpressNamespace, getCrudOperationExpressRoute name, getPath operation]
 
-getAllPath :: String
-getAllPath = "getAll"
+getCrudOperationsExpressNamespace :: String
+getCrudOperationsExpressNamespace = "crud"
 
-makeGetAllRoute :: String -> String
-makeGetAllRoute name = makeCrudRoute name getAllPath
-
-createPath :: String
-createPath = "create"
-
-makeCreateRoute :: String -> String
-makeCreateRoute name = makeCrudRoute name createPath
-
-updatePath :: String
-updatePath = "update"
-
-makeUpdateRoute :: String -> String
-makeUpdateRoute name = makeCrudRoute name updatePath
-
-deletePath :: String
-deletePath = "delete"
-
-makeDeleteRoute :: String -> String
-makeDeleteRoute name = makeCrudRoute name deletePath
-
-makeCrudRoute :: String -> String -> String
-makeCrudRoute name path = intercalate "/" ["crud", name, path]
+getCrudOperationExpressRoute :: String -> String
+getCrudOperationExpressRoute = id

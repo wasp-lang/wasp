@@ -6,54 +6,75 @@ import {
 } from 'superjson'
 import { handleRejection } from '../../utils.js'
 import dbClient from '../../dbClient.js'
+import HttpError from '../../core/HttpError.js'
 
 const router = express.Router()
 
 const entity = dbClient.{= entityLower =}
 
-// TODO: id could be a number, string, or uuid, how to handle that?
-{=# enabledOperations.Get =}
 {=# operationsData.Get =}
-router.post('/{= path =}', withSuperJsonSerialization((args, req, res) => {
-  const id = args.id
-  return entity.findUnique({ where: { id: args.id } })
+{=# isEnabled =}
+router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+  {=^ isPublic =}
+  if (!req.user) {
+    throw new HttpError(401)
+  }
+  {=/ isPublic =}
+  const primaryField = args.{= primaryFieldName =}
+  return entity.findUnique({ where: { {= primaryFieldName =}: primaryField } })
 }))
+{=/ isEnabled =}
 {=/ operationsData.Get =}
-{=/ enabledOperations.Get =}
-
-{=# enabledOperations.GetAll =}
 {=# operationsData.GetAll =}
-router.post('/{= path =}', withSuperJsonSerialization((args) => {
+{=# isEnabled =}
+router.post('/{= path =}', withSuperJsonSerialization((_args, req) => {
+    {=^ isPublic =}
+    if (!req.user) {
+      throw new HttpError(401)
+    }
+    {=/ isPublic =}
     return entity.findMany({})
 }))
+{=/ isEnabled =}
 {=/ operationsData.GetAll =}
-{=/ enabledOperations.GetAll =}
-
-{=# enabledOperations.Create =}
 {=# operationsData.Create =}
-router.post('/{= path =}', withSuperJsonSerialization((args) => {
+{=# isEnabled =}
+router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
+    {=^ isPublic =}
+    if (!req.user) {
+      throw new HttpError(401)
+    }
+    {=/ isPublic =}
     return entity.create({ data: args })
 }))
+{=/ isEnabled =}
 {=/ operationsData.Create =}
-{=/ enabledOperations.Create =}
-
-{=# enabledOperations.Update =}
 {=# operationsData.Update =}
+{=# isEnabled =}
 router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
-    const id = args.id
-    return entity.update({ where: { id: args.id }, data: args })
+    {=^ isPublic =}
+    if (!req.user) {
+      throw new HttpError(401)
+    }
+    {=/ isPublic =}
+    const { {= primaryFieldName =}: primaryField, ...rest } = args.{= primaryFieldName =}
+    return entity.update({ where: { {= primaryFieldName =}: primaryField }, data: rest })
 }))
+{=/ isEnabled =}
 {=/ operationsData.Update =}
-{=/ enabledOperations.Update =}
-
-{=# enabledOperations.Delete =}
 {=# operationsData.Delete =}
+{=# isEnabled =}
 router.post('/{= path =}', withSuperJsonSerialization((args, req) => {
-    const id = args.id
-    return entity.delete({ where: { id: args.id } })
+    {=^ isPublic =}
+    if (!req.user) {
+      throw new HttpError(401)
+    }
+    {=/ isPublic =}
+    const primaryField = args.{= primaryFieldName =}
+    return entity.delete({ where: { {= primaryFieldName =}: primaryField } })
 }))
+{=/ isEnabled =}
 {=/ operationsData.Delete =}
-{=/ enabledOperations.Delete =}
 
 export const {= name =} = router
 

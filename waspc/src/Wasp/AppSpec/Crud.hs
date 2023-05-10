@@ -14,7 +14,8 @@ import Wasp.AppSpec.Entity (Entity)
 data Crud = Crud
   { entity :: Ref Entity,
     only :: Maybe [CrudOperation],
-    except :: Maybe [CrudOperation]
+    except :: Maybe [CrudOperation],
+    public :: Maybe [CrudOperation]
   }
   deriving (Show, Eq, Data)
 

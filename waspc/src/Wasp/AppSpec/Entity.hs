@@ -5,10 +5,12 @@ module Wasp.AppSpec.Entity
     Entity,
     getFields,
     getPslModelBody,
+    getPrimaryField,
   )
 where
 
 import Data.Data (Data)
+import Data.Foldable (find)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
@@ -38,3 +40,16 @@ getFields = fields
 
 getPslModelBody :: Entity -> PslModel.Body
 getPslModelBody = pslModelBody
+
+getPrimaryField :: Entity -> Maybe PslModel.Field
+getPrimaryField entity = find ((attrNameAssociatedWithPrimaryField `elem`) . getFieldAttrNames) pslFields
+  where
+    pslFields = [field | (PslModel.ElementField field) <- pslElements]
+    (PslModel.Body pslElements) = getPslModelBody entity
+
+    getFieldAttrNames :: PslModel.Field -> [String]
+    getFieldAttrNames PslModel.Field {_attrs = attrs} = map PslModel._attrName attrs
+
+    -- We define a primary field as a field that has the @id attribute.
+    attrNameAssociatedWithPrimaryField :: String
+    attrNameAssociatedWithPrimaryField = "id"

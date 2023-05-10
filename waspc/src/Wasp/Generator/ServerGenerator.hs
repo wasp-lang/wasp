@@ -47,6 +47,7 @@ import Wasp.Generator.Common
     makeJsonWithEntityData,
     prismaVersion,
   )
+import qualified Wasp.Generator.Crud.Routes as Crud.Routes
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -312,7 +313,7 @@ operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
 crudRouteInRootRouter :: String
-crudRouteInRootRouter = "crud"
+crudRouteInRootRouter = Crud.Routes.getCrudOperationsExpressNamespace
 
 areServerPatchesUsed :: AppSpec -> Generator Bool
 areServerPatchesUsed spec = not . null <$> genPatches spec
