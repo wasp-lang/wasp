@@ -12,10 +12,10 @@ getRoute operation = case operation of
   AS.Crud.Delete -> "delete"
 
 makeFullPath :: String -> AS.Crud.CrudOperation -> String
-makeFullPath name operation = intercalate "/" [getCrudOperationsExpressNamespace, getCrudOperationExpressRoute name, getRoute operation]
+makeFullPath crudOperationName crudOperation = intercalate "/" [crudOperationsRouterNamespace, getCrudOperationRouterRoute crudOperationName, getRoute crudOperation]
 
-getCrudOperationsExpressNamespace :: String
-getCrudOperationsExpressNamespace = "crud"
+crudOperationsRouterNamespace :: String
+crudOperationsRouterNamespace = "crud"
 
-getCrudOperationExpressRoute :: String -> String
-getCrudOperationExpressRoute = id
+getCrudOperationRouterRoute :: String -> String
+getCrudOperationRouterRoute crudOperationName = crudOperationName

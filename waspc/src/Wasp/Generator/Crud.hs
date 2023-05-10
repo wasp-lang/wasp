@@ -1,11 +1,15 @@
-module Wasp.Generator.Crud where
+module Wasp.Generator.Crud
+  ( getCrudOperationJson,
+    getCrudEntityPrimaryField,
+  )
+where
 
 import Control.Applicative ((<|>))
 import Data.Aeson (object, (.=))
-import qualified Data.Aeson
-import Data.Aeson.Types (Pair)
+import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import Data.List ((\\))
-import Data.Maybe (fromJust, fromMaybe)
+import Data.Maybe (fromMaybe)
 import qualified Data.Text as T
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Crud as AS.Crud
@@ -16,49 +20,42 @@ import qualified Wasp.Generator.Crud.Routes as Routes
 import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.Util as Util
 
-availableCrudOperations :: [Crud.AS.CrudOperation]
-availableCrudOperations = [AS.Crud.Get, AS.Crud.GetAll, AS.Crud.Create, AS.Crud.Update, AS.Crud.Delete]
+crudOperations :: [Crud.AS.CrudOperation]
+crudOperations = [AS.Crud.Get, AS.Crud.GetAll, AS.Crud.Create, AS.Crud.Update, AS.Crud.Delete]
 
-getCrudOperationJson :: String -> AS.Crud.Crud -> Maybe PslModel.Field -> Data.Aeson.Value
-getCrudOperationJson name crud primaryField =
+getCrudOperationJson :: String -> AS.Crud.Crud -> PslModel.Field -> Aeson.Value
+getCrudOperationJson crudOperationName crud primaryField =
   object
-    [ "name" .= name,
-      -- TODO: Typescript types
+    [ "name" .= crudOperationName,
+      "operations" .= object (map getDataForOperation crudOperations),
       "entityUpper" .= crudEntityName,
       "entityLower" .= Util.toLowerFirst crudEntityName,
       "entitiesArray" .= makeJsArrayFromHaskellList [crudEntityName],
-      -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
-      "primaryFieldName" .= PslModel._name (fromJust primaryField),
-      "operations" .= object (map getDataForOperation availableCrudOperations)
+      "primaryFieldName" .= PslModel._name primaryField
     ]
   where
     crudEntityName = AS.refName $ AS.Crud.entity crud
 
-    getDataForOperation :: Crud.AS.CrudOperation -> Pair
+    getDataForOperation :: Crud.AS.CrudOperation -> Aeson.Types.Pair
     getDataForOperation operation =
-      toJsonKey operation
+      key
         .= object
           [ "isEnabled" .= (operation `elem` enabledOperations),
             "route" .= Routes.getRoute operation,
-            "fullPath" .= Routes.makeFullPath name operation,
+            "fullPath" .= Routes.makeFullPath crudOperationName operation,
             "isPublic" .= (operation `elem` publicOperations)
           ]
-    publicOperations = fromMaybe [] (AS.Crud.public crud)
-    enabledOperations = getEnabledOperations crud
+      where
+        key = T.pack . show $ operation
 
-getEnabledOperations :: AS.Crud.Crud -> [Crud.AS.CrudOperation]
-getEnabledOperations crud =
-  fromMaybe availableCrudOperations $
-    getEnabledOperationsFromOnly (AS.Crud.only crud) <|> getEnabledOperationsFromExcept (AS.Crud.except crud)
-  where
-    getEnabledOperationsFromOnly = id
-    -- \\ operator calculates the difference between two lists
-    getEnabledOperationsFromExcept except = (availableCrudOperations \\) <$> except
+    publicOperations = fromMaybe [] (AS.Crud.public crud)
+    enabledOperations = fromMaybe crudOperations (maybeOperationsBasedOnOnly <|> maybeOperationsBasedOnExcept)
+
+    maybeOperationsBasedOnOnly = AS.Crud.only crud
+    -- Diff between all and operations defined in except
+    maybeOperationsBasedOnExcept = (crudOperations \\) <$> AS.Crud.except crud
 
 getCrudEntityPrimaryField :: AS.AppSpec -> AS.Crud.Crud -> Maybe PslModel.Field
 getCrudEntityPrimaryField spec crud = Entity.getPrimaryField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
-
-toJsonKey :: Crud.AS.CrudOperation -> T.Text
-toJsonKey = T.pack . show

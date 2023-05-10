@@ -96,4 +96,3 @@ function createCrud() {
 }
 
 export const {= name =} = createCrud();
-   

@@ -314,7 +314,7 @@ operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
 
 crudRouteInRootRouter :: String
-crudRouteInRootRouter = Crud.Routes.getCrudOperationsExpressNamespace
+crudRouteInRootRouter = Crud.Routes.crudOperationsRouterNamespace
 
 areServerPatchesUsed :: AppSpec -> Generator Bool
 areServerPatchesUsed spec = not . null <$> genPatches spec

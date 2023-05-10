@@ -42,7 +42,7 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
       object
         [ "importStatement" .= importStatement,
           "importIdentifier" .= importIdentifier,
-          "route" .= Routes.getCrudOperationExpressRoute name
+          "route" .= Routes.getCrudOperationRouterRoute name
         ]
       where
         (importStatement, importIdentifier) =
@@ -62,4 +62,5 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
         tmplPath = [relfile|src/routes/crud/_crud.ts|]
         destPath = C.serverSrcDirInServerRootDir </> [reldir|routes/crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
         tmplData = getCrudOperationJson name crud primaryField
-        primaryField = getCrudEntityPrimaryField spec crud
+        -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
+        primaryField = fromJust $ getCrudEntityPrimaryField spec crud

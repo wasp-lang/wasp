@@ -14,9 +14,13 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
 
 genCrud :: AppSpec -> Generator [FileDraft]
-genCrud spec = genCrudOperations spec cruds
+genCrud spec =
+  if areThereAnyCruds
+    then genCrudOperations spec cruds
+    else return []
   where
     cruds = getCruds spec
+    areThereAnyCruds = not $ null cruds
 
 genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
@@ -27,4 +31,5 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         tmplPath = [relfile|src/crud/_crud.ts|]
         destPath = C.webAppSrcDirInWebAppRootDir </> [reldir|crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
         tmplData = getCrudOperationJson name crud primaryField
-        primaryField = getCrudEntityPrimaryField spec crud
+        -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
+        primaryField = fromJust $ getCrudEntityPrimaryField spec crud
