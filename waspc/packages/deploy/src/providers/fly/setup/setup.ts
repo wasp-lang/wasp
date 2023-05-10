@@ -73,7 +73,7 @@ async function setupServer(deploymentInfo: DeploymentInfo<SetupOptions>) {
 		`WASP_WEB_CLIENT_URL=${deploymentInfo.clientUrl}`,
 	];
 
-	if (deploymentInfo.options.serverSecret) {
+	if (deploymentInfo.options.serverSecret.length > 0) {
 		deploymentInfo.options.serverSecret.forEach(secret => {
 			secretsArgs.push(secret);
 		});
@@ -108,7 +108,7 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 
 	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
 
-	if (deploymentInfo.options.clientSecret) {
+	if (deploymentInfo.options.clientSecret.length > 0) {
 		await $`flyctl secrets set ${deploymentInfo.options.clientSecret}`;
 	}
 
