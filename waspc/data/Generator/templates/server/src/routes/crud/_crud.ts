@@ -10,73 +10,63 @@ import HttpError from '../../core/HttpError.js'
 
 const router = express.Router()
 
-const entity = dbClient.{= entityLower =}
+const entity = dbClient.{= crud.entityLower =}
 
-{=# operations.Get =}
+{=# crud.operations.Get =}
 {=# isEnabled =}
 router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
-  {=^ isPublic =}
-  if (!req.user) {
-    throw new HttpError(401)
-  }
-  {=/ isPublic =}
-  const primaryField = args.{= primaryFieldName =}
-  return entity.findUnique({ where: { {= primaryFieldName =}: primaryField } })
+    {=^ isPublic =}
+    throwIfNotAuthenticated(req)
+    {=/ isPublic =}
+    const primaryField = args.{= crud.primaryFieldName =}
+    return entity.findUnique({ where: { {= crud.primaryFieldName =}: primaryField } })
 }))
 {=/ isEnabled =}
-{=/ operations.Get =}
-{=# operations.GetAll =}
+{=/ crud.operations.Get =}
+{=# crud.operations.GetAll =}
 {=# isEnabled =}
 router.post('/{= route =}', withSuperJsonSerialization((_args, req) => {
     {=^ isPublic =}
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     {=/ isPublic =}
     return entity.findMany({})
 }))
 {=/ isEnabled =}
-{=/ operations.GetAll =}
-{=# operations.Create =}
+{=/ crud.operations.GetAll =}
+{=# crud.operations.Create =}
 {=# isEnabled =}
 router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     {=/ isPublic =}
     return entity.create({ data: args })
 }))
 {=/ isEnabled =}
-{=/ operations.Create =}
-{=# operations.Update =}
+{=/ crud.operations.Create =}
+{=# crud.operations.Update =}
 {=# isEnabled =}
 router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     {=/ isPublic =}
-    const { {= primaryFieldName =}: primaryField, ...rest } = args.{= primaryFieldName =}
-    return entity.update({ where: { {= primaryFieldName =}: primaryField }, data: rest })
+    const { {= crud.primaryFieldName =}: primaryField, ...rest } = args.{= crud.primaryFieldName =}
+    return entity.update({ where: { {= crud.primaryFieldName =}: primaryField }, data: rest })
 }))
 {=/ isEnabled =}
-{=/ operations.Update =}
-{=# operations.Delete =}
+{=/ crud.operations.Update =}
+{=# crud.operations.Delete =}
 {=# isEnabled =}
 router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
-    if (!req.user) {
-      throw new HttpError(401)
-    }
+    throwIfNotAuthenticated(req)
     {=/ isPublic =}
-    const primaryField = args.{= primaryFieldName =}
-    return entity.delete({ where: { {= primaryFieldName =}: primaryField } })
+    const primaryField = args.{= crud.primaryFieldName =}
+    return entity.delete({ where: { {= crud.primaryFieldName =}: primaryField } })
 }))
 {=/ isEnabled =}
-{=/ operations.Delete =}
+{=/ crud.operations.Delete =}
 
-export const {= name =} = router
+export const {= crud.name =} = router
 
 function withSuperJsonSerialization (crudFn) {
   return handleRejection(async (req, res) => {
@@ -85,4 +75,15 @@ function withSuperJsonSerialization (crudFn) {
     const serializedResult = superjsonSerialize(result)
     res.json(serializedResult)
   })
+}
+
+function throwIfNotAuthenticated (req) {
+  {=# isAuthEnabled =}
+  if (!req.user) {
+    throw new HttpError(401)
+  }
+  {=/ isAuthEnabled =}
+  {=^ isAuthEnabled =}
+  // Auth is not enabled
+  {=/ isAuthEnabled =}
 }

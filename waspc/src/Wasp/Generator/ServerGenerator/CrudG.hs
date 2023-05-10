@@ -6,10 +6,11 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson
 import Data.Maybe (fromJust)
-import StrongPath (reldir, relfile, (</>))
+import StrongPath (File', Path', Rel, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
+import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Crud (getCrudEntityPrimaryField, getCrudOperationJson)
 import qualified Wasp.Generator.Crud.Routes as Routes
 import Wasp.Generator.FileDraft (FileDraft)
@@ -23,7 +24,7 @@ genCrud spec =
   if areThereAnyCruds
     then
       sequence
-        [ genCrudIndexRoute cruds
+        [ genCrudIndexRoute spec cruds
         ]
         <++> genCrudRoutes spec cruds
     else return []
@@ -31,11 +32,15 @@ genCrud spec =
     cruds = getCruds spec
     areThereAnyCruds = not . null $ cruds
 
-genCrudIndexRoute :: [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genCrudIndexRoute :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
+genCrudIndexRoute spec cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
   where
     tmplPath = [relfile|src/routes/crud/index.ts|]
-    tmplData = object ["crudRouters" .= map getCrudRouterData cruds]
+    tmplData =
+      object
+        [ "crudRouters" .= map getCrudRouterData cruds,
+          "isAuthEnabled" .= isAuthEnabled spec
+        ]
 
     getCrudRouterData :: (String, AS.Crud.Crud) -> Data.Aeson.Value
     getCrudRouterData (name, _) =
@@ -49,7 +54,7 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
           JI.getJsImportStmtAndIdentifier
             JI.JsImport
               { JI._name = JI.JsImportField name,
-                JI._path = fromJust . SP.parseRelFileP $ "./" ++ name ++ ".js",
+                JI._path = fromJust . SP.relFileToPosix $ getCrudFilePath name "js",
                 JI._importAlias = Nothing
               }
 
@@ -60,7 +65,14 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
     genCrudRoute (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
         tmplPath = [relfile|src/routes/crud/_crud.ts|]
-        destPath = C.serverSrcDirInServerRootDir </> [reldir|routes/crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
-        tmplData = getCrudOperationJson name crud primaryField
+        destPath = C.serverSrcDirInServerRootDir </> [reldir|routes/crud|] </> getCrudFilePath name "ts"
+        tmplData =
+          object
+            [ "crud" .= getCrudOperationJson name crud primaryField,
+              "isAuthEnabled" .= isAuthEnabled spec
+            ]
         -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
         primaryField = fromJust $ getCrudEntityPrimaryField spec crud
+
+getCrudFilePath :: String -> String -> Path' (Rel r) File'
+getCrudFilePath crudName ext = fromJust (SP.parseRelFile (crudName ++ "." ++ ext))
