@@ -7,7 +7,8 @@ import { Task } from "../entities";
 type EntityType = Task
 type PrimaryFieldType = Task["id"]
 type PrimaryFieldArgs = { id: PrimaryFieldType }
-type CreateArgs = Partial<Omit<EntityType, "id">>
+type CreateArgs = Omit<EntityType, "id">
+type UpdateArgs = Partial<CreateArgs> & PrimaryFieldArgs
 
 function createCrud() {
     const crudGetQuery = createQuery<(args: PrimaryFieldArgs) => Promise<EntityType>>(
@@ -22,7 +23,7 @@ function createCrud() {
         'crud/tasks/create',
         ['Task']
     )
-    const crudUpdateAction = createAction<(args: CreateArgs & PrimaryFieldArgs) => Promise<void>>(
+    const crudUpdateAction = createAction<(args: UpdateArgs) => Promise<void>>(
         'crud/tasks/update',
         ['Task']
     )

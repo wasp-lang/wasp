@@ -25,7 +25,7 @@ router.post('/create', withSuperJsonSerialization((args, req) => {
 }))
 router.post('/update', withSuperJsonSerialization((args, req) => {
     throwIfNotAuthenticated(req)
-    const { id: primaryField, ...rest } = args.id
+    const { id: primaryField, ...rest } = args
     return entity.update({ where: { id: primaryField }, data: rest })
 }))
 

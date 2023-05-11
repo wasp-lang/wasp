@@ -8,7 +8,8 @@ import { {= entityUpper =} } from "../entities";
 type EntityType = {= entityUpper =}
 type PrimaryFieldType = {= entityUpper =}["{= primaryFieldName =}"]
 type PrimaryFieldArgs = { {= primaryFieldName =}: PrimaryFieldType }
-type CreateArgs = Partial<Omit<EntityType, "{= primaryFieldName =}">>
+type CreateArgs = Omit<EntityType, "{= primaryFieldName =}">
+type UpdateArgs = Partial<CreateArgs> & PrimaryFieldArgs
 
 function createCrud() {
     {=# operations.Get =}
@@ -37,7 +38,7 @@ function createCrud() {
     {=/ operations.Create =}
     {=# operations.Update =}
     {=# isEnabled =}
-    const crudUpdateAction = createAction<(args: CreateArgs & PrimaryFieldArgs) => Promise<void>>(
+    const crudUpdateAction = createAction<(args: UpdateArgs) => Promise<void>>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )

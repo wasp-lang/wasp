@@ -1,0 +1,53 @@
+app crudTesting {
+  wasp: {
+    version: "^0.10.4"
+  },
+  head: [
+    "<link rel=\"stylesheet\" href=\"https://unpkg.com/mvp.css@1.12/mvp.css\">"
+  ],
+  title: "crud-testing",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.tsx",
+  authRequired: true,
+}
+
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@client/LoginPage.tsx",
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { SignupPage } from "@client/SignupPage.tsx",
+}
+
+entity User {=psl
+  id Int @id @default(autoincrement())
+  username String @unique
+  password String
+  tasks Task[]
+psl=}
+
+entity Task {=psl
+  id Int @id @default(autoincrement())
+  title String
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+psl=}
+
+crud tasks {
+  entity: Task,
+  // Create can not public if we use the current user to connect the task to the user
+  // If the user can provide the userId, then we can make it public
+  public: [GetAll, Create]
+}

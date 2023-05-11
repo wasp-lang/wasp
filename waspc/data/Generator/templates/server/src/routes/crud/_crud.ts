@@ -49,7 +49,7 @@ router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
-    const { {= crud.primaryFieldName =}: primaryField, ...rest } = args.{= crud.primaryFieldName =}
+    const { {= crud.primaryFieldName =}: primaryField, ...rest } = args
     return entity.update({ where: { {= crud.primaryFieldName =}: primaryField }, data: rest })
 }))
 {=/ isEnabled =}
