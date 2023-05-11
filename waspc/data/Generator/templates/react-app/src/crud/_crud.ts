@@ -8,7 +8,7 @@ import { {= entityUpper =} } from "../entities";
 type EntityType = {= entityUpper =}
 type PrimaryFieldType = {= entityUpper =}["{= primaryFieldName =}"]
 type PrimaryFieldArgs = { {= primaryFieldName =}: PrimaryFieldType }
-type CreateArgs = Omit<EntityType, "{= primaryFieldName =}">
+type CreateArgs = Partial<Omit<EntityType, "{= primaryFieldName =}">>
 type UpdateArgs = Partial<CreateArgs> & PrimaryFieldArgs
 
 function createCrud() {

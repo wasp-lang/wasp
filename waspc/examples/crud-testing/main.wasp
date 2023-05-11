@@ -38,6 +38,8 @@ entity User {=psl
   tasks Task[]
 psl=}
 
+// TODO: validate the fields
+// Maybe delegate to Prisma
 entity Task {=psl
   id Int @id @default(autoincrement())
   title String
@@ -49,5 +51,6 @@ crud tasks {
   entity: Task,
   // Create can not public if we use the current user to connect the task to the user
   // If the user can provide the userId, then we can make it public
-  public: [GetAll, Create]
+  public: [GetAll],
+  overrides: import { overrides } from "@server/tasks.js",
 }

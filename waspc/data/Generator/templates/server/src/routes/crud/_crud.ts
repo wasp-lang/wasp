@@ -7,66 +7,92 @@ import {
 import { handleRejection } from '../../utils.js'
 import dbClient from '../../dbClient.js'
 import HttpError from '../../core/HttpError.js'
+{=# overrides.isDefined =}
+{=& overrides.importStatement =}
+{=/ overrides.isDefined =}
 
-const router = express.Router()
+const _waspRouter = express.Router()
 
-const entity = dbClient.{= crud.entityLower =}
+const _waspEntity = dbClient.{= crud.entityLower =}
 
+{=# overrides.isDefined =}
+const _waspOverrides = {= overrides.importIdentifier =}
+{=/ overrides.isDefined =}
 {=# crud.operations.Get =}
 {=# isEnabled =}
-router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
+_waspRouter.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
     const primaryField = args.{= crud.primaryFieldName =}
-    return entity.findUnique({ where: { {= crud.primaryFieldName =}: primaryField } })
+    let query = { where: { {= crud.primaryFieldName =}: primaryField } } as any
+    {=# overrides.isDefined =}
+    query = _waspOverrides.Get ? { ...query, ..._waspOverrides.Get(args, req.user) } : query
+    {=/ overrides.isDefined =}
+    return _waspEntity.findUnique(query)
 }))
 {=/ isEnabled =}
 {=/ crud.operations.Get =}
 {=# crud.operations.GetAll =}
 {=# isEnabled =}
-router.post('/{= route =}', withSuperJsonSerialization((_args, req) => {
+_waspRouter.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
-    return entity.findMany({})
+    let query = {} as any
+    {=# overrides.isDefined =}
+    query = _waspOverrides.GetAll ? { ...query, ..._waspOverrides.GetAll(args, req.user) } : query
+    {=/ overrides.isDefined =}
+    return _waspEntity.findMany(query)
 }))
 {=/ isEnabled =}
 {=/ crud.operations.GetAll =}
 {=# crud.operations.Create =}
 {=# isEnabled =}
-router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
+_waspRouter.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
-    return entity.create({ data: args })
+    let query = { data: args } as any
+    {=# overrides.isDefined =}
+    query = _waspOverrides.Create ? { ...query, ..._waspOverrides.Create(args, req.user) } : query
+    {=/ overrides.isDefined =}
+    return _waspEntity.create(query)
 }))
 {=/ isEnabled =}
 {=/ crud.operations.Create =}
 {=# crud.operations.Update =}
 {=# isEnabled =}
-router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
+_waspRouter.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
     const { {= crud.primaryFieldName =}: primaryField, ...rest } = args
-    return entity.update({ where: { {= crud.primaryFieldName =}: primaryField }, data: rest })
+    let query = { where: { {= crud.primaryFieldName =}: primaryField }, data: rest } as any
+    {=# overrides.isDefined =}
+    query = _waspOverrides.Update ? { ...query, ..._waspOverrides.Update(args, req.user) } : query
+    {=/ overrides.isDefined =}
+    return _waspEntity.update(query)
 }))
 {=/ isEnabled =}
 {=/ crud.operations.Update =}
 {=# crud.operations.Delete =}
 {=# isEnabled =}
-router.post('/{= route =}', withSuperJsonSerialization((args, req) => {
+_waspRouter.post('/{= route =}', withSuperJsonSerialization((args, req) => {
     {=^ isPublic =}
     throwIfNotAuthenticated(req)
     {=/ isPublic =}
     const primaryField = args.{= crud.primaryFieldName =}
-    return entity.delete({ where: { {= crud.primaryFieldName =}: primaryField } })
+    let query = { where: { {= crud.primaryFieldName =}: primaryField } } as any
+    {=# overrides.isDefined =}
+    query = _waspOverrides.Delete ? { ...query, ..._waspOverrides.Delete(args, req.user) } : query
+    {=/ overrides.isDefined =}
+    return _waspEntity.delete(query)
 }))
 {=/ isEnabled =}
 {=/ crud.operations.Delete =}
 
-export const {= crud.name =} = router
+export const {= crud.name =} = _waspRouter
 
 function withSuperJsonSerialization (crudFn) {
   return handleRejection(async (req, res) => {

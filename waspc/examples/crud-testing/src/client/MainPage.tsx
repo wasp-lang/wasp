@@ -19,7 +19,11 @@ const MainPage = ({ user }: { user: User }) => {
     setError("");
     e.preventDefault();
     try {
-      await createTask({ title: newTaskTitle, userId: user.id });
+      if (!newTaskTitle) {
+        setError("Task title cannot be empty.");
+        return;
+      }
+      await createTask({ title: newTaskTitle });
     } catch (err: unknown) {
       setError("Error creating task.");
     }
