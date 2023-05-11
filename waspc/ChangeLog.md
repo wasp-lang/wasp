@@ -1,14 +1,10 @@
 # Changelog
 
-## v0.10.6
-
-### Bug fixes
-- Wasp now renders only the first route that matches the current path in the browser. 
-
 ## v0.10.5
 
 ### Bug fixes
 - Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
+- Wasp now renders only the first route that matches the current path in the browser. 
 
 ### Express middleware customization
 We now offer the ability to customize Express middleware:
