@@ -9,7 +9,6 @@ import Data.Data (Data)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data WebSocket = WebSocket
-  { fn :: ExtImport,
-    debug :: Maybe Bool
+  { fn :: ExtImport
   }
   deriving (Show, Eq, Data)
