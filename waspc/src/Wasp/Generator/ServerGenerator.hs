@@ -37,7 +37,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
-import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
@@ -68,6 +67,7 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
+import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -412,6 +412,7 @@ genMiddleware spec =
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByWebSockets spec =
-  [App.Dependency.make ("socket.io", "4.6.1") | isJust maybeWebSocket]
+  [AS.Dependency.make ("socket.io", show versionRange) | areWebSocketsUsed]
   where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec

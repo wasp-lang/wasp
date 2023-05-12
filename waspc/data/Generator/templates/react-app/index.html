@@ -12,18 +12,6 @@
 
         <link rel="manifest" href="/manifest.json" />
 
-        {=# webSocket.inUse =}
-        {=# webSocket.debug =}
-        <script src="https://cdn.socket.io/4.6.0/socket.io.js" crossorigin="anonymous"></script>
-        <script>
-            localStorage.debug = 'socket.io-client:socket';
-        </script>
-        {=/ webSocket.debug =}
-        {=^ webSocket.debug =}
-        <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
-        {=/ webSocket.debug =}
-        {=/ webSocket.inUse =}
-
         {=& head =}
 
         <title>{= title =}</title>
@@ -31,6 +19,13 @@
 
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
+
+        {=# webSocket.debug =}
+        <script>
+            localStorage.debug = 'socket.io-client:socket';
+        </script>
+        {=/ webSocket.debug =}
+
         <div id="root"></div>
         <script type="module" src="/src/index.tsx"></script>
     </body>

@@ -132,7 +132,8 @@ npmDepsForWasp spec =
             ("superjson", "^1.12.2")
           ]
           ++ depsRequiredForAuth spec
-          ++ depsRequiredByTailwind spec,
+          ++ depsRequiredByTailwind spec
+          ++ depsRequiredForWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
@@ -179,6 +180,13 @@ depsRequiredForTesting =
       ("msw", "^1.1.0")
     ]
 
+depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredForWebSockets spec =
+  [AS.Dependency.make ("socket.io-client", show versionRange) | areWebSocketsUsed]
+  where
+    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
+
 genGitignore :: Generator FileDraft
 genGitignore =
   return $
@@ -217,8 +225,7 @@ genIndexHtml spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     webSocketData =
       object
-        [ "inUse" .= isJust maybeWebSocket,
-          "debug" .= (Just (Just True) == (AS.App.WS.debug <$> maybeWebSocket))
+        [ "debug" .= (Just (Just True) == (AS.App.WS.debug <$> maybeWebSocket))
         ]
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
@@ -236,6 +243,7 @@ genSrcDir spec =
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
       copyTmplFile [relfile|storage.ts|],
+      copyTmplFile [relfile|socket.ts|],
       genRouter spec,
       genIndexJs spec
     ]

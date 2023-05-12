@@ -4,12 +4,15 @@ import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth'
 import { useQuery } from '@wasp/queries'
 import getDate from '@wasp/queries/getDate'
+import { socket } from '@wasp/socket'
 
 import './Main.css'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
+
+  socket.emit("msg", "hello world")
 
   return (
     <div className="app border-spacing-2 p-4">
