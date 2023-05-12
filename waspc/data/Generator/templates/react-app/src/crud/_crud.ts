@@ -4,17 +4,12 @@ import { useAction } from "../actions";
 import { createQuery } from "../queries/core";
 import { useQuery } from "../queries";
 import { {= entityUpper =} } from "../entities";
-
-type EntityType = {= entityUpper =}
-type PrimaryFieldType = {= entityUpper =}["{= primaryFieldName =}"]
-type PrimaryFieldArgs = { {= primaryFieldName =}: PrimaryFieldType }
-type CreateArgs = Partial<Omit<EntityType, "{= primaryFieldName =}">>
-type UpdateArgs = Partial<CreateArgs> & PrimaryFieldArgs
+import { RouteInputs, EntityType } from "../universal/crud/{= name =}";
 
 function createCrud() {
     {=# operations.Get =}
     {=# isEnabled =}
-    const crudGetQuery = createQuery<(args: PrimaryFieldArgs) => Promise<EntityType>>(
+    const crudGetQuery = createQuery<(args: RouteInputs.Get) => Promise<EntityType>>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
@@ -30,7 +25,7 @@ function createCrud() {
     {=/ operations.GetAll =}
     {=# operations.Create =}
     {=# isEnabled =}
-    const crudCreateAction = createAction<(args: CreateArgs) => Promise<void>>(
+    const crudCreateAction = createAction<(args: RouteInputs.Create) => Promise<void>>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
@@ -38,7 +33,7 @@ function createCrud() {
     {=/ operations.Create =}
     {=# operations.Update =}
     {=# isEnabled =}
-    const crudUpdateAction = createAction<(args: UpdateArgs) => Promise<void>>(
+    const crudUpdateAction = createAction<(args: RouteInputs.Update) => Promise<void>>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
@@ -46,7 +41,7 @@ function createCrud() {
     {=/ operations.Update =}
     {=# operations.Delete =}
     {=# isEnabled =}
-    const crudDeleteAction = createAction<(args: PrimaryFieldArgs) => Promise<void>>(
+    const crudDeleteAction = createAction<(args: RouteInputs.Delete) => Promise<void>>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
@@ -56,7 +51,7 @@ function createCrud() {
         {=# operations.Get.isEnabled =}
         get: {
             query: crudGetQuery,
-            useQuery(args: PrimaryFieldArgs) {
+            useQuery(args: RouteInputs.Get) {
                 return useQuery(crudGetQuery, args);
             }
         },

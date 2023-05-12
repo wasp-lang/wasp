@@ -13,6 +13,7 @@ module Wasp.Generator.ServerGenerator.Common
     toESModulesImportPath,
     mkUniversalTmplFdWithDst,
     mkTmplFdWithData,
+    mkUniversalTmplFdWithDstAndData,
     ServerRootDir,
     ServerSrcDir,
     ServerTemplatesDir,
@@ -97,15 +98,22 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (serverTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
+mkUniversalTmplFdWithDstAndData ::
+  Path' (Rel UniversalTemplatesDir) File' ->
+  Path' (Rel ServerRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkUniversalTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+  createTemplateFileDraft
+    (serverRootDirInProjectRootDir </> relDstPath)
+    (universalTemplatesDirInTemplatesDir </> relSrcPath)
+    tmplData
+
 mkUniversalTmplFdWithDst ::
   Path' (Rel UniversalTemplatesDir) File' ->
   Path' (Rel ServerRootDir) File' ->
   FileDraft
-mkUniversalTmplFdWithDst relSrcPath relDstPath =
-  createTemplateFileDraft
-    (serverRootDirInProjectRootDir </> relDstPath)
-    (universalTemplatesDirInTemplatesDir </> relSrcPath)
-    Nothing
+mkUniversalTmplFdWithDst relSrcPath relDstPath = mkUniversalTmplFdWithDstAndData relSrcPath relDstPath Nothing
 
 -- | Path where server app templates reside.
 serverTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir ServerTemplatesDir)

@@ -1,6 +1,7 @@
 module Wasp.Generator.Crud
   ( getCrudOperationJson,
     getCrudEntityPrimaryField,
+    getCrudFilePath,
   )
 where
 
@@ -9,8 +10,10 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Types as Aeson.Types
 import Data.List ((\\))
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import qualified Data.Text as T
+import StrongPath (File', Path', Rel)
+import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Crud as Crud.AS
@@ -59,3 +62,6 @@ getCrudEntityPrimaryField :: AS.AppSpec -> AS.Crud.Crud -> Maybe PslModel.Field
 getCrudEntityPrimaryField spec crud = Entity.getPrimaryField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
+
+getCrudFilePath :: String -> String -> Path' (Rel r) File'
+getCrudFilePath crudName ext = fromJust (SP.parseRelFile (crudName ++ "." ++ ext))

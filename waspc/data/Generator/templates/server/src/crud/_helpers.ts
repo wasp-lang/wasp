@@ -1,19 +1,14 @@
 {{={= =}=}}
-// TODO: import auth entity and use it for "user"
-{=# isAuthEnabled =}
-import { type {= userEntityUpper =} } from '../entities/index.js'
-{=/ isAuthEnabled =}
-// TODO: make user optional if isPublic
-import { type Prisma } from '@prisma/client'
-export function createCrudOverrides(overrides: Overrides): Overrides {
-  return overrides
-}
+import {
+  {=# isAuthEnabled =}
+  type {= userEntityUpper =},
+  {=/ isAuthEnabled =}
+} from '../entities/index.js'
+// TODO(miho): replace with proper imports once we support type imports
+import { PrismaArgs, type RouteInputs } from '../universal/crud/{= crud.name =}.js'
+import { Expand, PartialBy } from '../universal/types.js'
 
-type CreateArgs = Prisma.{= crud.entityUpper =}CreateArgs
-type UpdateArgs = Prisma.{= crud.entityUpper =}UpdateArgs
-type DeleteArgs = Prisma.{= crud.entityUpper =}DeleteArgs
-type GetArgs = Prisma.{= crud.entityUpper =}FindUniqueArgs
-type GetAllArgs = Prisma.{= crud.entityUpper =}FindManyArgs
+export type { PrismaArgs, RouteInputs }
 
 {=# isAuthEnabled =}
 type UserEntity = {= userEntityUpper =}
@@ -22,45 +17,61 @@ type UserEntity = {= userEntityUpper =}
 type UserEntity = any
 {=/ isAuthEnabled =}
 
+namespace OverridesReturnValues {
+  // We provide the default 'where' property for Get operation
+  export type Get = Expand<PartialBy<PrismaArgs.Get, 'where'>>
+  export type GetAll = PrismaArgs.GetAll
+  // We provide the default 'data' property for Create operation
+  export type Create = Expand<PartialBy<PrismaArgs.Create, 'data'>>
+  // We provide the default 'where' and 'data' properties for Update operation
+  export type Update = Expand<PartialBy<PrismaArgs.Update, 'where' | 'data'>>
+  // We provide the default 'where' property for Delete operation
+  export type Delete = Expand<PartialBy<PrismaArgs.Delete, 'where'>>
+}
+
 type Overrides = {
     {=# crud.operations.Get =}
     {=# isPublic =}
-    Get?: (where: any, user?: UserEntity) => GetArgs
+    Get?: (args: RouteInputs.Get, user?: UserEntity) => OverridesReturnValues.Get
     {=/ isPublic =}
     {=^ isPublic =}
-    Get?: (where: any, user: UserEntity) => GetArgs
+    Get?: (args: RouteInputs.Get, user: UserEntity) => OverridesReturnValues.Get
     {=/ isPublic =}
     {=/ crud.operations.Get =}
     {=# crud.operations.GetAll =}
     {=# isPublic =}
-    GetAll?: (where: any, user?: UserEntity) => GetAllArgs
+    GetAll?: (args: RouteInputs.GetAll, user?: UserEntity) => OverridesReturnValues.GetAll
     {=/ isPublic =}
     {=^ isPublic =}
-    GetAll?: (where: any, user: UserEntity) => GetAllArgs
+    GetAll?: (args: RouteInputs.GetAll, user: UserEntity) => OverridesReturnValues.GetAll
     {=/ isPublic =}
     {=/ crud.operations.GetAll =}
     {=# crud.operations.Create =}
     {=# isPublic =}
-    Create?: (data: any, user?: UserEntity) => CreateArgs
+    Create?: (args: RouteInputs.Create, user?: UserEntity) => OverridesReturnValues.Create
     {=/ isPublic =}
     {=^ isPublic =}
-    Create?: (data: any, user: UserEntity) => CreateArgs
+    Create?: (args: RouteInputs.Create, user: UserEntity) => OverridesReturnValues.Create
     {=/ isPublic =}
     {=/ crud.operations.Create =}
     {=# crud.operations.Update =}
     {=# isPublic =}
-    Update?: (data: any, user?: UserEntity) => UpdateArgs
+    Update?: (args: RouteInputs.Update, user?: UserEntity) => OverridesReturnValues.Update
     {=/ isPublic =}
     {=^ isPublic =}
-    Update?: (data: any, user: UserEntity) => UpdateArgs
+    Update?: (args: RouteInputs.Update, user: UserEntity) => OverridesReturnValues.Update
     {=/ isPublic =}
     {=/ crud.operations.Update =}
     {=# crud.operations.Delete =}
     {=# isPublic =}
-    Delete?: (where: any, user?: UserEntity) => DeleteArgs
+    Delete?: (args: RouteInputs.Delete, user?: UserEntity) => OverridesReturnValues.Delete
     {=/ isPublic =}
     {=^ isPublic =}
-    Delete?: (where: any, user: UserEntity) => DeleteArgs
+    Delete?: (args: RouteInputs.Delete, user: UserEntity) => OverridesReturnValues.Delete
     {=/ isPublic =}
     {=/ crud.operations.Delete =}
+}
+
+export function createCrudOverrides(overrides: Overrides): Overrides {
+  return overrides
 }

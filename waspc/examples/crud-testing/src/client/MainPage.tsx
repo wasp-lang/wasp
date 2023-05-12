@@ -1,6 +1,7 @@
 import "./Main.css";
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import { tasks as tasksCrud } from "@wasp/crud/tasks";
 import { User, Task } from "@wasp/entities";
@@ -86,7 +87,9 @@ const MainPage = ({ user }: { user: User }) => {
               ) : (
                 <>
                   <div className="task__title">
-                    {JSON.stringify(task, null, 2)}
+                    <Link to={`/${task.id}`}>
+                      {JSON.stringify(task, null, 2)}
+                    </Link>
                   </div>
                   <button onClick={() => handleTaskDelete(task)}>Delete</button>
                   <a onClick={() => handleStartEditing(task)}>

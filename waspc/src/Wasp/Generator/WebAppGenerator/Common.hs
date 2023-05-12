@@ -13,6 +13,7 @@ module Wasp.Generator.WebAppGenerator.Common
     asWebAppSrcFile,
     mkUniversalTmplFdWithDst,
     serverRootDirFromWebAppRootDir,
+    mkUniversalTmplFdWithDstAndData,
     WebAppRootDir,
     WebAppSrcDir,
     WebAppTemplatesDir,
@@ -105,12 +106,22 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (webAppTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkUniversalTmplFdWithDst :: Path' (Rel UniversalTemplatesDir) File' -> Path' (Rel WebAppRootDir) File' -> FileDraft
-mkUniversalTmplFdWithDst relSrcPath relDstPath =
+mkUniversalTmplFdWithDst ::
+  Path' (Rel UniversalTemplatesDir) File' ->
+  Path' (Rel WebAppRootDir) File' ->
+  FileDraft
+mkUniversalTmplFdWithDst relSrcPath relDstPath = mkUniversalTmplFdWithDstAndData relSrcPath relDstPath Nothing
+
+mkUniversalTmplFdWithDstAndData ::
+  Path' (Rel UniversalTemplatesDir) File' ->
+  Path' (Rel WebAppRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkUniversalTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
     (webAppRootDirInProjectRootDir </> relDstPath)
     (universalTemplatesDirInTemplatesDir </> relSrcPath)
-    Nothing
+    tmplData
 
 toViteImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r) (File f)
 toViteImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP

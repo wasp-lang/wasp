@@ -21,6 +21,12 @@ page MainPage {
   authRequired: true,
 }
 
+route DetailRoute { path: "/:id", to: DetailPage }
+page DetailPage {
+  component: import Main from "@client/DetailPage.tsx",
+  authRequired: true,
+}
+
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
   component: import { LoginPage } from "@client/LoginPage.tsx",
