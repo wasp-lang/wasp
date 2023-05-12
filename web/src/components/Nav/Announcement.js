@@ -37,7 +37,7 @@ const Announcement = () => {
       >
         <span className='item-center flex gap-2 px-3'>
 
-          <span>🏆 Wasp Hackathon 2.0 kick-off: April 28th! 🏆</span>
+          <span>🏆 Wasp Hackathon 2.0 ends on May 8th! You can still participate 🏆</span>
         </span>
 
         <span className='hidden items-center space-x-2 px-3 lg:flex'>
