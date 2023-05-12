@@ -37,7 +37,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.Dependency as App.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -164,7 +166,8 @@ npmDepsForWasp spec =
           ]
           ++ depsRequiredByPassport spec
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEmail spec,
+          ++ depsRequiredByEmail spec
+          ++ depsRequiredByWebSockets spec,
       N.waspDevDependencies =
         AS.Dependency.fromList
           [ ("nodemon", "^2.0.19"),
@@ -245,11 +248,18 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec
+              "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
+              "webSocket" .= webSocketData
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
+    webSocketData =
+      object
+        [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
+        ]
 
 relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathToServerSrcDir = [reldirP|./|]
@@ -399,3 +409,9 @@ genMiddleware spec =
               "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
               "importAlias" .= globalMiddlewareConfigFnAlias
             ]
+
+depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
+depsRequiredByWebSockets spec =
+  [App.Dependency.make ("socket.io", "4.6.1") | isJust maybeWebSocket]
+  where
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
