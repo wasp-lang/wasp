@@ -1,16 +1,14 @@
 export function webSocketFn(io) {
   console.log('webSocketFn')
 
+  let messageCount = 0
+
   io.on('connection', (socket) => {
-    console.log('a user connected: ', socket.data?.user || 'no user')
+    const username = socket.data?.user?.email || socket.data?.user?.username || 'unknown'
+    console.log('a user connected: ', username)
 
-    socket.on('ping', (msg) => {
-      console.log('ping: ', msg)
-      io.emit('pong', 'hello from webSocket.js')
-    })
-
-    socket.on('disconnect', () => {
-      console.log('user disconnected')
+    socket.on('chat message', (msg) => {
+      io.emit('chat message', { id: messageCount++, text: `${username}: ${msg}` })
     })
   })
 }

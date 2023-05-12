@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
@@ -14,21 +14,32 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
+  const [messages, setMessages] = useState<{ id: number, text: string }[]>([]);
   const [isConnected, socket] = useSocket()
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  function logMessage(msg: { id: number, text: string }) {
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  }
+
+  function handleClick() {
+    if (inputRef.current !== null) {
+      socket.emit('chat message', inputRef.current.value)
+      inputRef.current.value = ''
+    }
+  }
 
   useEffect(() => {
     fetchCustomRoute()
-  }, [])
 
-  useEffect(() => {
-    socket.emit('ping', 'hello from App.tsx')
-    socket.on('pong', (data: any) => {
-      console.log('pong', data)
-    })
+    socket.on('chat message', logMessage)
+
     return () => {
-      socket.off('pong')
+      socket.off('chat message', logMessage)
     }
   }, [])
+
+  const messageList = messages.map((msg) => <li key={msg.id}>{msg.text}</li>)
 
   return (
     <>
@@ -41,6 +52,9 @@ export const ProfilePage = ({
       <Link to="/">Go to dashboard</Link>
       <div>
         <p>Connected: {`${isConnected}`}</p>
+        <input type="text" ref={inputRef} />
+        <button type="submit" onClick={handleClick}>Submit</button>
+        <ul>{messageList}</ul>
       </div>
     </>
   )
