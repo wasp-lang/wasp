@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.6
+
+### Bug fixes
+- Running `wasp start db` when docker daemon is inactive will properly exit with clear error message and relevant troubleshooting documentations.
+
 ## v0.10.5
 
 ### Bug fixes

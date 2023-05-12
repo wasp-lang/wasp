@@ -9,9 +9,10 @@ import Control.Monad (when)
 import qualified Control.Monad.Except as E
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (fromMaybe, isJust)
+import GHC.IO.Exception (ExitCode (ExitSuccess))
 import StrongPath (Abs, Dir, File', Path', Rel, fromRelFile)
 import System.Environment (lookupEnv)
-import System.Process (callCommand)
+import System.Process (callCommand, readProcessWithExitCode)
 import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -132,6 +133,8 @@ startPostgreDevDb waspProjectDir appName = do
           Dev.Postgres.defaultDevPass
           Dev.Postgres.defaultDevUser
           dbName
+
+  throwIfDockerDaemonIsStopped
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
@@ -156,6 +159,25 @@ startPostgreDevDb waspProjectDir appName = do
                   "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
                   Dev.Postgres.defaultDevPort
               )
+
+    throwIfDockerDaemonIsStopped :: Command ()
+    throwIfDockerDaemonIsStopped = do
+      whenM (liftIO isDockerStopped) throwDockerDaemonIsStoppedError
+      where
+        isDockerStopped = do
+          (exitCode, errorString, _) <-
+            -- For docker formatting reference, see https://pkg.go.dev/text/template#hdr-Functions
+            readProcessWithExitCode "docker" ["info", "--format", "{{ index .ServerErrors 0 }}"] ""
+          pure $ exitCode == ExitSuccess && errorString == "Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?\n"
+
+        throwDockerDaemonIsStoppedError =
+          E.throwError $
+            CommandError
+              "Docker daemon is not running"
+              "Wasp can't run dev database for you because docker daemon isn't running \
+              \in the background. Have you tried executing `systemctl start docker` before running this command? \n\
+              \\nFor further information, please see https://docs.docker.com/config/daemon/troubleshoot/#check-whether-docker-is-running \
+              \and https://docs.docker.com/config/daemon/start/"
 
 -- | Docker volume name unique for the Wasp project with specified path and name.
 makeWaspDevDbDockerVolumeName :: Path' Abs (Dir WaspProjectDir) -> String -> String
