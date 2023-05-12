@@ -14,20 +14,9 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
-  const [messages, setMessages] = useState<{ id: number, text: string }[]>([]);
+  const [messages, setMessages] = useState<{ id: number, username: string, text: string }[]>([]);
   const [isConnected, socket] = useSocket()
   const inputRef = useRef<HTMLInputElement>(null)
-
-  function logMessage(msg: { id: number, text: string }) {
-    setMessages((priorMessages) => [msg, ...priorMessages])
-  }
-
-  function handleClick() {
-    if (inputRef.current !== null) {
-      socket.emit('chat message', inputRef.current.value)
-      inputRef.current.value = ''
-    }
-  }
 
   useEffect(() => {
     fetchCustomRoute()
@@ -39,7 +28,21 @@ export const ProfilePage = ({
     }
   }, [])
 
-  const messageList = messages.map((msg) => <li key={msg.id}>{msg.text}</li>)
+  function logMessage(msg: { id: number, username: string, text: string }) {
+    setMessages((priorMessages) => [msg, ...priorMessages])
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault()
+
+    if (inputRef.current !== null) {
+      socket.emit('chat message', inputRef.current.value)
+      inputRef.current.value = ''
+    }
+  }
+
+  const messageList = messages.map((msg) => <li key={msg.id}><em>{msg.username}</em>: {msg.text}</li>)
+  const connectionIcon = isConnected ? '🟢' : '🔴'
 
   return (
     <>
@@ -51,9 +54,13 @@ export const ProfilePage = ({
       <br />
       <Link to="/">Go to dashboard</Link>
       <div>
-        <p>Connected: {`${isConnected}`}</p>
-        <input type="text" ref={inputRef} />
-        <button type="submit" onClick={handleClick}>Submit</button>
+        <form onSubmit={handleSubmit}>
+          <div className="flex space-x-4 place-items-center">
+            <div>{connectionIcon}</div>
+            <div><input type="text" ref={inputRef} /></div>
+            <div><button className="btn btn-primary" type="submit">Submit</button></div>
+          </div>
+        </form>
         <ul>{messageList}</ul>
       </div>
     </>
