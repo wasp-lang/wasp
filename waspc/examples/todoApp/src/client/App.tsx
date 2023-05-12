@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
 
 import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth'
@@ -12,7 +13,15 @@ export function App({ children }: any) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
 
-  socket.emit("msg", "hello world")
+  useEffect(() => {
+    socket.emit('ping', 'hello from App.tsx')
+    socket.on('pong', (data: any) => {
+      console.log('pong', data)
+    })
+    return () => {
+      socket.off('pong')
+    }
+  }, [])
 
   return (
     <div className="app border-spacing-2 p-4">
