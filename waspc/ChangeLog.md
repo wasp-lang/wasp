@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.6
+
+### More `wasp deploy fly` options
+`wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
+
 ## v0.10.5
 
 ### Bug fixes
