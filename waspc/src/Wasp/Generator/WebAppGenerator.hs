@@ -8,6 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
+import Data.Maybe (isJust)
 import StrongPath
   ( Dir,
     File',
@@ -24,6 +25,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
@@ -209,7 +211,14 @@ genIndexHtml spec =
     templateData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String),
+          "webSocket" .= webSocketData
+        ]
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    webSocketData =
+      object
+        [ "inUse" .= isJust maybeWebSocket,
+          "debug" .= (Just (Just True) == (AS.App.WS.debug <$> maybeWebSocket))
         ]
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),

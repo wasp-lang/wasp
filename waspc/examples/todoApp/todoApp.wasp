@@ -8,6 +8,10 @@ app todoApp {
     ("@tailwindcss/forms", "^0.5.3"),
     ("@tailwindcss/typography", "^0.5.7")
   ],
+  webSocket: {
+    fn: import { webSocketFn } from "@server/webSocket.js",
+    debug: true
+  },
   auth: {
     userEntity: User,
     // externalAuthEntity: SocialLogin,
