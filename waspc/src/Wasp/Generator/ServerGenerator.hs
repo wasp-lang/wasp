@@ -208,7 +208,8 @@ genSrcDir spec =
       genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec
+      genServerJs spec,
+      genWebSocketJs spec
     ]
     <++> genRoutesDir spec
     <++> genTypesAndEntitiesDirs spec
@@ -249,17 +250,11 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "webSocket" .= webSocketData
+              "webSocket" .= getWebSocketData spec
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-    maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
-    webSocketData =
-      object
-        [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
-        ]
 
 relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathToServerSrcDir = [reldirP|./|]
@@ -416,3 +411,23 @@ depsRequiredByWebSockets spec =
   where
     versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
     areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
+
+genWebSocketJs :: AppSpec -> Generator FileDraft
+genWebSocketJs spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/webSocket.ts|])
+      (C.asServerFile [relfile|src/webSocket.ts|])
+      ( Just $
+          object
+            [ "webSocket" .= getWebSocketData spec
+            ]
+      )
+
+getWebSocketData :: AppSpec -> Aeson.Value
+getWebSocketData spec =
+  let maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+      maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
+   in object
+        [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
+        ]

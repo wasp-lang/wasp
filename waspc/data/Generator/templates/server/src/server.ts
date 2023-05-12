@@ -15,8 +15,7 @@ import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
 {=# webSocket.fn.isDefined =}
-import { Server } from 'socket.io'
-{=& webSocket.fn.importStatement =}
+import { init as initWebSocket } from './webSocket.js'
 {=/ webSocket.fn.isDefined =}
 
 const startServer = async () => {
@@ -35,12 +34,7 @@ const startServer = async () => {
   {=/ setupFn.isDefined =}
 
   {=# webSocket.fn.isDefined =}
-  const io = new Server(server, {
-    cors: {
-      origin: config.frontendUrl,
-    }
-  })
-  await {= webSocket.fn.importIdentifier =}(io)
+  await initWebSocket(server)
   {=/ webSocket.fn.isDefined =}
 
   server.listen(port)
