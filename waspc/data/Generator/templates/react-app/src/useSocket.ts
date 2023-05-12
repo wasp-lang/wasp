@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { socket } from '@wasp/socket'
-import { getAuthToken } from '@wasp/api'
+import { socket } from './socket'
+import { getAuthToken } from './api'
 
-export default function useSocket({ autoConnect = true, includeAuth = true } = {}): [boolean, typeof socket] {
+export function useSocket({ autoConnect = true, includeAuth = true } = {}): [boolean, typeof socket] {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   useEffect(() => {

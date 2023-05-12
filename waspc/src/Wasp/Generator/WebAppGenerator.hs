@@ -237,6 +237,7 @@ genSrcDir spec =
       copyTmplFile [relfile|api.ts|],
       copyTmplFile [relfile|storage.ts|],
       copyTmplFile [relfile|socket.ts|],
+      copyTmplFile [relfile|useSocket.ts|],
       genRouter spec,
       genIndexJs spec
     ]

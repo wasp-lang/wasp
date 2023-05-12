@@ -18,7 +18,7 @@ export async function init(server) {
     const token = socket.handshake.auth.token
     if (token) {
       try {
-        socket.data = { user: await getUserFromToken(token) }
+        socket.data = { ...socket.data, user: await getUserFromToken(token) }
       } catch (err) {}
     }
     next()

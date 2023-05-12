@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
+import { useSocket } from '@wasp/useSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -13,8 +14,20 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
+  const [isConnected, socket] = useSocket()
+
   useEffect(() => {
     fetchCustomRoute()
+  }, [])
+
+  useEffect(() => {
+    socket.emit('ping', 'hello from App.tsx')
+    socket.on('pong', (data: any) => {
+      console.log('pong', data)
+    })
+    return () => {
+      socket.off('pong')
+    }
   }, [])
 
   return (
@@ -26,6 +39,9 @@ export const ProfilePage = ({
       </div>
       <br />
       <Link to="/">Go to dashboard</Link>
+      <div>
+        <p>Connected: {`${isConnected}`}</p>
+      </div>
     </>
   )
 }
