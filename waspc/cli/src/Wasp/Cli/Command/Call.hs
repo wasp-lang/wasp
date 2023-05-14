@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New Arguments
+  = New NewProjectArgs
   | Start
   | StartDb
   | Clean
@@ -20,6 +20,9 @@ data Call
   | WaspLS
   | Deploy Arguments -- deploy cmd passthrough args
   | Test Arguments -- "client" | "server", then test cmd passthrough args
-  | Unknown Arguments -- all args
 
 type Arguments = [String]
+data NewProjectArgs = NewProjectArgs
+  { _projectName :: Maybe String,
+    _templateName :: Maybe String
+  }

@@ -377,6 +377,7 @@ library cli-lib
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0
     , temporary ^>=1.3
+    , optparse-applicative
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
@@ -433,6 +434,7 @@ executable wasp-cli
     , waspc
     , cli-lib
     , with-utf8 ^>= 1.0.2
+    , optparse-applicative
   other-modules:
       Paths_waspc
 
