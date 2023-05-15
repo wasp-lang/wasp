@@ -13,6 +13,8 @@ import Wasp.Cli.Command.Call (Call (..))
 import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.CreateNewProject (createNewProject)
+import qualified Wasp.Cli.Command.CreateNewProject.ArgumentsParser as AP
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
@@ -24,6 +26,8 @@ import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
+import Wasp.Cli.Command.Deploy (deploy)
+import Wasp.Cli.Command.Test (test)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -41,13 +45,12 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
 run :: Call -> IO ()
 run = \case
-  (New _) -> pure ()
-  Start -> runCommand start
-  StartDb -> runCommand Command.Start.Db.start
+  (New args) -> undefined
+  Start -> undefined
   Clean -> runCommand clean
   Uninstall -> runCommand uninstall
   Compile -> runCommand compile
-  Db _ -> pure ()
+  Db _ -> undefined
   Build -> runCommand build
   Version -> printVersion
   Telemetry -> runCommand Telemetry.telemetry
@@ -55,8 +58,9 @@ run = \case
   Dockerfile -> runCommand printDockerfile
   Info -> runCommand info
   WaspLS -> runWaspLS
-  Deploy _ -> pure ()
-  Test _ -> pure ()
+  -- FIXME: Replace custom parsers with optparse for deploy and test commands.
+  Deploy args -> runCommand $ deploy args
+  Test args -> runCommand $ test args
 
 runParser :: IO Call
 runParser = do O.customExecParser p opts
@@ -66,6 +70,7 @@ runParser = do O.customExecParser p opts
         (parserSuite <**> O.helper)
         ( O.fullDesc
             <> O.footer
+              -- FIXME: Fix stdout formatting.
               ( unlines
                   [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
                     Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
@@ -75,19 +80,45 @@ runParser = do O.customExecParser p opts
         )
     p = O.prefs O.showHelpOnEmpty
 
+mkCommand :: String -> Parser a -> String -> O.Mod O.CommandFields a
+mkCommand name callCommand description =
+  O.command name (O.info (O.helper <*> callCommand) (O.progDesc description))
+
+generalCommands :: Parser Call
+generalCommands =
+  O.subparser $
+    mconcat
+      [ O.commandGroup "GENERAL",
+        mkCommand "new" undefined "Creates a new Wasp project. Run it without arguments for interactive mode.",
+        mkCommand "version" (pure Version) "Prints current version of CLI.",
+        mkCommand "waspls" (pure WaspLS) "Run Wasp Language Server. Add --help to get more info.",
+        mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
+      ]
+
+deployRestArgs :: Parser String
+deployRestArgs = O.strArgument (O.metavar "DEPLOY_ARGUMENTS" <> O.help "Uncovered deploy arguments")
+
+testRestArgs :: Parser String
+testRestArgs = O.strArgument (O.metavar "TEST_ARGUMENTS" <> O.help "Uncovered test arguments")
+
+inProjectCommands :: Parser Call
+inProjectCommands =
+  O.subparser $
+    mconcat
+      [ O.commandGroup "IN PROJECT",
+        mkCommand "start" undefined "Runs Wasp app in development mode, watching for file changes.",
+        mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
+        mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        mkCommand "compile" (pure Compile) "--COMMAND NOT DOCUMENTED--",
+        mkCommand "deploy" (Deploy <$> O.many deployRestArgs) "Deploys your Wasp app to cloud hosting providers.",
+        mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
+        mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
+        mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
+        mkCommand "test" (Test <$> O.many testRestArgs) "Executes tests in your project."
+      ]
+
 parserSuite :: Parser Call
-parserSuite =
-  O.subparser
-    ( O.command "version" (O.info (O.helper <*> pure Version) (O.progDesc "Prints current version of CLI."))
-        <> O.command "waspls" (O.info (O.helper <*> pure WaspLS) (O.progDesc "Run Wasp Language Server. Add --help to get more info."))
-        <> O.command "uninstall" (O.info (O.helper <*> pure Uninstall) (O.progDesc "Removes Wasp from your system."))
-        <> O.commandGroup "GENERAL"
-    )
-    <|> O.subparser
-      ( O.command "start" (O.info (O.helper <*> pure Start) (O.progDesc "Runs Wasp app in development mode, watching for file changes."))
-          <> O.command "start db" (O.info (O.helper <*> pure Command.Call.StartDb) (O.progDesc "Starts managed development database for you."))
-          <> O.commandGroup "IN PROJECT"
-      )
+parserSuite = generalCommands <|> inProjectCommands
 
 printVersion :: IO ()
 printVersion = do
