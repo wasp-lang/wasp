@@ -139,7 +139,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         with:
           path: ~/.npm
-          key: node-modules-${{ hashFiles('./headless-test/package-lock.json') }}
+          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}
 
       - name: Headless - Install Dependencies
         id: headless-install-dependencies
