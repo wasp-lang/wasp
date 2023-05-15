@@ -407,9 +407,15 @@ genMiddleware spec =
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredByWebSockets spec =
-  [AS.Dependency.make ("socket.io", show versionRange) | areWebSocketsUsed]
+  if areWebSocketsUsed
+    then
+      [ AS.Dependency.make ("socket.io", show socketIoVersionRange),
+        AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
+      ]
+    else []
   where
-    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    socketIoVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 0 0)]
     areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
 
 genWebSocketJs :: AppSpec -> Generator FileDraft

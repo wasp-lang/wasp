@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react'
+import { Socket } from 'socket.io-client'
+import { DefaultEventsMap, EventsMap } from '@socket.io/component-emitter'
 import { socket } from './socket'
 import { getAuthToken } from './api'
 
-export function useSocket({ autoConnect = true, includeAuth = true } = {}): [boolean, typeof socket] {
+export function useSocket<
+  ServerToClientEvents extends EventsMap = DefaultEventsMap,
+  ClientToServerEvents extends EventsMap = ServerToClientEvents
+>
+  ({ autoConnect = true, includeAuth = true } = {}):
+  [boolean, Socket<ServerToClientEvents, ClientToServerEvents>] {
+
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   useEffect(() => {

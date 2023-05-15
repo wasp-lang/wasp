@@ -181,9 +181,15 @@ depsRequiredForTesting =
 
 depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
 depsRequiredForWebSockets spec =
-  [AS.Dependency.make ("socket.io-client", show versionRange) | areWebSocketsUsed]
+  if areWebSocketsUsed
+    then
+      [ AS.Dependency.make ("socket.io-client", show socketIoClientVersionRange),
+        AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
+      ]
+    else []
   where
-    versionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    socketIoClientVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+    socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 0 0)]
     areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
 
 genGitignore :: Generator FileDraft

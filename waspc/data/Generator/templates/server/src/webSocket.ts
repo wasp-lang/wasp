@@ -2,15 +2,22 @@
 
 import http from 'http'
 import { Server, Socket } from 'socket.io'
+import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import { getUserFromToken } from './core/auth.js'
 import config from './config.js'
+import { WaspSocketData } from './universal/types.js'
 
 {=& webSocket.fn.importStatement =}
 
-export type WebSocketDefinition<T extends Server = Server> = (io: T) => Promise<void> | void
+export type WebSocketDefinition<
+  ClientToServerEvents extends EventsMap = DefaultEventsMap,
+  ServerToClientEvents extends EventsMap = ClientToServerEvents,
+  InterServerEvents extends EventsMap = DefaultEventsMap,
+  SocketData extends WaspSocketData = WaspSocketData> =
+  (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => Promise<void> | void
 
-type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}>[0]
+type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}> [0]
 
 export async function init(server: http.Server): Promise<void> {
   const io: ServerType = new Server(server, {
@@ -24,7 +31,7 @@ export async function init(server: http.Server): Promise<void> {
     if (token) {
       try {
         socket.data = { ...socket.data, user: await getUserFromToken(token) }
-      } catch (err) {}
+      } catch (err) { }
     }
     next()
   })

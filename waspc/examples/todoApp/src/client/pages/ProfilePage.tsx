@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
 import { useSocket } from '@wasp/useSocket'
+import { ClientToServerEvents, ServerToClientEvents } from '../../shared/webSocket'
 
 async function fetchCustomRoute() {
   const res = await api.get('/foo/bar')
@@ -14,8 +15,8 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
-  const [messages, setMessages] = useState<{ id: number, username: string, text: string }[]>([]);
-  const [isConnected, socket] = useSocket()
+  const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([]);
+  const [isConnected, socket] = useSocket<ServerToClientEvents, ClientToServerEvents>()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export const ProfilePage = ({
     }
   }, [])
 
-  function logMessage(msg: { id: number, username: string, text: string }) {
+  function logMessage(msg: { id: string, username: string, text: string }) {
     setMessages((priorMessages) => [msg, ...priorMessages])
   }
 
