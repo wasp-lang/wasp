@@ -1,20 +1,25 @@
 {{={= =}=}}
 
-import { Server } from 'socket.io'
+import http from 'http'
+import { Server, Socket } from 'socket.io'
 
 import { getUserFromToken } from './core/auth.js'
 import config from './config.js'
 
 {=& webSocket.fn.importStatement =}
 
-export async function init(server) {
-  const io = new Server(server, {
+export type WebSocketDefinition<T extends Server = Server> = (io: T) => Promise<void> | void
+
+type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}>[0]
+
+export async function init(server: http.Server): Promise<void> {
+  const io: ServerType = new Server(server, {
     cors: {
       origin: config.frontendUrl,
     }
   })
 
-  io.use(async (socket, next) => {
+  io.use(async (socket: Socket, next: (err?: Error) => void) => {
     const token = socket.handshake.auth.token
     if (token) {
       try {

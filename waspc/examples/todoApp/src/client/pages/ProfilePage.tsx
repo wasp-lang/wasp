@@ -21,10 +21,10 @@ export const ProfilePage = ({
   useEffect(() => {
     fetchCustomRoute()
 
-    socket.on('chat message', logMessage)
+    socket.on('chatMessage', logMessage)
 
     return () => {
-      socket.off('chat message', logMessage)
+      socket.off('chatMessage', logMessage)
     }
   }, [])
 
@@ -36,7 +36,7 @@ export const ProfilePage = ({
     e.preventDefault()
 
     if (inputRef.current !== null) {
-      socket.emit('chat message', inputRef.current.value)
+      socket.emit('chatMessage', inputRef.current.value)
       inputRef.current.value = ''
     }
   }
