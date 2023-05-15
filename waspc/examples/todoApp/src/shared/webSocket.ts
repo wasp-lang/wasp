@@ -8,6 +8,6 @@ export interface ClientToServerEvents {
   chatMessage: (msg: string) => void;
 }
 
-export interface InterServerEvents {}
+export interface InterServerEvents { }
 
-export interface SocketData extends WaspSocketData {}
+export interface SocketData extends WaspSocketData { }
