@@ -16,12 +16,17 @@ data Call
   | PrintBashCompletionInstruction
   | GenerateBashCompletionScript
   | BashCompletionListCommands
-  | WaspLS
+  | WaspLS !WaspLSArgs
   | Deploy !Arguments -- deploy cmd passthrough args
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
 
 data TestArgs = TestClient !Arguments | TestServer !Arguments
 
 data StartArg = StartDb | StartNormal
+
+data WaspLSArgs = WaspLSArgs
+  { wslLogFile :: !(Maybe FilePath),
+    waslUseStdio :: !Bool
+  }
 
 type Arguments = [String]

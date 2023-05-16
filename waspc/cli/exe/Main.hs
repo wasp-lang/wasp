@@ -59,9 +59,7 @@ run = \case
   Deps -> runCommand deps
   Dockerfile -> runCommand printDockerfile
   Info -> runCommand info
-  WaspLS ->
-    -- FIXME: Replace custom parser
-    runWaspLS
+  WaspLS args -> runCommand $ runWaspLS args
   Deploy args -> runCommand $ deploy args
   Test args -> runCommand $ test args
 

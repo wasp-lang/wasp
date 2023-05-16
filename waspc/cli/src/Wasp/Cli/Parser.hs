@@ -6,6 +6,7 @@ import Wasp.Cli.Command.Call (Call (..))
 import Wasp.Cli.Command.Deploy (parseDeploy)
 import Wasp.Cli.Command.Start (parseStart)
 import Wasp.Cli.Command.Test (parseTest)
+import Wasp.Cli.Command.WaspLS (parseWaspLS)
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
 
 parserSuite :: Parser Call
@@ -21,7 +22,7 @@ generalCommands =
       [ O.commandGroup "GENERAL",
         mkCommand "new" undefined "Creates a new Wasp project. Run it without arguments for interactive mode.",
         mkCommand "version" (pure Version) "Prints current version of CLI.",
-        mkCommand "waspls" (pure WaspLS) "Run Wasp Language Server. Add --help to get more info.",
+        mkCommand "waspls" parseWaspLS "Run Wasp Language Server. Add --help to get more info.",
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 

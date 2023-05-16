@@ -1,38 +1,23 @@
 module Wasp.Cli.Command.WaspLS
   ( runWaspLS,
+    parseWaspLS,
   )
 where
 
+import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as O
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Call (Call (WaspLS), WaspLSArgs (..))
 import qualified Wasp.LSP.Server as LS
 
-runWaspLS :: IO ()
-runWaspLS = do
-  args <- parseArgsOrPrintUsageAndExit
-  LS.serve $ _optionsLogFile $ options args
+parseWaspLS :: O.Parser Call
+parseWaspLS = WaspLS <$> parseWaspLSArgs
 
-parseArgsOrPrintUsageAndExit :: IO Args
-parseArgsOrPrintUsageAndExit =
-  O.execParser $
-    O.info
-      (O.helper <*> parseArgs)
-      (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
+runWaspLS :: WaspLSArgs -> Command ()
+runWaspLS WaspLSArgs {wslLogFile = lf, waslUseStdio = _} = liftIO $ LS.serve lf
 
-data Args = Args
-  { options :: Options
-  }
-
-data Options = Options
-  { _optionsLogFile :: Maybe FilePath,
-    _optionsUseStdio :: Bool
-  }
-
--- NOTE: Here we assume that first arg on command line is "waspls".
-parseArgs :: O.Parser Args
-parseArgs = Args <$> O.hsubparser (O.command "waspls" (O.info parseOptions (O.progDesc "Run Wasp Language Server")))
-
-parseOptions :: O.Parser Options
-parseOptions = Options <$> O.optional parseLogFile <*> parseStdio
+parseWaspLSArgs :: O.Parser WaspLSArgs
+parseWaspLSArgs = WaspLSArgs <$> O.optional parseLogFile <*> parseStdio
   where
     parseLogFile =
       O.strOption

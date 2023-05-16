@@ -15,6 +15,7 @@ import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
 import Wasp.Cli.Command.CreateNewProject.Common
   ( throwInvalidTemplateNameUsedError,
     throwProjectCreationError,
@@ -28,7 +29,6 @@ import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase, whenM)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
 
 data NewProjectDescription = NewProjectDescription
   { _projectName :: NewProjectName,
@@ -124,21 +124,21 @@ obtainAvailableProjectDirPath projectName = do
 mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> StarterTemplateName -> Command NewProjectDescription
 mkNewProjectDescription projectName absWaspProjectDir templateName
   | isValidWaspIdentifier appName =
-    return $
-      NewProjectDescription
-        { _projectName = NewProjectName projectName,
-          _appName = NewProjectAppName appName,
-          _templateName = templateName,
-          _absWaspProjectDir = absWaspProjectDir
-        }
+      return $
+        NewProjectDescription
+          { _projectName = NewProjectName projectName,
+            _appName = NewProjectAppName appName,
+            _templateName = templateName,
+            _absWaspProjectDir = absWaspProjectDir
+          }
   | otherwise =
-    throwProjectCreationError $
-      intercalate
-        "\n"
-        [ "The project's name is not in the valid format!",
-          indent 2 "- It can start with a letter or an underscore.",
-          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-          indent 2 "- It can't be a Wasp keyword."
-        ]
+      throwProjectCreationError $
+        intercalate
+          "\n"
+          [ "The project's name is not in the valid format!",
+            indent 2 "- It can start with a letter or an underscore.",
+            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+            indent 2 "- It can't be a Wasp keyword."
+          ]
   where
     appName = kebabToCamelCase projectName

@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   ( parseNewProjectArgs,
-  NewProjectArgs(..)
+    NewProjectArgs (..),
   )
 where
 
