@@ -18,20 +18,24 @@ import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Parser.Util (mkWrapperCommand)
+import Wasp.Cli.Parser.Util (CommandType (CTForwardOptions), mkWrapperCommand)
 import qualified Wasp.Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Message as Msg
 
 testRestArgs :: O.Parser String
-testRestArgs = O.strArgument (O.metavar "VITEST_ARGUMENTS" <> O.help "Extra arguments that will be passed to Vitest. See https://vitest.dev/guide/cli.html")
+testRestArgs =
+  O.strArgument
+    ( O.metavar "VITEST_ARGUMENTS"
+        <> O.help "Extra arguments that will be passed to Vitest. See https://vitest.dev/guide/cli.html"
+    )
 
 parseTestArgs :: O.Parser TestArgs
 parseTestArgs =
   O.subparser $
     mconcat
-      [ mkWrapperCommand "client" (TestClient <$> O.many testRestArgs) "Run your app client tests.",
-        mkWrapperCommand "server" (TestServer <$> O.many testRestArgs) "Run your app server tests."
+      [ mkWrapperCommand "client" CTForwardOptions (TestClient <$> O.many testRestArgs) "Run your app client tests.",
+        mkWrapperCommand "server" CTForwardOptions (TestServer <$> O.many testRestArgs) "Run your app server tests."
       ]
 
 parseTest :: O.Parser Call

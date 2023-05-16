@@ -3,8 +3,9 @@ module Wasp.Cli.Parser (parserSuite) where
 import Options.Applicative (Applicative (liftA2), Parser, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Deploy (parseDeploy)
 import Wasp.Cli.Command.Test (parseTest)
-import Wasp.Cli.Parser.Util (mkCommand, mkWrapperCommand)
+import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
 
 parserSuite :: Parser Call
 parserSuite = generalCommands <|> inProjectCommands
@@ -20,9 +21,6 @@ generalCommands =
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 
-deployRestArgs :: Parser String
-deployRestArgs = O.strArgument (O.metavar "DEPLOY_ARGUMENTS" <> O.help "Uncovered deploy arguments")
-
 inProjectCommands :: Parser Call
 inProjectCommands =
   O.subparser $
@@ -32,7 +30,7 @@ inProjectCommands =
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkCommand "compile" (pure Compile) "--COMMAND NOT DOCUMENTED--",
-        mkWrapperCommand "deploy" (Deploy <$> O.many deployRestArgs) "Deploys your Wasp app to cloud hosting providers.",
+        mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",
         mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
         mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
         mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
