@@ -26,7 +26,7 @@ data StartArg = StartDb | StartNormal
 
 data WaspLSArgs = WaspLSArgs
   { wslLogFile :: !(Maybe FilePath),
-    waslUseStdio :: !Bool
+    wslUseStudio :: !Bool
   }
 
 type Arguments = [String]

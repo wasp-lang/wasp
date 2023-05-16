@@ -14,7 +14,7 @@ parseWaspLS :: O.Parser Call
 parseWaspLS = WaspLS <$> parseWaspLSArgs
 
 runWaspLS :: WaspLSArgs -> Command ()
-runWaspLS WaspLSArgs {wslLogFile = lf, waslUseStdio = _} = liftIO $ LS.serve lf
+runWaspLS WaspLSArgs {wslLogFile = lf, wslUseStudio = _} = liftIO $ LS.serve lf
 
 parseWaspLSArgs :: O.Parser WaspLSArgs
 parseWaspLSArgs = WaspLSArgs <$> O.optional parseLogFile <*> parseStdio
