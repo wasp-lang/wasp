@@ -13,7 +13,7 @@ import Data.Maybe (fromMaybe)
 import qualified Options.Applicative as O
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Call (StartArg (..))
+import Wasp.Cli.Command.Call (Call (Start), StartArg (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -31,8 +31,10 @@ parseStartDb =
     O.subparser $
       mkCommand "db" (pure StartDb) "This will launch the development PostgreSQL database."
 
-parseStart :: O.Parser StartArg
-parseStart = fromMaybe StartNormal <$> parseStartDb
+parseStart :: O.Parser Call
+parseStart = Start <$> starter
+  where
+    starter = fromMaybe StartNormal <$> parseStartDb
 
 start :: StartArg -> Command ()
 start arg = case arg of

@@ -30,7 +30,7 @@ inProjectCommands =
   O.subparser $
     mconcat
       [ O.commandGroup "IN PROJECT",
-        mkCommand "start" (Start <$> parseStart) "Runs Wasp app in development mode, watching for file changes.",
+        mkCommand "start" parseStart "Runs Wasp app in development mode, watching for file changes.",
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",
