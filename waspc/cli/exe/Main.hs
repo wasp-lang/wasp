@@ -95,11 +95,16 @@ generalCommands =
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 
+
 deployRestArgs :: Parser String
 deployRestArgs = O.strArgument (O.metavar "DEPLOY_ARGUMENTS" <> O.help "Uncovered deploy arguments")
 
 testRestArgs :: Parser String
 testRestArgs = O.strArgument (O.metavar "TEST_ARGUMENTS" <> O.help "Uncovered test arguments")
+
+mkWrapperCommand :: String -> Parser a -> String -> O.Mod O.CommandFields a
+mkWrapperCommand name callCommand description =
+  O.command name (O.info (O.helper <*> callCommand) (O.progDesc description <> O.noIntersperse))
 
 inProjectCommands :: Parser Call
 inProjectCommands =
@@ -110,11 +115,11 @@ inProjectCommands =
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkCommand "compile" (pure Compile) "--COMMAND NOT DOCUMENTED--",
-        mkCommand "deploy" (Deploy <$> O.many deployRestArgs) "Deploys your Wasp app to cloud hosting providers.",
+        mkWrapperCommand "deploy" (Deploy <$> O.many deployRestArgs) "Deploys your Wasp app to cloud hosting providers.",
         mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
         mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
         mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
-        mkCommand "test" (Test <$> O.many testRestArgs) "Executes tests in your project."
+        mkWrapperCommand "test" (Test <$> O.many testRestArgs) "Executes tests in your project."
       ]
 
 parserSuite :: Parser Call
