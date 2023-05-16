@@ -1,8 +1,9 @@
 module Wasp.Cli.Parser (parserSuite) where
 
+import Data.Maybe (fromMaybe)
 import Options.Applicative (Parser, (<|>))
 import qualified Options.Applicative as O
-import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Call (Call (..), DbArgs (..), DbMigrateDevArgs (DbMigrateDevArgs))
 import Wasp.Cli.Command.Deploy (parseDeploy)
 import Wasp.Cli.Command.Start (parseStart)
 import Wasp.Cli.Command.Test (parseTest)
@@ -26,12 +27,41 @@ generalCommands =
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 
+parseDbSeedArg :: Parser DbArgs
+parseDbSeedArg = DbSeed <$> parser
+  where
+    parser = O.optional $ O.strArgument $ O.metavar "name" <> O.help "Seed name."
+
+-- FIXME: Currently we using primitive types. Let's see if we can refine with concrete sum types.
+parseDbMigrateDevArgs :: Parser DbArgs
+parseDbMigrateDevArgs = DbMigrateDev <$> parser
+  where
+    parser = DbMigrateDevArgs <$> nameArgParser <*> createOnlyParser
+    nameArgParser = O.optional <$> O.strOption $ O.long "name" <> O.metavar "migration-name"
+    createOnlyParser = O.switch $ O.long "create-only"
+
+parseDbArgs :: Parser DbArgs
+parseDbArgs =
+  O.subparser $
+    mconcat
+      [ mkCommand "start" (pure DbStart) "Alias for `wasp start db`.",
+        mkCommand "reset" (pure DbReset) "Drops all data and tables from development database and re-applies all migrations.",
+        -- FIXME: Fix stdout formatting.
+        mkCommand "seed" parseDbSeedArg "Executes a db seed function (specified via app.db.seeds). If there are multiple seeds, you can specify a seed to execute by providing its name, or if not then you will be asked to provide the name interactively.",
+        mkCommand "migrate-dev" parseDbMigrateDevArgs "Ensures dev database corresponds to the current state of schema(entities):\n  - Generates a new migration if there are changes in the schema.\n  - Applies any pending migrations to the database either using the\n    supplied migration name or asking for one.",
+        mkCommand "studio" (pure DbStudio) "GUI for inspecting your database."
+      ]
+
+parseDb :: Parser Call
+parseDb = Db <$> parseDbArgs
+
 inProjectCommands :: Parser Call
 inProjectCommands =
   O.subparser $
     mconcat
       [ O.commandGroup "IN PROJECT",
         mkCommand "start" parseStart "Runs Wasp app in development mode, watching for file changes.",
+        mkCommand "db" parseDb "Executes a database command. Run 'wasp db --help' for more info.",
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",

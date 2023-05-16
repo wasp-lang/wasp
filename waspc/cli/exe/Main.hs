@@ -9,7 +9,7 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..), StartArg (..), TestArgs (..))
+import Wasp.Cli.Command.Call (Call (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Deploy (deploy)
@@ -17,7 +17,6 @@ import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
-import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)

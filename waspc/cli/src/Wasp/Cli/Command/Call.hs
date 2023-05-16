@@ -6,7 +6,7 @@ data Call
   | Clean
   | Uninstall
   | Compile
-  | Db !Arguments -- db args
+  | Db !DbArgs
   | Build
   | Version
   | Telemetry
@@ -28,5 +28,17 @@ data WaspLSArgs = WaspLSArgs
   { wslLogFile :: !(Maybe FilePath),
     wslUseStudio :: !Bool
   }
+
+data DbMigrateDevArgs = DbMigrateDevArgs
+  { dbmdaName :: !(Maybe String),
+    dbmdaCreateOnly :: !Bool
+  }
+
+data DbArgs
+  = DbStart
+  | DbMigrateDev !DbMigrateDevArgs
+  | DbReset
+  | DbSeed !(Maybe String)
+  | DbStudio
 
 type Arguments = [String]
