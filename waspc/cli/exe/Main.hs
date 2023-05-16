@@ -9,7 +9,7 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Call (Call (..), TestArgs (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Deploy (deploy)

@@ -5,6 +5,7 @@ module Wasp.Cli.ParserTest where
 import Options.Applicative
 import Test.Tasty.Hspec
 import Wasp.Cli.Command.Call
+import qualified Wasp.Cli.Parser as P
 
 spec_allCliParsers :: Spec
 spec_allCliParsers = do

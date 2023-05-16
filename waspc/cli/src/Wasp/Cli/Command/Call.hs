@@ -2,7 +2,7 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New !Arguments
-  | Start 
+  | Start
   | Clean
   | Uninstall
   | Compile
@@ -18,6 +18,8 @@ data Call
   | BashCompletionListCommands
   | WaspLS
   | Deploy !Arguments -- deploy cmd passthrough args
-  | Test !Arguments -- "client" | "server", then test cmd passthrough args
+  | Test !TestArgs -- "client" | "server", then test cmd passthrough args
+
+data TestArgs = TestClient !Arguments | TestServer !Arguments
 
 type Arguments = [String]

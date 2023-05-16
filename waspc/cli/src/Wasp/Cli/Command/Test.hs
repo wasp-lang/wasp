@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Test
   ( test,
+    parseTest,
   )
 where
 
@@ -7,23 +8,38 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (newMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import qualified Options.Applicative as O
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Call (Call (Test), TestArgs (TestClient, TestServer))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
+import Wasp.Cli.Parser.Util (mkWrapperCommand)
 import qualified Wasp.Generator
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Message as Msg
 
-test :: [String] -> Command ()
-test [] = throwError $ CommandError "Not enough arguments" "Expected: wasp test client <args>"
-test ("client" : args) = watchAndTest $ Wasp.Generator.testWebApp args
-test ("server" : _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
-test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test client <args>"
+testRestArgs :: O.Parser String
+testRestArgs = O.strArgument (O.metavar "VITEST_ARGUMENTS" <> O.help "Extra arguments that will be passed to Vitest. See https://vitest.dev/guide/cli.html")
+
+parseTestArgs :: O.Parser TestArgs
+parseTestArgs =
+  O.subparser $
+    mconcat
+      [ mkWrapperCommand "client" (TestClient <$> O.many testRestArgs) "Run your app client tests.",
+        mkWrapperCommand "server" (TestServer <$> O.many testRestArgs) "Run your app server tests."
+      ]
+
+parseTest :: O.Parser Call
+parseTest = Test <$> parseTestArgs
+
+test :: TestArgs -> Command ()
+test (TestClient args) = watchAndTest $ Wasp.Generator.testWebApp args
+test (TestServer _) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 
 watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do

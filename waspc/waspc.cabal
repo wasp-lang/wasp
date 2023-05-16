@@ -383,6 +383,7 @@ library cli-lib
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
     Wasp.Cli.Archive
+    Wasp.Cli.Parser.Util
     Wasp.Cli.Parser
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build

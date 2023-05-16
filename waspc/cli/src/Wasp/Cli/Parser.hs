@@ -3,13 +3,11 @@ module Wasp.Cli.Parser (parserSuite) where
 import Options.Applicative (Applicative (liftA2), Parser, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Test (parseTest)
+import Wasp.Cli.Parser.Util (mkCommand, mkWrapperCommand)
 
 parserSuite :: Parser Call
 parserSuite = generalCommands <|> inProjectCommands
-
-mkCommand :: String -> Parser a -> String -> O.Mod O.CommandFields a
-mkCommand name callCommand description =
-  O.command name (O.info (O.helper <*> callCommand) (O.progDesc description))
 
 generalCommands :: Parser Call
 generalCommands =
@@ -25,13 +23,6 @@ generalCommands =
 deployRestArgs :: Parser String
 deployRestArgs = O.strArgument (O.metavar "DEPLOY_ARGUMENTS" <> O.help "Uncovered deploy arguments")
 
-testRestArgs :: Parser String
-testRestArgs = O.strArgument (O.metavar "TEST_ARGUMENTS" <> O.help "Uncovered test arguments")
-
-mkWrapperCommand :: String -> Parser a -> String -> O.Mod O.CommandFields a
-mkWrapperCommand name callCommand description =
-  O.command name (O.info (O.helper <*> callCommand) (O.progDesc description <> O.noIntersperse))
-
 inProjectCommands :: Parser Call
 inProjectCommands =
   O.subparser $
@@ -45,5 +36,5 @@ inProjectCommands =
         mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
         mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
         mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
-        mkWrapperCommand "test" (Test <$> O.many testRestArgs) "Executes tests in your project."
+        mkCommand "test" parseTest "Executes tests in your project."
       ]
