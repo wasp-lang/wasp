@@ -383,6 +383,7 @@ library cli-lib
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
     Wasp.Cli.Archive
+    Wasp.Cli.Parser
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
@@ -522,6 +523,7 @@ test-suite cli-test
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
     , tasty-hspec           >= 1.1 && < 1.1.7
     , tasty-quickcheck      ^>= 0.10
+    , optparse-applicative
   other-modules:
     DbMigrateTest
     TerminalTest
