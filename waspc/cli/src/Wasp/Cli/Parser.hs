@@ -8,7 +8,10 @@ import Wasp.Cli.Command.Test (parseTest)
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
 
 parserSuite :: Parser Call
-parserSuite = generalCommands <|> inProjectCommands
+parserSuite = internalCommands <|> generalCommands <|> inProjectCommands
+
+internalCommands :: Parser Call
+internalCommands = O.subparser $ mkCommand "compile" (pure Compile) "" <> O.internal
 
 generalCommands :: Parser Call
 generalCommands =
@@ -29,7 +32,6 @@ inProjectCommands =
         mkCommand "start" undefined "Runs Wasp app in development mode, watching for file changes.",
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
-        mkCommand "compile" (pure Compile) "--COMMAND NOT DOCUMENTED--",
         mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",
         mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
         mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",

@@ -56,7 +56,6 @@ run = \case
   WaspLS ->
     -- FIXME: Replace custom parser
     runWaspLS
-  -- FIXME: Replace custom parsers with optparse for deploy and test commands.
   Deploy args -> runCommand $ deploy args
   Test args -> runCommand $ test args
 

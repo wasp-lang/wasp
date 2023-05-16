@@ -11,13 +11,12 @@ mkWrapperCommand name commandType callCommand description =
     name
     ( O.info
         (O.helper <*> callCommand)
-        (O.progDesc description <> withModifier commandType)
+        (withModifier commandType description)
     )
   where
-    withModifier :: CommandType -> O.InfoMod a
-    withModifier CTNormal = O.progDesc ""
-    withModifier CTNoIntersperse = O.noIntersperse
-    withModifier CTForwardOptions = O.forwardOptions
+    withModifier CTNormal = O.progDesc
+    withModifier CTNoIntersperse = (<>) O.noIntersperse . O.progDesc
+    withModifier CTForwardOptions = (<>) O.forwardOptions . O.progDesc
 
 mkCommand :: String -> Parser a -> String -> O.Mod O.CommandFields a
 mkCommand name callCommand description = mkWrapperCommand name CTNormal callCommand description
