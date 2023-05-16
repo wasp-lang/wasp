@@ -7,14 +7,21 @@ export const webSocketFn: WebSocketDefinition<
   ServerToClientEvents,
   InterServerEvents,
   SocketData
-> = (io) => {
+> = (io, context) => {
   console.log('webSocketFn')
 
   io.on('connection', (socket) => {
-    const username = socket.data?.user?.email || socket.data?.user?.username || 'unknown'
+    const username = socket.data.user?.email || socket.data.user?.username || 'unknown'
     console.log('a user connected: ', username)
 
-    socket.on('chatMessage', (msg) => {
+    socket.on('chatMessage', async (msg) => {
+      await context.entities.Task.create({
+        data: {
+          description: msg, user: {
+            connect: { id: socket.data.user?.id },
+          },
+        }
+      })
       io.emit('chatMessage', { id: uuidv4(), username, text: msg })
     })
   })

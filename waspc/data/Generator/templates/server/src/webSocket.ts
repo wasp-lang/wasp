@@ -7,6 +7,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 import { getUserFromToken } from './core/auth.js'
 import config from './config.js'
 import { WaspSocketData } from './universal/types.js'
+import prisma from './dbClient.js'
 
 {=& webSocket.fn.importStatement =}
 
@@ -15,7 +16,15 @@ export type WebSocketDefinition<
   ServerToClientEvents extends EventsMap = ClientToServerEvents,
   InterServerEvents extends EventsMap = DefaultEventsMap,
   SocketData extends WaspSocketData = WaspSocketData> =
-  (io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>) => Promise<void> | void
+  ( io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
+    context: {
+      entities: {
+        {=# entities =}
+        {= name =}: typeof prisma.{= prismaIdentifier =},
+        {=/ entities =}
+      }
+    }
+  ) => Promise<void> | void
 
 type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}> [0]
 
@@ -36,5 +45,13 @@ export async function init(server: http.Server): Promise<void> {
     next()
   })
 
-  await {= webSocket.fn.importIdentifier =}(io)
+  const context = {
+      entities: {
+      {=# entities =}
+      {= name =}: prisma.{= prismaIdentifier =},
+      {=/ entities =}
+    }
+  }
+
+  await {= webSocket.fn.importIdentifier =}(io, context)
 }

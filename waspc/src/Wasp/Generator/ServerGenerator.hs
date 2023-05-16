@@ -38,6 +38,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -250,11 +251,12 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "webSocket" .= getWebSocketData spec
+              "webSocket" .= getWebSocketData maybeWebSocket
             ]
       )
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathToServerSrcDir = [reldirP|./|]
@@ -426,14 +428,16 @@ genWebSocketJs spec =
       (C.asServerFile [relfile|src/webSocket.ts|])
       ( Just $
           object
-            [ "webSocket" .= getWebSocketData spec
+            [ "webSocket" .= getWebSocketData maybeWebSocket,
+              "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
             ]
       )
+  where
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-getWebSocketData :: AppSpec -> Aeson.Value
-getWebSocketData spec =
-  let maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-      maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
+getWebSocketData :: Maybe WebSocket -> Aeson.Value
+getWebSocketData maybeWebSocket =
+  let maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
    in object
         [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
         ]

@@ -6,9 +6,12 @@ module Wasp.AppSpec.App.WebSocket
 where
 
 import Data.Data (Data)
+import Wasp.AppSpec.Core.Ref (Ref)
+import Wasp.AppSpec.Entity (Entity)
 import Wasp.AppSpec.ExtImport (ExtImport)
 
 data WebSocket = WebSocket
-  { fn :: ExtImport
+  { fn :: ExtImport,
+    entities :: Maybe [Ref Entity]
   }
   deriving (Show, Eq, Data)
