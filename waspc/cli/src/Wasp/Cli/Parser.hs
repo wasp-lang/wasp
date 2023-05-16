@@ -1,9 +1,10 @@
 module Wasp.Cli.Parser (parserSuite) where
 
-import Options.Applicative (Applicative (liftA2), Parser, (<**>), (<|>))
+import Options.Applicative (Parser, (<|>))
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (..))
 import Wasp.Cli.Command.Deploy (parseDeploy)
+import Wasp.Cli.Command.Start (parseStart)
 import Wasp.Cli.Command.Test (parseTest)
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
 
@@ -29,7 +30,7 @@ inProjectCommands =
   O.subparser $
     mconcat
       [ O.commandGroup "IN PROJECT",
-        mkCommand "start" undefined "Runs Wasp app in development mode, watching for file changes.",
+        mkCommand "start" (Start <$> parseStart) "Runs Wasp app in development mode, watching for file changes.",
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",

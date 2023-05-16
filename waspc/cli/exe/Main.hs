@@ -9,13 +9,15 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..), TestArgs (..))
+import Wasp.Cli.Command.Call (Call (..), StartArg (..), TestArgs (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.Start (start)
+import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
@@ -30,6 +32,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   commandCall <- runParser
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
   run commandCall
+
+  -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
+  -- We also make sure here to catch all errors that might get thrown and silence them.
   void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
   where
     threadDelaySeconds =
@@ -42,9 +47,10 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 run :: Call -> IO ()
 run = \case
   (New args) -> undefined
-  Start -> undefined
+  Start arg -> runCommand $ start arg
   Clean -> runCommand clean
   Uninstall -> runCommand uninstall
+  -- This command is called by wasp new, internally.
   Compile -> runCommand compile
   Db _ -> undefined
   Build -> runCommand build

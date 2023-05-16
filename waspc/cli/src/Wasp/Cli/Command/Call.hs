@@ -2,7 +2,7 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New !Arguments
-  | Start
+  | Start !StartArg
   | Clean
   | Uninstall
   | Compile
@@ -21,5 +21,7 @@ data Call
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
 
 data TestArgs = TestClient !Arguments | TestServer !Arguments
+
+data StartArg = StartDb | StartNormal
 
 type Arguments = [String]
