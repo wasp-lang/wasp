@@ -1,10 +1,10 @@
 import { TomlFilePaths } from './helpers/tomlFileHelpers.js';
 import { CommonOptions } from './CommonOptions.js';
 
-export type DeploymentInfo<OptionType extends CommonOptions> = Readonly<{
+export type DeploymentInfo<Option extends CommonOptions> = Readonly<{
 	baseName: string;
 	region?: string;
-	options: OptionType;
+	options: Option;
 	tomlFilePaths: TomlFilePaths;
 	clientName: string;
 	clientUrl: string;
@@ -13,12 +13,12 @@ export type DeploymentInfo<OptionType extends CommonOptions> = Readonly<{
 	dbName: string;
 }>;
 
-export function createDeploymentInfo<OptionType extends CommonOptions>(
+export function createDeploymentInfo<Option extends CommonOptions>(
 	baseName: string,
 	region: string | undefined,
-	options: OptionType,
+	options: Option,
 	tomlFilePaths: TomlFilePaths,
-): DeploymentInfo<OptionType> {
+): DeploymentInfo<Option> {
 	return {
 		baseName,
 		region,
