@@ -2,7 +2,6 @@ module Wasp.Cli.ParserTest where
 
 -- NOTE: This is temporary location for this test file.
 
-import Options.Applicative ((<**>))
 import qualified Options.Applicative as O
 import Test.Tasty.Hspec
 import Wasp.Cli.Command.Call

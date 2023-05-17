@@ -525,7 +525,7 @@ test-suite cli-test
     , tasty-quickcheck      ^>= 0.10
     , optparse-applicative
   other-modules:
-    DbMigrateTest
+    Wasp.Cli.ParserTest
     TerminalTest
     Paths_waspc
     Wasp.Cli.Command.Telemetry.ProjectTest

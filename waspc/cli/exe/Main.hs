@@ -61,7 +61,7 @@ run = \case
   Db args ->
     case args of
       DbStart -> runCommand Command.Start.Db.start
-      DbMigrateDev migrateArgs -> undefined
+      DbMigrateDev migrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev migrateArgs
       DbReset -> runDbCommand Command.Db.Reset.reset
       DbSeed seedName -> runDbCommand $ Command.Db.Seed.seed seedName
       DbStudio -> runDbCommand Command.Db.Studio.studio
