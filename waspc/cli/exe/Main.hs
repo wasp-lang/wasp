@@ -9,14 +9,20 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Call (Call (..), DbArgs (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.Db (runDbCommand)
+import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
+import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
+import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
+import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Start (start)
+import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
@@ -51,7 +57,13 @@ run = \case
   Uninstall -> runCommand uninstall
   -- This command is called by wasp new, internally.
   Compile -> runCommand compile
-  Db _ -> undefined
+  Db args ->
+    case args of
+      DbStart -> runCommand Command.Start.Db.start
+      DbMigrateDev migrateArgs -> undefined
+      DbReset -> runDbCommand Command.Db.Reset.reset
+      DbSeed seedName -> runDbCommand $ Command.Db.Seed.seed seedName
+      DbStudio -> runDbCommand Command.Db.Studio.studio
   Build -> runCommand build
   Version -> printVersion
   Telemetry -> runCommand Telemetry.telemetry
