@@ -1,7 +1,7 @@
-module Wasp.Cli.Parser (parserSuite) where
+module Wasp.Cli.Parser (parserRunnerSettings) where
 
 import Data.Maybe (fromMaybe)
-import Options.Applicative (Parser, (<|>))
+import Options.Applicative (Parser, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (..), DbArgs (..), DbMigrateDevArgs (DbMigrateDevArgs))
 import Wasp.Cli.Command.Deploy (parseDeploy)
@@ -9,6 +9,26 @@ import Wasp.Cli.Command.Start (parseStart)
 import Wasp.Cli.Command.Test (parseTest)
 import Wasp.Cli.Command.WaspLS (parseWaspLS)
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
+import qualified Wasp.Cli.Terminal as Term
+import qualified Wasp.Util.Terminal as Term
+
+parserRunnerSettings :: (O.ParserPrefs, O.ParserInfo Call)
+parserRunnerSettings = (preferences, options)
+  where
+    options =
+      O.info
+        (parserSuite <**> O.helper)
+        ( O.fullDesc
+            <> O.footer
+              -- FIXME: Fix stdout formatting.
+              ( unlines
+                  [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
+                    Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
+                    Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
+                  ]
+              )
+        )
+    preferences = O.prefs O.showHelpOnEmpty
 
 parserSuite :: Parser Call
 parserSuite = internalCommands <|> generalCommands <|> inProjectCommands

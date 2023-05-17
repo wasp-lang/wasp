@@ -27,7 +27,7 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
-import Wasp.Cli.Parser (parserSuite)
+import Wasp.Cli.Parser (parserRunnerSettings)
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
@@ -75,22 +75,7 @@ run = \case
   Test args -> runCommand $ test args
 
 runParser :: IO Call
-runParser = do O.customExecParser p opts
-  where
-    opts =
-      O.info
-        (parserSuite <**> O.helper)
-        ( O.fullDesc
-            <> O.footer
-              -- FIXME: Fix stdout formatting.
-              ( unlines
-                  [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
-                    Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
-                    Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
-                  ]
-              )
-        )
-    p = O.prefs O.showHelpOnEmpty
+runParser = uncurry O.customExecParser parserRunnerSettings
 
 printVersion :: IO ()
 printVersion = do

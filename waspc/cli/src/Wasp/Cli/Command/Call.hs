@@ -19,20 +19,23 @@ data Call
   | WaspLS !WaspLSArgs
   | Deploy !Arguments -- deploy cmd passthrough args
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
+  deriving (Show, Eq)
 
-data TestArgs = TestClient !Arguments | TestServer !Arguments
+data TestArgs = TestClient !Arguments | TestServer !Arguments deriving (Show, Eq)
 
-data StartArg = StartDb | StartNormal
+data StartArg = StartDb | StartNormal deriving (Show, Eq)
 
 data WaspLSArgs = WaspLSArgs
   { wslLogFile :: !(Maybe FilePath),
     wslUseStudio :: !Bool
   }
+  deriving (Show, Eq)
 
 data DbMigrateDevArgs = DbMigrateDevArgs
   { dbmdaName :: !(Maybe String),
     dbmdaCreateOnly :: !Bool
   }
+  deriving (Show, Eq)
 
 data DbArgs
   = DbStart
@@ -40,5 +43,6 @@ data DbArgs
   | DbReset
   | DbSeed !(Maybe String)
   | DbStudio
+  deriving (Show, Eq)
 
 type Arguments = [String]
