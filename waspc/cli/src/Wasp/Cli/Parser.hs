@@ -84,6 +84,7 @@ inProjectCommands =
         mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
         mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         mkWrapperCommand "deploy" CTNoIntersperse parseDeploy "Deploys your Wasp app to cloud hosting providers.",
+        mkCommand "telemetry" (pure Telemetry) "Prints telemetry status.",
         mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
         mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
         mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
