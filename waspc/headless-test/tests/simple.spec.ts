@@ -49,13 +49,3 @@ test.describe("signup and login", () => {
     await expect(page.locator("body")).toContainText(randomTask);
   });
 });
-// test("add new task", async ({ page }) => {
-//   await page.goto("");
-
-//   // Click the get started link.
-//   await page.getByPlaceholder("Enter task").fill("New task");
-//   await page.getByText("Create new task").click();
-
-//   await page.waitForSelector("a[text=New task]");
-//   await expect(page).toContain(/New task/);
-// });

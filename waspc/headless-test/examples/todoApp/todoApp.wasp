@@ -3,24 +3,13 @@ app todoApp {
     version: "^0.10.0"
   },
   title: "ToDo App",
-  // head: [],
   dependencies: [
     ("@tailwindcss/forms", "^0.5.3"),
     ("@tailwindcss/typography", "^0.5.7")
   ],
   auth: {
     userEntity: User,
-    // externalAuthEntity: SocialLogin,
     methods: {
-      // usernameAndPassword: {},
-      // google: {
-      //   configFn: import { config } from "@server/auth/google.js",
-      //   getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
-      // },
-      // gitHub: {
-      //   // configFn: import { config } from "@server/auth/github.js",
-      //   // getUserFieldsFn: import { getUserFields } from "@server/auth/github.js"
-      // },
       email: {
         fromField: {
           name: "ToDO App",
