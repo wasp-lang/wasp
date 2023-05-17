@@ -1,16 +1,15 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
+    parseNew,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
+import qualified Options.Applicative as O
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call (Arguments)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (parseNewProjectArgs)
-import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
+import Wasp.Cli.Command.Call (Call (New), NewArgs (..))
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     obtainNewProjectDescription,
@@ -26,10 +25,28 @@ import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
 
--- It receives all of the arguments that were passed to the `wasp new` command.
-createNewProject :: Arguments -> Command ()
-createNewProject args = do
-  newProjectArgs <- parseNewProjectArgs args & either throwProjectCreationError return
+parseNew :: O.Parser Call
+parseNew = New <$> parseNewArgs
+
+parseNewArgs :: O.Parser NewArgs
+parseNewArgs =
+  NewArgs
+    <$> O.optional parseProjectName
+    <*> O.optional parseTemplateName
+
+parseProjectName :: O.Parser String
+parseProjectName = O.strArgument $ O.metavar "PROJECT_NAME"
+
+parseTemplateName :: O.Parser String
+parseTemplateName =
+  O.strOption $
+    O.long "template"
+      <> O.short 't'
+      <> O.metavar "TEMPLATE_NAME"
+      <> O.help "Template to use for the new project"
+
+createNewProject :: NewArgs -> Command ()
+createNewProject newProjectArgs = do
   starterTemplateNames <- liftIO getStarterTemplateNames
 
   newProjectDescription <- obtainNewProjectDescription newProjectArgs starterTemplateNames
@@ -42,13 +59,15 @@ createNewProject args = do
     printGettingStartedInstructions :: Path' Abs (Dir WaspProjectDir) -> IO ()
     printGettingStartedInstructions absProjectDir = do
       let projectFolder = init . SP.toFilePath . SP.basename $ absProjectDir
-{- ORMOLU_DISABLE -}
+
+      {- ORMOLU_ENABLE -}
       putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp app in ./" ++ projectFolder ++ " directory!"
-      putStrLn                                   "To run it, do:"
-      putStrLn                                   ""
-      putStrLn $ Term.applyStyles [Term.Bold] $  "    cd " ++ projectFolder
-      putStrLn $ Term.applyStyles [Term.Bold]    "    wasp start"
-{- ORMOLU_ENABLE -}
+      putStrLn "To run it, do:"
+      putStrLn ""
+      putStrLn $ Term.applyStyles [Term.Bold] $ "    cd " ++ projectFolder
+      putStrLn $ Term.applyStyles [Term.Bold] "    wasp start"
+
+{- ORMOLU_DISABLE -}
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk

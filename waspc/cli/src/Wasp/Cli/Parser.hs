@@ -1,15 +1,14 @@
 module Wasp.Cli.Parser (parserRunnerSettings) where
 
-import Data.Maybe (fromMaybe)
 import Options.Applicative (Parser, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (..), DbArgs (..), DbMigrateDevArgs (DbMigrateDevArgs))
+import Wasp.Cli.Command.CreateNewProject (parseNew)
 import Wasp.Cli.Command.Deploy (parseDeploy)
 import Wasp.Cli.Command.Start (parseStart)
 import Wasp.Cli.Command.Test (parseTest)
 import Wasp.Cli.Command.WaspLS (parseWaspLS)
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkCommand, mkWrapperCommand)
-import qualified Wasp.Cli.Terminal as Term
 import qualified Wasp.Util.Terminal as Term
 
 parserRunnerSettings :: (O.ParserPrefs, O.ParserInfo Call)
@@ -41,7 +40,7 @@ generalCommands =
   O.subparser $
     mconcat
       [ O.commandGroup "GENERAL",
-        mkCommand "new" undefined "Creates a new Wasp project. Run it without arguments for interactive mode.",
+        mkCommand "new" parseNew "Creates a new Wasp project. Run it without arguments for interactive mode.",
         mkCommand "version" (pure Version) "Prints current version of CLI.",
         mkCommand "waspls" parseWaspLS "Run Wasp Language Server. Add --help to get more info.",
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."

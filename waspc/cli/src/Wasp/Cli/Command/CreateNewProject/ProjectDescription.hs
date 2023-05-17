@@ -15,7 +15,7 @@ import StrongPath (Abs, Dir, Path')
 import StrongPath.Path (toPathAbsDir)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs (..))
+import Wasp.Cli.Command.Call
 import Wasp.Cli.Command.CreateNewProject.Common
   ( throwInvalidTemplateNameUsedError,
     throwProjectCreationError,
@@ -62,8 +62,8 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplateName] -> Command NewProjectDescription
-obtainNewProjectDescription NewProjectArgs {_projectName = projectNameArg, _templateName = templateNameArg} starterTemplateNames =
+obtainNewProjectDescription :: NewArgs -> [StarterTemplateName] -> Command NewProjectDescription
+obtainNewProjectDescription NewArgs {naProjectName = projectNameArg, naTemplateName = templateNameArg} starterTemplateNames =
   case projectNameArg of
     Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplateNames
     Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplateNames

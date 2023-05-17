@@ -395,7 +395,6 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.CreateNewProject.Common
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
-    Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote

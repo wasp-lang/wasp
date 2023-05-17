@@ -12,6 +12,7 @@ import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.Call (Call (..), DbArgs (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
+import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import Wasp.Cli.Command.Db (runDbCommand)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -51,7 +52,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
 run :: Call -> IO ()
 run = \case
-  (New args) -> undefined
+  (New args) -> runCommand $ createNewProject args
   Start arg -> runCommand $ start arg
   Clean -> runCommand clean
   Uninstall -> runCommand uninstall

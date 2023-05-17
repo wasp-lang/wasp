@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New !Arguments
+  = New !NewArgs
   | Start !StartArg
   | Clean
   | Uninstall
@@ -19,6 +19,12 @@ data Call
   | WaspLS !WaspLSArgs
   | Deploy !Arguments -- deploy cmd passthrough args
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
+  deriving (Show, Eq)
+
+data NewArgs = NewArgs
+  { naProjectName :: !(Maybe String),
+    naTemplateName :: !(Maybe String)
+  }
   deriving (Show, Eq)
 
 data TestArgs = TestClient !Arguments | TestServer !Arguments deriving (Show, Eq)
