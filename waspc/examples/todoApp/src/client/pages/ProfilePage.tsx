@@ -33,7 +33,7 @@ export const ProfilePage = ({
     setMessages((priorMessages) => [msg, ...priorMessages])
   }
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
     if (inputRef.current !== null) {
