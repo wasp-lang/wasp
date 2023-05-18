@@ -1,3 +1,4 @@
+// Converted from the TextMate definition at https://github.com/wasp-lang/vscode-wasp/blob/main/syntaxes/wasp.tmLanguage.yaml
 module.exports = (Prism) => {
   Prism.languages.wasp = {
     "prisma-closure": {
@@ -51,20 +52,6 @@ module.exports = (Prism) => {
         /\b(EmailAndPassword|PostgreSQL|SQLite|Simple|PgBoss|SMTP|SendGrid|Mailgun)\b/,
       alias: "constant",
     },
-    // dict: {
-    //   pattern: /{[\s\S]*?}/,
-    //   inside: {
-    //     punctuation: /[{}[\],]|(\.\.\.)/,
-    //     key: {
-    //       pattern: /[a-zA-Z]+(?=:)/,
-    //       alias: "property",
-    //     },
-    //     value: {
-    //       pattern: /[^,\s\]]+/,
-    //       alias: "variable",
-    //     },
-    //   },
-    // },
     "dict-key": {
       pattern: /[a-zA-Z]+(?=:)/,
       alias: "plain",
