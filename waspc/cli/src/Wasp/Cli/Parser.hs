@@ -2,6 +2,7 @@ module Wasp.Cli.Parser (parserRunnerSettings) where
 
 import Options.Applicative (Parser, (<**>), (<|>))
 import qualified Options.Applicative as O
+import Options.Applicative.Help (text)
 import Wasp.Cli.Command.Call (Call (..), DbArgs (..), DbMigrateDevArgs (DbMigrateDevArgs))
 import Wasp.Cli.Command.CreateNewProject (parseNew)
 import Wasp.Cli.Command.Deploy (parseDeploy)
@@ -14,20 +15,16 @@ import qualified Wasp.Util.Terminal as Term
 parserRunnerSettings :: (O.ParserPrefs, O.ParserInfo Call)
 parserRunnerSettings = (preferences, options)
   where
-    options =
-      O.info
-        (parserSuite <**> O.helper)
-        ( O.fullDesc
-            <> O.footer
-              -- FIXME: Fix stdout formatting.
-              ( unlines
-                  [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
-                    Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
-                    Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
-                  ]
-              )
-        )
     preferences = O.prefs O.showHelpOnEmpty
+    footer =
+      text $
+        unlines
+          [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
+            Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
+            Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
+          ]
+    options =
+      O.info (parserSuite <**> O.helper) $ O.footerDoc (Just footer)
 
 parserSuite :: Parser Call
 parserSuite = internalCommands <|> generalCommands <|> inProjectCommands
