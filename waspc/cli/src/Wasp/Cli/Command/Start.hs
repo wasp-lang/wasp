@@ -1,6 +1,5 @@
 module Wasp.Cli.Command.Start
   ( start,
-    parseStart,
   )
 where
 
@@ -9,32 +8,18 @@ import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Maybe (fromMaybe)
-import qualified Options.Applicative as O
 import StrongPath ((</>))
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Call (Call (Start), StartArg (..))
+import Wasp.Cli.Command.Call (StartArg (..))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import qualified Wasp.Cli.Command.Start.Db
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Cli.Common as Common
-import Wasp.Cli.Parser.Util (mkCommand)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-
-parseStartDb :: O.Parser (Maybe StartArg)
-parseStartDb =
-  O.optional $
-    O.subparser $
-      mkCommand "db" (pure StartDb) "This will launch the PostgreSQL's development database."
-
-parseStart :: O.Parser Call
-parseStart = Start <$> starter
-  where
-    starter = fromMaybe StartNormal <$> parseStartDb
 
 start :: StartArg -> Command ()
 start arg = case arg of

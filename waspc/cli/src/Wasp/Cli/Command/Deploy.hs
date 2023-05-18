@@ -1,27 +1,14 @@
 module Wasp.Cli.Command.Deploy
   ( deploy,
-    parseDeploy,
   )
 where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as O
 import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Call (Call (Deploy))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import qualified Wasp.Project.Deployment
-
-deployRestArgs :: O.Parser String
-deployRestArgs =
-  O.strArgument
-    ( O.metavar "DEPLOY_ARGUMENTS"
-        <> O.help "Currently only support fly.io. See https://wasp-lang.dev/docs/deploying."
-    )
-
-parseDeploy :: O.Parser Call
-parseDeploy = Deploy <$> O.some deployRestArgs
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do

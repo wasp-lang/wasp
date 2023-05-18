@@ -394,29 +394,35 @@ library cli-lib
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
     Wasp.Cli.Command.CreateNewProject.Common
+    Wasp.Cli.Command.CreateNewProject.Parser
     Wasp.Cli.Command.CreateNewProject.ProjectDescription
     Wasp.Cli.Command.CreateNewProject.StarterTemplates
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Local
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
+    Wasp.Cli.Command.Db.Parser
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
     Wasp.Cli.Command.Deps
+    Wasp.Cli.Command.Deploy.Parser
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Start.Parser
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Telemetry
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
+    Wasp.Cli.Command.Test.Parser
     Wasp.Cli.Command.Test
     Wasp.Cli.Command.Watch
+    Wasp.Cli.Command.WaspLS.Parser
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common
     Wasp.Cli.Terminal

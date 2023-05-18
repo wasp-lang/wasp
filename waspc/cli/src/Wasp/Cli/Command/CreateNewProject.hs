@@ -1,15 +1,13 @@
 module Wasp.Cli.Command.CreateNewProject
   ( createNewProject,
-    parseNew,
   )
 where
 
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as O
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call (Call (New), NewArgs (..))
+import Wasp.Cli.Command.Call (NewArgs (..))
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     obtainNewProjectDescription,
@@ -24,26 +22,6 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
-
-parseNew :: O.Parser Call
-parseNew = New <$> parseNewArgs
-
-parseNewArgs :: O.Parser NewArgs
-parseNewArgs =
-  NewArgs
-    <$> O.optional parseProjectName
-    <*> O.optional parseTemplateName
-
-parseProjectName :: O.Parser String
-parseProjectName = O.strArgument $ O.metavar "PROJECT_NAME"
-
-parseTemplateName :: O.Parser String
-parseTemplateName =
-  O.strOption $
-    O.long "template"
-      <> O.short 't'
-      <> O.metavar "TEMPLATE_NAME"
-      <> O.help "Template to use for the new project"
 
 createNewProject :: NewArgs -> Command ()
 createNewProject newProjectArgs = do
