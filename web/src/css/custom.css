@@ -41,7 +41,7 @@
 }
 
 /* Highlight Prisma field types properly */
-.token[class*="class-name"] {
+.token.type-class-name {
   color: rgb(54, 172, 170);
 }
 .token.annotation {
@@ -95,7 +95,7 @@
   --ifm-h2-font-size: 2rem;
 
   --ifm-col-spacing-vertical: 0.5rem;
-  --docusaurus-highlighted-code-line-bg: #dee6ed;
+  --docusaurus-highlighted-code-line-bg: #e8edf2;
   --auth-ui-username-password-bg: #fee;
   --auth-ui-email-bg: #eef;
 }
