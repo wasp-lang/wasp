@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Deploy.Parser (deploy) where
 
 import Options.Applicative
-  ( Alternative (some),
+  ( Alternative (many),
     CommandFields,
     Mod,
     Parser,
@@ -12,6 +12,7 @@ import Options.Applicative
 import Wasp.Cli.Command.Call (Call (Deploy))
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkWrapperCommand)
 
+-- The rest of commands will be supplied externally by chosen deploy tool.
 deploy :: Mod CommandFields Call
 deploy =
   mkWrapperCommand
@@ -21,7 +22,7 @@ deploy =
     "Deploys your Wasp app to cloud hosting providers."
 
 parseDeploy :: Parser Call
-parseDeploy = Deploy <$> some deployRestArgs
+parseDeploy = Deploy <$> many deployRestArgs
   where
     deployRestArgs =
       strArgument
