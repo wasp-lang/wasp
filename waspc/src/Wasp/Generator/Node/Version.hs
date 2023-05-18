@@ -66,7 +66,7 @@ waspNodeRequirementMessage :: String
 waspNodeRequirementMessage =
   unwords
     [ "Wasp requires node " ++ show nodeVersionRange ++ " to be installed and in PATH.",
-       "Check Wasp docs for more details: https://wasp-lang.dev/docs/quick-start#requirements."
+      "Check Wasp docs for more details: https://wasp-lang.dev/docs/quick-start#requirements."
     ]
 
 nodeVersionRange :: SV.Range
