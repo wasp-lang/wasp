@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
-import SyntaxHighlighter from 'react-syntax-highlighter'
-import { qtcreatorLight, atomOneLight, atomOneDark, a11ylight } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 import { Terminal, ArrowUpRight, Play, BookOpen, Grid, Layout, Trello   } from 'react-feather'
 
 // Terminal, BookOpen, Grid, Layout, Trello, FileText 
@@ -178,8 +178,8 @@ entity Task {=psl ... psl=} // Your Prisma data model.
             {/* Editor body */}
             <div className='w-full text-sm shadow-2xl rounded-b-md'>
               <SyntaxHighlighter
-                language="javascript"
-                style={atomOneLight}
+                language="wasp"
+                style={oneLight}
                 customStyle={{
                   borderBottomLeftRadius: '10px',
                   borderBottomRightRadius: '10px',

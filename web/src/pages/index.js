@@ -1,6 +1,8 @@
 import React from 'react'
 import classNames from 'classnames'
 
+import '../components/prismCustomization'
+
 import Head from '@docusaurus/Head'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'

@@ -228,7 +228,7 @@ Let’s now look at what I needed to do to get the data flowing from the backend
 
 First, I declared a query in my Wasp config file:
 
-```c
+```wasp
 app phraseTutor {
   ...
 }
