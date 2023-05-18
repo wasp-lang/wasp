@@ -37,6 +37,15 @@ spec_wasplsCommandTests =
     it "`waspls --stdio --log zero2.txt` should pass" $ parseMaybe "waspls --stdio --log zero2.txt" `shouldBe` Just (WaspLS (WaspLSArgs {wslLogFile = Just "zero2.txt", wslUseStudio = True}))
     it "`waspls --stdio --log` should fail" $ parseMaybe "waspls --stdio --log" `shouldBe` Nothing
 
+spec_completionCommandTests :: Spec
+spec_completionCommandTests =
+  describe "completion commands" $ do
+    it "`completion` should pass" $ parseMaybe "completion" `shouldBe` Just (Completion ShowInstruction)
+    it "`completion generate` should fail" $ parseMaybe "completion generate" `shouldBe` Nothing
+    it "`completion generate bash` should pass" $ parseMaybe "completion generate bash" `shouldBe` Just (Completion (Generate Bash))
+    it "`completion generate zsh` should pass" $ parseMaybe "completion generate zsh" `shouldBe` Just (Completion (Generate Zsh))
+    it "`completion generate fish` should pass" $ parseMaybe "completion generate fish" `shouldBe` Just (Completion (Generate Fish))
+
 spec_uninstallCommandTests :: Spec
 spec_uninstallCommandTests =
   describe "uninstall commands" $ do

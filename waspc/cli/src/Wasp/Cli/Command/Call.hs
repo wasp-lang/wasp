@@ -13,13 +13,15 @@ data Call
   | Deps
   | Dockerfile
   | Info
-  | PrintBashCompletionInstruction
-  | GenerateBashCompletionScript
-  | BashCompletionListCommands
+  | Completion !CompletionArgs
   | WaspLS !WaspLSArgs
   | Deploy !Arguments -- deploy cmd passthrough args
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
   deriving (Show, Eq)
+
+data Shell = Bash | Zsh | Fish deriving (Show, Eq)
+
+data CompletionArgs = ShowInstruction | Generate !Shell deriving (Show, Eq)
 
 data NewArgs = NewArgs
   { naProjectName :: !(Maybe String),

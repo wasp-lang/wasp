@@ -1,6 +1,5 @@
 module Main where
 
-import Control.Applicative ((<**>))
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
@@ -22,6 +21,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.ShellCompletion (completion)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
@@ -30,7 +30,6 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Parser (parserRunnerSettings)
 import Wasp.Util (indent)
-import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
@@ -71,6 +70,7 @@ run = \case
   Deps -> runCommand deps
   Dockerfile -> runCommand printDockerfile
   Info -> runCommand info
+  Completion args -> runCommand $ completion args
   WaspLS args -> runCommand $ runWaspLS args
   Deploy args -> runCommand $ deploy args
   Test args -> runCommand $ test args

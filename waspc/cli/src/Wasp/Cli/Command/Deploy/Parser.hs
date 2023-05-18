@@ -12,7 +12,7 @@ import Options.Applicative
 import Wasp.Cli.Command.Call (Call (Deploy))
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkWrapperCommand)
 
--- The rest of commands will be supplied externally by chosen deploy tool.
+-- The rest of arguments will be supplied externally by chosen deploy tool.
 deploy :: Mod CommandFields Call
 deploy =
   mkWrapperCommand

@@ -377,7 +377,6 @@ library cli-lib
     , tar ^>=0.5.1.1
     , zlib ^>=0.6.3.0
     , temporary ^>=1.3
-    , optparse-applicative
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
@@ -385,7 +384,8 @@ library cli-lib
     Wasp.Cli.Archive
     Wasp.Cli.Parser.Util
     Wasp.Cli.Parser
-    Wasp.Cli.Command.BashCompletion
+    Wasp.Cli.Command.ShellCompletion.Parser
+    Wasp.Cli.Command.ShellCompletion
     Wasp.Cli.Command.Build
     Wasp.Cli.Command.Call
     Wasp.Cli.Command.Clean

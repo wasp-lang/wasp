@@ -7,6 +7,7 @@ import Wasp.Cli.Command.Call (Call (..))
 import Wasp.Cli.Command.CreateNewProject.Parser (new)
 import Wasp.Cli.Command.Db.Parser (db)
 import Wasp.Cli.Command.Deploy.Parser (deploy)
+import Wasp.Cli.Command.ShellCompletion.Parser (completion)
 import Wasp.Cli.Command.Start.Parser (start)
 import Wasp.Cli.Command.Test.Parser (test)
 import Wasp.Cli.Command.WaspLS.Parser (waspls)
@@ -41,6 +42,7 @@ generalCommands =
         new,
         mkCommand "version" (pure Version) "Prints current version of CLI.",
         waspls,
+        completion,
         mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 
