@@ -1,5 +1,6 @@
 module Wasp.Generator.Node.Version
-  ( getNodeVersion,
+  ( checkNodeVersion,
+    getNodeVersion,
     nodeVersionRange,
     latestMajorNodeVersion,
     waspNodeRequirementMessage,
@@ -15,6 +16,25 @@ import qualified Text.Regex.TDFA as R
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (indent)
 
+-- | Gets the installed node version, if any is installed, and checks that it
+-- meets Wasp's version requirement.
+--
+-- Returns a string representing the error
+-- condition if node's version could not be found or if the version does not
+-- meet the requirements.
+checkNodeVersion :: IO (Either String SV.Version)
+checkNodeVersion =
+  getNodeVersion >>= \case
+    Left errorMsg -> return $ Left errorMsg
+    Right nodeVersion ->
+      if SV.isVersionInRange nodeVersion nodeVersionRange
+        then return $ Right nodeVersion
+        else return $ Left $ makeNodeVersionMismatchMessage nodeVersion
+
+-- | Gets the installed node version, if any is installed, and returns it.
+--
+-- Returns a string representing the error condition if node's version could
+-- not be found.
 getNodeVersion :: IO (Either String SV.Version)
 getNodeVersion = do
   (exitCode, stdout, stderr) <-

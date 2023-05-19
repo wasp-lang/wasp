@@ -97,15 +97,12 @@ runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
-  NodeVersion.getNodeVersion >>= \case
+  NodeVersion.checkNodeVersion >>= \case
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    Right nodeVersion ->
-      if SV.isVersionInRange nodeVersion NodeVersion.nodeVersionRange
-        then do
-          envVars <- getAllEnvVars
-          let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-          runProcessAsJob nodeCommandProcess jobType chan
-        else exitWithError (ExitFailure 1) (T.pack $ NodeVersion.makeNodeVersionMismatchMessage nodeVersion)
+    Right _ -> do
+      envVars <- getAllEnvVars
+      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+      runProcessAsJob nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the the inherited env vars, we
