@@ -1,9 +1,13 @@
 # Changelog
 
+## V0.10.7
+
+- Running `wasp start db` when docker daemon is inactive will properly exit with clear error message and relevant troubleshooting documentations.
+
 ## v0.10.6
 
 ### Bug fixes
-- Running `wasp start db` when docker daemon is inactive will properly exit with clear error message and relevant troubleshooting documentations.
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
 
 ## v0.10.5
 
