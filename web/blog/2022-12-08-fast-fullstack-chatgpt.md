@@ -33,9 +33,7 @@ What makes Wasp unique is that it’s a framework that uses a super simple **lan
 
 Check it out for yourself:
 
-```c
-/* main.wasp */
-
+```wasp title="main.wasp"
 app todoApp {
   title: "ToDo App",/* visible in tab */
 

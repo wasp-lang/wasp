@@ -64,7 +64,7 @@ We already decided that we would pick an ORM(ish) solution for JS/TS which we wo
 
 But then we looked at Prisma, and the winner was clear! Not only was Prisma taking care of everything that we cared about, but it had one additional feature that made it a perfect fit:
 
-```
+```prisma
 model User {
   id          Int     @id @default(autoincrement())
   username    String  @unique
@@ -82,8 +82,8 @@ So instead of implementing our own syntax for describing Entities, we decided to
 
 Today, Entities are described like this in Wasp language:
 
-```
-... some Wasp code ...
+```wasp
+// ... some Wasp code ...
 
 entity User {=psl
   id          Int     @id @default(autoincrement())
@@ -91,7 +91,7 @@ entity User {=psl
   password    String
 psl=} 
 
-... some Wasp code ...
+// ... some Wasp code ...
 ```
 
 So in the middle of Wasp, you just switch to writing PSL (Prisma Schema Language) to describe an entity!
