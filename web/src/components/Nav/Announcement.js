@@ -9,13 +9,13 @@ const Announcement = () => {
   let history = useHistory();
 
   const handleLink = () => {
-    //history.push('/blog/2023/04/13/db-start-and-seed')
+    history.push('/blog/2023/05/19/hackathon-2-review')
     //history.push('/#signup')
 
     //window.open('https://twitter.com/MatijaSosic/status/1646532181324603395')
     //window.open('https://twitter.com/WaspLang/status/1647979490180575234')
     //window.open('https://www.producthunt.com/posts/free-saas-template-gpt-stripe-auth')
-    window.open("https://hackathon.wasp-lang.dev");
+    // window.open("https://hackathon.wasp-lang.dev");
   };
 
   return (
@@ -38,18 +38,18 @@ const Announcement = () => {
           lg:container lg:divide-x lg:px-16 xl:px-20
         `}
       >
-        <span className="item-center flex gap-2 px-3">
-          <span>🏆 Wasp Hackathon 2.0 finished</span>
+        <span className='item-center flex gap-2 px-3'>
+          <span>🏆 Wasp Hackathon 2.0 is Finished!</span>
         </span>
 
-        <span className="hidden items-center space-x-2 px-3 lg:flex">
+        <span className='hidden items-center space-x-2 px-3 lg:flex'>
           <span
             className={`
               bg-neutral-700 px-2.5 py-1 text-xs rounded-full cursor-pointer
               hover:bg-neutral-600
             `}
           >
-            Check out the submissions 👀
+            Check Out the Winners 🎉
           </span>
         </span>
       </div>
