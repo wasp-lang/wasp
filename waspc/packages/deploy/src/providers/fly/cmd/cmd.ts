@@ -37,8 +37,6 @@ async function runFlyctlCommand(commonOps: CommonOps, flyctlArgs: string[]): Pro
 	try {
 		await $`flyctl ${flyctlArgs}`;
 	} catch {
-		waspSays('Error running command. Note: many commands require a toml file or a -a option specifying the app name.');
-		waspSays(`If you already have an app, consider running "${getCommandHelp(executeFlyCommand).replace('<cmd...>', 'config save -- -a <app-name>')}".`);
 		exit(1);
 	}
 

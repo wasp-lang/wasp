@@ -79,7 +79,6 @@ async function deployServer(deploymentInfo: DeploymentInfo<DeployOptions>, { bui
 			exit(1);
 		}
 	} catch (e) {
-		console.error(e);
 		waspSays('Unable to check for DATABASE_URL secret.');
 		exit(1);
 	}
