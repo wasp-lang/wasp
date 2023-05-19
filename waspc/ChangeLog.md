@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.6
+
+### Bug fixes
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
+
 ## v0.10.5
 
 ### Bug fixes
