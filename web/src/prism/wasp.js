@@ -56,7 +56,7 @@ module.exports = (Prism) => {
       pattern: /[a-zA-Z]+(?=:)/,
       alias: "plain",
     },
-    "storage-type": {
+    "declaration-type": {
       pattern: /\b(action|apiNamespace|api|app|entity|job|page|query|route)\b/,
       alias: "keyword",
     },
