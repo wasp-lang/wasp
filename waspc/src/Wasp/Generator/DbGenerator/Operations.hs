@@ -6,6 +6,7 @@ module Wasp.Generator.DbGenerator.Operations
     areAllMigrationsAppliedToDb,
     dbReset,
     dbSeed,
+    dbIsRunning,
   )
 where
 
@@ -133,6 +134,15 @@ dbSeed genProjectDir seedName = do
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure c -> Left $ "Failed with exit code " <> show c
+
+dbIsRunning ::
+  Path' Abs (Dir ProjectRootDir) ->
+  IO Bool
+dbIsRunning genProjectDir = do
+  chan <- newChan
+  exitCode <- DbJobs.dbExecuteTest genProjectDir chan
+  -- TODO: should we inspect the error it gives?
+  return $ exitCode == ExitSuccess
 
 generatePrismaClients :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 generatePrismaClients projectRootDir = do
