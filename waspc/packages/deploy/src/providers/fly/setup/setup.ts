@@ -103,8 +103,9 @@ async function setupClient(deploymentInfo: DeploymentInfo<SetupOptions>) {
 	// This creates the fly.toml file, but does not attempt to deploy.
 	await $`flyctl launch --no-deploy  ${launchArgs}`;
 
-	// goStatic listens on port 8043 by default, but the default fly.toml assumes port 8080.
-	replaceLineInLocalToml(/internal_port = 8080/g, 'internal_port = 8043');
+	// goStatic listens on port 8043 by default, but the default fly.toml
+	// assumes port 8080 (or 3000, depending on flyctl version).
+	replaceLineInLocalToml(/internal_port = \d+/g, 'internal_port = 8043');
 
 	copyLocalClientTomlToProject(deploymentInfo.tomlFilePaths);
 

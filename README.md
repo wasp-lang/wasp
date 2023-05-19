@@ -116,3 +116,7 @@ You can also:
 # Careers
 
 Check our [careers](https://wasp-lang.notion.site/Wasp-Careers-59fd1682c80d446f92be5fa65cc17672) page for a list of currently opened positions!
+
+# Sponsors
+
+<a href="https://github.com/michelwaechter"><img src="https://github.com/michelwaechter.png" width="50px" alt="michelwaechter" /></a> - Our first sponsor ever! Thanks so much Michel ❤️ , from the whole Wasp Team, for bravely going where nobody has been before :)!

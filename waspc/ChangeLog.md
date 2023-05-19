@@ -2,6 +2,9 @@
 
 ## v0.10.6
 
+### Bug fixes
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
+
 ### More `wasp deploy fly` options
 `wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
 
