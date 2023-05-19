@@ -78,7 +78,7 @@ wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...
 :::
 
 :::note
-If you have multiple orgs, you can specify a `--org` option.
+If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
 :::
 
 # Manual
