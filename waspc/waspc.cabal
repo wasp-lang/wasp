@@ -402,6 +402,7 @@ library cli-lib
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Remote.Github
     Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating
     Wasp.Cli.Command.Db.Parser
+    Wasp.Cli.Command.Db.Cli
     Wasp.Cli.Command.Db
     Wasp.Cli.Command.Db.Migrate
     Wasp.Cli.Command.Db.Reset

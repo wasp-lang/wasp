@@ -8,23 +8,21 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..), DbArgs (..))
+import Wasp.Cli.Command.Call (Call (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
-import Wasp.Cli.Command.Db (runDbCommand)
-import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
-import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
-import qualified Wasp.Cli.Command.Db.Seed as Command.Db.Seed
-import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
+import Wasp.Cli.Command.Db.Cli (dbCli)
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.ShellCompletion (completion)
 import Wasp.Cli.Command.Start (start)
-import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
-import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Telemetry as Telemetry
+  ( considerSendingData,
+    telemetry,
+  )
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
@@ -35,7 +33,7 @@ import Wasp.Version (waspVersion)
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   commandCall <- runParser
-  telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
+  telemetryThread <- Async.async $ runCommand $ considerSendingData commandCall
   run commandCall
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
@@ -55,18 +53,12 @@ run = \case
   Start arg -> runCommand $ start arg
   Clean -> runCommand clean
   Uninstall -> runCommand uninstall
+  Build -> runCommand build
   -- This command is called by wasp new, internally.
   Compile -> runCommand compile
-  Db args ->
-    case args of
-      DbStart -> runCommand Command.Start.Db.start
-      DbMigrateDev migrateArgs -> runDbCommand $ Command.Db.Migrate.migrateDev migrateArgs
-      DbReset -> runDbCommand Command.Db.Reset.reset
-      DbSeed seedName -> runDbCommand $ Command.Db.Seed.seed seedName
-      DbStudio -> runDbCommand Command.Db.Studio.studio
-  Build -> runCommand build
+  Db args -> dbCli args
   Version -> printVersion
-  Telemetry -> runCommand Telemetry.telemetry
+  Telemetry -> runCommand telemetry
   Deps -> runCommand deps
   Dockerfile -> runCommand printDockerfile
   Info -> runCommand info
