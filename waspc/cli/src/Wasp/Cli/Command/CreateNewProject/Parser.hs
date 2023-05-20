@@ -4,14 +4,8 @@ import Options.Applicative
   ( CommandFields,
     Mod,
     Parser,
-    help,
-    long,
-    metavar,
-    optional,
-    short,
-    strArgument,
-    strOption,
   )
+import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (New), NewArgs (NewArgs))
 import Wasp.Cli.Parser.Util (mkCommand)
 
@@ -27,16 +21,16 @@ parseNew = New <$> parseNewArgs
   where
     parseNewArgs =
       NewArgs
-        <$> optional parseProjectName
-        <*> optional parseTemplateName
+        <$> O.optional parseProjectName
+        <*> O.optional parseTemplateName
 
 parseTemplateName :: Parser String
 parseTemplateName =
-  strOption $
-    long "template"
-      <> short 't'
-      <> metavar "TEMPLATE_NAME"
-      <> help "Template to use for the new project"
+  O.strOption $
+    O.long "template"
+      <> O.short 't'
+      <> O.metavar "TEMPLATE_NAME"
+      <> O.help "Template to use for the new project"
 
 parseProjectName :: Parser String
-parseProjectName = strArgument $ metavar "PROJECT_NAME"
+parseProjectName = O.strArgument $ O.metavar "PROJECT_NAME"

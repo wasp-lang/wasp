@@ -1,6 +1,6 @@
 module Wasp.Cli.Parser (parserRunnerSettings) where
 
-import Options.Applicative (Parser, (<**>), (<|>))
+import Options.Applicative (Parser, ParserInfo, ParserPrefs, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Options.Applicative.Help (text)
 import Wasp.Cli.Command.Call (Call (..))
@@ -14,7 +14,7 @@ import Wasp.Cli.Command.WaspLS.Parser (waspls)
 import Wasp.Cli.Parser.Util (mkCommand)
 import qualified Wasp.Util.Terminal as Term
 
-parserRunnerSettings :: (O.ParserPrefs, O.ParserInfo Call)
+parserRunnerSettings :: (ParserPrefs, ParserInfo Call)
 parserRunnerSettings = (preferences, options)
   where
     preferences = O.prefs O.showHelpOnEmpty

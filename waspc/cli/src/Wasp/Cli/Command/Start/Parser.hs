@@ -5,9 +5,8 @@ import Options.Applicative
   ( CommandFields,
     Mod,
     Parser,
-    optional,
-    subparser,
   )
+import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (Start), StartArg (..))
 import Wasp.Cli.Parser.Util (mkCommand)
 
@@ -25,6 +24,6 @@ parseStart = Start <$> parseStartArg
 
 parseStartDb :: Parser (Maybe StartArg)
 parseStartDb =
-  optional $
-    subparser $
+  O.optional $
+    O.subparser $
       mkCommand "db" (pure StartDb) "This will launch the PostgreSQL's development database."

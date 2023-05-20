@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.ShellCompletion.Parser (completion) where
 
 import Data.Maybe (fromMaybe)
-import Options.Applicative (Parser)
+import Options.Applicative (CommandFields, Mod, Parser)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call
   ( Call (Completion),
@@ -10,7 +10,7 @@ import Wasp.Cli.Command.Call
   )
 import Wasp.Cli.Parser.Util (mkCommand)
 
-completion :: O.Mod O.CommandFields Call
+completion :: Mod CommandFields Call
 completion = mkCommand "completion" parseCompletion "Print shell generation code"
 
 parseCompletion :: Parser Call

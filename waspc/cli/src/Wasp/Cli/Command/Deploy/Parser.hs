@@ -1,14 +1,11 @@
 module Wasp.Cli.Command.Deploy.Parser (deploy) where
 
 import Options.Applicative
-  ( Alternative (many),
-    CommandFields,
+  ( CommandFields,
     Mod,
     Parser,
-    help,
-    metavar,
-    strArgument,
   )
+import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (Deploy))
 import Wasp.Cli.Parser.Util (CommandType (CTNoIntersperse), mkWrapperCommand)
 
@@ -22,10 +19,9 @@ deploy =
     "Deploys your Wasp app to cloud hosting providers."
 
 parseDeploy :: Parser Call
-parseDeploy = Deploy <$> many deployRestArgs
+parseDeploy = Deploy <$> O.many deployRestArgs
   where
     deployRestArgs =
-      strArgument
-        ( metavar "DEPLOY_ARGUMENTS"
-            <> help "Currently only support fly.io. See https://wasp-lang.dev/docs/deploying."
-        )
+      O.strArgument $
+        O.metavar "DEPLOY_ARGUMENTS"
+          <> O.help "Currently only support fly.io. See https://wasp-lang.dev/docs/deploying."

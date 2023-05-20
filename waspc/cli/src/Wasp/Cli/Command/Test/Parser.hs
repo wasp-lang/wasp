@@ -1,15 +1,11 @@
 module Wasp.Cli.Command.Test.Parser (test) where
 
 import Options.Applicative
-  ( Alternative (many),
-    CommandFields,
+  ( CommandFields,
     Mod,
     Parser,
-    help,
-    metavar,
-    strArgument,
-    subparser,
   )
+import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (Test), TestArgs (TestClient, TestServer))
 import Wasp.Cli.Parser.Util (CommandType (CTForwardOptions), mkCommand, mkWrapperCommand)
 
@@ -20,14 +16,14 @@ parseTest :: Parser Call
 parseTest = Test <$> parseTestArgs
   where
     parseTestArgs =
-      subparser $
+      O.subparser $
         mconcat
-          [ mkWrapperCommand "client" CTForwardOptions (TestClient <$> many testRestArgs) "Run your app client tests.",
-            mkWrapperCommand "server" CTForwardOptions (TestServer <$> many testRestArgs) "Run your app server tests."
+          [ mkWrapperCommand "client" CTForwardOptions (TestClient <$> O.many testRestArgs) "Run your app client tests.",
+            mkWrapperCommand "server" CTForwardOptions (TestServer <$> O.many testRestArgs) "Run your app server tests."
           ]
 
 testRestArgs :: Parser String
 testRestArgs =
-  strArgument $
-    metavar "VITEST_ARGUMENTS"
-      <> help "Extra arguments that will be passed to Vitest. See https://vitest.dev/guide/cli.html"
+  O.strArgument $
+    O.metavar "VITEST_ARGUMENTS"
+      <> O.help "Extra arguments that will be passed to Vitest. See https://vitest.dev/guide/cli.html"

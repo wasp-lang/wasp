@@ -4,15 +4,8 @@ import Options.Applicative
   ( CommandFields,
     Mod,
     Parser,
-    help,
-    long,
-    metavar,
-    optional,
-    strArgument,
-    strOption,
-    subparser,
-    switch,
   )
+import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call
   ( Call (Db),
     DbArgs
@@ -34,7 +27,7 @@ parseDb = Db <$> parseDbArgs
   where
     parseDbArgs :: Parser DbArgs
     parseDbArgs =
-      subparser $
+      O.subparser $
         mconcat
           [ mkCommand "start" (pure DbStart) "Alias for `wasp start db`.",
             mkCommand "reset" (pure DbReset) "Drops all data and tables from development database and re-applies all migrations.",
@@ -47,11 +40,11 @@ parseDb = Db <$> parseDbArgs
 parseDbSeedArg :: Parser DbArgs
 parseDbSeedArg = DbSeed <$> parser
   where
-    parser = optional $ strArgument $ metavar "name" <> help "Seed name."
+    parser = O.optional $ O.strArgument $ O.metavar "name" <> O.help "Seed name."
 
 parseDbMigrateDevArgs :: Parser DbArgs
 parseDbMigrateDevArgs = DbMigrateDev <$> parser
   where
     parser = DbMigrateDevArgs <$> nameArgParser <*> createOnlyParser
-    nameArgParser = optional <$> strOption $ long "name" <> metavar "migration-name"
-    createOnlyParser = switch $ long "create-only"
+    nameArgParser = O.optional <$> O.strOption $ O.long "name" <> O.metavar "migration-name"
+    createOnlyParser = O.switch $ O.long "create-only"
