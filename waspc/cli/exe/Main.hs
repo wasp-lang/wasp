@@ -31,8 +31,10 @@ import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Generator.Node.Version as NodeVersion
+import qualified Wasp.Message as Message
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
@@ -70,7 +72,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
   NodeVersion.checkNodeVersion >>= \case
     Left errorMsg -> do
-      putStrLn $ Term.applyStyles [Term.Red] errorMsg
+      cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
       exitFailure
     Right _ -> pure ()
 

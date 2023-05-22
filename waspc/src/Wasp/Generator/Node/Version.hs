@@ -37,23 +37,33 @@ checkNodeVersion =
 -- not be found.
 getNodeVersion :: IO (Either String SV.Version)
 getNodeVersion = do
-  (exitCode, stdout, stderr) <-
-    P.readProcessWithExitCode "node" ["--version"] ""
+  -- Node result is one of:
+  -- 1. @Left processError@, when an error occurs trying to run the process
+  -- 2. @Right (ExitCode, stdout, stderr)@, when the node process runs and terminates
+  nodeResult <-
+    (Right <$> P.readProcessWithExitCode "node" ["--version"] "")
       `catchIOError` ( \e ->
                          if isDoesNotExistError e
-                           then return (ExitFailure 1, "", nodeNotFoundMessage)
-                           else return (ExitFailure 1, "", nodeUnknownErrorMessage e)
+                           then return $ Left nodeNotFoundMessage
+                           else return $ Left $ nodeUnknownErrorMessage e
                      )
-  return $ case exitCode of
-    ExitFailure _ ->
+  return $ case nodeResult of
+    Left procErr ->
       Left
         ( unlines
-            [ "Running 'node --version' failed: ",
+            [ procErr,
+              waspNodeRequirementMessage
+            ]
+        )
+    Right (ExitFailure code, _, stderr) ->
+      Left
+        ( unlines
+            [ "Running `node --version` failed (exit code " ++ show code ++ "):",
               indent 2 stderr,
               waspNodeRequirementMessage
             ]
         )
-    ExitSuccess -> case parseNodeVersion stdout of
+    Right (ExitSuccess, stdout, _) -> case parseNodeVersion stdout of
       Nothing ->
         Left
           ( "Wasp failed to parse node version."
@@ -78,15 +88,14 @@ nodeUnknownErrorMessage :: IOError -> String
 nodeUnknownErrorMessage err =
   unlines
     [ "An unknown error occured while trying to run `node --version`:",
-      indent 2 $ show err,
-      "If `node` is installed and in PATH, this is most likely a bug in Wasp, please file an issue."
+      indent 2 $ show err
     ]
 
 waspNodeRequirementMessage :: String
 waspNodeRequirementMessage =
   unwords
-    [ "Wasp requires node " ++ show nodeVersionRange ++ " to be installed and in PATH.",
-      "Check Wasp docs for more details: https://wasp-lang.dev/docs/quick-start#requirements."
+    [ "Wasp requires Node " ++ show nodeVersionRange ++ " to be installed and in PATH.",
+      "Check Wasp documentation for more details: https://wasp-lang.dev/docs/quick-start#requirements."
     ]
 
 nodeVersionRange :: SV.Range
@@ -107,8 +116,8 @@ makeNodeVersionMismatchMessage :: SV.Version -> String
 makeNodeVersionMismatchMessage nodeVersion =
   unlines
     [ unwords
-        [ "Your node version does not meet Wasp's requirements!",
-          "You are running node " ++ show nodeVersion ++ "."
+        [ "Your Node version does not meet Wasp's requirements!",
+          "You are running Node " ++ show nodeVersion ++ "."
         ],
       waspNodeRequirementMessage
     ]
