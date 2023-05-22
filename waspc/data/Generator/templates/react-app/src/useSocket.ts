@@ -7,11 +7,18 @@ import { getAuthToken } from './api'
 export function useSocket<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
   ClientToServerEvents extends EventsMap = ServerToClientEvents
->
-  ({ autoConnect = true, includeAuth = true } = {}):
-  [boolean, Socket<ServerToClientEvents, ClientToServerEvents>] {
+>():
+  [boolean, () => void, Socket<ServerToClientEvents, ClientToServerEvents>] {
 
   const [isConnected, setIsConnected] = useState(socket.connected)
+
+  const refreshAuthToken = () => {
+    socket.disconnect()
+    socket.auth = {
+      token: getAuthToken()
+    }
+    socket.connect()
+  }
 
   useEffect(() => {
     function onConnect() {
@@ -25,25 +32,13 @@ export function useSocket<
     socket.on('connect', onConnect)
     socket.on('disconnect', onDisconnect)
 
-    if (includeAuth) {
-      socket.auth = {
-        token: getAuthToken()
-      }
-    }
-
-    if (autoConnect) {
-      socket.connect()
-    }
+    refreshAuthToken()
 
     return () => {
-      if (autoConnect) {
-        socket.disconnect()
-      }
-
       socket.off('connect', onConnect)
       socket.off('disconnect', onDisconnect)
     }
   }, [])
 
-  return [isConnected, socket]
+  return [isConnected, refreshAuthToken, socket]
 }

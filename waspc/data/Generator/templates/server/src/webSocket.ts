@@ -29,6 +29,9 @@ export type WebSocketDefinition<
 type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}> [0]
 
 export async function init(server: http.Server): Promise<void> {
+  // TODO: In the future, we can consider allowing a clustering option.
+  // Refs: https://socket.io/docs/v4/using-multiple-nodes/
+  //       https://socket.io/docs/v4/cluster-adapter/
   const io: ServerType = new Server(server, {
     cors: {
       origin: config.frontendUrl,
