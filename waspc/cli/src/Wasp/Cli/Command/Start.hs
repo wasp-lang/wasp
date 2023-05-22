@@ -9,8 +9,8 @@ import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath ((</>))
-import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command (Command, CommandError (..), CommandRequirement (DbConnection))
+import Wasp.Cli.Command.Common (commandRequires, findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Watch (watch)
@@ -25,6 +25,8 @@ start :: Command ()
 start = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
+
+  commandRequires DbConnection
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
