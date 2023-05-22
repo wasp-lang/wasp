@@ -3,6 +3,7 @@ module Wasp.Cli.Command.Common
     findWaspProjectRoot,
     readWaspCompileInfo,
     throwIfExeIsNotAvailable,
+    commandRequires,
   )
 where
 
@@ -14,9 +15,10 @@ import qualified StrongPath as SP
 import StrongPath.Operations
 import System.Directory (doesFileExist, doesPathExist, findExecutable, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), CommandRequirement (DbConnection), checkRequirement)
 import Wasp.Cli.Common (dotWaspRootFileInWaspProjectDir)
 import qualified Wasp.Cli.Common as Cli.Common
+import Wasp.Generator.DbGenerator.Operations (dbIsRunning)
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
@@ -66,3 +68,25 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
     Nothing ->
       E.throwError $
         CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
+
+-- | @commandRequires requirement@ checks whether the specified requirement is
+-- met, throwing an error if it is not.
+--
+-- See 'CommandRequirement' for what each requirement is and what it checks
+-- for.
+commandRequires :: CommandRequirement -> Command ()
+commandRequires r = case r of
+  DbConnection ->
+    req
+      ( do
+          waspRoot <- findWaspProjectRootDirFromCwd
+          let outDir = waspRoot </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
+          liftIO $ dbIsRunning outDir
+      )
+      (CommandError "Can not connect to db" "This command requires a database connection. Ensure `wasp db start` is running and try this command again.")
+  where
+    req check err = do
+      met <- checkRequirement r check
+      if met
+        then return ()
+        else throwError err
