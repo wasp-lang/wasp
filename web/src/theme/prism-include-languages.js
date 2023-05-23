@@ -1,3 +1,5 @@
+// This file gets auto-generated when you "eject" to add custom languages to Docosaurus
+// We use it to add support for Prisma and Wasp syntax highlighting
 import siteConfig from "@generated/docusaurus.config";
 export default function prismIncludeLanguages(PrismObject) {
   const {
