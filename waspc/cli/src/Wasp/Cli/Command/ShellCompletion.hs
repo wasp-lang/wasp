@@ -14,10 +14,15 @@ import Wasp.Cli.Command.Call
 completion :: CompletionArgs -> Command ()
 completion args = case args of
   ShowInstruction -> printShellCompletionInstruction
-  Generate shell -> case shell of
-    Bash -> generateBash
-    Zsh -> generateZsh
-    Fish -> generateFish
+  Generate shell -> generateSh $ case shell of
+    Bash -> bashCompletionScript
+    Zsh -> zshCompletionScript
+    Fish -> fishCompletionScript
+
+generateSh :: (String -> String -> String) -> Command ()
+generateSh sh = liftIO $ do
+  name <- getProgName
+  putStr $ sh name name
 
 -- FIXME: Update instructions.
 printShellCompletionInstruction :: Command ()
@@ -26,7 +31,9 @@ printShellCompletionInstruction =
     unlines
       [ "Run the following command to generate shell (bash, zsh, or fish) completion script for wasp on your machine:",
         "",
-        "wasp completion:generate:bash > <your-chosen-directory>/wasp-completion",
+        "For Bash completion: ",
+        "",
+        "wasp completion generate bash > <your-chosen-directory>/wasp-completion",
         "",
         "After that, depending on your system, you will need to edit your bash profile:",
         "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
@@ -35,20 +42,6 @@ printShellCompletionInstruction =
         "  source <your-chosen-directory>/wasp-completion",
         "then reset your terminal session."
       ]
-
-generateSh :: (String -> String -> String) -> Command ()
-generateSh sh = liftIO $ do
-  name <- getProgName
-  putStr $ sh name name
-
-generateBash :: Command ()
-generateBash = generateSh bashCompletionScript
-
-generateZsh :: Command ()
-generateZsh = generateSh zshCompletionScript
-
-generateFish :: Command ()
-generateFish = generateSh fishCompletionScript
 
 -- TODO: Use newly exposed`*shCompletionScript` functions from optparse-applicative >0.17
 -- once it is released instead of using these text functions manually.

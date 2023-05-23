@@ -49,7 +49,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
 run :: Call -> IO ()
 run = \case
-  (New args) -> runCommand $ createNewProject args
+  New args -> runCommand $ createNewProject args
   Start arg -> runCommand $ start arg
   Clean -> runCommand clean
   Uninstall -> runCommand uninstall
