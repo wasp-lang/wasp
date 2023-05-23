@@ -4,8 +4,7 @@ import { styled } from '../../../stitches.config'
 import config from '../../../config.js'
 
 import { AuthContext } from '../Auth'
-import { FormInput, FormItemGroup, FormLabel, SubmitButton } from './Form'
-import { UserPassForm } from './UserPassForm'
+import { Form, FormInput, FormItemGroup, FormLabel, SubmitButton } from './Form'
 {=# isExternalAuthEnabled =}
 import * as SocialIcons from './social/SocialIcons'
 import { SocialButton } from './social/SocialButton'
@@ -189,7 +188,7 @@ export const LoginSignupForm = ({
         </OrContinueWith>
       {=/ areBothSocialAndPasswordBasedAuthEnabled =}
       {=# isAnyPasswordBasedAuthEnabled =}
-        <UserPassForm onSubmit={onSubmit}>
+        <Form onSubmit={onSubmit}>
           {=# isUsernameAndPasswordAuthEnabled =}
           <FormItemGroup>
             <FormLabel>Username</FormLabel>
@@ -228,7 +227,7 @@ export const LoginSignupForm = ({
           <FormItemGroup>
             <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>
-        </UserPassForm>
+        </Form>
       {=/ isAnyPasswordBasedAuthEnabled =}
   </>)
 }

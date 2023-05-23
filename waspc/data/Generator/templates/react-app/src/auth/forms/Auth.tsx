@@ -8,11 +8,11 @@ import {
   type CustomizationOptions,
   type ErrorMessage,
 } from './types'
-import { LoginSignupForm } from './core/LoginSignupForm'
-import { ForgotPasswordForm } from './core/email/ForgotPasswordForm'
-import { ResetPasswordForm } from './core/email/ResetPasswordForm'
-import { VerifyEmailForm } from './core/email/VerifyEmailForm'
-import { ErrorMessage, SuccessMessage } from './core/Message'
+import { LoginSignupForm } from './internal/LoginSignupForm'
+import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
+import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
+import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
+import { ErrorMessage, SuccessMessage } from './internal/Message'
 
 const logoStyle = {
   height: '3rem'
