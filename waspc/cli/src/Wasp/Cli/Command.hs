@@ -38,11 +38,20 @@ data CommandRequirement
     DbConnection
   deriving (Eq, Show)
 
--- | Requirement monad: holds a list of requirements that have been satisfied
--- so far
+-- | A monad transformer that holds a list of satisfied 'CommandRequirement's
+-- that is updated whenever a new requirement is checked.
+--
+-- This is the canonical implementation of 'MonadRequires'.
 newtype RequiresT m a = RequiresT {unRequiresT :: StateT [CommandRequirement] m a}
   deriving (Functor, Applicative, Monad, MonadTrans, MonadIO, MonadError b)
 
+-- | The Requires monad keeps track of which 'CommandRequirements' have been
+-- checked and met.
+--
+-- NOTE: We go through the trouble of creating this abstraction so we can make
+-- sure the set of satisfied requirements is never modified in a way we do not
+-- want it to be (e.g. marking a requirement as met without actually checking
+-- it).
 class Monad m => MonadRequires m where
   -- | @checkRequirement requirement check@ runs @check@ if the requirement
   -- has not been met yet. @check@ should return whether the requirement is

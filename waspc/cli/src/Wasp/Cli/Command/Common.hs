@@ -83,7 +83,10 @@ commandRequires r = case r of
           let outDir = waspRoot </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
           liftIO $ dbIsRunning outDir
       )
-      (CommandError "Can not connect to db" "This command requires a database connection. Ensure `wasp db start` is running and try this command again.")
+      ( CommandError
+          "Can not connect to database"
+          "The database needs to be running in order to execute this command. Make sure `wasp start db` is running and try again."
+      )
   where
     req check err = do
       met <- checkRequirement r check
