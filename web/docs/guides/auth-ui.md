@@ -14,7 +14,7 @@ Based on your `main.wasp` file on the authentication providers you enabled, the 
 
 For example, if you only enabled e-mail authentication:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 app MyApp {
   title: "My app",
   //...
@@ -33,7 +33,7 @@ We'll get this:
 
 And then we enable Google and Github:
 
-```c title="main.wasp" {7-8}
+```wasp title="main.wasp" {7-8}
 app MyApp {
   title: "My app",
   //...
@@ -60,7 +60,7 @@ Let's take a look at the components that are available for you to use.
 
 ### Login form
 
-Useful for <span style={{ background: '#fee', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>username & password</span> and <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>email</span> authentication.
+Useful for <span className="pill pill-username-password">username & password</span> and <span className="pill pill-email">email</span> authentication.
 
 ![Login form](/img/authui/login.png)
 
@@ -75,7 +75,7 @@ import { LoginForm } from '@wasp/auth/forms/Login'
 
 ### Signup form
 
-Useful for <span style={{ background: '#fee', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>username & password</span> and <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>email</span> authentication.
+Useful for <span className="pill pill-username-password">username & password</span> and <span className="pill pill-email">email</span> authentication.
 
 ![Signup form](/img/authui/signup.png)
 
@@ -90,7 +90,7 @@ import { SignupForm } from '@wasp/auth/forms/Signup'
 
 ### Forgot password form
 
-Useful for <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>email</span> authentication.
+Useful for <span className="pill pill-email">email</span> authentication.
 
 ![Forgot password form](/img/authui/forgot_password.png)
 
@@ -105,7 +105,7 @@ import { ForgotPasswordForm } from '@wasp/auth/forms/ForgotPassword'
 
 ### Reset password form
 
-Useful for <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>email</span> authentication.
+Useful for <span className="pill pill-email">email</span> authentication.
 
 ![Reset password form](/img/authui/reset_password.png)
 
@@ -120,7 +120,7 @@ import { ResetPasswordForm } from '@wasp/auth/forms/ResetPassword'
 
 ### Verify email form
 
-Useful for <span style={{ background: '#eef', padding: '0.2rem 0.5rem', borderRadius: '0.375rem' }}>email</span> authentication.
+Useful for <span className="pill pill-email">email</span> authentication.
 
 ![Verify email form](/img/authui/email_verification.png)
 

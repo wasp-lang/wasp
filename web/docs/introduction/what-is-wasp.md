@@ -53,7 +53,7 @@ Let's say you want to build a web app that allows users to **create and share th
 Let's start with the main.wasp file: it is the central file of your app, where you describe the app from the high level.
 
 Let's give our app a title and let's immediatelly turn on the full-stack authentication via username and password:
-```c title="main.wasp"
+```wasp title="main.wasp"
 app RecipeApp {
   title: "My Recipes",
   wasp: { version: "^0.10.0" },
@@ -67,7 +67,7 @@ app RecipeApp {
 
 Let's then add the data models for your recipes. We will want to have Users and Users can own Recipes:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 ...
 
 entity User {=psl  // Data models are defined using Prisma Schema Language.
@@ -92,7 +92,7 @@ We do that by defining Operations, in this case a Query `getRecipes` and Action 
 which are in their essence a Node.js functions that execute on server and can, thanks to Wasp, very easily be called from the client.
 
 First, we define these Operations in our main.wasp file, so Wasp knows about them and can "beef them up":
-```c title="main.wasp"
+```wasp title="main.wasp"
 // Queries have automatic cache invalidation and are type-safe.
 query getRecipes {
   fn: import { getRecipes } from "@server/recipe.js",
@@ -127,11 +127,11 @@ Now we can very easily use these in our React components!
 For the end, let's create a home page of our app.
 
 First we define it in main.wasp:
-```c title="main.wasp"
+```wasp title="main.wasp"
 ...
 
 route HomeRoute { path: "/", to: HomePage }
-component HomePage {
+page HomePage {
   component: import { HomePage } from "@client/pages/HomePage",
   authRequired: true // Will send user to /login if not authenticated.
 }
