@@ -28,7 +28,7 @@ import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.Project.Db.Dev (makeDevDbUniqueId)
 import qualified Wasp.Project.Db.Dev.Postgres as Dev.Postgres
 import Wasp.Project.Env (dotEnvServer)
-import Wasp.Util (whenM)
+import Wasp.Util (unlessM, whenM)
 import qualified Wasp.Util.Network.Socket as Socket
 
 -- | Starts a "managed" dev database, where "managed" means that
@@ -94,6 +94,7 @@ startPostgreDevDb waspProjectDir appName = do
   throwIfExeIsNotAvailable
     "docker"
     "To run PostgreSQL dev database, Wasp needs `docker` installed and in PATH."
+  throwIfDockerDaemonIsNotRunning
   throwIfDevDbPortIsAlreadyInUse
 
   cliSendMessageC . Msg.Info $
@@ -134,7 +135,6 @@ startPostgreDevDb waspProjectDir appName = do
           Dev.Postgres.defaultDevUser
           dbName
 
-  throwIfDockerDaemonIsNotRunning
   liftIO $ callCommand command
   where
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
@@ -162,22 +162,18 @@ startPostgreDevDb waspProjectDir appName = do
 
     throwIfDockerDaemonIsNotRunning :: Command ()
     throwIfDockerDaemonIsNotRunning = do
-      whenM (liftIO isDockerStopped) throwDockerDaemonIsNotRunningError
+      unlessM (liftIO isDockerDaemonRunning) throwDockerDaemonIsNotRunningError
       where
-        isDockerStopped = do
-          (exitCode, errorString, _) <-
-            -- For docker formatting reference, see https://pkg.go.dev/text/template#hdr-Functions
-            readProcessWithExitCode "docker" ["info", "--format", "{{ index .ServerErrors 0 }}"] ""
-          pure $ exitCode == ExitSuccess && errorString == "Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?\n"
+        isDockerDaemonRunning = do
+          (exitCode, _, _) <- readProcessWithExitCode "docker" ["info"] ""
+          pure $ exitCode == ExitSuccess
 
         throwDockerDaemonIsNotRunningError =
           E.throwError $
             CommandError
               "Docker daemon is not running"
               ( unlines
-                  [ "Wasp can't run dev database for you because docker daemon isn't running",
-                    "in the background. Have you tried executing `systemctl start docker` before running",
-                    " this command?",
+                  [ "Wasp can't run dev database for you because docker daemon isn't running in the background.",
                     "",
                     "Please see https://docs.docker.com/config/daemon/troubleshoot/#check-whether-docker-is-running",
                     "and https://docs.docker.com/config/daemon/start/"
