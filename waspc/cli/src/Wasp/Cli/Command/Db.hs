@@ -3,8 +3,8 @@ module Wasp.Cli.Command.Db
   )
 where
 
-import Wasp.Cli.Command (Command, CommandRequirement (DbConnection), runCommand)
-import Wasp.Cli.Command.Common (commandRequires, findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command (Command, runCommand)
+import Wasp.Cli.Command.Common (CommandRequirement (DbConnection), commandRequires, findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))

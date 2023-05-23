@@ -4,6 +4,7 @@ module Wasp.Cli.Command.Common
     readWaspCompileInfo,
     throwIfExeIsNotAvailable,
     commandRequires,
+    CommandRequirement (..),
   )
 where
 
@@ -15,7 +16,8 @@ import qualified StrongPath as SP
 import StrongPath.Operations
 import System.Directory (doesFileExist, doesPathExist, findExecutable, getCurrentDirectory)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command (Command, CommandError (..), CommandRequirement (DbConnection), checkRequirement)
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Requires (CommandRequirement (..), checkRequirement)
 import Wasp.Cli.Common (dotWaspRootFileInWaspProjectDir)
 import qualified Wasp.Cli.Common as Cli.Common
 import Wasp.Generator.DbGenerator.Operations (dbIsRunning)
@@ -74,6 +76,10 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
 --
 -- See 'CommandRequirement' for what each requirement is and what it checks
 -- for.
+--
+-- NOTE: it would be better if this function was in 'Wasp.Cli.Command.Requires',
+-- but that creates a dependency loop (since this function depends on Common, which
+-- depends on Command, which depends on Requires).
 commandRequires :: CommandRequirement -> Command ()
 commandRequires r = case r of
   DbConnection ->
