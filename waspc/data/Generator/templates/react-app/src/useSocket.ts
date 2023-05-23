@@ -8,11 +8,13 @@ export function useSocket<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
   ClientToServerEvents extends EventsMap = ServerToClientEvents
 >():
-  [boolean, () => void, Socket<ServerToClientEvents, ClientToServerEvents>] {
+  [Socket<ServerToClientEvents, ClientToServerEvents>, boolean, () => void] {
 
   const [isConnected, setIsConnected] = useState(socket.connected)
 
   const refreshAuthToken = () => {
+    // TODO: Any better way to do this?
+    // It doesn't seem to detect updates while a connection is active, and this works. :/
     socket.disconnect()
     socket.auth = {
       token: getAuthToken()
@@ -40,5 +42,5 @@ export function useSocket<
     }
   }, [])
 
-  return [isConnected, refreshAuthToken, socket]
+  return [socket, isConnected, refreshAuthToken]
 }

@@ -4,12 +4,16 @@ import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth'
 import { useQuery } from '@wasp/queries'
 import getDate from '@wasp/queries/getDate'
+import { useSocket } from '@wasp/useSocket'
 
 import './Main.css'
 
 export function App({ children }: any) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
+  const [_socket, isConnected] = useSocket()
+
+  const connectionIcon = isConnected ? '🟢' : '🔴'
 
   return (
     <div className="app border-spacing-2 p-4">
@@ -18,7 +22,7 @@ export function App({ children }: any) {
           <Link to="/">ToDo App</Link>
         </h1>
         <h2>
-          Your site was loaded at: {date?.toLocaleString()}
+          Your site was loaded at: {date?.toLocaleString()} {connectionIcon}
         </h2>
         {user && (
           <div className="flex gap-3 items-center">
