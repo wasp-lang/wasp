@@ -172,7 +172,7 @@ Another thing to keep in mind is that we should also track how things change ove
 
 If we try to apply the principles from above (less code, less detailed instructions, stating **what** we want instead of **how** it needs to be done), the code for auth might look something like this: 
 
-```css
+```wasp
 auth: {
     userEntity: User,
     externalAuthEntity: SocialLogin,
