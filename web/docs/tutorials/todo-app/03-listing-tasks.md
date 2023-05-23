@@ -25,7 +25,7 @@ It consists of a declaration in Wasp and implementation in JS (in `src/server/` 
 
 ### Wasp declaration
 Add the following code to `main.wasp`:
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 query getTasks {

@@ -48,7 +48,7 @@ To honor the tradition of demonstrating UIs using Todo apps, We'll show you how 
 Before looking at our todo app in action, let's see how we've implemented it in Wasp.
 
 These are the relevant declarations in our `.wasp` file:
-```javascript title=main.wasp
+```wasp title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
