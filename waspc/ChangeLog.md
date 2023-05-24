@@ -29,7 +29,6 @@ We now offer an interactive way to create a new project. You can run `wasp new` 
 ### Bug fixes
 - Adds missing import for HttpError which prevent auth from working properly.
 
-This should make it much easier to work with apis and to customize your Express app in general.
 ## v0.10.3
 
 ### Bug fixes
