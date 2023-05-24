@@ -54,7 +54,7 @@ spec_uninstallCommandTests =
 spec_startCommandTests :: Spec
 spec_startCommandTests =
   describe "start commands" $ do
-    it "`start` should pass" $ testParse "start" `shouldBe` Just (Start StartNormal)
+    it "`start` should pass" $ testParse "start" `shouldBe` Just (Start StartApp)
     it "`start db` should pass" $ testParse "start db" `shouldBe` Just (Start StartDb)
     it "`start randomcommand` should fail" $ testParse "start randomcommand" `shouldBe` Nothing
 

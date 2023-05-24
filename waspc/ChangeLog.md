@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.11.0
+
+- Wasp CLI now supports bash `wasp completion generate bash`, zsh `wasp completion generate zsh` and fish `wasp completion generate fish` shell completion.
+
+### Breaking changes
+
+- We changed Wasp's CLI bash shell completion command to `wasp completion generate bash` instead from previous `wasp completion:generate`.
+
 ## v0.10.6
 
 ### Bug fixes

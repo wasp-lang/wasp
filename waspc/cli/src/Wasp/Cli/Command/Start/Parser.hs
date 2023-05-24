@@ -20,7 +20,7 @@ start =
 parseStart :: Parser Call
 parseStart = Start <$> parseStartArg
   where
-    parseStartArg = fromMaybe StartNormal <$> parseStartDb
+    parseStartArg = fromMaybe StartApp <$> parseStartDb
 
 parseStartDb :: Parser (Maybe StartArg)
 parseStartDb =

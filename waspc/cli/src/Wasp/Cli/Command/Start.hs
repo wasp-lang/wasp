@@ -24,12 +24,12 @@ import Wasp.Project (CompileError, CompileWarning)
 start :: StartArg -> Command ()
 start arg = case arg of
   StartDb -> Wasp.Cli.Command.Start.Db.start
-  StartNormal -> startNormal
+  StartApp -> startApp
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
-startNormal :: Command ()
-startNormal = do
+startApp :: Command ()
+startApp = do
   waspRoot <- findWaspProjectRootDirFromCwd
   let outDir = waspRoot </> Common.dotWaspDirInWaspProjectDir </> Common.generatedCodeDirInDotWaspDir
 
