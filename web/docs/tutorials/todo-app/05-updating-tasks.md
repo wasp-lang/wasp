@@ -16,7 +16,7 @@ For that, we will need to do two things:
 ### Wasp declaration
 
 We declare a Wasp action:
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 action updateTask {
