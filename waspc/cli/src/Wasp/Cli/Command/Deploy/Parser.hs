@@ -14,7 +14,7 @@ deploy :: Mod CommandFields Call
 deploy =
   mkWrapperCommand
     "deploy"
-    [O.noIntersperse]
+    [O.forwardOptions]
     parseDeploy
     "Deploys your Wasp app to cloud hosting providers."
 

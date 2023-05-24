@@ -92,7 +92,7 @@ spec_deployCommandTests :: Spec
 spec_deployCommandTests =
   describe "deploy commands" $ do
     it "`deploy` should pass" $ testParse "deploy" `shouldBe` Just (Deploy [])
-    it "`deploy --ui` should fail" $ testParse "deploy --ui" `shouldBe` Nothing
+    it "`deploy --ui` should pass" $ testParse "deploy --ui" `shouldBe` Just (Deploy ["--ui"])
     it "`deploy fly --ui` should pass" $ testParse "deploy fly --ui" `shouldBe` Just (Deploy ["fly", "--ui"])
     let cmd = "deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=\"EXAMPLE@ID\" --server-secret GOOGLE_CLIENT_SECRET=EXAMPLE_SECRET"
     let cmdMsg = printf "`%s` should pass" cmd
