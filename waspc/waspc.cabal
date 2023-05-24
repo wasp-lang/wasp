@@ -323,6 +323,8 @@ library waspls
   exposed-modules:
     Wasp.LSP.Server
   other-modules:
+    Control.Monad.Log.Class
+    Control.Monad.Log.Pure
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
