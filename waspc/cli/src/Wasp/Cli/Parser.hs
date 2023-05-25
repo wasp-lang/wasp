@@ -18,6 +18,8 @@ parserRunnerSettings :: (ParserPrefs, ParserInfo Call)
 parserRunnerSettings = (preferences, options)
   where
     preferences = O.prefs O.showHelpOnEmpty
+    options =
+      O.info (parserSuite <**> O.helper) $ O.footerDoc (Just footer)
     footer =
       text $
         unlines
@@ -25,8 +27,6 @@ parserRunnerSettings = (preferences, options)
             Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
             Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
           ]
-    options =
-      O.info (parserSuite <**> O.helper) $ O.footerDoc (Just footer)
 
 parserSuite :: Parser Call
 parserSuite = internalCommands <|> generalCommands <|> inProjectCommands
