@@ -29,3 +29,8 @@ export type _Awaited<T> = T extends Promise<infer V>
 // consideration.
 export type _ReturnType<T extends (...args: never[]) => unknown> = 
   T extends (...args: never[]) => infer R ? R : never
+
+// A common type for users to extend with WS socket data on both client and server.
+export interface WaspSocketData {
+  user?: any;
+}

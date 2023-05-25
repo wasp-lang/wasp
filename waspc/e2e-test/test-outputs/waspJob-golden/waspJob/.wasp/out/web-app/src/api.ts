@@ -10,9 +10,13 @@ const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
 let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 
-export function setAuthToken (token: string): void {
+export function setAuthToken(token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
+}
+
+export function getAuthToken(): string | undefined {
+  return authToken
 }
 
 export function clearAuthToken(): void {
