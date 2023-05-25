@@ -17,7 +17,6 @@ import Wasp.LSP.ServerState
 import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, lspPositionToOffset, showNeighborhood, toOffset)
 
 -- | Get the list of completions at a (line, column) position in the source.
--- getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
 getCompletionsAtPosition ::
   (MonadState ServerState m, MonadLog m) =>
   LSP.Position ->

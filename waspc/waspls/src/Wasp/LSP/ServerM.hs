@@ -59,6 +59,12 @@ runServerM state m = runStateT (runExceptT $ unServerM m) state
 liftLSP :: LspT ServerConfig IO a -> ServerM a
 liftLSP m = ServerM $ lift $ lift m
 
+-- | Log a string.
+--
+-- Behavior depends on the "--log" command line flag. If set to "[OUTPUT]",
+-- logged messages will be displayed in the LSP client (e.g. for VSCode, in the
+-- "Wasp Language Extension" output panel). Otherwise, it may be sent to a file
+-- or not recorded at all.
 instance MonadLog ServerM where
   logM = liftIO . L.logM "haskell-lsp" L.DEBUG
 
