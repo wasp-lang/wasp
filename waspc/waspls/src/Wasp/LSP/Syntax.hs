@@ -4,6 +4,10 @@ module Wasp.LSP.Syntax
     -- | Module with utilities for working with/looking for patterns in CSTs
     lspPositionToOffset,
     toOffset,
+    allP,
+    anyP,
+    parentIs,
+    hasLeft,
     isAtExprPlace,
     lexemeAt,
     findChild,
@@ -37,10 +41,24 @@ toOffset targetOffset start = go $ bottom start
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset && not (S.syntaxKindIsTrivia (kindAt at)) =
-          at
+        at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next
+
+-- | Check if all of the supplied predicates are true
+allP :: Foldable f => f (a -> Bool) -> a -> Bool
+allP preds x = all ($ x) preds
+
+-- | Check if any of the supplied predicates are true
+anyP :: Foldable f => f (a -> Bool) -> a -> Bool
+anyP preds x = any ($ x) preds
+
+parentIs :: S.SyntaxKind -> Traversal -> Bool
+parentIs k t = Just k == parentKind t
+
+hasLeft :: S.SyntaxKind -> Traversal -> Bool
+hasLeft k t = k `elem` map kindAt (leftSiblings t)
 
 -- | Check whether a position in a CST is somewhere an expression belongs. These
 -- locations (as of now) are:
@@ -50,14 +68,17 @@ toOffset targetOffset start = go $ bottom start
 -- - Parent is a List
 -- - Parent is a Tuple
 isAtExprPlace :: Traversal -> Bool
-isAtExprPlace t =
-  (parentIs S.DictEntry && hasLeft S.DictKey)
-    || parentIs S.List
-    || (parentIs S.Decl && hasLeft S.DeclType && hasLeft S.DeclName)
-    || parentIs S.Tuple
-  where
-    parentIs k = Just k == parentKind t
-    hasLeft k = k `elem` map kindAt (leftSiblings t)
+isAtExprPlace =
+  anyP
+    [ allP [parentIs S.DictEntry, hasLeft S.DictKey],
+      allP [parentIs S.Decl, hasLeft S.DeclType, hasLeft S.DeclName],
+      parentIs S.Tuple
+    ]
+
+-- (parentIs S.DictEntry && hasLeft S.DictKey)
+--   || parentIs S.List
+--   || (parentIs S.Decl && hasLeft S.DeclType && hasLeft S.DeclName)
+--   || parentIs S.Tuple
 
 -- | Show the nodes around the current position
 --

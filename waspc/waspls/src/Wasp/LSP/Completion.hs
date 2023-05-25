@@ -10,6 +10,7 @@ import Control.Monad.State.Class (MonadState, gets)
 import qualified Language.LSP.Types as LSP
 import Wasp.Analyzer.Parser.CST.Traverse
 import Wasp.LSP.Completions.Common (CompletionContext (..), CompletionProvider)
+import qualified Wasp.LSP.Completions.DictKeyCompletion as DictKeyCompletion
 import qualified Wasp.LSP.Completions.ExprCompletion as ExprCompletion
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
@@ -39,5 +40,6 @@ getCompletionsAtPosition position = do
 
 completionProviders :: (MonadReader CompletionContext m, MonadLog m) => [CompletionProvider m]
 completionProviders =
-  [ ExprCompletion.getCompletions
+  [ ExprCompletion.getCompletions,
+    DictKeyCompletion.getCompletions
   ]

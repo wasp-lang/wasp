@@ -331,6 +331,7 @@ library waspls
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
     Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.DictKeyCompletion
     Wasp.LSP.Completions.ExprCompletion
     Wasp.LSP.Util
     Wasp.LSP.Syntax
