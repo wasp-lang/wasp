@@ -618,13 +618,6 @@
     [
         [
             "file",
-            "web-app/src/auth/forms/ForgotPassword.tsx"
-        ],
-        "85e9702b3dbc371512bbba6a6a34e715c693b717a3e13544d67914f66a8972d4"
-    ],
-    [
-        [
-            "file",
             "web-app/src/auth/forms/Login.tsx"
         ],
         "17f42b2faa70876fb680de43ef33b5caa6c310c254af07358e21bc710f9214a9"
@@ -632,23 +625,9 @@
     [
         [
             "file",
-            "web-app/src/auth/forms/ResetPassword.tsx"
-        ],
-        "dea5ae1053be418956da10f7848d1f0ed1ca2f92a1816efae39a10f9e695f722"
-    ],
-    [
-        [
-            "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
         "cacd5348e84d42bc142f6c6e00051a8e86f6b17eb037b2772772f073925bf570"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/VerifyEmail.tsx"
-        ],
-        "3e88334d9740e1ae97f33d8377a0d4cede0caceb28764491adde36ddeef786da"
     ],
     [
         [
@@ -690,7 +669,7 @@
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "3c2415579e1bc33d202549248f4d6495343101d82c04f91a5f59b13556eacd3d"
+        "c4066fbd39ec20a3d43be9f9d5762d555dbc006057579ac168a67b2678918a13"
     ],
     [
         [

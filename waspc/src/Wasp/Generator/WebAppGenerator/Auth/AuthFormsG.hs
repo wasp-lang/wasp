@@ -18,14 +18,12 @@ genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genAuthComponent auth,
+      genTypes auth,
       copyTmplFile [relfile|auth/forms/Login.tsx|],
       copyTmplFile [relfile|auth/forms/Signup.tsx|],
-      copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
-      copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
-      copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|],
-      copyTmplFile [relfile|auth/forms/types.ts|],
       copyTmplFile [relfile|stitches.config.js|]
     ]
+    <++> genEmailForms auth
     <++> genInternalAuthComponents auth
   where
     copyTmplFile = return . C.mkSrcTmplFd
@@ -38,6 +36,27 @@ genAuthComponent auth =
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+
+genTypes :: AS.Auth.Auth -> Generator FileDraft
+genTypes auth =
+  return $
+    C.mkTmplFdWithData
+      [relfile|src/auth/forms/types.ts|]
+      tmplData
+  where
+    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+
+genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
+genEmailForms auth =
+  genConditionally isEmailAuthEnabled $
+    sequence
+      [ copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
+        copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
+        copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|]
+      ]
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
@@ -74,9 +93,6 @@ genInternalAuthComponents auth =
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
-    genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
-    genConditionally isEnabled gen = if isEnabled then gen else return []
-
     copyInternalAuthComponent = return . C.mkSrcTmplFd . (pathToInternalInAuth </>)
     pathToInternalInAuth = [reldir|auth/forms/internal|]
 
@@ -107,3 +123,6 @@ genLoginSignupForm auth =
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+
+genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
+genConditionally isEnabled gen = if isEnabled then gen else return []

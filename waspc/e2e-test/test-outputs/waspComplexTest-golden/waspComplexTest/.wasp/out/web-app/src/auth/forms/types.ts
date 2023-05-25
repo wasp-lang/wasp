@@ -3,10 +3,6 @@ import { createTheme } from '@stitches/react'
 export enum State {
   Login = 'login',
   Signup = 'signup',
-  // TODO: adjust if email auth is not used
-  ForgotPassword = 'forgot-password',
-  ResetPassword = 'reset-password',
-  VerifyEmail = 'verify-email',
 }
 
 export type CustomizationOptions = {
