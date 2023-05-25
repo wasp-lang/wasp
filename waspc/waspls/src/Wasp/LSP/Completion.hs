@@ -7,13 +7,15 @@ import Control.Lens ((^.))
 import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.State.Class (MonadState, gets)
+import Data.List (sortOn)
 import qualified Language.LSP.Types as LSP
+import qualified Language.LSP.Types.Lens as LSP
 import Wasp.Analyzer.Parser.CST.Traverse
 import Wasp.LSP.Completions.Common (CompletionContext (..), CompletionProvider)
 import qualified Wasp.LSP.Completions.DictKeyCompletion as DictKeyCompletion
 import qualified Wasp.LSP.Completions.ExprCompletion as ExprCompletion
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
-import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
+import Wasp.LSP.Syntax (lspPositionToOffset, showNeighborhood, toOffset)
 
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition ::
@@ -31,12 +33,15 @@ getCompletionsAtPosition position = do
       -- 'location' is a traversal through the syntax tree that points to 'position'
       let location = toOffset offset (fromSyntaxForest syntax)
       logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " offset=" ++ show offset
+      logM $ "[getCompletionsAtPosition] neighborhood=\n" ++ showNeighborhood location
       let completionContext = CompletionContext {_src = src, _cst = syntax}
       -- Run all completion providers and concatenate results
-      concat
-        <$> mapM
-          (\m -> runReaderT (m location) completionContext)
-          completionProviders
+      completionItems <-
+        concat
+          <$> mapM
+            (\m -> runReaderT (m location) completionContext)
+            completionProviders
+      return $ sortOn (^. LSP.label) completionItems
 
 completionProviders :: (MonadReader CompletionContext m, MonadLog m) => [CompletionProvider m]
 completionProviders =
