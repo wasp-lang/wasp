@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import signup from '../../../signup.js'
-import login from '../../../login.js'
+import signup from '../../../signup'
+import login from '../../../login'
 
 export function useUsernameAndPassword({
   onError,

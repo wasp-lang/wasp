@@ -1,22 +1,22 @@
 {{={= =}=}}
 import { useContext, type FormEvent } from 'react'
-import { styled } from '../../../stitches.config'
-import config from '../../../config.js'
+import { styled } from '../../../../stitches.config'
+import config from '../../../../config.js'
 
-import { AuthContext } from '../Auth'
-import { Form, FormInput, FormItemGroup, FormLabel, SubmitButton } from './Form'
+import { AuthContext } from '../../Auth'
+import { Form, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
 {=# isExternalAuthEnabled =}
-import * as SocialIcons from './social/SocialIcons'
-import { SocialButton } from './social/SocialButton'
+import * as SocialIcons from '../social/SocialIcons'
+import { SocialButton } from '../social/SocialButton'
 {=/ isExternalAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useHistory } from 'react-router-dom'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# isUsernameAndPasswordAuthEnabled =}
-import { useUsernameAndPassword } from './usernameAndPassword/useUsernameAndPassword'
+import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
 {=/ isUsernameAndPasswordAuthEnabled =}
 {=# isEmailAuthEnabled =}
-import { useEmail } from './email/useEmail'
+import { useEmail } from '../email/useEmail'
 {=/ isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}

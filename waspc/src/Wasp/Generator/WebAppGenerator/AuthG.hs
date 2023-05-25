@@ -26,7 +26,7 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       sequence
-        [ copyTmplFile [relfile|auth/logout.js|],
+        [ copyTmplFile [relfile|auth/logout.ts|],
           copyTmplFile [relfile|auth/helpers/user.ts|],
           copyTmplFile [relfile|auth/types.ts|],
           genUseAuth auth,

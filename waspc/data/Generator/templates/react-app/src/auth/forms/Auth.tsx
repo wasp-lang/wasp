@@ -8,7 +8,7 @@ import {
   type CustomizationOptions,
   type ErrorMessage,
 } from './types'
-import { LoginSignupForm } from './internal/LoginSignupForm'
+import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'

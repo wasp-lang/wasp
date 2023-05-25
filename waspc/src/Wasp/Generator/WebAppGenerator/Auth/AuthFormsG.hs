@@ -61,7 +61,7 @@ genLoginSignupForm :: AS.Auth.Auth -> Generator FileDraft
 genLoginSignupForm auth =
   return $
     C.mkTmplFdWithData
-      [relfile|src/auth/forms/internal/LoginSignupForm.tsx|]
+      [relfile|src/auth/forms/internal/common/LoginSignupForm.tsx|]
       tmplData
   where
     tmplData =

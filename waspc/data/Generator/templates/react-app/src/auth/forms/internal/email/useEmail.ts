@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { signup } from '../../../email/actions/signup.js'
-import { login } from '../../../email/actions/login.js'
+import { signup } from '../../../email/actions/signup'
+import { login } from '../../../email/actions/login'
 
 export function useEmail({
   onError,
