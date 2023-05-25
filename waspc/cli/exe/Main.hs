@@ -8,7 +8,7 @@ import Main.Utf8 (withUtf8)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
-import Wasp.Cli.Command.Call (Call (..))
+import qualified Wasp.Cli.Command.Call as Command
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
@@ -47,27 +47,27 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     handleInternalErrors :: E.ErrorCall -> IO ()
     handleInternalErrors e = putStrLn $ "\nInternal Wasp error (bug in compiler):\n" ++ indent 2 (show e)
 
-run :: Call -> IO ()
+run :: Command.Call -> IO ()
 run = \case
-  New args -> runCommand $ createNewProject args
-  Start arg -> runCommand $ start arg
-  Clean -> runCommand clean
-  Uninstall -> runCommand uninstall
-  Build -> runCommand build
+  Command.New args -> runCommand $ createNewProject args
+  Command.Start arg -> runCommand $ start arg
+  Command.Clean -> runCommand clean
+  Command.Uninstall -> runCommand uninstall
+  Command.Build -> runCommand build
   -- This command is called by wasp new, internally.
-  Compile -> runCommand compile
-  Db args -> dbCli args
-  Version -> printVersion
-  Telemetry -> runCommand telemetry
-  Deps -> runCommand deps
-  Dockerfile -> runCommand printDockerfile
-  Info -> runCommand info
-  Completion args -> runCommand $ completion args
-  WaspLS args -> runCommand $ runWaspLS args
-  Deploy args -> runCommand $ deploy args
-  Test args -> runCommand $ test args
+  Command.Compile -> runCommand compile
+  Command.Db args -> dbCli args
+  Command.Version -> printVersion
+  Command.Telemetry -> runCommand telemetry
+  Command.Deps -> runCommand deps
+  Command.Dockerfile -> runCommand printDockerfile
+  Command.Info -> runCommand info
+  Command.Completion args -> runCommand $ completion args
+  Command.WaspLS args -> runCommand $ runWaspLS args
+  Command.Deploy args -> runCommand $ deploy args
+  Command.Test args -> runCommand $ test args
 
-runParser :: IO Call
+runParser :: IO Command.Call
 runParser = uncurry O.customExecParser parserRunnerSettings
 
 printVersion :: IO ()
