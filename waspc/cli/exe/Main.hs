@@ -26,13 +26,13 @@ import Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
-import Wasp.Cli.Parser (parserRunnerSettings)
+import Wasp.Cli.Parser (parseCliArgs)
 import Wasp.Util (indent)
 import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
-  commandCall <- runParser
+  commandCall <- parseCliArgs
   telemetryThread <- Async.async $ runCommand $ considerSendingData commandCall
   run commandCall
 
@@ -66,9 +66,6 @@ run = \case
   Command.WaspLS args -> runCommand $ runWaspLS args
   Command.Deploy args -> runCommand $ deploy args
   Command.Test args -> runCommand $ test args
-
-runParser :: IO Command.Call
-runParser = uncurry O.customExecParser parserRunnerSettings
 
 printVersion :: IO ()
 printVersion = do

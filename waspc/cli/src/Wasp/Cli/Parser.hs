@@ -1,4 +1,4 @@
-module Wasp.Cli.Parser (parserRunnerSettings) where
+module Wasp.Cli.Parser (parserRunnerSettings, parseCliArgs) where
 
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, (<**>), (<|>))
 import qualified Options.Applicative as O
@@ -13,6 +13,9 @@ import Wasp.Cli.Command.Test.Parser (test)
 import Wasp.Cli.Command.WaspLS.Parser (waspls)
 import Wasp.Cli.Parser.Util (mkCommand)
 import qualified Wasp.Util.Terminal as Term
+
+parseCliArgs :: IO Call
+parseCliArgs = uncurry O.customExecParser parserRunnerSettings
 
 parserRunnerSettings :: (ParserPrefs, ParserInfo Call)
 parserRunnerSettings = (preferences, options)

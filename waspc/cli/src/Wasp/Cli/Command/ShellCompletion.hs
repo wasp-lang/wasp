@@ -14,9 +14,9 @@ import Wasp.Cli.Command.Call
 completion :: CompletionArgs -> Command ()
 completion ShowInstruction = printShellCompletionInstruction
 completion (Generate shell) = generateSh $ case shell of
-    Bash -> bashCompletionScript
-    Zsh -> zshCompletionScript
-    Fish -> fishCompletionScript
+  Bash -> bashCompletionScript
+  Zsh -> zshCompletionScript
+  Fish -> fishCompletionScript
 
 generateSh :: (String -> String -> String) -> Command ()
 generateSh sh = liftIO $ do
