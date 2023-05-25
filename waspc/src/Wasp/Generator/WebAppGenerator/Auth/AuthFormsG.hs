@@ -42,18 +42,41 @@ genAuthComponent auth =
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
   sequence
-    [ copyInternalAuthComponent [relfile|usernameAndPassword/useUsernameAndPassword.ts|],
-      copyInternalAuthComponent [relfile|email/VerifyEmailForm.tsx|],
-      copyInternalAuthComponent [relfile|email/useEmail.ts|],
-      copyInternalAuthComponent [relfile|email/ForgotPasswordForm.tsx|],
-      copyInternalAuthComponent [relfile|email/ResetPasswordForm.tsx|],
-      copyInternalAuthComponent [relfile|social/SocialButton.tsx|],
-      copyInternalAuthComponent [relfile|social/SocialIcons.tsx|],
-      copyInternalAuthComponent [relfile|Form.tsx|],
+    [ copyInternalAuthComponent [relfile|Form.tsx|],
       copyInternalAuthComponent [relfile|Message.tsx|],
       genLoginSignupForm auth
     ]
+    <++> genEmailComponents
+    <++> genUsernameAndPasswordComponents
+    <++> genSocialComponents
   where
+    genEmailComponents =
+      genConditionally isEmailAuthEnabled $
+        sequence
+          [ copyInternalAuthComponent [relfile|email/VerifyEmailForm.tsx|],
+            copyInternalAuthComponent [relfile|email/useEmail.ts|],
+            copyInternalAuthComponent [relfile|email/ForgotPasswordForm.tsx|],
+            copyInternalAuthComponent [relfile|email/ResetPasswordForm.tsx|]
+          ]
+    genUsernameAndPasswordComponents =
+      genConditionally isUsernameAndPasswordAuthEnabled $
+        sequence
+          [ copyInternalAuthComponent [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
+          ]
+    genSocialComponents =
+      genConditionally isExternalAuthEnabled $
+        sequence
+          [ copyInternalAuthComponent [relfile|social/SocialButton.tsx|],
+            copyInternalAuthComponent [relfile|social/SocialIcons.tsx|]
+          ]
+
+    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
+    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
+
+    genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
+    genConditionally isEnabled gen = if isEnabled then gen else return []
+
     copyInternalAuthComponent = return . C.mkSrcTmplFd . (pathToInternalInAuth </>)
     pathToInternalInAuth = [reldir|auth/forms/internal|]
 

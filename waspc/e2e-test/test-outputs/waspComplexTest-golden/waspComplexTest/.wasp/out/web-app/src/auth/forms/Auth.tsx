@@ -11,7 +11,7 @@ import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
-import { ErrorMessage, SuccessMessage } from './internal/Message'
+import { MessageError, MessageSuccess } from './internal/Message'
 
 const logoStyle = {
   height: '3rem'
@@ -66,8 +66,8 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
         <HeaderText>{title}</HeaderText>
       </div>
 
-      {errorMessage && (<ErrorMessage>{errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}</ErrorMessage>)}
-      {successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
+      {errorMessage && (<MessageError>{errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}</MessageError>)}
+      {successMessage && <MessageSuccess>{successMessage}</MessageSuccess>}
       <AuthContext.Provider value={{ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }}>
         {(state === 'login' || state === 'signup') && (<LoginSignupForm state={state} socialButtonsDirection={socialButtonsDirection} />)}
       </AuthContext.Provider>

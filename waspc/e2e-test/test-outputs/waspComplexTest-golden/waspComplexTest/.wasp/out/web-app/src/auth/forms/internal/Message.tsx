@@ -7,12 +7,12 @@ export const Message = styled('div', {
   background: '$gray400',
 })
 
-export const ErrorMessage = styled(Message, {
+export const MessageError = styled(Message, {
   background: '$errorBackground',
   color: '$errorText',
 })
 
-export const SuccessMessage = styled(Message, {
+export const MessageSuccess = styled(Message, {
   background: '$successBackground',
   color: '$successText',
 })
