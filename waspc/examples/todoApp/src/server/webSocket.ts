@@ -8,8 +8,6 @@ export const webSocketFn: WebSocketDefinition<
   InterServerEvents,
   SocketData
 > = (io, context) => {
-  console.log('webSocketFn')
-
   io.on('connection', (socket) => {
     const username = socket.data.user?.email || socket.data.user?.username || 'unknown'
     console.log('a user connected: ', username)

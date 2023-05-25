@@ -16,7 +16,7 @@ export const ProfilePage = ({
   user: User
 }) => {
   const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([]);
-  const [socket, isConnected, refreshAuthToken] = useSocket<ServerToClientEvents, ClientToServerEvents>()
+  const { socket, isConnected } = useSocket<ServerToClientEvents, ClientToServerEvents>()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {

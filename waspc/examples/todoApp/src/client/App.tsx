@@ -11,7 +11,7 @@ import './Main.css'
 export function App({ children }: any) {
   const { data: user } = useAuth()
   const { data: date } = useQuery(getDate)
-  const [_socket, isConnected] = useSocket()
+  const { isConnected } = useSocket()
 
   const connectionIcon = isConnected ? '🟢' : '🔴'
 

@@ -7,8 +7,11 @@ import { getAuthToken } from './api'
 export function useSocket<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
   ClientToServerEvents extends EventsMap = ServerToClientEvents
->():
-  [Socket<ServerToClientEvents, ClientToServerEvents>, boolean, () => void] {
+>(): {
+  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+  isConnected: boolean;
+  refreshAuthToken: () => void
+} {
 
   const [isConnected, setIsConnected] = useState(socket.connected)
 
@@ -42,5 +45,5 @@ export function useSocket<
     }
   }, [])
 
-  return [socket, isConnected, refreshAuthToken]
+  return { socket, isConnected, refreshAuthToken }
 }
