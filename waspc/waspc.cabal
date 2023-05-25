@@ -330,6 +330,8 @@ library waspls
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
+    Wasp.LSP.Completions.Common
+    Wasp.LSP.Completions.ExprCompletion
     Wasp.LSP.Util
     Wasp.LSP.Syntax
   build-depends:
