@@ -31,8 +31,8 @@ lspPositionToOffset srcString (J.Position l c) =
 
 -- | Move to the node containing the offset.
 --
--- This tries to prefer non-trivia tokens where possible. If the offset falls
--- exactly between two tokens, it choses the left-most non-trivia token.
+-- If the offset falls on the border between two nodes, it tries to first choose
+-- the leftmost non-trivia token, and then the leftmost token.
 toOffset :: Int -> Traversal -> Traversal
 toOffset targetOffset start = go $ bottom start
   where
@@ -40,8 +40,12 @@ toOffset targetOffset start = go $ bottom start
     go at
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
-      | offsetAfter at == targetOffset && not (S.syntaxKindIsTrivia (kindAt at)) =
-        at
+      | offsetAfter at == targetOffset =
+        if not $ S.syntaxKindIsTrivia $ kindAt at
+          then at
+          else case at & next of
+            Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
+            _ -> at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next

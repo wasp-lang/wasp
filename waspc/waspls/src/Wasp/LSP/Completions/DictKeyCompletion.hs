@@ -105,10 +105,6 @@ getExprPath src location = reverse <$> go location
           (Tuple nExprsBefore :) <$> go t'
         _ -> go t'
 
-listFieldsOfType :: Type -> [(String, Type)]
-listFieldsOfType (Type.DictType fields) = map (second dictEntryType) $ M.toList fields
-listFieldsOfType _ = []
-
 -- | @getExpectedType declType exprPathWithoutDecl@
 getExpectedType :: String -> [ExprPath] -> Maybe Type
 getExpectedType declType originalPath = do
@@ -134,6 +130,12 @@ getExpectedType declType originalPath = do
         n | n <= length cs + 2 -> go (cs !! (n - 2)) path
         _ -> Nothing
       _ -> Nothing
+
+-- | List the (key, valuetype) pairs for a type. Returns an empty list for
+-- everything except a 'Type.DictType'.
+listFieldsOfType :: Type -> [(String, Type)]
+listFieldsOfType (Type.DictType fields) = map (second dictEntryType) $ M.toList fields
+listFieldsOfType _ = []
 
 dictEntryType :: Type.DictEntryType -> Type
 dictEntryType (Type.DictOptional typ) = typ
