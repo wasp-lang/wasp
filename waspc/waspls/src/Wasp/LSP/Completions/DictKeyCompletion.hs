@@ -46,9 +46,10 @@ getCompletions location =
               return $
                 map
                   ( \(key, keyType) ->
-                      makeBasicCompletionItem (Text.pack $ key ++ ": ")
+                      makeBasicCompletionItem (Text.pack key)
                         T.& (LSP.kind ?~ LSP.CiField)
                         T.& (LSP.detail ?~ Text.pack (":: " ++ show keyType))
+                        T.& (LSP.insertText ?~ Text.pack (key ++ ": "))
                   )
                   fields
         Just wholePath -> do
