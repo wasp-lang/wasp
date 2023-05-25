@@ -4,7 +4,7 @@ import logout from '@wasp/auth/logout.js'
 import useAuth from '@wasp/auth/useAuth'
 import { useQuery } from '@wasp/queries'
 import getDate from '@wasp/queries/getDate'
-import { useSocket } from '@wasp/useSocket'
+import { useSocket } from '@wasp/webSocket'
 
 import './Main.css'
 

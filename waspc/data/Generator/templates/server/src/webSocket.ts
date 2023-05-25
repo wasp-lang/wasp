@@ -13,7 +13,7 @@ import prisma from './dbClient.js'
 
 export type WebSocketDefinition<
   ClientToServerEvents extends EventsMap = DefaultEventsMap,
-  ServerToClientEvents extends EventsMap = ClientToServerEvents,
+  ServerToClientEvents extends EventsMap = DefaultEventsMap,
   InterServerEvents extends EventsMap = DefaultEventsMap,
   SocketData extends WaspSocketData = WaspSocketData> =
   ( io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,

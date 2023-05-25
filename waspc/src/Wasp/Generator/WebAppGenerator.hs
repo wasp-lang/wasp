@@ -242,8 +242,7 @@ genSrcDir spec =
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
       copyTmplFile [relfile|storage.ts|],
-      copyTmplFile [relfile|socket.ts|],
-      copyTmplFile [relfile|useSocket.ts|],
+      copyTmplFile [relfile|webSocket.ts|],
       genRouter spec,
       genIndexJs spec
     ]

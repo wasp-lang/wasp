@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react'
-import { Socket } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { DefaultEventsMap, EventsMap } from '@socket.io/component-emitter'
-import { socket } from './socket'
+
 import { getAuthToken } from './api'
+import config from './config'
+
+// TODO: In the future, it would be nice if users could configure this somehow.
+const socket = io(config.apiUrl)
 
 export function useSocket<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
-  ClientToServerEvents extends EventsMap = ServerToClientEvents
+  ClientToServerEvents extends EventsMap = DefaultEventsMap
 >(): {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
   isConnected: boolean;

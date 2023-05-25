@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
-import { useSocket } from '@wasp/useSocket'
+import { useSocket } from '@wasp/webSocket'
 import { ClientToServerEvents, ServerToClientEvents } from '../../shared/webSocket'
 
 async function fetchCustomRoute() {
