@@ -24,8 +24,8 @@ data Shell = Bash | Zsh | Fish deriving (Show, Eq)
 data CompletionArgs = ShowInstruction | Generate !Shell deriving (Show, Eq)
 
 data NewArgs = NewArgs
-  { naProjectName :: !(Maybe String),
-    naTemplateName :: !(Maybe String)
+  { newProjectName :: !(Maybe String),
+    newTemplateName :: !(Maybe String)
   }
   deriving (Show, Eq)
 

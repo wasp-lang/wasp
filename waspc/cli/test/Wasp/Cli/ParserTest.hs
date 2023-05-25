@@ -16,10 +16,10 @@ testParse args = O.getParseResult $ uncurry O.execParserPure parserRunnerSetting
 spec_newCommandTests :: Spec
 spec_newCommandTests =
   describe "new commands" $ do
-    it "`new` should pass" $ testParse "new" `shouldBe` Just (New (NewArgs {naProjectName = Nothing, naTemplateName = Nothing}))
-    it "`new --template saas` should pass" $ testParse "new --template saas" `shouldBe` Just (New (NewArgs {naProjectName = Nothing, naTemplateName = Just "saas"}))
-    it "`new meoM83` should pass" $ testParse "new meoM83" `shouldBe` Just (New (NewArgs {naProjectName = Just "meoM83", naTemplateName = Nothing}))
-    it "`new Awn28WW2 --template todo-ts` should pass" $ testParse "new Awn28WW2 --template todo-ts" `shouldBe` Just (New (NewArgs {naProjectName = Just "Awn28WW2", naTemplateName = Just "todo-ts"}))
+    it "`new` should pass" $ testParse "new" `shouldBe` Just (New (NewArgs {newProjectName = Nothing, newTemplateName = Nothing}))
+    it "`new --template saas` should pass" $ testParse "new --template saas" `shouldBe` Just (New (NewArgs {newProjectName = Nothing, newTemplateName = Just "saas"}))
+    it "`new meoM83` should pass" $ testParse "new meoM83" `shouldBe` Just (New (NewArgs {newProjectName = Just "meoM83", newTemplateName = Nothing}))
+    it "`new Awn28WW2 --template todo-ts` should pass" $ testParse "new Awn28WW2 --template todo-ts" `shouldBe` Just (New (NewArgs {newProjectName = Just "Awn28WW2", newTemplateName = Just "todo-ts"}))
 
 spec_versionCommandTests :: Spec
 spec_versionCommandTests =

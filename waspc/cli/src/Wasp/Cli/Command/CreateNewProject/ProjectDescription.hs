@@ -63,7 +63,7 @@ instance Show NewProjectAppName where
     - Template name is required, we ask the user to choose from available templates.
 -}
 obtainNewProjectDescription :: NewArgs -> [StarterTemplateName] -> Command NewProjectDescription
-obtainNewProjectDescription NewArgs {naProjectName = projectNameArg, naTemplateName = templateNameArg} starterTemplateNames =
+obtainNewProjectDescription NewArgs {newProjectName = projectNameArg, newTemplateName = templateNameArg} starterTemplateNames =
   case projectNameArg of
     Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplateNames
     Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplateNames
@@ -124,21 +124,21 @@ obtainAvailableProjectDirPath projectName = do
 mkNewProjectDescription :: String -> Path' Abs (Dir WaspProjectDir) -> StarterTemplateName -> Command NewProjectDescription
 mkNewProjectDescription projectName absWaspProjectDir templateName
   | isValidWaspIdentifier appName =
-      return $
-        NewProjectDescription
-          { _projectName = NewProjectName projectName,
-            _appName = NewProjectAppName appName,
-            _templateName = templateName,
-            _absWaspProjectDir = absWaspProjectDir
-          }
+    return $
+      NewProjectDescription
+        { _projectName = NewProjectName projectName,
+          _appName = NewProjectAppName appName,
+          _templateName = templateName,
+          _absWaspProjectDir = absWaspProjectDir
+        }
   | otherwise =
-      throwProjectCreationError $
-        intercalate
-          "\n"
-          [ "The project's name is not in the valid format!",
-            indent 2 "- It can start with a letter or an underscore.",
-            indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
-            indent 2 "- It can't be a Wasp keyword."
-          ]
+    throwProjectCreationError $
+      intercalate
+        "\n"
+        [ "The project's name is not in the valid format!",
+          indent 2 "- It can start with a letter or an underscore.",
+          indent 2 "- It can contain only letters, numbers, dashes, or underscores.",
+          indent 2 "- It can't be a Wasp keyword."
+        ]
   where
     appName = kebabToCamelCase projectName
