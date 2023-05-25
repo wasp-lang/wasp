@@ -321,10 +321,9 @@ library waspls
   import: common-all
   hs-source-dirs: waspls/src
   exposed-modules:
-    Wasp.LSP.Server
-  other-modules:
     Control.Monad.Log.Class
     Control.Monad.Log.Pure
+    Wasp.LSP.Server
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
@@ -520,6 +519,7 @@ test-suite waspls-test
     , lens                  ^>=5.1
     , lsp                   ^>=1.4.0.0
     , lsp-types             ^>=1.4.0.1
+    , mtl
     , QuickCheck            ^>= 2.14
     , tasty                 ^>= 1.4.2
     -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .

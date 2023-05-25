@@ -1,1 +1,4 @@
-("app todoApp {\n  wasp: {\n    version: \"^0.10.5\", \n  },\n  title: \"todo!\",\n}\n\nroute MainRoute { path: \"/\", to:  }\n                                 ^\npage MainPage {\n  component: import { MainPage } from \"@client/MainPage.jsx\",\n}\n",Position {_line = 8, _character = 34})
+Completion Items:
+  label={"todoApp"} kind={Just CiVariable} detail={Just ":: app (declaration type)"}
+  label={"MainRoute"} kind={Just CiVariable} detail={Just ":: route (declaration type)"}
+  label={"MainPage"} kind={Just CiVariable} detail={Just ":: page (declaration type)"}

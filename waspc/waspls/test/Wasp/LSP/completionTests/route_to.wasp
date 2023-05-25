@@ -1,3 +1,4 @@
+//! test/completion
 app todoApp {
   wasp: {
     version: "^0.10.5", 

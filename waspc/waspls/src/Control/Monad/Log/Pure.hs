@@ -12,7 +12,7 @@ import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Writer.Strict (MonadWriter (tell), WriterT, runWriterT)
 import Data.Functor.Identity (Identity (runIdentity))
 
-type Log a = LogT Identity a
+type Log = LogT Identity
 
 runLog :: Log a -> (a, [String])
 runLog m = runIdentity $ runLogT m

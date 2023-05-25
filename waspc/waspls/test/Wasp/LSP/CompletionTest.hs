@@ -1,17 +1,51 @@
 module Wasp.LSP.CompletionTest where
 
+import Control.Lens ((^.))
+import Control.Monad.Log.Pure (Log, runLog)
+import Control.Monad.State.Strict (StateT, evalStateT)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
 import Data.Foldable (find)
+import Data.List (isPrefixOf)
 import Data.Maybe (mapMaybe)
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import System.FilePath (replaceExtension, takeBaseName)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (findByExtension, goldenVsStringDiff)
+import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
+import qualified Wasp.Analyzer.Parser.Lexer as Lexer
+import Wasp.LSP.Completion (getCompletionsAtPosition)
+import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics))
 
 runCompletionTest :: String -> String
-runCompletionTest source = show $ readCompletionTest source
+runCompletionTest source =
+  let (code, position) = readCompletionTest source
+      tokens = Lexer.lex code
+      parsedCST = snd $ parseCST tokens
+      serverState =
+        ServerState
+          { _currentWaspSource = code,
+            _latestDiagnostics = [],
+            _cst = Just parsedCST
+          }
+      (completionItems, _log) = runLog $ evalStateT (getCompletionsAtPosition position) serverState
+      fmtedCompletionItems = map fmtCompletionItem completionItems
+
+      fmtCompletionItem :: LSP.CompletionItem -> String
+      fmtCompletionItem item =
+        concat
+          [ "  label={",
+            show (item ^. LSP.label),
+            "} kind={",
+            show (item ^. LSP.kind),
+            "} detail={",
+            show (item ^. LSP.detail),
+            "}"
+          ]
+   in "Completion Items:\n" ++ unlines fmtedCompletionItems
+
+type CompletionM a = StateT ServerState Log a
 
 -- | Parses a completion test case into a pair of the wasp source code to
 -- run completion on and the position to get the completion list at.
@@ -40,25 +74,31 @@ runCompletionTest source = show $ readCompletionTest source
 --
 -- This test case checks completions after the 2 spaces on the 2nd line.
 readCompletionTest :: String -> (String, LSP.Position)
-readCompletionTest source = (unlines code, position)
+readCompletionTest source = withPreambleAssert "//! test/completion" source $ (unlines code, position)
   where
-    code = take (markedLineIdx - 1) (lines source) ++ [markedLine] ++ drop markedLineIdx (lines source)
+    -- Drops the marked line AND the following line (which is blank except for the ^)
+    code = take markedLineIdx (lines source) ++ [markedLine] ++ drop (markedLineIdx + 2) (lines source)
     position = LSP.Position (fromIntegral markedLineIdx) (fromIntegral markedColIdx)
-    markedLine = take (markedColIdx - 1) rawMarkedLine ++ drop markedColIdx rawMarkedLine
+    markedLine = take markedColIdx rawMarkedLine ++ drop (markedColIdx + 1) rawMarkedLine
     (rawMarkedLine, markedColIdx, markedLineIdx) =
       case find isMarkedLine candidateLines of
         Nothing -> error "readCompletionTest: no marked line"
         Just x -> x
-    candidateLines = mapMaybe (toCandidateLine 1) linePairs
-    linePairs = zip3 (lines source) (drop 1 $ lines source) [1 ..]
+    candidateLines = mapMaybe (toCandidateLine 0) linePairs
+    linePairs = zip3 (lines source) (drop 1 $ lines source) [0 ..]
 
     isMarkedLine :: (String, Int, Int) -> Bool
-    isMarkedLine (str, col, _ln) = (length str >= (col - 1)) && ((str !! (col - 1)) == '|')
+    isMarkedLine (str, col, _ln) = (length str >= col) && ((str !! col) == '|')
 
     toCandidateLine :: Int -> (String, String, Int) -> Maybe (String, Int, Int)
     toCandidateLine n (a, ['^'], ln) = Just (a, n, ln)
     toCandidateLine n (a, ' ' : bs, ln) = toCandidateLine (n + 1) (a, bs, ln)
     toCandidateLine _ _ = Nothing
+
+    withPreambleAssert :: String -> String -> a -> a
+    withPreambleAssert preamble str x
+      | (preamble ++ "\n") `isPrefixOf` str = x
+      | otherwise = error $ "test expected to begin with preamble: " ++ preamble
 
 test_CompletionLists :: IO TestTree
 test_CompletionLists = do

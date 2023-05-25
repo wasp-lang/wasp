@@ -36,10 +36,10 @@ getCompletionsAtPosition position = do
       exprCompletions <-
         if isAtExprPlace location
           then do
-            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=True"
+            logM $ "[getCompletionsAtPosition] offset=" ++ show offset ++ " position=" ++ show position ++ " atExpr=True"
             getExprCompletions src syntax
           else do
-            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=False"
+            logM $ "[getCompletionsAtPosition] offset=" ++ show offset ++ " position=" ++ show position ++ " atExpr=False"
             return []
       let completions = exprCompletions
       return completions
