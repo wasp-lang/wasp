@@ -292,7 +292,7 @@ export const TaskInfo = () => {
 
 Assuming the following action definition in your `.wasp` file
 
-```typescript title=main.wasp
+```wasp title=main.wasp
 action addTask {
   fn: import { addTask } from "@server/actions.js"
   entities: [Task]
