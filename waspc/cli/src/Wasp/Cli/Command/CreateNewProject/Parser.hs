@@ -6,7 +6,7 @@ import Options.Applicative
     Parser,
   )
 import qualified Options.Applicative as O
-import Wasp.Cli.Command.Call (Call (New), NewArgs (NewArgs))
+import Wasp.Cli.Command.Call (Call (New), NewProjectArgs (NewProjectArgs))
 import Wasp.Cli.Parser.Util (mkCommand)
 
 new :: Mod CommandFields Call
@@ -20,7 +20,7 @@ parseNew :: Parser Call
 parseNew = New <$> parseNewArgs
   where
     parseNewArgs =
-      NewArgs
+      NewProjectArgs
         <$> O.optional parseProjectName
         <*> O.optional parseTemplateName
 

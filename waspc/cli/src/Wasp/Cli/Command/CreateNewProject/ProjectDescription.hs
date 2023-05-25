@@ -62,8 +62,8 @@ instance Show NewProjectAppName where
     - Project name is required.
     - Template name is required, we ask the user to choose from available templates.
 -}
-obtainNewProjectDescription :: NewArgs -> [StarterTemplateName] -> Command NewProjectDescription
-obtainNewProjectDescription NewArgs {newProjectName = projectNameArg, newTemplateName = templateNameArg} starterTemplateNames =
+obtainNewProjectDescription :: NewProjectArgs -> [StarterTemplateName] -> Command NewProjectDescription
+obtainNewProjectDescription NewProjectArgs {newProjectName = projectNameArg, newTemplateName = templateNameArg} starterTemplateNames =
   case projectNameArg of
     Just projectName -> obtainNewProjectDescriptionFromCliArgs projectName templateNameArg starterTemplateNames
     Nothing -> obtainNewProjectDescriptionInteractively templateNameArg starterTemplateNames

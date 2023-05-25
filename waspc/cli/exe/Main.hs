@@ -5,7 +5,6 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Main.Utf8 (withUtf8)
-import qualified Options.Applicative as O
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
 import qualified Wasp.Cli.Command.Call as Command

@@ -7,7 +7,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call (NewArgs (..))
+import Wasp.Cli.Command.Call (NewProjectArgs (..))
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
     obtainNewProjectDescription,
@@ -23,7 +23,7 @@ import Wasp.Cli.Common (WaspProjectDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Util.Terminal as Term
 
-createNewProject :: NewArgs -> Command ()
+createNewProject :: NewProjectArgs -> Command ()
 createNewProject newProjectArgs = do
   starterTemplateNames <- liftIO getStarterTemplateNames
 

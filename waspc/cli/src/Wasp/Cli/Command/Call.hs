@@ -1,7 +1,7 @@
 module Wasp.Cli.Command.Call where
 
 data Call
-  = New !NewArgs
+  = New !NewProjectArgs
   | Start !StartArg
   | Clean
   | Uninstall
@@ -23,7 +23,7 @@ data Shell = Bash | Zsh | Fish deriving (Show, Eq)
 
 data CompletionArgs = ShowInstruction | Generate !Shell deriving (Show, Eq)
 
-data NewArgs = NewArgs
+data NewProjectArgs = NewProjectArgs
   { newProjectName :: !(Maybe String),
     newTemplateName :: !(Maybe String)
   }
