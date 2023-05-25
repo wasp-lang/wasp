@@ -40,8 +40,8 @@ data WaspLSArgs = WaspLSArgs
   deriving (Show, Eq)
 
 data DbMigrateDevArgs = DbMigrateDevArgs
-  { dbmdaName :: !(Maybe String),
-    dbmdaCreateOnly :: !Bool
+  { dbMigrateName :: !(Maybe String),
+    dbMigrateCreateOnly :: !Bool
   }
   deriving (Show, Eq)
 

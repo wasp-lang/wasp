@@ -63,10 +63,10 @@ spec_dbCommandTests =
   describe "db commands" $ do
     it "`db start` should pass" $ testParse "db start" `shouldBe` Just (Db DbStart)
     it "`db` should fail (print help)" $ testParse "db" `shouldBe` Nothing
-    it "`db migrate-dev` should pass" $ testParse "db migrate-dev" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbmdaName = Nothing, dbmdaCreateOnly = False})))
-    it "`db migrate-dev --name dev-db4` should pass" $ testParse "db migrate-dev --name dev-db4" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbmdaName = Just "dev-db4", dbmdaCreateOnly = False})))
-    it "`db migrate-dev --create-only` should pass" $ testParse "db migrate-dev --create-only" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbmdaName = Nothing, dbmdaCreateOnly = True})))
-    it "`db migrate-dev --create-only --name \"dev9-2\"` should pass" $ testParse "db migrate-dev --create-only --name \"dev9-2\"" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbmdaName = Just "\"dev9-2\"", dbmdaCreateOnly = True})))
+    it "`db migrate-dev` should pass" $ testParse "db migrate-dev" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Nothing, dbMigrateCreateOnly = False})))
+    it "`db migrate-dev --name dev-db4` should pass" $ testParse "db migrate-dev --name dev-db4" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Just "dev-db4", dbMigrateCreateOnly = False})))
+    it "`db migrate-dev --create-only` should pass" $ testParse "db migrate-dev --create-only" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Nothing, dbMigrateCreateOnly = True})))
+    it "`db migrate-dev --create-only --name \"dev9-2\"` should pass" $ testParse "db migrate-dev --create-only --name \"dev9-2\"" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Just "\"dev9-2\"", dbMigrateCreateOnly = True})))
     it "`db migrate-dev --name` should fail" $ testParse "db migrate-dev --name" `shouldBe` Nothing
     it "`db reset` should pass" $ testParse "db reset" `shouldBe` Just (Db DbReset)
     it "`db seed` should pass" $ testParse "db seed" `shouldBe` Just (Db (DbSeed Nothing))

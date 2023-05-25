@@ -41,6 +41,6 @@ migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
   where
     tryMigrate = runExceptT $ do
-      let migrateArgs DbMigrateDevArgs {dbmdaName = name, dbmdaCreateOnly = isCreateOnly} =
+      let migrateArgs DbMigrateDevArgs {dbMigrateName = name, dbMigrateCreateOnly = isCreateOnly} =
             MigrateArgs {_isCreateOnlyMigration = isCreateOnly, _migrationName = name}
       ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir $ migrateArgs optionalMigrateArgs
