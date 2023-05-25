@@ -1,8 +1,8 @@
 module Wasp.LSP.CompletionTest where
 
 import Control.Lens ((^.))
-import Control.Monad.Log.Pure (Log, runLog)
-import Control.Monad.State.Strict (StateT, evalStateT)
+import Control.Monad.Log.Pure (runLog)
+import Control.Monad.State.Strict (evalStateT)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
 import Data.Foldable (find)
@@ -18,6 +18,17 @@ import qualified Wasp.Analyzer.Parser.Lexer as Lexer
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics))
 
+-- | Run test cases in ./completionTests directory
+--
+-- See 'readCompletionTest' for the format of a test case.
+test_CompletionLists :: IO TestTree
+test_CompletionLists = do
+  inputFiles <- findByExtension [".wasp"] "./waspls/test/Wasp/LSP/completionTests"
+  return $
+    testGroup "Wasp.LSP.Completion.getCompletionsAtPosition" $
+      makeCompletionTest <$> inputFiles
+
+-- | Takes a completion test case and produces the list of completion items
 runCompletionTest :: String -> String
 runCompletionTest source =
   let (code, position) = readCompletionTest source
@@ -45,20 +56,21 @@ runCompletionTest source =
           ]
    in "Completion Items:\n" ++ unlines fmtedCompletionItems
 
-type CompletionM a = StateT ServerState Log a
-
 -- | Parses a completion test case into a pair of the wasp source code to
 -- run completion on and the position to get the completion list at.
 --
 -- = Format
 --
--- A normal wasp file, but with one addition: in one spot in the file, add
--- a "completion marker", which is a "|" with a "^" at the same column on the
--- line below. The line containing "^" should be blank except for whitespace
--- before the "^" and the "^" itself.
+-- A normal wasp file, but with two addition
+-- 1) Begins with "//! test/completion" (this is future-proofing in case we
+--    add editor support for these test files).
+-- 2) In one spot in the file, add a "completion marker", which is a "|" with
+-- a "^" at the same column on the line below. The line containing "^" should be
+-- blank except for whitespace before the "^" and the "^" itself.
 --
 -- The "|", "^", and the extra line are not part of the wasp source code and
--- are not included in the returned code.
+-- are not included in the returned code. The preamble comment is included in
+-- the returned code.
 --
 -- If there is more than one completion marker in the input, only the first
 -- marker is recognized, and the rest are left in the source code.
@@ -66,6 +78,7 @@ type CompletionM a = StateT ServerState Log a
 -- === __Example__
 --
 -- @
+-- //! test/completion
 -- app todoApp {
 --   |
 --   ^
@@ -74,22 +87,30 @@ type CompletionM a = StateT ServerState Log a
 --
 -- This test case checks completions after the 2 spaces on the 2nd line.
 readCompletionTest :: String -> (String, LSP.Position)
-readCompletionTest source = withPreambleAssert "//! test/completion" source $ (unlines code, position)
+readCompletionTest source = withPreambleAssert "//! test/completion" source (unlines code, position)
   where
     -- Drops the marked line AND the following line (which is blank except for the ^)
-    code = take markedLineIdx (lines source) ++ [markedLine] ++ drop (markedLineIdx + 2) (lines source)
+    code = before markedLineIdx (lines source) ++ [markedLine] ++ after (markedLineIdx + 1) (lines source)
     position = LSP.Position (fromIntegral markedLineIdx) (fromIntegral markedColIdx)
-    markedLine = take markedColIdx rawMarkedLine ++ drop (markedColIdx + 1) rawMarkedLine
+
+    markedLine = before markedColIdx rawMarkedLine ++ after markedColIdx rawMarkedLine
     (rawMarkedLine, markedColIdx, markedLineIdx) =
       case find isMarkedLine candidateLines of
         Nothing -> error "readCompletionTest: no marked line"
         Just x -> x
+
+    -- (String, column, line) triples, where String is a line such that the
+    -- following line is spaces followed by a ^ and nothing else
     candidateLines = mapMaybe (toCandidateLine 0) linePairs
+    -- Pairs of consecutive lines in the input
     linePairs = zip3 (lines source) (drop 1 $ lines source) [0 ..]
 
+    -- Check if the candidate line contains a '|' at the specified column
     isMarkedLine :: (String, Int, Int) -> Bool
     isMarkedLine (str, col, _ln) = (length str >= col) && ((str !! col) == '|')
 
+    -- Convert a pair of lines into a candidate line (this checks if the second
+    -- line is spaces followed by a ^ and nothing else)
     toCandidateLine :: Int -> (String, String, Int) -> Maybe (String, Int, Int)
     toCandidateLine n (a, ['^'], ln) = Just (a, n, ln)
     toCandidateLine n (a, ' ' : bs, ln) = toCandidateLine (n + 1) (a, bs, ln)
@@ -100,12 +121,11 @@ readCompletionTest source = withPreambleAssert "//! test/completion" source $ (u
       | (preamble ++ "\n") `isPrefixOf` str = x
       | otherwise = error $ "test expected to begin with preamble: " ++ preamble
 
-test_CompletionLists :: IO TestTree
-test_CompletionLists = do
-  inputFiles <- findByExtension [".wasp"] "./waspls/test/Wasp/LSP/completionTests"
-  return $
-    testGroup "Wasp.LSP.Completion.getCompletionsAtPosition" $
-      makeCompletionTest <$> inputFiles
+    before :: Int -> [a] -> [a]
+    before = take
+
+    after :: Int -> [a] -> [a]
+    after idx = drop (idx + 1)
 
 -- | Create a test case from a .wasp/.golden pair, running runCompletionTest
 -- on the .wasp file to get the .golden output. See 'readCompletionTest' for
