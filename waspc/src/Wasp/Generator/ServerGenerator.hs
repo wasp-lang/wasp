@@ -66,9 +66,9 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
-import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (toLowerFirst, (<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -211,8 +211,7 @@ genSrcDir spec =
       genFileCopy [relfile|core/HttpError.js|],
       genDbClient spec,
       genConfigFile spec,
-      genServerJs spec,
-      genWebSocketJs spec
+      genServerJs spec
     ]
     <++> genRoutesDir spec
     <++> genTypesAndEntitiesDirs spec
@@ -222,6 +221,7 @@ genSrcDir spec =
     <++> genEmailSender spec
     <++> genDbSeed spec
     <++> genMiddleware spec
+    <++> genWebSockets spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -253,7 +253,7 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "webSocket" .= getWebSocketData maybeWebSocket
+              "webSocket" .= mkWebSocketData maybeWebSocket
             ]
       )
   where
@@ -410,35 +410,35 @@ genMiddleware spec =
             ]
 
 depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredByWebSockets spec =
-  if areWebSocketsUsed
-    then
-      [ AS.Dependency.make ("socket.io", show socketIoVersionRange),
-        AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
-      ]
-    else []
-  where
-    socketIoVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
-    socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 0 0)]
-    areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
+depsRequiredByWebSockets spec
+  | AS.WS.areWebSocketsUsed spec = AS.WS.serverDepsRequiredForWebSockets
+  | otherwise = []
 
-genWebSocketJs :: AppSpec -> Generator FileDraft
-genWebSocketJs spec =
+genWebSockets :: AppSpec -> Generator [FileDraft]
+genWebSockets spec
+  | AS.WS.areWebSocketsUsed spec =
+      sequence
+        [ genWebSocketTs spec
+        ]
+  | otherwise = return []
+
+genWebSocketTs :: AppSpec -> Generator FileDraft
+genWebSocketTs spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/webSocket.ts|])
       (C.asServerFile [relfile|src/webSocket.ts|])
       ( Just $
           object
-            [ "webSocket" .= getWebSocketData maybeWebSocket,
+            [ "webSocket" .= mkWebSocketData maybeWebSocket,
               "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
             ]
       )
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-getWebSocketData :: Maybe WebSocket -> Aeson.Value
-getWebSocketData maybeWebSocket =
+mkWebSocketData :: Maybe WebSocket -> Aeson.Value
+mkWebSocketData maybeWebSocket =
   let maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
    in object
         [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn

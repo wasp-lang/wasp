@@ -8,7 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (isJust)
 import StrongPath
   ( Dir,
     File',
@@ -47,6 +46,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.Generator.WebSocket as AS.WS
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -180,17 +180,9 @@ depsRequiredForTesting =
     ]
 
 depsRequiredForWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredForWebSockets spec =
-  if areWebSocketsUsed
-    then
-      [ AS.Dependency.make ("socket.io-client", show socketIoClientVersionRange),
-        AS.Dependency.make ("@socket.io/component-emitter", show socketIoComponentEmitterVersionRange)
-      ]
-    else []
-  where
-    socketIoClientVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
-    socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 0 0)]
-    areWebSocketsUsed = isJust $ AS.App.webSocket $ snd $ getApp spec
+depsRequiredForWebSockets spec
+  | AS.WS.areWebSocketsUsed spec = AS.WS.clientDepsRequiredForWebSockets
+  | otherwise = []
 
 genGitignore :: Generator FileDraft
 genGitignore =
@@ -242,13 +234,13 @@ genSrcDir spec =
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
       copyTmplFile [relfile|storage.ts|],
-      copyTmplFile [relfile|webSocket.ts|],
       genRouter spec,
       genIndexJs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
     <++> genAuth spec
+    <++> genWebSockets spec
   where
     copyTmplFile = return . C.mkSrcTmplFd
 
@@ -292,3 +284,15 @@ genEnvValidationScript =
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
+
+genWebSockets :: AppSpec -> Generator [FileDraft]
+genWebSockets spec
+  | AS.WS.areWebSocketsUsed spec =
+      sequence
+        [ genWebSocketTs
+        ]
+  | otherwise = return []
+
+genWebSocketTs :: Generator FileDraft
+genWebSocketTs =
+  return $ C.mkSrcTmplFd [relfile|webSocket.ts|]
