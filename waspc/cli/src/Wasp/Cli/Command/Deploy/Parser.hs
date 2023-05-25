@@ -24,4 +24,4 @@ parseDeploy = Deploy <$> O.many deployRestArgs
     deployRestArgs =
       O.strArgument $
         O.metavar "DEPLOY_ARGUMENTS"
-          <> O.help "Currently only support fly.io. See https://wasp-lang.dev/docs/deploying."
+          <> O.help "Currently only supports fly.io. See https://wasp-lang.dev/docs/deploying."
