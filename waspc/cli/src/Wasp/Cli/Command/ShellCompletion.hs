@@ -12,9 +12,8 @@ import Wasp.Cli.Command.Call
   )
 
 completion :: CompletionArgs -> Command ()
-completion args = case args of
-  ShowInstruction -> printShellCompletionInstruction
-  Generate shell -> generateSh $ case shell of
+completion ShowInstruction = printShellCompletionInstruction
+completion (Generate shell) = generateSh $ case shell of
     Bash -> bashCompletionScript
     Zsh -> zshCompletionScript
     Fish -> fishCompletionScript
