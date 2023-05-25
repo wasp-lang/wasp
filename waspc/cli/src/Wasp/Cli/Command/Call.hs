@@ -34,8 +34,8 @@ data TestArgs = TestClient !Arguments | TestServer !Arguments deriving (Show, Eq
 data StartArg = StartDb | StartApp deriving (Show, Eq)
 
 data WaspLSArgs = WaspLSArgs
-  { wslLogFile :: !(Maybe FilePath),
-    wslUseStudio :: !Bool
+  { wlsLogFile :: !(Maybe FilePath),
+    wlsUseStudio :: !Bool
   }
   deriving (Show, Eq)
 

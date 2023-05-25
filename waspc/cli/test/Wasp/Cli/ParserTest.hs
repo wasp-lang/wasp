@@ -31,10 +31,10 @@ spec_versionCommandTests =
 spec_wasplsCommandTests :: Spec
 spec_wasplsCommandTests =
   describe "waspls commands" $ do
-    it "`waspls` should pass" $ testParse "waspls" `shouldBe` Just (WaspLS (WaspLSArgs {wslLogFile = Nothing, wslUseStudio = False}))
-    it "`waspls --stdio` should pass" $ testParse "waspls --stdio" `shouldBe` Just (WaspLS (WaspLSArgs {wslLogFile = Nothing, wslUseStudio = True}))
-    it "`waspls --log ap2le.log` should pass" $ testParse "waspls --log ap2le.log" `shouldBe` Just (WaspLS (WaspLSArgs {wslLogFile = Just "ap2le.log", wslUseStudio = False}))
-    it "`waspls --stdio --log zero2.txt` should pass" $ testParse "waspls --stdio --log zero2.txt" `shouldBe` Just (WaspLS (WaspLSArgs {wslLogFile = Just "zero2.txt", wslUseStudio = True}))
+    it "`waspls` should pass" $ testParse "waspls" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Nothing, wlsUseStudio = False}))
+    it "`waspls --stdio` should pass" $ testParse "waspls --stdio" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Nothing, wlsUseStudio = True}))
+    it "`waspls --log ap2le.log` should pass" $ testParse "waspls --log ap2le.log" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Just "ap2le.log", wlsUseStudio = False}))
+    it "`waspls --stdio --log zero2.txt` should pass" $ testParse "waspls --stdio --log zero2.txt" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Just "zero2.txt", wlsUseStudio = True}))
     it "`waspls --stdio --log` should fail" $ testParse "waspls --stdio --log" `shouldBe` Nothing
 
 spec_completionCommandTests :: Spec
