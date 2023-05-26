@@ -9,8 +9,7 @@ app todoApp {
     ("@tailwindcss/typography", "^0.5.7")
   ],
   webSocket: {
-    fn: import { webSocketFn } from "@server/webSocket.js",
-    entities: [Task]
+    fn: import { webSocketFn } from "@server/webSocket.js"
   },
   auth: {
     userEntity: User,

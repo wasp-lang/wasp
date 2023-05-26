@@ -13,15 +13,7 @@ export const webSocketFn: WebSocketDefinition<
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {
-      if (socket.data.user) {
-        await context.entities.Task.create({
-          data: {
-            description: msg, user: {
-              connect: { id: socket.data.user.id },
-            },
-          }
-        })
-      }
+      console.log('message: ', msg)
       io.emit('chatMessage', { id: uuidv4(), username, text: msg })
     })
   })
