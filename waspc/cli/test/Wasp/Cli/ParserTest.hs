@@ -40,7 +40,7 @@ spec_wasplsCommandTests =
 spec_completionCommandTests :: Spec
 spec_completionCommandTests =
   describe "completion commands" $ do
-    it "`completion` should pass" $ testParse "completion" `shouldBe` Just (Completion ShowInstruction)
+    it "`completion` should pass" $ testParse "completion" `shouldBe` Just (Completion PrintInstruction)
     it "`completion generate` should fail" $ testParse "completion generate" `shouldBe` Nothing
     it "`completion generate bash` should pass" $ testParse "completion generate bash" `shouldBe` Just (Completion (Generate Bash))
     it "`completion generate zsh` should pass" $ testParse "completion generate zsh" `shouldBe` Just (Completion (Generate Zsh))

@@ -14,7 +14,7 @@ completion :: Mod CommandFields Call
 completion = mkCommand "completion" parseCompletion "Print shell completion code."
 
 parseCompletion :: Parser Call
-parseCompletion = Completion . fromMaybe ShowInstruction <$> parseShell
+parseCompletion = Completion . fromMaybe PrintInstruction <$> parseShell
 
 parseShell :: Parser (Maybe CompletionArgs)
 parseShell = O.optional $ Generate <$> O.subparser (mkCommand "generate" parser "Generate shell completion script code of choice.")

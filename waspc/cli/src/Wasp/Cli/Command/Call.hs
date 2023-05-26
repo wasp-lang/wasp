@@ -21,7 +21,7 @@ data Call
 
 data Shell = Bash | Zsh | Fish deriving (Show, Eq)
 
-data CompletionArgs = ShowInstruction | Generate !Shell deriving (Show, Eq)
+data CompletionArgs = PrintInstruction | Generate !Shell deriving (Show, Eq)
 
 data NewProjectArgs = NewProjectArgs
   { newProjectName :: !(Maybe String),
