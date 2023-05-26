@@ -5,6 +5,7 @@ module Wasp.LSP.TypeHint
     -- * Lower level pieces
     ExprPath (..),
     getExprPath,
+    getPathType,
     getExpectedType,
   )
 where
@@ -26,8 +27,12 @@ import Wasp.LSP.Syntax (lexemeAt)
 -- type could not be found for some reason.
 getTypeHint :: String -> Traversal -> Maybe Type
 getTypeHint src location = case getExprPath src location of
-  Just (Decl declType : path) -> getExpectedType declType path
+  Just path -> getPathType path
   _ -> Nothing
+
+getPathType :: [ExprPath] -> Maybe Type
+getPathType (Decl declType : path) = getExpectedType declType path
+getPathType _ = Nothing
 
 -- | A "path" that a location follows down a type.
 --

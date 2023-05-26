@@ -333,6 +333,7 @@ library waspls
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
     Wasp.LSP.Completions.ExprCompletion
+    Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
     Wasp.LSP.TypeHint
     Wasp.LSP.Util

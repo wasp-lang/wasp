@@ -28,7 +28,8 @@ lspServerHandlers =
       didOpenHandler,
       didSaveHandler,
       didChangeHandler,
-      completionHandler
+      completionHandler,
+      signatureHelpHandler
     ]
 
 serve :: Maybe FilePath -> IO ()
@@ -100,7 +101,9 @@ lspServerOptions :: LSP.Options
 lspServerOptions =
   (def :: LSP.Options)
     { LSP.textDocumentSync = Just syncOptions,
-      LSP.completionTriggerCharacters = Just [':']
+      LSP.completionTriggerCharacters = Just [':', ' '],
+      LSP.signatureHelpTriggerCharacters = Just [':', '{', '[', '(', ','],
+      LSP.signatureHelpRetriggerCharacters = Just ['}', ']', ')']
     }
 
 -- | Options to tell the client how to update the server about the state of text
