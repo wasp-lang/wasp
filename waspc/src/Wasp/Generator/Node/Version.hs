@@ -1,5 +1,5 @@
 module Wasp.Generator.Node.Version
-  ( checkNodeVersion,
+  ( getAndCheckNodeVersion,
     getNodeVersion,
     nodeVersionRange,
     latestMajorNodeVersion,
@@ -22,8 +22,8 @@ import Wasp.Util (indent)
 -- Returns a string representing the error
 -- condition if node's version could not be found or if the version does not
 -- meet the requirements.
-checkNodeVersion :: IO (Either String SV.Version)
-checkNodeVersion =
+getAndCheckNodeVersion :: IO (Either String SV.Version)
+getAndCheckNodeVersion =
   getNodeVersion >>= \case
     Left errorMsg -> return $ Left errorMsg
     Right nodeVersion ->
@@ -45,7 +45,7 @@ getNodeVersion = do
       `catchIOError` ( \e ->
                          if isDoesNotExistError e
                            then return $ Left nodeNotFoundMessage
-                           else return $ Left $ nodeUnknownErrorMessage e
+                           else return $ Left $ makeNodeUnknownErrorMessage e
                      )
   return $ case nodeResult of
     Left procErr ->
@@ -84,8 +84,8 @@ parseNodeVersion nodeVersionStr =
 nodeNotFoundMessage :: String
 nodeNotFoundMessage = "`node` command not found!"
 
-nodeUnknownErrorMessage :: IOError -> String
-nodeUnknownErrorMessage err =
+makeNodeUnknownErrorMessage :: IOError -> String
+makeNodeUnknownErrorMessage err =
   unlines
     [ "An unknown error occured while trying to run `node --version`:",
       indent 2 $ show err
