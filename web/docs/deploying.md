@@ -65,9 +65,20 @@ wasp deploy fly cmd secrets list --context server
 
 :::note
 If you are deploying an app that requires any other environment variables (like social auth secrets), you will want to set your environment variables up like so:
+
+During `launch`:
+```
+wasp deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=<...> --server-secret GOOGLE_CLIENT_SECRET=<...>
+```
+
+After `launch`/`setup`:
 ```
 wasp deploy fly cmd secrets set GOOGLE_CLIENT_ID=<...> GOOGLE_CLIENT_SECRET=<...> --context=server
 ```
+:::
+
+:::note
+If you have multiple orgs, you can specify a `--org` option. For example: `wasp deploy fly launch my-wasp-app mia --org hive`
 :::
 
 # Manual

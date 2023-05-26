@@ -48,7 +48,7 @@ const defaultGlobalMiddleware: MiddlewareConfig = new Map([
 
 If you would like to modify the middleware for _all_ operations and APIs, you can do something like:
 
-```c title=todoApp.wasp
+```wasp title=todoApp.wasp
 app todoApp {
   // ...
 
@@ -75,7 +75,7 @@ export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
 
 If you would like to modify the middleware for a single API, you can do something like:
 
-```c title=todoApp.wasp
+```wasp title=todoApp.wasp
 api webhookCallback {
   fn: import { webhookCallback } from "@server/apis.js",
   middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@server/apis.js",
@@ -116,7 +116,7 @@ router.post('/webhook/callback', webhookCallbackMiddleware, ...)
 
 If you would like to modify the middleware for all API routes under some common path, you can do something like:
 
-```c title=todoApp.wasp
+```wasp title=todoApp.wasp
 apiNamespace fooBar {
   middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@server/apis.js",
   path: "/foo/bar"
