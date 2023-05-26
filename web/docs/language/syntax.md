@@ -8,7 +8,7 @@ Wasp is a declarative, statically typed, domain specific language (DSL).
 
 The central point of Wasp language are **declarations**, and Wasp source is at the end just a bunch of declarations, each of them describing a part of your web app.
 
-```c
+```wasp
 app MyApp {
   title: "My app"
 }

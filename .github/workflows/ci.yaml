@@ -133,6 +133,54 @@ jobs:
         if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: ./tools/ensure_todoapp_builds.sh
 
+      - name: Headless - Cache Node Modules
+        id: headless-cache-node-modules
+        uses: actions/cache@v3
+        if: matrix.os == 'ubuntu-20.04'
+        with:
+          path: ~/.npm
+          key: node-modules-${{ hashFiles('./waspc/headless-test/package-lock.json') }}
+
+      - name: Headless - Install Dependencies
+        id: headless-install-dependencies
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npm ci
+
+      - name: Headless - Store Playwright's Version
+        id: headless-store-playwright-version
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: Headless - Cache Playwright Browsers for Playwright's Version
+        id: headless-cache-playwright-browsers
+        if: matrix.os == 'ubuntu-20.04'
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Headless - Setup Playwright
+        id: headless-setup-playwright
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npx playwright install --with-deps
+
+      - name: Headless - Run Playwright Tests
+        id: headless-run-playwright-tests
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          cd headless-test
+          npm ci
+          # Runs the tests with the debug flag so that we can see Wasp output
+          DEBUG=pw:webserver npx playwright test
+
       - name: Create binary package (Unix)
         if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest')
         run: |

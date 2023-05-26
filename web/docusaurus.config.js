@@ -1,5 +1,4 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
@@ -82,6 +81,7 @@ module.exports = {
     },
     prism: {
       additionalLanguages: ["shell-session", "haskell"],
+      theme: lightCodeTheme,
     },
     footer: {
       style: "dark",
@@ -157,7 +157,7 @@ module.exports = {
           // Please change this to your repo.
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
-          postsPerPage: 'ALL',
+          postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/main/web/blog",
         },
         theme: {
