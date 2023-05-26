@@ -333,8 +333,9 @@ library waspls
     Wasp.LSP.Completions.Common
     Wasp.LSP.Completions.DictKeyCompletion
     Wasp.LSP.Completions.ExprCompletion
-    Wasp.LSP.Util
     Wasp.LSP.Syntax
+    Wasp.LSP.TypeHint
+    Wasp.LSP.Util
   build-depends:
       base
     , aeson
