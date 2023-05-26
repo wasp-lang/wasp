@@ -7,12 +7,12 @@ import Options.Applicative
   )
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (Deploy))
-import Wasp.Cli.Parser.Util (mkWrapperCommand)
+import Wasp.Cli.Parser.Util (mkCommand)
 
 -- The rest of arguments will be supplied externally by chosen deploy tool.
 deploy :: Mod CommandFields Call
 deploy =
-  mkWrapperCommand
+  mkCommand
     "deploy"
     [O.forwardOptions]
     parseDeploy

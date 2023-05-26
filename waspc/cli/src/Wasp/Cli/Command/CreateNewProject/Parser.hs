@@ -7,11 +7,11 @@ import Options.Applicative
   )
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (New), NewProjectArgs (NewProjectArgs))
-import Wasp.Cli.Parser.Util (mkCommand)
+import Wasp.Cli.Parser.Util (mkNormalCommand)
 
 new :: Mod CommandFields Call
 new =
-  mkCommand
+  mkNormalCommand
     "new"
     parseNew
     "Creates a new Wasp project. Run it without arguments for interactive mode."

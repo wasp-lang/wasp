@@ -11,7 +11,7 @@ import Wasp.Cli.Command.ShellCompletion.Parser (completion)
 import Wasp.Cli.Command.Start.Parser (start)
 import Wasp.Cli.Command.Test.Parser (test)
 import Wasp.Cli.Command.WaspLS.Parser (waspls)
-import Wasp.Cli.Parser.Util (mkCommand)
+import Wasp.Cli.Parser.Util (mkNormalCommand)
 import qualified Wasp.Util.Terminal as Term
 
 parseCliArgs :: IO Call
@@ -35,7 +35,7 @@ parserSuite :: Parser Call
 parserSuite = internalCommands <|> generalCommands <|> inProjectCommands
 
 internalCommands :: Parser Call
-internalCommands = O.subparser $ mkCommand "compile" (pure Compile) "" <> O.internal
+internalCommands = O.subparser $ mkNormalCommand "compile" (pure Compile) "" <> O.internal
 
 generalCommands :: Parser Call
 generalCommands =
@@ -43,10 +43,10 @@ generalCommands =
     mconcat
       [ O.commandGroup "GENERAL",
         new,
-        mkCommand "version" (pure Version) "Prints current version of CLI.",
+        mkNormalCommand "version" (pure Version) "Prints current version of CLI.",
         waspls,
         completion,
-        mkCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
+        mkNormalCommand "uninstall" (pure Uninstall) "Removes Wasp from your system."
       ]
 
 inProjectCommands :: Parser Call
@@ -56,12 +56,12 @@ inProjectCommands =
       [ O.commandGroup "IN PROJECT",
         start,
         db,
-        mkCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
-        mkCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
+        mkNormalCommand "clean" (pure Clean) "Deletes all generated code and other cached artifacts.",
+        mkNormalCommand "build" (pure Build) "Generates full web app code, ready for deployment. Use when deploying or ejecting.",
         deploy,
-        mkCommand "telemetry" (pure Telemetry) "Prints telemetry status.",
-        mkCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
-        mkCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
-        mkCommand "info" (pure Info) "Prints basic information about current Wasp project.",
+        mkNormalCommand "telemetry" (pure Telemetry) "Prints telemetry status.",
+        mkNormalCommand "deps" (pure Deps) "Prints the dependencies that Wasp uses in your project.",
+        mkNormalCommand "dockerfile" (pure Dockerfile) "Prints the contents of the Wasp generated Dockerfile.",
+        mkNormalCommand "info" (pure Info) "Prints basic information about current Wasp project.",
         test
       ]

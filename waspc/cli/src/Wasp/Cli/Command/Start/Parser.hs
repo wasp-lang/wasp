@@ -8,11 +8,11 @@ import Options.Applicative
   )
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (Call (Start), StartArg (..))
-import Wasp.Cli.Parser.Util (mkCommand)
+import Wasp.Cli.Parser.Util (mkNormalCommand)
 
 start :: Mod CommandFields Call
 start =
-  mkCommand
+  mkNormalCommand
     "start"
     parseStart
     "Runs Wasp app in development mode, watching for file changes."
@@ -26,4 +26,4 @@ parseStartDb :: Parser (Maybe StartArg)
 parseStartDb =
   O.optional $
     O.subparser $
-      mkCommand "db" (pure StartDb) "Starts managed development database for you."
+      mkNormalCommand "db" (pure StartDb) "Starts managed development database for you."
