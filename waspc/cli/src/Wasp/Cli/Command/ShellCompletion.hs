@@ -13,17 +13,20 @@ import Wasp.Cli.Command.Call
 
 completion :: CompletionArgs -> Command ()
 completion PrintInstruction = printShellCompletionInstruction
-completion (Generate shell) = printShellCompletionScript $ case shell of
-  Bash -> bashCompletionScript
-  Zsh -> zshCompletionScript
-  Fish -> fishCompletionScript
+completion (Generate shell) = printShellCompletionScript shell
 
 type ShellCompletionScript = (String -> String -> String)
 
-printShellCompletionScript :: ShellCompletionScript -> Command ()
+printShellCompletionScript :: Shell -> Command ()
 printShellCompletionScript shell = liftIO $ do
   runningProgName <- getProgName
-  putStr $ shell runningProgName runningProgName
+  putStr $ completionScript runningProgName runningProgName
+  where
+    completionScript :: ShellCompletionScript
+    completionScript = case shell of
+      Bash -> bashCompletionScript
+      Zsh -> zshCompletionScript
+      Fish -> fishCompletionScript
 
 printShellCompletionInstruction :: Command ()
 printShellCompletionInstruction =
