@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Db.Migrate
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
@@ -40,7 +40,9 @@ migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
     Left err -> throwError $ CommandError "Migrate dev failed" err
     Right () -> cliSendMessageC $ Msg.Success "Database successfully migrated."
   where
-    tryMigrate = runExceptT $ do
-      let migrateArgs DbMigrateDevArgs {dbMigrateName = name, dbMigrateCreateOnly = isCreateOnly} =
-            MigrateArgs {_isCreateOnlyMigration = isCreateOnly, _migrationName = name}
-      ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir $ migrateArgs optionalMigrateArgs
+    tryMigrate =
+      DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir $
+        migrateArgs optionalMigrateArgs
+      where
+        migrateArgs DbMigrateDevArgs {dbMigrateName = name, dbMigrateCreateOnly = isCreateOnly} =
+          MigrateArgs {_isCreateOnlyMigration = isCreateOnly, _migrationName = name}
