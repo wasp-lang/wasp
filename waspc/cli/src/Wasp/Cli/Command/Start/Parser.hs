@@ -26,4 +26,4 @@ parseStartDb :: Parser (Maybe StartArg)
 parseStartDb =
   O.optional $
     O.subparser $
-      mkCommand "db" (pure StartDb) "This will launch the PostgreSQL's development database."
+      mkCommand "db" (pure StartDb) "Starts managed development database for you."
