@@ -62,6 +62,7 @@ module.exports = {
         "guides/testing",
         "guides/sending-emails",
         "guides/middleware-customization",
+        "guides/websockets",
       ],
     },
     {

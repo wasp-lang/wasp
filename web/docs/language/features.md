@@ -63,6 +63,10 @@ Check [`app.dependencies`](/docs/language/features#dependencies) for more detail
 Email sender configuration.
 Check [`app.emailSender`](/docs/language/features#email-sender) for more details.
 
+#### `webSocket: dict` (optional)
+WebSocket configuration.
+Check out the [`WebSocket guide`](/docs/guides/websockets) for more details.
+
 ## Page
 
 `page` declaration is the top-level layout abstraction. Your app can have multiple pages.

@@ -19,10 +19,13 @@ export function useSocket<
 
   const [isConnected, setIsConnected] = useState(socket.connected)
 
+  // TODO: Any better way to do this?
+  // It doesn't seem to detect updates while a connection is active, and this works. :/
   const refreshAuthToken = () => {
-    // TODO: Any better way to do this?
-    // It doesn't seem to detect updates while a connection is active, and this works. :/
     socket.disconnect()
+    // NOTE: In the future, we should consider making this explicit in the Wasp file when
+    // we make the change for how auth works in Operations.
+    // For now, it is fine, and can be ignored on the server if not needed.
     socket.auth = {
       token: getAuthToken()
     }
