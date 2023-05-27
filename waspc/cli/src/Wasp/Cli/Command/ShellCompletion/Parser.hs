@@ -11,18 +11,22 @@ import Wasp.Cli.Command.Call
 import Wasp.Cli.Parser.Util (mkNormalCommand)
 
 completion :: Mod CommandFields Call
-completion = mkNormalCommand "completion" parseCompletion "Print shell completion code."
+completion = mkNormalCommand "completion" "Print shell completion code." parseCompletion
 
 parseCompletion :: Parser Call
 parseCompletion = Completion . fromMaybe PrintInstruction <$> parseShell
 
 parseShell :: Parser (Maybe CompletionArgs)
-parseShell = O.optional $ PrintScript <$> O.subparser (mkNormalCommand "generate" parser "Generate shell completion script code of choice.")
+parseShell =
+  O.optional $
+    PrintScript
+      <$> O.subparser
+        (mkNormalCommand "generate" "Generate shell completion script code of choice." parser)
   where
     parser =
       O.subparser $
         mconcat
-          [ mkNormalCommand "bash" (pure Bash) "bash completion script.",
-            mkNormalCommand "zsh" (pure Zsh) "zsh completion script.",
-            mkNormalCommand "fish" (pure Fish) "fish completion script."
+          [ mkNormalCommand "bash" "bash completion script." $ pure Bash,
+            mkNormalCommand "zsh" "zsh completion script." $ pure Zsh,
+            mkNormalCommand "fish" "fish completion script." $ pure Fish
           ]

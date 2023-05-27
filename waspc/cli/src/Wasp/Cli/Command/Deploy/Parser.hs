@@ -14,9 +14,8 @@ deploy :: Mod CommandFields Call
 deploy =
   mkCommand
     "deploy"
-    [O.forwardOptions]
+    [O.progDesc "Deploys your Wasp app to cloud hosting providers.", O.forwardOptions]
     parseDeploy
-    "Deploys your Wasp app to cloud hosting providers."
 
 parseDeploy :: Parser Call
 parseDeploy = Deploy <$> O.many deployRestArgs

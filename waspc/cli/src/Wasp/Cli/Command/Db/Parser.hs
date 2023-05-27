@@ -21,12 +21,12 @@ import Wasp.Cli.Command.Call
 import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
 
 db :: Mod CommandFields Call
-db = mkNormalCommand "db" parseDb "Executes a database command. Run 'wasp db --help' for more info."
+db = mkNormalCommand "db" "Executes a database command. Run 'wasp db --help' for more info." parseDb
 
 parseDb :: Parser Call
 parseDb = Db <$> parseDbArgs
   where
-    customMigrateDevDescription =
+    migrateDevDescription =
       O.progDescDoc $
         Just $
           mconcat
@@ -39,11 +39,14 @@ parseDb = Db <$> parseDbArgs
     parseDbArgs =
       O.subparser $
         mconcat
-          [ mkNormalCommand "start" (pure DbStart) "Alias for `wasp start db`.",
-            mkNormalCommand "reset" (pure DbReset) "Drops all data and tables from development database and re-applies all migrations.",
-            mkNormalCommand "seed" parseDbSeedArg "Executes a db seed function (specified via app.db.seeds). If there are multiple seeds, you can specify a seed to execute by providing its name, or if not then you will be asked to provide the name interactively.",
-            mkCommand "migrate-dev" [customMigrateDevDescription] parseDbMigrateDevArgs "",
-            mkNormalCommand "studio" (pure DbStudio) "GUI for inspecting your database."
+          [ mkNormalCommand "start" "Alias for `wasp start db`." $ pure DbStart,
+            mkNormalCommand "reset" "Drops all data and tables from development database and re-applies all migrations." $ pure DbReset,
+            mkNormalCommand
+              "seed"
+              "Executes a db seed function (specified via app.db.seeds). If there are multiple seeds, you can specify a seed to execute by providing its name, or if not then you will be asked to provide the name interactively."
+              parseDbSeedArg,
+            mkCommand "migrate-dev" [migrateDevDescription] parseDbMigrateDevArgs,
+            mkNormalCommand "studio" "GUI for inspecting your database." $ pure DbStudio
           ]
 
 parseDbSeedArg :: Parser DbArgs

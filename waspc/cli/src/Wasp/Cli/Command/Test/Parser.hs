@@ -10,7 +10,7 @@ import Wasp.Cli.Command.Call (Call (Test), TestArgs (TestClient, TestServer))
 import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
 
 test :: Mod CommandFields Call
-test = mkNormalCommand "test" parseTest "Executes tests in your project."
+test = mkNormalCommand "test" "Executes tests in your project." parseTest
 
 parseTest :: Parser Call
 parseTest = Test <$> parseTestArgs
@@ -18,8 +18,8 @@ parseTest = Test <$> parseTestArgs
     parseTestArgs =
       O.subparser $
         mconcat
-          [ mkCommand "client" [O.forwardOptions] (TestClient <$> O.many testRestArgs) "Run your app client tests.",
-            mkCommand "server" [O.forwardOptions] (TestServer <$> O.many testRestArgs) "Run your app server tests."
+          [ mkCommand "client" [O.progDesc "Run your app client tests.", O.forwardOptions] (TestClient <$> O.many testRestArgs),
+            mkCommand "server" [O.progDesc "Run your app server tests.", O.forwardOptions] (TestServer <$> O.many testRestArgs)
           ]
 
 testRestArgs :: Parser String

@@ -10,7 +10,11 @@ import Wasp.Cli.Command.Call (Call (WaspLS), WaspLSArgs (WaspLSArgs))
 import Wasp.Cli.Parser.Util (mkNormalCommand)
 
 waspls :: Mod CommandFields Call
-waspls = mkNormalCommand "waspls" parseWaspLS "Run Wasp Language Server. Add --help to get more info."
+waspls =
+  mkNormalCommand
+    "waspls"
+    "Run Wasp Language Server. Add --help to get more info."
+    parseWaspLS
 
 parseWaspLS :: Parser Call
 parseWaspLS = WaspLS <$> parseWaspLSArgs

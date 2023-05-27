@@ -14,8 +14,8 @@ start :: Mod CommandFields Call
 start =
   mkNormalCommand
     "start"
-    parseStart
     "Runs Wasp app in development mode, watching for file changes."
+    parseStart
 
 parseStart :: Parser Call
 parseStart = Start <$> parseStartArg
@@ -26,4 +26,4 @@ parseStartDb :: Parser (Maybe StartArg)
 parseStartDb =
   O.optional $
     O.subparser $
-      mkNormalCommand "db" (pure StartDb) "Starts managed development database for you."
+      mkNormalCommand "db" "Starts managed development database for you." $ pure StartDb

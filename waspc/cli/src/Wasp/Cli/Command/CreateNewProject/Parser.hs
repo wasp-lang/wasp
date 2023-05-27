@@ -13,8 +13,8 @@ new :: Mod CommandFields Call
 new =
   mkNormalCommand
     "new"
-    parseNew
     "Creates a new Wasp project. Run it without arguments for interactive mode."
+    parseNew
 
 parseNew :: Parser Call
 parseNew = New <$> parseNewArgs

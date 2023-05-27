@@ -3,14 +3,14 @@ module Wasp.Cli.Parser.Util (mkNormalCommand, mkCommand) where
 import Options.Applicative (CommandFields, InfoMod, Mod, Parser)
 import qualified Options.Applicative as O
 
-mkCommand :: String -> [InfoMod a] -> Parser a -> String -> Mod CommandFields a
-mkCommand name infoModifiers commandCall description =
+mkCommand :: String -> [InfoMod a] -> Parser a -> Mod CommandFields a
+mkCommand name infoModifiers commandCall =
   O.command
     name
     ( O.info
         (O.helper <*> commandCall)
-        (O.progDesc description <> mconcat infoModifiers)
+        (mconcat infoModifiers)
     )
 
-mkNormalCommand :: String -> Parser a -> String -> Mod CommandFields a
-mkNormalCommand name commandCall description = mkCommand name [] commandCall description
+mkNormalCommand :: String -> String -> Parser a -> Mod CommandFields a
+mkNormalCommand name description commandCall = mkCommand name [O.progDesc description] commandCall
