@@ -5,6 +5,7 @@ import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
 import Main.Utf8 (withUtf8)
+import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.Build (build)
 import qualified Wasp.Cli.Command.Call as Command
@@ -25,7 +26,10 @@ import Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Parser (parseCliArgs)
+import qualified Wasp.Generator.Node.Version as NodeVersion
+import qualified Wasp.Message as Message
 import Wasp.Util (indent)
 import Wasp.Version (waspVersion)
 
@@ -33,6 +37,16 @@ main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   commandCall <- parseCliArgs
   telemetryThread <- Async.async $ runCommand $ considerSendingData commandCall
+  -- Before calling any command, check that the node requirement is met. Node is
+  -- not needed for every command, but checking for every command was decided
+  -- to be more robust than trying to only check for commands that require it.
+  -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
+  NodeVersion.getAndCheckNodeVersion >>= \case
+    Left errorMsg -> do
+      cliSendMessage $ Message.Failure "Node requirement not met" errorMsg
+      exitFailure
+    Right _ -> pure ()
+
   run commandCall
 
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
