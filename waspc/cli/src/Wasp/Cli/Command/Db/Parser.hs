@@ -26,16 +26,6 @@ db = mkNormalCommand "db" "Executes a database command. Run 'wasp db --help' for
 parseDb :: Parser Call
 parseDb = Db <$> parseDbArgs
   where
-    migrateDevDescription =
-      O.progDescDoc $
-        Just $
-          mconcat
-            [ OH.string "Ensures dev database corresponds to the current state of schema(entities):\n",
-              OH.string "  - Generates a new migration if there are changes in the schema.\n",
-              OH.string "  - Applies any pending migrations to the database either using the\n",
-              OH.string "    supplied migration name or asking for one."
-            ]
-    parseDbArgs :: Parser DbArgs
     parseDbArgs =
       O.subparser $
         mconcat
@@ -48,6 +38,17 @@ parseDb = Db <$> parseDbArgs
             mkCommand "migrate-dev" [migrateDevDescription] parseDbMigrateDevArgs,
             mkNormalCommand "studio" "GUI for inspecting your database." $ pure DbStudio
           ]
+      where
+        migrateDevDescription = O.progDescDoc $ Just description
+          where
+            description =
+              mconcat $
+                OH.string
+                  <$> [ "Ensures dev database corresponds to the current state of schema(entities):\n",
+                        "  - Generates a new migration if there are changes in the schema.\n",
+                        "  - Applies any pending migrations to the database either using the\n",
+                        "    supplied migration name or asking for one."
+                      ]
 
 parseDbSeedArg :: Parser DbArgs
 parseDbSeedArg = DbSeed <$> parser
