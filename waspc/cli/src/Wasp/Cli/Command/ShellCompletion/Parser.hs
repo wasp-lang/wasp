@@ -17,7 +17,7 @@ parseCompletion :: Parser Call
 parseCompletion = Completion . fromMaybe PrintInstruction <$> parseShell
 
 parseShell :: Parser (Maybe CompletionArgs)
-parseShell = O.optional $ Generate <$> O.subparser (mkNormalCommand "generate" parser "Generate shell completion script code of choice.")
+parseShell = O.optional $ PrintScript <$> O.subparser (mkNormalCommand "generate" parser "Generate shell completion script code of choice.")
   where
     parser =
       O.subparser $

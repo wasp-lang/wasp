@@ -42,9 +42,9 @@ spec_completionCommandTests =
   describe "completion commands" $ do
     it "`completion` should pass" $ testParse "completion" `shouldBe` Just (Completion PrintInstruction)
     it "`completion generate` should fail" $ testParse "completion generate" `shouldBe` Nothing
-    it "`completion generate bash` should pass" $ testParse "completion generate bash" `shouldBe` Just (Completion (Generate Bash))
-    it "`completion generate zsh` should pass" $ testParse "completion generate zsh" `shouldBe` Just (Completion (Generate Zsh))
-    it "`completion generate fish` should pass" $ testParse "completion generate fish" `shouldBe` Just (Completion (Generate Fish))
+    it "`completion generate bash` should pass" $ testParse "completion generate bash" `shouldBe` Just (Completion (PrintScript Bash))
+    it "`completion generate zsh` should pass" $ testParse "completion generate zsh" `shouldBe` Just (Completion (PrintScript Zsh))
+    it "`completion generate fish` should pass" $ testParse "completion generate fish" `shouldBe` Just (Completion (PrintScript Fish))
 
 spec_uninstallCommandTests :: Spec
 spec_uninstallCommandTests =

@@ -13,7 +13,7 @@ import Wasp.Cli.Command.Call
 
 completion :: CompletionArgs -> Command ()
 completion PrintInstruction = printShellCompletionInstruction
-completion (Generate shell) = printShellCompletionScript shell
+completion (PrintScript shell) = printShellCompletionScript shell
 
 type ShellCompletionScript = (String -> String -> String)
 
