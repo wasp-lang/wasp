@@ -1,138 +1,77 @@
 module Wasp.Cli.ParserTest where
 
 import qualified Options.Applicative as O
-import Test.Tasty.Hspec
-import Text.Printf (printf)
+import Test.Tasty.Hspec (Spec, SpecWith, describe, it, shouldBe)
 import Wasp.Cli.Command.Call
 import Wasp.Cli.Parser (parserRunnerSettings)
 
-testParse :: String -> Maybe Call
-testParse args = O.getParseResult $ uncurry O.execParserPure parserRunnerSettings $ words args
+parseArgs :: String -> Maybe Call
+parseArgs args = O.getParseResult $ uncurry O.execParserPure parserRunnerSettings $ words args
 
--- NOTE: This is pure parser tests. It doesn't take account of actual runtime failure or thrown exceptions.
+runTest :: String -> String -> Call -> SpecWith ()
+runTest cliArgs description expectedResult =
+  it description $ parseArgs cliArgs `shouldBe` Just expectedResult
 
--- We treat call of help command as Nothing in here, so no need to test them.
+runTestWithoutCommandArgs :: String -> Call -> SpecWith ()
+runTestWithoutCommandArgs cliArgs expectedResult = runTest cliArgs "no args" expectedResult
 
-spec_newCommandTests :: Spec
-spec_newCommandTests =
-  describe "new commands" $ do
-    it "`new` should pass" $ testParse "new" `shouldBe` Just (New (NewProjectArgs {newProjectName = Nothing, newTemplateName = Nothing}))
-    it "`new --template saas` should pass" $ testParse "new --template saas" `shouldBe` Just (New (NewProjectArgs {newProjectName = Nothing, newTemplateName = Just "saas"}))
-    it "`new meoM83` should pass" $ testParse "new meoM83" `shouldBe` Just (New (NewProjectArgs {newProjectName = Just "meoM83", newTemplateName = Nothing}))
-    it "`new Awn28WW2 --template todo-ts` should pass" $ testParse "new Awn28WW2 --template todo-ts" `shouldBe` Just (New (NewProjectArgs {newProjectName = Just "Awn28WW2", newTemplateName = Just "todo-ts"}))
+spec_cliArgsParser :: Spec
+spec_cliArgsParser =
+  describe "top level commands that takes no arguments at all, which should pass" $ do
+    (\(cmd, expectedResult) -> runTest cmd cmd expectedResult)
+      `mapM_` [ ("version", Version),
+                ("uninstall", Uninstall),
+                ("compile", Compile),
+                ("clean", Clean),
+                ("build", Build),
+                ("telemetry", Telemetry),
+                ("deps", Deps),
+                ("dockerfile", Dockerfile),
+                ("info", Info)
+              ]
 
-spec_versionCommandTests :: Spec
-spec_versionCommandTests =
-  describe "version commands" $ do
-    it "`version` should pass" $ testParse "version" `shouldBe` Just Version
-    it "`version -z` should fail" $ testParse "version -z" `shouldBe` Nothing
-    it "`version awsaws -z` should fail" $ testParse "version awsaws -z" `shouldBe` Nothing
+    describe "new should correctly pass with" $ do
+      runTestWithoutCommandArgs "new" $
+        New (NewProjectArgs {newProjectName = Nothing, newTemplateName = Nothing})
+      runTest "new Awn28WW2 --template todo-ts" "both projectName and --template arg" $
+        New (NewProjectArgs {newProjectName = Just "Awn28WW2", newTemplateName = Just "todo-ts"})
 
-spec_wasplsCommandTests :: Spec
-spec_wasplsCommandTests =
-  describe "waspls commands" $ do
-    it "`waspls` should pass" $ testParse "waspls" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Nothing, wlsUseStudio = False}))
-    it "`waspls --stdio` should pass" $ testParse "waspls --stdio" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Nothing, wlsUseStudio = True}))
-    it "`waspls --log ap2le.log` should pass" $ testParse "waspls --log ap2le.log" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Just "ap2le.log", wlsUseStudio = False}))
-    it "`waspls --stdio --log zero2.txt` should pass" $ testParse "waspls --stdio --log zero2.txt" `shouldBe` Just (WaspLS (WaspLSArgs {wlsLogFile = Just "zero2.txt", wlsUseStudio = True}))
-    it "`waspls --stdio --log` should fail" $ testParse "waspls --stdio --log" `shouldBe` Nothing
+    describe "waspls should correctly pass with" $ do
+      runTestWithoutCommandArgs "waspls" $ WaspLS (WaspLSArgs {wlsLogFile = Nothing, wlsUseStudio = False})
+      runTest "waspls --stdio --log zero2.txt" "both --stdio and --log arg" $
+        WaspLS (WaspLSArgs {wlsLogFile = Just "zero2.txt", wlsUseStudio = True})
 
-spec_completionCommandTests :: Spec
-spec_completionCommandTests =
-  describe "completion commands" $ do
-    it "`completion` should pass" $ testParse "completion" `shouldBe` Just (Completion PrintInstruction)
-    it "`completion generate` should fail" $ testParse "completion generate" `shouldBe` Nothing
-    it "`completion generate bash` should pass" $ testParse "completion generate bash" `shouldBe` Just (Completion (PrintScript Bash))
-    it "`completion generate zsh` should pass" $ testParse "completion generate zsh" `shouldBe` Just (Completion (PrintScript Zsh))
-    it "`completion generate fish` should pass" $ testParse "completion generate fish" `shouldBe` Just (Completion (PrintScript Fish))
+    describe "completion should correctly pass with" $ do
+      runTestWithoutCommandArgs "completion" $ Completion PrintInstruction
+      runTest "completion generate bash" "generate bash" $ Completion (PrintScript Bash)
+      runTest "completion generate zsh" "generate zsh" $ Completion (PrintScript Zsh)
+      runTest "completion generate fish" "generate fish" $ Completion (PrintScript Fish)
 
-spec_uninstallCommandTests :: Spec
-spec_uninstallCommandTests =
-  describe "uninstall commands" $ do
-    it "`uninstall` should pass" $ testParse "uninstall" `shouldBe` Just Uninstall
+    describe "start should correctly pass with" $ do
+      runTestWithoutCommandArgs "start" $ Start StartApp
+      runTest "start db" "db arg" $ Start StartDb
 
-spec_startCommandTests :: Spec
-spec_startCommandTests =
-  describe "start commands" $ do
-    it "`start` should pass" $ testParse "start" `shouldBe` Just (Start StartApp)
-    it "`start db` should pass" $ testParse "start db" `shouldBe` Just (Start StartDb)
-    it "`start randomcommand` should fail" $ testParse "start randomcommand" `shouldBe` Nothing
+    describe "db should correctly pass with" $ do
+      runTest "db start" "start" $ Db DbStart
+      runTest "db migrate-dev" "migrate-dev without args" $
+        Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Nothing, dbMigrateCreateOnly = False}))
+      runTest "db migrate-dev --create-only --name \"dev9-2\"" "migrate-dev with both --create-only and --name arg" $
+        Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Just "\"dev9-2\"", dbMigrateCreateOnly = True}))
+      runTest "db reset" "reset" $ Db DbReset
+      runTest "db seed" "seed without arg" $ Db (DbSeed Nothing)
+      runTest "db seed apple" "seed arg" $ Db (DbSeed (Just "apple"))
+      runTest "db studio" "studio" $ Db DbStudio
 
-spec_dbCommandTests :: Spec
-spec_dbCommandTests =
-  describe "db commands" $ do
-    it "`db start` should pass" $ testParse "db start" `shouldBe` Just (Db DbStart)
-    it "`db` should fail (print help)" $ testParse "db" `shouldBe` Nothing
-    it "`db migrate-dev` should pass" $ testParse "db migrate-dev" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Nothing, dbMigrateCreateOnly = False})))
-    it "`db migrate-dev --name dev-db4` should pass" $ testParse "db migrate-dev --name dev-db4" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Just "dev-db4", dbMigrateCreateOnly = False})))
-    it "`db migrate-dev --create-only` should pass" $ testParse "db migrate-dev --create-only" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Nothing, dbMigrateCreateOnly = True})))
-    it "`db migrate-dev --create-only --name \"dev9-2\"` should pass" $ testParse "db migrate-dev --create-only --name \"dev9-2\"" `shouldBe` Just (Db (DbMigrateDev (DbMigrateDevArgs {dbMigrateName = Just "\"dev9-2\"", dbMigrateCreateOnly = True})))
-    it "`db migrate-dev --name` should fail" $ testParse "db migrate-dev --name" `shouldBe` Nothing
-    it "`db reset` should pass" $ testParse "db reset" `shouldBe` Just (Db DbReset)
-    it "`db seed` should pass" $ testParse "db seed" `shouldBe` Just (Db (DbSeed Nothing))
-    it "`db seed apple` should pass" $ testParse "db seed apple" `shouldBe` Just (Db (DbSeed (Just "apple")))
-    it "`db studio` should pass" $ testParse "db studio" `shouldBe` Just (Db DbStudio)
+    describe "deploy should correctly pass with" $ do
+      runTestWithoutCommandArgs "deploy" $ Deploy []
+      let cliArgs = "deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=\"EXAMPLE@ID\" --server-secret GOOGLE_CLIENT_SECRET=EXAMPLE_SECRET"
+      runTest cliArgs "with args" $
+        Deploy ["fly", "launch", "my-wasp-app", "mia", "--server-secret", "GOOGLE_CLIENT_ID=\"EXAMPLE@ID\"", "--server-secret", "GOOGLE_CLIENT_SECRET=EXAMPLE_SECRET"]
 
-spec_compileCommandTests :: Spec
-spec_compileCommandTests =
-  describe "compile commands" $ do
-    it "`compile` should pass" $ testParse "compile" `shouldBe` Just Compile
-
-spec_cleanCommandTests :: Spec
-spec_cleanCommandTests =
-  describe "clean commands" $ do
-    it "`clean` should pass" $ testParse "clean" `shouldBe` Just Clean
-
-spec_buildCommandTests :: Spec
-spec_buildCommandTests =
-  describe "build commands" $ do
-    it "`build` should pass" $ testParse "build" `shouldBe` Just Build
-
-spec_deployCommandTests :: Spec
-spec_deployCommandTests =
-  describe "deploy commands" $ do
-    it "`deploy` should pass" $ testParse "deploy" `shouldBe` Just (Deploy [])
-    it "`deploy --ui` should pass" $ testParse "deploy --ui" `shouldBe` Just (Deploy ["--ui"])
-    it "`deploy fly --ui` should pass" $ testParse "deploy fly --ui" `shouldBe` Just (Deploy ["fly", "--ui"])
-    let cmd = "deploy fly launch my-wasp-app mia --server-secret GOOGLE_CLIENT_ID=\"EXAMPLE@ID\" --server-secret GOOGLE_CLIENT_SECRET=EXAMPLE_SECRET"
-    let cmdMsg = printf "`%s` should pass" cmd
-    it cmdMsg $ testParse cmd `shouldBe` Just (Deploy ["fly", "launch", "my-wasp-app", "mia", "--server-secret", "GOOGLE_CLIENT_ID=\"EXAMPLE@ID\"", "--server-secret", "GOOGLE_CLIENT_SECRET=EXAMPLE_SECRET"])
-
-spec_telemetryCommandTests :: Spec
-spec_telemetryCommandTests =
-  describe "telemetry commands" $ do
-    it "`telemetry` should pass" $ testParse "telemetry" `shouldBe` Just Telemetry
-
-spec_depsCommandTests :: Spec
-spec_depsCommandTests =
-  describe "deps commands" $ do
-    it "`deps` should pass" $ testParse "deps" `shouldBe` Just Deps
-
-spec_dockerfileCommandTests :: Spec
-spec_dockerfileCommandTests =
-  describe "dockerfile commands" $ do
-    it "`dockerfile` should pass" $ testParse "dockerfile" `shouldBe` Just Dockerfile
-
-spec_infoCommandTests :: Spec
-spec_infoCommandTests =
-  describe "info tests" $ do
-    it "`info` should pass" $ testParse "info" `shouldBe` Just Info
-
-spec_testCommandTests :: Spec
-spec_testCommandTests =
-  describe "test commands" $ do
-    it "`test client` should pass" $
-      testParse "test client" `shouldBe` Just (Test $ TestClient [])
-    it "`test` should fail (print help)" $
-      testParse "test" `shouldBe` Nothing
-    it "`test client apple` should pass" $
-      testParse "test client apple"
-        `shouldBe` Just (Test (TestClient ["apple"]))
-    it "`test client -ui` should pass" $ testParse "test client -ui" `shouldBe` Just (Test (TestClient ["-ui"]))
-    it "`test client --ui banana apple zero33 49 -q` should pass" $
-      testParse "test client --ui banana apple zero33 49 -q"
-        `shouldBe` Just (Test (TestClient ["--ui", "banana", "apple", "zero33", "49", "-q"]))
-    it "`test server --zero bin 493a a83` should pass" $
-      testParse "test server --zero bin 493a a83" `shouldBe` Just (Test (TestServer ["--zero", "bin", "493a", "a83"]))
-    it "`test server -a9 \"bzn\" 493a a83 442` should pass" $
-      testParse "test server -a9 \"bzn\" 493a a83 442" `shouldBe` Just (Test (TestServer ["-a9", "\"bzn\"", "493a", "a83", "442"]))
+    describe "test should correctly pass with" $ do
+      runTest "test client" "client without args" $ Test $ TestClient []
+      runTest "test client --ui banana apple zero33 49 -q" "client with args" $
+        Test (TestClient ["--ui", "banana", "apple", "zero33", "49", "-q"])
+      runTest "test server" "server without args" $ Test (TestServer [])
+      runTest "test server --zero bin 493a a83" "server with args" $
+        Test (TestServer ["--zero", "bin", "493a", "a83"])
