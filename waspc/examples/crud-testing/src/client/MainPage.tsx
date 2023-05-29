@@ -11,6 +11,7 @@ const MainPage = ({ user }: { user: User }) => {
   const createTask = tasksCrud.create.useAction();
   const deleteTask = tasksCrud.delete.useAction();
   const updateTask = tasksCrud.update.useAction();
+
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [error, setError] = useState("");
@@ -20,13 +21,11 @@ const MainPage = ({ user }: { user: User }) => {
     setError("");
     e.preventDefault();
     try {
-      if (!newTaskTitle) {
-        setError("Task title cannot be empty.");
-        return;
-      }
-      await createTask({ title: newTaskTitle });
+      await createTask({
+        title: newTaskTitle,
+      });
     } catch (err: unknown) {
-      setError("Error creating task.");
+      setError(`Error creating task: ${err as any}`);
     }
     setNewTaskTitle("");
   }

@@ -25,7 +25,7 @@ router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
 {=# areThereAnyCrudRoutes =}
-router.use('/{= crudRouteInRootRouter =}', middleware, rootCrudRouter)
+router.use('/', middleware, rootCrudRouter)
 {=/ areThereAnyCrudRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 // NOTE: Keep user-defined api routes last so they cannot override our routes.

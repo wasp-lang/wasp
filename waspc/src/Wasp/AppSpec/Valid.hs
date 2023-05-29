@@ -30,6 +30,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
+import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -256,20 +257,23 @@ validateApiNamespacePathsAreUnique spec =
 validateCrudOperations :: AppSpec -> [ValidationError]
 validateCrudOperations spec =
   concat
-    [ checkIfOnlyAndExceptAreUsedTogether cruds,
+    [ checkIfAtLeastOneOperationIsUsed cruds,
       checkIfAllCrudNamesAreUnique cruds,
       checkIfPrimaryFieldExistsForCrudEntities cruds
     ]
   where
     cruds = AS.getCruds spec
 
-    checkIfOnlyAndExceptAreUsedTogether :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    checkIfOnlyAndExceptAreUsedTogether = concatMap hasBothOnlyAndExcept
+    checkIfAtLeastOneOperationIsUsed :: [(String, AS.Crud.Crud)] -> [ValidationError]
+    checkIfAtLeastOneOperationIsUsed cruds' =
+      concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds'
       where
-        hasBothOnlyAndExcept (crudName, crud) =
-          if isJust (AS.Crud.only crud) && isJust (AS.Crud.except crud)
-            then [GenericValidationError $ "Using both \"only\" and \"except\" at the same time in \"" ++ crudName ++ "\" CRUD declaration. Use only one of them or none to specify all operations."]
-            else []
+        checkIfAtLeastOneOperationIsUsedForCrud (crudName, crud) =
+          if not . null $ crudOperations
+            then []
+            else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
+          where
+            crudOperations = crudDeclarationToOperationsList crud
 
     checkIfAllCrudNamesAreUnique :: [(String, AS.Crud.Crud)] -> [ValidationError]
     checkIfAllCrudNamesAreUnique cruds' =

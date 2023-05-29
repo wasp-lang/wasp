@@ -55,8 +55,15 @@ psl=}
 
 crud tasks {
   entity: Task,
-  // Create can not public if we use the current user to connect the task to the user
-  // If the user can provide the userId, then we can make it public
-  public: [GetAll],
-  overrides: import { overrides } from "@server/tasks.js",
+  operations: {
+    get: {},
+    getAll: {
+      overrideFn: import { getAllTasks } from "@server/tasks.js",
+    },
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+    delete: {},
+  },
 }

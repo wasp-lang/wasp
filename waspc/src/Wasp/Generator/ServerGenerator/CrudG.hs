@@ -5,6 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import Data.Maybe (fromJust)
 import StrongPath (reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
@@ -14,7 +15,13 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
-import Wasp.Generator.Crud (getCrudEntityPrimaryField, getCrudFilePath, getCrudOperationJson)
+import Wasp.Generator.Crud
+  ( crudDeclarationToOperationsList,
+    getCrudEntityPrimaryField,
+    getCrudFilePath,
+    getCrudOperationJson,
+    makeCrudOperationKeyAndJsonPair,
+  )
 import qualified Wasp.Generator.Crud.Routes as Routes
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -31,8 +38,7 @@ genCrud spec =
         [ genCrudIndexRoute spec cruds
         ]
         <++> genCrudRoutes spec cruds
-        <++> genCrudHelpers spec cruds
-        <++> genCrudsTypes spec cruds
+        <++> genCrudOperations spec cruds
     else return []
   where
     cruds = AS.getCruds spec
@@ -75,59 +81,37 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
         tmplData =
           object
             [ "crud" .= getCrudOperationJson name crud primaryField,
-              "overrides" .= extImportToImportJson [reldirP|../../|] (AS.Crud.overrides crud),
-              "isAuthEnabled" .= isAuthEnabled spec,
-              "prismaArgs" .= object ["importStatement" .= prismaArgsImportStatement, "importIdentifier" .= prismaArgsImportIdentifier],
-              "routeInputs" .= object ["importStatement" .= routeInputsImportStatement, "importIdentifier" .= routeInputsImportIdentifier]
+              "isAuthEnabled" .= isAuthEnabled spec
             ]
         -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
         primaryField = fromJust $ getCrudEntityPrimaryField spec crud
-        (prismaArgsImportStatement, prismaArgsImportIdentifier) =
-          JI.getJsImportStmtAndIdentifier
-            JI.JsImport
-              { JI._name = JI.JsImportField "PrismaArgs",
-                JI._path = crudHelpersFilePath,
-                JI._importAlias = Nothing
-              }
-        (routeInputsImportStatement, routeInputsImportIdentifier) =
-          JI.getJsImportStmtAndIdentifier
-            JI.JsImport
-              { JI._name = JI.JsImportField "RouteInputs",
-                JI._path = crudHelpersFilePath,
-                JI._importAlias = Nothing
-              }
-        crudHelpersFilePath = [reldirP|../../crud|] </> (fromJust . SP.relFileToPosix $ getCrudFilePath name "js")
 
-genCrudHelpers :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
-genCrudHelpers spec cruds = return $ map genCrudRoute cruds
+genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
-    genCrudRoute :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudRoute (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
+    genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
+    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
-        tmplPath = [relfile|src/crud/_helpers.ts|]
+        tmplPath = [relfile|src/crud/_operations.ts|]
         destPath = C.serverSrcDirInServerRootDir </> [reldir|crud|] </> getCrudFilePath name "ts"
         tmplData =
           object
             [ "crud" .= getCrudOperationJson name crud primaryField,
               "isAuthEnabled" .= isAuthEnabled spec,
-              "userEntityUpper" .= maybeUserEntity
+              "userEntityUpper" .= maybeUserEntity,
+              "overrides" .= object overrides
             ]
         -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
         primaryField = fromJust $ getCrudEntityPrimaryField spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
         maybeAuth = AS.App.auth $ snd $ getApp spec
 
-genCrudsTypes :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
-genCrudsTypes spec cruds = return $ map genCrudTypes cruds
-  where
-    genCrudTypes :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudTypes (name, crud) = C.mkUniversalTmplFdWithDstAndData tmplPath destPath (Just tmplData)
-      where
-        tmplPath = [relfile|_crudTypes.ts|]
-        destPath = C.serverSrcDirInServerRootDir </> [reldir|universal/crud|] </> getCrudFilePath name "ts"
-        tmplData =
-          object
-            [ "crud" .= getCrudOperationJson name crud primaryField
-            ]
-        -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
-        primaryField = fromJust $ getCrudEntityPrimaryField spec crud
+        overrides :: [Aeson.Types.Pair]
+        overrides = map operationToOverrideImport crudOperations
+
+        crudOperations = crudDeclarationToOperationsList crud
+
+        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
+        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
+          where
+            importJson = extImportToImportJson [reldirP|../|] (AS.Crud.overrideFn options)

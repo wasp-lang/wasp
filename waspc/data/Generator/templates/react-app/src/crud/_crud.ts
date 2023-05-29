@@ -3,91 +3,96 @@ import { createAction } from "../actions/core";
 import { useAction } from "../actions";
 import { createQuery } from "../queries/core";
 import { useQuery } from "../queries";
-import { {= entityUpper =} } from "../entities";
-import { RouteInputs, EntityType } from "../universal/crud/{= name =}";
+import { 
+    {=# operations.Get =}
+    GetQueryResolved,
+    {=/ operations.Get =}
+    {=# operations.GetAll =}
+    GetAllQueryResolved,
+    {=/ operations.GetAll =}
+    {=# operations.Create =}
+    CreateActionResolved,
+    {=/ operations.Create =}
+    {=# operations.Update =}
+    UpdateActionResolved,
+    {=/ operations.Update =}
+    {=# operations.Delete =}
+    DeleteActionResolved,
+    {=/ operations.Delete =}
+} from '../../../server/src/crud/{= name =}'
 
 function createCrud() {
     {=# operations.Get =}
-    {=# isEnabled =}
-    const crudGetQuery = createQuery<(args: RouteInputs.Get) => Promise<EntityType>>(
+    const crudGetQuery = createQuery<GetQueryResolved>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
-    {=/ isEnabled =}
     {=/ operations.Get =}
     {=# operations.GetAll =}
-    {=# isEnabled =}
-    const crudGetAllQuery = createQuery<() => Promise<EntityType[]>>(
+    const crudGetAllQuery = createQuery<GetAllQueryResolved>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
-    {=/ isEnabled =}
     {=/ operations.GetAll =}
     {=# operations.Create =}
-    {=# isEnabled =}
-    const crudCreateAction = createAction<(args: RouteInputs.Create) => Promise<void>>(
+    const crudCreateAction = createAction<CreateActionResolved>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
-    {=/ isEnabled =}
     {=/ operations.Create =}
     {=# operations.Update =}
-    {=# isEnabled =}
-    const crudUpdateAction = createAction<(args: RouteInputs.Update) => Promise<void>>(
+    const crudUpdateAction = createAction<UpdateActionResolved>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
-    {=/ isEnabled =}
     {=/ operations.Update =}
     {=# operations.Delete =}
-    {=# isEnabled =}
-    const crudDeleteAction = createAction<(args: RouteInputs.Delete) => Promise<void>>(
+    const crudDeleteAction = createAction<DeleteActionResolved>(
         '{= fullPath =}',
         {=& entitiesArray =}
     )
-    {=/ isEnabled =}
     {=/ operations.Delete =}
     return {
-        {=# operations.Get.isEnabled =}
+        {=# operations.Get =}
         get: {
             query: crudGetQuery,
-            useQuery(args: RouteInputs.Get) {
+            useQuery(args: Parameters<GetQueryResolved>[0]) {
                 return useQuery(crudGetQuery, args);
             }
         },
-        {=/ operations.Get.isEnabled =}
-        {=# operations.GetAll.isEnabled =}
+        {=/ operations.Get =}
+        {=# operations.GetAll =}
         getAll: {
             query: crudGetAllQuery,
             useQuery() {
                 return useQuery(crudGetAllQuery);
             }
         },
-        {=/ operations.GetAll.isEnabled =}
-        {=# operations.Create.isEnabled =}
+        {=/ operations.GetAll =}
+        {=# operations.Create =}
         create: {
             action: crudCreateAction,
             useAction() {
                 return useAction(crudCreateAction);
             }
         },
-        {=/ operations.Create.isEnabled =}
-        {=# operations.Update.isEnabled =}
+        {=/ operations.Create =}
+        {=# operations.Update =}
         update: {
             action: crudUpdateAction,
             useAction() {
                 return useAction(crudUpdateAction);
             }
         },
-        {=/ operations.Update.isEnabled =}
-        {=# operations.Delete.isEnabled =}
+        {=/ operations.Update =}
+        {=# operations.Delete =}
         delete: {
             action: crudDeleteAction,
             useAction() {
                 return useAction(crudDeleteAction);
             }
         },
-        {=/ operations.Delete.isEnabled =}
+        {=/ operations.Delete =}
     }
 }
 

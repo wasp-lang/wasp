@@ -47,7 +47,6 @@ import Wasp.Generator.Common
     makeJsonWithEntityData,
     prismaVersion,
   )
-import qualified Wasp.Generator.Crud.Routes as Crud.Routes
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -261,20 +260,36 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  return
-    [ C.mkTmplFdWithDstAndData
-        (C.asTmplFile [relfile|src/routes/index.js|])
-        (C.asServerFile [relfile|src/routes/index.js|])
-        ( Just $
-            object
-              [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
-                "crudRouteInRootRouter" .= (crudRouteInRootRouter :: String),
-                "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
-                "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
-                "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
-              ]
-        )
+  sequence
+    [ genRoutesIndex spec,
+      genRoutesSerialization spec
     ]
+
+genRoutesIndex :: AppSpec -> Generator FileDraft
+genRoutesIndex spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/index.js|])
+      (C.asServerFile [relfile|src/routes/index.js|])
+      (Just tmplData)
+  where
+    tmplData =
+      object
+        [ "operationsRouteInRootRouter" .= (operationsRouteInRootRouter :: String),
+          "isAuthEnabled" .= (isAuthEnabled spec :: Bool),
+          "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
+          "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
+        ]
+
+genRoutesSerialization :: AppSpec -> Generator FileDraft
+genRoutesSerialization spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/routes/serialization.ts|])
+      (C.asServerFile [relfile|src/routes/serialization.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
@@ -312,9 +327,6 @@ genTypesAndEntitiesDirs spec =
 
 operationsRouteInRootRouter :: String
 operationsRouteInRootRouter = "operations"
-
-crudRouteInRootRouter :: String
-crudRouteInRootRouter = Crud.Routes.crudOperationsRouterNamespace
 
 areServerPatchesUsed :: AppSpec -> Generator Bool
 areServerPatchesUsed spec = not . null <$> genPatches spec

@@ -2,9 +2,12 @@ module Generator.CrudTest where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson
+import StrongPath (relfileP)
+import qualified StrongPath as SP
 import Test.Tasty.Hspec
 import qualified Wasp.AppSpec.Core.Ref as AS.Core.Ref
 import qualified Wasp.AppSpec.Crud as AS.Crud
+import qualified Wasp.AppSpec.ExtImport as AS.ExtImport
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Psl.Ast.Model (Field (_typeModifiers))
 import qualified Wasp.Psl.Ast.Model as PslModel
@@ -12,151 +15,74 @@ import qualified Wasp.Psl.Ast.Model as PslModel
 spec_GeneratorCrudTest :: Spec
 spec_GeneratorCrudTest = do
   describe "getCrudOperationJson" $ do
-    it "it makes all operations enabled and private by default" $ do
+    it "it makes all operations disabled by default" $ do
       getCrudOperationJson
         crudOperationsName
         AS.Crud.Crud
           { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            only = Nothing,
-            except = Nothing,
-            public = Nothing
+            operations =
+              AS.Crud.CrudOperations
+                { get = Nothing,
+                  getAll = Nothing,
+                  create = Nothing,
+                  update = Nothing,
+                  delete = Nothing
+                }
           }
         primaryEntityField
-        `shouldBe` mkOperationsJson
-          ( object
-              [ "Get"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("get" :: String),
-                      "fullPath" .= ("crud/tasks/get" :: String),
-                      "isPublic" .= False
-                    ],
-                "GetAll"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("getAll" :: String),
-                      "fullPath" .= ("crud/tasks/getAll" :: String),
-                      "isPublic" .= False
-                    ],
-                "Create"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("create" :: String),
-                      "fullPath" .= ("crud/tasks/create" :: String),
-                      "isPublic" .= False
-                    ],
-                "Update"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("update" :: String),
-                      "fullPath" .= ("crud/tasks/update" :: String),
-                      "isPublic" .= False
-                    ],
-                "Delete"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("delete" :: String),
-                      "fullPath" .= ("crud/tasks/delete" :: String),
-                      "isPublic" .= False
-                    ]
-              ]
-          )
+        `shouldBe` mkOperationsJson (object [])
 
-    it "it only enables operations defined in the only property" $ do
+    it "it adds JSON for enabled operations" $ do
       getCrudOperationJson
         crudOperationsName
         AS.Crud.Crud
           { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            only = Just [AS.Crud.Get, AS.Crud.GetAll],
-            except = Nothing,
-            public = Nothing
+            operations =
+              AS.Crud.CrudOperations
+                { get =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Nothing,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  getAll =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Nothing,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  create =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Nothing,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  update = Nothing,
+                  delete = Nothing
+                }
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("get" :: String),
-                      "fullPath" .= ("crud/tasks/get" :: String),
+                    [ "route" .= ("get" :: String),
+                      "fullPath" .= ("tasks/get" :: String),
                       "isPublic" .= False
                     ],
                 "GetAll"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("getAll" :: String),
-                      "fullPath" .= ("crud/tasks/getAll" :: String),
+                    [ "route" .= ("get-all" :: String),
+                      "fullPath" .= ("tasks/get-all" :: String),
                       "isPublic" .= False
                     ],
                 "Create"
                   .= object
-                    [ "isEnabled" .= False,
-                      "route" .= ("create" :: String),
-                      "fullPath" .= ("crud/tasks/create" :: String),
-                      "isPublic" .= False
-                    ],
-                "Update"
-                  .= object
-                    [ "isEnabled" .= False,
-                      "route" .= ("update" :: String),
-                      "fullPath" .= ("crud/tasks/update" :: String),
-                      "isPublic" .= False
-                    ],
-                "Delete"
-                  .= object
-                    [ "isEnabled" .= False,
-                      "route" .= ("delete" :: String),
-                      "fullPath" .= ("crud/tasks/delete" :: String),
-                      "isPublic" .= False
-                    ]
-              ]
-          )
-
-    it "it only enables all operations except those defined in the except property" $ do
-      getCrudOperationJson
-        crudOperationsName
-        AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            only = Nothing,
-            except = Just [AS.Crud.Delete],
-            public = Nothing
-          }
-        primaryEntityField
-        `shouldBe` mkOperationsJson
-          ( object
-              [ "Get"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("get" :: String),
-                      "fullPath" .= ("crud/tasks/get" :: String),
-                      "isPublic" .= False
-                    ],
-                "GetAll"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("getAll" :: String),
-                      "fullPath" .= ("crud/tasks/getAll" :: String),
-                      "isPublic" .= False
-                    ],
-                "Create"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("create" :: String),
-                      "fullPath" .= ("crud/tasks/create" :: String),
-                      "isPublic" .= False
-                    ],
-                "Update"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("update" :: String),
-                      "fullPath" .= ("crud/tasks/update" :: String),
-                      "isPublic" .= False
-                    ],
-                "Delete"
-                  .= object
-                    [ "isEnabled" .= False,
-                      "route" .= ("delete" :: String),
-                      "fullPath" .= ("crud/tasks/delete" :: String),
+                    [ "route" .= ("create" :: String),
+                      "fullPath" .= ("tasks/create" :: String),
                       "isPublic" .= False
                     ]
               ]
@@ -167,47 +93,114 @@ spec_GeneratorCrudTest = do
         crudOperationsName
         AS.Crud.Crud
           { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            only = Nothing,
-            except = Nothing,
-            public = Just [AS.Crud.Get, AS.Crud.GetAll]
+            operations =
+              AS.Crud.CrudOperations
+                { get =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just True,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  getAll =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just False,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  create =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just True,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  update = Nothing,
+                  delete = Nothing
+                }
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
           ( object
               [ "Get"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("get" :: String),
-                      "fullPath" .= ("crud/tasks/get" :: String),
+                    [ "route" .= ("get" :: String),
+                      "fullPath" .= ("tasks/get" :: String),
                       "isPublic" .= True
                     ],
                 "GetAll"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("getAll" :: String),
-                      "fullPath" .= ("crud/tasks/getAll" :: String),
-                      "isPublic" .= True
+                    [ "route" .= ("get-all" :: String),
+                      "fullPath" .= ("tasks/get-all" :: String),
+                      "isPublic" .= False
                     ],
                 "Create"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("create" :: String),
-                      "fullPath" .= ("crud/tasks/create" :: String),
+                    [ "route" .= ("create" :: String),
+                      "fullPath" .= ("tasks/create" :: String),
+                      "isPublic" .= True
+                    ]
+              ]
+          )
+
+    it "the override import can defined" $ do
+      getCrudOperationJson
+        crudOperationsName
+        AS.Crud.Crud
+          { entity = AS.Core.Ref.Ref crudOperationEntitName,
+            operations =
+              AS.Crud.CrudOperations
+                { get =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just True,
+                            overrideFn =
+                              Just $
+                                AS.ExtImport.ExtImport
+                                  { AS.ExtImport.name = AS.ExtImport.ExtImportField "getTask",
+                                    AS.ExtImport.path = SP.castRel [relfileP|bla/tasks.js|]
+                                  }
+                          }
+                      ),
+                  getAll =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just False,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  create =
+                    Just
+                      ( AS.Crud.CrudOperationOptions
+                          { isPublic = Just True,
+                            overrideFn = Nothing
+                          }
+                      ),
+                  update = Nothing,
+                  delete = Nothing
+                }
+          }
+        primaryEntityField
+        `shouldBe` mkOperationsJson
+          ( object
+              [ "Get"
+                  .= object
+                    [ "route" .= ("get" :: String),
+                      "fullPath" .= ("tasks/get" :: String),
+                      "isPublic" .= True
+                    ],
+                "GetAll"
+                  .= object
+                    [ "route" .= ("get-all" :: String),
+                      "fullPath" .= ("tasks/get-all" :: String),
                       "isPublic" .= False
                     ],
-                "Update"
+                "Create"
                   .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("update" :: String),
-                      "fullPath" .= ("crud/tasks/update" :: String),
-                      "isPublic" .= False
-                    ],
-                "Delete"
-                  .= object
-                    [ "isEnabled" .= True,
-                      "route" .= ("delete" :: String),
-                      "fullPath" .= ("crud/tasks/delete" :: String),
-                      "isPublic" .= False
+                    [ "route" .= ("create" :: String),
+                      "fullPath" .= ("tasks/create" :: String),
+                      "isPublic" .= True
                     ]
               ]
           )

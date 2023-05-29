@@ -1,28 +1,5 @@
 {{={= =}=}}
-import { 
-  deserialize as superjsonDeserialize,
-  serialize as superjsonSerialize,
-} from 'superjson'
-import { handleRejection } from '../../utils.js'
+import { withSuperJsonSerialization } from '../serialization.js'
 {=& operationImportStmt =}
 
-export default handleRejection(async (req, res) => {
-  {=! TODO: When generating express route for query, generated code would be most human-like if we
-    generated GET route that uses query arguments.
-    However, for that, we need to know the types of the arguments so we can cast/parse them.
-    Also, there is limit on URI length, which could be problem if users want to send some bigger
-    JSON objects or smth.
-    So for now we are just going with POST that has JSON in the body -> generated code is not
-    as human-like as it should be though. =}
-  const args = (req.body && superjsonDeserialize(req.body)) || {}
-
-  const context = {
-    {=# userEntityLower =}
-    user: req.user
-    {=/ userEntityLower =}
-  }
-
-  const result = await {= operationName =}(args, context)
-  const serializedResult = superjsonSerialize(result)
-  res.json(serializedResult)
-})
+export default withSuperJsonSerialization({= operationName =})
