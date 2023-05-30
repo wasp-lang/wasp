@@ -362,7 +362,7 @@ library cli-lib
     , cryptonite
     , fsnotify
     , http-conduit
-    , optparse-applicative ^>=0.17.0.0
+    , optparse-applicative ^>=0.17.1.0
     , path
     , path-io
     , process

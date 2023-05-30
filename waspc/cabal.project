@@ -20,4 +20,4 @@ jobs: $ncpus
 test-show-details: direct
 
 -- WARNING: Run cabal update if your local package index is older than this date.
-index-state: 2023-03-09T09:15:49Z
+index-state: 2023-05-30T13:06:31Z
