@@ -18,7 +18,7 @@ import qualified Wasp.LSP.Completions.Common as Ctx
 import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt)
 
 -- | If the location is at an expression, find declaration names in the file
--- and return them as autocomplete suggestions
+-- and return them as completion items.
 --
 -- TODO: include completions for enum variants (use standard type defs from waspc)
 getCompletions :: (MonadReader CompletionContext m, MonadLog m) => CompletionProvider m

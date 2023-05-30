@@ -21,6 +21,17 @@ import qualified Wasp.LSP.Completions.Common as Ctx
 import Wasp.LSP.Syntax (allP, anyP, hasLeft, parentIs)
 import Wasp.LSP.TypeHint (getTypeHint)
 
+-- | If the location is at a place where a dictionary key is expected, find
+-- the list of keys that are allowed in the dictionary around the location and
+-- return them as completion items.
+--
+-- The allowed keys are found by determining the expected type for the
+-- dictionary and getting the keys from that, assuming it is a 'Type.DictType'.
+-- No completions are made if there is no expected type or if the expected type
+-- is not a 'Type.DictType'.
+--
+-- See 'Wasp.LSP.TypeHint' for how the expected type for the dictionary is
+-- determined.
 getCompletions :: (MonadReader CompletionContext m, MonadLog m) => CompletionProvider m
 getCompletions location =
   if not $ isAtDictKeyPlace location
@@ -40,6 +51,8 @@ getCompletions location =
           return $
             map
               ( \(key, keyType) ->
+                  -- The user sees "key", but when they accept the completion
+                  -- "key: " is inserted (via the insertText field).
                   makeBasicCompletionItem (Text.pack key)
                     T.& (LSP.kind ?~ LSP.CiField)
                     T.& (LSP.detail ?~ Text.pack (":: " ++ show keyType))
