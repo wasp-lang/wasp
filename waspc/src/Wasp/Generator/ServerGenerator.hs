@@ -38,8 +38,6 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
-import Wasp.AppSpec.App.WebSocket (WebSocket)
-import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
@@ -66,7 +64,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import qualified Wasp.Generator.WebSocket as AS.WS
+import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketData)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -260,8 +258,8 @@ genServerJs spec =
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-relPathToServerSrcDir = [reldirP|./|]
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -408,38 +406,3 @@ genMiddleware spec =
               "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
               "importAlias" .= globalMiddlewareConfigFnAlias
             ]
-
-depsRequiredByWebSockets :: AppSpec -> [AS.Dependency.Dependency]
-depsRequiredByWebSockets spec
-  | AS.WS.areWebSocketsUsed spec = AS.WS.serverDepsRequiredForWebSockets
-  | otherwise = []
-
-genWebSockets :: AppSpec -> Generator [FileDraft]
-genWebSockets spec
-  | AS.WS.areWebSocketsUsed spec =
-      sequence
-        [ genWebSocketTs spec
-        ]
-  | otherwise = return []
-
-genWebSocketTs :: AppSpec -> Generator FileDraft
-genWebSocketTs spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/webSocket.ts|])
-      (C.asServerFile [relfile|src/webSocket.ts|])
-      ( Just $
-          object
-            [ "webSocket" .= mkWebSocketData maybeWebSocket,
-              "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
-            ]
-      )
-  where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-
-mkWebSocketData :: Maybe WebSocket -> Aeson.Value
-mkWebSocketData maybeWebSocket =
-  let maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
-   in object
-        [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
-        ]

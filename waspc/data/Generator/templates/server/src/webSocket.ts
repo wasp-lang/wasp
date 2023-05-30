@@ -28,6 +28,7 @@ export type WebSocketDefinition<
 
 type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}> [0]
 
+// Initializes the WebSocket server and invokes the user's WebSocket function.
 export async function init(server: http.Server): Promise<void> {
   // TODO: In the future, we can consider allowing a clustering option.
   // Refs: https://socket.io/docs/v4/using-multiple-nodes/
@@ -38,15 +39,7 @@ export async function init(server: http.Server): Promise<void> {
     }
   })
 
-  io.use(async (socket: Socket, next: (err?: Error) => void) => {
-    const token = socket.handshake.auth.token
-    if (token) {
-      try {
-        socket.data = { ...socket.data, user: await getUserFromToken(token) }
-      } catch (err) { }
-    }
-    next()
-  })
+  io.use(addUserToSocketDataIfAuthenticated)
 
   const context = {
       entities: {
@@ -57,4 +50,14 @@ export async function init(server: http.Server): Promise<void> {
   }
 
   await {= webSocket.fn.importIdentifier =}(io, context)
+}
+
+async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {
+  const token = socket.handshake.auth.token
+  if (token) {
+    try {
+      socket.data = { ...socket.data, user: await getUserFromToken(token) }
+    } catch (err) { }
+  }
+  next()
 }

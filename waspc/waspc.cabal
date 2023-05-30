@@ -272,6 +272,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Setup
     Wasp.Generator.ServerGenerator.Start
+    Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates

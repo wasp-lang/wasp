@@ -12,6 +12,7 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data WebSocket = WebSocket
   { fn :: ExtImport,
-    entities :: Maybe [Ref Entity]
+    entities :: Maybe [Ref Entity],
+    autoConnect :: Maybe Bool
   }
   deriving (Show, Eq, Data)

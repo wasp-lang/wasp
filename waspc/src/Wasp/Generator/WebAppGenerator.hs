@@ -7,6 +7,7 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
+import Data.Char (toLower)
 import Data.List (intercalate)
 import StrongPath
   ( Dir,
@@ -21,9 +22,11 @@ import StrongPath
   )
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import Wasp.AppSpec.App (App (webSocket))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
+import Wasp.AppSpec.App.WebSocket (WebSocket (..))
 import qualified Wasp.AppSpec.Entity as AS.Entity
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
@@ -51,7 +54,7 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
-genWebApp spec = do
+genWebApp spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -192,7 +195,7 @@ genGitignore =
       (C.asWebAppFile [relfile|.gitignore|])
 
 genPublicDir :: AppSpec -> Generator [FileDraft]
-genPublicDir spec = do
+genPublicDir spec =
   return
     [ genFaviconFd,
       genManifestFd
@@ -289,10 +292,14 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genWebSocketTs
+        [ genWebSocketTs spec
         ]
   | otherwise = return []
 
-genWebSocketTs :: Generator FileDraft
-genWebSocketTs =
-  return $ C.mkSrcTmplFd [relfile|webSocket.ts|]
+genWebSocketTs :: AppSpec -> Generator FileDraft
+genWebSocketTs spec = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    maybeWebSocket = webSocket (snd (getApp spec))
+    shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
+    tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    tmplFile = C.asTmplFile [relfile|src/webSocket.ts|]
