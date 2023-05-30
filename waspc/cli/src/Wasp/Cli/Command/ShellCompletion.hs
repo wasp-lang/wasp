@@ -39,7 +39,7 @@ printShellCompletionInstruction =
         "    wasp completion generate bash > <your-chosen-directory>/wasp-completion",
         "",
         "After that, depending on your system, you will need to edit your bash profile:",
-        "- on MacOS (OSX): you will normally want to edit ~/.zshrc (default) or ~/.bashrc",
+        "- on MacOS (OSX): you will normally want to edit ~/.bashrc",
         "- on Linux: you will normally want to edit ~/.bash_profile",
         "and add this line:",
         "",
