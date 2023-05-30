@@ -13,51 +13,14 @@ import qualified Language.LSP.Types.Lens as LSP
 import System.FilePath (replaceExtension, takeBaseName)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (findByExtension, goldenVsStringDiff)
+import Text.Printf (printf)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as Lexer
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics))
 
--- | Run test cases in ./completionTests directory
---
--- See 'readCompletionTest' for the format of a test case.
-test_CompletionLists :: IO TestTree
-test_CompletionLists = do
-  inputFiles <- findByExtension [".wasp"] "./waspls/test/Wasp/LSP/completionTests"
-  return $
-    testGroup "Wasp.LSP.Completion.getCompletionsAtPosition" $
-      makeCompletionTest <$> inputFiles
-
--- | Takes a completion test case and produces the list of completion items
-runCompletionTest :: String -> String
-runCompletionTest source =
-  let (code, position) = readCompletionTest source
-      tokens = Lexer.lex code
-      parsedCST = snd $ parseCST tokens
-      serverState =
-        ServerState
-          { _currentWaspSource = code,
-            _latestDiagnostics = [],
-            _cst = Just parsedCST
-          }
-      (completionItems, _log) = runLog $ evalStateT (getCompletionsAtPosition position) serverState
-      fmtedCompletionItems = map fmtCompletionItem completionItems
-
-      fmtCompletionItem :: LSP.CompletionItem -> String
-      fmtCompletionItem item =
-        concat
-          [ "  label={",
-            show (item ^. LSP.label),
-            "} kind={",
-            show (item ^. LSP.kind),
-            "} detail={",
-            show (item ^. LSP.detail),
-            "}"
-          ]
-   in "Completion Items:\n" ++ unlines fmtedCompletionItems
-
--- | Parses a completion test case into a pair of the wasp source code to
--- run completion on and the position to get the completion list at.
+-- | A string containing the input to a completion test. It represents wasp
+-- source code with a cursor position.
 --
 -- = Format
 --
@@ -85,12 +48,78 @@ runCompletionTest source =
 -- }
 -- @
 --
--- This test case checks completions after the 2 spaces on the 2nd line.
-readCompletionTest :: String -> (String, LSP.Position)
-readCompletionTest source = withPreambleAssert "//! test/completion" source (unlines code, position)
+-- This test checks completions after the 2 spaces on the 2nd line.
+newtype CompletionTestInput = CompletionTestInput String
+
+-- | Run test cases in ./completionTests directory
+--
+-- See 'CompletionTestInput' for the format of the test input (stored in the
+-- .wasp files).
+test_CompletionLists :: IO TestTree
+test_CompletionLists = do
+  -- Path is relative to the root of the project, i.e. the directory containing
+  -- waspc.cabal.
+  completionTestInputFiles <- findByExtension [".wasp"] "./waspls/test/Wasp/LSP/completionTests"
+  return $
+    testGroup "Wasp.LSP.Completion.getCompletionsAtPosition" $
+      makeGoldenCompletionTest <$> completionTestInputFiles
+
+-- | Create a test case from a pair of <test_name>.wasp and <test_name>.golden
+-- file, using 'runCompletionTest' on the .wasp file to get the output to
+-- compare with or store in the .golden file.
+--
+-- The given filepath should be to a completion test input file (ending in .wasp)
+-- inside the completionTests folder.
+makeGoldenCompletionTest :: FilePath -> TestTree
+makeGoldenCompletionTest inputFp =
+  let goldenFile = replaceExtension inputFp ".golden"
+      testCaseName = takeBaseName inputFp
+      diffCmd = \ref new -> ["diff", "-u", ref, new]
+   in goldenVsStringDiff
+        testCaseName
+        diffCmd
+        goldenFile
+        ( do
+            source <- BSC.unpack <$> BS.readFile inputFp
+            return $ BSC.pack $ runCompletionTest $ CompletionTestInput source
+        )
+
+-- | Takes a completion test input and produces the list of completion items,
+-- represented as a string so it can be compared with the contents of and stored
+-- in the golden file associated with the test input.
+runCompletionTest :: CompletionTestInput -> String
+runCompletionTest testInput =
+  let (waspSource, cursorPosition) = parseCompletionInput testInput
+      tokens = Lexer.lex waspSource
+      parsedCST = snd $ parseCST tokens
+      serverState =
+        ServerState
+          { _currentWaspSource = waspSource,
+            _latestDiagnostics = [],
+            _cst = Just parsedCST
+          }
+      (completionItems, _log) = runLog $ evalStateT (getCompletionsAtPosition cursorPosition) serverState
+      fmtedCompletionItems = map fmtCompletionItem completionItems
+
+      fmtCompletionItem :: LSP.CompletionItem -> String
+      fmtCompletionItem item =
+        unwords
+          [ printf "label={%s}" (show $ item ^. LSP.label),
+            printf "kind={%s}" (show $ item ^. LSP.kind),
+            printf "detail={%s}" (show $ item ^. LSP.detail)
+          ]
+   in "Completion items:\n" ++ unlines (map ("  " <>) fmtedCompletionItems)
+
+-- | Parses a completion test case into a pair of the wasp source code to
+-- run completion on and the position to get the completion list at.
+--
+-- See 'CompletionTestInput' for the format of the test input.
+parseCompletionInput :: CompletionTestInput -> (String, LSP.Position)
+parseCompletionInput (CompletionTestInput testInput) =
+  withPreambleAssert "//! test/completion" testInput (unlines code, position)
   where
     -- Drops the marked line AND the following line (which is blank except for the ^)
-    code = before markedLineIdx (lines source) ++ [markedLine] ++ after (markedLineIdx + 1) (lines source)
+    code = before markedLineIdx (lines testInput) ++ [markedLine] ++ after (markedLineIdx + 1) (lines testInput)
     position = LSP.Position (fromIntegral markedLineIdx) (fromIntegral markedColIdx)
 
     markedLine = before markedColIdx rawMarkedLine ++ after markedColIdx rawMarkedLine
@@ -102,8 +131,8 @@ readCompletionTest source = withPreambleAssert "//! test/completion" source (unl
     -- (String, column, line) triples, where String is a line such that the
     -- following line is spaces followed by a ^ and nothing else
     candidateLines = mapMaybe (toCandidateLine 0) linePairs
-    -- Pairs of consecutive lines in the input
-    linePairs = zip3 (lines source) (drop 1 $ lines source) [0 ..]
+    -- Pairs of consecutive lines in the testInput
+    linePairs = zip3 (lines testInput) (drop 1 $ lines testInput) [0 ..]
 
     -- Check if the candidate line contains a '|' at the specified column
     isMarkedLine :: (String, Int, Int) -> Bool
@@ -126,20 +155,3 @@ readCompletionTest source = withPreambleAssert "//! test/completion" source (unl
 
     after :: Int -> [a] -> [a]
     after idx = drop (idx + 1)
-
--- | Create a test case from a .wasp/.golden pair, running runCompletionTest
--- on the .wasp file to get the .golden output. See 'readCompletionTest' for
--- the format of a test case.
-makeCompletionTest :: FilePath -> TestTree
-makeCompletionTest inputFp =
-  let goldenFile = replaceExtension inputFp ".golden"
-      testCaseName = takeBaseName inputFp
-      diffCmd = \ref new -> ["diff", "-u", ref, new]
-   in goldenVsStringDiff
-        testCaseName
-        diffCmd
-        goldenFile
-        ( do
-            source <- BSC.unpack <$> BS.readFile inputFp
-            return $ BSC.pack $ runCompletionTest source
-        )

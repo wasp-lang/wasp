@@ -9,6 +9,7 @@ module Control.Monad.Log.Pure
 where
 
 import Control.Monad.Log.Class (MonadLog (logM))
+import Control.Monad.Trans.Class (MonadTrans)
 import Control.Monad.Writer.Strict (MonadWriter (tell), WriterT, runWriterT)
 import Data.Functor.Identity (Identity (runIdentity))
 
@@ -18,7 +19,7 @@ runLog :: Log a -> (a, [String])
 runLog m = runIdentity $ runLogT m
 
 newtype LogT m a = LogT (WriterT [String] m a)
-  deriving (Functor, Applicative, Monad)
+  deriving (Functor, Applicative, Monad, MonadTrans)
 
 runLogT :: LogT m a -> m (a, [String])
 runLogT (LogT m) = runWriterT m
