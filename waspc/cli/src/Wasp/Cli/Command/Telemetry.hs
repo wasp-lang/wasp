@@ -52,7 +52,7 @@ telemetry = do
 -- If we are not in the Wasp project at the moment, nothing happens.
 -- If telemetry data was already sent for this project in the last 12 hours, nothing happens.
 -- If env var WASP_TELEMETRY_DISABLE is set, nothing happens.
-considerSendingData :: Command.Call.Call -> Command ()
+considerSendingData :: Command.Call.CommandCall -> Command ()
 considerSendingData cmdCall = (`catchError` const (return ())) $ do
   telemetryDisabled <- liftIO isTelemetryDisabled
   when telemetryDisabled $ throwError $ CommandError "Telemetry failed" "Telemetry disabled by user."

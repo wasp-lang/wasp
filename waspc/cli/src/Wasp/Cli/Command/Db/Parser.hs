@@ -8,7 +8,7 @@ import Options.Applicative
 import qualified Options.Applicative as O
 import qualified Options.Applicative.Help as OH
 import Wasp.Cli.Command.Call
-  ( Call (Db),
+  ( CommandCall (Db),
     DbArgs
       ( DbMigrateDev,
         DbReset,
@@ -20,10 +20,10 @@ import Wasp.Cli.Command.Call
   )
 import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
 
-db :: Mod CommandFields Call
+db :: Mod CommandFields CommandCall
 db = mkNormalCommand "db" "Executes a database command. Run 'wasp db --help' for more info." parseDb
 
-parseDb :: Parser Call
+parseDb :: Parser CommandCall
 parseDb = Db <$> parseDbArgs
   where
     parseDbArgs =

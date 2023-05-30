@@ -4,16 +4,16 @@ import Data.Maybe (fromMaybe)
 import Options.Applicative (CommandFields, Mod, Parser)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call
-  ( Call (Completion),
+  ( CommandCall (Completion),
     CompletionArgs (..),
     Shell (Bash, Fish, Zsh),
   )
 import Wasp.Cli.Parser.Util (mkNormalCommand)
 
-completion :: Mod CommandFields Call
+completion :: Mod CommandFields CommandCall
 completion = mkNormalCommand "completion" "Print shell completion code." parseCompletion
 
-parseCompletion :: Parser Call
+parseCompletion :: Parser CommandCall
 parseCompletion = Completion . fromMaybe PrintInstruction <$> parseShell
 
 parseShell :: Parser (Maybe CompletionArgs)

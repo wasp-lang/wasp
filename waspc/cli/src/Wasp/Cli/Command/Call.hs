@@ -1,6 +1,6 @@
 module Wasp.Cli.Command.Call where
 
-data Call
+data CommandCall
   = New !NewProjectArgs
   | Start !StartArg
   | Clean

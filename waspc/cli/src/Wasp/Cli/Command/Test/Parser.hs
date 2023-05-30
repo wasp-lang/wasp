@@ -6,13 +6,13 @@ import Options.Applicative
     Parser,
   )
 import qualified Options.Applicative as O
-import Wasp.Cli.Command.Call (Call (Test), TestArgs (TestClient, TestServer))
+import Wasp.Cli.Command.Call (CommandCall (Test), TestArgs (TestClient, TestServer))
 import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
 
-test :: Mod CommandFields Call
+test :: Mod CommandFields CommandCall
 test = mkNormalCommand "test" "Executes tests in your project." parseTest
 
-parseTest :: Parser Call
+parseTest :: Parser CommandCall
 parseTest = Test <$> parseTestArgs
   where
     parseTestArgs =

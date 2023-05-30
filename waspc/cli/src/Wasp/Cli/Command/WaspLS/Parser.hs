@@ -6,17 +6,17 @@ import Options.Applicative
     Parser,
   )
 import qualified Options.Applicative as O
-import Wasp.Cli.Command.Call (Call (WaspLS), WaspLSArgs (WaspLSArgs))
+import Wasp.Cli.Command.Call (CommandCall (WaspLS), WaspLSArgs (WaspLSArgs))
 import Wasp.Cli.Parser.Util (mkNormalCommand)
 
-waspls :: Mod CommandFields Call
+waspls :: Mod CommandFields CommandCall
 waspls =
   mkNormalCommand
     "waspls"
     "Run Wasp Language Server. Add --help to get more info."
     parseWaspLS
 
-parseWaspLS :: Parser Call
+parseWaspLS :: Parser CommandCall
 parseWaspLS = WaspLS <$> parseWaspLSArgs
   where
     parseWaspLSArgs = WaspLSArgs <$> O.optional parseLogFile <*> parseStdio

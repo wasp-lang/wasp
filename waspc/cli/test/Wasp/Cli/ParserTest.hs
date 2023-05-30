@@ -5,14 +5,14 @@ import Test.Tasty.Hspec (Spec, SpecWith, describe, it, shouldBe)
 import Wasp.Cli.Command.Call
 import Wasp.Cli.Parser (parserRunnerSettings)
 
-parseArgs :: String -> Maybe Call
+parseArgs :: String -> Maybe CommandCall
 parseArgs args = O.getParseResult $ uncurry O.execParserPure parserRunnerSettings $ words args
 
-runTest :: String -> String -> Call -> SpecWith ()
+runTest :: String -> String -> CommandCall -> SpecWith ()
 runTest cliArgs description expectedResult =
   it description $ parseArgs cliArgs `shouldBe` Just expectedResult
 
-runTestWithoutCommandArgs :: String -> Call -> SpecWith ()
+runTestWithoutCommandArgs :: String -> CommandCall -> SpecWith ()
 runTestWithoutCommandArgs cliArgs expectedResult = runTest cliArgs "no args" expectedResult
 
 spec_cliArgsParser :: Spec

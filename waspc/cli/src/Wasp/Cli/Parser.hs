@@ -3,7 +3,7 @@ module Wasp.Cli.Parser (parserRunnerSettings, parseCliArgs) where
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, (<**>), (<|>))
 import qualified Options.Applicative as O
 import Options.Applicative.Help (text)
-import Wasp.Cli.Command.Call (Call (..))
+import Wasp.Cli.Command.Call (CommandCall (..))
 import Wasp.Cli.Command.CreateNewProject.Parser (new)
 import Wasp.Cli.Command.Db.Parser (db)
 import Wasp.Cli.Command.Deploy.Parser (deploy)
@@ -14,10 +14,10 @@ import Wasp.Cli.Command.WaspLS.Parser (waspls)
 import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
 import qualified Wasp.Util.Terminal as Term
 
-parseCliArgs :: IO Call
+parseCliArgs :: IO CommandCall
 parseCliArgs = uncurry O.customExecParser parserRunnerSettings
 
-parserRunnerSettings :: (ParserPrefs, ParserInfo Call)
+parserRunnerSettings :: (ParserPrefs, ParserInfo CommandCall)
 parserRunnerSettings = (preferences, options)
   where
     preferences = O.prefs O.showHelpOnEmpty
@@ -31,13 +31,13 @@ parserRunnerSettings = (preferences, options)
             Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
           ]
 
-parserSuite :: Parser Call
+parserSuite :: Parser CommandCall
 parserSuite = internalCommands <|> generalCommands <|> inProjectCommands
 
-internalCommands :: Parser Call
+internalCommands :: Parser CommandCall
 internalCommands = O.subparser $ mkCommand "compile" [] (pure Compile) <> O.internal
 
-generalCommands :: Parser Call
+generalCommands :: Parser CommandCall
 generalCommands =
   O.subparser $
     mconcat
@@ -49,7 +49,7 @@ generalCommands =
         mkNormalCommand "uninstall" "Removes Wasp from your system." $ pure Uninstall
       ]
 
-inProjectCommands :: Parser Call
+inProjectCommands :: Parser CommandCall
 inProjectCommands =
   O.subparser $
     mconcat

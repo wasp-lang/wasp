@@ -37,7 +37,7 @@ import Wasp.Cli.Command.Telemetry.User (UserSignature (..))
 import Wasp.Util (ifM)
 import qualified Wasp.Util.IO as IOUtil
 
-considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.Call -> IO ()
+considerSendingData :: Path' Abs (Dir TelemetryCacheDir) -> UserSignature -> ProjectHash -> Command.Call.CommandCall -> IO ()
 considerSendingData telemetryCacheDirPath userSignature projectHash cmdCall = do
   projectCache <- readOrCreateProjectTelemetryFile telemetryCacheDirPath projectHash
 
@@ -166,7 +166,7 @@ data ProjectTelemetryData = ProjectTelemetryData
   }
   deriving (Show)
 
-getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.Call -> String -> ProjectTelemetryData
+getProjectTelemetryData :: UserSignature -> ProjectHash -> Command.Call.CommandCall -> String -> ProjectTelemetryData
 getProjectTelemetryData userSignature projectHash cmdCall context =
   ProjectTelemetryData
     { _userSignature = userSignature,
