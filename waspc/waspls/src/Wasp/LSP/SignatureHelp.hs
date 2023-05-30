@@ -18,7 +18,7 @@ import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
-import Wasp.LSP.TypeHint (ExprPath (Key, List, Tuple), getExprPath, getPathType)
+import Wasp.LSP.TypeInference (ExprKey (Key, List, Tuple), findExprPathAtLocation, findTypeForPath)
 
 getSignatureHelpAtPosition ::
   (MonadState ServerState m, MonadLog m) =>
@@ -83,7 +83,7 @@ getSignatureHelpAtPosition position = do
         }
 
 data SignatureShow = SignatureShow
-  { sigPath :: !(Maybe ExprPath),
+  { sigKey :: !(Maybe ExprKey),
     sigText :: !String
   }
   deriving (Eq, Show)
@@ -145,7 +145,7 @@ sigParams allShows = map labelToInfo $ getParams 0 allShows
           _documentation = Nothing
         }
 
-sigParamIdx :: [SignatureShow] -> ExprPath -> Maybe LSP.UInt
+sigParamIdx :: [SignatureShow] -> ExprKey -> Maybe LSP.UInt
 sigParamIdx allShows path = search 0 allShows
   where
     search :: LSP.UInt -> [SignatureShow] -> Maybe LSP.UInt
@@ -160,7 +160,7 @@ sigParamIdx allShows path = search 0 allShows
 
 data SignatureContext
   = JustSignature !Type
-  | ArgSignature !Type !ExprPath !Type
+  | ArgSignature !Type !ExprKey !Type
   deriving (Eq, Show)
 
 getSignatureContext ::
@@ -169,15 +169,15 @@ getSignatureContext ::
   Traversal ->
   m (Maybe SignatureContext)
 getSignatureContext src t = runMaybeT $ do
-  exprPath <- hoistMaybe $ getExprPath src t
+  exprPath <- hoistMaybe $ findExprPathAtLocation src t
   lift $ logM $ "[SignatureHelp] at expr path " ++ show exprPath
   guard $ not $ null exprPath
   case exprPath of
-    [path] -> JustSignature <$> hoistMaybe (getPathType [path])
+    [path] -> JustSignature <$> hoistMaybe (findTypeForPath [path])
     path -> do
       -- Using init/last here is fine since we know it has at least 2 elements
-      tipType <- hoistMaybe $ getPathType path
-      parentType <- hoistMaybe $ getPathType $ init path
+      tipType <- hoistMaybe $ findTypeForPath path
+      parentType <- hoistMaybe $ findTypeForPath $ init path
       if isContainerType tipType
         then return $ JustSignature tipType
         else return $ ArgSignature parentType (last path) tipType

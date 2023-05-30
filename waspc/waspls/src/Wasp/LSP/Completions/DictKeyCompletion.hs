@@ -19,7 +19,7 @@ import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.Completions.Common (CompletionContext, CompletionProvider, makeBasicCompletionItem)
 import qualified Wasp.LSP.Completions.Common as Ctx
 import Wasp.LSP.Syntax (allP, anyP, hasLeft, parentIs)
-import Wasp.LSP.TypeHint (getTypeHint)
+import Wasp.LSP.TypeInference (inferTypeAtLocation)
 
 -- | If the location is at a place where a dictionary key is expected, find
 -- the list of keys that are allowed in the dictionary around the location and
@@ -41,7 +41,7 @@ getCompletions location =
     else do
       logM "[DictKeyCompletion] at dict key"
       src <- asks (^. Ctx.src)
-      case getTypeHint src location of
+      case inferTypeAtLocation src location of
         Nothing -> do
           logM "[DictKeyCompletion] no type hint, can not suggest keys"
           return []

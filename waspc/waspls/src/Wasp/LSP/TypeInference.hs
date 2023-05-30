@@ -1,12 +1,12 @@
-module Wasp.LSP.TypeHint
-  ( -- * Type hints for CSTs
-    getTypeHint,
+module Wasp.LSP.TypeInference
+  ( -- * Inferred types for CST locations
+    inferTypeAtLocation,
 
     -- * Lower level pieces
-    ExprPath (..),
-    getExprPath,
-    getPathType,
-    getExpectedType,
+    ExprPath,
+    ExprKey (..),
+    findExprPathAtLocation,
+    findTypeForPath,
   )
 where
 
@@ -23,21 +23,14 @@ import qualified Wasp.Analyzer.Type as Type
 import Wasp.Analyzer.TypeDefinitions (DeclType (dtBodyType), getDeclType)
 import Wasp.LSP.Syntax (lexemeAt)
 
--- | Get the type that is expected a location in the CST, or 'Nothing' if a
--- type could not be determined.
-getTypeHint :: String -> Traversal -> Maybe Type
-getTypeHint src location = case getExprPath src location of
-  Just path -> getPathType path
+-- | Infer the type at a location in the CST, or 'Nothing' if type could not be
+-- determined.
+inferTypeAtLocation :: String -> Traversal -> Maybe Type
+inferTypeAtLocation src location = case findExprPathAtLocation src location of
+  Just path -> findTypeForPath path
   _ -> Nothing
 
--- | Get the type in 'stdTypes' for the expression path. The path must start
--- with a 'Decl', otherwise 'Nothing' is returned. If the path does not exist in
--- 'stdTypes', 'Nothing' is returned.
-getPathType :: [ExprPath] -> Maybe Type
-getPathType (Decl declType : path) = getExpectedType declType path
-getPathType _ = Nothing
-
--- | A "path" that a location follows down a type.
+-- | A "path" through wasp expressions to a certain location.
 --
 -- === __Example__
 -- For the code
@@ -51,11 +44,18 @@ getPathType _ = Nothing
 -- @
 --
 -- The path to the cursor would be @[Decl "app", Key "auth", Key "usernameAndPassword"]@
-data ExprPath
-  = Decl !String
-  | Key !String
-  | List
-  | Tuple !Int
+type ExprPath = [ExprKey]
+
+-- | A single step of an 'ExprPath'.
+data ExprKey
+  = -- | @Decl declType@. Enter a declaration of type @declType@.
+    Decl !String
+  | -- | @Key key@. Enter a dictionary *and* it's key @key@.
+    Key !String
+  | -- | Enter a value inside a list.
+    List
+  | -- | @Tuple idx@. Enter the @idx@-th value inside of a tuple.
+    Tuple !Int
   deriving (Eq, Show)
 
 -- | Try to get an expression path for the given location, returning 'Nothing'
@@ -63,12 +63,12 @@ data ExprPath
 --
 -- This function only depends on the syntax to the left of the location, and
 -- tries to be as lenient as possible in finding paths.
-getExprPath :: String -> Traversal -> Maybe [ExprPath]
-getExprPath src location = reverse <$> go location
+findExprPathAtLocation :: String -> Traversal -> Maybe ExprPath
+findExprPathAtLocation src location = reverse <$> go location
   where
     -- Recursively travel up the syntax tree, accumlating a path in reverse
     -- order. Each recursion adds at most one new path component.
-    go :: Traversal -> Maybe [ExprPath]
+    go :: Traversal -> Maybe ExprPath
     go t = case T.up t of
       Nothing -> Just [] -- Top level of the syntax reached
       Just t' -> case T.kindAt t' of
@@ -98,21 +98,21 @@ getExprPath src location = reverse <$> go location
           (Tuple nExprsBefore :) <$> go t'
         _ -> go t' -- Found some other node, just ignore it and continue the tree
 
--- | @getExpectedType declType exprPathWithoutDecl@ searches 'stdTypeDefs' for
--- a type that coreesponds to the given path, starting at the declaration type
--- given by name.
+-- | Get the type in 'stdTypes' for the expression path. The path must start
+-- with a 'Decl', otherwise 'Nothing' is returned. If the path does not exist in
+-- 'stdTypes', 'Nothing' is returned.
 --
 -- === __Example__
--- >>> getExpectedType "app" [Key "auth", Key "methods", Key "usernameAndPassword"]
+-- >>> findTypeForPath [Dict "app", Key "auth", Key "methods", Key "usernameAndPassword"]
 -- Just (Type.DictType { fields = M.fromList [("configFn", Type.DictOptional { dictEntryType = Type.ExtImportType })] })
-getExpectedType :: String -> [ExprPath] -> Maybe Type
-getExpectedType declType originalPath = do
+findTypeForPath :: ExprPath -> Maybe Type
+findTypeForPath (Decl declType : originalPath) = do
   topType <- getDeclType declType stdTypes
   go (dtBodyType topType) originalPath
   where
     -- @go parentType path@ returns the result of following @path@ starting at
     -- @parentType@.
-    go :: Type -> [ExprPath] -> Maybe Type
+    go :: Type -> ExprPath -> Maybe Type
     go typ [] = Just typ
     go _ (Decl _ : _) = Nothing -- Can't follow a decl in the middle of a path
     go typ (Key key : path) =
@@ -133,3 +133,4 @@ getExpectedType declType originalPath = do
         n | n <= length cs + 2 -> go (cs !! (n - 2)) path
         _ -> Nothing -- Index is too large for the tuple type
       _ -> Nothing -- Not a tuple type, can't use Tuple here
+findTypeForPath _ = Nothing -- Doesn't start with a Decl

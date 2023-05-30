@@ -335,7 +335,7 @@ library waspls
     Wasp.LSP.Completions.ExprCompletion
     Wasp.LSP.SignatureHelp
     Wasp.LSP.Syntax
-    Wasp.LSP.TypeHint
+    Wasp.LSP.TypeInference
     Wasp.LSP.Util
   build-depends:
       base
