@@ -16,7 +16,6 @@ import qualified Data.HashMap.Strict as M
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
-import qualified Wasp.Analyzer.Parser.Token as Tok
 import Wasp.Analyzer.StdTypeDefinitions (stdTypes)
 import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
@@ -70,7 +69,7 @@ findExprPathAtLocation src location = reverse <$> go location
     -- order. Each recursion adds at most one new path component.
     go :: Traversal -> Maybe ExprPath
     go t = case T.up t of
-      Nothing -> Just [] -- Top level of the syntax reached
+      Nothing -> Just [] -- Top level of the syntax reached.
       Just t' -> case T.kindAt t' of
         S.Program -> Just []
         S.Decl -> do
@@ -80,23 +79,19 @@ findExprPathAtLocation src location = reverse <$> go location
           return [Decl typ]
         S.DictEntry -> case find ((== S.DictKey) . T.kindAt) $ T.leftSiblings t of
           Just keyLoc -> do
-            -- There is a key to the left, so @t@ is the value for that key
+            -- There is a key to the left, so @t@ is the value for that key.
             let key = lexemeAt src keyLoc
             t'' <- T.up t'
             guard $ T.kindAt t'' == S.Dict
             (Key key :) <$> go t''
           Nothing -> go t'
-        S.List -> (List :) <$> go t' -- Inside a list
+        S.List -> (List :) <$> go t' -- Inside a list.
         S.Tuple -> do
-          -- Inside a tuple, number of non-comma nodes to the left is the tuple
+          -- Inside a tuple, number of expression nodes to the left is the tuple
           -- index that @t@ is part of.
-          --
-          -- We look at non-comma nodes since there is no common @Expr@ node type.
-          -- We don't count commas directly because we want to be provide help
-          -- even when some commas are missing.
-          let nExprsBefore = length $ filter ((/= S.Token Tok.Comma) . T.kindAt) $ T.leftSiblings t
+          let nExprsBefore = length $ filter (S.syntaxKindIsExpr . T.kindAt) $ T.leftSiblings t
           (Tuple nExprsBefore :) <$> go t'
-        _ -> go t' -- Found some other node, just ignore it and continue the tree
+        _ -> go t' -- Found some other node, just ignore it and continue the tree.
 
 -- | Get the type in 'stdTypes' for the expression path. The path must start
 -- with a 'Decl', otherwise 'Nothing' is returned. If the path does not exist in
@@ -114,23 +109,23 @@ findTypeForPath (Decl declType : originalPath) = do
     -- @parentType@.
     go :: Type -> ExprPath -> Maybe Type
     go typ [] = Just typ
-    go _ (Decl _ : _) = Nothing -- Can't follow a decl in the middle of a path
+    go _ (Decl _ : _) = Nothing -- Can't follow a decl in the middle of a path.
     go typ (Key key : path) =
       case typ of
         Type.DictType fields -> do
-          -- Get the type of the field corresponding to the eky
+          -- Get the type of the field corresponding to the key.
           typ' <- Type.dictEntryType <$> fields M.!? key
           go typ' path
-        _ -> Nothing -- Not a dict type, can't use Key here
+        _ -> Nothing -- Not a dict type, can't use Key here.
     go typ (List : path) = case typ of
-      Type.ListType typ' -> go typ' path -- Use the inner type of the list
-      _ -> Nothing -- Not a list type, can't use List here
+      Type.ListType typ' -> go typ' path -- Use the inner type of the list.
+      _ -> Nothing -- Not a list type, can't use List here.
     go typ (Tuple idx : path) = case typ of
       Type.TupleType (a, b, cs) -> case idx of
-        -- Follow the current type (by index) of the tuple
+        -- Follow the current type (by index) of the tuple.
         0 -> go a path
         1 -> go b path
-        n | n <= length cs + 2 -> go (cs !! (n - 2)) path
-        _ -> Nothing -- Index is too large for the tuple type
-      _ -> Nothing -- Not a tuple type, can't use Tuple here
-findTypeForPath _ = Nothing -- Doesn't start with a Decl
+        n | n < length cs + 2 -> go (cs !! (n - 2)) path
+        _ -> Nothing -- Index is too large for the tuple type.
+      _ -> Nothing -- Not a tuple type, can't use Tuple here.
+findTypeForPath _ = Nothing -- Doesn't start with a Decl.

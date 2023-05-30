@@ -45,9 +45,9 @@ getCompletions location =
         Nothing -> do
           logM "[DictKeyCompletion] no type hint, can not suggest keys"
           return []
-        Just typ@(Type.DictType _) -> do
+        Just (Type.DictType fieldMap) -> do
           logM "[DictKeyCompletion] found dict type hint"
-          let fields = listFieldsOfType typ
+          let fields = listDictFields fieldMap
           return $
             map
               ( \(key, keyType) ->
@@ -79,6 +79,5 @@ isAtDictKeyPlace =
 
 -- | List the (key, valuetype) pairs for a type. Returns an empty list for
 -- everything except a 'Type.DictType'.
-listFieldsOfType :: Type -> [(String, Type)]
-listFieldsOfType (Type.DictType fields) = map (second Type.dictEntryType) $ M.toList fields
-listFieldsOfType _ = []
+listDictFields :: M.HashMap String Type.DictEntryType -> [(String, Type)]
+listDictFields fieldMap = map (second Type.dictEntryType) $ M.toList fieldMap
