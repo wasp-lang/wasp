@@ -9,4 +9,4 @@ import Wasp.Cli.Command.Call (WaspLSArgs (..))
 import qualified Wasp.LSP.Server as LS
 
 runWaspLS :: WaspLSArgs -> Command ()
-runWaspLS WaspLSArgs {wlsLogFile = logFile, wlsUseStudio = _} = liftIO $ LS.serve logFile
+runWaspLS WaspLSArgs {wlsLogFile = logFile} = liftIO $ LS.serve logFile
