@@ -1,9 +1,7 @@
-module Wasp.Cli.Command.Db.Parser (db) where
+module Wasp.Cli.Command.Db.Parser (dbParser) where
 
 import Options.Applicative
-  ( CommandFields,
-    Mod,
-    Parser,
+  ( Parser,
   )
 import qualified Options.Applicative as O
 import qualified Options.Applicative.Help as OH
@@ -18,25 +16,22 @@ import Wasp.Cli.Command.Call
       ),
     DbMigrateDevArgs (DbMigrateDevArgs),
   )
-import Wasp.Cli.Parser.Util (mkCommand, mkNormalCommand)
+import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfo)
 
-db :: Mod CommandFields CommandCall
-db = mkNormalCommand "db" "Executes a database command. Run 'wasp db --help' for more info." parseDb
-
-parseDb :: Parser CommandCall
-parseDb = Db <$> parseDbArgs
+dbParser :: Parser CommandCall
+dbParser = Db <$> dbArgsParser
   where
-    parseDbArgs =
+    dbArgsParser =
       O.subparser $
         mconcat
-          [ mkNormalCommand "start" "Alias for `wasp start db`." $ pure DbStart,
-            mkNormalCommand "reset" "Drops all data and tables from development database and re-applies all migrations." $ pure DbReset,
-            mkNormalCommand
+          [ mkCommand "start" "Alias for `wasp start db`." $ pure DbStart,
+            mkCommand "reset" "Drops all data and tables from development database and re-applies all migrations." $ pure DbReset,
+            mkCommand
               "seed"
               "Executes a db seed function (specified via app.db.seeds). If there are multiple seeds, you can specify a seed to execute by providing its name, or if not then you will be asked to provide the name interactively."
-              parseDbSeedArg,
-            mkCommand "migrate-dev" [migrateDevDescription] parseDbMigrateDevArgs,
-            mkNormalCommand "studio" "GUI for inspecting your database." $ pure DbStudio
+              dbSeedArgParser,
+            mkCommandWithInfo "migrate-dev" [migrateDevDescription] dbMigrateDevArgsParser,
+            mkCommand "studio" "GUI for inspecting your database." $ pure DbStudio
           ]
       where
         migrateDevDescription = O.progDescDoc $ Just description
@@ -50,14 +45,14 @@ parseDb = Db <$> parseDbArgs
                         "    supplied migration name or asking for one."
                       ]
 
-parseDbSeedArg :: Parser DbArgs
-parseDbSeedArg = DbSeed <$> parser
+dbSeedArgParser :: Parser DbArgs
+dbSeedArgParser = DbSeed <$> argParser
   where
-    parser = O.optional $ O.strArgument $ O.metavar "name" <> O.help "Seed name."
+    argParser = O.optional $ O.strArgument $ O.metavar "name" <> O.help "Seed name."
 
-parseDbMigrateDevArgs :: Parser DbArgs
-parseDbMigrateDevArgs = DbMigrateDev <$> parser
+dbMigrateDevArgsParser :: Parser DbArgs
+dbMigrateDevArgsParser = DbMigrateDev <$> argsParser
   where
-    parser = DbMigrateDevArgs <$> nameArgParser <*> createOnlyParser
+    argsParser = DbMigrateDevArgs <$> nameArgParser <*> createOnlyParser
     nameArgParser = O.optional <$> O.strOption $ O.long "name" <> O.metavar "migration-name"
     createOnlyParser = O.switch $ O.long "create-only"

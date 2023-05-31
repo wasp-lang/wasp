@@ -27,7 +27,7 @@ import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Parser (parseCliArgs)
+import Wasp.Cli.Parser (cliArgsParser)
 import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Message as Message
 import Wasp.Util (indent)
@@ -35,7 +35,7 @@ import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
-  commandCall <- parseCliArgs
+  commandCall <- cliArgsParser
   telemetryThread <- Async.async $ runCommand $ considerSendingData commandCall
   -- Before calling any command, check that the node requirement is met. Node is
   -- not needed for every command, but checking for every command was decided

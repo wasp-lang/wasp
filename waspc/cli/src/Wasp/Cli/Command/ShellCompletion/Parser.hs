@@ -1,32 +1,29 @@
-module Wasp.Cli.Command.ShellCompletion.Parser (completion) where
+module Wasp.Cli.Command.ShellCompletion.Parser (completionParser) where
 
 import Data.Maybe (fromMaybe)
-import Options.Applicative (CommandFields, Mod, Parser)
+import Options.Applicative (Parser)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call
   ( CommandCall (Completion),
     CompletionArgs (..),
     Shell (Bash, Fish, Zsh),
   )
-import Wasp.Cli.Parser.Util (mkNormalCommand)
+import Wasp.Cli.Parser.Util (mkCommand)
 
-completion :: Mod CommandFields CommandCall
-completion = mkNormalCommand "completion" "Print shell completion code." parseCompletion
+completionParser :: Parser CommandCall
+completionParser = Completion . fromMaybe PrintInstruction <$> printScriptParser
 
-parseCompletion :: Parser CommandCall
-parseCompletion = Completion . fromMaybe PrintInstruction <$> parseShell
-
-parseShell :: Parser (Maybe CompletionArgs)
-parseShell =
+printScriptParser :: Parser (Maybe CompletionArgs)
+printScriptParser =
   O.optional $
     PrintScript
       <$> O.subparser
-        (mkNormalCommand "generate" "Generate shell completion script code of choice." parser)
+        (mkCommand "generate" "Generate shell completion script code of choice." shellParser)
   where
-    parser =
+    shellParser =
       O.subparser $
         mconcat
-          [ mkNormalCommand "bash" "bash completion script." $ pure Bash,
-            mkNormalCommand "zsh" "zsh completion script." $ pure Zsh,
-            mkNormalCommand "fish" "fish completion script." $ pure Fish
+          [ mkCommand "bash" "bash completion script." $ pure Bash,
+            mkCommand "zsh" "zsh completion script." $ pure Zsh,
+            mkCommand "fish" "fish completion script." $ pure Fish
           ]

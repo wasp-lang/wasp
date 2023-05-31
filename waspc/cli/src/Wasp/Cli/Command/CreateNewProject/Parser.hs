@@ -1,36 +1,26 @@
-module Wasp.Cli.Command.CreateNewProject.Parser (new) where
+module Wasp.Cli.Command.CreateNewProject.Parser (newParser) where
 
 import Options.Applicative
-  ( CommandFields,
-    Mod,
-    Parser,
+  ( Parser,
   )
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call (CommandCall (New), NewProjectArgs (NewProjectArgs))
-import Wasp.Cli.Parser.Util (mkNormalCommand)
 
-new :: Mod CommandFields CommandCall
-new =
-  mkNormalCommand
-    "new"
-    "Creates a new Wasp project. Run it without arguments for interactive mode."
-    parseNew
-
-parseNew :: Parser CommandCall
-parseNew = New <$> parseNewArgs
+newParser :: Parser CommandCall
+newParser = New <$> newArgsParser
   where
-    parseNewArgs =
+    newArgsParser =
       NewProjectArgs
-        <$> O.optional parseProjectName
-        <*> O.optional parseTemplateName
+        <$> O.optional projectNameParser
+        <*> O.optional templateNameParser
 
-parseTemplateName :: Parser String
-parseTemplateName =
+templateNameParser :: Parser String
+templateNameParser =
   O.strOption $
     O.long "template"
       <> O.short 't'
       <> O.metavar "TEMPLATE_NAME"
       <> O.help "Template to use for the new project"
 
-parseProjectName :: Parser String
-parseProjectName = O.strArgument $ O.metavar "PROJECT_NAME"
+projectNameParser :: Parser String
+projectNameParser = O.strArgument $ O.metavar "PROJECT_NAME"
