@@ -22,7 +22,6 @@ export function setAuthToken(token: string): void {
 }
 
 export function getAuthToken(): string | undefined {
-  authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
   return authToken
 }
 
@@ -57,8 +56,10 @@ api.interceptors.response.use(undefined, (error) => {
 window.addEventListener('storage', (event) => {
   if (event.key === storage.prefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
     if (!!event.newValue) {
+      authToken = event.newValue
       events.emit('authToken.set')
     } else {
+      authToken = undefined
       events.emit('authToken.clear')
     }
   }
