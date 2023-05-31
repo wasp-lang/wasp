@@ -58,7 +58,7 @@ export function useSocket<
   }, [])
 
   function registerHandler<Event extends keyof ServerToClientEvents>
-    (event: Event, cb: ServerToClientEvents[Event]) {
+    (event: Extract<Event, string>, cb: ServerToClientEvents[Event]) {
     useEffect(() => {
       socket.on(event, cb)
       return () => {
