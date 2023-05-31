@@ -1,10 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Control.Monad.Log.Pure
+module Control.Monad.Log
   ( LogT,
     Log,
     runLogT,
     runLog,
+    MonadLog (logM),
   )
 where
 
@@ -18,6 +19,7 @@ type Log = LogT Identity
 runLog :: Log a -> (a, [String])
 runLog m = runIdentity $ runLogT m
 
+-- | Pure 'MonadLog' monad transformer.
 newtype LogT m a = LogT (WriterT [String] m a)
   deriving (Functor, Applicative, Monad, MonadTrans)
 

@@ -321,8 +321,8 @@ library waspls
   import: common-all
   hs-source-dirs: waspls/src
   exposed-modules:
+    Control.Monad.Log
     Control.Monad.Log.Class
-    Control.Monad.Log.Pure
     Wasp.LSP.Server
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig

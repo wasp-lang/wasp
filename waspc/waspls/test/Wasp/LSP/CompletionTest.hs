@@ -1,7 +1,7 @@
 module Wasp.LSP.CompletionTest where
 
 import Control.Lens ((^.))
-import Control.Monad.Log.Pure (runLog)
+import Control.Monad.Log (runLog)
 import Control.Monad.State.Strict (evalStateT)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
