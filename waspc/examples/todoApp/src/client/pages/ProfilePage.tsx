@@ -15,7 +15,7 @@ export const ProfilePage = ({
 }: {
   user: User
 }) => {
-  const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([]);
+  const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([])
   const { socket, isConnected, registerHandler } = useSocket<ServerToClientEvents, ClientToServerEvents>()
   const inputRef = useRef<HTMLInputElement>(null)
 

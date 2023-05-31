@@ -5,7 +5,7 @@ import { Server, Socket } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import config from './config.js'
-import { WaspSocketData } from './universal/types.js'
+import { WaspSocketData } from './universal/webSocket/types.js'
 import prisma from './dbClient.js'
 
 {=# isAuthEnabled =}
