@@ -22,7 +22,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Dependency as AS.Dependency
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
   )
@@ -53,7 +53,8 @@ genWebSocketTs spec =
       (C.asServerFile [relfile|src/webSocket.ts|])
       ( Just $
           object
-            [ "webSocket" .= mkWebSocketData maybeWebSocket,
+            [ "isAuthEnabled" .= isAuthEnabled spec,
+              "webSocket" .= mkWebSocketData maybeWebSocket,
               "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
             ]
       )

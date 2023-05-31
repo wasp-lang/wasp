@@ -4,10 +4,13 @@ import http from 'http'
 import { Server, Socket } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
-import { getUserFromToken } from './core/auth.js'
 import config from './config.js'
 import { WaspSocketData } from './universal/types.js'
 import prisma from './dbClient.js'
+
+{=# isAuthEnabled =}
+import { getUserFromToken } from './core/auth.js'
+{=/ isAuthEnabled =}
 
 {=& webSocket.fn.importStatement =}
 
@@ -39,7 +42,9 @@ export async function init(server: http.Server): Promise<void> {
     }
   })
 
+  {=# isAuthEnabled =}
   io.use(addUserToSocketDataIfAuthenticated)
+  {=/ isAuthEnabled =}
 
   const context = {
       entities: {
@@ -52,6 +57,7 @@ export async function init(server: http.Server): Promise<void> {
   await {= webSocket.fn.importIdentifier =}(io, context)
 }
 
+{=# isAuthEnabled =}
 async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {
   const token = socket.handshake.auth.token
   if (token) {
@@ -61,3 +67,4 @@ async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: E
   }
   next()
 }
+{=/ isAuthEnabled =}
