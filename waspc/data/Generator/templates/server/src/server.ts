@@ -14,9 +14,9 @@ import { startPgBoss } from './jobs/core/pgBoss/pgBoss.js'
 import './jobs/core/allJobs.js'
 {=/ isPgBossJobExecutorUsed =}
 
-{=# webSocket.fn.isDefined =}
+{=# userWebSocketFn.isDefined =}
 import { init as initWebSocket } from './webSocket.js'
-{=/ webSocket.fn.isDefined =}
+{=/ userWebSocketFn.isDefined =}
 
 const startServer = async () => {
   {=# isPgBossJobExecutorUsed =}
@@ -33,9 +33,9 @@ const startServer = async () => {
   await ({= setupFn.importIdentifier =} as ServerSetupFn)(serverSetupFnContext)
   {=/ setupFn.isDefined =}
 
-  {=# webSocket.fn.isDefined =}
+  {=# userWebSocketFn.isDefined =}
   await initWebSocket(server)
-  {=/ webSocket.fn.isDefined =}
+  {=/ userWebSocketFn.isDefined =}
 
   server.listen(port)
 

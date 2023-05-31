@@ -39,16 +39,6 @@ export function useSocket<
 } {
   const [isConnected, setIsConnected] = useState(socket.connected)
 
-  function registerHandler<Event extends keyof ServerToClientEvents>
-    (event: Event, cb: ServerToClientEvents[Event]) {
-    useEffect(() => {
-      socket.on(event, cb)
-      return () => {
-        socket.off(event, cb)
-      }
-    }, [])
-  }  
-
   useEffect(() => {
     function onConnect() {
       setIsConnected(true)
@@ -66,6 +56,16 @@ export function useSocket<
       socket.off('disconnect', onDisconnect)
     }
   }, [])
+
+  function registerHandler<Event extends keyof ServerToClientEvents>
+    (event: Event, cb: ServerToClientEvents[Event]) {
+    useEffect(() => {
+      socket.on(event, cb)
+      return () => {
+        socket.off(event, cb)
+      }
+    }, [])
+  }  
 
   return { socket, isConnected, registerHandler }
 }

@@ -12,7 +12,7 @@ import prisma from './dbClient.js'
 import { getUserFromToken } from './core/auth.js'
 {=/ isAuthEnabled =}
 
-{=& webSocket.fn.importStatement =}
+{=& userWebSocketFn.importStatement =}
 
 export type WebSocketDefinition<
   ClientToServerEvents extends EventsMap = DefaultEventsMap,
@@ -29,7 +29,7 @@ export type WebSocketDefinition<
     }
   ) => Promise<void> | void
 
-type ServerType = Parameters<typeof {= webSocket.fn.importIdentifier =}> [0]
+type ServerType = Parameters<typeof {= userWebSocketFn.importIdentifier =}> [0]
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
 export async function init(server: http.Server): Promise<void> {
@@ -54,7 +54,7 @@ export async function init(server: http.Server): Promise<void> {
     }
   }
 
-  await {= webSocket.fn.importIdentifier =}(io, context)
+  await {= userWebSocketFn.importIdentifier =}(io, context)
 }
 
 {=# isAuthEnabled =}

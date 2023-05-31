@@ -2,7 +2,7 @@ module Wasp.Generator.ServerGenerator.WebSocketG
   ( depsRequiredByWebSockets,
     genWebSockets,
     genWebSocketTs,
-    mkWebSocketData,
+    mkWebSocketFnImport,
   )
 where
 
@@ -54,19 +54,17 @@ genWebSocketTs spec =
       ( Just $
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
-              "webSocket" .= mkWebSocketData maybeWebSocket,
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket,
               "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
             ]
       )
   where
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
-mkWebSocketData :: Maybe WebSocket -> Aeson.Value
-mkWebSocketData maybeWebSocket =
+mkWebSocketFnImport :: Maybe WebSocket -> Aeson.Value
+mkWebSocketFnImport maybeWebSocket =
   let maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
-   in object
-        [ "fn" .= extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
-        ]
+   in extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
   where
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]

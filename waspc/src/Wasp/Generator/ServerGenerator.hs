@@ -64,7 +64,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobEx
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketData)
+import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -251,7 +251,7 @@ genServerJs spec =
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
-              "webSocket" .= mkWebSocketData maybeWebSocket
+              "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket
             ]
       )
   where
