@@ -16,18 +16,14 @@ export const ProfilePage = ({
   user: User
 }) => {
   const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([]);
-  const { socket, isConnected } = useSocket<ServerToClientEvents, ClientToServerEvents>()
+  const { socket, isConnected, registerHandler } = useSocket<ServerToClientEvents, ClientToServerEvents>()
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchCustomRoute()
-
-    socket.on('chatMessage', logMessage)
-
-    return () => {
-      socket.off('chatMessage', logMessage)
-    }
   }, [])
+
+  registerHandler('chatMessage', logMessage)
 
   function logMessage(msg: { id: string, username: string, text: string }) {
     setMessages((priorMessages) => [msg, ...priorMessages])

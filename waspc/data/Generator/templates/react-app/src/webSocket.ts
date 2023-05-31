@@ -34,10 +34,20 @@ export function useSocket<
   ClientToServerEvents extends EventsMap = DefaultEventsMap
 >(): {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-  isConnected: boolean
+  isConnected: boolean;
+  registerHandler: typeof registerHandler;
 } {
-
   const [isConnected, setIsConnected] = useState(socket.connected)
+
+  function registerHandler<Event extends keyof ServerToClientEvents>
+    (event: Event, cb: ServerToClientEvents[Event]) {
+    useEffect(() => {
+      socket.on(event, cb)
+      return () => {
+        socket.off(event, cb)
+      }
+    }, [])
+  }  
 
   useEffect(() => {
     function onConnect() {
@@ -57,5 +67,5 @@ export function useSocket<
     }
   }, [])
 
-  return { socket, isConnected }
+  return { socket, isConnected, registerHandler }
 }
