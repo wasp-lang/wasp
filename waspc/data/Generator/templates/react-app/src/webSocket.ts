@@ -11,7 +11,7 @@ import config from './config'
 // options to `io`, likely via some `configFn`.
 export const socket = io(config.apiUrl, { autoConnect: {= autoConnect =} })
 
-function refreshAuthToken() {
+function refreshAuthToken() {  
   // NOTE: In the future, we should consider making this explicit in the Wasp file when
   // we make the change for how auth works in Operations.
   // For now, it is fine, and can be ignored on the server if not needed.
