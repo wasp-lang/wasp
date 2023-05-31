@@ -1,6 +1,10 @@
 import axios, { type AxiosError } from 'axios'
+import EventEmitter from 'events'
+
 import config from './config'
 import { storage } from './storage'
+
+export const events = new EventEmitter()
 
 const api = axios.create({
   baseURL: config.apiUrl,
@@ -13,6 +17,7 @@ let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 export function setAuthToken(token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
+  events.emit('authToken.set', token)
 }
 
 export function getAuthToken(): string | undefined {
@@ -22,6 +27,7 @@ export function getAuthToken(): string | undefined {
 export function clearAuthToken(): void {
   authToken = undefined
   storage.remove(WASP_APP_AUTH_TOKEN_NAME)
+  events.emit('authToken.clear')
 }
 
 export function removeLocalUserData(): void {

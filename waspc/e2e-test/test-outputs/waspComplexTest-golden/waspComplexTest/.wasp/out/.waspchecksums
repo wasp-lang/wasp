@@ -473,7 +473,7 @@
             "file",
             "server/src/universal/types.ts"
         ],
-        "e592b9d65d6a68ef6c155d03c469ef77c557de53de035011106c775696e814f1"
+        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
     ],
     [
         [
@@ -481,6 +481,13 @@
             "server/src/universal/url.ts"
         ],
         "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+    ],
+    [
+        [
+            "file",
+            "server/src/universal/webSocket/types.ts"
+        ],
+        "4e9122afecc45f65d1885096d0d3bf90694c77301361a07189386673d2cca64d"
     ],
     [
         [
@@ -606,7 +613,7 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "5924a337fcf0073477976aff0a0df7951a46b20d690664fc48e1b986d023085c"
+        "3cf11856c53509a75833410a0e484e7e188505260c9729bb66b4a95f822a392a"
     ],
     [
         [
@@ -907,7 +914,7 @@
             "file",
             "web-app/src/universal/types.ts"
         ],
-        "e592b9d65d6a68ef6c155d03c469ef77c557de53de035011106c775696e814f1"
+        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
     ],
     [
         [

@@ -71,6 +71,7 @@ waspComplexTest/.wasp/out/server/src/server.ts
 waspComplexTest/.wasp/out/server/src/types/index.ts
 waspComplexTest/.wasp/out/server/src/universal/types.ts
 waspComplexTest/.wasp/out/server/src/universal/url.ts
+waspComplexTest/.wasp/out/server/src/universal/webSocket/types.ts
 waspComplexTest/.wasp/out/server/src/utils.js
 waspComplexTest/.wasp/out/server/tsconfig.json
 waspComplexTest/.wasp/out/web-app/.env

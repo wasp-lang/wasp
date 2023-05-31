@@ -34,6 +34,7 @@ waspBuild/.wasp/build/server/src/server.ts
 waspBuild/.wasp/build/server/src/types/index.ts
 waspBuild/.wasp/build/server/src/universal/types.ts
 waspBuild/.wasp/build/server/src/universal/url.ts
+waspBuild/.wasp/build/server/src/universal/webSocket/types.ts
 waspBuild/.wasp/build/server/src/utils.js
 waspBuild/.wasp/build/server/tsconfig.json
 waspBuild/.wasp/build/web-app/.npmrc
