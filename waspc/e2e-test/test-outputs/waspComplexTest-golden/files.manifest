@@ -133,6 +133,7 @@ waspComplexTest/.wasp/out/web-app/src/test/vitest/setup.ts
 waspComplexTest/.wasp/out/web-app/src/types.ts
 waspComplexTest/.wasp/out/web-app/src/universal/types.ts
 waspComplexTest/.wasp/out/web-app/src/universal/url.ts
+waspComplexTest/.wasp/out/web-app/src/universal/webSocket/types.ts
 waspComplexTest/.wasp/out/web-app/src/utils.js
 waspComplexTest/.wasp/out/web-app/src/vite-env.d.ts
 waspComplexTest/.wasp/out/web-app/tsconfig.json

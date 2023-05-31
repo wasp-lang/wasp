@@ -361,7 +361,7 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "3cf11856c53509a75833410a0e484e7e188505260c9729bb66b4a95f822a392a"
+        "d48c407e6374b19e00da97717fd3d872d594fbd099ef862d8be35791bb84d0c9"
     ],
     [
         [
@@ -487,7 +487,7 @@
             "file",
             "web-app/src/storage.ts"
         ],
-        "1e35eb73e486c8f926337a8c8ddfc392639de3718bf28fdc3073b0ca97c864f7"
+        "6b6f83e23f2a82693d1d2189eb99d06c73d4ac7e9beec339bcd185b92bac5c3e"
     ],
     [
         [
@@ -530,6 +530,13 @@
             "web-app/src/universal/url.ts"
         ],
         "8dc6e044a1a231b796465d94985ca47c5efd42a5d411b407a7d83a61ebae4b6d"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/universal/webSocket/types.ts"
+        ],
+        "4e9122afecc45f65d1885096d0d3bf90694c77301361a07189386673d2cca64d"
     ],
     [
         [

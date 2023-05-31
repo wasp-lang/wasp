@@ -76,6 +76,7 @@ waspCompile/.wasp/out/web-app/src/test/vitest/setup.ts
 waspCompile/.wasp/out/web-app/src/types.ts
 waspCompile/.wasp/out/web-app/src/universal/types.ts
 waspCompile/.wasp/out/web-app/src/universal/url.ts
+waspCompile/.wasp/out/web-app/src/universal/webSocket/types.ts
 waspCompile/.wasp/out/web-app/src/utils.js
 waspCompile/.wasp/out/web-app/src/vite-env.d.ts
 waspCompile/.wasp/out/web-app/tsconfig.json

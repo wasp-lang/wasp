@@ -81,6 +81,7 @@ waspMigrate/.wasp/out/web-app/src/test/vitest/setup.ts
 waspMigrate/.wasp/out/web-app/src/types.ts
 waspMigrate/.wasp/out/web-app/src/universal/types.ts
 waspMigrate/.wasp/out/web-app/src/universal/url.ts
+waspMigrate/.wasp/out/web-app/src/universal/webSocket/types.ts
 waspMigrate/.wasp/out/web-app/src/utils.js
 waspMigrate/.wasp/out/web-app/src/vite-env.d.ts
 waspMigrate/.wasp/out/web-app/tsconfig.json
