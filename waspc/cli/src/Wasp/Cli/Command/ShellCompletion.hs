@@ -5,7 +5,7 @@ where
 
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative.BashCompletion as OC
-import System.Environment (getProgName)
+import System.Environment (getExecutablePath, getProgName)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call
   ( CompletionArgs (..),
@@ -14,17 +14,26 @@ import Wasp.Cli.Command.Call
 
 completion :: CompletionArgs -> Command ()
 completion PrintInstruction = printShellCompletionInstruction
-completion (PrintScript shell) = printShellCompletionScript shell
+completion (PrintScript shell) = liftIO $ printShellCompletionScript shell
 
-type ShellCompletionScript = (String -> String -> String)
+type ProgAbsPath = FilePath
 
-printShellCompletionScript :: Shell -> Command ()
+type ProgName = String
+
+type ShellCompletionScriptBuilder = (ProgAbsPath -> ProgName -> String)
+
+printShellCompletionScript :: Shell -> IO ()
 printShellCompletionScript shell = liftIO $ do
+  -- `getExecutablePath` has some caveats:
+  --   https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html
+  -- Once we upgrade to GHC 9.4 we should change to `executablePath`, but this should be ok for
+  -- our purposes.
+  runningProgAbsPath <- getExecutablePath
   runningProgName <- getProgName
-  putStr $ completionScript runningProgName runningProgName
+  putStr $ completionScriptBuilder runningProgAbsPath runningProgName
   where
-    completionScript :: ShellCompletionScript
-    completionScript = case shell of
+    completionScriptBuilder :: ShellCompletionScriptBuilder
+    completionScriptBuilder = case shell of
       Bash -> OC.bashCompletionScript
       Zsh -> OC.zshCompletionScript
       Fish -> OC.fishCompletionScript
