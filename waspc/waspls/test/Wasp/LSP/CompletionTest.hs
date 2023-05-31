@@ -24,12 +24,13 @@ import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource,
 --
 -- = Format
 --
--- A normal wasp file, but with two addition
+-- A normal wasp file, but with two additions:
 -- 1) Begins with "//! test/completion" (this is future-proofing in case we
 --    add editor support for these test files).
 -- 2) In one spot in the file, add a "completion marker", which is a "|" with
--- a "^" at the same column on the line below. The line containing "^" should be
--- blank except for whitespace before the "^" and the "^" itself.
+--    a "^" at the same column on the line below. The line containing "^" should
+--    be blank except for whitespace before the "^" and the "^" itself. The line
+--    containing "^" is referred to as the "carrot line".
 --
 -- The "|", "^", and the extra line are not part of the wasp source code and
 -- are not included in the returned code. The preamble comment is included in
@@ -51,7 +52,7 @@ import Wasp.LSP.ServerState (ServerState (ServerState, _cst, _currentWaspSource,
 -- This test checks completions after the 2 spaces on the 2nd line.
 newtype CompletionTestInput = CompletionTestInput String
 
--- | Run test cases in ./completionTests directory
+-- | Run test cases in ./completionTests directory.
 --
 -- See 'CompletionTestInput' for the format of the test input (stored in the
 -- .wasp files).
@@ -71,16 +72,16 @@ test_CompletionLists = do
 -- The given filepath should be to a completion test input file (ending in .wasp)
 -- inside the completionTests folder.
 makeGoldenCompletionTest :: FilePath -> TestTree
-makeGoldenCompletionTest inputFp =
-  let goldenFile = replaceExtension inputFp ".golden"
-      testCaseName = takeBaseName inputFp
+makeGoldenCompletionTest testInputFile =
+  let goldenFile = replaceExtension testInputFile ".golden"
+      testCaseName = takeBaseName testInputFile
       diffCmd = \ref new -> ["diff", "-u", ref, new]
    in goldenVsStringDiff
         testCaseName
         diffCmd
         goldenFile
         ( do
-            source <- BSC.unpack <$> BS.readFile inputFp
+            source <- BSC.unpack <$> BS.readFile testInputFile
             return $ BSC.pack $ runCompletionTest $ CompletionTestInput source
         )
 
@@ -116,37 +117,58 @@ runCompletionTest testInput =
 -- See 'CompletionTestInput' for the format of the test input.
 parseCompletionInput :: CompletionTestInput -> (String, LSP.Position)
 parseCompletionInput (CompletionTestInput testInput) =
-  withPreambleAssert "//! test/completion" testInput (unlines code, position)
+  withPrefixAssert "//! test/completion" testInput (waspSourceCode, cursorPosition)
   where
-    -- Drops the marked line AND the following line (which is blank except for the ^)
-    code = before markedLineIdx (lines testInput) ++ [markedLine] ++ after (markedLineIdx + 1) (lines testInput)
-    position = LSP.Position (fromIntegral markedLineIdx) (fromIntegral markedColIdx)
+    -- 1. Get the list of consecutive lines in @testInput@, with the line number
+    -- of the first line.
+    linePairs = zip3 (lines testInput) (drop 1 $ lines testInput) [0 ..]
 
-    markedLine = before markedColIdx rawMarkedLine ++ after markedColIdx rawMarkedLine
-    (rawMarkedLine, markedColIdx, markedLineIdx) =
-      case find isMarkedLine candidateLines of
+    -- 2. Get list of (String, column, line) triples representing each line
+    -- that is followed by a "carrot line" with the carrot at the specified
+    -- column.
+    --
+    -- See 'CompletionTestInput' for a description of a "carrot line".
+    candidateLines = mapMaybe (makeCandidateLine 0) linePairs
+
+    -- 3. Find the first candidate line with a "|" at the correct column,
+    -- indicating that this is where the cursor is located in the input.
+    (lineWithCursor, cursorColumn, cursorLine) =
+      case find isLineWithCursor candidateLines of
         Nothing -> error "readCompletionTest: no marked line"
         Just x -> x
 
-    -- (String, column, line) triples, where String is a line such that the
-    -- following line is spaces followed by a ^ and nothing else
-    candidateLines = mapMaybe (toCandidateLine 0) linePairs
-    -- Pairs of consecutive lines in the testInput
-    linePairs = zip3 (lines testInput) (drop 1 $ lines testInput) [0 ..]
+    -- 4. Remove the "|" from the line that contained the cursor.
+    lineWithCursorCleanedUp = before cursorColumn lineWithCursor ++ after cursorColumn lineWithCursor
 
-    -- Check if the candidate line contains a '|' at the specified column
-    isMarkedLine :: (String, Int, Int) -> Bool
-    isMarkedLine (str, col, _ln) = (length str >= col) && ((str !! col) == '|')
+    -- 5. Write the wasp source code represented by the test input by removing
+    -- the "|" from the line with the cursor and removing the entire "carrot
+    -- line."
+    waspSourceCode =
+      unlines $
+        concat
+          [ before cursorLine (lines testInput),
+            [lineWithCursorCleanedUp],
+            -- cursorLine + 1 so the line with the ^ is also removed.
+            after (cursorLine + 1) (lines testInput)
+          ]
 
-    -- Convert a pair of lines into a candidate line (this checks if the second
-    -- line is spaces followed by a ^ and nothing else)
-    toCandidateLine :: Int -> (String, String, Int) -> Maybe (String, Int, Int)
-    toCandidateLine n (a, ['^'], ln) = Just (a, n, ln)
-    toCandidateLine n (a, ' ' : bs, ln) = toCandidateLine (n + 1) (a, bs, ln)
-    toCandidateLine _ _ = Nothing
+    cursorPosition = LSP.Position (fromIntegral cursorLine) (fromIntegral cursorColumn)
 
-    withPreambleAssert :: String -> String -> a -> a
-    withPreambleAssert preamble str x
+    -- Check if the (String, column, line) contains a '|' at the specified column.
+    isLineWithCursor :: (String, Int, Int) -> Bool
+    isLineWithCursor (str, column, _line) = (length str >= column) && ((str !! column) == '|')
+
+    -- @makeCandidate line (firstLine, secondLine)@ checks that the second line
+    -- is a "carrot line" and returns a triple  @(firstLine, column, line)@,
+    -- where @column@ is the column that the carrot is at on the second line.
+    makeCandidateLine :: Int -> (String, String, Int) -> Maybe (String, Int, Int)
+    makeCandidateLine n (a, ['^'], ln) = Just (a, n, ln)
+    makeCandidateLine n (a, ' ' : bs, ln) = makeCandidateLine (n + 1) (a, bs, ln)
+    makeCandidateLine _ _ = Nothing
+
+    -- Check that the string begins with a prefix, throwing an error if not.
+    withPrefixAssert :: String -> String -> a -> a
+    withPrefixAssert preamble str x
       | (preamble ++ "\n") `isPrefixOf` str = x
       | otherwise = error $ "test expected to begin with preamble: " ++ preamble
 
