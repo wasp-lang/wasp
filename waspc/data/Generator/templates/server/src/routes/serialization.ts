@@ -25,4 +25,3 @@ export function withSuperJsonSerialization (crudFn) {
         res.json(serializedResult)
     })
 }
-  
