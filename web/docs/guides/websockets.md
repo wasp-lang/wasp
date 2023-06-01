@@ -7,10 +7,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server. We handle making sure your URLs are correctly setup, CORS is enabled, and provide a useful `useSocket` abstraction for use in React components.
 
 To get started, you need to:
-1. Define your WebSocket logic on the server
-1. Declare you are using WebSockets in your Wasp file, and connect it with your server logic
-1. Use WebSockets on the client, in React, via `useSocket`
-1. Optionally define the types for messages for use on the client and server
+1. Define your WebSocket logic on the server.
+2. Declare you are using WebSockets in your Wasp file, and connect it with your server logic.
+3. Use WebSockets on the client, in React, via `useSocket`.
+4. Optionally define the types for messages for use on the client and server.
 
 We will cover all the steps above, but in an order that makes it easier to explain new concepts.
 
