@@ -20,6 +20,7 @@ type ProgAbsPath = FilePath
 
 type ProgName = String
 
+-- ProgName is our CLI executable name, and ProgAbsPath is its absolute file path.
 type ShellCompletionScriptBuilder = (ProgAbsPath -> ProgName -> String)
 
 printShellCompletionScript :: Shell -> IO ()
