@@ -2,6 +2,7 @@ module Wasp.Cli.Parser (parserRunnerSettings, cliArgsParser) where
 
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, (<**>), (<|>))
 import qualified Options.Applicative as O
+import qualified Options.Applicative.Builder as OB
 import Options.Applicative.Help (text)
 import Wasp.Cli.Command.Call (CommandCall (..))
 import Wasp.Cli.Command.CreateNewProject.Parser (newParser)
@@ -72,7 +73,7 @@ inProjectCommandsParser =
         mkCommand "build" "Generates full web app code, ready for deployment. Use when deploying or ejecting." $ pure Build,
         mkCommandWithInfo
           "deploy"
-          [O.progDesc "Deploys your Wasp app to cloud hosting providers.", O.forwardOptions]
+          [O.progDesc "Deploys your Wasp app to cloud hosting providers.", OB.allPositional]
           deployParser,
         mkCommand "telemetry" "Prints telemetry status." $ pure Telemetry,
         mkCommand "deps" "Prints the dependencies that Wasp uses in your project." $ pure Deps,
