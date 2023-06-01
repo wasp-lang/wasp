@@ -2,12 +2,12 @@ module Wasp.LSP.CompletionTest where
 
 import Control.Lens ((^.))
 import Control.Monad.Log (runLog)
-import Control.Monad.State.Strict (evalStateT)
+import Control.Monad.State.Strict (evalStateT, guard)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
-import Data.Foldable (find)
-import Data.List (isPrefixOf)
-import Data.Maybe (mapMaybe)
+import Data.Char (isSpace)
+import Data.List (elemIndex, isPrefixOf)
+import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import System.FilePath (replaceExtension, takeBaseName)
@@ -76,14 +76,18 @@ makeGoldenCompletionTest testInputFile =
   let goldenFile = replaceExtension testInputFile ".golden"
       testCaseName = takeBaseName testInputFile
       diffCmd = \ref new -> ["diff", "-u", ref, new]
+      testOutput = BSC.pack . runCompletionTest <$> readTestInputFile testInputFile
    in goldenVsStringDiff
         testCaseName
         diffCmd
         goldenFile
-        ( do
-            source <- BSC.unpack <$> BS.readFile testInputFile
-            return $ BSC.pack $ runCompletionTest $ CompletionTestInput source
-        )
+        testOutput
+
+-- | @readTestInputFile testInputFile@ takes a path to a completion test input
+-- file (a .wasp file in the completionTests directory).
+readTestInputFile :: FilePath -> IO CompletionTestInput
+readTestInputFile testInputFile =
+  CompletionTestInput . BSC.unpack <$> BS.readFile testInputFile
 
 -- | Takes a completion test input and produces the list of completion items,
 -- represented as a string so it can be compared with the contents of and stored
@@ -116,64 +120,51 @@ runCompletionTest testInput =
 --
 -- See 'CompletionTestInput' for the format of the test input.
 parseCompletionInput :: CompletionTestInput -> (String, LSP.Position)
-parseCompletionInput (CompletionTestInput testInput) =
-  withPrefixAssert "//! test/completion" testInput (waspSourceCode, cursorPosition)
+parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
+  if not (hasCompletionTestPreamble waspSourceWithCursor)
+    then error missingCompletionTestPreambleMsg
+    else (waspSourceCode, cursorPosition)
   where
-    -- 1. Get the list of consecutive lines in @testInput@, with the line number
-    -- of the first line.
-    linePairs = zip3 (lines testInput) (drop 1 $ lines testInput) [0 ..]
-
-    -- 2. Get list of (String, column, line) triples representing each line
-    -- that is followed by a "carrot line" with the carrot at the specified
-    -- column.
-    --
-    -- See 'CompletionTestInput' for a description of a "carrot line".
-    candidateLines = mapMaybe (makeCandidateLine 0) linePairs
-
-    -- 3. Find the first candidate line with a "|" at the correct column,
-    -- indicating that this is where the cursor is located in the input.
-    (lineWithCursor, cursorColumn, cursorLine) =
-      case find isLineWithCursor candidateLines of
-        Nothing -> error "readCompletionTest: no marked line"
-        Just x -> x
-
-    -- 4. Remove the "|" from the line that contained the cursor.
-    lineWithCursorCleanedUp = before cursorColumn lineWithCursor ++ after cursorColumn lineWithCursor
-
-    -- 5. Write the wasp source code represented by the test input by removing
-    -- the "|" from the line with the cursor and removing the entire "carrot
-    -- line."
     waspSourceCode =
-      unlines $
-        concat
-          [ before cursorLine (lines testInput),
-            [lineWithCursorCleanedUp],
-            -- cursorLine + 1 so the line with the ^ is also removed.
-            after (cursorLine + 1) (lines testInput)
-          ]
+      unlines . concat $
+        [ linesBeforeCursor,
+          [cursorLineWithCursorRemoved],
+          linesAfterCursor
+        ]
+    cursorPosition = LSP.Position (fromIntegral cursorLineIdx) (fromIntegral cursorColumnIdx)
 
-    cursorPosition = LSP.Position (fromIntegral cursorLine) (fromIntegral cursorColumn)
+    linesBeforeCursor = take cursorLineIdx (lines waspSourceWithCursor)
+    -- NOTE: drop cursorLineIdx + 2 so that we skip the "   ^" line after the cursor.
+    linesAfterCursor = drop (cursorLineIdx + 2) (lines waspSourceWithCursor)
 
-    -- Check if the (String, column, line) contains a '|' at the specified column.
-    isLineWithCursor :: (String, Int, Int) -> Bool
-    isLineWithCursor (str, column, _line) = (length str >= column) && ((str !! column) == '|')
+    cursorLineWithCursorRemoved =
+      let cursorLine = lines waspSourceWithCursor !! cursorLineIdx
+       in take cursorColumnIdx cursorLine <> drop (cursorColumnIdx + 1) cursorLine
 
-    -- @makeCandidate line (firstLine, secondLine)@ checks that the second line
-    -- is a "carrot line" and returns a triple  @(firstLine, column, line)@,
-    -- where @column@ is the column that the carrot is at on the second line.
-    makeCandidateLine :: Int -> (String, String, Int) -> Maybe (String, Int, Int)
-    makeCandidateLine n (a, ['^'], ln) = Just (a, n, ln)
-    makeCandidateLine n (a, ' ' : bs, ln) = makeCandidateLine (n + 1) (a, bs, ln)
-    makeCandidateLine _ _ = Nothing
+    (cursorLineIdx, cursorColumnIdx) =
+      case listToMaybe $ mapMaybe cursorColumnIdxFromLinePair enumeratedLinePairs of
+        Nothing -> error "parseCompletionInput: found no cursor!"
+        Just v -> v
+    enumeratedLinePairs =
+      zip [0 ..] $ zip (lines waspSourceWithCursor) (drop 1 . lines $ waspSourceWithCursor)
 
-    -- Check that the string begins with a prefix, throwing an error if not.
-    withPrefixAssert :: String -> String -> a -> a
-    withPrefixAssert preamble str x
-      | (preamble ++ "\n") `isPrefixOf` str = x
-      | otherwise = error $ "test expected to begin with preamble: " ++ preamble
+    -- Given two consecutive lines from the test input, along with the line number
+    -- of the first line, look for a cursor in the line pair and find the index
+    -- of the column the cursor is at.
+    cursorColumnIdxFromLinePair :: (Int, (String, String)) -> Maybe (Int, Int)
+    cursorColumnIdxFromLinePair (lineIdx, (line1, line2)) = do
+      cursorColIdx <- elemIndex '|' line1
+      -- Check that the line ends after the column with the | from the previous line
+      guard $ length line2 == cursorColIdx + 1
+      -- Check that ^ is at the same column as | from the previous line
+      guard $ (line2 !! cursorColIdx) == '^'
+      -- Check that only spaces precede the ^
+      guard $ all isSpace $ take cursorColIdx line2
+      return (lineIdx, cursorColIdx)
 
-    before :: Int -> [a] -> [a]
-    before = take
+    hasCompletionTestPreamble :: String -> Bool
+    hasCompletionTestPreamble source = (completionTestPreamble <> "\n") `isPrefixOf` source
 
-    after :: Int -> [a] -> [a]
-    after idx = drop (idx + 1)
+    missingCompletionTestPreambleMsg = "parseCompletionInput: missing preamble: " <> completionTestPreamble
+
+    completionTestPreamble = "//! test/completion"
