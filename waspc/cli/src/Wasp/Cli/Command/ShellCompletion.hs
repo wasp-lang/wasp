@@ -9,8 +9,8 @@ import System.Environment (getExecutablePath, getProgName)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call
   ( CompletionArgs (..),
-    Shell (Bash, Fish, Zsh),
   )
+import Wasp.Cli.Command.ShellCompletion.Shell (Shell (..))
 
 completion :: CompletionArgs -> Command ()
 completion PrintInstruction = printShellCompletionInstruction
