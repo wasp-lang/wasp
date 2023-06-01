@@ -12,7 +12,7 @@ import Wasp.Cli.Command.Call (CommandCall (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
-import Wasp.Cli.Command.Db.Cli (dbCli)
+import Wasp.Cli.Command.Db.Cli (runDbCommand)
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
@@ -69,7 +69,7 @@ run = \case
   Build -> runCommand build
   -- This command is called by wasp new, internally.
   Compile -> runCommand compile
-  Db args -> dbCli args
+  Db args -> runDbCommand args
   Version -> printVersion
   Telemetry -> runCommand telemetry
   Deps -> runCommand deps

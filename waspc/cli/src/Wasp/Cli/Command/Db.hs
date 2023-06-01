@@ -1,5 +1,5 @@
 module Wasp.Cli.Command.Db
-  ( runDbCommand,
+  ( runAsDbCommand,
   )
 where
 
@@ -9,8 +9,8 @@ import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 
-runDbCommand :: Command a -> IO ()
-runDbCommand = runCommand . makeDbCommand
+runAsDbCommand :: Command a -> IO ()
+runAsDbCommand = runCommand . makeDbCommand
 
 -- | This function makes sure that all the prerequisites which db commands
 --   need are set up (e.g. makes sure Prisma CLI is installed).
