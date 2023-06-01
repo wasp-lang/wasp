@@ -44,7 +44,7 @@ generalCommandsParser :: Parser CommandCall
 generalCommandsParser =
   O.subparser $
     mconcat
-      [ O.commandGroup "GENERAL",
+      [ O.commandGroup "GENERAL" <> O.hidden,
         mkCommand
           "new"
           "Creates a new Wasp project. Run it without arguments for interactive mode."
