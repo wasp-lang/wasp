@@ -10,6 +10,10 @@ const api = axios.create({
 
 // Used to allow API clients to register for auth token change events.
 export const events = new EventEmitter()
+export const EventType = {
+  SET_AUTH_TOKEN: 'authToken.set',
+  CLEAR_AUTH_TOKEN: 'authToken.clear',
+}
 
 const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
@@ -18,7 +22,7 @@ let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 export function setAuthToken(token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
-  events.emit('authToken.set')
+  events.emit(EventType.SET_AUTH_TOKEN)
 }
 
 export function getAuthToken(): string | undefined {
@@ -28,13 +32,13 @@ export function getAuthToken(): string | undefined {
 export function clearAuthToken(): void {
   authToken = undefined
   storage.remove(WASP_APP_AUTH_TOKEN_NAME)
-  events.emit('authToken.clear')
+  events.emit(EventType.CLEAR_AUTH_TOKEN)
 }
 
 export function removeLocalUserData(): void {
   authToken = undefined
   storage.clear()
-  events.emit('authToken.clear')
+  events.emit(EventType.CLEAR_AUTH_TOKEN)
 }
 
 api.interceptors.request.use((request) => {
@@ -51,16 +55,16 @@ api.interceptors.response.use(undefined, (error) => {
   return Promise.reject(error)
 })
 
-// This handler will run on other tabs (not the active one), and will
-// ensure they know about auth token changes.
+// This handler will run on other tabs (not the active one calling API functions),
+// and will ensure they know about auth token changes.
 window.addEventListener('storage', (event) => {
   if (event.key === storage.prefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
     if (!!event.newValue) {
       authToken = event.newValue
-      events.emit('authToken.set')
+      events.emit(EventType.SET_AUTH_TOKEN)
     } else {
       authToken = undefined
-      events.emit('authToken.clear')
+      events.emit(EventType.CLEAR_AUTH_TOKEN)
     }
   }
 })

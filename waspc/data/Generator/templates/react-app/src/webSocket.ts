@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { DefaultEventsMap, EventsMap } from '@socket.io/component-emitter'
 
-import { getAuthToken, events as apiEvents } from './api'
+import { getAuthToken, events as apiEvents, EventType } from './api'
 import config from './config'
 
 // TODO: In the future, it would be nice if users could pass more
@@ -12,9 +12,8 @@ import config from './config'
 export const socket = io(config.apiUrl, { autoConnect: {= autoConnect =} })
 
 function refreshAuthToken() {  
-  // NOTE: In the future, we should consider making this explicit in the Wasp file when
-  // we make the change for how auth works in Operations.
-  // For now, it is fine, and can be ignored on the server if not needed.
+  // NOTE: When we figure out how `auth: true` works for Operations, we should
+  // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
     token: getAuthToken()
   }
@@ -26,8 +25,8 @@ function refreshAuthToken() {
 }
 
 refreshAuthToken()
-apiEvents.on('authToken.set', refreshAuthToken)
-apiEvents.on('authToken.clear', refreshAuthToken)
+apiEvents.on(EventType.SET_AUTH_TOKEN, refreshAuthToken)
+apiEvents.on(EventType.CLEAR_AUTH_TOKEN, refreshAuthToken)
 
 export function useSocket<
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
