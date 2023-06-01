@@ -1862,9 +1862,9 @@ export default async function mySetupFunction() {
 }
 ```
 
-Make sure to pass in an object expected by the `QueryClient`'s construcor, as
+Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
-[_react-query_'s docs](https://react-query.tanstack.com/reference/QueryClient).
+[_react-query_'s docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
 
 ## Server configuration
 
