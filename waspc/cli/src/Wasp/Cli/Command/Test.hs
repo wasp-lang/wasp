@@ -10,7 +10,7 @@ import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Call (TestArgs (TestClient, TestServer))
+import Wasp.Cli.Command.Call (TestArgs (TestClient))
 import Wasp.Cli.Command.Common (findWaspProjectRootDirFromCwd)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -22,7 +22,6 @@ import qualified Wasp.Message as Msg
 
 test :: TestArgs -> Command ()
 test (TestClient args) = watchAndTest $ Wasp.Generator.testWebApp args
-test (TestServer _) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 
 watchAndTest :: (Path' Abs (Dir ProjectRootDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do

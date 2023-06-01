@@ -29,7 +29,7 @@ data NewProjectArgs = NewProjectArgs
   }
   deriving (Show, Eq)
 
-data TestArgs = TestClient !Arguments | TestServer !Arguments deriving (Show, Eq)
+data TestArgs = TestClient !Arguments deriving (Show, Eq)
 
 data StartArg = StartDb | StartApp deriving (Show, Eq)
 

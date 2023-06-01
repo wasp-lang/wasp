@@ -72,6 +72,3 @@ spec_cliArgsParser =
       runTest "test client" "client without args" $ Test $ TestClient []
       runTest "test client --ui banana apple zero33 49 -q" "client with args" $
         Test (TestClient ["--ui", "banana", "apple", "zero33", "49", "-q"])
-      runTest "test server" "server without args" $ Test (TestServer [])
-      runTest "test server --zero bin 493a a83" "server with args" $
-        Test (TestServer ["--zero", "bin", "493a", "a83"])
