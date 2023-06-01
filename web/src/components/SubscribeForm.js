@@ -11,12 +11,10 @@ const SubscribeForm = ({ className, inputBgColor }) => {
     // NOTE(matija): without this, the whole page reloads on form submission.
     event.preventDefault()
 
-    console.log('going to submit an email!')
-
     try {
       const res = await fetch(createNewEmailSubscriberApiEndpoint, {
         method: "POST",
-        body: 'userGroup=&email=' + 'matija.sosic@gmail.com',
+        body: 'userGroup=&email=' + email,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
