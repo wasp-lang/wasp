@@ -19,7 +19,7 @@ import type {
   {= crud.entityUpper =},
 } from "../entities";
 {=# isAuthEnabled =}
-import HttpError from "../core/HttpError.js";
+import { throwInvalidCredentialsError } from "../core/auth.js";
 {=/ isAuthEnabled =}
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}
@@ -206,7 +206,7 @@ export async function deleteFn(args, context) {
 function throwIfNotAuthenticated (context) {
   {=# isAuthEnabled =}
   if (!context.user) {
-    throw new HttpError(401)
+    throwInvalidCredentialsError()
   }
   {=/ isAuthEnabled =}
   {=^ isAuthEnabled =}

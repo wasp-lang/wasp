@@ -11,7 +11,7 @@ import type {
 import type {
   Task,
 } from "../entities";
-import HttpError from "../core/HttpError.js";
+import { throwInvalidCredentialsError } from "../core/auth.js";
 
 type _WaspEntityTagged = _Task
 type _WaspEntity = Task
@@ -75,6 +75,6 @@ export async function createFn(args, context) {
 
 function throwIfNotAuthenticated (context) {
   if (!context.user) {
-    throw new HttpError(401)
+    throwInvalidCredentialsError()
   }
 }
