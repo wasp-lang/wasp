@@ -8,6 +8,8 @@
 
 - We changed Wasp's CLI bash shell completion command to `wasp completion generate bash` instead from previous `wasp completion:generate`.
 
+- Removed `wasp test server` placeholder command.
+
 ## v0.10.6
 
 ### Bug fixes
