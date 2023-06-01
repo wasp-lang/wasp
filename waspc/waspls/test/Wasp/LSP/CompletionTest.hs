@@ -5,7 +5,6 @@ import Control.Monad.Log (runLog)
 import Control.Monad.State.Strict (evalStateT, guard)
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as BSC
-import Data.Char (isSpace)
 import Data.List (elemIndex, isPrefixOf)
 import Data.Maybe (listToMaybe, mapMaybe)
 import qualified Language.LSP.Types as LSP
@@ -152,15 +151,10 @@ parseCompletionInput (CompletionTestInput waspSourceWithCursor) =
     -- of the first line, look for a cursor in the line pair and find the index
     -- of the column the cursor is at.
     cursorColumnIdxFromLinePair :: (Int, (String, String)) -> Maybe (Int, Int)
-    cursorColumnIdxFromLinePair (lineIdx, (line1, line2)) = do
+    cursorColumnIdxFromLinePair (line1Idx, (line1, line2)) = do
       cursorColIdx <- elemIndex '|' line1
-      -- Check that the line ends after the column with the | from the previous line
-      guard $ length line2 == cursorColIdx + 1
-      -- Check that ^ is at the same column as | from the previous line
-      guard $ (line2 !! cursorColIdx) == '^'
-      -- Check that only spaces precede the ^
-      guard $ all isSpace $ take cursorColIdx line2
-      return (lineIdx, cursorColIdx)
+      guard $ line2 == replicate cursorColIdx ' ' <> "^"
+      return (line1Idx, cursorColIdx)
 
     hasCompletionTestPreamble :: String -> Bool
     hasCompletionTestPreamble source = (completionTestPreamble <> "\n") `isPrefixOf` source
