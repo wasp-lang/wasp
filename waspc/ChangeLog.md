@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.7
+
+### WebSocket support
+Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more.
+
 ## v0.10.6
 
 ### Bug fixes
