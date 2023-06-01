@@ -1,8 +1,5 @@
 {{={= =}=}}
 import express from 'express'
-{=# isAuthEnabled =}
-import auth from '../../core/auth.js'
-{=/ isAuthEnabled =}
 
 {=# crudRouters =}
 {=& importStatement =}
@@ -11,5 +8,5 @@ import auth from '../../core/auth.js'
 export const rootCrudRouter = express.Router()
 
 {=# crudRouters =}
-rootCrudRouter.use('/{= route =}', {=# isAuthEnabled =}auth, {=/ isAuthEnabled =}{= importIdentifier =})
+rootCrudRouter.use('/{= route =}', {= importIdentifier =})
 {=/ crudRouters =}

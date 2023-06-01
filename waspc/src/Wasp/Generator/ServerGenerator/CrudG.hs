@@ -34,9 +34,7 @@ genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
   if areThereAnyCruds
     then
-      sequence
-        [ genCrudIndexRoute spec cruds
-        ]
+      sequence [genCrudIndexRoute cruds]
         <++> genCrudRoutes spec cruds
         <++> genCrudOperations spec cruds
     else return []
@@ -44,15 +42,11 @@ genCrud spec =
     cruds = AS.getCruds spec
     areThereAnyCruds = not . null $ cruds
 
-genCrudIndexRoute :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndexRoute spec cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
+genCrudIndexRoute :: [(String, AS.Crud.Crud)] -> Generator FileDraft
+genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
   where
     tmplPath = [relfile|src/routes/crud/index.ts|]
-    tmplData =
-      object
-        [ "crudRouters" .= map getCrudRouterData cruds,
-          "isAuthEnabled" .= isAuthEnabled spec
-        ]
+    tmplData = object ["crudRouters" .= map getCrudRouterData cruds]
 
     getCrudRouterData :: (String, AS.Crud.Crud) -> Data.Aeson.Value
     getCrudRouterData (name, _) =
