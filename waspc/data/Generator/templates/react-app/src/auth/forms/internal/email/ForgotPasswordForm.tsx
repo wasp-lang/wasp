@@ -4,8 +4,7 @@ import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton } from '../Form
 import { AuthContext } from '../../Auth'
 
 export const ForgotPasswordForm = () => {
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } =
-    useContext(AuthContext)
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
   const [email, setEmail] = useState('')
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {

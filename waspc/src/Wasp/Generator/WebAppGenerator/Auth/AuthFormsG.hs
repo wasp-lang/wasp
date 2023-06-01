@@ -108,7 +108,7 @@ genLoginSignupForm auth =
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
           -- Google
           "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,

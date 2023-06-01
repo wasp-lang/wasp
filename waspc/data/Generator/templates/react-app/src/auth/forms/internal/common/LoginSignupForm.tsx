@@ -5,10 +5,10 @@ import config from '../../../../config.js'
 
 import { AuthContext } from '../../Auth'
 import { Form, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
-{=# isExternalAuthEnabled =}
+{=# isSocialAuthEnabled =}
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
-{=/ isExternalAuthEnabled =}
+{=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useHistory } from 'react-router-dom'
 {=/ isAnyPasswordBasedAuthEnabled =}
@@ -51,7 +51,7 @@ const OrContinueWithText = styled('span', {
     paddingRight: '0.5rem'
 })
 {=/ areBothSocialAndPasswordBasedAuthEnabled =}
-{=# isExternalAuthEnabled =}
+{=# isSocialAuthEnabled =}
 const SocialAuth = styled('div', {
     marginTop: '1.5rem'
 })
@@ -89,14 +89,13 @@ const SocialAuthButtons = styled('div', {
         }
     }
 })
-{=/ isExternalAuthEnabled =}
+{=/ isSocialAuthEnabled =}
 {=# isGoogleAuthEnabled =}
 const googleSignInUrl = `${config.apiUrl}{= googleSignInPath =}`
 {=/ isGoogleAuthEnabled =}
 {=# isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ isGitHubAuthEnabled =}
-
 
 export const LoginSignupForm = ({
     state,
@@ -123,7 +122,6 @@ export const LoginSignupForm = ({
     isLogin: state === 'login',
     onError: onErrorHandler,
     onSuccess() {
-      // Redirect to configured page, defaults to /.
       history.push('{= onAuthSucceededRedirectTo =}')
     },
   });
@@ -136,7 +134,6 @@ export const LoginSignupForm = ({
       setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
     },
     onLoginSuccess() {
-      // Redirect to configured page, defaults to /.
       history.push('{= onAuthSucceededRedirectTo =}')
     },
     {=# isEmailVerificationRequired =}
@@ -162,7 +159,7 @@ export const LoginSignupForm = ({
   {=/ isAnyPasswordBasedAuthEnabled =}
 
   return (<>
-      {=# isExternalAuthEnabled =}
+      {=# isSocialAuthEnabled =}
         <SocialAuth>
           <SocialAuthLabel>{cta} with</SocialAuthLabel>
           <SocialAuthButtons gap='large' direction={socialButtonsDirection}>
@@ -175,8 +172,7 @@ export const LoginSignupForm = ({
             {=/ isGitHubAuthEnabled =}
           </SocialAuthButtons>
         </SocialAuth>
-      {=/ isExternalAuthEnabled =}
-      
+      {=/ isSocialAuthEnabled =}
       {=# areBothSocialAndPasswordBasedAuthEnabled =}
         <OrContinueWith>
           <OrContinueWithLineContainer>
@@ -223,7 +219,6 @@ export const LoginSignupForm = ({
               disabled={isLoading}
             />
           </FormItemGroup>
-
           <FormItemGroup>
             <SubmitButton type="submit" disabled={isLoading}>{cta}</SubmitButton>
           </FormItemGroup>

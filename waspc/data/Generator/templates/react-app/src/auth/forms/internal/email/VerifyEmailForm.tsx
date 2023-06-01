@@ -5,8 +5,7 @@ import { Message } from '../Message'
 import { AuthContext } from '../../Auth'
 
 export const VerifyEmailForm = () => {
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } =
-    useContext(AuthContext)
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
 

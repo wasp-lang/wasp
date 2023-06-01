@@ -5,8 +5,7 @@ import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton } from '../Form
 import { AuthContext } from '../../Auth'
 
 export const ResetPasswordForm = () => {
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } =
-    useContext(AuthContext)
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
   const [password, setPassword] = useState('')
