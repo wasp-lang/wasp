@@ -46,7 +46,6 @@ const SocialAuthButtons = styled('div', {
 })
 const googleSignInUrl = `${config.apiUrl}/auth/google/login`
 
-
 export const LoginSignupForm = ({
     state,
     socialButtonsDirection = 'horizontal',
@@ -70,6 +69,5 @@ export const LoginSignupForm = ({
 
           </SocialAuthButtons>
         </SocialAuth>
-      
   </>)
 }
