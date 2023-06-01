@@ -2,35 +2,29 @@ import { createAction } from "../actions/core";
 import { useAction } from "../actions";
 import { createQuery } from "../queries/core";
 import { useQuery } from "../queries";
-import { Task } from "../entities";
-
-type EntityType = Task
-type PrimaryFieldType = Task["id"]
-type PrimaryFieldArgs = { id: PrimaryFieldType }
-type CreateArgs = Omit<EntityType, "id">
-type UpdateArgs = Partial<CreateArgs> & PrimaryFieldArgs
+import { 
+    GetQueryResolved,
+    GetAllQueryResolved,
+    CreateActionResolved,
+} from '../../../server/src/crud/tasks'
 
 function createCrud() {
-    const crudGetQuery = createQuery<(args: PrimaryFieldArgs) => Promise<EntityType>>(
-        'crud/tasks/get',
+    const crudGetQuery = createQuery<GetQueryResolved>(
+        'tasks/get',
         ['Task']
     )
-    const crudGetAllQuery = createQuery<() => Promise<EntityType[]>>(
-        'crud/tasks/getAll',
+    const crudGetAllQuery = createQuery<GetAllQueryResolved>(
+        'tasks/get-all',
         ['Task']
     )
-    const crudCreateAction = createAction<(args: CreateArgs) => Promise<void>>(
-        'crud/tasks/create',
-        ['Task']
-    )
-    const crudUpdateAction = createAction<(args: UpdateArgs) => Promise<void>>(
-        'crud/tasks/update',
+    const crudCreateAction = createAction<CreateActionResolved>(
+        'tasks/create',
         ['Task']
     )
     return {
         get: {
             query: crudGetQuery,
-            useQuery(args: PrimaryFieldArgs) {
+            useQuery(args: Parameters<GetQueryResolved>[0]) {
                 return useQuery(crudGetQuery, args);
             }
         },
@@ -44,12 +38,6 @@ function createCrud() {
             action: crudCreateAction,
             useAction() {
                 return useAction(crudCreateAction);
-            }
-        },
-        update: {
-            action: crudUpdateAction,
-            useAction() {
-                return useAction(crudUpdateAction);
             }
         },
     }

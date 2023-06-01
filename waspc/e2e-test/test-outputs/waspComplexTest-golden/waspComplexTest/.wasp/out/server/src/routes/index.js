@@ -15,7 +15,7 @@ router.get('/', middleware, function (_req, res, _next) {
 
 router.use('/auth', middleware, auth)
 router.use('/operations', middleware, operations)
-router.use('/crud', middleware, rootCrudRouter)
+router.use('/', middleware, rootCrudRouter)
 // NOTE: Keep user-defined api routes last so they cannot override our routes.
 // Additionally, do not add middleware to these routes here. Instead, we add
 // it later to allow for middleware customization.

@@ -30,6 +30,7 @@ waspBuild/.wasp/build/server/src/middleware/index.ts
 waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
+waspBuild/.wasp/build/server/src/routes/serialization.ts
 waspBuild/.wasp/build/server/src/server.ts
 waspBuild/.wasp/build/server/src/types/index.ts
 waspBuild/.wasp/build/server/src/universal/types.ts

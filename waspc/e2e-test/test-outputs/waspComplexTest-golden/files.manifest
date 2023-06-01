@@ -34,6 +34,7 @@ waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
 waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/core/auth/validators.ts
+waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
 waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
@@ -69,6 +70,7 @@ waspComplexTest/.wasp/out/server/src/routes/index.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialAction.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialQuery.js
 waspComplexTest/.wasp/out/server/src/routes/operations/index.js
+waspComplexTest/.wasp/out/server/src/routes/serialization.ts
 waspComplexTest/.wasp/out/server/src/server.ts
 waspComplexTest/.wasp/out/server/src/types/index.ts
 waspComplexTest/.wasp/out/server/src/universal/types.ts

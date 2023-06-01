@@ -226,6 +226,13 @@
     [
         [
             "file",
+            "server/src/crud/tasks.ts"
+        ],
+        "8ac9989de71b0d2899e3491012d912361111e2e2c9b36d53e31f7aff19064ec3"
+    ],
+    [
+        [
+            "file",
             "server/src/dbClient.ts"
         ],
         "a749686af4e331a0b982e8c2acbfe00aff043340f34d54e80a34d417c6901e56"
@@ -438,28 +445,28 @@
             "file",
             "server/src/routes/crud/tasks.ts"
         ],
-        "0faab1df23b7ad7eaab051ca2b125d600c98eefb8548154895be45800002a9b0"
+        "b484fe65cfa44f93a3a16ea22c6288b733f6d2b59ecfbe3facaafb472cafb872"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "a13d8d47f58b1a4b60a81e31823dc8fcad0dbbbe3e09de129ae8e140f384a7b7"
+        "b589a916a4ded52b75af42e299a506cbeb4d56ce2e87bec29f211c3e33865049"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialAction.js"
         ],
-        "19eea333d3f3f559b93b49f34a3a6f474d86b4d8b83c70f4bb456ef44e361eef"
+        "96dd02810029a9a5a7d0893d2e9cf21da193eb02a801c92603ecac62f06febe6"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialQuery.js"
         ],
-        "f8a7ce6ab0c320f24e76d12c5ba01891d8c408c80f07bbf8a6471fafb29abc91"
+        "f1e11e8417baba4e1171dd4824f41d126c0102c6d80cd6204a274eb3ddc15a52"
     ],
     [
         [
@@ -467,6 +474,13 @@
             "server/src/routes/operations/index.js"
         ],
         "0cb1f33b2ddb9dbe6bb2640f899aa151b388e1799e97b28390af6404154f28c0"
+    ],
+    [
+        [
+            "file",
+            "server/src/routes/serialization.ts"
+        ],
+        "11ac3dd4825d6d7807a9b643e6294fca8876792143ea9e3685aa8477cdd00f82"
     ],
     [
         [
@@ -487,7 +501,7 @@
             "file",
             "server/src/universal/types.ts"
         ],
-        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
+        "1305cfd65c9a696ff860f8803269f42d2d15b118a6a1f81eb68dac42b22e91ec"
     ],
     [
         [
@@ -746,7 +760,7 @@
             "file",
             "web-app/src/crud/tasks.ts"
         ],
-        "3cc1125c01816ff470c0896ed5e595c8cd36074a67b313f199df7f9a31f4e22e"
+        "2f4ca60123e3fe999dbe4814182b7d09d0039db120e5c260ccc824806561b5e7"
     ],
     [
         [
@@ -928,7 +942,7 @@
             "file",
             "web-app/src/universal/types.ts"
         ],
-        "8ef378c1447289104856ec1a92931fd1280c0f8d0a8463008674e93bd798b884"
+        "1305cfd65c9a696ff860f8803269f42d2d15b118a6a1f81eb68dac42b22e91ec"
     ],
     [
         [

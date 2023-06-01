@@ -333,8 +333,11 @@ addCrud = do
       unlines
         [ "crud tasks {",
           "  entity: Task,",
-          "  except: [Delete],",
-          "  public: [GetAll]",
+          "  operations: {",
+          "    get: {},",
+          "    getAll: {},",
+          "    create: {},",
+          "  }",
           "}"
         ]
 
