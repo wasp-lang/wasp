@@ -12,7 +12,7 @@ import Control.Monad.State.Class (MonadState, gets)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT))
 import qualified Data.HashMap.Strict as M
-import Data.List (elemIndex, intersperse)
+import Data.List (elemIndex, foldl', intersperse)
 import Data.Maybe (fromMaybe, mapMaybe)
 import Data.String (IsString (fromString))
 import qualified Data.Text as Text
@@ -23,9 +23,7 @@ import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
-import Wasp.LSP.TypeInference (ExprKey (Key), findExprPathAtLocation, findTypeForPath)
-
--- TODO: overhaul doc comments based on latest explanation i have somewhere else
+import Wasp.LSP.TypeInference (ExprKey (Key, List, Tuple), findExprPathAtLocation, findTypeForPath)
 
 -- | Get 'LSP.SignatureHelp' at a position in the wasp file. The signature
 -- displays the type of the "container" that the position is in, if any.
@@ -50,10 +48,10 @@ getSignatureHelpAtPosition position = do
       let location = toOffset offset (fromSyntaxForest syntax)
       findSignatureAtLocation src location >>= \case
         Nothing -> do
-          logM "[getSignatureHelpAtPosition] no type hint to provide signature for"
+          logM "[getSignatureHelpAtPosition] no signature found"
           return emptyHelp
         Just signature -> do
-          logM "[getSignatureHelpAtPosition] type hint found"
+          logM "[getSignatureHelpAtPosition] found a signature"
           let signatureFragments = signatureToFragments signature
           let params = getParamsFromFragments signatureFragments
           let activeParam = signatureParam signature >>= findActiveParameterIndex signatureFragments
@@ -83,11 +81,21 @@ getSignatureHelpAtPosition position = do
           _activeParameter = Nothing
         }
 
--- | Describes the expected type at a location.
+-- | 'Signature' describes the expected type at a specific location inside of
+-- a container in a wasp file. Every signature includes the type of the container
+-- surrounding the location. For example, the container type for a cursor
+-- positioned inside of a dictionary would be the type of the dictionary.
+--
+-- When the location is at a more specific place inside of the container--for
+-- example, immediately after @key: @ in a dictionary--then we say the location
+-- is at a parameter, and the parameter is described in relation to the container
+-- with an 'ExprKey'.
 data Signature
   = -- | Inside a container, but not at any parameter inside of it.
     InContainer !Type
-  | -- | Inside a container at the parameter specified by the 'ExprKey'.
+  | -- | Inside a container at the parameter specified by the 'ExprKey'. This
+    -- is named \"param\" to be consistent with the naming conventions used by
+    -- the LSP.
     AtParam !Type !ExprKey
   deriving (Eq, Show)
 
@@ -99,10 +107,17 @@ signatureParam :: Signature -> Maybe ExprKey
 signatureParam (InContainer _) = Nothing
 signatureParam (AtParam _ key) = Just key
 
--- | TODO
+-- | @'findSignatureAtLocation' sourceCode location@ runs type inference at the
+-- given location to try to find a 'Signature'.
 --
--- TODO: this never gives 'AtParam' when the location is inside a list, but
--- it probably always should.
+-- To do this, two types are inferred: the /tip type/ and the /parent type/. The
+-- tip type is the type expected exactly at the cursor location and the parent
+-- type is the type of the parent node of the tip. For example, if the cursor is
+-- at the 2nd entry of a tuple with type @(string, number)@, then the tip type
+-- is @number@ and the parent type is that tuple type.
+--
+-- Then we check if the cursor is 'InContainer' or 'AtParam'. It is 'InContainer'
+-- only when the tip type is a container or if there is no parent type.
 findSignatureAtLocation ::
   (MonadLog m) =>
   String ->
@@ -130,6 +145,9 @@ findSignatureAtLocation src location = runMaybeT $ do
 
 -- | A fragment of the text representation of a signature, with information
 -- for finding the spans of parameters inside of the text representation.
+--
+-- This is used as an intermediate form between 'Signature' and the response
+-- object that the LSP specifies.
 data SignatureFragment
   = -- | A plaintext fragment of a signature.
     Text !String
@@ -149,7 +167,10 @@ fragmentParam (Param key _) = Just key
 instance IsString SignatureFragment where
   fromString string = Text string
 
--- | TODO
+-- | Convert the container type of a signature to a list of fragments.
+--
+-- To avoid unreadably long signatures, dictionary types inside of the container
+-- type are written @{ ... }@.
 signatureToFragments :: Signature -> [SignatureFragment]
 signatureToFragments signature = case signatureType signature of
   Type.DictType fieldMap
@@ -157,10 +178,10 @@ signatureToFragments signature = case signatureType signature of
     | otherwise ->
       let fields = intersperse ", " (map fieldToFragment (M.toList fieldMap))
        in concat [["{"], fields, ["}"]]
-  Type.ListType inner -> ["[", showInnerType inner, "]"]
+  Type.ListType inner -> ["[", Param List (showInnerType inner), "]"]
   Type.TupleType (a, b, cs) ->
     let fieldTypes = a : b : cs
-        fields = intersperse ", " (map showInnerType fieldTypes)
+        fields = intersperse ", " (zipWith (\n -> Param (Tuple n) . showInnerType) [0 ..] fieldTypes)
      in concat [["("], fields, [")"]]
   typ -> [fromString (show typ)]
   where
@@ -174,26 +195,28 @@ signatureToFragments signature = case signatureType signature of
     fieldToFragment (key, Type.DictOptional typ) =
       Param (Key key) $ printf "%s?: %s" key (showInnerType typ :: String)
 
--- | TODO
+-- | Convert a list of fragments to a string by concatenating the text of each
+-- fragment.
 showFragments :: [SignatureFragment] -> String
 showFragments = concatMap fragmentText
 
--- | TODO
+-- | Search through a list of fragments to find the parameters.
+--
+-- The LSP wants the starting and ending offset of each parameter in the signature
+-- help text (computed in 'showFragments'), so this function also has to keep
+-- track of the 0-based offset into the final text.
 getParamsFromFragments :: [SignatureFragment] -> [LSP.ParameterInformation]
-getParamsFromFragments fragments = map labelToInfo $ go 0 fragments
+getParamsFromFragments fragments =
+  reverse $ map labelToInfo $ snd $ foldl' go (0, []) fragments
   where
-    go :: LSP.UInt -> [SignatureFragment] -> [LSP.ParameterLabel]
-    go _ [] = []
-    go offset (fragment : remaining) = case getParamFromFragment offset fragment of
-      (offset', Nothing) -> go offset' remaining
-      (offset', Just param) -> param : go offset' remaining
-
-    getParamFromFragment :: LSP.UInt -> SignatureFragment -> (LSP.UInt, Maybe LSP.ParameterLabel)
-    getParamFromFragment offset (Text text) =
-      (offset + fromIntegral (length text), Nothing)
-    getParamFromFragment offset (Param _ text) =
+    -- A left fold is used because offset needs to increase as you go right across
+    -- the list. This means the parameter list needs to be reversed after the fold
+    -- so that they are in the same order as the parameters in the fragments.
+    go :: (LSP.UInt, [LSP.ParameterLabel]) -> SignatureFragment -> (LSP.UInt, [LSP.ParameterLabel])
+    go (offset, labels) (Text text) = (offset + fromIntegral (length text), labels)
+    go (offset, labels) (Param _ text) =
       let end = offset + fromIntegral (length text)
-       in (end, Just $ LSP.ParameterLabelOffset offset end)
+       in (end, LSP.ParameterLabelOffset offset end : labels)
 
     labelToInfo :: LSP.ParameterLabel -> LSP.ParameterInformation
     labelToInfo label =
@@ -202,7 +225,11 @@ getParamsFromFragments fragments = map labelToInfo $ go 0 fragments
           _documentation = Nothing
         }
 
--- | TODO
+-- | Find the index of the active parameter in a list of fragments.
+--
+-- NOTE: This function computes the index into the parameter list, not the
+-- fragment list. This is why plain 'Text' fragments are filtered out of the
+-- list before indexing (via @mapMaybe fragmentParam@).
 findActiveParameterIndex :: [SignatureFragment] -> ExprKey -> Maybe LSP.UInt
 findActiveParameterIndex fragments key =
   fromIntegral <$> elemIndex key (mapMaybe fragmentParam fragments)

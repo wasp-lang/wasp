@@ -37,12 +37,13 @@ inferTypeAtLocation src location = case findExprPathAtLocation src location of
 -- @
 -- app todoApp {
 --   auth: {
---     usernameAndPassword: // cursor right here
+--     usernameAndPassword: |
+--                          ^
 --   }
 -- }
 -- @
 --
--- The path to the cursor would be @[Decl "app", Key "auth", Key "usernameAndPassword"]@
+-- The path to the cursor would be @[Decl "app", Key "auth", Key "usernameAndPassword"]@.
 type ExprPath = [ExprKey]
 
 -- | A single step of an 'ExprPath'.
