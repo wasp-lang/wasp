@@ -9,7 +9,6 @@ import updateTaskIsDone from '@wasp/actions/updateTaskIsDone.js'
 import deleteCompletedTasks from '@wasp/actions/deleteCompletedTasks.js'
 import toggleAllTasks from '@wasp/actions/toggleAllTasks.js'
 import { Task } from '@wasp/entities'
-import { tasks as tasksCrud } from '@wasp/crud/tasks'
 
 type NonEmptyArray<T> = [T, ...T[]]
 
@@ -21,8 +20,6 @@ export function areThereAnyTasks(
 
 const Todo = () => {
   const { data: tasks, isError, error: tasksError } = useQuery(getTasks)
-
-  const { data: tasks2 } = tasksCrud.getAll.useQuery()
 
   const TasksError = () => {
     return (
@@ -45,9 +42,6 @@ const Todo = () => {
         {areThereAnyTasks(tasks) && (
           <>
             <Tasks tasks={tasks} />
-            {tasks2?.map((task) => (
-              <div key={task.id}>Newest: {task.description}</div>
-            ))}
 
             <Footer tasks={tasks} />
           </>
@@ -171,12 +165,10 @@ const NewTaskForm = () => {
       >,
     ],
   })
-  const createNewTask2 = tasksCrud.create.useAction()
 
   const createNewTask = async (description: Task['description']) => {
     const task = { isDone: false, description }
-    // TODO: fails becasue it's not connected to auth entity
-    await createNewTask2(task)
+    await createTaskFn(task)
   }
 
   const handleNewTaskSubmit: FormEventHandler<HTMLFormElement> = async (
