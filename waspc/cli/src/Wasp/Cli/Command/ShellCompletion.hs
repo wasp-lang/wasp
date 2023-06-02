@@ -7,10 +7,7 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative.BashCompletion as OC
 import System.Environment (getExecutablePath, getProgName)
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call
-  ( CompletionArgs (..),
-  )
-import Wasp.Cli.Command.ShellCompletion.Shell (Shell (..))
+import Wasp.Cli.Command.ShellCompletion.CompletionArgs (CompletionArgs (..), Shell (..))
 
 completion :: CompletionArgs -> Command ()
 completion PrintInstruction = printShellCompletionInstruction
