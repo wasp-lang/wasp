@@ -15,10 +15,10 @@ import qualified Language.LSP.Types as LSP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 
--- | A function that providers 'LSP.CompletionItems' at a location
+-- | A function that providers 'LSP.CompletionItems' at a location.
 type CompletionProvider m = Traversal -> m [LSP.CompletionItem]
 
--- | The context given to 'CompletionProvider's, via @MonadReader CompletionContext@
+-- | The context given to 'CompletionProvider's, via @MonadReader CompletionContext@.
 data CompletionContext = CompletionContext
   { _src :: String,
     _cst :: [SyntaxNode]
@@ -27,7 +27,8 @@ data CompletionContext = CompletionContext
 
 makeClassy 'CompletionContext
 
--- | Create a completion item containing only a label.
+-- | Create a completion item containing only a label. Use lenses and 'Control.Lens.(?~)'
+-- to set more fields, if desired.
 makeBasicCompletionItem :: Text.Text -> LSP.CompletionItem
 makeBasicCompletionItem name =
   LSP.CompletionItem

@@ -1,7 +1,7 @@
-{-# LANGUAGE FlexibleInstances #-}
-
 module Wasp.LSP.SignatureHelp
   ( getSignatureHelpAtPosition,
+    signatureHelpTriggerCharacters,
+    signatureHelpRetriggerCharacters,
   )
 where
 
@@ -25,8 +25,30 @@ import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
 import Wasp.LSP.TypeInference (ExprKey (Key, List, Tuple), findExprPathAtLocation, findTypeForPath)
 
+-- | Configuration for 'LSP.Options', used in "Wasp.LSP.Server".
+--
+-- When the client types one of these characters, it will send a SignatureHelp
+-- request. It is configured so that signatures will display when starting a
+-- dictionary, list, tuple, or starting a new field/value in the container.
+signatureHelpTriggerCharacters :: Maybe [Char]
+signatureHelpTriggerCharacters = Just "{[(:,"
+
+-- | Configuration for 'LSP.Options', used in "Wasp.LSP.Server".
+--
+-- When a client is already displaying signature help, typing one of these
+-- characters will cause it to update the displayed signature by sending a new
+-- SignatureHelp request. It is configured so that signatures will update when
+-- ending a dictionary, list, or  tuple.
+--
+-- NOTE: 'signatureHelpTriggerCharacters' are also counted as retrigger characters.
+signatureHelpRetriggerCharacters :: Maybe [Char]
+signatureHelpRetriggerCharacters = Just "}])"
+
 -- | Get 'LSP.SignatureHelp' at a position in the wasp file. The signature
 -- displays the type of the "container" that the position is in, if any.
+--
+-- SignatureHelp is usually displayed as a popup near the text you are typing,
+-- and highlights the part of the signature you are writing.
 --
 -- A container is an expression that holds other values, such as dictionaries
 -- and lists.
@@ -147,7 +169,7 @@ findSignatureAtLocation src location = runMaybeT $ do
 -- for finding the spans of parameters inside of the text representation.
 --
 -- This is used as an intermediate form between 'Signature' and the response
--- object that the LSP specifies.
+-- format that the LSP specifies.
 data SignatureFragment
   = -- | A plaintext fragment of a signature.
     Text !String

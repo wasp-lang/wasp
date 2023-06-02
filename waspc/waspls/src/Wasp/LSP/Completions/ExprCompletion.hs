@@ -53,6 +53,9 @@ findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
         let declNameAndType = maybeToList $ getDeclNameAndType t
          in declNameAndType ++ maybe [] traverseForDeclNames (right t)
       _ -> maybe [] traverseForDeclNames $ right t
+
+    -- @getDeclNameAndType t@ expects 't' to be at a 'S.Decl' node. It finds the
+    -- lexemes for the 'S.DeclName' and 'S.DeclType'.
     getDeclNameAndType :: Traversal -> Maybe (String, String)
     getDeclNameAndType t = do
       nameT <- findChild S.DeclName t

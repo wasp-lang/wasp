@@ -10,7 +10,7 @@ import Control.Monad.State.Class (MonadState, gets)
 import Data.List (sortOn)
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
-import Wasp.Analyzer.Parser.CST.Traverse
+import Wasp.Analyzer.Parser.CST.Traverse (fromSyntaxForest)
 import Wasp.LSP.Completions.Common (CompletionContext (..), CompletionProvider)
 import qualified Wasp.LSP.Completions.DictKeyCompletion as DictKeyCompletion
 import qualified Wasp.LSP.Completions.ExprCompletion as ExprCompletion
@@ -43,6 +43,8 @@ getCompletionsAtPosition position = do
             completionProviders
       return $ sortOn (^. LSP.label) completionItems
 
+-- | List of all 'CompletionProvider's to use. We break this up into separate
+-- modules because the code for each can be pretty unrelated.
 completionProviders :: (MonadReader CompletionContext m, MonadLog m) => [CompletionProvider m]
 completionProviders =
   [ ExprCompletion.getCompletions,
