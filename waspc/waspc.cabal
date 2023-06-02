@@ -384,7 +384,6 @@ library cli-lib
     Wasp.Cli.Archive
     Wasp.Cli.Parser.Util
     Wasp.Cli.Parser
-    Wasp.Cli.Command.ShellCompletion.CompletionArgs
     Wasp.Cli.Command.ShellCompletion.Parser
     Wasp.Cli.Command.ShellCompletion
     Wasp.Cli.Command.Build

@@ -5,8 +5,9 @@ import Options.Applicative (Parser)
 import qualified Options.Applicative as O
 import Wasp.Cli.Command.Call
   ( CommandCall (Completion),
+    CompletionArgs (..),
+    Shell (..),
   )
-import Wasp.Cli.Command.ShellCompletion.CompletionArgs (CompletionArgs (..), Shell (..))
 import Wasp.Cli.Parser.Util (mkCommand)
 
 completionParser :: Parser CommandCall

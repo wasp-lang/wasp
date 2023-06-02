@@ -1,7 +1,5 @@
 module Wasp.Cli.Command.Call where
 
-import Wasp.Cli.Command.ShellCompletion.CompletionArgs (CompletionArgs)
-
 data CommandCall
   = New !NewProjectArgs
   | Start !StartArg
@@ -20,6 +18,10 @@ data CommandCall
   | Deploy !Arguments -- deploy cmd passthrough args
   | Test !TestArgs -- "client" | "server", then test cmd passthrough args
   deriving (Show, Eq)
+
+data CompletionArgs = PrintInstruction | PrintScript !Shell deriving (Show, Eq)
+
+data Shell = Bash | Zsh | Fish deriving (Show, Eq)
 
 data NewProjectArgs = NewProjectArgs
   { newProjectName :: !(Maybe String),
