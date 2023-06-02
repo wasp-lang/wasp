@@ -9,7 +9,7 @@ Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](h
 To get started, you need to:
 1. Define your WebSocket logic on the server.
 2. Declare you are using WebSockets in your Wasp file, and connect it with your server logic.
-3. Use WebSockets on the client, in React, via `useSocket`.
+3. Use WebSockets on the client, in React, via `useSocket` and `useSocketListener`.
 4. Optionally define the types for messages for use on the client and server.
 
 We will cover all the steps above, but in an order that makes it easier to explain new concepts.
@@ -78,25 +78,26 @@ export const webSocketFn: WebSocketDefinition<
 ```
 
 ## Add client support
-Client access to WebSockets is provided by the `useSocket` abstraction. It returns:
+Client access to WebSockets is provided by the `useSocket` hook. It returns:
 - `socket: Socket` for sending and receiving events.
 - `isConnected: boolean` for showing a display of the Socket.IO connection status.
   - Note: Wasp automatically connects and establishes a WebSocket connection from the client to the server by default, so you do not need to explicitly `socket.connect()` or `socket.disconnect()`. If you set `autoConnect: false` in your Wasp file, then you should call these as needed.
-- `registerHandler: (event, callback) => void` for registering event handlers. This helper takes care of unregistering on unmount.
 
-All components using `useSocket` share the same underlying `socket`. Additionally, if a user is logged in, you will have a `socket.data.user` on the server.
+Additionally, there is a `useSocketListener: (socket, event, callback) => void` hook which is used for registering event handlers. It takes care of unregistering on unmount.
+
+All components using `useSocket` share the same underlying `socket`. Lastly, if a user is logged in, you will have a `socket.data.user` on the server.
 
 ```ts title=src/client/Chat.tsx
 import React, { useEffect, useRef, useState } from 'react'
-import { useSocket } from '@wasp/webSocket'
+import { useSocket, useSocketListener } from '@wasp/webSocket'
 import { ClientToServerEvents, ServerToClientEvents } from '../shared/webSocket'
 
 export const ProfilePage = () => {
   const [messages, setMessages] = useState<{ id: string, username: string, text: string }[]>([]);
-  const { socket, isConnected, registerHandler } = useSocket<ServerToClientEvents, ClientToServerEvents>()
+  const { socket, isConnected } = useSocket<ServerToClientEvents, ClientToServerEvents>()
   const inputRef = useRef<HTMLInputElement>(null)
 
-  registerHandler('chatMessage', logMessage)
+  useSocketListener(socket, 'chatMessage', logMessage)
 
   function logMessage(msg: { id: string, username: string, text: string }) {
     setMessages((priorMessages) => [msg, ...priorMessages])
