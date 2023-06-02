@@ -42,6 +42,7 @@ import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
+import Wasp.Project.WebApp (StaticAssetsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
@@ -73,7 +74,9 @@ data AppSpec = AppSpec
     configFiles :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
-    devDatabaseUrl :: Maybe String
+    devDatabaseUrl :: Maybe String,
+    -- | Absolute path to the directory where user defined static assets.
+    staticClientAssetsDir :: Maybe (Path' Abs (Dir StaticAssetsDir))
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -117,10 +120,13 @@ resolveRef :: (IsDecl d) => AppSpec -> Ref d -> (String, d)
 resolveRef spec ref =
   fromMaybe
     ( error $
-        "Failed to resolve declaration reference: " ++ refName ref ++ "."
+        "Failed to resolve declaration reference: "
+          ++ refName ref
+          ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst) $ getDecls spec
+    $ find ((== refName ref) . fst)
+    $ getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

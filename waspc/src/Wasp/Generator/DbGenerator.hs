@@ -11,7 +11,6 @@ import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, maybeToList)
 import Data.Text (Text, pack)
 import StrongPath (Abs, Dir, File, Path', Rel, (</>))
-import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getEntities)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -33,7 +32,7 @@ import Wasp.Generator.DbGenerator.Common
     prismaClientOutputDirEnvVar,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirWithOverwriteFileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
@@ -82,11 +81,9 @@ genPrismaSchema spec = do
         Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
-genMigrationsDir spec =
-  return $
-    AS.migrationsDir spec >>= \waspMigrationsDir ->
-      Just $ createCopyDirFileDraft (SP.castDir genProjectMigrationsDir) (SP.castDir waspMigrationsDir)
+genMigrationsDir spec = return $ copyDbMigrationsDir <$> AS.migrationsDir spec
   where
+    copyDbMigrationsDir = createCopyDirWithOverwriteFileDraft genProjectMigrationsDir
     genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInProjectRootDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk

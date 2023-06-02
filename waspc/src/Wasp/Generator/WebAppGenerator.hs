@@ -8,6 +8,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
+import Data.Maybe (maybeToList)
 import StrongPath
   ( Dir,
     File',
@@ -33,7 +34,7 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirWithMergeFileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
@@ -72,6 +73,7 @@ genWebApp spec = do
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genStaticAssetsDir spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -276,3 +278,9 @@ genEnvValidationScript =
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
+
+genStaticAssetsDir :: AppSpec -> Generator [FileDraft]
+genStaticAssetsDir spec = return $ maybeToList maybeCopyStaticAssetsDir
+  where
+    maybeCopyStaticAssetsDir = createCopyDirWithMergeFileDraft staticAssetsDstDir <$> AS.staticClientAssetsDir spec
+    staticAssetsDstDir = C.webAppRootDirInProjectRootDir </> C.staticAssetsDirInWebAppDir

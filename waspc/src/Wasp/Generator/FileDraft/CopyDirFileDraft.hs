@@ -35,7 +35,9 @@ data CopyDirFileDraft = CopyDirFileDraft
   { -- | Path where the dir will be copied to.
     _dstPath :: !(Path' (Rel ProjectRootDir) Dir'),
     -- | Absolute path of source dir to copy.
-    _srcPath :: !(Path' Abs Dir')
+    _srcPath :: !(Path' Abs Dir'),
+    -- | If the destination dir already exists, should it be removed before copying?
+    _removeDstDir :: !Bool
   }
   deriving (Show, Eq)
 
@@ -43,7 +45,10 @@ instance Writeable CopyDirFileDraft where
   write projectRootAbsPath draft = do
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
-    when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
+
+    let shouldRemoveDstDir = dstDirExists && _removeDstDir draft
+    when shouldRemoveDstDir $ removeDirectoryRecursive dstPathAbsDir
+
     when srcDirExists $ do
       createDirectoryIfMissing True (SP.fromAbsDir dstPathAbsDir)
       copyDirectoryRecursive srcPathAbsDir dstPathAbsDir

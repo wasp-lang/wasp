@@ -5,7 +5,8 @@ module Wasp.Generator.FileDraft
     createCopyFileDraft,
     createCopyFileDraftIfExists,
     createTextFileDraft,
-    createCopyDirFileDraft,
+    createCopyDirWithOverwriteFileDraft,
+    createCopyDirWithMergeFileDraft,
     createCopyAndModifyTextFileDraft,
   )
 where
@@ -98,12 +99,23 @@ createCopyFileDraftIfExists dstPath srcPath =
         CopyFD._failIfSrcDoesNotExist = False
       }
 
-createCopyDirFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
-createCopyDirFileDraft dstPath srcPath =
+createCopyDirWithOverwriteFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
+createCopyDirWithOverwriteFileDraft dstPath srcPath = createCopyDirFileDraft dstPath srcPath True
+
+createCopyDirWithMergeFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
+createCopyDirWithMergeFileDraft dstPath srcPath = createCopyDirFileDraft dstPath srcPath False
+
+createCopyDirFileDraft ::
+  Path' (Rel ProjectRootDir) (Dir a) ->
+  Path' Abs (Dir b) ->
+  Bool ->
+  FileDraft
+createCopyDirFileDraft dstPath srcPath removeDstDir =
   FileDraftCopyDirFd $
     CopyDirFD.CopyDirFileDraft
       { CopyDirFD._dstPath = SP.castDir dstPath,
-        CopyDirFD._srcPath = SP.castDir srcPath
+        CopyDirFD._srcPath = SP.castDir srcPath,
+        CopyDirFD._removeDstDir = removeDstDir
       }
 
 createTextFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Text -> FileDraft

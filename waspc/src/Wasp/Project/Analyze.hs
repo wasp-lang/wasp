@@ -22,6 +22,7 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
+import Wasp.Project.WebApp (findStaticAssetsDir)
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -51,11 +52,14 @@ constructAppSpec ::
 constructAppSpec waspDir options decls = do
   externalServerCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalServerCodeDirPath options)
-  externalClientCodeFiles <-
-    ExternalCode.readFiles (CompileOptions.externalClientCodeDirPath options)
+
+  let externalClientCodeDirPath = CompileOptions.externalClientCodeDirPath options
+  externalClientCodeFiles <- ExternalCode.readFiles externalClientCodeDirPath
+
   externalSharedCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeMigrationsDir <- findMigrationsDir waspDir
+  staticAssetsDir <- findStaticAssetsDir externalClientCodeDirPath
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let devDbUrl = makeDevDatabaseUrl waspDir decls
@@ -74,7 +78,8 @@ constructAppSpec waspDir options decls = do
             AS.isBuild = CompileOptions.isBuild options,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
-            AS.devDatabaseUrl = devDbUrl
+            AS.devDatabaseUrl = devDbUrl,
+            AS.staticClientAssetsDir = staticAssetsDir
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
@@ -86,5 +91,6 @@ findWaspFile waspDir = do
   return $ maybeToEither "Couldn't find a single *.wasp file." $ (waspDir </>) <$> find isWaspFile files
   where
     isWaspFile path =
-      ".wasp" `isSuffixOf` toFilePath path
+      ".wasp"
+        `isSuffixOf` toFilePath path
         && (length (toFilePath path) > length (".wasp" :: String))
