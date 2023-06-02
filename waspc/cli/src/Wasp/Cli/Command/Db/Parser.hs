@@ -16,7 +16,7 @@ import Wasp.Cli.Command.Call
       ),
     DbMigrateDevArgs (DbMigrateDevArgs),
   )
-import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfo)
+import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfoModifiers)
 
 dbParser :: Parser CommandCall
 dbParser = Db <$> dbArgsParser
@@ -30,7 +30,7 @@ dbParser = Db <$> dbArgsParser
               "seed"
               "Executes a db seed function (specified via app.db.seeds). If there are multiple seeds, you can specify a seed to execute by providing its name, or if not then you will be asked to provide the name interactively."
               dbSeedArgParser,
-            mkCommandWithInfo "migrate-dev" [migrateDevDescription] dbMigrateDevArgsParser,
+            mkCommandWithInfoModifiers "migrate-dev" [migrateDevDescription] dbMigrateDevArgsParser,
             mkCommand "studio" "GUI for inspecting your database." $ pure DbStudio
           ]
       where

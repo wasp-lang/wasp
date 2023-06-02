@@ -12,7 +12,7 @@ import Wasp.Cli.Command.ShellCompletion.Parser (completionParser)
 import Wasp.Cli.Command.Start.Parser (startParser)
 import Wasp.Cli.Command.Test.Parser (testParser)
 import Wasp.Cli.Command.WaspLS.Parser (waspLSParser)
-import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfo)
+import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfoModifiers)
 import qualified Wasp.Cli.Terminal as TermCli
 import qualified Wasp.Util.Terminal as Term
 
@@ -77,7 +77,7 @@ inProjectCommandsParser =
         mkCommand "db" "Executes a database command. Run 'wasp db --help' for more info." dbParser,
         mkCommand "clean" "Deletes all generated code and other cached artifacts." $ pure Clean,
         mkCommand "build" "Generates full web app code, ready for deployment. Use when deploying or ejecting." $ pure Build,
-        mkCommandWithInfo
+        mkCommandWithInfoModifiers
           "deploy"
           [O.progDesc "Deploys your Wasp app to cloud hosting providers.", OB.allPositional]
           deployParser,
