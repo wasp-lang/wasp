@@ -1,5 +1,6 @@
 module Wasp.Generator.FileDraft.CopyDirFileDraft
   ( CopyDirFileDraft (..),
+    CopyDirFileDraftDstDirStrategy (..),
   )
 where
 
@@ -37,8 +38,11 @@ data CopyDirFileDraft = CopyDirFileDraft
     -- | Absolute path of source dir to copy.
     _srcPath :: !(Path' Abs Dir'),
     -- | If the destination dir already exists, should it be removed before copying?
-    _removeDstDir :: !Bool
+    _dstDirStrategy :: !CopyDirFileDraftDstDirStrategy
   }
+  deriving (Show, Eq)
+
+data CopyDirFileDraftDstDirStrategy = RemoveExistingDstDir | WriteOverExistingDstDir
   deriving (Show, Eq)
 
 instance Writeable CopyDirFileDraft where
@@ -46,7 +50,7 @@ instance Writeable CopyDirFileDraft where
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
 
-    let shouldRemoveDstDir = dstDirExists && _removeDstDir draft
+    let shouldRemoveDstDir = dstDirExists && _dstDirStrategy draft == RemoveExistingDstDir
     when shouldRemoveDstDir $ removeDirectoryRecursive dstPathAbsDir
 
     when srcDirExists $ do

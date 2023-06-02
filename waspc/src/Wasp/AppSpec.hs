@@ -75,7 +75,6 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    -- | Absolute path to the directory where user defined static assets.
     staticClientAssetsDir :: Maybe (Path' Abs (Dir StaticAssetsDir))
   }
 
@@ -125,8 +124,8 @@ resolveRef spec ref =
           ++ "."
           ++ " This should never happen, as Analyzer should ensure all references in AppSpec are valid."
     )
-    $ find ((== refName ref) . fst) $
-      getDecls spec
+    $ find ((== refName ref) . fst)
+    $ getDecls spec
 
 doesConfigFileExist :: AppSpec -> Path' (Rel WaspProjectDir) File' -> Bool
 doesConfigFileExist spec file =

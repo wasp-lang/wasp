@@ -5,8 +5,7 @@ module Wasp.Generator.FileDraft
     createCopyFileDraft,
     createCopyFileDraftIfExists,
     createTextFileDraft,
-    createCopyDirWithOverwriteFileDraft,
-    createCopyDirWithMergeFileDraft,
+    createCopyDirFileDraft,
     createCopyAndModifyTextFileDraft,
   )
 where
@@ -17,6 +16,7 @@ import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified StrongPath as SP
 import Wasp.Generator.Common (ProjectRootDir)
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
+import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy)
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -99,23 +99,17 @@ createCopyFileDraftIfExists dstPath srcPath =
         CopyFD._failIfSrcDoesNotExist = False
       }
 
-createCopyDirWithOverwriteFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
-createCopyDirWithOverwriteFileDraft dstPath srcPath = createCopyDirFileDraft dstPath srcPath True
-
-createCopyDirWithMergeFileDraft :: Path' (Rel ProjectRootDir) (Dir a) -> Path' Abs (Dir b) -> FileDraft
-createCopyDirWithMergeFileDraft dstPath srcPath = createCopyDirFileDraft dstPath srcPath False
-
 createCopyDirFileDraft ::
+  CopyDirFileDraftDstDirStrategy ->
   Path' (Rel ProjectRootDir) (Dir a) ->
   Path' Abs (Dir b) ->
-  Bool ->
   FileDraft
-createCopyDirFileDraft dstPath srcPath removeDstDir =
+createCopyDirFileDraft dstDirStrategy dstPath srcPath =
   FileDraftCopyDirFd $
     CopyDirFD.CopyDirFileDraft
       { CopyDirFD._dstPath = SP.castDir dstPath,
         CopyDirFD._srcPath = SP.castDir srcPath,
-        CopyDirFD._removeDstDir = removeDstDir
+        CopyDirFD._dstDirStrategy = dstDirStrategy
       }
 
 createTextFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Text -> FileDraft

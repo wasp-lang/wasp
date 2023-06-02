@@ -34,7 +34,8 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirWithMergeFileDraft, createTextFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTextFileDraft)
+import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (WriteOverExistingDstDir))
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
@@ -282,5 +283,5 @@ genEnvValidationScript =
 genStaticAssetsDir :: AppSpec -> Generator [FileDraft]
 genStaticAssetsDir spec = return $ maybeToList maybeCopyStaticAssetsDir
   where
-    maybeCopyStaticAssetsDir = createCopyDirWithMergeFileDraft staticAssetsDstDir <$> AS.staticClientAssetsDir spec
+    maybeCopyStaticAssetsDir = createCopyDirFileDraft WriteOverExistingDstDir staticAssetsDstDir <$> AS.staticClientAssetsDir spec
     staticAssetsDstDir = C.webAppRootDirInProjectRootDir </> C.staticAssetsDirInWebAppDir

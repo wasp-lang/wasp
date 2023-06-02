@@ -32,7 +32,8 @@ import Wasp.Generator.DbGenerator.Common
     prismaClientOutputDirEnvVar,
   )
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirWithOverwriteFileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTemplateFileDraft)
+import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (RemoveExistingDstDir))
 import Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
@@ -83,7 +84,7 @@ genPrismaSchema spec = do
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
 genMigrationsDir spec = return $ copyDbMigrationsDir <$> AS.migrationsDir spec
   where
-    copyDbMigrationsDir = createCopyDirWithOverwriteFileDraft genProjectMigrationsDir
+    copyDbMigrationsDir = createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir
     genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInProjectRootDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk
