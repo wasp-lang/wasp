@@ -3,7 +3,7 @@ module Wasp.Cli.ParserTest where
 import qualified Options.Applicative as O
 import Test.Tasty.Hspec (Spec, SpecWith, describe, it, shouldBe)
 import Wasp.Cli.Command.Call
-import Wasp.Cli.Command.ShellCompletion.Shell (Shell (..))
+import Wasp.Cli.Command.ShellCompletion.CompletionArgs
 import Wasp.Cli.Parser (parserRunnerSettings)
 
 parseArgs :: String -> Maybe CommandCall
