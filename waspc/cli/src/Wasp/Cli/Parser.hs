@@ -3,7 +3,7 @@ module Wasp.Cli.Parser (parserRunnerSettings, cliArgsParser) where
 import Options.Applicative (Parser, ParserInfo, ParserPrefs, (<**>), (<|>))
 import qualified Options.Applicative as O
 import qualified Options.Applicative.Builder as OB
-import Options.Applicative.Help (text)
+import qualified Options.Applicative.Help as OH
 import Wasp.Cli.Command.Call (CommandCall (..))
 import Wasp.Cli.Command.CreateNewProject.Parser (newParser)
 import Wasp.Cli.Command.Db.Parser (dbParser)
@@ -13,6 +13,7 @@ import Wasp.Cli.Command.Start.Parser (startParser)
 import Wasp.Cli.Command.Test.Parser (testParser)
 import Wasp.Cli.Command.WaspLS.Parser (waspLSParser)
 import Wasp.Cli.Parser.Util (mkCommand, mkCommandWithInfo)
+import qualified Wasp.Cli.Terminal as TermCli
 import qualified Wasp.Util.Terminal as Term
 
 cliArgsParser :: IO CommandCall
@@ -25,9 +26,14 @@ parserRunnerSettings = (preferences, options)
     options =
       O.info (topLevelCommandsParser <**> O.helper) $ O.footerDoc (Just footer)
     footer =
-      text $
+      OH.text $
         unlines
-          [ Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
+          [ TermCli.title "EXAMPLES",
+            " wasp new MyApp",
+            " wasp start",
+            " wasp db migrate-dev",
+            "",
+            Term.applyStyles [Term.Green] "Docs:" <> " https://wasp-lang.dev/docs",
             Term.applyStyles [Term.Magenta] "Discord (chat):" <> " https://discord.gg/rzdnErX",
             Term.applyStyles [Term.Cyan] "Newsletter:" <> " https://wasp-lang.dev/#signup"
           ]
