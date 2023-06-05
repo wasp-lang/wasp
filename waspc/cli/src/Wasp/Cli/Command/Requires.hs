@@ -25,7 +25,7 @@ import Control.Monad.State.Strict (StateT, evalStateT, gets, modify, when)
 import Control.Monad.Trans (MonadTrans)
 import Data.Foldable (find)
 
--- | A requirement that a command needs in order to run
+-- | A requirement that a command needs in order to run.
 data CommandRequirement
   = -- | Requires that it is possible to connect to the prisma database.
     DbConnection
