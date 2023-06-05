@@ -33,7 +33,7 @@ type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
 type ServerType = Parameters<WebSocketFn>[0]
 type Events = ServerType extends Server<infer ClientToServerEvents, infer ServerToClientEvents>
   ? [ClientToServerEvents, ServerToClientEvents]
-  : never
+  : [DefaultEventsMap, DefaultEventsMap]
 
 export type ClientToServerEvents = Events[0]
 export type ServerToClientEvents = Events[1]
