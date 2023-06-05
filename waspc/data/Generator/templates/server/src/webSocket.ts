@@ -29,7 +29,14 @@ export type WebSocketDefinition<
     }
   ) => Promise<void> | void
 
-type ServerType = Parameters<typeof {= userWebSocketFn.importIdentifier =}> [0]
+type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
+type ServerType = Parameters<WebSocketFn>[0]
+type Events = ServerType extends Server<infer ClientToServerEvents, infer ServerToClientEvents>
+  ? [ClientToServerEvents, ServerToClientEvents]
+  : never
+
+export type ClientToServerEvents = Events[0]
+export type ServerToClientEvents = Events[1]
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
 export async function init(server: http.Server): Promise<void> {

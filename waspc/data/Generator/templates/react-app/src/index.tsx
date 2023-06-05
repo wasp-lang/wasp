@@ -13,6 +13,10 @@ import {
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
 
+{=# areWebSocketsUsed =}
+import { WebSocketProvider } from './webSocket/WebSocketProvider'
+{=/ areWebSocketsUsed =}
+
 startApp()
 
 async function startApp() {
@@ -28,7 +32,9 @@ async function render() {
   const queryClient = await queryClientInitialized
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
-      {router}
+      <WebSocketProvider>
+        {router}
+      </WebSocketProvider>
     </QueryClientProvider>,
     document.getElementById('root')
   )

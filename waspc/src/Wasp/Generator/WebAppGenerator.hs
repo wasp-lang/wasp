@@ -238,7 +238,7 @@ genSrcDir spec =
       copyTmplFile [relfile|api.ts|],
       copyTmplFile [relfile|storage.ts|],
       genRouter spec,
-      genIndexJs spec
+      getIndexTs spec
     ]
     <++> genOperations spec
     <++> genEntitiesDir spec
@@ -257,15 +257,16 @@ genEntitiesDir spec = return [entitiesIndexFileDraft]
         (Just $ object ["entities" .= allEntities])
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getDecls @AS.Entity.Entity spec
 
-genIndexJs :: AppSpec -> Generator FileDraft
-genIndexJs spec =
+getIndexTs :: AppSpec -> Generator FileDraft
+getIndexTs spec =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|src/index.tsx|])
       (C.asWebAppFile [relfile|src/index.tsx|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction
+            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
+              "areWebSocketsUsed" .= AS.WS.areWebSocketsUsed spec
             ]
       )
   where
@@ -293,14 +294,17 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genWebSocketTs spec
+        [ copyTmplFile [relfile|webSocket.ts|],
+          genWebSocketProvider spec
         ]
   | otherwise = return []
+  where
+    copyTmplFile = return . C.mkSrcTmplFd
 
-genWebSocketTs :: AppSpec -> Generator FileDraft
-genWebSocketTs spec = return $ C.mkTmplFdWithData tmplFile tmplData
+genWebSocketProvider :: AppSpec -> Generator FileDraft
+genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
     maybeWebSocket = webSocket (snd (getApp spec))
     shouldAutoConnect = (autoConnect <$> maybeWebSocket) /= Just (Just False)
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
-    tmplFile = C.asTmplFile [relfile|src/webSocket.ts|]
+    tmplFile = C.asTmplFile [relfile|src/webSocket/WebSocketProvider.tsx|]

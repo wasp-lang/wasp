@@ -3,12 +3,14 @@ import { useQuery } from "@wasp/queries";
 import getIdeas from "@wasp/queries/getIdeas";
 import createIdea from "@wasp/actions/createIdea";
 import toggleAgreementFn from "@wasp/actions/toggleAgreement";
-import { useSocket } from "@wasp/webSocket";
+import { useSocket, useSocketListener } from "@wasp/webSocket";
 import { useQueryClient } from "@tanstack/react-query";
-
 
 const MainPage = ({ user }: any) => {
   const { socket, isConnected } = useSocket();
+  useSocketListener("ideaCreated", ({ username }) => {
+    console.log(`User ${username} created an idea.`);
+  });
   const [ideaText, setIdeaText] = useState("");
   const { data: ideas, isLoading } = useQuery(getIdeas, undefined, {
     refetchOnWindowFocus: false,
@@ -24,7 +26,7 @@ const MainPage = ({ user }: any) => {
     await toggleAgreementFn({ id: idea.id });
     socket.emit("agreementToggled");
   }
-  function getClassName(ide: any) {
+  function getClassName(idea: any) {
     let base = "idea";
     if (idea.user.username === user.username) {
       base += " mine";
