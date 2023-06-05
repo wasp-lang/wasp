@@ -1,15 +1,16 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.Cli.Command.Requires
-  ( -- * Using command requirements
+  ( -- * Command Requirements
 
+    -- Command might have certain requirements that must be met before it runs.
     -- This module exports the lower-level parts of the command requirement
-    -- API. To use these features to establish a requirement for a command,
-    -- use 'Wasp.Cli.Command.Common.commandRequires'. For convenience,
+    -- API. To use these features to specify a requirement for a command,
+    -- use 'Wasp.Cli.Command.Common.require'. For convenience,
     -- 'CommandRequirement' and its constructors are also exported from that
     -- module.
     --
-    -- Call @commandRequires SomeRequirementConstructor@ anywhere in your command,
+    -- Call @require SomeRequirementConstructor@ anywhere in your command,
     -- preferably near the beginning of the command implementation and definitely
     -- before using the requirement.
     CommandRequirement (..),
@@ -49,13 +50,12 @@ runRequiresT m = evalStateT (unRequiresT m) []
 -- want it to be (e.g. marking a requirement as met without actually checking
 -- it).
 class Monad m => MonadRequires m where
-  -- | @checkRequirement requirement check@ runs @check@ if the requirement
-  -- has not been met yet. @check@ should return whether the requirement is
-  -- met.
+  -- | @checkRequirement requirement doCheck@ returns True if specified requirement
+  -- is met, otherwise False. It will run `doCheck` to check this, unless it
+  -- already knows from before that requirement is met.
   --
-  -- @checkRequirement requirement check@ returns @True@ when the requirement
-  -- is met, and will not run the check if the requirement has already been
-  -- checked and met.
+  -- This assumes that once a requirement is met, it will stay met for the
+  -- rest of the program.
   checkRequirement :: CommandRequirement -> m Bool -> m Bool
 
 instance Monad m => MonadRequires (RequiresT m) where

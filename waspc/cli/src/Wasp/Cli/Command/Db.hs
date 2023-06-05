@@ -4,7 +4,7 @@ module Wasp.Cli.Command.Db
 where
 
 import Wasp.Cli.Command (Command, runCommand)
-import Wasp.Cli.Command.Common (CommandRequirement (DbConnection), commandRequires, findWaspProjectRootDirFromCwd)
+import Wasp.Cli.Command.Common (CommandRequirement (DbConnection), findWaspProjectRootDirFromCwd, require)
 import Wasp.Cli.Command.Compile (compileWithOptions, defaultCompileOptions)
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter))
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
@@ -18,7 +18,7 @@ runDbCommand = runCommand . makeDbCommand
 --   All the commands that operate on db should be created using this function.
 makeDbCommand :: Command a -> Command a
 makeDbCommand cmd = do
-  commandRequires DbConnection
+  require DbConnection
 
   -- Ensure code is generated and npm dependencies are installed.
   waspProjectDir <- findWaspProjectRootDirFromCwd

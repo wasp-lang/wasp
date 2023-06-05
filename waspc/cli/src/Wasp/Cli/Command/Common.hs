@@ -3,7 +3,7 @@ module Wasp.Cli.Command.Common
     findWaspProjectRoot,
     readWaspCompileInfo,
     throwIfExeIsNotAvailable,
-    commandRequires,
+    require,
     CommandRequirement (..),
   )
 where
@@ -20,9 +20,9 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Requires (CommandRequirement (..), checkRequirement)
 import Wasp.Cli.Common (dotWaspRootFileInWaspProjectDir)
 import qualified Wasp.Cli.Common as Cli.Common
-import Wasp.Generator.DbGenerator.Operations (dbIsRunning)
+import Wasp.Generator.DbGenerator.Operations (isDbRunning)
 import Wasp.Project (WaspProjectDir)
-import Wasp.Util (ifM)
+import Wasp.Util (ifM, unlessM)
 import qualified Wasp.Util.IO as IOUtil
 
 findWaspProjectRoot :: Path' Abs (Dir ()) -> Command (Path' Abs (Dir WaspProjectDir))
@@ -71,7 +71,7 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
       E.throwError $
         CommandError ("Couldn't find `" <> exeName <> "` executable") explanationMsg
 
--- | @commandRequires requirement@ checks whether the specified requirement is
+-- | @require requirement@ checks whether the specified requirement is
 -- met, throwing an error if it is not.
 --
 -- See 'CommandRequirement' for what each requirement is and what it checks
@@ -80,22 +80,20 @@ throwIfExeIsNotAvailable exeName explanationMsg = do
 -- NOTE: it would be better if this function was in 'Wasp.Cli.Command.Requires',
 -- but that creates a dependency loop (since this function depends on Common, which
 -- depends on Command, which depends on Requires).
-commandRequires :: CommandRequirement -> Command ()
-commandRequires r = case r of
+require :: CommandRequirement -> Command ()
+require requirement = case requirement of
   DbConnection ->
-    req
+    throwIfRequirementNotMet
       ( do
           waspRoot <- findWaspProjectRootDirFromCwd
           let outDir = waspRoot </> Cli.Common.dotWaspDirInWaspProjectDir </> Cli.Common.generatedCodeDirInDotWaspDir
-          liftIO $ dbIsRunning outDir
+          liftIO $ isDbRunning outDir
       )
       ( CommandError
           "Can not connect to database"
-          "The database needs to be running in order to execute this command. Make sure `wasp start db` is running and try again."
+          "The database needs to be running in order to execute this command. You can easily start a managed dev database with `wasp start db`."
       )
   where
-    req check err = do
-      met <- checkRequirement r check
-      if met
-        then return ()
-        else throwError err
+    throwIfRequirementNotMet isRequirementMet err = do
+      unlessM (checkRequirement requirement isRequirementMet) $
+        throwError err
