@@ -32,9 +32,14 @@ async function render() {
   const queryClient = await queryClientInitialized
   ReactDOM.render(
     <QueryClientProvider client={queryClient}>
+      {=# areWebSocketsUsed =}
       <WebSocketProvider>
         {router}
       </WebSocketProvider>
+      {=/ areWebSocketsUsed =}
+      {=^ areWebSocketsUsed =}
+      {router}
+      {=/ areWebSocketsUsed =}
     </QueryClientProvider>,
     document.getElementById('root')
   )
