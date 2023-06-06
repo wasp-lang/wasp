@@ -111,12 +111,12 @@ runCompletionTest testInput =
           fields =
             concat
               [ field "label" LSP.label,
-                optField "kind" LSP.kind,
-                optField "detail" LSP.detail,
-                optField "insertText" LSP.insertText
+                optionalField "kind" LSP.kind,
+                optionalField "detail" LSP.detail,
+                optionalField "insertText" LSP.insertText
               ]
           field label getter = [printf "%s={%s}" (label :: String) (show $ item ^. getter)]
-          optField label getter = case item ^. getter of
+          optionalField label getter = case item ^. getter of
             Nothing -> []
             Just v -> [printf "%s={%s}" (label :: String) (show v)]
    in "Completion items:\n" ++ unlines (map ("  " <>) fmtedCompletionItems)

@@ -41,11 +41,11 @@ toOffset targetOffset start = go $ bottom start
       | offsetAt at == targetOffset = at
       | offsetAfter at > targetOffset = at
       | offsetAfter at == targetOffset =
-        if not $ S.syntaxKindIsTrivia $ kindAt at
-          then at
-          else case at & next of
-            Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
-            _ -> at
+          if not $ S.syntaxKindIsTrivia $ kindAt at
+            then at
+            else case at & next of
+              Just at' | not (S.syntaxKindIsTrivia (kindAt at')) -> at'
+              _ -> at
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next
@@ -76,13 +76,9 @@ isAtExprPlace =
   anyP
     [ allP [parentIs S.DictEntry, hasLeft S.DictKey],
       allP [parentIs S.Decl, hasLeft S.DeclType, hasLeft S.DeclName],
+      parentIs S.List,
       parentIs S.Tuple
     ]
-
--- (parentIs S.DictEntry && hasLeft S.DictKey)
---   || parentIs S.List
---   || (parentIs S.Decl && hasLeft S.DeclType && hasLeft S.DeclName)
---   || parentIs S.Tuple
 
 -- | Show the nodes around the current position
 --

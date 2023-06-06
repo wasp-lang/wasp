@@ -192,14 +192,14 @@ instance IsString SignatureFragment where
 -- | Convert the container type of a signature to a list of fragments.
 --
 -- To avoid unreadably long signatures, dictionary types inside of the container
--- type are written @{ ... }@.
+-- type are written as @{ ... }@.
 signatureToFragments :: Signature -> [SignatureFragment]
 signatureToFragments signature = case signatureType signature of
   Type.DictType fieldMap
     | M.null fieldMap -> ["{}"]
     | otherwise ->
-      let fields = intersperse ", " (map fieldToFragment (M.toList fieldMap))
-       in concat [["{"], fields, ["}"]]
+        let fields = intersperse ",\n  " (map fieldToFragment (M.toList fieldMap))
+         in concat [["{\n  "], fields, ["\n}"]]
   Type.ListType inner -> ["[", Param List (showInnerType inner), "]"]
   Type.TupleType (a, b, cs) ->
     let fieldTypes = a : b : cs
