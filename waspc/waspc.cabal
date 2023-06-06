@@ -253,7 +253,6 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.Node.Version
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes
     Wasp.Generator.ServerGenerator
@@ -296,6 +295,7 @@ library
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.CrudG
     Wasp.Generator.WriteFileDrafts
+    Wasp.Node.Version
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -327,8 +327,9 @@ library waspls
   import: common-all
   hs-source-dirs: waspls/src
   exposed-modules:
+    Control.Monad.Log
+    Control.Monad.Log.Class
     Wasp.LSP.Server
-  other-modules:
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
@@ -511,6 +512,31 @@ test-suite waspc-test
     Paths_waspc
     Generator.NpmDependenciesTest
     JsImportTest
+
+test-suite waspls-test
+  import: common-all, common-exe
+  type: exitcode-stdio-1.0
+  hs-source-dirs: waspls/test
+  main-is: TastyDiscoverDriver.hs
+  build-tool-depends:
+    tasty-discover:tasty-discover
+  build-depends:
+    , base
+    , waspc
+    , waspls
+    , lens                  ^>=5.1
+    , lsp                   ^>=1.4.0.0
+    , lsp-types             ^>=1.4.0.1
+    , mtl
+    , QuickCheck            ^>= 2.14
+    , tasty                 ^>= 1.4.2
+    -- tasty-hspec 1.1.7 introduces breaking changes, which is why we have < 1.1.7 .
+    , tasty-hspec           >= 1.1 && < 1.1.7
+    , tasty-golden          ^>= 2.3.5
+    , bytestring
+    , filepath
+  other-modules:
+    Wasp.LSP.CompletionTest
 
 test-suite cli-test
   import: common-all, common-exe
