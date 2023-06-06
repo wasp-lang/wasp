@@ -15,7 +15,7 @@ import Wasp.LSP.Completions.Common (CompletionContext (..), CompletionProvider)
 import qualified Wasp.LSP.Completions.DictKeyCompletion as DictKeyCompletion
 import qualified Wasp.LSP.Completions.ExprCompletion as ExprCompletion
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
-import Wasp.LSP.Syntax (lspPositionToOffset, showNeighborhood, toOffset)
+import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset, showNeighborhood)
 
 -- | Get the list of completions at a (line, column) position in the source.
 getCompletionsAtPosition ::
@@ -31,7 +31,7 @@ getCompletionsAtPosition position = do
     Just syntax -> do
       let offset = lspPositionToOffset src position
       -- 'location' is a traversal through the syntax tree that points to 'position'
-      let location = toOffset offset (fromSyntaxForest syntax)
+      let location = locationAtOffset offset (fromSyntaxForest syntax)
       logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " offset=" ++ show offset
       logM $ "[getCompletionsAtPosition] neighborhood=\n" ++ showNeighborhood location
       let completionContext = CompletionContext {_src = src, _cst = syntax}

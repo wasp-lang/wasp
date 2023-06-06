@@ -3,7 +3,7 @@ module Wasp.LSP.Syntax
 
     -- | Module with utilities for working with/looking for patterns in CSTs
     lspPositionToOffset,
-    toOffset,
+    locationAtOffset,
     allP,
     anyP,
     parentIs,
@@ -33,8 +33,8 @@ lspPositionToOffset srcString (J.Position l c) =
 --
 -- If the offset falls on the border between two nodes, it tries to first choose
 -- the leftmost non-trivia token, and then the leftmost token.
-toOffset :: Int -> Traversal -> Traversal
-toOffset targetOffset start = go $ bottom start
+locationAtOffset :: Int -> Traversal -> Traversal
+locationAtOffset targetOffset start = go $ bottom start
   where
     go :: Traversal -> Traversal
     go at

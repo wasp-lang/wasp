@@ -22,7 +22,7 @@ import Wasp.Analyzer.Parser.CST.Traverse (Traversal, fromSyntaxForest)
 import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
-import Wasp.LSP.Syntax (lspPositionToOffset, toOffset)
+import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
 import Wasp.LSP.TypeInference (ExprKey (Key, List, Tuple), findExprPathAtLocation, findTypeForPath)
 
 -- | Configuration for 'LSP.Options', used in "Wasp.LSP.Server".
@@ -67,7 +67,7 @@ getSignatureHelpAtPosition position = do
       return emptyHelp
     Just syntax -> do
       let offset = lspPositionToOffset src position
-      let location = toOffset offset (fromSyntaxForest syntax)
+      let location = locationAtOffset offset (fromSyntaxForest syntax)
       findSignatureAtLocation src location >>= \case
         Nothing -> do
           logM "[getSignatureHelpAtPosition] no signature found"
