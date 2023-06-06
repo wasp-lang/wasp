@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { withSuperJsonSerialization } from '../serialization.js'
+import { withOperationsMiddleware } from '../../middleware/operations.js'
 {=& operationImportStmt =}
 
-export default withSuperJsonSerialization({= operationName =})
+export default withOperationsMiddleware({= operationName =})

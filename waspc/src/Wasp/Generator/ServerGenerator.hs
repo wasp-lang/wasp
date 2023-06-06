@@ -260,10 +260,7 @@ genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
   -- but I did not bother with it yet since it is used only here for now.
-  sequence
-    [ genRoutesIndex spec,
-      genRoutesSerialization spec
-    ]
+  sequence [genRoutesIndex spec]
 
 genRoutesIndex :: AppSpec -> Generator FileDraft
 genRoutesIndex spec =
@@ -280,16 +277,6 @@ genRoutesIndex spec =
           "areThereAnyCustomApiRoutes" .= (not . null $ AS.getApis spec),
           "areThereAnyCrudRoutes" .= (not . null $ AS.getCruds spec)
         ]
-
-genRoutesSerialization :: AppSpec -> Generator FileDraft
-genRoutesSerialization spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/routes/serialization.ts|])
-      (C.asServerFile [relfile|src/routes/serialization.ts|])
-      (Just tmplData)
-  where
-    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
 genTypesAndEntitiesDirs :: AppSpec -> Generator [FileDraft]
 genTypesAndEntitiesDirs spec =
@@ -399,9 +386,10 @@ genExportedTypesDir spec =
 
 genMiddleware :: AppSpec -> Generator [FileDraft]
 genMiddleware spec =
-  return
-    [ C.mkTmplFd [relfile|src/middleware/index.ts|],
-      C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData)
+  sequence
+    [ return $ C.mkTmplFd [relfile|src/middleware/index.ts|],
+      return $ C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData),
+      genOperationsMiddleware spec
     ]
   where
     tmplData =
@@ -419,3 +407,13 @@ genMiddleware spec =
               "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
               "importAlias" .= globalMiddlewareConfigFnAlias
             ]
+
+genOperationsMiddleware :: AppSpec -> Generator FileDraft
+genOperationsMiddleware spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/middleware/operations.ts|])
+      (C.asServerFile [relfile|src/middleware/operations.ts|])
+      (Just tmplData)
+  where
+    tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]

@@ -6,12 +6,13 @@ module Wasp.AppSpec.Valid
     getApp,
     isAuthEnabled,
     doesUserEntityContainField,
+    getPrimaryKeyFieldFromCrudEntity,
   )
 where
 
 import Control.Monad (unless)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (isJust)
+import Data.Maybe (fromJust, isJust)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
@@ -31,6 +32,7 @@ import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
+import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version as WV
 
@@ -257,43 +259,28 @@ validateApiNamespacePathsAreUnique spec =
 validateCrudOperations :: AppSpec -> [ValidationError]
 validateCrudOperations spec =
   concat
-    [ checkIfAtLeastOneOperationIsUsed cruds,
-      checkIfAllCrudNamesAreUnique cruds,
-      checkIfPrimaryFieldExistsForCrudEntities cruds
+    [ concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds,
+      concatMap checkIfPrimaryFieldExistsForEntity cruds
     ]
   where
     cruds = AS.getCruds spec
 
-    checkIfAtLeastOneOperationIsUsed :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    checkIfAtLeastOneOperationIsUsed cruds' =
-      concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds'
-      where
-        checkIfAtLeastOneOperationIsUsedForCrud (crudName, crud) =
-          if not . null $ crudOperations
-            then []
-            else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
-          where
-            crudOperations = crudDeclarationToOperationsList crud
-
-    checkIfAllCrudNamesAreUnique :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    checkIfAllCrudNamesAreUnique cruds' =
-      if null duplicateNames
+    checkIfAtLeastOneOperationIsUsedForCrud :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfAtLeastOneOperationIsUsedForCrud (crudName, crud) =
+      if not . null $ crudOperations
         then []
-        else [GenericValidationError $ "CRUD names must be unique. Duplicates: " ++ intercalate ", " duplicateNames]
+        else [GenericValidationError $ "CRUD \"" ++ crudName ++ "\" must have at least one operation defined."]
       where
-        names = map fst cruds'
-        duplicateNames = map head $ filter ((> 1) . length) (group . sort $ names)
+        crudOperations = crudDeclarationToOperationsList crud
 
-    checkIfPrimaryFieldExistsForCrudEntities :: [(String, AS.Crud.Crud)] -> [ValidationError]
-    checkIfPrimaryFieldExistsForCrudEntities = concatMap checkIfPrimaryFieldExistsForEntity
+    checkIfPrimaryFieldExistsForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfPrimaryFieldExistsForEntity (crudName, crud) =
+      if isJust maybePrimaryField
+        then []
+        else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have a primary key."]
       where
-        checkIfPrimaryFieldExistsForEntity (crudName, crud) =
-          if isJust maybePrimaryField
-            then []
-            else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have a primary field."]
-          where
-            (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
-            maybePrimaryField = Entity.getPrimaryField entity
+        (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
+        maybePrimaryField = Entity.getPrimaryKeyField entity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -326,3 +313,9 @@ doesUserEntityContainField spec fieldName = do
   let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
   let userEntityFields = Entity.getFields userEntity
   Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields
+
+-- We validated that entity field exists, so we can safely use fromJust here.
+getPrimaryKeyFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
+getPrimaryKeyFieldFromCrudEntity spec crud = fromJust $ Entity.getPrimaryKeyField crudEntity
+  where
+    crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

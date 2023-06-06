@@ -1,7 +1,7 @@
 {{={= =}=}}
 import express from 'express'
 import * as crud from '../../crud/{= crud.name =}.js'
-import { withSuperJsonSerialization } from '../serialization.js'
+import { withOperationsMiddleware } from '../../middleware/operations.js'
 {=# isAuthEnabled =}
 import auth from '../../core/auth.js'
 {=/ isAuthEnabled =}
@@ -15,31 +15,31 @@ _waspRouter.use(auth)
 {=# crud.operations.Get =}
 _waspRouter.post(
     '/{= route =}',
-    withSuperJsonSerialization(crud.getFn),
+    withOperationsMiddleware(crud.getFn),
 )
 {=/ crud.operations.Get =}
 {=# crud.operations.GetAll =}
 _waspRouter.post(
     '/{= route =}',
-    withSuperJsonSerialization(crud.getAllFn),
+    withOperationsMiddleware(crud.getAllFn),
 )
 {=/ crud.operations.GetAll =}
 {=# crud.operations.Create =}
 _waspRouter.post(
     '/{= route =}',
-    withSuperJsonSerialization(crud.createFn),
+    withOperationsMiddleware(crud.createFn),
 )
 {=/ crud.operations.Create =}
 {=# crud.operations.Update =}
 _waspRouter.post(
     '/{= route =}',
-    withSuperJsonSerialization(crud.updateFn),
+    withOperationsMiddleware(crud.updateFn),
 )
 {=/ crud.operations.Update =}
 {=# crud.operations.Delete =}
 _waspRouter.post(
     '/{= route =}',
-    withSuperJsonSerialization(crud.deleteFn),
+    withOperationsMiddleware(crud.deleteFn),
 )
 {=/ crud.operations.Delete =}
 

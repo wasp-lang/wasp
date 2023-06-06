@@ -309,6 +309,7 @@ library
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
+    Wasp.Psl.Util
     Wasp.SemanticVersion
     Wasp.Util
     Wasp.Util.Network.Socket

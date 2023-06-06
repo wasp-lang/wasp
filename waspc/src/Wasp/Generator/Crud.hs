@@ -3,7 +3,6 @@
 
 module Wasp.Generator.Crud
   ( getCrudOperationJson,
-    getCrudEntityPrimaryField,
     getCrudFilePath,
     makeCrudOperationKeyAndJsonPair,
     crudDeclarationToOperationsList,
@@ -19,7 +18,6 @@ import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import qualified Wasp.AppSpec.Entity as Entity
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.Crud.Routes as Routes
 import qualified Wasp.Psl.Ast.Model as PslModel
@@ -50,11 +48,6 @@ getCrudOperationJson crudOperationName crud primaryField =
               "isPublic" .= fromMaybe False (AS.Crud.isPublic options)
             ]
         )
-
-getCrudEntityPrimaryField :: AS.AppSpec -> AS.Crud.Crud -> Maybe PslModel.Field
-getCrudEntityPrimaryField spec crud = Entity.getPrimaryField crudEntity
-  where
-    crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)
 
 getCrudFilePath :: String -> String -> Path' (Rel r) File'
 getCrudFilePath crudName ext = fromJust (SP.parseRelFile (crudName ++ "." ++ ext))

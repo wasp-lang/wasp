@@ -14,10 +14,9 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, getPrimaryKeyFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud
   ( crudDeclarationToOperationsList,
-    getCrudEntityPrimaryField,
     getCrudFilePath,
     getCrudOperationJson,
     makeCrudOperationKeyAndJsonPair,
@@ -78,7 +77,7 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
               "isAuthEnabled" .= isAuthEnabled spec
             ]
         -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
-        primaryField = fromJust $ getCrudEntityPrimaryField spec crud
+        primaryField = getPrimaryKeyFieldFromCrudEntity spec crud
 
 genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
@@ -95,8 +94,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
               "userEntityUpper" .= maybeUserEntity,
               "overrides" .= object overrides
             ]
-        -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
-        primaryField = fromJust $ getCrudEntityPrimaryField spec crud
+        primaryField = getPrimaryKeyFieldFromCrudEntity spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
         maybeAuth = AS.App.auth $ snd $ getApp spec
 

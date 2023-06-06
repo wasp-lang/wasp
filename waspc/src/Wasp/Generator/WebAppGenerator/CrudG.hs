@@ -8,7 +8,8 @@ import StrongPath (reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.Generator.Crud (getCrudEntityPrimaryField, getCrudOperationJson)
+import Wasp.AppSpec.Valid (getPrimaryKeyFieldFromCrudEntity)
+import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
@@ -31,5 +32,4 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         tmplPath = [relfile|src/crud/_crud.ts|]
         destPath = C.webAppSrcDirInWebAppRootDir </> [reldir|crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
         tmplData = getCrudOperationJson name crud primaryField
-        -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
-        primaryField = fromJust $ getCrudEntityPrimaryField spec crud
+        primaryField = getPrimaryKeyFieldFromCrudEntity spec crud
