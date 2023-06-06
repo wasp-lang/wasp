@@ -228,7 +228,7 @@
             "file",
             "server/src/crud/tasks.ts"
         ],
-        "da35aaad47000caf21bd60b79960d0dddd34af9016273089dcf9acb7c49d9ea0"
+        "27e925f9678fcd46042a6971b0c6cc5805f442532b30e2b75ed7a01a023cfd4e"
     ],
     [
         [
@@ -401,6 +401,13 @@
     [
         [
             "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "1a5c0d5cf1c5ed739adc58ef45cffa17d05702ef7121cfce7c4365cab29490eb"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -445,7 +452,7 @@
             "file",
             "server/src/routes/crud/tasks.ts"
         ],
-        "dd00ad3e714bf1c233eb8c8858c546fffef29a6db57127b62ff11e8c407a4903"
+        "874db48c54d0df14b0ce5363dbe3646b574795a91338a929ec42b5b8b0be188b"
     ],
     [
         [
@@ -459,14 +466,14 @@
             "file",
             "server/src/routes/operations/MySpecialAction.js"
         ],
-        "96dd02810029a9a5a7d0893d2e9cf21da193eb02a801c92603ecac62f06febe6"
+        "d0abf31499ff59fd0da8a85c31e14eb853155ca6d7428ef1230b9dcedfa8b468"
     ],
     [
         [
             "file",
             "server/src/routes/operations/MySpecialQuery.js"
         ],
-        "f1e11e8417baba4e1171dd4824f41d126c0102c6d80cd6204a274eb3ddc15a52"
+        "1daa07d11dc668251db4e516a900920517807507de0fec292c84f05b9478c43f"
     ],
     [
         [
@@ -474,13 +481,6 @@
             "server/src/routes/operations/index.js"
         ],
         "0cb1f33b2ddb9dbe6bb2640f899aa151b388e1799e97b28390af6404154f28c0"
-    ],
-    [
-        [
-            "file",
-            "server/src/routes/serialization.ts"
-        ],
-        "d01aefeee597178a2bb5c5121091ee0b71f294cc1580f9d479b4aecf5eb075db"
     ],
     [
         [

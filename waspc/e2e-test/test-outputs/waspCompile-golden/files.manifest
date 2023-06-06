@@ -28,10 +28,10 @@ waspCompile/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspCompile/.wasp/out/server/src/jobs/core/simpleJob.js
 waspCompile/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspCompile/.wasp/out/server/src/middleware/index.ts
+waspCompile/.wasp/out/server/src/middleware/operations.ts
 waspCompile/.wasp/out/server/src/queries/types.ts
 waspCompile/.wasp/out/server/src/routes/index.js
 waspCompile/.wasp/out/server/src/routes/operations/index.js
-waspCompile/.wasp/out/server/src/routes/serialization.ts
 waspCompile/.wasp/out/server/src/server.ts
 waspCompile/.wasp/out/server/src/types/index.ts
 waspCompile/.wasp/out/server/src/universal/types.ts

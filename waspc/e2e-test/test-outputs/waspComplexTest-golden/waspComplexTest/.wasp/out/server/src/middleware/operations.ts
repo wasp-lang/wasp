@@ -4,12 +4,13 @@ import {
 } from 'superjson'
 import { handleRejection } from '../utils.js'
 
-export function withSuperJsonSerialization (crudFn) {
+export function withOperationsMiddleware (handlerFn) {
     return handleRejection(async (req, res) => {
         const args = (req.body && superjsonDeserialize(req.body)) || {}
         const context = {
+            user: req.user
         }  
-        const result = await crudFn(args, context)
+        const result = await handlerFn(args, context)
         const serializedResult = superjsonSerialize(result)
         res.json(serializedResult)
     })

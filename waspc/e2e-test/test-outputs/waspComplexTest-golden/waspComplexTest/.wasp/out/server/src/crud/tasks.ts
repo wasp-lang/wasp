@@ -27,8 +27,11 @@ const _waspGetAllQuery: GetAllQuery<GetAllInput, GetAllOutput> = ((args, context
   return context.entities.Task.findMany();
 });
 
+// For each operation, we define a type for the function used on the backend
+// it's either the default one, or the one defined in the overrides
 export type GetAllQueryResolved = typeof _waspGetAllQuery
 
+// For each operation, we define a function that is used as the route handler
 export async function getAllFn(args, context) {
   return (_waspGetAllQuery as any)(args, {
     ...context,
@@ -69,7 +72,6 @@ export async function createFn(args, context) {
     entities,
   });
 }
-
 
 
 

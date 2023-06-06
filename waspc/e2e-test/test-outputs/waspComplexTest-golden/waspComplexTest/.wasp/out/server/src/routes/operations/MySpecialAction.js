@@ -1,4 +1,4 @@
-import { withSuperJsonSerialization } from '../serialization.js'
+import { withOperationsMiddleware } from '../../middleware/operations.js'
 import MySpecialAction from '../../actions/MySpecialAction.js'
 
-export default withSuperJsonSerialization(MySpecialAction)
+export default withOperationsMiddleware(MySpecialAction)
