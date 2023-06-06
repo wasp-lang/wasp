@@ -28,8 +28,8 @@ import Wasp.Generator.DbGenerator.Common
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
-import Wasp.Generator.Node.Version (latestMajorNodeVersion)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
+import Wasp.Node.Version (latestMajorNodeVersion)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util (getEnvVarDefinition)
 

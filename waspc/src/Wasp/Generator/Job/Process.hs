@@ -22,8 +22,7 @@ import qualified System.Info
 import qualified System.Process as P
 import UnliftIO.Exception (bracket)
 import qualified Wasp.Generator.Job as J
-import qualified Wasp.Generator.Node.Version as NodeVersion
-import qualified Wasp.SemanticVersion as SV
+import qualified Wasp.Node.Version as NodeVersion
 
 -- TODO:
 --   Switch from Data.Conduit.Process to Data.Conduit.Process.Typed.
@@ -97,15 +96,12 @@ runNodeCommandAsJob = runNodeCommandAsJobWithExtraEnv []
 
 runNodeCommandAsJobWithExtraEnv :: [(String, String)] -> Path' Abs (Dir a) -> String -> [String] -> J.JobType -> J.Job
 runNodeCommandAsJobWithExtraEnv extraEnvVars fromDir command args jobType chan =
-  NodeVersion.getNodeVersion >>= \case
+  NodeVersion.getAndCheckNodeVersion >>= \case
     Left errorMsg -> exitWithError (ExitFailure 1) (T.pack errorMsg)
-    Right nodeVersion ->
-      if SV.isVersionInRange nodeVersion NodeVersion.nodeVersionRange
-        then do
-          envVars <- getAllEnvVars
-          let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
-          runProcessAsJob nodeCommandProcess jobType chan
-        else exitWithError (ExitFailure 1) (T.pack $ NodeVersion.makeNodeVersionMismatchMessage nodeVersion)
+    Right _ -> do
+      envVars <- getAllEnvVars
+      let nodeCommandProcess = (P.proc command args) {P.env = Just envVars, P.cwd = Just $ SP.fromAbsDir fromDir}
+      runProcessAsJob nodeCommandProcess jobType chan
   where
     -- Haskell will use the first value for variable name it finds. Since env
     -- vars in 'extraEnvVars' should override the the inherited env vars, we

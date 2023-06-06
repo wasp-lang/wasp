@@ -10,7 +10,7 @@ where
 import Control.Lens ((.~), (?~), (^.))
 import Data.Text (Text)
 import qualified Data.Text as T
-import Language.LSP.Server (Handlers, LspT)
+import Language.LSP.Server (Handlers)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
@@ -20,8 +20,7 @@ import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
-import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, lift, modify, throwError)
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, liftLSP, modify, throwError)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 
 -- LSP notification and request handlers
@@ -109,10 +108,6 @@ analyzeWaspFile uri = do
                 [ waspErrorToDiagnostic err
                 ]
           modify (latestDiagnostics .~ newDiagnostics)
-
--- | Run a LSP function in the "ServerM" monad.
-liftLSP :: LspT ServerConfig IO a -> ServerM a
-liftLSP m = lift (lift m)
 
 -- | Read the contents of a "Uri" in the virtual file system maintained by the
 -- LSP library.

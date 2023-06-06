@@ -9,8 +9,6 @@ where
 
 import qualified Control.Concurrent.MVar as MVar
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import qualified Control.Monad.Trans.Except as Except
-import qualified Control.Monad.Trans.State.Strict as State
 import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
 import qualified Data.Text as Text
@@ -20,7 +18,7 @@ import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
 import Wasp.LSP.Handlers
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..))
+import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), runServerM)
 import Wasp.LSP.ServerState (ServerState)
 
 lspServerHandlers :: LSP.Handlers ServerM
@@ -47,14 +45,13 @@ serve maybeLogFile = do
           runHandler handler =
             -- Get the state from the "MVar", run the handler in IO and update
             -- the "MVar" state with the end state of the handler.
-            MVar.modifyMVar state \oldState -> do
-              LSP.runLspT env do
-                (e, newState) <- State.runStateT (Except.runExceptT handler) oldState
-                result <- case e of
-                  Left (ServerError severity errMessage) -> sendErrorMessage severity errMessage
-                  Right a -> return a
+            MVar.modifyMVar state \oldState -> LSP.runLspT env $ do
+              (e, newState) <- runServerM oldState handler
+              result <- case e of
+                Left (ServerError severity errMessage) -> sendErrorMessage severity errMessage
+                Right a -> return a
 
-                return (newState, result)
+              return (newState, result)
 
   exitCode <-
     LSP.runServer

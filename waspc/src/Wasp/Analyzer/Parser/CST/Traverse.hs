@@ -234,20 +234,18 @@ right t = case tRightSiblings t of
 next :: Traversal -> Maybe Traversal
 next t
   | hasChildren t = untilM (not . hasChildren) down t
-  | hasAncestors t = case untilM hasRightSiblings up t of
+  | otherwise = case untilM hasRightSiblings up t of
       Nothing -> Nothing
       Just t' -> t' & pipe [right, untilM (not . hasChildren) down]
-  | otherwise = Nothing
 
 -- | Move to the previous node in a tree. This is 'next', but moves left instead
 -- of right.
 previous :: Traversal -> Maybe Traversal
 previous t
   | hasChildren t = untilM (not . hasChildren) down t
-  | hasAncestors t = case untilM hasLeftSiblings up t of
+  | otherwise = case untilM hasLeftSiblings up t of
       Nothing -> Nothing
       Just t' -> t' & pipe [left, untilM (not . hasChildren) $ down >=> rightMostSibling]
-  | otherwise = Nothing
   where
     rightMostSibling = untilM (not . hasRightSiblings) right
 
