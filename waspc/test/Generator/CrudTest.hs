@@ -15,51 +15,22 @@ import qualified Wasp.Psl.Ast.Model as PslModel
 spec_GeneratorCrudTest :: Spec
 spec_GeneratorCrudTest = do
   describe "getCrudOperationJson" $ do
-    it "it makes all operations disabled by default" $ do
+    it "returns empty operations list when no operations are defined" $ do
       getCrudOperationJson
         crudOperationsName
-        AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            operations =
-              AS.Crud.CrudOperations
-                { get = Nothing,
-                  getAll = Nothing,
-                  create = Nothing,
-                  update = Nothing,
-                  delete = Nothing
-                }
-          }
+        crudWithoutOperations
         primaryEntityField
         `shouldBe` mkOperationsJson (object [])
 
-    it "it adds JSON for enabled operations" $ do
+    it "adds JSON for defined operations" $ do
       getCrudOperationJson
         crudOperationsName
-        AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            operations =
+        crudWithoutOperations
+          { AS.Crud.operations =
               AS.Crud.CrudOperations
-                { get =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Nothing,
-                            overrideFn = Nothing
-                          }
-                      ),
-                  getAll =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Nothing,
-                            overrideFn = Nothing
-                          }
-                      ),
-                  create =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Nothing,
-                            overrideFn = Nothing
-                          }
-                      ),
+                { get = defaultCrudOperationOptions,
+                  getAll = defaultCrudOperationOptions,
+                  create = defaultCrudOperationOptions,
                   update = Nothing,
                   delete = Nothing
                 }
@@ -88,34 +59,16 @@ spec_GeneratorCrudTest = do
               ]
           )
 
-    it "it makes some operations public" $ do
+    it "returns proper JSON for public operations" $ do
       getCrudOperationJson
         crudOperationsName
         AS.Crud.Crud
           { entity = AS.Core.Ref.Ref crudOperationEntitName,
             operations =
               AS.Crud.CrudOperations
-                { get =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Just True,
-                            overrideFn = Nothing
-                          }
-                      ),
-                  getAll =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Just False,
-                            overrideFn = Nothing
-                          }
-                      ),
-                  create =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Just True,
-                            overrideFn = Nothing
-                          }
-                      ),
+                { get = publicCrudOperationOptions,
+                  getAll = privateCrudOperationOptions,
+                  create = publicCrudOperationOptions,
                   update = Nothing,
                   delete = Nothing
                 }
@@ -144,12 +97,11 @@ spec_GeneratorCrudTest = do
               ]
           )
 
-    it "the override import can defined" $ do
+    it "allows overrides of operations" $ do
       getCrudOperationJson
         crudOperationsName
-        AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntitName,
-            operations =
+        crudWithoutOperations
+          { AS.Crud.operations =
               AS.Crud.CrudOperations
                 { get =
                     Just
@@ -163,20 +115,8 @@ spec_GeneratorCrudTest = do
                                   }
                           }
                       ),
-                  getAll =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Just False,
-                            overrideFn = Nothing
-                          }
-                      ),
-                  create =
-                    Just
-                      ( AS.Crud.CrudOperationOptions
-                          { isPublic = Just True,
-                            overrideFn = Nothing
-                          }
-                      ),
+                  getAll = privateCrudOperationOptions,
+                  create = publicCrudOperationOptions,
                   update = Nothing,
                   delete = Nothing
                 }
@@ -219,6 +159,39 @@ spec_GeneratorCrudTest = do
             ],
           PslModel._typeModifiers = []
         }
+    crudWithoutOperations =
+      AS.Crud.Crud
+        { entity = AS.Core.Ref.Ref crudOperationEntitName,
+          operations =
+            AS.Crud.CrudOperations
+              { get = Nothing,
+                getAll = Nothing,
+                create = Nothing,
+                update = Nothing,
+                delete = Nothing
+              }
+        }
+    defaultCrudOperationOptions =
+      Just
+        ( AS.Crud.CrudOperationOptions
+            { isPublic = Nothing,
+              overrideFn = Nothing
+            }
+        )
+    publicCrudOperationOptions =
+      Just
+        ( AS.Crud.CrudOperationOptions
+            { isPublic = Just True,
+              overrideFn = Nothing
+            }
+        )
+    privateCrudOperationOptions =
+      Just
+        ( AS.Crud.CrudOperationOptions
+            { isPublic = Just False,
+              overrideFn = Nothing
+            }
+        )
 
     mkOperationsJson :: Data.Aeson.Value -> Data.Aeson.Value
     mkOperationsJson operations =
