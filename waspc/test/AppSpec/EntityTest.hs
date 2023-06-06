@@ -8,9 +8,9 @@ import qualified Wasp.Psl.Ast.Model as PslModel
 spec_AppSpecEntityTest :: Spec
 spec_AppSpecEntityTest = do
   describe "getPrimaryField" $ do
-    it "it gets primary field from entity when it exists" $ do
+    it "gets primary field from entity when it exists" $ do
       getPrimaryField entityWithPrimaryField `shouldBe` Just primaryField
-    it "if primary field doesn't exist, it returns Nothing" $ do
+    it "returns Nothing if primary field doesn't exist" $ do
       getPrimaryField entityWithoutPrimaryField `shouldBe` Nothing
   where
     entityWithPrimaryField =
