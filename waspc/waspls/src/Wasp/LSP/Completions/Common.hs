@@ -16,9 +16,8 @@ import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 
 -- | A function that providers 'LSP.CompletionItems' at a location.
-type CompletionProvider m = Traversal -> m [LSP.CompletionItem]
+type CompletionProvider m = CompletionContext -> Traversal -> m [LSP.CompletionItem]
 
--- | The context given to 'CompletionProvider's, via @MonadReader CompletionContext@.
 data CompletionContext = CompletionContext
   { _src :: String,
     _cst :: [SyntaxNode]

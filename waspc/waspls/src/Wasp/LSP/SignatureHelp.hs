@@ -5,15 +5,16 @@ module Wasp.LSP.SignatureHelp
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Lens ((^.))
 import Control.Monad (guard)
 import Control.Monad.Log.Class (MonadLog, logM)
 import Control.Monad.State.Class (MonadState, gets)
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Maybe (MaybeT (MaybeT, runMaybeT))
+import Control.Monad.Trans.Maybe (MaybeT (runMaybeT))
 import qualified Data.HashMap.Strict as M
 import Data.List (elemIndex, foldl', intersperse)
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (mapMaybe)
 import Data.String (IsString (fromString))
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
@@ -23,7 +24,8 @@ import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
-import Wasp.LSP.TypeInference (ExprKey (Key, List, Tuple), findExprPathAtLocation, findTypeForPath)
+import Wasp.LSP.TypeInference (ExprKey (DictKey, List, Tuple), findExprPathToLocation, findTypeForPath)
+import Wasp.LSP.Util (hoistMaybe)
 
 -- | Configuration for 'LSP.Options', used in "Wasp.LSP.Server".
 --
@@ -65,37 +67,41 @@ getSignatureHelpAtPosition position = do
     Nothing ->
       -- No CST in the server state, can't create a signature.
       return emptyHelp
-    Just syntax -> do
+    Just syntax ->
       let offset = lspPositionToOffset src position
-      let location = locationAtOffset offset (fromSyntaxForest syntax)
+          location = locationAtOffset offset (fromSyntaxForest syntax)
+       in getSignatureHelpAtLocation src location
+  where
+    getSignatureHelpAtLocation src location =
       findSignatureAtLocation src location >>= \case
         Nothing -> do
           logM "[getSignatureHelpAtPosition] no signature found"
           return emptyHelp
         Just signature -> do
           logM "[getSignatureHelpAtPosition] found a signature"
-          let signatureFragments = signatureToFragments signature
-          let params = getParamsFromFragments signatureFragments
-          let activeParam = signatureParam signature >>= findActiveParameterIndex signatureFragments
-          logM $ "[getSignatureHelpAtPosition] at param idx = " ++ show activeParam ++ " params = " ++ show params
-          return $
-            LSP.SignatureHelp
-              { _signatures =
-                  LSP.List
-                    [ LSP.SignatureInformation
-                        { _parameters = Just $ LSP.List params,
-                          -- NOTE: VSCode higlights the 0th parameter if
-                          -- activeParameter is Nothing, so it's set to -1 when
-                          -- we don't want any param highlighted.
-                          _activeParameter = Just $ fromMaybe (-1) activeParam,
-                          _label = Text.pack $ showFragments signatureFragments,
-                          _documentation = Nothing
-                        }
-                    ],
-                _activeSignature = Just 0,
-                _activeParameter = Nothing
+          getLspSignatureFromSignature signature
+
+    getLspSignatureFromSignature signature = do
+      let signatureFragments = signatureToFragments signature
+      let params = getLspParamsInfoFromFragments signatureFragments
+      let activeParam = signatureParam signature >>= findActiveParameterIndex signatureFragments
+      logM $ "[getSignatureHelpAtPosition] at param idx = " ++ show activeParam ++ " params = " ++ show params
+      let signatureInformation =
+            LSP.SignatureInformation
+              { _label = Text.pack $ showFragments signatureFragments,
+                _parameters = Just $ LSP.List params,
+                -- NOTE: VSCode highlights the 0th parameter if activeParameter, so
+                -- it's set to -1 when we don't want any parameter highlighted.
+                _activeParameter = activeParam <|> Just (-1),
+                _documentation = Nothing
               }
-  where
+      return $
+        LSP.SignatureHelp
+          { _signatures = LSP.List [signatureInformation],
+            _activeSignature = Just 0,
+            _activeParameter = Nothing
+          }
+
     emptyHelp =
       LSP.SignatureHelp
         { _signatures = LSP.List [],
@@ -112,22 +118,11 @@ getSignatureHelpAtPosition position = do
 -- example, immediately after @key: @ in a dictionary--then we say the location
 -- is at a parameter, and the parameter is described in relation to the container
 -- with an 'ExprKey'.
-data Signature
-  = -- | Inside a container, but not at any parameter inside of it.
-    InContainer !Type
-  | -- | Inside a container at the parameter specified by the 'ExprKey'. This
-    -- is named \"param\" to be consistent with the naming conventions used by
-    -- the LSP.
-    AtParam !Type !ExprKey
+data Signature = Signature
+  { signatureType :: !Type,
+    signatureParam :: !(Maybe ExprKey)
+  }
   deriving (Eq, Show)
-
-signatureType :: Signature -> Type
-signatureType (InContainer typ) = typ
-signatureType (AtParam typ _) = typ
-
-signatureParam :: Signature -> Maybe ExprKey
-signatureParam (InContainer _) = Nothing
-signatureParam (AtParam _ key) = Just key
 
 -- | @'findSignatureAtLocation' sourceCode location@ runs type inference at the
 -- given location to try to find a 'Signature'.
@@ -146,18 +141,21 @@ findSignatureAtLocation ::
   Traversal ->
   m (Maybe Signature)
 findSignatureAtLocation src location = runMaybeT $ do
-  exprPath <- hoistMaybe $ findExprPathAtLocation src location
+  exprPath <- hoistMaybe $ findExprPathToLocation src location
   lift $ logM $ "[SignatureHelp] at expr path " ++ show exprPath
   guard $ not $ null exprPath
   case exprPath of
-    [path] -> InContainer <$> hoistMaybe (findTypeForPath [path])
+    [path] -> do
+      containerType <- hoistMaybe (findTypeForPath [path])
+      return $ Signature containerType Nothing
     path -> do
       -- Using init/last here is OK since we know @path@ has at least 2 elements.
       tipType <- hoistMaybe $ findTypeForPath path
-      parentType <- hoistMaybe $ findTypeForPath $ init path
       if isContainerType tipType
-        then return $ InContainer tipType
-        else return $ AtParam parentType (last path)
+        then return $ Signature tipType Nothing
+        else do
+          parentType <- hoistMaybe $ findTypeForPath $ init path
+          return $ Signature parentType (Just $ last path)
   where
     isContainerType :: Type -> Bool
     isContainerType (Type.DictType _) = True
@@ -172,22 +170,22 @@ findSignatureAtLocation src location = runMaybeT $ do
 -- format that the LSP specifies.
 data SignatureFragment
   = -- | A plaintext fragment of a signature.
-    Text !String
+    PlaintextFragment !String
   | -- | A fragment that contains the text for a parameter of the signature. The
     -- parameter is identified by the 'ExprKey'.
-    Param !ExprKey !String
+    ParamFragment !ExprKey !String
   deriving (Eq, Show)
 
 fragmentText :: SignatureFragment -> String
-fragmentText (Text text) = text
-fragmentText (Param _ text) = text
+fragmentText (PlaintextFragment text) = text
+fragmentText (ParamFragment _ text) = text
 
 fragmentParam :: SignatureFragment -> Maybe ExprKey
-fragmentParam (Text _) = Nothing
-fragmentParam (Param key _) = Just key
+fragmentParam (PlaintextFragment _) = Nothing
+fragmentParam (ParamFragment key _) = Just key
 
 instance IsString SignatureFragment where
-  fromString string = Text string
+  fromString string = PlaintextFragment string
 
 -- | Convert the container type of a signature to a list of fragments.
 --
@@ -200,10 +198,10 @@ signatureToFragments signature = case signatureType signature of
     | otherwise ->
         let fields = intersperse ",\n  " (map fieldToFragment (M.toList fieldMap))
          in concat [["{\n  "], fields, ["\n}"]]
-  Type.ListType inner -> ["[", Param List (showInnerType inner), "]"]
+  Type.ListType inner -> ["[", ParamFragment List (showInnerType inner), "]"]
   Type.TupleType (a, b, cs) ->
     let fieldTypes = a : b : cs
-        fields = intersperse ", " (zipWith (\n -> Param (Tuple n) . showInnerType) [0 ..] fieldTypes)
+        fields = intersperse ", " (zipWith (\n -> ParamFragment (Tuple n) . showInnerType) [0 ..] fieldTypes)
      in concat [["("], fields, [")"]]
   typ -> [fromString (show typ)]
   where
@@ -213,9 +211,9 @@ signatureToFragments signature = case signatureType signature of
 
     fieldToFragment :: (String, Type.DictEntryType) -> SignatureFragment
     fieldToFragment (key, Type.DictRequired typ) =
-      Param (Key key) $ printf "%s: %s" key (showInnerType typ :: String)
+      ParamFragment (DictKey key) $ printf "%s: %s" key (showInnerType typ :: String)
     fieldToFragment (key, Type.DictOptional typ) =
-      Param (Key key) $ printf "%s?: %s" key (showInnerType typ :: String)
+      ParamFragment (DictKey key) $ printf "%s?: %s" key (showInnerType typ :: String)
 
 -- | Convert a list of fragments to a string by concatenating the text of each
 -- fragment.
@@ -227,16 +225,16 @@ showFragments = concatMap fragmentText
 -- The LSP wants the starting and ending offset of each parameter in the signature
 -- help text (computed in 'showFragments'), so this function also has to keep
 -- track of the 0-based offset into the final text.
-getParamsFromFragments :: [SignatureFragment] -> [LSP.ParameterInformation]
-getParamsFromFragments fragments =
+getLspParamsInfoFromFragments :: [SignatureFragment] -> [LSP.ParameterInformation]
+getLspParamsInfoFromFragments fragments =
   reverse $ map labelToInfo $ snd $ foldl' go (0, []) fragments
   where
     -- A left fold is used because offset needs to increase as you go right across
     -- the list. This means the parameter list needs to be reversed after the fold
     -- so that they are in the same order as the parameters in the fragments.
     go :: (LSP.UInt, [LSP.ParameterLabel]) -> SignatureFragment -> (LSP.UInt, [LSP.ParameterLabel])
-    go (offset, labels) (Text text) = (offset + fromIntegral (length text), labels)
-    go (offset, labels) (Param _ text) =
+    go (offset, labels) (PlaintextFragment text) = (offset + fromIntegral (length text), labels)
+    go (offset, labels) (ParamFragment _ text) =
       let end = offset + fromIntegral (length text)
        in (end, LSP.ParameterLabelOffset offset end : labels)
 
@@ -255,7 +253,3 @@ getParamsFromFragments fragments =
 findActiveParameterIndex :: [SignatureFragment] -> ExprKey -> Maybe LSP.UInt
 findActiveParameterIndex fragments key =
   fromIntegral <$> elemIndex key (mapMaybe fragmentParam fragments)
-
--- | Lift a 'Maybe' into a 'MaybeT' monad transformer.
-hoistMaybe :: Monad m => Maybe a -> MaybeT m a
-hoistMaybe = MaybeT . pure

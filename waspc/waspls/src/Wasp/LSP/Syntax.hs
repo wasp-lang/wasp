@@ -4,8 +4,6 @@ module Wasp.LSP.Syntax
     -- | Module with utilities for working with/looking for patterns in CSTs
     lspPositionToOffset,
     locationAtOffset,
-    allP,
-    anyP,
     parentIs,
     hasLeft,
     isAtExprPlace,
@@ -20,6 +18,7 @@ import Data.List (find, intercalate)
 import qualified Language.LSP.Types as J
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse
+import Wasp.LSP.Util (allP, anyP)
 
 -- | @lspPositionToOffset srcString position@ returns 0-based offset from the
 -- start of @srcString@ to the specified line and column.
@@ -49,14 +48,6 @@ locationAtOffset targetOffset start = go $ bottom start
       -- If @at & next@ fails, the input doesn't contain the offset, so just
       -- return the last node instead.
       | otherwise = maybe at go $ at & next
-
--- | Check if all of the supplied predicates are true
-allP :: Foldable f => f (a -> Bool) -> a -> Bool
-allP preds x = all ($ x) preds
-
--- | Check if any of the supplied predicates are true
-anyP :: Foldable f => f (a -> Bool) -> a -> Bool
-anyP preds x = any ($ x) preds
 
 parentIs :: S.SyntaxKind -> Traversal -> Bool
 parentIs k t = Just k == parentKind t

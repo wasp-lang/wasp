@@ -5,7 +5,6 @@ where
 
 import Control.Lens ((?~), (^.))
 import Control.Monad.Log.Class (MonadLog (logM))
-import Control.Monad.Reader.Class (MonadReader, asks)
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
@@ -13,7 +12,7 @@ import qualified Language.LSP.Types.Lens as LSP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse
-import Wasp.LSP.Completions.Common (CompletionContext, CompletionProvider, makeBasicCompletionItem)
+import Wasp.LSP.Completions.Common (CompletionProvider, makeBasicCompletionItem)
 import qualified Wasp.LSP.Completions.Common as Ctx
 import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt)
 
@@ -21,17 +20,15 @@ import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt)
 -- and return them as completion items.
 --
 -- TODO: include completions for enum variants (use standard type defs from waspc)
-getCompletions :: (MonadReader CompletionContext m, MonadLog m) => CompletionProvider m
-getCompletions location =
+getCompletions :: (MonadLog m) => CompletionProvider m
+getCompletions context location =
   if not (isAtExprPlace location)
     then do
       logM "[ExprCompletion] not at expression"
       return []
     else do
       logM "[ExprCompletion] at expression"
-      src <- asks (^. Ctx.src)
-      syntax <- asks (^. Ctx.cst)
-      let declNames = findDeclNames src syntax
+      let declNames = getDeclNamesAndTypes (context ^. Ctx.src) (context ^. Ctx.cst)
       logM $ "[ExprCompletion] declnames=" ++ show declNames
       return $
         map
@@ -43,8 +40,8 @@ getCompletions location =
           declNames
 
 -- | Search through the CST and collect all @(declName, declType)@ pairs.
-findDeclNames :: String -> [SyntaxNode] -> [(String, String)]
-findDeclNames src syntax = traverseForDeclNames $ fromSyntaxForest syntax
+getDeclNamesAndTypes :: String -> [SyntaxNode] -> [(String, String)]
+getDeclNamesAndTypes src syntax = traverseForDeclNames $ fromSyntaxForest syntax
   where
     traverseForDeclNames :: Traversal -> [(String, String)]
     traverseForDeclNames t = case kindAt t of

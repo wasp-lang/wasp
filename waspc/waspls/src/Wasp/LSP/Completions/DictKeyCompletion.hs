@@ -5,7 +5,6 @@ where
 
 import Control.Lens ((?~), (^.))
 import Control.Monad.Log.Class (MonadLog (logM))
-import Control.Monad.Reader.Class (MonadReader, asks)
 import Data.Bifunctor (Bifunctor (second))
 import qualified Data.HashMap.Strict as M
 import qualified Data.Text as Text
@@ -16,10 +15,11 @@ import Wasp.Analyzer.Parser.CST.Traverse (Traversal)
 import qualified Wasp.Analyzer.Parser.CST.Traverse as T
 import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
-import Wasp.LSP.Completions.Common (CompletionContext, CompletionProvider, makeBasicCompletionItem)
+import Wasp.LSP.Completions.Common (CompletionProvider, makeBasicCompletionItem)
 import qualified Wasp.LSP.Completions.Common as Ctx
-import Wasp.LSP.Syntax (allP, anyP, hasLeft, parentIs)
+import Wasp.LSP.Syntax (hasLeft, parentIs)
 import Wasp.LSP.TypeInference (inferTypeAtLocation)
+import Wasp.LSP.Util (allP, anyP)
 
 -- | If the location is at a place where a dictionary key is expected, find
 -- the list of keys that are allowed in the dictionary around the location and
@@ -32,46 +32,37 @@ import Wasp.LSP.TypeInference (inferTypeAtLocation)
 --
 -- See 'Wasp.LSP.TypeHint' for how the expected type for the dictionary is
 -- determined.
-getCompletions :: (MonadReader CompletionContext m, MonadLog m) => CompletionProvider m
-getCompletions location =
-  if not $ isAtDictKeyPlace location
+getCompletions :: (MonadLog m) => CompletionProvider m
+getCompletions context location =
+  if not $ isDictKeyExpectedAtLocation location
     then do
       logM "[DictKeyCompletion] not at dict key"
       return []
     else do
       logM "[DictKeyCompletion] at dict key"
-      src <- asks (^. Ctx.src)
-      case inferTypeAtLocation src location of
-        Nothing -> do
-          logM "[DictKeyCompletion] no type hint, can not suggest keys"
-          return []
-        Just (Type.DictType fieldMap) -> do
-          logM "[DictKeyCompletion] found dict type hint"
-          let fields = listDictFields fieldMap
-          return $
-            map
-              ( \(key, keyType) ->
-                  -- The user sees "key", but when they accept the completion
-                  -- "key: " is inserted (via the insertText field).
-                  makeBasicCompletionItem (Text.pack key)
-                    T.& (LSP.kind ?~ LSP.CiField)
-                    T.& (LSP.detail ?~ Text.pack (":: " ++ show keyType))
-                    T.& (LSP.insertText ?~ Text.pack (key ++ ": "))
-              )
-              fields
-        Just _ -> do
-          logM "[DictKeyCompletion] found non-dict type hint, no keys to suggest"
-          return []
+      getCompletionsAtDictKey
+  where
+    getCompletionsAtDictKey = case inferTypeAtLocation (context ^. Ctx.src) location of
+      Nothing -> do
+        logM "[DictKeyCompletion] no type hint, can not suggest keys"
+        return []
+      Just (Type.DictType fieldMap) -> do
+        logM "[DictKeyCompletion] found dict type hint"
+        return $ map completionItemFromDictField $ listDictFields fieldMap
+      Just _ -> do
+        logM "[DictKeyCompletion] found non-dict type hint, no keys to suggest"
+        return []
 
--- | Checks whether a position in the CST is where a DictKey would be expected.
---
--- The rules for this are:
--- - If parent is a Dict, then yes
--- - If parent is a DictEntry and there are no DictKeys to the left of this node,
---   then yes
--- - Else, no
-isAtDictKeyPlace :: Traversal -> Bool
-isAtDictKeyPlace =
+    completionItemFromDictField (key, keyType) =
+      -- The user sees "key", but when they accept the completion "key: " is
+      -- inserted, via the @insertText@ field.
+      makeBasicCompletionItem (Text.pack key)
+        T.& (LSP.kind ?~ LSP.CiField)
+        T.& (LSP.detail ?~ Text.pack (":: " ++ show keyType))
+        T.& (LSP.insertText ?~ Text.pack (key ++ ": "))
+
+isDictKeyExpectedAtLocation :: Traversal -> Bool
+isDictKeyExpectedAtLocation =
   anyP
     [ parentIs S.Dict,
       allP [parentIs S.DictEntry, not . hasLeft S.DictKey]

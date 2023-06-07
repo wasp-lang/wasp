@@ -71,7 +71,7 @@ signatureHelpHandler :: Handlers ServerM
 signatureHelpHandler =
   LSP.requestHandler LSP.STextDocumentSignatureHelp $ \request respond -> do
     -- NOTE: lsp-types 1.4.0.1 forgot to add lenses for SignatureHelpParams so
-    -- we have to get the position out the painful way
+    -- we have to get the position out the painful way.
     let LSP.SignatureHelpParams {_position = position} = request ^. LSP.params
     signatureHelp <- getSignatureHelpAtPosition position
     respond $ Right signatureHelp

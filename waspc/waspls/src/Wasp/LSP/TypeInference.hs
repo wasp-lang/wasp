@@ -5,7 +5,7 @@ module Wasp.LSP.TypeInference
     -- * Lower level pieces
     ExprPath,
     ExprKey (..),
-    findExprPathAtLocation,
+    findExprPathToLocation,
     findTypeForPath,
   )
 where
@@ -22,12 +22,8 @@ import qualified Wasp.Analyzer.Type as Type
 import Wasp.Analyzer.TypeDefinitions (DeclType (dtBodyType), getDeclType)
 import Wasp.LSP.Syntax (lexemeAt)
 
--- | Infer the type at a location in the CST, or 'Nothing' if type could not be
--- determined.
 inferTypeAtLocation :: String -> Traversal -> Maybe Type
-inferTypeAtLocation src location = case findExprPathAtLocation src location of
-  Just path -> findTypeForPath path
-  _ -> Nothing
+inferTypeAtLocation src location = findExprPathToLocation src location >>= findTypeForPath
 
 -- | A "path" through wasp expressions to a certain location.
 --
@@ -50,21 +46,18 @@ type ExprPath = [ExprKey]
 data ExprKey
   = -- | @Decl declType@. Enter a declaration of type @declType@.
     Decl !String
-  | -- | @Key key@. Enter a dictionary *and* it's key @key@.
-    Key !String
+  | -- | @DictKey key@. Enter a dictionary *and* its key @key@.
+    DictKey !String
   | -- | Enter a value inside a list.
     List
   | -- | @Tuple idx@. Enter the @idx@-th value inside of a tuple.
     Tuple !Int
   deriving (Eq, Show)
 
--- | Try to get an expression path for the given location, returning 'Nothing'
--- if no path can be determined.
---
--- This function only depends on the syntax to the left of the location, and
+-- | This function only depends on the syntax to the left of the location, and
 -- tries to be as lenient as possible in finding paths.
-findExprPathAtLocation :: String -> Traversal -> Maybe ExprPath
-findExprPathAtLocation src location = reverse <$> go location
+findExprPathToLocation :: String -> Traversal -> Maybe ExprPath
+findExprPathToLocation src location = reverse <$> go location
   where
     -- Recursively travel up the syntax tree, accumlating a path in reverse
     -- order. Each recursion adds at most one new path component.
@@ -84,7 +77,7 @@ findExprPathAtLocation src location = reverse <$> go location
             let key = lexemeAt src keyLoc
             t'' <- T.up t'
             guard $ T.kindAt t'' == S.Dict
-            (Key key :) <$> go t''
+            (DictKey key :) <$> go t''
           Nothing -> go t'
         S.List -> (List :) <$> go t' -- Inside a list.
         S.Tuple -> do
@@ -95,8 +88,8 @@ findExprPathAtLocation src location = reverse <$> go location
         _ -> go t' -- Found some other node, just ignore it and continue the tree.
 
 -- | Get the type in 'stdTypes' for the expression path. The path must start
--- with a 'Decl', otherwise 'Nothing' is returned. If the path does not exist in
--- 'stdTypes', 'Nothing' is returned.
+-- with a 'Decl', otherwise 'Nothing' is returned. If the path's decl does not
+-- exist in 'stdTypes', 'Nothing' is returned.
 --
 -- === __Example__
 -- >>> findTypeForPath [Dict "app", Key "auth", Key "methods", Key "usernameAndPassword"]
@@ -111,7 +104,7 @@ findTypeForPath (Decl declType : originalPath) = do
     go :: Type -> ExprPath -> Maybe Type
     go typ [] = Just typ
     go _ (Decl _ : _) = Nothing -- Can't follow a decl in the middle of a path.
-    go typ (Key key : path) =
+    go typ (DictKey key : path) =
       case typ of
         Type.DictType fields -> do
           -- Get the type of the field corresponding to the key.

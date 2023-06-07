@@ -5,7 +5,6 @@ where
 
 import Control.Lens ((^.))
 import Control.Monad.Log.Class (MonadLog (logM))
-import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.State.Class (MonadState, gets)
 import Data.List (sortOn)
 import qualified Language.LSP.Types as LSP
@@ -35,17 +34,13 @@ getCompletionsAtPosition position = do
       logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " offset=" ++ show offset
       logM $ "[getCompletionsAtPosition] neighborhood=\n" ++ showNeighborhood location
       let completionContext = CompletionContext {_src = src, _cst = syntax}
-      -- Run all completion providers and concatenate results
-      completionItems <-
-        concat
-          <$> mapM
-            (\m -> runReaderT (m location) completionContext)
-            completionProviders
+      let runCompletionProvider = \cp -> cp completionContext location
+      completionItems <- concat <$> mapM runCompletionProvider completionProviders
       return $ sortOn (^. LSP.label) completionItems
 
 -- | List of all 'CompletionProvider's to use. We break this up into separate
 -- modules because the code for each can be pretty unrelated.
-completionProviders :: (MonadReader CompletionContext m, MonadLog m) => [CompletionProvider m]
+completionProviders :: (MonadLog m) => [CompletionProvider m]
 completionProviders =
   [ ExprCompletion.getCompletions,
     DictKeyCompletion.getCompletions
