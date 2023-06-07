@@ -8,7 +8,8 @@ where
 import Data.Aeson (ToJSON (..), object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (find)
-import Data.Maybe (fromMaybe)
+import Data.List.Extra (splitOn)
+import Data.Maybe (fromMaybe, mapMaybe)
 import StrongPath (Dir, Path, Rel, reldir, reldirP, relfile, (</>))
 import StrongPath.Types (Posix)
 import Wasp.AppSpec (AppSpec)
@@ -51,6 +52,7 @@ instance ToJSON RouterTemplateData where
 
 data RouteTemplateData = RouteTemplateData
   { _urlPath :: !String,
+    _urlParams :: ![String],
     _targetComponent :: !String
   }
 
@@ -58,6 +60,7 @@ instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
       [ "urlPath" .= _urlPath routeTD,
+        "urlParams" .= _urlParams routeTD,
         "targetComponent" .= _targetComponent routeTD
       ]
 
@@ -95,7 +98,7 @@ genRouter spec = do
       targetPath
       (Just $ toJSON templateData)
   where
-    routerPath = [relfile|router.jsx|]
+    routerPath = [relfile|router.tsx|]
     templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
 
@@ -135,9 +138,12 @@ createExternalAuthProviderTemplateData maybeAuth (method, provider) =
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateData
 createRouteTemplateData spec namedRoute@(_, route) =
   RouteTemplateData
-    { _urlPath = AS.Route.path route,
+    { _urlPath = path,
+      _urlParams = extractUrlParams path,
       _targetComponent = determineRouteTargetComponent spec namedRoute
     }
+  where
+    path = AS.Route.path route
 
 -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
 determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
@@ -151,7 +157,8 @@ determineRouteTargetComponent spec (_, route) =
     targetPage =
       fromMaybe
         ( error $
-            "Can't find page with name '" ++ targetPageName
+            "Can't find page with name '"
+              ++ targetPageName
               ++ "', pointed to by route '"
               ++ AS.Route.path route
               ++ "'"
@@ -182,3 +189,12 @@ createPageTemplateData page =
 
 relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
 relPathToWebAppSrcDir = [reldirP|./|]
+
+extractUrlParams :: String -> [String]
+extractUrlParams urlPath =
+  mapMaybe
+    ( \case
+        ':' : paramName -> Just paramName
+        _ -> Nothing
+    )
+    (splitOn "/" urlPath)
