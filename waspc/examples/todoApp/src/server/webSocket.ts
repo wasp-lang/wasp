@@ -1,15 +1,24 @@
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocketDefinition } from '@wasp/webSocket'
-import { ServerToClientEvents, ClientToServerEvents, InterServerEvents, SocketData } from '../shared/webSocket'
+
+export interface ServerToClientEvents {
+  chatMessage: (msg: { id: string; username: string; text: string }) => void
+}
+
+export interface ClientToServerEvents {
+  chatMessage: (msg: string) => void
+}
+
+export interface InterServerEvents {}
 
 export const webSocketFn: WebSocketDefinition<
   ClientToServerEvents,
   ServerToClientEvents,
-  InterServerEvents,
-  SocketData
+  InterServerEvents
 > = (io, context) => {
   io.on('connection', (socket) => {
-    const username = socket.data.user?.email || socket.data.user?.username || 'unknown'
+    const username =
+      socket.data.user?.email || socket.data.user?.username || 'unknown'
     console.log('a user connected: ', username)
 
     socket.on('chatMessage', async (msg) => {
