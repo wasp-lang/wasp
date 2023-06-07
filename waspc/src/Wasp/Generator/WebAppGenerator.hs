@@ -8,7 +8,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
-import Data.Maybe (maybeToList)
 import StrongPath
   ( Dir,
     File',
@@ -34,8 +33,8 @@ import Wasp.Generator.Common
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyDirFileDraft, createTextFileDraft)
-import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy (WriteOverExistingDstDir))
+import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
+import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
@@ -53,6 +52,7 @@ import Wasp.Util ((<++>))
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec = do
+  extClientCodeFileDrafts <- genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
   sequence
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
@@ -67,14 +67,13 @@ genWebApp spec = do
       genGitignore,
       genIndexHtml spec
     ]
-    <++> genPublicDir spec
     <++> genSrcDir spec
-    <++> genExternalCodeDir extClientCodeGeneratorStrategy (AS.externalClientFiles spec)
+    <++> return extClientCodeFileDrafts
     <++> genExternalCodeDir extSharedCodeGeneratorStrategy (AS.externalSharedFiles spec)
+    <++> genPublicDir spec extClientCodeFileDrafts
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
-    <++> genStaticAssetsDir spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -187,18 +186,25 @@ genGitignore =
       (C.asTmplFile [relfile|gitignore|])
       (C.asWebAppFile [relfile|.gitignore|])
 
-genPublicDir :: AppSpec -> Generator [FileDraft]
-genPublicDir spec = do
-  return
-    [ genFaviconFd,
-      genManifestFd
-    ]
+genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
+genPublicDir spec existingExtCodeFileDrafts =
+  genIfNotExistingFile genFaviconFd
+    <++> genIfNotExistingFile genManifestFd
   where
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
-    genManifestFd =
-      let tmplData = object ["appName" .= (fst (getApp spec) :: String)]
-          tmplFile = C.asTmplFile [relfile|public/manifest.json|]
-       in C.mkTmplFdWithData tmplFile tmplData
+    genManifestFd = C.mkTmplFdWithData tmplFile tmplData
+      where
+        tmplData = object ["appName" .= (fst (getApp spec) :: String)]
+        tmplFile = C.asTmplFile [relfile|public/manifest.json|]
+
+    genIfNotExistingFile fileDraft =
+      return $
+        if checkIfFileDraftExists fileDraft
+          then []
+          else [fileDraft]
+
+    checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
+    existingDstPaths = map FD.getDstPath existingExtCodeFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =
@@ -279,9 +285,3 @@ genEnvValidationScript =
     [ C.mkTmplFd [relfile|scripts/validate-env.mjs|],
       C.mkUniversalTmplFdWithDst [relfile|validators.js|] [relfile|scripts/universal/validators.mjs|]
     ]
-
-genStaticAssetsDir :: AppSpec -> Generator [FileDraft]
-genStaticAssetsDir spec = return $ maybeToList maybeCopyStaticAssetsDir
-  where
-    maybeCopyStaticAssetsDir = createCopyDirFileDraft WriteOverExistingDstDir staticAssetsDstDir <$> AS.staticClientAssetsDir spec
-    staticAssetsDstDir = C.webAppRootDirInProjectRootDir </> C.staticAssetsDirInWebAppDir
