@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.7
+
+### Security fixes
+- Wasp signup saves only a subset of fields from the signup form to the database. This prevents users from injecting arbitrary data into the database.
+
 ## v0.10.6
 
 ### Bug fixes
