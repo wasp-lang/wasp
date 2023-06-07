@@ -24,7 +24,7 @@ import Wasp.Analyzer.Type (Type)
 import qualified Wasp.Analyzer.Type as Type
 import Wasp.LSP.ServerState (ServerState, cst, currentWaspSource)
 import Wasp.LSP.Syntax (locationAtOffset, lspPositionToOffset)
-import Wasp.LSP.TypeInference (ExprKey (DictKey, List, Tuple), findExprPathToLocation, findTypeForPath)
+import Wasp.LSP.TypeInference (ExprPathStep (DictKey, List, Tuple), findExprPathToLocation, findTypeForPath)
 import Wasp.LSP.Util (hoistMaybe)
 
 -- | Configuration for 'LSP.Options', used in "Wasp.LSP.Server".
@@ -117,24 +117,26 @@ getSignatureHelpAtPosition position = do
 -- When the location is at a more specific place inside of the container--for
 -- example, immediately after @key: @ in a dictionary--then we say the location
 -- is at a parameter, and the parameter is described in relation to the container
--- with an 'ExprKey'.
+-- with an 'ExprPathStep'.
 data Signature = Signature
   { signatureType :: !Type,
-    signatureParam :: !(Maybe ExprKey)
+    signatureParam :: !(Maybe ExprPathStep)
   }
   deriving (Eq, Show)
 
 -- | @'findSignatureAtLocation' sourceCode location@ runs type inference at the
 -- given location to try to find a 'Signature'.
 --
--- To do this, two types are inferred: the /tip type/ and the /parent type/. The
--- tip type is the type expected exactly at the cursor location and the parent
--- type is the type of the parent node of the tip. For example, if the cursor is
--- at the 2nd entry of a tuple with type @(string, number)@, then the tip type
--- is @number@ and the parent type is that tuple type.
+-- To do this, two types are inferred: the /location type/ and the
+-- /container type/. The location type is the type expected exactly at the given
+-- location and the container type is the type of that contains the location
+-- type. For example, if the cursor is at the 2nd entry of a tuple with type
+-- @(string, number)@, then the tip type is @number@ and the parent type is
+-- that tuple type.
 --
--- Then we check if the cursor is 'InContainer' or 'AtParam'. It is 'InContainer'
--- only when the tip type is a container or if there is no parent type.
+-- Then we check if the cursor is just inside a container or at a parameter
+-- inside a container. It's in a container when the location type is a container
+-- or if there is no container type.
 findSignatureAtLocation ::
   (MonadLog m) =>
   String ->
@@ -150,12 +152,12 @@ findSignatureAtLocation src location = runMaybeT $ do
       return $ Signature containerType Nothing
     path -> do
       -- Using init/last here is OK since we know @path@ has at least 2 elements.
-      tipType <- hoistMaybe $ findTypeForPath path
-      if isContainerType tipType
-        then return $ Signature tipType Nothing
+      locationType <- hoistMaybe $ findTypeForPath path
+      if isContainerType locationType
+        then return $ Signature locationType Nothing
         else do
-          parentType <- hoistMaybe $ findTypeForPath $ init path
-          return $ Signature parentType (Just $ last path)
+          containerType <- hoistMaybe $ findTypeForPath $ init path
+          return $ Signature containerType (Just $ last path)
   where
     isContainerType :: Type -> Bool
     isContainerType (Type.DictType _) = True
@@ -172,15 +174,15 @@ data SignatureFragment
   = -- | A plaintext fragment of a signature.
     PlaintextFragment !String
   | -- | A fragment that contains the text for a parameter of the signature. The
-    -- parameter is identified by the 'ExprKey'.
-    ParamFragment !ExprKey !String
+    -- parameter is identified by the 'ExprPathStep'.
+    ParamFragment !ExprPathStep !String
   deriving (Eq, Show)
 
 fragmentText :: SignatureFragment -> String
 fragmentText (PlaintextFragment text) = text
 fragmentText (ParamFragment _ text) = text
 
-fragmentParam :: SignatureFragment -> Maybe ExprKey
+fragmentParam :: SignatureFragment -> Maybe ExprPathStep
 fragmentParam (PlaintextFragment _) = Nothing
 fragmentParam (ParamFragment key _) = Just key
 
@@ -248,8 +250,8 @@ getLspParamsInfoFromFragments fragments =
 -- | Find the index of the active parameter in a list of fragments.
 --
 -- NOTE: This function computes the index into the parameter list, not the
--- fragment list. This is why plain 'Text' fragments are filtered out of the
+-- fragment list. This is why 'PlaintextFragment's are filtered out of the
 -- list before indexing (via @mapMaybe fragmentParam@).
-findActiveParameterIndex :: [SignatureFragment] -> ExprKey -> Maybe LSP.UInt
+findActiveParameterIndex :: [SignatureFragment] -> ExprPathStep -> Maybe LSP.UInt
 findActiveParameterIndex fragments key =
   fromIntegral <$> elemIndex key (mapMaybe fragmentParam fragments)

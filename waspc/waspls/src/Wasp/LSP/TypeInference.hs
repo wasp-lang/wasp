@@ -4,7 +4,7 @@ module Wasp.LSP.TypeInference
 
     -- * Lower level pieces
     ExprPath,
-    ExprKey (..),
+    ExprPathStep (..),
     findExprPathToLocation,
     findTypeForPath,
   )
@@ -39,11 +39,10 @@ inferTypeAtLocation src location = findExprPathToLocation src location >>= findT
 -- }
 -- @
 --
--- The path to the cursor would be @[Decl "app", Key "auth", Key "usernameAndPassword"]@.
-type ExprPath = [ExprKey]
+-- The path to the cursor would be @[Decl "app", DictKey "auth", DictKey "usernameAndPassword"]@.
+type ExprPath = [ExprPathStep]
 
--- | A single step of an 'ExprPath'.
-data ExprKey
+data ExprPathStep
   = -- | @Decl declType@. Enter a declaration of type @declType@.
     Decl !String
   | -- | @DictKey key@. Enter a dictionary *and* its key @key@.
