@@ -1149,7 +1149,7 @@ An action for signing up the user. This action does not log in the user, you sti
 signup(userFields)
 ```
 #### `userFields: object`
-Auth-related fields (either `username` or `email` and `password``) of the user entity which was declared in `auth`.
+Auth-related fields (either `username` or `email` and `password`) of the user entity which was declared in `auth`.
 
 :::info
 Wasp only stores the auth-related fields of the user entity. Adding extra fields to `userFields` will not have any effect.
