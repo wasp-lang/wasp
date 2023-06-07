@@ -31,8 +31,9 @@ mkExtCodeGeneratorStrategy :: Path' (Rel C.ServerSrcDir) (Dir GeneratedExternalC
 mkExtCodeGeneratorStrategy extCodeDirInServerSrcDir =
   ExternalCodeGeneratorStrategy
     { _resolveJsFileWaspImports = resolveJsFileWaspImportsForExtCodeDir (SP.castRel extCodeDirInServerSrcDir),
-      _extCodeDirInProjectRootDir =
+      _resolveDstFilePath = \filePath ->
         C.serverRootDirInProjectRootDir
           </> C.serverSrcDirInServerRootDir
           </> extCodeDirInServerSrcDir
+          </> filePath
     }

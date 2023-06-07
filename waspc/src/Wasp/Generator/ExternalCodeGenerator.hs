@@ -4,7 +4,7 @@ module Wasp.Generator.ExternalCodeGenerator
 where
 
 import Data.Maybe (mapMaybe)
-import StrongPath (File', Path', Rel, (</>))
+import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import qualified Wasp.AppSpec.ExternalCode as EC
@@ -35,7 +35,7 @@ genFile strategy file
 genResourceFile :: C.ExternalCodeGeneratorStrategy -> EC.File -> Generator FileDraft
 genResourceFile strategy file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = C._extCodeDirInProjectRootDir strategy </> dstPathInGenExtCodeDir
+    relDstPath = C._resolveDstFilePath strategy dstPathInGenExtCodeDir
     absSrcPath = EC.fileAbsPath file
     dstPathInGenExtCodeDir :: Path' (Rel C.GeneratedExternalCodeDir) File'
     dstPathInGenExtCodeDir = C.castRelPathFromSrcToGenExtCodeDir $ EC.filePathInExtCodeDir file

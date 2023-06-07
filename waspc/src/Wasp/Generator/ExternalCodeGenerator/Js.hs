@@ -27,7 +27,7 @@ genSourceFile strategy file = return $ FD.createTextFileDraft dstPath text'
 
     text = EC.fileText file
     text' = C._resolveJsFileWaspImports strategy filePathInGenExtCodeDir text
-    dstPath = C._extCodeDirInProjectRootDir strategy </> filePathInGenExtCodeDir
+    dstPath = C._resolveDstFilePath strategy filePathInGenExtCodeDir
 
 -- | Replaces imports that start with "@wasp/" with imports that start from the src dir of the app.
 resolveJsFileWaspImportsForExtCodeDir ::

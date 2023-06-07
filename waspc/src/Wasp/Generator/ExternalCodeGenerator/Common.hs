@@ -7,7 +7,7 @@ module Wasp.Generator.ExternalCodeGenerator.Common
 where
 
 import Data.Text (Text)
-import StrongPath (Dir, File', Path', Rel)
+import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Generator.Common (ProjectRootDir)
@@ -26,5 +26,5 @@ data ExternalCodeGeneratorStrategy = ExternalCodeGeneratorStrategy
     -- Also takes text of the file. Returns text where special @wasp imports have been replaced with
     -- imports that will work.
     _resolveJsFileWaspImports :: Path' (Rel GeneratedExternalCodeDir) File' -> Text -> Text,
-    _extCodeDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir GeneratedExternalCodeDir)
+    _resolveDstFilePath :: Path' (Rel GeneratedExternalCodeDir) File' -> Path' (Rel ProjectRootDir) File'
   }
