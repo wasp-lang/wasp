@@ -2,6 +2,9 @@
 
 ## v0.10.7
 
+### Breaking changes
+- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+
 ### WebSocket support
 Wasp now supports WebSockets! This will allow you to have a persistent, realtime connection between your client and server, which is great for chat apps, games, and more.
 
