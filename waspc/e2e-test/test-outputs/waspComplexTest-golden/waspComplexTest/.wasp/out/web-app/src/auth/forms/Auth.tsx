@@ -51,9 +51,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
   const titles: Record<State, string> = {
     login: 'Log in to your account',
     signup: 'Create a new account',
-    "forgot-password": "Forgot your password?",
-    "reset-password": "Reset your password",
-    "verify-email": "Email verification",
   }
   const title = titles[state]
 
@@ -66,10 +63,19 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal' }: {
         <HeaderText>{title}</HeaderText>
       </div>
 
-      {errorMessage && (<MessageError>{errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}</MessageError>)}
+      {errorMessage && (
+        <MessageError>
+          {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
+        </MessageError>
+      )}
       {successMessage && <MessageSuccess>{successMessage}</MessageSuccess>}
       <AuthContext.Provider value={{ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }}>
-        {(state === 'login' || state === 'signup') && (<LoginSignupForm state={state} socialButtonsDirection={socialButtonsDirection} />)}
+        {(state === 'login' || state === 'signup') && (
+          <LoginSignupForm
+            state={state}
+            socialButtonsDirection={socialButtonsDirection}
+          />
+        )}
       </AuthContext.Provider>
     </Container>
   )
