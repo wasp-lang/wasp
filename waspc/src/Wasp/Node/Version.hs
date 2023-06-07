@@ -1,4 +1,4 @@
-module Wasp.Generator.Node.Version
+module Wasp.Node.Version
   ( getAndCheckNodeVersion,
     getNodeVersion,
     nodeVersionRange,

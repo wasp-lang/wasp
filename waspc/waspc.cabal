@@ -252,7 +252,6 @@ library
     Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.AuthProviders.Local
     Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.Node.Version
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -291,6 +290,7 @@ library
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WriteFileDrafts
+    Wasp.Node.Version
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common

@@ -33,8 +33,8 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
-import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Message as Message
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
