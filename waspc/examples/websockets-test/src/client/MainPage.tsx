@@ -39,10 +39,10 @@ const MainPage = ({ user }: any) => {
 
   useEffect(() => {
     socket.on("ideaCreated", () => {
-      queryClient.invalidateQueries(getIdeas.queryCacheKey);
+      queryClient.invalidateQueries((getIdeas as any).queryCacheKey);
     });
     socket.on("agreementToggled", () => {
-      queryClient.invalidateQueries(getIdeas.queryCacheKey);
+      queryClient.invalidateQueries((getIdeas as any).queryCacheKey);
     });
     return () => {
       socket.off("ideaCreated");

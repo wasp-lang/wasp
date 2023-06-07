@@ -16,6 +16,9 @@ app websocketsTest {
   webSocket: {
     fn: import { webSocketFn } from "@server/websocket.js",
   },
+  db: {
+    system: PostgreSQL
+  }
 }
 
 entity User {=psl

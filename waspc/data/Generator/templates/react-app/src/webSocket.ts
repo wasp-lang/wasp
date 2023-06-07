@@ -15,13 +15,16 @@ export function useSocket() {
 
 export function useSocketListener<Event extends keyof ServerToClientEvents>(
   event: Event,
-  handler: ServerToClientEvents[Event]
+  handler: ServerToClientEvents[Event],
 ) {
   const { socket } = useContext(WebSocketContext);
   useEffect(() => {
-    socket.on(event, handler)
+    const handlerInstance: any = (event: any) => {
+      handler(event);
+    };
+    socket.on(event, handlerInstance);
     return () => {
-      socket.off(event, handler)
-    }
-  }, [])
+      socket.off(event, handlerInstance);
+    };
+  }, [event, handler]);
 }

@@ -9,7 +9,7 @@ import type { ClientToServerEvents, ServerToClientEvents } from '../webSocket';
 
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
-export const socket = io(config.apiUrl, { autoConnect: {= autoConnect =} })
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(config.apiUrl, { autoConnect: {= autoConnect =} })
 
 function refreshAuthToken() {  
   // NOTE: When we figure out how `auth: true` works for Operations, we should
@@ -28,11 +28,8 @@ refreshAuthToken()
 apiEvents.on(EventType.SET_AUTH_TOKEN, refreshAuthToken)
 apiEvents.on(EventType.CLEAR_AUTH_TOKEN, refreshAuthToken)
 
-export const WebSocketContext = createContext<{
-  socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-  isConnected: boolean;
-}>({
-  socket: null,
+export const WebSocketContext = createContext({
+  socket,
   isConnected: false,
 });
 

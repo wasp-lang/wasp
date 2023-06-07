@@ -1,5 +1,5 @@
 export type DataStore = {
-    prefixedKey(key:string): string;
+    getPrefixedKey(key:string): string;
     set(key: string, value: unknown): void;
     get(key: string): unknown;
     remove(key: string): void;
@@ -8,7 +8,7 @@ export type DataStore = {
 
 function createLocalStorageDataStore(prefix: string): DataStore {
     return {
-        prefixedKey(key) { return `${prefix}:${key}`; },
+        getPrefixedKey(key) { return `${prefix}:${key}`; },
         set(key, value) {
             ensureLocalStorageIsAvailable();
             localStorage.setItem(`${prefix}:${key}`, JSON.stringify(value));

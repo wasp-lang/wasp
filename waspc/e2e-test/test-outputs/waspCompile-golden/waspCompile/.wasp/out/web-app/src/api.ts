@@ -61,7 +61,7 @@ api.interceptors.response.use(undefined, (error) => {
 // "Note: This won't work on the same page that is making the changes — it is really a way
 // for other pages on the domain using the storage to sync any changes that are made."
 window.addEventListener('storage', (event) => {
-  if (event.key === storage.prefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
+  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
     if (!!event.newValue) {
       authToken = event.newValue
       events.emit(EventType.SET_AUTH_TOKEN)
