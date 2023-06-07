@@ -19,14 +19,14 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       genTypes auth,
-      copyTmplFile [relfile|auth/forms/Login.tsx|],
-      copyTmplFile [relfile|auth/forms/Signup.tsx|],
-      copyTmplFile [relfile|stitches.config.js|]
+      genFileCopy [relfile|auth/forms/Login.tsx|],
+      genFileCopy [relfile|auth/forms/Signup.tsx|],
+      genFileCopy [relfile|stitches.config.js|]
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
@@ -50,12 +50,12 @@ genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =
   genConditionally isEmailAuthEnabled $
     sequence
-      [ copyTmplFile [relfile|auth/forms/ResetPassword.tsx|],
-        copyTmplFile [relfile|auth/forms/ForgotPassword.tsx|],
-        copyTmplFile [relfile|auth/forms/VerifyEmail.tsx|]
+      [ genFileCopy [relfile|auth/forms/ResetPassword.tsx|],
+        genFileCopy [relfile|auth/forms/ForgotPassword.tsx|],
+        genFileCopy [relfile|auth/forms/VerifyEmail.tsx|]
       ]
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]

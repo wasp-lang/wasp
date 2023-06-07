@@ -26,9 +26,9 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       sequence
-        [ copyTmplFile [relfile|auth/logout.ts|],
-          copyTmplFile [relfile|auth/helpers/user.ts|],
-          copyTmplFile [relfile|auth/types.ts|],
+        [ genFileCopy [relfile|auth/logout.ts|],
+          genFileCopy [relfile|auth/helpers/user.ts|],
+          genFileCopy [relfile|auth/types.ts|],
           genUseAuth auth,
           genCreateAuthRequiredPage auth
         ]
@@ -38,7 +38,7 @@ genAuth spec =
         <++> genEmailAuth auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 -- | Generates HOC that handles auth for the given page.
 genCreateAuthRequiredPage :: AS.Auth.Auth -> Generator FileDraft
