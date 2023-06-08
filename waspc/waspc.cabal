@@ -291,6 +291,7 @@ library
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WriteFileDrafts
     Wasp.Node.Version
+    Wasp.Package
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
