@@ -13,7 +13,6 @@ for package in $(ls "$dir/../packages"); do
     cd "$package_dir"
     npm install
     npm run build
-    rm -rf ./node_modules
   fi
 done
 
