@@ -18,7 +18,7 @@ getExportsOfTsFile :: [TsExportRequest] -> IO (Maybe TsExportResponse)
 getExportsOfTsFile requests = do
   let requestJSON = encode requests
   chan <- newChan
-  exportsJob <- runPackageAsJob TsInspectPackage chan
+  exitCode <- runPackageAsJob TsInspectPackage chan
   writeChan chan requestJSON
   responseJSON <- readChan chan
   return $ decode responseJSON

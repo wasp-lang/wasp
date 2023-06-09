@@ -4,17 +4,14 @@ module Wasp.Project.Deployment
   )
 where
 
-import Control.Concurrent (newChan)
-import Control.Concurrent.Async (concurrently)
 import Control.Monad.Extra (whenMaybeM)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import System.Exit (ExitCode (..))
-import qualified Wasp.Generator.Job as J
-import Wasp.Generator.Job.IO (printJobMsgsUntilExitReceived)
-import Wasp.Package (Package (DeployPackage), runPackageAsJob)
+import qualified System.Process as P
+import Wasp.Package (Package (DeployPackage), getPackageProc)
 import Wasp.Project.Common (WaspProjectDir)
 
 loadUserDockerfileContents :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe Text)
@@ -29,14 +26,22 @@ deploy ::
   -- | All arguments from the Wasp CLI.
   [String] ->
   IO (Either String ())
-deploy waspExe waspDir cmdArgs =
+deploy waspExe waspDir cmdArgs = do
   let deployScriptArgs = concat [cmdArgs, ["--wasp-exe", waspExe, "--wasp-project-dir", toFilePath waspDir]]
-   in runCommandAndPrintOutput $ runPackageAsJob DeployPackage deployScriptArgs
-  where
-    runCommandAndPrintOutput :: J.Job -> IO (Either String ())
-    runCommandAndPrintOutput job = do
-      chan <- newChan
-      (_, exitCode) <- concurrently (printJobMsgsUntilExitReceived chan) (job chan)
-      case exitCode of
-        ExitSuccess -> return $ Right ()
-        ExitFailure code -> return $ Left $ "Deploy command failed with exit code: " ++ show code
+  cp <- getPackageProc DeployPackage deployScriptArgs
+  -- Set up the process so that it:
+  -- - Inherits handles from the waspc process (it will print and read from stdin/out/err)
+  -- - Delegates Ctrl+C: when waspc receives Ctrl+C while this process is running,
+  --   it will properly shut-down the child process.
+  --   See https://hackage.haskell.org/package/process-1.6.17.0/docs/System-Process.html#g:4.
+  let cpInheritHandles =
+        cp
+          { P.std_in = P.Inherit,
+            P.std_out = P.Inherit,
+            P.std_err = P.Inherit,
+            P.delegate_ctlc = True
+          }
+  exitCode <- P.withCreateProcess cpInheritHandles $ \_ _ _ ph -> P.waitForProcess ph
+  case exitCode of
+    ExitSuccess -> return $ Right ()
+    ExitFailure code -> return $ Left $ "Deploy command failed with exit code: " ++ show code
