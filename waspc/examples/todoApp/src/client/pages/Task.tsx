@@ -13,7 +13,7 @@ type TaskPayload = Pick<Task, "id" | "isDone">
 const Todo = (props: any) => {
   const taskId = parseInt(props.match.params.id)
 
-  const { data: task, isFetching, error } = useQuery(getTask, { id: taskId })
+  const { data: task, isFetching, error, isError } = useQuery(getTask, { id: taskId })
 
   const updateTaskIsDoneOptimistically = useAction(updateTaskIsDone, {
     optimisticUpdates: [
@@ -32,8 +32,8 @@ const Todo = (props: any) => {
     ]
   })
 
-  if (!task) return <div>Task with id {taskId} does not exist.</div>
-  if (error) return <div>Error occurred! {error}</div>
+  if (!task) return <div> Task with id {taskId} does not exist. </div>;
+  if (isError) return <div> Error occurred! {error.message} </div>;
 
   async function toggleIsDone({ id, isDone }: Task) {
     try {

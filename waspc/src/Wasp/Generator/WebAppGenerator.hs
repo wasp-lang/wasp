@@ -119,8 +119,8 @@ npmDepsForWasp spec =
     { N.waspDependencies =
         AS.Dependency.fromList
           [ ("axios", "^0.27.2"),
-            ("react", "^17.0.2"),
-            ("react-dom", "^17.0.2"),
+            ("react", "^18.2.0"),
+            ("react-dom", "^18.2.0"),
             ("@tanstack/react-query", "^4.13.0"),
             ("react-router-dom", "^5.3.3"),
             -- The web app only needs @prisma/client (we're using the server's
@@ -135,10 +135,10 @@ npmDepsForWasp spec =
         AS.Dependency.fromList
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("vite", "^4.1.0"),
-            ("typescript", "^4.9.3"),
-            ("@types/react", "^17.0.53"),
-            ("@types/react-dom", "^17.0.19"),
+            ("vite", "^4.3.9"),
+            ("typescript", "^4.9.3"), -- Once upgraded to Typescript 5, consider using moduleResolution: 'bundler' in tsconfig.node.json, since that is what Vite now by default uses (we have it set to 'Node' right now because 'bundler' requires TS >= 5). Also, upgrade @tsconfig/vite-react to 2.0.0 (couldn't do it now because it also uses 'bundler').
+            ("@types/react", "^18.0.37"),
+            ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
             ("@vitejs/plugin-react-swc", "^3.0.0"),
             ("dotenv", "^16.0.3"),
@@ -172,7 +172,7 @@ depsRequiredForTesting =
     [ ("vitest", "^0.29.3"),
       ("@vitest/ui", "^0.29.3"),
       ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^12.1.5"),
+      ("@testing-library/react", "^14.0.0"),
       ("@testing-library/jest-dom", "^5.16.5"),
       ("msw", "^1.1.0")
     ]
