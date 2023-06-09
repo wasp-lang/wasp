@@ -306,6 +306,7 @@ library
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
     Wasp.SemanticVersion
+    Wasp.TypeScript
     Wasp.Util
     Wasp.Util.Network.Socket
     Wasp.Util.Control.Monad
