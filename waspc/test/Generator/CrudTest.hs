@@ -1,7 +1,9 @@
+{-# LANGUAGE PartialTypeSignatures #-}
+
 module Generator.CrudTest where
 
-import Data.Aeson (KeyValue ((.=)), object)
-import qualified Data.Aeson
+import Data.Aeson (KeyValue ((.=)), Value, object)
+import Data.Aeson.Types (Pair)
 import StrongPath (relfileP)
 import qualified StrongPath as SP
 import Test.Tasty.Hspec
@@ -20,7 +22,7 @@ spec_GeneratorCrudTest = do
         crudOperationsName
         crudWithoutOperations
         primaryEntityField
-        `shouldBe` mkOperationsJson (object [])
+        `shouldBe` mkOperationsJson []
 
     it "adds JSON for defined operations" $ do
       getCrudOperationJson
@@ -37,33 +39,16 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          ( object
-              [ "Get"
-                  .= object
-                    [ "route" .= ("get" :: String),
-                      "fullPath" .= ("tasks/get" :: String),
-                      "isPublic" .= False
-                    ],
-                "GetAll"
-                  .= object
-                    [ "route" .= ("get-all" :: String),
-                      "fullPath" .= ("tasks/get-all" :: String),
-                      "isPublic" .= False
-                    ],
-                "Create"
-                  .= object
-                    [ "route" .= ("create" :: String),
-                      "fullPath" .= ("tasks/create" :: String),
-                      "isPublic" .= False
-                    ]
-              ]
-          )
+          [ "Get" .= mkOperationJson "get" "tasks/get" NotPublic,
+            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "tasks/create" NotPublic
+          ]
 
     it "returns proper JSON for public operations" $ do
       getCrudOperationJson
         crudOperationsName
         AS.Crud.Crud
-          { entity = AS.Core.Ref.Ref crudOperationEntitName,
+          { entity = AS.Core.Ref.Ref crudOperationEntityName,
             operations =
               AS.Crud.CrudOperations
                 { get = publicCrudOperationOptions,
@@ -75,27 +60,10 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          ( object
-              [ "Get"
-                  .= object
-                    [ "route" .= ("get" :: String),
-                      "fullPath" .= ("tasks/get" :: String),
-                      "isPublic" .= True
-                    ],
-                "GetAll"
-                  .= object
-                    [ "route" .= ("get-all" :: String),
-                      "fullPath" .= ("tasks/get-all" :: String),
-                      "isPublic" .= False
-                    ],
-                "Create"
-                  .= object
-                    [ "route" .= ("create" :: String),
-                      "fullPath" .= ("tasks/create" :: String),
-                      "isPublic" .= True
-                    ]
-              ]
-          )
+          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "tasks/create" Public
+          ]
 
     it "allows overrides of operations" $ do
       getCrudOperationJson
@@ -123,30 +91,13 @@ spec_GeneratorCrudTest = do
           }
         primaryEntityField
         `shouldBe` mkOperationsJson
-          ( object
-              [ "Get"
-                  .= object
-                    [ "route" .= ("get" :: String),
-                      "fullPath" .= ("tasks/get" :: String),
-                      "isPublic" .= True
-                    ],
-                "GetAll"
-                  .= object
-                    [ "route" .= ("get-all" :: String),
-                      "fullPath" .= ("tasks/get-all" :: String),
-                      "isPublic" .= False
-                    ],
-                "Create"
-                  .= object
-                    [ "route" .= ("create" :: String),
-                      "fullPath" .= ("tasks/create" :: String),
-                      "isPublic" .= True
-                    ]
-              ]
-          )
+          [ "Get" .= mkOperationJson "get" "tasks/get" Public,
+            "GetAll" .= mkOperationJson "get-all" "tasks/get-all" NotPublic,
+            "Create" .= mkOperationJson "create" "tasks/create" Public
+          ]
   where
     crudOperationsName = "tasks"
-    crudOperationEntitName = "Task"
+    crudOperationEntityName = "Task"
     primaryEntityField =
       PslModel.Field
         { PslModel._name = "id",
@@ -161,7 +112,7 @@ spec_GeneratorCrudTest = do
         }
     crudWithoutOperations =
       AS.Crud.Crud
-        { entity = AS.Core.Ref.Ref crudOperationEntitName,
+        { entity = AS.Core.Ref.Ref crudOperationEntityName,
           operations =
             AS.Crud.CrudOperations
               { get = Nothing,
@@ -193,13 +144,26 @@ spec_GeneratorCrudTest = do
             }
         )
 
-    mkOperationsJson :: Data.Aeson.Value -> Data.Aeson.Value
+    mkOperationsJson :: [Pair] -> Value
     mkOperationsJson operations =
       object
         [ "name" .= crudOperationsName,
-          "operations" .= operations,
+          "operations" .= object operations,
           "entitiesArray" .= ("['Task']" :: String),
           "primaryFieldName" .= ("id" :: String),
           "entityLower" .= ("task" :: String),
           "entityUpper" .= ("Task" :: String)
         ]
+
+    mkOperationJson :: String -> String -> IsOperationPublic -> Value
+    mkOperationJson route fullPath isPublic =
+      object
+        [ "route" .= route,
+          "fullPath" .= fullPath,
+          "isPublic" .= case isPublic of
+            Public -> True
+            NotPublic -> False
+        ]
+
+data IsOperationPublic = Public | NotPublic
+
