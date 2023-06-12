@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { withOperationsMiddleware } from '../../middleware/operations.js'
-{=& operationImportStmt =}
+import { createAction } from '../../middleware/operations.js'
+{=& operation.importStatement =}
 
-export default withOperationsMiddleware({= operationName =})
+export default createAction({= operation.importIdentifier =})

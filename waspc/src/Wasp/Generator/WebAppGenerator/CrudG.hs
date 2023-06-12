@@ -8,7 +8,7 @@ import StrongPath (reldir, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
-import Wasp.AppSpec.Valid (getPrimaryKeyFieldFromCrudEntity)
+import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -31,5 +31,5 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
       where
         tmplPath = [relfile|src/crud/_crud.ts|]
         destPath = C.webAppSrcDirInWebAppRootDir </> [reldir|crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
-        tmplData = getCrudOperationJson name crud primaryField
-        primaryField = getPrimaryKeyFieldFromCrudEntity spec crud
+        tmplData = getCrudOperationJson name crud idField
+        idField = getIdFieldFromCrudEntity spec crud

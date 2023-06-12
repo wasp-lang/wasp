@@ -43,16 +43,19 @@ const entities = {
   {= crud.entityUpper =}: prisma.{= crud.entityLower =},
 }
 
+{=!
+// Let's explain this template on the GetAll operation example
+=}
 {=# crud.operations.GetAll =}
-{=# isAuthEnabled =}
-export type GetAllQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=^ isAuthEnabled =}
-export type GetAllQuery<Input, Output> = Query<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=# overrides.GetAll.isDefined =}
-const _waspGetAllQuery = {= overrides.GetAll.importIdentifier =}
-{=/ overrides.GetAll.isDefined =}
+// Get All query
+{=!
+// 1. We define the type for the operation using "queryType" template variable which is either
+//    AuthenticatedQuery or Query (it depends on whether auth is enabled or not).
+=}
+export type GetAllQuery<Input, Output> = {= queryType =}<[_WaspEntityTagged], Input, Output>
+{=!
+// 2. Then, we either use the default implementation of the operation...
+=}
 {=^ overrides.GetAll.isDefined =}
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
@@ -63,12 +66,23 @@ const _waspGetAllQuery: GetAllQuery<GetAllInput, GetAllOutput> = ((args, context
   return context.entities.{= crud.entityUpper =}.findMany();
 });
 {=/ overrides.GetAll.isDefined =}
+{=!
+// ... or the one defined in the overrides by the user. We use the "importIdentifier" property to
+// reference the function from the overrides.
+=}
+{=# overrides.GetAll.isDefined =}
+const _waspGetAllQuery = {= overrides.GetAll.importIdentifier =}
+{=/ overrides.GetAll.isDefined =}
 
-// For each operation, we define a type for the function used on the backend
-// it's either the default one, or the one defined in the overrides
+{=!
+// 3. We then define the final type for the operation, which is the type of the function we defined in the previous step.
+//    It will pick up either the default implementation or the one from the overrides.
+=}
 export type GetAllQueryResolved = typeof _waspGetAllQuery
 
-// For each operation, we define a function that is used as the route handler
+{=!
+// 4. We define a function that is used as the Express route handler
+=}
 export async function getAllFn(args, context) {
   return (_waspGetAllQuery as any)(args, {
     ...context,
@@ -76,17 +90,13 @@ export async function getAllFn(args, context) {
   });
 }
 {=/ crud.operations.GetAll =}
+{=!
+// That's it! It is similar for all other operations.
+=}  
 
 {=# crud.operations.Get =}
-{=# isAuthEnabled =}
-export type GetQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=^ isAuthEnabled =}
-export type GetQuery<Input, Output> = Query<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=# overrides.Get.isDefined =}
-const _waspGetQuery = {= overrides.Get.importIdentifier =}
-{=/ overrides.Get.isDefined =}
+// Get query
+export type GetQuery<Input, Output> = {= queryType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Get.isDefined =}
 type GetInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
@@ -97,7 +107,9 @@ const _waspGetQuery: GetQuery<GetInput, GetOutput> = ((args, context) => {
   return context.entities.{= crud.entityUpper =}.findUnique({ where: { id: args.id } });
 });
 {=/ overrides.Get.isDefined =}
-
+{=# overrides.Get.isDefined =}
+const _waspGetQuery = {= overrides.Get.importIdentifier =}
+{=/ overrides.Get.isDefined =}
 export type GetQueryResolved = typeof _waspGetQuery
 
 export async function getFn(args, context) {
@@ -109,15 +121,8 @@ export async function getFn(args, context) {
 {=/ crud.operations.Get =}
 
 {=# crud.operations.Create =}
-{=# isAuthEnabled =}
-export type CreateAction<Input, Output> = AuthenticatedAction<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=^ isAuthEnabled =}
-export type CreateAction<Input, Output>= Action<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=# overrides.Create.isDefined =}
-const _waspCreateAction = {= overrides.Create.importIdentifier =}
-{=/ overrides.Create.isDefined =}
+// Create action
+export type CreateAction<Input, Output>= {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Create.isDefined =}
 type CreateInput = Prisma.{= crud.entityUpper =}CreateInput
 type CreateOutput = _WaspEntity
@@ -127,6 +132,9 @@ const _waspCreateAction: CreateAction<CreateInput, CreateOutput> = ((args, conte
   {=/ crud.operations.Create.isPublic =}
   return context.entities.{= crud.entityUpper =}.create({ data: args });
 });
+{=/ overrides.Create.isDefined =}
+{=# overrides.Create.isDefined =}
+const _waspCreateAction = {= overrides.Create.importIdentifier =}
 {=/ overrides.Create.isDefined =}
 
 export type CreateActionResolved = typeof _waspCreateAction
@@ -140,15 +148,8 @@ export async function createFn(args, context) {
 {=/ crud.operations.Create =}
 
 {=# crud.operations.Update =}
-{=# isAuthEnabled =}
-export type UpdateAction<Input, Output> = AuthenticatedAction<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=^ isAuthEnabled =}
-export type UpdateAction<Input, Output> = Action<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=# overrides.Update.isDefined =}
-const _waspUpdateAction = {= overrides.Update.importIdentifier =}
-{=/ overrides.Update.isDefined =}
+// Update action
+export type UpdateAction<Input, Output> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Update.isDefined =}
 type UpdateInput = Prisma.{= crud.entityUpper =}UpdateInput & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type UpdateOutput = _WaspEntity
@@ -156,12 +157,15 @@ const _waspUpdateAction: UpdateAction<UpdateInput, UpdateOutput> = ((args, conte
   {=^ crud.operations.Update.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Update.isPublic =}
-  const { {= crud.primaryFieldName =}: primaryFieldValue, ...rest } = args
+  const { {= crud.idFieldName =}: idFieldValue, ...rest } = args
   return context.entities.{= crud.entityUpper =}.update({
-    where: { {= crud.primaryFieldName =}: primaryFieldValue },
+    where: { {= crud.idFieldName =}: idFieldValue },
     data: rest,
   });
 });
+{=/ overrides.Update.isDefined =}
+{=# overrides.Update.isDefined =}
+const _waspUpdateAction = {= overrides.Update.importIdentifier =}
 {=/ overrides.Update.isDefined =}
 
 export type UpdateActionResolved = typeof _waspUpdateAction
@@ -175,15 +179,8 @@ export async function updateFn(args, context) {
 {=/ crud.operations.Update =}
 
 {=# crud.operations.Delete =}
-{=# isAuthEnabled =}
-export type DeleteAction<Input, Output> = AuthenticatedAction<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=^ isAuthEnabled =}
-export type DeleteAction<Input, Output> = Action<[_WaspEntityTagged], Input, Output>
-{=/ isAuthEnabled =}
-{=# overrides.Delete.isDefined =}
-const _waspDeleteAction = {= overrides.Delete.importIdentifier =}
-{=/ overrides.Delete.isDefined =}
+// Delete action
+export type DeleteAction<Input, Output> = {= actionType =}<[_WaspEntityTagged], Input, Output>
 {=^ overrides.Delete.isDefined =}
 type DeleteInput = Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
@@ -193,6 +190,9 @@ const _waspDeleteAction: DeleteAction<DeleteInput, DeleteOutput> = ((args, conte
   {=/ crud.operations.Delete.isPublic =}
   return context.entities.{= crud.entityUpper =}.delete({ where: args });
 });
+{=/ overrides.Delete.isDefined =}
+{=# overrides.Delete.isDefined =}
+const _waspDeleteAction = {= overrides.Delete.importIdentifier =}
 {=/ overrides.Delete.isDefined =}
 
 export type DeleteActionResolved = typeof _waspDeleteAction

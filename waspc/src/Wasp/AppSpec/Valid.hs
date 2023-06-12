@@ -6,7 +6,7 @@ module Wasp.AppSpec.Valid
     getApp,
     isAuthEnabled,
     doesUserEntityContainField,
-    getPrimaryKeyFieldFromCrudEntity,
+    getIdFieldFromCrudEntity,
   )
 where
 
@@ -260,7 +260,7 @@ validateCrudOperations :: AppSpec -> [ValidationError]
 validateCrudOperations spec =
   concat
     [ concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds,
-      concatMap checkIfPrimaryFieldExistsForEntity cruds
+      concatMap checkIfIdFieldExistsForEntity cruds
     ]
   where
     cruds = AS.getCruds spec
@@ -273,14 +273,14 @@ validateCrudOperations spec =
       where
         crudOperations = crudDeclarationToOperationsList crud
 
-    checkIfPrimaryFieldExistsForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
-    checkIfPrimaryFieldExistsForEntity (crudName, crud) =
-      if isJust maybePrimaryField
+    checkIfIdFieldExistsForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfIdFieldExistsForEntity (crudName, crud) =
+      if isJust maybeIdField
         then []
-        else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have a primary key."]
+        else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute)."]
       where
         (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
-        maybePrimaryField = Entity.getPrimaryKeyField entity
+        maybeIdField = Entity.getIdField entity
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
@@ -314,8 +314,9 @@ doesUserEntityContainField spec fieldName = do
   let userEntityFields = Entity.getFields userEntity
   Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields
 
+-- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
-getPrimaryKeyFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
-getPrimaryKeyFieldFromCrudEntity spec crud = fromJust $ Entity.getPrimaryKeyField crudEntity
+getIdFieldFromCrudEntity :: AppSpec -> AS.Crud.Crud -> PslModel.Field
+getIdFieldFromCrudEntity spec crud = fromJust $ Entity.getIdField crudEntity
   where
     crudEntity = snd $ AS.resolveRef spec (AS.Crud.entity crud)

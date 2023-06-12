@@ -5,7 +5,7 @@ module Wasp.AppSpec.Entity
     Entity,
     getFields,
     getPslModelBody,
-    getPrimaryKeyField,
+    getIdField,
   )
 where
 
@@ -41,5 +41,5 @@ getFields = fields
 getPslModelBody :: Entity -> PslModel.Body
 getPslModelBody = pslModelBody
 
-getPrimaryKeyField :: Entity -> Maybe PslModel.Field
-getPrimaryKeyField = findPrimaryKeyField . getPslModelBody
+getIdField :: Entity -> Maybe PslModel.Field
+getIdField = findPrimaryKeyField . getPslModelBody

@@ -51,8 +51,11 @@ genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFil
 
     tmplData =
       object
-        [ "operationName" .= (operationImportIdentifier :: String),
-          "operationImportStmt" .= (operationImportStmt :: String)
+        [ "operation"
+            .= object
+              [ "importIdentifier" .= (operationImportIdentifier :: String),
+                "importStatement" .= (operationImportStmt :: String)
+              ]
         ]
 
     pathToOperationFile =

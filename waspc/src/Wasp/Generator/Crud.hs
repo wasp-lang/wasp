@@ -24,14 +24,14 @@ import qualified Wasp.Psl.Ast.Model as PslModel
 import qualified Wasp.Util as Util
 
 getCrudOperationJson :: String -> AS.Crud.Crud -> PslModel.Field -> Aeson.Value
-getCrudOperationJson crudOperationName crud primaryField =
+getCrudOperationJson crudOperationName crud idField =
   object
     [ "name" .= crudOperationName,
       "operations" .= object (map getDataForOperation crudOperations),
       "entityUpper" .= crudEntityName,
       "entityLower" .= Util.toLowerFirst crudEntityName,
       "entitiesArray" .= makeJsArrayFromHaskellList [crudEntityName],
-      "primaryFieldName" .= PslModel._name primaryField
+      "idFieldName" .= PslModel._name idField
     ]
   where
     crudEntityName = AS.refName $ AS.Crud.entity crud
