@@ -260,7 +260,7 @@ validateCrudOperations :: AppSpec -> [ValidationError]
 validateCrudOperations spec =
   concat
     [ concatMap checkIfAtLeastOneOperationIsUsedForCrud cruds,
-      concatMap checkIfIdFieldExistsForEntity cruds
+      concatMap checkIfSimpleIdFieldIsDefinedForEntity cruds
     ]
   where
     cruds = AS.getCruds spec
@@ -273,14 +273,15 @@ validateCrudOperations spec =
       where
         crudOperations = crudDeclarationToOperationsList crud
 
-    checkIfIdFieldExistsForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
-    checkIfIdFieldExistsForEntity (crudName, crud) =
-      if isJust maybeIdField
-        then []
-        else [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute)."]
+    checkIfSimpleIdFieldIsDefinedForEntity :: (String, AS.Crud.Crud) -> [ValidationError]
+    checkIfSimpleIdFieldIsDefinedForEntity (crudName, crud) = case (maybeIdField, maybeIdBlockAttribute) of
+      (Just _, Nothing) -> []
+      (Nothing, Just _) -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute) and not a composite ID (defined with @@id attribute)."]
+      _missingIdFieldWithoutBlockIdAttributeDefined -> [GenericValidationError $ "Entity referenced by \"" ++ crudName ++ "\" CRUD declaration must have an ID field (marked with @id attribute)."]
       where
-        (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
         maybeIdField = Entity.getIdField entity
+        maybeIdBlockAttribute = Entity.getIdBlockAttribute entity
+        (_, entity) = AS.resolveRef spec (AS.Crud.entity crud)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

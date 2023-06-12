@@ -7,25 +7,25 @@ import qualified Wasp.Psl.Ast.Model as PslModel
 
 spec_AppSpecEntityTest :: Spec
 spec_AppSpecEntityTest = do
-  describe "getPrimaryField" $ do
+  describe "getIdField" $ do
     it "gets primary field from entity when it exists" $ do
-      getIdField entityWithPrimaryField `shouldBe` Just primaryField
+      getIdField entityWithIdField `shouldBe` Just idField
     it "returns Nothing if primary field doesn't exist" $ do
-      getIdField entityWithoutPrimaryField `shouldBe` Nothing
+      getIdField entityWithoutIdField `shouldBe` Nothing
   where
-    entityWithPrimaryField =
+    entityWithIdField =
       Entity.makeEntity $
         PslModel.Body
-          [ PslModel.ElementField primaryField,
+          [ PslModel.ElementField idField,
             PslModel.ElementField someOtherField
           ]
-    entityWithoutPrimaryField =
+    entityWithoutIdField =
       Entity.makeEntity $
         PslModel.Body
           [ PslModel.ElementField someOtherField
           ]
 
-    primaryField =
+    idField =
       PslModel.Field
         { PslModel._name = "id",
           PslModel._type = PslModel.Int,

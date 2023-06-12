@@ -6,6 +6,7 @@ module Wasp.AppSpec.Entity
     getFields,
     getPslModelBody,
     getIdField,
+    getIdBlockAttribute,
   )
 where
 
@@ -14,7 +15,7 @@ import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Model as PslModel
-import Wasp.Psl.Util (findPrimaryKeyField)
+import Wasp.Psl.Util (findIdBlockAttribute, findIdField)
 
 data Entity = Entity
   { fields :: ![Field],
@@ -42,4 +43,7 @@ getPslModelBody :: Entity -> PslModel.Body
 getPslModelBody = pslModelBody
 
 getIdField :: Entity -> Maybe PslModel.Field
-getIdField = findPrimaryKeyField . getPslModelBody
+getIdField = findIdField . getPslModelBody
+
+getIdBlockAttribute :: Entity -> Maybe PslModel.Attribute
+getIdBlockAttribute = findIdBlockAttribute . getPslModelBody
