@@ -1,5 +1,7 @@
 module Wasp.Cli.Command.AI.GenerateNewProject () where
 
+-- TODO: Probably move this module out of here into general wasp lib.
+
 import Wasp.OpenAI (OpenAIApiKey)
 import qualified Wasp.OpenAI.ChatGPT as Chat
 
