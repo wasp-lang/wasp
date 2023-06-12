@@ -1,4 +1,4 @@
-import { withOperationsMiddleware } from '../../middleware/operations.js'
+import { createAction } from '../../middleware/operations.js'
 import MySpecialAction from '../../actions/MySpecialAction.js'
 
-export default withOperationsMiddleware(MySpecialAction)
+export default createAction(MySpecialAction)

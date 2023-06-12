@@ -1,6 +1,6 @@
 import express from 'express'
 import * as crud from '../../crud/tasks.js'
-import { withOperationsMiddleware } from '../../middleware/operations.js'
+import { createAction, createQuery } from '../../middleware/operations.js'
 import auth from '../../core/auth.js'
 
 const _waspRouter = express.Router()
@@ -9,15 +9,15 @@ _waspRouter.use(auth)
 
 _waspRouter.post(
     '/get',
-    withOperationsMiddleware(crud.getFn),
+    createQuery(crud.getFn),
 )
 _waspRouter.post(
     '/get-all',
-    withOperationsMiddleware(crud.getAllFn),
+    createQuery(crud.getAllFn),
 )
 _waspRouter.post(
     '/create',
-    withOperationsMiddleware(crud.createFn),
+    createAction(crud.createFn),
 )
 
 export const tasks = _waspRouter

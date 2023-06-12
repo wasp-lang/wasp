@@ -19,6 +19,7 @@ const entities = {
   Task: prisma.task,
 }
 
+// Get All query
 export type GetAllQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
@@ -27,11 +28,8 @@ const _waspGetAllQuery: GetAllQuery<GetAllInput, GetAllOutput> = ((args, context
   return context.entities.Task.findMany();
 });
 
-// For each operation, we define a type for the function used on the backend
-// it's either the default one, or the one defined in the overrides
 export type GetAllQueryResolved = typeof _waspGetAllQuery
 
-// For each operation, we define a function that is used as the route handler
 export async function getAllFn(args, context) {
   return (_waspGetAllQuery as any)(args, {
     ...context,
@@ -39,6 +37,7 @@ export async function getAllFn(args, context) {
   });
 }
 
+// Get query
 export type GetQuery<Input, Output> = AuthenticatedQuery<[_WaspEntityTagged], Input, Output>
 type GetInput = Prisma.TaskWhereUniqueInput
 type GetOutput = _WaspEntity | null
@@ -46,7 +45,6 @@ const _waspGetQuery: GetQuery<GetInput, GetOutput> = ((args, context) => {
   throwIfNotAuthenticated(context)
   return context.entities.Task.findUnique({ where: { id: args.id } });
 });
-
 export type GetQueryResolved = typeof _waspGetQuery
 
 export async function getFn(args, context) {
@@ -56,7 +54,8 @@ export async function getFn(args, context) {
   });
 }
 
-export type CreateAction<Input, Output> = AuthenticatedAction<[_WaspEntityTagged], Input, Output>
+// Create action
+export type CreateAction<Input, Output>= AuthenticatedAction<[_WaspEntityTagged], Input, Output>
 type CreateInput = Prisma.TaskCreateInput
 type CreateOutput = _WaspEntity
 const _waspCreateAction: CreateAction<CreateInput, CreateOutput> = ((args, context) => {
