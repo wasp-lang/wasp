@@ -126,6 +126,7 @@ library
     , extra                 ^>= 1.7.10
     , dotenv                ^>= 0.10.0
     , network               ^>= 3.1.2
+    , neat-interpolation    ^>=0.5.1.3
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -217,6 +218,10 @@ library
     Wasp.ExternalCode
     Wasp.JsImport
     Wasp.Generator
+    Wasp.Generator.AuthProviders
+    Wasp.Generator.AuthProviders.Common
+    Wasp.Generator.AuthProviders.OAuth
+    Wasp.Generator.AuthProviders.Local
     Wasp.Generator.Common
     Wasp.Generator.ConfigFile
     Wasp.Generator.ConfigFileGenerator
@@ -243,10 +248,8 @@ library
     Wasp.Generator.Job.Process
     Wasp.Generator.JsImport
     Wasp.Generator.Monad
-    Wasp.Generator.AuthProviders
-    Wasp.Generator.AuthProviders.Common
-    Wasp.Generator.AuthProviders.OAuth
-    Wasp.Generator.AuthProviders.Local
+    Wasp.Generator.NpmDependencies
+    Wasp.Generator.NpmInstall
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG
@@ -280,6 +283,10 @@ library
     Wasp.Generator.WebAppGenerator.Setup
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WriteFileDrafts
+    Wasp.Message
+    Wasp.NpmDependency
+    Wasp.OpenAI
+    Wasp.OpenAI.ChatGPT
     Wasp.Project
     Wasp.Project.Analyze
     Wasp.Project.Common
@@ -289,7 +296,6 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Deployment
     Wasp.Project.Env
-    Wasp.NpmDependency
     Wasp.Psl.Ast.Model
     Wasp.Psl.Generator.Model
     Wasp.Psl.Parser.Model
@@ -301,9 +307,6 @@ library
     Wasp.Util.IO
     Wasp.Util.Terminal
     Wasp.WaspignoreFile
-    Wasp.Generator.NpmDependencies
-    Wasp.Generator.NpmInstall
-    Wasp.Message
     Wasp.Version
 
 library waspls
@@ -361,7 +364,7 @@ library cli-lib
     , uuid
     , waspc
     , waspls
-    , neat-interpolation ^>=0.5.1.3
+    , neat-interpolation
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command
