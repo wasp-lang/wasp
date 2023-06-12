@@ -602,6 +602,193 @@ try {
 }
 ```
 
+### Automatic CRUD
+
+Wasp supports automatic action and query generation based of your Prisma models. It will generate the Create, Read (Read All), Update and Delete actions and queries for each model. You can then use them in your client code.
+
+The operations Wasp supports are:
+- **getAll** - returns all entities
+- **get** - returns one entity by id field (field marked with `@id` in Prisma schema)
+- **create** - creates a new entity
+- **update** - updates an existing entity
+- **delete** - deletes an existing entity
+
+#### CRUD declaration
+
+The CRUD declaration works on top of an existing entity declaration. It is declared as follows:
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+ 
+It has the following fields:
+- `entity: Entity` - the entity to which the CRUD operations will be applied.
+- `operations: { [operationName]: CrudOperationOptions }` - the operations to be generated. The key is the name of the operation, and the value is the operation configuration.
+  - The possible values for `operationName` are:
+    - `getAll`
+    - `get`
+    - `create`
+    - `update`
+    - `delete`
+  - `CrudOperationOptions` can have the following fields:
+    - `isPublic: bool` - Whether the operation is public or not. If it is public, it will be available to all users. If it is not public, it will be available only to authenticated users. Defaults to `false`.
+    - `overrideFn: ServerImport` - The import statement of the optional override implementation in Node.js.
+
+#### Defining the overrides
+
+Like with actions and queries, you define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
+- `args` - The arguments of the operation i.e. the data that's sent from the client.
+- `context` - Context containing the `user` making the request and the `entities` object containing the entity that's being operated on.
+
+You can also import types for each of the functions you want to override from `@wasp/crud/{crud name}`. The types that are available are:
+- `GetAllQuery`
+- `GetQuery`
+- `CreateAction`
+- `UpdateAction`
+- `DeleteAction`
+
+If you have a CRUD named `Tasks`, you would import the types like this:
+```ts
+import type { GetAllQuery, GetQuery, CreateAction, UpdateAction, DeleteAction } from '@wasp/crud/Tasks'
+
+// Each of the types is a generic type, so you can use it like this:
+export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) => {
+  // ...
+}
+```
+
+We'll show an example below.
+
+#### Using the CRUD operations in client code
+
+On the client, you import the CRUD operations from `@wasp/crud/{crud name}`. The names of the imports are the same as the names of the operations. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
+
+```jsx title="SomePage.jsx"
+import { Tasks } from '@wasp/crud/Tasks'
+```
+
+You can then access the operations like this:
+```jsx title="SomePage.jsx"
+const { data } = Tasks.getAll.useQuery()
+const { data } = Tasks.get.useQuery({ id: 1 })
+const createAction = Tasks.create.useAction()
+const updateAction = Tasks.update.useAction()
+const deleteAction = Tasks.delete.useAction()
+
+// The CRUD operations are using the existing actions and queries
+// under the hood, so all the options are available as before.
+```
+
+We'll show usage in the example below.
+
+#### Full example
+
+Let's say we have an entity called `Task` in our Wasp file:
+```wasp title="main.wasp"
+// ...
+
+entity Task {=psl
+  id Int @id @default(autoincrement())
+  description String
+  isDone Boolean
+psl=}
+```
+
+We would then add the following to our Wasp file to enable automatic CRUD for `Task`:
+
+```wasp title="main.wasp"
+// ...
+
+crud Tasks {
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true,
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js",
+    },
+    update: {},
+  },
+}
+```
+
+And let's say we have the following implementation in `@server/tasks.js`:
+
+```ts title="src/server/tasks.js"
+import type { CreateAction } from '@wasp/crud/Tasks'
+import type { Task } from '@wasp/entities'
+
+export const createTask: CreateAction<{
+  description: string;
+  isDone: boolean;
+}, Task> = async (args, context) => {
+  // Let's say we have this requirement that only user with id 1 can create tasks.
+  if (!context.user || context.user.id !== 1) {
+    throw new Error('Only user with id 1 can create tasks.')
+  }
+
+  const { description, isDone } = args.data
+  const { Task } = context.entities
+
+  return await Task.create({
+    data: {
+      description,
+      isDone,
+    },
+  })
+}
+```
+
+- We defined a new CRUD called `Tasks` which uses the `Task` entity to perform all the operations.
+- We omitted the `delete` operation, so the `delete` operation will not be generated. We also specified that the `getAll` operation is public, meaning that it can be called without authentication.
+- We also specified an override function for the `create` operation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@server/tasks.js` will be used.
+
+And let's use the generated operations in our client code:
+
+```jsx title="pages/TasksList.jsx"
+import { Tasks } from '@wasp/crud/Tasks'
+
+const TasksList = () => {
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  // const { data: task } = Tasks.get.useQuery({ id: 1 })
+
+  const createAction = Tasks.create.useAction()
+  // const updateAction = Tasks.update.useAction()
+  // const deleteAction = Tasks.delete.useAction()
+
+  function handleCreateTask() {
+    createAction({ description: 'New task', isDone: false })
+  }
+
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+  return (
+    <div>
+      <button onClick={handleCreateTask}>Create task</button>
+      <ul>
+        {tasks.map(task => (
+          <li key={task.id}>{task.description}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+```
+
 ## APIs
 
 In Wasp, the default client-server interaction mechanism is through [Operations](#queries-and-actions-aka-operations). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`! Best of all, they should look and feel very familiar.
@@ -731,7 +918,7 @@ export const fooBar : FooBar = (req, res, context) => {
 
 The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud).
 
-### `apiNamespace`
+### apiNamespace
 
 An `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path. For example:
 
