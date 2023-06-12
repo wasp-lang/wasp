@@ -42,7 +42,10 @@ export function getSignupRoute({
             await deleteUser(existingUser);
         }
     
-        const user = await createUser(userFields);
+        const user = await createUser({
+            email: userFields.email,
+            password: userFields.password,
+        });
 
         const verificationLink = await createEmailVerificationLink(user, clientRoute);
         try {
