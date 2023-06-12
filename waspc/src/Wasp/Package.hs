@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Wasp.Package
   ( Package (..),
@@ -7,11 +8,14 @@ module Wasp.Package
 where
 
 import Control.Monad.Extra (unlessM, void)
-import StrongPath (Abs, Dir, Path', Rel, fromAbsDir, reldir, (</>))
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import System.Directory (doesDirectoryExist)
+import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
+import Wasp.Node.Version (getAndCheckNodeVersion)
 
 data Package
   = DeployPackage
@@ -21,12 +25,17 @@ data PackagesDir
 
 data PackageDir
 
+data PackageScript
+
 packagesDirInDataDir :: Path' (Rel DataDir) (Dir PackagesDir)
 packagesDirInDataDir = [reldir|packages|]
 
 packageDirInPackagesDir :: Package -> Path' (Rel PackagesDir) (Dir PackageDir)
 packageDirInPackagesDir DeployPackage = [reldir|deploy|]
 packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
+
+scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
+scriptInPackageDir = [relfile|dist/index.js|]
 
 -- | Get a 'P.CreateProcess' for a particular package.
 --
@@ -37,11 +46,16 @@ packageDirInPackagesDir TsInspectPackage = [reldir|ts-inspect|]
 -- just installed a Wasp version), we install the dependencies.
 getPackageProc :: Package -> [String] -> IO P.CreateProcess
 getPackageProc package args = do
+  getAndCheckNodeVersion >>= \case
+    Right _ -> pure ()
+    Left errorMsg -> do
+      -- Exit if valid node version is not installed
+      hPutStrLn stderr errorMsg
+      exitFailure
   packageDir <- getPackageDir package
+  let scriptFile = packageDir </> scriptInPackageDir
   ensurePackageDependenciesAreInstalled packageDir
-  -- @--@ is present to make sure @args@ get sent to the process inside the
-  -- npm start command instead of npm itself.
-  return $ packageProc packageDir "npm" $ concat [["npm", "--"], args]
+  return $ packageProc packageDir "node" (fromAbsFile scriptFile : args)
 
 getPackageDir :: Package -> IO (Path' Abs (Dir PackageDir))
 getPackageDir package = do

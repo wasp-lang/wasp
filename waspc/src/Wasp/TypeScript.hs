@@ -2,26 +2,32 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Wasp.TypeScript
-  ( getExportsOfTsFile,
-    TsExport,
+  ( getExportsOfTsFiles,
+    TsExportRequest (..),
+    TsExport (..),
+    TsExportResponse (..),
   )
 where
 
-import Control.Concurrent (newChan, readChan, writeChan)
 import Data.Aeson (FromJSON (parseJSON), ToJSON (toEncoding), Value, decode, defaultOptions, encode, genericToEncoding, withObject, (.:), (.:?))
+import qualified Data.ByteString.Lazy.UTF8 as BS
+import Data.Conduit.Process.Typed (ExitCode (ExitSuccess))
 import qualified Data.HashMap.Strict as M
 import GHC.Generics (Generic)
+import qualified System.Process as P
 import Wasp.Analyzer (SourcePosition)
-import Wasp.Package (Package (TsInspectPackage), runPackageAsJob)
+import Wasp.Package (Package (TsInspectPackage), getPackageProc)
 
-getExportsOfTsFile :: [TsExportRequest] -> IO (Maybe TsExportResponse)
-getExportsOfTsFile requests = do
-  let requestJSON = encode requests
-  chan <- newChan
-  exitCode <- runPackageAsJob TsInspectPackage chan
-  writeChan chan requestJSON
-  responseJSON <- readChan chan
-  return $ decode responseJSON
+getExportsOfTsFiles :: [TsExportRequest] -> IO (Either String TsExportResponse)
+getExportsOfTsFiles requests = do
+  let requestJSON = BS.toString $ encode requests
+  cp <- getPackageProc TsInspectPackage []
+  (exitCode, response, err) <- P.readCreateProcessWithExitCode cp requestJSON
+  case exitCode of
+    ExitSuccess -> case decode $ BS.fromString response of
+      Nothing -> return $ Left $ "invalid response JSON from ts-inspect: " ++ response
+      Just exports -> return $ Right exports
+    _ -> return $ Left err
 
 data TsExport
   = DefaultExport !(Maybe SourcePosition)
