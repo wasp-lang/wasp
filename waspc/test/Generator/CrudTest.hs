@@ -166,4 +166,3 @@ spec_GeneratorCrudTest = do
         ]
 
 data IsOperationPublic = Public | NotPublic
-
