@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-import logout from '@wasp/auth/logout.js'
+import logout from '@wasp/auth/logout'
 import useAuth from '@wasp/auth/useAuth'
 import { useQuery } from '@wasp/queries'
 import getDate from '@wasp/queries/getDate'
@@ -38,9 +38,7 @@ export function App({ children }: any) {
         )}
       </header>
       <main>{children}</main>
-      <footer className="mt-8 text-center">
-        Created with Wasp
-      </footer>
+      <footer className="mt-8 text-center">Created with Wasp</footer>
     </div>
   )
 }

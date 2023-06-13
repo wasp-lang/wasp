@@ -229,16 +229,16 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|config.js|],
-      copyTmplFile [relfile|queryClient.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|types.ts|],
-      copyTmplFile [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|logo.png|],
+      genFileCopy [relfile|config.js|],
+      genFileCopy [relfile|queryClient.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|types.ts|],
+      genFileCopy [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      copyTmplFile [relfile|api.ts|],
-      copyTmplFile [relfile|api/events.ts|],
-      copyTmplFile [relfile|storage.ts|],
+      genFileCopy [relfile|api.ts|],
+      genFileCopy [relfile|api/events.ts|],
+      genFileCopy [relfile|storage.ts|],
       genRouter spec,
       getIndexTs spec
     ]
@@ -247,7 +247,7 @@ genSrcDir spec =
     <++> genAuth spec
     <++> genWebSockets spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genEntitiesDir :: AppSpec -> Generator [FileDraft]
 genEntitiesDir spec = return [entitiesIndexFileDraft]
@@ -296,12 +296,12 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ copyTmplFile [relfile|webSocket.ts|],
+        [ genFileCopy [relfile|webSocket.ts|],
           genWebSocketProvider spec
         ]
   | otherwise = return []
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genWebSocketProvider :: AppSpec -> Generator FileDraft
 genWebSocketProvider spec = return $ C.mkTmplFdWithData tmplFile tmplData
