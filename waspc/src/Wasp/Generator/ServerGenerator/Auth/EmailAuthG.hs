@@ -88,14 +88,14 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 genRoutes :: Generator [FileDraft]
 genRoutes =
   sequence
-    [ copyTmplFile [relfile|auth/providers/email/signup.ts|],
-      copyTmplFile [relfile|auth/providers/email/login.ts|],
-      copyTmplFile [relfile|auth/providers/email/resetPassword.ts|],
-      copyTmplFile [relfile|auth/providers/email/requestPasswordReset.ts|],
-      copyTmplFile [relfile|auth/providers/email/verifyEmail.ts|]
+    [ genFileCopy [relfile|auth/providers/email/signup.ts|],
+      genFileCopy [relfile|auth/providers/email/login.ts|],
+      genFileCopy [relfile|auth/providers/email/resetPassword.ts|],
+      genFileCopy [relfile|auth/providers/email/requestPasswordReset.ts|],
+      genFileCopy [relfile|auth/providers/email/verifyEmail.ts|]
     ]
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genTypes :: AS.Auth.EmailAuthConfig -> Generator FileDraft
 genTypes _emailAuthConfig = return $ C.mkTmplFdWithData tmplFile (Just tmplData)
