@@ -365,6 +365,7 @@ library cli-lib
     , waspc
     , waspls
     , neat-interpolation
+    , unordered-containers
   other-modules: Paths_waspc
   exposed-modules:
     Wasp.Cli.Command

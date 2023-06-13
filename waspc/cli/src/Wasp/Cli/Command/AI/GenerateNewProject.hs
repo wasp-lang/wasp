@@ -7,22 +7,29 @@ where
 
 -- TODO: Probably move this module out of here into general wasp lib.
 
+import Control.Arrow (first)
 import Control.Monad (forM)
+import Control.Monad.IO.Class (liftIO)
 import Data.Text (Text)
 import qualified Data.Text as T
+import NeatInterpolation (trimming)
+import qualified StrongPath as SP
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeNewFile, writeToLog)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as P
+import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
 
 data NewProjectDetails = NewProjectDetails
-  { _projectName :: !String,
+  { _projectAppName :: !String,
     _projectDescription :: !String,
     _projectAuth :: !AuthProvider
   }
 
+-- TODO: Make these relative to WaspProjectDir?
 type File = (FilePath, Text)
 
-data AuthProvider = Google
+-- TODO: Support more methods.
+data AuthProvider = UsernameAndPassword
 
 -- TODO: Have generateNewProject accept Chan, to which it will stream its progress?
 --   It could just stream its output instead of printing it to stdout, so calling function
@@ -34,13 +41,13 @@ data AuthProvider = Google
 --   and also contain description of what happened (or maybe that is separate message).
 generateNewProject :: NewProjectDetails -> CodeAgent ()
 generateNewProject newProjectDetails = do
+  coreFiles <- liftIO $ map (first SP.fromRelFile) <$> readCoreWaspProjectFiles
+  mapM_ writeNewFile coreFiles
   let waspFile = generateBaseWaspFile newProjectDetails
   let waspFilePath = fst waspFile
   writeNewFile waspFile
   let dotEnvServerFile = generateDotEnvServerFile newProjectDetails
   writeNewFile dotEnvServerFile
-  let otherNewProjectFiles = generateOtherNewProjectFiles newProjectDetails
-  mapM_ writeNewFile otherNewProjectFiles
   writeToLog "Generated project skeleton."
 
   writeToLog "Generating plan..."
@@ -76,17 +83,28 @@ generateNewProject newProjectDetails = do
     return page
 
   -- TODO: what about having additional step here that goes through all the files once again and fixes any stuff in them (Wasp, JS files)? REPL?
+  -- TODO: add some commented out lines to wasp file that showcase other features? jobs, api, serverSetup, sockets, ... .
   writeToLog "Done!"
+
+-- TODO: OpenAI released ChatGPT 3.5-turbo with 16k context, should we use that one?
+--   What about "functions" feature that they released?
 
 generateBaseWaspFile :: NewProjectDetails -> File
 generateBaseWaspFile = undefined
 
+--       [ ChatMessage
+--           { role = System,
+--             content = "You are an expert Wasp developer, helping set up a new Wasp project."
+--           },
+--         ChatMessage
+--           { role = User,
+--             -- TODO: I should tell it to mark the type of each ext import: "page", "query", "action".
+--             content = "Hi"
+--           }
+--       ]
+
 generateDotEnvServerFile :: NewProjectDetails -> File
 generateDotEnvServerFile = undefined
-
--- TODO: implement generateOtherNewProjectFiles based on existing CNP.createWaspProjectDir function.
-generateOtherNewProjectFiles :: NewProjectDetails -> [File]
-generateOtherNewProjectFiles = undefined -- Maybe add dotenvserver under this.
 
 generatePlan :: NewProjectDetails -> CodeAgent Plan
 generatePlan = undefined
@@ -140,3 +158,83 @@ data Page = Page
     _pageJsImpl :: String,
     _pagePlan :: P.Action
   }
+
+waspFileExample =
+  [trimming|
+  Example main.wasp (comments are explanation for you):
+
+  ```wasp
+    app todoApp {
+      wasp: { version: "^0.10.2" },
+      title: "ToDo App",
+      auth: {
+        userEntity: User,
+        // Define only if using social (google) auth.
+        externalAuthEntity: SocialLogin,
+        methods: {
+          usernameAndPassword: {},
+          google: {
+            configFn: import { config } from "@server/auth/google.js",
+            getUserFieldsFn: import { getUserFields } from "@server/auth/google.js"
+          },
+        },
+        onAuthFailedRedirectTo: "/login",
+        onAuthSucceededRedirectTo: "/"
+      }
+    }
+
+    // psl stands for Prisma Schema Language.
+    entity User {=psl
+        id                        Int           @id @default(autoincrement())
+        username                  String        @unique
+        password                  String
+        tasks                     Task[]
+        externalAuthAssociations  SocialLogin[] // Only if using social auth.
+    psl=}
+
+    // Define only if using social auth (e.g. google).
+    entity SocialLogin {=psl
+      id          Int       @id @default(autoincrement())
+      provider    String
+      providerId  String
+      user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+      userId      Int
+      createdAt   DateTime  @default(now())
+      @@unique([provider, providerId, userId])
+    psl=}
+
+    // Ommiting entity Task to keep the example short.
+
+    route SignupRoute { path: "/signup", to: SignupPage }
+    page SignupPage {
+      component: import Signup from "@client/pages/auth/Signup.jsx" // REQ.
+    }
+
+    // Ommiting LoginRoute and LoginPage to keep the example short.
+
+    route HomeRoute { path: "/", to: MainPage }
+    page MainPage {
+      authRequired: true,
+      component: import Main from "@client/pages/Main.jsx"
+    }
+
+    // Queries are nodejs functions that do R in CRUD.
+    query getTasks {
+      fn: import { getTasks } from "@server/queries.js", // REQ
+      entities: [Task]
+    }
+
+    // Actions are like quries but do CUD in CRUD.
+    action createTask {
+      fn: import { createTask } from "@server/actions.js",
+      entities: [Task]
+    }
+  ```
+  |]
+
+basicWaspLangInfo =
+  [trimming|
+  Wasp is web app framework that uses React, NodeJS and Prisma.
+  High-level is described in main.wasp file, details in JS/JSX files.
+  Main Wasp features: frontend Routes and Pages, Queries and Actions (RPC), Entities.
+  |]

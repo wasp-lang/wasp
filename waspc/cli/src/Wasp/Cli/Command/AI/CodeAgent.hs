@@ -15,8 +15,8 @@ where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (MonadReader, ReaderT (runReaderT), asks)
-import Control.Monad.State (MonadState, StateT (runStateT), gets)
-import Data.List (find)
+import Control.Monad.State (MonadState, StateT (runStateT), gets, modify)
+import qualified Data.HashMap.Strict as H
 import Data.Text (Text)
 import Wasp.OpenAI (OpenAIApiKey)
 import Wasp.OpenAI.ChatGPT (ChatGPTParams, ChatMessage)
@@ -31,11 +31,11 @@ data CodeAgentConfig = CodeAgentConfig
     _writeLog :: !(Text -> IO ())
   }
 
-runCodeAgent :: CodeAgent a -> CodeAgentConfig -> IO a
-runCodeAgent codeAgent config =
+runCodeAgent :: CodeAgentConfig -> CodeAgent a -> IO a
+runCodeAgent config codeAgent =
   fst <$> (_unCodeAgent codeAgent `runReaderT` config) `runStateT` initialState
   where
-    initialState = CodeAgentState {_files = []}
+    initialState = CodeAgentState {_files = H.empty}
 
 writeToLog :: Text -> CodeAgent ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
@@ -44,16 +44,17 @@ writeToFile :: FilePath -> (Maybe Text -> Text) -> CodeAgent ()
 writeToFile path updateContentFn = do
   content <- updateContentFn <$> getFile path
   asks _writeFile >>= \f -> liftIO $ f path content
+  modify $ \s -> s {_files = H.insert path content (_files s)}
 
 writeNewFile :: (FilePath, Text) -> CodeAgent ()
 writeNewFile (path, content) =
   writeToFile path (maybe content $ error $ "file " <> path <> " shouldn't already exist")
 
 getFile :: FilePath -> CodeAgent (Maybe Text)
-getFile path = (snd <$>) . find ((== path) . fst) <$> getAllFiles
+getFile path = gets $ H.lookup path . _files
 
 getAllFiles :: CodeAgent [(FilePath, Text)]
-getAllFiles = gets _files
+getAllFiles = gets $ H.toList . _files
 
 queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
 queryChatGPT params messages = do
@@ -61,5 +62,5 @@ queryChatGPT params messages = do
   liftIO $ ChatGPT.queryChatGPT key params messages
 
 data CodeAgentState = CodeAgentState
-  { _files :: ![(FilePath, Text)]
+  { _files :: H.HashMap FilePath Text
   }

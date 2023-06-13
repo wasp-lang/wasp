@@ -5,16 +5,19 @@ module Wasp.Cli.Command.CreateNewProject
     parseProjectInfo,
     ProjectInfo (..),
     getAbsoluteWaspProjectDir,
+    readCoreWaspProjectFiles,
+    createEmptyWaspProjectDir,
   )
 where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
+import Data.Text (Text)
 import Path.IO (copyDirRecur, doesDirExist)
-import StrongPath (Abs, Dir, Path, Path', System, parseAbsDir, reldir, relfile, (</>))
+import StrongPath (Abs, Dir, File', Path, Path', Rel, System, fromAbsDir, parseAbsDir, reldir, relfile, (</>))
 import StrongPath.Path (toPathAbsDir)
-import System.Directory (getCurrentDirectory)
+import System.Directory (createDirectory, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Text.Printf (printf)
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
@@ -22,6 +25,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent, kebabToCamelCase)
+import Wasp.Util.IO (readFileStrict)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 import qualified Wasp.Version as WV
@@ -63,6 +67,15 @@ parseProjectInfo name
   where
     appName = kebabToCamelCase name
 
+createEmptyWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
+createEmptyWaspProjectDir projectInfo = do
+  absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
+  dirExists <- doesDirExist $ toPathAbsDir absWaspProjectDir
+  if dirExists
+    then throwProjectCreationError $ show absWaspProjectDir ++ " is an existing directory"
+    else liftIO $ createDirectory $ fromAbsDir absWaspProjectDir
+  return absWaspProjectDir
+
 createWaspProjectDir :: ProjectInfo -> Command ()
 createWaspProjectDir projectInfo = do
   absWaspProjectDir <- getAbsoluteWaspProjectDir projectInfo
@@ -72,6 +85,28 @@ createWaspProjectDir projectInfo = do
     else liftIO $ do
       initializeProjectFromSkeleton absWaspProjectDir
       writeMainWaspFile absWaspProjectDir projectInfo
+
+-- TODO: This module needs cleaning up now, after my changes, because there are multiple ways to do the same thing.
+--   Idea: maybe have two dirs, one called "core", another called "new" that only holds additional files.
+
+-- TODO: This is now repeating what is in templates/new which is not great.
+coreWaspProjectFiles :: [Path System (Rel WaspProjectDir) File']
+coreWaspProjectFiles =
+  [ [relfile|.gitignore|],
+    [relfile|.wasproot|],
+    [relfile|src/.waspignore|],
+    [relfile|src/client/tsconfig.json|],
+    [relfile|src/client/vite-env.d.ts|],
+    [relfile|src/server/tsconfig.json|],
+    [relfile|src/shared/tsconfig.json|]
+  ]
+
+readCoreWaspProjectFiles :: IO [(Path System (Rel WaspProjectDir) File', Text)]
+readCoreWaspProjectFiles = do
+  dataDir <- Data.getAbsDataDirPath
+  let templatesNewDir = dataDir </> [reldir|Cli/templates/new|]
+  contents <- mapM (readFileStrict . (templatesNewDir </>)) coreWaspProjectFiles
+  return $ zip coreWaspProjectFiles contents
 
 getAbsoluteWaspProjectDir :: ProjectInfo -> Command (Path System Abs (Dir WaspProjectDir))
 getAbsoluteWaspProjectDir (ProjectInfo projectName _) = do
