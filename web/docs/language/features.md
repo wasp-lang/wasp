@@ -1872,6 +1872,25 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [_react-query_'s docs](https://tanstack.com/query/v4/docs/react/reference/QueryClient).
 
+## Public static files on the client
+
+If you wish to override the default `favicon.ico` file or add any other static files to the client, you can do so by placing them in the `public` directory in the `src/client` folder. The contents of this directory will be copied to the `dist/public` directory during the build process.
+
+For example, doing this:
+```
+src
+└── client
+    ├── public
+    │   └── favicon.ico
+    └── ...
+```
+will result in the following directory structure in the `build` folder:
+```
+build
+└── public
+    └── favicon.ico
+```
+
 ## Server configuration
 
 Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
