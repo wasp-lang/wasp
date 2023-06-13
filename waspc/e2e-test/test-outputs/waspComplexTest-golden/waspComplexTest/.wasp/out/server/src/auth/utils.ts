@@ -61,10 +61,6 @@ export async function doFakeWork() {
 }
 
 
-export function throwInvalidCredentialsError(message?: string): void {
-  throw new HttpError(401, 'Invalid credentials', { message })
-}
-
 function rethrowPossiblePrismaError(e: unknown): void {
   if (e instanceof AuthError) {
     throwValidationError(e.message);

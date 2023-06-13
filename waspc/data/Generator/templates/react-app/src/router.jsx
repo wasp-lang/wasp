@@ -1,6 +1,6 @@
 {{={= =}=}}
 import React from 'react'
-import { Route, BrowserRouter as Router } from 'react-router-dom'
+import { Route, Switch, BrowserRouter as Router } from 'react-router-dom'
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
@@ -22,9 +22,7 @@ const router = (
     {=# rootComponent.isDefined =}
     <{= rootComponent.importIdentifier =}>
     {=/ rootComponent.isDefined =}
-    {=^ rootComponent.isDefined =}
-    <>
-    {=/ rootComponent.isDefined =}
+    <Switch>
       {=# routes =}
       <Route exact path="{= urlPath =}" component={ {= targetComponent =} }/>
       {=/ routes =}
@@ -37,11 +35,9 @@ const router = (
       {=/ authProviderEnabled =}
       {=/ externalAuthProviders =}
       {=/ isExternalAuthEnabled =}
+    </Switch>
     {=# rootComponent.isDefined =}
     </{= rootComponent.importIdentifier =}>
-    {=/ rootComponent.isDefined =}
-    {=^ rootComponent.isDefined =}
-    </>
     {=/ rootComponent.isDefined =}
   </Router>
 )

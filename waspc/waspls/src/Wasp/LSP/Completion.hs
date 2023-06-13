@@ -4,6 +4,8 @@ module Wasp.LSP.Completion
 where
 
 import Control.Lens ((?~), (^.))
+import Control.Monad.Log.Class (MonadLog (logM))
+import Control.Monad.State.Class (MonadState, gets)
 import Data.Maybe (maybeToList)
 import qualified Data.Text as Text
 import qualified Language.LSP.Types as LSP
@@ -11,12 +13,14 @@ import qualified Language.LSP.Types.Lens as LSP
 import Wasp.Analyzer.Parser.CST (SyntaxNode)
 import qualified Wasp.Analyzer.Parser.CST as S
 import Wasp.Analyzer.Parser.CST.Traverse
-import Wasp.LSP.ServerM
 import Wasp.LSP.ServerState
 import Wasp.LSP.Syntax (findChild, isAtExprPlace, lexemeAt, lspPositionToOffset, showNeighborhood, toOffset)
 
 -- | Get the list of completions at a (line, column) position in the source.
-getCompletionsAtPosition :: LSP.Position -> ServerM [LSP.CompletionItem]
+getCompletionsAtPosition ::
+  (MonadState ServerState m, MonadLog m) =>
+  LSP.Position ->
+  m [LSP.CompletionItem]
 getCompletionsAtPosition position = do
   src <- gets (^. currentWaspSource)
   maybeSyntax <- gets (^. cst)
@@ -31,10 +35,10 @@ getCompletionsAtPosition position = do
       exprCompletions <-
         if isAtExprPlace location
           then do
-            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=True"
+            logM $ "[getCompletionsAtPosition] offset=" ++ show offset ++ " position=" ++ show position ++ " atExpr=True"
             getExprCompletions src syntax
           else do
-            logM $ "[getCompletionsAtPosition] position=" ++ show position ++ " atExpr=False"
+            logM $ "[getCompletionsAtPosition] offset=" ++ show offset ++ " position=" ++ show position ++ " atExpr=False"
             return []
       let completions = exprCompletions
       return completions
@@ -43,7 +47,11 @@ getCompletionsAtPosition position = do
 -- and return them as autocomplete suggestions
 --
 -- TODO: include completions for enum variants (use standard type defs from waspc)
-getExprCompletions :: String -> [SyntaxNode] -> ServerM [LSP.CompletionItem]
+getExprCompletions ::
+  (MonadLog m) =>
+  String ->
+  [SyntaxNode] ->
+  m [LSP.CompletionItem]
 getExprCompletions src syntax = do
   let declNames = findDeclNames src syntax
   logM $ "[getExprCompletions] declnames=" ++ show declNames

@@ -123,14 +123,14 @@
             "file",
             "server/src/app.js"
         ],
-        "f7df4b76a53a92117e0ddca41edd47961cf20ee6f13cc4d252e11c2a293a6e76"
+        "12291f83f685eeb81a8c082961120d4bddb91985092eb142964e554a21d3384c"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "7fbd4267706f1ce75574392c4b763917b7d574554db6966cacb9bac29abcf3df"
+        "ff060f3cb2437755867b9548dce153bd38b985dc3fc102073bd698d3d7fa23a7"
     ],
     [
         [
@@ -158,7 +158,7 @@
             "file",
             "server/src/auth/providers/oauth/init.ts"
         ],
-        "7db2dc4736dadede12c9f85a88d31b992fe26ad06d57dde34784a2db54356ee4"
+        "ff022c6f9132db9c3833afd12018fecfcdd3243cbf9e5d1b69367864301fe085"
     ],
     [
         [
@@ -179,7 +179,7 @@
             "file",
             "server/src/auth/utils.ts"
         ],
-        "cc5c7e899b9e4389999748f19177f8a392098279f19d99875d09986334d173c8"
+        "4b57bc76321dbc5708ae28aeffb6e6402e06517221e2044cf3712b16e124a4ff"
     ],
     [
         [
@@ -207,7 +207,7 @@
             "file",
             "server/src/core/auth.js"
         ],
-        "0ea7ff5b8576c4bd455328a56d60a038c1107eaa2e20cba28437cdfc630ce571"
+        "89d2e6b1693deb9cc243efd0bf680513d0860475a2655ef487c684eb2574a92f"
     ],
     [
         [
@@ -296,9 +296,16 @@
     [
         [
             "file",
+            "server/src/ext-src/apiNamespaces.ts"
+        ],
+        "33ea32722151840f2591036f3f548a7af96d5218aea6468ac94fd3c0fe05cb78"
+    ],
+    [
+        [
+            "file",
             "server/src/ext-src/apis.ts"
         ],
-        "09c24033466aa3c0caaf923c4260c87f756d6b4c3bf2c53acd75196a85361ee2"
+        "3d00118d2b80472e7efb24c89d309471ad5e0e9c6212f5dda908eebe8436d99d"
     ],
     [
         [
@@ -373,6 +380,20 @@
     [
         [
             "file",
+            "server/src/middleware/globalMiddleware.ts"
+        ],
+        "87edaddb661fc516406b20e6b7fd60ce178f64e6a94bc7c1d02a85330fff822a"
+    ],
+    [
+        [
+            "file",
+            "server/src/middleware/index.ts"
+        ],
+        "e658719309f9375f389c5d8d416fc27f9c247049e61188b3e01df954bcec15a4"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/MySpecialQuery.ts"
         ],
         "00fa7ce8dbb7bc3f581ab6f6400a69c54d5520f5cba64598419e471d3a01f7ef"
@@ -389,7 +410,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "601591c5b0846be03c31ad70185ba6e6592732656843daf91c5ecc9e1b053fe3"
+        "879cafb5d1a8d2dd58acff9254c44b8449060d68183c49d95f1a141806fc969e"
     ],
     [
         [
@@ -403,14 +424,14 @@
             "file",
             "server/src/routes/auth/me.js"
         ],
-        "9a9cb533bb94af63caf448f73a0d0fef8902c8f8d1af411bed2570a32da2fab9"
+        "705f77d8970a8367981c9a89601c6d5b12e998c23970ae1735b376dd0826ef10"
     ],
     [
         [
             "file",
             "server/src/routes/index.js"
         ],
-        "8adccf8d9ca89d67bac22ee3fac02a4bc94dde696388cadb33962cf89372fd73"
+        "57c6074cfb790ea019efbab199e860e70248a3e758419312939ba63c7a84a42c"
     ],
     [
         [
@@ -557,7 +578,7 @@
             "file",
             "web-app/src/actions/MySpecialAction.ts"
         ],
-        "5bcc78e0debb14c6af4572fe1c7512e8128f0d66c7bb80bd606cab014e6df8ec"
+        "32410f3702d0f04f19b6c6f84f827dc208eb63b7dce062385e388601ddfc72cf"
     ],
     [
         [
@@ -592,63 +613,63 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "9f8dde92a52f2b89c2ba1d32ac6025f0d010fa5650b858adba0707760e3b4ba6"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ForgotPassword.tsx"
-        ],
-        "39eda745fc19798d235cbecf7e755ab1050187d99775dfb06304b06804e5c7fc"
+        "9e342bdf8c17d9c36f042b272cf7d5e432bb27adc10ba218b206ca54638f6b4e"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Login.tsx"
         ],
-        "788a896a5717cd6e082db23cd5e1f4f46816253e24d6bbe60b2d64fb5a208d3c"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ResetPassword.tsx"
-        ],
-        "be24461d42102d53c028713146054029950137e79e27906a166a16cf9dd64add"
+        "17f42b2faa70876fb680de43ef33b5caa6c310c254af07358e21bc710f9214a9"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
-        "bea6a9756a546820ccd240aabfa3db3d14faf655f7681c7b9ca0791677556c3a"
+        "cacd5348e84d42bc142f6c6e00051a8e86f6b17eb037b2772772f073925bf570"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialButton.tsx"
+            "web-app/src/auth/forms/internal/Form.tsx"
         ],
-        "fb14b39e617bf0cb7eec96428fd2882c2fbcda8bebd453ed00866b3203420043"
+        "ce6b409fda73d88e762b27aef7038618961e61e6ef8e5f66912325ab88a8223e"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialIcons.tsx"
+            "web-app/src/auth/forms/internal/Message.tsx"
         ],
-        "18ce4ed1aec9fb0e71d4ce8376d5c42fcec1008d9b16d92dd18d51f34ee189a6"
+        "01f10e2499dfd2b88f6a3a9109153f121fad59614acfc7346f40fc51df96bdaf"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/VerifyEmail.tsx"
+            "web-app/src/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2cb996958b1332f383af1265a9fa7dd30d71aaef371cd2ac471f9feb44158568"
+        "c92bab325f51159c3d1bb285c7e807acbb85069c5b16afc3a35fbd0121c91b6a"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialButton.tsx"
+        ],
+        "4ece421ad263727e914e26042f262b7abc3dcc52a9bad83d6476e1eb76c70a67"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialIcons.tsx"
+        ],
+        "bd52b9c07dfdd1e061e68c80b7a29ecfce5bd340a8da1b9163edbbf67a649354"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "601917a95f8218f9db51148bf852a21925ea9806729fe9f8a65a96f84e8ba22f"
+        "c4066fbd39ec20a3d43be9f9d5762d555dbc006057579ac168a67b2678918a13"
     ],
     [
         [
@@ -667,9 +688,9 @@
     [
         [
             "file",
-            "web-app/src/auth/logout.js"
+            "web-app/src/auth/logout.ts"
         ],
-        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
+        "6717411aa38e54aa74a5034628510ee3ca0f2ea9d1692644ee4886c74d8657af"
     ],
     [
         [
@@ -688,9 +709,16 @@
     [
         [
             "file",
+            "web-app/src/auth/types.ts"
+        ],
+        "b6572845796b4217c142b855fc72652d5dfd67fd317b0ed5487fa70ba3d92219"
+    ],
+    [
+        [
+            "file",
             "web-app/src/auth/useAuth.ts"
         ],
-        "e3cd75c8a68c29a17a9ca5c5c8e86c03229c2323cf62cbaf70519fe8001cefa4"
+        "f730cb58a5ebd12285b7568bec34f4e5615261580cff1727e64b5c871d784d62"
     ],
     [
         [
@@ -788,7 +816,7 @@
             "file",
             "web-app/src/queries/MySpecialQuery.ts"
         ],
-        "cf9bc21326f94f4359c66a373324290d73c6b71ff335210b7fddfa3afaa062d6"
+        "2d1424a21683c9c6a2facbd60ede45a90bc7b4deb04b04c8e0d955a140eb3d9d"
     ],
     [
         [
@@ -830,7 +858,7 @@
             "file",
             "web-app/src/router.jsx"
         ],
-        "5c34b729d2244c792086224a6fae18c7bdfc029098a1fff9fe1685ba40af9d9b"
+        "ba66454c9f0ca79ed5bc6af694b5b9f748db75cf82309f2600c78069a3b9d0f7"
     ],
     [
         [
@@ -858,7 +886,7 @@
             "file",
             "web-app/src/test/vitest/helpers.tsx"
         ],
-        "6e1def1b1755c23d766a1581200295429238beaaea67ba066ba81e3b7768f8bb"
+        "a0576215b0786c6e082b8a83f6418a3acb084bfb673a152baad8e8a7fc46fcae"
     ],
     [
         [

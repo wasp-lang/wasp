@@ -1,7 +1,11 @@
 import Auth from './Auth'
 import { type CustomizationOptions, State } from './types'
 
-export function VerifyEmailForm ({ appearance, logo, socialLayout }: CustomizationOptions) {
+export function VerifyEmailForm({
+  appearance,
+  logo,
+  socialLayout,
+}: CustomizationOptions) {
   return (
     <Auth
       appearance={appearance}

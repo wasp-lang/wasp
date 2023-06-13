@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.10.7
+
+### Breaking changes
+- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+
+## v0.10.6
+
+### Bug fixes
+- `wasp deploy fly launch` now supports the latest `flyctl launch` toml file for the web client (which changed their default structure and port).
+
+### More `wasp deploy fly` options
+`wasp deploy fly` now supports a `--org` option, as well as setting secrets during `launch`.
+
+## v0.10.5
+
+### Bug fixes
+- Wasp CLI will now forward error exit codes. This will help when used in scripted contexts.
+- Wasp now renders only the first route that matches the current path in the browser. 
+
+### Express middleware customization
+We now offer the ability to customize Express middleware:
+- globally (impacting all actions, queries, and apis by default)
+- on a per-api basis
+- on a per-path basis (groups of apis)
+
+
+### Interactive new project creation
+We now offer an interactive way to create a new project. You can run `wasp new` and follow the prompts to create a new project. This is the recommended way to create a new project. It will ask you for the project name and to choose one of the starter templates.
+
+## v0.10.4
+
+### Bug fixes
+- Adds missing import for HttpError which prevent auth from working properly.
+
+## v0.10.3
+
+### Bug fixes
+- Fixed a bug with circular imports in JS code which prevented database seeding from working properly.
+
+## v0.10.2
+
+### Bug fixes
+- Fixed a bug where JS arrays weren't generated properly from Haskell code which caused issues with oAuth, operations and cache invalidation.
+
+## v0.10.1
+
+### Bug fixes
+- Fixed several TypeScript errors preventing the frontend build
+
 ## v0.10.0
 
 ### Breaking changes
@@ -99,7 +148,6 @@ app MyApp {
           email: "hello@itsme.com"
         },
         emailVerification: {
-          allowUnverifiedLogin: false,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
           clientRoute: EmailVerificationRoute,
         },
@@ -107,6 +155,7 @@ app MyApp {
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
           clientRoute: PasswordResetRoute
         },
+        allowUnverifiedLogin: false,
       },
   }
 }

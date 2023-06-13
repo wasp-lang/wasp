@@ -23,7 +23,7 @@ We'll need to take the following steps to set up email authentication:
 
 Outline of the Wasp file we'll be working with:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 // Configuring e-mail authentication
 app myApp { ... }
 
@@ -40,7 +40,7 @@ page SignupPage { ... }
 
 Let's first set up the email authentication by adding the following to our `main.wasp` file:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 app myApp {
   wasp: {
     version: "^0.10.0"
@@ -61,12 +61,12 @@ app myApp {
         emailVerification: {
           clientRoute: EmailVerificationRoute,
           getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-          allowUnverifiedLogin: false,
         },
         passwordReset: {
           clientRoute: PasswordResetRoute,
           getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
         },
+        allowUnverifiedLogin: false,
       },
     },
     onAuthFailedRedirectTo: "/login",
@@ -79,7 +79,7 @@ app myApp {
 
 Then we'll define the `User` entity in our `main.wasp` file:
 
-```c title="main.wasp" {4-8}
+```wasp title="main.wasp" {4-8}
 // 5. Define the user entity
 entity User {=psl
     id                        Int           @id @default(autoincrement())
@@ -99,7 +99,7 @@ Next, we need to define the routes and pages for the authentication pages. We'll
 
 We'll add the following to our `main.wasp` file:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 // 6. Define the routes
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
@@ -133,7 +133,7 @@ We'll use SendGrid in this guide to send our e-mails. You can use any of the sup
 
 To set up SendGrid to send emails, we will add the following to our `main.wasp` file:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 app myApp {
   ...
   emailSender: {
@@ -224,17 +224,16 @@ By default, Wasp requires the e-mail to be verified before allowing the user to 
 
 Our setup looks like this:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 emailVerification: {
     clientRoute: EmailVerificationRoute,
     getEmailContentFn: import { getVerificationEmailContent } from "@server/auth/email.js",
-    allowUnverifiedLogin: false,
 }
 ```
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp` file.
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
   component: import { EmailVerification } from "@client/pages/auth/EmailVerification.tsx",
@@ -295,7 +294,7 @@ Users can request a password and then they'll receive an e-mail with a link to r
 
 Our setup in `main.wasp` looks like this:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 passwordReset: {
     clientRoute: PasswordResetRoute,
     getEmailContentFn: import { getPasswordResetEmailContent } from "@server/auth/email.js",
@@ -351,7 +350,7 @@ export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `PasswordResetRoute` route we defined in the `main.wasp` file.
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
   component: import { PasswordReset } from "@client/pages/auth/PasswordReset.tsx",

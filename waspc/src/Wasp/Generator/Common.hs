@@ -6,8 +6,6 @@ module Wasp.Generator.Common
     WebAppRootDir,
     AppComponentRootDir,
     DbRootDir,
-    latestMajorNodeVersion,
-    nodeVersionRange,
     prismaVersion,
     makeJsonWithEntityData,
     GeneratedSrcDir,
@@ -50,20 +48,6 @@ data DbRootDir
 
 instance AppComponentRootDir DbRootDir
 
--- | Latest concrete major node version supported by the nodeVersionRange, and
---   therefore by Wasp.
---   Here we assume that nodeVersionRange is using latestNodeLTSVersion as its basis.
---   TODO: instead of making assumptions, extract the latest major node version
---   directly from the nodeVersionRange.
-latestMajorNodeVersion :: SV.Version
-latestMajorNodeVersion = latestNodeLTSVersion
-
-nodeVersionRange :: SV.Range
-nodeVersionRange = SV.Range [SV.backwardsCompatibleWith latestNodeLTSVersion]
-
-latestNodeLTSVersion :: SV.Version
-latestNodeLTSVersion = SV.Version 18 12 0
-
 prismaVersion :: SV.Version
 prismaVersion = SV.Version 4 12 0
 
@@ -83,7 +67,7 @@ makeJsonWithEntityData name =
     entityNameToPrismaIdentifier :: String -> String
     entityNameToPrismaIdentifier = toLowerFirst
 
-makeJsArrayFromHaskellList :: Show a => [a] -> String
+makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"
   where
-    listOfJsStrings = map (\x -> "'" ++ show x ++ "'") list
+    listOfJsStrings = map (\s -> "'" ++ s ++ "'") list

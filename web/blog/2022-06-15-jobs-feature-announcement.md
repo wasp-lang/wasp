@@ -90,7 +90,7 @@ However, we will also continue to expand the number of job execution runtimes we
 
 If you are a regular reader of this blog (thank you, you deserve a raise! 😊), you may recall we created an example app of a metrics dashboard called [Waspleau](https://wasp-lang.dev/blog/2022/01/27/waspleau) that used workers in the background to make periodic HTTP calls for data. In that example, we didn’t yet have access to recurring jobs in Wasp, so we used Bull for scheduled jobs instead. To set up our queue-related logic we had to have this huge `setupFn` wiring it all up; but now, we can remove all that code and simply use jobs instead! Here is what the new DSL looks like:
 
-```js title=main.wasp
+```wasp title=main.wasp
 // A cron job for fetching GitHub stats
 job getGithubStats {
   executor: PgBoss,

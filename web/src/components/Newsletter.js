@@ -27,7 +27,6 @@ const Newsletter = () => {
 
             <div className='mt-8 sm:w-full sm:max-w-md xl:mt-0 xl:ml-8'>
               <SubscribeForm
-                className='sm:flex'
                 inputBgColor='bg-[#f5f5f5]'
               />
 

@@ -18,7 +18,7 @@ Let's define a Todo list (luckily we have an app for that now ;)) to get this do
 
 ## Adding entity User
 First, let's define the `User` entity:
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 entity User {=psl
@@ -37,7 +37,7 @@ to propagate the schema change (we added User).
 ## Defining `app.auth`
 Next, we want to tell Wasp that we want full-stack [authentication](language/features.md#authentication--authorization) in our app, and that it should use the `User` entity for it:
 
-```c {7-16} title="main.wasp"
+```wasp {7-16} title="main.wasp"
 app TodoApp {
   wasp: {
     version: "^0.7.0"
@@ -76,7 +76,7 @@ To recap, so far we have defined:
 
 When we defined `app.auth` we got login and signup forms generated for us, but now we have to create Login and Signup pages that use them. In our `main.wasp` file we'll add the following:
 
-```c title="main.wasp"
+```wasp title="main.wasp"
 // ...
 
 route SignupRoute { path: "/signup", to: SignupPage }
@@ -95,7 +95,7 @@ Great, Wasp now knows how to route these and where to find the pages. Now to the
 ```jsx title="src/client/LoginPage.jsx"
 import { Link } from 'react-router-dom'
 
-import LoginForm from '@wasp/auth/forms/Login'
+import { LoginForm } from '@wasp/auth/forms/Login'
 
 const LoginPage = () => {
   return (
@@ -117,7 +117,7 @@ The Signup page is very similar to the login one:
 ```jsx title="src/client/SignupPage.jsx"
 import { Link } from 'react-router-dom'
 
-import SignupForm from '@wasp/auth/forms/Signup'
+import { SignupForm } from '@wasp/auth/forms/Signup'
 
 const SignupPage = () => {
   return (
@@ -141,7 +141,7 @@ Now, let's see how we're going to handle the situation when the user is not logg
 `MainPage` page is a private page and we want users to be able to see it only if they are authenticated.
 Wasp allows you to simply enforce private pages using the `authRequired` field:
 
-```c {3} title="main.wasp"
+```wasp {3} title="main.wasp"
 // ...
 page MainPage {
   authRequired: true,
@@ -186,7 +186,7 @@ That is because we did not yet update queries and actions to work only on the cu
 ## Defining User-Task relation in entities
 
 First, let's define a one-to-many relation between User and Task (check the [prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
-```c {6,13-14} title="main.wasp"
+```wasp {6,13-14} title="main.wasp"
 // ...
 entity User {=psl
     id          Int     @id @default(autoincrement())

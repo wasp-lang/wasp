@@ -35,7 +35,7 @@ Our scaffolding already includes TypeScript, so migrating your project to TypeSc
 
 Let's first assume your Wasp file contains the following definitions:
 
-```c title=main.wasp
+```wasp title=main.wasp
 entity Task {=psl
     id          Int     @id @default(autoincrement())
     description String
@@ -103,7 +103,7 @@ You don't need to change anything inside the `.wasp` file.
 
 Even when you use TypeScript, and your file is called `queries.ts`, you still need to import it using the `.js` extension:
 
-```c
+```wasp
 query getTaskInfo {
   fn: import { getTaskInfo } from "@server/queries.js",
   entities: [Task]
@@ -166,7 +166,7 @@ The mentioned type safety mechanisms also apply here: changing the task entity i
 
 Wasp automatically generates the appropriate types for all Operations (i.e., Actions and Queries) you define inside your `.wasp` file. Assuming your `.wasp` file contains the following definition:
 
-```c title=main.wasp
+```wasp title=main.wasp
 // ...
 
 query GetTaskInfo {
@@ -219,8 +219,8 @@ Everything described above applies to Actions as well.
 
 If don't want to define a new type for the Query's return value, the new `satisfies` keyword will allow TypeScript to infer it automatically:
 ```typescript
-const getFoo = ((_args, context) => {
-  const foos = context.entities.Foo.findMany()
+const getFoo = (async (_args, context) => {
+  const foos = await context.entities.Foo.findMany()
   return {
     foos,
     message: "Here are some foos!",

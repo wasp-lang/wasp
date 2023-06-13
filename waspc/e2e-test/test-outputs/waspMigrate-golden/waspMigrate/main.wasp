@@ -1,6 +1,6 @@
 app waspMigrate {
   wasp: {
-    version: "^0.10.0"
+    version: "^0.10.6"
   },
   title: "waspMigrate"
 }

@@ -44,9 +44,7 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( ServerRootDir,
-    latestMajorNodeVersion,
     makeJsonWithEntityData,
-    nodeVersionRange,
     prismaVersion,
   )
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
@@ -62,9 +60,10 @@ import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getPackageJsonPrismaSe
 import Wasp.Generator.ServerGenerator.EmailSenderG (depsRequiredByEmail, genEmailSender)
 import Wasp.Generator.ServerGenerator.ExternalCodeGenerator (extServerCodeGeneratorStrategy, extSharedCodeGeneratorStrategy)
 import Wasp.Generator.ServerGenerator.JobGenerator (depsRequiredByJobs, genJobExecutors, genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import Wasp.SemanticVersion (major)
 import Wasp.Util (toLowerFirst, (<++>))
@@ -125,7 +124,7 @@ genPackageJson spec waspDependencies = do
           object
             [ "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange,
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange,
               "startProductionScript"
                 .= ( (if hasEntities then "npm run db-migrate-prod && " else "")
                        ++ "NODE_ENV=production npm run start"
@@ -177,7 +176,7 @@ npmDepsForWasp spec =
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
-            ("@tsconfig/node" ++ show (major latestMajorNodeVersion), "^1.0.1")
+            ("@tsconfig/node" ++ show (major NodeVersion.latestMajorNodeVersion), "^1.0.1")
           ]
     }
 
@@ -215,6 +214,7 @@ genSrcDir spec =
     <++> genAuth spec
     <++> genEmailSender spec
     <++> genDbSeed spec
+    <++> genMiddleware spec
   where
     genFileCopy = return . C.mkSrcTmplFd
 
@@ -251,8 +251,8 @@ genServerJs spec =
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
 
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|./|]
+relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+relPathToServerSrcDir = [reldirP|./|]
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -376,3 +376,26 @@ genExportedTypesDir spec =
     isExternalAuthEnabled = AS.App.Auth.isExternalAuthEnabled <$> maybeAuth
     isEmailAuthEnabled = AS.App.Auth.isEmailAuthEnabled <$> maybeAuth
     maybeAuth = AS.App.auth $ snd $ getApp spec
+
+genMiddleware :: AppSpec -> Generator [FileDraft]
+genMiddleware spec =
+  return
+    [ C.mkTmplFd [relfile|src/middleware/index.ts|],
+      C.mkTmplFdWithData [relfile|src/middleware/globalMiddleware.ts|] (Just tmplData)
+    ]
+  where
+    tmplData =
+      object
+        [ "globalMiddlewareConfigFn" .= globalMiddlewareConfigFnTmplData
+        ]
+
+    globalMiddlewareConfigFnTmplData :: Aeson.Value
+    globalMiddlewareConfigFnTmplData =
+      let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
+          globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
+          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
+       in object
+            [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
+              "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,
+              "importAlias" .= globalMiddlewareConfigFnAlias
+            ]

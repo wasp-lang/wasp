@@ -152,7 +152,8 @@ spec_Analyzer = do
                               Just $
                                 ExtImport
                                   (ExtImportField "setupServer")
-                                  (fromJust $ SP.parseRelFileP "bar.js")
+                                  (fromJust $ SP.parseRelFileP "bar.js"),
+                            Server.middlewareConfigFn = Nothing
                           },
                     App.client =
                       Just

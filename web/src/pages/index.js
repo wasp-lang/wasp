@@ -5,6 +5,7 @@ import Head from '@docusaurus/Head'
 import Nav from '../components/Nav/index'
 import Hero from '../components/Hero'
 import Features from '../components/Features'
+import Roadmap from '../components/Roadmap'
 import Benefits from '../components/Benefits'
 import Testimonials from '../components/Testimonials'
 import ExampleWaspApps from '../components/ExampleWaspApps'
@@ -48,6 +49,8 @@ const Index = () => {
         <meta property='twitter:url' content='https://wasp-lang.dev/' />
         <meta property='twitter:title' content='Develop full-stack web apps without boilerplate.' />
         <meta property='twitter:image' content={waspLogo} />
+
+        <script id="wasp-langdev-2392a8eb" src="https://letsask.ai/widget.js"></script>
       </Head>
       <Nav />
       <div className='min-h-screen'>
@@ -63,6 +66,7 @@ const Index = () => {
             <LightsTwo />
             <ShowcaseGallery />
             <Newsletter />
+            <Roadmap />
             <Faq />
           </div>
           {/* eof container */}

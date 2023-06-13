@@ -29,7 +29,6 @@ import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Env (envVarsToDotEnvContent)
 import Wasp.Generator.Common
   ( makeJsonWithEntityData,
-    nodeVersionRange,
     prismaVersion,
   )
 import qualified Wasp.Generator.ConfigFile as G.CF
@@ -46,6 +45,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -101,7 +101,7 @@ genPackageJson spec waspDependencies = do
             [ "appName" .= (fst (getApp spec) :: String),
               "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
-              "nodeVersionRange" .= show nodeVersionRange
+              "nodeVersionRange" .= show NodeVersion.nodeVersionRange
             ]
       )
 
@@ -218,15 +218,15 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|config.js|],
-      copyTmplFile [relfile|queryClient.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|types.ts|],
-      copyTmplFile [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|logo.png|],
+      genFileCopy [relfile|config.js|],
+      genFileCopy [relfile|queryClient.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|types.ts|],
+      genFileCopy [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      copyTmplFile [relfile|api.ts|],
-      copyTmplFile [relfile|storage.ts|],
+      genFileCopy [relfile|api.ts|],
+      genFileCopy [relfile|storage.ts|],
       genRouter spec,
       genIndexJs spec
     ]
@@ -234,7 +234,7 @@ genSrcDir spec =
     <++> genEntitiesDir spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genEntitiesDir :: AppSpec -> Generator [FileDraft]
 genEntitiesDir spec = return [entitiesIndexFileDraft]

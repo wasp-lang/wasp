@@ -2,9 +2,12 @@ module.exports = {
   docs: [
     {
       type: "category",
-      label: "Introduction",
+      label: "Getting started",
       collapsed: false,
-      items: ["introduction/getting-started", "introduction/what-is-wasp"],
+      items: [
+        "introduction/what-is-wasp",
+        "introduction/getting-started"
+      ],
     },
     {
       type: "category",
@@ -58,6 +61,7 @@ module.exports = {
         "typescript",
         "guides/testing",
         "guides/sending-emails",
+        "guides/middleware-customization",
       ],
     },
     {
