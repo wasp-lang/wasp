@@ -11,6 +11,7 @@ waspCompile/.wasp/out/server/package.json
 waspCompile/.wasp/out/server/scripts/universal/validators.mjs
 waspCompile/.wasp/out/server/scripts/validate-env.mjs
 waspCompile/.wasp/out/server/src/_types/index.ts
+waspCompile/.wasp/out/server/src/_types/serialization.ts
 waspCompile/.wasp/out/server/src/_types/taggedEntities.ts
 waspCompile/.wasp/out/server/src/actions/types.ts
 waspCompile/.wasp/out/server/src/app.js

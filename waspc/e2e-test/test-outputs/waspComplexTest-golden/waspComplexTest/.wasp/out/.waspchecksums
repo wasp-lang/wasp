@@ -88,7 +88,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "5e5d0d6222c4e8bc3df40f8913bcecb43b8b3cab9f3de39a68b35a934f09f873"
+        "d959101b32583258a92f136a8ac169f977a61822dfd51b8dfe205a7f0ec73a57"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "43d660c17fa77d03aaef981e69c57320490918d89a2b5076c2acaa433c42db11"
     ],
     [
         [
@@ -109,7 +116,7 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "225c35a21bce64ec2081013c7aadef5bb7ebbc3bdad617d08390164e150555aa"
+        "35cf6ae813ff02d73a23b9b9468975d86e4c89ee93079e48fd7f6bf3205f3451"
     ],
     [
         [
@@ -403,7 +410,7 @@
             "file",
             "server/src/queries/types.ts"
         ],
-        "ddd91bb1d15b1c3e684726a6ea56d02c4bd103654b8c37373b943f64c12c0e29"
+        "31c22daa41ba232cb457a2c45a4acfae5ce20c34fb32a13821a506ddac62b0f1"
     ],
     [
         [
