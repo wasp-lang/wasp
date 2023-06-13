@@ -38,7 +38,6 @@ waspJob/.wasp/out/server/src/server.ts
 waspJob/.wasp/out/server/src/types/index.ts
 waspJob/.wasp/out/server/src/universal/types.ts
 waspJob/.wasp/out/server/src/universal/url.ts
-waspJob/.wasp/out/server/src/universal/webSocket/types.ts
 waspJob/.wasp/out/server/src/utils.js
 waspJob/.wasp/out/server/tsconfig.json
 waspJob/.wasp/out/web-app/.env
@@ -80,7 +79,6 @@ waspJob/.wasp/out/web-app/src/test/vitest/setup.ts
 waspJob/.wasp/out/web-app/src/types.ts
 waspJob/.wasp/out/web-app/src/universal/types.ts
 waspJob/.wasp/out/web-app/src/universal/url.ts
-waspJob/.wasp/out/web-app/src/universal/webSocket/types.ts
 waspJob/.wasp/out/web-app/src/utils.js
 waspJob/.wasp/out/web-app/src/vite-env.d.ts
 waspJob/.wasp/out/web-app/tsconfig.json
