@@ -37,7 +37,7 @@ data CopyDirFileDraft = CopyDirFileDraft
     _dstPath :: !(Path' (Rel ProjectRootDir) Dir'),
     -- | Absolute path of source dir to copy.
     _srcPath :: !(Path' Abs Dir'),
-    -- | If the destination dir already exists, should it be removed before copying?
+    -- | What to do with the dst dir if it already exists.
     _dstDirStrategy :: !CopyDirFileDraftDstDirStrategy
   }
   deriving (Show, Eq)
