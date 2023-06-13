@@ -12,6 +12,10 @@ import qualified StrongPath as SP
 import Wasp.AppSpec.ExternalCode (SourceExternalCodeDir)
 import Wasp.Generator.Common (ProjectRootDir)
 
+-- TODO: consider refactoring the usage of GeneratedExternalCodeDir since
+-- generated code might end up in multiple places (e.g. ext-src/ but also public/).
+-- Name should probably be narrowed down to something like UserDefinedCodeDir.
+
 -- | Path to the directory where ext code will be generated.
 data GeneratedExternalCodeDir
 
@@ -26,5 +30,5 @@ data ExternalCodeGeneratorStrategy = ExternalCodeGeneratorStrategy
     -- Also takes text of the file. Returns text where special @wasp imports have been replaced with
     -- imports that will work.
     _resolveJsFileWaspImports :: Path' (Rel GeneratedExternalCodeDir) File' -> Text -> Text,
-    _resolveDstFilePath :: Path' (Rel GeneratedExternalCodeDir) File' -> Path' (Rel ProjectRootDir) File'
+    _resolveDstFilePath :: Path' (Rel SourceExternalCodeDir) File' -> Path' (Rel ProjectRootDir) File'
   }

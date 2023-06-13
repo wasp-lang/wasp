@@ -82,9 +82,8 @@ genPrismaSchema spec = do
         Psl.Ast.Model.Model entityName (AS.Entity.getPslModelBody entity)
 
 genMigrationsDir :: AppSpec -> Generator (Maybe FileDraft)
-genMigrationsDir spec = return $ copyDbMigrationsDir <$> AS.migrationsDir spec
+genMigrationsDir spec = return $ createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir <$> AS.migrationsDir spec
   where
-    copyDbMigrationsDir = createCopyDirFileDraft RemoveExistingDstDir genProjectMigrationsDir
     genProjectMigrationsDir = Wasp.Generator.DbGenerator.Common.dbRootDirInProjectRootDir </> Wasp.Generator.DbGenerator.Common.dbMigrationsDirInDbRootDir
 
 -- | This function operates on generated code, and thus assumes the file drafts were written to disk

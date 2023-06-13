@@ -7,7 +7,11 @@ where
 
 import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.ExternalCodeGenerator.Common (ExternalCodeGeneratorStrategy (..), GeneratedExternalCodeDir)
+import Wasp.Generator.ExternalCodeGenerator.Common
+  ( ExternalCodeGeneratorStrategy (..),
+    GeneratedExternalCodeDir,
+    castRelPathFromSrcToGenExtCodeDir,
+  )
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 
@@ -35,5 +39,5 @@ mkExtCodeGeneratorStrategy extCodeDirInServerSrcDir =
         C.serverRootDirInProjectRootDir
           </> C.serverSrcDirInServerRootDir
           </> extCodeDirInServerSrcDir
-          </> filePath
+          </> castRelPathFromSrcToGenExtCodeDir filePath
     }
