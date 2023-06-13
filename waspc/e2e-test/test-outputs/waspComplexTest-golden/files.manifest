@@ -89,6 +89,7 @@ waspComplexTest/.wasp/out/web-app/src/actions/core.d.ts
 waspComplexTest/.wasp/out/web-app/src/actions/core.js
 waspComplexTest/.wasp/out/web-app/src/actions/index.ts
 waspComplexTest/.wasp/out/web-app/src/api.ts
+waspComplexTest/.wasp/out/web-app/src/api/events.ts
 waspComplexTest/.wasp/out/web-app/src/auth/forms/Auth.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/forms/ForgotPassword.tsx
 waspComplexTest/.wasp/out/web-app/src/auth/forms/Login.tsx

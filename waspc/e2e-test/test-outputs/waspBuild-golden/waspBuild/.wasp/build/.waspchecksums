@@ -305,7 +305,7 @@
             "file",
             "web-app/package.json"
         ],
-        "ec2ca08cd231bfbb242773ae9d609c3919bad035fd4e01da71bcac0d6f18185a"
+        "39a33744eac051bec2aac8172340dd5637002e03bd9617842fd447808d9a4f76"
     ],
     [
         [
@@ -361,7 +361,14 @@
             "file",
             "web-app/src/api.ts"
         ],
-        "6cdcc027ec119a47772dc7d70efa21ab8a7f58f8934e0c4c8bd8917e1581c0f9"
+        "93118387834981574ce1773d33275308e68ef8ca87408a35be8931c44a8889bf"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/api/events.ts"
+        ],
+        "7220e570cfb823028ad6c076cbcf033d217acfb88537bcac47020f1085757044"
     ],
     [
         [
