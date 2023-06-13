@@ -131,7 +131,8 @@ npmDepsForWasp spec =
             -- CLI to generate what's necessary, check the description in
             -- https://github.com/wasp-lang/wasp/pull/962/ for details).
             ("@prisma/client", show prismaVersion),
-            ("superjson", "^1.12.2")
+            ("superjson", "^1.12.2"),
+            ("mitt", "3.0.0")
           ]
           ++ depsRequiredForAuth spec
           ++ depsRequiredByTailwind spec
@@ -236,6 +237,7 @@ genSrcDir spec =
       copyTmplFile [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
       copyTmplFile [relfile|api.ts|],
+      copyTmplFile [relfile|api/events.ts|],
       copyTmplFile [relfile|storage.ts|],
       genRouter spec,
       getIndexTs spec

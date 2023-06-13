@@ -2,7 +2,8 @@
 import { createContext, useState, useEffect } from 'react'
 import { io, Socket } from 'socket.io-client'
 
-import { getAuthToken, events as apiEvents, EventType } from '../api'
+import { getAuthToken } from '../api'
+import { apiEventsEmitter } from '../api/events'
 import config from '../config'
 
 import type { ClientToServerEvents, ServerToClientEvents } from '../webSocket';
@@ -25,8 +26,8 @@ function refreshAuthToken() {
 }
 
 refreshAuthToken()
-apiEvents.on(EventType.SET_AUTH_TOKEN, refreshAuthToken)
-apiEvents.on(EventType.CLEAR_AUTH_TOKEN, refreshAuthToken)
+apiEventsEmitter.on('authToken.set', refreshAuthToken)
+apiEventsEmitter.on('authToken.clear', refreshAuthToken)
 
 export const WebSocketContext = createContext({
   socket,

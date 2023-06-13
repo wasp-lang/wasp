@@ -1,19 +1,12 @@
 import axios, { type AxiosError } from 'axios'
-import EventEmitter from 'events'
 
 import config from './config'
 import { storage } from './storage'
+import { apiEventsEmitter } from './api/events'
 
 const api = axios.create({
   baseURL: config.apiUrl,
 })
-
-// Used to allow API clients to register for auth token change events.
-export const events = new EventEmitter()
-export const EventType = {
-  SET_AUTH_TOKEN: 'authToken.set',
-  CLEAR_AUTH_TOKEN: 'authToken.clear',
-}
 
 const WASP_APP_AUTH_TOKEN_NAME = 'authToken'
 
@@ -22,7 +15,7 @@ let authToken = storage.get(WASP_APP_AUTH_TOKEN_NAME) as string | undefined
 export function setAuthToken(token: string): void {
   authToken = token
   storage.set(WASP_APP_AUTH_TOKEN_NAME, token)
-  events.emit(EventType.SET_AUTH_TOKEN)
+  apiEventsEmitter.emit('authToken.set')
 }
 
 export function getAuthToken(): string | undefined {
@@ -32,13 +25,13 @@ export function getAuthToken(): string | undefined {
 export function clearAuthToken(): void {
   authToken = undefined
   storage.remove(WASP_APP_AUTH_TOKEN_NAME)
-  events.emit(EventType.CLEAR_AUTH_TOKEN)
+  apiEventsEmitter.emit('authToken.clear')
 }
 
 export function removeLocalUserData(): void {
   authToken = undefined
   storage.clear()
-  events.emit(EventType.CLEAR_AUTH_TOKEN)
+  apiEventsEmitter.emit('authToken.clear')
 }
 
 api.interceptors.request.use((request) => {
@@ -64,10 +57,10 @@ window.addEventListener('storage', (event) => {
   if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_TOKEN_NAME)) {
     if (!!event.newValue) {
       authToken = event.newValue
-      events.emit(EventType.SET_AUTH_TOKEN)
+      apiEventsEmitter.emit('authToken.set')
     } else {
       authToken = undefined
-      events.emit(EventType.CLEAR_AUTH_TOKEN)
+      apiEventsEmitter.emit('authToken.clear')
     }
   }
 })
