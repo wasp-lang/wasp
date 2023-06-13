@@ -18,12 +18,7 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
 
   const Task = context.entities.Task
 
-  console.log(
-    'New task created! Btw, current value of someResource is: ' +
-      getSomeResource()
-  )
-
-  return Task.create({
+  const newTask = await Task.create({
     data: {
       description: task.description,
       user: {
@@ -31,6 +26,13 @@ export const createTask: CreateTask<Pick<Task, 'description'>> = async (
       },
     },
   })
+  
+  console.log(
+    'New task created! Btw, current value of someResource is: ' +
+      getSomeResource()
+  )
+
+  return newTask
 }
 
 export const updateTaskIsDone: UpdateTaskIsDone<
