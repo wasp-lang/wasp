@@ -5,6 +5,9 @@
 ### Breaking changes
 - Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
 
+### Public folder support
+Wasp now supports a `public` folder in the `client` folder. This folder will be copied to the `public` folder in the build folder. This is useful for adding static assets to your project, like favicons, robots.txt, etc.
+
 ## v0.10.6
 
 ### Bug fixes
