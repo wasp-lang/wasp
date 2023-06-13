@@ -268,7 +268,8 @@ spec_AppSpecValid = do
           AS.App.auth = Nothing,
           AS.App.dependencies = Nothing,
           AS.App.head = Nothing,
-          AS.App.emailSender = Nothing
+          AS.App.emailSender = Nothing,
+          AS.App.webSocket = Nothing
         }
 
     basicAppDecl = AS.Decl.makeDecl "TestApp" basicApp
