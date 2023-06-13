@@ -5,7 +5,6 @@ import { Server, Socket } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
 import config from './config.js'
-import { WaspSocketData } from './universal/webSocket/types.js'
 import prisma from './dbClient.js'
 
 {=# isAuthEnabled =}
@@ -18,7 +17,8 @@ export type WebSocketDefinition<
   ClientToServerEvents extends EventsMap = DefaultEventsMap,
   ServerToClientEvents extends EventsMap = DefaultEventsMap,
   InterServerEvents extends EventsMap = DefaultEventsMap,
-  SocketData extends WaspSocketData = WaspSocketData> =
+  SocketData extends WaspSocketData = WaspSocketData
+> =
   ( io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
     context: {
       entities: {
@@ -28,6 +28,10 @@ export type WebSocketDefinition<
       }
     }
   ) => Promise<void> | void
+
+export interface WaspSocketData {
+  user?: any;
+}
 
 type WebSocketFn = typeof {= userWebSocketFn.importIdentifier =}
 type ServerType = Parameters<WebSocketFn>[0]

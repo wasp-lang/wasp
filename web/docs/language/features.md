@@ -1890,7 +1890,7 @@ app MyApp {
 }
 ```
 
-`app.server` is a dictionary with following fields:
+`app.server` is a dictionary with the following fields:
 
 #### `middlewareConfigFn: ServerImport` (optional)
 
@@ -1900,7 +1900,7 @@ The import statement to an Express middleware config function. This is a global 
 
 `setupFn` declares a JS function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
-It gives you an opportunity to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
+It allows you to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
 
 The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server routes or for example, setting up `socket.io`.
 ```ts

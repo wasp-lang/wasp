@@ -19,6 +19,8 @@ export function useSocketListener<Event extends keyof ServerToClientEvents>(
 ) {
   const { socket } = useContext(WebSocketContext);
   useEffect(() => {
+    // TODO(miho): This is a hack for type errors we are getting
+    // from socket.on when passing in "handler" directly
     const handlerInstance: any = (event: any) => {
       handler(event);
     };
