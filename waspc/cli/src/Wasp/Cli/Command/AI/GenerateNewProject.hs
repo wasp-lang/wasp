@@ -3,7 +3,6 @@ module Wasp.Cli.Command.AI.GenerateNewProject () where
 -- TODO: Probably move this module out of here into general wasp lib.
 
 import Wasp.OpenAI (OpenAIApiKey)
-import qualified Wasp.OpenAI.ChatGPT as Chat
 
 data NewProjectDetails = NewProjectDetails
   { _projectName :: !String,
@@ -13,13 +12,11 @@ data NewProjectDetails = NewProjectDetails
 
 data AuthProvider = Google
 
-data FileDraft = FileDraft
-  { path :: FilePath, -- TODO: Use StrongPath?
-    content :: Text
-  }
-
 -- TODO: Create a monad stack transformer that contains openaiapikey + has state which holds files to generate?
 --   Call it CodeGenerator. It can also send messages (via Chan) about its progress.
+--   It doesn't even need to know how to send messages, it can just do that via IO somehow, and then we inject logic for that, be it Chan or something else.
+--   But we define messages.
+--   We could have two functions: writeFile, and updateFile. Or maybe just writeFile is enough, but it accepts previous content, if it has any.
 
 -- TODO: Have generateNewProject accept Chan, to which it will stream its progress?
 --   It could just stream its output instead of printing it to stdout, so calling function
@@ -49,4 +46,5 @@ generateNewProject openAiKey newProjectDetails = do
   -- TODO: Same as actions.
   pages <- generatePages newProjectDetails plan entities queries actions
   -- TODO: Similar as actions.
+  -- TODO: what about having additional step here that goes through all the files once again and fixes any stuff in them (Wasp, JS files)? REPL?
   return ()
