@@ -23,7 +23,7 @@
     "nodemon": "^2.0.19",
     "prisma": "4.12.0",
     "standard": "^17.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.1.0"
   },
   "engineStrict": true,
   "engines": {
