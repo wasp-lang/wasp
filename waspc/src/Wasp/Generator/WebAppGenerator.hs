@@ -187,9 +187,10 @@ genGitignore =
       (C.asWebAppFile [relfile|.gitignore|])
 
 genPublicDir :: AppSpec -> [FileDraft] -> Generator [FileDraft]
-genPublicDir spec existingExtCodeFileDrafts =
-  genIfNotExistingFile genFaviconFd
-    <++> genIfNotExistingFile genManifestFd
+genPublicDir spec extCodeFileDrafts =
+  return $
+    ifUserDidntProvideFile genFaviconFd
+      ++ ifUserDidntProvideFile genManifestFd
   where
     genFaviconFd = C.mkTmplFd (C.asTmplFile [relfile|public/favicon.ico|])
     genManifestFd = C.mkTmplFdWithData tmplFile tmplData
@@ -197,14 +198,13 @@ genPublicDir spec existingExtCodeFileDrafts =
         tmplData = object ["appName" .= (fst (getApp spec) :: String)]
         tmplFile = C.asTmplFile [relfile|public/manifest.json|]
 
-    genIfNotExistingFile fileDraft =
-      return $
-        if checkIfFileDraftExists fileDraft
-          then []
-          else [fileDraft]
+    ifUserDidntProvideFile fileDraft =
+      if checkIfFileDraftExists fileDraft
+        then []
+        else [fileDraft]
 
     checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
-    existingDstPaths = map FD.getDstPath existingExtCodeFileDrafts
+    existingDstPaths = map FD.getDstPath extCodeFileDrafts
 
 genIndexHtml :: AppSpec -> Generator FileDraft
 genIndexHtml spec =

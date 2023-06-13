@@ -42,7 +42,11 @@ data CopyDirFileDraft = CopyDirFileDraft
   }
   deriving (Show, Eq)
 
-data CopyDirFileDraftDstDirStrategy = RemoveExistingDstDir | WriteOverExistingDstDir
+data CopyDirFileDraftDstDirStrategy
+  = -- | Remove the dst dir if it already exists.
+    RemoveExistingDstDir
+  | -- | Write over the dst dir if it already exists, without removing the existing files.
+    WriteOverExistingDstDir
   deriving (Show, Eq)
 
 instance Writeable CopyDirFileDraft where
@@ -50,8 +54,10 @@ instance Writeable CopyDirFileDraft where
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
 
-    let shouldRemoveDstDir = dstDirExists && _dstDirStrategy draft == RemoveExistingDstDir
-    when shouldRemoveDstDir $ removeDirectoryRecursive dstPathAbsDir
+    case _dstDirStrategy draft of
+      RemoveExistingDstDir ->
+        when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
+      WriteOverExistingDstDir -> pure ()
 
     when srcDirExists $ do
       createDirectoryIfMissing True (SP.fromAbsDir dstPathAbsDir)

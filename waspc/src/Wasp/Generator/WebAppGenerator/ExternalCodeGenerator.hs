@@ -52,6 +52,6 @@ mkExtCodeGeneratorStrategy extCodeDirInWebAppSrcDir =
             </> extCodeDirInWebAppSrcDir
             </> castRelPathFromSrcToGenExtCodeDir filePath
 
-    isInStaticAssetsDir filePath = staticAssetsDir `isPrefixOf` SP.toFilePath filePath
-    removeStaticAssetsDirPrefix filePath = fromJust $ SP.parseRelFile $ drop (length staticAssetsDir) $ SP.toFilePath filePath
-    staticAssetsDir = SP.toFilePath C.staticAssetsDirInWebAppDir
+    isInStaticAssetsDir filePath = staticAssetsDir `isPrefixOf` SP.fromRelFile filePath
+    removeStaticAssetsDirPrefix filePath = fromJust $ SP.parseRelFile $ drop (length staticAssetsDir) $ SP.fromRelFile filePath
+    staticAssetsDir = SP.fromRelDir C.staticAssetsDirInWebAppDir

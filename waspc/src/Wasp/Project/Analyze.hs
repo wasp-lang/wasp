@@ -22,7 +22,6 @@ import Wasp.Project.Db (makeDevDatabaseUrl)
 import Wasp.Project.Db.Migrations (findMigrationsDir)
 import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
-import Wasp.Project.WebApp (findStaticAssetsDir)
 import Wasp.Util (maybeToEither)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -59,7 +58,6 @@ constructAppSpec waspDir options decls = do
   externalSharedCodeFiles <-
     ExternalCode.readFiles (CompileOptions.externalSharedCodeDirPath options)
   maybeMigrationsDir <- findMigrationsDir waspDir
-  staticAssetsDir <- findStaticAssetsDir externalClientCodeDirPath
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
   configFiles <- CF.discoverConfigFiles waspDir G.CF.configFileRelocationMap
   let devDbUrl = makeDevDatabaseUrl waspDir decls
@@ -78,8 +76,7 @@ constructAppSpec waspDir options decls = do
             AS.isBuild = CompileOptions.isBuild options,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.configFiles = configFiles,
-            AS.devDatabaseUrl = devDbUrl,
-            AS.staticClientAssetsDir = staticAssetsDir
+            AS.devDatabaseUrl = devDbUrl
           }
   return $ case validateAppSpec appSpec of
     [] -> Right appSpec
