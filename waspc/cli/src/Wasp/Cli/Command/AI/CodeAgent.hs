@@ -62,5 +62,5 @@ queryChatGPT params messages = do
   liftIO $ ChatGPT.queryChatGPT key params messages
 
 data CodeAgentState = CodeAgentState
-  { _files :: H.HashMap FilePath Text
+  { _files :: H.HashMap FilePath Text -- TODO: Name this "cacheFiles" maybe?
   }

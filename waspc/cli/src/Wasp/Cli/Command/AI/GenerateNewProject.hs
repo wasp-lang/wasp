@@ -18,6 +18,7 @@ import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeNewFile, writeToLog)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (Plan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as P
 import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
+import qualified Wasp.Version
 
 data NewProjectDetails = NewProjectDetails
   { _projectAppName :: !String,
@@ -41,56 +42,164 @@ data AuthProvider = UsernameAndPassword
 --   and also contain description of what happened (or maybe that is separate message).
 generateNewProject :: NewProjectDetails -> CodeAgent ()
 generateNewProject newProjectDetails = do
-  coreFiles <- liftIO $ map (first SP.fromRelFile) <$> readCoreWaspProjectFiles
-  mapM_ writeNewFile coreFiles
-  let waspFile = generateBaseWaspFile newProjectDetails
-  let waspFilePath = fst waspFile
-  writeNewFile waspFile
-  let dotEnvServerFile = generateDotEnvServerFile newProjectDetails
-  writeNewFile dotEnvServerFile
-  writeToLog "Generated project skeleton."
+  waspFilePath <- generateAndWriteProjectSkeleton
 
   writeToLog "Generating plan..."
   plan <- generatePlan newProjectDetails
   -- TODO: Show plan nicer! Maybe just short summary of it: we will create 4 entities, 3 operations, ... .
   writeToLog $ "Plan generated! " <> T.pack (show plan)
 
-  updateWaspFileWithEntities waspFilePath (P.entities plan)
+  writeEntitiesToWaspFile waspFilePath (P.entities plan)
   writeToLog "Added entities to wasp file."
 
   writeToLog "Generating actions..."
-  actions <- forM (P.actions plan) $ \actionPlan -> do
-    action <- generateAction newProjectDetails (P.entities plan) actionPlan
-    writeActionToFile action
-    updateWaspFileWithAction waspFilePath action
-    writeToLog $ "Generated action: " <> T.pack (P.actionName actionPlan)
-    return action
+  actions <- forM (P.actions plan) $ generateAndWriteAction waspFilePath plan
 
   writeToLog "Generating queries..."
-  queries <- forM (P.queries plan) $ \queryPlan -> do
-    query <- generateQuery newProjectDetails (P.entities plan) queryPlan
-    writeQueryToFile query
-    updateWaspFileWithQuery waspFilePath query
-    writeToLog $ "Generated query: " <> T.pack (P.queryName queryPlan)
-    return query
+  queries <- forM (P.queries plan) $ generateAndWriteQuery waspFilePath plan
 
   writeToLog "Generating pages..."
-  pages <- forM (P.pages plan) $ \pagePlan -> do
-    page <- generatePage newProjectDetails (P.entities plan) queries actions pagePlan
-    writePageToFile page
-    updateWaspFileWithPage waspFilePath page
-    writeToLog $ "Generated page: " <> T.pack (P.pageName pagePlan)
-    return page
+  _pages <- forM (P.pages plan) $ generateAndWritePage waspFilePath plan queries actions
 
   -- TODO: what about having additional step here that goes through all the files once again and fixes any stuff in them (Wasp, JS files)? REPL?
   -- TODO: add some commented out lines to wasp file that showcase other features? jobs, api, serverSetup, sockets, ... .
+  -- TODO: Idea: give it chatGPT-function `queryDocs` that it can use whenever to look up Wasp docs.
+  -- TODO: Idea: maybe use chatGPT-functions also to increase the chance of it producing correct JSON
+  --   when generating actions, operations and similar. Maybe an overkill.
   writeToLog "Done!"
+  where
+    generateAndWriteProjectSkeleton = do
+      coreFiles <- liftIO $ map (first SP.fromRelFile) <$> readCoreWaspProjectFiles
+      mapM_ writeNewFile coreFiles
 
--- TODO: OpenAI released ChatGPT 3.5-turbo with 16k context, should we use that one?
---   What about "functions" feature that they released?
+      let waspFile@(waspFilePath, _) = generateBaseWaspFile newProjectDetails
+      writeNewFile waspFile
+
+      case _projectAuth newProjectDetails of
+        UsernameAndPassword -> do
+          writeNewFile generateLoginJsPage
+          writeNewFile generateSignupJsPage
+
+      writeNewFile generateDotEnvServerFile
+
+      writeToLog "Generated project skeleton."
+
+      return waspFilePath
+
+    generateAndWriteAction waspFilePath plan actionPlan = do
+      action <- generateAction newProjectDetails (P.entities plan) actionPlan
+      writeActionToFile action
+      writeActionToWaspFile waspFilePath action
+      writeToLog $ "Generated action: " <> T.pack (P.actionName actionPlan)
+      return action
+
+    generateAndWriteQuery waspFilePath plan queryPlan = do
+      query <- generateQuery newProjectDetails (P.entities plan) queryPlan
+      writeQueryToFile query
+      writeQueryToWaspFile waspFilePath query
+      writeToLog $ "Generated query: " <> T.pack (P.queryName queryPlan)
+      return query
+
+    generateAndWritePage waspFilePath plan queries actions pagePlan = do
+      page <- generatePage newProjectDetails (P.entities plan) queries actions pagePlan
+      writePageToFile page
+      writePageToWaspFile waspFilePath page
+      writeToLog $ "Generated page: " <> T.pack (P.pageName pagePlan)
+      return page
 
 generateBaseWaspFile :: NewProjectDetails -> File
-generateBaseWaspFile = undefined
+generateBaseWaspFile newProjectDetails = (path, content)
+  where
+    path = "main.wasp"
+    appName = T.pack $ _projectAppName newProjectDetails
+    appTitle = appName
+    waspVersion = T.pack $ show Wasp.Version.waspVersion
+    appAuth = case _projectAuth newProjectDetails of
+      -- NOTE: We assume here that there will be a page with route "/".
+      UsernameAndPassword ->
+        [trimming|
+          auth: {
+            userEntity: User,
+            methods: {
+              usernameAndPassword: {}
+            },
+            onAuthFailedRedirectTo: "/login",
+            onAuthSucceededRedirectTo: "/"
+          },
+        |]
+    content =
+      [trimming|
+        app ${appName} {
+          wasp: {
+            version: "^${waspVersion}"
+          },
+          title: ${appTitle},
+          ${appAuth}
+        }
+
+        entity User {=psl
+          id                        Int           @id @default(autoincrement())
+          username                  String        @unique
+          password                  String
+        psl=}
+
+        route LoginRoute { path: "/login", to: LoginPage }
+        page LoginPage {
+          component: import Login from "@client/Login.jsx"
+        }
+        route SignupRoute { path: "/signup", to: SignupPage }
+        page SignupPage {
+          component: import Signup from "@client/Signup.jsx"
+        }
+      |]
+
+generateLoginJsPage :: File
+generateLoginJsPage =
+  ( "src/client/Login.jsx",
+    [trimming|
+      import React from 'react';
+      import { LoginForm } from '@wasp/auth/forms/Login';
+
+      export default function Login() {
+        return (
+          <div>
+            <h1>Login</h1>
+            <LoginForm />
+          </div>
+        );
+      }
+    |]
+  )
+
+generateSignupJsPage :: File
+generateSignupJsPage =
+  ( "src/client/Signup.jsx",
+    [trimming|
+      import React from 'react';
+      import { SignupForm } from '@wasp/auth/forms/Signup';
+
+      export default function Signup() {
+        return (
+          <div>
+            <h1>Signup</h1>
+            <SignupForm />
+          </div>
+        );
+      }
+    |]
+  )
+
+generateDotEnvServerFile :: File
+generateDotEnvServerFile =
+  ( ".env.server",
+    [trimming|
+      // Here you can define env vars to pass to the server.
+      // MY_ENV_VAR=foobar
+    |]
+  )
+
+generatePlan :: NewProjectDetails -> CodeAgent Plan
+generatePlan = undefined
 
 --       [ ChatMessage
 --           { role = System,
@@ -103,14 +212,10 @@ generateBaseWaspFile = undefined
 --           }
 --       ]
 
-generateDotEnvServerFile :: NewProjectDetails -> File
-generateDotEnvServerFile = undefined
+-- TODO: Tell it to generate at least one page which has route "/".
 
-generatePlan :: NewProjectDetails -> CodeAgent Plan
-generatePlan = undefined
-
-updateWaspFileWithEntities :: FilePath -> [P.Entity] -> CodeAgent ()
-updateWaspFileWithEntities waspFilePath entities = do
+writeEntitiesToWaspFile :: FilePath -> [P.Entity] -> CodeAgent ()
+writeEntitiesToWaspFile waspFilePath entities = do
   -- TODO: assemble code for each entity and write it to wasp file.
   undefined
 
@@ -120,8 +225,8 @@ generateAction = undefined
 writeActionToFile :: Action -> CodeAgent ()
 writeActionToFile = undefined
 
-updateWaspFileWithAction :: FilePath -> Action -> CodeAgent ()
-updateWaspFileWithAction waspFilePath action = undefined
+writeActionToWaspFile :: FilePath -> Action -> CodeAgent ()
+writeActionToWaspFile waspFilePath action = undefined
 
 data Action = Action
   { _actionWaspDecl :: String,
@@ -135,8 +240,8 @@ generateQuery = undefined
 writeQueryToFile :: Query -> CodeAgent ()
 writeQueryToFile = undefined
 
-updateWaspFileWithQuery :: FilePath -> Query -> CodeAgent ()
-updateWaspFileWithQuery waspFilePath query = undefined
+writeQueryToWaspFile :: FilePath -> Query -> CodeAgent ()
+writeQueryToWaspFile waspFilePath query = undefined
 
 data Query = Query
   { _queryWaspDecl :: String,
@@ -150,8 +255,8 @@ generatePage = undefined
 writePageToFile :: Page -> CodeAgent ()
 writePageToFile = undefined
 
-updateWaspFileWithPage :: FilePath -> Page -> CodeAgent ()
-updateWaspFileWithPage waspFilePath page = undefined
+writePageToWaspFile :: FilePath -> Page -> CodeAgent ()
+writePageToWaspFile waspFilePath page = undefined
 
 data Page = Page
   { _pageWaspDecl :: String,
@@ -232,6 +337,9 @@ waspFileExample =
   ```
   |]
 
+-- TODO: Explain to ChatGPT how data flows in Wasp: pages call actions and queries,
+--   actions and queries work with entities, entities are the core data models.
+--   Also maybe provide a bit more details on what each of these do.
 basicWaspLangInfo =
   [trimming|
   Wasp is web app framework that uses React, NodeJS and Prisma.
