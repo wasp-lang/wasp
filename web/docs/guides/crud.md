@@ -10,8 +10,6 @@ For a specific [Entity](/docs/language/features#entity), you can tell Wasp to au
 
 Let's say we have a `Task` entity. We want to have `getAll` and `get` queries for it, and also `create` and `update` actions. We do this by creating new `crud` declaration in Wasp, named `Tasks`, that uses default implementation for `getAll`, `get` and `update`, while specifying a custom implementation for `create`. We also configured `getAll` to be publicly available (no auth needed).
 
-For example, we define a CRUD for a `Task` entity like this:
-
 ```wasp title="main.wasp"
 crud Tasks { // crud name here is "Tasks"
   entity: Task,
@@ -32,7 +30,7 @@ Result of this is that the queries and actions we just specified are now availab
 
 ## Example: simple tasks app
 
-We'll see an example app with some auth and CRUD operations for a `Task` entity.
+We'll see an example app with auth and CRUD operations for some `Task` entity.
 
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth"/>
 
@@ -73,7 +71,7 @@ entity Task {=psl
   user User @relation(fields: [userId], references: [id])
 psl=}
 
-// Main and auth routes
+// Tasks app routes
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import Main from "@client/MainPage.tsx",
@@ -93,7 +91,7 @@ page SignupPage {
 
 We can then run `wasp db migrate-dev` to create the database and run the migrations.
 
-### Adding CRUD to the `Task` entity
+### Adding CRUD to the `Task` entity ✨
 
 We add the following to our Wasp file to enable automatic CRUD for `Task`:
 
@@ -234,7 +232,7 @@ You should see a login page and a signup page. After you log in, you should see 
 
 CRUD operations currently have a limited set of knowledge about the business logic they are implementing. For example, they don't know that a task should be connected to the user that is creating it. This is why we had to override the `create` operation in the example above.
 
-Another thing, they are not aware of the authorization rules. For example, they don't know that a user should not be able to create a task for another user. We are looking into adding role-based authorization to Wasp, and we plan to make CRUD operations aware of the authorization rules.
+Another thing, they are not aware of the authorization rules. For example, they don't know that a user should not be able to create a task for another user. In the future, we will be adding role-based authorization to Wasp, and we plan to make CRUD operations aware of the authorization rules.
 
 Another issue is input validation and sanitization. For example, we might want to make sure that the task description is not empty.
 

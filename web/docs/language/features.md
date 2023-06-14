@@ -602,24 +602,90 @@ try {
 }
 ```
 
-### CRUD operations on top of Entities
+### CRUD operations on top of entities
 
 :::caution Early preview
-This feature is currently in early preview. It doesn't contain all the features we plan to add.
+This feature is currently in early preview. It doesn't contain all the planned features.
 
 In the future iterations of Wasp we plan on supporting:
 - **authorization** that will allow you to specify which users can perform which operations
 - **validation** of input data (e.g. using Zod schema validation)
 :::
 
-For a specific [Entity](/docs/language/features#entity), you can tell Wasp to automatically instantiate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities. 
+For a specific [Entity](/docs/language/features#entity), you can tell Wasp to automatically instantiate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities.
 
-The operations Wasp can generate are:
-- **getAll** - returns all entities
-- **get** - returns one entity by id field (field marked with `@id` in Prisma schema)
-- **create** - creates a new entity
-- **update** - updates an existing entity
-- **delete** - deletes an existing entity
+#### Which operations are supported?
+
+If we create CRUD operations for an entity named `Task`,
+
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    getAll: {
+      isPublic: true, // optional, defaults to false
+    },
+    get: {},
+    create: {
+      overrideFn: import { createTask } from "@server/tasks.js", // optional
+    },
+    update: {},
+  },
+}
+```
+
+Wasp will give you the following default implementations:
+
+**getAll** - returns all entities
+
+```js
+// ...
+
+// If the operation is not public, Wasp checks if an authenticated user
+// is making the request.
+
+return Task.findMany()
+```
+
+**get** - returns one entity by id field
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.findUnique({ where: { id: args.id } })
+```
+
+**create** - creates a new entity
+
+```js
+// ...
+return Task.create({ data: args.data })
+```
+
+**update** - updates an existing entity
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.update({ where: { id: args.id }, data: args.data })
+```
+
+**delete** - deletes an existing entity
+
+```js
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.delete({ where: { id: args.id } })
+```
+
+:::info Current Limitations
+In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity.
+
+[In the future](#/docs/guides/crud#future-of-crud-operations-in-wasp), we are planning to add validation of action input, where only the data that the user is allowed to change will be saved. 
+
+For now, the solution is to provide an override function. You can override the default implementation by using the `overrideFn` option and implementing the validation logic yourself.
+
+:::
 
 #### CRUD declaration
 
@@ -654,59 +720,11 @@ It has the following fields:
     - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
     - `overrideFn: ServerImport` - The import statement of the optional override implementation in Node.js.
 
-#### Default CRUD operations implementations
-
-If we create a CRUD named `Tasks` for an entity named `Task`, Wasp will use the following default implementations:
-
-**getAll**
-
-```js
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return context.entities.Task.findUnique({ where: { id: args.id } })
-```
-
-**get**
-
-```js
-// ...
-return context.entities.Task.findMany()
-```
-
-**create**
-
-```js
-// ...
-return context.entities.Task.create({ data: args.data })
-```
-
-:::info
-In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity. In the future, we are planning to add validation of action input, where only the data that the user is allowed to change will be saved. For now, solution is to provide override function.
-
-You can override the default implementation by using the `overrideFn` option and implementing the validation logic yourself.
-:::
-
-**update**
-
-```js
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return context.entities.Task.update({ where: { id: args.id }, data: args.data })
-```
-
-**delete**
-
-```js
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return context.entities.Task.delete({ where: { id: args.id } })
-```
-
 #### Defining the overrides
 
 Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
 - `args` - The arguments of the operation i.e. the data that's sent from the client.
-- `context` - Context contains the `user`` making the request and the `entities` object containing the entity that's being operated on.
+- `context` - Context contains the `user` making the request and the `entities` object containing the entity that's being operated on.
 
 You can also import types for each of the functions you want to override from `@wasp/crud/{crud name}`. The available types are:
 - `GetAllQuery`
@@ -725,7 +743,7 @@ export const getAllOverride: GetAllQuery<Input, Output> = async (args, context) 
 }
 ```
 
-Check out the [CRUD guide](/docs/guides/crud) to see an example.
+We are showing an example of an override in the [CRUD guide](/docs/guides/crud).
 
 #### Using the CRUD operations in client code
 
@@ -747,7 +765,7 @@ const deleteAction = Tasks.delete.useAction()
 // under the hood, so all the options are available as before.
 ```
 
-Check out the [CRUD guide](/docs/guides/crud) to see an example.
+Check out the [CRUD guide](/docs/guides/crud) to see how to use the CRUD operations in client code.
 
 ## APIs
 
