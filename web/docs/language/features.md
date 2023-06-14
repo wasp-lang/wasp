@@ -1144,18 +1144,24 @@ Login is a regular action and can be used directly from the frontend.
 
 #### `signup()`
 An action for signing up the user. This action does not log in the user, you still need to call `login()`.
+
 ```js
 signup(userFields)
 ```
 #### `userFields: object`
-Fields of user entity which was declared in `auth`.
+Auth-related fields (either `username` or `email` and `password`) of the user entity which was declared in `auth`.
+
+:::info
+Wasp only stores the auth-related fields of the user entity. Adding extra fields to `userFields` will not have any effect.
+
+If you need to add extra fields to the user entity, we suggest doing it in a separate step after the user logs in for the first time.
+:::
 
 #### `import statement`:
 ```js
 import signup from '@wasp/auth/signup.js'
 ```
 Signup is a regular action and can be used directly from the frontend.
-
 
 #### `logout()`
 An action for logging out the user.
@@ -1169,7 +1175,7 @@ import logout from '@wasp/auth/logout.js'
 ```
 
 ##### Example of usage:
-```js
+```jsx
 import logout from '@wasp/auth/logout.js'
 
 const SignOut = () => {

@@ -40,7 +40,7 @@ genCore email =
     [ genCoreIndex email,
       genCoreTypes email,
       genCoreHelpers email,
-      copyTmplFile [relfile|email/core/providers/dummy.ts|]
+      genFileCopy [relfile|email/core/providers/dummy.ts|]
     ]
     <++> genEmailSenderProviderSetupFn email
 
@@ -81,7 +81,7 @@ genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
 genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
 genEmailSenderProviderSetupFn email =
   sequence
-    [ copyTmplFile tmplPath
+    [ genFileCopy tmplPath
     ]
   where
     provider :: Providers.EmailSenderProvider
@@ -110,5 +110,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SendGrid -> Providers.sendGrid
   AS.EmailSender.Mailgun -> Providers.mailgun
 
-copyTmplFile :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
-copyTmplFile = return . C.mkSrcTmplFd
+genFileCopy :: Path' (Rel C.ServerTemplatesSrcDir) File' -> Generator FileDraft
+genFileCopy = return . C.mkSrcTmplFd

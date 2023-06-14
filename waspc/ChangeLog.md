@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.7
+
+### Breaking changes
+- Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+
 ## v0.10.6
 
 ### Bug fixes
