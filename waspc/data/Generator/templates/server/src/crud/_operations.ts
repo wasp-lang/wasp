@@ -188,7 +188,8 @@ const _waspDeleteAction: DeleteAction<DeleteInput, DeleteOutput> = ((args, conte
   {=^ crud.operations.Delete.isPublic =}
   throwIfNotAuthenticated(context)
   {=/ crud.operations.Delete.isPublic =}
-  return context.entities.{= crud.entityUpper =}.delete({ where: args });
+  const { {= crud.idFieldName =}: idFieldValue } = args
+  return context.entities.{= crud.entityUpper =}.delete({ where:  { {= crud.idFieldName =}: idFieldValue } });
 });
 {=/ overrides.Delete.isDefined =}
 {=# overrides.Delete.isDefined =}
