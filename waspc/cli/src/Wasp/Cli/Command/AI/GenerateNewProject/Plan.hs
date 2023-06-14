@@ -37,7 +37,7 @@ generatePlan newProjectDetails = do
   where
     -- TODO: Try configuring temperature.
     -- TODO: Make sure we have max_tokens set to high enough.
-    chatGPTParams = ChatGPTParams {_model = GPT_3_5_turbo_16k, _temperature = Nothing}
+    chatGPTParams = ChatGPTParams {_model = GPT_3_5_turbo_16k, _temperature = Just 1.0}
     chatMessages =
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = planPrompt}

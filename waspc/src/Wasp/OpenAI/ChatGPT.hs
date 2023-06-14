@@ -46,7 +46,7 @@ queryChatGPT apiKey params requestMessages = do
 
 data ChatGPTParams = ChatGPTParams
   { _model :: !Model,
-    _temperature :: !(Maybe Int)
+    _temperature :: !(Maybe Float)
     -- TODO: There are more parameters that chatGPT supports,
     --   we just didn't add them for now!
     --   Check https://platform.openai.com/docs/api-reference/completions/create for complete list.

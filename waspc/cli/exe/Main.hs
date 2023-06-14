@@ -9,6 +9,7 @@ import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import Wasp.Cli.Command (runCommand)
+import qualified Wasp.Cli.Command.AI.New as Command.AI.New
 import Wasp.Cli.Command.BashCompletion (bashCompletion, generateBashCompletionScript, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import qualified Wasp.Cli.Command.Call as Command.Call
@@ -38,6 +39,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   args <- getArgs
   let commandCall = case args of
         ["new", projectName] -> Command.Call.New projectName
+        ["ai-new"] -> Command.Call.AINew
         ["start"] -> Command.Call.Start
         ["start", "db"] -> Command.Call.StartDb
         ["clean"] -> Command.Call.Clean
@@ -61,6 +63,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   case commandCall of
     Command.Call.New projectName -> runCommand $ createNewProject projectName
+    Command.Call.AINew -> runCommand Command.AI.New.new
     Command.Call.Start -> runCommand start
     Command.Call.StartDb -> runCommand Command.Start.Db.start
     Command.Call.Clean -> runCommand clean
