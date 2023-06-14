@@ -34,6 +34,7 @@ waspMigrate/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspMigrate/.wasp/out/server/src/jobs/core/simpleJob.js
 waspMigrate/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspMigrate/.wasp/out/server/src/middleware/index.ts
+waspMigrate/.wasp/out/server/src/middleware/operations.ts
 waspMigrate/.wasp/out/server/src/queries/types.ts
 waspMigrate/.wasp/out/server/src/routes/index.js
 waspMigrate/.wasp/out/server/src/routes/operations/index.js

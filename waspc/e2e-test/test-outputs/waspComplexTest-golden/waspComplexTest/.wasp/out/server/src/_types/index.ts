@@ -64,6 +64,7 @@ type EntityMap<Entities extends _Entity[]> = {
 type PrismaDelegate = {
   "User": typeof prisma.user,
   "SocialLogin": typeof prisma.socialLogin,
+  "Task": typeof prisma.task,
 }
 
 type Context<Entities extends _Entity[]> = Expand<{

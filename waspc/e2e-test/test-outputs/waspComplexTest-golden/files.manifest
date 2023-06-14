@@ -35,6 +35,7 @@ waspComplexTest/.wasp/out/server/src/core/HttpError.js
 waspComplexTest/.wasp/out/server/src/core/auth.js
 waspComplexTest/.wasp/out/server/src/core/auth/prismaMiddleware.js
 waspComplexTest/.wasp/out/server/src/core/auth/validators.ts
+waspComplexTest/.wasp/out/server/src/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/dbClient.ts
 waspComplexTest/.wasp/out/server/src/dbSeed/types.ts
 waspComplexTest/.wasp/out/server/src/email/core/helpers.ts
@@ -59,11 +60,14 @@ waspComplexTest/.wasp/out/server/src/jobs/core/pgBoss/pgBossJob.js
 waspComplexTest/.wasp/out/server/src/jobs/core/simpleJob.js
 waspComplexTest/.wasp/out/server/src/middleware/globalMiddleware.ts
 waspComplexTest/.wasp/out/server/src/middleware/index.ts
+waspComplexTest/.wasp/out/server/src/middleware/operations.ts
 waspComplexTest/.wasp/out/server/src/queries/MySpecialQuery.ts
 waspComplexTest/.wasp/out/server/src/queries/types.ts
 waspComplexTest/.wasp/out/server/src/routes/apis/index.ts
 waspComplexTest/.wasp/out/server/src/routes/auth/index.js
 waspComplexTest/.wasp/out/server/src/routes/auth/me.js
+waspComplexTest/.wasp/out/server/src/routes/crud/index.ts
+waspComplexTest/.wasp/out/server/src/routes/crud/tasks.ts
 waspComplexTest/.wasp/out/server/src/routes/index.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialAction.js
 waspComplexTest/.wasp/out/server/src/routes/operations/MySpecialQuery.js
@@ -106,6 +110,7 @@ waspComplexTest/.wasp/out/web-app/src/auth/pages/createAuthRequiredPage.jsx
 waspComplexTest/.wasp/out/web-app/src/auth/types.ts
 waspComplexTest/.wasp/out/web-app/src/auth/useAuth.ts
 waspComplexTest/.wasp/out/web-app/src/config.js
+waspComplexTest/.wasp/out/web-app/src/crud/tasks.ts
 waspComplexTest/.wasp/out/web-app/src/entities/index.ts
 waspComplexTest/.wasp/out/web-app/src/ext-src/App.jsx
 waspComplexTest/.wasp/out/web-app/src/ext-src/Main.css

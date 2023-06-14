@@ -28,6 +28,7 @@ waspBuild/.wasp/build/server/src/jobs/core/pgBoss/pgBossJob.js
 waspBuild/.wasp/build/server/src/jobs/core/simpleJob.js
 waspBuild/.wasp/build/server/src/middleware/globalMiddleware.ts
 waspBuild/.wasp/build/server/src/middleware/index.ts
+waspBuild/.wasp/build/server/src/middleware/operations.ts
 waspBuild/.wasp/build/server/src/queries/types.ts
 waspBuild/.wasp/build/server/src/routes/index.js
 waspBuild/.wasp/build/server/src/routes/operations/index.js
