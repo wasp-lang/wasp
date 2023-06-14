@@ -172,7 +172,7 @@ npmDepsForWasp spec =
             ("prisma", show prismaVersion),
             -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
-            ("typescript", "^4.8.4"),
+            ("typescript", "^5.1.0"),
             ("@types/express", "^4.17.13"),
             ("@types/express-serve-static-core", "^4.17.13"),
             ("@types/node", "^18.11.9"),
