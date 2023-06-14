@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import { LoginForm } from '@wasp/auth/forms/Login'
 

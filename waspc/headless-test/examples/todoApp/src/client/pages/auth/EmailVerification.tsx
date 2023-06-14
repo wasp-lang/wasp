@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 
 import { VerifyEmailForm } from '@wasp/auth/forms/VerifyEmail'
 import appearance from './appearance'

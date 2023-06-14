@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from '@wasp/router'
 import { User } from '@wasp/auth/types'
 import api from '@wasp/api'
 
