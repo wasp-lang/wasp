@@ -23,11 +23,19 @@ type Routes =
   {=/ routes =}
 | never
 
-export function Link({ to, params, children }: Routes & { children: React.ReactNode }) {
+type RouterLinkProps = Parameters<typeof RouterLink>[0]
+
+export function Link({ to, params, children, ...restOfProps }: RouterLinkProps & Routes) {
   const toWithParams = useMemo(() => {
-    return Object.keys(params).reduce((acc, key) => acc.replace(`:${key}`, params[key]), to)
+    return to.split('/').map((part) => {
+      if (part.startsWith(':')) {
+        const paramName = part.slice(1)
+        return params[paramName]
+      }
+      return part
+    }).join('/')
   }, [to, params])
-  return <RouterLink to={toWithParams}>{children}</RouterLink>
+  return <RouterLink to={toWithParams} {...restOfProps}>{children}</RouterLink>
 }
 
 const router = (
