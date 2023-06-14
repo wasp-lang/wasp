@@ -24,6 +24,7 @@ interface JSONObject {
 
 type SerializableJSONValue = Symbol | Set<SuperJSONValue> | Map<SuperJSONValue, SuperJSONValue> | undefined | bigint | Date | RegExp;
 
+// Here's where we excluded `ClassInstance` (which was `any`) from the union. 
 type SuperJSONValue = JSONValue | SerializableJSONValue | SuperJSONArray | SuperJSONObject;
 
 interface SuperJSONArray extends Array<SuperJSONValue> {
