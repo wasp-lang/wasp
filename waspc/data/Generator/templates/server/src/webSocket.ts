@@ -22,9 +22,9 @@ export type WebSocketDefinition<
   ( io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>,
     context: {
       entities: {
-        {=# entities =}
+        {=# allEntities =}
         {= name =}: typeof prisma.{= prismaIdentifier =},
-        {=/ entities =}
+        {=/ allEntities =}
       }
     }
   ) => Promise<void> | void
@@ -57,10 +57,10 @@ export async function init(server: http.Server): Promise<void> {
   {=/ isAuthEnabled =}
 
   const context = {
-      entities: {
-      {=# entities =}
+    entities: {
+      {=# allEntities =}
       {= name =}: prisma.{= prismaIdentifier =},
-      {=/ entities =}
+      {=/ allEntities =}
     }
   }
 

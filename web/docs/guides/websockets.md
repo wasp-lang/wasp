@@ -17,7 +17,7 @@ To get started, you need to:
 We will cover all the steps above, but in an order that makes it easier to explain new concepts.
 
 ## Turn on WebSockets in your Wasp file
-We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally specify a list of `entities` for use in your context (like in Operations), as well as changing the auto-connect behavior (on by default).
+We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior (on by default).
 
 ```wasp title=todoApp.wasp
 app todoApp {
@@ -25,7 +25,6 @@ app todoApp {
 
   webSocket: {
     fn: import { webSocketFn } from "@server/webSocket.js",
-    entities: [], // optional
     autoConnect: true, // optional, default: true
   },
 }
@@ -37,7 +36,7 @@ Let's define the server with all of the events and handler functions.
 If you are using TypeScript, you can define event names with the matching payload types on the server and have those types exposed automatically on the client. This allows you avoid making mistakes when emitting events or handling them.
 
 ### Defining the events handler
-On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains your entities (like Operations). You can use this `io` object to register callbacks for all the regular [Socket.IO events](https://socket.io/docs/v4/server-api/). 
+On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function, which contains all entities you defined in your Wasp app. You can use this `io` object to register callbacks for all the regular [Socket.IO events](https://socket.io/docs/v4/server-api/). 
 
 Lastly, if a user is logged in, you will have a `socket.data.user` on the server.
 
@@ -53,6 +52,8 @@ export const webSocketFn: WebSocketFn = (io, context) => {
     socket.on('chatMessage', async (msg) => {
       console.log('message: ', msg)
       io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+      // You can also use your entities here:
+      // await context.entities.SomeEntity.create({ someField: msg })
     })
   })
 }

@@ -55,7 +55,7 @@ genWebSocketTs spec =
           object
             [ "isAuthEnabled" .= isAuthEnabled spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket,
-              "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.App.WS.entities =<< maybeWebSocket)
+              "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
             ]
       )
   where
