@@ -1,9 +1,14 @@
 # Changelog
 
-## v0.10.7
+## v0.11.0
 
 ### Breaking changes
 - Wasp's signup action now saves only the fields relevant to the auth process to the database. This prevents users from injecting arbitrary data into the database.
+
+- Wasp now uses React 18: https://react.dev/blog/2022/03/08/react-18-upgrade-guide
+
+### Bug fixes
+- Wasp now uses TypeScript to ensure all payloads sent to or from operations (queries and actions) are serializable.
 
 ## v0.10.6
 
