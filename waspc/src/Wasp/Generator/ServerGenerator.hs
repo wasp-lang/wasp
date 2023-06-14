@@ -276,6 +276,7 @@ genTypesAndEntitiesDirs spec =
   return
     [ entitiesIndexFileDraft,
       taggedEntitiesFileDraft,
+      serializationFileDraft,
       typesIndexFileDraft
     ]
   where
@@ -289,6 +290,9 @@ genTypesAndEntitiesDirs spec =
         [relfile|src/_types/taggedEntities.ts|]
         [relfile|src/_types/taggedEntities.ts|]
         (Just $ object ["entities" .= allEntities])
+    serializationFileDraft =
+      C.mkSrcTmplFd
+        [relfile|_types/serialization.ts|]
     typesIndexFileDraft =
       C.mkTmplFdWithDstAndData
         [relfile|src/_types/index.ts|]

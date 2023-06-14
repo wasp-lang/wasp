@@ -16,6 +16,7 @@ waspMigrate/.wasp/out/server/package.json
 waspMigrate/.wasp/out/server/scripts/universal/validators.mjs
 waspMigrate/.wasp/out/server/scripts/validate-env.mjs
 waspMigrate/.wasp/out/server/src/_types/index.ts
+waspMigrate/.wasp/out/server/src/_types/serialization.ts
 waspMigrate/.wasp/out/server/src/_types/taggedEntities.ts
 waspMigrate/.wasp/out/server/src/actions/types.ts
 waspMigrate/.wasp/out/server/src/app.js

@@ -12,10 +12,11 @@ import {
   {=# shouldImportAuthenticatedOperation =}
   type AuthenticatedQuery,
   {=/ shouldImportAuthenticatedOperation =}
+  type Payload,
 } from '../_types'
 
 {=# operations =}
-export type {= typeName =}<Input = never, Output = unknown> = 
+export type {= typeName =}<Input extends Payload = never, Output extends Payload = Payload> = 
   {=# usesAuth =}
   AuthenticatedQuery<
   {=/ usesAuth =}
