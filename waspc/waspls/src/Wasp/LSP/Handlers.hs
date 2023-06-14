@@ -149,24 +149,22 @@ diagnoseWaspFile uri = do
 
 analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
-  readAndStoreSourceString >>= \case
-    Nothing -> pure () -- Already logged the error
+  -- NOTE: we have to be careful to keep CST and source string in sync at all
+  -- times for all threads, so we update them both atomically (via one call to
+  -- 'modify').
+  readSourceString >>= \case
+    Nothing -> do
+      logM $ "Couldn't read source from VFS for wasp file " ++ show uri
+      pure ()
     Just srcString -> do
       let (concreteErrorMessages, concreteSyntax) = parseCST $ L.lex srcString
-      modify (cst ?~ concreteSyntax)
+      -- Atomic update of source string and CST
+      modify ((currentWaspSource .~ srcString) . (cst ?~ concreteSyntax))
       if not $ null concreteErrorMessages
         then storeCSTErrors concreteErrorMessages
         else runWaspAnalyzer srcString
   where
-    readAndStoreSourceString =
-      readVFSFile uri >>= \case
-        Nothing -> do
-          logM $ "Couldn't read source from VFS for wasp file " ++ show uri
-          pure Nothing
-        Just srcText -> do
-          let srcString = T.unpack srcText
-          modify (currentWaspSource .~ srcString)
-          return $ Just srcString
+    readSourceString = fmap T.unpack <$> readVFSFile uri
 
     storeCSTErrors concreteErrorMessages = do
       srcString <- handler $ asks (^. currentWaspSource)
