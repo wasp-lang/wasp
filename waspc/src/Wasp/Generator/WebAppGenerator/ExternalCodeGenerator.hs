@@ -15,7 +15,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common
   )
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Util.Path (removePathPrefix)
+import Wasp.Util.FilePath (removePathPrefix)
 
 extClientCodeGeneratorStrategy :: ExternalCodeGeneratorStrategy
 extClientCodeGeneratorStrategy = mkExtCodeGeneratorStrategy extClientCodeDirInWebAppSrcDir

@@ -1,9 +1,10 @@
-module Wasp.Util.Path
+module Wasp.Util.FilePath
   ( removePathPrefix,
   )
 where
 
 import Data.List (isPrefixOf)
+import qualified System.FilePath as FP
 
 removePathPrefix :: FilePath -> FilePath -> Maybe FilePath
 removePathPrefix pathPrefix path =
@@ -15,7 +16,5 @@ removePathPrefix pathPrefix path =
     prefixWithTrailingSlash = ensureTrailingSlash pathPrefix
 
 ensureTrailingSlash :: String -> String
-ensureTrailingSlash path =
-  if last path == '/'
-    then path
-    else path ++ "/"
+ensureTrailingSlash path | FP.hasTrailingPathSeparator path = path
+ensureTrailingSlash path = path ++ [FP.pathSeparator]

@@ -313,7 +313,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.IO
     Wasp.Util.Terminal
-    Wasp.Util.Path
+    Wasp.Util.FilePath
     Wasp.WaspignoreFile
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -502,6 +502,7 @@ test-suite waspc-test
     Util.Control.MonadTest
     UtilTest
     Util.Diff
+    Util.FilePathTest
     SemanticVersionTest
     WaspignoreFileTest
     Paths_waspc
