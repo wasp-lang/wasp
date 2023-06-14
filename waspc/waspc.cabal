@@ -370,8 +370,12 @@ library cli-lib
   exposed-modules:
     Wasp.Cli.Command
     Wasp.Cli.FileSystem
+    Wasp.Cli.Command.AI.CodeAgent
     Wasp.Cli.Command.AI.GenerateNewProject
+    Wasp.Cli.Command.AI.GenerateNewProject.Common
+    Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts
     Wasp.Cli.Command.AI.GenerateNewProject.Plan
+    Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
     Wasp.Cli.Command.AI.New
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build

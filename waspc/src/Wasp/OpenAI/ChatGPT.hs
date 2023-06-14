@@ -53,10 +53,11 @@ data ChatGPTParams = ChatGPTParams
   }
 
 -- TODO: There are some more data models there but for now we went with these core ones.
-data Model = GPT_3_5_turbo | GPT_4
+data Model = GPT_3_5_turbo | GPT_3_5_turbo_16k | GPT_4
 
 instance Show Model where
   show GPT_3_5_turbo = "gpt-3.5-turbo"
+  show GPT_3_5_turbo_16k = "gpt-3.5-turbo-16k"
   show GPT_4 = "gpt-4"
 
 data ChatResponse = ChatResponse

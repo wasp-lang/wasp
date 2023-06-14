@@ -16,6 +16,7 @@ import System.Environment (lookupEnv)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import qualified Wasp.Cli.Command.AI.CodeAgent as CA
 import qualified Wasp.Cli.Command.AI.GenerateNewProject as GNP
+import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import qualified Wasp.Cli.Command.CreateNewProject as CNP
 
 new :: Command ()
@@ -45,10 +46,10 @@ new = do
           }
 
   let newProjectDetails =
-        GNP.NewProjectDetails
-          { GNP._projectAppName = webAppName,
-            GNP._projectDescription = webAppDescription,
-            GNP._projectAuth = GNP.UsernameAndPassword
+        NewProjectDetails
+          { _projectAppName = webAppName,
+            _projectDescription = webAppDescription,
+            _projectAuth = UsernameAndPassword
           }
 
   liftIO $
