@@ -5,7 +5,6 @@ module Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   )
 where
 
-import Data.List (isPrefixOf)
 import Data.Maybe (fromJust)
 import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
@@ -16,6 +15,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common
   )
 import Wasp.Generator.ExternalCodeGenerator.Js (resolveJsFileWaspImportsForExtCodeDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Util.Path (removePathPrefix)
 
 extClientCodeGeneratorStrategy :: ExternalCodeGeneratorStrategy
 extClientCodeGeneratorStrategy = mkExtCodeGeneratorStrategy extClientCodeDirInWebAppSrcDir
@@ -41,17 +41,17 @@ mkExtCodeGeneratorStrategy extCodeDirInWebAppSrcDir =
     }
   where
     resolveDstFilePath filePath =
-      if isInStaticAssetsDir filePath
-        then
+      case maybeFilePathInStaticAssetsDir of
+        Just filePathInStaticAssetsDir ->
           C.webAppRootDirInProjectRootDir
             </> C.staticAssetsDirInWebAppDir
-            </> removeStaticAssetsDirPrefix filePath
-        else
+            </> fromJust (SP.parseRelFile filePathInStaticAssetsDir)
+        Nothing ->
           C.webAppRootDirInProjectRootDir
             </> C.webAppSrcDirInWebAppRootDir
             </> extCodeDirInWebAppSrcDir
             </> castRelPathFromSrcToGenExtCodeDir filePath
+      where
+        maybeFilePathInStaticAssetsDir = removePathPrefix staticAssetsDir (SP.fromRelFile filePath)
 
-    isInStaticAssetsDir filePath = staticAssetsDir `isPrefixOf` SP.fromRelFile filePath
-    removeStaticAssetsDirPrefix filePath = fromJust $ SP.parseRelFile $ drop (length staticAssetsDir) $ SP.fromRelFile filePath
     staticAssetsDir = SP.fromRelDir C.staticAssetsDirInWebAppDir

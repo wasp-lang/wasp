@@ -42,7 +42,6 @@ import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
-import Wasp.Project.WebApp (StaticAssetsDir)
 
 -- | AppSpec is the main/central intermediate representation (IR) of the whole Wasp compiler,
 -- describing the web app specification with all the details needed to generate it.
