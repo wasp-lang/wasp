@@ -53,6 +53,15 @@ data-files:
   Cli/templates/basic/.wasproot
   Cli/templates/basic/src/.waspignore
   Cli/templates/basic/main.wasp
+  -- TODO(before merge): how does this interact with tools/make_binary_package.sh?
+  -- TODO(before merge): document somewhere that you should add this here for
+  -- new packages
+  packages/deploy/dist/**/*.js
+  packages/deploy/package.json
+  packages/deploy/package-lock.json
+  packages/ts-inspect/dist/**/*.js
+  packages/ts-inspect/package.json
+  packages/ts-inspect/package-lock.json
 data-dir: data/
 
 source-repository head
@@ -329,9 +338,11 @@ library waspls
     Wasp.LSP.ServerState
     Wasp.LSP.ServerConfig
     Wasp.LSP.ServerM
+    Wasp.LSP.ExtImport
     Wasp.LSP.Handlers
     Wasp.LSP.Diagnostic
     Wasp.LSP.Completion
+    Wasp.LSP.Reactor
     Wasp.LSP.Util
     Wasp.LSP.Syntax
   build-depends:
@@ -344,6 +355,12 @@ library waspls
     , lens ^>=5.1
     , lsp ^>=1.4.0.0
     , lsp-types ^>=1.4.0.1
+    , stm ^>=2.5.1.0
+    , unordered-containers
+    , strong-path
+    , path
+    , async ^>=2.2.4
+    , unliftio-core
     , mtl
     , text
     , transformers ^>=0.5.6.2

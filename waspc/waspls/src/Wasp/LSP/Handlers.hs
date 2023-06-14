@@ -1,5 +1,8 @@
+{-# LANGUAGE DataKinds #-}
+
 module Wasp.LSP.Handlers
   ( initializedHandler,
+    shutdownHandler,
     didOpenHandler,
     didChangeHandler,
     didSaveHandler,
@@ -7,7 +10,14 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Lens ((.~), (?~), (^.))
+import Control.Lens ((.=), (.~), (?~), (^.))
+import Control.Monad (forM_, (<=<))
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Log.Class (logM)
+import Control.Monad.Reader (MonadReader (ask), ReaderT (runReaderT))
+import Control.Monad.State.Class (get)
+import Data.List (stripPrefix)
+import Data.Maybe (mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers)
@@ -15,13 +25,17 @@ import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
 import Language.LSP.VFS (virtualFileText)
+import qualified StrongPath as SP
 import Wasp.Analyzer (analyze)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), gets, liftLSP, modify, throwError)
+import Wasp.LSP.ExtImport (refreshExportsForFile)
+import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
+import Wasp.LSP.ServerM (ReaderM (unReaderM), ServerError (..), ServerM, Severity (..), gets, liftLSP, modify, runReaderM, sendReactorInput, throwError)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
+import qualified Wasp.LSP.ServerState as State
 
 -- LSP notification and request handlers
 
@@ -32,13 +46,60 @@ import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 -- The client starts the LSP at its own discretion, but commonly this is done
 -- either when:
 --
--- - A file of the associated language is opened (in this case `.wasp`)
+-- - A file of the associated language is opened (in this case `.wasp`).
 -- - A workspace is opened that has a project structure associated with the
 --   language (in this case, a `main.wasp` file in the root folder of the
---   workspace)
+--   workspace).
 initializedHandler :: Handlers ServerM
-initializedHandler =
-  LSP.notificationHandler LSP.SInitialized $ const (return ())
+initializedHandler = do
+  LSP.notificationHandler LSP.SInitialized $ \_params -> do
+    state <- get
+    -- Register workspace watcher for src/ directory. This is used for checking
+    -- TS export lists.
+    --
+    -- This can fail if the client doesn't support dynamic registration for this:
+    -- in that case, we can't provide some features. See "Wasp.LSP.ExtImport" for
+    -- what features require this watcher.
+    watchSourceFilesToken <-
+      liftLSP . flip runReaderT state . unReaderM $
+        LSP.registerCapability
+          LSP.SWorkspaceDidChangeWatchedFiles
+          LSP.DidChangeWatchedFilesRegistrationOptions
+            { _watchers =
+                LSP.List
+                  [LSP.FileSystemWatcher {_globPattern = "**/*.{ts,tsx,js,jsx}", _kind = Nothing}]
+            }
+          watchSourceFilesHandler
+    case watchSourceFilesToken of
+      Nothing -> logM "[initializedHandler] Client did not accept WorkspaceDidChangeWatchedFiles registration"
+      Just _ -> logM "[initializedHandler] WorkspaceDidChangeWatchedFiles registered for JS/TS source files"
+    State.regTokens . State.watchSourceFilesToken .= watchSourceFilesToken
+
+-- | Ran when files in src/ change. It refreshes the relevant export lists in
+-- the cache and updates missing import diagnostics.
+--
+-- Both of these tasks are ran in the reactor thread so that other requests
+-- can still be answered.
+--
+-- TODO(before merge): update missing import diagnostics in the same reactor action
+watchSourceFilesHandler :: LSP.Handler ReaderM 'LSP.WorkspaceDidChangeWatchedFiles
+watchSourceFilesHandler msg = do
+  let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
+  logM $ "[didChangeWatchedFilesHandler] Received file changes: " ++ show uris
+  let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
+  forM_ fileUris $ \file -> do
+    state <- ask
+    env <- LSP.getLspEnv
+    sendReactorInput $ ReactorAction $ runReaderM (refreshExportsForFile file) env state
+
+-- | Sent by the client when the client is going to shutdown the server, this
+-- is where we do any clean up that needs to be done. This cleanup is:
+-- - Stopping the reactor thread
+shutdownHandler :: IO () -> Handlers ServerM
+shutdownHandler stopReactor = LSP.requestHandler LSP.SShutdown $ \_ resp -> do
+  logM "Received shutdown request"
+  liftIO stopReactor
+  resp $ Right LSP.Empty
 
 -- | "TextDocumentDidOpen" is sent by the client when a new document is opened.
 -- `diagnoseWaspFile` is run to analyze the newly opened document.
@@ -71,6 +132,11 @@ completionHandler =
 -- It analyzes the document contents and sends any error messages back to the
 -- LSP client. In the future, it will also store information about the analyzed
 -- file in "Wasp.LSP.State.State".
+--
+-- TODO(before merge): also send missing import diagnostics AND refresh exports
+-- and missing import diagnostics for all source files pointed to be ExtImport
+-- nodes in the file. Not sure if this belongs here or in analyze? Or a mix?
+-- Or somewhere new?
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri

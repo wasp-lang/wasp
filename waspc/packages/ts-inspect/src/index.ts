@@ -33,4 +33,4 @@ async function main() {
   console.log(JSON.stringify(exports));
 }
 
-main().catch((err) => console.error(err));
+main().catch((err) => { console.error(err); process.exit(1); });

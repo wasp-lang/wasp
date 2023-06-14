@@ -7,24 +7,33 @@ module Wasp.LSP.Server
   )
 where
 
-import qualified Control.Concurrent.MVar as MVar
+import Control.Concurrent (MVar, forkIO, modifyMVar, newEmptyMVar, newMVar, readMVar, tryPutMVar)
+import Control.Concurrent.Async (async, waitAnyCancel)
+import Control.Concurrent.STM (newTChanIO, newTVarIO)
+import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
+import qualified Data.HashMap.Strict as M
 import qualified Data.Text as Text
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import qualified System.Log.Logger
 import Wasp.LSP.Handlers
+import Wasp.LSP.Reactor (reactor)
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), runServerM)
-import Wasp.LSP.ServerState (ServerState)
+import Wasp.LSP.ServerState
+  ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
+    ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics, _reactorIn, _regTokens, _tsExports),
+  )
 
-lspServerHandlers :: LSP.Handlers ServerM
-lspServerHandlers =
+lspServerHandlers :: IO () -> LSP.Handlers ServerM
+lspServerHandlers stopReactor =
   mconcat
     [ initializedHandler,
+      shutdownHandler stopReactor,
       didOpenHandler,
       didSaveHandler,
       didChangeHandler,
@@ -35,8 +44,21 @@ serve :: Maybe FilePath -> IO ()
 serve maybeLogFile = do
   setupLspLogger maybeLogFile
 
-  let defaultServerState = def :: ServerState
-  state <- MVar.newMVar defaultServerState
+  reactorLifetime <- newEmptyMVar
+  let stopReactor = void $ tryPutMVar reactorLifetime ()
+  reactorIn <- newTChanIO
+
+  tsExportsTVar <- newTVarIO M.empty
+  let defaultServerState =
+        ServerState
+          { _currentWaspSource = "",
+            _latestDiagnostics = [],
+            _cst = Nothing,
+            _tsExports = tsExportsTVar,
+            _regTokens = RegTokens {_watchSourceFilesToken = Nothing},
+            _reactorIn = reactorIn
+          }
+  state <- newMVar defaultServerState
 
   let lspServerInterpretHandler env =
         LSP.Iso {forward = runHandler, backward = liftIO}
@@ -45,7 +67,7 @@ serve maybeLogFile = do
           runHandler handler =
             -- Get the state from the "MVar", run the handler in IO and update
             -- the "MVar" state with the end state of the handler.
-            MVar.modifyMVar state \oldState -> LSP.runLspT env $ do
+            modifyMVar state \oldState -> LSP.runLspT env $ do
               (e, newState) <- runServerM oldState handler
               result <- case e of
                 Left (ServerError severity errMessage) -> sendErrorMessage severity errMessage
@@ -53,13 +75,24 @@ serve maybeLogFile = do
 
               return (newState, result)
 
+  -- Spawn the reactor thread and run it until it is signaled to stop via
+  -- 'reactorLifetime'.
+  --
+  -- The reactor thread exists to off load time-intensive work to another thread
+  -- so that the language server can continue to respond to other requests
+  -- while that work is being done. An example of this is refreshing JS/TS
+  -- exports: see "Wasp.LSP.ExtImport".
+  --
+  -- TODO(before merge): what happens if 'reactor' returns an error?
+  _ <- forkIO $ runUntilMVarIsFull reactorLifetime $ reactor reactorIn
+
   exitCode <-
     LSP.runServer
       LSP.ServerDefinition
         { defaultConfig = def :: ServerConfig,
           onConfigurationChange = lspServerUpdateConfig,
           doInitialize = lspServerDoInitialize,
-          staticHandlers = lspServerHandlers,
+          staticHandlers = lspServerHandlers stopReactor,
           interpretHandler = lspServerInterpretHandler,
           options = lspServerOptions
         }
@@ -143,3 +176,7 @@ sendErrorMessage severity errMessage = do
   LSP.sendNotification LSP.SWindowShowMessage $
     LSP.ShowMessageParams {_xtype = messageType, _message = errMessage}
   liftIO (fail (Text.unpack errMessage))
+
+runUntilMVarIsFull :: MVar () -> IO () -> IO ()
+runUntilMVarIsFull lifetime act =
+  void $ waitAnyCancel =<< traverse async [act, readMVar lifetime]

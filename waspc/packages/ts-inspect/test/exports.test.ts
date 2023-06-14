@@ -14,6 +14,8 @@ const testFiles = {
   addFile: testFile('add.ts'),
   complexFile: testFile('complex.ts'),
   dictExportFile: testFile('dict_export.ts'),
+
+  emptyTsconfig: testFile('tsconfig.json'),
 };
 
 describe('exports.ts', () => {
@@ -48,5 +50,11 @@ describe('exports.ts', () => {
         { type: 'named', name: 'sub' },
       ],
     });
-  })
+  });
+
+  test('empty ts file works with empty tsconfig', async () => {
+    expect(await getExportsOfFiles([testFiles.emptyFile], testFiles.emptyTsconfig)).toEqual({
+      [testFiles.emptyFile]: []
+    });
+  });
 });

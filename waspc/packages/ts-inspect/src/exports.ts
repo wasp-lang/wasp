@@ -1,7 +1,7 @@
 import ts from 'typescript';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as JSON5 from 'json5';
+import JSON5 from 'json5';
 
 export type Export
   = { type: 'default' } & Location

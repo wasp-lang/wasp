@@ -7,10 +7,10 @@ module Wasp.Package
   )
 where
 
-import Control.Monad.Extra (unlessM, void)
+import Control.Monad.Extra (unlessM)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import System.Directory (doesDirectoryExist)
-import System.Exit (exitFailure)
+import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
@@ -68,7 +68,13 @@ ensurePackageDependenciesAreInstalled :: Path' Abs (Dir PackageDir) -> IO ()
 ensurePackageDependenciesAreInstalled packageDir =
   unlessM nodeModulesDirExists $ do
     let npmInstallCreateProcess = packageProc packageDir "npm" ["install"]
-    void $ P.readCreateProcess npmInstallCreateProcess ""
+    (exitCode, _out, err) <- P.readCreateProcessWithExitCode npmInstallCreateProcess ""
+    case exitCode of
+      ExitFailure _ -> do
+        -- Exit if node_modules fails to install
+        hPutStrLn stderr $ "Failed to install NPM dependencies for package. Please report this issue: " ++ err
+        exitFailure
+      ExitSuccess -> pure ()
   where
     nodeModulesDirExists = doesDirectoryExist $ fromAbsDir nodeModulesDir
     nodeModulesDir = packageDir </> [reldir|node_modules|]
