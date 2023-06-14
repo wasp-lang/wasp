@@ -681,7 +681,7 @@ return context.entities.Task.create({ data: args.data })
 ```
 
 :::info
-In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, as the client can send data that the user is not allowed to change. In the future, we are planning to add validation of action input, where only the data that the user is allowed to change will be saved.
+In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity. In the future, we are planning to add validation of action input, where only the data that the user is allowed to change will be saved. For now, solution is to provide override function.
 
 You can override the default implementation by using the `overrideFn` option and implementing the validation logic yourself.
 :::
