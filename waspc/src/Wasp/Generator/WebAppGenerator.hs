@@ -138,7 +138,7 @@ npmDepsForWasp spec =
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("vite", "^4.3.9"),
-            ("typescript", "^5.1.0"), -- Once upgraded to Typescript 5, consider using moduleResolution: 'bundler' in tsconfig.node.json, since that is what Vite now by default uses (we have it set to 'Node' right now because 'bundler' requires TS >= 5). Also, upgrade @tsconfig/vite-react to 2.0.0 (couldn't do it now because it also uses 'bundler').
+            ("typescript", "^5.1.0"),
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
