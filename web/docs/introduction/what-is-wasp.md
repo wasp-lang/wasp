@@ -56,7 +56,7 @@ Let's give our app a title and let's immediatelly turn on the full-stack authent
 ```wasp title="main.wasp"
 app RecipeApp {
   title: "My Recipes",
-  wasp: { version: "^0.10.0" },
+  wasp: { version: "^0.11.0" },
   auth: {
     methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",
