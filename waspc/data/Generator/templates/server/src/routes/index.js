@@ -8,6 +8,9 @@ import auth from './auth/index.js'
 {=# areThereAnyCustomApiRoutes =}
 import apis from './apis/index.js'
 {=/ areThereAnyCustomApiRoutes =}
+{=# areThereAnyCrudRoutes =}
+import { rootCrudRouter } from './crud/index.js'
+{=/ areThereAnyCrudRoutes =}
 
 
 const router = express.Router()
@@ -21,6 +24,9 @@ router.get('/', middleware, function (_req, res, _next) {
 router.use('/auth', middleware, auth)
 {=/ isAuthEnabled =}
 router.use('/{= operationsRouteInRootRouter =}', middleware, operations)
+{=# areThereAnyCrudRoutes =}
+router.use('/', middleware, rootCrudRouter)
+{=/ areThereAnyCrudRoutes =}
 {=# areThereAnyCustomApiRoutes =}
 // NOTE: Keep user-defined api routes last so they cannot override our routes.
 // Additionally, do not add middleware to these routes here. Instead, we add

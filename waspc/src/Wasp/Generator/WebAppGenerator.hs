@@ -35,10 +35,10 @@ import qualified Wasp.Generator.ConfigFile as G.CF
 import Wasp.Generator.ExternalCodeGenerator (genExternalCodeDir)
 import Wasp.Generator.FileDraft
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.Node.Version as NodeVersion
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
+import Wasp.Generator.WebAppGenerator.CrudG (genCrud)
 import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
   ( extClientCodeGeneratorStrategy,
     extSharedCodeGeneratorStrategy,
@@ -46,6 +46,7 @@ import Wasp.Generator.WebAppGenerator.ExternalCodeGenerator
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.OperationsGenerator (genOperations)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
+import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
@@ -72,6 +73,7 @@ genWebApp spec = do
     <++> genDotEnv spec
     <++> genUniversalDir
     <++> genEnvValidationScript
+    <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -136,7 +138,7 @@ npmDepsForWasp spec =
           [ -- TODO: Allow users to choose whether they want to use TypeScript
             -- in their projects and install these dependencies accordingly.
             ("vite", "^4.3.9"),
-            ("typescript", "^4.9.3"), -- Once upgraded to Typescript 5, consider using moduleResolution: 'bundler' in tsconfig.node.json, since that is what Vite now by default uses (we have it set to 'Node' right now because 'bundler' requires TS >= 5). Also, upgrade @tsconfig/vite-react to 2.0.0 (couldn't do it now because it also uses 'bundler').
+            ("typescript", "^5.1.0"), -- Once upgraded to Typescript 5, consider using moduleResolution: 'bundler' in tsconfig.node.json, since that is what Vite now by default uses (we have it set to 'Node' right now because 'bundler' requires TS >= 5). Also, upgrade @tsconfig/vite-react to 2.0.0 (couldn't do it now because it also uses 'bundler').
             ("@types/react", "^18.0.37"),
             ("@types/react-dom", "^18.0.11"),
             ("@types/react-router-dom", "^5.3.3"),
@@ -144,7 +146,7 @@ npmDepsForWasp spec =
             ("dotenv", "^16.0.3"),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^1.0.1")
+            ("@tsconfig/vite-react", "^2.0.0")
           ]
           ++ depsRequiredForTesting
     }
@@ -218,15 +220,15 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|config.js|],
-      copyTmplFile [relfile|queryClient.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|types.ts|],
-      copyTmplFile [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|logo.png|],
+      genFileCopy [relfile|config.js|],
+      genFileCopy [relfile|queryClient.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|types.ts|],
+      genFileCopy [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      copyTmplFile [relfile|api.ts|],
-      copyTmplFile [relfile|storage.ts|],
+      genFileCopy [relfile|api.ts|],
+      genFileCopy [relfile|storage.ts|],
       genRouter spec,
       genIndexJs spec
     ]
@@ -234,7 +236,7 @@ genSrcDir spec =
     <++> genEntitiesDir spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genEntitiesDir :: AppSpec -> Generator [FileDraft]
 genEntitiesDir spec = return [entitiesIndexFileDraft]

@@ -26,7 +26,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
-    "@tsconfig/vite-react": "^1.0.1",
+    "@tsconfig/vite-react": "^2.0.0",
     "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
     "@types/react-router-dom": "^5.3.3",
@@ -35,7 +35,7 @@
     "dotenv": "^16.0.3",
     "jsdom": "^21.1.1",
     "msw": "^1.1.0",
-    "typescript": "^4.9.3",
+    "typescript": "^5.1.0",
     "vite": "^4.3.9",
     "vitest": "^0.29.3"
   },

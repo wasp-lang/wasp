@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "869cb68457c7061bdf0cfa70e09bc8a599e2cb00d395b6b23c422cf7d092a845"
+        "8c85fddc411bb05761693a87b977ba0bb18acfbe98b89c0b2b84ff292c7a19b1"
     ],
     [
         [
@@ -81,7 +81,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "30830d67c50d4d3f00613e9f106d824c4243a7fd649d3c6449781e10616b09e3"
+        "92ca558b9094ad037a1e3d76e19280f76e0db6503d6393afe3b09dc21b5ea49d"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
     ],
     [
         [
@@ -95,7 +102,7 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "2b2dba0828a9283901ed7132f5c51c119acef4fff739736e50c02b0f09b192db"
+        "a994ed1f89011c04014deb57a2c26d09c216491caac9269380a7c14d1718b313"
     ],
     [
         [
@@ -205,9 +212,16 @@
     [
         [
             "file",
+            "server/src/middleware/operations.ts"
+        ],
+        "864c7492c27f6da1e67645fbc358dc803a168852bfd24f2c4dd13fccf6917b07"
+    ],
+    [
+        [
+            "file",
             "server/src/queries/types.ts"
         ],
-        "c7090ed370d3ae047b4219f5f2ed8ada929cda42229c5a74a5bf578de5f9ceea"
+        "276f022c04936bfe75d593fe8426a0aaf43a0e9c085042ad1b6560ad23041031"
     ],
     [
         [
@@ -312,7 +326,7 @@
             "file",
             "web-app/package.json"
         ],
-        "dced85ed22449bbf2da98f6081cf2519da0fc3c4751fd3af8b62a28950f0c48e"
+        "b1330a9f828c982ec55eefd43d8d6a4708b576a33d9c1124ffd82e57cfbe659c"
     ],
     [
         [
