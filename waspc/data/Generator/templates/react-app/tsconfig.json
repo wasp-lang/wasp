@@ -4,7 +4,8 @@
     // Temporary loosen the type checking until we can address all the errors.
     "jsx": "preserve",
     "allowJs": true,
-    "strict": false
+    "strict": false,
+    "allowImportingTsExtensions": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
