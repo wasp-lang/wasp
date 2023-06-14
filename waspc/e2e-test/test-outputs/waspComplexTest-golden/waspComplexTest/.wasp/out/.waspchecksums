@@ -641,63 +641,63 @@
             "file",
             "web-app/src/auth/forms/Auth.tsx"
         ],
-        "9f8dde92a52f2b89c2ba1d32ac6025f0d010fa5650b858adba0707760e3b4ba6"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ForgotPassword.tsx"
-        ],
-        "39eda745fc19798d235cbecf7e755ab1050187d99775dfb06304b06804e5c7fc"
+        "9e342bdf8c17d9c36f042b272cf7d5e432bb27adc10ba218b206ca54638f6b4e"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Login.tsx"
         ],
-        "788a896a5717cd6e082db23cd5e1f4f46816253e24d6bbe60b2d64fb5a208d3c"
-    ],
-    [
-        [
-            "file",
-            "web-app/src/auth/forms/ResetPassword.tsx"
-        ],
-        "be24461d42102d53c028713146054029950137e79e27906a166a16cf9dd64add"
+        "17f42b2faa70876fb680de43ef33b5caa6c310c254af07358e21bc710f9214a9"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/Signup.tsx"
         ],
-        "bea6a9756a546820ccd240aabfa3db3d14faf655f7681c7b9ca0791677556c3a"
+        "cacd5348e84d42bc142f6c6e00051a8e86f6b17eb037b2772772f073925bf570"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialButton.tsx"
+            "web-app/src/auth/forms/internal/Form.tsx"
         ],
-        "fb14b39e617bf0cb7eec96428fd2882c2fbcda8bebd453ed00866b3203420043"
+        "ce6b409fda73d88e762b27aef7038618961e61e6ef8e5f66912325ab88a8223e"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/SocialIcons.tsx"
+            "web-app/src/auth/forms/internal/Message.tsx"
         ],
-        "18ce4ed1aec9fb0e71d4ce8376d5c42fcec1008d9b16d92dd18d51f34ee189a6"
+        "01f10e2499dfd2b88f6a3a9109153f121fad59614acfc7346f40fc51df96bdaf"
     ],
     [
         [
             "file",
-            "web-app/src/auth/forms/VerifyEmail.tsx"
+            "web-app/src/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "2cb996958b1332f383af1265a9fa7dd30d71aaef371cd2ac471f9feb44158568"
+        "c92bab325f51159c3d1bb285c7e807acbb85069c5b16afc3a35fbd0121c91b6a"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialButton.tsx"
+        ],
+        "4ece421ad263727e914e26042f262b7abc3dcc52a9bad83d6476e1eb76c70a67"
+    ],
+    [
+        [
+            "file",
+            "web-app/src/auth/forms/internal/social/SocialIcons.tsx"
+        ],
+        "bd52b9c07dfdd1e061e68c80b7a29ecfce5bd340a8da1b9163edbbf67a649354"
     ],
     [
         [
             "file",
             "web-app/src/auth/forms/types.ts"
         ],
-        "601917a95f8218f9db51148bf852a21925ea9806729fe9f8a65a96f84e8ba22f"
+        "c4066fbd39ec20a3d43be9f9d5762d555dbc006057579ac168a67b2678918a13"
     ],
     [
         [
@@ -716,9 +716,9 @@
     [
         [
             "file",
-            "web-app/src/auth/logout.js"
+            "web-app/src/auth/logout.ts"
         ],
-        "51997d8a52c4253e83b5308672c867dbbe9d4e3680fc4e8e5939db28f0a5b70d"
+        "6717411aa38e54aa74a5034628510ee3ca0f2ea9d1692644ee4886c74d8657af"
     ],
     [
         [

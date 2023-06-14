@@ -281,6 +281,7 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.AuthG
+    Wasp.Generator.WebAppGenerator.Auth.AuthFormsG
     Wasp.Generator.WebAppGenerator.Auth.OAuthAuthG
     Wasp.Generator.WebAppGenerator.Auth.LocalAuthG
     Wasp.Generator.WebAppGenerator.Auth.EmailAuthG

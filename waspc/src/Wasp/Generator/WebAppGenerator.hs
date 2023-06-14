@@ -220,15 +220,15 @@ genIndexHtml spec =
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
-    [ copyTmplFile [relfile|logo.png|],
-      copyTmplFile [relfile|config.js|],
-      copyTmplFile [relfile|queryClient.js|],
-      copyTmplFile [relfile|utils.js|],
-      copyTmplFile [relfile|types.ts|],
-      copyTmplFile [relfile|vite-env.d.ts|],
+    [ genFileCopy [relfile|logo.png|],
+      genFileCopy [relfile|config.js|],
+      genFileCopy [relfile|queryClient.js|],
+      genFileCopy [relfile|utils.js|],
+      genFileCopy [relfile|types.ts|],
+      genFileCopy [relfile|vite-env.d.ts|],
       -- Generates api.js file which contains token management and configured api (e.g. axios) instance.
-      copyTmplFile [relfile|api.ts|],
-      copyTmplFile [relfile|storage.ts|],
+      genFileCopy [relfile|api.ts|],
+      genFileCopy [relfile|storage.ts|],
       genRouter spec,
       genIndexJs spec
     ]
@@ -236,7 +236,7 @@ genSrcDir spec =
     <++> genEntitiesDir spec
     <++> genAuth spec
   where
-    copyTmplFile = return . C.mkSrcTmplFd
+    genFileCopy = return . C.mkSrcTmplFd
 
 genEntitiesDir :: AppSpec -> Generator [FileDraft]
 genEntitiesDir spec = return [entitiesIndexFileDraft]
