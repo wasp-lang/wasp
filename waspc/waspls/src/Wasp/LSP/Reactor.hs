@@ -4,9 +4,8 @@ module Wasp.LSP.Reactor
   )
 where
 
-import Control.Concurrent.STM.TChan (TChan, readTChan)
+import Control.Concurrent.STM (TChan, atomically, readTChan)
 import Control.Monad (forever)
-import Control.Monad.STM (atomically)
 
 newtype ReactorInput = ReactorAction (IO ())
 

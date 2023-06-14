@@ -10,12 +10,12 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Lens ((.=), (.~), (?~), (^.))
+import Control.Concurrent.STM (atomically, readTVar, writeTChan)
+import Control.Lens ((.~), (?~), (^.))
 import Control.Monad (forM_, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
-import Control.Monad.Reader (MonadReader (ask), ReaderT (runReaderT))
-import Control.Monad.State.Class (get)
+import Control.Monad.Reader (MonadReader (ask), asks)
 import Data.List (stripPrefix)
 import Data.Maybe (mapMaybe)
 import Data.Text (Text)
@@ -24,7 +24,7 @@ import Language.LSP.Server (Handlers)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import qualified Language.LSP.Types.Lens as LSP
-import Language.LSP.VFS (virtualFileText)
+import qualified Language.LSP.VFS as LSP
 import qualified StrongPath as SP
 import Wasp.Analyzer (analyze)
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
@@ -33,7 +33,7 @@ import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (concreteParseErrorToDiagnostic, waspErrorToDiagnostic)
 import Wasp.LSP.ExtImport (refreshExportsForFile)
 import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
-import Wasp.LSP.ServerM (ReaderM (unReaderM), ServerError (..), ServerM, Severity (..), gets, liftLSP, modify, runReaderM, sendReactorInput, throwError)
+import Wasp.LSP.ServerM (ServerM, handler, modify, runRLspM)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
 
@@ -53,7 +53,6 @@ import qualified Wasp.LSP.ServerState as State
 initializedHandler :: Handlers ServerM
 initializedHandler = do
   LSP.notificationHandler LSP.SInitialized $ \_params -> do
-    state <- get
     -- Register workspace watcher for src/ directory. This is used for checking
     -- TS export lists.
     --
@@ -61,19 +60,18 @@ initializedHandler = do
     -- in that case, we can't provide some features. See "Wasp.LSP.ExtImport" for
     -- what features require this watcher.
     watchSourceFilesToken <-
-      liftLSP . flip runReaderT state . unReaderM $
-        LSP.registerCapability
-          LSP.SWorkspaceDidChangeWatchedFiles
-          LSP.DidChangeWatchedFilesRegistrationOptions
-            { _watchers =
-                LSP.List
-                  [LSP.FileSystemWatcher {_globPattern = "**/*.{ts,tsx,js,jsx}", _kind = Nothing}]
-            }
-          watchSourceFilesHandler
+      LSP.registerCapability
+        LSP.SWorkspaceDidChangeWatchedFiles
+        LSP.DidChangeWatchedFilesRegistrationOptions
+          { _watchers =
+              LSP.List
+                [LSP.FileSystemWatcher {_globPattern = "**/*.{ts,tsx,js,jsx}", _kind = Nothing}]
+          }
+        watchSourceFilesHandler
     case watchSourceFilesToken of
       Nothing -> logM "[initializedHandler] Client did not accept WorkspaceDidChangeWatchedFiles registration"
       Just _ -> logM "[initializedHandler] WorkspaceDidChangeWatchedFiles registered for JS/TS source files"
-    State.regTokens . State.watchSourceFilesToken .= watchSourceFilesToken
+    modify (State.regTokens . State.watchSourceFilesToken .~ watchSourceFilesToken)
 
 -- | Ran when files in src/ change. It refreshes the relevant export lists in
 -- the cache and updates missing import diagnostics.
@@ -82,15 +80,19 @@ initializedHandler = do
 -- can still be answered.
 --
 -- TODO(before merge): update missing import diagnostics in the same reactor action
-watchSourceFilesHandler :: LSP.Handler ReaderM 'LSP.WorkspaceDidChangeWatchedFiles
+watchSourceFilesHandler :: LSP.Handler ServerM 'LSP.WorkspaceDidChangeWatchedFiles
 watchSourceFilesHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
   logM $ "[didChangeWatchedFilesHandler] Received file changes: " ++ show uris
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
   forM_ fileUris $ \file -> do
-    state <- ask
+    stateTVar <- ask
     env <- LSP.getLspEnv
-    sendReactorInput $ ReactorAction $ runReaderM (refreshExportsForFile file) env state
+    let inp = ReactorAction $ LSP.runLspT env $ runRLspM stateTVar (refreshExportsForFile file)
+    liftIO $
+      atomically $ do
+        state <- readTVar stateTVar
+        writeTChan (state ^. State.reactorIn) inp
 
 -- | Sent by the client when the client is going to shutdown the server, this
 -- is where we do any clean up that needs to be done. This cleanup is:
@@ -123,7 +125,7 @@ didSaveHandler =
 completionHandler :: Handlers ServerM
 completionHandler =
   LSP.requestHandler LSP.STextDocumentCompletion $ \request respond -> do
-    completions <- getCompletionsAtPosition $ request ^. LSP.params . LSP.position
+    completions <- handler $ getCompletionsAtPosition $ request ^. LSP.params . LSP.position
     respond $ Right $ LSP.InL $ LSP.List completions
 
 -- | Does not directly handle a notification or event, but should be run when
@@ -140,27 +142,34 @@ completionHandler =
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri
-  currentDiagnostics <- gets (^. latestDiagnostics)
-  liftLSP $
-    LSP.sendNotification LSP.STextDocumentPublishDiagnostics $
-      LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
+  currentDiagnostics <- handler $ asks (^. latestDiagnostics)
+  LSP.sendNotification
+    LSP.STextDocumentPublishDiagnostics
+    $ LSP.PublishDiagnosticsParams uri Nothing (LSP.List currentDiagnostics)
 
 analyzeWaspFile :: LSP.Uri -> ServerM ()
 analyzeWaspFile uri = do
-  srcString <- readAndStoreSourceString
-  let (concreteErrorMessages, concreteSyntax) = parseCST $ L.lex srcString
-  modify (cst ?~ concreteSyntax)
-  if not $ null concreteErrorMessages
-    then storeCSTErrors concreteErrorMessages
-    else runWaspAnalyzer srcString
+  readAndStoreSourceString >>= \case
+    Nothing -> pure () -- Already logged the error
+    Just srcString -> do
+      let (concreteErrorMessages, concreteSyntax) = parseCST $ L.lex srcString
+      modify (cst ?~ concreteSyntax)
+      if not $ null concreteErrorMessages
+        then storeCSTErrors concreteErrorMessages
+        else runWaspAnalyzer srcString
   where
-    readAndStoreSourceString = do
-      srcString <- T.unpack <$> readVFSFile uri
-      modify (currentWaspSource .~ srcString)
-      return srcString
+    readAndStoreSourceString =
+      readVFSFile uri >>= \case
+        Nothing -> do
+          logM $ "Couldn't read source from VFS for wasp file " ++ show uri
+          pure Nothing
+        Just srcText -> do
+          let srcString = T.unpack srcText
+          modify (currentWaspSource .~ srcString)
+          return $ Just srcString
 
     storeCSTErrors concreteErrorMessages = do
-      srcString <- gets (^. currentWaspSource)
+      srcString <- handler $ asks (^. currentWaspSource)
       newDiagnostics <- mapM (concreteParseErrorToDiagnostic srcString) concreteErrorMessages
       modify (latestDiagnostics .~ newDiagnostics)
 
@@ -177,12 +186,8 @@ analyzeWaspFile uri = do
 
 -- | Read the contents of a "Uri" in the virtual file system maintained by the
 -- LSP library.
-readVFSFile :: LSP.Uri -> ServerM Text
-readVFSFile uri = do
-  mVirtualFile <- liftLSP $ LSP.getVirtualFile $ LSP.toNormalizedUri uri
-  case mVirtualFile of
-    Just virtualFile -> return $ virtualFileText virtualFile
-    Nothing -> throwError $ ServerError Error $ "Could not find " <> T.pack (show uri) <> " in VFS."
+readVFSFile :: LSP.Uri -> ServerM (Maybe Text)
+readVFSFile uri = fmap LSP.virtualFileText <$> LSP.getVirtualFile (LSP.toNormalizedUri uri)
 
 -- | Get the "Uri" from an object that has a "TextDocument".
 extractUri :: (LSP.HasParams a b, LSP.HasTextDocument b c, LSP.HasUri c LSP.Uri) => a -> LSP.Uri

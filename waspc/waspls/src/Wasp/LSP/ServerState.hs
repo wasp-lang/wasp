@@ -15,7 +15,7 @@ module Wasp.LSP.ServerState
   )
 where
 
-import Control.Concurrent.STM (TChan, TVar)
+import Control.Concurrent.STM (TChan)
 import Control.Lens (makeClassy)
 import qualified Data.HashMap.Strict as M
 import qualified Language.LSP.Server as LSP
@@ -38,10 +38,8 @@ data ServerState = ServerState
     _latestDiagnostics :: [LSP.Diagnostic],
     -- | Concrete syntax tree representing '_currentWaspSource'.
     _cst :: Maybe [SyntaxNode],
-    -- | Cache of source file export lists. This is stored as a 'TVar' (a thread
-    -- safe variant of "Control.Concurrent.MVar") so that the LSP reactor thread
-    -- can modify it when it refreshes export lists.
-    _tsExports :: TVar TsExportCache,
+    -- | Cache of source file export lists.
+    _tsExports :: TsExportCache,
     -- | Registration tokens for dynamic capabilities.
     _regTokens :: RegistrationTokens,
     -- | Thread safe channel for sending actions to the LSP reactor thread.

@@ -7,7 +7,7 @@ module Wasp.LSP.Server
   )
 where
 
-import Control.Concurrent (MVar, forkIO, modifyMVar, newEmptyMVar, newMVar, readMVar, tryPutMVar)
+import Control.Concurrent (MVar, forkIO, newEmptyMVar, readMVar, tryPutMVar)
 import Control.Concurrent.Async (async, waitAnyCancel)
 import Control.Concurrent.STM (newTChanIO, newTVarIO)
 import Control.Monad (void)
@@ -23,7 +23,7 @@ import qualified System.Log.Logger
 import Wasp.LSP.Handlers
 import Wasp.LSP.Reactor (reactor)
 import Wasp.LSP.ServerConfig (ServerConfig)
-import Wasp.LSP.ServerM (ServerError (..), ServerM, Severity (..), runServerM)
+import Wasp.LSP.ServerM (ServerM, runRLspM)
 import Wasp.LSP.ServerState
   ( RegistrationTokens (RegTokens, _watchSourceFilesToken),
     ServerState (ServerState, _cst, _currentWaspSource, _latestDiagnostics, _reactorIn, _regTokens, _tsExports),
@@ -48,32 +48,25 @@ serve maybeLogFile = do
   let stopReactor = void $ tryPutMVar reactorLifetime ()
   reactorIn <- newTChanIO
 
-  tsExportsTVar <- newTVarIO M.empty
   let defaultServerState =
         ServerState
           { _currentWaspSource = "",
             _latestDiagnostics = [],
             _cst = Nothing,
-            _tsExports = tsExportsTVar,
+            _tsExports = M.empty,
             _regTokens = RegTokens {_watchSourceFilesToken = Nothing},
             _reactorIn = reactorIn
           }
-  state <- newMVar defaultServerState
+
+  stateTVar <- newTVarIO defaultServerState
 
   let lspServerInterpretHandler env =
         LSP.Iso {forward = runHandler, backward = liftIO}
         where
           runHandler :: ServerM a -> IO a
           runHandler handler =
-            -- Get the state from the "MVar", run the handler in IO and update
-            -- the "MVar" state with the end state of the handler.
-            modifyMVar state \oldState -> LSP.runLspT env $ do
-              (e, newState) <- runServerM oldState handler
-              result <- case e of
-                Left (ServerError severity errMessage) -> sendErrorMessage severity errMessage
-                Right a -> return a
-
-              return (newState, result)
+            LSP.runLspT env $ do
+              runRLspM stateTVar handler
 
   -- Spawn the reactor thread and run it until it is signaled to stop via
   -- 'reactorLifetime'.
@@ -153,29 +146,6 @@ syncOptions =
       -- Send save notifications to the server.
       _save = Just (LSP.InR (LSP.SaveOptions (Just True)))
     }
-
--- | Send an error message to the LSP client.
---
--- Sends "Severity.Log" level errors to the output panel. Higher severity errors
--- are displayed in the window (i.e. in VSCode as a toast notification in the
--- bottom right).
-sendErrorMessage :: Severity -> Text.Text -> LSP.LspT ServerConfig IO a
-sendErrorMessage Log errMessage = do
-  let messageType = LSP.MtLog
-
-  LSP.sendNotification LSP.SWindowLogMessage $
-    LSP.LogMessageParams {_xtype = messageType, _message = errMessage}
-  liftIO (fail (Text.unpack errMessage))
-sendErrorMessage severity errMessage = do
-  let messageType = case severity of
-        Error -> LSP.MtError
-        Warning -> LSP.MtWarning
-        Info -> LSP.MtInfo
-        Log -> LSP.MtLog
-
-  LSP.sendNotification LSP.SWindowShowMessage $
-    LSP.ShowMessageParams {_xtype = messageType, _message = errMessage}
-  liftIO (fail (Text.unpack errMessage))
 
 runUntilMVarIsFull :: MVar () -> IO () -> IO ()
 runUntilMVarIsFull lifetime act =

@@ -5,19 +5,17 @@ where
 
 import Control.Applicative ((<|>))
 import Control.Arrow (Arrow (first))
-import Control.Concurrent.STM (atomically, modifyTVar)
-import Control.Lens ((^.))
+import Control.Lens ((%~))
 import Control.Monad (forM_)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
-import Control.Monad.Reader (asks)
 import qualified Data.HashMap.Strict as M
 import Data.Maybe (fromJust)
 import qualified Language.LSP.Server as LSP
 import qualified Path as P
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP
-import Wasp.LSP.ServerM (ReaderM)
+import Wasp.LSP.ServerM (ServerM, modify)
 import qualified Wasp.LSP.ServerState as State
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.TypeScript as TS
@@ -28,7 +26,7 @@ import qualified Wasp.TypeScript as TS
 -- responded to.
 --
 -- TODO(before merge): refactor to multiple files at once!
-refreshExportsForFile :: SP.Path' SP.Abs SP.File' -> ReaderM ()
+refreshExportsForFile :: SP.Path' SP.Abs SP.File' -> ServerM ()
 refreshExportsForFile file = do
   logM $ "[refreshExportsForFile] refreshing " ++ show file
   LSP.getRootPath >>= \case
@@ -61,11 +59,10 @@ tryGetTsconfigForFile waspRoot file = tsconfigPath [SP.reldir|src/client|] <|> t
             then Just $ absFolder SP.</> [SP.relfile|tsconfig.json|]
             else Nothing
 
-updateExportsCache :: TS.TsExportResponse -> ReaderM ()
+updateExportsCache :: TS.TsExportResponse -> ServerM ()
 updateExportsCache (TS.TsExportResponse res) = do
-  tsExportTVar <- asks (^. State.tsExports)
   let newExports = M.fromList $ map (first exportResKeyToPath) $ M.toList res
-  liftIO $ atomically $ modifyTVar tsExportTVar $ \exports -> newExports `M.union` exports
+  _ <- modify $ State.tsExports %~ (newExports `M.union`)
   logM "[refreshExportsForFile] finished refreshing"
   where
     -- 'TS.getExportsOfTsFiles' should only ever put valid paths in the keys of
