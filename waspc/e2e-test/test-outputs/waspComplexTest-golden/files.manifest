@@ -123,7 +123,7 @@ waspComplexTest/.wasp/out/web-app/src/queries/core.js
 waspComplexTest/.wasp/out/web-app/src/queries/index.d.ts
 waspComplexTest/.wasp/out/web-app/src/queries/index.js
 waspComplexTest/.wasp/out/web-app/src/queryClient.js
-waspComplexTest/.wasp/out/web-app/src/router.jsx
+waspComplexTest/.wasp/out/web-app/src/router.tsx
 waspComplexTest/.wasp/out/web-app/src/stitches.config.js
 waspComplexTest/.wasp/out/web-app/src/storage.ts
 waspComplexTest/.wasp/out/web-app/src/test/index.ts

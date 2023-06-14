@@ -65,7 +65,7 @@ waspBuild/.wasp/build/web-app/src/queries/core.js
 waspBuild/.wasp/build/web-app/src/queries/index.d.ts
 waspBuild/.wasp/build/web-app/src/queries/index.js
 waspBuild/.wasp/build/web-app/src/queryClient.js
-waspBuild/.wasp/build/web-app/src/router.jsx
+waspBuild/.wasp/build/web-app/src/router.tsx
 waspBuild/.wasp/build/web-app/src/storage.ts
 waspBuild/.wasp/build/web-app/src/test/index.ts
 waspBuild/.wasp/build/web-app/src/test/vitest/helpers.tsx

@@ -70,7 +70,7 @@ waspJob/.wasp/out/web-app/src/queries/core.js
 waspJob/.wasp/out/web-app/src/queries/index.d.ts
 waspJob/.wasp/out/web-app/src/queries/index.js
 waspJob/.wasp/out/web-app/src/queryClient.js
-waspJob/.wasp/out/web-app/src/router.jsx
+waspJob/.wasp/out/web-app/src/router.tsx
 waspJob/.wasp/out/web-app/src/storage.ts
 waspJob/.wasp/out/web-app/src/test/index.ts
 waspJob/.wasp/out/web-app/src/test/vitest/helpers.tsx
