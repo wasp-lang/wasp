@@ -15,6 +15,7 @@ waspComplexTest/.wasp/out/server/patches/oauth+0.9.15.patch
 waspComplexTest/.wasp/out/server/scripts/universal/validators.mjs
 waspComplexTest/.wasp/out/server/scripts/validate-env.mjs
 waspComplexTest/.wasp/out/server/src/_types/index.ts
+waspComplexTest/.wasp/out/server/src/_types/serialization.ts
 waspComplexTest/.wasp/out/server/src/_types/taggedEntities.ts
 waspComplexTest/.wasp/out/server/src/actions/MySpecialAction.ts
 waspComplexTest/.wasp/out/server/src/actions/types.ts

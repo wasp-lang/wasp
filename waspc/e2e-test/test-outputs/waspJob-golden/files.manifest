@@ -12,6 +12,7 @@ waspJob/.wasp/out/server/package.json
 waspJob/.wasp/out/server/scripts/universal/validators.mjs
 waspJob/.wasp/out/server/scripts/validate-env.mjs
 waspJob/.wasp/out/server/src/_types/index.ts
+waspJob/.wasp/out/server/src/_types/serialization.ts
 waspJob/.wasp/out/server/src/_types/taggedEntities.ts
 waspJob/.wasp/out/server/src/actions/types.ts
 waspJob/.wasp/out/server/src/app.js

@@ -7,21 +7,25 @@ import prisma from "../dbClient.js"
 import { type {= userEntityName =} } from "../entities"
 {=/ isAuthEnabled =}
 import { type _Entity } from "./taggedEntities"
+import { type Payload } from "./serialization";
 
 export * from "./taggedEntities"
+export * from "./serialization"
 
-export type Query<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Query<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
-export type Action<Entities extends _Entity[], Input, Output> = Operation<Entities, Input, Output>
+export type Action<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
+  Operation<Entities, Input, Output>
 
 {=# isAuthEnabled =}
-export type AuthenticatedQuery<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedQuery<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-export type AuthenticatedAction<Entities extends _Entity[], Input, Output> = 
+export type AuthenticatedAction<Entities extends _Entity[], Input extends Payload, Output extends Payload> = 
   AuthenticatedOperation<Entities, Input, Output>
 
-type AuthenticatedOperation<Entities extends _Entity[], Input, Output> = (
+type AuthenticatedOperation<Entities extends _Entity[], Input extends Payload, Output extends Payload> = (
   args: Input,
   context: ContextWithUser<Entities>,
 ) => Output | Promise<Output>

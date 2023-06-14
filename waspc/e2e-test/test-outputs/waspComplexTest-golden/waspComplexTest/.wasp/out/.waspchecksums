@@ -60,7 +60,7 @@
             "file",
             "server/package.json"
         ],
-        "595657debb7d5a82faf58d10e8039b1071b7ed1723d0f47e776db6b5c18d56ed"
+        "43cf95d250c9baffd30a5f4836608965aa46d0875f4a736ad384a647639e9c30"
     ],
     [
         [
@@ -88,7 +88,14 @@
             "file",
             "server/src/_types/index.ts"
         ],
-        "be8892389716076ad8afbeef2dcd11f36d19a62ed0a3d7e7328a84541a04827c"
+        "9e8542f1b36712bbf3d633400377fed4da6fd15e69394ae521935c33cbdbbe36"
+    ],
+    [
+        [
+            "file",
+            "server/src/_types/serialization.ts"
+        ],
+        "69f96a24a9c1af30c9f6f3b9f4aef7f3f62e226ef0864332527e74c542e47467"
     ],
     [
         [
@@ -109,7 +116,7 @@
             "file",
             "server/src/actions/types.ts"
         ],
-        "225c35a21bce64ec2081013c7aadef5bb7ebbc3bdad617d08390164e150555aa"
+        "35cf6ae813ff02d73a23b9b9468975d86e4c89ee93079e48fd7f6bf3205f3451"
     ],
     [
         [
@@ -417,7 +424,7 @@
             "file",
             "server/src/queries/types.ts"
         ],
-        "ddd91bb1d15b1c3e684726a6ea56d02c4bd103654b8c37373b943f64c12c0e29"
+        "31c22daa41ba232cb457a2c45a4acfae5ce20c34fb32a13821a506ddac62b0f1"
     ],
     [
         [
@@ -571,7 +578,7 @@
             "file",
             "web-app/package.json"
         ],
-        "106826ffacc2f21e037bb05f08c3dfb8370d429c1d5226624a1a02e698de3ae0"
+        "8cace68444dce53f5c8a1526ba579e7a1991b4c4a2a62a271214ae180f616c73"
     ],
     [
         [
