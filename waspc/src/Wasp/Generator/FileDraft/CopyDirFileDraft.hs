@@ -1,5 +1,6 @@
 module Wasp.Generator.FileDraft.CopyDirFileDraft
   ( CopyDirFileDraft (..),
+    CopyDirFileDraftDstDirStrategy (..),
   )
 where
 
@@ -35,15 +36,29 @@ data CopyDirFileDraft = CopyDirFileDraft
   { -- | Path where the dir will be copied to.
     _dstPath :: !(Path' (Rel ProjectRootDir) Dir'),
     -- | Absolute path of source dir to copy.
-    _srcPath :: !(Path' Abs Dir')
+    _srcPath :: !(Path' Abs Dir'),
+    -- | What to do with the dst dir if it already exists.
+    _dstDirStrategy :: !CopyDirFileDraftDstDirStrategy
   }
+  deriving (Show, Eq)
+
+data CopyDirFileDraftDstDirStrategy
+  = -- | Remove the dst dir if it already exists.
+    RemoveExistingDstDir
+  | -- | Write over the dst dir if it already exists, without removing the existing files.
+    WriteOverExistingDstDir
   deriving (Show, Eq)
 
 instance Writeable CopyDirFileDraft where
   write projectRootAbsPath draft = do
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
-    when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
+
+    case _dstDirStrategy draft of
+      RemoveExistingDstDir ->
+        when dstDirExists $ removeDirectoryRecursive dstPathAbsDir
+      WriteOverExistingDstDir -> pure ()
+
     when srcDirExists $ do
       createDirectoryIfMissing True (SP.fromAbsDir dstPathAbsDir)
       copyDirectoryRecursive srcPathAbsDir dstPathAbsDir
