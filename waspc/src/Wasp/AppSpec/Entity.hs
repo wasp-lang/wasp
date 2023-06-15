@@ -7,15 +7,17 @@ module Wasp.AppSpec.Entity
     getPslModelBody,
     getIdField,
     getIdBlockAttribute,
+    doesFieldHaveAttribute,
   )
 where
 
 import Data.Data (Data)
+import Data.List (find)
 import Wasp.AppSpec.Core.Decl (IsDecl)
 import Wasp.AppSpec.Entity.Field (Field)
 import qualified Wasp.AppSpec.Entity.Field as Field
 import qualified Wasp.Psl.Ast.Model as PslModel
-import Wasp.Psl.Util (findIdBlockAttribute, findIdField)
+import Wasp.Psl.Util (doesPslFieldHaveAttribute, findIdBlockAttribute, findIdField)
 
 data Entity = Entity
   { fields :: ![Field],
@@ -44,6 +46,16 @@ getPslModelBody = pslModelBody
 
 getIdField :: Entity -> Maybe PslModel.Field
 getIdField = findIdField . getPslModelBody
+
+doesFieldHaveAttribute :: String -> String -> Entity -> Maybe Bool
+doesFieldHaveAttribute fieldName attrName entity =
+  doesPslFieldHaveAttribute attrName <$> findPslFieldByName fieldName entity
+
+findPslFieldByName :: String -> Entity -> Maybe PslModel.Field
+findPslFieldByName fieldName Entity {pslModelBody = PslModel.Body elements} =
+  find isField [field | (PslModel.ElementField field) <- elements]
+  where
+    isField PslModel.Field {_name = name} = name == fieldName
 
 getIdBlockAttribute :: Entity -> Maybe PslModel.Attribute
 getIdBlockAttribute = findIdBlockAttribute . getPslModelBody

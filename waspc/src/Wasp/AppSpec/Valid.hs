@@ -27,6 +27,7 @@ import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Wasp as Wasp
 import Wasp.AppSpec.Core.Decl (takeDecls)
 import qualified Wasp.AppSpec.Crud as AS.Crud
+import Wasp.AppSpec.Entity (doesFieldHaveAttribute)
 import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Page as Page
@@ -149,14 +150,28 @@ validateAuthUserEntityHasCorrectFieldsIfUsernameAndPasswordAuthIsUsed spec = cas
   Just auth ->
     if not $ Auth.isUsernameAndPasswordAuthEnabled auth
       then []
-      else
-        let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
-            userEntityFields = Entity.getFields userEntity
-         in concatMap
-              (validateEntityHasField "app.auth.userEntity" userEntityFields)
-              [ ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String"),
-                ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
-              ]
+      else validationErrors
+    where
+      validationErrors = concat [usernameValidationErrors, passwordValidationErrors]
+      usernameValidationErrors
+        | not $ null usernameTypeValidationErrors = usernameTypeValidationErrors
+        | otherwise = usernameAttributeValidationErrors
+      usernameTypeValidationErrors =
+        validateEntityHasField
+          userEntityName
+          userEntityFields
+          ("username", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
+      usernameAttributeValidationErrors
+        | doesFieldHaveAttribute "username" "unique" userEntity == Just True = []
+        | otherwise = [GenericValidationError $ "The field 'username' on Entity referenced by " ++ userEntityName ++ " must have the '@unique' attribute."]
+      passwordValidationErrors =
+        validateEntityHasField
+          userEntityName
+          userEntityFields
+          ("password", Entity.Field.FieldTypeScalar Entity.Field.String, "String")
+      userEntityFields = Entity.getFields userEntity
+      userEntityName = "app.auth.userEntity"
+      userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
 
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateAuthUserEntityHasCorrectFieldsIfEmailAuthIsUsed spec = case App.auth (snd $ getApp spec) of
@@ -218,7 +233,7 @@ validateExternalAuthEntityHasCorrectFieldsIfExternalAuthIsUsed spec = case App.a
 
 validateEntityHasField :: String -> [Entity.Field.Field] -> (String, Entity.Field.FieldType, String) -> [ValidationError]
 validateEntityHasField entityName entityFields (fieldName, fieldType, fieldTypeName) =
-  let maybeField = find ((== fieldName) . Entity.Field.fieldName) entityFields
+  let maybeField = findFieldByName fieldName entityFields
    in case maybeField of
         Just providerField
           | Entity.Field.fieldType providerField == fieldType -> []
@@ -313,7 +328,10 @@ doesUserEntityContainField spec fieldName = do
   auth <- App.auth (snd $ getApp spec)
   let userEntity = snd $ AS.resolveRef spec (Auth.userEntity auth)
   let userEntityFields = Entity.getFields userEntity
-  Just $ any (\field -> Entity.Field.fieldName field == fieldName) userEntityFields
+  Just $ isJust $ findFieldByName fieldName userEntityFields
+
+findFieldByName :: String -> [Entity.Field.Field] -> Maybe Entity.Field.Field
+findFieldByName name = find ((== name) . Entity.Field.fieldName)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- We validated that entity field exists, so we can safely use fromJust here.
