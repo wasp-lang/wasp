@@ -2,6 +2,7 @@ module Wasp.LSP.Diagnostic
   ( WaspDiagnostic (..),
     MissingImportReason (..),
     waspDiagnosticToLspDiagnostic,
+    clearMissingImportDiagnostics,
   )
 where
 
@@ -114,3 +115,9 @@ waspErrorRange :: W.AnalyzeError -> LSP.Range
 waspErrorRange err =
   let (_, W.Ctx rgn) = W.getErrorMessageAndCtx err
    in waspSourceRegionToLspRange rgn
+
+clearMissingImportDiagnostics :: [WaspDiagnostic] -> [WaspDiagnostic]
+clearMissingImportDiagnostics = filter (not . isMissingImportDiagnostic)
+  where
+    isMissingImportDiagnostic (MissingImportDiagnostic _ _ _) = True
+    isMissingImportDiagnostic _ = False

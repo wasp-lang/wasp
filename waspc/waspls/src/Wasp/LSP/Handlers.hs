@@ -30,7 +30,7 @@ import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
-import Wasp.LSP.ExtImport (getAndAppendMissingImportDiagnostics, refreshExportsForFile)
+import Wasp.LSP.ExtImport (refreshAllExports, refreshExportsForFiles, updateMissingImportDiagnostics)
 import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
@@ -78,12 +78,13 @@ initializedHandler = do
 -- can still be answered.
 --
 -- TODO(before merge): update missing import diagnostics in the same reactor action
+--   but how? need URI for wasp file in here. hmmm
 watchSourceFilesHandler :: LSP.Handler ServerM 'LSP.WorkspaceDidChangeWatchedFiles
 watchSourceFilesHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
   logM $ "[didChangeWatchedFilesHandler] Received file changes: " ++ show uris
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
-  forM_ fileUris $ \file -> sendToReactor (refreshExportsForFile file)
+  forM_ fileUris $ \file -> sendToReactor (refreshExportsForFiles [file])
 
 -- | Sent by the client when the client is going to shutdown the server, this
 -- is where we do any clean up that needs to be done. This cleanup is:
@@ -125,26 +126,22 @@ completionHandler =
 -- It analyzes the document contents and sends any error messages back to the
 -- LSP client. In the future, it will also store information about the analyzed
 -- file in "Wasp.LSP.State.State".
---
--- TODO(before merge): also send missing import diagnostics AND refresh exports
--- and missing import diagnostics for all source files pointed to be ExtImport
--- nodes in the file. Not sure if this belongs here or in analyze? Or a mix?
--- Or somewhere new?
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri
 
   -- Immediately update import diagnostics only when file watching is enabled
   watchSourceFilesToken <- handler $ asks (^. State.regTokens . State.watchSourceFilesToken)
-  when (isJust watchSourceFilesToken) getAndAppendMissingImportDiagnostics
+  when (isJust watchSourceFilesToken) updateMissingImportDiagnostics
 
   -- Send diagnostics to client
   handler $ publishDiagnostics uri
 
   -- Update exports and missing import diagnostics asynchronously
+  -- TODO(before merge): debounce this somehow
   sendToReactor $ do
-    -- refreshAllExports
-    getAndAppendMissingImportDiagnostics
+    refreshAllExports
+    updateMissingImportDiagnostics
     handler $ publishDiagnostics uri
 
 publishDiagnostics :: LSP.Uri -> HandlerM ()

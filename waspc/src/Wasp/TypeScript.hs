@@ -20,7 +20,7 @@ import Wasp.Package (Package (TsInspectPackage), getPackageProc)
 
 getExportsOfTsFiles :: [TsExportRequest] -> IO (Either String TsExportResponse)
 getExportsOfTsFiles requests = do
-  let requestJSON = BS.toString $ encode requests
+  let requestJSON = BS.toString $ encode $ groupExportRequests requests
   cp <- getPackageProc TsInspectPackage []
   (exitCode, response, err) <- P.readCreateProcessWithExitCode cp requestJSON
   case exitCode of
@@ -28,6 +28,15 @@ getExportsOfTsFiles requests = do
       Nothing -> return $ Left $ "invalid response JSON from ts-inspect: " ++ response
       Just exports -> return $ Right exports
     _ -> return $ Left err
+
+-- | Join export requests that have the same tsconfig.
+groupExportRequests :: [TsExportRequest] -> [TsExportRequest]
+groupExportRequests requests =
+  map (uncurry $ flip TsExportRequest) $
+    M.toList $ foldr insertRequest M.empty requests
+  where
+    insertRequest (TsExportRequest names maybeTsconfig) grouped =
+      M.insertWith (++) maybeTsconfig names grouped
 
 data TsExport
   = DefaultExport !(Maybe SourcePosition)
