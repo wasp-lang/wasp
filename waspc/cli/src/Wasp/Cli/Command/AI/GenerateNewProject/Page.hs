@@ -9,6 +9,7 @@ where
 import Data.Aeson (FromJSON)
 import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe)
+import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
@@ -21,7 +22,7 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Common
   )
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompts
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (entityPlanToWaspDecl)
-import Wasp.Cli.Command.AI.GenerateNewProject.Operation (Operation)
+import Wasp.Cli.Command.AI.GenerateNewProject.Operation (Operation (opImpl, opPlan), OperationImpl (opJsImpl))
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
 import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
@@ -53,11 +54,10 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
     pageDesc = T.pack $ Plan.pageDesc pPlan
 
     entityDecls = T.intercalate "\n\n" $ entityPlanToWaspDecl <$> entityPlans
-    -- I should also include info about which args each action has!
-    actionsInfo = error "TODO"
-    -- I should also include info about which args each query has!
-    queriesInfo = error "TODO"
+    actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
+    queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
 
+    -- TODO: Did I mess up the thing below with adding Page after {pageName}? Double-check that.
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -66,13 +66,13 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
 
         We are implementing a Wasp app (check bottom for description).
 
-        This app has following entities:
+        Entities:
         ${entityDecls}
 
-        This app has following actions:
+        Actions:
         ${actionsInfo}
 
-        This app has following queries:
+        Queries:
         ${queriesInfo}
 
         Let's now implement the following Wasp page:
@@ -107,17 +107,44 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
         Example of ReactJS implementation:
 
         ```jsx
-           TODO
+          import React from 'react';
+          import logout from '@wasp/auth/logout.js';
+          import useAuth from '@wasp/auth/useAuth.js';
+          import { useQuery } from '@wasp/queries'; // A thin wrapper around react-query
+          import getTask from '@wasp/queries/getTasks';
+          import createTask from '@wasp/actions/createTask';
+
+          export function ExamplePage(props) {
+            const { data: user } = useAuth();
+            const { data: task, isLoading, error } = useQuery(getTask, { id: props.id });
+
+            if (isLoading) return 'Loading...';
+            if (error) return 'Error: ' + error;
+
+            return (
+              <div>
+                {user.username}
+                {task.id}
+                <button onClick={createTask({description: 'new task'})}> + </button>
+                <button onClick={logout}> Logout </button>
+              </div>
+            );
+          };
         ```
-
-        TODO: Maybe this part below is not needed, if we put it in example instead.
-        You can import actions and queries like this:
-        import queryName from "@wasp/queries/queryName";
-        and use it with import { useQuery } from "@wasp/queries";
-
-        Auth helpers:
-        import logout from "@wasp/auth/logout";
       |]
+
+operationInfo :: Operation -> Text
+operationInfo operation =
+  -- TODO: Potential optimization would be to show operation args and what it returns, now the whole
+  -- implementation. However for short operations, it is just easier to show whole implementation.
+  [trimming|
+    { "name": ${name},
+      "jsImpl": ${jsImpl}
+    }
+  |]
+  where
+    name = T.pack $ show $ Plan.opName $ opPlan operation
+    jsImpl = T.pack $ show $ opJsImpl $ opImpl operation
 
 writePageToJsFile :: Page -> CodeAgent ()
 writePageToJsFile page =

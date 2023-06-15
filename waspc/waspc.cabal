@@ -376,6 +376,7 @@ library cli-lib
     Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts
     Wasp.Cli.Command.AI.GenerateNewProject.Entity
     Wasp.Cli.Command.AI.GenerateNewProject.Operation
+    Wasp.Cli.Command.AI.GenerateNewProject.Page
     Wasp.Cli.Command.AI.GenerateNewProject.Plan
     Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
     Wasp.Cli.Command.AI.New

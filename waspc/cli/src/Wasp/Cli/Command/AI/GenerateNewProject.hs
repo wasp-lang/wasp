@@ -43,6 +43,9 @@ generateNewProject newProjectDetails = do
 
   -- TODO: what about having additional step here that goes through all the files once again and
   --   fixes any stuff in them (Wasp, JS files)? REPL?
+
+  -- TODO: Consider going through all the prompts and trying to reduce their length,
+  --   to make sure we are not droping anyting out of context + that we are not wasteful.
   writeToLog "Done!"
   where
     summarizePlan plan =

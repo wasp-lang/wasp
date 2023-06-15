@@ -4,6 +4,7 @@ module Wasp.Cli.Command.AI.GenerateNewProject.Operation
   ( generateAndWriteOperation,
     Operation (..),
     OperationType (..),
+    OperationImpl (..),
   )
 where
 

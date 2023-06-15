@@ -2,28 +2,31 @@
 {-# LANGUAGE QuasiQuotes #-}
 
 module Wasp.Cli.Command.AI.New
-  ( new,
+  ( newForHuman,
+    newForMachine,
   )
 where
 
 import Control.Arrow ()
 import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
 import qualified Data.Text as T
+import qualified Data.Text.IO as T.IO
+import NeatInterpolation (trimming)
 import StrongPath (fromAbsDir)
 import StrongPath.Operations ()
-import System.Directory (setCurrentDirectory)
+import System.Directory (createDirectoryIfMissing, setCurrentDirectory)
 import System.Environment (lookupEnv)
+import System.FilePath (takeDirectory)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import qualified Wasp.Cli.Command.AI.CodeAgent as CA
 import qualified Wasp.Cli.Command.AI.GenerateNewProject as GNP
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), NewProjectDetails (..))
 import qualified Wasp.Cli.Command.CreateNewProject as CNP
+import Wasp.OpenAI (OpenAIApiKey)
 
-new :: Command ()
-new = do
-  openAIApiKey <-
-    liftIO (lookupEnv "OPENAI_API_KEY")
-      >>= maybe throwMissingOpenAIApiKeyEnvVarError pure
+newForHuman :: Command ()
+newForHuman = do
+  openAIApiKey <- getOpenAIApiKey
 
   (webAppName, webAppDescription) <- liftIO $ do
     putStrLn "App name (e.g. MyFirstApp):"
@@ -40,26 +43,65 @@ new = do
   let codeAgentConfig =
         CA.CodeAgentConfig
           { CA._openAIApiKey = openAIApiKey,
-            -- TODO: Use more appropriate functions here.
-            CA._writeFile = \fp c -> putStrLn $ "\nwriteFile:\n" <> show (fp, c) <> "\n",
-            CA._writeLog = putStrLn . ("writeLog: " <>) . T.unpack
-          }
-
-  let newProjectDetails =
-        NewProjectDetails
-          { _projectAppName = webAppName,
-            _projectDescription = webAppDescription,
-            _projectAuth = UsernameAndPassword
+            CA._writeFile = \fp c -> do
+              createDirectoryIfMissing True (takeDirectory fp)
+              T.IO.writeFile fp c
+              putStrLn $ "[info] Wrote file at " <> fp,
+            CA._writeLog = putStrLn . T.unpack
           }
 
   liftIO $
     CA.runCodeAgent codeAgentConfig $
-      GNP.generateNewProject newProjectDetails
+      GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
 
-  return ()
+newForMachine :: String -> String -> Command ()
+newForMachine webAppName webAppDescription = do
+  openAIApiKey <- getOpenAIApiKey
+
+  _projectInfo <- CNP.parseProjectInfo webAppName
+
+  let codeAgentConfig =
+        CA.CodeAgentConfig
+          { CA._openAIApiKey = openAIApiKey,
+            CA._writeFile = \fp c ->
+              let fpT = T.pack fp
+               in T.IO.putStrLn
+                    [trimming|
+
+                      ==== WASP AI: WRITE FILE ====
+                      ${fpT}
+                      ${c}
+                      ===/ WASP AI: WRITE FILE ====
+                    |],
+            CA._writeLog = \msg ->
+              T.IO.putStrLn
+                [trimming|
+
+                  ==== WASP AI: LOG ====
+                  ${msg}
+                  ===/ WASP AI: LOG ====
+                |]
+          }
+
+  liftIO $
+    CA.runCodeAgent codeAgentConfig $
+      GNP.generateNewProject $ newProjectDetails webAppName webAppDescription
+
+getOpenAIApiKey :: Command OpenAIApiKey
+getOpenAIApiKey =
+  liftIO (lookupEnv "OPENAI_API_KEY")
+    >>= maybe throwMissingOpenAIApiKeyEnvVarError pure
   where
     throwMissingOpenAIApiKeyEnvVarError =
       throwError $
         CommandError
           "Missing OPENAI_API_KEY env var"
           "You can obtain this key from your OpenAI profile."
+
+newProjectDetails :: String -> String -> NewProjectDetails
+newProjectDetails webAppName webAppDescription =
+  NewProjectDetails
+    { _projectAppName = webAppName,
+      _projectDescription = webAppDescription,
+      _projectAuth = UsernameAndPassword
+    }
