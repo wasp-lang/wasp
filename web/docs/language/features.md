@@ -1874,7 +1874,9 @@ explained in
 
 ## Public static files on the client
 
-If you wish to override the default `favicon.ico` file or add any other static files to the client, you can do so by placing them in the `public` directory in the `src/client` folder. The contents of this directory will be copied to the `dist/public` directory during the build process.
+If you wish to override the default `favicon.ico` file or expose any other static files to the client, you can do so by placing them in the `public` directory in the `src/client` folder.
+
+The contents of this directory will be copied to the `dist/public` directory during the build process. This makes these files available at the root of the domain. For example, if you have a file `favicon.ico` in the `public` directory, it will be available at `https://example.com/favicon.ico`.
 
 For example, doing this:
 ```
@@ -1891,9 +1893,13 @@ build
     └── favicon.ico
 ```
 
+:::warning Usage in client code
+You **can't import these files** from your client code. They are only exposed at the root of the domain, e.g. `https://example.com/favicon.ico`.
+:::
+
 ## Server configuration
 
-Via `server` field of `app` declaration, you can configure behaviour of the Node.js server (one that is executing wasp operations).
+Via `server` field of `app` declaration, you can configure the behavior of the Node.js server (one that is executing wasp operations).
 
 ```wasp
 app MyApp {
