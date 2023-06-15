@@ -65,18 +65,16 @@ newForMachine webAppName webAppDescription = do
           { CA._openAIApiKey = openAIApiKey,
             CA._writeFile = \fp c ->
               let fpT = T.pack fp
-               in T.IO.putStrLn
+               in T.IO.putStrLn . ("\n" <>) $
                     [trimming|
-
                       ==== WASP AI: WRITE FILE ====
                       ${fpT}
                       ${c}
                       ===/ WASP AI: WRITE FILE ====
                     |],
             CA._writeLog = \msg ->
-              T.IO.putStrLn
+              T.IO.putStrLn . ("\n" <>) $
                 [trimming|
-
                   ==== WASP AI: LOG ====
                   ${msg}
                   ===/ WASP AI: LOG ====

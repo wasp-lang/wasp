@@ -12,6 +12,7 @@ where
 
 import Data.Aeson (FromJSON)
 import qualified Data.Text as T
+import qualified Debug.Trace as Debug
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent)
@@ -29,6 +30,7 @@ type PlanRule = String
 
 generatePlan :: Wasp.Cli.Command.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
+  Debug.trace (show $ T.unpack planPrompt) $ return ()
   queryChatGPTForJSON defaultChatGPTParams chatMessages
   where
     chatMessages =
@@ -39,7 +41,7 @@ generatePlan newProjectDetails planRules = do
     appDesc = T.pack $ _projectDescription newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
-    rulesText = T.pack . unlines $ "Rules:" : map (" - " ++) planRules
+    rulesText = T.pack . unlines $ "Instructions you must follow while generating plan:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -68,8 +70,9 @@ generatePlan newProjectDetails planRules = do
             "opDesc": "description of what this query does"
           }],
           "pages": [{
-            "pageName": "PageName",
+            "pageName": "ExamplePage",
             "componentPath": "@client/{ComponentName}.jsx",
+            "routeName: "ExampleRoute",
             "routePath": "/url/of/page",
             "pageDesc": "description of what this page does",
           }]
@@ -150,6 +153,7 @@ instance FromJSON Operation
 data Page = Page
   { pageName :: String,
     componentPath :: String,
+    routeName :: String,
     routePath :: String,
     pageDesc :: String
   }

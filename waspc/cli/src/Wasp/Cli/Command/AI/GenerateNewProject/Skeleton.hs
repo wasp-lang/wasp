@@ -50,7 +50,14 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
               onAuthSucceededRedirectTo: "/"
             },
         |],
-          [ "You MUST generate a 'User' entity, with at least the following fields: 'id', 'username', 'password'.",
+          [ "App uses username and password authentication.",
+            T.unpack
+              [trimming|
+              You MUST add a 'User' entity to plan, with following fields required:
+                - `id Int @id @default(autoincrement())`
+                - `username String @unique`
+                - `password String`
+            |],
             "One of the pages you generate must have a route path \"/\"."
           ]
         )

@@ -50,6 +50,7 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
 
     pageName = T.pack $ Plan.pageName pPlan
     componentPath = T.pack $ Plan.componentPath pPlan
+    routeName = T.pack $ Plan.routeName pPlan
     routePath = T.pack $ Plan.routePath pPlan
     pageDesc = T.pack $ Plan.pageDesc pPlan
 
@@ -57,7 +58,6 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
     actionsInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> actions
     queriesInfo = T.intercalate "\n" $ (" - " <>) . operationInfo <$> queries
 
-    -- TODO: Did I mess up the thing below with adding Page after {pageName}? Double-check that.
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -82,7 +82,7 @@ generatePage newProjectDetails entityPlans actions queries pPlan = do
          - description: ${pageDesc}
 
         Please, respond ONLY with a valid JSON, of following format:
-        { "pageWaspDecl": "route ${pageName}Route { ... }\npage ${pageName}Page {\n ... }",
+        { "pageWaspDecl": "route ${routeName} { ... }\npage ${pageName} {\n ... }",
           "pageJsImpl": "JS imports + React component implementing the page.",
         }
         There should be no other text in the response.
