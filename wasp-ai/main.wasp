@@ -1,0 +1,11 @@
+app waspAi {
+  wasp: {
+    version: "^0.10.6"
+  },
+  title: "wasp-ai"
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import Main from "@client/MainPage.jsx"
+}
