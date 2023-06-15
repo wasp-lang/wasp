@@ -3,8 +3,7 @@
 module Wasp.Cli.Command.AI.GenerateNewProject.Plan
   ( Plan (..),
     Entity (..),
-    Query (..),
-    Action (..),
+    Operation (..),
     Page (..),
     generatePlan,
     PlanRule,
@@ -17,8 +16,7 @@ import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common
-  ( AuthProvider (UsernameAndPassword),
-    NewProjectDetails (..),
+  ( NewProjectDetails (..),
     defaultChatGPTParams,
     queryChatGPTForJSON,
   )
@@ -29,7 +27,7 @@ import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 -- | Additional rule to follow while generating plan.
 type PlanRule = String
 
-generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
+generatePlan :: Wasp.Cli.Command.AI.GenerateNewProject.Common.NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   queryChatGPTForJSON defaultChatGPTParams chatMessages
   where
@@ -58,14 +56,14 @@ generatePlan newProjectDetails planRules = do
             "entityBodyPsl": "id Int @id\\nname String"
           }],
           "actions": [{
-            "actionName": "ActionName",
-            "actionFnPath": "@server/{filename}.js",
-            "actionDesc": "description of what this action does"
+            "opName": "ActionName",
+            "opFnPath": "@server/{filename}.js",
+            "opDesc": "description of what this action does"
           }],
           "queries": [{
-            "queryName": "QueryName",
-            "queryFnPath": "@server/{filename}.js",
-            "queryDesc": "description of what this query does"
+            "opName": "QueryName",
+            "opFnPath": "@server/{filename}.js",
+            "opDesc": "description of what this query does"
           }],
           "pages": [{
             "pageName": "PageName",
@@ -124,8 +122,8 @@ generatePlan newProjectDetails planRules = do
 
 data Plan = Plan
   { entities :: [Entity],
-    queries :: [Query],
-    actions :: [Action],
+    queries :: [Operation],
+    actions :: [Operation],
     pages :: [Page]
   }
   deriving (Generic, Show)
@@ -140,23 +138,14 @@ data Entity = Entity
 
 instance FromJSON Entity
 
-data Query = Query
-  { queryName :: String,
-    queryFnPath :: String,
-    queryDesc :: String
+data Operation = Operation
+  { opName :: String,
+    opFnPath :: String,
+    opDesc :: String
   }
   deriving (Generic, Show)
 
-instance FromJSON Query
-
-data Action = Action
-  { actionName :: String,
-    actionFnPath :: String,
-    actionDesc :: String
-  }
-  deriving (Generic, Show)
-
-instance FromJSON Action
+instance FromJSON Operation
 
 data Page = Page
   { pageName :: String,

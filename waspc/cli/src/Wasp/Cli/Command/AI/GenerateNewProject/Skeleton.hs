@@ -39,10 +39,6 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
     appTitle = appName
     waspVersion = T.pack $ show Wasp.Version.waspVersion
     (appAuth, authPlanRules) = case _projectAuth newProjectDetails of
-      -- NOTE: We assume two things here:
-      --   - that there will be a page with route "/".
-      --   - that there will be a User entity with 'id', 'username' and 'password'.
-      -- We later that those will be added to Plan.
       UsernameAndPassword ->
         ( [trimming|
             auth: {
@@ -59,6 +55,8 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
           ]
         )
     planRules = authPlanRules <> ["Don't generate the Login or Signup page."]
+    -- TODO: add some commented out lines to wasp file that showcase other features? jobs, api,
+    --   serverSetup, sockets, ... .
     content =
       [trimming|
         app ${appName} {
