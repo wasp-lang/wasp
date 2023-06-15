@@ -31,8 +31,9 @@ generatePlan newProjectDetails = do
   case Aeson.eitherDecode $ textToLazyBS responseJSONText of
     Right plan -> return plan
     Left _errMsg ->
-      -- TODO: Handle this better. Write to log, to let user know.
-      --   Consider sending response back to chatGPT and ask it to fix it.
+      -- TODO: Handle this better.
+      --   Try sending response back to chatGPT and ask it to fix it -> hey it is not valid JSON, fix it.
+      --   Write to log, to let user know.
       error "Failed to parse plan"
   where
     -- TODO: Try configuring temperature.
@@ -92,10 +93,38 @@ generatePlan newProjectDetails = do
         ${appDesc}
       |]
 
--- TODO: Alternative approach idea: have it generate main.wasp file first, with comments above stuff
---   with instructions for itself. Then, in the next step, have it generate a plan based on that
---   main.wasp file. The idea is that this way it will have more freedom + might be able to act more
---   holistically.
+-- TODO: Alternative idea is to give quite more autonomy and equip it with tools (functions) it
+--   needs to build correct context, and then let it drive itself completely on its own. So we give
+--   it app description, and then let it just go for it -> it would be making freeform plans for
+--   itself and executing them, until it is done. We could make following functions available to it:
+--     1. For querying Wasp docs. Maybe some specialized functions for things we know it will need a
+--        lot, like getActionDocs, getQueryDocs, getPageDocs, and then one general for the rest. The
+--        specialized ones we can really optimize to be super useful. Or maybe we do it like this:
+--        we have one function which is `fetchDocsForFeature(feature)`, and another
+--        `searchDocs(query)`. We tell it to prefer `fetchDocsForFeature` when it can, but it can
+--        also use the `searchDocs` when needed. In `fetchDocsForFeature`, `feature` parameter would
+--        be an enum we define, and for every feature we could serve exactly the specific piece of
+--        docs, or even pre-prepared stuff just for this purpose. So we have control here, to ensure
+--        quality. We can tell it that if implementing Action, it should seriously consider fetching
+--        the docs for it, if it doesn't have them in context yet.
+--     2. For exploring a rich Wasp example that we provide. List all the files. Read specific file.
+--        Maybe even searching through its code?
+--     3. For exploring the Wasp app it is currently building. Similar like (2).
+--     4. It would also need a function for writing a file! So it can generate code. Sure.
+--   We can still start with the skeleton project, to make it easier for it.
+--
+--   So how would this work then? It would generate a plan (freeform, just text), and then in each
+--   step it would execute it + update it.
+--
+--   Interesting question is, how do we construct the Chat each time -> we will probably want to
+--   keep including the previous conversation, including its answers? How much of it, how will we
+--   determine that? Do we need to ask it to summarize previous convo, and then include last couple
+--   of replies? What about the stuff it fetches for itself, we need to make sure to provide that,
+--   so it can use it. This sounds like the tricky part to manage, to figure out when to start
+--   dropping stuff. We would probably be always passing the whole conversation so far, but if it
+--   grows too long (we can use heuristic to guess number of tokens), we ask it to summarize convo
+--   so far and add couple of last messages and continue with that. I believe I read that is how
+--   they also do it in their UI.
 
 data Plan = Plan
   { entities :: [Entity],

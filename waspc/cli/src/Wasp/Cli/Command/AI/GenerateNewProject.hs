@@ -6,6 +6,7 @@ where
 -- TODO: Probably move this module out of here into general wasp lib.
 
 import Control.Monad (forM)
+import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToLog)
@@ -29,8 +30,7 @@ generateNewProject newProjectDetails = do
 
   writeToLog "Generating plan..."
   plan <- generatePlan newProjectDetails
-  -- TODO: Show plan nicer! Maybe just short summary of it: we will create 4 entities, 3 operations, ... .
-  writeToLog $ "Plan generated! " <> T.pack (show plan)
+  writeToLog $ "Plan generated!\n" <> summarizePlan plan
 
   writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
   writeToLog "Added entities to wasp file."
@@ -51,6 +51,25 @@ generateNewProject newProjectDetails = do
   --   when generating actions, operations and similar. Maybe an overkill.
   writeToLog "Done!"
   where
+    summarizePlan plan =
+      let numQueries = showT $ length $ Plan.queries plan
+          numActions = showT $ length $ Plan.actions plan
+          numPages = showT $ length $ Plan.pages plan
+          numEntities = showT $ length $ Plan.entities plan
+          queryNames = showT $ Plan.queryName <$> Plan.queries plan
+          actionNames = showT $ Plan.actionName <$> Plan.actions plan
+          pageNames = showT $ Plan.pageName <$> Plan.pages plan
+          entityNames = showT $ Plan.entityName <$> Plan.entities plan
+       in [trimming|
+            - ${numQueries} queries: ${queryNames}
+            - ${numActions} actions: ${actionNames}
+            - ${numEntities} entities: ${entityNames}
+            - ${numPages} pages: ${pageNames}
+          |]
+
+    showT :: Show a => a -> Text
+    showT = T.pack . show
+
     generateAndWriteAction waspFilePath plan actionPlan = do
       action <- generateAction newProjectDetails (Plan.entities plan) actionPlan
       writeActionToFile action
