@@ -56,6 +56,7 @@ getFile path = gets $ H.lookup path . _files
 getAllFiles :: CodeAgent [(FilePath, Text)]
 getAllFiles = gets $ H.toList . _files
 
+-- TODO: Make it so that if ChatGPT replies with being too busy, we try again.
 queryChatGPT :: ChatGPTParams -> [ChatMessage] -> CodeAgent Text
 queryChatGPT params messages = do
   key <- asks _openAIApiKey

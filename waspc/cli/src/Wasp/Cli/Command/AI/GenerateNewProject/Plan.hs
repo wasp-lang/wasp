@@ -7,38 +7,32 @@ module Wasp.Cli.Command.AI.GenerateNewProject.Plan
     Action (..),
     Page (..),
     generatePlan,
+    PlanRule,
   )
 where
 
 import Data.Aeson (FromJSON)
-import qualified Data.Aeson as Aeson
-import Data.ByteString.Lazy.UTF8 (ByteString)
-import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TLE
 import GHC.Generics (Generic)
 import NeatInterpolation (trimming)
-import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, queryChatGPT)
-import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (_projectAppName, _projectDescription))
+import Wasp.Cli.Command.AI.CodeAgent (CodeAgent)
+import Wasp.Cli.Command.AI.GenerateNewProject.Common
+  ( AuthProvider (UsernameAndPassword),
+    NewProjectDetails (..),
+    defaultChatGPTParams,
+    queryChatGPTForJSON,
+  )
 import Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts (appDescriptionStartMarkerLine)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts as Prompts
-import Wasp.OpenAI.ChatGPT (ChatGPTParams (..), ChatMessage (..), ChatRole (..), Model (..))
+import Wasp.OpenAI.ChatGPT (ChatMessage (..), ChatRole (..))
 
-generatePlan :: NewProjectDetails -> CodeAgent Plan
-generatePlan newProjectDetails = do
-  responseJSONText <- naiveTrimJSON <$> queryChatGPT chatGPTParams chatMessages
-  case Aeson.eitherDecode $ textToLazyBS responseJSONText of
-    Right plan -> return plan
-    Left _errMsg ->
-      -- TODO: Handle this better.
-      --   Try sending response back to chatGPT and ask it to fix it -> hey it is not valid JSON, fix it.
-      --   Write to log, to let user know.
-      error "Failed to parse plan"
+-- | Additional rule to follow while generating plan.
+type PlanRule = String
+
+generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
+generatePlan newProjectDetails planRules = do
+  queryChatGPTForJSON defaultChatGPTParams chatMessages
   where
-    -- TODO: Try configuring temperature.
-    -- TODO: Make sure we have max_tokens set to high enough.
-    chatGPTParams = ChatGPTParams {_model = GPT_3_5_turbo_16k, _temperature = Just 1.0}
     chatMessages =
       [ ChatMessage {role = System, content = Prompts.systemPrompt},
         ChatMessage {role = User, content = planPrompt}
@@ -47,6 +41,7 @@ generatePlan newProjectDetails = do
     appDesc = T.pack $ _projectDescription newProjectDetails
     basicWaspLangInfoPrompt = Prompts.basicWaspLangInfo
     waspFileExamplePrompt = Prompts.waspFileExample
+    rulesText = T.pack . unlines $ "Rules:" : map (" - " ++) planRules
     planPrompt =
       [trimming|
         ${basicWaspLangInfoPrompt}
@@ -80,9 +75,10 @@ generatePlan newProjectDetails = do
           }]
         }
 
-        Make sure to generate at least one page with routePath "/".
+        ${rulesText}
 
-        We will later use this plan to implement all of these parts of Wasp app.
+        We will later use this plan to implement all of these parts of Wasp app,
+        so make sure descriptions are detailed enough to guide implementing them.
 
         Please, respond ONLY with a valid JSON that is a plan.
         There should be no other text in the response.
@@ -171,15 +167,3 @@ data Page = Page
   deriving (Generic, Show)
 
 instance FromJSON Page
-
--- | Given a text containing a single instance of JSON and some text around it but no { or }, trim
--- it until just JSON is left.
--- Examples
---   naiveTrimJson "some text { \"a\": 5 } yay" == "{\"a\": 5 }"
---   naiveTrimJson "some {text} { \"a\": 5 }" -> won't work correctly.
-naiveTrimJSON :: Text -> Text
-naiveTrimJSON textContainingJson =
-  T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{') $ textContainingJson
-
-textToLazyBS :: Text -> ByteString
-textToLazyBS = TLE.encodeUtf8 . TL.fromStrict

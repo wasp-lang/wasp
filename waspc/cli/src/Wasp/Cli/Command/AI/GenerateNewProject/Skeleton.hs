@@ -10,15 +10,16 @@ import NeatInterpolation (trimming)
 import qualified StrongPath as SP
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeNewFile)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (AuthProvider (..), File, NewProjectDetails (..))
+import Wasp.Cli.Command.AI.GenerateNewProject.Plan (PlanRule)
 import Wasp.Cli.Command.CreateNewProject (readCoreWaspProjectFiles)
 import qualified Wasp.Version
 
-generateAndWriteProjectSkeleton :: NewProjectDetails -> CodeAgent FilePath
+generateAndWriteProjectSkeleton :: NewProjectDetails -> CodeAgent (FilePath, [PlanRule])
 generateAndWriteProjectSkeleton newProjectDetails = do
   coreFiles <- liftIO $ map (first SP.fromRelFile) <$> readCoreWaspProjectFiles
   mapM_ writeNewFile coreFiles
 
-  let waspFile@(waspFilePath, _) = generateBaseWaspFile newProjectDetails
+  let (waspFile@(waspFilePath, _), planRules) = generateBaseWaspFile newProjectDetails
   writeNewFile waspFile
 
   case _projectAuth newProjectDetails of
@@ -28,28 +29,36 @@ generateAndWriteProjectSkeleton newProjectDetails = do
 
   writeNewFile generateDotEnvServerFile
 
-  return waspFilePath
+  return (waspFilePath, planRules)
 
-generateBaseWaspFile :: NewProjectDetails -> File
-generateBaseWaspFile newProjectDetails = (path, content)
+generateBaseWaspFile :: NewProjectDetails -> (File, [PlanRule])
+generateBaseWaspFile newProjectDetails = ((path, content), planRules)
   where
     path = "main.wasp"
     appName = T.pack $ _projectAppName newProjectDetails
     appTitle = appName
     waspVersion = T.pack $ show Wasp.Version.waspVersion
-    appAuth = case _projectAuth newProjectDetails of
-      -- NOTE: We assume here that there will be a page with route "/".
+    (appAuth, authPlanRules) = case _projectAuth newProjectDetails of
+      -- NOTE: We assume two things here:
+      --   - that there will be a page with route "/".
+      --   - that there will be a User entity with 'id', 'username' and 'password'.
+      -- We later that those will be added to Plan.
       UsernameAndPassword ->
-        [trimming|
-          auth: {
-            userEntity: User,
-            methods: {
-              usernameAndPassword: {}
+        ( [trimming|
+            auth: {
+              userEntity: User,
+              methods: {
+                usernameAndPassword: {}
+              },
+              onAuthFailedRedirectTo: "/login",
+              onAuthSucceededRedirectTo: "/"
             },
-            onAuthFailedRedirectTo: "/login",
-            onAuthSucceededRedirectTo: "/"
-          },
-        |]
+        |],
+          [ "Generate a User entity, with at least the following fields: 'id', 'username', 'password'.",
+            "There should be a page with route path \"/\"."
+          ]
+        )
+    planRules = authPlanRules <> ["Don't generate the Login or Signup page."]
     content =
       [trimming|
         app ${appName} {
@@ -59,12 +68,6 @@ generateBaseWaspFile newProjectDetails = (path, content)
           title: ${appTitle},
           ${appAuth}
         }
-
-        entity User {=psl
-          id                        Int           @id @default(autoincrement())
-          username                  String        @unique
-          password                  String
-        psl=}
 
         route LoginRoute { path: "/login", to: LoginPage }
         page LoginPage {

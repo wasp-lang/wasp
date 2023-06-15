@@ -372,8 +372,10 @@ library cli-lib
     Wasp.Cli.FileSystem
     Wasp.Cli.Command.AI.CodeAgent
     Wasp.Cli.Command.AI.GenerateNewProject
+    Wasp.Cli.Command.AI.GenerateNewProject.Action
     Wasp.Cli.Command.AI.GenerateNewProject.Common
     Wasp.Cli.Command.AI.GenerateNewProject.Common.Prompts
+    Wasp.Cli.Command.AI.GenerateNewProject.Entity
     Wasp.Cli.Command.AI.GenerateNewProject.Plan
     Wasp.Cli.Command.AI.GenerateNewProject.Skeleton
     Wasp.Cli.Command.AI.New

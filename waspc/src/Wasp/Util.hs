@@ -33,6 +33,8 @@ module Wasp.Util
     kebabToCamelCase,
     maybeToEither,
     whenM,
+    naiveTrimJSON,
+    textToLazyBS,
   )
 where
 
@@ -41,6 +43,7 @@ import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString as B
+import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import qualified Data.HashMap.Strict as M
@@ -48,8 +51,11 @@ import Data.List (intercalate)
 import Data.List.Split (splitOn, wordsBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 import StrongPath (File, Path')
 import qualified StrongPath as SP
 import Text.Printf (printf)
@@ -230,3 +236,15 @@ maybeToEither leftValue = maybe (Left leftValue) Right
 
 getEnvVarDefinition :: (String, String) -> String
 getEnvVarDefinition (name, value) = concat [name, "=", value]
+
+-- | Given a text containing a single instance of JSON and some text around it but no { or }, trim
+-- it until just JSON is left.
+-- Examples
+--   naiveTrimJson "some text { \"a\": 5 } yay" == "{\"a\": 5 }"
+--   naiveTrimJson "some {text} { \"a\": 5 }" -> won't work correctly.
+naiveTrimJSON :: Text -> Text
+naiveTrimJSON textContainingJson =
+  T.reverse . T.dropWhile (/= '}') . T.reverse . T.dropWhile (/= '{') $ textContainingJson
+
+textToLazyBS :: Text -> BSL.ByteString
+textToLazyBS = TLE.encodeUtf8 . TL.fromStrict

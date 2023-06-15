@@ -10,7 +10,9 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToLog)
+import Wasp.Cli.Command.AI.GenerateNewProject.Action (Action, generateAndWriteAction)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
+import Wasp.Cli.Command.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
 import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
@@ -25,18 +27,18 @@ import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectS
 --   and also contain description of what happened (or maybe that is separate message).
 generateNewProject :: NewProjectDetails -> CodeAgent ()
 generateNewProject newProjectDetails = do
-  waspFilePath <- generateAndWriteProjectSkeleton newProjectDetails
+  (waspFilePath, planRules) <- generateAndWriteProjectSkeleton newProjectDetails
   writeToLog "Generated project skeleton."
 
   writeToLog "Generating plan..."
-  plan <- generatePlan newProjectDetails
+  plan <- generatePlan newProjectDetails planRules
   writeToLog $ "Plan generated!\n" <> summarizePlan plan
 
   writeEntitiesToWaspFile waspFilePath (Plan.entities plan)
   writeToLog "Added entities to wasp file."
 
   writeToLog "Generating actions..."
-  actions <- forM (Plan.actions plan) $ generateAndWriteAction waspFilePath plan
+  actions <- forM (Plan.actions plan) $ generateAndWriteAction newProjectDetails waspFilePath plan
 
   writeToLog "Generating queries..."
   queries <- forM (Plan.queries plan) $ generateAndWriteQuery waspFilePath plan
@@ -70,16 +72,9 @@ generateNewProject newProjectDetails = do
     showT :: Show a => a -> Text
     showT = T.pack . show
 
-    generateAndWriteAction waspFilePath plan actionPlan = do
-      action <- generateAction newProjectDetails (Plan.entities plan) actionPlan
-      writeActionToFile action
-      writeActionToWaspFile waspFilePath action
-      writeToLog $ "Generated action: " <> T.pack (Plan.actionName actionPlan)
-      return action
-
     generateAndWriteQuery waspFilePath plan queryPlan = do
       query <- generateQuery newProjectDetails (Plan.entities plan) queryPlan
-      writeQueryToFile query
+      writeQueryToFile query -- TODO: Do we need to convert @server/ from path into src/server/?
       writeQueryToWaspFile waspFilePath query
       writeToLog $ "Generated query: " <> T.pack (Plan.queryName queryPlan)
       return query
@@ -90,26 +85,6 @@ generateNewProject newProjectDetails = do
       writePageToWaspFile waspFilePath page
       writeToLog $ "Generated page: " <> T.pack (Plan.pageName pagePlan)
       return page
-
-writeEntitiesToWaspFile :: FilePath -> [Plan.Entity] -> CodeAgent ()
-writeEntitiesToWaspFile waspFilePath entities = do
-  -- TODO: assemble code for each entity and write it to wasp file.
-  undefined
-
-generateAction :: NewProjectDetails -> [Plan.Entity] -> Plan.Action -> CodeAgent Action
-generateAction = undefined
-
-writeActionToFile :: Action -> CodeAgent ()
-writeActionToFile = undefined
-
-writeActionToWaspFile :: FilePath -> Action -> CodeAgent ()
-writeActionToWaspFile waspFilePath action = undefined
-
-data Action = Action
-  { _actionWaspDecl :: String,
-    _actionJsImpl :: String,
-    _actionPlan :: Plan.Action
-  }
 
 generateQuery :: NewProjectDetails -> [Plan.Entity] -> Plan.Query -> CodeAgent Query
 generateQuery = undefined
