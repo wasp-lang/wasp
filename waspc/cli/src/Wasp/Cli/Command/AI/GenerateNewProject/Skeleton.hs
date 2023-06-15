@@ -50,8 +50,8 @@ generateBaseWaspFile newProjectDetails = ((path, content), planRules)
               onAuthSucceededRedirectTo: "/"
             },
         |],
-          [ "Generate a User entity, with at least the following fields: 'id', 'username', 'password'.",
-            "There should be a page with route path \"/\"."
+          [ "You MUST generate a 'User' entity, with at least the following fields: 'id', 'username', 'password'.",
+            "One of the pages you generate must have a route path \"/\"."
           ]
         )
     planRules = authPlanRules <> ["Don't generate the Login or Signup page."]

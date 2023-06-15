@@ -12,7 +12,8 @@ import NeatInterpolation (trimming)
 import Wasp.Cli.Command.AI.CodeAgent (CodeAgent, writeToLog)
 import Wasp.Cli.Command.AI.GenerateNewProject.Common (NewProjectDetails (..))
 import Wasp.Cli.Command.AI.GenerateNewProject.Entity (writeEntitiesToWaspFile)
-import Wasp.Cli.Command.AI.GenerateNewProject.Operation (Operation, OperationType (..), generateAndWriteOperation)
+import Wasp.Cli.Command.AI.GenerateNewProject.Operation (OperationType (..), generateAndWriteOperation)
+import Wasp.Cli.Command.AI.GenerateNewProject.Page (generateAndWritePage)
 import Wasp.Cli.Command.AI.GenerateNewProject.Plan (generatePlan)
 import qualified Wasp.Cli.Command.AI.GenerateNewProject.Plan as Plan
 import Wasp.Cli.Command.AI.GenerateNewProject.Skeleton (generateAndWriteProjectSkeleton)
@@ -36,7 +37,9 @@ generateNewProject newProjectDetails = do
   queries <- forM (Plan.queries plan) $ generateAndWriteOperation Query newProjectDetails waspFilePath plan
 
   writeToLog "Generating pages..."
-  _pages <- forM (Plan.pages plan) $ generateAndWritePage waspFilePath plan queries actions
+  _pages <-
+    forM (Plan.pages plan) $
+      generateAndWritePage newProjectDetails waspFilePath (Plan.entities plan) queries actions
 
   -- TODO: what about having additional step here that goes through all the files once again and
   --   fixes any stuff in them (Wasp, JS files)? REPL?
@@ -60,25 +63,3 @@ generateNewProject newProjectDetails = do
 
     showT :: Show a => a -> Text
     showT = T.pack . show
-
-    generateAndWritePage waspFilePath plan queries actions pagePlan = do
-      page <- generatePage newProjectDetails (Plan.entities plan) queries actions pagePlan
-      writePageToFile page
-      writePageToWaspFile waspFilePath page
-      writeToLog $ "Generated page: " <> T.pack (Plan.pageName pagePlan)
-      return page
-
-generatePage :: NewProjectDetails -> [Plan.Entity] -> [Operation] -> [Operation] -> Plan.Page -> CodeAgent Page
-generatePage = undefined
-
-writePageToFile :: Page -> CodeAgent ()
-writePageToFile = undefined
-
-writePageToWaspFile :: FilePath -> Page -> CodeAgent ()
-writePageToWaspFile waspFilePath page = undefined
-
-data Page = Page
-  { _pageWaspDecl :: String,
-    _pageJsImpl :: String,
-    _pagePlan :: Plan.Page
-  }

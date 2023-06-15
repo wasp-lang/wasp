@@ -26,3 +26,5 @@ entityPlanToWaspDecl plan =
           ${pslBody}
         psl=}
       |]
+
+-- TODO: Add data Entity that contains waspDeclaration + entity plan.

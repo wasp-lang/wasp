@@ -48,6 +48,8 @@ generatePlan newProjectDetails planRules = do
 
         We are looking for a plan to build a new Wasp app (description at the end of prompt).
 
+        ${rulesText}
+
         Plan is represented as JSON. Here is what a plan should look like:
 
         {
@@ -72,8 +74,6 @@ generatePlan newProjectDetails planRules = do
             "pageDesc": "description of what this page does",
           }]
         }
-
-        ${rulesText}
 
         We will later use this plan to implement all of these parts of Wasp app,
         so make sure descriptions are detailed enough to guide implementing them.
