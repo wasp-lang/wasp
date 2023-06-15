@@ -4,10 +4,10 @@ title: Automatic CRUD
 
 import ImgWithCaption from '../../blog/components/ImgWithCaption'
 
-For a specific [Entity](/docs/language/features#entity), you can tell Wasp to automatically instantiate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities. As your entities change, Wasp will automatically regenerate the backend logic.
+For some [Entity](/docs/language/features#entity), you can tell Wasp to automatically generate server-side logic ([Queries](/docs/language/features#query) and [Actions](/docs/language/features#action)) for creating, reading, updating and deleting such entities. As your entities update, Wasp will automatically regenerate the backend logic.
 
 :::caution Early preview
-This feature is currently in early preview. It doesn't contain all the planned features.
+This feature is currently in early preview and we are actively working on it. Read more about [our plans](/docs/language/features#crud-operations-on-top-of-entities) for CRUD operations.
 :::
 
 ## Defining new CRUD operations
@@ -16,9 +16,9 @@ Imagine we have a `Task` entity and we want to enable CRUD operations for it.
 
 ```wasp title="main.wasp"
 entity Task {=psl
-  id Int @id @default(autoincrement())
+  id          Int @id @default(autoincrement())
   description String
-  isDone Boolean
+  isDone      Boolean
 psl=}
 ```
 
@@ -31,7 +31,7 @@ crud Tasks {
   entity: Task,
   operations: {
     getAll: {
-      isPublic: true, // defaults to false
+      isPublic: true, // by default only logged in users can perform operations
     },
     get: {},
     create: {
@@ -46,15 +46,15 @@ crud Tasks {
 2. ... while specifying a custom implementation for `create`. 
 3. `getAll` will be public (no auth needed), while the rest of the operations will be private.
 
-Here's how it looks like when visualized:
+Here's what it looks like when visualized:
 
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud declaration"/>
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
-## Example: simple tasks app
+## Example: simple TODO app
 
-Let's create a full app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable username and password based auth.
+Let's create a full app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](/docs/language/features#username-and-password) based auth.
 
 <ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud-guide.gif" caption="We are building a simple tasks app with username based auth"/>
 
@@ -80,19 +80,19 @@ app tasksCrudApp {
 }
 
 entity User {=psl
-  id Int @id @default(autoincrement())
+  id       Int @id @default(autoincrement())
   username String @unique
   password String
-  tasks Task[]
+  tasks    Task[]
 psl=}
 
 // We defined a Task entity on which we'll enable CRUD later on
 entity Task {=psl
-  id Int @id @default(autoincrement())
+  id          Int @id @default(autoincrement())
   description String
-  isDone Boolean
-  userId Int
-  user User @relation(fields: [userId], references: [id])
+  isDone      Boolean
+  userId      Int
+  user        User @relation(fields: [userId], references: [id])
 psl=}
 
 // Tasks app routes
@@ -139,9 +139,9 @@ We also overrode the `create` operation with a custom implementation. This means
 
 ### Our custom `create` operation
 
-Here's  `src/server/tasks.js`:
+Here's the `src/server/tasks.js` file:
 
-```ts title="src/server/tasks.ts"
+```ts title="src/server/tasks.ts" {20-25}
 import type { CreateAction } from '@wasp/crud/Tasks'
 import type { Task } from '@wasp/entities'
 import HttpError from '@wasp/core/HttpError.js'
@@ -172,9 +172,9 @@ export const createTask: CreateAction<Input, Output> = async (args, context) => 
 }
 ```
 
-We made a custom `create` operation because we want to make sure that the task is connected to the user that is creating it. By default, the `create` operation would not do that. Read more about the [default implementations](/docs/language/features#which-operations-are-supported).
+We made a custom `create` operation because we want to make sure that the task is connected to the user that is creating it. In the current iteration of CRUD operations that is not supported by default. Read more about the [default implementations](/docs/language/features#which-operations-are-supported).
 
-### Using the generated CRUD operations
+### Using the generated CRUD operations on the client
 
 And let's use the generated operations in our client code:
 
@@ -220,7 +220,7 @@ export const MainPage = () => {
 }
 ```
 
-And here are the login and signup pages:
+And here are the login and signup pages, where we are using Wasp's [Auth UI](/docs/guides/auth-ui) components:
 
 ```jsx title="src/client/LoginPage.jsx"
 import { LoginForm } from '@wasp/auth/forms/Login'
@@ -260,19 +260,21 @@ export function SignupPage() {
 }
 ```
 
-That's it. You can now run `wasp start` and see the app in action.
+That's it. You can now run `wasp start` and see the app in action ⚡️
 
 You should see a login page and a signup page. After you log in, you should see a page with a list of tasks and a form to create new tasks.
 
 ### Future of CRUD operations in Wasp
 
-CRUD operations currently have a limited set of knowledge about the business logic they are implementing. For example, they don't know that a task should be connected to the user that is creating it. This is why we had to override the `create` operation in the example above.
+CRUD operations currently have a limited set of knowledge about the business logic they are implementing.
 
-Another thing, they are not aware of the authorization rules. For example, they don't know that a user should not be able to create a task for another user. In the future, we will be adding role-based authorization to Wasp, and we plan to make CRUD operations aware of the authorization rules.
+- For example, they don't know that a task should be connected to the user that is creating it. This is why we had to override the `create` operation in the example above.
+- Another thing: they are not aware of the authorization rules. For example, they don't know that a user should not be able to create a task for another user. In the future, we will be adding role-based authorization to Wasp, and we plan to make CRUD operations aware of the authorization rules.
+- Another issue is input validation and sanitization. For example, we might want to make sure that the task description is not empty.
 
-Another issue is input validation and sanitization. For example, we might want to make sure that the task description is not empty.
+CRUD operations are a mechanism for getting a backend up and running quickly, but it depends on the information it can get from the Wasp app. The more information that it can pick up from your app, the more powerful it will be out of the box. 
 
-To conclude, CRUD operations are a mechanism for getting a backend up and running quickly, but it depends on the information it can get from the Wasp app. The more information that it can pick up from your app, the more powerful it will be out of the box. We plan on supporting CRUD operations and growing them to become the easiest way to create your backend.
+We plan on supporting CRUD operations and growing them to become the easiest way to create your backend. Follow along on [this Github issue](https://github.com/wasp-lang/wasp/issues/1253) to see how we are doing.
 
 ---
 
