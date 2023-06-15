@@ -1,8 +1,8 @@
 module Util.FilePathTest where
 
+import qualified System.FilePath as FP
 import Test.Tasty.Hspec (Spec, describe, it, shouldBe)
 import Wasp.Util.FilePath (removePathPrefix)
-import qualified System.FilePath as FP
 
 spec_FilePathTest :: Spec
 spec_FilePathTest = do
@@ -18,7 +18,6 @@ spec_FilePathTest = do
 
     it "returns Nothing if prefix is only partially matched" $ do
       removePathPrefix prefixWithoutTrailingSlash ("srce" FP.</> "Component.js") `shouldBe` Nothing
-    
-    where
-      prefixWithTrailingSlash = "src" ++ [FP.pathSeparator]
-      prefixWithoutTrailingSlash = "src"
+  where
+    prefixWithTrailingSlash = "src" ++ [FP.pathSeparator]
+    prefixWithoutTrailingSlash = "src"
