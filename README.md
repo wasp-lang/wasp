@@ -38,7 +38,7 @@ Simple Wasp config file in which you describe the high-level details of your web
 
 app todoApp {
   title: "ToDo App",  // visible in the browser tab
-  wasp: { version: "^0.10.0" },
+  wasp: { version: "^0.11.0" },
   auth: { // full-stack auth out-of-the-box
     userEntity: User, methods: { email: {...} }
   }
