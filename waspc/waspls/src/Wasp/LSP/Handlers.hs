@@ -10,14 +10,13 @@ module Wasp.LSP.Handlers
   )
 where
 
-import Control.Concurrent.STM (atomically, readTVar, writeTChan)
 import Control.Lens ((.~), (?~), (^.))
-import Control.Monad (forM_, (<=<))
+import Control.Monad (forM_, when, (<=<))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
-import Control.Monad.Reader (MonadReader (ask), asks)
+import Control.Monad.Reader (asks)
 import Data.List (stripPrefix)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (isJust, mapMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
 import Language.LSP.Server (Handlers)
@@ -31,9 +30,8 @@ import Wasp.Analyzer.Parser.ConcreteParser (parseCST)
 import qualified Wasp.Analyzer.Parser.Lexer as L
 import Wasp.LSP.Completion (getCompletionsAtPosition)
 import Wasp.LSP.Diagnostic (WaspDiagnostic (AnalyzerDiagonstic, ParseDiagnostic), waspDiagnosticToLspDiagnostic)
-import Wasp.LSP.ExtImport (refreshExportsForFile)
-import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
-import Wasp.LSP.ServerM (ServerM, handler, modify, runRLspM)
+import Wasp.LSP.ExtImport (getAndAppendMissingImportDiagnostics, refreshExportsForFile)
+import Wasp.LSP.ServerM (HandlerM, ServerM, handler, modify, sendToReactor)
 import Wasp.LSP.ServerState (cst, currentWaspSource, latestDiagnostics)
 import qualified Wasp.LSP.ServerState as State
 
@@ -85,14 +83,7 @@ watchSourceFilesHandler msg = do
   let (LSP.List uris) = fmap (^. LSP.uri) $ msg ^. LSP.params . LSP.changes
   logM $ "[didChangeWatchedFilesHandler] Received file changes: " ++ show uris
   let fileUris = mapMaybe (SP.parseAbsFile <=< stripPrefix "file://" . T.unpack . LSP.getUri) uris
-  forM_ fileUris $ \file -> do
-    stateTVar <- ask
-    env <- LSP.getLspEnv
-    let inp = ReactorAction $ LSP.runLspT env $ runRLspM stateTVar (refreshExportsForFile file)
-    liftIO $
-      atomically $ do
-        state <- readTVar stateTVar
-        writeTChan (state ^. State.reactorIn) inp
+  forM_ fileUris $ \file -> sendToReactor (refreshExportsForFile file)
 
 -- | Sent by the client when the client is going to shutdown the server, this
 -- is where we do any clean up that needs to be done. This cleanup is:
@@ -142,8 +133,24 @@ completionHandler =
 diagnoseWaspFile :: LSP.Uri -> ServerM ()
 diagnoseWaspFile uri = do
   analyzeWaspFile uri
-  currentDiagnostics <- handler $ asks (^. latestDiagnostics)
-  srcString <- handler $ asks (^. currentWaspSource)
+
+  -- Immediately update import diagnostics only when file watching is enabled
+  watchSourceFilesToken <- handler $ asks (^. State.regTokens . State.watchSourceFilesToken)
+  when (isJust watchSourceFilesToken) getAndAppendMissingImportDiagnostics
+
+  -- Send diagnostics to client
+  handler $ publishDiagnostics uri
+
+  -- Update exports and missing import diagnostics asynchronously
+  sendToReactor $ do
+    -- refreshAllExports
+    getAndAppendMissingImportDiagnostics
+    handler $ publishDiagnostics uri
+
+publishDiagnostics :: LSP.Uri -> HandlerM ()
+publishDiagnostics uri = do
+  currentDiagnostics <- asks (^. latestDiagnostics)
+  srcString <- asks (^. currentWaspSource)
   let lspDiagnostics = map (waspDiagnosticToLspDiagnostic srcString) currentDiagnostics
   LSP.sendNotification
     LSP.STextDocumentPublishDiagnostics

@@ -1,5 +1,6 @@
 module Wasp.LSP.Diagnostic
   ( WaspDiagnostic (..),
+    MissingImportReason (..),
     waspDiagnosticToLspDiagnostic,
   )
 where

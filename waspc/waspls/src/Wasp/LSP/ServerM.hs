@@ -5,9 +5,9 @@ module Wasp.LSP.ServerM
     ServerM,
     HandlerM,
     handler,
+    sendToReactor,
     runRLspM,
     logM,
-    sendReactorInput,
     modify,
   )
 where
@@ -19,8 +19,9 @@ import Control.Monad.Log.Class (MonadLog (logM))
 import Control.Monad.Reader (MonadReader (ask), ReaderT (ReaderT), asks, runReaderT)
 import Control.Monad.Trans (MonadIO (liftIO))
 import Language.LSP.Server (LspM, MonadLsp)
+import qualified Language.LSP.Server as LSP
 import qualified System.Log.Logger as L
-import Wasp.LSP.Reactor (ReactorInput)
+import Wasp.LSP.Reactor (ReactorInput (ReactorAction))
 import Wasp.LSP.ServerConfig (ServerConfig)
 import Wasp.LSP.ServerState (ServerState, reactorIn)
 
@@ -63,17 +64,18 @@ modify f = do
   stateTVar <- ask
   liftIO $ atomically $ modifyTVar stateTVar f
 
+sendToReactor :: ServerM () -> ServerM ()
+sendToReactor act = do
+  stateTVar <- ask
+  env <- LSP.getLspEnv
+  rin <- handler $ asks (^. reactorIn)
+  liftIO $ atomically $ writeTChan rin $ ReactorAction $ LSP.runLspT env $ runRLspM stateTVar act
+
 runRLspM ::
   s ->
   RLspM s a ->
   LspM ServerConfig a
 runRLspM state m = runReaderT (unServerM m) state
-
--- | Send an action to the reactor thread.
-sendReactorInput :: (MonadReader ServerState m, MonadIO m) => ReactorInput -> m ()
-sendReactorInput inp = do
-  rin <- asks (^. reactorIn)
-  liftIO $ atomically $ writeTChan rin inp
 
 -- | Log a string.
 --
